@@ -20,6 +20,19 @@ example you can add a Genus to a Family by right clicking on a Family
 and selecting "Add genus".
 
 
+Notes
+-----
+Almost all of the editors in Bauble have a *Notes* tab which should work
+the same regardless of which editor you are using.  
+
+If you enter a web address in a note then the link will show up in the
+Links box when the item your are editing is selected in the search results.
+
+You can browse the notes for an item in the database using the Notes
+box at the bottom of the screen.  The Notes box will be desensitized
+if the selected item does not have any notes.
+
+
 Family
 ------
 The Family editor allows you to add or change a botanical family.
@@ -38,14 +51,12 @@ add as a synonym click on the Add button next to the synonym list and
 it will add the selected synonym to the list.  To remove a synonym
 select the synonym from the list and click on the Remove button.
 
-The *Notes* field can contain any additional information about this family.  
-
 To cancel your changes without saving then click on the *Cancel* button.
 
 To save the family you are working on then click *OK*.
 
 To save the family you are working on and add a genus to it then click on
-the *OK and Add Genera* button.
+the *Add Genera* button.
 
 To add another family when you are finished editing the current one
 click on the *Next* button on the bottom.  This will save the current
@@ -74,23 +85,35 @@ add as a synonym click on the Add button next to the synonym list and
 it will add the selected synonym to the list.  To remove a synonym
 select the synonym from the list and click on the Remove button.
 
-The *Notes* field can contain any additional information about this family.  
-
 To cancel your changes without saving then click on the *Cancel* button.
 
 To save the genus you are working on then click *OK*.
 
 To save the genus you are working on and add a species to it then click on
-the *OK and Add Species* button.
+the *Add Species* button.
 
 To add another genus when you are finished editing the current one
 click on the *Next* button on the bottom.  This will save the current
 genus and open a new blank genus editor.
 
 
-Species
+Species/Taxon
 -------
-The Species editor.
+A species is a taxon in the database.  It represents a unique name in
+the database.  The species editor will allow you to construct the name
+as well as associate metadata with the taxon such as its distribution,
+synonyms and other informaiton.
+
+To cancel your changes without saving then click on the *Cancel* button.
+
+To save the species you are working on then click *OK*.
+
+To save the species you are working on and add an accession to it then click on
+the *Add Accession* button.
+
+To add another species when you are finished editing the current one
+click on the *Next* button on the bottom.  This will save the current
+species and open a new blank species editor.
 
 Accessions
 ----------
@@ -123,8 +146,18 @@ Plant
 The Plant editor.
 
 Creating multiple plants
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 You can create multiple Plants by using ranges in the code entry.
+This is only allowed when creating new plants and it is not possible
+when editing existing Plants in the database.
+
+For example the range, 3-5 will create plant with code 3,4,5.  The
+range 1,4-7,25 will create plants with codes 1,4,5,6,7,25.
+
+When you enter the range in the plant code entry the entry will turn
+blue to indicate that you are now creating multiple plants.  Any
+fields that are set while in this mode will be copied to all the
+plants that are created.
 
 
 Locations

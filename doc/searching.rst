@@ -94,5 +94,3 @@ columns.
     plant: Search :class:`bauble.plugins.garden.Plant`
 
     loc, location: Search :class:`bauble.plugins.garden.Location`
-
-site

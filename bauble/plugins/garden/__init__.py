@@ -22,7 +22,8 @@ from bauble.plugins.garden.donor import Donor, DonorEditor, \
     DonorInfoBox, donor_context_menu
 from bauble.plugins.garden.institution import InstitutionTool, \
     InstitutionCommand
-from bauble.plugins.garden.propagation import Propagation
+from bauble.plugins.garden.propagation import Propagation, PropRooted, \
+    PropCutting, PropSeed
 from bauble.utils.log import debug
 
 # other ideas:

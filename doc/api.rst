@@ -5,19 +5,20 @@ API Documentation
 =============
 .. automodule:: bauble
 .. autodata:: bauble.version
-.. autodata:: bauble.Session
 .. autodata:: bauble.gui
-.. autofunction:: bauble.main_is_frozen
-.. autofunction:: bauble.save_state
-.. autofunction:: bauble.quit
-.. autofunction:: bauble.set_busy
 .. autofunction:: bauble.command_handler
 .. autofunction:: bauble.main
+.. autofunction:: bauble.main_is_frozen
+.. autofunction:: bauble.quit
+.. autofunction:: bauble.save_state
+.. autofunction:: bauble.set_busy
+
 
 
 :mod:`bauble.db`
 ================
 .. automodule:: bauble.db
+.. autodata:: bauble.db.Session
 .. autodata:: bauble.db.engine
 .. autodata:: bauble.db.Base
 .. autodata:: bauble.db.metadata
@@ -39,6 +40,8 @@ API Documentation
 .. automodule:: bauble.editor
 .. autofunction:: bauble.editor.default_completion_cell_data_func
 .. autofunction:: bauble.editor.default_completion_match_func
+.. autoclass:: bauble.editor.ValidatorError
+.. autoclass:: bauble.editor.Validator
 .. autoclass:: bauble.editor.StringOrNoneValidator
 .. autoclass:: bauble.editor.UnicodeOrNoneValidator
 .. autoclass:: bauble.editor.IntOrNoneStringValidator
@@ -48,6 +51,8 @@ API Documentation
 .. autoclass:: bauble.editor.GenericEditorPresenter
    :members:
 .. autoclass:: bauble.editor.GenericModelViewPresenterEditor
+   :members:
+.. autoclass:: bauble.editor.NotesPresenter
    :members:
 
 
@@ -67,6 +72,9 @@ API Documentation
 :mod:`bauble.meta`
 =======================
 .. automodule:: bauble.meta
+.. autofunction:: bauble.meta.get_default
+.. autoclass:: bauble.meta.BaubleMeta
+   :show-inheritance:
 
 
 :mod:`bauble.paths`
@@ -95,12 +103,17 @@ API Documentation
 .. autoclass:: bauble.pluginmgr.Tool
 .. autoclass:: bauble.pluginmgr.View
 .. autoclass:: bauble.pluginmgr.CommandHandler
-.. .. autofunction:: bauble.pluginmgr.topological_sort
 
 
 :mod:`bauble.prefs`
 =======================
 .. automodule:: bauble.prefs
+.. autodata:: bauble.prefs.default_prefs_file
+.. autodata:: bauble.prefs.config_version_pref
+.. autodata:: bauble.prefs.date_format_pref
+.. autodata:: bauble.prefs.parse_dayfirst_pref
+.. autodata:: bauble.prefs.parse_yearfirst_pref
+.. autodata:: bauble.prefs.units_pref
 
 
 :mod:`bauble.task`
@@ -153,15 +166,36 @@ API Documentation
 .. autofunction:: bauble.utils.natsort_key
 .. autofunction:: bauble.utils.delete_or_expunge
 .. autofunction:: bauble.utils.reset_sequence
-.. autofunction:: bauble.utils.date_to_str
 .. autofunction:: bauble.utils.make_label_clickable
 .. autofunction:: bauble.utils.enum_values_str
+.. autofunction:: bauble.utils.which
+.. autofunction:: bauble.utils.ilike
+.. autofunction:: bauble.utils.range_builder
+.. autofunction:: bauble.utils.topological_sort
+.. autofunction:: bauble.utils.get_distinct_values
+.. autofunction:: bauble.utils.get_invalid_columns
+.. autofunction:: bauble.utils.get_urls
 
+.. autoclass:: GenericMessageBox
+   :show-inheritance:
+   :members:
+
+.. autoclass:: MessageBox
+   :show-inheritance:
+   :members:
+
+.. autoclass:: YesNoMessageBox
+   :show-inheritance:
+   :members:
+.. autofunction:: bauble.utils.add_message_box
 
 
 :mod:`bauble.view`
 =======================
 .. automodule:: bauble.view
+.. autoclass:: bauble.view.Action
+   :show-inheritance:
+   :members:
 .. autoclass:: bauble.view.InfoBox
    :show-inheritance:
    :members: on_switch_page, add_expander, update
@@ -172,6 +206,9 @@ API Documentation
    :show-inheritance:
    :members: set_widget_value, update
 .. autoclass:: bauble.view.PropertiesExpander
+   :show-inheritance:
+   :members: update
+.. autoclass:: bauble.view.LinksExpander
    :show-inheritance:
    :members: update
 .. autoclass:: bauble.view.SearchParser
@@ -227,26 +264,29 @@ API Documentation
 :mod:`bauble.plugins.garden`
 ============================
 .. automodule:: bauble.plugins.garden
-
 .. autoclass:: bauble.plugins.garden.Accession
    :show-inheritance: 
-
 .. autoclass:: bauble.plugins.garden.Plant
    :show-inheritance: 
-
-   .. automethod:: bauble.plugins.garden.Plant.get_delimiter()
-
+   :members: get_delimiter
 .. autoclass:: bauble.plugins.garden.Location
    :show-inheritance: 
-
 .. autoclass:: bauble.plugins.garden.Collection
    :show-inheritance: 
-
 .. autoclass:: bauble.plugins.garden.Donation
    :show-inheritance: 
-
 .. autoclass:: bauble.plugins.garden.Donor
    :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.Propagation
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.PropRooted
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.PropCutting
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.PropSeed
+   :show-inheritance: 
+
+
 
 :mod:`bauble.plugins.abcd`
 ==========================
