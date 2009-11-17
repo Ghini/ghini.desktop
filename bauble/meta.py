@@ -54,6 +54,20 @@ def get_default(name, default=None, session=None):
 
 
 class BaubleMeta(db.Base):
+    """
+    The BaubleMeta class is used to set and retrieve meta information
+    based on key/name values from the bauble meta table.
+
+    :Table name: bauble
+
+    :Columns:
+      *name*:
+        The name of the data.
+
+      *value*:
+        The value.
+
+    """
     __tablename__ = 'bauble'
     name = Column(Unicode(64), unique=True)
     value = Column(UnicodeText)

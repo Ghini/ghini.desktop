@@ -755,7 +755,7 @@ def enum_values_str(col):
 
 def which(filename, path=None):
     """
-    Return first occurcen of file on the path.
+    Return first occurence of file on the path.
     """
     if not path:
         path = os.environ['PATH'].split(os.pathsep)
@@ -1095,10 +1095,11 @@ MESSAGE_BOX_YESNO = 3
 
 def add_message_box(parent, type=MESSAGE_BOX_INFO):
     """
+    :param parent: the parent :class:`gtk.Box` width to add the
+      message box to
+    :param type: one of MESSAGE_BOX_INFO, MESSAGE_BOX_ERROR or
+      MESSAGE_BOX_YESNO
 
-    Arguments:
-    - `parent`:
-    - `type`:
     """
     msg_box = None
     if type == MESSAGE_BOX_INFO:
