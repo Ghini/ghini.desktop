@@ -4,8 +4,8 @@
   <!-- interface-naming-policy project-wide -->
   <object class="GtkDialog" id="plant_add_dialog">
     <property name="width_request">500</property>
+    <property name="height_request">300</property>
     <property name="title">Plant Editor</property>
-    <property name="resizable">False</property>
     <property name="window_position">center-on-parent</property>
     <property name="default_width">500</property>
     <property name="destroy_with_parent">True</property>
@@ -15,333 +15,108 @@
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkVBox" id="vbox2">
+          <object class="GtkNotebook" id="notebook1">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
-            <property name="spacing">10</property>
+            <property name="can_focus">True</property>
             <child>
-              <object class="GtkFrame" id="frame1">
+              <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
-                <property name="label_xalign">0</property>
-                <property name="shadow_type">none</property>
+                <property name="orientation">vertical</property>
+                <property name="spacing">10</property>
                 <child>
-                  <object class="GtkAlignment" id="alignment14">
+                  <object class="GtkFrame" id="frame1">
                     <property name="visible">True</property>
-                    <property name="top_padding">10</property>
-                    <property name="bottom_padding">10</property>
-                    <property name="left_padding">12</property>
+                    <property name="label_xalign">0</property>
+                    <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkHBox" id="hbox2">
+                      <object class="GtkAlignment" id="alignment14">
                         <property name="visible">True</property>
+                        <property name="top_padding">10</property>
+                        <property name="bottom_padding">10</property>
+                        <property name="left_padding">12</property>
                         <child>
-                          <object class="GtkTable" id="table1">
+                          <object class="GtkHBox" id="hbox2">
                             <property name="visible">True</property>
-                            <property name="n_rows">2</property>
-                            <property name="n_columns">3</property>
                             <child>
-                              <object class="GtkLabel" id="label10">
+                              <object class="GtkTable" id="table1">
                                 <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;i&gt;Accession&lt;/i&gt;</property>
-                                <property name="use_markup">True</property>
-                              </object>
-                              <packing>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="plant_acc_entry">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
-                                <property name="width_chars">12</property>
-                                <property name="xalign">1</property>
-                              </object>
-                              <packing>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="label15">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;i&gt;Plant code&lt;/i&gt;</property>
-                                <property name="use_markup">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkEntry" id="plant_code_entry">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
-                                <property name="width_chars">12</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">2</property>
-                                <property name="right_attach">3</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                                <property name="x_options"></property>
-                                <property name="y_options"></property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel" id="acc_delimeter_label">
-                                <property name="visible">True</property>
-                                <property name="yalign">1</property>
-                                <property name="label" translatable="yes">.</property>
-                                <property name="justify">center</property>
-                                <property name="width_chars">1</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">1</property>
-                                <property name="bottom_attach">2</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label2">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Enter a unique plant code&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkAlignment" id="alignment8">
-                <property name="visible">True</property>
-                <property name="left_padding">5</property>
-                <child>
-                  <object class="GtkTable" id="table2">
-                    <property name="visible">True</property>
-                    <property name="n_rows">2</property>
-                    <property name="n_columns">2</property>
-                    <property name="column_spacing">5</property>
-                    <property name="row_spacing">3</property>
-                    <child>
-                      <object class="GtkLabel" id="label18">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">Accession type</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                      <packing>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkAlignment" id="alignment11">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xscale">0</property>
-                        <child>
-                          <object class="GtkComboBox" id="plant_acc_type_combo">
-                            <property name="visible">True</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="top_attach">1</property>
-                        <property name="bottom_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label17">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">&lt;i&gt;Location&lt;/i&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                      <packing>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkHBox" id="hbox43">
-                        <property name="visible">True</property>
-                        <property name="spacing">6</property>
-                        <child>
-                          <object class="GtkComboBoxEntry" id="plant_loc_comboentry">
-                            <property name="visible">True</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="plant_loc_add_button">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <child>
-                              <object class="GtkAlignment" id="alignment12">
-                                <property name="visible">True</property>
-                                <property name="xscale">0</property>
-                                <property name="yscale">0</property>
+                                <property name="n_rows">2</property>
+                                <property name="n_columns">3</property>
                                 <child>
-                                  <object class="GtkHBox" id="hbox49">
+                                  <object class="GtkLabel" id="label10">
                                     <property name="visible">True</property>
-                                    <property name="spacing">2</property>
-                                    <child>
-                                      <object class="GtkImage" id="image5">
-                                        <property name="visible">True</property>
-                                        <property name="stock">gtk-add</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label102">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Add</property>
-                                        <property name="use_underline">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">&lt;i&gt;Accession&lt;/i&gt;</property>
+                                    <property name="use_markup">True</property>
                                   </object>
+                                  <packing>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
                                 </child>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkButton" id="plant_loc_edit_button">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <child>
-                              <object class="GtkAlignment" id="alignment13">
-                                <property name="visible">True</property>
-                                <property name="xscale">0</property>
-                                <property name="yscale">0</property>
                                 <child>
-                                  <object class="GtkHBox" id="hbox50">
+                                  <object class="GtkEntry" id="plant_acc_entry">
                                     <property name="visible">True</property>
-                                    <property name="spacing">2</property>
-                                    <child>
-                                      <object class="GtkImage" id="image6">
-                                        <property name="visible">True</property>
-                                        <property name="stock">gtk-edit</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="label103">
-                                        <property name="visible">True</property>
-                                        <property name="label" translatable="yes">Edit</property>
-                                        <property name="use_underline">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
-                                    </child>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="width_chars">12</property>
+                                    <property name="xalign">1</property>
                                   </object>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
                                 </child>
-                              </object>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="left_attach">1</property>
-                        <property name="right_attach">2</property>
-                        <property name="x_options">GTK_FILL</property>
-                        <property name="y_options"></property>
-                      </packing>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkFrame" id="frame2">
-                <property name="visible">True</property>
-                <property name="label_xalign">0</property>
-                <property name="shadow_type">none</property>
-                <child>
-                  <object class="GtkAlignment" id="alignment10">
-                    <property name="visible">True</property>
-                    <property name="top_padding">5</property>
-                    <property name="left_padding">12</property>
-                    <child>
-                      <object class="GtkVBox" id="vbox3">
-                        <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
-                        <property name="spacing">3</property>
-                        <child>
-                          <object class="GtkHBox" id="hbox3">
-                            <property name="visible">True</property>
-                            <property name="spacing">5</property>
-                            <child>
-                              <object class="GtkLabel" id="label4">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="label" translatable="yes">Your name</property>
+                                <child>
+                                  <object class="GtkLabel" id="label15">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">&lt;i&gt;Plant code&lt;/i&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkEntry" id="plant_code_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="width_chars">12</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options"></property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="acc_delimeter_label">
+                                    <property name="visible">True</property>
+                                    <property name="yalign">1</property>
+                                    <property name="label" translatable="yes">.</property>
+                                    <property name="justify">center</property>
+                                    <property name="width_chars">1</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -350,56 +125,290 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkEntry" id="pad_note_name_entry">
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="label5">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Enter a unique plant code&lt;/b&gt;</property>
+                        <property name="use_markup">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="padding">10</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkAlignment" id="alignment8">
+                    <property name="visible">True</property>
+                    <property name="bottom_padding">10</property>
+                    <property name="left_padding">5</property>
+                    <child>
+                      <object class="GtkTable" id="table2">
+                        <property name="visible">True</property>
+                        <property name="n_rows">2</property>
+                        <property name="n_columns">2</property>
+                        <property name="column_spacing">5</property>
+                        <property name="row_spacing">3</property>
+                        <child>
+                          <object class="GtkLabel" id="label18">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">Accession type</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                          <packing>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkAlignment" id="alignment11">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="xscale">0</property>
+                            <child>
+                              <object class="GtkComboBox" id="plant_acc_type_combo">
+                                <property name="visible">True</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label17">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="label" translatable="yes">&lt;i&gt;Location&lt;/i&gt;</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                          <packing>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="hbox43">
+                            <property name="visible">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <object class="GtkComboBoxEntry" id="plant_loc_comboentry">
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="plant_loc_add_button">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
-                                <property name="width_chars">32</property>
+                                <property name="receives_default">True</property>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment12">
+                                    <property name="visible">True</property>
+                                    <property name="xscale">0</property>
+                                    <property name="yscale">0</property>
+                                    <child>
+                                      <object class="GtkHBox" id="hbox49">
+                                        <property name="visible">True</property>
+                                        <property name="spacing">2</property>
+                                        <child>
+                                          <object class="GtkImage" id="image5">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-add</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label102">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">Add</property>
+                                            <property name="use_underline">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
-                          </object>
-                          <packing>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkScrolledWindow" id="scrolledwindow9">
-                            <property name="height_request">100</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="hscrollbar_policy">never</property>
-                            <property name="vscrollbar_policy">automatic</property>
-                            <property name="shadow_type">in</property>
                             <child>
-                              <object class="GtkTextView" id="pad_note_textview">
+                              <object class="GtkButton" id="plant_loc_edit_button">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="wrap_mode">word</property>
+                                <property name="receives_default">True</property>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment13">
+                                    <property name="visible">True</property>
+                                    <property name="xscale">0</property>
+                                    <property name="yscale">0</property>
+                                    <child>
+                                      <object class="GtkHBox" id="hbox50">
+                                        <property name="visible">True</property>
+                                        <property name="spacing">2</property>
+                                        <child>
+                                          <object class="GtkImage" id="image6">
+                                            <property name="visible">True</property>
+                                            <property name="stock">gtk-edit</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel" id="label103">
+                                            <property name="visible">True</property>
+                                            <property name="label" translatable="yes">Edit</property>
+                                            <property name="use_underline">True</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">2</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="position">1</property>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="x_options">GTK_FILL</property>
+                            <property name="y_options"></property>
                           </packing>
                         </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
                 </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label3">
+              </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label2">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">General</property>
+              </object>
+              <packing>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="prop_tab_box">
+                <property name="visible">True</property>
+                <property name="border_width">10</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkAlignment" id="alignment3">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Notes&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="xalign">0</property>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
+                    <property name="bottom_padding">15</property>
+                    <property name="left_padding">5</property>
+                    <child>
+                      <object class="GtkButton" id="prop_add_button">
+                        <property name="label">gtk-add</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="receives_default">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
                   </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label3">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Propagations</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+                <property name="tab_fill">False</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="notes_parent_box">
+                <property name="visible">True</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
                 <property name="position">2</property>
+              </packing>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label4">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Notes</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+                <property name="tab_fill">False</property>
               </packing>
             </child>
           </object>
@@ -567,8 +576,189 @@
                     <property name="top_padding">5</property>
                     <property name="left_padding">12</property>
                     <child>
-                      <object class="GtkComboBox" id="plant_action_combo">
+                      <object class="GtkVBox" id="vbox3">
                         <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkHBox" id="hbox3">
+                            <property name="visible">True</property>
+                            <property name="spacing">50</property>
+                            <child>
+                              <object class="GtkRadioButton" id="plant_transfer_radio">
+                                <property name="label" translatable="yes">Transfer</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="active">True</property>
+                                <property name="draw_indicator">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkRadioButton" id="plant_remove_radio">
+                                <property name="label" translatable="yes">Removal</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
+                                <property name="draw_indicator">True</property>
+                                <property name="group">plant_transfer_radio</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="padding">5</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="plant_transfer_box">
+                            <property name="visible">True</property>
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkLabel" id="dw_label4">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Transferred to</property>
+                                <property name="use_markup">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxEntry" id="trans_to_comboentry">
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="plant_removal_box">
+                            <property name="visible">True</property>
+                            <property name="spacing">5</property>
+                            <child>
+                              <object class="GtkLabel" id="label11">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Reason for removal</property>
+                                <property name="use_markup">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkComboBox" id="rem_reason_combo">
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkTable" id="table3">
+                            <property name="visible">True</property>
+                            <property name="n_rows">2</property>
+                            <property name="n_columns">2</property>
+                            <property name="column_spacing">5</property>
+                            <property name="row_spacing">3</property>
+                            <child>
+                              <object class="GtkLabel" id="ped_label3">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">User</property>
+                                <property name="use_markup">True</property>
+                              </object>
+                              <packing>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options">GTK_SHRINK | GTK_FILL</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="ped_user_entry">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="ped_date_label">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">Date</property>
+                                <property name="use_markup">True</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options">GTK_FILL</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox1">
+                                <property name="visible">True</property>
+                                <child>
+                                  <object class="GtkEntry" id="ped_date_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">&#x25CF;</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="ped_date_button">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="padding">5</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
                       </object>
                     </child>
                   </object>
@@ -576,7 +766,7 @@
                 <child type="label">
                   <object class="GtkLabel" id="label1">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;What do you want to do?&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Choose an action&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
@@ -588,153 +778,33 @@
               </packing>
             </child>
             <child>
-              <object class="GtkVBox" id="details_box">
-                <property name="orientation">vertical</property>
-                <property name="spacing">10</property>
+              <object class="GtkFrame" id="ped_frame5">
+                <property name="visible">True</property>
+                <property name="label_xalign">0</property>
+                <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkAlignment" id="action_parent_box">
+                  <object class="GtkAlignment" id="alignment5">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="yalign">0</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
+                    <property name="top_padding">5</property>
+                    <property name="left_padding">12</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkTextView" id="note_textview">
+                        <property name="height_request">75</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="wrap_mode">word</property>
+                      </object>
                     </child>
                   </object>
-                  <packing>
-                    <property name="position">0</property>
-                  </packing>
                 </child>
-                <child>
-                  <object class="GtkHBox" id="ped_hbox2">
+                <child type="label">
+                  <object class="GtkLabel" id="ped_label5">
                     <property name="visible">True</property>
-                    <property name="spacing">15</property>
-                    <child>
-                      <object class="GtkFrame" id="ped_frame2">
-                        <property name="visible">True</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
-                        <child>
-                          <object class="GtkAlignment" id="alignment3">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="yalign">0</property>
-                            <property name="xscale">0</property>
-                            <property name="yscale">0</property>
-                            <property name="left_padding">12</property>
-                            <child>
-                              <object class="GtkEntry" id="ped_user_entry">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child type="label">
-                          <object class="GtkLabel" id="ped_label3">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">&lt;b&gt;User&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkFrame" id="ped_frame3">
-                        <property name="visible">True</property>
-                        <property name="label_xalign">0</property>
-                        <property name="shadow_type">none</property>
-                        <child>
-                          <object class="GtkAlignment" id="alignment1">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="yalign">0</property>
-                            <property name="xscale">0</property>
-                            <property name="yscale">0</property>
-                            <property name="left_padding">12</property>
-                            <child>
-                              <object class="GtkHBox" id="hbox1">
-                                <property name="visible">True</property>
-                                <child>
-                                  <object class="GtkEntry" id="ped_date_entry">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="invisible_char">&#x25CF;</property>
-                                  </object>
-                                  <packing>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkButton" id="ped_date_button">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="receives_default">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child type="label">
-                          <object class="GtkLabel" id="ped_date_label">
-                            <property name="visible">True</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Date&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
+                    <property name="label" translatable="yes">&lt;b&gt;Notes&lt;/b&gt;</property>
+                    <property name="use_markup">True</property>
                   </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFrame" id="ped_frame5">
-                    <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">none</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignment5">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="yalign">0</property>
-                        <property name="left_padding">12</property>
-                        <child>
-                          <object class="GtkTextView" id="note_textview">
-                            <property name="height_request">75</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="wrap_mode">word</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="ped_label5">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Notes&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
                 </child>
               </object>
               <packing>
@@ -791,143 +861,5 @@
       <action-widget response="-6">ped_cancel_button</action-widget>
       <action-widget response="-5">ped_ok_button</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkWindow" id="details_window">
-    <child>
-      <object class="GtkVBox" id="vbox35">
-        <property name="visible">True</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">30</property>
-        <child>
-          <object class="GtkHBox" id="removal_box">
-            <property name="visible">True</property>
-            <property name="spacing">10</property>
-            <child>
-              <object class="GtkFrame" id="dw_frame1">
-                <property name="visible">True</property>
-                <property name="label_xalign">0</property>
-                <property name="shadow_type">none</property>
-                <child>
-                  <object class="GtkAlignment" id="alignmentd1">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <property name="left_padding">12</property>
-                    <child>
-                      <object class="GtkComboBox" id="rem_reason_combo">
-                        <property name="visible">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label11">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Reason for removal&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkVBox" id="transfer_box">
-            <property name="visible">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkFrame" id="dw_frame4">
-                <property name="visible">True</property>
-                <property name="label_xalign">0</property>
-                <property name="shadow_type">none</property>
-                <child>
-                  <object class="GtkAlignment" id="alignmentd4">
-                    <property name="visible">True</property>
-                    <property name="xalign">0</property>
-                    <property name="xscale">0</property>
-                    <property name="yscale">0</property>
-                    <property name="left_padding">12</property>
-                    <child>
-                      <object class="GtkComboBoxEntry" id="trans_to_comboentry">
-                        <property name="visible">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child type="label">
-                  <object class="GtkLabel" id="dw_label4">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Transferred to&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkVBox" id="notes_box">
-            <property name="visible">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkAlignment" id="alignment6">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="xscale">0</property>
-                <property name="yscale">0</property>
-                <child>
-                  <object class="GtkFrame" id="frame6">
-                    <property name="visible">True</property>
-                    <property name="label_xalign">0</property>
-                    <property name="shadow_type">none</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignment7">
-                        <property name="visible">True</property>
-                        <property name="left_padding">12</property>
-                        <child>
-                          <object class="GtkComboBoxEntry" id="note_category_comboentry">
-                            <property name="visible">True</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label6">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Note category&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="position">2</property>
-          </packing>
-        </child>
-      </object>
-    </child>
   </object>
 </interface>

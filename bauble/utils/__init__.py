@@ -344,6 +344,11 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
     # if the character width is less than 300 pixels then set the
     # message dialog's label to be 300 to avoid tiny dialogs
     if width/pango.SCALE*len(msg) < 300:
+        # TODO: got this message but i don't really know what it
+        # means..should we set the width with markup???
+        #
+        #./bauble/utils/__init__.py:347: DeprecationWarning: use
+        #set_markup() instead  d.label.set_size_request(300, -1)
         d.label.set_size_request(300, -1)
 
     if d.get_icon() is None:
@@ -778,7 +783,7 @@ def ilike(col, val, engine=None):
 def range_builder(text):
     """Return a list of numbers from a string range of the form 1-3,4,5
     """
-    from utils.pyparsing import Word, Group, Suppress, delimitedList, nums, \
+    from pyparsing import Word, Group, Suppress, delimitedList, nums, \
         ParseException, ParseResults
     rng = Group(Word(nums) + Suppress('-') + Word(nums))
     range_list = delimitedList(rng | Word(nums))
@@ -1140,3 +1145,17 @@ def get_invalid_columns(obj):
             #debug('%s: %s' % (col.name, getattr(model, col.name)))
             invalid_columns.append(name)
     return invalid_columns
+
+
+def get_urls(text):
+    """
+    Return tuples of http/https links and labels for the links.  To
+    label a link prefix it with [label text],
+    e.g. [BBG]http://belizebotanic.org
+    """
+    rx = re.compile('(?:\[(.+?)\])?((?:(?:http)|(?:https))://\S+)', re.I)
+    matches = []
+    for match in rx.finditer(text):
+        #print match.groups()
+        matches.append(match.groups())
+    return matches

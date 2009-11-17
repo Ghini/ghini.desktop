@@ -30,7 +30,7 @@ def remove_callback(donors):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = bauble.Session()
+        session = db.Session()
         obj = session.query(Donor).get(donor.id)
         session.delete(obj)
         session.commit()
@@ -283,7 +283,7 @@ class GeneralDonorExpander(InfoExpander):
         self.set_widget_value('don_email_data', row.email)
         self.set_widget_value('don_tel_data', row.tel)
         self.set_widget_value('don_fax_data', row.fax)
-        session = bauble.Session()
+        session = db.Session()
         ndons = session.query(Donation).join('donor').\
                 filter_by(id=row.id).count()
         self.set_widget_value('don_ndons_data', ndons)

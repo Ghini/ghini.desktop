@@ -19,6 +19,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.prefs as prefs
@@ -433,6 +434,11 @@ class GenericEditorPresenter(object):
         :param problem_widgets:
         """
         if not problem_widgets:
+            # remove all the problem ids regardless of the widgets
+            # they are attached to
+
+            # TODO: should this only remove problem ids if the widget
+            # part of the problem is None?
             tmp = self.problems.copy()
             for p, w in tmp:
                 if p == problem_id:
@@ -445,6 +451,7 @@ class GenericEditorPresenter(object):
 
         try:
             while True:
+                # keep removing matching problems until we get a key error
                 self.problems.remove((problem_id, problem_widgets))
                 problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
                 problem_widgets.modify_base(gtk.STATE_NORMAL, None)
@@ -773,7 +780,7 @@ class GenericModelViewPresenterEditor(object):
     ok_responses = ()
 
     def __init__(self, model, parent=None):
-        self.session = bauble.Session()
+        self.session = db.Session()
         self.model = self.session.merge(model)
 
 
@@ -883,7 +890,7 @@ class NotesPresenter(GenericEditorPresenter):
 
     def add_note(self, note=None):
         expander = NotesPresenter.NoteBox(self, note)
-        self.box.pack_start(expander, expand=False, fill=False, padding=10)
+        self.box.pack_start(expander, expand=False, fill=False)#, padding=10)
         self.box.reorder_child(expander, 0)
         expander.show_all()
         return expander
@@ -914,7 +921,7 @@ class NotesPresenter(GenericEditorPresenter):
 
             notes_box = self.widgets.notes_box
             self.widgets.remove_parent(notes_box)
-            self.pack_start(notes_box)
+            self.pack_start(notes_box, expand=True, fill=True)
 
             self.session = object_session(presenter.model)
             self.presenter = presenter

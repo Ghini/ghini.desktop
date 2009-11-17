@@ -120,7 +120,7 @@ class GUI(object):
         vbox.show()
         hbox.show()
 
-        from utils.pyparsing import StringStart, Word, alphanums, restOfLine, \
+        from pyparsing import StringStart, Word, alphanums, restOfLine, \
             StringEnd
         cmd = StringStart() +':'+ Word(alphanums + '-_').setResultsName('cmd')
         arg = restOfLine.setResultsName('arg')

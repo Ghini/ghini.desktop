@@ -25,6 +25,7 @@ import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
+import bauble.view as view
 
 # TODO: warn the user that a duplicate genus name is being entered
 # even if only the author or qualifier is different
@@ -56,7 +57,7 @@ def remove_callback(genera):
     """
     genus = genera[0]
     from bauble.plugins.plants.species_model import Species
-    session = bauble.Session()
+    session = db.Session()
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
     safe_str = utils.xml_safe_utf8(str(genus))
     if nsp > 0:
@@ -700,14 +701,14 @@ from bauble.plugins.plants.species_model import Species#, species_table
 # Infobox and InfoExpanders
 #
 
-class LinksExpander(InfoExpander):
+class LinksExpander(view.LinksExpander):
 
     """
     A collection of link buttons to use for internet searches.
     """
 
     def __init__(self):
-        InfoExpander.__init__(self, _("Links"))
+        super(LinksExpander, self).__init__("notes")
         buttons = []
 
         self.google_button = gtk.LinkButton("", _("Search Google"))
@@ -740,6 +741,7 @@ class LinksExpander(InfoExpander):
 
 
     def update(self, row):
+        super(LinksExpander, self).update(row)
         s = str(row)
         self.gbif_button.set_uri("http://data.gbif.org/search/%s" % \
                                  s.replace(' ', '+'))
@@ -819,7 +821,7 @@ class GeneralGenusExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-        session = bauble.Session()
+        session = db.Session()
         self.current_obj = row
         self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \
                                   (row, utils.xml_safe(unicode(row.author))))

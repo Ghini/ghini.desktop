@@ -7,6 +7,7 @@ import sys
 import unittest
 import time
 
+from pyparsing import *
 from sqlalchemy import *
 
 import bauble
@@ -14,7 +15,6 @@ import bauble.db as db
 from bauble.types import Enum
 from bauble.utils.log import debug
 from bauble.view import SearchParser
-from bauble.utils.pyparsing import *
 from bauble.test import BaubleTestCase
 import bauble.meta as meta
 

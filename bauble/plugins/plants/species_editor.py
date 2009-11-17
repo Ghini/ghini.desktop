@@ -846,7 +846,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             # we try to add the same species again we don't break the
             # SpeciesSynonym UniqueConstraint
 
-            # tmp_session = bauble.Session()
+            # tmp_session = db.Session()
             # tmp_value = tmp.session.merge(value)
             # tmp.session.commit()
             # tmp.session.close()

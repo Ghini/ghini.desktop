@@ -10,7 +10,7 @@ import bauble.paths as paths
 import bauble.i18n
 
 # major, minor, revision version tuple
-version = '1.0.0b2' # :bump
+version = '1.0.0b3' # :bump
 """The Bauble version.
 """
 version_tuple = version.split('.')
@@ -53,21 +53,6 @@ sys.path.append(paths.lib_dir())
 # set SQLAlchemy logging level
 import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
-
-Session = None # Session is set by bauble.db.open()
-"""
-bauble.Session is created after the database has been opened with
-:func:`bauble.db.open()`. bauble.Session should be used when you need
-to do ORM based activities on a bauble database.  To create a new
-Session use::
-
-    session = bauble.Session()
-
-When you are finished with the session be sure to close the session
-with :func:`session.close()`. Failure to close sessions can lead to
-database deadlocks, particularly when using PostgreSQL based
-databases.
-"""
 
 gui = None
 """bauble.gui is the instance :class:`bauble.ui.GUI`
@@ -246,7 +231,7 @@ def main(uri=None):
         from bauble.connmgr import ConnectionManager
         default_conn = prefs[conn_default_pref]
         while True:
-            if uri is None or conn_name is None:
+            if not uri or not conn_name:
                 cm = ConnectionManager(default_conn)
                 conn_name, uri = cm.start()
                 if conn_name is None:
@@ -266,7 +251,7 @@ def main(uri=None):
                     err.RegistryError), e:
                 warning(e)
                 open_exc = e
-                # reopen without verification so that bauble.Session and
+                # reopen without verification so that db.Session and
                 # db.engine, db.metadata will be bound to an engine
                 db.open(uri, False)
                 break
