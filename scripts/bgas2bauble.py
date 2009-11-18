@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+
+import collections
 import copy
 import csv
 import logging
+import itertools
 import os
 import sys
 
@@ -70,7 +73,8 @@ if options.stage == '0' or options.database == default_uri:
     filename = os.path.join(plants.__path__[0], 'default', 'geography.txt')
     importer.start([filename], force=True)
 
-from bauble.plugins.plants import Family, Genus, Species, SpeciesNote
+from bauble.plugins.plants import Family, Genus, Species, SpeciesNote, Habit, \
+    Color, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location
 
 family_table = Family.__table__
@@ -80,8 +84,6 @@ species_note_table = SpeciesNote.__table__
 acc_table = Accession.__table__
 location_table = Location.__table__
 plant_table = Plant.__table__
-
-session = bauble.Session()
 
 src = os.path.join(os.getcwd(), 'dump')
 dst = os.path.join(os.getcwd(), 'bauble')
@@ -238,6 +240,11 @@ problems = {0: [],
 
 def species_dict_from_rec(rec, defaults=None):
     """
+    Return a dictionary that maps to the columns on a species table.
+    This function will only use the parts of the record that make up
+    the species name and will not use other misc. field like HABIT,
+    FLCOLOR, etc.
+
     rec: a dbf record to build the species from
 
     defaults: a dictionary that holds the default values for the
@@ -275,9 +282,21 @@ def species_dict_from_rec(rec, defaults=None):
     else:
         row['hybrid'] = False
 
+    authors = [None, None, None, None]
     if 'AUTHORS' in rec.dbf.fieldNames and rec['authors']:
-        # TODO: what's with all the '|' bars in the author string
-        row['sp_author'] = utils.utf8(rec['authors'].replace('|','').strip())
+        # the bars in the author string delineate the authors for the
+        # different epithet ranks
+        clean = lambda a: None if a in ('', ' ') else a
+        authors = map(clean, utils.utf8(rec['authors']).split('|'))
+    row['sp_author'] = authors[0]
+    try:
+        # not all species records have the same amount of author so we
+        # set as many as we can
+        row['infrasp1_author'] = authors[1]
+        row['infrasp2_author'] = authors[2]
+        row['infrasp3_author'] = authors[3]
+    except IndexError:
+        pass
 
     # match all the combinations of rank, infrepi and cultivar
     if rec['rank'] and rec['infrepi'] and rec['cultivar']:
@@ -452,7 +471,7 @@ def do_sciname():
     # awards:
     # cultpare:
     # flcolor:
-    # hardzeon:
+    # hardzone:
     # scinote:
     # phenol:
     status('converting SCINAME.DBF ...')
@@ -461,13 +480,25 @@ def do_sciname():
     #                             ['genus_id', 'sp', 'sp2', 'hybrid',
     #                              'sp_author', 'infrasp1', 'infrasp1_rank',
     #                              'infrasp2', 'infrasp2_rank'])
-    species_rows = []
-    child_rows = []
+    species_rows = collections.deque()
     genus_insert = get_insert(genus_table, ['genus', 'family_id'])
     no_genus_ctr = 0
     species_defaults = get_defaults(species_table)
     genus_defaults = get_defaults(genus_table)
     rec_ctr = 0
+
+    session = bauble.db.Session()
+
+    # create a map of habits ids to habit codes
+    habits = {}
+    for habit in session.query(Habit):
+        habits[habit.code] = habit.id
+
+    # create a map of color ids to color codes
+    colors = {}
+    for color in session.query(Color):
+        colors[color.code] = color.id
+
     for rec in dbf:
         rec_ctr += 1
         if (rec_ctr % 500) == 0:
@@ -517,67 +548,61 @@ def do_sciname():
         defaults['genus_id'] = genus_id
         #row = species_dict_from_rec(rec, defaults=defaults)
         row = species_obj_from_rec(rec, defaults=defaults)
-        # infrasp = ()
-        # note = {}
-        # if 'infrasp' in row:
-        #     infrasp = row.pop('infrasp')
+        species_rows.append(row)
 
-        # if 'notes' in row:
-        #     note['note'] = row.pop('notes')
+        row.genus = session.query(Genus).get(row.genus_id)
+        # set the habit
+        row.habit_id = None
+        try:
+            row.habit_id = habits[rec['HABIT']]
+        except KeyError, e:
+            # make sure we only get here because the habit is empty
+            if rec['HABIT'] not in ('', ' '):
+                raise
 
-        # child_rows.append((row, infrasp, note))
-        # #infrasp_rows.append((row, infrasp))
-        # species_rows.append(row)
+        # # TODO: flower color can have -,>& delimiters....what should
+        # # we do, create two flower colors for a species????
+        row.flower_color_id = None
+        try:
+            row.flower_color_id = colors[rec['FLCOLOR']]
+        except KeyError, e:
+            #print e
+            pass
 
-        # del rec
+        # if rec['comname']:
+        #     names = rec['comname'].split(',')
+        #     names = [VernacularName(name=name.split(), language='English') \
+        #                  for name in rec['comname'].split(',')]
+        #     # TODO: can you set the names list to the vernacular names
+        #     # property directly
+        #     row.vernacular_names.extend(names)
+        #     row.default_vernacular_name = names[0]
 
-    session = bauble.Session()
-    def set_genus(s):
-        s.genus=session.query(Genus).get(s.genus_id)
-    map(set_genus, species_rows)
-    session.add_all(species_rows)
-    session.commit()
-    # db.engine.execute(species_insert, *species_rows).close()
+        if rec['scinote']:
+            note = SpeciesNote()
+            note.note = utils.utf8(rec['scinote'])
+            note.category = u'BGAS'
+            note.date = '1/1/1900'
+            note.species = row
 
-    # # now that the species have been inserted get the ids for
-    # # infraspecific parts and the species notes
-    # infrasp_defaults = get_defaults(infrasp_table)
-    # new_infrasp = []
-    # new_notes = []
-    # for sp, infrasp, note in child_rows:
-    #     # query the row
-    #     conditions = []
-    #     for col, val in sp.iteritems():
-    #         if col not in ('_last_updated', '_created'):
-    #             conditions.append(species_table.c[col]==val)
-    #     species_id = get_column_value(species_table.c.id, and_(*conditions))
-    #     for i in infrasp:
-    #         iid = get_column_value(infrasp_table.c.id,
-    #                                and_(infrasp_table.c.species_id==species_id,
-    #                                     infrasp_table.c.level == i['level']))
-    #         if iid:
-    #             print sp
-    #             print infrasp
-    #             raise ValueError
-    #         i['species_id'] = species_id
-    #         #print i
-    #         i['_created'] = _created
-    #         i['_last_updated'] = _last_updated
-    #         db.engine.execute(infrasp_insert, i).close()
-    #         #new_infrasp.append(i)
+    rec_ctr = 0
 
-    #     note['species_id'] = species_id
-    #     note['date'] = '1/1/1900'
-    #     note['_created'] = _created
-    #     note['_last_updated'] = _last_updated
-    #     new_notes.append(note)
+    # add and commit in chunks so we can garbage collect in between
+    # commits so we don't run out of memory
+    session.close()
+    debug('committing...')
+    for piece in chunk(species_rows, 300):
+        session = sessionmaker(autocommit=True)()
+        session.begin()
+        session.add_all(piece)
+        session.commit()
+        session.close()
+        gc.collect()
+        sys.stdout.write('.')
+        sys.stdout.flush()
+    print ''
 
-    # #db.engine.execute(infrasp_insert, *new_infrasp).close()
-
-    # # insert the notes
-    # species_note_insert = get_insert(species_note_table,
-    #                                  ['species_id', 'note', 'date'])
-    # db.engine.execute(species_note_insert, *new_notes).close()
+    gc.collect()
 
     info('inserted %s species out of %s records' \
         % (len(species_rows), len(dbf)))
@@ -690,14 +715,12 @@ def do_plants():
     # aren't referenced to a scientific name by id or anything
     status('converting PLANTS.DBF ...')
     dbf = open_dbf('PLANTS.DBF')
-
     acc_insert = get_insert(acc_table,
                             ['code', 'species_id', ])
     acc_defaults = get_defaults(acc_table)
     species_defaults = get_defaults(species_table)
-    delayed_species = []
-    delayed_accessions = []
-    #delayed_accessions = set()
+    delayed_species = collections.deque()
+    delayed_accessions = collections.deque()
 
     # TODO: what if the data differs but the accession code is the same
     added_codes = set()
@@ -792,7 +815,7 @@ def do_plants():
     del dbf
     # now that we have all the accessions loop through all the records
     # again and create the plants
-    values = []
+    values = collections.deque()
     plant_defaults = get_defaults(plant_table)
     row_map = {}
     rec_ctr = 0
@@ -878,83 +901,6 @@ def do_bedtable():
     del dbf
 
 
-def do_hereitis():
-    """
-    This function set the correct values of the column of the plants
-    table.  The accessions and plants are created in do_plants()
-    """
-    # The hereitis table is roughly equivalent to the plants table
-    # accno:
-    #
-    # propno: plant code?
-    # bedno: location.site
-    # alive: acc_status?
-    # labels: ??
-    # l_update: last updated?
-    #
-
-    # all the work from the hereitis table is not done in do_plants
-    return
-    status('converting HEREITIS.DBF ...')
-    dbf = open_dbf('HEREITIS.DBF')
-    plant_update = plant_table.update().\
-    where(plant_table.c.id == bindparam('plant_id')).\
-    values(location_id=bindparam('location_id'))
-
-    conn = db.engine.connect()
-    trans = conn.begin()
-    for rec in dbf:
-        acc_code = unicode(rec['accno'])
-        plant_code = unicode(rec['propno'])
-        id_query = select([plant_table.c.id],
-                          and_(plant_table.c.code==plant_code,
-                               acc_table.c.code==acc_code),
-                          from_obj=plant_table.join(acc_table))
-        r = conn.execute(id_query).fetchone()
-        plant_id = r[0]
-        r.close()
-
-        # get the location id from the bedno
-        bedno = unicode(rec['bedno'])
-        # location_id = get_column_value(location_table.c.id,
-        #                                location_table.c.code == bedno)
-        location_id = unknown_location_id
-        if bedno not in ('8A', '1B49'):
-            location_id = get_column_value(location_table.c.id,
-                                           location_table.c.code == bedno)
-        else:
-            error('location does not exist for %s.%s: %s' % \
-                      (acc_code, plant_code, bedno))
-        #     continue
-        # if not location_id:
-        #     error('location does not exists for %s.%s: %s' % \
-        #               (acc_code, plant_code, bedno))
-        #     #continue
-        #     location_id=1
-
-        #conn.execute(update(plant_table, plant_table.c.id==plant_id,
-        #                    values={plant_table.c.location_id: location_id}))
-        #db.engine.echo = True
-        #plant_id = 4
-        #debug('%s: %s' % (plant_id, location_id))
-
-        # i could never get the plant_table.update() stuff to work, it
-        # would run fine but wouldn't update the table.  the only
-        # thing that really seemed different from the generated code
-        # from my statement is the generated code was also trying to
-        # update _last_updated so maybe this is the problem
-        stmt = 'update plant set location_id=%s where id=%s;' % \
-            (location_id, plant_id)
-        #debug(stmt)
-        #conn.execute(stmt)
-        db.engine.execute(stmt)
-        #plant_table.update().where(plant_table.c.id==plant_id).values(location_id=location_id).execute(bind=conn)
-        #conn.execute(plant_update, plant_id=plant_id, location_id=location_id)
-        del rec
-
-    trans.commit()
-    conn.close()
-
 
 def do_synonym():
     """
@@ -963,12 +909,66 @@ def do_synonym():
     dbf = open_dbf('SYNONYM.DBF')
 
 
+def do_habit():
+    """
+    Convert the HABIT.DBF table to bauble.plugins.plants.species_model.Habit
+    """
+    status('converting HABIT.DBF ...')
+    habit_table = Habit.__table__
+    defaults = get_defaults(habit_table)
+    dbf = open_dbf('HABIT.DBF')
+    habit_rows = []
+    for rec in dbf:
+        row = defaults.copy()
+        row.update({'name': utils.utf8(rec['habdescr']),
+                    'code': utils.utf8(rec['habit'])})
+        habit_rows.append(row)
+        del rec
+    dbf.close()
+
+    conn = db.engine.connect()
+    trans = conn.begin()
+    insert = get_insert(habit_table, ['name', 'code'])
+    conn.execute(insert, *habit_rows)
+    trans.commit()
+    conn.close()
+    info('inserted %s habits.' % len(habit_rows))
+
+
+def do_color():
+    """
+    Convert the COLOR.DBF table to bauble.plugins.plants.species_model.Color
+    """
+    status('converting COLOUR.DBF ...')
+    color_table = Color.__table__
+    defaults = get_defaults(color_table)
+    dbf = open_dbf('COLOUR.DBF')
+    color_rows = []
+    for rec in dbf:
+        row = defaults.copy()
+        row.update({'name': utils.utf8(rec['coldescr']),
+                    'code': utils.utf8(rec['colour'])})
+        color_rows.append(row)
+        del rec
+    dbf.close()
+
+    conn = db.engine.connect()
+    trans = conn.begin()
+    insert = get_insert(color_table, ['name', 'code'])
+    conn.execute(insert, *color_rows)
+    trans.commit()
+    conn.close()
+    info('inserted %s colors.' % len(color_rows))
+
+
+
 stages = {'0': do_family,
-          '1': do_sciname,
-          '2': do_bedtable,
-          '3': do_plants,
-          '4': do_hereitis,
-          '5': do_synonym}
+          '1': do_habit,
+          '2': do_color,
+          '3': do_sciname,
+          '4': do_bedtable,
+          '5': do_plants,
+          '6': do_synonym}
 
 def run():
     for stage in range(int(options.stage), nstages):
@@ -982,6 +982,22 @@ def test():
     # test that all accession codes are unique
     # test that all plant codes are unique
     pass
+
+def chunk(iterable, n):
+    '''
+    return iterable in chunks of size n
+    '''
+    # TODO: this could probably be implemented way more efficiently,
+    # maybe using itertools
+    chunk = collections.deque()
+    ctr = 0
+    for it in iterable:
+        chunk.append(it)
+        ctr += 1
+        if ctr >= n:
+            yield chunk
+            chunk = collections.deque()
+            ctr = 0
 
 
 if __name__ == '__main__':
