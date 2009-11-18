@@ -63,8 +63,31 @@ class Species(db.Base):
     :Table name: species
 
     :Columns:
+        *sp*:
+        *sp2*:
+        *sp_author*:
+
         *hybrid*:
             Hybrid flag
+
+        *infrasp1*:
+        *infrasp1_rank*:
+        *infrasp1_author*:
+
+        *infrasp2*:
+        *infrasp2_rank*:
+        *infrasp2_author*:
+
+        *infrasp3*:
+        *infrasp3_rank*:
+        *infrasp3_author*:
+
+        *infrasp4*:
+        *infrasp4_rank*:
+        *infrasp4_author*:
+
+        *cv_group*:
+        *trade_name*:
 
         *sp_qual*:
             Species qualifier
@@ -75,6 +98,11 @@ class Species(db.Base):
                 *s. lat.*: aggregrate species (sensu lato)
 
                 *s. str.*: segregate species (sensu stricto)
+
+        *label_distribution*:
+            UnicodeText
+            This field is optional and can be used for the label in case
+            str(self.distribution) is too long to fit on the label.
 
     :Properties:
         *accessions*:
@@ -123,6 +151,8 @@ class Species(db.Base):
 
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
 
+    label_distribution = Column(UnicodeText)
+
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
     _synonyms = relation('SpeciesSynonym',
@@ -148,6 +178,11 @@ class Species(db.Base):
                             cascade='all, delete-orphan',
                             backref=backref('species', uselist=False))
 
+    habit_id = Column(Integer, ForeignKey('habit.id'), default=None)
+    habit = relation('Habit', uselist=False, backref='species')
+
+    flower_color_id = Column(Integer, ForeignKey('color.id'), default=None)
+    flower_color = relation('Color', uselist=False)
 
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
@@ -465,3 +500,16 @@ class SpeciesDistribution(db.Base):
 SpeciesDistribution.geography = relation('Geography',
                 primaryjoin='SpeciesDistribution.geography_id==Geography.id',
                                          uselist=False)
+
+class Habit(db.Base):
+    __tablename__ = 'habit'
+
+    name = Column(Unicode(32))
+    code = Column(Unicode(8), unique=True)
+
+
+class Color(db.Base):
+    __tablename__ = 'color'
+
+    name = Column(Unicode(32))
+    code = Column(Unicode(8), unique=True)
