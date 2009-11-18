@@ -490,18 +490,19 @@ def do_sciname():
     # fields to nix:
     # authcheck
 
+
+    # TODO: would probably be faster to bulk insert all the species
+    # and then retrieve all the species ids for the other
+    # objects...could have some sort of map of
+    # {species_namedtuple: [notes, vernames, etc]
     status('converting SCINAME.DBF ...')
-    dbf = open_dbf('SCINAME.DBF')
-    # species_insert = get_insert(species_table,
-    #                             ['genus_id', 'sp', 'sp2', 'hybrid',
-    #                              'sp_author', 'infrasp1', 'infrasp1_rank',
-    #                              'infrasp2', 'infrasp2_rank'])
-    species_rows = collections.deque()
     genus_insert = get_insert(genus_table, ['genus', 'family_id'])
-    no_genus_ctr = 0
     species_defaults = get_defaults(species_table)
     genus_defaults = get_defaults(genus_table)
-    rec_ctr = 0
+
+    no_genus_ctr = 0 # num of records with not genus
+    rec_ctr = 0 # num of records
+    commit_ctr = 0 # num of rows commited
 
     session = sessionmaker(autocommit=True)()
 
@@ -515,9 +516,8 @@ def do_sciname():
     for color in session.query(Color):
         colors[color.code] = color.id
 
-    commit_ctr = 0
-
-    for rec in dbf:
+    species_rows = collections.deque()
+    for rec in open_dbf('SCINAME.DBF'):
         rec_ctr += 1
         genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
         genus_id = None
@@ -634,6 +634,9 @@ def get_species(rec, defaults=None):
     """
     Try to determine the species id of a record.
 
+    WARNING: If a genus is found in the rec and does not exist then it
+    is inserted.
+
     :param rec: a dbf record
     :parem defaults: the default dict to use for the species values
     """
@@ -654,7 +657,6 @@ def get_species(rec, defaults=None):
         genus = str('%s' % rec['genus'])
 
     #genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
-
     if 'genus_id' in rec and rec['genus_id']:
         genus_id = r['genus_id']
         genus = get_column_value(genus_table.c.genus,
@@ -664,6 +666,7 @@ def get_species(rec, defaults=None):
         genus_id = get_column_value(genus_table.c.id,
                                     genus_table.c.genus == genus)
 
+    # TODO: i don't like that this function inserts genera
     if not genus_id:
         # TODO: here we're assume the genera don't have an
         # associated family but it shouldn't really matter b/c
@@ -679,25 +682,6 @@ def get_species(rec, defaults=None):
     defaults = defaults.copy()
     defaults['genus_id'] = genus_id
     row = species_dict_from_rec(rec, defaults=defaults)
-
-    # infrasp = []
-    # if 'infrasp' in row:
-    #     infrasp = row.pop('infrasp')
-
-    # sql = select([species_table.c.id],
-    #              from_obj=[species_table.select().alias().join(infrasp_table)])
-
-    # infrasp_conditions = []
-    # for i in infrasp:
-    #     conditions = []
-    #     for col, val in i.iteritems():
-    #         if col not in ('_last_updated', '_created'):
-    #             conditions.append(infrasp_table.c[col]==val)
-    #             #infrasp_conditions.append(infrasp_table.c[col]==val)
-    #     infrasp_conditions.append(and_(*conditions))
-
-    # if infrasp_conditions:
-    #     sql = sql.where(or_(*infrasp_conditions)).apply_labels()
 
     if 'notes' in row:
         row.pop('notes')
@@ -737,19 +721,22 @@ def do_plants():
                             ['code', 'species_id', ])
     acc_defaults = get_defaults(acc_table)
     species_defaults = get_defaults(species_table)
+    species_defaults.update(dict(genus_id=None, sp=None, sp2=None,
+                                 infrasp1=None, infrasp1_rank=None,
+                                 infrasp2=None, infrasp2_rank=None))
     delayed_species = collections.deque()
     delayed_accessions = collections.deque()
+    acc_rows = collections.deque()
 
-    # TODO: what if the data differs but the accession code is the same
+    # TODO: what if the data differs but the accession code is the
+    # same...does this ever happen in practice
     added_codes = set()
-    acc_rows = []
-    acc_rows_append = lambda x: acc_rows.append(x)
     plants = set()
 
     rec_ctr = 0
     for rec in dbf:
         rec_ctr += 1
-        if (rec_ctr % 500) == 0:
+        if (rec_ctr % 200) == 0:
             # collect periodically so we don't run out of memory
             gc.collect()
             if options.verbosity > 1:
@@ -784,43 +771,54 @@ def do_plants():
             row['species_id'] = species['id']
             acc_rows.append(row)
         else:
-            delayed_species.append(species)
-            delayed_accessions.append((rec, row))
+            delayed_species.append(species) # to bulk insert() later
+            delayed_accessions.append((species, row))
 
     if options.verbosity > 1:
         print ''
 
+    gc.collect()
+
     # TODO: could inserting all the delayed species cause problems
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
-    if delayed_species:
-        conn = db.engine.connect()
-        trans = conn.begin()
-        for species in delayed_species:
-            conn.execute(species_table.insert(), species)
-        #conn.execute(species_table.insert(), *delayed_species)
-        info('inserted %s species from plants.dbf' % len(delayed_species))
-        trans.commit()
-        conn.close()
+    debug('  populating delayed species...')
+    conn = db.engine.connect()
+    trans = conn.begin()
+    species_insert = get_insert(species_table, species_defaults.keys())
+    conn.execute(species_insert, *delayed_species)
+    info('inserted %s species from plants.dbf' % len(delayed_species))
+    trans.commit()
+    conn.close()
+
+    gc.collect()
 
     # set species id on the rows that we couldn't get earlier
     rec_ctr = 0
-    for rec, row in delayed_accessions:
-        # map would be faster here than a loop but if we don't do
-        # manual garbage collection then we'll run out of memory
+    debug('  populating delayed accessions...')
+    for species, acc in delayed_accessions:
         rec_ctr += 1
         if (rec_ctr % 200) == 0:
             # collect periodically so we don't run out of memory
             gc.collect()
-        species = get_species(rec, species_defaults)
-        row['species_id'] = species['id']
-        acc_rows.append(row)
-        del rec
+
+        # get the species id now that all the species have been inserted
+        conditions = []
+        for col, val in species.iteritems():
+            if col not in ('_last_updated', '_created', 'id'):
+                conditions.append(species_table.c[col]==val)
+        sql = select([species_table.c.id], and_(*conditions))
+        result = db.engine.execute(sql).fetchone()
+        acc['species_id'] = result[0]
+        result.close()
+        acc_rows.append(acc)
+        del species
     del delayed_accessions
 
     gc.collect()
 
     # insert the accessions
+    debug('  insert %s accessions...' % len(acc_rows))
     conn = db.engine.connect()
     trans = conn.begin()
     conn.execute(acc_insert, *acc_rows)
