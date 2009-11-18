@@ -517,7 +517,8 @@ def do_sciname():
         colors[color.code] = color.id
 
     species_rows = collections.deque()
-    for rec in open_dbf('SCINAME.DBF'):
+    dbf = open_dbf('SCINAME.DBF')
+    for rec in dbf:
         rec_ctr += 1
         genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
         genus_id = None
