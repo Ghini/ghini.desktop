@@ -286,6 +286,8 @@ def species_dict_from_rec(rec, defaults=None):
     if 'AUTHORS' in rec.dbf.fieldNames and rec['authors']:
         # the bars in the author string delineate the authors for the
         # different epithet ranks
+        #
+        # TODO: should we do some sort of smart capitalization here
         clean = lambda a: None if a in ('', ' ') else a
         authors = map(clean, utils.utf8(rec['authors']).split('|'))
     row['sp_author'] = authors[0]
@@ -455,6 +457,10 @@ def do_sciname():
 
     The do_family() function should be run before this function
     """
+    # SCINAME.DBF field
+    #
+    # Fields that have an almost direct translation from BGAS to Bauble
+    # ----------------------------------------------------------------
     # ig: generic hybrid symbo
     # genus:
     # is: species hybrid symbol
@@ -464,16 +470,26 @@ def do_sciname():
     # cultivar: cultivar name but can also include second rank and epithet
     # habit:
     # comname: vernacular name
-    # nativity: (like jesus?)
-    # natbc: native to BC?
-    # authcheck:
+    #
+    # flcolor: is freetext in BGAS but could probably just put 2 fields
+    #
+    # Random field that could be put in notes
+    # ---------------------------------------
+    # scinote:
+    # phenol: added as a SpeciesNote with category "Phenological"
+    #
+    # Fields that can be freetext string columns
+    # ------------------------------------------
     # reference:
     # awards:
     # cultpare:
-    # flcolor:
     # hardzone:
-    # scinote:
-    # phenol:
+    # nativity: (like jesus?) -- maybe label distribution
+    # natbc: text field of where it grows naturally in British Columbia
+    #
+    # fields to nix:
+    # authcheck
+
     status('converting SCINAME.DBF ...')
     dbf = open_dbf('SCINAME.DBF')
     # species_insert = get_insert(species_table,
@@ -487,7 +503,7 @@ def do_sciname():
     genus_defaults = get_defaults(genus_table)
     rec_ctr = 0
 
-    session = bauble.db.Session()
+    session = sessionmaker(autocommit=True)()
 
     # create a map of habits ids to habit codes
     habits = {}
@@ -499,58 +515,51 @@ def do_sciname():
     for color in session.query(Color):
         colors[color.code] = color.id
 
+    commit_ctr = 0
+
     for rec in dbf:
         rec_ctr += 1
-        if (rec_ctr % 500) == 0:
-            # collect periodically so we don't run out of memory
-            gc.collect()
         genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
         genus_id = None
         if not genus:
+            # no genus for the species record so use the catch-all
+            # unknown genus
             no_genus_ctr += 1
             genus_id = unknown_genus_id
-            #print 'no genus: %s' % rec.asDict()
         else:
-            #genus_id = get_column_value(genus_table.c.id,
-            #                     genus_table.c.genus == genus)
-            stmt = 'select id from genus where genus=="%s";' % genus
-            r = db.engine.execute(stmt).fetchone()
-            if r:
-                genus_id = r[0]
-                r.close()
-        if not genus_id:
-            #family_id = get_column_value(genus_table.c.family_id,
-            #                      genus_table.c.genus == rec['genus'])
-            family_id = None
-            stmt = 'select family_id from genus where genus=="%s";' % genus
-            r = db.engine.execute(stmt).fetchone()
-            if r:
-                family_id = r[0]
-                r.close()
-            warning('adding genus %s from sciname.dbf.' % genus)
-            if not family_id:
-                warning('** %s has no family. adding to %s' \
-                    % (genus, unknown_family_name))
-                # print '** %s has no family. adding to %s' \
-                #     % (genus, unknown_family_name)
-                family_id = unknown_family_id
-            genus_row = genus_defaults.copy()
-            genus_row.update({'genus': genus, 'family_id': family_id})
-            db.engine.execute(genus_insert, genus_row).close()
+            # search for the genus id by name
             genus_id = get_column_value(genus_table.c.id,
-                                 genus_table.c.genus == genus)
+                                        genus_table.c.genus == genus)
+            if not genus_id:
+                #  couldn't find the full genus name so add it. first
+                #  search for just the genus name without the hybrid
+                #  string and if it's found then add the new genus to
+                #  the same family as the one without the hybrid
+                #  string
+                warning('adding genus %s from sciname.dbf.' % genus)
+                family_id = get_column_value(genus_table.c.family_id,
+                                         genus_table.c.genus == rec['genus'])
+                if not family_id:
+                    warning('** %s has no family. adding to %s' \
+                                % (genus, unknown_family_name))
+                    family_id = unknown_family_id
+                genus_row = genus_defaults.copy()
+                genus_row.update({'genus': genus, 'family_id': family_id})
+                db.engine.execute(genus_insert, genus_row).close()
+                genus_id = get_column_value(genus_table.c.id,
+                                            genus_table.c.genus == genus)
 
         # TODO: check that the species name doesn't already exists,
         # can probably go ahead and import it but just give a message
         # that says something like "it appears the species already
         # exists"
         defaults = species_defaults.copy()
-        defaults['genus_id'] = genus_id
-        #row = species_dict_from_rec(rec, defaults=defaults)
         row = species_obj_from_rec(rec, defaults=defaults)
         species_rows.append(row)
 
-        row.genus = session.query(Genus).get(row.genus_id)
+        # set the genus on the new row
+        row.genus = session.query(Genus).get(genus_id)
+
         # set the habit
         row.habit_id = None
         try:
@@ -569,14 +578,15 @@ def do_sciname():
             #print e
             pass
 
-        # if rec['comname']:
-        #     names = rec['comname'].split(',')
-        #     names = [VernacularName(name=name.split(), language='English') \
-        #                  for name in rec['comname'].split(',')]
-        #     # TODO: can you set the names list to the vernacular names
-        #     # property directly
-        #     row.vernacular_names.extend(names)
-        #     row.default_vernacular_name = names[0]
+        if rec['comname']:
+            names = rec['comname'].split(',')
+            names = [VernacularName(name=utils.utf8(name.strip()),
+                                    language=u'English') \
+                         for name in rec['comname'].split(',')]
+            # TODO: can you set the names list to the vernacular names
+            # property directly
+            row.vernacular_names.extend(names)
+            row.default_vernacular_name = names[0]
 
         if rec['scinote']:
             note = SpeciesNote()
@@ -585,27 +595,35 @@ def do_sciname():
             note.date = '1/1/1900'
             note.species = row
 
-    rec_ctr = 0
+        if rec['phenol']:
+            note = SpeciesNote()
+            note.note = utils.utf8(rec['scinote'])
+            note.category = u'Phenological'
+            note.date = '1/1/1900'
+            note.species = row
 
-    # add and commit in chunks so we can garbage collect in between
-    # commits so we don't run out of memory
+        if (rec_ctr % 200) == 0:
+            # collect periodically so we don't run out of memory
+            session.begin()
+            session.add_all(species_rows)
+            session.commit()
+            commit_ctr += len(species_rows)
+            session.expunge_all()
+            species_rows.clear()
+            gc.collect()
+
+    session.begin()
+    session.add_all(species_rows)
+    session.commit()
+    commit_ctr += len(species_rows)
+    species_rows.clear()
     session.close()
-    debug('committing...')
-    for piece in chunk(species_rows, 300):
-        session = sessionmaker(autocommit=True)()
-        session.begin()
-        session.add_all(piece)
-        session.commit()
-        session.close()
-        gc.collect()
-        sys.stdout.write('.')
-        sys.stdout.flush()
-    print ''
-
     gc.collect()
 
-    info('inserted %s species out of %s records' \
-        % (len(species_rows), len(dbf)))
+    info('inserted %s species in %s records' % (commit_ctr, len(dbf)))
+    if commit_ctr != len(dbf):
+        raise ValueError
+
     warning('** %s sciname entries with no genus.  Added to the genus %s' \
                 % (no_genus_ctr, unknown_genus_name))
     dbf.close()
