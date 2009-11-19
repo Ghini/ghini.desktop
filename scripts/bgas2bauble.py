@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import collections
 import copy
 import csv
 import logging
@@ -75,7 +74,7 @@ if options.stage == '0' or options.database == default_uri:
 
 from bauble.plugins.plants import Family, Genus, Species, SpeciesNote, Habit, \
     Color, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location
+from bauble.plugins.garden import Accession, Plant, Location, PlantRemoval
 
 family_table = Family.__table__
 genus_table = Genus.__table__
@@ -162,6 +161,17 @@ def get_defaults(table):
     return defaults
 
 
+def insert_rows(insert, rows):
+    """
+    Use the insert statment to insert rows in a transaction.
+    """
+    conn = db.engine.connect()
+    trans = conn.begin()
+    conn.execute(insert, *rows)
+    trans.commit()
+    conn.close()
+
+
 def get_insert(table, columns):
     """
     Return an insert statement for table with column for the column keys.
@@ -210,12 +220,14 @@ if options.stage == '0':
 unknown_genus_id = get_column_value(genus_table.c.id,
                               genus_table.c.genus==unknown_genus_name)
 
-# create (unknown) location
+# create locations that some plants refer to but aren't in BEDTABLE.DBF
 unknown_location_name = u'(unknown)'
 unknown_location_code = u'UNK'
 if options.stage == '0':
     location_table.insert().values(code=unknown_location_code,
                                   name=unknown_location_name).execute().close()
+    location_table.insert().values(code=u'8A', name=u'8A').execute().close()
+    location_table.insert().values(code=u'1B49', name=u'1B49').execute().close()
 unknown_location_id = get_column_value(location_table.c.id,
                               location_table.c.code==unknown_location_code)
 
@@ -276,20 +288,41 @@ def species_dict_from_rec(rec, defaults=None):
                 pass
         return d
 
-    row['sp'] = utils.utf8(rec['species'])
+    def has_value(col):
+        return col.upper() in rec.dbf.fieldNames and rec[col]
+
+    def get_value(col, as_str=True):
+        if has_value(col):
+            if as_str:
+                return utils.utf8(rec[col])
+            else:
+                return rec[col]
+        return None
+
+    row['sp'] = get_value('species')
     if rec['is']:
         row['hybrid'] = True
     else:
         row['hybrid'] = False
 
+    row['infrasp1'] = None
+    row['infrasp1_rank'] = None
+    row['infrasp1_author'] = None
+    row['infrasp2'] = None
+    row['infrasp2_rank'] = None
+    row['infrasp2_author'] = None
+    row['infrasp3'] = None
+    row['infrasp3_rank'] = None
+    row['infrasp3_author'] = None
+
     authors = [None, None, None, None]
-    if 'AUTHORS' in rec.dbf.fieldNames and rec['authors']:
+    if has_value('authors'):
         # the bars in the author string delineate the authors for the
         # different epithet ranks
         #
         # TODO: should we do some sort of smart capitalization here
         clean = lambda a: None if a in ('', ' ') else a
-        authors = map(clean, utils.utf8(rec['authors']).split('|'))
+        authors = map(clean, get_value('authors').split('|'))
     row['sp_author'] = authors[0]
     try:
         # not all species records have the same amount of author so we
@@ -302,25 +335,25 @@ def species_dict_from_rec(rec, defaults=None):
 
     # match all the combinations of rank, infrepi and cultivar
     if rec['rank'] and rec['infrepi'] and rec['cultivar']:
-        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
-        row['infrasp1'] = utils.utf8(rec['infrepi'])
+        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
+        row['infrasp1'] = get_value('infrepi')
         row['infrasp2_rank'] = u'cv.'
-        row['infrasp2'] = utils.utf8(rec['cultivar'])
+        row['infrasp2'] = get_value('cultivar')
     elif rec['rank'] and not rec['infrepi'] and rec['cultivar']:
         # has infraspecific rank but no epithet...and a cultivar...??
         # maybe in this case we should just drop the rank and add cv. cultivar
         problems[0].append(clean_rec(rec))
-        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
+        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
         row['infrasp1'] = u''
         row['infrasp2_rank'] = u'cv.'
         row['infrasp2'] = u''
     elif rec['rank'] and rec['infrepi'] and not rec['cultivar']:
-        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
-        row['infrasp1'] = utils.utf8(rec['infrepi'])
+        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
+        row['infrasp1'] = get_value('infrepi')
     elif rec['rank'] and not rec['infrepi'] and not rec['cultivar']:
         # has infrespecific rank but no epithet...???
         problems[1].append(clean_rec(rec))
-        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
+        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
         row['infrasp1'] = u''
     elif not rec['rank'] and rec['infrepi'] and rec['cultivar']:
         # have an infraspecific epithet and cultivar but no
@@ -328,52 +361,46 @@ def species_dict_from_rec(rec, defaults=None):
         # TODO: could this mean that the infrepi part is the hybrid part
         problems[2].append(clean_rec(rec))
         row['infrasp1_rank'] = u'cv.'
-        row['infrasp1'] = utils.utf8(rec['cultivar'])
+        row['infrasp1'] = get_value('cultivar')
         if row['hybrid']:
-            row['sp2'] = utils.utf8(rec['infrepi'])
+            row['sp2'] = get_value('infrepi')
         else:
             row['infrasp2_rank'] = u'var.'
-            row['infrasp2'] = utils.utf8(rec['infrepi'])
+            row['infrasp2'] = get_value('infrepi')
     elif not rec['rank'] and rec['infrepi'] and not rec['cultivar']:
         # has infraspecific epithet but not rank or cultivar.???
         problems[3].append(clean_rec(rec))
         if row['hybrid']:
-            row['sp2'] = utils.utf8(rec['infrepi'])
+            row['sp2'] = get_value('infrepi')
         else:
             # WARNING: adding this as a variety is probably wrong but
             # what else can we do
             row['infrasp1_rank'] = u'var.'
-            row['infrasp1'] = utils.utf8(rec['infrepi'])
+            row['infrasp1'] = get_value('infrepi')
     elif not rec['rank'] and not rec['infrepi'] and rec['cultivar']:
         row['infrasp1_rank'] = u'cv.'
-        row['infrasp1'] = utils.utf8(rec['cultivar'])
+        row['infrasp1'] = get_value('cultivar')
     elif not rec['rank'] and not rec['infrepi'] and not rec['cultivar']:
         # use all the default values
         pass
     else:
         raise ValueError("ERROR: don't know how to handle record:\n%s" % rec)
 
-    if 'SCINOTE' in rec.dbf.fieldNames and rec['scinote']:
-        row['notes'] = utils.utf8(rec['scinote'])
+    row['notes'] = []
+    if has_value('SCINOTE'):
+        #print get_value('scinote')
+        row['notes'].append((u'Scientific', get_value('scinote')))
+    if has_value('PHENOL'):
+        row['notes'].append((u'Phenology', get_value('phenol')))
+    if has_value('NOTES'):
+        row['notes'].append((None, get_value('notes')))
+
+    row['awards'] = get_value('awards')
+    row['habit'] = get_value('habit')
+    row['flower_color'] = get_value('flower_color')
 
     return row
 
-
-def species_obj_from_rec(rec, defaults):
-    d = species_dict_from_rec(rec, defaults)
-    sp = Species()
-
-    if 'notes' in d:
-        notes = d.pop('notes')
-        note = SpeciesNote()
-        note.note = notes
-        note.date = '1/1/1900'
-        sp.notes.append(note)
-
-    for key, value in d.iteritems():
-        #print '%s=%s' % (key, value)
-        setattr(sp, key, value)
-    return sp
 
 
 def do_family():
@@ -413,11 +440,7 @@ def do_family():
         del rec
 
     # insert the families
-    conn = db.engine.connect()
-    trans = conn.begin()
-    conn.execute(insert, *list(families.values()))
-    trans.commit()
-    conn.close()
+    insert_rows(insert, list(families.values()))
     info('inserted %s family.' % len(families))
 
     # get the family id's for the genepra
@@ -439,11 +462,7 @@ def do_family():
 
     # insert the genus rows
     insert = get_insert(genus_table, ['genus', 'family_id'])
-    conn = db.engine.connect()
-    trans = conn.begin()
-    conn.execute(insert, *genus_rows)
-    trans.commit()
-    conn.close()
+    insert_rows(insert, genus_rows)
     info('inserted %s genus rows out of %s records.' \
              % (len(genus_rows), len(dbf)))
     dbf.close()
@@ -490,11 +509,6 @@ def do_sciname():
     # fields to nix:
     # authcheck
 
-
-    # TODO: would probably be faster to bulk insert all the species
-    # and then retrieve all the species ids for the other
-    # objects...could have some sort of map of
-    # {species_namedtuple: [notes, vernames, etc]
     status('converting SCINAME.DBF ...')
     genus_insert = get_insert(genus_table, ['genus', 'family_id'])
     species_defaults = get_defaults(species_table)
@@ -502,9 +516,9 @@ def do_sciname():
 
     no_genus_ctr = 0 # num of records with not genus
     rec_ctr = 0 # num of records
-    commit_ctr = 0 # num of rows commited
+    dup_ctr = 0 # the num of rows with duplicate species date
 
-    session = sessionmaker(autocommit=True)()
+    session = db.Session()
 
     # create a map of habits ids to habit codes
     habits = {}
@@ -516,9 +530,27 @@ def do_sciname():
     for color in session.query(Color):
         colors[color.code] = color.id
 
-    species_rows = collections.deque()
+    session.close()
+
+    notes_hash = {}
+    vernac_hash = {}
+    species_rows = []
     dbf = open_dbf('SCINAME.DBF')
+
+    columns = ['genus_id', 'sp', 'sp2', 'sp_author', 'hybrid', 'infrasp1',
+               'infrasp1_rank', 'infrasp1_author', 'infrasp2', 'infrasp2_rank',
+               'infrasp2_author', 'infrasp3', 'infrasp3_rank',
+               'infrasp3_author', '_created', '_last_updated', 'awards',
+               'habit_id', 'flower_color_id']
+    species_insert = get_insert(species_table, columns)
+    make_tuple = lambda r: tuple([r[c] for c in columns])
+
+    species_map = {} # so we can lookup the inserted species later
+    hashes = set()
+
     for rec in dbf:
+        if rec_ctr % 200 == 0:
+            gc.collect()
         rec_ctr += 1
         genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
         genus_id = None
@@ -555,80 +587,147 @@ def do_sciname():
         # that says something like "it appears the species already
         # exists"
         defaults = species_defaults.copy()
-        row = species_obj_from_rec(rec, defaults=defaults)
-        species_rows.append(row)
-
-        # set the genus on the new row
-        row.genus = session.query(Genus).get(genus_id)
+        #row = species_obj_from_rec(rec, defaults=defaults)
+        row = species_dict_from_rec(rec, defaults)
+        row['genus_id'] = genus_id
+        if not 'sp2' in row:
+            row['sp2'] = None
 
         # set the habit
-        row.habit_id = None
-        try:
-            row.habit_id = habits[rec['HABIT']]
-        except KeyError, e:
-            # make sure we only get here because the habit is empty
-            if rec['HABIT'] not in ('', ' '):
-                raise
+        habit = row.pop('habit')
+        if habit not in (None, '', ' '):
+            row['habit_id'] = habits[habit]
+        else:
+            row['habit_id'] = None
 
-        # # TODO: flower color can have -,>& delimiters....what should
-        # # we do, create two flower colors for a species????
-        row.flower_color_id = None
-        try:
-            row.flower_color_id = colors[rec['FLCOLOR']]
-        except KeyError, e:
-            #print e
-            pass
+        # TODO: flower color can have -,>& delimiters....what should
+        # we do, create two flower colors for a species????
+        flower_color = row.pop('flower_color')
+        if flower_color not in (None, '', ' '):
+            row['flower_color_id'] = colors[flower_color]
+        else:
+            row['flower_color_id'] = None
 
-        if rec['comname']:
-            names = rec['comname'].split(',')
-            names = [VernacularName(name=utils.utf8(name.strip()),
-                                    language=u'English') \
-                         for name in rec['comname'].split(',')]
-            # TODO: can you set the names list to the vernacular names
-            # property directly
-            row.vernacular_names.extend(names)
-            row.default_vernacular_name = names[0]
+        species_tuple = make_tuple(row)
+        species_hash = hash(species_tuple)
 
-        if rec['scinote']:
-            note = SpeciesNote()
-            note.note = utils.utf8(rec['scinote'])
-            note.category = u'BGAS'
-            note.date = '1/1/1900'
-            note.species = row
+        # pop the non species names parts that we'll use to look up
+        # the species later
+        notes = row.pop('notes')
+        # if the species_hash is the same, e.g. the species name is
+        # the same we still has all the notes even though in some
+        # cases even the notes will be the same, e.g.
+        # ;Gaura;;lindheimeri;;;Crimson Butterflies;ENGELM.& A.GRAY | | |;HER_P;;Garden Origin;;False;Pride of Place Plants (New Eden) online;;;PIN; 5;To 60cm/Foliage dark crimson.;
+        notes_hash.setdefault(species_hash, []).extend(notes)
 
-        if rec['phenol']:
-            note = SpeciesNote()
-            note.note = utils.utf8(rec['scinote'])
-            note.category = u'Phenological'
-            note.date = '1/1/1900'
-            note.species = row
+        comname = rec['comname']
+        if comname not in (None, '', ' '):
+            names = comname.split(',')
+            vernac_hash.setdefault(species_hash, []).extend(names)
 
-        if (rec_ctr % 200) == 0:
-            # collect periodically so we don't run out of memory
-            session.begin()
-            session.add_all(species_rows)
-            session.commit()
-            commit_ctr += len(species_rows)
-            session.expunge_all()
-            species_rows.clear()
-            gc.collect()
+        # hash the species data tuples so we know if we are creating
+        # duplicates and to make the rows retrievable so we can look
+        # up the species ids later
+        if species_hash not in hashes:
+            hashes.add(species_hash)
+            species_map[species_hash] = row.copy()
+            # only insert non duplicates
+            species_rows.append(row)
+        #elif species_map[species_hash] != row:
+        else:
+            dup_ctr += 1
+            # error(genus)
+            # error('values already exist: %s' % row)
+            # #error('%s' % str(species_tuple))
+            # print
+            # error(species_map[species_hash])
+            # raise ValueError
 
-    session.begin()
-    session.add_all(species_rows)
-    session.commit()
-    commit_ctr += len(species_rows)
-    species_rows.clear()
-    session.close()
+    nrecords = len(dbf)
+    dbf.close() # close it so we can garbage collect before insert
     gc.collect()
 
-    info('inserted %s species in %s records' % (commit_ctr, len(dbf)))
-    if commit_ctr != len(dbf):
+    insert_rows(species_insert, species_rows)
+    info('inserted %s species in %s records (%s duplicates)' % \
+             (len(species_rows), nrecords, dup_ctr))
+    if len(species_rows)+dup_ctr != nrecords:
         raise ValueError
 
     warning('** %s sciname entries with no genus.  Added to the genus %s' \
                 % (no_genus_ctr, unknown_genus_name))
-    dbf.close()
-    del dbf
+
+    i = 0
+    # insert the species notes
+    species_ids = {}
+    # resolve the species ids
+    for species_hash, row in species_map.iteritems():
+        if i % 200 == 0:
+            gc.collect()
+        i += 1
+        conditions = []
+        for col, val in row.iteritems():
+            if col not in ('_last_updated', '_created'):
+                conditions.append(species_table.c[col]==val)
+        species_id = get_column_value(species_table.c.id, and_(*conditions))
+        species_ids[species_hash] = species_id
+
+    species_map.clear()
+    del species_map
+
+    i = 0
+    species_note_defaults = get_defaults(species_note_table)
+    all_notes = []
+    for species_hash, notes in notes_hash.iteritems():
+        if i % 200 == 0:
+            gc.collect()
+        i += 1
+        species_id = species_ids[species_hash]
+        for category, note in notes:
+            n = species_note_defaults.copy()
+            n['category'] = category
+            n['note'] = note
+            n['date'] = '1/1/1900'
+            n['species_id'] = species_id
+            all_notes.append(n)
+
+    if all_notes:
+        note_insert = get_insert(SpeciesNote.__table__,
+                             ['category', 'date', 'note', 'species_id'])
+        insert_rows(note_insert, all_notes)
+    info('%s species notes inserted' % len(all_notes))
+    del all_notes[:]
+    notes_hash.clear()
+
+
+    i = 0
+    vernacular_name_defaults = get_defaults(VernacularName.__table__)
+    names_set = set() # to test for duplicates
+    all_names = []
+    for species_hash, names in vernac_hash.iteritems():
+        if i % 200 == 0:
+            gc.collect()
+        i += 1
+        # TODO: do default vernacular names
+        for name in names:
+            name = utils.utf8(name).strip()
+            # don't add duplicates
+            if (species_id, name) not in names_set:
+                n = vernacular_name_defaults.copy()
+                n['name'] = name
+                n['language'] = u'English'
+                n['species_id'] = species_id
+                all_names.append(n)
+                names_set.add((species_id, name))
+
+    if all_names:
+        name_insert = get_insert(VernacularName.__table__,
+                             ['name', 'language', 'species_id'])
+        insert_rows(name_insert, all_names)
+    info('%s vernacular names inserted' % len(all_names))
+    del all_names[:]
+    vernac_hash.clear()
+    gc.collect()
+
 
 
 def get_species(rec, defaults=None):
@@ -684,11 +783,12 @@ def get_species(rec, defaults=None):
     defaults['genus_id'] = genus_id
     row = species_dict_from_rec(rec, defaults=defaults)
 
-    if 'notes' in row:
-        row.pop('notes')
-
+    query_parts = row.copy()
+    query_parts.pop('habit')
+    query_parts.pop('notes')
+    query_parts.pop('flower_color')
     conditions = []
-    for col, val in row.iteritems():
+    for col, val in query_parts.iteritems():
         if col not in ('_last_updated', '_created'):
             conditions.append(species_table.c[col]==val)
 
@@ -725,24 +825,32 @@ def do_plants():
     species_defaults.update(dict(genus_id=None, sp=None, sp2=None,
                                  infrasp1=None, infrasp1_rank=None,
                                  infrasp2=None, infrasp2_rank=None))
-    delayed_species = collections.deque()
-    delayed_accessions = collections.deque()
-    acc_rows = collections.deque()
+    delayed_species = []
+    delayed_accessions = []
+    acc_rows = []
 
     # TODO: what if the data differs but the accession code is the
     # same...does this ever happen in practice
     added_codes = set()
     plants = set()
 
+    # sp_name_columns = ['genus_id', 'sp', 'sp2', 'sp_author', 'hybrid',
+    #                    'infrasp1', 'infrasp1_rank', 'infrasp1_author',
+    #                    'infrasp2', 'infrasp2_rank', 'infrasp2_author',
+    #                    'infrasp3', 'infrasp3_rank', 'infrasp3_author']
+    # species_insert = get_insert(species_table, columns)
+    # make_tuple = lambda r: tuple([r[c] for c in columns])
+
     rec_ctr = 0
+    # build up a list of all the accession and plants
     for rec in dbf:
-        rec_ctr += 1
         if (rec_ctr % 200) == 0:
             # collect periodically so we don't run out of memory
             gc.collect()
             if options.verbosity > 1:
                 sys.stdout.write('.')
                 sys.stdout.flush()
+        rec_ctr += 1
 
         # TODO: create tags for PISBG
 
@@ -759,12 +867,17 @@ def do_plants():
             error('** accno is empty: %s' % rec['accno'])
             raise ValueError('** accno is empty: %s' % rec['accno'])
 
+        # TODO: need to make sure the accno and propno are unique
         if rec['accno'] not in added_codes:
             added_codes.add(rec['accno'])
         else:
             # don't add duplicates
             continue
 
+        # look up the species_id for the accessions, if we can't find
+        # the species_id then add the species row to delayed_species
+        # and we'll bulk commit them later and look up the species_id
+        # for the accessions after that
         species = get_species(rec, species_defaults)
         row = acc_defaults.copy()
         row['code'] = unicode(rec['accno'])
@@ -783,18 +896,14 @@ def do_plants():
     # TODO: could inserting all the delayed species cause problems
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
-    debug('  populating delayed species...')
-    conn = db.engine.connect()
-    trans = conn.begin()
+    debug('  insert delayed species...')
     species_insert = get_insert(species_table, species_defaults.keys())
-    conn.execute(species_insert, *delayed_species)
+    insert_rows(species_insert, delayed_species)
     info('inserted %s species from plants.dbf' % len(delayed_species))
-    trans.commit()
-    conn.close()
 
     gc.collect()
 
-    # set species id on the rows that we couldn't get earlier
+    # set species id on the accession rows that we couldn't get earlier
     rec_ctr = 0
     debug('  populating delayed accessions...')
     for species, acc in delayed_accessions:
@@ -805,8 +914,10 @@ def do_plants():
 
         # get the species id now that all the species have been inserted
         conditions = []
+        ignore_columns = ('_last_updated', '_created', 'id', 'habit', 'notes',
+                          'flower_color', 'awards')
         for col, val in species.iteritems():
-            if col not in ('_last_updated', '_created', 'id'):
+            if col not in ignore_columns:
                 conditions.append(species_table.c[col]==val)
         sql = select([species_table.c.id], and_(*conditions))
         result = db.engine.execute(sql).fetchone()
@@ -820,21 +931,19 @@ def do_plants():
 
     # insert the accessions
     debug('  insert %s accessions...' % len(acc_rows))
-    conn = db.engine.connect()
-    trans = conn.begin()
-    conn.execute(acc_insert, *acc_rows)
+    insert_rows(acc_insert, acc_rows)
     info('inserted %s accesions out of %s records' \
              % (len(acc_rows), len(dbf)))
-    trans.commit()
-    conn.close()
 
     dbf.close()
     del dbf
     # now that we have all the accessions loop through all the records
     # again and create the plants
-    values = collections.deque()
+    values = []
     plant_defaults = get_defaults(plant_table)
-    row_map = {}
+    # the plants_map is used to refer to plant rows by (acc.code, plant.code)
+    # so that we can later set the locations
+    plants_map = {}
     rec_ctr = 0
     for acc_code, plant_code in plants:
         rec_ctr += 1
@@ -848,7 +957,11 @@ def do_plants():
         row['code'] = unicode(plant_code)
         row['location_id'] = unknown_location_id
         # TODO: should check row doesn't already exists
-        row_map[(acc_code, plant_code)] = row
+        if (acc_code, plant_code) not in plants_map:
+            plants_map[(acc_code, plant_code)] = row
+        else:
+            error(row)
+            raise ValueError
         values.append(row)
 
     gc.collect()
@@ -856,34 +969,53 @@ def do_plants():
     # instead we just loop through the hereitis table and set the
     # values on the plant before inserting the plant rows
 
-    # loop through the hereitis table to set the location_id
+    locations = {}
+    session = db.Session()
+    for loc in session.query(Location):
+        locations[loc.code] = loc.id
+    session.close()
+
+    # loop through the hereitis table to set the location_id, for any
+    # plants that are in PLANTS.DBF but aren't in HEREITIS.DBF the
+    # locations is set to unknown_location
     status('converting HEREITIS.DBF ...')
+    # TODO: the HEREITIS table can have duplicate rows for the same
+    # accession number and plant code
     dbf = open_dbf('HEREITIS.DBF')
     rec_ctr = 0
+    added = set()
+    hereitis_dupes = set()
     for rec in dbf:
         rec_ctr += 1
-        if (rec_ctr % 500) == 0:
+        if (rec_ctr % 200) == 0:
             # collect periodically so we don't run out of memory
             gc.collect()
         acc_code = unicode(rec['accno'])
         plant_code = unicode(rec['propno'])
         bedno = unicode(rec['bedno'])
-        location_id = unknown_location_id
-        if bedno not in ('8A', '1B49'):
-            location_id = get_column_value(location_table.c.id,
-                                           location_table.c.code == bedno)
+        location_id = locations[bedno]
+        plant_tuple = (acc_code, plant_code)
+        if plants_map[plant_tuple]['location_id'] == unknown_location_id:
+            plants_map[plant_tuple]['location_id'] = location_id
+            added.add(plant_tuple)
         else:
-            error('location does not exist for %s.%s: %s' % \
-                      (acc_code, plant_code, bedno))
-        row_map[(acc_code, plant_code)]['location_id'] = location_id
-        del rec
+            # it looks like the dupes have different l_update columns
+            # so maybe we should drop them if everything else is the
+            # same and use whichever one has the latest date...it
+            # seems like if anything they should be transfers or just
+            # old date that wasn't updated
+            hereitis_dupes.add(rec)
+            # error(plants_map[plant_tuple])
+            # raise ValueError('location_id already set')
 
-    conn = db.engine.connect()
-    trans = conn.begin()
-    conn.execute(plant_table.insert(), *values)
-    trans.commit()
-    conn.close()
+    plant_insert = get_insert(plant_table, ['accession_id', 'code',
+                                            'location_id'])
+    insert_rows(plant_insert, values)
     status('inserted %s plants' % len(values))
+    #status('%s duplicates' % dup_ctr)
+    status('%s duplicates' % len(hereitis_dupes))
+    dbf.close()
+
 
 
 def do_bedtable():
@@ -978,6 +1110,44 @@ def do_color():
     info('inserted %s colors.' % len(color_rows))
 
 
+def do_removals():
+    """
+    Convert the REMOVALS.DBF table to bauble.plugins.garnde.plant.PlantRemoval
+    """
+    # accno;propno;remodate;remoqty;remocode;remofrom;notes
+    # TODO: we don't have an equivalent for quantity
+    status('converting REMOVALS.DBF ...')
+    removal_table = PlantRemoval.__table__
+    defaults = get_defaults(removal_table)
+    dbf = open_dbf('REMOVALS.DBF')
+    removal_rows = []
+    locations = {}
+    session = db.Session()
+    for loc in session.query(Location):
+        locations[loc.code] = loc.id
+    session.close()
+    for rec in dbf:
+        row = defaults.copy()
+        # get the plant code
+        # TODO: the date format is yyyy-mm-dd...does this work for us
+        row['date'] = rec['remodate']
+        row['from_location_id'] = locations[rec['remofrom']]
+        plant_id = get_column_value(plant_table.c.id,
+                                    and_(Plant.code==unicode(rec['propno']),
+                                         Accession.code==unicode(rec['accno'])))
+        if not plant_id:
+            error(row)
+            raise ValueError
+        row['plant_id'] = plant_id
+        removal_rows.append(row)
+        # note = {}
+        # note['note'] = rec['notes']
+        # note['date'] = rec['remodate']
+    insert = get_insert(PlantRemoval.__table__,
+                        ['date', 'from_location_id', 'plant_id'])
+    insert_rows(insert, removal_rows)
+
+
 
 stages = {'0': do_family,
           '1': do_habit,
@@ -985,7 +1155,8 @@ stages = {'0': do_family,
           '3': do_sciname,
           '4': do_bedtable,
           '5': do_plants,
-          '6': do_synonym}
+          '6': do_synonym,
+          '7': do_removals}
 
 def run():
     for stage in range(int(options.stage), nstages):
@@ -1006,14 +1177,14 @@ def chunk(iterable, n):
     '''
     # TODO: this could probably be implemented way more efficiently,
     # maybe using itertools
-    chunk = collections.deque()
+    chunk = []
     ctr = 0
     for it in iterable:
         chunk.append(it)
         ctr += 1
         if ctr >= n:
             yield chunk
-            chunk = collections.deque()
+            chunk = []
             ctr = 0
 
 
