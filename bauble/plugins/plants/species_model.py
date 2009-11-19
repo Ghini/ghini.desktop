@@ -184,6 +184,8 @@ class Species(db.Base):
     flower_color_id = Column(Integer, ForeignKey('color.id'), default=None)
     flower_color = relation('Color', uselist=False)
 
+    awards = Column(UnicodeText)
+
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
 
