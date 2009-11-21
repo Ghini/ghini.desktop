@@ -249,8 +249,23 @@ problems = {0: [],
             2: [],
             3: []}
 
+def has_value(rec, col):
+        return col.upper() in rec.dbf.fieldNames and rec[col]
 
-def species_dict_from_rec(rec, defaults=None):
+
+def get_value(rec, col, as_str=True):
+    """
+    Return a value from the rec if it exists.
+    """
+    if has_value(rec, col):
+        if as_str:
+            return utils.utf8(rec[col])
+        else:
+            return rec[col]
+    return None
+
+
+def species_name_dict_from_rec(rec, defaults=None):
     """
     Return a dictionary that maps to the columns on a species table.
     This function will only use the parts of the record that make up
@@ -271,6 +286,7 @@ def species_dict_from_rec(rec, defaults=None):
 
     #print 'default: %s' % species_table_defaults
     #row['genus_id'] = rec['genus_id']
+    row['genus'] = str('%s %s' % (rec['ig'], rec['genus'])).strip()
 
     def clean_rec(rec):
         d = rec.asDict()
@@ -288,18 +304,8 @@ def species_dict_from_rec(rec, defaults=None):
                 pass
         return d
 
-    def has_value(col):
-        return col.upper() in rec.dbf.fieldNames and rec[col]
-
-    def get_value(col, as_str=True):
-        if has_value(col):
-            if as_str:
-                return utils.utf8(rec[col])
-            else:
-                return rec[col]
-        return None
-
-    row['sp'] = get_value('species')
+    row['sp'] = get_value(rec, 'species')
+    row['sp2'] = None
     if rec['is']:
         row['hybrid'] = True
     else:
@@ -316,13 +322,13 @@ def species_dict_from_rec(rec, defaults=None):
     row['infrasp3_author'] = None
 
     authors = [None, None, None, None]
-    if has_value('authors'):
+    if has_value(rec, 'authors'):
         # the bars in the author string delineate the authors for the
         # different epithet ranks
         #
         # TODO: should we do some sort of smart capitalization here
         clean = lambda a: None if a in ('', ' ') else a
-        authors = map(clean, get_value('authors').split('|'))
+        authors = map(clean, get_value(rec, 'authors').split('|'))
     row['sp_author'] = authors[0]
     try:
         # not all species records have the same amount of author so we
@@ -335,25 +341,25 @@ def species_dict_from_rec(rec, defaults=None):
 
     # match all the combinations of rank, infrepi and cultivar
     if rec['rank'] and rec['infrepi'] and rec['cultivar']:
-        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
-        row['infrasp1'] = get_value('infrepi')
+        row['infrasp1_rank'] = get_value(rec, 'rank').replace('ssp.','subsp.')
+        row['infrasp1'] = get_value(rec, 'infrepi')
         row['infrasp2_rank'] = u'cv.'
-        row['infrasp2'] = get_value('cultivar')
+        row['infrasp2'] = get_value(rec, 'cultivar')
     elif rec['rank'] and not rec['infrepi'] and rec['cultivar']:
         # has infraspecific rank but no epithet...and a cultivar...??
         # maybe in this case we should just drop the rank and add cv. cultivar
         problems[0].append(clean_rec(rec))
-        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
+        row['infrasp1_rank'] = get_value(rec, 'rank').replace('ssp.','subsp.')
         row['infrasp1'] = u''
         row['infrasp2_rank'] = u'cv.'
         row['infrasp2'] = u''
     elif rec['rank'] and rec['infrepi'] and not rec['cultivar']:
-        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
-        row['infrasp1'] = get_value('infrepi')
+        row['infrasp1_rank'] = get_value(rec, 'rank').replace('ssp.','subsp.')
+        row['infrasp1'] = get_value(rec, 'infrepi')
     elif rec['rank'] and not rec['infrepi'] and not rec['cultivar']:
         # has infrespecific rank but no epithet...???
         problems[1].append(clean_rec(rec))
-        row['infrasp1_rank'] = get_value('rank').replace('ssp.','subsp.')
+        row['infrasp1_rank'] = get_value(rec, 'rank').replace('ssp.','subsp.')
         row['infrasp1'] = u''
     elif not rec['rank'] and rec['infrepi'] and rec['cultivar']:
         # have an infraspecific epithet and cultivar but no
@@ -361,43 +367,30 @@ def species_dict_from_rec(rec, defaults=None):
         # TODO: could this mean that the infrepi part is the hybrid part
         problems[2].append(clean_rec(rec))
         row['infrasp1_rank'] = u'cv.'
-        row['infrasp1'] = get_value('cultivar')
+        row['infrasp1'] = get_value(rec, 'cultivar')
         if row['hybrid']:
-            row['sp2'] = get_value('infrepi')
+            row['sp2'] = get_value(rec, 'infrepi')
         else:
             row['infrasp2_rank'] = u'var.'
-            row['infrasp2'] = get_value('infrepi')
+            row['infrasp2'] = get_value(rec, 'infrepi')
     elif not rec['rank'] and rec['infrepi'] and not rec['cultivar']:
         # has infraspecific epithet but not rank or cultivar.???
         problems[3].append(clean_rec(rec))
         if row['hybrid']:
-            row['sp2'] = get_value('infrepi')
+            row['sp2'] = get_value(rec, 'infrepi')
         else:
             # WARNING: adding this as a variety is probably wrong but
             # what else can we do
             row['infrasp1_rank'] = u'var.'
-            row['infrasp1'] = get_value('infrepi')
+            row['infrasp1'] = get_value(rec, 'infrepi')
     elif not rec['rank'] and not rec['infrepi'] and rec['cultivar']:
         row['infrasp1_rank'] = u'cv.'
-        row['infrasp1'] = get_value('cultivar')
+        row['infrasp1'] = get_value(rec, 'cultivar')
     elif not rec['rank'] and not rec['infrepi'] and not rec['cultivar']:
         # use all the default values
         pass
     else:
         raise ValueError("ERROR: don't know how to handle record:\n%s" % rec)
-
-    row['notes'] = []
-    if has_value('SCINOTE'):
-        #print get_value('scinote')
-        row['notes'].append((u'Scientific', get_value('scinote')))
-    if has_value('PHENOL'):
-        row['notes'].append((u'Phenology', get_value('phenol')))
-    if has_value('NOTES'):
-        row['notes'].append((None, get_value('notes')))
-
-    row['awards'] = get_value('awards')
-    row['habit'] = get_value('habit')
-    row['flower_color'] = get_value('flower_color')
 
     return row
 
@@ -552,8 +545,9 @@ def do_sciname():
         if rec_ctr % 200 == 0:
             gc.collect()
         rec_ctr += 1
-        genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
-        genus_id = None
+        defaults = species_defaults.copy()
+        row = species_name_dict_from_rec(rec, defaults)
+        genus = row.pop('genus')
         if not genus:
             # no genus for the species record so use the catch-all
             # unknown genus
@@ -586,12 +580,22 @@ def do_sciname():
         # can probably go ahead and import it but just give a message
         # that says something like "it appears the species already
         # exists"
-        defaults = species_defaults.copy()
-        #row = species_obj_from_rec(rec, defaults=defaults)
-        row = species_dict_from_rec(rec, defaults)
         row['genus_id'] = genus_id
-        if not 'sp2' in row:
-            row['sp2'] = None
+        species_tuple = tuple(zip(row.keys(), row.values()))
+        species_hash = hash(species_tuple)
+
+        row['notes'] = []
+        if has_value(rec, 'SCINOTE'):
+            #print get_value(rec, 'scinote')
+            row['notes'].append((u'Scientific', get_value(rec, 'scinote')))
+        if has_value(rec, 'PHENOL'):
+            row['notes'].append((u'Phenology', get_value(rec, 'phenol')))
+        if has_value(rec, 'NOTES'):
+            row['notes'].append((None, get_value(rec, 'notes')))
+
+        row['awards'] = get_value(rec, 'awards')
+        row['habit'] = get_value(rec, 'habit')
+        row['flower_color'] = get_value(rec, 'flower_color')
 
         # set the habit
         habit = row.pop('habit')
@@ -608,9 +612,6 @@ def do_sciname():
         else:
             row['flower_color_id'] = None
 
-        species_tuple = make_tuple(row)
-        species_hash = hash(species_tuple)
-
         # pop the non species names parts that we'll use to look up
         # the species later
         notes = row.pop('notes')
@@ -620,6 +621,10 @@ def do_sciname():
         # ;Gaura;;lindheimeri;;;Crimson Butterflies;ENGELM.& A.GRAY | | |;HER_P;;Garden Origin;;False;Pride of Place Plants (New Eden) online;;;PIN; 5;To 60cm/Foliage dark crimson.;
         notes_hash.setdefault(species_hash, []).extend(notes)
 
+        # TODO: this vernacular name thing isn't working properly and
+        # is creating a lot of vernacular names in the wrong
+        # place....or maybe its just a problem with the view not
+        # clearing them out when the editors are opened
         comname = rec['comname']
         if comname not in (None, '', ' '):
             names = comname.split(',')
@@ -729,79 +734,17 @@ def do_sciname():
     gc.collect()
 
 
-
-def get_species(rec, defaults=None):
+def get_species_id(species, defaults=None):
     """
-    Try to determine the species id of a record.
-
-    WARNING: If a genus is found in the rec and does not exist then it
-    is inserted.
-
-    :param rec: a dbf record
-    :parem defaults: the default dict to use for the species values
     """
-    # TODO: this could probably become a generic function where we
-    # can also pass a flag on whether to create the species if we
-    # can't find them...do the same for get_family_id() and
-    # get_genus_id()
-
-    genus_id = None
-    genus = None
-
-    if not defaults:
-        defaults = get_defaults(species_table)
-
-    if 'IG' in rec:
-        genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
-    else:
-        genus = str('%s' % rec['genus'])
-
-    #genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
-    if 'genus_id' in rec and rec['genus_id']:
-        genus_id = r['genus_id']
-        genus = get_column_value(genus_table.c.genus,
-                                 genus_table.c.genus_id == genus_id)
-    else:
-        genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
+    if 'genus_id' not in species:
         genus_id = get_column_value(genus_table.c.id,
-                                    genus_table.c.genus == genus)
-
-    # TODO: i don't like that this function inserts genera
-    if not genus_id:
-        # TODO: here we're assume the genera don't have an
-        # associated family but it shouldn't really matter b/c
-        # there seems to be only one genus (BL.0178) in plants.dbf
-        # that isn't already in the database
-        info('adding genus %s from plants.dbf.' % genus)
-        genus_table.insert().values(family_id=unknown_family_id,
-                                    genus=genus).execute().close()
-        genus_id = get_column_value(genus_table.c.id,
-                             genus_table.c.genus == genus)
-        warning('genus has no family: %s' % genus)
-
-    defaults = defaults.copy()
-    defaults['genus_id'] = genus_id
-    row = species_dict_from_rec(rec, defaults=defaults)
-
-    query_parts = row.copy()
-    query_parts.pop('habit')
-    query_parts.pop('notes')
-    query_parts.pop('flower_color')
+                                    genus_table.c.genus == species['genus'])
     conditions = []
-    for col, val in query_parts.iteritems():
-        if col not in ('_last_updated', '_created'):
+    for col, val in species.iteritems():
+        if col not in ('_last_updated', '_created', 'genus'):
             conditions.append(species_table.c[col]==val)
-
-    sql = select([species_table.c.id], and_(*conditions))
-    result = db.engine.execute(sql).fetchone()
-    if result:
-        row['id'] = result[0]
-        result.close()
-    else:
-        # TODO: should the species id be set to None or just not added
-        row['id'] = None
-
-    return row
+    return get_column_value(species_table.c.id, and_(*conditions))
 
 
 def do_plants():
@@ -822,10 +765,10 @@ def do_plants():
                             ['code', 'species_id', ])
     acc_defaults = get_defaults(acc_table)
     species_defaults = get_defaults(species_table)
-    species_defaults.update(dict(genus_id=None, sp=None, sp2=None,
-                                 infrasp1=None, infrasp1_rank=None,
-                                 infrasp2=None, infrasp2_rank=None))
-    delayed_species = []
+    _last_updated = species_defaults.pop('_last_updated')
+    _created = species_defaults.pop('_created')
+    delayed_species = {}
+    species_ids = {}
     delayed_accessions = []
     acc_rows = []
 
@@ -833,13 +776,6 @@ def do_plants():
     # same...does this ever happen in practice
     added_codes = set()
     plants = set()
-
-    # sp_name_columns = ['genus_id', 'sp', 'sp2', 'sp_author', 'hybrid',
-    #                    'infrasp1', 'infrasp1_rank', 'infrasp1_author',
-    #                    'infrasp2', 'infrasp2_rank', 'infrasp2_author',
-    #                    'infrasp3', 'infrasp3_rank', 'infrasp3_author']
-    # species_insert = get_insert(species_table, columns)
-    # make_tuple = lambda r: tuple([r[c] for c in columns])
 
     rec_ctr = 0
     # build up a list of all the accession and plants
@@ -857,36 +793,79 @@ def do_plants():
         # TODO: should record the name of the person who creates new
         # accession and use the operator field for old
         # accessions...of course the audit trail will also record this
+
+        # accno/propno combinations are unique in PLANTS.DBF but not
+        # in HEREITIS.DBF
         p = (unicode(rec['accno']), unicode(rec['propno']))
         if p not in plants:
             plants.add(p)
         else:
             raise ValueError('duplicate accession: %s' % p)
 
+        # this is just and extra check and should never happen
         if not rec['accno']:
             error('** accno is empty: %s' % rec['accno'])
             raise ValueError('** accno is empty: %s' % rec['accno'])
 
-        # TODO: need to make sure the accno and propno are unique
         if rec['accno'] not in added_codes:
             added_codes.add(rec['accno'])
         else:
-            # don't add duplicates
+            # for now we're only creating accessions, not plants so
+            # only enter those that are unique
             continue
 
         # look up the species_id for the accessions, if we can't find
         # the species_id then add the species row to delayed_species
         # and we'll bulk commit them later and look up the species_id
         # for the accessions after that
-        species = get_species(rec, species_defaults)
         row = acc_defaults.copy()
         row['code'] = unicode(rec['accno'])
-        if 'id' in species and species['id']:
-            row['species_id'] = species['id']
+        species = species_name_dict_from_rec(rec, species_defaults)
+        species_tuple = tuple(zip(species.keys(), species.values()))
+
+        # check if we already have a cached species.id, if not then
+        # search for one in the database
+        if species_tuple in species_ids:
+            species_id = species_ids[species_tuple]
+        else:
+            species_id = species_ids.setdefault(species_tuple,
+                                                get_species_id(species))
+        if species_id:
+            row['species_id'] = species_id
             acc_rows.append(row)
         else:
-            delayed_species.append(species) # to bulk insert() later
-            delayed_accessions.append((species, row))
+            # couldn't get the species id so check if the genus is in
+            # the database and if it isn't then insert it
+            genus = species.pop('genus')
+            genus_id = get_column_value(genus_table.c.id,
+                                        genus_table.c.genus == genus)
+            if not genus_id:
+                # in the original test data that i got from UBC the
+                # only genus that didn't didn't exist was (BL.0178) so
+                # this might be uneccesary logic but its here just in case
+                info('adding genus %s from plants.dbf.' % genus)
+                family_id = unknown_family_id
+                # couldn't find the genus so add it
+                if genus.startswith('x '):
+                    # try to get a family of the parent genus if its a hybrid
+                    family_id = get_column_value(family_table.c.id,
+                                                 genus_table.c.genus==genus[2:])
+                    if not family_id:
+                        family_id = unknown_family_id
+                if family_id == unknown_family_id:
+                    warning('genus has no family: %s' % genus)
+                genus_table.insert().values(family_id=family_id,
+                                            genus=genus).execute().close()
+                genus_id = get_column_value(genus_table.c.id,
+                                            genus_table.c.genus==genus)
+
+            # add the timestamps back in since these are species we'll
+            # be creating later
+            species['genus_id'] = genus_id
+            species['_last_updated'] = _last_updated
+            species['_created'] = _created
+            delayed_species[species_tuple] = species
+            delayed_accessions.append((species_tuple, row))
 
     if options.verbosity > 1:
         print ''
@@ -896,17 +875,17 @@ def do_plants():
     # TODO: could inserting all the delayed species cause problems
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
-    debug('  insert delayed species...')
+    debug('  insert %s delayed species...' % len(delayed_species.values()))
     species_insert = get_insert(species_table, species_defaults.keys())
-    insert_rows(species_insert, delayed_species)
-    info('inserted %s species from plants.dbf' % len(delayed_species))
+    insert_rows(species_insert, delayed_species.values())
+    info('inserted %s species from plants.dbf' % len(delayed_species.values()))
 
     gc.collect()
 
     # set species id on the accession rows that we couldn't get earlier
     rec_ctr = 0
-    debug('  populating delayed accessions...')
-    for species, acc in delayed_accessions:
+    debug('  populating %s delayed accessions...' % (len(delayed_accessions)))
+    for species_tuple, acc in delayed_accessions:
         rec_ctr += 1
         if (rec_ctr % 200) == 0:
             # collect periodically so we don't run out of memory
@@ -916,15 +895,16 @@ def do_plants():
         conditions = []
         ignore_columns = ('_last_updated', '_created', 'id', 'habit', 'notes',
                           'flower_color', 'awards')
-        for col, val in species.iteritems():
-            if col not in ignore_columns:
-                conditions.append(species_table.c[col]==val)
-        sql = select([species_table.c.id], and_(*conditions))
-        result = db.engine.execute(sql).fetchone()
-        acc['species_id'] = result[0]
-        result.close()
+        species = delayed_species[species_tuple]
+        if isinstance(species, int):
+            species_id = species
+        else:
+            # find the species.id and cache it
+            species_id = get_species_id(species)
+            delayed_species[species_tuple] = species_id
+        acc['species_id'] = species_id
         acc_rows.append(acc)
-        del species
+    del delayed_species
     del delayed_accessions
 
     gc.collect()
@@ -952,6 +932,10 @@ def do_plants():
             gc.collect()
         acc_id = get_column_value(acc_table.c.id,
                                   acc_table.c.code == unicode(acc_code))
+        if not acc_id:
+            # this is just an extra check and we shouldn't ever get here
+            print str((acc_code, plant_code))
+            raise ValueError
         row = plant_defaults.copy()
         row['accession_id'] = acc_id
         row['code'] = unicode(plant_code)
