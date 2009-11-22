@@ -43,11 +43,6 @@ import bauble.view as view
 # info about the genus so we know exactly what plant is being selected
 # e.g. Malvaceae (sensu lato), Hibiscus (senso stricto)
 
-# FIXME: time.mktime can't handle dates before 1970 on win32
-
-# date regular expression for date entry fields
-_date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
-
 def longitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'long')
 
@@ -484,6 +479,10 @@ class Accession(db.Base):
     private = Column(Boolean, default=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
+    # intended location
+    intended_location_id = Column(Integer, ForeignKey('location.id'))
+    intended2_location_id = Column(Integer, ForeignKey('location.id'))
+
     # relations
     species = relation('Species', uselist=False, backref=backref('accessions',
                                                 cascade='all, delete-orphan'))
@@ -677,7 +676,8 @@ class AccessionEditorView(editor.GenericEditorView):
         'acc_id_qual_combo': _("The ID Qualifier\n\n" \
                                "Possible values: %s") \
                                % utils.enum_values_str('accession.id_qual'),
-        'acc_date_entry': _('The date this species was accessioned.'),
+        'acc_date_accd_entry': _('The date this species was accessioned.'),
+        'acc_date_recvd_entry': _('The date this species was received.'),
         'acc_prov_combo': _('The origin or source of this accession.\n\n' \
                             'Possible values: %s') % \
                             ', '.join(prov_type_values.values()),
@@ -718,6 +718,12 @@ class AccessionEditorView(editor.GenericEditorView):
             # TODO: should create a marked up string with the datum description
             model.append([abbr])
         completion.set_model(model)
+
+        self.init_translatable_combo('acc_prov_combo', prov_type_values)
+        self.init_translatable_combo('acc_wild_prov_combo',
+                                     wild_prov_status_values)
+        self.init_translatable_combo('acc_recvd_type_comboentry',
+                                     recvd_type_values)
 
 
     def get_window(self):
@@ -1167,7 +1173,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'acc_code_entry': 'code',
                            'acc_id_qual_combo': 'id_qual',
-                           'acc_date_entry': 'date',
+                           'acc_date_accd_entry': 'date_accd',
+                           'acc_date_recvd_entry': 'date_recvd',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
@@ -1220,10 +1227,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # set current page so we don't open the last one that was open
         self.view.widgets.acc_notebook.set_current_page(0)
-
-        self.init_translatable_combo('acc_prov_combo', prov_type_values)
-        self.init_translatable_combo('acc_wild_prov_combo',
-                                     wild_prov_status_values)
 
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
 
@@ -1303,6 +1306,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
         self.assign_simple_handler('acc_prov_combo', 'prov_type')
         self.assign_simple_handler('acc_wild_prov_combo', 'wild_prov_status')
+        self.assign_simple_handler('acc_recvd_type_comboentry', 'recvd_type')
 
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
@@ -1310,13 +1314,37 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # could
         self.view.connect('acc_code_entry', 'changed',
                           self.on_acc_code_entry_changed)
-        self.view.connect('acc_date_entry', 'changed',
-                          self.on_acc_date_entry_changed)
-        utils.setup_date_button(self.view.widgets.acc_date_entry,
-                                self.view.widgets.acc_date_button)
+
+        # date received
+        self.view.connect('acc_date_recvd_entry', 'changed',
+                          self.on_date_entry_changed, 'date_recvd')
+        utils.setup_date_button(self.view.widgets.acc_date_recvd_entry,
+                               self.view.widgets.acc_date_recvd_button)
+
+        # date accessioned
+        self.view.connect('acc_date_accd_entry', 'changed',
+                          self.on_date_entry_changed, 'date_accd')
+        utils.setup_date_button(self.view.widgets.acc_date_accd_entry,
+                               self.view.widgets.acc_date_accd_button)
+
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
+        self.assign_simple_handler('acc_memorial_check', 'memorial')
+        self.assign_simple_handler('acc_pisbg_check', 'pisbg')
+
+        from bauble.plugins.garden import init_location_comboentry
+        def on_loc1_select(value):
+            self.set_model_attr('intended_location_id')
+        init_location_comboentry(self,
+                                 self.view.widgets.intended_loc_comboentry,
+                                 on_loc1_select)
+        def on_loc2_select(value):
+            self.set_model_attr('intended2_location_id')
+        init_location_comboentry(self,
+                                 self.view.widgets.intended2_loc_comboentry,
+                                 on_loc2_select)
+
         self.refresh_sensitivity()
 
 
@@ -1391,30 +1419,23 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('code', utils.utf8(text))
 
 
-    # TODO: this should be changed to use the editor.DateValidator
-    def on_acc_date_entry_changed(self, entry, data=None):
-        text = entry.get_text()
-        #debug('acc_date_entry: %s' % text)
-        if text == '':
-            self.model.date = None
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.acc_date_entry)
-            return
+    def on_date_entry_changed(self, entry, prop):
+        """
+        Changed signal handdler for acc_date_recvd_entry and acc_date_accd_entry
 
-        m = _date_regex.match(text)
-        dt = None # datetime
+        :param prop: the model property to change, should be
+          date_recvd or date_accd
+        """
+        from bauble.editor import ValidatorError
+        value = None
+        PROBLEM = 'INVALID_DATE'
         try:
-            ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                    m.group('day')]]
-            dt = datetime.datetime(*ymd).date()
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.acc_date_entry)
-        except Exception:
-            #debug(traceback.format_exc())
-            self.add_problem(self.PROBLEM_INVALID_DATE,
-                             self.view.widgets.acc_date_entry)
-
-        self.set_model_attr('date', dt)
+            value = editor.DateValidator().to_python(entry.props.text)
+        except ValidatorError, e:
+            self.add_problem(PROBLEM, entry)
+        else:
+            self.remove_problem(PROBLEM, entry)
+        self.set_model_attr(prop, value)
 
 
     def set_model_attr(self, field, value, validator=None):
