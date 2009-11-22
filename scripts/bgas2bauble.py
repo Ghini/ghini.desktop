@@ -536,6 +536,9 @@ def do_sciname():
     notes_hash = {}
     vernac_hash = {}
     species_rows = []
+    genus_ids = {}
+    delayed_species = []
+    delayed_genera = {}
     dbf = open_dbf('SCINAME.DBF')
 
     columns = ['genus_id', 'sp', 'sp2', 'sp_author', 'hybrid', 'infrasp1',
@@ -563,44 +566,35 @@ def do_sciname():
             no_genus_ctr += 1
             genus_id = unknown_genus_id
         else:
-            # search for the genus id by name
-            genus_id = get_column_value(genus_table.c.id,
-                                        genus_table.c.genus == genus)
+            # get the genus id
+            genus_id = genus_ids.get(genus, None)
             if not genus_id:
-                #  couldn't find the full genus name so add it. first
-                #  search for just the genus name without the hybrid
-                #  string and if it's found then add the new genus to
-                #  the same family as the one without the hybrid
-                #  string
-                warning('adding genus %s from sciname.dbf.' % genus)
-                family_id = get_column_value(genus_table.c.family_id,
-                                         genus_table.c.genus == rec['genus'])
-                if not family_id:
-                    warning('** %s has no family. adding to %s' \
-                                % (genus, unknown_family_name))
-                    family_id = unknown_family_id
-                genus_row = genus_defaults.copy()
-                genus_row.update({'genus': genus, 'family_id': family_id})
-                db.engine.execute(genus_insert, genus_row).close()
                 genus_id = get_column_value(genus_table.c.id,
-                                            genus_table.c.genus == genus)
+                            genus_table.c.genus == genus)
+            if genus_id:
+                genus_ids[genus] = genus_id
+            elif genus not in delayed_genera:
+                #  couldn't find the full genus name so add it to
+                #  delayed_genera for adding later. first search for
+                #  just the genus name without the hybrid string and
+                #  if it's found then add the new genus to the same
+                #  family as the one without the hybrid string
+                # warning('adding genus %s from sciname.dbf.' % genus)
+                genus_row = genus_defaults.copy()
+                genus_row['genus'] = genus
+                family_id = get_column_value(genus_table.c.family_id,
+                             genus_table.c.genus == rec['genus'])
+                if not family_id:
+                    # warning('** %s has no family. adding to %s' \
+                    #             % (genus, unknown_family_name))
+                    family_id = unknown_family_id
+                genus_row['family_id'] = family_id
+                delayed_genera[genus] = genus_row
 
-        # TODO: check that the species name doesn't already exists,
-        # can probably go ahead and import it but just give a message
-        # that says something like "it appears the species already
-        # exists"
-        row['genus_id'] = genus_id
+        # create the species tuple before we add things like notes,
+        # awards, habit, flower_color, etc.,
         species_tuple = tuple(zip(row.keys(), row.values()))
         species_hash = hash(species_tuple)
-
-        row['notes'] = []
-        if has_value(rec, 'SCINOTE'):
-            #print get_value(rec, 'scinote')
-            row['notes'].append((u'Scientific', get_value(rec, 'scinote')))
-        if has_value(rec, 'PHENOL'):
-            row['notes'].append((u'Phenology', get_value(rec, 'phenol')))
-        if has_value(rec, 'NOTES'):
-            row['notes'].append((None, get_value(rec, 'notes')))
 
         row['awards'] = get_value(rec, 'awards')
         row['habit'] = get_value(rec, 'habit')
@@ -621,9 +615,15 @@ def do_sciname():
         else:
             row['flower_color_id'] = None
 
-        # pop the non species names parts that we'll use to look up
-        # the species later
-        notes = row.pop('notes')
+
+        notes = []
+        if has_value(rec, 'SCINOTE'):
+            #print get_value(rec, 'scinote')
+            notes.append((u'Scientific', get_value(rec, 'scinote')))
+        if has_value(rec, 'PHENOL'):
+            notes.append((u'Phenology', get_value(rec, 'phenol')))
+        if has_value(rec, 'NOTES'):
+            notes.append((None, get_value(rec, 'notes')))
         # if the species_hash is the same, e.g. the species name is
         # the same we still has all the notes even though in some
         # cases even the notes will be the same, e.g.
@@ -642,12 +642,17 @@ def do_sciname():
         # hash the species data tuples so we know if we are creating
         # duplicates and to make the rows retrievable so we can look
         # up the species ids later
-        if species_hash not in hashes:
-            hashes.add(species_hash)
-            species_map[species_hash] = row.copy()
+        if species_hash not in species_map:
             # only insert non duplicates
-            species_rows.append(row)
-        #elif species_map[species_hash] != row:
+            species_map[species_hash] = row.copy()
+            # if we don't have the genus yet then add to
+            # delayed_species so we can look up the genera later
+            if genus_id:
+                row['genus_id'] = genus_id
+                species_rows.append(row)
+            else:
+                row['genus'] = genus
+                delayed_species.append(row)
         else:
             dup_ctr += 1
             # error(genus)
@@ -661,19 +666,40 @@ def do_sciname():
     dbf.close() # close it so we can garbage collect before insert
     gc.collect()
 
+    insert_rows(genus_insert, delayed_genera.values())
+    info('inserted %s genus' % len(delayed_genera))
+
+    info('delayed_species: %s' % len(delayed_species))
+    # set the genus_id on the delayed_species
+    for species in delayed_species:
+        genus = species.pop('genus')
+        if genus in genus_ids:
+            genus_id = genus_ids[genus]
+        else:
+            genus_id = get_column_value(genus_table.c.id,
+                                        genus_table.c.genus == genus)
+            genus_ids[genus] = genus_id
+        species['genus_id'] = genus_id
+        species_rows.append(species)
+
     insert_rows(species_insert, species_rows)
     info('inserted %s species in %s records (%s duplicates)' % \
              (len(species_rows), nrecords, dup_ctr))
+
     if len(species_rows)+dup_ctr != nrecords:
-        raise ValueError
+        print 'species_row: %s' % len(species_rows)
+        print 'dup_ctr: %s' % dup_ctr
+        print 'nrecords: %s' % nrecords
+        raise ValueError('len(species_rows)+dup_ctr != nrecords')
 
     warning('** %s sciname entries with no genus.  Added to the genus %s' \
                 % (no_genus_ctr, unknown_genus_name))
 
+    info('resolving species ids for species notes...')
     i = 0
     # insert the species notes
     species_ids = {}
-    # resolve the species ids
+    # resolve the species ids for the notes
     for species_hash, row in species_map.iteritems():
         if i % granularity == 0:
             print_tick()
@@ -689,6 +715,7 @@ def do_sciname():
     species_map.clear()
     del species_map
 
+    info('setting species_ids on the notes...')
     i = 0
     species_note_defaults = get_defaults(species_note_table)
     all_notes = []
@@ -715,6 +742,7 @@ def do_sciname():
     notes_hash.clear()
 
 
+    info('setting species_id on the vernacular names...')
     i = 0
     vernacular_name_defaults = get_defaults(VernacularName.__table__)
     names_set = set() # to test for duplicates
@@ -824,6 +852,9 @@ def do_plants():
     acc_notes_defaults['date'] = '1/1/1900'
     acc_notes_defaults['category'] = None
 
+    plant_defaults = get_defaults(plant_table)
+    plant_defaults['location_id'] = unknown_location_id
+
     species_defaults = get_defaults(species_table)
     _last_updated = species_defaults.pop('_last_updated')
     _created = species_defaults.pop('_created')
@@ -843,7 +874,7 @@ def do_plants():
     # TODO: what if the data differs but the accession code is the
     # same...does this ever happen in practice
     added_codes = set()
-    plants = set()
+    plants = {}
 
     # map the locations ids by their codes for quick lookup
     locations = {}
@@ -869,7 +900,12 @@ def do_plants():
         # in HEREITIS.DBF
         p = (rec['accno'], rec['propno'])
         if p not in plants:
-            plants.add(p)
+            plant_row = plant_defaults.copy()
+            plant_row['code'] = unicode(rec['propno'])
+            #plant_row['date_accd'] = rec['dateaccd']
+            #plant_row['date_recvd'] = rec['datercvd']
+            # TODO: should pronotes be for the plant
+            plants[p] = plant_row
         else:
             raise ValueError('duplicate accession: %s' % p)
 
@@ -888,6 +924,10 @@ def do_plants():
         # error...i think in BGAS some fields are locked after they
         # are first entered so that creating later propagules they
         # share the same information
+
+
+        # TODO: the date accessioned should come from the accession
+        # with the lowest propno...does this always come first in the file
 
         if rec['accno'] not in added_codes:
             added_codes.add(rec['accno'])
@@ -937,9 +977,8 @@ def do_plants():
 
         # check if we already have a cached species.id, if not then
         # search for one in the database
-        if species_tuple in species_ids:
-            species_id = species_ids[species_tuple]
-        else:
+        species_id = species_ids.get(species_tuple, None)
+        if not species_id:
             species_id = species_ids.setdefault(species_tuple,
                                                 get_species_id(species))
         if species_id:
@@ -1031,13 +1070,9 @@ def do_plants():
     del dbf
     # now that we have all the accessions loop through all the records
     # again and create the plants
-    plant_rows = []
-    plant_defaults = get_defaults(plant_table)
-    # the plants_map is used to refer to plant rows by (acc.code, plant.code)
-    # so that we can later set the locations
-    plants_map = {}
     rec_ctr = 0
-    for acc_code, plant_code in plants:
+    for plant_tuple, plant_row in plants.iteritems():
+        acc_code, plant_code = plant_tuple
         rec_ctr += 1
         if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
@@ -1049,17 +1084,8 @@ def do_plants():
             # this is just an extra check and we shouldn't ever get here
             print str((acc_code, plant_code))
             raise ValueError
-        row = plant_defaults.copy()
-        row['accession_id'] = acc_id
-        row['code'] = unicode(plant_code)
-        row['location_id'] = unknown_location_id
-        # TODO: should check row doesn't already exists
-        plant_tuple = (acc_code, plant_code)
-        if plant_tuple not in plants_map:
-            plants_map[plant_tuple] = row
-        else:
-            error(row)
-            raise ValueError
+
+        plant_row['accession_id'] = acc_id
 
         # set the accession id for the notes
         if plant_tuple in acc_notes:
@@ -1068,8 +1094,6 @@ def do_plants():
             acc_pronotes[plant_tuple]['accession_id'] = acc_id
         if plant_tuple in acc_wildnote:
             acc_wildnote[plant_tuple]['accession_id'] = acc_id
-
-        plant_rows.append(row)
 
     gc.collect()
     print ''
@@ -1106,8 +1130,8 @@ def do_plants():
             gc.collect()
         location_id = locations[unicode(rec['bedno'])]
         plant_tuple = (rec['accno'], rec['propno'])
-        if plants_map[plant_tuple]['location_id'] == unknown_location_id:
-            plants_map[plant_tuple]['location_id'] = location_id
+        if plants[plant_tuple]['location_id'] == unknown_location_id:
+            plants[plant_tuple]['location_id'] = location_id
             added.add(plant_tuple)
         else:
             # it looks like the dupes have different l_update columns
@@ -1121,12 +1145,12 @@ def do_plants():
 
     plant_insert = get_insert(plant_table, ['accession_id', 'code',
                                             'location_id'])
-    insert_rows(plant_insert, plant_rows)
-    print len(plants_map.values())
+    insert_rows(plant_insert, plants.values())
+    #print len(plants_map.values())
     # TODO: do we need plant rows or can we just use plants_map.values()
-    print len(plant_rows)
+    #print len(plant_rows)
     print ''
-    info('inserted %s plants' % len(plant_rows))
+    info('inserted %s plants' % len(plants.values()))
     #status('%s duplicates' % dup_ctr)
     info('%s duplicates' % len(hereitis_dupes))
     dbf.close()
