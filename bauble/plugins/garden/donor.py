@@ -102,6 +102,7 @@ class DonorEditorView(GenericEditorView):
                                 'donor_editor.glade')
         super(DonorEditorView, self).__init__(filename, parent=parent)
         self.set_accept_buttons_sensitive(False)
+        self.init_translatable_combo('don_type_combo', donor_type_values)
         if sys.platform == 'win32':
             # TODO: is this character width fix still necessary
             import pango
@@ -140,8 +141,6 @@ class DonorEditorPresenter(GenericEditorPresenter):
     def __init__(self, model, view):
         super(DonorEditorPresenter, self).__init__(model, view)
         model = gtk.ListStore(str)
-        self.init_translatable_combo('don_type_combo', donor_type_values)
-
         self.refresh_view()
         validator = UnicodeOrNoneValidator()
         for widget, field in self.widget_to_field_map.iteritems():

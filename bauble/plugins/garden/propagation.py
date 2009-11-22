@@ -400,6 +400,8 @@ class PropagationEditorView(editor.GenericEditorView):
             __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                   'prop_editor.glade'),
                      parent=parent)
+        self.init_translatable_combo('prop_type_combo', prop_type_values)
+
 
     def get_window(self):
         """
@@ -455,16 +457,15 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.model = self.model._cutting
         #self.session.add(self.model)
 
-        self.init_translatable_combo('cutting_type_combo', cutting_type_values,
-                                     editor.UnicodeOrNoneValidator())
-        self.init_translatable_combo('cutting_length_unit_combo',
-                                     length_unit_values)
-        self.init_translatable_combo('cutting_tip_combo', tip_values)
-        self.init_translatable_combo('cutting_leaves_combo', leaves_values)
-        self.init_translatable_combo('cutting_buds_combo', flower_buds_values)
-        self.init_translatable_combo('cutting_wound_combo', wound_values)
-        self.init_translatable_combo('cutting_heat_unit_combo',
-                                     bottom_heat_unit_values)
+        init_combo = self.view.init_translatable_combo
+        init_combo('cutting_type_combo', cutting_type_values,
+                   editor.UnicodeOrNoneValidator())
+        init_combo('cutting_length_unit_combo', length_unit_values)
+        init_combo('cutting_tip_combo', tip_values)
+        init_combo('cutting_leaves_combo', leaves_values)
+        init_combo('cutting_buds_combo', flower_buds_values)
+        init_combo('cutting_wound_combo', wound_values)
+        init_combo('cutting_heat_unit_combo', bottom_heat_unit_values)
 
         widgets = self.view.widgets
 
@@ -713,7 +714,6 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         self.view.widgets.prop_ok_button.props.sensitive = False
 
         # initialize the propagation type combo and set the initial value
-        self.init_translatable_combo('prop_type_combo', prop_type_values)
         self.view.connect('prop_type_combo', 'changed',
                           self.on_prop_type_changed)
         if self.model.prop_type:
