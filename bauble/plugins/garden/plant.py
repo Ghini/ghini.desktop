@@ -155,7 +155,9 @@ class PlantNote(db.Base):
 # reason of "mistake"....shoud a transfer from a removal delete the
 # removal so that the plant can be removed again....since we can only
 # have one removal would should probably add a removal_id to Plant so
-# its a 1-1 relation
+# its a 1-1 relation....but if we have a table with a removal code
+# then how do we translate it unless we just hardcode the translation
+# strings here
 removal_reasons = {
     u'DEAD': _('Dead'),
     u'DISC': _('Discarded'),
@@ -177,6 +179,11 @@ removal_reasons = {
     u'GIVE': _('Given away (specify person)'),
     u'OTHR': _('Other')
     }
+
+class RemovalReasons(db.Base):
+    __tablename__ = 'removal_reasons'
+    code = Column(Unicode(4), unique=True)
+
 
 class PlantRemoval(db.Base):
     __tablename__ = 'plant_removal'
@@ -370,98 +377,13 @@ plant_actions = {REMOVAL_ACTION: _("Removal"),
                  TRANSFER_ACTION: _("Transfer")}
 
 
-def init_location_comboentry(presenter, combo, on_select):
-    """
-    The plant_loc_comboentry requires more custom setup than
-    view.attach_completion and self.assign_simple_handler can
-    provides.  This method allows us to have completions on the
-    location entry based on the location code, location name and
-    location string as well as selecting a location from a combo
-    drop down.
-
-    :param presenter:
-    :param combo:
-    :param on_select:
-    """
-    PROBLEM = 'unknown_location'
-
-    def cell_data_func(col, cell, model, treeiter, data=None):
-        cell.props.text = utils.utf8(model[treeiter][0])
-
-    completion = gtk.EntryCompletion()
-    cell = gtk.CellRendererText() # set up the completion renderer
-    completion.pack_start(cell)
-    completion.set_cell_data_func(cell, cell_data_func)
-
-    entry = combo.child
-    entry.set_completion(completion)
-
-    combo.clear()
-    cell = gtk.CellRendererText()
-    combo.pack_start(cell)
-    combo.set_cell_data_func(cell, cell_data_func)
-
-    model = gtk.ListStore(object)
-    for location in presenter.session.query(Location):
-        model.append([location])
-    combo.set_model(model)
-    completion.set_model(model)
-
-    def on_match_select(completion, model, treeiter):
-        value = model[treeiter][0]
-        on_select(value)
-        presenter.remove_problem(PROBLEM, entry)
-        presenter.refresh_sensitivity()
-        return True
-    presenter.view.connect(completion, 'match-selected', on_match_select)
-
-    def on_entry_changed(entry, presenter):
-        text = utils.utf8(entry.props.text)
-        # see if the text matches a completion string
-        comp = entry.get_completion()
-        compl_model = comp.get_model()
-        def _cmp(row, data):
-            return utils.utf8(row[0]) == data
-        found = utils.search_tree_model(compl_model, text, _cmp)
-        if len(found) == 1:
-            comp.emit('match-selected', compl_model, found[0])
-            return True
-        # see if the text matches exactly a code or name
-        codes = presenter.session.query(Location).filter(Location.code==text)
-        names = presenter.session.query(Location).filter(Location.name==text)
-        # TODO: why the hell do we get an error here when we run all
-        # the PlantTests but not the specific test_editor_transfer
-        if codes.count() == 1:
-            location = codes.first()
-            presenter.remove_problem(PROBLEM, entry)
-            on_select(location)
-        elif names.count() == 1:
-            location = names.first()
-            presenter.remove_problem(PROBLEM, entry)
-            on_select(location)
-        else:
-            presenter.add_problem(PROBLEM, entry)
-        return True
-    presenter.view.connect(entry, 'changed', on_entry_changed, presenter)
-
-    def on_combo_changed(combo, *args):
-        model = combo.get_model()
-        i = combo.get_active_iter()
-        if not i:
-            return
-        location = combo.get_model()[i][0]
-        combo.child.props.text = str(location)
-    presenter.view.connect(combo, 'changed', on_combo_changed)
-
-
-
 class PlantStatusEditorView(GenericEditorView):
     def __init__(self, parent=None):
         path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                             'plant_editor.glade')
         super(PlantStatusEditorView, self).__init__(path, parent)
-
         self.widgets.ped_ok_button.set_sensitive(False)
+        self.init_translatable_combo('rem_reason_combo', removal_reasons)
 
 
     def get_window(self):
@@ -573,7 +495,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         # extract the values and save the action on commit_changes()
 
         # initialize the removal reason combo
-        self.init_translatable_combo('rem_reason_combo', removal_reasons)
         def on_rem_reason_changed(combo, *args):
             model = combo.get_model()
             value = model[combo.get_active_iter()][0]
@@ -593,6 +514,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             if value:
                 self.__dirty = True
                 self.refresh_sensitivity()
+        from bauble.plugins.garden import init_location_comboentry
         init_location_comboentry(self, self.view.widgets.trans_to_comboentry,
                                  on_tran_to_select)
 
@@ -836,6 +758,7 @@ class PlantEditorView(GenericEditorView):
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)
+        self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
 
 
     def get_window(self):
@@ -879,8 +802,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.__dirty = False
 
-        self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
-
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
             self.model.acc_type = u'Plant'
@@ -889,7 +810,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         def on_location_select(location):
             self.set_model_attr('location', location)
-
+        from bauble.plugins.garden import init_location_comboentry
         init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
                                  on_location_select)
 
