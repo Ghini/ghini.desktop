@@ -27,6 +27,7 @@ from optparse import OptionParser
 prefs.prefs.init()
 
 default_uri = 'sqlite:///:memory:'
+granularity = 200 # per how many records we garbage collect and print a tick
 
 parser = OptionParser()
 parser.add_option("-b", "--bgas", dest="bgas",
@@ -128,6 +129,10 @@ if not os.path.exists(dst):
 # each of the steps in different processes so that the previous
 # processes' memory gets freed...a script like:
 # python "from scripts import bgas2bauble ; bgas2bauble.do_family()"
+
+def print_tick():
+    sys.stdout.write('.')
+    sys.stdout.flush()
 
 open_dbf = lambda f: dbf.Dbf(os.path.join(options.bgas, f), readOnly=True)
 
@@ -412,8 +417,9 @@ def do_family():
     rec_ctr = 0
     for rec in dbf:
         rec_ctr += 1
-        if (rec_ctr % 200) == 0:
+        if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
+            print_tick()
             gc.collect()
         family = rec['family']
         if not family in families:
@@ -461,6 +467,7 @@ def do_family():
              % (len(genus_rows), len(dbf)))
     dbf.close()
     del dbf
+    print ''
 
 
 
@@ -543,8 +550,9 @@ def do_sciname():
     hashes = set()
 
     for rec in dbf:
-        if rec_ctr % 200 == 0:
+        if rec_ctr % granularity == 0:
             gc.collect()
+            print_tick()
         rec_ctr += 1
         defaults = species_defaults.copy()
         row = species_name_dict_from_rec(rec, defaults)
@@ -667,7 +675,8 @@ def do_sciname():
     species_ids = {}
     # resolve the species ids
     for species_hash, row in species_map.iteritems():
-        if i % 200 == 0:
+        if i % granularity == 0:
+            print_tick()
             gc.collect()
         i += 1
         conditions = []
@@ -684,7 +693,8 @@ def do_sciname():
     species_note_defaults = get_defaults(species_note_table)
     all_notes = []
     for species_hash, notes in notes_hash.iteritems():
-        if i % 200 == 0:
+        if i % granularity == 0:
+            print_tick()
             gc.collect()
         i += 1
         species_id = species_ids[species_hash]
@@ -710,7 +720,8 @@ def do_sciname():
     names_set = set() # to test for duplicates
     all_names = []
     for species_hash, names in vernac_hash.iteritems():
-        if i % 200 == 0:
+        if i % granularity == 0:
+            print_tick()
             gc.collect()
         i += 1
         # TODO: do default vernacular names
@@ -733,6 +744,7 @@ def do_sciname():
     del all_names[:]
     vernac_hash.clear()
     gc.collect()
+    print ''
 
 
 def get_species_id(species, defaults=None):
@@ -775,7 +787,11 @@ def do_plants():
     # the collection notes or something since it's only True/False
     #
     # photo:
-    # initloc: initial location, location code?
+    #
+    # initloc: initial location,location code?, this could probably be
+    # pushed to plant 0 and and latter plants would have been
+    # transferred from here
+    #
     # intendloc1: intended location, location code?
     # intendloc2: intended location 2, location code?
     # labels: number of labels, is this a request?, Integer
@@ -811,9 +827,9 @@ def do_plants():
     species_defaults = get_defaults(species_table)
     _last_updated = species_defaults.pop('_last_updated')
     _created = species_defaults.pop('_created')
-    delayed_species = {}
+    delayed_species = {} # species not in db and to be inserted in bulk later
     species_ids = {}
-    delayed_accessions = []
+    delayed_accessions = [] # accessions without species to be inserted later
     acc_rows = []
 
     # different note types
@@ -821,23 +837,29 @@ def do_plants():
     acc_pronotes = {}
     acc_wildnote = {}
 
+    # collection rows
+    collections = {}
+
     # TODO: what if the data differs but the accession code is the
     # same...does this ever happen in practice
     added_codes = set()
     plants = set()
 
+    # map the locations ids by their codes for quick lookup
+    locations = {}
+    session = db.Session()
+    for loc in session.query(Location):
+        locations[loc.code] = loc.id
+    session.close()
+
     rec_ctr = 0
     # build up a list of all the accession and plants
     for rec in dbf:
-        if (rec_ctr % 200) == 0:
+        if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
             gc.collect()
-            if options.verbosity > 1:
-                sys.stdout.write('.')
-                sys.stdout.flush()
+            print_tick()
         rec_ctr += 1
-
-        # TODO: create tags for PISBG
 
         # TODO: should record the name of the person who creates new
         # accession and use the operator field for old
@@ -855,6 +877,17 @@ def do_plants():
         if not rec['accno']:
             error('** accno is empty: %s' % rec['accno'])
             raise ValueError('** accno is empty: %s' % rec['accno'])
+
+        # TODO: here we are skipping adding duplicate accession codes
+        # but we should still use the same information for the skipped
+        # codes so we don't accidentally lose anything like notes and
+        # collection locales, maybe we could just create one
+        # collection locale but before setting it just make sure the
+        # collection location and notes and everything are the same
+        # and if they aren't then create a duplicate or give and
+        # error...i think in BGAS some fields are locked after they
+        # are first entered so that creating later propagules they
+        # share the same information
 
         if rec['accno'] not in added_codes:
             added_codes.add(rec['accno'])
@@ -876,6 +909,11 @@ def do_plants():
         row['date_recvd'] = rec['datercvd']
         row['recvd_type'] = rec['rcvdas']
         row['quantity_recvd'] = rec['qtyrcvd']
+
+        if rec['intendloc1']:
+            row['intended_location_id'] = locations[rec['intendloc1']]
+        if rec['intendloc2']:
+            row['intended2_location_id'] = locations[rec['intendloc2']]
 
         # get the different type of notes
         if rec['notes'].strip():
@@ -941,8 +979,7 @@ def do_plants():
             delayed_species[species_tuple] = species
             delayed_accessions.append((species_tuple, row))
 
-    if options.verbosity > 1:
-        print ''
+    print ''
 
     gc.collect()
 
@@ -961,8 +998,9 @@ def do_plants():
     debug('  populating %s delayed accessions...' % (len(delayed_accessions)))
     for species_tuple, acc in delayed_accessions:
         rec_ctr += 1
-        if (rec_ctr % 200) == 0:
+        if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
+            print_tick()
             gc.collect()
 
         # get the species id now that all the species have been inserted
@@ -1001,8 +1039,9 @@ def do_plants():
     rec_ctr = 0
     for acc_code, plant_code in plants:
         rec_ctr += 1
-        if (rec_ctr % 500) == 0:
+        if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
+            print_tick()
             gc.collect()
         acc_id = get_column_value(acc_table.c.id,
                                   acc_table.c.code == unicode(acc_code))
@@ -1033,25 +1072,21 @@ def do_plants():
         plant_rows.append(row)
 
     gc.collect()
+    print ''
 
     # we now have all the information for the accession notes so commit
     notes_insert = get_insert(AccessionNote.__table__,
                               ['note', 'date', 'category', 'accession_id'])
     insert_rows(notes_insert, acc_notes.values())
-    status('inserted %s accession notes' % len(acc_notes.values()))
+    info('inserted %s accession notes' % len(acc_notes.values()))
     insert_rows(notes_insert, acc_pronotes.values())
-    status('inserted %s accession pronotes' % len(acc_pronotes.values()))
+    info('inserted %s accession pronotes' % len(acc_pronotes.values()))
     insert_rows(notes_insert, acc_wildnote.values())
-    status('inserted %s accession wildnote' % len(acc_wildnote.values()))
+    info('inserted %s accession wildnote' % len(acc_wildnote.values()))
 
     # i couldn't get plant_table.update() to ever work properly so
     # instead we just loop through the hereitis table and set the
     # values on the plant before inserting the plant rows
-    locations = {}
-    session = db.Session()
-    for loc in session.query(Location):
-        locations[loc.code] = loc.id
-    session.close()
 
     # loop through the hereitis table to set the location_id, for any
     # plants that are in PLANTS.DBF but aren't in HEREITIS.DBF the
@@ -1065,8 +1100,9 @@ def do_plants():
     hereitis_dupes = set()
     for rec in dbf:
         rec_ctr += 1
-        if (rec_ctr % 200) == 0:
+        if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
+            print_tick()
             gc.collect()
         location_id = locations[unicode(rec['bedno'])]
         plant_tuple = (rec['accno'], rec['propno'])
@@ -1087,10 +1123,12 @@ def do_plants():
                                             'location_id'])
     insert_rows(plant_insert, plant_rows)
     print len(plants_map.values())
+    # TODO: do we need plant rows or can we just use plants_map.values()
     print len(plant_rows)
-    status('inserted %s plants' % len(plant_rows))
+    print ''
+    info('inserted %s plants' % len(plant_rows))
     #status('%s duplicates' % dup_ctr)
-    status('%s duplicates' % len(hereitis_dupes))
+    info('%s duplicates' % len(hereitis_dupes))
     dbf.close()
 
 
