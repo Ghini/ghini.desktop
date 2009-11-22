@@ -74,7 +74,8 @@ if options.stage == '0' or options.database == default_uri:
 
 from bauble.plugins.plants import Family, Genus, Species, SpeciesNote, Habit, \
     Color, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location, PlantRemoval
+from bauble.plugins.garden import Accession, AccessionNote, Plant, Location, \
+    PlantRemoval
 
 family_table = Family.__table__
 genus_table = Genus.__table__
@@ -752,10 +753,48 @@ def do_plants():
     BGAS Plants are what we refer to as accessions
     """
     # accno, propno, source, dateaccd, datercvd, qtyrcvd, rcvdas, ig,
-    # genus, is, species, rank, infrepi, cultivar, idqual, verified,
-    # othernos, iswild, wildnum, wildcoll, wildnote, geocode, voucher,
-    # photo, initloc, intendloc1, intendloc2, labels, pisbg, memorial,
-    # pronotes, notes, operator, l_update, delstat
+    # genus, is, species, rank, infrepi, cultivar,
+    #
+    # idqual: id qualifier or id quality: seems like this is an
+    # A,B,C,D which designates the quality of the identification
+    #
+    # verified: True/False
+    #
+    # othernos:
+    # iswild:
+    # wildnum,
+    # wildcoll: collection locale, often seems like a long/lat
+    #
+    # wildnote: collection notes?
+    #
+    # geocode:
+    #
+    # voucher: voucher made?, looks like it should be True/False but
+    # there are some other string values here as well, maybe
+    # collection notes; TODO: maybe we should just make this a note in
+    # the collection notes or something since it's only True/False
+    #
+    # photo:
+    # initloc: initial location, location code?
+    # intendloc1: intended location, location code?
+    # intendloc2: intended location 2, location code?
+    # labels: number of labels, is this a request?, Integer
+
+    # pisbg: plant introduction schema for botanic gardens, True/False
+    #
+    # memorial: True/False
+    #
+    # pronotes: propagation notes?
+    #
+    # notes
+    #
+    # operator
+    #
+    # l_update: last updated, should be a DateTime but there are also
+    # some other strings here, looks like mostly misplaced "operator"
+    # field strings
+    #
+    # delstat: deletion status?
 
     # TODO: we will have to match the species names exactly since they
     # aren't referenced to a scientific name by id or anything
@@ -763,7 +802,12 @@ def do_plants():
     dbf = open_dbf('PLANTS.DBF')
     acc_insert = get_insert(acc_table,
                             ['code', 'species_id', ])
+
     acc_defaults = get_defaults(acc_table)
+    acc_notes_defaults = get_defaults(AccessionNote.__table__)
+    acc_notes_defaults['date'] = '1/1/1900'
+    acc_notes_defaults['category'] = None
+
     species_defaults = get_defaults(species_table)
     _last_updated = species_defaults.pop('_last_updated')
     _created = species_defaults.pop('_created')
@@ -771,6 +815,11 @@ def do_plants():
     species_ids = {}
     delayed_accessions = []
     acc_rows = []
+
+    # different note types
+    acc_notes = {}
+    acc_pronotes = {}
+    acc_wildnote = {}
 
     # TODO: what if the data differs but the accession code is the
     # same...does this ever happen in practice
@@ -796,7 +845,7 @@ def do_plants():
 
         # accno/propno combinations are unique in PLANTS.DBF but not
         # in HEREITIS.DBF
-        p = (unicode(rec['accno']), unicode(rec['propno']))
+        p = (rec['accno'], rec['propno'])
         if p not in plants:
             plants.add(p)
         else:
@@ -820,6 +869,31 @@ def do_plants():
         # for the accessions after that
         row = acc_defaults.copy()
         row['code'] = unicode(rec['accno'])
+        row['_last_updated'] = rec['l_update']
+        row['pisbg'] = rec['pisbg']
+        row['memorial'] = rec['memorial']
+        row['date_accd'] = rec['dateaccd']
+        row['date_recvd'] = rec['datercvd']
+        row['recvd_type'] = rec['rcvdas']
+        row['quantity_recvd'] = rec['qtyrcvd']
+
+        # get the different type of notes
+        if rec['notes'].strip():
+            acc_notes[p] = acc_notes_defaults.copy()
+            acc_notes[p]['note'] = utils.utf8(rec['notes'])
+
+        if rec['pronotes'].strip():
+            acc_pronotes[p] = acc_notes_defaults.copy()
+            acc_pronotes[p]['note'] = utils.utf8(rec['pronotes'])
+            acc_pronotes[p]['category'] = u'pronotes?'
+
+        # TODO: this wildnotes is temporary and should probably go in
+        # the collection notes
+        if rec['wildnote'].strip():
+            acc_wildnote[p] = acc_notes_defaults.copy()
+            acc_wildnote[p]['note'] = utils.utf8(rec['wildnote'])
+            acc_wildnote[p]['category'] = u'wildnote?'
+
         species = species_name_dict_from_rec(rec, species_defaults)
         species_tuple = tuple(zip(species.keys(), species.values()))
 
@@ -919,7 +993,7 @@ def do_plants():
     del dbf
     # now that we have all the accessions loop through all the records
     # again and create the plants
-    values = []
+    plant_rows = []
     plant_defaults = get_defaults(plant_table)
     # the plants_map is used to refer to plant rows by (acc.code, plant.code)
     # so that we can later set the locations
@@ -941,18 +1015,38 @@ def do_plants():
         row['code'] = unicode(plant_code)
         row['location_id'] = unknown_location_id
         # TODO: should check row doesn't already exists
-        if (acc_code, plant_code) not in plants_map:
-            plants_map[(acc_code, plant_code)] = row
+        plant_tuple = (acc_code, plant_code)
+        if plant_tuple not in plants_map:
+            plants_map[plant_tuple] = row
         else:
             error(row)
             raise ValueError
-        values.append(row)
+
+        # set the accession id for the notes
+        if plant_tuple in acc_notes:
+            acc_notes[plant_tuple]['accession_id'] = acc_id
+        if plant_tuple in acc_pronotes:
+            acc_pronotes[plant_tuple]['accession_id'] = acc_id
+        if plant_tuple in acc_wildnote:
+            acc_wildnote[plant_tuple]['accession_id'] = acc_id
+
+        plant_rows.append(row)
 
     gc.collect()
+
+    # we now have all the information for the accession notes so commit
+    notes_insert = get_insert(AccessionNote.__table__,
+                              ['note', 'date', 'category', 'accession_id'])
+    insert_rows(notes_insert, acc_notes.values())
+    status('inserted %s accession notes' % len(acc_notes.values()))
+    insert_rows(notes_insert, acc_pronotes.values())
+    status('inserted %s accession pronotes' % len(acc_pronotes.values()))
+    insert_rows(notes_insert, acc_wildnote.values())
+    status('inserted %s accession wildnote' % len(acc_wildnote.values()))
+
     # i couldn't get plant_table.update() to ever work properly so
     # instead we just loop through the hereitis table and set the
     # values on the plant before inserting the plant rows
-
     locations = {}
     session = db.Session()
     for loc in session.query(Location):
@@ -974,11 +1068,8 @@ def do_plants():
         if (rec_ctr % 200) == 0:
             # collect periodically so we don't run out of memory
             gc.collect()
-        acc_code = unicode(rec['accno'])
-        plant_code = unicode(rec['propno'])
-        bedno = unicode(rec['bedno'])
-        location_id = locations[bedno]
-        plant_tuple = (acc_code, plant_code)
+        location_id = locations[unicode(rec['bedno'])]
+        plant_tuple = (rec['accno'], rec['propno'])
         if plants_map[plant_tuple]['location_id'] == unknown_location_id:
             plants_map[plant_tuple]['location_id'] = location_id
             added.add(plant_tuple)
@@ -994,8 +1085,10 @@ def do_plants():
 
     plant_insert = get_insert(plant_table, ['accession_id', 'code',
                                             'location_id'])
-    insert_rows(plant_insert, values)
-    status('inserted %s plants' % len(values))
+    insert_rows(plant_insert, plant_rows)
+    print len(plants_map.values())
+    print len(plant_rows)
+    status('inserted %s plants' % len(plant_rows))
     #status('%s duplicates' % dup_ctr)
     status('%s duplicates' % len(hereitis_dupes))
     dbf.close()
@@ -1112,10 +1205,10 @@ def do_removals():
     session.close()
     for rec in dbf:
         row = defaults.copy()
-        # get the plant code
         # TODO: the date format is yyyy-mm-dd...does this work for us
         row['date'] = rec['remodate']
         row['from_location_id'] = locations[rec['remofrom']]
+        row['reason'] = rec['remocode']
         plant_id = get_column_value(plant_table.c.id,
                                     and_(Plant.code==unicode(rec['propno']),
                                          Accession.code==unicode(rec['accno'])))
