@@ -341,6 +341,35 @@ class GenericEditorView(object):
         return completion
 
 
+    # TODO: add the ability to pass a sort function
+    # TODO: add a default value to set in the combo
+    def init_translatable_combo(self, combo, translations, default=None,
+                                cmp=None):
+        """
+        Initialize a gtk.ComboBox with translations values where
+        model[row][0] is the value that will be stored in the database
+        and model[row][1] is the value that will be visible in the
+        gtk.ComboBox.
+
+        A gtk.ComboBox initialized with this method should work with
+        self.assign_simple_handler()
+
+        :param combo:
+        :param translations: a dictionary of values->translation
+        """
+        if isinstance(combo, basestring):
+            combo = self.widgets[combo]
+        combo.clear()
+        # using 'object' avoids SA unicode warning
+        model = gtk.ListStore(object, str)
+        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
+            model.append([key, value])
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 1)
+
+
     def save_state(self):
         '''
         Save the state of the view by setting a value in the preferences
@@ -479,35 +508,6 @@ class GenericEditorPresenter(object):
             problem_widgets.modify_bg(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.queue_draw()
-
-
-    # TODO: add the ability to pass a sort function
-    # TODO: add a default value to set in the combo
-    def init_translatable_combo(self, combo, translations, default=None,
-                                cmp=None):
-        """
-        Initialize a gtk.ComboBox with translations values where
-        model[row][0] is the value that will be stored in the database
-        and model[row][1] is the value that will be visible in the
-        gtk.ComboBox.
-
-        A gtk.ComboBox initialized with this method should work with
-        self.assign_simple_handler()
-
-        :param combo:
-        :param translations: a dictionary of values->translation
-        """
-        if isinstance(combo, basestring):
-            combo = self.view.widgets[combo]
-        combo.clear()
-        # using 'object' avoids SA unicode warning
-        model = gtk.ListStore(object, str)
-        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
-            model.append([key, value])
-        combo.set_model(model)
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell, True)
-        combo.add_attribute(cell, 'text', 1)
 
 
     def init_enum_combo(self, widget_name, field):
