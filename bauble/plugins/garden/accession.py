@@ -309,6 +309,37 @@ source_type_values = {u'Collection': _('Collection'),
                       u'SourcePropagation': _('Garden Propagation'),
                       None: _('')}
 
+recvd_type_values = {
+    u'ALAY': _('Air layer'),
+    U'BBPL': _('Balled & burlapped plant'),
+    u'BRPL': _('Bare root plant'),
+    u'BUDC': _('Bud cutting'),
+    u'BUDD': _('Budded'),
+    u'BULB': _('Bulb'),
+    u'CLUM': _('Clump'),
+    u'CORM': _('Corm'),
+    u'DIVI': _('Division'),
+    u'GRAF': _('Graft'),
+    u'LAYE': _('Layer'),
+    u'PLNT': _('Plant'),
+    u'PSBU': _('Pseudobulb'),
+    u'RCUT': _('Rooted cutting'),
+    u'RHIZ': _('Rhizome'),
+    u'ROOC': _('Root cutting'),
+    u'ROOT': _('Root'),
+    u'SCIO': _('Scion'),
+    u'SEDL': _('Seedling'),
+    u'SEED': _('Seed'),
+    u'SPOR': _('Spore'),
+    u'SPRL': _('Sporeling'),
+    u'TUBE': _('Tuber'),
+    u'UNKN': _('Unknown'),
+    u'URCU': _('Unrooted cutting'),
+    u'BBIL': _('Bulbil'),
+    u'VEGS': _('Vegetative spreading'),
+    u'SCKR': _('Root sucker')
+    }
+
 class AccessionNote(db.Base):
     """
     Notes for the accession table
@@ -431,6 +462,11 @@ class Accession(db.Base):
     wild_prov_status =Column(types.Enum(values=wild_prov_status_values.keys()),
                              default=None)
 
+    date_accd = Column(types.Date)
+    date_recvd = Column(types.Date)
+    quantity_recvd = Column(Integer)
+    recvd_type = Column(types.Enum(values=recvd_type_values.keys()))
+
     date = Column(types.Date)
     source_type = Column(types.Enum(values=source_type_values.keys()),
                          default=None)
@@ -480,6 +516,10 @@ class Accession(db.Base):
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
 
+
+    # *** UBC specific
+    pisbg = Column(Boolean, default=False)
+    memorial = Column(Boolean, default=False)
 
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
