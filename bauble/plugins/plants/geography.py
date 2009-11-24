@@ -1,8 +1,6 @@
 #
 # geography.py
 #
-from datetime import datetime
-
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
