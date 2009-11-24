@@ -13,7 +13,7 @@
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
-          <object class="GtkVBox" id="pd_vbox">
+          <object class="GtkVBox" id="prop_main_box">
             <property name="visible">True</property>
             <property name="orientation">vertical</property>
             <child>

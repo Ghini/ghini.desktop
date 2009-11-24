@@ -22,13 +22,16 @@ from sqlalchemy.exc import SQLError
 import bauble.db as db
 from bauble.error import check, CheckConditionError
 from bauble.editor import *
+import bauble.meta as meta
+#from bauble.plugins.garden import *
+from bauble.plugins.garden.location import Location, LocationEditor
+from bauble.plugins.garden.propagation import PlantPropagation
+import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
-import bauble.types as types
-import bauble.meta as meta
 from bauble.view import SearchStrategy, ResultSet, Action
 import bauble.view as view
-from bauble.plugins.garden.location import Location, LocationEditor
+
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work
@@ -332,6 +335,8 @@ class Plant(db.Base):
 
     #from bauble.plugins.garden.propagation import Propagation
     propagations = relation('Propagation', cascade='all, delete-orphan',
+                            single_parent=True,
+                            secondary=PlantPropagation.__table__,
                             backref=backref('plant', uselist=False))
 
     _delimiter = None

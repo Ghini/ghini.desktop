@@ -11,7 +11,7 @@ from bauble.plugins.garden.accession import *
 from bauble.plugins.garden.location import *
 from bauble.plugins.garden.plant import *
 from bauble.plugins.garden.source import *
-from bauble.plugins.garden.donor import *
+from bauble.plugins.garden.contact import *
 from bauble.plugins.garden.institution import *
 from bauble.plugins.garden.propagation import *
 from bauble.utils.log import debug
@@ -57,10 +57,10 @@ class GardenPlugin(pluginmgr.Plugin):
                                         context_menu=plant_context_menu,
                                         markup_func=plant_markup_func)
 
-        mapper_search.add_meta(('donor', 'don'), Donor, ['name'])
-        SearchView.view_meta[Donor].set(children=natsort_kids('donations'),
-                                        infobox=DonorInfoBox,
-                                        context_menu=donor_context_menu)
+        mapper_search.add_meta(('contact', 'person', 'org'), Contact, ['name'])
+        SearchView.view_meta[Contact].set(children=natsort_kids('accessions'),
+                                        infobox=ContactInfoBox,
+                                        context_menu=contact_context_menu)
 
         mapper_search.add_meta(('collection', 'col', 'coll'),
                                Collection, ['locale'])
@@ -71,12 +71,6 @@ class GardenPlugin(pluginmgr.Plugin):
                                              markup_func=source_markup_func,
                                              context_menu=source_context_menu)
 
-        SearchView.view_meta[Donation].set(children=source_kids,
-                                           infobox=SourceInfoBox,
-                                           markup_func=source_markup_func,
-                                           context_menu=source_context_menu)
-
-
         # done here b/c the Species table is not part of this plugin
         SearchView.view_meta[Species].child = "accessions"
 
@@ -84,7 +78,7 @@ class GardenPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
             bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
-            #bauble.gui.add_to_insert_menu(DonorEditor, _('Donor'))
+            #bauble.gui.add_to_insert_menu(ContactEditor, _('Contact'))
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
