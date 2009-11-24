@@ -13,26 +13,22 @@ from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase, update_gui
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.plugins.garden.accession import Accession, AccessionEditor, \
-    dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms, \
-    Verification, Voucher
-from bauble.plugins.garden.donor import Donor, DonorEditor
-from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor, PlantStatusEditor
-from bauble.plugins.garden.location import Location, LocationEditor
-from bauble.plugins.garden.propagation import Propagation, PropagationEditor, \
-    PropCutting, PropRooted, PropSeed
-from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species_model import Species
+from bauble.plugins.garden.accession import *
+from bauble.plugins.garden.source import *
+from bauble.plugins.garden.plant import *
+from bauble.plugins.garden.location import *
+from bauble.plugins.garden.propagation import *
+from bauble.plugins.plants.family import *
+from bauble.plugins.plants.genus import *
+from bauble.plugins.plants.species_model import *
 import bauble.plugins.plants.test as plants_test
-from bauble.plugins.garden.institution import Institution, InstitutionEditor
+from bauble.plugins.garden.institution import *
 import bauble.prefs as prefs
 
 
-accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
-                        'date': datetime.date.today(),
-                        'source_type': u'Donation'},
+accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1},
+                        #'date': datetime.date.today()},
+                        #'source_type': u'Donation'},
                        {'id':2 , 'code': u'2.2', 'species_id': 2,
                         'source_type': u'Collection'},
                        )
@@ -45,20 +41,53 @@ location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
                        'code': u'RBW'},
                       )
 
-donor_test_data = ({'id': 1, 'name': u'SomeDonor'},
+contact_test_data = ({'id': 1, 'name': u'SomeContact'},
                    )
 
-donation_test_data = ({'id': 1, 'accession_id': 1, 'donor_id': 1},
-                      )
+# donation_test_data = ({'id': 1, 'accession_id': 1, 'donor_id': 1},
+#                       )
 
 collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere'},
                         )
 
+default_cutting_values = \
+            {'cutting_type': u'Nodal',
+             'length': 2,
+             'tip': u'Intact',
+             'leaves': u'Intact',
+             'leaves_reduced_pct': 25,
+             'flower_buds': u'None',
+             'wound': u'Single',
+             'fungicide': u'Physan',
+             'media': u'standard mix',
+             'container': u'4" pot',
+             'hormone': u'Auxin powder',
+             'cover': u'Poly cover',
+             'location': u'Mist frame',
+             'bottom_heat_temp': 65,
+             'bottom_heat_unit': u'F',
+             'rooted_pct': 90}
+
+default_seed_values = \
+            {'pretreatment': u'Soaked in peroxide solution',
+             'nseeds': 24,
+             'date_sown': datetime.date.today(),#utils.today_str(),
+             'container': u"tray",
+             'media': u'standard seed compost',
+             'location': u'mist tent',
+             'moved_from': u'mist tent',
+             'moved_to': u'hardening table',
+             'media': u'standard mix',
+             'germ_date': datetime.date.today(),#utils.today_str(),
+             'germ_pct': 99,
+             'nseedlings': 23,
+             'date_planted': datetime.date.today()} #utils.today_str()}
+
 test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
                            (Plant, plant_test_data),
-                           (Donor, donor_test_data),
-                           (Donation, donation_test_data),
+                           (Contact, contact_test_data),
+                           #(Donation, donation_test_data),
                            (Collection, collection_test_data))
 
 def setUp_data():
@@ -118,48 +147,48 @@ class GardenTestCase(BaubleTestCase):
 
 
 
-class DonorTests(GardenTestCase):
+class ContactTests(GardenTestCase):
 
     def __init__(self, *args):
-        super(DonorTests, self).__init__(*args)
+        super(ContactTests, self).__init__(*args)
 
 
-    def test_delete(self):
-        acc = self.create(Accession, species=self.species, code=u'1')
-        donor = Donor(name=u'name')
-        donation = Donation()
-        donation.donor = donor
-        acc.source = donation
-        self.session.commit()
-        self.session.close()
+    # def test_delete(self):
+    #     acc = self.create(Accession, species=self.species, code=u'1')
+    #     contact = Contact(name=u'name')
+    #     donation = Donation()
+    #     donation.contact = contact
+    #     acc.source = donation
+    #     self.session.commit()
+    #     self.session.close()
 
-        # test that we can't delete a donor if it has corresponding donations
-        import bauble
-        session = db.Session()
-        donor = session.query(Donor).filter_by(name=u'name').one()
-        # shouldn't be allowed to delete donor if it has donations,
-        # what is happening here is that when deleting the donor the
-        # corresponding donations.donor_id's are being be set to null which
-        # isn't allowed by the scheme....is this the best we can do? or can we
-        # get some sort of error when creating a dangling reference
-        session.delete(donor)
-        self.assertRaises(SQLError, session.commit)
+    #     # test that we can't delete a contact if it has corresponding donations
+    #     import bauble
+    #     session = db.Session()
+    #     contact = session.query(Contact).filter_by(name=u'name').one()
+    #     # shouldn't be allowed to delete contact if it has donations,
+    #     # what is happening here is that when deleting the contact the
+    #     # corresponding donations.contact_id's are being be set to null which
+    #     # isn't allowed by the scheme....is this the best we can do? or can we
+    #     # get some sort of error when creating a dangling reference
+    #     session.delete(contact)
+    #     self.assertRaises(SQLError, session.commit)
 
 
-    def itest_donor_editor(self):
+    def itest_contact_editor(self):
         """
         Interactively test the PlantEditor
         """
-        loc = self.create(Donor, name=u'some donor')
-        editor = DonorEditor(model=loc)
+        loc = self.create(Contact, name=u'some contact')
+        editor = ContactEditor(model=loc)
         editor.start()
         del editor
-        assert utils.gc_objects_by_type('DonorEditor') == [], \
-            'DonorEditor not deleted'
-        assert utils.gc_objects_by_type('DonorEditorPresenter') == [], \
-            'DonorEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('DonorEditorView') == [], \
-            'DonorEditorView not deleted'
+        assert utils.gc_objects_by_type('ContactEditor') == [], \
+            'ContactEditor not deleted'
+        assert utils.gc_objects_by_type('ContactEditorPresenter') == [], \
+            'ContactEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('ContactEditorView') == [], \
+            'ContactEditorView not deleted'
 
 
 
@@ -387,37 +416,37 @@ class PropagationTests(GardenTestCase):
         super(PropagationTests, self).setUp()
         # these default values have to be initialize in setUp() so
         # that utils.today_str() will work
-        self.default_cutting_values = \
-            {'cutting_type': u'Nodal',
-             'length': 2,
-             'tip': u'Intact',
-             'leaves': u'Intact',
-             'leaves_reduced_pct': 25,
-             'flower_buds': u'None',
-             'wound': u'Single',
-             'fungicide': u'Physan',
-             'media': u'standard mix',
-             'container': u'4" pot',
-             'hormone': u'Auxin powder',
-             'cover': u'Poly cover',
-             'location': u'Mist frame',
-             'bottom_heat_temp': 65,
-             'bottom_heat_unit': u'F',
-             'rooted_pct': 90}
-        self.default_seed_values = \
-            {'pretreatment': u'Soaked in peroxide solution',
-             'nseeds': 24,
-             'date_sown': utils.today_str(),
-             'container': u"tray",
-             'media': u'standard seed compost',
-             'location': u'mist tent',
-             'moved_from': u'mist tent',
-             'moved_to': u'hardening table',
-             'media': u'standard mix',
-             'germ_date': utils.today_str(),
-             'germ_pct': 99,
-             'nseedlings': 23,
-             'date_planted': utils.today_str()}
+        # self.default_cutting_values = \
+        #     {'cutting_type': u'Nodal',
+        #      'length': 2,
+        #      'tip': u'Intact',
+        #      'leaves': u'Intact',
+        #      'leaves_reduced_pct': 25,
+        #      'flower_buds': u'None',
+        #      'wound': u'Single',
+        #      'fungicide': u'Physan',
+        #      'media': u'standard mix',
+        #      'container': u'4" pot',
+        #      'hormone': u'Auxin powder',
+        #      'cover': u'Poly cover',
+        #      'location': u'Mist frame',
+        #      'bottom_heat_temp': 65,
+        #      'bottom_heat_unit': u'F',
+        #      'rooted_pct': 90}
+        # self.default_seed_values = \
+        #     {'pretreatment': u'Soaked in peroxide solution',
+        #      'nseeds': 24,
+        #      'date_sown': utils.today_str(),
+        #      'container': u"tray",
+        #      'media': u'standard seed compost',
+        #      'location': u'mist tent',
+        #      'moved_from': u'mist tent',
+        #      'moved_to': u'hardening table',
+        #      'media': u'standard mix',
+        #      'germ_date': utils.today_str(),
+        #      'germ_pct': 99,
+        #      'nseedlings': 23,
+        #      'date_planted': utils.today_str()}
         self.accession = self.create(Accession, species=self.species,code=u'1')
         self.session.commit()
 
@@ -426,23 +455,48 @@ class PropagationTests(GardenTestCase):
         super(PropagationTests, self).tearDown()
 
     def get_default_cutting(self):
-        cutting = PropCutting()
-        for attr, value in self.default_cutting_values.iteritems():
-            setattr(cutting, attr, value)
-        return cutting
+        return PropCutting(**default_seed_values)
 
     def get_default_seed(self):
-        seed = PropSeed()
-        for attr, value in self.default_seed_values.iteritems():
-            setattr(seed, attr, value)
-        return seed
+        return PropSeed(**default_seed_values)
+
+
+    def test_accession_prop(self):
+        """
+        Test the Accession->AccessionPropagation->Propagation relation
+        """
+        prop = Propagation()
+        prop.prop_type = u'UnrootedCutting'
+        cutting = get_default_cutting()
+        cutting.propagation = prop
+        self.accession.propagations.append(prop)
+        self.session.commit()
+        self.assert_(prop in self.accession.propagations)
+        self.assert_(prop.accession == self.accession)
+
+
+    def test_plant_prop(self):
+        """
+        Test the Plant->PlantPropagation->Propagation relation
+        """
+        prop = Propagation()
+        loc = self.create(Location, name=u'site1', code=u'1')
+        plant = self.create(Plant, accession=self.accession, location=loc,
+                            code=u'1')
+        prop.prop_type = u'UnrootedCutting'
+        cutting = get_default_cutting()
+        cutting.propagation = prop
+        plant.propagations.append(prop)
+        self.session.commit()
+        self.assert_(prop in plant.propagations)
+        self.assert_(prop.plant == plant)
 
 
     def test_get_summary(self):
         prop = Propagation()
         prop.prop_type = u'UnrootedCutting'
         prop.accession = self.accession
-        cutting = self.get_default_cutting()
+        cutting = get_default_cutting()
         cutting.propagation = prop
         rooted = PropRooted()
         rooted.cutting = cutting
@@ -466,7 +520,7 @@ class PropagationTests(GardenTestCase):
         prop = Propagation()
         prop.prop_type = u'UnrootedCutting'
         prop.accession = self.accession
-        cutting = self.get_default_cutting()
+        cutting = get_default_cutting()
         cutting.propagation = prop
         rooted = PropRooted()
         rooted.cutting = cutting
@@ -514,7 +568,7 @@ class PropagationTests(GardenTestCase):
         cutting_presenter = editor.presenter._cutting_presenter
         for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
             #debug('%s=%s' % (widget, self.default_cutting_values[attr]))
-            view.set_widget_value(widget, self.default_cutting_values[attr])
+            view.set_widget_value(widget, default_cutting_values[attr])
         update_gui()
         editor.handle_response(gtk.RESPONSE_OK)
         editor.presenter.cleanup()
@@ -523,7 +577,7 @@ class PropagationTests(GardenTestCase):
         s = object_session(model)
         s.expire(model)
         self.assert_(model.prop_type == u'UnrootedCutting')
-        for attr, value in self.default_cutting_values.iteritems():
+        for attr, value in default_cutting_values.iteritems():
             v = getattr(model._cutting, attr)
             self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
         editor.session.close()
@@ -541,9 +595,8 @@ class PropagationTests(GardenTestCase):
         for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
             w = widgets[widget]
             if isinstance(w, gtk.ComboBoxEntry) and not w.get_model():
-                widgets[widget].child.props.text = \
-                    self.default_seed_values[attr]
-            view.set_widget_value(widget, self.default_seed_values[attr])
+                widgets[widget].child.props.text = default_seed_values[attr]
+            view.set_widget_value(widget, default_seed_values[attr])
         update_gui()
         editor.handle_response(gtk.RESPONSE_OK)
         editor.presenter.cleanup()
@@ -552,7 +605,7 @@ class PropagationTests(GardenTestCase):
         editor.commit_changes()
         s.expire(model)
         self.assert_(model.prop_type == u'Seed')
-        for attr, value in self.default_seed_values.iteritems():
+        for attr, value in default_seed_values.iteritems():
             v = getattr(model._seed, attr)
             if isinstance(v, datetime.date):
                 format = prefs.prefs[prefs.date_format_pref]
@@ -563,6 +616,9 @@ class PropagationTests(GardenTestCase):
 
 
     def itest_editor(self):
+        """
+        Interactively test the PropagationEditor
+        """
         from bauble.plugins.garden.propagation import PropagationEditor
         propagation = Propagation()
         #propagation.prop_type = u'UnrootedCutting'
@@ -610,6 +666,64 @@ class VoucherTests(GardenTestCase):
         self.session.commit()
         self.assert_(not self.session.query(Voucher).get(voucher_id))
         self.assert_(self.session.query(Accession).get(acc_id))
+
+
+class SourceTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(SourceTests, self).__init__(*args)
+
+    def setUp(self):
+        super(SourceTests, self).setUp()
+        self.accession = self.create(Accession, species=self.species, code=u'1')
+
+    def tearDown(self):
+        super(SourceTests, self).tearDown()
+
+    def test(self):
+        """
+        Test bauble.plugins.garden.Source and related properties
+        """
+        source = Source()
+        debug(source.plant_propagation)
+        #self.assert_(hasattr(source, 'plant_propagation'))
+
+        location = Location(code=u'1')
+        plant = Plant(accession=self.accession, location=location, code=u'1')
+        plant.propagations.append(Propagation(prop_type=u'Seed'))
+        self.session.commit()
+
+        source.source_contact = SourceContact()
+        source.source_contact.contact = Contact(name=u'name')
+        source.source_contact.contact_code = u'1'
+        source.collection = Collection(locale=u'locale')
+        source.propagation = Propagation(prop_type=u'Seed')
+        source.plant_propagation = plant.propagations[0]
+        source.accession = self.accession # test the source's accession property
+        self.session.commit()
+
+        # test that cascading works properly
+        src_contact_id = source.source_contact.id
+        contact_id = source.source_contact.contact.id
+        coll_id = source.collection.id
+        prop_id = source.propagation.id
+        plant_prop_id = source.plant_propagation.id
+        self.accession.source = None # tests the accessions source
+        self.session.commit()
+
+        # the SourceContact, Colection and Propagation should be
+        # deleted since they are specific to the source
+        self.assert_(not self.session.query(SourceContact).get(src_contact_id))
+        self.assert_(not self.session.query(Collection).get(coll_id))
+        self.assert_(not self.session.query(Propagation).get(prop_id))
+
+        # the contact and plant propagation shouldn't be deleted since
+        # they are independent of the source
+        self.assert_(self.session.query(Contact).get(contact_id))
+        self.assert_(self.session.query(Propagation).get(plant_prop_id))
+
+
+
 
 
 class AccessionTests(GardenTestCase):
@@ -721,175 +835,175 @@ class AccessionTests(GardenTestCase):
         self.assertRaises(IntegrityError, self.session.commit)
 
 
-    def test_source(self):
-        #acc = self.session.query(Accession).get(1)
-        #donor = self.session.query(Donor).get(1)
-        acc = Accession(code=u'1', species=self.species)
-        donor = Donor(name=u'me')
-        self.session.add_all([acc, donor])
-        self.session.commit()
+#     def test_source(self):
+#         #acc = self.session.query(Accession).get(1)
+#         #donor = self.session.query(Donor).get(1)
+#         acc = Accession(code=u'1', species=self.species)
+#         donor = Donor(name=u'me')
+#         self.session.add_all([acc, donor])
+#         self.session.commit()
 
-        # set source on accession as a Donation
-        donation = Donation()
-        donation.donor = donor
-        acc.source = donation
-        self.session.commit()
-        #self.session.expire(acc)
-        self.session.refresh(acc)
-        self.assertEquals(acc.source.id, donation.id)
-        self.assertEquals(acc.source_type, u'Donation')
+#         # set source on accession as a Donation
+#         donation = Donation()
+#         donation.donor = donor
+#         acc.source = donation
+#         self.session.commit()
+#         #self.session.expire(acc)
+#         self.session.refresh(acc)
+#         self.assertEquals(acc.source.id, donation.id)
+#         self.assertEquals(acc.source_type, u'Donation')
 
-        # create a new Donation and set that as the source, this should
-        # delete the old donation object since it's an orphan,
-        old_donation_id = donation.id
-        donation2 = Donation()
-        donation2.donor = donor
-        acc.source = donation2
-        self.session.commit()
-        self.session.expire(acc)
-        self.assertEquals(acc.source.id, donation2.id)
-        self.assertEquals(acc.source_type, u'Donation')
+#         # create a new Donation and set that as the source, this should
+#         # delete the old donation object since it's an orphan,
+#         old_donation_id = donation.id
+#         donation2 = Donation()
+#         donation2.donor = donor
+#         acc.source = donation2
+#         self.session.commit()
+#         self.session.expire(acc)
+#         self.assertEquals(acc.source.id, donation2.id)
+#         self.assertEquals(acc.source_type, u'Donation')
 
-        # set the same source twice to make sure the source isn't
-        # deleted before setting it again
-        acc.source = donation2
-        self.session.commit()
-        self.assert_(acc.source)
+#         # set the same source twice to make sure the source isn't
+#         # deleted before setting it again
+#         acc.source = donation2
+#         self.session.commit()
+#         self.assert_(acc.source)
 
-        # delete all the donations
-        # TODO: ** important ** the donor
-        # should never be deleted if a donation is deleted and a
-        # donation should never get deleted if a donor is deleted, an
-        # error should be reaised if you attempt to delete a donor
-        # that has donations but should an error be raised if you
-        # attempt to delete a donation that has a donor, i don't think
-        # so
+#         # delete all the donations
+#         # TODO: ** important ** the donor
+#         # should never be deleted if a donation is deleted and a
+#         # donation should never get deleted if a donor is deleted, an
+#         # error should be reaised if you attempt to delete a donor
+#         # that has donations but should an error be raised if you
+#         # attempt to delete a donation that has a donor, i don't think
+#         # so
 
-        # make sure the old donation gets deleted since it's an orphan
-        print self.session.query(Donation).get(old_donation_id)
-        self.assert_(self.session.query(Donation).get(old_donation_id) == None)
+#         # make sure the old donation gets deleted since it's an orphan
+#         print self.session.query(Donation).get(old_donation_id)
+#         self.assert_(self.session.query(Donation).get(old_donation_id) == None)
 
-        # delete the source by setting acc.source=None
-        donation = Donation()
-        donation.donor = donor
-        acc.source = donation
-        acc.source = None
-        self.session.commit()
-        self.session.expire(acc)
-        old_donation_id = donation2.id
-        self.assertEquals(acc.source, None)
-        self.assertEquals(acc.source_type, None)
+#         # delete the source by setting acc.source=None
+#         donation = Donation()
+#         donation.donor = donor
+#         acc.source = donation
+#         acc.source = None
+#         self.session.commit()
+#         self.session.expire(acc)
+#         old_donation_id = donation2.id
+#         self.assertEquals(acc.source, None)
+#         self.assertEquals(acc.source_type, None)
 
-        # delete the source 2
-        donation = Donation()
-        donation.donor = donor
-        acc.source = donation
-        del acc.source
-        self.session.commit()
-        self.session.expire(acc)
-        old_donation_id = donation2.id
-        self.assertEquals(acc.source, None)
-        self.assertEquals(acc.source_type, None)
+#         # delete the source 2
+#         donation = Donation()
+#         donation.donor = donor
+#         acc.source = donation
+#         del acc.source
+#         self.session.commit()
+#         self.session.expire(acc)
+#         old_donation_id = donation2.id
+#         self.assertEquals(acc.source, None)
+#         self.assertEquals(acc.source_type, None)
 
-        # make sure the orphaned donation get's deleted
-        self.assert_(not self.session.query(Donation).get(old_donation_id))
+#         # make sure the orphaned donation get's deleted
+#         self.assert_(not self.session.query(Donation).get(old_donation_id))
 
-        # set accession.source to a Collection
-        collection = Collection(locale=u'TestAccLocale')
-        acc.source = collection
-        self.session.commit()
-        self.session.expire(acc)
-        self.assertEquals(acc.source.id, collection.id)
-        self.assertEquals(acc.source_type, u'Collection')
+#         # set accession.source to a Collection
+#         collection = Collection(locale=u'TestAccLocale')
+#         acc.source = collection
+#         self.session.commit()
+#         self.session.expire(acc)
+#         self.assertEquals(acc.source.id, collection.id)
+#         self.assertEquals(acc.source_type, u'Collection')
 
-        # changed source from collection to donation
-        old_collection_id = collection.id
-        donation3 = Donation()
-        donation3.donor = donor
-        acc.source = donation3
-        self.session.commit()
-        self.session.expire(acc)
-        self.assertEquals(acc.source.id, donation3.id)
-        self.assertEquals(acc.source_type, u'Donation')
+#         # changed source from collection to donation
+#         old_collection_id = collection.id
+#         donation3 = Donation()
+#         donation3.donor = donor
+#         acc.source = donation3
+#         self.session.commit()
+#         self.session.expire(acc)
+#         self.assertEquals(acc.source.id, donation3.id)
+#         self.assertEquals(acc.source_type, u'Donation')
 
-        # make sure the orphaned collection get's deleted
-        self.assert_(not self.session.query(Collection).get(old_collection_id))
+#         # make sure the orphaned collection get's deleted
+#         self.assert_(not self.session.query(Collection).get(old_collection_id))
 
-        # change source from donation to collection
-        old_donation_id = donation3.id
-        collection2 = Collection(locale=u'TestAccLocale2')
-        acc.source = collection2
-        self.session.commit()
-        self.session.expire(acc)
-        self.assertEquals(acc.source.id, collection2.id)
-        self.assertEquals(acc.source_type, u'Collection')
+#         # change source from donation to collection
+#         old_donation_id = donation3.id
+#         collection2 = Collection(locale=u'TestAccLocale2')
+#         acc.source = collection2
+#         self.session.commit()
+#         self.session.expire(acc)
+#         self.assertEquals(acc.source.id, collection2.id)
+#         self.assertEquals(acc.source_type, u'Collection')
 
-        # change source without flushing
-        donation4 = Donation()
-        acc.source = donation4
-        collection3 = Collection(locale=u'TestAccLocale3')
-        acc.source = collection3
-        self.session.commit()
-#        utils.log.echo(False)
+#         # change source without flushing
+#         donation4 = Donation()
+#         acc.source = donation4
+#         collection3 = Collection(locale=u'TestAccLocale3')
+#         acc.source = collection3
+#         self.session.commit()
+# #        utils.log.echo(False)
 
-        # make sure the orphaned donation get's deleted
-        self.assert_(not self.session.query(Donation).get(old_donation_id))
+#         # make sure the orphaned donation get's deleted
+#         self.assert_(not self.session.query(Donation).get(old_donation_id))
 
-        # make sure the collection gets deleted when accession does
-        collection4 = Collection(locale=u'TestAccLocale4')
-        acc.source = collection4
-        self.session.commit()
-        cid = collection4.id
-        self.session.delete(acc)
-        self.session.commit()
-        self.assert_(not self.session.query(Collection).get(cid))
+#         # make sure the collection gets deleted when accession does
+#         collection4 = Collection(locale=u'TestAccLocale4')
+#         acc.source = collection4
+#         self.session.commit()
+#         cid = collection4.id
+#         self.session.delete(acc)
+#         self.session.commit()
+#         self.assert_(not self.session.query(Collection).get(cid))
 
-        # make sure the collection gets deleted when accession does
-        acc = Accession(code=u'1', species=self.species)
-        donor = Donor(name=u'donor5')
-        self.session.add_all([acc, donor])
-        self.session.commit()
-        donation5 = Donation(donor=donor)
-        acc.source = donation5
-        self.session.commit()
-        did = donation5.id
-        self.session.delete(acc)
-        self.session.commit()
-        self.assert_(not self.session.query(Donation).get(did))
+#         # make sure the collection gets deleted when accession does
+#         acc = Accession(code=u'1', species=self.species)
+#         donor = Donor(name=u'donor5')
+#         self.session.add_all([acc, donor])
+#         self.session.commit()
+#         donation5 = Donation(donor=donor)
+#         acc.source = donation5
+#         self.session.commit()
+#         did = donation5.id
+#         self.session.delete(acc)
+#         self.session.commit()
+#         self.assert_(not self.session.query(Donation).get(did))
 
 
-    def test_double_commit(self):
-        """
-        This tests a bug with SQLAlchemy that was tentatively fixed
-        after SQ 0.4.4 was released in r4264.  There is a reference to
-        this in the SA mailing list.
+#     def test_double_commit(self):
+#         """
+#         This tests a bug with SQLAlchemy that was tentatively fixed
+#         after SQ 0.4.4 was released in r4264.  There is a reference to
+#         this in the SA mailing list.
 
-        The bug is here just to check if this ever gets fixed.
-        """
-        sp = self.session.query(Species).get(1)
-        acc = Accession()
-        self.session.add(acc)
-        acc.species = sp
-        acc.code = u"3"
-        # not donor_id, should raise an IntegrityError
-        donation = Donation()
-        acc.source = donation
-        try:
-            self.session.commit()
-        except IntegrityError:
-            self.session.rollback()
-            # before SA 0.4.5 this would give and InvalidRequestError
-            # about not being able to refresh Accession after a rollback
-            try:
-                self.session.commit()
-            except InvalidRequestError, e:
-                # we get here in SA pre-0.4.5, we can't use those
-                # versions for bauble
-                raise
-            except IntegrityError:
-                # it should raise an integrity error because there is
-                # still no donor_id on donation
-                pass
+#         The bug is here just to check if this ever gets fixed.
+#         """
+#         sp = self.session.query(Species).get(1)
+#         acc = Accession()
+#         self.session.add(acc)
+#         acc.species = sp
+#         acc.code = u"3"
+#         # not donor_id, should raise an IntegrityError
+#         donation = Donation()
+#         acc.source = donation
+#         try:
+#             self.session.commit()
+#         except IntegrityError:
+#             self.session.rollback()
+#             # before SA 0.4.5 this would give and InvalidRequestError
+#             # about not being able to refresh Accession after a rollback
+#             try:
+#                 self.session.commit()
+#             except InvalidRequestError, e:
+#                 # we get here in SA pre-0.4.5, we can't use those
+#                 # versions for bauble
+#                 raise
+#             except IntegrityError:
+#                 # it should raise an integrity error because there is
+#                 # still no donor_id on donation
+#                 pass
 
 
     def test_accession_editor(self):
@@ -933,13 +1047,14 @@ class AccessionTests(GardenTestCase):
         """
         Interactively test the AccessionEditor
         """
-        donor = self.create(Donor, name=u'test')
+        #donor = self.create(Donor, name=u'test')
         sp2 = Species(genus=self.genus, sp=u'species')
         sp2.synonyms.append(self.species)
         self.session.add(sp2)
         self.session.commit()
-        acc_code = '%s%s1' % (datetime.date.today().year,
-                               Plant.get_delimiter())
+        # import datetime again since sometimes i get an weird error
+        import datetime
+        acc_code = '%s%s1' % (datetime.date.today().year, Plant.get_delimiter())
         acc = self.create(Accession, species=self.species, code=acc_code)
         voucher = Voucher(herbarium=u'abcd', code=u'123')
         acc.vouchers.append(voucher)
@@ -958,6 +1073,15 @@ class AccessionTests(GardenTestCase):
         ver.species = self.species
         ver.level = 1
         acc.verifications.append(ver)
+
+        location = Location(name=u'loc1', code=u'loc1')
+        plant = Plant(accession=acc, location=location, code=u'1')
+        prop = Propagation(prop_type=u'Seed')
+        seed = PropSeed(**default_seed_values)
+        seed.propagation = prop
+        plant.propagations.append(prop)
+        self.session.commit()
+
 
         #editor = AccessionEditor(model=acc)
         # try:
@@ -1096,59 +1220,59 @@ class LocationTests(GardenTestCase):
 
 
 
-class DonationTests(GardenTestCase):
+# class DonationTests(GardenTestCase):
 
-    def __init__(self, *args):
-        super(DonationTests, self).__init__(*args)
+#     def __init__(self, *args):
+#         super(DonationTests, self).__init__(*args)
 
-    def setUp(self):
-        super(DonationTests, self).setUp()
+#     def setUp(self):
+#         super(DonationTests, self).setUp()
 
-    def tearDown(self):
-        super(DonationTests, self).tearDown()
+#     def tearDown(self):
+#         super(DonationTests, self).tearDown()
 
-    def test_accession_prop(self):
-        """
-        Test Donation.accession property
-        """
-        acc = Accession(code=u'1', species=self.species)
-        donor = Donor(name=u'donor name')
-        donation = Donation(donor=donor)
-        self.session.add_all((acc, donation, donor))
+#     def test_accession_prop(self):
+#         """
+#         Test Donation.accession property
+#         """
+#         acc = Accession(code=u'1', species=self.species)
+#         donor = Donor(name=u'donor name')
+#         donation = Donation(donor=donor)
+#         self.session.add_all((acc, donation, donor))
 
-        self.assert_(acc.source is None)
-        donation.accession = acc
-        self.assert_(acc._donation == donation, acc._donation)
-        self.assert_(acc.source_type == 'Donation')
-        self.assert_(acc.source == donation)
-        self.session.commit()
+#         self.assert_(acc.source is None)
+#         donation.accession = acc
+#         self.assert_(acc._donation == donation, acc._donation)
+#         self.assert_(acc.source_type == 'Donation')
+#         self.assert_(acc.source == donation)
+#         self.session.commit()
 
 
-class CollectionTests(GardenTestCase):
+# class CollectionTests(GardenTestCase):
 
-    def __init__(self, *args):
-        super(CollectionTests, self).__init__(*args)
+#     def __init__(self, *args):
+#         super(CollectionTests, self).__init__(*args)
 
-    def setUp(self):
-        super(CollectionTests, self).setUp()
+#     def setUp(self):
+#         super(CollectionTests, self).setUp()
 
-    def tearDown(self):
-        super(CollectionTests, self).tearDown()
+#     def tearDown(self):
+#         super(CollectionTests, self).tearDown()
 
-    def test_accession_prop(self):
-        """
-        Test Collection.accession property
-        """
-        acc = Accession(code=u'1', species=self.species)
-        collection = Collection(locale=u'some locale')
-        self.session.add_all((acc, collection))
+#     def test_accession_prop(self):
+#         """
+#         Test Collection.accession property
+#         """
+#         acc = Accession(code=u'1', species=self.species)
+#         collection = Collection(locale=u'some locale')
+#         self.session.add_all((acc, collection))
 
-        self.assert_(acc.source is None)
-        collection.accession = acc
-        self.assert_(acc._collection == collection, acc._collection)
-        self.assert_(acc.source_type == 'Collection')
-        self.assert_(acc.source == collection)
-        self.session.commit()
+#         self.assert_(acc.source is None)
+#         collection.accession = acc
+#         self.assert_(acc._collection == collection, acc._collection)
+#         self.assert_(acc.source_type == 'Collection')
+#         self.assert_(acc.source == collection)
+#         self.session.commit()
 
 
 class InstitutionTests(GardenTestCase):

@@ -27,9 +27,9 @@ import bauble.db as db
 import bauble.editor as editor
 from bauble.error import check, CommitException
 import bauble.paths as paths
-from bauble.plugins.garden.donor import Donor
-from bauble.plugins.garden.source import CollectionPresenter, \
-    DonationPresenter, SourcePropagationPresenter
+from bauble.plugins.garden.propagation import *
+from bauble.plugins.garden.contact import *
+from bauble.plugins.garden.source import *
 import bauble.prefs as prefs
 import bauble.types as types
 import bauble.utils as utils
@@ -299,11 +299,6 @@ wild_prov_status_values = {u'WildNative': _("Wild native"),
                            None: _('')}
 
 
-source_type_values = {u'Collection': _('Collection'),
-                      u'Donation': _('Donation'),
-                      u'SourcePropagation': _('Garden Propagation'),
-                      None: _('')}
-
 recvd_type_values = {
     u'ALAY': _('Air layer'),
     U'BBPL': _('Balled & burlapped plant'),
@@ -332,7 +327,8 @@ recvd_type_values = {
     u'URCU': _('Unrooted cutting'),
     u'BBIL': _('Bulbil'),
     u'VEGS': _('Vegetative spreading'),
-    u'SCKR': _('Root sucker')
+    u'SCKR': _('Root sucker'),
+    None: _('')
     }
 
 class AccessionNote(db.Base):
@@ -383,19 +379,6 @@ class Accession(db.Base):
         *date*: :class:`bauble.types.Date`
             the date this accession was accessioned
 
-        *source_type*: :class:`bauble.types.Enum`
-            The type of the source of this accession
-
-            Possible values:
-
-                * Collection: indicates that self.source points to a
-                  :class:`bauble.plugins.garden.Collection`
-
-                * Donation: indicates that self.source points to a
-                  :class:`bauble.plugins.garden.Donation`
-
-                * SourcePropagation: indicates that self.source points to a
-                  :class:`bauble.plugins.garden.PropagationSource`
 
         *id_qual*: :class:`bauble.types.Enum`
             The id qualifier is used to indicate uncertainty in the
@@ -432,8 +415,7 @@ class Accession(db.Base):
             the source property instead
 
         *source*:
-            source cancel either be a Donation, Collection or None
-            depending on the value of the source_type
+            source is a relation to a Source instance
 
         *plants*:
             a list of plants related to this accession
@@ -460,11 +442,10 @@ class Accession(db.Base):
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
     quantity_recvd = Column(Integer)
-    recvd_type = Column(types.Enum(values=recvd_type_values.keys()))
+    recvd_type = Column(types.Enum(values=recvd_type_values.keys()),
+                        default=None)
 
-    date = Column(types.Date)
-    source_type = Column(types.Enum(values=source_type_values.keys()),
-                         default=None)
+    # date = Column(types.Date)
 
     # "id_qual" new in 0.7
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
@@ -487,23 +468,6 @@ class Accession(db.Base):
     species = relation('Species', uselist=False, backref=backref('accessions',
                                                 cascade='all, delete-orphan'))
 
-    # TODO: the _accession property on the Collection and Donation
-    # tables, if you try to set the accession for one of these objects
-    # using the _accession property you will have problems using
-    # Accession.source because the Accession.source_type property
-    # won't be set...previously (0.8) the property was _accession, we
-    # should probably change it back and make accession a property
-    # that properly sets the source type or just the source
-    _collection = relation('Collection', cascade='all, delete-orphan',
-                           uselist=False, backref=backref('_accession',
-                                                          uselist=False))
-    _donation = relation('Donation',
-                         cascade='all, delete-orphan', uselist=False,
-                         backref=backref('_accession', uselist=False))
-
-    _source_prop = relation('SourcePropagation',
-                            cascade='all, delete-orphan', uselist=False,
-                            backref=backref('_accession', uselist=False))
 
     # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
@@ -514,7 +478,6 @@ class Accession(db.Base):
                              backref=backref('accession', uselist=False))
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
-
 
     # *** UBC specific
     pisbg = Column(Boolean, default=False)
@@ -607,61 +570,23 @@ class Accession(db.Base):
         return sp_str
 
 
-    def is_source_type(self, source_type):
-        """
-        Return True/False if the source_type of the Accession matches.
-
-        Arguments:
-        - `source_type`: a string or class
-        """
-        if isinstance(source_type, basestring):
-            return source_type == self.source_type
-        elif isinstance(self.source_type, source_type):
-            return True
-        return False
-
-
-    def _get_source(self):
-        if self.source_type is None:
-            return None
-        elif self.source_type == u'Collection':
-            return self._collection
-        elif self.source_type == u'Donation':
-            return self._donation
-        elif self.source_type == u'SourcePropagation':
-            return self._source_prop
-        raise ValueError(_('unknown source_type in accession: %s') % \
-                             self.source_type)
-    def _set_source(self, source):
-        if self.source is not None:
-            obj = self.source
-            obj._accession = None
-            # we don't need to delete the old source since it will be
-            # orphaned and should get automatically deleted
-            #utils.delete_or_expunge(obj)
-            self.source_type = None
-        if source is None:
-            self.source_type = None
-        else:
-            self.source_type = unicode(source.__class__.__name__)
-            source._accession = self
-    def _del_source(self):
-        self.source = None
-
-    source = property(_get_source, _set_source, _del_source)
-
-
     def markup(self):
         return '%s (%s)' % (self.code, self.species.markup())
 
 
-from bauble.plugins.garden.source import Donation, Collection, \
-    SourcePropagation
 from bauble.plugins.garden.plant import Plant, PlantStatusEditor, PlantEditor
 
 
 class AccessionEditorView(editor.GenericEditorView):
+    """
+    AccessionEditorView provide the view part of the
+    model/view/presenter paradigm.  It also acts as the view for any
+    child presenter contained within the AccessionEditorPresenter.
 
+    The primary function of the view is setup an parts of the
+    interface that don't chage due to user interaction.  Although it
+    also provides some utility methods for changing widget states.
+    """
     expanders_pref_map = {#'acc_notes_expander':
                           #'editor.accession.notes.expanded',
 #                           'acc_source_expander':
@@ -954,8 +879,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     class VerificationBox(gtk.HBox):
 
         def __init__(self, parent, model):
-            super(VerificationPresenter.VerificationBox,
-                  self).__init__(self)
+            super(VerificationPresenter.VerificationBox, self).__init__(self)
             check(not model or isinstance(model, Verification))
 
             self.dirty = False
@@ -1165,8 +1089,79 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.widgets.ver_expander.props.expanded = expanded
 
 
+class SourcePresenter(editor.GenericEditorPresenter):
+
+    def __init__(self, parent, model, view, session):
+        super(SourcePresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+        self.__dirty = False
+        if not self.model.source:
+            self.source = Source()
+            self.model.source = self.source
+            self.source.source_contact = SourceContact()
+            self.propagation = Propagation()
+            self.source.collection = Collection()
+        else:
+            self.source = self.model.source
+
+        # presenter that allows us to create a new Propagation that is
+        # specific to this Source and not attached to any Plant
+        self.source_prop_presenter = \
+            SourcePropagationPresenter(self.parent_ref(), self.source,
+                                       view, session)
+
+        # presenter that allows us to select an existing propagation
+        self.prop_chooser_presenter = \
+            PropagationChooserPresenter(self.parent_ref(), self.source, view,
+                                      session)
+
+        # connect contact widgets
+        self.view.connect('contact_combo', 'changed',
+                          self.on_contact_combo_changed)
+        self.view.connect('contact_new_button', 'clicked',
+                          self.on_contact_new_button_clicked)
+        self.view.connect('contact_edit_button', 'clicked',
+                          self.on_contact_edit_button_clicked)
+        self.view.connect('contact_id_entry', 'changed',
+                          self.on_contact_id_entry_changed)
+        self.view.connect('contact_id_entry', 'changed',
+                          self.on_contact_id_entry_changed)
+        # self.view.connect('source_coll_edit_button', 'clicked',
+        #                   self.on_collect_edit_button_clicked)
+        # self.view.connect('source_prop_edit_button', 'clicked',
+        #                   self.on_prop_edit_button_clicked)
+
+        # TODO: reuse the collection presenter and propagation presenter
+
+    def dirty(self):
+        return self.__dirty or self.source_prop_presenter.dirty() or \
+            self.prop_chooser_presenter.dirty()
 
 
+    def on_contact_combo_changed(combo, *args):
+        """
+        """
+        treeiter = combo.get_active_iter()
+        contact = combo.get_model()[treeiter][0]
+        self.source.source_contact.contact = contact
+        self.__dirty = True
+
+    def on_contact_new_button_clicked(button, *args):
+        utils.message_dialog('Not Implemented Yet')
+
+    def on_contact_edit_button_clicked(button, *args):
+        utils.message_dialog('Not Implemented Yet')
+
+    def on_contact_id_entry_changed(entry, *args):
+        text = utils.utf8(entry.props.text)
+        self.source.source_contact.code = text
+
+    def on_collect_edit_button_clicked(button, *args):
+        pass
+
+    def on_prop_edit_button_clicked(button, *args):
+        pass
 
 
 class AccessionEditorPresenter(editor.GenericEditorPresenter):
@@ -1178,16 +1173,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
-                           'acc_source_type_combo': 'source_type',
                            'acc_private_check': 'private'}
 
     PROBLEM_INVALID_DATE = random()
     PROBLEM_DUPLICATE_ACCESSION = random()
     PROBLEM_ID_QUAL_RANK_REQUIRED = random()
-
-    # keep references to donation and collection box so they don't get
-    # destroyed when we reparent them
-    _source_box_map = {}
 
     def __init__(self, model, view):
         '''
@@ -1200,25 +1190,18 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self._original_source = self.model.source
         self._original_code = self.model.code
         self.current_source_box = None
-        self.source_presenter = None
-        self._source_box_map[Donation] = self.view.widgets.donation_box
-        self._source_box_map[Collection] = self.view.widgets.collection_box
-        self._source_box_map[SourcePropagation] = \
-            self.view.widgets.source_prop_box
+        self.source_type = None
 
         if not model.code:
             model.code = get_next_code()
             #self.__dirty = True
 
-        # reset the source_box_parent in case it still has a child
-        # from a previous run of the accession editor
-        map(self.view.widgets.source_box_parent.remove,
-            self.view.widgets.source_box_parent.get_children())
-
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
                                                    self.session)
         self.voucher_presenter = VoucherPresenter(self, self.model, self.view,
                                                   self.session)
+        self.source_presenter = SourcePresenter(self, self.model, self.view,
+                                                self.session)
 
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
@@ -1394,8 +1377,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         presenters = [self.ver_presenter, self.voucher_presenter,
-                      self.notes_presenter]
+                      self.notes_presenter, self.source_presenter]
         dirty_kids = [p.dirty() for p in presenters]
+        debug(dirty_kids)
         if self.source_presenter is None:
             return self.__dirty or True in dirty_kids
         return self.source_presenter.dirty() or self.__dirty or \
@@ -1483,9 +1467,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # if not source_type is None and self._original_source is None
         if len(self.problems) != 0:
             sensitive = False
-        elif self.model.source_type and self.source_presenter \
-                and len(self.source_presenter.problems) != 0:
-            sensitive = False
         elif not self.model.code or not self.model.species:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
@@ -1499,67 +1480,34 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         treeiter = combo.get_active_iter()
         if not treeiter:
             return
-        presenter_class = combo.get_model()[treeiter][2]
-        source_class = combo.get_model()[treeiter][1]
-        source_type_changed = False
-
-        # if the source type is None then set the model.source as None
-        # and remove the source box
-        if not source_class:
-            if self.model.source is not None:
-                self.set_model_attr('source', None)
-                if self.current_source_box is not None:
-                    self.view.widgets.remove_parent(self.current_source_box)
-                    self.current_source_box = None
-            return
-
-        # TODO: if source_type is set and self.model.source is None then create
-        # a new empty source object and attach it to the model
-
-        # the source_type has changed from what it originally was
-        new_source = None
-        if not self.model.is_source_type(source_class):
-            source_type_changed = True
-            try:
-                new_source = source_class()
-            except KeyError, e:
-                debug('unknown source type: %s' % e)
-                raise
-            if isinstance(new_source, type(self._original_source)):
-                new_source = self._original_source
-        elif source_class is not None and self.model.source is None:
-            # the source type is set but there is no corresponding model.source
-            try:
-                new_source = source_class()
-            except KeyError, e:
-                debug('Source type is set but the source attribute None: %s' \
-                          % e)
-                raise
-
-        # replace source box contents with our new box
-        #source_box = self.view.widgets.source_box
-        source_box_parent = self.view.widgets.source_box_parent
-        if self.current_source_box is not None:
-            self.view.widgets.remove_parent(self.current_source_box)
-        if source_class is not None:
-            self.current_source_box = self._source_box_map[source_class]
-            self.view.widgets.remove_parent(self.current_source_box)
-            source_box_parent.add(self.current_source_box)
+        visible = dict(source_contact_expander=False,
+                       source_coll_expander=False,
+                       source_prop_expander=False,
+                       source_garden_prop_box=False,
+                       source_none_label=False)
+        self.source_type = combo.get_model()[treeiter][1]
+        debug(self.source_type)
+        if self.source_type == self.SOURCE_CONTACT:
+            visible['source_contact_expander'] = True
+            visible['source_coll_expander'] = True
+            visible['source_prop_expander'] = True
+        elif self.source_type == self.SOURCE_COLL:
+            visible['source_coll_expander'] = True
+            visible['source_prop_expander'] = True
+        elif self.source_type == self.SOURCE_GARDEN:
+            visible['source_garden_prop_box'] = True
+        elif not self.source_type:
+            visible['source_none_label'] = True
         else:
-            self.current_source_box = None
+            debug(self.source_type)
 
-        if new_source is not None:
-            self.source_presenter = presenter_class(self, new_source,
-                                                    self.view, self.session)
-            if new_source != self.model.source:
-                # don't set the source if it hasn't changed
-                self.set_model_attr('source', new_source)
-        elif self.model.source is not None:
-            # didn't create a new source but we need to create a
-            # source presenter
-            self.source_presenter = presenter_class(self, self.model.source,
-                                                    self.view, self.session)
+        for widget, value in visible.iteritems():
+            self.view.widgets[widget].props.visible = value
 
+
+    SOURCE_CONTACT='contact'
+    SOURCE_COLL='collection'
+    SOURCE_GARDEN='garden'
 
     def init_source_tab(self):
         '''
@@ -1567,16 +1515,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         '''
         combo = self.view.widgets.acc_source_type_combo
         combo.clear()
-        model = gtk.ListStore(str, object, object)
-        values = [[source_type_values[u'Collection'], Collection,
-                   CollectionPresenter],
-                  [source_type_values[u'Donation'], Donation,
-                   DonationPresenter],
-                  [source_type_values[u'SourcePropagation'], SourcePropagation,
-                   SourcePropagationPresenter],
-                  [None, None, None]]
-        for v in values:
-            model.append(v)
+        model = gtk.ListStore(str, str)
+        source_type_map = {
+            self.SOURCE_CONTACT: _('Organization/Business/Person'),
+            self.SOURCE_COLL: _('Collection'),
+            self.SOURCE_GARDEN: _('Garden Propagation'),
+            None: '',
+            }
+        for tipe, val in sorted(source_type_map.iteritems(),key=lambda x:x[1]):
+            model.append([val, tipe])
         combo.set_model(model)
         combo.set_active(-1)
         renderer = gtk.CellRendererText()
@@ -1603,8 +1550,25 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # set the source_type combo to the translated source type
         # string, not the source_type value
-        self.view.set_widget_value('acc_source_type_combo',
-                                   source_type_values[self.model.source_type])
+        tipo = None
+        if self.model in self.session.new:
+            tipo = None
+        elif self.model.source.source_contact:
+            tipo = self.SOURCE_CONTACT
+        elif self.model.source.collection:
+            tipo = self.SOURCE_COLL
+        elif self.model.source.plant_propagation:
+            tipo = self.SOURCE_GARDEN
+        combo = self.view.widgets.acc_source_type_combo
+        def match(model, path, treeiter, data):
+            if model[treeiter][1] == data:
+                combo.set_active_iter(treeiter)
+                return True
+        combo.get_model().foreach(match, tipo)
+        #self.view.set_widget_value('acc_source_type_combo', None)
+
+        #self.view.set_widget_value('acc_source_type_combo',
+        #                           source_type_values[self.model.source_type])
 
         self.view.set_widget_value('acc_wild_prov_combo',
                           wild_prov_status_values[self.model.wild_prov_status],
@@ -1776,12 +1740,23 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
 
     def commit_changes(self):
-        if isinstance(self.model.source, Collection):
-            self.__cleanup_collection_model(self.model.source)
-        elif isinstance(self.model.source, Donation):
-            self.__cleanup_donation_model(self.model.source)
-        elif isinstance(self.model.source, SourcePropagation):
-            self.__cleanup_source_prop_model(self.model.source)
+        debug('source_type: %s' % self.presenter.source_type)
+        if self.presenter.source_type == self.presenter.SOURCE_CONTACT:
+            self.model.plant_propagation = None
+        elif self.presenter.source_type == self.presenter.SOURCE_COLL:
+            self.model.source.source_contact = None
+        elif self.presenter.source_type == self.presenter.SOURCE_GARDEN:
+            debug('GARDEN')
+            self.model.source.source_contact = None
+            self.model.source.collection = None
+            self.model.source.propagation = None
+        elif not self.presenter.source_type:
+            self.model.source = None
+        else:
+            utils.message_dialog('Unknown source type: %s' %
+                                 self.presenter.source_type)
+            raise ValueError()
+
         if self.model.id_qual is None:
             self.model.id_qual_rank = None
         return super(AccessionEditor, self).commit_changes()
@@ -1791,7 +1766,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 # import at the bottom to avoid circular dependencies
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, SpeciesSynonym
-from bauble.plugins.garden.donor import Donor, DonorEditor
+from bauble.plugins.garden.contact import Contact, ContactEditor
 
 #
 # infobox for searchview
@@ -1856,94 +1831,94 @@ class GeneralAccessionExpander(InfoExpander):
                               False)
 
 
-class SourceExpander(InfoExpander):
+# class SourceExpander(InfoExpander):
 
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _('Source'), widgets)
-        self.curr_box = None
-        self.box_map = {Collection: (self.widgets.collections_box,
-                                     self.update_collections),
-                        Donation: (self.widgets.donations_box,
-                                   self.update_donations),
-                        SourcePropagation: (self.widgets.source_prop_box,
-                                            self.update_source_prop)
-                        }
+#     def __init__(self, widgets):
+#         InfoExpander.__init__(self, _('Source'), widgets)
+#         self.curr_box = None
+#         self.box_map = {Collection: (self.widgets.collections_box,
+#                                      self.update_collections),
+#                         Donation: (self.widgets.donations_box,
+#                                    self.update_donations),
+#                         SourcePropagation: (self.widgets.source_prop_box,
+#                                             self.update_source_prop)
+#                         }
 
-        self.current_obj = None
-        def on_donor_clicked(*args):
-            select_in_search_results(self.current_obj.donor)
-        utils.make_label_clickable(self.widgets.donor_data, on_donor_clicked)
-
-
-    def update_collections(self, collection):
-
-        self.set_widget_value('loc_data', collection.locale)
-        self.set_widget_value('datum_data', collection.gps_datum)
-
-        geo_accy = collection.geo_accy
-        if not geo_accy:
-            geo_accy = ''
-        else:
-            geo_accy = '(+/- %sm)' % geo_accy
-
-        if collection.latitude:
-            dir, deg, min, sec = latitude_to_dms(collection.latitude)
-            lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
-                (collection.latitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lat_data', lat_str)
-
-        if collection.longitude:
-            dir, deg, min, sec = longitude_to_dms(collection.longitude)
-            long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
-                (collection.longitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lon_data', long_str)
-
-        if collection.elevation_accy:
-            elevation = '%sm (+/- %sm)' % (collection.elevation,
-                                           collection.elevation_accy)
-            self.set_widget_value('elev_data', elevation)
+#         self.current_obj = None
+#         def on_contact_clicked(*args):
+#             select_in_search_results(self.current_obj.contact)
+#         utils.make_label_clickable(self.widgets.contact_data, on_contact_clicked)
 
 
-        self.set_widget_value('coll_data', collection.collector)
-        self.set_widget_value('date_data', collection.date)
-        self.set_widget_value('collid_data', collection.collectors_code)
-        self.set_widget_value('habitat_data', collection.habitat)
-        self.set_widget_value('collnotes_data', collection.notes)
+#     def update_collections(self, collection):
+
+#         self.set_widget_value('loc_data', collection.locale)
+#         self.set_widget_value('datum_data', collection.gps_datum)
+
+#         geo_accy = collection.geo_accy
+#         if not geo_accy:
+#             geo_accy = ''
+#         else:
+#             geo_accy = '(+/- %sm)' % geo_accy
+
+#         if collection.latitude:
+#             dir, deg, min, sec = latitude_to_dms(collection.latitude)
+#             lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+#                 (collection.latitude, dir, deg, min, sec, geo_accy)
+#             self.set_widget_value('lat_data', lat_str)
+
+#         if collection.longitude:
+#             dir, deg, min, sec = longitude_to_dms(collection.longitude)
+#             long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+#                 (collection.longitude, dir, deg, min, sec, geo_accy)
+#             self.set_widget_value('lon_data', long_str)
+
+#         if collection.elevation_accy:
+#             elevation = '%sm (+/- %sm)' % (collection.elevation,
+#                                            collection.elevation_accy)
+#             self.set_widget_value('elev_data', elevation)
 
 
-    def update_donations(self, donation):
-        self.current_obj = donation
-        session = object_session(donation)
-        donor = session.query(Donor).get(donation.donor_id)
-        donor_str = utils.xml_safe(utils.utf8(donor))
-        self.set_widget_value('donor_data', donor_str)
-        self.set_widget_value('donid_data', donation.donor_acc)
-        self.set_widget_value('donnotes_data', donation.notes)
+#         self.set_widget_value('coll_data', collection.collector)
+#         self.set_widget_value('date_data', collection.date)
+#         self.set_widget_value('collid_data', collection.collectors_code)
+#         self.set_widget_value('habitat_data', collection.habitat)
+#         self.set_widget_value('collnotes_data', collection.notes)
 
 
-    def update_source_prop(self, source_prop):
-        # TODO: implement this
-        pass
+#     def update_donations(self, donation):
+#         self.current_obj = donation
+#         session = object_session(donation)
+#         contact = session.query(Contact).get(donation.contact_id)
+#         contact_str = utils.xml_safe(utils.utf8(contact))
+#         self.set_widget_value('contact_data', contact_str)
+#         self.set_widget_value('contact_id_data', donation.contact_acc)
+#         #self.set_widget_value('donnotes_data', donation.notes)
 
 
-    def update(self, value):
-        if self.curr_box is not None:
-            parent = self.curr_box.get_parent()
-            if parent:
-                parent.remove(self.curr_box)
+#     def update_source_prop(self, source_prop):
+#         # TODO: implement this
+#         pass
 
-        if value is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-            return
 
-        box, update = self.box_map[value.__class__]
-        self.widgets.remove_parent(box)
-        self.curr_box = box
-        update(value)
-        self.vbox.pack_start(self.curr_box)
-        self.set_expanded(True)
-        self.set_sensitive(True)
+#     def update(self, value):
+#         if self.curr_box is not None:
+#             parent = self.curr_box.get_parent()
+#             if parent:
+#                 parent.remove(self.curr_box)
+
+#         if value is None:
+#             self.set_expanded(False)
+#             self.set_sensitive(False)
+#             return
+
+#         box, update = self.box_map[value.__class__]
+#         self.widgets.remove_parent(box)
+#         self.curr_box = box
+#         update(value)
+#         self.vbox.pack_start(self.curr_box)
+#         self.set_expanded(True)
+#         self.set_sensitive(True)
 
 
 
@@ -2017,8 +1992,8 @@ class AccessionInfoBox(InfoBox):
 
         self.general = GeneralAccessionExpander(self.widgets)
         self.add_expander(self.general)
-        self.source = SourceExpander(self.widgets)
-        self.add_expander(self.source)
+        # self.source = SourceExpander(self.widgets)
+        # self.add_expander(self.source)
         self.vouchers = VouchersExpander(self.widgets)
         self.add_expander(self.vouchers)
         self.verifications = VerificationsExpander(self.widgets)
@@ -2053,7 +2028,7 @@ class AccessionInfoBox(InfoBox):
             self.links.update(row)
 
         # TODO: should test if the source should be expanded from the prefs
-        self.source.update(row.source)
+        #self.source.update(row.source)
 
 
 # it's easier just to put this here instead of source.py to avoid

@@ -20,8 +20,7 @@ import bauble.utils as utils
 import bauble.types as types
 from bauble.utils.log import debug
 from bauble.view import Action
-#from bauble.plugins.garden.propagation import Propagation
-
+from bauble.plugins.garden.propagation import *
 
 def source_markup_func(source):
     from bauble.plugins.garden.accession import acc_markup_func
@@ -49,63 +48,53 @@ remove_action = Action('source_remove', ('_Remove'), callback=remove_callback,
 
 source_context_menu = [edit_action, add_plant_action, remove_action]
 
-class Donation(db.Base):
+class Source(db.Base):
     """
-    :Table name: donation
-
-    :Columns:
-        *donor_id*: :class:`sqlalchemy.types.Integer(ForeignKey('donor.id'), nullable=False)`
-
-        *donor_acc*: :class:`sqlalchemy.types.Unicode(32)`
-
-        *notes*: :class:`sqlalchemy.types.UnicodeText`
-
-        *date*: :class:`bauble.types..Date`
-
-        *accession_id*: :class:`sqlalchemy.types.Integer(ForeignKey('accession.id'), nullable=False)`
-
-
-    :Properties:
-
-      donor:
-        created as a backref from the Donor mapper
-
-      _accession:
-        created as a backref from the Accession mapper _donation property
     """
-    __tablename__ = 'donation'
+    __tablename__ = 'source'
 
-    donor_id = Column(Integer, ForeignKey('donor.id'), nullable=False)
-    donor_acc = Column(Unicode(32)) # donor's accession id
-    notes = Column(UnicodeText)
-    date = Column(types.Date)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+    accession = relation('Accession', uselist=False,
+                         backref=backref('source', cascade='all, delete-orphan',
+                                         uselist=False))
 
+    source_contact_id = Column(Integer, ForeignKey('source_contact.id'))
+    source_contact = relation('SourceContact', uselist=False,
+                              single_parent=True,
+                              cascade='all, delete-orphan')
 
-    def _set_accession(self, accession):
-        accession.source = self
-    def _get_accession(self):
-        # self._accession is created as a backref on the accession's
-        # _donation property
-        return self._accession
-    accession = property(_get_accession, _set_accession)
+    collection_id = Column(Integer, ForeignKey('collection.id'))
+    # TODO: not sure why i need this single_parent flage here
+    collection = relation('Collection', uselist=False, single_parent=True,
+                          cascade='all, delete-orphan',
+                          backref=backref('source', uselist=False))
 
+    # relation to a propagation that is specific to this Source and
+    # not attached to a Plant
+    propagation_id = Column(Integer, ForeignKey('propagation.id'))
+    propagation = relation('Propagation', uselist=False, single_parent=True,
+                           primaryjoin='Source.propagation_id==Propagation.id',
+                           cascade='all, delete-orphan', backref='source')
+
+    # relation to a Propagation that already exists and is attached
+    # to a Plant
+    plant_propagation_id = Column(Integer, ForeignKey('propagation.id'))
+    plant_propagation = relation('Propagation', uselist=False,
+                     primaryjoin='Source.plant_propagation_id==Propagation.id')
 
     def __str__(self):
-        if self.donor:
-            return 'Donation from %s' % self.donor
-        else:
-            return repr(self)
+        return repr(self)
 
 
-# TODO: is there anyway to get this date format from BaubleMeta, also
-#    i don't know why setting dateFormat here give me an error about getting
-#    the date in unicode instead of a DateTimeCol eventhough i set this
-#    column using a datetime object
-# TODO: deleting this foreign accession deletes this collection
+class SourceContact(db.Base):
+    """
+    """
+    __tablename__ = 'source_contact'
+    contact_id = Column(Integer, ForeignKey('contact.id'), nullable=False)
+    contact_code = Column(Unicode(32))
+    contact = relation('Contact', uselist=False,
+                       backref=backref('sources', cascade='all, delete-orphan'))
 
-# TODO: collector combined with collectors_code should be a unique key, need to
-# also indicate this in the UI
 
 # TODO: should provide a collection type: alcohol, bark, boxed,
 # cytological, fruit, illustration, image, other, packet, pollen,
@@ -183,8 +172,6 @@ class Collection(db.Base):
     habitat = Column(UnicodeText)
     geography_id = Column(Integer, ForeignKey('geography.id'))
     notes = Column(UnicodeText)
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-
 
     def _set_accession(self, accession):
         accession.source = self
@@ -193,35 +180,9 @@ class Collection(db.Base):
         # _donation property
         return self._accession
     accession = property(_get_accession, _set_accession)
-
 
     def __str__(self):
         return 'Collection at %s' % (self.locale or repr(self))
-
-
-
-class SourcePropagation(db.Base):
-    __tablename__ = 'source_propagation'
-
-    # the propagation id is the parent propagation that created the accession
-    propagation_id = Column(Integer, ForeignKey('propagation.id'),
-                            nullable=False)
-
-    # the plant id is the child plant that was created from the
-    # propagation
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-
-    propagation = relation('Propagation', uselist=False,
-                           backref=backref('_sources',
-                                           cascade='delete-orphan, all'))
-
-    def _set_accession(self, accession):
-        accession.source = self
-    def _get_accession(self):
-        # self._accession is created as a backref on the accession's
-        # _donation property
-        return self._accession
-    accession = property(_get_accession, _set_accession)
 
 
 # TODO: should have a label next to lat/lon entry to show what value will be
@@ -232,6 +193,7 @@ class SourcePropagation(db.Base):
 # same for geographic accuracy
 # TODO: should show an error if something other than a number is entered in
 # the altitude entry
+
 class CollectionPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'collector_entry': 'collector',
@@ -538,182 +500,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         self.view.widgets.lon_dms_label.set_text(dms_string)
 
 
-# TODO: make the donor_combo insensitive if the model is empty
-class DonationPresenter(editor.GenericEditorPresenter):
 
-    widget_to_field_map = {'donor_combo': 'donor',
-                           'donid_entry': 'donor_acc',
-                           'donnotes_entry': 'notes',
-                           'don_date_entry': 'date'}
-    PROBLEM_INVALID_DATE = random()
-    PROBLEM_INVALID_DONOR = random()
-
-    def __init__(self, parent, model, view, session):
-        """
-        @param parent: the parent AccessionEditorPresenter
-        """
-        super(DonationPresenter, self).__init__(model, view)
-        self.parent_ref = weakref.ref(parent)
-        self.session = session
-
-        # set up donor_combo
-        donor_combo = self.view.widgets.donor_combo
-        donor_combo.clear() # avoid gchararry/PyObject warning
-        r = gtk.CellRendererText()
-        donor_combo.pack_start(r)
-        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
-
-        # set the values in the view before setting any signal handlers
-        self.refresh_view()
-
-        # assign handlers
-        self.view.connect('donor_combo', 'changed',
-                          self.on_donor_combo_changed)
-        self.assign_simple_handler('donid_entry', 'donor_acc',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('donnotes_entry', 'notes',
-                                   editor.UnicodeOrNoneValidator())
-        self.view.connect('don_date_entry', 'changed',
-                          self.on_date_entry_changed)
-
-        utils.setup_date_button(self.view.widgets.don_date_entry,
-                                self.view.widgets.don_date_button)
-        self.view.connect('don_new_button', 'clicked', self.on_don_new_clicked)
-        self.view.connect('don_edit_button', 'clicked',
-                          self.on_don_edit_clicked)
-
-        # if there is no donor and only one donor in the donor combo model
-        # then set it as the active donor
-        if self.model.donor is None and len(donor_combo.get_model()) == 1:
-            donor_combo.set_active(0)
-
-        if self.model.donor is None:
-            self.add_problem(self.PROBLEM_INVALID_DONOR)
-        self.__dirty = False
-
-
-    def set_model_attr(self, field, value, validator=None):
-#        debug('DonationPresenter.set_model_attr(%s, %s)' % (field, value))
-        super(DonationPresenter, self).set_model_attr(field, value, validator)
-        self.__dirty = True
-        if self.model.donor is None:
-            self.add_problem(self.PROBLEM_INVALID_DONOR)
-        else:
-            self.remove_problem(self.PROBLEM_INVALID_DONOR)
-        self.parent_ref().refresh_sensitivity()
-
-
-    def start(self):
-        raise Exception('DonationPresenter cannot be started')
-
-
-    def dirty(self):
-        return self.__dirty
-
-
-    def on_donor_combo_changed(self, combo, data=None):
-        """
-        Changed the sensitivity of the don_edit_button if the
-        selected item in the donor_combo is an instance of Donor
-        """
-        from bauble.plugins.garden.donor import Donor
-#        debug('on_donor_combo_changed')
-        it = combo.get_active_iter()
-        if not it:
-            return
-        value = combo.get_model()[it][0]
-        self.set_model_attr('donor', value)
-        sensitive = False
-        if isinstance(value, Donor):
-            sensitive = True
-        self.view.widgets.don_edit_button.set_sensitive(sensitive)
-
-
-    def on_date_entry_changed(self, entry):
-        text = entry.get_text()
-        if text == '':
-            self.set_model_attr('date', None)
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.don_date_entry)
-            return
-
-        m = _date_regex.match(text)
-        dt = None # datetime
-        try:
-            ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                    m.group('day')]]
-            dt = datetime(*ymd).date()
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.don_date_entry)
-        except Exception:
-            self.add_problem(self.PROBLEM_INVALID_DATE,
-                             self.view.widgets.don_date_entry)
-        self.set_model_attr('date', dt)
-
-
-    def on_don_new_clicked(self, button, data=None):
-        '''
-        create a new donor, setting the current donor on donor_combo
-        to the new donor
-        '''
-        from bauble.plugins.garden.donor import DonorEditor
-        donor = DonorEditor().start()
-        if donor is not None:
-            self.refresh_view()
-            self.view.set_widget_value('donor_combo', donor)
-
-
-    def on_don_edit_clicked(self, button, data=None):
-        '''
-        edit currently selected donor
-        '''
-        donor_combo = self.view.widgets.donor_combo
-        i = donor_combo.get_active_iter()
-        donor = donor_combo.get_model()[i][0]
-        from bauble.plugins.garden.donor import DonorEditor
-        e = DonorEditor(model=donor, parent=self.view.widgets.accession_dialog)
-        edited = e.start()
-        if edited is not None:
-            self.refresh_view()
-
-
-    @staticmethod
-    def combo_cell_data_func(column, renderer, model, treeiter):
-        """
-        This method is static to make sure this object gets garbage collected.
-        """
-        v = model[treeiter][0]
-        renderer.set_property('text', str(v))
-
-
-    def refresh_view(self):
-#        debug('DonationPresenter.refresh_view')
-
-        # populate the donor combo
-        model = gtk.ListStore(object)
-        from bauble.plugins.garden.donor import Donor
-        for value in self.session.query(Donor):
-#            debug(value)
-            model.append([value])
-        donor_combo = self.view.widgets.donor_combo
-        donor_combo.set_model(model)
-
-        for widget, field in self.widget_to_field_map.iteritems():
-            value = getattr(self.model, field)
-#            debug('%s, %s, %s' % (widget, field, value))
-            if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month,
-                                      '%04d' % value.year)
-            self.view.set_widget_value(widget, value)
-
-        if self.model.donor is None:
-            self.view.widgets.don_edit_button.set_sensitive(False)
-        else:
-            self.view.widgets.don_edit_button.set_sensitive(True)
-
-
-# TODO: make the donor_combo insensitive if the model is empty
-class SourcePropagationPresenter(editor.GenericEditorPresenter):
+class PropagationChooserPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {}
 
@@ -722,11 +510,11 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
     def __init__(self, parent, model, view, session):
         """
         :param parent: the parent AccessionEditorPresenter
-        :param model: a SourcePropagation instance
+        :param model: a Source instance
         :param view: an AccessionEditorView
-        :param session: an sqlalchemy session
+        :param session: an sqlalchemy.orm.session
         """
-        super(SourcePropagationPresenter, self).__init__(model, view)
+        super(PropagationChooserPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.__dirty = False
@@ -737,12 +525,14 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
         self.view.widgets.prop_toggle_column.\
             set_cell_data_func(cell, self.toggle_cell_data_func)
         def on_toggled(cell, path, data=None):
-            debug('on_toggled')
-            treeview = self.view.widgets.source_prop_treeview
-            prop = treeview.get_model()[path][0]
-            debug(prop)
-            self.model.propagation = prop
-        self.view.connect(cell, 'toggled', on_toggled)
+            prop = None
+            if not cell.get_active(): # its not active so we make it active
+                treeview = self.view.widgets.source_prop_treeview
+                prop = treeview.get_model()[path][0]
+            self.model.plant_propagation = prop
+            self.__dirty = True
+            self.parent_ref().refresh_sensitivity()
+        self.view.connect_after(cell, 'toggled', on_toggled)
 
         self.view.widgets.prop_summary_column.\
             set_cell_data_func(self.view.widgets.prop_summary_cell,
@@ -790,9 +580,10 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
     #     pass
 
     def refresh_view(self):
-        if not self.model.propagation:
+        if not self.model.plant_propagation:
             return
-        parent_plant = self.model.propagation.plant
+
+        parent_plant = self.model.plant_propagation.plant
         # set the parent accession
         self.view.widgets.source_prop_plant_entry.props.text = \
             parent_plant.code
@@ -813,19 +604,16 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
         active = False
-        if self.model.propagation == propagation:
+        if self.model.plant_propagation == propagation:
             active = True
         cell.set_active(active)
 
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
         prop = model[treeiter][0]
-        cell.set_property('text', prop.get_summary())
+        cell.props.text = prop.get_summary()
 
 
     def dirty(self):
         return self.__dirty
-
-
-
 

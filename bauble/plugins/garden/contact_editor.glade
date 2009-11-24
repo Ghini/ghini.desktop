@@ -2,8 +2,8 @@
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkDialog" id="donor_dialog">
-    <property name="title">Donor Editor</property>
+  <object class="GtkDialog" id="contact_dialog">
+    <property name="title">Contact Editor</property>
     <property name="modal">True</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>

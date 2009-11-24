@@ -40,7 +40,22 @@ prop_type_values = {u'Seed': _("Seed"),
                     u'Other': _('Other')}
 
 
-# TODO: create an add propagation field to an accession context menu
+
+
+
+class PlantPropagation(db.Base):
+    """
+    PlantPropagation provides an intermediate relation from
+    Plant->Propagation
+    """
+    __tablename__ = 'plant_prop'
+    plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
+    propagation_id = Column(Integer, ForeignKey('propagation.id'),
+                            nullable=False)
+
+    propagation = relation('Propagation', uselist=False)
+    plant = relation('Plant', uselist=False)
+
 
 
 class Propagation(db.Base):
@@ -53,7 +68,6 @@ class Propagation(db.Base):
     prop_type = Column(types.Enum(values=prop_type_values.keys()),
                        nullable=False)
     notes = Column(UnicodeText)
-    plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
     date = Column(types.Date)
 
     _cutting = relation('PropCutting',
@@ -698,7 +712,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
             self.view.set_widget_value(widget, value)
 
 
-class PropagationEditorPresenter(editor.GenericEditorPresenter):
+class PropagationPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'prop_type_combo': 'prop_type',
                            'prop_date_entry': 'date'}
@@ -708,10 +722,8 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         @param model: an instance of class Propagation
         @param view: an instance of PropagationEditorView
         '''
-        super(PropagationEditorPresenter, self).__init__(model, view)
+        super(PropagationPresenter, self).__init__(model, view)
         self.session = object_session(model)
-
-        self.view.widgets.prop_ok_button.props.sensitive = False
 
         # initialize the propagation type combo and set the initial value
         self.view.connect('prop_type_combo', 'changed',
@@ -779,10 +791,76 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         Set attributes on the model and update the GUI as expected.
         """
         #debug('set_model_attr(%s, %s)' % (field, value))
-        super(PropagationEditorPresenter, self).set_model_attr(field, value,
-                                                               validator)
+        super(PropagationPresenter, self).\
+            set_model_attr(field, value, validator)
 
     def refresh_sensitivity(self):
+        pass
+
+        #self.view.widgets.prop_ok_button.props.sensitive = sensitive
+
+
+    def refresh_view(self):
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+class SourcePropagationPresenter(PropagationPresenter):
+    """
+    Presenter for creating a new Propagation
+    :param parent:
+    :paam model:
+    :param view:
+    :param session:
+    """
+    def __init__(self, parent, model, view, session):
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                  'prop_editor.glade')
+        #xml = etree.parse(filename)
+        #el = xml.find("//object[@id='notes_editor_box']")
+        #view.widget.builder.add_from_string
+        view.widgets.builder.add_from_file(filename)
+        debug(model)
+        debug(object_session(model))
+        self.model = model
+        if not self.model.propagation:
+            self.model.propagation = Propagation()
+        debug(self.model.propagation)
+        debug(object_session(self.model.propagation))
+        super(SourcePropagationPresenter, self).__init__(self.model.propagation,
+                                                         view)
+
+
+class PropagationEditorPresenter(PropagationPresenter):
+
+    widget_to_field_map = {'prop_type_combo': 'prop_type',
+                           'prop_date_entry': 'date'}
+
+    def __init__(self, model, view):
+        '''
+        @param model: an instance of class Propagation
+        @param view: an instance of PropagationEditorView
+        '''
+        super(PropagationEditorPresenter, self).__init__(model, view)
+        self.view.widgets.prop_ok_button.props.sensitive = False
+
+    def start(self):
+        r = self.view.start()
+        return r
+
+    def refresh_sensitivity(self):
+        super(PropagationEditorPresenter, self).refresh_sensitivity()
         sensitive = True
         model = None
         if self.model.prop_type == u'UnrootedCutting':
@@ -805,16 +883,115 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
             #         model = self.model._seed
         else:
             sensitive = False
-
         self.view.widgets.prop_ok_button.props.sensitive = sensitive
 
 
-    def refresh_view(self):
-        pass
+        # self.session = object_session(model)
 
-    def start(self):
-        r = self.view.start()
-        return r
+    #     self.view.widgets.prop_ok_button.props.sensitive = False
+
+    #     # initialize the propagation type combo and set the initial value
+    #     self.view.connect('prop_type_combo', 'changed',
+    #                       self.on_prop_type_changed)
+    #     if self.model.prop_type:
+    #         self.view.set_widget_value('prop_type_combo', self.model.prop_type)
+
+    #     # don't allow changing the propagation type if we are editing
+    #     # an existing propagation
+    #     if model not in self.session.new or self.model.prop_type:
+    #         self.view.widgets.prop_type_box.props.visible = False
+    #     elif not self.model.prop_type:
+    #         self.view.widgets.prop_type_box.props.visible = True
+    #         self.view.widgets.prop_box_parent.props.visible = False
+
+    #     self._cutting_presenter = CuttingPresenter(self, self.model, self.view,
+    #                                                self.session)
+    #     self._seed_presenter = SeedPresenter(self, self.model, self.view,
+    #                                                self.session)
+
+    #     self.assign_simple_handler('prop_date_entry', 'date',
+    #                                editor.DateValidator())
+    #     utils.setup_date_button(self.view.widgets.prop_date_entry,
+    #                             self.view.widgets.prop_date_button)
+
+    #     if not self.model.date:
+    #         # set it to empty first b/c if we set the date and its the
+    #         # same as the date string already in the entry then it
+    #         # won't fire the 'changed' signal
+    #         self.view.set_widget_value(self.view.widgets.prop_date_entry, '')
+    #         self.view.set_widget_value(self.view.widgets.prop_date_entry,
+    #                                    utils.today_str())
+
+
+    # def on_prop_type_changed(self, combo, *args):
+    #     it = combo.get_active_iter()
+    #     prop_type = combo.get_model()[it][0]
+    #     self.set_model_attr('prop_type', prop_type)
+
+    #     prop_box_map = {u'Seed': self.view.widgets.seed_box,
+    #                     u'UnrootedCutting': self.view.widgets.cutting_box,
+    #                     u'Other': self.view.widgets.prop_notes_box}
+
+    #     parent = self.view.widgets.prop_box_parent
+    #     prop_box = prop_box_map[prop_type]
+    #     child = parent.get_child()
+    #     if child:
+    #         parent.remove(child)
+    #     self.view.widgets.remove_parent(prop_box)
+    #     parent.add(prop_box)
+    #     self.view.widgets.prop_box_parent.props.visible = True
+
+
+    # def dirty(self):
+    #     if self.model.prop_type == u'UnrootedCutting':
+    #         return self._cutting_presenter.dirty()
+    #     elif self.model.prop_type == u'Seed':
+    #         return self._seed_presenter.dirty()
+    #     else:
+    #         return False
+
+
+    # def set_model_attr(self, field, value, validator=None):
+    #     """
+    #     Set attributes on the model and update the GUI as expected.
+    #     """
+    #     #debug('set_model_attr(%s, %s)' % (field, value))
+    #     super(PropagationEditorPresenter, self).set_model_attr(field, value,
+    #                                                            validator)
+
+    # def refresh_sensitivity(self):
+    #     sensitive = True
+    #     model = None
+    #     if self.model.prop_type == u'UnrootedCutting':
+    #         model = self.model._cutting
+    #     elif self.model.prop_type == u'Seed':
+    #         model = self.model._seed
+
+
+    #     if model:
+    #         invalid = utils.get_invalid_columns(model)
+    #         # TODO: highlight the widget with are associated with the
+    #         # columns that have bad values
+    #         if invalid:
+    #             sensitive = False
+    #         #     if self.model.prop_type == u'UnrootedCutting':
+    #         #         presenter = self._cutting_presenter
+    #         #         model = self.model._cutting
+    #         #     elif self.model.prop_type == u'Seed':
+    #         #         presenter = self._seed_presenter
+    #         #         model = self.model._seed
+    #     else:
+    #         sensitive = False
+
+    #     self.view.widgets.prop_ok_button.props.sensitive = sensitive
+
+
+    # def refresh_view(self):
+    #     pass
+
+    # def start(self):
+    #     r = self.view.start()
+    #     return r
 
 
 class PropagationEditor(editor.GenericModelViewPresenterEditor):
