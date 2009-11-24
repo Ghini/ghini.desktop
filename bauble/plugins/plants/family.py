@@ -16,7 +16,6 @@ import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils.desktop as desktop
-from datetime import datetime
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.types as types
