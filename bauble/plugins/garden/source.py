@@ -196,6 +196,14 @@ class Collection(db.Base):
 
 class CollectionPresenter(editor.GenericEditorPresenter):
 
+    """
+    CollectionPresenter
+
+    :param parent: an AccessionEditorPresenter
+    :param model: a Collection instance
+    :param view: an AccessionEditorView
+    :param session: a sqlalchemy.orm.session
+    """
     widget_to_field_map = {'collector_entry': 'collector',
                            'coll_date_entry': 'date',
                            'collid_entry': 'collectors_code',
@@ -552,7 +560,7 @@ class PropagationChooserPresenter(editor.GenericEditorPresenter):
             from bauble.plugins.garden.plant import Plant
             query = self.session.query(Plant).join('accession').\
                     filter(utils.ilike(Accession.code, '%s%%' % text)).\
-                    filter(Plant.id != self.model.id)
+                    filter(Accession.id != self.model.accession.id)
             debug(list(query))
             return query
 
@@ -580,15 +588,17 @@ class PropagationChooserPresenter(editor.GenericEditorPresenter):
     #     pass
 
     def refresh_view(self):
+        treeview = self.view.widgets.source_prop_treeview
         if not self.model.plant_propagation:
+            self.view.widgets.source_prop_plant_entry.props.text = ''
+            utils.clear_model(treeview)
+            treeview.props.sensitive = False
             return
 
         parent_plant = self.model.plant_propagation.plant
         # set the parent accession
-        self.view.widgets.source_prop_plant_entry.props.text = \
-            parent_plant.code
+        self.view.widgets.source_prop_plant_entry.props.text = str(parent_plant)
 
-        treeview = self.view.widgets.source_prop_treeview
         if not parent_plant.propagations:
             treeview.props.sensitive = False
             return
