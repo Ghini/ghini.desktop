@@ -1240,6 +1240,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
     PROBLEM_DUPLICATE_ACCESSION = random()
     PROBLEM_ID_QUAL_RANK_REQUIRED = random()
 
+    SOURCE_CONTACT='contact'
+    SOURCE_COLL='collection'
+    SOURCE_GARDEN='garden'
+
+
     def __init__(self, model, view):
         '''
         @param model: an instance of class Accession
@@ -1296,6 +1301,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # put model values in view before any handlers are connected
         self.refresh_view()
+
+        self.view.connect('acc_source_type_combo', 'changed',
+                          self.on_source_type_combo_changed)
 
         # connect signals
         def sp_get_completions(text):
@@ -1532,11 +1540,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
-    def on_source_type_combo_changed(self, combo, data=None):
-        '''
-        Change which one of donation_box/collection_box is packed into
-        source box and setup the appropriate presenter.
-        '''
+    def refresh_source_tab(self):
+        """
+        Refresh which of the boxes on the source tab are visible
+        depending on the value of the acc_source_type_combo
+        """
+        combo = self.view.widgets.acc_source_type_combo
         treeiter = combo.get_active_iter()
         if not treeiter:
             return
@@ -1565,9 +1574,14 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.view.widgets[widget].props.visible = value
 
 
-    SOURCE_CONTACT='contact'
-    SOURCE_COLL='collection'
-    SOURCE_GARDEN='garden'
+    def on_source_type_combo_changed(self, combo, data=None):
+        '''
+        Refresh the source tab and change the presenter status to dirty.
+        '''
+        self.refresh_source_tab()
+        self.__dirty = True
+        self.refresh_sensitivity()
+
 
     def init_source_tab(self):
         '''
@@ -1589,8 +1603,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         renderer = gtk.CellRendererText()
         combo.pack_start(renderer, True)
         combo.add_attribute(renderer, 'text', 0)
-        self.view.connect('acc_source_type_combo', 'changed',
-                          self.on_source_type_combo_changed)
+        self.refresh_source_tab()
 
 
     def refresh_view(self):
@@ -1610,25 +1623,25 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # set the source_type combo to the translated source type
         # string, not the source_type value
-        tipo = None
+        source_type = None
         if self.model in self.session.new:
-            tipo = None
+            source_type = None
         elif self.model.source.source_contact:
-            tipo = self.SOURCE_CONTACT
+            source_type = self.SOURCE_CONTACT
         elif self.model.source.collection:
-            tipo = self.SOURCE_COLL
+            source_type = self.SOURCE_COLL
         elif self.model.source.plant_propagation:
-            tipo = self.SOURCE_GARDEN
+            source_type = self.SOURCE_GARDEN
         combo = self.view.widgets.acc_source_type_combo
         def match(model, path, treeiter, data):
             if model[treeiter][1] == data:
                 combo.set_active_iter(treeiter)
                 return True
-        combo.get_model().foreach(match, tipo)
-        #self.view.set_widget_value('acc_source_type_combo', None)
-
-        #self.view.set_widget_value('acc_source_type_combo',
-        #                           source_type_values[self.model.source_type])
+        combo.get_model().foreach(match, source_type)
+        # refresh the source tab since at this point the signal
+        # handler isn't connected yet since we don't want to really
+        # change the model's source type
+        self.refresh_source_tab()
 
         self.view.set_widget_value('acc_wild_prov_combo',
                           wild_prov_status_values[self.model.wild_prov_status],
@@ -1819,10 +1832,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
     def commit_changes(self):
         if self.model.source.propagation:
-            debug(self.model.source.propagation.prop_type)
             if not self.model.source.propagation.prop_type:
                 # TODO: why do we have to manually delete the _cutting
-                # and _seed relations...shouldn't the be delete
+                # and _seed relations...shouldn't they be deleted
                 # automatically when source.propagation is set to None
                 utils.delete_or_expunge(self.model.source.propagation._cutting)
                 utils.delete_or_expunge(self.model.source.propagation._seed)
