@@ -1097,24 +1097,33 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.session = session
         self.__dirty = False
         if not self.model.source:
-            self.source = Source()
-            self.model.source = self.source
-            self.source.source_contact = SourceContact()
-            self.propagation = Propagation()
-            self.source.collection = Collection()
-        else:
-            self.source = self.model.source
+            self.model.source = Source()
+        source = self.model.source
+        if not source.collection:
+            source.collection = Collection()
+        if not source.source_contact:
+            pass
+            #source.source_contact = SourceContact()
+
+        # TODO: all the sub presenters here take the
+        # AccessionEditorPresenter as their parent though their real
+        # parent is this SourcePresenter....having the
+        # AccessionEditorPresenter is easier since what we really need
+        # access to is refresh_sensitivity() and possible
+        # set_model_attr() but having the SourcePresenter would be
+        # more "correct"
 
         # presenter that allows us to create a new Propagation that is
         # specific to this Source and not attached to any Plant
         self.source_prop_presenter = \
-            SourcePropagationPresenter(self.parent_ref(), self.source,
-                                       view, session)
+            SourcePropagationPresenter(self.parent_ref(), source, view, session)
 
         # presenter that allows us to select an existing propagation
         self.prop_chooser_presenter = \
-            PropagationChooserPresenter(self.parent_ref(), self.source, view,
-                                      session)
+            PropagationChooserPresenter(self.parent_ref(), source, view,session)
+        self.collection_presenter = \
+            CollectionPresenter(self.parent_ref(), source.collection, view,
+                                session)
 
         # connect contact widgets
         self.view.connect('contact_combo', 'changed',
@@ -1125,8 +1134,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
                           self.on_contact_edit_button_clicked)
         self.view.connect('contact_id_entry', 'changed',
                           self.on_contact_id_entry_changed)
-        self.view.connect('contact_id_entry', 'changed',
-                          self.on_contact_id_entry_changed)
+        sensitive = False
+        if source.source_contact and source.source_contact.contact:
+            sensitive = True
+        self.view.widgets.contact_id_entry.props.sensitive = sensitive
         # self.view.connect('source_coll_edit_button', 'clicked',
         #                   self.on_collect_edit_button_clicked)
         # self.view.connect('source_prop_edit_button', 'clicked',
@@ -1136,7 +1147,12 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         return self.__dirty or self.source_prop_presenter.dirty() or \
-            self.prop_chooser_presenter.dirty()
+            self.prop_chooser_presenter.dirty() or \
+            self.collection_presenter.dirty()
+
+
+    def refresh_sensitivity(self):
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_contact_combo_changed(combo, *args):
@@ -1144,7 +1160,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
         """
         treeiter = combo.get_active_iter()
         contact = combo.get_model()[treeiter][0]
-        self.source.source_contact.contact = contact
+        if not self.model.source.source_contact:
+            self.model.source.source_contact = SourceContact()
+        self.view.widgets.contact_id_entry.props.sensitive = True
+        self.model.source.source_contact.contact = contact
         self.__dirty = True
 
     def on_contact_new_button_clicked(button, *args):
@@ -1155,7 +1174,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def on_contact_id_entry_changed(entry, *args):
         text = utils.utf8(entry.props.text)
-        self.source.source_contact.code = text
+        self.model.source.source_contact.code = text
 
     def on_collect_edit_button_clicked(button, *args):
         pass
@@ -1379,7 +1398,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         presenters = [self.ver_presenter, self.voucher_presenter,
                       self.notes_presenter, self.source_presenter]
         dirty_kids = [p.dirty() for p in presenters]
-        debug(dirty_kids)
         if self.source_presenter is None:
             return self.__dirty or True in dirty_kids
         return self.source_presenter.dirty() or self.__dirty or \
@@ -1739,14 +1757,45 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         return model
 
 
+    def clean_propagation(self, propagation):
+        # TODO: this function is not ideal since it just duplicates
+        # PropagationEditor.clean_model()...we need a sensible way to
+        # share this code
+        if propagation.prop_type == u'UnrootedCutting':
+            utils.delete_or_expunge(propagation._seed)
+            propagation._seed = None
+            del propagation._seed
+            if not propagation._cutting.bottom_heat_temp:
+                propagation._cutting.bottom_heat_unit = None
+            if not propagation._cutting.length:
+                propagation._cutting.length_unit = None
+        elif propagation.prop_type == u'Seed':
+            utils.delete_or_expunge(propagation._cutting)
+            propagation._cutting = None
+            del propagation._cutting
+
+
     def commit_changes(self):
-        debug('source_type: %s' % self.presenter.source_type)
+        if self.model.source.propagation:
+            debug(self.model.source.propagation.prop_type)
+            if not self.model.source.propagation.prop_type:
+                # TODO: why do we have to manually delete the _cutting
+                # and _seed relations...shouldn't the be delete
+                # automatically when source.propagation is set to None
+                utils.delete_or_expunge(self.model.source.propagation._cutting)
+                utils.delete_or_expunge(self.model.source.propagation._seed)
+                utils.delete_or_expunge(self.model.source.propagation)
+                self.model.source.propagation = None
+            else:
+                self.clean_propagation(self.model.source.propagation)
+
+        # clean the source depending on the selected source type
         if self.presenter.source_type == self.presenter.SOURCE_CONTACT:
             self.model.plant_propagation = None
         elif self.presenter.source_type == self.presenter.SOURCE_COLL:
             self.model.source.source_contact = None
+            self.model.plant_propagation = None
         elif self.presenter.source_type == self.presenter.SOURCE_GARDEN:
-            debug('GARDEN')
             self.model.source.source_contact = None
             self.model.source.collection = None
             self.model.source.propagation = None
