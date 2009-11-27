@@ -210,7 +210,7 @@ def combo_set_active_text(combo, value):
 
 def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
     '''
-    find value in combo model and set it as active, else raise ValueError
+    Find value in combo model and set it as active, else raise ValueError
     cmp(row, value) is the a function to use for comparison
 
     .. note:: if more than one value is found in the combo then the

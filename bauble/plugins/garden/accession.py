@@ -1125,6 +1125,17 @@ class SourcePresenter(editor.GenericEditorPresenter):
             CollectionPresenter(self.parent_ref(), source.collection, view,
                                 session)
 
+        combo = self.view.widgets.contact_combo
+        def cell_data_func(column, cell, model, treeiter, data=None):
+            value = model[treeiter][0]
+            if value:
+                cell.props.text = utils.utf8(value)
+        combo.clear()
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell)
+        combo.set_cell_data_func(cell, cell_data_func)
+        self.populate_contact_combo()
+
         # connect contact widgets
         self.view.connect('contact_combo', 'changed',
                           self.on_contact_combo_changed)
@@ -1138,12 +1149,8 @@ class SourcePresenter(editor.GenericEditorPresenter):
         if source.source_contact and source.source_contact.contact:
             sensitive = True
         self.view.widgets.contact_id_entry.props.sensitive = sensitive
-        # self.view.connect('source_coll_edit_button', 'clicked',
-        #                   self.on_collect_edit_button_clicked)
-        # self.view.connect('source_prop_edit_button', 'clicked',
-        #                   self.on_prop_edit_button_clicked)
+        self.view.widgets.contact_edit_button.props.sensitive = sensitive
 
-        # TODO: reuse the collection presenter and propagation presenter
 
     def dirty(self):
         return self.__dirty or self.source_prop_presenter.dirty() or \
@@ -1155,32 +1162,67 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.parent_ref().refresh_sensitivity()
 
 
-    def on_contact_combo_changed(combo, *args):
+    def populate_contact_combo(self):
+        combo = self.view.widgets.contact_combo
+        selected = None
+        utils.clear_model(combo)
+        model = gtk.ListStore(object)
+        for contact in self.session.query(Contact):
+            model.append([contact])
+        combo.set_model(model)
+        if self.model.source.source_contact \
+                and self.model.source.source_contact.contact:
+            utils.set_combo_from_value(combo,
+                                       self.model.source.source_contact.contact)
+
+
+    def on_contact_combo_changed(self, combo, *args):
         """
         """
         treeiter = combo.get_active_iter()
-        contact = combo.get_model()[treeiter][0]
-        if not self.model.source.source_contact:
-            self.model.source.source_contact = SourceContact()
-        self.view.widgets.contact_id_entry.props.sensitive = True
+        contact = None
+        sensitive = False
+        if treeiter:
+            contact = combo.get_model()[treeiter][0]
+            sensitive = True
+            if not self.model.source.source_contact:
+                self.model.source.source_contact = SourceContact()
         self.model.source.source_contact.contact = contact
+        self.view.widgets.contact_edit_button.props.sensitive = sensitive
+        self.view.widgets.contact_id_entry.props.sensitive = sensitive
         self.__dirty = True
+        self.refresh_sensitivity()
 
-    def on_contact_new_button_clicked(button, *args):
-        utils.message_dialog('Not Implemented Yet')
 
-    def on_contact_edit_button_clicked(button, *args):
-        utils.message_dialog('Not Implemented Yet')
+    def on_contact_new_button_clicked(self, button, *args):
+        e = ContactEditor(parent=self.view.get_window())
+        committed = e.start()
+        if not committed:
+            return
+        self.session.add_all(*[committed])
+        self.populate_contact_combo()
+        if committed:
+            utils.set_combo_from_value(self.view.widgets.contact_combo,
+                                       committed[0])
 
-    def on_contact_id_entry_changed(entry, *args):
+
+    def on_contact_edit_button_clicked(self, button, *args):
+        combo = self.view.widgets.contact_combo
+        treeiter = combo.get_active_iter()
+        if not treeiter:
+            return
+        contact = combo.get_model()[treeiter][0]
+        contact_id = contact.id
+        ContactEditor(model=contact, parent=self.view.get_window()).start()
+        self.session.expire(contact)
+
+
+    def on_contact_id_entry_changed(self, entry, *args):
         text = utils.utf8(entry.props.text)
         self.model.source.source_contact.code = text
+        self.__dirty = True
+        self.refresh_sensitivity()
 
-    def on_collect_edit_button_clicked(button, *args):
-        pass
-
-    def on_prop_edit_button_clicked(button, *args):
-        pass
 
 
 class AccessionEditorPresenter(editor.GenericEditorPresenter):
@@ -1504,8 +1546,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                        source_garden_prop_box=False,
                        source_none_label=False)
         self.source_type = combo.get_model()[treeiter][1]
-        debug(self.source_type)
         if self.source_type == self.SOURCE_CONTACT:
+            self.view.widgets.source_contact_expander.props.expanded = True
             visible['source_contact_expander'] = True
             visible['source_coll_expander'] = True
             visible['source_prop_expander'] = True
@@ -1517,7 +1559,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         elif not self.source_type:
             visible['source_none_label'] = True
         else:
-            debug(self.source_type)
+            warning('** unknown source type: %s' % self.source_type)
 
         for widget, value in visible.iteritems():
             self.view.widgets[widget].props.visible = value

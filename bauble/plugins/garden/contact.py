@@ -144,7 +144,6 @@ class ContactEditorPresenter(GenericEditorPresenter):
 
     def __init__(self, model, view):
         super(ContactEditorPresenter, self).__init__(model, view)
-        model = gtk.ListStore(str)
         self.refresh_view()
         validator = UnicodeOrNoneValidator()
         for widget, field in self.widget_to_field_map.iteritems():
@@ -183,8 +182,6 @@ class ContactEditorPresenter(GenericEditorPresenter):
 
 class ContactEditor(GenericModelViewPresenterEditor):
 
-    label = _('Contact')
-    mnemonic_label = _('_Contact')
     RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
 
@@ -193,7 +190,7 @@ class ContactEditor(GenericModelViewPresenterEditor):
         @param model: Contact instance or None
         @param values to enter in the model if none are give
         '''
-        if model is None:
+        if not model:
             model = Contact()
         super(ContactEditor, self).__init__(model, parent)
         self.parent = parent
