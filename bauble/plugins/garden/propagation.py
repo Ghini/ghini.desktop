@@ -186,19 +186,23 @@ cutting_type_values = {u'Nodal': _('Nodal'),
 
 tip_values = {u'Intact': _('Intact'),
               u'Removed': _('Removed'),
-              u'None': _('None')}
+              u'None': _('None'),
+              None: ''}
 
 leaves_values = {u'Intact': _('Intact'),
                  u'Removed': _('Removed'),
-                 u'None': _('None')}
+                 u'None': _('None'),
+                 None: ''}
 
 flower_buds_values = {u'Removed': _('Removed'),
-                      u'None': _('None')}
+                      u'None': _('None'),
+                      None: ''}
 
 wound_values = {u'No': _('No'),
                 u'Single': _('Singled'),
                 u'Double': _('Double'),
-                u'Slice': _('Slice')}
+                u'Slice': _('Slice'),
+                None: ''}
 
 hormone_values = {u'Liquid': _('Liquid'),
                   u'Powder': _('Powder'),
@@ -219,18 +223,17 @@ class PropCutting(db.Base):
     __tablename__ = 'prop_cutting'
     cutting_type = Column(types.Enum(values=cutting_type_values.keys()),
                           default=u'Other')
-    tip = Column(types.Enum(values=tip_values.keys()), nullable=False)
-    leaves = Column(types.Enum(values=leaves_values.keys()), nullable=False)
+    tip = Column(types.Enum(values=tip_values.keys()))
+    leaves = Column(types.Enum(values=leaves_values.keys()))
     leaves_reduced_pct = Column(Integer)
     length = Column(Integer)
     length_unit = Column(types.Enum(values=length_unit_values.keys()))
 
     # single/double/slice
-    wound = Column(types.Enum(values=wound_values.keys()), nullable=False)
+    wound = Column(types.Enum(values=wound_values.keys()))
 
     # removed/None
-    flower_buds = Column(types.Enum(values=flower_buds_values.keys()),
-                         nullable=False)
+    flower_buds = Column(types.Enum(values=flower_buds_values.keys()))
 
     fungicide = Column(Unicode) # fungal soak
     hormone = Column(Unicode) # powder/liquid/None....solution
