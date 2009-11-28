@@ -182,7 +182,7 @@ class GenericEditorView(object):
 
         # set the tooltips...use gtk.Tooltip api introducted in GTK+ 2.12
         for widget_name, markup in self._tooltips.iteritems():
-                try:
+            try:
                 self.widgets[widget_name].set_tooltip_markup(markup)
             except Exception, e:
                 values = dict(widget_name=widget_name, exception=e)
