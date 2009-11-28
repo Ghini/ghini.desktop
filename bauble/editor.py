@@ -180,22 +180,14 @@ class GenericEditorView(object):
         self.response = None
         self.__attached_signals = []
 
-        # pygtk 2.12.1 on win32 for some reason doesn't support the new
-        # gtk 2.12 gtk.Tooltip API
-#        if False:
-        if hasattr(gtk.Widget, 'set_tooltip_markup'):
-            for widget_name, markup in self._tooltips.iteritems():
+        # set the tooltips...use gtk.Tooltip api introducted in GTK+ 2.12
+        for widget_name, markup in self._tooltips.iteritems():
                 try:
-                    self.widgets[widget_name].set_tooltip_markup(markup)
-                except Exception, e:
-                    values = dict(widget_name=widget_name, exception=e)
-                    debug(_('Couldn\'t set the tooltip on widget '\
-                            '%(widget_name)s\n\n%(exception)s' % values))
-        else:
-            tooltips = gtk.Tooltips()
-            for widget_name, markup in self._tooltips.iteritems():
-                widget = self.widgets[widget_name]
-                tooltips.set_tip(widget, markup)
+                self.widgets[widget_name].set_tooltip_markup(markup)
+            except Exception, e:
+                values = dict(widget_name=widget_name, exception=e)
+                debug(_('Couldn\'t set the tooltip on widget '\
+                        '%(widget_name)s\n\n%(exception)s' % values))
 
         window = self.get_window()
         self.connect(window,  'delete-event',
