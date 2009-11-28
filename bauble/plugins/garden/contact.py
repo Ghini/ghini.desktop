@@ -13,7 +13,6 @@ import bauble.db as db
 from bauble.editor import *
 import bauble.paths as paths
 from bauble.types import Enum
-#from bauble.plugins.garden.source import Donation
 from bauble.view import Action
 
 

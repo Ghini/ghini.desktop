@@ -27,8 +27,6 @@ import bauble.prefs as prefs
 
 
 accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1},
-                        #'date': datetime.date.today()},
-                        #'source_type': u'Donation'},
                        {'id':2 , 'code': u'2.2', 'species_id': 2,
                         'source_type': u'Collection'},
                        )
@@ -87,7 +85,6 @@ test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
                            (Plant, plant_test_data),
                            (Contact, contact_test_data),
-                           #(Donation, donation_test_data),
                            (Collection, collection_test_data))
 
 def setUp_data():
@@ -875,177 +872,6 @@ class AccessionTests(GardenTestCase):
         self.assertRaises(IntegrityError, self.session.commit)
 
 
-#     def test_source(self):
-#         #acc = self.session.query(Accession).get(1)
-#         #donor = self.session.query(Donor).get(1)
-#         acc = Accession(code=u'1', species=self.species)
-#         donor = Donor(name=u'me')
-#         self.session.add_all([acc, donor])
-#         self.session.commit()
-
-#         # set source on accession as a Donation
-#         donation = Donation()
-#         donation.donor = donor
-#         acc.source = donation
-#         self.session.commit()
-#         #self.session.expire(acc)
-#         self.session.refresh(acc)
-#         self.assertEquals(acc.source.id, donation.id)
-#         self.assertEquals(acc.source_type, u'Donation')
-
-#         # create a new Donation and set that as the source, this should
-#         # delete the old donation object since it's an orphan,
-#         old_donation_id = donation.id
-#         donation2 = Donation()
-#         donation2.donor = donor
-#         acc.source = donation2
-#         self.session.commit()
-#         self.session.expire(acc)
-#         self.assertEquals(acc.source.id, donation2.id)
-#         self.assertEquals(acc.source_type, u'Donation')
-
-#         # set the same source twice to make sure the source isn't
-#         # deleted before setting it again
-#         acc.source = donation2
-#         self.session.commit()
-#         self.assert_(acc.source)
-
-#         # delete all the donations
-#         # TODO: ** important ** the donor
-#         # should never be deleted if a donation is deleted and a
-#         # donation should never get deleted if a donor is deleted, an
-#         # error should be reaised if you attempt to delete a donor
-#         # that has donations but should an error be raised if you
-#         # attempt to delete a donation that has a donor, i don't think
-#         # so
-
-#         # make sure the old donation gets deleted since it's an orphan
-#         print self.session.query(Donation).get(old_donation_id)
-#         self.assert_(self.session.query(Donation).get(old_donation_id) == None)
-
-#         # delete the source by setting acc.source=None
-#         donation = Donation()
-#         donation.donor = donor
-#         acc.source = donation
-#         acc.source = None
-#         self.session.commit()
-#         self.session.expire(acc)
-#         old_donation_id = donation2.id
-#         self.assertEquals(acc.source, None)
-#         self.assertEquals(acc.source_type, None)
-
-#         # delete the source 2
-#         donation = Donation()
-#         donation.donor = donor
-#         acc.source = donation
-#         del acc.source
-#         self.session.commit()
-#         self.session.expire(acc)
-#         old_donation_id = donation2.id
-#         self.assertEquals(acc.source, None)
-#         self.assertEquals(acc.source_type, None)
-
-#         # make sure the orphaned donation get's deleted
-#         self.assert_(not self.session.query(Donation).get(old_donation_id))
-
-#         # set accession.source to a Collection
-#         collection = Collection(locale=u'TestAccLocale')
-#         acc.source = collection
-#         self.session.commit()
-#         self.session.expire(acc)
-#         self.assertEquals(acc.source.id, collection.id)
-#         self.assertEquals(acc.source_type, u'Collection')
-
-#         # changed source from collection to donation
-#         old_collection_id = collection.id
-#         donation3 = Donation()
-#         donation3.donor = donor
-#         acc.source = donation3
-#         self.session.commit()
-#         self.session.expire(acc)
-#         self.assertEquals(acc.source.id, donation3.id)
-#         self.assertEquals(acc.source_type, u'Donation')
-
-#         # make sure the orphaned collection get's deleted
-#         self.assert_(not self.session.query(Collection).get(old_collection_id))
-
-#         # change source from donation to collection
-#         old_donation_id = donation3.id
-#         collection2 = Collection(locale=u'TestAccLocale2')
-#         acc.source = collection2
-#         self.session.commit()
-#         self.session.expire(acc)
-#         self.assertEquals(acc.source.id, collection2.id)
-#         self.assertEquals(acc.source_type, u'Collection')
-
-#         # change source without flushing
-#         donation4 = Donation()
-#         acc.source = donation4
-#         collection3 = Collection(locale=u'TestAccLocale3')
-#         acc.source = collection3
-#         self.session.commit()
-# #        utils.log.echo(False)
-
-#         # make sure the orphaned donation get's deleted
-#         self.assert_(not self.session.query(Donation).get(old_donation_id))
-
-#         # make sure the collection gets deleted when accession does
-#         collection4 = Collection(locale=u'TestAccLocale4')
-#         acc.source = collection4
-#         self.session.commit()
-#         cid = collection4.id
-#         self.session.delete(acc)
-#         self.session.commit()
-#         self.assert_(not self.session.query(Collection).get(cid))
-
-#         # make sure the collection gets deleted when accession does
-#         acc = Accession(code=u'1', species=self.species)
-#         donor = Donor(name=u'donor5')
-#         self.session.add_all([acc, donor])
-#         self.session.commit()
-#         donation5 = Donation(donor=donor)
-#         acc.source = donation5
-#         self.session.commit()
-#         did = donation5.id
-#         self.session.delete(acc)
-#         self.session.commit()
-#         self.assert_(not self.session.query(Donation).get(did))
-
-
-#     def test_double_commit(self):
-#         """
-#         This tests a bug with SQLAlchemy that was tentatively fixed
-#         after SQ 0.4.4 was released in r4264.  There is a reference to
-#         this in the SA mailing list.
-
-#         The bug is here just to check if this ever gets fixed.
-#         """
-#         sp = self.session.query(Species).get(1)
-#         acc = Accession()
-#         self.session.add(acc)
-#         acc.species = sp
-#         acc.code = u"3"
-#         # not donor_id, should raise an IntegrityError
-#         donation = Donation()
-#         acc.source = donation
-#         try:
-#             self.session.commit()
-#         except IntegrityError:
-#             self.session.rollback()
-#             # before SA 0.4.5 this would give and InvalidRequestError
-#             # about not being able to refresh Accession after a rollback
-#             try:
-#                 self.session.commit()
-#             except InvalidRequestError, e:
-#                 # we get here in SA pre-0.4.5, we can't use those
-#                 # versions for bauble
-#                 raise
-#             except IntegrityError:
-#                 # it should raise an integrity error because there is
-#                 # still no donor_id on donation
-#                 pass
-
-
     def test_accession_editor(self):
         acc = Accession(code=u'code', species=self.species)
         editor = AccessionEditor(acc)
@@ -1258,34 +1084,6 @@ class LocationTests(GardenTestCase):
         assert utils.gc_objects_by_type('LocationEditorView') == [], \
             'LocationEditorView not deleted'
 
-
-
-# class DonationTests(GardenTestCase):
-
-#     def __init__(self, *args):
-#         super(DonationTests, self).__init__(*args)
-
-#     def setUp(self):
-#         super(DonationTests, self).setUp()
-
-#     def tearDown(self):
-#         super(DonationTests, self).tearDown()
-
-#     def test_accession_prop(self):
-#         """
-#         Test Donation.accession property
-#         """
-#         acc = Accession(code=u'1', species=self.species)
-#         donor = Donor(name=u'donor name')
-#         donation = Donation(donor=donor)
-#         self.session.add_all((acc, donation, donor))
-
-#         self.assert_(acc.source is None)
-#         donation.accession = acc
-#         self.assert_(acc._donation == donation, acc._donation)
-#         self.assert_(acc.source_type == 'Donation')
-#         self.assert_(acc.source == donation)
-#         self.session.commit()
 
 
 # class CollectionTests(GardenTestCase):
