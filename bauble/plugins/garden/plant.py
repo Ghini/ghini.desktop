@@ -467,14 +467,15 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         def on_user_changed(*args):
             # we don't set the note user here since that gets set in
             # commit_changes()
-            self._transfer.person = self.view.widgets.ped_user_entry.props.text
-            self._removal.person = self.view.widgets.ped_user_entry.props.text
+            person = utils.utf8(self.view.widgets.ped_user_entry.props.text)
+            self._transfer.person = person
+            self._removal.person = person
         self.view.connect('ped_user_entry', 'changed', on_user_changed)
 
         # set the user name entry to the current use if we're using postgres
         if db.engine.name in ('postgres', 'postgresql'):
             import bauble.plugins.users as users
-            self.view.set_widget_value('ped_user_entry', users.current_user())
+            self.view.widgets.ped_user_entry.props.text = users.current_user()
         elif 'USER' in os.environ:
             self.view.set_widget_value('ped_user_entry', os.environ['USER'])
         elif 'USERNAME' in os.environ:
