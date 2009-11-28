@@ -253,7 +253,7 @@ class PlantTests(GardenTestCase):
         update_gui()
 
         widgets = editor.presenter.view.widgets
-        utils.set_widget_value(widgets.plant_action_combo, u'Transfer')
+        widgets.plant_transfer_radio.set_active(True)
         widgets.trans_to_comboentry.child.props.text = self.location.name
         update_gui()
 
@@ -291,9 +291,10 @@ class PlantTests(GardenTestCase):
         update_gui()
 
         widgets = editor.presenter.view.widgets
-        utils.set_widget_value(widgets.plant_action_combo, u'Removal')
+        widgets.plant_remove_radio.set_active(True)
         utils.set_widget_value(widgets.rem_reason_combo, u'DEAD')
         update_gui()
+
 
         self.assert_(len(editor.presenter.problems)<1,
                      'widgets have problems')
@@ -414,62 +415,32 @@ class PropagationTests(GardenTestCase):
 
     def setUp(self):
         super(PropagationTests, self).setUp()
-        # these default values have to be initialize in setUp() so
-        # that utils.today_str() will work
-        # self.default_cutting_values = \
-        #     {'cutting_type': u'Nodal',
-        #      'length': 2,
-        #      'tip': u'Intact',
-        #      'leaves': u'Intact',
-        #      'leaves_reduced_pct': 25,
-        #      'flower_buds': u'None',
-        #      'wound': u'Single',
-        #      'fungicide': u'Physan',
-        #      'media': u'standard mix',
-        #      'container': u'4" pot',
-        #      'hormone': u'Auxin powder',
-        #      'cover': u'Poly cover',
-        #      'location': u'Mist frame',
-        #      'bottom_heat_temp': 65,
-        #      'bottom_heat_unit': u'F',
-        #      'rooted_pct': 90}
-        # self.default_seed_values = \
-        #     {'pretreatment': u'Soaked in peroxide solution',
-        #      'nseeds': 24,
-        #      'date_sown': utils.today_str(),
-        #      'container': u"tray",
-        #      'media': u'standard seed compost',
-        #      'location': u'mist tent',
-        #      'moved_from': u'mist tent',
-        #      'moved_to': u'hardening table',
-        #      'media': u'standard mix',
-        #      'germ_date': utils.today_str(),
-        #      'germ_pct': 99,
-        #      'nseedlings': 23,
-        #      'date_planted': utils.today_str()}
         self.accession = self.create(Accession, species=self.species,code=u'1')
+        # self.location = self.create(Location, name=u'name', code=u'code')
+        # self.plant = self.create(Plant, accession=self.accession,
+        #                          location=self.location, code=u'2')
         self.session.commit()
 
 
     def tearDown(self):
+        #self.session.delete(self.location)
+        #self.session.delete(self.plant)
+        #self.session.commit()
+        #self.session.begin()
         super(PropagationTests, self).tearDown()
 
-    def get_default_cutting(self):
-        return PropCutting(**default_seed_values)
 
-    def get_default_seed(self):
-        return PropSeed(**default_seed_values)
-
-
-    def test_accession_prop(self):
+    def test_plant_prop(self):
         """
         Test the Accession->AccessionPropagation->Propagation relation
         """
+        loc = Location(name=u'name', code=u'code')
+        plant = Plant(accession=self.accession, location=loc, code=u'1')
         prop = Propagation()
+        prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
-        cutting = get_default_cutting()
+        cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
-        self.accession.propagations.append(prop)
         self.session.commit()
         self.assert_(prop in self.accession.propagations)
         self.assert_(prop.accession == self.accession)
@@ -484,7 +455,7 @@ class PropagationTests(GardenTestCase):
         plant = self.create(Plant, accession=self.accession, location=loc,
                             code=u'1')
         prop.prop_type = u'UnrootedCutting'
-        cutting = get_default_cutting()
+        cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
         plant.propagations.append(prop)
         self.session.commit()
@@ -493,10 +464,12 @@ class PropagationTests(GardenTestCase):
 
 
     def test_get_summary(self):
+        loc = Location(name=u'name', code=u'code')
+        plant = Plant(accession=self.accession, location=loc, code=u'1')
         prop = Propagation()
+        prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
-        prop.accession = self.accession
-        cutting = get_default_cutting()
+        cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
         rooted = PropRooted()
         rooted.cutting = cutting
@@ -507,8 +480,8 @@ class PropagationTests(GardenTestCase):
 
         prop = Propagation()
         prop.prop_type = u'Seed'
-        prop.accession = self.accession
-        seed = self.get_default_seed()
+        prop.plant = plant
+        seed = PropSeed(**default_seed_values)
         seed.propagation = prop
         self.session.commit()
         summary = prop.get_summary()
@@ -517,13 +490,17 @@ class PropagationTests(GardenTestCase):
 
 
     def test_cutting_property(self):
+        loc = Location(name=u'name', code=u'code')
+        plant = Plant(accession=self.accession, location=loc, code=u'1')
         prop = Propagation()
+        prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
         prop.accession = self.accession
-        cutting = get_default_cutting()
+        cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
         rooted = PropRooted()
         rooted.cutting = cutting
+        self.session.add(rooted)
         self.session.commit()
 
         self.assert_(rooted in prop._cutting.rooted)
@@ -541,10 +518,14 @@ class PropagationTests(GardenTestCase):
 
 
     def test_seed_property(self):
+        loc = Location(name=u'name', code=u'code')
+        plant = Plant(accession=self.accession, location=loc, code=u'1')
         prop = Propagation()
+        plant.propagations.append(prop)
         prop.prop_type = u'Seed'
         prop.accession = self.accession
-        seed = self.get_default_seed()
+        seed = PropSeed(**default_seed_values)
+        self.session.add(seed)
         seed.propagation = prop
         self.session.commit()
 
@@ -558,8 +539,10 @@ class PropagationTests(GardenTestCase):
 
 
     def test_cutting_editor(self):
+        loc = Location(name=u'name', code=u'code')
+        plant = Plant(accession=self.accession, location=loc, code=u'1')
         propagation = Propagation()
-        propagation.accession = self.accession
+        plant.propagations.append(propagation)
         editor = PropagationEditor(model=propagation)
         widgets = editor.presenter.view.widgets
         view = editor.presenter.view
@@ -584,8 +567,10 @@ class PropagationTests(GardenTestCase):
 
 
     def test_seed_editor(self):
+        loc = Location(name=u'name', code=u'code')
+        plant = Plant(accession=self.accession, location=loc, code=u'1')
         propagation = Propagation()
-        propagation.accession = self.accession
+        plant.propagations.append(propagation)
         editor = PropagationEditor(model=propagation)
         widgets = editor.presenter.view.widgets
         view = editor.presenter.view
@@ -605,12 +590,14 @@ class PropagationTests(GardenTestCase):
         editor.commit_changes()
         s.expire(model)
         self.assert_(model.prop_type == u'Seed')
-        for attr, value in default_seed_values.iteritems():
+        for attr, expected in default_seed_values.iteritems():
             v = getattr(model._seed, attr)
             if isinstance(v, datetime.date):
                 format = prefs.prefs[prefs.date_format_pref]
                 v = v.strftime(format)
-            self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
+                if isinstance(expected, datetime.date):
+                    expected = expected.strftime(format)
+            self.assert_(v==expected, '%s = %s(%s)' % (attr, expected, v))
         editor.session.close()
 
 
@@ -679,6 +666,59 @@ class SourceTests(GardenTestCase):
 
     def tearDown(self):
         super(SourceTests, self).tearDown()
+
+
+    def _make_prop(self, source):
+        source.propagation = Propagation(prop_type=u'Seed')
+
+        # a propagation doesn't normally have _seed and _cutting but
+        # its ok here for the test
+        seed = PropSeed(**default_seed_values)
+        seed.propagation = source.propagation
+        cutting = PropCutting(**default_cutting_values)
+        cutting.propagation = source.propagation
+        self.session.commit()
+        prop_id = source.propagation.id
+        seed_id = source.propagation._seed.id
+        cutting_id = source.propagation._cutting.id
+        return prop_id, seed_id, cutting_id
+
+
+    def test_propagation(self):
+        """
+        Test the Source.propagation relation
+        """
+        # test setting and then removing the propagation on the source
+        source = Source()
+        self.accession.source = source
+        prop_id, seed_id, cutting_id = self._make_prop(source)
+        self.session.commit()
+        source.propagation = None
+        self.session.commit()
+        self.assert_(seed_id)
+        self.assert_(cutting_id)
+        self.assert_(prop_id)
+        self.assert_(not self.session.query(PropSeed).get(seed_id))
+        self.assert_(not self.session.query(PropCutting).get(cutting_id))
+        self.assert_(not self.session.query(Propagation).get(prop_id))
+
+
+        source = Source()
+        self.accession.source = source
+        prop_id, seed_id, cutting_id = self._make_prop(source)
+        tmp_session = db.Session()
+        prop2 = source.propagation
+        #self.session.expunge(prop2)
+        source.propagation = None
+        #tmp_session.add(prop2)
+        #tmp_session.close()
+        self.session.commit()
+        #tmp_session.close()
+        self.assert_(not self.session.query(PropSeed).get(seed_id))
+        self.assert_(not self.session.query(PropCutting).get(cutting_id))
+        self.assert_(not self.session.query(Propagation).get(prop_id))
+        self.session.commit()
+
 
     def test(self):
         """
