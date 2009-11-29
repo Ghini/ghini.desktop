@@ -917,7 +917,6 @@ def do_plants():
         # are first entered so that creating later propagules they
         # share the same information
 
-
         # TODO: the date accessioned should come from the accession
         # with the lowest propno...does this always come first in the file
 
@@ -977,14 +976,13 @@ def do_plants():
             acc_wildnote[p]['accession_id'] = acc_id_ctr
 
         species = species_name_dict_from_rec(rec, species_defaults.copy())
-        species_tuple = tuple(zip(species.keys(), species.values()))
+        species_hash = hash(tuple(zip(species.keys(), species.values())))
 
         # check if we already have a cached species.id, if not then
         # search for one in the database
-        species_id = species_ids.get(species_tuple, None)
+        species_id = species_ids.get(species_hash, None)
         if not species_id:
-            species_id = species_ids.setdefault(species_tuple,
-                                                get_species_id(species))
+            species_id = species_ids.setdefault(species_hash, get_species_id(species))
         if species_id:
             row['species_id'] = species_id
         else:
@@ -1019,7 +1017,7 @@ def do_plants():
             species['_last_updated'] = _last_updated
             species['_created'] = _created
             species['id'] = species_id_ctr
-            species_ids[species_tuple] = species_id_ctr
+            species_ids[species_hash] = species_id_ctr
             delayed_species.append(species)
             row['species_id'] = species_id_ctr
             species_id_ctr += 1
