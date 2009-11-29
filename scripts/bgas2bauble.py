@@ -831,8 +831,6 @@ def do_plants():
     # aren't referenced to a scientific name by id or anything
     status('converting PLANTS.DBF ...')
     dbf = open_dbf('PLANTS.DBF')
-    acc_insert = get_insert(acc_table,
-                            ['code', 'species_id', ])
 
     acc_defaults = get_defaults(acc_table)
     acc_notes_defaults = get_defaults(AccessionNote.__table__)
@@ -849,7 +847,10 @@ def do_plants():
     species_ids = {}
     species_id_ctr = get_next_id(species_table)
     acc_rows = []
-    source_rows = {}
+
+    source_rows = []
+    collection_rows = []
+    sc_rows = []
 
     # different note types
     acc_notes = {}
@@ -860,6 +861,7 @@ def do_plants():
     # same...does this ever happen in practice
     added_codes = set()
     plants = {}
+    acc_ids = {}
 
     # map the locations ids by their codes for quick lookup
     locations = {}
@@ -868,6 +870,10 @@ def do_plants():
         locations[loc.code] = loc.id
     session.close()
 
+    coll_id_ctr = get_next_id(Collection.__table__)
+    sc_id_ctr = get_next_id(SourceContact.__table__)
+    source_id_ctr = get_next_id(Source.__table__)
+    acc_id_ctr = get_next_id(acc_table)
     rec_ctr = 0
     # build up a list of all the accession and plants
     for rec in dbf:
@@ -887,6 +893,7 @@ def do_plants():
         if p not in plants:
             plant_row = plant_defaults.copy()
             plant_row['code'] = unicode(rec['propno'])
+            plant_row['accession_id'] = acc_ids.setdefault(rec['accno'], acc_id_ctr)
             #plant_row['date_accd'] = rec['dateaccd']
             #plant_row['date_recvd'] = rec['datercvd']
             # TODO: should pronotes be for the plant
@@ -930,6 +937,7 @@ def do_plants():
         # and we'll bulk commit them later and look up the species_id
         # for the accessions after that
         row = acc_defaults.copy()
+        row['id'] = acc_id_ctr
         acc_rows.append(row)
         row['code'] = unicode(rec['accno'])
         row['_last_updated'] = rec['l_update']
@@ -937,7 +945,7 @@ def do_plants():
         row['memorial'] = rec['memorial']
         row['date_accd'] = rec['dateaccd']
         row['date_recvd'] = rec['datercvd']
-        row['recvd_type'] = rec['rcvdas']
+        row['recvd_type'] = utils.utf8(rec['rcvdas'])
         row['quantity_recvd'] = rec['qtyrcvd']
 
         if rec['intendloc1']:
@@ -945,15 +953,20 @@ def do_plants():
         if rec['intendloc2']:
             row['intended2_location_id'] = locations[rec['intendloc2']]
 
+        # TODO: are these notes unique for the accession or unique for
+        # the plant and should we therefore keep lists of notes
+
         # get the different type of notes
         if rec['notes'].strip():
             acc_notes[p] = acc_notes_defaults.copy()
             acc_notes[p]['note'] = utils.utf8(rec['notes'])
+            acc_notes[p]['accession_id'] = acc_id_ctr
 
         if rec['pronotes'].strip():
             acc_pronotes[p] = acc_notes_defaults.copy()
             acc_pronotes[p]['note'] = utils.utf8(rec['pronotes'])
             acc_pronotes[p]['category'] = u'pronotes?'
+            acc_pronotes[p]['accession_id'] = acc_id_ctr
 
         # TODO: this wildnotes is temporary and should probably go in
         # the collection notes
@@ -961,6 +974,7 @@ def do_plants():
             acc_wildnote[p] = acc_notes_defaults.copy()
             acc_wildnote[p]['note'] = utils.utf8(rec['wildnote'])
             acc_wildnote[p]['category'] = u'wildnote?'
+            acc_wildnote[p]['accession_id'] = acc_id_ctr
 
         species = species_name_dict_from_rec(rec, species_defaults.copy())
         species_tuple = tuple(zip(species.keys(), species.values()))
@@ -1010,25 +1024,37 @@ def do_plants():
             row['species_id'] = species_id_ctr
             species_id_ctr += 1
 
-            source = {}
-            # add collection and source contact data if there is any
-            coll_data = (rec['wildcoll'], rec['wildnum'], rec['wildnote'])
-            if filter(lambda x: not x.strip(), coll_data):
-                collection = {}
-                collection['locale'] = utils.utf8(rec['wildcoll'])
-                collection['collectors_code'] = utils.utf8(rec['wildnum'])
-                collection['notes'] = utils.utf8(rec['wildnote'])
-                source['collection'] = collection
+        source = {}
 
-            if filter(lambda x: not x.strip(), [str(rec['source']), str(rec['othernos'])]):
-                source_contact = {}
-                source_contact['contact_id'] = rec['source']
-                source_contact['contact_code'] = utils.utf8(rec['othernos'])
-                source['source_contact'] = source_contact
+        # add collection and source contact data if there is any
+        coll_data = (rec['wildcoll'], rec['wildnum'], rec['wildnote'])
+        if filter(lambda x: not x.strip(), coll_data):
+            collection = {}
+            collection['id'] = coll_id_ctr
+            collection['locale'] = utils.utf8(rec['wildcoll'])
+            collection['collectors_code'] = utils.utf8(rec['wildnum'])
+            collection['notes'] = utils.utf8(rec['wildnote'])
+            collection_rows.append(collection)
+            source['collection_id'] = coll_id_ctr
+            coll_id_ctr += 1
 
-            if source:
-                source_rows[row['code']] = source
-                #source_rows.setdefault(row['code'], {}).append(source)
+        if filter(lambda x: not x.strip(), [str(rec['source']), str(rec['othernos'])]):
+            source_contact = {}
+            source_contact['id'] = sc_id_ctr
+            source_contact['contact_id'] = rec['source']
+            source_contact['contact_code'] = utils.utf8(rec['othernos'])
+            sc_rows.append(source_contact)
+            source['source_contact_id'] = sc_id_ctr
+            sc_id_ctr += 1
+
+        if source:
+            source['id'] = source_id_ctr
+            source['accession_id'] = acc_id_ctr
+            source_rows.append(source)
+            source_id_ctr += 1
+
+        # increment the id ctr
+        acc_id_ctr += 1
 
     print ''
 
@@ -1046,103 +1072,48 @@ def do_plants():
 
     # insert the accessions
     debug('  insert %s accessions...' % len(acc_rows))
+    acc_insert = get_insert(acc_table, acc_rows[0].keys())
     insert_rows(acc_insert, acc_rows)
     info('inserted %s accesions out of %s records' \
              % (len(acc_rows), len(dbf)))
 
     dbf.close()
     del dbf
-    # now that we have all the accessions loop through all the records
-    # again and create the plants
-    rec_ctr = 0
-    for plant_tuple, plant_row in plants.iteritems():
-        acc_code, plant_code = plant_tuple
-        rec_ctr += 1
-        if (rec_ctr % granularity) == 0:
-            # collect periodically so we don't run out of memory
-            print_tick()
-            gc.collect()
-        acc_id = get_column_value(acc_table.c.id,
-                                  acc_table.c.code == unicode(acc_code))
-        if not acc_id:
-            # this is just an extra check and we shouldn't ever get here
-            print str((acc_code, plant_code))
-            raise ValueError
 
-        plant_row['accession_id'] = acc_id
+    coll_insert = get_insert(Collection.__table__, collection_rows[0].keys())
+    insert_rows(coll_insert, collection_rows)
+    info('inserted %s collections'% len(collection_rows))
+    del collection_rows[:]
 
-        # set the accession id for the notes
-        if plant_tuple in acc_notes:
-            acc_notes[plant_tuple]['accession_id'] = acc_id
-        if plant_tuple in acc_pronotes:
-            acc_pronotes[plant_tuple]['accession_id'] = acc_id
-        if plant_tuple in acc_wildnote:
-            acc_wildnote[plant_tuple]['accession_id'] = acc_id
+    sc_insert = get_insert(SourceContact.__table__, sc_rows[0].keys())
+    insert_rows(sc_insert, sc_rows)
+    info('inserted %s source_contact'% len(sc_rows))
+    del sc_rows[:]
 
-        # set the accession_id for the source records
-        if unicode(acc_code) in source_rows:
-            source_rows[unicode(acc_code)]['accession_id'] = acc_id
-
-    gc.collect()
-    print ''
+    source_insert = get_insert(Source.__table__, source_rows[0].keys())
+    insert_rows(source_insert, source_rows)
+    info('inserted %s sources'% len(source_rows))
+    del source_rows[:]
 
     # we now have all the information for the accession notes so commit
     notes_insert = get_insert(AccessionNote.__table__,
                               ['note', 'date', 'category', 'accession_id'])
     insert_rows(notes_insert, acc_notes.values())
     info('inserted %s accession notes' % len(acc_notes.values()))
+    acc_notes.clear()
+    #del acc_notes[:]
+
     insert_rows(notes_insert, acc_pronotes.values())
     info('inserted %s accession pronotes' % len(acc_pronotes.values()))
+    acc_pronotes.clear()
+    #del acc_pronotes[:]
+
     insert_rows(notes_insert, acc_wildnote.values())
     info('inserted %s accession wildnote' % len(acc_wildnote.values()))
+    acc_wildnote.clear()
+    #del acc_wildnote[:]
 
-    # insert the source rows individually since there aren't very many
-    # and we need to get the ids back...we could just generate our own
-    # ids then we wouldn't have to look them up later
-    collections = []
-    source_insert = get_insert(Source.__table__, ['collection_id', 'source_contact_id',
-                                                  'accession_id'])
-    collection_insert = get_insert(Collection.__table__, ['locale', 'collectors_code',
-                                                          'notes', ])
-    source_contact_insert = get_insert(SourceContact.__table__, ['contact_id',
-                                                                 'contact_code'])
-    collection_table = Collection.__table__
-    source_contact_table = SourceContact.__table__
-    info('insert source rows...')
-    for source in source_rows.values():
-        coll_id = None
-        collection = {}
-        if 'collection' in source:
-            collection = source.pop('collection')
-            # TODO: check first the collection doesn't exist
-            insert_rows(collection_insert, [collection])
-            where = where_from_dict(collection_table, collection,
-                                    ('_last_updated', '_created'))
-            coll_id = get_column_value(collection_table.c.id, where)
-
-        #debug('%s - %s' % (coll_id, type(coll_id)))
-        source['collection_id'] = coll_id
-
-        sc_id = None
-        source_contact = {}
-        if 'source_contact' in source:
-            source_contact = source.pop('source_contact')
-            # TODO: check first the source contact doesn't exists
-            insert_rows(source_contact_insert, [source_contact])
-            where = where_from_dict(source_contact_table, source_contact,
-                                    ('_last_updated', '_created'))
-            sc_id = get_column_value(source_contact_table.c.id, where)
-        source['source_contact_id'] = sc_id
-        # TODO: are the colletions unique, how do we get them back, we
-        # should check it a search returns more than one collection.id
-
-        if not source.get('accession_id', None):
-            print collection
-            print source_contact
-            print source
-            raise ValueError
-        insert_rows(source_insert, [source])
-
+    gc.collect()
 
     # i couldn't get plant_table.update() to ever work properly so
     # instead we just loop through the hereitis table and set the
