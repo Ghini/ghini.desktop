@@ -1022,7 +1022,7 @@ def do_plants():
 
         # add collection and source contact data if there is any
         coll_data = (rec['wildcoll'], rec['wildnum'], rec['wildnote'])
-        if filter(lambda x: not x.strip(), coll_data):
+        if filter(lambda x: x.strip(), coll_data):
             collection = collection_defaults.copy()
             collection['id'] = coll_id_ctr
             collection['locale'] = utils.utf8(rec['wildcoll'])
