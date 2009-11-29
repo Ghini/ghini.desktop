@@ -560,6 +560,7 @@ def do_sciname():
     habits = {}
     for habit in session.query(Habit):
         habits[habit.code] = habit.id
+    session.close()
 
     # create a map of color ids to color codes
     colors = {}
@@ -568,10 +569,15 @@ def do_sciname():
     session.close()
 
     species_rows = []
-    genus_ids = {}
     delayed_species = []
     delayed_genera = {}
     dbf = open_dbf('SCINAME.DBF')
+
+    # cache the genus ids
+    genus_ids = {}
+    sql = select([genus_table.c.id, genus_table.c.genus])
+    for row in sql.execute().fetchall():
+        genus_ids[row[1]] = row[0]
 
     columns = ['id', 'genus_id', 'sp', 'sp2', 'sp_author', 'hybrid', 'infrasp1',
                'infrasp1_rank', 'infrasp1_author', 'infrasp2', 'infrasp2_rank',
@@ -580,8 +586,8 @@ def do_sciname():
                'habit_id', 'flower_color_id']
     species_insert = get_insert(species_table, columns)
 
-    species_map = {} # so we can lookup the inserted species later
-    hashes = set()
+    species_hashes = set()
+    species_ids = {} # cached species ids
 
     species_id_ctr = get_next_id('species')
     species_note_defaults = get_defaults(species_note_table)
@@ -607,14 +613,10 @@ def do_sciname():
             no_genus_ctr += 1
             genus_id = unknown_genus_id
         else:
-            # get the genus id
+            # if can't get the genus id from the cache then add the
+            # genus to delayed_genera
             genus_id = genus_ids.get(genus, None)
-            if not genus_id:
-                genus_id = get_column_value(genus_table.c.id,
-                            genus_table.c.genus == genus)
-            if genus_id:
-                genus_ids[genus] = genus_id
-            elif genus not in delayed_genera:
+            if not genus_id and genus not in delayed_genera:
                 #  couldn't find the full genus name so add it to
                 #  delayed_genera for adding later. first search for
                 #  just the genus name without the hybrid string and
@@ -632,12 +634,29 @@ def do_sciname():
                 genus_row['family_id'] = family_id
                 delayed_genera[genus] = genus_row
 
-        # create the species tuple before we add things like notes,
+        # hash the species name before we add things like notes,
         # awards, habit, flower_color, etc.,
-        species_tuple = tuple(zip(row.keys(), row.values()))
-        species_hash = hash(species_tuple)
+        species_hash = hash(tuple(zip(row.keys(), row.values())))
 
-        row['id'] = species_id_ctr
+        # keep the species hashes so we know when we add duplicates
+        if species_hash not in species_hashes:
+            species_hashes.add(species_hash)
+            # if we don't have the genus yet then add to
+            # delayed_species so we can look up the genera later
+            if genus_id:
+                row['genus_id'] = genus_id
+                species_rows.append(row)
+            else:
+                row['genus'] = genus
+                delayed_species.append(row)
+            # cache the species ids
+            species_ids[species_hash] = species_id_ctr
+            species_id = species_id_ctr
+            species_id_ctr += 1
+        else:
+            dup_ctr += 1
+            species_id = species_ids[species_hash]
+
         row['awards'] = get_value(rec, 'awards')
         row['habit'] = get_value(rec, 'habit')
         row['flower_color'] = get_value(rec, 'flower_color')
@@ -661,22 +680,23 @@ def do_sciname():
             #print get_value(rec, 'scinote')
             note = species_note_defaults.copy()
             note.update(dict(category=u'Scientific', note=get_value(rec, 'scinote'),
-                             species_id=species_id_ctr))
+                             species_id=species_id))
             notes.append(note)
         if has_value(rec, 'PHENOL'):
             note = species_note_defaults.copy()
             note.update(dict(category=u'Phenology', note=get_value(rec, 'phenol'),
-                             species_id=species_id_ctr))
+                             species_id=species_id))
             notes.append(note)
         if has_value(rec, 'NOTES'):
             note = species_note_defaults.copy()
             note.update(dict(category=None, note=get_value(rec, 'notes'),
-                             species_id=species_id_ctr))
+                             species_id=species_id))
             notes.append(note)
 
         # if the species_hash is the same, e.g. the species name is
-        # the same we still has all the notes even though in some
+        # the same, we still has all the notes even though in some
         # cases even the notes will be the same, e.g.
+
         # ;Gaura;;lindheimeri;;;Crimson Butterflies;ENGELM.& A.GRAY | | |;HER_P;;Garden Origin;;False;Pride of Place Plants (New Eden) online;;;PIN; 5;To 60cm/Foliage dark crimson.;
 
         # TODO: this vernacular name thing isn't working properly and
@@ -685,36 +705,12 @@ def do_sciname():
         # clearing them out when the editors are opened....UPDATE: is
         # this still the case???
         for name in [n.strip() for n in rec['comname'].split(',')]:
-            if name not in (None, '', ' ') and not (species_id_ctr, name) in names_set:
+            if name not in (None, '', ' ') and not (species_id, name) in names_set:
                 vernac = vernacular_name_defaults.copy()
-                vernac['species_id'] = species_id_ctr
+                vernac['species_id'] = species_id
                 vernac['name'] = utils.utf8(name)
                 vernac_names.append(vernac)
-                names_set.add((species_id_ctr, name))
-
-        # hash the species data tuples so we know if we are creating
-        # duplicates and to make the rows retrievable so we can look
-        # up the species ids later
-        if species_hash not in species_map:
-            # only insert non duplicates
-            species_map[species_hash] = row.copy()
-            # if we don't have the genus yet then add to
-            # delayed_species so we can look up the genera later
-            if genus_id:
-                row['genus_id'] = genus_id
-                species_rows.append(row)
-            else:
-                row['genus'] = genus
-                delayed_species.append(row)
-        else:
-            dup_ctr += 1
-            # error(genus)
-            # error('values already exist: %s' % row)
-            # #error('%s' % str(species_tuple))
-            # print
-            # error(species_map[species_hash])
-            # raise ValueError
-        species_id_ctr += 1
+                names_set.add((species_id, name))
 
     nrecords = len(dbf)
     dbf.close() # close it so we can garbage collect before insert
@@ -847,6 +843,10 @@ def do_plants():
     species_ids = {}
     species_id_ctr = get_next_id(species_table)
     acc_rows = []
+
+    source_contact_defaults = get_defaults(SourceContact.__table__)
+    collection_defaults = get_defaults(Collection.__table__)
+    source_defaults = get_defaults(Source.__table__)
 
     source_rows = []
     collection_rows = []
@@ -1029,7 +1029,7 @@ def do_plants():
         # add collection and source contact data if there is any
         coll_data = (rec['wildcoll'], rec['wildnum'], rec['wildnote'])
         if filter(lambda x: not x.strip(), coll_data):
-            collection = {}
+            collection = collection_defaults.copy()
             collection['id'] = coll_id_ctr
             collection['locale'] = utils.utf8(rec['wildcoll'])
             collection['collectors_code'] = utils.utf8(rec['wildnum'])
@@ -1038,8 +1038,9 @@ def do_plants():
             source['collection_id'] = coll_id_ctr
             coll_id_ctr += 1
 
+
         if filter(lambda x: not x.strip(), [str(rec['source']), str(rec['othernos'])]):
-            source_contact = {}
+            source_contact = source_contact_defaults.copy()
             source_contact['id'] = sc_id_ctr
             source_contact['contact_id'] = rec['source']
             source_contact['contact_code'] = utils.utf8(rec['othernos'])
@@ -1048,8 +1049,12 @@ def do_plants():
             sc_id_ctr += 1
 
         if source:
+            # the the ids if we didn't get them from the previously
+            source.setdefault('source_contact_id', None)
+            source.setdefault('collection_id', None)
             source['id'] = source_id_ctr
             source['accession_id'] = acc_id_ctr
+            source.update(source_defaults)
             source_rows.append(source)
             source_id_ctr += 1
 
@@ -1272,6 +1277,9 @@ def do_removals():
     for loc in session.query(Location):
         locations[loc.code] = loc.id
     session.close()
+
+    # TODO: could we do one large query to cache the accesion codes,
+    # plant codes and plant ids and put them in an easy access dict
     for rec in dbf:
         row = defaults.copy()
         # TODO: the date format is yyyy-mm-dd...does this work for us
