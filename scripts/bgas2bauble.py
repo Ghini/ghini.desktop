@@ -931,10 +931,6 @@ def do_plants():
         # EVERYTHING PAST HERE WILL BE SKIPPED IF THE ACCESSION CODE IS A DUPLICATE
         # *************************************************************************
 
-        # look up the species_id for the accessions, if we can't find
-        # the species_id then add the species row to delayed_species
-        # and we'll bulk commit them later and look up the species_id
-        # for the accessions after that
         row = acc_defaults.copy()
         row['id'] = acc_id_ctr
         acc_rows.append(row)
@@ -1036,8 +1032,8 @@ def do_plants():
             source['collection_id'] = coll_id_ctr
             coll_id_ctr += 1
 
-
-        if filter(lambda x: not x.strip(), [str(rec['source']), str(rec['othernos'])]):
+        # check if we have a source or othernos
+        if filter(lambda x: x.strip(), [str(rec['source']), str(rec['othernos'])]):
             source_contact = source_contact_defaults.copy()
             source_contact['id'] = sc_id_ctr
             source_contact['contact_id'] = rec['source']
@@ -1047,7 +1043,7 @@ def do_plants():
             sc_id_ctr += 1
 
         if source:
-            # the the ids if we didn't get them from the previously
+            # set the ids if we didn't get them from the previously
             source.setdefault('source_contact_id', None)
             source.setdefault('collection_id', None)
             source['id'] = source_id_ctr
