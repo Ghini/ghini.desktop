@@ -138,8 +138,8 @@ if not os.path.exists(dst):
 # processes' memory gets freed...a script like:
 # python "from scripts import bgas2bauble ; bgas2bauble.do_family()"
 
-def print_tick():
-    sys.stdout.write('.')
+def print_tick(tick='.'):
+    sys.stdout.write(tick)
     sys.stdout.flush()
 
 open_dbf = lambda f: dbf.Dbf(os.path.join(options.bgas, f), readOnly=True)
@@ -288,7 +288,7 @@ def get_value(rec, col, as_str=True):
     return None
 
 
-def get_max_id(table):
+def get_next_id(table):
     """
     Use the insert statment to insert rows in a transaction.
     """
@@ -300,10 +300,10 @@ def get_max_id(table):
     trans = conn.begin()
     r = conn.execute('select max(id) from %s' % tablename).fetchone()[0]
     if not r:
-        r = 1
+        r = 0
     trans.commit()
     conn.close()
-    return r
+    return r+1
 
 
 def species_name_dict_from_rec(rec, defaults=None):
@@ -583,9 +583,7 @@ def do_sciname():
     species_map = {} # so we can lookup the inserted species later
     hashes = set()
 
-
-
-    species_id_ctr = get_max_id('species')
+    species_id_ctr = get_next_id('species')
     species_note_defaults = get_defaults(species_note_table)
     species_note_defaults['date'] = '1/1/1900'
     notes = []
@@ -600,9 +598,8 @@ def do_sciname():
             gc.collect()
             print_tick()
         rec_ctr += 1
-        defaults = species_defaults.copy()
-        row = species_name_dict_from_rec(rec, defaults)
-        row['id'] = species_id_ctr
+        row = species_name_dict_from_rec(rec, species_defaults.copy())
+
         genus = row.pop('genus')
         if not genus:
             # no genus for the species record so use the catch-all
@@ -640,6 +637,7 @@ def do_sciname():
         species_tuple = tuple(zip(row.keys(), row.values()))
         species_hash = hash(species_tuple)
 
+        row['id'] = species_id_ctr
         row['awards'] = get_value(rec, 'awards')
         row['habit'] = get_value(rec, 'habit')
         row['flower_color'] = get_value(rec, 'flower_color')
@@ -658,7 +656,6 @@ def do_sciname():
             row['flower_color_id'] = colors[flower_color]
         else:
             row['flower_color_id'] = None
-
 
         if has_value(rec, 'SCINOTE'):
             #print get_value(rec, 'scinote')
@@ -848,9 +845,9 @@ def do_plants():
     species_defaults = get_defaults(species_table)
     _last_updated = species_defaults.pop('_last_updated')
     _created = species_defaults.pop('_created')
-    delayed_species = {} # species not in db and to be inserted in bulk later
+    delayed_species = [] # species not in db and to be inserted in bulk later
     species_ids = {}
-    delayed_accessions = [] # accessions without species to be inserted later
+    species_id_ctr = get_next_id(species_table)
     acc_rows = []
     source_rows = {}
 
@@ -933,6 +930,7 @@ def do_plants():
         # and we'll bulk commit them later and look up the species_id
         # for the accessions after that
         row = acc_defaults.copy()
+        acc_rows.append(row)
         row['code'] = unicode(rec['accno'])
         row['_last_updated'] = rec['l_update']
         row['pisbg'] = rec['pisbg']
@@ -964,7 +962,7 @@ def do_plants():
             acc_wildnote[p]['note'] = utils.utf8(rec['wildnote'])
             acc_wildnote[p]['category'] = u'wildnote?'
 
-        species = species_name_dict_from_rec(rec, species_defaults)
+        species = species_name_dict_from_rec(rec, species_defaults.copy())
         species_tuple = tuple(zip(species.keys(), species.values()))
 
         # check if we already have a cached species.id, if not then
@@ -975,7 +973,6 @@ def do_plants():
                                                 get_species_id(species))
         if species_id:
             row['species_id'] = species_id
-            acc_rows.append(row)
         else:
             # couldn't get the species id so check if the genus is in
             # the database and if it isn't then insert it
@@ -1007,8 +1004,11 @@ def do_plants():
             species['genus_id'] = genus_id
             species['_last_updated'] = _last_updated
             species['_created'] = _created
-            delayed_species[species_tuple] = species
-            delayed_accessions.append((species_tuple, row))
+            species['id'] = species_id_ctr
+            species_ids[species_tuple] = species_id_ctr
+            delayed_species.append(species)
+            row['species_id'] = species_id_ctr
+            species_id_ctr += 1
 
             source = {}
             # add collection and source contact data if there is any
@@ -1037,37 +1037,10 @@ def do_plants():
     # TODO: could inserting all the delayed species cause problems
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
-    debug('  insert %s delayed species...' % len(delayed_species.values()))
-    species_insert = get_insert(species_table, species_defaults.keys())
-    insert_rows(species_insert, delayed_species.values())
-    info('inserted %s species from plants.dbf' % len(delayed_species.values()))
-
-    gc.collect()
-
-    # set species id on the accession rows that we couldn't get earlier
-    rec_ctr = 0
-    debug('  populating %s delayed accessions...' % (len(delayed_accessions)))
-    for species_tuple, acc in delayed_accessions:
-        rec_ctr += 1
-        if (rec_ctr % granularity) == 0:
-            # collect periodically so we don't run out of memory
-            print_tick()
-            gc.collect()
-
-        # get the species id now that all the species have been inserted
-        ignore_columns = ('_last_updated', '_created', 'id', 'habit', 'notes',
-                          'flower_color', 'awards')
-        species = delayed_species[species_tuple]
-        if isinstance(species, int):
-            species_id = species
-        else:
-            # find the species.id and cache it
-            species_id = get_species_id(species)
-            delayed_species[species_tuple] = species_id
-        acc['species_id'] = species_id
-        acc_rows.append(acc)
-    del delayed_species
-    del delayed_accessions
+    debug('  insert %s delayed species...' % len(delayed_species))
+    species_insert = get_insert(species_table, delayed_species[0].keys())
+    insert_rows(species_insert, delayed_species)
+    info('inserted %s species from plants.dbf' % len(delayed_species))
 
     gc.collect()
 
