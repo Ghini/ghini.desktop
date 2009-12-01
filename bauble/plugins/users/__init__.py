@@ -225,6 +225,8 @@ def drop(role, revoke=False):
     trans = conn.begin()
     try:
         if revoke:
+            # if set privilege failes then dropping the role will fail
+            # because the role will still have dependent users
             set_privilege(role, None)
         stmt = 'drop role %s;' % role
         conn.execute(stmt)
@@ -302,11 +304,20 @@ def has_privileges(role, privilege):
         for priv in privs:
             stmt = "select has_table_privilege('%s', '%s', '%s')" \
                 % (role, table.name, priv)
-            r = db.engine.execute(stmt).fetchone()[0]
-            if not r:
-                # debug('%s does not have %s on %s table' % \
-                #           (role,priv,table.name))
-                return False
+            try:
+                r = db.engine.execute(stmt).fetchone()[0]
+                if not r:
+                    # debug('%s does not have %s on %s table' % \
+                        #           (role,priv,table.name))
+                    return False
+            except ProgrammingError:
+                # we get here if the table doesn't exists, if it
+                # doesn't exist we don't care if we have permissions
+                # on it...this usually happens if we are checking
+                # permissions on a table in the metadata which doesn't
+                # exist in the database which can happen if this
+                # plugin is run on a mismatched version of bauble
+                pass
     return True
 
 
