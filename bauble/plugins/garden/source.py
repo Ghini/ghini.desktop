@@ -173,14 +173,6 @@ class Collection(db.Base):
     geography_id = Column(Integer, ForeignKey('geography.id'))
     notes = Column(UnicodeText)
 
-    def _set_accession(self, accession):
-        accession.source = self
-    def _get_accession(self):
-        # self._accession is created as a backref on the accession's
-        # _donation property
-        return self._accession
-    accession = property(_get_accession, _set_accession)
-
     def __str__(self):
         return 'Collection at %s' % (self.locale or repr(self))
 

@@ -169,9 +169,12 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def collection_extra_elements(self, unit):
         pass
     def extra_elements(self, unit):
+        # TODO: this needs to be updated and filled in
+        return
         if self.accession.notes is not None:
             ABCDElement(unit, 'Notes',
                         text=utils.xml_safe(unicode(self.accession.notes)))
+                        #text=utils.xml_safe(unicode(self.accession.notes)))
         if self.accession.source_type == 'Collection':
             # see ABCD/Unit/Gathering, CollectorsFieldNumber
             self.collection_extra_elements(unit)
