@@ -20,6 +20,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
@@ -168,9 +169,12 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def collection_extra_elements(self, unit):
         pass
     def extra_elements(self, unit):
+        # TODO: this needs to be updated and filled in
+        return
         if self.accession.notes is not None:
             ABCDElement(unit, 'Notes',
                         text=utils.xml_safe(unicode(self.accession.notes)))
+                        #text=utils.xml_safe(unicode(self.accession.notes)))
         if self.accession.source_type == 'Collection':
             # see ABCD/Unit/Gathering, CollectorsFieldNumber
             self.collection_extra_elements(unit)
@@ -301,7 +305,7 @@ class XSLFormatterPlugin(FormatterPlugin):
                                  gtk.MESSAGE_ERROR)
             return False
 
-        session = bauble.Session()
+        session = db.Session()
 
         # convert objects to ABCDAdapters depending on source type for
         # passing to create_abcd

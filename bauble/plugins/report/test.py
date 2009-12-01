@@ -61,7 +61,8 @@ class ReportTests(ReportTestCase):
                         self.session.add(acc)
                         for p in range(2):
                             pctr+=1
-                            loc = Location(id=pctr, name=u'site%s' % pctr)
+                            loc = Location(id=pctr, code=u'%s' % pctr,
+                                           name=u'site%s' % pctr)
                             plant = Plant(id=pctr, accession=acc, location=loc,
                                           code=u'%s' % pctr)
                             #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \

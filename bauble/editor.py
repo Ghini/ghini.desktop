@@ -19,6 +19,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.prefs as prefs
@@ -179,22 +180,14 @@ class GenericEditorView(object):
         self.response = None
         self.__attached_signals = []
 
-        # pygtk 2.12.1 on win32 for some reason doesn't support the new
-        # gtk 2.12 gtk.Tooltip API
-#        if False:
-        if hasattr(gtk.Widget, 'set_tooltip_markup'):
-            for widget_name, markup in self._tooltips.iteritems():
-                try:
-                    self.widgets[widget_name].set_tooltip_markup(markup)
-                except Exception, e:
-                    values = dict(widget_name=widget_name, exception=e)
-                    debug(_('Couldn\'t set the tooltip on widget '\
-                            '%(widget_name)s\n\n%(exception)s' % values))
-        else:
-            tooltips = gtk.Tooltips()
-            for widget_name, markup in self._tooltips.iteritems():
-                widget = self.widgets[widget_name]
-                tooltips.set_tip(widget, markup)
+        # set the tooltips...use gtk.Tooltip api introducted in GTK+ 2.12
+        for widget_name, markup in self._tooltips.iteritems():
+            try:
+                self.widgets[widget_name].set_tooltip_markup(markup)
+            except Exception, e:
+                values = dict(widget_name=widget_name, exception=e)
+                debug(_('Couldn\'t set the tooltip on widget '\
+                        '%(widget_name)s\n\n%(exception)s' % values))
 
         window = self.get_window()
         self.connect(window,  'delete-event',
@@ -340,6 +333,35 @@ class GenericEditorView(object):
         return completion
 
 
+    # TODO: add the ability to pass a sort function
+    # TODO: add a default value to set in the combo
+    def init_translatable_combo(self, combo, translations, default=None,
+                                cmp=None):
+        """
+        Initialize a gtk.ComboBox with translations values where
+        model[row][0] is the value that will be stored in the database
+        and model[row][1] is the value that will be visible in the
+        gtk.ComboBox.
+
+        A gtk.ComboBox initialized with this method should work with
+        self.assign_simple_handler()
+
+        :param combo:
+        :param translations: a dictionary of values->translation
+        """
+        if isinstance(combo, basestring):
+            combo = self.widgets[combo]
+        combo.clear()
+        # using 'object' avoids SA unicode warning
+        model = gtk.ListStore(object, str)
+        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
+            model.append([key, value])
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 1)
+
+
     def save_state(self):
         '''
         Save the state of the view by setting a value in the preferences
@@ -433,6 +455,11 @@ class GenericEditorPresenter(object):
         :param problem_widgets:
         """
         if not problem_widgets:
+            # remove all the problem ids regardless of the widgets
+            # they are attached to
+
+            # TODO: should this only remove problem ids if the widget
+            # part of the problem is None?
             tmp = self.problems.copy()
             for p, w in tmp:
                 if p == problem_id:
@@ -445,6 +472,7 @@ class GenericEditorPresenter(object):
 
         try:
             while True:
+                # keep removing matching problems until we get a key error
                 self.problems.remove((problem_id, problem_widgets))
                 problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
                 problem_widgets.modify_base(gtk.STATE_NORMAL, None)
@@ -472,35 +500,6 @@ class GenericEditorPresenter(object):
             problem_widgets.modify_bg(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.queue_draw()
-
-
-    # TODO: add the ability to pass a sort function
-    # TODO: add a default value to set in the combo
-    def init_translatable_combo(self, combo, translations, default=None,
-                                cmp=None):
-        """
-        Initialize a gtk.ComboBox with translations values where
-        model[row][0] is the value that will be stored in the database
-        and model[row][1] is the value that will be visible in the
-        gtk.ComboBox.
-
-        A gtk.ComboBox initialized with this method should work with
-        self.assign_simple_handler()
-
-        :param combo:
-        :param translations: a dictionary of values->translation
-        """
-        if isinstance(combo, basestring):
-            combo = self.view.widgets[combo]
-        combo.clear()
-        # using 'object' avoids SA unicode warning
-        model = gtk.ListStore(object, str)
-        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
-            model.append([key, value])
-        combo.set_model(model)
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell, True)
-        combo.add_attribute(cell, 'text', 1)
 
 
     def init_enum_combo(self, widget_name, field):
@@ -773,7 +772,7 @@ class GenericModelViewPresenterEditor(object):
     ok_responses = ()
 
     def __init__(self, model, parent=None):
-        self.session = bauble.Session()
+        self.session = db.Session()
         self.model = self.session.merge(model)
 
 
@@ -883,7 +882,7 @@ class NotesPresenter(GenericEditorPresenter):
 
     def add_note(self, note=None):
         expander = NotesPresenter.NoteBox(self, note)
-        self.box.pack_start(expander, expand=False, fill=False, padding=10)
+        self.box.pack_start(expander, expand=False, fill=False)#, padding=10)
         self.box.reorder_child(expander, 0)
         expander.show_all()
         return expander
@@ -914,7 +913,7 @@ class NotesPresenter(GenericEditorPresenter):
 
             notes_box = self.widgets.notes_box
             self.widgets.remove_parent(notes_box)
-            self.pack_start(notes_box)
+            self.pack_start(notes_box, expand=True, fill=True)
 
             self.session = object_session(presenter.model)
             self.presenter = presenter

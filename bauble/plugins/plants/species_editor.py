@@ -265,8 +265,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
             # rank combo
             self.rank_combo = gtk.ComboBox()
-            self.presenter.init_translatable_combo(self.rank_combo,
-                                                   infrasp_rank_values)
+            self.presenter.view.init_translatable_combo(self.rank_combo,
+                                                        infrasp_rank_values)
             utils.set_widget_value(self.rank_combo, rank)
             self.rank_combo.connect('changed', self.on_rank_combo_changed)
             table.attach(self.rank_combo, 0, 1, level, level+1,
@@ -846,7 +846,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             # we try to add the same species again we don't break the
             # SpeciesSynonym UniqueConstraint
 
-            # tmp_session = bauble.Session()
+            # tmp_session = db.Session()
             # tmp_value = tmp.session.merge(value)
             # tmp.session.commit()
             # tmp.session.close()

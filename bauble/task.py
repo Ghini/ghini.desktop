@@ -22,6 +22,10 @@ from bauble.utils.log import debug, error
 
 # TODO: provide a way to create background tasks that don't call set_busy()
 
+# TODO: check the fibra version here....has to be >0.17 or maybe
+# ==0.17 since fibra doesn't seem to ensure any sort of API
+# compatability
+
 schedule = fibra.schedule()
 
 __running = False

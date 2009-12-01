@@ -12,6 +12,7 @@ import traceback
 import gtk
 import gobject
 import pango
+from pyparsing import *
 from sqlalchemy import *
 from sqlalchemy.orm import *
 import sqlalchemy.sql
@@ -27,7 +28,6 @@ import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.utils.log import debug, error, warning
-from bauble.utils.pyparsing import *
 
 # use different formatting template for the result view depending on the
 # platform
@@ -217,8 +217,8 @@ class InfoBoxPage(gtk.ScrolledWindow):
         self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
         self.expanders[expander.get_property("label")] = expander
 
-        sep = gtk.HSeparator()
-        self.vbox.pack_start(sep, False, False)
+        expander._sep = gtk.HSeparator()
+        self.vbox.pack_start(expander._sep, False, False)
 
 
     def get_expander(self, label):
@@ -310,15 +310,34 @@ class InfoBox(gtk.Notebook):
 
 
 
-# TODO: should be able to just to a add_link(uri, description) to
-# add buttons
-## class LinkExpander(InfoExpander):
+class LinksExpander(InfoExpander):
 
-##     def __init__(self):
-##         super(LinkExpander, self).__init__()
+    def __init__(self, notes=None):
+        """
+        :param notes: the name of the notes property on the row
+        """
+        super(LinksExpander, self).__init__(_("Links"))
+        self.dynamic_box = gtk.VBox()
+        self.vbox.pack_start(self.dynamic_box)
+        self.notes = notes
 
-##     def add_button(button):
-##         self.vbox.pack_start(button)
+
+    def update(self, row):
+        import pango
+        map(self.dynamic_box.remove, self.dynamic_box.get_children())
+        if self.notes:
+            notes = getattr(row, self.notes)
+            for note in notes:
+                for label, url in utils.get_urls(note.note):
+                    if not label:
+                        label = url
+                    label = gtk.Label(label)
+                    label.set_ellipsize(pango.ELLIPSIZE_END)
+                    button = gtk.LinkButton(uri=url)
+                    button.add(label)
+                    button.set_alignment(0, -1)
+                    self.dynamic_box.pack_start(button, expand=False,fill=False)
+            self.dynamic_box.show_all()
 
 
 class SearchParser(object):
@@ -801,7 +820,7 @@ class SearchView(pluginmgr.View):
 
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
-        self.session = bauble.Session()
+        self.session = db.Session()
 
 
     def update_notes(self):
@@ -971,7 +990,7 @@ class SearchView(pluginmgr.View):
         self.session.close()
         # create a new session for each search...maybe we shouldn't
         # even have session as a class attribute
-        self.session = bauble.Session()
+        self.session = db.Session()
         bold = '<b>%s</b>'
         try:
             for strategy in self.search_strategies:
@@ -1029,6 +1048,7 @@ class SearchView(pluginmgr.View):
                 statusbar.push(sbcontext_id,
                                _("%s search results") % len(results))
                 self.results_view.set_cursor(0)
+        self.update_notes()
 
 
     def remove_children(self, model, parent):
@@ -1428,6 +1448,9 @@ class SearchView(pluginmgr.View):
             val = getattr(row, prop)
             if val:
                 cell.set_property('text', utils.utf8(val))
+            else:
+                cell.set_property('text', '')
+
 
         date_cell = self.widgets.date_cell
         date_col = self.widgets.date_column
