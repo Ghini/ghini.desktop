@@ -712,6 +712,8 @@ def do_sciname():
                 vernac_names.append(vernac)
                 names_set.add((species_id, name))
 
+    print ''
+
     nrecords = len(dbf)
     dbf.close() # close it so we can garbage collect before insert
     gc.collect()
