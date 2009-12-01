@@ -54,9 +54,9 @@ class Enum(types.TypeDecorator):
         """
         if self.empty_to_none and value is '':
             value = None
-        #if value not in self.values:
-        #    raise EnumError(_('"%s" not in Enum.values: %s') % \
-        #                    (value, self.values))
+        if value not in self.values:
+           raise EnumError(_('"%s" not in Enum.values: %s') % \
+                           (value, self.values))
         return value
 
 
@@ -64,8 +64,8 @@ class Enum(types.TypeDecorator):
         """
         Process the value returned from the database.
         """
-        if self.strict and value not in self.values:
-            raise ValueError(_('"%s" not in Enum.values') % value)
+        # if self.strict and value not in self.values:
+        #     raise ValueError(_('"%s" not in Enum.values') % value)
         return value
 
 

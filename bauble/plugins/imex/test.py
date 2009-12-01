@@ -12,7 +12,7 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
-from bauble.plugins.plants import Family, Geography
+from bauble.plugins.plants import Family, Genus, Species, Geography
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
@@ -33,12 +33,12 @@ from bauble.utils.log import debug
 csv_test_data = ({})
 
 
-family_data = [{'id': 1, 'family': u'family1', 'notes': u'Gal\xe1pagos',
-                'qualifier': None},
-               {'id': 2, 'family': u'family2'},
-               {'id': 3, 'family': u'family3', 'notes': u''},
-               ]
-
+family_data = [{'id': 1, 'family': u'family1', 'qualifier': None},
+               {'id': 2, 'family': u'family2'}]
+genus_data = [{'id': 1, 'genus': u'genus1', 'family_id': 1,
+               'author': u'Gal\xe1pagos'},
+              {'id': 2, 'genus': u'genus2', 'family_id': 1}]
+species_data = [{'id': 1, 'sp': u'sp', 'genus_id': 1}]
 
 class ImexTestCase(BaubleTestCase):
 
@@ -66,28 +66,27 @@ class CSVTests(ImexTestCase):
         self.path = tempfile.mkdtemp()
         super(CSVTests, self).setUp()
 
+        data = (('family', family_data), ('genus', genus_data),
+                ('species', species_data))
+        for table_name, data in data:
+            filename = os.path.join(self.path, '%s.txt' % table_name)
+            f = open(filename, 'wb')
+            format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
+                      'quotechar': QUOTE_CHAR}
+
+            fields = data[0].keys()
+            f.write('%s\n' % ','.join(fields))
+            writer = csv.DictWriter(f, fields, **format)
+            writer.writerows(data)
+            f.flush()
+            f.close()
+            importer = TestImporter()
+            importer.start([filename], force=True)
+
+
     def tearDown(self):
         shutil.rmtree(self.path)
         super(CSVTests, self).tearDown()
-
-
-    def _do_import(self, data):
-        """
-        Write data to family.txt and import into Family
-        """
-        filename = os.path.join(self.path, 'family.txt')
-        f = open(filename, 'wb')
-        format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
-                  'quotechar': QUOTE_CHAR}
-
-        fields = data[0].keys()
-        f.write('%s\n' % ','.join(fields))
-        writer = csv.DictWriter(f, fields, **format)
-        writer.writerows(data)
-        f.flush()
-        f.close()
-        importer = TestImporter()
-        importer.start([filename], force=True)
 
 
     def test_import_self_referential_table(self):
@@ -157,7 +156,18 @@ class CSVTests(ImexTestCase):
         open to Family while importing to the family table
         """
         list(self.session.query(Family))
-        self._do_import(family_data)
+        filename = os.path.join(self.path, 'family.txt')
+        f = open(filename, 'wb')
+        format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
+                  'quotechar': QUOTE_CHAR}
+        fields = family_data[0].keys()
+        f.write('%s\n' % ','.join(fields))
+        writer = csv.DictWriter(f, fields, **format)
+        writer.writerows(family_data)
+        f.flush()
+        f.close()
+        importer = TestImporter()
+        importer.start([filename], force=True)
         list(self.session.query(Family))
 
 
@@ -167,7 +177,6 @@ class CSVTests(ImexTestCase):
         column and that column has a default value then that default
         value is executed.
         """
-        self._do_import(family_data)
         self.session = db.Session()
         family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
@@ -183,14 +192,9 @@ class CSVTests(ImexTestCase):
         ids = [r.id for r in q]
         del q
         self.session.expunge_all()
-        #self.session.close()
-        #debug([f.id for f in self.session.query(Family)])
-        #self.session.clear()
-        self._do_import(family_data)
         self.session = db.Session()
         family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
-        #raise
 
 
     def test_import_no_default(self):
@@ -199,9 +203,8 @@ class CSVTests(ImexTestCase):
         column and that column does not have a default value then that
         value is set to None
         """
-        self._do_import(family_data)
-        family = self.session.query(Family).filter_by(id=2).one()
-        self.assert_(family.notes is None)
+        species = self.session.query(Species).filter_by(id=1).one()
+        self.assert_(species.cv_group is None)
 
 
     def test_import_empty_is_none(self):
@@ -210,9 +213,8 @@ class CSVTests(ImexTestCase):
         but that column is empty and doesn't have a default values
         then the column is set to None
         """
-        self._do_import(family_data)
-        family = self.session.query(Family).filter_by(id=2).one()
-        self.assert_(family.notes is None)
+        species = self.session.query(Species).filter_by(id=1).one()
+        self.assert_(species.cv_group is None)
 
 
     def test_import_empty_uses_default(self):
@@ -221,8 +223,7 @@ class CSVTests(ImexTestCase):
         but that column is empty and has a default then the default is
         executed.
         """
-        self._do_import(family_data)
-        family = self.session.query(Family).filter_by(id=3).one()
+        family = self.session.query(Family).filter_by(id=2).one()
         self.assert_(family.qualifier == '')
 
 
@@ -235,7 +236,6 @@ class CSVTests(ImexTestCase):
         """
         # turn off logger
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
-        self._do_import(family_data)
         highest_id = len(family_data)
         currval = None
         conn = db.engine.connect()
@@ -260,36 +260,32 @@ class CSVTests(ImexTestCase):
         """
         Test importing a unicode string.
         """
-        self._do_import(family_data)
-        family = self.session.query(Family).filter_by(id=1).one()
-        self.assert_(family.notes == family_data[0]['notes'])
+        genus = self.session.query(Genus).filter_by(id=1).one()
+        self.assert_(genus.author == genus_data[0]['author'])
 
 
     def test_import_no_inherit(self):
         """
         Test importing a row with None doesn't inherit from previous row.
         """
-        self._do_import(family_data)
-        query = self.session.query(Family)
-        self.assert_(query[1].notes != query[0].notes,
-                     (query[1].notes,query[0].notes))
+        query = self.session.query(Genus)
+        self.assert_(query[1].author != query[0].author,
+                     (query[1].author, query[0].author))
 
 
     def test_export_none_is_empty(self):
         """
         Test the exporting a None column exports a ''
         """
-        family = Family(family=u'family')
+        species = Species(genus_id=1, sp='sp')
         from tempfile import mkdtemp
         temp_path = mkdtemp()
         exporter = CSVExporter()
         exporter.start(temp_path)
-        f = open(os.path.join(temp_path, 'family.txt'))
+        f = open(os.path.join(temp_path, 'species.txt'))
         reader = csv.DictReader(f, dialect=csv.excel)
         row = reader.next()
-        self.assert_(row['notes'] == '')
-
-
+        self.assert_(row['cv_group'] == '')
 
 
 # class CSVTests(ImexTestCase):

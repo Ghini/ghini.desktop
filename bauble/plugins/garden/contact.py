@@ -1,5 +1,5 @@
 #
-# donor.py
+# contact.py
 #
 import os
 import sys
@@ -13,25 +13,24 @@ import bauble.db as db
 from bauble.editor import *
 import bauble.paths as paths
 from bauble.types import Enum
-from bauble.plugins.garden.source import Donation
 from bauble.view import Action
 
 
-def edit_callback(donors):
-    donor = donors[0]
-    e = DonorEditor(model=donor)
+def edit_callback(contacts):
+    contact = contacts[0]
+    e = ContactEditor(model=contact)
     return e.start() != None
 
 
-def remove_callback(donors):
-    donor = donors[0]
-    s = '%s: %s' % (donor.__class__.__name__, str(donor))
+def remove_callback(contacts):
+    contact = contacts[0]
+    s = '%s: %s' % (contact.__class__.__name__, str(contact))
     msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = bauble.Session()
-        obj = session.query(Donor).get(donor.id)
+        session = db.Session()
+        obj = session.query(Contact).get(contact.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
@@ -43,18 +42,18 @@ def remove_callback(donors):
     return True
 
 
-edit_action = Action('donor_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('contact_edit', ('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-remove_action = Action('donor_remove', ('_Remove'), callback=remove_callback,
+remove_action = Action('contact_remove', ('_Remove'), callback=remove_callback,
                        accelerator='<delete>', multiselect=True)
 
-donor_context_menu = [edit_action, remove_action]
+contact_context_menu = [edit_action, remove_action]
 
 
-# TODO: **important** the donor_type could be either be character
+# TODO: **important** the contact_type could be either be character
 # codes or something so that they can be translated
 
-donor_type_values = {u'Expedition': _('Expedition'),
+contact_type_values = {u'Expedition': _('Expedition'),
                      u'GeneBank': _('Gene Bank'),
                      u'BG/Arboretum': _('Botanic Garden or Arboretum'),
                      u'Research/FieldStation': _('Research/Field Station'),
@@ -69,13 +68,13 @@ donor_type_values = {u'Expedition': _('Expedition'),
                      u'Unknown': _('Unknown'),
                      None: _('')}
 
-class Donor(db.Base):
-    __tablename__ = 'donor'
+class Contact(db.Base):
+    __tablename__ = 'contact'
     __mapper_args__ = {'order_by': 'name'}
 
     # columns
     name = Column(Unicode(72), unique=True, nullable=False)
-    donor_type = Column('donor_type', Enum(values=donor_type_values.keys()),
+    contact_type = Column('contact_type', Enum(values=contact_type_values.keys()),
                         default=None)
     address = Column(UnicodeText)
     email = Column(Unicode(128))
@@ -84,14 +83,18 @@ class Donor(db.Base):
     notes = Column(UnicodeText)
 
     # relations:
-    donations = relation(Donation, backref=backref('donor', uselist=False))
+
+    # TODO: make a list relation to all the accession from this
+    # contact via the accession_source table
+    #accessions = relation('Accession')
+    #donations = relation(Donation, backref=backref('donor', uselist=False))
 
     def __str__(self):
         return self.name
 
 
 
-class DonorEditorView(GenericEditorView):
+class ContactEditorView(GenericEditorView):
 
     # i think the field names are pretty self explanatory and tooltips
     # would be pointless
@@ -99,9 +102,10 @@ class DonorEditorView(GenericEditorView):
 
     def __init__(self, parent=None):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                'donor_editor.glade')
-        super(DonorEditorView, self).__init__(filename, parent=parent)
+                                'contact_editor.glade')
+        super(ContactEditorView, self).__init__(filename, parent=parent)
         self.set_accept_buttons_sensitive(False)
+        self.init_translatable_combo('don_type_combo', contact_type_values)
         if sys.platform == 'win32':
             # TODO: is this character width fix still necessary
             import pango
@@ -115,7 +119,7 @@ class DonorEditorView(GenericEditorView):
 
 
     def get_window(self):
-        return self.widgets.donor_dialog
+        return self.widgets.contact_dialog
 
 
     def set_accept_buttons_sensitive(self, sensitive):
@@ -127,10 +131,10 @@ class DonorEditorView(GenericEditorView):
         return self.get_window().run()
 
 
-class DonorEditorPresenter(GenericEditorPresenter):
+class ContactEditorPresenter(GenericEditorPresenter):
 
     widget_to_field_map = {'don_name_entry': 'name',
-                           'don_type_combo': 'donor_type',
+                           'don_type_combo': 'contact_type',
                            'don_address_textview': 'address',
                            'don_email_entry': 'email',
                            'don_tel_entry': 'tel',
@@ -138,10 +142,7 @@ class DonorEditorPresenter(GenericEditorPresenter):
                            }
 
     def __init__(self, model, view):
-        super(DonorEditorPresenter, self).__init__(model, view)
-        model = gtk.ListStore(str)
-        self.init_translatable_combo('don_type_combo', donor_type_values)
-
+        super(ContactEditorPresenter, self).__init__(model, view)
         self.refresh_view()
         validator = UnicodeOrNoneValidator()
         for widget, field in self.widget_to_field_map.iteritems():
@@ -150,7 +151,7 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
 
     def set_model_attr(self, field, value, validator=None):
-        super(DonorEditorPresenter, self).set_model_attr(field, value,
+        super(ContactEditorPresenter, self).set_model_attr(field, value,
                                                          validator)
         self.__dirty = True
         self.view.set_accept_buttons_sensitive(True)
@@ -162,12 +163,12 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-#            debug('donor refresh(%s, %s=%s)' % (widget, field,
+#            debug('contact refresh(%s, %s=%s)' % (widget, field,
 #                                                self.model[field]))
             self.view.set_widget_value(widget, getattr(self.model, field))
 
         self.view.set_widget_value('don_type_combo',
-                                   donor_type_values[self.model.donor_type],
+                                   contact_type_values[self.model.contact_type],
                                    index=1)
 
 
@@ -178,26 +179,24 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
 # TODO: need to create a widget to edit the notes column
 
-class DonorEditor(GenericModelViewPresenterEditor):
+class ContactEditor(GenericModelViewPresenterEditor):
 
-    label = _('Donor')
-    mnemonic_label = _('_Donor')
     RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
 
     def __init__(self, model=None, parent=None):
         '''
-        @param model: Donor instance or None
+        @param model: Contact instance or None
         @param values to enter in the model if none are give
         '''
-        if model is None:
-            model = Donor()
-        super(DonorEditor, self).__init__(model, parent)
+        if not model:
+            model = Contact()
+        super(ContactEditor, self).__init__(model, parent)
         self.parent = parent
         self._committed = []
 
-        view = DonorEditorView(parent=self.parent)
-        self.presenter = DonorEditorPresenter(self.model, view)
+        view = ContactEditorView(parent=self.parent)
+        self.presenter = ContactEditorPresenter(self.model, view)
 
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
@@ -239,7 +238,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = DonorEditor(parent=self.parent)
+            e = ContactEditor(parent=self.parent)
             more_committed = e.start()
         if more_committed is not None:
             self._committed.append(more_committed)
@@ -262,13 +261,13 @@ class DonorEditor(GenericModelViewPresenterEditor):
 
 from bauble.view import InfoBox, InfoExpander
 
-class GeneralDonorExpander(InfoExpander):
+class GeneralContactExpander(InfoExpander):
     '''
     displays name, number of donations, address, email, fax, tel,
-    type of donor
+    type of contact
     '''
     def __init__(self, widgets):
-        super(GeneralDonorExpander, self).__init__(_('General'), widgets)
+        super(GeneralContactExpander, self).__init__(_('General'), widgets)
         gen_box = self.widgets.don_gen_box
         self.widgets.remove_parent(gen_box)
         self.vbox.pack_start(gen_box)
@@ -283,15 +282,15 @@ class GeneralDonorExpander(InfoExpander):
         self.set_widget_value('don_email_data', row.email)
         self.set_widget_value('don_tel_data', row.tel)
         self.set_widget_value('don_fax_data', row.fax)
-        session = bauble.Session()
-        ndons = session.query(Donation).join('donor').\
-                filter_by(id=row.id).count()
-        self.set_widget_value('don_ndons_data', ndons)
+        session = db.Session()
+        # ndons = session.query(Donation).join('contact').\
+        #         filter_by(id=row.id).count()
+        # self.set_widget_value('don_ndons_data', ndons)
 
 
 class NotesExpander(InfoExpander):
     """
-    displays notes about the donor
+    displays notes about the contact
     """
 
     def __init__(self, widgets):
@@ -311,14 +310,14 @@ class NotesExpander(InfoExpander):
             self.set_widget_value('don_notes_data', row.notes)
 
 
-class DonorInfoBox(InfoBox):
+class ContactInfoBox(InfoBox):
 
     def __init__(self):
-        super(DonorInfoBox, self).__init__()
+        super(ContactInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
-                                "donor_infobox.glade")
+                                "contact_infobox.glade")
         self.widgets = utils.load_widgets(filename)
-        self.general = GeneralDonorExpander(self.widgets)
+        self.general = GeneralContactExpander(self.widgets)
         self.add_expander(self.general)
         self.notes = NotesExpander(self.widgets)
         self.add_expander(self.notes)

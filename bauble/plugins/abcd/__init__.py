@@ -10,6 +10,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 import bauble.utils as utils
@@ -285,7 +286,7 @@ class ABCDExporter(object):
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
         if plants == None:
-            plants = bauble.Session().query(Plant)
+            plants = db.Session().query(Plant)
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin

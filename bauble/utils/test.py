@@ -6,6 +6,7 @@
 import sys
 import unittest
 
+from pyparsing import *
 from sqlalchemy import *
 
 import bauble
@@ -14,7 +15,7 @@ from bauble.error import check, CheckConditionError
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
-from bauble.utils.pyparsing import *
+
 
 class UtilsGTKTests(unittest.TestCase):
 
@@ -107,6 +108,28 @@ class UtilsTests(unittest.TestCase):
         self.assertRaises(CheckConditionError, utils.range_builder, '2-1')
         #self.assertRaises(ParseException, utils.range_builder, 'a-b')
 
+
+    def test_get_urls(self):
+        text = 'There a link in here: http://bauble.belizebotanic.org'
+        urls = utils.get_urls(text)
+        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
+
+        text = 'There a link in here: http://bauble.belizebotanic.org '\
+               'and some text afterwards.'
+        urls = utils.get_urls(text)
+        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
+
+        text = 'There is a link here: http://bauble.belizebotanic.org '\
+               'and here: https://belizebotanic.org and some text afterwards.'
+        urls = utils.get_urls(text)
+        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org'),
+                              (None, 'https://belizebotanic.org')], urls)
+
+        text = 'There a labeled link in here: '\
+               '[BBG]http://bauble.belizebotanic.org and some text afterwards.'
+        urls = utils.get_urls(text)
+        self.assert_(urls == [('BBG', 'http://bauble.belizebotanic.org')],
+                     urls)
 
 
 class UtilsDBTests(BaubleTestCase):
