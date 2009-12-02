@@ -10,14 +10,6 @@ from bauble.view import SearchView, SearchStrategy, MapperSearch, \
 import bauble.view as view
 import bauble.utils.desktop as desktop
 
-# __all__ = ['Species', 'SpeciesSynonym', 'SpeciesNote', 'VernacularName',
-#            'species_context_menu', 'species_markup_func', 'species_get_kids',
-#            'vernname_get_kids', 'vernname_markup_func',
-#            'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
-#            'VernacularNameInfoBox', 'DefaultVernacularName',
-#            'SpeciesDistribution', 'edit_action', 'remove_action',
-#            'add_accession_action']
-
 # TODO: we need to make sure that this will still work if the
 # AccessionPlugin is not present, this means that we would have to
 # change the species context menu, getting the children from the
@@ -390,7 +382,12 @@ class SpeciesInfoPage(InfoBoxPage):
         super(SpeciesInfoPage, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                   'infoboxes.glade')
-        self.widgets = utils.load_widgets(filename)
+        # load the widgets directly instead of using load_widgets()
+        # because the caching that load_widgets() does can mess up
+        # displaying the SpeciesInfoBox sometimes if you try to show
+        # the infobox while having a vernacular names selected in
+        # the search results and then a species name
+        self.widgets = utils.BuilderWidgets(filename)
         self.general = GeneralSpeciesExpander(self.widgets)
         self.add_expander(self.general)
         self.vernacular = VernacularExpander(self.widgets)
