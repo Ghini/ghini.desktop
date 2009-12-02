@@ -209,9 +209,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 class LocationEditor(GenericModelViewPresenterEditor):
 
-    label = _('Location')
-    mnemonic_label = _('_Location')
-
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22

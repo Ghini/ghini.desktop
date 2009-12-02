@@ -583,9 +583,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
 class GenusEditor(editor.GenericModelViewPresenterEditor):
 
-    label = _('Genus')
-    mnemonic_label = _('_Genus')
-
     # these response values have to correspond to the response values in
     # the view
     RESPONSE_OK_AND_ADD = 11

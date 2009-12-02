@@ -972,9 +972,6 @@ class SpeciesEditorView(editor.GenericEditorView):
 
 class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
-    label = _('Species')
-    mnemonic_label = _('_Species')
-
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
