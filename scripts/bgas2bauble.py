@@ -715,6 +715,12 @@ def do_sciname():
 
     print ''
 
+    del species_hashes
+    species_ids.clear()
+    del species_ids
+    del names_set
+    gc.collect()
+
     nrecords = len(dbf)
     dbf.close() # close it so we can garbage collect before insert
     gc.collect()
@@ -761,15 +767,26 @@ def do_sciname():
 
 
 
-def get_species_id(species, defaults=None):
+def get_species_id(species, ignore_columns=None):
     """
+    :param species: a dict of species column and values used to build the query
+    :param ignore_columns: a list of columns names to not include in the query.
     """
+    genus_id = None
     if 'genus_id' not in species:
         genus_id = get_column_value(genus_table.c.id,
                                     genus_table.c.genus == species['genus'])
-    ignore = ('_last_updated', '_created', 'genus')
+        if not genus_id:
+            return None
+    ignore = []
+    if not ignore_columns:
+        ignore = ('_last_updated', '_created', 'genus')
+    else:
+        ignore = ignore_columns
     where = where_from_dict(species_table, species, ignore)
-    return get_column_value(species_table.c.id, where)
+    return  get_column_value(species_table.c.id,
+                             and_(species_table.c.genus_id==genus_id, where))
+
 
 
 def do_plants():
@@ -979,7 +996,11 @@ def do_plants():
         # search for one in the database
         species_id = species_ids.get(species_hash, None)
         if not species_id:
-            species_id = species_ids.setdefault(species_hash, get_species_id(species))
+            ignore = ('sp_author', 'infrasp1_author', 'infrasp2_author',
+                      'infrasp3_author', 'infrasp4_author', 'genus',
+                      '_last_updated', '_created')
+            species_id = species_ids.setdefault(species_hash,
+                                                get_species_id(species, ignore))
         if species_id:
             row['species_id'] = species_id
         else:
