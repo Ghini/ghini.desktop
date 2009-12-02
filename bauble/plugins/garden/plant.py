@@ -814,25 +814,23 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # if self.model.id is None and self.model.acc_status is None:
         #     self.model.acc_status = u'Living'
 
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
+        from bauble.plugins.garden.propagation import PropagationTabPresenter
+        self.prop_presenter = PropagationTabPresenter(self, self.model,
+                                                     self.view, self.session)
+
+        self.refresh_view() # put model values in view
+
         def on_location_select(location):
             self.set_model_attr('location', location)
         from bauble.plugins.garden import init_location_comboentry
         init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
                                  on_location_select)
 
-        notes_parent = self.view.widgets.notes_parent_box
-        notes_parent.foreach(notes_parent.remove)
-        self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
-        from bauble.plugins.garden.propagation import PropagationTabPresenter
-        self.prop_presenter = PropagationTabPresenter(self, self.model,
-                                                      self.view, self.session)
-
-        self.refresh_view() # put model values in view
-
-        # assign handlers to monitor changes now that the view has
+        # assign signal handlers to monitor changes now that the view has
         # been filled in
-
-        # connect signals
         def acc_get_completions(text):
             query = self.session.query(Accession)
             return query.filter(Accession.code.like(unicode('%s%%' % text)))
@@ -984,9 +982,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
 class PlantEditor(GenericModelViewPresenterEditor):
-
-    # label = _('Plant')
-    # mnemonic_label = _('_Plant')
 
     # these have to correspond to the response values in the view
     RESPONSE_NEXT = 22
