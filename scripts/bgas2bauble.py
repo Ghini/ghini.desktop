@@ -657,6 +657,7 @@ def do_sciname():
             dup_ctr += 1
             species_id = species_ids[species_hash]
 
+        row['id'] = species_id
         row['awards'] = get_value(rec, 'awards')
         row['habit'] = get_value(rec, 'habit')
         row['flower_color'] = get_value(rec, 'flower_color')
@@ -769,8 +770,6 @@ def get_species_id(species, defaults=None):
     ignore = ('_last_updated', '_created', 'genus')
     where = where_from_dict(species_table, species, ignore)
     return get_column_value(species_table.c.id, where)
-
-
 
 
 def do_plants():
