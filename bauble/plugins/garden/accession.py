@@ -719,7 +719,8 @@ class AccessionEditorView(editor.GenericEditorView):
         garbage collected.
         """
         v = model[treeiter][0]
-        renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
+        renderer.set_property('text', '%s (%s)' % (Species.str(v, authors=True),
+                                                   v.genus.family))
 
 
 
@@ -942,7 +943,10 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                     filter(Species.id != self.model.id)
                 return query
             def sp_cell_data_func(col, cell, model, treeiter, data=None):
-                cell.set_property('text', str(model[treeiter][0]))
+                v = model[treeiter][0]
+                cell.set_property('text', '%s (%s)' % \
+                                      (Species.str(v, authors=True),
+                                       v.genus.family))
 
             entry = self.widgets.ver_prev_taxon_entry
             def on_prevsp_select(value):
