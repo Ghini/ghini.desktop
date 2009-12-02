@@ -71,10 +71,6 @@ class GUI(object):
         combo = self.widgets.main_comboentry
         model = gtk.ListStore(str)
         combo.set_model(model)
-        cell = gtk.CellRendererText()
-        cell.props.xalign = 0 # TODO: this doesn't left align the combo values
-        combo.pack_start(cell)
-        combo.add_attribute(cell, 'text', 0)
         self.populate_main_entry()
 
         main_entry = combo.child
