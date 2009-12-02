@@ -25,7 +25,7 @@ import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 import bauble.utils as utils
 from bauble.utils.log import debug, error, warning
 
@@ -110,8 +110,8 @@ class InfoExpander(gtk.Expander):
 
     def on_expanded(self, expander, *args):
         if self.expanded_pref:
-            prefs[self.expanded_pref] = expander.get_expanded()
-            prefs.save()
+            prefs.prefs[self.expanded_pref] = expander.get_expanded()
+            prefs.prefs.save()
 
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
@@ -278,7 +278,7 @@ class InfoBox(gtk.Notebook):
         self.connect('switch-page', self.on_switch_page)
 
 
-    # TODO: this seems broken: self == notbook
+    # TODO: this seems broken: self == notebook
     def on_switch_page(self, notebook, dummy_page, page_num,  *args):
         """
         Called when a page is switched
@@ -1444,9 +1444,11 @@ class SearchView(pluginmgr.View):
     def init_notes_treeview(self):
         def cell_data_func(col, cell, model, treeiter, prop):
             row = model[treeiter][0]
-            # TODO: show date with default date format
             val = getattr(row, prop)
             if val:
+                if prop == 'date':
+                    format = prefs.prefs[prefs.date_format_pref]
+                    val = val.strftime(format)
                 cell.set_property('text', utils.utf8(val))
             else:
                 cell.set_property('text', '')
