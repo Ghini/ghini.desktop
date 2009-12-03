@@ -18,6 +18,8 @@ import bauble.db as db
 import bauble.utils as utils
 import bauble.meta as meta
 import bauble.pluginmgr as pluginmgr
+from bauble.plugins.plants import *
+from bauble.plugins.garden import *
 
 import logging
 logging.basicConfig()
@@ -81,10 +83,6 @@ if options.stage == '0' or options.database == default_uri:
     filename = os.path.join(plants.__path__[0], 'default', 'geography.txt')
     importer.start([filename], force=True)
 
-from bauble.plugins.plants import Family, Genus, Species, SpeciesNote, Habit, \
-    Color, VernacularName
-from bauble.plugins.garden import Accession, AccessionNote, Plant, Location, \
-    PlantRemoval, Contact, Source, SourceContact, Collection
 
 family_table = Family.__table__
 genus_table = Genus.__table__
@@ -93,12 +91,6 @@ species_note_table = SpeciesNote.__table__
 acc_table = Accession.__table__
 location_table = Location.__table__
 plant_table = Plant.__table__
-
-src = os.path.join(os.getcwd(), 'dump')
-dst = os.path.join(os.getcwd(), 'bauble')
-
-if not os.path.exists(dst):
-    os.makedirs(dst)
 
 # TODO: this script needs to be very thoroughly tested
 
@@ -596,8 +588,10 @@ def do_sciname():
 
     vernacular_name_defaults = get_defaults(VernacularName.__table__)
     vernacular_name_defaults['language'] = u'English'
+    vernac_id_ctr = 1
     vernac_names = []
-    names_set = set() # set to hold duplicate names
+    names_map = {} # used for setting the default name for a species
+    names_set = set() # used for testing duplicate names on a species
 
     for rec in dbf:
         if rec_ctr % granularity == 0:
@@ -708,10 +702,13 @@ def do_sciname():
         for name in [n.strip() for n in rec['comname'].split(',')]:
             if name not in (None, '', ' ') and not (species_id, name) in names_set:
                 vernac = vernacular_name_defaults.copy()
+                vernac['id'] = vernac_id_ctr
                 vernac['species_id'] = species_id
                 vernac['name'] = utils.utf8(name)
                 vernac_names.append(vernac)
                 names_set.add((species_id, name))
+                names_map.setdefault(species_id, []).append(vernac)
+                vernac_id_ctr += 1
 
     print ''
 
@@ -761,9 +758,24 @@ def do_sciname():
     info('%s species notes inserted' % len(notes))
 
     name_insert = get_insert(VernacularName.__table__,
-                             ['name', 'language', 'species_id'])
+                             ['id', 'name', 'language', 'species_id'])
     insert_rows(name_insert, vernac_names)
     info('%s vernacular names inserted' % len(vernac_names))
+
+    dvn_rows = []
+    dvn_table = DefaultVernacularName.__table__
+    dvn_defaults = get_defaults(dvn_table)
+    for species_id, names in names_map.iteritems():
+        if len(names) == 1:
+            row = dvn_defaults.copy()
+            row['species_id'] = species_id
+            row['vernacular_name_id'] = names[0]['id']
+            dvn_rows.append(row)
+    dvn_insert = get_insert(dvn_table,['species_id','vernacular_name_id'])
+    insert_rows(dvn_insert, dvn_rows)
+    info('%s default vernacular names inserted' % len(dvn_rows))
+    names_map.clear()
+    del dvn_rows[:]
 
 
 
@@ -945,9 +957,10 @@ def do_plants():
             # only enter those that are unique
             continue
 
-        # *************************************************************************
-        # EVERYTHING PAST HERE WILL BE SKIPPED IF THE ACCESSION CODE IS A DUPLICATE
-        # *************************************************************************
+        # *******************************************************************
+        # EVERYTHING PAST HERE WILL BE SKIPPED IF THE ACCESSION CODE
+        # IS A DUPLICATE
+        # *******************************************************************
 
         row = acc_defaults.copy()
         row['id'] = acc_id_ctr
@@ -1185,6 +1198,82 @@ def do_plants():
 
 
 
+def do_transfer():
+
+    # TODO: adding the transfers should probably be done in do_plants
+    # to save us the trouble of looking up the plants ids
+    #
+    # DBF Columns: accno;propno;movedate;moveqty;tranfrom;tranto;notes
+    status('converting TRANSFER.DBF ...')
+    dbf = open_dbf('TRANSFER.DBF')
+    transfer_rows = []
+    transfer_id_ctr = 1
+    transfer_table = PlantTransfer.__table__
+    defaults = get_defaults(transfer_table)
+
+    note_rows = []
+    note_id_ctr = get_next_id(PlantNote.__table__)
+    note_defaults = get_defaults(PlantNote.__table__)
+    note_defaults['category'] = u'Transfer'
+
+    locations = {}
+    session = db.Session()
+    for loc in session.query(Location):
+        locations[loc.code] = loc.id
+
+    # info('building code->plant id map')
+    # session.expunge_all()
+    # q = session.query(Accession.code, Plant.code, Plant.id).join(Plant)
+    # plant_ids = {}
+    # for (acc_code, plant_code, plant_id) in q.all():
+    #     plant_ids[(acc_code, plant_code)] = plant_id
+    # session.close()
+    # info('...done')
+
+    rec_ctr = 0
+    for rec in dbf:
+        rec_ctr += 1
+        if (rec_ctr % granularity) == 0:
+            # collect periodically so we don't run out of memory
+            print_tick()
+            gc.collect()
+        row = defaults.copy()
+        transfer_rows.append(row)
+        row['from_location_id'] = locations[rec['tranfrom']]
+        row['to_location_id'] = locations[rec['tranto']]
+        row['date'] = rec['movedate']
+
+        plant_id = get_column_value(plant_table.c.id,
+                                    and_(Plant.code==unicode(rec['propno']),
+                                         Accession.code==unicode(rec['accno'])))
+        if not plant_id:
+            error(row)
+            raise ValueError
+        # plant_id = plant_ids[utils.utf8(rec['accno']),
+        #                      utils.utf8(rec['propno'])]
+        row['plant_id'] = plant_id
+
+        if rec['notes'].strip():
+            note = note_defaults.copy()
+            note['id'] = note_id_ctr
+            note['note'] = utils.utf8(rec['notes'].strip())
+            note['date'] = rec['movedate']
+            note['plant_id'] = plant_id
+            note_rows.append(note)
+            row['note_id'] = note_id_ctr
+            note_id_ctr += 1
+
+
+    transfer_insert = get_insert(transfer_table, transfer_rows[0].keys())
+    insert_rows(transfer_insert, transfer_rows)
+    info('inserted %s transfers' % len(transfer_rows))
+
+    note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
+    insert_rows(note_insert, note_rows)
+    info('inserted %s transfers notes' % len(note_rows))
+
+
+
 def do_bedtable():
     # TODO: for the bed table it might make sense to do a "section"
     # column so the section could be, say "Alpine Garden" and the
@@ -1285,19 +1374,32 @@ def do_removals():
     # TODO: we don't have an equivalent for quantity
     status('converting REMOVALS.DBF ...')
     removal_table = PlantRemoval.__table__
-    defaults = get_defaults(removal_table)
+    removal_defaults = get_defaults(removal_table)
     dbf = open_dbf('REMOVALS.DBF')
     removal_rows = []
+
+    note_rows = []
+    note_id_ctr = get_next_id(PlantNote.__table__)
+    note_defaults = get_defaults(PlantNote.__table__)
+    note_defaults['category'] = u'Removal'
+
     locations = {}
     session = db.Session()
     for loc in session.query(Location):
         locations[loc.code] = loc.id
     session.close()
 
+    rec_ctr = 1
+
     # TODO: could we do one large query to cache the accesion codes,
     # plant codes and plant ids and put them in an easy access dict
     for rec in dbf:
-        row = defaults.copy()
+        rec_ctr += 1
+        if (rec_ctr % granularity) == 0:
+            # collect periodically so we don't run out of memory
+            print_tick()
+            gc.collect()
+        row = removal_defaults.copy()
         # TODO: the date format is yyyy-mm-dd...does this work for us
         row['date'] = rec['remodate']
         row['from_location_id'] = locations[rec['remofrom']]
@@ -1310,12 +1412,25 @@ def do_removals():
             raise ValueError
         row['plant_id'] = plant_id
         removal_rows.append(row)
-        # note = {}
-        # note['note'] = rec['notes']
-        # note['date'] = rec['remodate']
+
+        if rec['notes'].strip():
+            note = note_defaults.copy()
+            note['id'] = note_id_ctr
+            note['date'] = rec['remodate']
+            note['note'] = utils.utf8(rec['notes'].strip())
+            note['plant_id'] = plant_id
+            note_rows.append(note)
+            row['note_id'] = note_id_ctr
+            note_id_ctr += 1
+
     insert = get_insert(PlantRemoval.__table__,
                         ['date', 'from_location_id', 'plant_id'])
     insert_rows(insert, removal_rows)
+    info('inserted %s removals' % len(removal_rows))
+
+    note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
+    insert_rows(note_insert, note_rows)
+    info('inserted %s removal notes' % len(note_rows))
 
 
 def do_source():
@@ -1350,12 +1465,8 @@ def do_source():
         del rec
     dbf.close()
 
-    conn = db.engine.connect()
-    trans = conn.begin()
-    insert = get_insert(contact_table, ['id', 'name', 'address'])
-    conn.execute(insert, *contact_rows)
-    trans.commit()
-    conn.close()
+    contact_insert = get_insert(contact_table, ['id', 'name', 'address'])
+    insert_rows(contact_insert, contact_rows)
     info('inserted %s contacts.' % len(contact_rows))
 
 
@@ -1367,8 +1478,9 @@ stages = {
     '4': do_bedtable,
     '5': do_source,
     '6': do_plants,
-    '7': do_synonym,
-    '8': do_removals}
+    '7': do_transfer,
+    '8': do_synonym,
+    '9': do_removals}
 
 def run():
     for stage in range(int(options.stage), nstages):
