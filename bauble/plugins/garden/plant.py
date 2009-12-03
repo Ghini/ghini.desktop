@@ -141,7 +141,7 @@ class PlantSearch(SearchStrategy):
 # of cycles
 class PlantNote(db.Base):
     __tablename__ = 'plant_note'
-    __mapper_args__ = {'order_by': 'PlantNote.date'}
+    __mapper_args__ = {'order_by': 'plant_note.date'}
 
     date = Column(types.Date, nullable=False)
     user = Column(Unicode(64))
@@ -190,7 +190,7 @@ class RemovalReasons(db.Base):
 
 class PlantRemoval(db.Base):
     __tablename__ = 'plant_removal'
-    __mapper_args__ = {'order_by': 'PlantRemoval.date'}
+    __mapper_args__ = {'order_by': 'plant_removal.date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
     from_location_id = Column(Integer, ForeignKey('location.id'),
@@ -214,7 +214,7 @@ class PlantRemoval(db.Base):
 
 class PlantTransfer(db.Base):
     __tablename__ = 'plant_transfer'
-    __mapper_args__ = {'order_by': 'PlantTransfer.date'}
+    __mapper_args__ = {'order_by': 'plant_transfer.date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
 
@@ -318,7 +318,7 @@ class Plant(db.Base):
     """
     __tablename__ = 'plant'
     __table_args__ = (UniqueConstraint('code', 'accession_id'), {})
-    __mapper_args__ = {'order_by': ['Plant.accession_id', 'Plant.code']}
+    __mapper_args__ = {'order_by': ['plant.accession_id', 'plant.code']}
 
     # columns
     code = Column(Unicode(6), nullable=False)
