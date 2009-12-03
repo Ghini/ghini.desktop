@@ -552,7 +552,7 @@ def do_sciname():
     habits = {}
     for habit in session.query(Habit):
         habits[habit.code] = habit.id
-    session.close()
+    session.expunge_all()
 
     # create a map of color ids to color codes
     colors = {}
@@ -751,16 +751,17 @@ def do_sciname():
     warning('** %s sciname entries with no genus.  Added to the genus %s' \
                 % (no_genus_ctr, unknown_genus_name))
 
-
     note_insert = get_insert(SpeciesNote.__table__,
                              ['category', 'date', 'note', 'species_id'])
     insert_rows(note_insert, notes)
     info('%s species notes inserted' % len(notes))
+    del notes[:]
 
     name_insert = get_insert(VernacularName.__table__,
                              ['id', 'name', 'language', 'species_id'])
     insert_rows(name_insert, vernac_names)
     info('%s vernacular names inserted' % len(vernac_names))
+    del vernac_names[:]
 
     dvn_rows = []
     dvn_table = DefaultVernacularName.__table__
@@ -771,11 +772,12 @@ def do_sciname():
             row['species_id'] = species_id
             row['vernacular_name_id'] = names[0]['id']
             dvn_rows.append(row)
+    names_map.clear()
     dvn_insert = get_insert(dvn_table,['species_id','vernacular_name_id'])
     insert_rows(dvn_insert, dvn_rows)
     info('%s default vernacular names inserted' % len(dvn_rows))
-    names_map.clear()
     del dvn_rows[:]
+    gc.collect()
 
 
 
@@ -1110,7 +1112,7 @@ def do_plants():
     insert_rows(acc_insert, acc_rows)
     info('inserted %s accesions out of %s records' \
              % (len(acc_rows), len(dbf)))
-
+    del acc_rows[:]
     dbf.close()
     del dbf
 
@@ -1221,15 +1223,6 @@ def do_transfer():
     for loc in session.query(Location):
         locations[loc.code] = loc.id
 
-    # info('building code->plant id map')
-    # session.expunge_all()
-    # q = session.query(Accession.code, Plant.code, Plant.id).join(Plant)
-    # plant_ids = {}
-    # for (acc_code, plant_code, plant_id) in q.all():
-    #     plant_ids[(acc_code, plant_code)] = plant_id
-    # session.close()
-    # info('...done')
-
     rec_ctr = 0
     for rec in dbf:
         rec_ctr += 1
@@ -1243,14 +1236,15 @@ def do_transfer():
         row['to_location_id'] = locations[rec['tranto']]
         row['date'] = rec['movedate']
 
-        plant_id = get_column_value(plant_table.c.id,
-                                    and_(Plant.code==unicode(rec['propno']),
-                                         Accession.code==unicode(rec['accno'])))
+        plant_id = sa.select([plant_table.c.id],
+                  from_obj=plant_table.join(acc_table),
+                  whereclause=and_(plant_table.c.code==unicode(rec['propno']),
+                                   acc_table.c.code==unicode(rec['accno']))).\
+                                   execute().fetchone()[0]
         if not plant_id:
             error(row)
             raise ValueError
-        # plant_id = plant_ids[utils.utf8(rec['accno']),
-        #                      utils.utf8(rec['propno'])]
+
         row['plant_id'] = plant_id
 
         if rec['notes'].strip():
@@ -1263,6 +1257,7 @@ def do_transfer():
             row['note_id'] = note_id_ctr
             note_id_ctr += 1
 
+    print ''
 
     transfer_insert = get_insert(transfer_table, transfer_rows[0].keys())
     insert_rows(transfer_insert, transfer_rows)
@@ -1404,9 +1399,13 @@ def do_removals():
         row['date'] = rec['remodate']
         row['from_location_id'] = locations[rec['remofrom']]
         row['reason'] = rec['remocode']
-        plant_id = get_column_value(plant_table.c.id,
-                                    and_(Plant.code==unicode(rec['propno']),
-                                         Accession.code==unicode(rec['accno'])))
+
+        plant_id = sa.select([plant_table.c.id],
+                  from_obj=plant_table.join(acc_table),
+                  whereclause=and_(plant_table.c.code==unicode(rec['propno']),
+                                   acc_table.c.code==unicode(rec['accno']))).\
+                                   execute().fetchone()[0]
+
         if not plant_id:
             error(row)
             raise ValueError
@@ -1422,6 +1421,8 @@ def do_removals():
             note_rows.append(note)
             row['note_id'] = note_id_ctr
             note_id_ctr += 1
+
+    print ''
 
     insert = get_insert(PlantRemoval.__table__,
                         ['date', 'from_location_id', 'plant_id'])
