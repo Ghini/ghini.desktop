@@ -1200,7 +1200,7 @@ class GeneralPlantExpander(InfoExpander):
                               utils.xml_safe(unicode(tail)))
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
-        self.set_widget_value('location_data',row.location.name)
+        self.set_widget_value('location_data', str(row.location))
         # self.set_widget_value('status_data', acc_status_values[row.acc_status],
         #                       False)
         self.set_widget_value('type_data', acc_type_values[row.acc_type],
