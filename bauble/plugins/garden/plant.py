@@ -23,13 +23,15 @@ import bauble.db as db
 from bauble.error import check, CheckConditionError
 from bauble.editor import *
 import bauble.meta as meta
+import bauble.paths as paths
 #from bauble.plugins.garden import *
 from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import PlantPropagation
 import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.view import SearchStrategy, ResultSet, Action
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+    select_in_search_results, SearchStrategy, ResultSet, Action
 import bauble.view as view
 
 
@@ -1151,11 +1153,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
-import os
-import bauble.paths as paths
-from bauble.view  import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results
-
 
 class GeneralPlantExpander(InfoExpander):
     """
@@ -1216,28 +1213,41 @@ class TransferExpander(InfoExpander):
         """
         """
         super(TransferExpander, self).__init__(_('Transfers/Removal'), widgets)
+        self.vbox.set_spacing(3)
 
 
     def update(self, row):
         '''
         '''
-        # date: src to dest
-        # TODO: remove previous children
-        #debug(row.transfers)
         self.vbox.foreach(self.vbox.remove)
         self.vbox.get_children()
-        for transfer in row.transfers:
-            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
-                dict(date=transfer.date, from_loc=transfer.from_location,
-                     to=transfer.to_location, person=transfer.person)
-            #s = s.replace('None', '?')
-            self.vbox.pack_start(gtk.Label(s))
+        format = prefs.prefs[prefs.date_format_pref]
         if row.removal:
+            date = row.removal.date.strftime(format)
+            if not row.removal.reason:
+                reason = _('(no reason)')
+            else:
+                reason=row.removal.reason
             s = _('Removed from %(from_loc)s on %(date)s: %(reason)s') %\
-                dict(from_loc=row.removal.from_location, date=row.removal.date,
-                     reason=row.removal.reason)
-            #s = s.replace('None', '?')
-            self.vbox.pack_start(gtk.Label(s))
+                dict(from_loc=row.removal.from_location, date=date,
+                     reason=reason)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+
+        for transfer in reversed(row.transfers):
+            date = transfer.date.strftime(format)
+            if not transfer.person:
+                person = _('(unknown)')
+            else:
+                person = transfer.person
+            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
+                dict(date=date, from_loc=transfer.from_location,
+                     to=transfer.to_location, person=person)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+
         self.vbox.show_all()
 
 
