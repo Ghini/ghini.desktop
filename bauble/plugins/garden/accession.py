@@ -230,7 +230,7 @@ class Verification(db.Base):
 
     """
     __tablename__ = 'verification'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'Verification.date'}
 
     # columns
     verifier = Column(Unicode(64), nullable=False)
@@ -336,7 +336,7 @@ class AccessionNote(db.Base):
     Notes for the accession table
     """
     __tablename__ = 'accession_note'
-    __mapper_args__ = {'order_by': 'accession_note.date'}
+    __mapper_args__ = {'order_by': 'AccessionNote.date'}
 
     date = Column(types.DateTime, nullable=False)
     user = Column(Unicode(64))
@@ -427,7 +427,7 @@ class Accession(db.Base):
 
     """
     __tablename__ = 'accession'
-    __mapper_args__ = {'order_by': 'code',
+    __mapper_args__ = {'order_by': 'Accession.code',
                        'extension': AccessionMapperExtension()}
 
     # columns
