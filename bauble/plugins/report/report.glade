@@ -12,9 +12,11 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="options_dialog-vbox">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="vbox3">
             <property name="visible">True</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkHBox" id="hbox3">
                 <property name="visible">True</property>
@@ -69,6 +71,7 @@
               <object class="GtkVBox" id="details_box">
                 <property name="visible">True</property>
                 <property name="border_width">10</property>
+                <property name="orientation">vertical</property>
                 <property name="spacing">15</property>
                 <child>
                   <object class="GtkFrame" id="frame1">
