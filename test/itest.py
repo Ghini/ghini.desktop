@@ -21,22 +21,35 @@ pluginmgr.load()
 # the one thing this script doesn't do that bauble does is called
 # pluginmgr.init()
 #pluginmgr.init(force=True)
-#db.create(import_defaults=True)
+db.create(import_defaults=True)
 
 from bauble.plugins.plants import Family, Genus, Species
 from bauble.plugins.garden import Accession, Plant, Location
 
-session = bauble.Session()
+accession_table = Accession.__table__
+plant_table = Plant.__table__
+#location_table = Location.__table__
 
-# f = Family(family=u'family')
-# g = Genus(family=f, genus=u'genus')
-# s = Species(genus=g, sp=u's')
-# a = Accession(species=s, code=u'1')
-# l = Location(site=u'site')
-# p = Plant(accession=a, location=l, code=u'1')
+session = db.Session()
 
-# session.add_all([f, g, s, a, p])
-# session.commit()
+f = Family(family=u'family')
+g = Genus(family=f, genus=u'genus')
+s = Species(genus=g, sp=u's')
+l = Location(name=u'site', code=u'code')
+
+a = Accession(species=s, code=u'1')
+p = Plant(accession=a, location=l, code=u'1')
+p2 = Plant(accession=a, location=l, code=u'2')
+p3 = Plant(accession=a, location=l, code=u'3')
+
+a2 = Accession(species=s, code=u'2')
+p4 = Plant(accession=a2, location=l, code=u'4')
+p5 = Plant(accession=a2, location=l, code=u'5')
+p6 = Plant(accession=a2, location=l, code=u'6')
+
+
+session.add_all([f, g, s, a, a2, p])
+session.commit()
 
 # print 'drop'
 # pluginmgr.PluginRegistry.__table__.drop()

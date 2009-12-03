@@ -203,11 +203,13 @@ class build(_build):
         dest_tmpl = os.path.join(self.build_base, locale_path, '%s',
                                  'LC_MESSAGES')
         matches = glob.glob('po/*.po')
+        from bauble.i18n import TEXT_DOMAIN
         for po in matches:
             # create an .mo in build/share/locale/$LANG/LC_MESSAGES
             loc, ext = os.path.splitext(os.path.basename(po))
             localedir = dest_tmpl % loc
-            mo = '%s/bauble.mo' % localedir
+            #mo = '%s/bauble-1.mo' % localedir
+            mo = '%s/%s.mo' % (localedir, TEXT_DOMAIN)
             if not os.path.exists(localedir):
                 dir_util.mkpath(localedir)
             if not os.path.exists(mo) or dep_util.newer(po, mo):
