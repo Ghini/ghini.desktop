@@ -7,13 +7,14 @@ The top level module for Bauble.
 
 import imp, os, sys
 import bauble.paths as paths
-import bauble.i18n
 
 # major, minor, revision version tuple
-version = '1.0.0b4' # :bump
+version = '1.0.0b5' # :bump
 """The Bauble version.
 """
 version_tuple = version.split('.')
+
+import bauble.i18n # bauble.i18n needs version_tuple
 
 def main_is_frozen():
     """
