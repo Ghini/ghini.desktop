@@ -1,11 +1,11 @@
-
+import os
 import unittest
 
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.exc import *
 
-from bauble.test import BaubleTestCase
+from bauble.test import BaubleTestCase, check_dupids
 import bauble.utils as utils
 from bauble.utils.log import debug
 #import bauble.plugins.report as report_plugin
@@ -21,6 +21,22 @@ def setUp_test_data():
 
 def tearDown_test_data():
     pass
+
+
+def test_duplicate_ids():
+    """
+    Test for duplicate ids for all .glade files in the gardens plugin.
+    """
+    import bauble.plugins.report as mod
+    import glob
+    head, tail = os.path.split(mod.__file__)
+    files = []
+    files.extend(glob.glob(os.path.join(head, '*.glade')))
+    files = glob.glob(os.path.join(head, 'mako', '*.glade'))
+    files = glob.glob(os.path.join(head, 'xsl', '*.glade'))
+    for f in files:
+        assert(not check_dupids(f))
+
 
 
 class ReportTestCase(BaubleTestCase):

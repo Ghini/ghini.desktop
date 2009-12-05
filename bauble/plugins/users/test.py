@@ -1,15 +1,27 @@
 #
 # test for bauble.plugins.users
 #
+import os
 
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.exc import *
 
 import bauble.db as db
-from bauble.test import BaubleTestCase
+from bauble.test import BaubleTestCase, check_dupids
 import bauble.plugins.users as users
 from bauble.utils.log import debug
+
+def test_duplicate_ids():
+    """
+    Test for duplicate ids for all .glade files in the users plugin.
+    """
+    import bauble.plugins.users as mod
+    import glob
+    head, tail = os.path.split(mod.__file__)
+    files = glob.glob(os.path.join(head, '*.glade'))
+    for f in files:
+        assert(not check_dupids(f))
 
 
 class UsersTests(BaubleTestCase):
