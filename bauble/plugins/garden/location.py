@@ -189,10 +189,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        if self.__dirty or self.session.is_modified(self.model):
-            return True
-        else:
-            return False
+        return self.__dirty or self.session.is_modified(self.model)
 
 
     def refresh_view(self):
