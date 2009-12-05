@@ -6,10 +6,12 @@
     <child>
       <object class="GtkVBox" id="vbox2">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="don_gen_box">
             <property name="visible">True</property>
             <property name="border_width">5</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkLabel" id="don_name_data">
                 <property name="visible">True</property>
@@ -113,7 +115,7 @@
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes">&lt;b&gt;# of Donations:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Accessions:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
@@ -151,7 +153,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="don_ndons_data">
+                  <object class="GtkLabel" id="don_nacc_data">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
                     <property name="label" translatable="yes">--</property>
