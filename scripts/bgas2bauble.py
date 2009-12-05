@@ -654,7 +654,7 @@ def do_sciname():
         row['id'] = species_id
         row['awards'] = get_value(rec, 'awards')
         row['habit'] = get_value(rec, 'habit')
-        row['flower_color'] = get_value(rec, 'flower_color')
+        row['hardiness_zone'] = get_value(rec, 'hard_zone')
 
         # set the habit
         habit = row.pop('habit')
@@ -665,21 +665,24 @@ def do_sciname():
 
         # TODO: flower color can have -,>& delimiters....what should
         # we do, create two flower colors for a species????
-        flower_color = row.pop('flower_color')
-        if flower_color not in (None, '', ' '):
-            row['flower_color_id'] = colors[flower_color]
+        flower_color = get_value(rec, 'flower_color')
+        if flower_color:
+            print flower_color
+            row['flower_color_id'] = colors[flower_color.strip()]
         else:
             row['flower_color_id'] = None
 
         if has_value(rec, 'SCINOTE'):
             #print get_value(rec, 'scinote')
             note = species_note_defaults.copy()
-            note.update(dict(category=u'Scientific', note=get_value(rec, 'scinote'),
+            note.update(dict(category=u'Scientific',
+                             note=get_value(rec, 'scinote'),
                              species_id=species_id))
             notes.append(note)
         if has_value(rec, 'PHENOL'):
             note = species_note_defaults.copy()
-            note.update(dict(category=u'Phenology', note=get_value(rec, 'phenol'),
+            note.update(dict(category=u'Phenology',
+                             note=get_value(rec, 'phenol'),
                              species_id=species_id))
             notes.append(note)
         if has_value(rec, 'NOTES'):
@@ -889,6 +892,9 @@ def do_plants():
     acc_pronotes = {}
     acc_wildnote = {}
 
+    # TODO: some or all of these notes might be for the plant rather
+    # than the accession...is that what pro_notes mean
+
     # TODO: what if the data differs but the accession code is the
     # same...does this ever happen in practice
     added_codes = set()
@@ -902,6 +908,7 @@ def do_plants():
         locations[loc.code] = loc.id
     session.close()
 
+    plant_id_ctr = get_next_id(Plant.__table__)
     coll_id_ctr = get_next_id(Collection.__table__)
     sc_id_ctr = get_next_id(SourceContact.__table__)
     source_id_ctr = get_next_id(Source.__table__)
@@ -924,12 +931,14 @@ def do_plants():
         p = (rec['accno'], rec['propno'])
         if p not in plants:
             plant_row = plant_defaults.copy()
+            plant_row['id'] = plant_id_ctr
             plant_row['code'] = unicode(rec['propno'])
             plant_row['accession_id'] = acc_ids.setdefault(rec['accno'], acc_id_ctr)
             #plant_row['date_accd'] = rec['dateaccd']
             #plant_row['date_recvd'] = rec['datercvd']
             # TODO: should pronotes be for the plant
             plants[p] = plant_row
+            plant_id_ctr += 1
         else:
             raise ValueError('duplicate accession: %s' % p)
 
@@ -1137,34 +1146,28 @@ def do_plants():
     insert_rows(notes_insert, acc_notes.values())
     info('inserted %s accession notes' % len(acc_notes.values()))
     acc_notes.clear()
-    #del acc_notes[:]
 
     insert_rows(notes_insert, acc_pronotes.values())
     info('inserted %s accession pronotes' % len(acc_pronotes.values()))
     acc_pronotes.clear()
-    #del acc_pronotes[:]
 
     insert_rows(notes_insert, acc_wildnote.values())
     info('inserted %s accession wildnote' % len(acc_wildnote.values()))
     acc_wildnote.clear()
-    #del acc_wildnote[:]
 
     gc.collect()
-
-    # i couldn't get plant_table.update() to ever work properly so
-    # instead we just loop through the hereitis table and set the
-    # values on the plant before inserting the plant rows
 
     # loop through the hereitis table to set the location_id, for any
     # plants that are in PLANTS.DBF but aren't in HEREITIS.DBF the
     # locations is set to unknown_location
     status('converting HEREITIS.DBF ...')
-    # TODO: the HEREITIS table can have duplicate rows for the same
-    # accession number and plant code
+
+    # There HEREITIS table seems to store the full history of the of
+    # the plants in the table.  Fortunately it seems like the last one
+    # in the table is the most current so we use that one for the
+    # location.
     dbf = open_dbf('HEREITIS.DBF')
     rec_ctr = 0
-    added = set()
-    hereitis_dupes = set()
     for rec in dbf:
         rec_ctr += 1
         if (rec_ctr % granularity) == 0:
@@ -1173,31 +1176,15 @@ def do_plants():
             gc.collect()
         location_id = locations[unicode(rec['bedno'])]
         plant_tuple = (rec['accno'], rec['propno'])
-        if plants[plant_tuple]['location_id'] == unknown_location_id:
-            plants[plant_tuple]['location_id'] = location_id
-            added.add(plant_tuple)
-        else:
-            # it looks like the dupes have different l_update columns
-            # so maybe we should drop them if everything else is the
-            # same and use whichever one has the latest date...it
-            # seems like if anything they should be transfers or just
-            # old date that wasn't updated
-            hereitis_dupes.add(rec)
-            # error(plants_map[plant_tuple])
-            # raise ValueError('location_id already set')
+        # set the location_id, don't worry if the location was set
+        # previously since the last one should be the most recent
+        plants[plant_tuple]['location_id'] = location_id
 
     plant_insert = get_insert(plant_table, ['accession_id', 'code',
                                             'location_id'])
     insert_rows(plant_insert, plants.values())
-    #print len(plants_map.values())
-    # TODO: do we need plant rows or can we just use plants_map.values()
-    #print len(plant_rows)
     print ''
     info('inserted %s plants' % len(plants.values()))
-    #status('%s duplicates' % dup_ctr)
-    info('%s duplicates' % len(hereitis_dupes))
-    dbf.close()
-
 
 
 def do_transfer():
@@ -1241,10 +1228,6 @@ def do_transfer():
                   whereclause=and_(plant_table.c.code==unicode(rec['propno']),
                                    acc_table.c.code==unicode(rec['accno']))).\
                                    execute().fetchone()[0]
-        if not plant_id:
-            error(row)
-            raise ValueError
-
         row['plant_id'] = plant_id
 
         if rec['notes'].strip():
