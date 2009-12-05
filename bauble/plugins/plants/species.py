@@ -5,8 +5,7 @@ import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
-from bauble.view import SearchView, SearchStrategy, MapperSearch, \
-     PropertiesExpander, Action
+from bauble.view import SearchView, PropertiesExpander, Action
 import bauble.view as view
 import bauble.utils.desktop as desktop
 

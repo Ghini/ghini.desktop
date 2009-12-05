@@ -31,7 +31,7 @@ import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-    select_in_search_results, SearchStrategy, ResultSet, Action
+    select_in_search_results, SearchStrategy, Action
 import bauble.view as view
 
 
@@ -112,7 +112,6 @@ class PlantSearch(SearchStrategy):
 
     def __init__(self):
         super(PlantSearch, self).__init__()
-        self._results = ResultSet()
 
 
     def search(self, text, session):
@@ -121,7 +120,6 @@ class PlantSearch(SearchStrategy):
 
         # TODO: searches like 2009.0039.% or * would be handy
         r1 = super(PlantSearch, self).search(text, session)
-        self._results.add(r1)
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
             return []
@@ -131,11 +129,11 @@ class PlantSearch(SearchStrategy):
         try:
             q = query.join('accession').\
                 filter(and_(Accession.code==acc_code, Plant.code==plant_code))
-            self._results.add(q)
         except Exception, e:
             debug(e)
             return []
-        return q
+        return q.all()
+
 
 
 # TODO: what would happend if the PlantRemove.plant_id and
