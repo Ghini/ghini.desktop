@@ -74,8 +74,8 @@ class Contact(db.Base):
 
     # columns
     name = Column(Unicode(72), unique=True, nullable=False)
-    contact_type = Column('contact_type', Enum(values=contact_type_values.keys()),
-                        default=None)
+    contact_type = Column('contact_type',
+                          Enum(values=contact_type_values.keys()), default=None)
     address = Column(UnicodeText)
     email = Column(Unicode(128))
     fax = Column(Unicode(64))
@@ -276,16 +276,20 @@ class GeneralContactExpander(InfoExpander):
     def update(self, row):
         from textwrap import TextWrapper
         wrapper = TextWrapper(width=50, subsequent_indent='  ')
-        self.set_widget_value('don_name_data', '<big>%s</big>' % \
-                              utils.xml_safe(wrapper.fill(str(row.name))))
-        self.set_widget_value('don_address_data', row.address)
-        self.set_widget_value('don_email_data', row.email)
-        self.set_widget_value('don_tel_data', row.tel)
-        self.set_widget_value('don_fax_data', row.fax)
-        session = db.Session()
-        # ndons = session.query(Donation).join('contact').\
-        #         filter_by(id=row.id).count()
-        # self.set_widget_value('don_ndons_data', ndons)
+        self.set_widget_value('don_name_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.name))
+        self.set_widget_value('don_address_data',
+                              utils.xml_safe_utf8(row.address))
+        self.set_widget_value('don_email_data', utils.xml_safe_utf8(row.email))
+        self.set_widget_value('don_tel_data', utils.xml_safe_utf8(row.tel))
+        self.set_widget_value('don_fax_data', utils.xml_safe_utf8(row.tel))
+        from bauble.plugins.garden.source import SourceContact
+        source_contact = SourceContact.__table__
+        nacc = select([source_contact.c.id],
+                      source_contact.c.contact_id==row.id).\
+                      count().execute().fetchone()[0]
+        self.set_widget_value('don_nacc_data', nacc)
+
 
 
 class NotesExpander(InfoExpander):
