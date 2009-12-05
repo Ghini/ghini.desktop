@@ -37,6 +37,23 @@ def update_gui():
         gtk.main_iteration(block=False)
 
 
+def check_dupids(filename):
+    """
+    Return a list of duplicate ids in a glade file
+    """
+    ids = set()
+    duplicates = set()
+    import lxml.etree as etree
+    tree = etree.parse(filename)
+    for el in tree.getiterator():
+        elid = el.get('id')
+        if elid not in ids:
+            ids.add(elid)
+        elif elid and elid not in duplicates:
+            duplicates.add(elid)
+    return list(duplicates)
+
+
 class BaubleTestCase(unittest.TestCase):
 
     def setUp(self):
