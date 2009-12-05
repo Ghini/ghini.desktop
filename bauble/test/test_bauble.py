@@ -15,7 +15,7 @@ import bauble.db as db
 from bauble.types import Enum
 from bauble.utils.log import debug
 from bauble.view import SearchParser
-from bauble.test import BaubleTestCase
+from bauble.test import BaubleTestCase, check_dupids
 import bauble.meta as meta
 
 """
@@ -150,3 +150,16 @@ class BaubleTests(BaubleTestCase):
         self.assert_(m._created == created)
         self.assert_(isinstance(m._last_updated, datetime.datetime))
         self.assert_(m._last_updated != last_updated)
+
+
+
+    def test_duplicate_ids(self):
+        """
+        Test for duplicate ids for all .glade files in the bauble module
+        """
+        import bauble as mod
+        import glob
+        head, tail = os.path.split(mod.__file__)
+        files = glob.glob(os.path.join(head, '*.glade'))
+        for f in files:
+            assert(not check_dupids(f))

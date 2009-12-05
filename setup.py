@@ -48,7 +48,8 @@ package_data = {'': ['README', 'CHANGES', 'LICENSE'],
                            'images/*.svg', 'images/*.gif', 'images/*.ico']}
 
 # ceate a list of the data patterns to look for in the packages
-data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd']
+data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
+                 '*.html', '*.csv']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
 
@@ -203,11 +204,13 @@ class build(_build):
         dest_tmpl = os.path.join(self.build_base, locale_path, '%s',
                                  'LC_MESSAGES')
         matches = glob.glob('po/*.po')
+        from bauble.i18n import TEXT_DOMAIN
         for po in matches:
             # create an .mo in build/share/locale/$LANG/LC_MESSAGES
             loc, ext = os.path.splitext(os.path.basename(po))
             localedir = dest_tmpl % loc
-            mo = '%s/bauble.mo' % localedir
+            #mo = '%s/bauble-1.mo' % localedir
+            mo = '%s/%s.mo' % (localedir, TEXT_DOMAIN)
             if not os.path.exists(localedir):
                 dir_util.mkpath(localedir)
             if not os.path.exists(mo) or dep_util.newer(po, mo):

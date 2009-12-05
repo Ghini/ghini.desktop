@@ -230,7 +230,7 @@ class Verification(db.Base):
 
     """
     __tablename__ = 'verification'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'verification.date'}
 
     # columns
     verifier = Column(Unicode(64), nullable=False)
@@ -406,14 +406,6 @@ class Accession(db.Base):
         *species*:
             the species this accession refers to
 
-        *_collection*:
-            this relation should never be used directly, use the
-            source property instead
-
-        *_donation*:
-            this relations should never be used directly, use
-            the source property instead
-
         *source*:
             source is a relation to a Source instance
 
@@ -427,7 +419,7 @@ class Accession(db.Base):
 
     """
     __tablename__ = 'accession'
-    __mapper_args__ = {'order_by': 'code',
+    __mapper_args__ = {'order_by': 'accession.code',
                        'extension': AccessionMapperExtension()}
 
     # columns
@@ -471,7 +463,7 @@ class Accession(db.Base):
 
     # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
-                      order_by='Plant.code',
+                      #order_by='plant.code',
                       backref=backref('accession', uselist=False))
     verifications = relation('Verification', #order_by='date',
                              cascade='all, delete-orphan',
@@ -719,7 +711,8 @@ class AccessionEditorView(editor.GenericEditorView):
         garbage collected.
         """
         v = model[treeiter][0]
-        renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
+        renderer.set_property('text', '%s (%s)' % (Species.str(v, authors=True),
+                                                   v.genus.family))
 
 
 
@@ -942,7 +935,10 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                     filter(Species.id != self.model.id)
                 return query
             def sp_cell_data_func(col, cell, model, treeiter, data=None):
-                cell.set_property('text', str(model[treeiter][0]))
+                v = model[treeiter][0]
+                cell.set_property('text', '%s (%s)' % \
+                                      (Species.str(v, authors=True),
+                                       v.genus.family))
 
             entry = self.widgets.ver_prev_taxon_entry
             def on_prevsp_select(value):
@@ -1777,13 +1773,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
     @staticmethod
     def __cleanup_source_prop_model(model):
-        '''
-        '''
-        return model
-
-
-    @staticmethod
-    def __cleanup_donation_model(model):
         '''
         '''
         return model

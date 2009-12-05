@@ -17,9 +17,11 @@ import os
 import locale
 import gettext
 import bauble.paths as paths
+from bauble import version_tuple
+
 __all__ = ["_"]
 
-APP_NAME = 'bauble'
+TEXT_DOMAIN = 'bauble-%s' % '.'.join(version_tuple[0:2])
 
 #
 # most of the following code was adapted from:
@@ -27,13 +29,13 @@ APP_NAME = 'bauble'
 
 langs = []
 #Check the default locale
-lc, encoding = locale.getdefaultlocale()
-if (lc):
+lang_code, encoding = locale.getdefaultlocale()
+if lang_code:
     # If we have a default, it's the first in the list
-    langs = [lc]
+    langs = [lang_code]
 # Now lets get all of the supported languages on the system
 language = os.environ.get('LANGUAGE', None)
-if (language):
+if language:
     # langage comes back something like en_CA:en_US:en_GB:en on linuxy
     # systems, on Win32 it's nothing, so we need to split it up into a
     # list
@@ -46,10 +48,10 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
-gettext.bindtextdomain(APP_NAME, paths.locale_dir())
-gettext.textdomain(APP_NAME)
+gettext.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
+gettext.textdomain(TEXT_DOMAIN)
 # Get the language to use
-lang = gettext.translation(APP_NAME, paths.locale_dir(), languages=langs,
+lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
                            fallback=True)
 # install the language, map _() (which we marked our strings to
 # translate with) to self.lang.gettext() which will translate them.
@@ -58,3 +60,5 @@ _ = lang.gettext
 # register the gettext function for the whole interpreter as "_"
 import __builtin__
 __builtin__._ = gettext.gettext
+
+import bauble

@@ -25,7 +25,7 @@ import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 import bauble.utils as utils
 from bauble.utils.log import debug, error, warning
 
@@ -110,8 +110,8 @@ class InfoExpander(gtk.Expander):
 
     def on_expanded(self, expander, *args):
         if self.expanded_pref:
-            prefs[self.expanded_pref] = expander.get_expanded()
-            prefs.save()
+            prefs.prefs[self.expanded_pref] = expander.get_expanded()
+            prefs.prefs.save()
 
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
@@ -278,7 +278,7 @@ class InfoBox(gtk.Notebook):
         self.connect('switch-page', self.on_switch_page)
 
 
-    # TODO: this seems broken: self == notbook
+    # TODO: this seems broken: self == notebook
     def on_switch_page(self, notebook, dummy_page, page_num,  *args):
         """
         Called when a page is switched
@@ -412,7 +412,7 @@ class MapperSearch(SearchStrategy):
 
     def __init__(self):
         super(MapperSearch, self).__init__()
-        self._results = ResultSet()
+        self._results = set()
         self.parser = SearchParser()
 
 
@@ -523,7 +523,7 @@ class MapperSearch(SearchStrategy):
                 op = expr_iter.next()
             except StopIteration:
                 pass
-        self._results.add(self._session.query(cls).filter(clause))
+        self._results.update(self._session.query(cls).filter(clause).all())
 
 
     def on_domain_expression(self, s, loc, tokens):
@@ -546,7 +546,7 @@ class MapperSearch(SearchStrategy):
 
 	# select all objects from the domain
         if values == '*':
-            self._results.add(query)
+            self._results.update(query.all())
             return
 
         # TODO: should probably create a normalize_cond() method
@@ -568,7 +568,7 @@ class MapperSearch(SearchStrategy):
             # TODO: i don't know how well this will work out if we're
             # search for numbers
             ors = or_(*map(condition(col), values))
-            self._results.add(query.filter(ors))
+            self._results.update(query.filter(ors).all())
         return tokens
 
 
@@ -606,12 +606,12 @@ class MapperSearch(SearchStrategy):
                     return v
             mapper = class_mapper(cls)
             q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c,v in cv]))
-            self._results.add(q)
+            self._results.update(q.all())
 
 
     def search(self, text, session):
         """
-        Returns a ResultSet of database hits for the text search string.
+        Returns a set() of database hits for the text search string.
 
         If session=None then the session should be closed after the results
         have been processed or it is possible that some database backends
@@ -633,82 +633,9 @@ class MapperSearch(SearchStrategy):
         self.parser.query.parseAction = []
         self.parser.domain_expression.parseAction = []
         self.parser.value_list.parseAction = []
+
+        # these results get filled in when the parse actions are called
         return self._results
-
-
-
-# TODO: it would handy if we could support some sort of smart slicing
-# where we chould slice across the different sets and still return the
-# query values using LIMIT queries
-class ResultSet(object):
-    '''
-    A ResultSet represents a set of results returned from a query, it
-    allows you to add results to the set and then iterate over all the
-    results as if they were one set.  It will only return objects that
-    are unique between all the results.
-    '''
-    def __init__(self, results=None):
-	self._results = set()
-	if results:
-	    self.add(results)
-
-
-    def add(self, results):
-        if isinstance(results, (list, tuple, set)):
-            self._results.update(results)
-        else:
-            self._results.add(results)
-
-
-    def __len__(self):
-        # it's possible, but unlikely that int() can truncate the value
-        return int(self.count())
-
-
-    def count(self):
-        '''
-        return the number of total results from all of the members of this
-        results set, does not take into account duplicate results
-        '''
-        ctr = 0
-        for r in self._results:
-            if isinstance(r, Query):
-                ctr += r.count()
-            elif hasattr(r, '__iter__'):
-                ctr += len(r)
-            else:
-                ctr += 1
-        return ctr
-
-
-    def __iter__(self):
-        # If this ResultSet contains other ResultSets that are large
-        # we'll be creating lots of large set objects. This shouldn't
-        # be too much of a problem since the sets would only be
-        # holding references to the same object
-        self._iterset = set()
-        self._iter = itertools.chain(*self._results)
-        return self
-
-
-    def next(self):
-        '''
-        returns unique items from the result set
-        '''
-        v = self._iter.next()
-        if v not in self._iterset: # only return unique objects
-            self._iterset.add(v)
-            return v
-        else:
-            return self.next()
-
-
-    def clear(self):
-        """
-        Clear out the set.
-        """
-        del self._results
-        self._results = set()
 
 
 
@@ -763,8 +690,9 @@ class SearchView(pluginmgr.View):
             def get_children(self, obj):
                 '''
                 :param obj: get the children from obj according to
-                self.children, the returned object should support __len__,
-                if you want to return a query then wrap it in a ResultSet
+                self.children,
+
+                Returns a list or list-like object.
                 '''
                 if self.children is None:
                     return []
@@ -984,7 +912,6 @@ class SearchView(pluginmgr.View):
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match
 #        debug('SearchView.search(%s)' % text)
-        results = ResultSet()
         error_msg = None
         error_details_msg = None
         self.session.close()
@@ -992,9 +919,10 @@ class SearchView(pluginmgr.View):
         # even have session as a class attribute
         self.session = db.Session()
         bold = '<b>%s</b>'
+        results = set()
         try:
             for strategy in self.search_strategies:
-                results.add(strategy.search(text, self.session))
+                results.update(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
@@ -1014,7 +942,9 @@ class SearchView(pluginmgr.View):
         statusbar.pop(sbcontext_id)
         if len(results) == 0:
             model = gtk.ListStore(str)
-            model.append([bold % _('Couldn\'t find anything')])
+            msg = bold % _('Couldn\'t find anything for search: "%s"') \
+                % text
+            model.append([msg])
             self.results_view.set_model(model)
         else:
             if len(results) > 5000:
@@ -1093,7 +1023,7 @@ class SearchView(pluginmgr.View):
 
     def populate_results(self, results, check_for_kids=False):
         """
-        :param results: a ResultSet instance
+        :param results: a list or list-like object
         :param check_for_kids: only used for testing
 
         This method adds results to the search view in a task.
@@ -1187,6 +1117,14 @@ class SearchView(pluginmgr.View):
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
+            # if the value isn't part of a session then add it to the
+            # view's session so that we can access its child
+            # properties...this usually happens when one of the
+            # ViewMeta's get_children() functions return a list of
+            # object who's session was closed...we add it here for
+            # performance reasons so we only add it onces its visible
+            if not object_session(value):
+                self.session.add(value)
             try:
                 func = self.view_meta[type(value)].markup_func
                 if func is not None:
@@ -1444,9 +1382,11 @@ class SearchView(pluginmgr.View):
     def init_notes_treeview(self):
         def cell_data_func(col, cell, model, treeiter, prop):
             row = model[treeiter][0]
-            # TODO: show date with default date format
             val = getattr(row, prop)
             if val:
+                if prop == 'date':
+                    format = prefs.prefs[prefs.date_format_pref]
+                    val = val.strftime(format)
                 cell.set_property('text', utils.utf8(val))
             else:
                 cell.set_property('text', '')

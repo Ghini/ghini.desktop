@@ -1,3 +1,4 @@
+import os
 import datetime
 import unittest
 
@@ -10,7 +11,7 @@ from sqlalchemy.orm import *
 import bauble
 import bauble.db as db
 from bauble.error import CheckConditionError, check
-from bauble.test import BaubleTestCase, update_gui
+from bauble.test import BaubleTestCase, update_gui, check_dupids
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.plugins.garden.accession import *
@@ -118,6 +119,19 @@ def setUp_data():
 # - create test for parsing latitude/longitude entered into the lat/lon entries
 
 
+def test_duplicate_ids():
+    """
+    Test for duplicate ids for all .glade files in the gardens plugin.
+    """
+    import bauble.plugins.garden as mod
+    import glob
+    head, tail = os.path.split(mod.__file__)
+    files = glob.glob(os.path.join(head, '*.glade'))
+    for f in files:
+        assert(not check_dupids(f))
+
+
+
 class GardenTestCase(BaubleTestCase):
 
     def __init__(self, *args):
@@ -141,7 +155,6 @@ class GardenTestCase(BaubleTestCase):
         obj = class_(**kwargs)
         self.session.add(obj)
         return obj
-
 
 
 class ContactTests(GardenTestCase):
@@ -1024,23 +1037,33 @@ class LocationTests(GardenTestCase):
 
 
     def test_location_editor(self):
-        #loc = self.create(Location, name=u'some site')
-        loc = Location(name=u'some site', code=u'STE')
+        loc = self.create(Location, name=u'some site', code=u'STE')
+        self.session.commit()
         editor = LocationEditor(model=loc)
-        #editor.presenter.view.dialog.hide_all()
         update_gui()
         widgets = editor.presenter.view.widgets
 
-        # test that the accept buttons are sensitive and the text
-        # entries and model are the same
-        assert widgets.loc_name_entry.get_text() == loc.code
+        # test that the accept buttons are NOT sensitive since nothing
+        # has changed and that the and the text entries and model are
+        # the same
+        assert widgets.loc_name_entry.get_text() == loc.name
+        assert widgets.loc_code_entry.get_text() == loc.code
+        assert not widgets.loc_ok_button.props.sensitive
+        assert not widgets.loc_ok_and_add_button.props.sensitive
+        assert not widgets.loc_next_button.props.sensitive
+
+        # test the accept buttons become sensitive when the name entry
+        # is changed
+        widgets.loc_name_entry.set_text('')
+        update_gui()
         assert widgets.loc_ok_button.props.sensitive
         assert widgets.loc_ok_and_add_button.props.sensitive
         assert widgets.loc_next_button.props.sensitive
 
-        # test the accept buttons aren't sensitive when the location
-        # entry is empty
-        widgets.loc_name_entry.set_text('')
+        # test the accept buttons become NOT sensitive when the code
+        # entry is empty since this is a required field
+        widgets.loc_code_entry.set_text('')
+        update_gui()
         assert not widgets.loc_ok_button.props.sensitive
         assert not widgets.loc_ok_and_add_button.props.sensitive
         assert not widgets.loc_next_button.props.sensitive

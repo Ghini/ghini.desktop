@@ -23,8 +23,8 @@ def edit_callback(locations):
 
 
 def add_plants_callback(locations):
-    from bauble.plugins.garden.plant import Plant, AddPlantEditor
-    e = AddPlantEditor(model=Plant(location=locations[0]))
+    from bauble.plugins.garden.plant import Plant, PlantEditor
+    e = PlantEditor(model=Plant(location=locations[0]))
     return e.start() != None
 
 
@@ -147,8 +147,8 @@ class LocationEditorView(GenericEditorView):
 
 class LocationEditorPresenter(GenericEditorPresenter):
 
-    #'loc_name_entry': 'name',
-    widget_to_field_map = {'loc_name_entry': 'code', # UBC specific
+    widget_to_field_map = {'loc_name_entry': 'name',
+                           'loc_code_entry': 'code', # UBC specific
                            'loc_desc_textview': 'description'}
 
     def __init__(self, model, view):
@@ -164,10 +164,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         # connect signals
-        self.assign_simple_handler('loc_name_entry', 'code', # UBC
+        self.assign_simple_handler('loc_name_entry', 'name', # UBC
                                    UnicodeOrNoneValidator())
-        # self.assign_simple_handler('loc_name_entry', 'name',
-        #                            UnicodeOrNoneValidator())
+        self.assign_simple_handler('loc_code_entry', 'code',
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('loc_desc_textview', 'description',
                                    UnicodeOrNoneValidator())
         self.refresh_sensitivity()
@@ -189,10 +189,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        if self.__dirty or self.session.is_modified(self.model):
-            return True
-        else:
-            return False
+        return self.__dirty or self.session.is_modified(self.model)
 
 
     def refresh_view(self):
@@ -208,9 +205,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
 class LocationEditor(GenericModelViewPresenterEditor):
-
-    label = _('Location')
-    mnemonic_label = _('_Location')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -285,8 +279,8 @@ class LocationEditor(GenericModelViewPresenterEditor):
             e = LocationEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            from bauble.plugins.garden.plant import AddPlantEditor, Plant
-            e = AddPlantEditor(Plant(location=self.model), self.parent)
+            from bauble.plugins.garden.plant import PlantEditor, Plant
+            e = PlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()
         if more_committed is not None:
             if isinstance(more_committed, list):
@@ -333,7 +327,7 @@ class GeneralLocationExpander(InfoExpander):
         '''
         from bauble.plugins.garden.plant import Plant
         self.set_widget_value('loc_name_data',
-                              '<big>%s</big>' % utils.xml_safe(str(row.name)))
+                              '<big>%s</big>' % utils.xml_safe(str(row)))
         session = object_session(row)
         nplants = session.query(Plant).filter_by(location_id=row.id).count()
         self.set_widget_value('loc_nplants_data', nplants)
