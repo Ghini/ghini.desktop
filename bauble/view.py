@@ -1117,6 +1117,14 @@ class SearchView(pluginmgr.View):
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
+            # if the value isn't part of a session then add it to the
+            # view's session so that we can access its child
+            # properties...this usually happens when one of the
+            # ViewMeta's get_children() functions return a list of
+            # object who's session was closed...we add it here for
+            # performance reasons so we only add it onces its visible
+            if not object_session(value):
+                self.session.add(value)
             try:
                 func = self.view_meta[type(value)].markup_func
                 if func is not None:
