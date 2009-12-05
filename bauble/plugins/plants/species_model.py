@@ -182,7 +182,9 @@ class Species(db.Base):
     habit = relation('Habit', uselist=False, backref='species')
 
     flower_color_id = Column(Integer, ForeignKey('color.id'), default=None)
-    flower_color = relation('Color', uselist=False)
+    flower_color = relation('Color', uselist=False, backref='species')
+
+    hardiness_zone = Column(Unicode(4))
 
     awards = Column(UnicodeText)
 
@@ -509,9 +511,22 @@ class Habit(db.Base):
     name = Column(Unicode(32))
     code = Column(Unicode(8), unique=True)
 
+    def __str__(self):
+        if self.name:
+            return '%s (%s)' % (self.name, self.code)
+        else:
+            return str(self.code)
+
 
 class Color(db.Base):
     __tablename__ = 'color'
 
     name = Column(Unicode(32))
     code = Column(Unicode(8), unique=True)
+
+    def __str__(self):
+        if self.name:
+            return '%s (%s)' % (self.name, self.code)
+        else:
+            return str(self.code)
+

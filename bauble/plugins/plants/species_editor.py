@@ -22,9 +22,7 @@ import bauble.editor as editor
 from bauble.utils.log import debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
-from bauble.plugins.plants.species_model import Species, \
-    SpeciesSynonym, VernacularName, DefaultVernacularName, \
-    SpeciesDistribution, SpeciesNote, Geography, infrasp_rank_values
+from bauble.plugins.plants.species_model import *
 
 
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
@@ -37,6 +35,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_hybrid_check': 'hybrid',
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_spqual_combo': 'sp_qual',
+                           'sp_awards_entry': 'awards',
+                           'sp_zone_entry': 'hardiness_zone',
+                           'sp_label_dist_entry': 'label_distribution',
                            }
 
 
@@ -54,7 +55,46 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = \
             editor.NotesPresenter(self, 'notes', notes_parent)
+
+        self.init_enum_combo('sp_spqual_combo', 'sp_qual')
+
+        def cell_data_func(column, cell, model, treeiter, data=None):
+            cell.props.text = utils.utf8(model[treeiter][0])
+
+        combo = self.view.widgets.sp_habit_comboentry
+        values = utils.get_distinct_values(Habit.name, self.session)
+        combo.clear()
+        model = gtk.ListStore(object)
+        map(lambda v: model.append([v]), self.session.query(Habit))
+        combo.set_model(model)
+        renderer = gtk.CellRendererText()
+        combo.pack_start(renderer, True)
+        combo.set_cell_data_func(renderer, cell_data_func)
+
+        combo = self.view.widgets.sp_flower_comboentry
+        values = utils.get_distinct_values(Color.name, self.session)
+        combo.clear()
+        model = gtk.ListStore(object)
+        map(lambda v: model.append([v]), self.session.query(Color))
+        combo.set_model(model)
+        renderer = gtk.CellRendererText()
+        combo.pack_start(renderer, True)
+        combo.set_cell_data_func(renderer, cell_data_func)
+
+        # set the model values in the widgets
         self.refresh_view()
+
+        # connect habit comboentry widget and child entry
+        self.view.connect('sp_habit_comboentry', 'changed',
+                          self.on_combo_entry_changed)
+        self.view.connect(self.view.widgets.sp_habit_comboentry.child,
+                          'changed', self.on_habit_entry_changed)
+
+        # connect flower comboentry widget and child entry
+        self.view.connect('sp_flower_comboentry', 'changed',
+                          self.on_combo_entry_changed)
+        self.view.connect(self.view.widgets.sp_flower_comboentry.child,
+                          'changed', self.on_flower_entry_changed)
 
         # connect signals
         def gen_get_completions(text):
@@ -105,7 +145,75 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_label_dist_entry', 'label_distribution')
+        self.assign_simple_handler('sp_awards_entry', 'awards')
+        self.assign_simple_handler('sp_zone_entry', 'hardiness_zone')
 
+
+    def on_combo_entry_changed(self, combo, *args):
+        """
+        Changed handler for sp_habit_comboentry and sp_flower_comboentry
+
+        We don't need specific handlers for either comboentry because
+        the validation is done in the specific gtk.Entry handlers for
+        the child of the combo entries.
+        """
+        value = None
+        treeiter = combo.get_active_iter()
+        if treeiter:
+            value = combo.get_model()[treeiter][0]
+        else:
+            # the changed handler is fired again after the
+            # combo.child.props.text with the activer iter set to None
+            return True
+        # the entry change handler does the validation of the model
+        combo.child.props.text = utils.utf8(value)
+
+
+    def on_habit_entry_changed(self, entry, *args):
+        """
+        """
+        problem = 'BAD_HABIT'
+        text = entry.props.text
+        if not text.strip():
+            self.remove_problem(problem, entry)
+            self.set_model_attr('habit', None)
+            return
+        model = entry.get_parent().get_model()
+        def match_func(row, data):
+            return str(row[0].code).lower() == str(data).lower() or \
+                str(row[0].name).lower() == str(data).lower() or \
+                str(row[0]).lower() == str(data).lower()
+        results = utils.search_tree_model(model, text, match_func)
+        if results and len(results) == 1: # is match is unique
+            self.remove_problem(problem, entry)
+            self.set_model_attr('habit', model[results[0]][0])
+        else:
+            self.add_problem(problem, entry)
+            self.set_model_attr('habit', None)
+
+
+    def on_flower_entry_changed(self, entry, *args):
+        """
+        """
+        problem = 'BAD_COLOR'
+        text = entry.props.text
+        if not text.strip():
+            self.remove_problem(problem, entry)
+            self.set_model_attr('flower_color', None)
+            return
+        model = entry.get_parent().get_model()
+        def match_func(row, data):
+            return str(row[0].code).lower() == str(data).lower() or \
+                str(row[0].name).lower() == str(data).lower() or \
+                str(row[0]).lower() == str(data).lower()
+        results = utils.search_tree_model(model, text, match_func)
+        if results and len(results) == 1: # is match is unique
+            self.remove_problem(problem, entry)
+            self.set_model_attr('flower_color', model[results[0]][0])
+        else:
+            self.add_problem(problem, entry)
+            self.set_model_attr('flower_color', None)
 
 
     def __del__(self):
@@ -199,6 +307,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 #            self.view.set_widget_value(widget, value,
 #                                       default=self.defaults.get(field, None))
             self.view.set_widget_value(widget, value)
+
+        utils.set_widget_value(self.view.widgets.sp_habit_comboentry,
+                               self.model.habit or '')
+        utils.set_widget_value(self.view.widgets.sp_flower_comboentry,
+                               self.model.flower_color or '')
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.dist_presenter.refresh_view()
@@ -268,22 +381,24 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             self.presenter.view.init_translatable_combo(self.rank_combo,
                                                         infrasp_rank_values)
             utils.set_widget_value(self.rank_combo, rank)
-            self.rank_combo.connect('changed', self.on_rank_combo_changed)
+            presenter.view.connect(self.rank_combo,
+                                   'changed', self.on_rank_combo_changed)
             table.attach(self.rank_combo, 0, 1, level, level+1,
                          xoptions=gtk.FILL, yoptions=-1)
 
             # epithet entry
             self.epithet_entry = gtk.Entry()
             utils.set_widget_value(self.epithet_entry, epithet)
-            self.epithet_entry.connect('changed',
-                                       self.on_epithet_entry_changed)
+            presenter.view.connect(self.epithet_entry, 'changed',
+                                   self.on_epithet_entry_changed)
             table.attach(self.epithet_entry, 1, 2, level, level+1,
                          xoptions=gtk.FILL|gtk.EXPAND, yoptions=-1)
 
             # author entry
             self.author_entry = gtk.Entry()
             utils.set_widget_value(self.author_entry, author)
-            self.author_entry.connect('changed', self.on_author_entry_changed)
+            presenter.view.connect(self.author_entry, 'changed',
+                                   self.on_author_entry_changed)
             table.attach(self.author_entry, 2, 3, level, level+1,
                          xoptions=gtk.FILL|gtk.EXPAND, yoptions=-1)
 
@@ -291,8 +406,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             img = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
                                            gtk.ICON_SIZE_BUTTON)
             self.remove_button.props.image = img
-            self.remove_button.connect('clicked',
-                                       self.on_remove_button_clicked)
+            presenter.view.connect(self.remove_button, 'clicked',
+                                   self.on_remove_button_clicked)
             table.attach(self.remove_button, 3, 4, level, level+1,
                          xoptions=gtk.FILL, yoptions=-1)
             table.show_all()
@@ -721,7 +836,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
         self.init_treeview()
-        debug(self.problems)
         # use completions_model as a dummy object for completions, we'll create
         # seperate SpeciesSynonym models on add
         completions_model = SpeciesSynonym()
@@ -873,7 +987,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_vern_frame': _('Vernacular names'),
         'sp_syn_box': _('Species synonyms')
         }
-
 
 
     def __init__(self, parent=None):
