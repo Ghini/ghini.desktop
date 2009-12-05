@@ -65,7 +65,8 @@ class Source(db.Base):
     source_contact_id = Column(Integer, ForeignKey('source_contact.id'))
     source_contact = relation('SourceContact', uselist=False,
                               single_parent=True,
-                              cascade='all, delete-orphan')
+                              cascade='all, delete-orphan',
+                              backref=backref('source', uselist=False))
 
     collection_id = Column(Integer, ForeignKey('collection.id'))
     # TODO: not sure why i need this single_parent flage here

@@ -300,8 +300,6 @@ class Plant(db.Base):
 
                 * None: no information, unknown)
 
-        *notes*: :class:`sqlalchemy.types.UnicodeText`
-            Notes
 
         *accession_id*: :class:`sqlalchemy.types.ForeignKey`
             Required.
@@ -314,6 +312,8 @@ class Plant(db.Base):
             The accession for this plant.
         *location*:
             The location for this plant.
+        *notes*:
+            Thoe notes for this plant.
 
     :Constraints:
         The combination of code and accession_id must be unique.
@@ -326,16 +326,13 @@ class Plant(db.Base):
     code = Column(Unicode(6), nullable=False)
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
 
-    # UBC: with removes then the acc_status is not really necessary
+    # UBC: with plant removals then the acc_status is not really necessary
     # acc_status = Column(types.Enum(values=acc_status_values.keys()),
     #                     default=None)
 
-    # TODO: notes is now a relation to PlantNote
-    #notes = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
 
-    #from bauble.plugins.garden.propagation import Propagation
     propagations = relation('Propagation', cascade='all, delete-orphan',
                             single_parent=True,
                             secondary=PlantPropagation.__table__,
