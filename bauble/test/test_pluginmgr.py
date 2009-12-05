@@ -11,7 +11,7 @@ from sqlalchemy import *
 import bauble
 import bauble.db as db
 from bauble.view import SearchParser
-from bauble.view import SearchView, MapperSearch, ResultSet
+from bauble.view import SearchView, MapperSearch
 from bauble.utils.log import debug, error
 from bauble.test import BaubleTestCase, uri
 import bauble.pluginmgr as pluginmgr

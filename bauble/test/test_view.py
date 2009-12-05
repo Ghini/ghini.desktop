@@ -11,7 +11,7 @@ from sqlalchemy import *
 import bauble
 import bauble.db as db
 from bauble.view import SearchParser
-from bauble.view import SearchView, MapperSearch, ResultSet
+from bauble.view import SearchView, MapperSearch
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
@@ -199,27 +199,6 @@ class SearchTests(BaubleTestCase):
         super(SearchTests, self).tearDown()
 
 
-    def test_result_set(self):
-        # TODO: This doesn't really do anything at the moment, i
-        # started writing it to test out slicing with the ResultSet
-
-	# TODO: test the ResultSet(somelist) and
-	# ResultSet().add(somelist) are the same
-        #return
-        from bauble.plugins.plants.family import Family
-        ids = xrange(1,1000)
-        table = Family.__table__
-        values = []
-        for i in ids:
-            values.append({'id': i, 'family': u'%s' % i})
-        db.engine.execute(table.insert(), values)
-        view = SearchView()
-        mapper_search = view.search_strategies[0]
-        result = mapper_search.search('fam=*', self.session)
-        for v in result:
-            v
-
-
     def test_search_by_values(self):
         """
         Test searching by values with MapperSearch
@@ -304,15 +283,15 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search('genus where family.family=family',
                                        self.session)
         g = list(results)[0]
-        self.assert_(results.count() == 1 and isinstance(g, Genus) \
+        self.assert_(len(results) == 1 and isinstance(g, Genus) \
                      and g.id==genus.id, [str(o) for o in list(results)])
 
         # search cls.children.column
         results = mapper_search.search('family where genera.genus=genus',
                                        self.session)
         f = list(results)[0]
-        self.assert_(results.count() == 1 and isinstance(f, Family) \
-                     and f.id==family.id)
+        self.assert_(len(results) == 1 and isinstance(f, Family) \
+                         and f.id==family.id)
 
         # search with multiple conditions and'ed together
         #debug('--------')
@@ -323,7 +302,7 @@ class SearchTests(BaubleTestCase):
         s = 'genus where genus=genus2 and family.family=fam3'
         results = mapper_search.search(s, self.session)
         g = list(results)[0]
-        self.assert_(results.count() == 1 and isinstance(g, Genus) \
+        self.assert_(len(results) == 1 and isinstance(g, Genus) \
                      and g.id==g3.id)
 
         # search with or conditions
@@ -332,7 +311,7 @@ class SearchTests(BaubleTestCase):
         self.session.commit()
         s = 'genus where genus=genus2 or genus=genus'
         results = mapper_search.search(s, self.session)
-        self.assert_(results.count() == 3)
+        self.assert_(len(results) == 3)
         self.assert_(sorted([r.id for r in results]) \
                      == [g.id for g in (genus, genus2, g3)])
 
@@ -384,5 +363,5 @@ class SearchTests(BaubleTestCase):
         # test partial string matches on a query
         s = 'genus where family.family like family%'
         results = mapper_search.search(s, self.session)
-        self.assert_(list(results) == [genus, genus2])
+        self.assert_(set(results) == set([genus, genus2]))
 
