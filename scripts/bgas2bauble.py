@@ -697,11 +697,6 @@ def do_sciname():
 
         # ;Gaura;;lindheimeri;;;Crimson Butterflies;ENGELM.& A.GRAY | | |;HER_P;;Garden Origin;;False;Pride of Place Plants (New Eden) online;;;PIN; 5;To 60cm/Foliage dark crimson.;
 
-        # TODO: this vernacular name thing isn't working properly and
-        # is creating a lot of vernacular names in the wrong
-        # place....or maybe its just a problem with the view not
-        # clearing them out when the editors are opened....UPDATE: is
-        # this still the case???
         for name in [n.strip() for n in rec['comname'].split(',')]:
             if name not in (None, '', ' ') and not (species_id, name) in names_set:
                 vernac = vernacular_name_defaults.copy()
@@ -933,7 +928,9 @@ def do_plants():
             plant_row = plant_defaults.copy()
             plant_row['id'] = plant_id_ctr
             plant_row['code'] = unicode(rec['propno'])
-            plant_row['accession_id'] = acc_ids.setdefault(rec['accno'], acc_id_ctr)
+            plant_row['accession_id'] = acc_ids.setdefault(rec['accno'],
+                                                           acc_id_ctr)
+            plant_row['_created']= rec['dateaccd']
             #plant_row['date_accd'] = rec['dateaccd']
             #plant_row['date_recvd'] = rec['datercvd']
             # TODO: should pronotes be for the plant
@@ -959,7 +956,7 @@ def do_plants():
         # share the same information
 
         # TODO: the date accessioned should come from the accession
-        # with the lowest propno...does this always come first in the file
+        # with the lowest propno...does this always come first in the filen
 
         if rec['accno'] not in added_codes:
             added_codes.add(rec['accno'])
@@ -981,6 +978,7 @@ def do_plants():
         row['pisbg'] = rec['pisbg']
         row['memorial'] = rec['memorial']
         row['date_accd'] = rec['dateaccd']
+        row['_created']= rec['dateaccd']
         row['date_recvd'] = rec['datercvd']
         row['recvd_type'] = utils.utf8(rec['rcvdas'])
         row['quantity_recvd'] = rec['qtyrcvd']
@@ -1079,7 +1077,7 @@ def do_plants():
             coll_id_ctr += 1
 
         # check if we have a source or othernos
-        if filter(lambda x: x.strip(), [str(rec['source']), str(rec['othernos'])]):
+        if filter(lambda x: x.strip(),[str(rec['source']),str(rec['othernos'])]):
             source_contact = source_contact_defaults.copy()
             source_contact['id'] = sc_id_ctr
             source_contact['contact_id'] = rec['source']
@@ -1441,9 +1439,15 @@ def do_source():
             name = '%s - %s' % (name, ctr)
             name_ctr[orig_name] = ctr+1
 
+        # TODO: maybe we should add a name to source and only add a
+        # contact if the address is not None
+        address = '\n'.join(map(lambda s: utils.utf8(s).strip(),
+                                rec['soudescr'].split(',')))
+        if not address:
+            address = None
         row.update({'id': utils.utf8(rec['source']),
                     'name': name,
-                    'address': utils.utf8(rec['soudescr'])})
+                    'address': address})
         names.add(row['name'])
         contact_rows.append(row)
         del rec
