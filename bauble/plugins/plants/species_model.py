@@ -238,7 +238,8 @@ class Species(db.Base):
         return Species.str(self, authors, True)
 
 
-    hybrid_char = '\xe2\xa8\x89'
+    # in PlantPlugins.init() we set this to 'x' for win32
+    hybrid_char = utils.utf8('\xe2\xa8\x89')
 
     @staticmethod
     def str(species, authors=False, markup=False):
