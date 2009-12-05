@@ -761,8 +761,8 @@ class PlantEditorView(GenericEditorView):
         super(PlantEditorView, self).__init__(glade_file, parent=parent)
         self.widgets.pad_ok_button.set_sensitive(False)
         self.widgets.pad_next_button.set_sensitive(False)
-        def acc_cell_data_func(column, renderer, model, iter, data=None):
-            v = model[iter][0]
+        def acc_cell_data_func(column, renderer, model, treeiter, data=None):
+            v = model[treeiter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)

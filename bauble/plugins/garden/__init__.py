@@ -87,12 +87,12 @@ class GardenPlugin(pluginmgr.Plugin):
 
 def init_location_comboentry(presenter, combo, on_select):
     """
-    The plant_loc_comboentry requires more custom setup than
-    view.attach_completion and self.assign_simple_handler can
-    provides.  This method allows us to have completions on the
-    location entry based on the location code, location name and
-    location string as well as selecting a location from a combo
-    drop down.
+    A comboentry that allows the location to be entered requires
+    more custom setup than view.attach_completion and
+    self.assign_simple_handler can provides.  This method allows us to
+    have completions on the location entry based on the location code,
+    location name and location string as well as selecting a location
+    from a combo drop down.
 
     :param presenter:
     :param combo:
