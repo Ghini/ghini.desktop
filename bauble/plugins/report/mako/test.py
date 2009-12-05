@@ -71,11 +71,12 @@ class MakoFormatterTests(BaubleTestCase):
 
 
     def test_format(self):
+        """
+        Test the MakoFormatterPlugin.format() runs without raising an error.
+        """
         plants = self.session.query(Plant).all()
-        filename = os.path.join(os.path.dirname(__file__), 'test.html')
+        filename = os.path.join(os.path.dirname(__file__), 'test.csv')
         report = MakoFormatterPlugin.format(plants, template=filename)
-        open('/tmp/testlabels.html', 'w').write(report)
+        assert(isinstance(report, basestring))
+        open('/tmp/testlabels.csv', 'w').write(report)
         #print >>sys.stderr, report
-        # TODO: need to make some sort of assertion here
-
-

@@ -27,17 +27,21 @@ def source_markup_func(source):
     return '%s - <small>%s</small>' % \
         (source.accession, source.accession.species_str()), source
 
+
 def edit_callback(source):
     from bauble.plugins.garden.accession import edit_callback
-    return edit_callback([source[0].accession])
+    # TODO: set the tab to the source tab on the accessio neditor
+    return edit_callback([source[0].source.accession])
+
 
 def add_plants_callback(source):
     from bauble.plugins.garden.accession import add_plants_callback
-    return add_plants_callback([source[0].accession])
+    return add_plants_callback([source[0].source.accession])
+
 
 def remove_callback(source):
     from bauble.plugins.garden.accession import remove_callback
-    return remove_callback([source[0].accession])
+    return remove_callback([source[0].source.accession])
 
 edit_action = Action('source_edit', ('_Edit'), callback=edit_callback,
                         accelerator='<ctrl>e')
@@ -61,7 +65,8 @@ class Source(db.Base):
     source_contact_id = Column(Integer, ForeignKey('source_contact.id'))
     source_contact = relation('SourceContact', uselist=False,
                               single_parent=True,
-                              cascade='all, delete-orphan')
+                              cascade='all, delete-orphan',
+                              backref=backref('source', uselist=False))
 
     collection_id = Column(Integer, ForeignKey('collection.id'))
     # TODO: not sure why i need this single_parent flage here

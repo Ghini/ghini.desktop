@@ -20,7 +20,7 @@ from bauble.plugins.plants.species import *
 from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.geography import *
-from bauble.test import BaubleTestCase
+from bauble.test import BaubleTestCase, check_dupids
 
 #
 # TODO: things to create tests for
@@ -172,6 +172,18 @@ def setUp_data():
             table.insert().execute(row).close()
         for col in table.c:
             utils.reset_sequence(col)
+
+
+def test_duplicate_ids():
+    """
+    Test for duplicate ids for all .glade files in the plants plugin.
+    """
+    import bauble.plugins.plants as mod
+    import glob
+    head, tail = os.path.split(mod.__file__)
+    files = glob.glob(os.path.join(head, '*.glade'))
+    for f in files:
+        assert(not check_dupids(f))
 
 
 class PlantTestCase(BaubleTestCase):

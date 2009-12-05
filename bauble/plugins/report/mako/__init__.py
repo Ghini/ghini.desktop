@@ -71,7 +71,7 @@ class MakoFormatterPlugin(FormatterPlugin):
             msg = _('Please selecte a template.')
             utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
             return False
-        template = Template(filename=template_filename)
+        template = Template(filename=template_filename, output_encoding='utf-8')
         session = db.Session()
         values = map(session.merge, objs)
         report = template.render(values=values)

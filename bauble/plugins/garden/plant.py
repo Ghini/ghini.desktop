@@ -23,13 +23,15 @@ import bauble.db as db
 from bauble.error import check, CheckConditionError
 from bauble.editor import *
 import bauble.meta as meta
+import bauble.paths as paths
 #from bauble.plugins.garden import *
 from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import PlantPropagation
 import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.view import SearchStrategy, ResultSet, Action
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+    select_in_search_results, SearchStrategy, Action
 import bauble.view as view
 
 
@@ -110,7 +112,6 @@ class PlantSearch(SearchStrategy):
 
     def __init__(self):
         super(PlantSearch, self).__init__()
-        self._results = ResultSet()
 
 
     def search(self, text, session):
@@ -119,7 +120,6 @@ class PlantSearch(SearchStrategy):
 
         # TODO: searches like 2009.0039.% or * would be handy
         r1 = super(PlantSearch, self).search(text, session)
-        self._results.add(r1)
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
             return []
@@ -129,11 +129,11 @@ class PlantSearch(SearchStrategy):
         try:
             q = query.join('accession').\
                 filter(and_(Accession.code==acc_code, Plant.code==plant_code))
-            self._results.add(q)
         except Exception, e:
             debug(e)
             return []
-        return q
+        return q.all()
+
 
 
 # TODO: what would happend if the PlantRemove.plant_id and
@@ -141,7 +141,7 @@ class PlantSearch(SearchStrategy):
 # of cycles
 class PlantNote(db.Base):
     __tablename__ = 'plant_note'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'plant_note.date'}
 
     date = Column(types.Date, nullable=False)
     user = Column(Unicode(64))
@@ -190,7 +190,7 @@ class RemovalReasons(db.Base):
 
 class PlantRemoval(db.Base):
     __tablename__ = 'plant_removal'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'plant_removal.date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
     from_location_id = Column(Integer, ForeignKey('location.id'),
@@ -214,7 +214,7 @@ class PlantRemoval(db.Base):
 
 class PlantTransfer(db.Base):
     __tablename__ = 'plant_transfer'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'plant_transfer.date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
 
@@ -298,8 +298,6 @@ class Plant(db.Base):
 
                 * None: no information, unknown)
 
-        *notes*: :class:`sqlalchemy.types.UnicodeText`
-            Notes
 
         *accession_id*: :class:`sqlalchemy.types.ForeignKey`
             Required.
@@ -312,28 +310,27 @@ class Plant(db.Base):
             The accession for this plant.
         *location*:
             The location for this plant.
+        *notes*:
+            Thoe notes for this plant.
 
     :Constraints:
         The combination of code and accession_id must be unique.
     """
     __tablename__ = 'plant'
     __table_args__ = (UniqueConstraint('code', 'accession_id'), {})
-    __mapper_args__ = {'order_by': ['accession_id', 'plant.code']}
+    __mapper_args__ = {'order_by': ['plant.accession_id', 'plant.code']}
 
     # columns
     code = Column(Unicode(6), nullable=False)
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
 
-    # UBC: with removes then the acc_status is not really necessary
+    # UBC: with plant removals then the acc_status is not really necessary
     # acc_status = Column(types.Enum(values=acc_status_values.keys()),
     #                     default=None)
 
-    # TODO: notes is now a relation to PlantNote
-    #notes = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
 
-    #from bauble.plugins.garden.propagation import Propagation
     propagations = relation('Propagation', cascade='all, delete-orphan',
                             single_parent=True,
                             secondary=PlantPropagation.__table__,
@@ -759,8 +756,8 @@ class PlantEditorView(GenericEditorView):
         super(PlantEditorView, self).__init__(glade_file, parent=parent)
         self.widgets.pad_ok_button.set_sensitive(False)
         self.widgets.pad_next_button.set_sensitive(False)
-        def acc_cell_data_func(column, renderer, model, iter, data=None):
-            v = model[iter][0]
+        def acc_cell_data_func(column, renderer, model, treeiter, data=None):
+            v = model[treeiter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)
@@ -814,25 +811,23 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # if self.model.id is None and self.model.acc_status is None:
         #     self.model.acc_status = u'Living'
 
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
+        from bauble.plugins.garden.propagation import PropagationTabPresenter
+        self.prop_presenter = PropagationTabPresenter(self, self.model,
+                                                     self.view, self.session)
+
+        self.refresh_view() # put model values in view
+
         def on_location_select(location):
             self.set_model_attr('location', location)
         from bauble.plugins.garden import init_location_comboentry
         init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
                                  on_location_select)
 
-        notes_parent = self.view.widgets.notes_parent_box
-        notes_parent.foreach(notes_parent.remove)
-        self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
-        from bauble.plugins.garden.propagation import PropagationTabPresenter
-        self.prop_presenter = PropagationTabPresenter(self, self.model,
-                                                      self.view, self.session)
-
-        self.refresh_view() # put model values in view
-
-        # assign handlers to monitor changes now that the view has
+        # assign signal handlers to monitor changes now that the view has
         # been filled in
-
-        # connect signals
         def acc_get_completions(text):
             query = self.session.query(Accession)
             return query.filter(Accession.code.like(unicode('%s%%' % text)))
@@ -984,9 +979,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
 class PlantEditor(GenericModelViewPresenterEditor):
-
-    # label = _('Plant')
-    # mnemonic_label = _('_Plant')
 
     # these have to correspond to the response values in the view
     RESPONSE_NEXT = 22
@@ -1156,11 +1148,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
-import os
-import bauble.paths as paths
-from bauble.view  import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results
-
 
 class GeneralPlantExpander(InfoExpander):
     """
@@ -1205,7 +1192,7 @@ class GeneralPlantExpander(InfoExpander):
                               utils.xml_safe(unicode(tail)))
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
-        self.set_widget_value('location_data',row.location.name)
+        self.set_widget_value('location_data', str(row.location))
         # self.set_widget_value('status_data', acc_status_values[row.acc_status],
         #                       False)
         self.set_widget_value('type_data', acc_type_values[row.acc_type],
@@ -1221,28 +1208,41 @@ class TransferExpander(InfoExpander):
         """
         """
         super(TransferExpander, self).__init__(_('Transfers/Removal'), widgets)
+        self.vbox.set_spacing(3)
 
 
     def update(self, row):
         '''
         '''
-        # date: src to dest
-        # TODO: remove previous children
-        #debug(row.transfers)
         self.vbox.foreach(self.vbox.remove)
         self.vbox.get_children()
-        for transfer in row.transfers:
-            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
-                dict(date=transfer.date, from_loc=transfer.from_location,
-                     to=transfer.to_location, person=transfer.person)
-            #s = s.replace('None', '?')
-            self.vbox.pack_start(gtk.Label(s))
+        format = prefs.prefs[prefs.date_format_pref]
         if row.removal:
+            date = row.removal.date.strftime(format)
+            if not row.removal.reason:
+                reason = _('(no reason)')
+            else:
+                reason=row.removal.reason
             s = _('Removed from %(from_loc)s on %(date)s: %(reason)s') %\
-                dict(from_loc=row.removal.from_location, date=row.removal.date,
-                     reason=row.removal.reason)
-            #s = s.replace('None', '?')
-            self.vbox.pack_start(gtk.Label(s))
+                dict(from_loc=row.removal.from_location, date=date,
+                     reason=reason)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+
+        for transfer in reversed(row.transfers):
+            date = transfer.date.strftime(format)
+            if not transfer.person:
+                person = _('(unknown)')
+            else:
+                person = transfer.person
+            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
+                dict(date=date, from_loc=transfer.from_location,
+                     to=transfer.to_location, person=person)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+
         self.vbox.show_all()
 
 

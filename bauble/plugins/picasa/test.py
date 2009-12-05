@@ -1,12 +1,25 @@
+import os
 from nose import *
 
 import gtk
 
 import bauble.meta as meta
 import bauble.plugins.picasa as picasa
-from bauble.test import BaubleTestCase
+from bauble.test import BaubleTestCase, check_dupids
 import bauble.utils as utils
 from bauble.utils.log import debug
+
+
+def test_duplicate_ids():
+    """
+    Test for duplicate ids for all .glade files in the picasa plugin.
+    """
+    import bauble.plugins.picasa as mod
+    import glob
+    head, tail = os.path.split(mod.__file__)
+    files = glob.glob(os.path.join(head, '*.glade'))
+    for f in files:
+        assert(not check_dupids(f))
 
 
 class PicasaTests(BaubleTestCase):

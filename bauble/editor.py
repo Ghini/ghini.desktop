@@ -190,8 +190,7 @@ class GenericEditorView(object):
                         '%(widget_name)s\n\n%(exception)s' % values))
 
         window = self.get_window()
-        self.connect(window,  'delete-event',
-                     self.on_window_delete)
+        self.connect(window, 'delete-event', self.on_window_delete)
         if isinstance(window, gtk.Dialog):
             self.connect(window, 'close', self.on_dialog_close)
             self.connect(window, 'response', self.on_dialog_response)
@@ -605,8 +604,8 @@ class GenericEditorPresenter(object):
                 if not combo.get_active_iter():
                     # get here if there is no model on the ComboBoxEntry
                     return
-                value = combo.get_model()[combo.get_active_iter()][0]
                 model = combo.get_model()
+                value = model[combo.get_active_iter()][0]
                 if not isinstance(combo, gtk.ComboBoxEntry):
                     if model is None:
                         return
@@ -744,7 +743,25 @@ class GenericEditorPresenter(object):
         self.view.cleanup()
 
 
+    def refresh_sensitivity(self):
+        """
+        Refresh the sensitivity of the dialog buttons.
+
+        This is not a required method for classes tha extend
+        GenericEditorPresenter.
+        """
+        pass
+
+
     def refresh_view(self):
+        """
+        Refresh the view with the model values.  This method should be
+        called before any signal handlers are configured on the view
+        so that the model isn't changed when the widget values are set.
+
+        Any classes that extend GenericEditorPresenter are required to
+        implement this method.
+        """
         # TODO: should i provide a generic implementation of this method
         # as long as widget_to_field_map exist
         raise NotImplementedError
@@ -932,15 +949,14 @@ class NotesPresenter(GenericEditorPresenter):
             values = utils.get_distinct_values(mapper.c['category'],
                                                self.session)
             utils.setup_text_combobox(self.widgets.category_comboentry, values)
-
+            utils.set_widget_value(self.widgets.category_comboentry,
+                                   self.model.category or '')
             utils.setup_date_button(self.widgets.date_entry,
                                     self.widgets.date_button)
             utils.set_widget_value(self.widgets.date_entry,
                                    self.model.date or utils.today_str())
             utils.set_widget_value(self.widgets.user_entry,
                                    self.model.user or '')
-            utils.set_widget_value(self.widgets.category_comboentry,
-                                  self.model.category or '')
             buff = gtk.TextBuffer()
             self.widgets.note_textview.set_buffer(buff)
             utils.set_widget_value(self.widgets.note_textview,
@@ -951,6 +967,7 @@ class NotesPresenter(GenericEditorPresenter):
                                             self.on_date_entry_changed)
             self.widgets.user_entry.connect('changed',
                                             self.on_user_entry_changed)
+            # connect category comboentry widget and child entry
             self.widgets.category_comboentry.connect('changed',
                                              self.on_category_combo_changed)
             self.widgets.category_comboentry.child.connect('changed',

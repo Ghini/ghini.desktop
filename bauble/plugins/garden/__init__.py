@@ -57,19 +57,34 @@ class GardenPlugin(pluginmgr.Plugin):
                                         context_menu=plant_context_menu,
                                         markup_func=plant_markup_func)
 
-        mapper_search.add_meta(('contact', 'person', 'org'), Contact, ['name'])
-        SearchView.view_meta[Contact].set(children=natsort_kids('accessions'),
-                                        infobox=ContactInfoBox,
-                                        context_menu=contact_context_menu)
+        mapper_search.add_meta(('contact', 'contacts', 'person', 'org',
+                                'source'),
+                               Contact, ['name'])
+        def contact_kids(contact):
+            session = db.Session()
+            # eager load the species so we can close the session
+            # before we return and still be able to save generate the
+            # Accession.species_str()
+            results = session.query(Accession).join(Source).\
+                            join(SourceContact).join(Contact).\
+                            options(eagerload('species')).\
+                            filter(Contact.id == contact.id).all()
+            session.close()
+            return results
+        contact_markup_func = lambda c: utils.xml_safe_utf8(c)
+        SearchView.view_meta[Contact].set(children=contact_kids,
+                                          infobox=ContactInfoBox,
+                                          markup_func=contact_markup_func,
+                                          context_menu=contact_context_menu)
 
-        # mapper_search.add_meta(('collection', 'col', 'coll'),
-        #                        Collection, ['locale'])
-        # source_kids = lambda src: sorted(src.accession.plants,
-        #                                key=utils.natsort_key)
-        # SearchView.view_meta[Collection].set(children=source_kids,
-        #                                      infobox=SourceInfoBox,
-        #                                      markup_func=source_markup_func,
-        #                                      context_menu=source_context_menu)
+        mapper_search.add_meta(('collection', 'col', 'coll'),
+                               Collection, ['locale'])
+        source_kids = lambda coll: sorted(coll.source.accession,
+                                          key=utils.natsort_key)
+        SearchView.view_meta[Collection].set(#children=source_kids,
+                                             #infobox=SourceInfoBox,
+                                             #markup_func=source_markup_func,
+                                          context_menu=source_context_menu)
 
         # done here b/c the Species table is not part of this plugin
         SearchView.view_meta[Species].child = "accessions"
@@ -87,12 +102,12 @@ class GardenPlugin(pluginmgr.Plugin):
 
 def init_location_comboentry(presenter, combo, on_select):
     """
-    The plant_loc_comboentry requires more custom setup than
-    view.attach_completion and self.assign_simple_handler can
-    provides.  This method allows us to have completions on the
-    location entry based on the location code, location name and
-    location string as well as selecting a location from a combo
-    drop down.
+    A comboentry that allows the location to be entered requires
+    more custom setup than view.attach_completion and
+    self.assign_simple_handler can provides.  This method allows us to
+    have completions on the location entry based on the location code,
+    location name and location string as well as selecting a location
+    from a combo drop down.
 
     :param presenter:
     :param combo:
