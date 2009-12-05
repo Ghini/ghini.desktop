@@ -406,14 +406,6 @@ class Accession(db.Base):
         *species*:
             the species this accession refers to
 
-        *_collection*:
-            this relation should never be used directly, use the
-            source property instead
-
-        *_donation*:
-            this relations should never be used directly, use
-            the source property instead
-
         *source*:
             source is a relation to a Source instance
 
@@ -1781,13 +1773,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
     @staticmethod
     def __cleanup_source_prop_model(model):
-        '''
-        '''
-        return model
-
-
-    @staticmethod
-    def __cleanup_donation_model(model):
         '''
         '''
         return model
