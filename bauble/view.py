@@ -1014,7 +1014,9 @@ class SearchView(pluginmgr.View):
         statusbar.pop(sbcontext_id)
         if len(results) == 0:
             model = gtk.ListStore(str)
-            model.append([bold % _('Couldn\'t find anything')])
+            msg = bold % _('Couldn\'t find anything for search: "%s"') \
+                % text
+            model.append([msg])
             self.results_view.set_model(model)
         else:
             if len(results) > 5000:
