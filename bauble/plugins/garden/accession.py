@@ -456,6 +456,12 @@ class Accession(db.Base):
     intended_location_id = Column(Integer, ForeignKey('location.id'))
     intended2_location_id = Column(Integer, ForeignKey('location.id'))
 
+    # the source of the accession
+    source_id = Column(Integer, ForeignKey('source.id'))
+    source = relation('Source', uselist=False, cascade='all, delete-orphan',
+                      single_parent=True,
+                      backref=backref('accession', uselist=False))
+
     # relations
     species = relation('Species', uselist=False, backref=backref('accessions',
                                                 cascade='all, delete-orphan'))
@@ -601,8 +607,6 @@ class AccessionEditorView(editor.GenericEditorView):
         'acc_wild_prov_combo': _('The wild status is used to clarify the ' \
                                  'provenance\n\nPossible values: %s') % \
                                  ', '.join(wild_prov_status_values.values()),
-        'acc_source_type_combo': _('The source type is in what way this ' \
-                                   'accession was obtained'),
         'acc_private_check': _('Indicates whether this accession record ' \
                                'should be considered private.')
         }
@@ -1087,19 +1091,41 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
 class SourcePresenter(editor.GenericEditorPresenter):
 
+    garden_prop_str = _('Garden Propagation')
+
     def __init__(self, parent, model, view, session):
         super(SourcePresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.__dirty = False
-        if not self.model.source:
-            self.model.source = Source()
-        source = self.model.source
-        if not source.collection:
-            source.collection = Collection()
-        if not source.source_contact:
-            pass
-            #source.source_contact = SourceContact()
+
+        self.view.connect('new_source_button', 'clicked',
+                          self.on_new_source_button_clicked)
+
+        def cell_data_func(column, cell, model, treeiter, data=None):
+            value = model[treeiter][0]
+            cell.props.text = utils.utf8(value)
+            # if isinstance(value, SourceDetail):
+            #     cell.props.text = utils.utf8(value)
+            # else:
+            #     cell.props.text = self.garden_prop_str
+
+        # populate the source combo
+        combo = self.view.widgets.acc_source_combo
+        cell = gtk.CellRendererText()
+        combo.clear()
+        combo.pack_start(cell, True)
+        combo.set_cell_data_func(cell, cell_data_func)
+        self.view.connect(combo, 'changed', self.on_source_combo_changed)
+
+        if self.model.source:
+            self.source = self.model.source
+        else:
+            self.source = Source()
+            self.session.add(self.source)
+
+        if not self.source.collection:
+            self.source.collection = Collection()
 
         # TODO: all the sub presenters here take the
         # AccessionEditorPresenter as their parent though their real
@@ -1112,40 +1138,23 @@ class SourcePresenter(editor.GenericEditorPresenter):
         # presenter that allows us to create a new Propagation that is
         # specific to this Source and not attached to any Plant
         self.source_prop_presenter = \
-            SourcePropagationPresenter(self.parent_ref(), source, view, session)
+            SourcePropagationPresenter(self.parent_ref(), self.source, view,
+                                       session)
 
         # presenter that allows us to select an existing propagation
         self.prop_chooser_presenter = \
-            PropagationChooserPresenter(self.parent_ref(), source, view,session)
+            PropagationChooserPresenter(self.parent_ref(), self.source, view,
+                                        session)
         self.collection_presenter = \
-            CollectionPresenter(self.parent_ref(), source.collection, view,
+            CollectionPresenter(self.parent_ref(), self.source.collection, view,
                                 session)
 
-        combo = self.view.widgets.contact_combo
-        def cell_data_func(column, cell, model, treeiter, data=None):
-            value = model[treeiter][0]
-            if value:
-                cell.props.text = utils.utf8(value)
-        combo.clear()
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell)
-        combo.set_cell_data_func(cell, cell_data_func)
-        self.populate_contact_combo()
 
-        # connect contact widgets
-        self.view.connect('contact_combo', 'changed',
-                          self.on_contact_combo_changed)
-        self.view.connect('contact_new_button', 'clicked',
-                          self.on_contact_new_button_clicked)
-        self.view.connect('contact_edit_button', 'clicked',
-                          self.on_contact_edit_button_clicked)
-        self.view.connect('contact_id_entry', 'changed',
-                          self.on_contact_id_entry_changed)
-        sensitive = False
-        if source.source_contact and source.source_contact.contact:
-            sensitive = True
-        self.view.widgets.contact_id_entry.props.sensitive = sensitive
-        self.view.widgets.contact_edit_button.props.sensitive = sensitive
+    def start(self):
+        # setup the source combo here after the rest of the accession
+        # editor is already setup
+        self.model.source = self.source
+        self.populate_source_combo(self.model.source.detail)
 
 
     def dirty(self):
@@ -1158,65 +1167,66 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.parent_ref().refresh_sensitivity()
 
 
-    def populate_contact_combo(self):
-        combo = self.view.widgets.contact_combo
-        selected = None
-        utils.clear_model(combo)
-        model = gtk.ListStore(object)
-        for contact in self.session.query(Contact):
-            model.append([contact])
-        combo.set_model(model)
-        if self.model.source.source_contact \
-                and self.model.source.source_contact.contact:
-            utils.set_combo_from_value(combo,
-                                       self.model.source.source_contact.contact)
-
-
-    def on_contact_combo_changed(self, combo, *args):
+    def on_new_source_button_clicked(self, *args):
         """
+        Opens a new SourceDetailEditor when clicked and repopulates the
+        source combo if a new SourceDetail is created.
         """
-        treeiter = combo.get_active_iter()
-        contact = None
-        sensitive = False
-        if treeiter:
-            contact = combo.get_model()[treeiter][0]
-            sensitive = True
-            if not self.model.source.source_contact:
-                self.model.source.source_contact = SourceContact()
-        self.model.source.source_contact.contact = contact
-        self.view.widgets.contact_edit_button.props.sensitive = sensitive
-        self.view.widgets.contact_id_entry.props.sensitive = sensitive
-        self.__dirty = True
-        self.refresh_sensitivity()
-
-
-    def on_contact_new_button_clicked(self, button, *args):
-        e = ContactEditor(parent=self.view.get_window())
+        e = SourceDetailEditor()
         committed = e.start()
-        if not committed:
-            return
-        self.session.add_all(*[committed])
-        self.populate_contact_combo()
+        new_detail = None
         if committed:
-            utils.set_combo_from_value(self.view.widgets.contact_combo,
-                                       committed[0])
+            new_detail = committed[0]
+            self.session.add(new_detail)
+            self.populate_source_combo(new_detail)
 
 
-    def on_contact_edit_button_clicked(self, button, *args):
-        combo = self.view.widgets.contact_combo
+    def populate_source_combo(self, active=None):
+        """
+        If active=None then set whatever was previously active before
+        repopulating the combo.
+        """
+        combo = self.view.widgets.acc_source_combo
+        if not active:
+            treeiter = combo.get_active_iter()
+            if treeiter:
+                active = combo.get_model()[treeiter][0]
+        combo.set_model(None)
+        model = gtk.ListStore(object)
+        none_iter = model.append([''])
+        model.append([self.garden_prop_str])
+        for detail in self.session.query(SourceDetail):
+            model.append([detail])
+        combo.set_model(model)
+        if active:
+            results = utils.search_tree_model(model, active)
+            if results:
+                combo.set_active_iter(results[0])
+        else:
+            combo.set_active_iter(none_iter)
+
+
+    def on_source_combo_changed(self, combo, *args):
+        """
+        """
         treeiter = combo.get_active_iter()
-        if not treeiter:
-            return
-        contact = combo.get_model()[treeiter][0]
-        contact_id = contact.id
-        ContactEditor(model=contact, parent=self.view.get_window()).start()
-        self.session.expire(contact)
+        value = combo.get_model()[treeiter][0]
 
+        visible = dict(source_sw=False,
+                       source_garden_prop_box=False,
+                       source_none_label=False)
 
-    def on_contact_id_entry_changed(self, entry, *args):
-        text = utils.utf8(entry.props.text)
-        self.model.source.source_contact.code = text
-        self.__dirty = True
+        if str(value) == self.garden_prop_str:
+            visible['source_garden_prop_box'] = True
+        elif not value:
+            visible['source_none_label'] = True
+        else:
+            self.model.source.detail = value
+            visible['source_sw'] = True
+
+        for widget, value in visible.iteritems():
+            self.view.widgets[widget].props.visible = value
+        self.__dirty = False
         self.refresh_sensitivity()
 
 
@@ -1249,14 +1259,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         super(AccessionEditorPresenter, self).__init__(model, view)
         self.__dirty = False
         self.session = object_session(model)
-        self._original_source = self.model.source
         self._original_code = self.model.code
         self.current_source_box = None
-        self.source_type = None
 
         if not model.code:
             model.code = get_next_code()
-            #self.__dirty = True
+            self.__dirty = True
 
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
                                                    self.session)
@@ -1287,8 +1295,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('id_qual_rank', utils.utf8(col))
         self.view.connect('acc_id_qual_rank_combo', 'changed', on_changed)
 
-        self.init_source_tab()
-
         # TODO: refresh_view() will fire signal handlers for any
         # connected widgets and can be tricky with resetting values
         # that already exist in the model.  Although this usually
@@ -1297,9 +1303,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # put model values in view before any handlers are connected
         self.refresh_view()
-
-        self.view.connect('acc_source_type_combo', 'changed',
-                          self.on_source_type_combo_changed)
 
         # connect signals
         def sp_get_completions(text):
@@ -1528,78 +1531,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
         sensitive = self.dirty()
-        # if not source_type is None and self._original_source is None
         if len(self.problems) != 0:
             sensitive = False
         elif not self.model.code or not self.model.species:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
-
-
-    def refresh_source_tab(self):
-        """
-        Refresh which of the boxes on the source tab are visible
-        depending on the value of the acc_source_type_combo
-        """
-        combo = self.view.widgets.acc_source_type_combo
-        treeiter = combo.get_active_iter()
-        if not treeiter:
-            return
-        visible = dict(source_contact_expander=False,
-                       source_coll_expander=False,
-                       source_prop_expander=False,
-                       source_garden_prop_box=False,
-                       source_none_label=False)
-        self.source_type = combo.get_model()[treeiter][1]
-        if self.source_type == self.SOURCE_CONTACT:
-            self.view.widgets.source_contact_expander.props.expanded = True
-            visible['source_contact_expander'] = True
-            visible['source_coll_expander'] = True
-            visible['source_prop_expander'] = True
-        elif self.source_type == self.SOURCE_COLL:
-            visible['source_coll_expander'] = True
-            visible['source_prop_expander'] = True
-        elif self.source_type == self.SOURCE_GARDEN:
-            visible['source_garden_prop_box'] = True
-        elif not self.source_type:
-            visible['source_none_label'] = True
-        else:
-            warning('** unknown source type: %s' % self.source_type)
-
-        for widget, value in visible.iteritems():
-            self.view.widgets[widget].props.visible = value
-
-
-    def on_source_type_combo_changed(self, combo, data=None):
-        '''
-        Refresh the source tab and change the presenter status to dirty.
-        '''
-        self.refresh_source_tab()
-        self.__dirty = True
-        self.refresh_sensitivity()
-
-
-    def init_source_tab(self):
-        '''
-        initialized the source expander contents
-        '''
-        combo = self.view.widgets.acc_source_type_combo
-        combo.clear()
-        model = gtk.ListStore(str, str)
-        source_type_map = {
-            self.SOURCE_CONTACT: _('Organization/Business/Person'),
-            self.SOURCE_COLL: _('Collection'),
-            self.SOURCE_GARDEN: _('Garden Propagation'),
-            None: '',
-            }
-        for tipe, val in sorted(source_type_map.iteritems(),key=lambda x:x[1]):
-            model.append([val, tipe])
-        combo.set_model(model)
-        combo.set_active(-1)
-        renderer = gtk.CellRendererText()
-        combo.pack_start(renderer, True)
-        combo.add_attribute(renderer, 'text', 0)
-        self.refresh_source_tab()
 
 
     def refresh_view(self):
@@ -1616,28 +1552,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                       '%04d' % value.year)
             self.view.set_widget_value(widget, value)
 
-
-        # set the source_type combo to the translated source type
-        # string, not the source_type value
-        source_type = None
-        if self.model in self.session.new:
-            source_type = None
-        elif self.model.source.source_contact:
-            source_type = self.SOURCE_CONTACT
-        elif self.model.source.collection:
-            source_type = self.SOURCE_COLL
-        elif self.model.source.plant_propagation:
-            source_type = self.SOURCE_GARDEN
-        combo = self.view.widgets.acc_source_type_combo
-        def match(model, path, treeiter, data):
-            if model[treeiter][1] == data:
-                combo.set_active_iter(treeiter)
-                return True
-        combo.get_model().foreach(match, source_type)
-        # refresh the source tab since at this point the signal
-        # handler isn't connected yet since we don't want to really
-        # change the model's source type
-        self.refresh_source_tab()
 
         self.view.set_widget_value('acc_wild_prov_combo',
                           wild_prov_status_values[self.model.wild_prov_status],
@@ -1656,6 +1570,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
 
     def start(self):
+        self.source_presenter.start()
         r = self.view.start()
         return r
 
@@ -1674,19 +1589,14 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         @param model: Accession instance or None
         @param parent: the parent widget
         '''
-        # the view and presenter are created in self.start()
-        self.view = None
-        self.presenter = None
         if model is None:
             model = Accession()
 
         super(AccessionEditor, self).__init__(model, parent)
-        if not parent and bauble.gui:
-            parent = bauble.gui.window
         self.parent = parent
         self._committed = []
 
-        view = AccessionEditorView(parent=self.parent)
+        view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(self.model, view)
 
         # add quick response keys
@@ -1771,15 +1681,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         return self._committed
 
 
-    @staticmethod
-    def __cleanup_source_prop_model(model):
-        '''
-        '''
-        return model
-
 
     @staticmethod
-    def __cleanup_collection_model(model):
+    def _cleanup_collection(model):
         '''
         '''
         # TODO: we should raise something besides commit ValueError
@@ -1801,7 +1705,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         return model
 
 
-    def clean_propagation(self, propagation):
+    def _cleanup_propagation(self, propagation):
         # TODO: this function is not ideal since it just duplicates
         # PropagationEditor.clean_model()...we need a sensible way to
         # share this code
@@ -1830,24 +1734,28 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 utils.delete_or_expunge(self.model.source.propagation)
                 self.model.source.propagation = None
             else:
-                self.clean_propagation(self.model.source.propagation)
+                self._cleanup_propagation(self.model.source.propagation)
 
         # clean the source depending on the selected source type
-        if self.presenter.source_type == self.presenter.SOURCE_CONTACT:
-            self.model.plant_propagation = None
-        elif self.presenter.source_type == self.presenter.SOURCE_COLL:
-            self.model.source.source_contact = None
-            self.model.plant_propagation = None
-        elif self.presenter.source_type == self.presenter.SOURCE_GARDEN:
-            self.model.source.source_contact = None
-            self.model.source.collection = None
-            self.model.source.propagation = None
-        elif not self.presenter.source_type:
+        combo = self.presenter.view.widgets.acc_source_combo
+        active = combo.get_active_iter()
+        value = None
+        if active:
+            value = combo.get_model()[active][0]
+        if not value:
             self.model.source = None
+        elif value == SourcePresenter.garden_prop_str:
+            if not self.model.source.plant_propagation:
+                self.model.source = None
+            else:
+                self.model.source.detail = None
+                self.model.source.propagation = None
+                self.model.source.collection = None
+        elif isinstance(value, SourceDetail):
+            self._cleanup_collection()
+            self.model.source.plant_propagation = None
         else:
-            utils.message_dialog('Unknown source type: %s' %
-                                 self.presenter.source_type)
-            raise ValueError()
+            raise ValueError(_('Unknown source type: %s') % value)
 
         if self.model.id_qual is None:
             self.model.id_qual_rank = None
