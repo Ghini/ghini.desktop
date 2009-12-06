@@ -1124,7 +1124,11 @@ class SearchView(pluginmgr.View):
             # object who's session was closed...we add it here for
             # performance reasons so we only add it onces its visible
             if not object_session(value):
-                self.session.add(value)
+                if value in session:
+                    # expire the object in the session with the same key
+                    self.session.expire(value)
+                else:
+                    self.session.add(value)
             try:
                 func = self.view_meta[type(value)].markup_func
                 if func is not None:

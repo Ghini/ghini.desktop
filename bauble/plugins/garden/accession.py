@@ -1751,7 +1751,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 self.model.source.propagation = None
                 self.model.source.collection = None
         elif isinstance(value, SourceDetail):
-            self._cleanup_collection()
+            self._cleanup_collection(self.model.source.collection)
             self.model.source.plant_propagation = None
         else:
             raise ValueError(_('Unknown source type: %s') % value)

@@ -60,14 +60,10 @@ class GardenPlugin(pluginmgr.Plugin):
         mapper_search.add_meta(('contact', 'contacts', 'person', 'org',
                                 'source'), SourceDetail, ['name'])
         def sd_kids(detail):
-            session = db.Session()
-            # eager load the species so we can close the session
-            # before we return and still be able to save generate the
-            # Accession.species_str()
+            session = object_session(detail)
             results = session.query(Accession).join(Source).\
                 join(SourceDetail).options(eagerload('species')).\
                             filter(SourceDetail.id == detail.id).all()
-            session.close()
             return results
         sd_markup_func = lambda c: utils.xml_safe_utf8(c)
         SearchView.view_meta[SourceDetail].set(children=sd_kids,
