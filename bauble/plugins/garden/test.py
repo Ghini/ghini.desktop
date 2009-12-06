@@ -773,7 +773,9 @@ class SourceTests(GardenTestCase):
         self.assert_(self.session.query(Propagation).get(plant_prop_id))
 
 
-
+    def itest_details_editor(self):
+        e = SourceDetailEditor()
+        e.start()
 
 
 class AccessionTests(GardenTestCase):

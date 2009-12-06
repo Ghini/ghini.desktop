@@ -56,17 +56,10 @@ class Source(db.Base):
     """
     """
     __tablename__ = 'source'
+    sources_code = Column(Unicode(32))
+    detail_id = Column(Integer, ForeignKey('source_detail.id'))
 
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relation('Accession', uselist=False,
-                         backref=backref('source', cascade='all, delete-orphan',
-                                         uselist=False))
-
-    source_contact_id = Column(Integer, ForeignKey('source_contact.id'))
-    source_contact = relation('SourceContact', uselist=False,
-                              single_parent=True,
-                              cascade='all, delete-orphan',
-                              backref=backref('source', uselist=False))
+    detail = relation('SourceDetail', uselist=False, backref='sources')
 
     collection_id = Column(Integer, ForeignKey('collection.id'))
     # TODO: not sure why i need this single_parent flage here
@@ -87,18 +80,33 @@ class Source(db.Base):
     plant_propagation = relation('Propagation', uselist=False,
                      primaryjoin='Source.plant_propagation_id==Propagation.id')
 
+
+source_type_values = {u'Expedition': _('Expedition'),
+                      u'GeneBank': _('Gene Bank'),
+                      u'BG': _('Botanic Garden or Arboretum'),
+                      u'Research/FieldStation': _('Research/Field Station'),
+                      u'Staff': _('Staff member'),
+                      u'UniversityDepartment': _('University Department'),
+                      u'Club': \
+                          _('Horticultural Association/Garden Club'),
+                      u'MunicipalDepartment': _('Municipal department'),
+                      u'Commercial': _('Nursery/Commercial'),
+                      u'Individual': _('Individual'),
+                      u'Other': _('Other'),
+                      u'Unknown': _('Unknown'),
+                     None: _('')}
+
+class SourceDetail(db.Base):
+    __tablename__ = 'source_detail'
+    __mapper_args__ = {'order_by': 'name'}
+
+    name = Column(Unicode(64), unique=True)
+    description = Column(UnicodeText)
+    source_type = Column(types.Enum(values=source_type_values.keys()),
+                         default=None)
+
     def __str__(self):
-        return repr(self)
-
-
-class SourceContact(db.Base):
-    """
-    """
-    __tablename__ = 'source_contact'
-    contact_id = Column(Integer, ForeignKey('contact.id'), nullable=False)
-    contact_code = Column(Unicode(32))
-    contact = relation('Contact', uselist=False,
-                       backref=backref('sources', cascade='all, delete-orphan'))
+        return utils.utf8(self.name)
 
 
 # TODO: should provide a collection type: alcohol, bark, boxed,
@@ -180,6 +188,172 @@ class Collection(db.Base):
 
     def __str__(self):
         return 'Collection at %s' % (self.locale or repr(self))
+
+
+class SourceDetailEditorView(editor.GenericEditorView):
+
+    # i think the field names are pretty self explanatory and tooltips
+    # would be pointless
+    _tooltips = {}
+
+    def __init__(self, parent=None):
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                'acc_editor.glade')
+        super(SourceDetailEditorView, self).__init__(filename, parent=parent)
+        self.set_accept_buttons_sensitive(False)
+        self.init_translatable_combo('source_type_combo', source_type_values)
+        # if sys.platform == 'win32':
+        #     # TODO: is this character width fix still necessary
+        #     import pango
+        #     combo = self.widgets.don_type_combo
+        #     context = combo.get_pango_context()
+        #     font_metrics = context.get_metrics(context.get_font_description(),
+        #                                        context.get_language())
+        #     width = font_metrics.get_approximate_char_width()
+        #     new_width = pango.PIXELS(width) * 20
+        #     combo.set_size_request(new_width, -1)
+
+
+    def get_window(self):
+        return self.widgets.source_details_dialog
+
+
+    def set_accept_buttons_sensitive(self, sensitive):
+        self.widgets.sd_ok_button.set_sensitive(sensitive)
+        #self.widgets.sd_next_button.set_sensitive(sensitive)
+
+
+    def start(self):
+        return self.get_window().run()
+
+
+class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {'source_name_entry': 'name',
+                           'source_type_combo': 'source_type',
+                           'source_desc_textview': 'description',
+                           }
+
+    def __init__(self, model, view):
+        super(SourceDetailEditorPresenter, self).__init__(model, view)
+        self.refresh_view()
+        validator = editor.UnicodeOrNoneValidator()
+        for widget, field in self.widget_to_field_map.iteritems():
+            self.assign_simple_handler(widget, field, validator)
+        self.__dirty = False
+
+
+    def set_model_attr(self, field, value, validator=None):
+        super(SourceDetailEditorPresenter, self).\
+            set_model_attr(field, value, validator)
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def refresh_sensitivity(self):
+        sensitive = False
+        if self.dirty() and self.model.name:
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
+
+
+    def refresh_view(self):
+        for widget, field in self.widget_to_field_map.iteritems():
+#            debug('contact refresh(%s, %s=%s)' % (widget, field,
+#                                                self.model[field]))
+            self.view.set_widget_value(widget, getattr(self.model, field))
+
+        self.view.set_widget_value('source_type_combo',
+                                   source_type_values[self.model.source_type],
+                                   index=1)
+
+
+    def start(self):
+        r = self.view.start()
+        return r
+
+
+class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
+
+    RESPONSE_NEXT = 11
+    ok_responses = (RESPONSE_NEXT,)
+
+    def __init__(self, model=None, parent=None):
+        '''
+        @param model: Contact instance or None
+        @param values to enter in the model if none are give
+        '''
+        if not model:
+            model = SourceDetail()
+        super(SourceDetailEditor, self).__init__(model, parent)
+        self.parent = parent
+        self._committed = []
+
+        view = SourceDetailEditorView(parent=self.parent)
+        self.presenter = SourceDetailEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        # self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+        #                      gtk.gdk.CONTROL_MASK)
+
+
+    def handle_response(self, response):
+        '''
+        handle the response from self.presenter.start() in self.start()
+        '''
+        not_ok_msg = _('Are you sure you want to lose your changes?')
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+            try:
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
+            except SQLError, e:
+                msg = _('Error committing changes.\n\n%s' \
+                        % utils.xml_safe_utf8(e.orig))
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                return False
+            except Exception, e:
+                msg = _('Unknown error when committing changes. See the '\
+                       'details for more information.\n\n%s' \
+                       % utils.xml_safe_utf8(e))
+                utils.message_details_dialog(msg, traceback.format_exc(),
+                                             gtk.MESSAGE_ERROR)
+                return False
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
+            self.session.rollback()
+            return True
+        else:
+            return False
+
+        # respond to responses
+        # more_committed = None
+        # if response == self.RESPONSE_NEXT:
+        #     self.presenter.cleanup()
+        #     e = ContactEditor(parent=self.parent)
+        #     more_committed = e.start()
+        # if more_committed is not None:
+        #     self._committed.append(more_committed)
+
+        return True
+
+
+    def start(self):
+        while True:
+            response = self.presenter.start()
+            self.presenter.view.save_state()
+            if self.handle_response(response):
+                break
+
+        self.session.close() # cleanup session
+        self.presenter.cleanup()
+        return self._committed
 
 
 # TODO: should have a label next to lat/lon entry to show what value will be
