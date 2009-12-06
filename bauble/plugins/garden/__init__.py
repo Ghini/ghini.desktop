@@ -58,24 +58,22 @@ class GardenPlugin(pluginmgr.Plugin):
                                         markup_func=plant_markup_func)
 
         mapper_search.add_meta(('contact', 'contacts', 'person', 'org',
-                                'source'),
-                               Contact, ['name'])
-        def contact_kids(contact):
+                                'source'), SourceDetail, ['name'])
+        def sd_kids(detail):
             session = db.Session()
             # eager load the species so we can close the session
             # before we return and still be able to save generate the
             # Accession.species_str()
             results = session.query(Accession).join(Source).\
-                            join(SourceContact).join(Contact).\
-                            options(eagerload('species')).\
-                            filter(Contact.id == contact.id).all()
+                join(SourceDetail).options(eagerload('species')).\
+                            filter(SourceDetail.id == detail.id).all()
             session.close()
             return results
-        contact_markup_func = lambda c: utils.xml_safe_utf8(c)
-        SearchView.view_meta[Contact].set(children=contact_kids,
-                                          infobox=ContactInfoBox,
-                                          markup_func=contact_markup_func,
-                                          context_menu=contact_context_menu)
+        sd_markup_func = lambda c: utils.xml_safe_utf8(c)
+        SearchView.view_meta[SourceDetail].set(children=sd_kids,
+                                          infobox=SourceDetailInfoBox,
+                                          markup_func=sd_markup_func,
+                                        context_menu=source_detail_context_menu)
 
         mapper_search.add_meta(('collection', 'col', 'coll'),
                                Collection, ['locale'])

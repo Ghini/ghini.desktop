@@ -28,29 +28,71 @@ def source_markup_func(source):
         (source.accession, source.accession.species_str()), source
 
 
-def edit_callback(source):
+def source_edit_callback(source):
     from bauble.plugins.garden.accession import edit_callback
     # TODO: set the tab to the source tab on the accessio neditor
     return edit_callback([source[0].source.accession])
 
 
-def add_plants_callback(source):
+def source_add_plants_callback(source):
     from bauble.plugins.garden.accession import add_plants_callback
     return add_plants_callback([source[0].source.accession])
 
 
-def remove_callback(source):
+def source_remove_callback(source):
     from bauble.plugins.garden.accession import remove_callback
     return remove_callback([source[0].source.accession])
 
-edit_action = Action('source_edit', ('_Edit'), callback=edit_callback,
-                        accelerator='<ctrl>e')
-add_plant_action = Action('source_add', ('_Add plants'),
-                          callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('source_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>')#, multiselect=True)
+source_edit_action = Action('source_edit', ('_Edit'),
+                            callback=source_edit_callback,
+                            accelerator='<ctrl>e')
+source_add_plant_action = Action('source_add', ('_Add plants'),
+                          callback=source_add_plants_callback,
+                                 accelerator='<ctrl>k')
+source_remove_action = Action('source_remove', ('_Remove'),
+                              callback=source_remove_callback,
+                              accelerator='<delete>')#, multiselect=True)
 
-source_context_menu = [edit_action, add_plant_action, remove_action]
+source_context_menu = [source_edit_action, source_add_plant_action,
+                       source_remove_action]
+
+
+
+def source_detail_edit_callback(details):
+    detail = details[0]
+    e = SourceDetailEditor(model=detail)
+    return e.start() != None
+
+
+def source_detail_remove_callback(details):
+    detail = details[0]
+    s = '%s: %s' % (detail.__class__.__name__, str(detail))
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+    if not utils.yes_no_dialog(msg):
+        return
+    try:
+        session = db.Session()
+        obj = session.query(SourceDetail).get(detail.id)
+        session.delete(obj)
+        session.commit()
+    except Exception, e:
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        utils.message_details_dialog(msg, traceback.format_exc(),
+                                     type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
+    return True
+
+
+source_detail_edit_action = Action('source_detail_edit', ('_Edit'),
+                                   callback=source_detail_edit_callback,
+                                   accelerator='<ctrl>e')
+source_detail_remove_action = Action('source_detail_remove', ('_Remove'),
+                                     callback=source_detail_remove_callback,
+                                     accelerator='<delete>', multiselect=True)
+
+source_detail_context_menu = [source_detail_edit_action,
+                              source_detail_remove_action]
 
 class Source(db.Base):
     """
@@ -797,4 +839,51 @@ class PropagationChooserPresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         return self.__dirty
+
+
+
+from bauble.view import InfoBox, InfoExpander
+
+class GeneralSourceDetailExpander(InfoExpander):
+    '''
+    displays name, number of donations, address, email, fax, tel,
+    type of contact
+    '''
+    def __init__(self, widgets):
+        super(GeneralSourceDetailExpander, self).__init__(_('General'), widgets)
+        gen_box = self.widgets.sd_gen_box
+        self.widgets.remove_parent(gen_box)
+        self.vbox.pack_start(gen_box)
+
+
+    def update(self, row):
+        from textwrap import TextWrapper
+        wrapper = TextWrapper(width=50, subsequent_indent='  ')
+        self.set_widget_value('sd_name_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.name))
+        self.set_widget_value('sd_type_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.source_type))
+        self.set_widget_value('sd_desc_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.description))
+
+        source = Source.__table__
+        nacc = select([source.c.id], source.c.detail_id==row.id).\
+            count().execute().fetchone()[0]
+        self.set_widget_value('sd_nacc_data', nacc)
+
+
+
+
+class SourceDetailInfoBox(InfoBox):
+
+    def __init__(self):
+        super(SourceDetailInfoBox, self).__init__()
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "source_detail_infobox.glade")
+        self.widgets = utils.load_widgets(filename)
+        self.general = GeneralSourceDetailExpander(self.widgets)
+        self.add_expander(self.general)
+
+    def update(self, row):
+        self.general.update(row)
 
