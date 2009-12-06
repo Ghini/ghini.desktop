@@ -28,45 +28,80 @@ def source_markup_func(source):
         (source.accession, source.accession.species_str()), source
 
 
-def edit_callback(source):
+def source_edit_callback(source):
     from bauble.plugins.garden.accession import edit_callback
     # TODO: set the tab to the source tab on the accessio neditor
     return edit_callback([source[0].source.accession])
 
 
-def add_plants_callback(source):
+def source_add_plants_callback(source):
     from bauble.plugins.garden.accession import add_plants_callback
     return add_plants_callback([source[0].source.accession])
 
 
-def remove_callback(source):
+def source_remove_callback(source):
     from bauble.plugins.garden.accession import remove_callback
     return remove_callback([source[0].source.accession])
 
-edit_action = Action('source_edit', ('_Edit'), callback=edit_callback,
-                        accelerator='<ctrl>e')
-add_plant_action = Action('source_add', ('_Add plants'),
-                          callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('source_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>')#, multiselect=True)
+source_edit_action = Action('source_edit', ('_Edit'),
+                            callback=source_edit_callback,
+                            accelerator='<ctrl>e')
+source_add_plant_action = Action('source_add', ('_Add plants'),
+                          callback=source_add_plants_callback,
+                                 accelerator='<ctrl>k')
+source_remove_action = Action('source_remove', ('_Remove'),
+                              callback=source_remove_callback,
+                              accelerator='<delete>')#, multiselect=True)
 
-source_context_menu = [edit_action, add_plant_action, remove_action]
+source_context_menu = [source_edit_action, source_add_plant_action,
+                       source_remove_action]
+
+
+
+def source_detail_edit_callback(details):
+    detail = details[0]
+    e = SourceDetailEditor(model=detail)
+    return e.start() != None
+
+
+def source_detail_remove_callback(details):
+    detail = details[0]
+    s = '%s: %s' % (detail.__class__.__name__, str(detail))
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+    if not utils.yes_no_dialog(msg):
+        return
+    try:
+        session = db.Session()
+        obj = session.query(SourceDetail).get(detail.id)
+        session.delete(obj)
+        session.commit()
+    except Exception, e:
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        utils.message_details_dialog(msg, traceback.format_exc(),
+                                     type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
+    return True
+
+
+source_detail_edit_action = Action('source_detail_edit', ('_Edit'),
+                                   callback=source_detail_edit_callback,
+                                   accelerator='<ctrl>e')
+source_detail_remove_action = Action('source_detail_remove', ('_Remove'),
+                                     callback=source_detail_remove_callback,
+                                     accelerator='<delete>', multiselect=True)
+
+source_detail_context_menu = [source_detail_edit_action,
+                              source_detail_remove_action]
 
 class Source(db.Base):
     """
     """
     __tablename__ = 'source'
+    sources_code = Column(Unicode(32))
+    detail_id = Column(Integer, ForeignKey('source_detail.id'))
 
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relation('Accession', uselist=False,
-                         backref=backref('source', cascade='all, delete-orphan',
-                                         uselist=False))
-
-    source_contact_id = Column(Integer, ForeignKey('source_contact.id'))
-    source_contact = relation('SourceContact', uselist=False,
-                              single_parent=True,
-                              cascade='all, delete-orphan',
-                              backref=backref('source', uselist=False))
+    detail = relation('SourceDetail', uselist=False, backref='sources')
 
     collection_id = Column(Integer, ForeignKey('collection.id'))
     # TODO: not sure why i need this single_parent flage here
@@ -87,18 +122,33 @@ class Source(db.Base):
     plant_propagation = relation('Propagation', uselist=False,
                      primaryjoin='Source.plant_propagation_id==Propagation.id')
 
+
+source_type_values = {u'Expedition': _('Expedition'),
+                      u'GeneBank': _('Gene Bank'),
+                      u'BG': _('Botanic Garden or Arboretum'),
+                      u'Research/FieldStation': _('Research/Field Station'),
+                      u'Staff': _('Staff member'),
+                      u'UniversityDepartment': _('University Department'),
+                      u'Club': \
+                          _('Horticultural Association/Garden Club'),
+                      u'MunicipalDepartment': _('Municipal department'),
+                      u'Commercial': _('Nursery/Commercial'),
+                      u'Individual': _('Individual'),
+                      u'Other': _('Other'),
+                      u'Unknown': _('Unknown'),
+                     None: _('')}
+
+class SourceDetail(db.Base):
+    __tablename__ = 'source_detail'
+    __mapper_args__ = {'order_by': 'name'}
+
+    name = Column(Unicode(64), unique=True)
+    description = Column(UnicodeText)
+    source_type = Column(types.Enum(values=source_type_values.keys()),
+                         default=None)
+
     def __str__(self):
-        return repr(self)
-
-
-class SourceContact(db.Base):
-    """
-    """
-    __tablename__ = 'source_contact'
-    contact_id = Column(Integer, ForeignKey('contact.id'), nullable=False)
-    contact_code = Column(Unicode(32))
-    contact = relation('Contact', uselist=False,
-                       backref=backref('sources', cascade='all, delete-orphan'))
+        return utils.utf8(self.name)
 
 
 # TODO: should provide a collection type: alcohol, bark, boxed,
@@ -180,6 +230,172 @@ class Collection(db.Base):
 
     def __str__(self):
         return 'Collection at %s' % (self.locale or repr(self))
+
+
+class SourceDetailEditorView(editor.GenericEditorView):
+
+    # i think the field names are pretty self explanatory and tooltips
+    # would be pointless
+    _tooltips = {}
+
+    def __init__(self, parent=None):
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                'acc_editor.glade')
+        super(SourceDetailEditorView, self).__init__(filename, parent=parent)
+        self.set_accept_buttons_sensitive(False)
+        self.init_translatable_combo('source_type_combo', source_type_values)
+        # if sys.platform == 'win32':
+        #     # TODO: is this character width fix still necessary
+        #     import pango
+        #     combo = self.widgets.don_type_combo
+        #     context = combo.get_pango_context()
+        #     font_metrics = context.get_metrics(context.get_font_description(),
+        #                                        context.get_language())
+        #     width = font_metrics.get_approximate_char_width()
+        #     new_width = pango.PIXELS(width) * 20
+        #     combo.set_size_request(new_width, -1)
+
+
+    def get_window(self):
+        return self.widgets.source_details_dialog
+
+
+    def set_accept_buttons_sensitive(self, sensitive):
+        self.widgets.sd_ok_button.set_sensitive(sensitive)
+        #self.widgets.sd_next_button.set_sensitive(sensitive)
+
+
+    def start(self):
+        return self.get_window().run()
+
+
+class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {'source_name_entry': 'name',
+                           'source_type_combo': 'source_type',
+                           'source_desc_textview': 'description',
+                           }
+
+    def __init__(self, model, view):
+        super(SourceDetailEditorPresenter, self).__init__(model, view)
+        self.refresh_view()
+        validator = editor.UnicodeOrNoneValidator()
+        for widget, field in self.widget_to_field_map.iteritems():
+            self.assign_simple_handler(widget, field, validator)
+        self.__dirty = False
+
+
+    def set_model_attr(self, field, value, validator=None):
+        super(SourceDetailEditorPresenter, self).\
+            set_model_attr(field, value, validator)
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def refresh_sensitivity(self):
+        sensitive = False
+        if self.dirty() and self.model.name:
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
+
+
+    def refresh_view(self):
+        for widget, field in self.widget_to_field_map.iteritems():
+#            debug('contact refresh(%s, %s=%s)' % (widget, field,
+#                                                self.model[field]))
+            self.view.set_widget_value(widget, getattr(self.model, field))
+
+        self.view.set_widget_value('source_type_combo',
+                                   source_type_values[self.model.source_type],
+                                   index=1)
+
+
+    def start(self):
+        r = self.view.start()
+        return r
+
+
+class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
+
+    RESPONSE_NEXT = 11
+    ok_responses = (RESPONSE_NEXT,)
+
+    def __init__(self, model=None, parent=None):
+        '''
+        @param model: Contact instance or None
+        @param values to enter in the model if none are give
+        '''
+        if not model:
+            model = SourceDetail()
+        super(SourceDetailEditor, self).__init__(model, parent)
+        self.parent = parent
+        self._committed = []
+
+        view = SourceDetailEditorView(parent=self.parent)
+        self.presenter = SourceDetailEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        # self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+        #                      gtk.gdk.CONTROL_MASK)
+
+
+    def handle_response(self, response):
+        '''
+        handle the response from self.presenter.start() in self.start()
+        '''
+        not_ok_msg = _('Are you sure you want to lose your changes?')
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+            try:
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
+            except SQLError, e:
+                msg = _('Error committing changes.\n\n%s' \
+                        % utils.xml_safe_utf8(e.orig))
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                return False
+            except Exception, e:
+                msg = _('Unknown error when committing changes. See the '\
+                       'details for more information.\n\n%s' \
+                       % utils.xml_safe_utf8(e))
+                utils.message_details_dialog(msg, traceback.format_exc(),
+                                             gtk.MESSAGE_ERROR)
+                return False
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
+            self.session.rollback()
+            return True
+        else:
+            return False
+
+        # respond to responses
+        # more_committed = None
+        # if response == self.RESPONSE_NEXT:
+        #     self.presenter.cleanup()
+        #     e = ContactEditor(parent=self.parent)
+        #     more_committed = e.start()
+        # if more_committed is not None:
+        #     self._committed.append(more_committed)
+
+        return True
+
+
+    def start(self):
+        while True:
+            response = self.presenter.start()
+            self.presenter.view.save_state()
+            if self.handle_response(response):
+                break
+
+        self.session.close() # cleanup session
+        self.presenter.cleanup()
+        return self._committed
 
 
 # TODO: should have a label next to lat/lon entry to show what value will be
@@ -623,4 +839,51 @@ class PropagationChooserPresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         return self.__dirty
+
+
+
+from bauble.view import InfoBox, InfoExpander
+
+class GeneralSourceDetailExpander(InfoExpander):
+    '''
+    displays name, number of donations, address, email, fax, tel,
+    type of contact
+    '''
+    def __init__(self, widgets):
+        super(GeneralSourceDetailExpander, self).__init__(_('General'), widgets)
+        gen_box = self.widgets.sd_gen_box
+        self.widgets.remove_parent(gen_box)
+        self.vbox.pack_start(gen_box)
+
+
+    def update(self, row):
+        from textwrap import TextWrapper
+        wrapper = TextWrapper(width=50, subsequent_indent='  ')
+        self.set_widget_value('sd_name_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.name))
+        self.set_widget_value('sd_type_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.source_type))
+        self.set_widget_value('sd_desc_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.description))
+
+        source = Source.__table__
+        nacc = select([source.c.id], source.c.detail_id==row.id).\
+            count().execute().fetchone()[0]
+        self.set_widget_value('sd_nacc_data', nacc)
+
+
+
+
+class SourceDetailInfoBox(InfoBox):
+
+    def __init__(self):
+        super(SourceDetailInfoBox, self).__init__()
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "source_detail_infobox.glade")
+        self.widgets = utils.load_widgets(filename)
+        self.general = GeneralSourceDetailExpander(self.widgets)
+        self.add_expander(self.general)
+
+    def update(self, row):
+        self.general.update(row)
 
