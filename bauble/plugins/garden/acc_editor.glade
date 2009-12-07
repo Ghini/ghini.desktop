@@ -817,139 +817,220 @@
                                         <property name="orientation">vertical</property>
                                         <property name="spacing">5</property>
                                         <child>
-                                          <object class="GtkExpander" id="source_coll_expander">
+                                          <object class="GtkHBox" id="hbox18">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
+                                            <property name="spacing">5</property>
                                             <child>
-                                              <object class="GtkAlignment" id="alignment25">
+                                              <object class="GtkLabel" id="label44">
                                                 <property name="visible">True</property>
-                                                <property name="top_padding">5</property>
-                                                <property name="left_padding">12</property>
-                                                <property name="right_padding">3</property>
+                                                <property name="label" translatable="yes">Source's code</property>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkEntry" id="sources_code_entry">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <property name="invisible_char">&#x25CF;</property>
+                                              </object>
+                                              <packing>
+                                                <property name="position">1</property>
+                                              </packing>
+                                            </child>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="padding">5</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkHBox" id="hbox10">
+                                            <property name="visible">True</property>
+                                            <child>
+                                              <object class="GtkVBox" id="vbox6">
+                                                <property name="visible">True</property>
+                                                <property name="orientation">vertical</property>
                                                 <child>
-                                                  <object class="GtkVBox" id="collection_box">
+                                                  <object class="GtkButton" id="source_coll_add_button">
                                                     <property name="visible">True</property>
-                                                    <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                    <property name="orientation">vertical</property>
-                                                    <property name="spacing">10</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
                                                     <child>
-                                                      <object class="GtkTable" id="table3">
+                                                      <object class="GtkImage" id="image7">
                                                         <property name="visible">True</property>
-                                                        <property name="n_rows">4</property>
-                                                        <property name="n_columns">4</property>
-                                                        <property name="column_spacing">5</property>
-                                                        <property name="row_spacing">3</property>
+                                                        <property name="stock">gtk-add</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkButton" id="source_coll_remove_button">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <child>
+                                                      <object class="GtkImage" id="image8">
+                                                        <property name="visible">True</property>
+                                                        <property name="stock">gtk-remove</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
+                                                </child>
+                                              </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">0</property>
+                                              </packing>
+                                            </child>
+                                            <child>
+                                              <object class="GtkExpander" id="source_coll_expander">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">True</property>
+                                                <child>
+                                                  <object class="GtkAlignment" id="alignment25">
+                                                    <property name="visible">True</property>
+                                                    <property name="top_padding">5</property>
+                                                    <property name="left_padding">12</property>
+                                                    <property name="right_padding">3</property>
+                                                    <child>
+                                                      <object class="GtkVBox" id="collection_box">
+                                                        <property name="visible">True</property>
+                                                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                                        <property name="orientation">vertical</property>
+                                                        <property name="spacing">10</property>
                                                         <child>
-                                                          <object class="GtkLabel" id="label33">
+                                                          <object class="GtkTable" id="table3">
+                                                            <property name="visible">True</property>
+                                                            <property name="n_rows">4</property>
+                                                            <property name="n_columns">4</property>
+                                                            <property name="column_spacing">5</property>
+                                                            <property name="row_spacing">3</property>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label33">
                                                             <property name="visible">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Collector</property>
                                                             <property name="use_markup">True</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">1</property>
                                                             <property name="bottom_attach">2</property>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options"></property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkEntry" id="collector_entry">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkEntry" id="collector_entry">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                                             <property name="invisible_char">&#x25CF;</property>
                                                             <property name="width_chars">30</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">3</property>
                                                             <property name="top_attach">1</property>
                                                             <property name="bottom_attach">2</property>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options"></property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="label34">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label34">
                                                             <property name="visible">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                                             <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Collection ID</property>
                                                             <property name="use_markup">True</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">2</property>
                                                             <property name="bottom_attach">3</property>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options"></property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkEntry" id="collid_entry">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkEntry" id="collid_entry">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                                             <property name="invisible_char">&#x25CF;</property>
                                                             <property name="width_chars">10</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">2</property>
                                                             <property name="top_attach">2</property>
                                                             <property name="bottom_attach">3</property>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options">GTK_SHRINK | GTK_FILL</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkLabel" id="label36">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkLabel" id="label36">
                                                             <property name="visible">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                                             <property name="yalign">0</property>
                                                             <property name="ypad">2</property>
                                                             <property name="label" translatable="yes">Collection Notes</property>
                                                             <property name="use_markup">True</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="top_attach">3</property>
                                                             <property name="bottom_attach">4</property>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options">GTK_FILL</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkTextView" id="coll_notes_textview">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkTextView" id="coll_notes_textview">
                                                             <property name="height_request">50</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                                             <property name="wrap_mode">word</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">4</property>
                                                             <property name="top_attach">3</property>
                                                             <property name="bottom_attach">4</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkEntry" id="locale_entry">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkEntry" id="locale_entry">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                                             <property name="invisible_char">&#x25CF;</property>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">1</property>
                                                             <property name="right_attach">3</property>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options"></property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment7">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment7">
                                                             <property name="visible">True</property>
                                                             <child>
                                                             <object class="GtkLabel" id="label35">
@@ -960,21 +1041,21 @@
                                                             <property name="use_markup">True</property>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">2</property>
                                                             <property name="right_attach">3</property>
                                                             <property name="top_attach">2</property>
                                                             <property name="bottom_attach">3</property>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options"></property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment8">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment8">
                                                             <property name="visible">True</property>
                                                             <child>
-                                                            <object class="GtkHBox" id="hbox10">
+                                                            <object class="GtkHBox" id="hbox17">
                                                             <property name="visible">True</property>
                                                             <child>
                                                             <object class="GtkEntry" id="coll_date_entry">
@@ -1003,16 +1084,16 @@
                                                             </child>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="left_attach">3</property>
                                                             <property name="right_attach">4</property>
                                                             <property name="top_attach">2</property>
                                                             <property name="bottom_attach">3</property>
-                                                          </packing>
-                                                        </child>
-                                                        <child>
-                                                          <object class="GtkHBox" id="hbox17">
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <object class="GtkHBox" id="hbox19">
                                                             <property name="visible">True</property>
                                                             <property name="spacing">2</property>
                                                             <child>
@@ -1039,30 +1120,30 @@
                                                             <property name="position">1</property>
                                                             </packing>
                                                             </child>
-                                                          </object>
-                                                          <packing>
+                                                            </object>
+                                                            <packing>
                                                             <property name="x_options">GTK_FILL</property>
                                                             <property name="y_options"></property>
+                                                            </packing>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                          </object>
+                                                          <packing>
+                                                            <property name="position">0</property>
                                                           </packing>
                                                         </child>
                                                         <child>
-                                                          <placeholder/>
-                                                        </child>
-                                                        <child>
-                                                          <placeholder/>
-                                                        </child>
-                                                      </object>
-                                                      <packing>
-                                                        <property name="position">0</property>
-                                                      </packing>
-                                                    </child>
-                                                    <child>
-                                                      <object class="GtkFrame" id="frame1">
-                                                        <property name="visible">True</property>
-                                                        <property name="label_xalign">0</property>
-                                                        <property name="shadow_type">none</property>
-                                                        <child>
-                                                          <object class="GtkAlignment" id="alignment5">
+                                                          <object class="GtkFrame" id="frame1">
+                                                            <property name="visible">True</property>
+                                                            <property name="label_xalign">0</property>
+                                                            <property name="shadow_type">none</property>
+                                                            <child>
+                                                            <object class="GtkAlignment" id="alignment5">
                                                             <property name="visible">True</property>
                                                             <property name="left_padding">12</property>
                                                             <child>
@@ -1442,66 +1523,125 @@
                                                             </child>
                                                             </object>
                                                             </child>
-                                                          </object>
-                                                        </child>
-                                                        <child type="label">
-                                                          <object class="GtkLabel" id="label86">
+                                                            </object>
+                                                            </child>
+                                                            <child type="label">
+                                                            <object class="GtkLabel" id="label86">
                                                             <property name="visible">True</property>
                                                             <property name="ypad">5</property>
                                                             <property name="label" translatable="yes">&lt;b&gt;Location Details&lt;/b&gt;</property>
                                                             <property name="use_markup">True</property>
+                                                            </object>
+                                                            </child>
                                                           </object>
+                                                          <packing>
+                                                            <property name="position">1</property>
+                                                          </packing>
                                                         </child>
                                                       </object>
-                                                      <packing>
-                                                        <property name="position">1</property>
-                                                      </packing>
                                                     </child>
                                                   </object>
                                                 </child>
+                                                <child type="label">
+                                                  <object class="GtkLabel" id="label31">
+                                                    <property name="visible">True</property>
+                                                    <property name="label" translatable="yes">&lt;b&gt;Collection&lt;/b&gt;</property>
+                                                    <property name="use_markup">True</property>
+                                                  </object>
+                                                </child>
                                               </object>
-                                            </child>
-                                            <child type="label">
-                                              <object class="GtkLabel" id="label31">
-                                                <property name="visible">True</property>
-                                                <property name="label" translatable="yes">&lt;b&gt;Collection&lt;/b&gt;</property>
-                                                <property name="use_markup">True</property>
-                                              </object>
+                                              <packing>
+                                                <property name="padding">5</property>
+                                                <property name="position">1</property>
+                                              </packing>
                                             </child>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
-                                            <property name="padding">5</property>
-                                            <property name="position">0</property>
+                                            <property name="position">1</property>
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkExpander" id="source_prop_expander">
+                                          <object class="GtkHBox" id="hbox20">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
                                             <child>
-                                              <object class="GtkAlignment" id="acc_prop_box_parent">
+                                              <object class="GtkVBox" id="vbox7">
                                                 <property name="visible">True</property>
-                                                <property name="top_padding">5</property>
-                                                <property name="left_padding">12</property>
-                                                <property name="right_padding">3</property>
+                                                <property name="orientation">vertical</property>
                                                 <child>
-                                                  <placeholder/>
+                                                  <object class="GtkButton" id="source_prop_add_button">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <child>
+                                                      <object class="GtkImage" id="image9">
+                                                        <property name="visible">True</property>
+                                                        <property name="stock">gtk-add</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">0</property>
+                                                  </packing>
+                                                </child>
+                                                <child>
+                                                  <object class="GtkButton" id="source_prop_remove_button">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">True</property>
+                                                    <property name="receives_default">True</property>
+                                                    <child>
+                                                      <object class="GtkImage" id="image10">
+                                                        <property name="visible">True</property>
+                                                        <property name="stock">gtk-remove</property>
+                                                      </object>
+                                                    </child>
+                                                  </object>
+                                                  <packing>
+                                                    <property name="expand">False</property>
+                                                    <property name="fill">False</property>
+                                                    <property name="position">1</property>
+                                                  </packing>
                                                 </child>
                                               </object>
+                                              <packing>
+                                                <property name="expand">False</property>
+                                                <property name="fill">False</property>
+                                                <property name="position">0</property>
+                                              </packing>
                                             </child>
-                                            <child type="label">
-                                              <object class="GtkLabel" id="label42">
+                                            <child>
+                                              <object class="GtkExpander" id="source_prop_expander">
                                                 <property name="visible">True</property>
-                                                <property name="label" translatable="yes">&lt;b&gt;Propagation&lt;/b&gt;</property>
-                                                <property name="use_markup">True</property>
+                                                <property name="can_focus">True</property>
+                                                <child>
+                                                  <object class="GtkAlignment" id="acc_prop_box_parent">
+                                                    <property name="visible">True</property>
+                                                    <property name="top_padding">5</property>
+                                                    <property name="left_padding">12</property>
+                                                    <property name="right_padding">3</property>
+                                                    <child>
+                                                      <placeholder/>
+                                                    </child>
+                                                  </object>
+                                                </child>
+                                                <child type="label">
+                                                  <object class="GtkLabel" id="label42">
+                                                    <property name="visible">True</property>
+                                                    <property name="label" translatable="yes">&lt;b&gt;Propagation&lt;/b&gt;</property>
+                                                    <property name="use_markup">True</property>
+                                                  </object>
+                                                </child>
                                               </object>
+                                              <packing>
+                                                <property name="padding">5</property>
+                                                <property name="position">1</property>
+                                              </packing>
                                             </child>
                                           </object>
                                           <packing>
-                                            <property name="expand">False</property>
-                                            <property name="padding">5</property>
-                                            <property name="position">1</property>
+                                            <property name="position">2</property>
                                           </packing>
                                         </child>
                                       </object>

@@ -164,7 +164,6 @@
                     <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkVBox" id="cutting_box">
-                        <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <property name="spacing">15</property>
                         <child>
@@ -981,7 +980,6 @@
                     </child>
                     <child>
                       <object class="GtkVBox" id="seed_box">
-                        <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <property name="spacing">15</property>
                         <child>
@@ -1522,7 +1520,6 @@
                     </child>
                     <child>
                       <object class="GtkVBox" id="prop_notes_box">
-                        <property name="visible">True</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkAlignment" id="alignment161">
