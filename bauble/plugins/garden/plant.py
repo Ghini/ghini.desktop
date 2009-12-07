@@ -89,7 +89,7 @@ change_action = Action('plant_status', ('_Transfer/Remove'),
                        accelerator='<ctrl>x', multiselect=True)
 
 remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>', multiselect=True)
+                       accelerator='Delete', multiselect=True)
 
 plant_context_menu = [edit_action, change_action, remove_action]
 

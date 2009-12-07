@@ -178,7 +178,7 @@ edit_action = Action('acc_edit', ('_Edit'), callback=edit_callback,
 add_plant_action = Action('acc_add', ('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
 remove_action = Action('acc_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>')#, multiselect=True)
+                       accelerator='Delete')#, multiselect=True)
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
 
@@ -2026,9 +2026,9 @@ class AccessionInfoBox(InfoBox):
 
 # it's easier just to put this here instead of source.py to avoid
 # playing around with imports for AccessionInfoBox
-class SourceInfoBox(AccessionInfoBox):
+class CollectionInfoBox(AccessionInfoBox):
     def update(self, row):
-        super(SourceInfoBox, self).update(row.accession)
+        super(CollectionInfoBox, self).update(row.source.accession)
 
 
 #

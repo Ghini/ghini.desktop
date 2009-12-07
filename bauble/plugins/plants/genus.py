@@ -86,7 +86,7 @@ add_species_action = Action('genus_sp_add', ('_Add species'),
                               callback=add_species_callback,
                               accelerator='<ctrl>k')
 remove_action = Action('genus_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>', multiselect=True)
+                       accelerator='Delete', multiselect=True)
 
 genus_context_menu = [edit_action, add_species_action, remove_action]
 

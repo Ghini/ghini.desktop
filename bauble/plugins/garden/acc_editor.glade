@@ -815,7 +815,7 @@
                                       <object class="GtkVBox" id="vbox5">
                                         <property name="visible">True</property>
                                         <property name="orientation">vertical</property>
-                                        <property name="spacing">15</property>
+                                        <property name="spacing">5</property>
                                         <child>
                                           <object class="GtkExpander" id="source_coll_expander">
                                             <property name="visible">True</property>
@@ -2452,12 +2452,6 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
               <object class="GtkHBox" id="hbox16">
                 <property name="visible">True</property>
                 <property name="spacing">2</property>
@@ -2489,6 +2483,12 @@
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
