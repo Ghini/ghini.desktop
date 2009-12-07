@@ -456,9 +456,7 @@ class Accession(db.Base):
     intended2_location_id = Column(Integer, ForeignKey('location.id'))
 
     # the source of the accession
-    source_id = Column(Integer, ForeignKey('source.id'))
     source = relation('Source', uselist=False, cascade='all, delete-orphan',
-                      single_parent=True,
                       backref=backref('accession', uselist=False))
 
     # relations
@@ -1119,12 +1117,36 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         if self.model.source:
             self.source = self.model.source
+            self.view.widgets.sources_code_entry.props.text = \
+                self.source.sources_code
+
         else:
             self.source = Source()
             self.session.add(self.source)
 
-        if not self.source.collection:
-            self.source.collection = Collection()
+        if self.source.collection:
+            self.collection = self.source.collection
+            enabled = True
+        else:
+            self.collection = Collection()
+            self.session.add(self.collection)
+            enabled = False
+        self.view.widgets.source_coll_add_button.props.sensitive = not enabled
+        self.view.widgets.source_coll_remove_button.props.sensitive = enabled
+        self.view.widgets.source_coll_expander.props.expanded = enabled
+        self.view.widgets.source_coll_expander.props.sensitive = enabled
+
+        if self.source.propagation:
+            self.propagation = self.source.propagation
+            enabled = True
+        else:
+            self.propagation = Propagation()
+            self.session.add(self.propagation)
+            enabled = False
+        self.view.widgets.source_prop_add_button.props.sensitive = not enabled
+        self.view.widgets.source_prop_remove_button.props.sensitive = enabled
+        self.view.widgets.source_prop_expander.props.expanded = enabled
+        self.view.widgets.source_prop_expander.props.sensitive = enabled
 
         # TODO: all the sub presenters here take the
         # AccessionEditorPresenter as their parent though their real
@@ -1137,7 +1159,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         # presenter that allows us to create a new Propagation that is
         # specific to this Source and not attached to any Plant
         self.source_prop_presenter = \
-            SourcePropagationPresenter(self.parent_ref(), self.source, view,
+            SourcePropagationPresenter(self.parent_ref(), self.propagation,view,
                                        session)
 
         # presenter that allows us to select an existing propagation
@@ -1145,15 +1167,53 @@ class SourcePresenter(editor.GenericEditorPresenter):
             PropagationChooserPresenter(self.parent_ref(), self.source, view,
                                         session)
         self.collection_presenter = \
-            CollectionPresenter(self.parent_ref(), self.source.collection, view,
+            CollectionPresenter(self.parent_ref(), self.collection, view,
                                 session)
+
+        def on_changed(entry, *args):
+            text = entry.props.text
+            if text.strip():
+                self.source.sources_code = utils.utf8(text)
+            else:
+                self.source.sources_code = None
+            self.__dirty = True
+            self.refresh_sensitivity()
+        self.view.connect('sources_code_entry', 'changed', on_changed)
+
+        self.view.connect('source_coll_add_button', 'clicked',
+                          self.on_coll_add_button_clicked)
+        self.view.connect('source_coll_remove_button', 'clicked',
+                          self.on_coll_remove_button_clicked)
+        self.view.connect('source_prop_add_button', 'clicked',
+                          self.on_prop_add_button_clicked)
+        self.view.connect('source_prop_remove_button', 'clicked',
+                          self.on_prop_remove_button_clicked)
 
 
     def start(self):
         # setup the source combo here after the rest of the accession
         # editor is already setup
         self.model.source = self.source
+        #self.model.source.collection = self.collection
+        debug(self.collection.source)
+        if self.collection.source == self.source:
+            debug('*** setting the collcection')
+            self.source.collection = self.collection
+        debug(self.propagation.source)
+        if self.propagation.source == self.source:
+            debug(self.source.propagation)
+            debug('*** setting the propagation')
+            #self.propagation.source = None#source.propagation = self.propagation
+            #self.source.propagation = self.propagation
+        #self.source.collection = self.collection
+        debug(self.source.collection)
+
         self.populate_source_combo(self.model.source.source_detail)
+
+
+    def set_model_attr(self, attr, value):
+        setattr(self.source, attr, value)
+        self.__dirty = True
 
 
     def dirty(self):
@@ -1164,6 +1224,43 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def refresh_sensitivity(self):
         self.parent_ref().refresh_sensitivity()
+
+
+    def on_coll_add_button_clicked(self, *args):
+        self.model.source.collection = self.collection
+        self.view.widgets.source_coll_expander.props.expanded = True
+        self.view.widgets.source_coll_expander.props.sensitive = True
+        self.view.widgets.source_coll_add_button.props.sensitive = False
+        self.view.widgets.source_coll_remove_button.props.sensitive = True
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+    def on_coll_remove_button_clicked(self, *args):
+        self.model.source.collection = None
+        self.view.widgets.source_coll_expander.props.expanded = False
+        self.view.widgets.source_coll_expander.props.sensitive = False
+        self.view.widgets.source_coll_add_button.props.sensitive = True
+        self.view.widgets.source_coll_remove_button.props.sensitive = False
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+    def on_prop_add_button_clicked(self, *args):
+        self.model.source.propagation = self.propagation
+        self.view.widgets.source_prop_expander.props.expanded = True
+        self.view.widgets.source_prop_expander.props.sensitive = True
+        self.view.widgets.source_prop_add_button.props.sensitive = False
+        self.view.widgets.source_prop_remove_button.props.sensitive = True
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+    def on_prop_remove_button_clicked(self, *args):
+        self.model.source.propagation = None
+        self.view.widgets.source_prop_expander.props.expanded = False
+        self.view.widgets.source_prop_expander.props.sensitive = False
+        self.view.widgets.source_prop_add_button.props.sensitive = True
+        self.view.widgets.source_prop_remove_button.props.sensitive = False
+        self.__dirty = True
+        self.refresh_sensitivity()
 
 
     def on_new_source_button_clicked(self, *args):
@@ -1666,6 +1763,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             return
 
         while True:
+            debug(self.presenter.source_presenter.source)
+            debug(self.presenter.source_presenter.source.collection)
             response = self.presenter.start()
             self.presenter.view.save_state()
             if self.handle_response(response):
@@ -1680,6 +1779,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
     def _cleanup_collection(model):
         '''
         '''
+        if not model:
+            return
         # TODO: we should raise something besides commit ValueError
         # so we can give a meaningful response
         if model.latitude is not None or model.longitude is not None:
@@ -1730,23 +1831,35 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             else:
                 self._cleanup_propagation(self.model.source.propagation)
 
-        # clean the source depending on the selected source type
+        # clean the source up depending on what's selected in the source combo
         combo = self.presenter.view.widgets.acc_source_combo
         active = combo.get_active_iter()
         value = None
         if active:
             value = combo.get_model()[active][0]
         if not value:
+            # source not set
             self.model.source = None
         elif value == SourcePresenter.garden_prop_str:
+            # source is a garden propagation
             if not self.model.source.plant_propagation:
                 self.model.source = None
             else:
                 self.model.source.source_detail = None
                 self.model.source.propagation = None
                 self.model.source.collection = None
+                debug('collection = None')
         elif isinstance(value, SourceDetail):
-            self._cleanup_collection(self.model.source.collection)
+            # source is a source detail
+            debug('*** source_detail')
+            collection = self.presenter.source_presenter.collection
+            if not self.model.source.collection and collection in self.session:
+                self.session.expunge(collection)
+            else:
+                self._cleanup_collection(self.model.source.collection)
+            propagation = self.presenter.source_presenter.propagation
+            if not self.model.source.propagation and propagation in self.session:
+                self.session.expunge(propagation)
             self.model.source.plant_propagation = None
         else:
             raise ValueError(_('Unknown source type: %s') % value)

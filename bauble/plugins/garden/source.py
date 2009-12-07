@@ -102,12 +102,14 @@ class Source(db.Base):
     __tablename__ = 'source'
     sources_code = Column(Unicode(32))
 
-    source_detail_id = Column(Integer, ForeignKey('source_detail.id'))
-    source_detail = relation('SourceDetail', uselist=False, backref='sources')
+    accession_id = Column(Integer, ForeignKey('accession.id'), unique=True)
 
-    collection_id = Column(Integer, ForeignKey('collection.id'))
-    # TODO: not sure why i need this single_parent flage here
-    collection = relation('Collection', uselist=False, single_parent=True,
+    source_detail_id = Column(Integer, ForeignKey('source_detail.id'))
+    source_detail = relation('SourceDetail', uselist=False,
+                             backref=backref('sources',
+                                             cascade='all, delete-orphan'))
+
+    collection = relation('Collection', uselist=False,
                           cascade='all, delete-orphan',
                           backref=backref('source', uselist=False))
 
@@ -116,7 +118,8 @@ class Source(db.Base):
     propagation_id = Column(Integer, ForeignKey('propagation.id'))
     propagation = relation('Propagation', uselist=False, single_parent=True,
                            primaryjoin='Source.propagation_id==Propagation.id',
-                           cascade='all, delete-orphan', backref='source')
+                           cascade='all, delete-orphan',
+                           backref=backref('source', uselist=False))
 
     # relation to a Propagation that already exists and is attached
     # to a Plant
@@ -197,8 +200,6 @@ class Collection(db.Base):
 
     :Properties:
 
-    Also contains an _accession property that was created as a backref
-    from the Accession mapper
 
     :Constraints:
     """
@@ -230,8 +231,10 @@ class Collection(db.Base):
     geography_id = Column(Integer, ForeignKey('geography.id'))
     notes = Column(UnicodeText)
 
+    source_id = Column(Integer, ForeignKey('source.id'), unique=True)
+
     def __str__(self):
-        return 'Collection at %s' % (self.locale or repr(self))
+        return _('Collection at %s') % (self.locale or repr(self))
 
 
 class SourceDetailEditorView(editor.GenericEditorView):

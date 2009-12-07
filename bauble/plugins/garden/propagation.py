@@ -735,6 +735,9 @@ class PropagationPresenter(editor.GenericEditorPresenter):
         self._seed_presenter = SeedPresenter(self, self.model, self.view,
                                                    self.session)
 
+        if not self.model.prop_type:
+            view.widgets.prop_details_box.props.visible=False
+
         if not self.model.date:
             self.view.set_widget_value(self.view.widgets.prop_date_entry,
                                        utils.today_str())
@@ -810,7 +813,7 @@ class SourcePropagationPresenter(PropagationPresenter):
             view.widgets.prop_main_box
         except:
             # only add the propagation editor widgets to the view
-            # widgets once since the view widgets are cached
+            # widgets if the widgets haven't yet been added
             filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                 'prop_editor.glade')
             view.widgets.builder.add_from_file(filename)
@@ -830,13 +833,12 @@ class SourcePropagationPresenter(PropagationPresenter):
 
         # create a temporary Propagation that we'll connect to the
         # source when the prop_type_combo changes
-        self.source = model
-        if not self.source.propagation:
-            self.source.propagation = Propagation()
-            view.widgets.prop_details_box.props.visible=False
+        # self.source = model
+        # if not self.source.propagation:
+        #     self.source.propagation = Propagation()
+        #     view.widgets.prop_details_box.props.visible=False
         self._dirty = False
-        super(SourcePropagationPresenter, self).\
-            __init__(self.source.propagation, view)
+        super(SourcePropagationPresenter, self).__init__(model, view)
 
 
     def on_prop_type_changed(self, combo, *args):

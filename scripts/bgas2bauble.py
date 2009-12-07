@@ -1072,8 +1072,9 @@ def do_plants():
             collection['locale'] = utils.utf8(rec['wildcoll'])
             collection['collectors_code'] = utils.utf8(rec['wildnum'])
             collection['notes'] = utils.utf8(rec['wildnote'])
+            collection['source_id'] = source_id_ctr
             collection_rows.append(collection)
-            source['collection_id'] = coll_id_ctr
+            source['id'] = source_id_ctr
             coll_id_ctr += 1
 
         # check if we have a source or othernos
@@ -1083,13 +1084,12 @@ def do_plants():
             source_detail_id_ctr += 1
 
         if source:
-            # set the ids if we didn't get them from the previously
+            # set the ids if we didn't get them previously
             source.setdefault('source_detail_id', None)
-            source.setdefault('collection_id', None)
             source['id'] = source_id_ctr
+            source['accession_id'] = acc_id_ctr
             source.update(source_defaults)
             source_rows.append(source)
-            row['source_id'] = source_id_ctr
             source_id_ctr += 1
 
         # increment the id ctr
