@@ -874,13 +874,13 @@ def do_plants():
     species_id_ctr = get_next_id(species_table)
     acc_rows = []
 
-    source_contact_defaults = get_defaults(SourceContact.__table__)
+    source_detail_defaults = get_defaults(SourceDetail.__table__)
     collection_defaults = get_defaults(Collection.__table__)
     source_defaults = get_defaults(Source.__table__)
 
     source_rows = []
     collection_rows = []
-    sc_rows = []
+    source_detail_rows = []
 
     # different note types
     acc_notes = {}
@@ -905,7 +905,7 @@ def do_plants():
 
     plant_id_ctr = get_next_id(Plant.__table__)
     coll_id_ctr = get_next_id(Collection.__table__)
-    sc_id_ctr = get_next_id(SourceContact.__table__)
+    source_detail_id_ctr = get_next_id(SourceDetail.__table__)
     source_id_ctr = get_next_id(Source.__table__)
     acc_id_ctr = get_next_id(acc_table)
     rec_ctr = 0
@@ -1077,23 +1077,19 @@ def do_plants():
             coll_id_ctr += 1
 
         # check if we have a source or othernos
-        if filter(lambda x: x.strip(),[str(rec['source']),str(rec['othernos'])]):
-            source_contact = source_contact_defaults.copy()
-            source_contact['id'] = sc_id_ctr
-            source_contact['contact_id'] = rec['source']
-            source_contact['contact_code'] = utils.utf8(rec['othernos'])
-            sc_rows.append(source_contact)
-            source['source_contact_id'] = sc_id_ctr
-            sc_id_ctr += 1
+        if filter(lambda x: str(x).strip(), [rec['source'], rec['othernos']]):
+            source['source_detail_id'] = rec['source']
+            source['sources_code'] = utils.utf8(rec['othernos'])
+            source_detail_id_ctr += 1
 
         if source:
             # set the ids if we didn't get them from the previously
-            source.setdefault('source_contact_id', None)
+            source.setdefault('source_detail_id', None)
             source.setdefault('collection_id', None)
             source['id'] = source_id_ctr
-            source['accession_id'] = acc_id_ctr
             source.update(source_defaults)
             source_rows.append(source)
+            row['source_id'] = source_id_ctr
             source_id_ctr += 1
 
         # increment the id ctr
@@ -1127,11 +1123,6 @@ def do_plants():
     insert_rows(coll_insert, collection_rows)
     info('inserted %s collections'% len(collection_rows))
     del collection_rows[:]
-
-    sc_insert = get_insert(SourceContact.__table__, sc_rows[0].keys())
-    insert_rows(sc_insert, sc_rows)
-    info('inserted %s source_contact'% len(sc_rows))
-    del sc_rows[:]
 
     source_insert = get_insert(Source.__table__, source_rows[0].keys())
     insert_rows(source_insert, source_rows)
@@ -1420,10 +1411,10 @@ def do_source():
     Convert the SOURCE.DBF table to bauble.plugins.plants.species_model.Source
     """
     status('converting SOURCE.DBF ...')
-    contact_table = Contact.__table__
-    defaults = get_defaults(contact_table)
+    source_detail_table = SourceDetail.__table__
+    defaults = get_defaults(source_detail_table)
     dbf = open_dbf('SOURCE.DBF')
-    contact_rows = []
+    source_detail_rows = []
     names = set()
     name_ctr = {}
     for rec in dbf:
@@ -1441,30 +1432,30 @@ def do_source():
 
         # TODO: maybe we should add a name to source and only add a
         # contact if the address is not None
-        address = '\n'.join(map(lambda s: utils.utf8(s).strip(),
-                                rec['soudescr'].split(',')))
-        if not address:
-            address = None
+        description = '\n'.join(map(lambda s: utils.utf8(s).strip(),
+                                    rec['soudescr'].split(',')))
+        if not description:
+            description = None
         row.update({'id': utils.utf8(rec['source']),
                     'name': name,
-                    'address': address})
+                    'description': description})
         names.add(row['name'])
-        contact_rows.append(row)
+        source_detail_rows.append(row)
         del rec
     dbf.close()
 
-    contact_insert = get_insert(contact_table, ['id', 'name', 'address'])
-    insert_rows(contact_insert, contact_rows)
-    info('inserted %s contacts.' % len(contact_rows))
+    sd_insert = get_insert(source_detail_table, ['id', 'name', 'description'])
+    insert_rows(sd_insert, source_detail_rows)
+    info('inserted %s source details.' % len(source_detail_rows))
 
 
 stages = {
     '0': do_family,
     '1': do_habit,
     '2': do_color,
-    '3': do_sciname,
-    '4': do_bedtable,
-    '5': do_source,
+    '3': do_source,
+    '4': do_sciname,
+    '5': do_bedtable,
     '6': do_plants,
     '7': do_transfer,
     '8': do_synonym,
