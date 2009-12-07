@@ -100,8 +100,8 @@ class Source(db.Base):
     __tablename__ = 'source'
     sources_code = Column(Unicode(32))
 
-    detail_id = Column(Integer, ForeignKey('source_detail.id'))
-    detail = relation('SourceDetail', uselist=False, backref='sources')
+    source_detail_id = Column(Integer, ForeignKey('source_detail.id'))
+    source_detail = relation('SourceDetail', uselist=False, backref='sources')
 
     collection_id = Column(Integer, ForeignKey('collection.id'))
     # TODO: not sure why i need this single_parent flage here
@@ -867,7 +867,7 @@ class GeneralSourceDetailExpander(InfoExpander):
                               utils.xml_safe_utf8(row.description))
 
         source = Source.__table__
-        nacc = select([source.c.id], source.c.detail_id==row.id).\
+        nacc = select([source.c.id], source.c.source_detail_id==row.id).\
             count().execute().fetchone()[0]
         self.set_widget_value('sd_nacc_data', nacc)
 
