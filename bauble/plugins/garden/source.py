@@ -861,10 +861,15 @@ class GeneralSourceDetailExpander(InfoExpander):
         wrapper = TextWrapper(width=50, subsequent_indent='  ')
         self.set_widget_value('sd_name_data', '<big>%s</big>' %
                               utils.xml_safe_utf8(row.name))
-        self.set_widget_value('sd_type_data', '<big>%s</big>' %
-                              utils.xml_safe_utf8(row.source_type))
-        self.set_widget_value('sd_desc_data', '<big>%s</big>' %
-                              utils.xml_safe_utf8(row.description))
+        source_type = ''
+        if row.source_type:
+            source_type = utils.xml_safe_utf8(row.source_type)
+        self.set_widget_value('sd_type_data', source_type)
+
+        description = ''
+        if row.description:
+            description = utils.xml_safe_utf8(row.description)
+        self.set_widget_value('sd_desc_data', description)
 
         source = Source.__table__
         nacc = select([source.c.id], source.c.source_detail_id==row.id).\
