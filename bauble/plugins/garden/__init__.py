@@ -72,12 +72,12 @@ class GardenPlugin(pluginmgr.Plugin):
 
         mapper_search.add_meta(('collection', 'col', 'coll'),
                                Collection, ['locale'])
-        source_kids = lambda coll: sorted(coll.source.accession,
-                                          key=utils.natsort_key)
-        SearchView.view_meta[Collection].set(#children=source_kids,
-                                             #infobox=SourceInfoBox,
-                                             #markup_func=source_markup_func,
-                                          context_menu=source_context_menu)
+        coll_kids = lambda coll: sorted(coll.source.accession.plants,
+                                        key=utils.natsort_key)
+        SearchView.view_meta[Collection].set(children=coll_kids,
+                                             infobox=CollectionInfoBox,
+                                             markup_func=coll_markup_func,
+                                           context_menu=collection_context_menu)
 
         # done here b/c the Species table is not part of this plugin
         SearchView.view_meta[Species].child = "accessions"

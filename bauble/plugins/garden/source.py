@@ -19,43 +19,44 @@ from bauble.plugins.plants.geography import Geography
 import bauble.utils as utils
 import bauble.types as types
 from bauble.utils.log import debug
-from bauble.view import Action
+import bauble.view as view
 from bauble.plugins.garden.propagation import *
 
-def source_markup_func(source):
-    from bauble.plugins.garden.accession import acc_markup_func
-    return '%s - <small>%s</small>' % \
-        (source.accession, source.accession.species_str()), source
+def coll_markup_func(coll):
+    acc = coll.source.accession
+    safe = utils.xml_safe_utf8
+    return '%s - <small>%s</small>' %  \
+        (safe(acc), safe(acc.species_str())), safe(coll)
 
 
-def source_edit_callback(source):
+def collection_edit_callback(coll):
     from bauble.plugins.garden.accession import edit_callback
     # TODO: set the tab to the source tab on the accessio neditor
-    return edit_callback([source[0].source.accession])
+    return edit_callback([coll[0].source.accession])
 
 
-def source_add_plants_callback(source):
+def collection_add_plants_callback(coll):
     from bauble.plugins.garden.accession import add_plants_callback
-    return add_plants_callback([source[0].source.accession])
+    return add_plants_callback([coll[0].source.accession])
 
 
-def source_remove_callback(source):
+def collection_remove_callback(coll):
     from bauble.plugins.garden.accession import remove_callback
-    return remove_callback([source[0].source.accession])
+    return remove_callback([coll[0].source.accession])
 
-source_edit_action = Action('source_edit', ('_Edit'),
-                            callback=source_edit_callback,
-                            accelerator='<ctrl>e')
-source_add_plant_action = Action('source_add', ('_Add plants'),
-                          callback=source_add_plants_callback,
-                                 accelerator='<ctrl>k')
-source_remove_action = Action('source_remove', ('_Remove'),
-                              callback=source_remove_callback,
-                              accelerator='<delete>')#, multiselect=True)
+collection_edit_action = view.Action('collection_edit', ('_Edit'),
+                                     callback=collection_edit_callback,
+                                     accelerator='<ctrl>e')
+collection_add_plant_action = \
+    view.Action('collection_add', ('_Add plants'),
+                callback=collection_add_plants_callback,
+                accelerator='<ctrl>k')
+collection_remove_action = view.Action('collection_remove', ('_Remove'),
+                                       callback=collection_remove_callback,
+                                       accelerator='Delete')
 
-source_context_menu = [source_edit_action, source_add_plant_action,
-                       source_remove_action]
-
+collection_context_menu = [collection_edit_action, collection_add_plant_action,
+                           collection_remove_action]
 
 
 def source_detail_edit_callback(details):
@@ -84,12 +85,13 @@ def source_detail_remove_callback(details):
     return True
 
 
-source_detail_edit_action = Action('source_detail_edit', ('_Edit'),
-                                   callback=source_detail_edit_callback,
-                                   accelerator='<ctrl>e')
-source_detail_remove_action = Action('source_detail_remove', ('_Remove'),
-                                     callback=source_detail_remove_callback,
-                                     accelerator='<delete>', multiselect=True)
+source_detail_edit_action = view.Action('source_detail_edit', ('_Edit'),
+                                        callback=source_detail_edit_callback,
+                                        accelerator='<ctrl>e')
+source_detail_remove_action = \
+    view.Action('source_detail_remove', ('_Remove'),
+                callback=source_detail_remove_callback,
+                accelerator='Delete', multiselect=True)
 
 source_detail_context_menu = [source_detail_edit_action,
                               source_detail_remove_action]
