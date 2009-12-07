@@ -70,7 +70,7 @@ add_accession_action = Action('species_acc_add', ('_Add accession'),
                               callback=add_accession_callback,
                               accelerator='<ctrl>k')
 remove_action = Action('species_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>', multiselect=True)
+                       accelerator='Delete', multiselect=True)
 
 species_context_menu = [edit_action, remove_action]
 vernname_context_menu = [edit_action]

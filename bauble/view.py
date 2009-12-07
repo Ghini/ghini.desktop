@@ -899,6 +899,8 @@ class SearchView(pluginmgr.View):
                                                gtk.ACCEL_VISIBLE,
                                                cb(action.callback))
                 self.installed_accels.append(((keyval, mod), action.callback))
+            else:
+                warning('Could not parse accelerator: %s' %(action.accelerator))
 
 
     nresults_statusbar_context = 'searchview.nresults'
