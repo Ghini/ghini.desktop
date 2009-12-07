@@ -99,8 +99,8 @@ class Source(db.Base):
     """
     __tablename__ = 'source'
     sources_code = Column(Unicode(32))
-    detail_id = Column(Integer, ForeignKey('source_detail.id'))
 
+    detail_id = Column(Integer, ForeignKey('source_detail.id'))
     detail = relation('SourceDetail', uselist=False, backref='sources')
 
     collection_id = Column(Integer, ForeignKey('collection.id'))

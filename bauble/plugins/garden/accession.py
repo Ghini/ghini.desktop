@@ -28,7 +28,6 @@ import bauble.editor as editor
 from bauble.error import check, CommitException
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import *
-from bauble.plugins.garden.contact import *
 from bauble.plugins.garden.source import *
 import bauble.prefs as prefs
 import bauble.types as types
@@ -1246,10 +1245,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
     PROBLEM_DUPLICATE_ACCESSION = random()
     PROBLEM_ID_QUAL_RANK_REQUIRED = random()
 
-    SOURCE_CONTACT='contact'
-    SOURCE_COLL='collection'
-    SOURCE_GARDEN='garden'
-
 
     def __init__(self, model, view):
         '''
@@ -1765,7 +1760,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 # import at the bottom to avoid circular dependencies
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, SpeciesSynonym
-from bauble.plugins.garden.contact import Contact, ContactEditor
 
 #
 # infobox for searchview

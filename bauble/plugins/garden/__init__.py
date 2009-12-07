@@ -11,7 +11,6 @@ from bauble.plugins.garden.accession import *
 from bauble.plugins.garden.location import *
 from bauble.plugins.garden.plant import *
 from bauble.plugins.garden.source import *
-from bauble.plugins.garden.contact import *
 from bauble.plugins.garden.institution import *
 from bauble.plugins.garden.propagation import *
 from bauble.utils.log import debug
