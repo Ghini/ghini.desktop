@@ -1153,7 +1153,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         # setup the source combo here after the rest of the accession
         # editor is already setup
         self.model.source = self.source
-        self.populate_source_combo(self.model.source.detail)
+        self.populate_source_combo(self.model.source.source_detail)
 
 
     def dirty(self):
@@ -1220,7 +1220,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         elif not value:
             visible['source_none_label'] = True
         else:
-            self.model.source.detail = value
+            self.model.source.source_detail = value
             visible['source_sw'] = True
 
         for widget, value in visible.iteritems():
@@ -1742,7 +1742,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             if not self.model.source.plant_propagation:
                 self.model.source = None
             else:
-                self.model.source.detail = None
+                self.model.source.source_detail = None
                 self.model.source.propagation = None
                 self.model.source.collection = None
         elif isinstance(value, SourceDetail):
