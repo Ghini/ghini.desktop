@@ -79,7 +79,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             sqlalchemy_includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
 
     py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata', # 'MySQLdb',
-                       'fibra', 'psycopg2', 'encodings', 'mako',] + \
+                       'fibra', 'psycopg2', 'encodings', 'mako',
+                       'mako.cache'] + \
                        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {'console': ["scripts/bauble"],
                          'windows': [{'script': 'scripts/bauble',
