@@ -1119,7 +1119,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
             self.source = self.model.source
             self.view.widgets.sources_code_entry.props.text = \
                 self.source.sources_code
-
         else:
             self.source = Source()
             self.session.add(self.source)
@@ -1191,23 +1190,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
 
     def start(self):
-        # setup the source combo here after the rest of the accession
-        # editor is already setup
-        self.model.source = self.source
-        #self.model.source.collection = self.collection
-        debug(self.collection.source)
-        if self.collection.source == self.source:
-            debug('*** setting the collcection')
-            self.source.collection = self.collection
-        debug(self.propagation.source)
-        if self.propagation.source == self.source:
-            debug(self.source.propagation)
-            debug('*** setting the propagation')
-            #self.propagation.source = None#source.propagation = self.propagation
-            #self.source.propagation = self.propagation
-        #self.source.collection = self.collection
-        debug(self.source.collection)
-
         self.populate_source_combo(self.model.source.source_detail)
 
 
@@ -1235,6 +1217,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.__dirty = True
         self.refresh_sensitivity()
 
+
     def on_coll_remove_button_clicked(self, *args):
         self.model.source.collection = None
         self.view.widgets.source_coll_expander.props.expanded = False
@@ -1244,6 +1227,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.__dirty = True
         self.refresh_sensitivity()
 
+
     def on_prop_add_button_clicked(self, *args):
         self.model.source.propagation = self.propagation
         self.view.widgets.source_prop_expander.props.expanded = True
@@ -1252,6 +1236,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.view.widgets.source_prop_remove_button.props.sensitive = True
         self.__dirty = True
         self.refresh_sensitivity()
+
 
     def on_prop_remove_button_clicked(self, *args):
         self.model.source.propagation = None
@@ -1627,14 +1612,16 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             if not utils.check_required(self.model.source.collection):
                 return False
             if not utils.check_required(self.model.source.propagation):
-                debug('bad propagation')
                 return False
             prop = self.model.source.propagation
+            prop_ignore = ['id', 'propagation_id']
             if prop and prop.prop_type == 'Seed' and not \
-                    utils.check_required(self.model.source.propagation._seed):
+                    utils.check_required(self.model.source.propagation._seed,
+                                         prop_ignore):
                 return False
             elif prop and prop.prop_type == 'UnrootedCutting' and not \
-                   utils.check_required(self.model.source.propagation._cutting):
+                   utils.check_required(self.model.source.propagation._cutting,
+                                        prop_ignore):
                 return False
 
         return True
@@ -1880,18 +1867,10 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 self.model.source.source_detail = None
                 self.model.source.propagation = None
                 self.model.source.collection = None
-                debug('collection = None')
         elif isinstance(value, SourceDetail):
             # source is a source detail
-            debug('*** source_detail')
-            collection = self.presenter.source_presenter.collection
-            if not self.model.source.collection and collection in self.session:
-                self.session.expunge(collection)
-            else:
-                self._cleanup_collection(self.model.source.collection)
-            propagation = self.presenter.source_presenter.propagation
-            if not self.model.source.propagation and propagation in self.session:
-                self.session.expunge(propagation)
+            if not self.model.source.propagation:
+                utils.delete_or_expunge(self.presenter.source_presenter.propagation)
             self.model.source.plant_propagation = None
         else:
             raise ValueError(_('Unknown source type: %s') % value)

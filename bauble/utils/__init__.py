@@ -1170,9 +1170,10 @@ def check_required(obj, ignore_columns=['id']):
         return True
     table = obj.__table__
     for column in table.c:
-        if column.name == 'id':
+        if column.name in ignore_columns:
             continue
         v = getattr(obj, column.name)
+        #debug('%s.%s = %s' % (table.name, column.name, v))
         if not v and not column.nullable:
             return False
     return True
