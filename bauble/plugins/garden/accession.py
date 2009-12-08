@@ -1491,7 +1491,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_sensitivity()
 
 
-
     def refresh_id_qual_rank_combo(self):
         """
         Populate the id_qual_rank_combo with the parts of the species string
@@ -1612,6 +1611,35 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_sensitivity()
 
 
+    def validate(self, add_problems=False):
+        """
+        Validate the self.model
+        """
+
+        # TODO: if add_problems=True then we should add problems to
+        # all the required widgets that don't have values
+
+        if not self.model.code or not self.model.species:
+           valid = False
+
+        # validate the source if there is one
+        if self.model.source:
+            if not utils.check_required(self.model.source.collection):
+                return False
+            if not utils.check_required(self.model.source.propagation):
+                debug('bad propagation')
+                return False
+            prop = self.model.source.propagation
+            if prop and prop.prop_type == 'Seed' and not \
+                    utils.check_required(self.model.source.propagation._seed):
+                return False
+            elif prop and prop.prop_type == 'UnrootedCutting' and not \
+                   utils.check_required(self.model.source.propagation._cutting):
+                return False
+
+        return True
+
+
     def refresh_sensitivity(self):
         """
         Refresh the sensitivity of the fields and accept buttons according
@@ -1622,11 +1650,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         else:
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
-        sensitive = self.dirty()
-        if len(self.problems) != 0:
-            sensitive = False
-        elif not self.model.code or not self.model.species:
-            sensitive = False
+        sensitive = self.dirty() and self.validate()
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
@@ -1713,6 +1737,14 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
+                if not self.presenter.validate():
+                    # TODO: ideally the accept buttons wouldn't have
+                    # been sensitive until validation had already
+                    # succeeded but we'll put this here either way and
+                    # show a message about filling in the fields
+                    #
+                    # msg = _('Some required fields have not been completed')
+                    return False
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
@@ -1763,8 +1795,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             return
 
         while True:
-            debug(self.presenter.source_presenter.source)
-            debug(self.presenter.source_presenter.source.collection)
+            #debug(self.presenter.source_presenter.source)
+            #debug(self.presenter.source_presenter.source.collection)
             response = self.presenter.start()
             self.presenter.view.save_state()
             if self.handle_response(response):

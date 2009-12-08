@@ -196,7 +196,6 @@ class GenericEditorView(object):
             self.connect(window, 'response', self.on_dialog_response)
 
 
-
     def connect(self, obj, signal, callback, *args):
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
