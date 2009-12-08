@@ -1159,3 +1159,20 @@ def get_urls(text):
         #print match.groups()
         matches.append(match.groups())
     return matches
+
+
+def check_required(obj, ignore_columns=['id']):
+    """
+    Return True/False depending if all the columns on obj which are
+    not nullable have values.
+    """
+    if not obj:
+        return True
+    table = obj.__table__
+    for column in table.c:
+        if column.name == 'id':
+            continue
+        v = getattr(obj, column.name)
+        if not v and not column.nullable:
+            return False
+    return True
