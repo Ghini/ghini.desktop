@@ -119,9 +119,6 @@
                                   </object>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <object class="GtkHBox" id="hbox5">
                                     <property name="visible">True</property>
                                     <property name="spacing">2</property>
@@ -156,6 +153,9 @@
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </object>
                               <packing>
@@ -376,6 +376,9 @@
                               </packing>
                             </child>
                           </object>
+                          <packing>
+                            <property name="x_options">GTK_FILL</property>
+                          </packing>
                         </child>
                       </object>
                     </child>
