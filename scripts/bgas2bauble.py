@@ -435,10 +435,13 @@ def do_family():
     """
     status('converting FAMILY.DBF ...')
     dbf = open_dbf('FAMILY.DBF')
-    defaults = get_defaults(family_table)
-    insert = get_insert(family_table, ['family'])
-    families = {}
-    genera = {}
+    family_defaults = get_defaults(family_table)
+    family_rows = []
+    family_ids = {}
+    family_id_ctr = get_next_id(family_table)
+
+    genus_defaults = get_defaults(genus_table)
+    genus_rows = []
 
     # create the insert values for the family table and genera
     rec_ctr = 0
@@ -448,48 +451,38 @@ def do_family():
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
-        family = rec['family']
-        if not family in families:
-            row = defaults.copy()
-            row['family'] = family
-            families[family] = row
 
-        genus = rec['genus']
-        if not genus in genera:
-            genera[genus] =  {'family': family, 'genus': genus,
-                              '_created': _created,
-                              '_last_updated': _last_updated}
+        family = rec['family'].strip()
+        if not family:
+            family_id = unknown_family_id
         else:
-            # luckily there are not duplicate genera/families but
-            # we'll leave this here just in case for future data
-            raise ValueError('duplicate genus: %s(%s) -- %s(%s)' \
-                % (genus, family, genera['genus'], genera['family']))
+            family_id = family_ids.get(family, None)
+
+        if not family_id:
+            # add a new family
+            family_id = family_id_ctr
+            row = family_defaults.copy()
+            row['id'] = family_id
+            row['family'] = family
+            row['qualifier'] = u''
+            family_ids[family] = family_id
+            family_id_ctr += 1
+            family_rows.append(row)
+
+        row = genus_defaults.copy()
+        row['genus'] = rec['genus']
+        row['family_id'] = family_id
+        genus_rows.append(row)
         del rec
 
     # insert the families
-    insert_rows(insert, list(families.values()))
-    info('inserted %s family.' % len(families))
-
-    # get the family id's for the genepra
-    genus_rows = []
-    defaults = get_defaults(genus_table)
-    for genus in genera.values():
-        family = genus.pop('family')
-        if not family:
-            warning('%s has no family. adding to %s' \
-                % (genus['genus'], unknown_family_name))
-            #print '** no family: %s' %  genus
-            genus['family_id'] = unknown_family_id
-        else:
-            fid = get_column_value(family_table.c.id,
-                            family_table.c.family == family)
-            genus['family_id'] = fid
-        genus.update(defaults)
-        genus_rows.append(genus)
+    family_insert = get_insert(family_table, family_rows[0].keys())
+    insert_rows(family_insert, family_rows)
+    info('inserted %s family.' % len(family_rows))
 
     # insert the genus rows
-    insert = get_insert(genus_table, ['genus', 'family_id'])
-    insert_rows(insert, genus_rows)
+    genus_insert = get_insert(genus_table, genus_rows[0].keys())
+    insert_rows(genus_insert, genus_rows)
     info('inserted %s genus rows out of %s records.' \
              % (len(genus_rows), len(dbf)))
     dbf.close()
