@@ -32,7 +32,7 @@ from bauble.plugins.garden.source import *
 import bauble.prefs as prefs
 import bauble.types as types
 import bauble.utils as utils
-from bauble.utils.log import debug
+from bauble.utils.log import debug, warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
 import bauble.view as view
@@ -1611,19 +1611,27 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # validate the source if there is one
         if self.model.source:
-            if not utils.check_required(self.model.source.collection):
+            if utils.get_invalid_columns(self.model.source.collection):
                 return False
-            if not utils.check_required(self.model.source.propagation):
+            if utils.get_invalid_columns(self.model.source.propagation):
                 return False
+
+            if not self.model.source.propagation:
+                return True
+
             prop = self.model.source.propagation
             prop_ignore = ['id', 'propagation_id']
-            if prop and prop.prop_type == 'Seed' and not \
-                    utils.check_required(self.model.source.propagation._seed,
-                                         prop_ignore):
-                return False
-            elif prop and prop.prop_type == 'UnrootedCutting' and not \
-                   utils.check_required(self.model.source.propagation._cutting,
-                                        prop_ignore):
+            prop_model = None
+            if prop and prop.prop_type == 'Seed':
+                prop_model = prop._seed
+            elif prop and prop.prop_type == 'UnrootedCutting':
+                prop_model = prop._cutting
+            else:
+                msg = 'AccessionEditorPresenter.validate(): unknown prop_type'
+                warning(msg)
+                return False # raise ValueError for unknown prop_type??
+
+            if utils.get_invalid_columns(prop_model, prop_ignore):
                 return False
 
         return True

@@ -1121,32 +1121,27 @@ def get_distinct_values(column, session):
     return [v[0] for v in q if v != (None,)]
 
 
-def get_invalid_columns(obj):
+def get_invalid_columns(obj, ignore_columns=['id']):
     """
     Return column names on a mapped object that have values
     which aren't valid for the model.
-
-    We don't check columns that start with _ (underscore), end with
-    _id or are named id.
 
     Invalid columns meet the following criteria:
     - nullable columns with null values
     - ...what else?
     """
+
+    # TODO: check for invalid enum types
+    if not obj:
+        return []
     from sqlalchemy.orm import object_mapper
-    mapper = object_mapper(obj)
+    table = obj.__table__
     invalid_columns = []
-    # filter out special columns that have nullable=True
-    col_filter = lambda c: not c.name.startswith('_') and \
-        not c.name.endswith('_id') and not c.name == 'id' and \
-        not c.nullable
-    for col in filter(col_filter, mapper.columns):
-        # specifically test for not None since the we're
-        # testing for nullable
-        name = col.name
-        if not getattr(obj, name) is not None:
-            #debug('%s: %s' % (col.name, getattr(model, col.name)))
-            invalid_columns.append(name)
+    for column in filter(lambda c: c.name not in ignore_columns, table.c):
+        v = getattr(obj, column.name)
+        #debug('%s.%s = %s' % (table.name, column.name, v))
+        if not v and not column.nullable:
+            invalid_columns.append(column.name)
     return invalid_columns
 
 
@@ -1162,23 +1157,3 @@ def get_urls(text):
         #print match.groups()
         matches.append(match.groups())
     return matches
-
-
-def check_required(obj, ignore_columns=['id']):
-    """
-    Return True/False depending if all the columns on obj which are
-    not nullable have values.
-    """
-
-    # TODO: this is just a reimplementation of get_invalid_columns and
-    # one or the other should probably be removed...i forgot about
-    # get_invalid_columns() up there when i wrote this
-    if not obj:
-        return True
-    table = obj.__table__
-    for column in filter(lambda c: c.name not in ignore_columns, table.c):
-        v = getattr(obj, column.name)
-        #debug('%s.%s = %s' % (table.name, column.name, v))
-        if not v and not column.nullable:
-            return False
-    return True
