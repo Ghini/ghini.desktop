@@ -1121,7 +1121,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 self.source.sources_code
         else:
             self.source = Source()
-            self.session.add(self.source)
+            # self.model.source will be reset the None if the source
+            # combo value is None in commit_changes()
+            self.model.source = self.source
 
         if self.source.collection:
             self.collection = self.source.collection

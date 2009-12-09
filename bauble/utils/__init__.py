@@ -1126,6 +1126,9 @@ def get_invalid_columns(obj):
     Return column names on a mapped object that have values
     which aren't valid for the model.
 
+    We don't check columns that start with _ (underscore), end with
+    _id or are named id.
+
     Invalid columns meet the following criteria:
     - nullable columns with null values
     - ...what else?
@@ -1166,12 +1169,14 @@ def check_required(obj, ignore_columns=['id']):
     Return True/False depending if all the columns on obj which are
     not nullable have values.
     """
+
+    # TODO: this is just a reimplementation of get_invalid_columns and
+    # one or the other should probably be removed...i forgot about
+    # get_invalid_columns() up there when i wrote this
     if not obj:
         return True
     table = obj.__table__
-    for column in table.c:
-        if column.name in ignore_columns:
-            continue
+    for column in filter(lambda c: c.name not in ignore_columns, table.c):
         v = getattr(obj, column.name)
         #debug('%s.%s = %s' % (table.name, column.name, v))
         if not v and not column.nullable:

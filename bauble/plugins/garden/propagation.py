@@ -904,6 +904,10 @@ class PropagationEditorPresenter(PropagationPresenter):
         super(PropagationEditorPresenter, self).refresh_sensitivity()
         sensitive = True
         model = None
+
+        if utils.get_invalid_columns(self.model):
+            sensitive = False
+
         if self.model.prop_type == u'UnrootedCutting':
             model = self.model._cutting
         elif self.model.prop_type == u'Seed':
