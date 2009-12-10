@@ -2011,7 +2011,7 @@ class GeneralAccessionExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, _("General"), widgets)
+        super(GeneralAccessionExpander, self).__init__(_("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.general_window.remove(general_box)
         self.vbox.pack_start(general_box)
@@ -2118,95 +2118,90 @@ class GeneralAccessionExpander(InfoExpander):
             self.set_widget_value(label, location_str)
 
 
-# class SourceExpander(InfoExpander):
-
-#     def __init__(self, widgets):
-#         InfoExpander.__init__(self, _('Source'), widgets)
-#         self.curr_box = None
-#         self.box_map = {Collection: (self.widgets.collections_box,
-#                                      self.update_collections),
-#                         Donation: (self.widgets.donations_box,
-#                                    self.update_donations),
-#                         SourcePropagation: (self.widgets.source_prop_box,
-#                                             self.update_source_prop)
-#                         }
-
-#         self.current_obj = None
-#         def on_contact_clicked(*args):
-#             select_in_search_results(self.current_obj.contact)
-#         utils.make_label_clickable(self.widgets.contact_data, on_contact_clicked)
+class SourceExpander(InfoExpander):
+    def __init__(self, widgets):
+        super(SourceExpander, self).__init__(_('Source'), widgets)
+        source_box = self.widgets.source_box
+        self.widgets.source_window.remove(source_box)
+        self.vbox.pack_start(source_box)
 
 
-#     def update_collections(self, collection):
+    def update_collection(self, collection):
+        self.set_widget_value('loc_data', collection.locale)
+        self.set_widget_value('datum_data', collection.gps_datum)
 
-#         self.set_widget_value('loc_data', collection.locale)
-#         self.set_widget_value('datum_data', collection.gps_datum)
+        geo_accy = collection.geo_accy
+        if not geo_accy:
+            geo_accy = ''
+        else:
+            geo_accy = '(+/- %sm)' % geo_accy
 
-#         geo_accy = collection.geo_accy
-#         if not geo_accy:
-#             geo_accy = ''
-#         else:
-#             geo_accy = '(+/- %sm)' % geo_accy
+        if collection.latitude:
+            dir, deg, min, sec = latitude_to_dms(collection.latitude)
+            lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+                (collection.latitude, dir, deg, min, sec, geo_accy)
+            self.set_widget_value('lat_data', lat_str)
 
-#         if collection.latitude:
-#             dir, deg, min, sec = latitude_to_dms(collection.latitude)
-#             lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
-#                 (collection.latitude, dir, deg, min, sec, geo_accy)
-#             self.set_widget_value('lat_data', lat_str)
+        if collection.longitude:
+            dir, deg, min, sec = longitude_to_dms(collection.longitude)
+            long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+                (collection.longitude, dir, deg, min, sec, geo_accy)
+            self.set_widget_value('lon_data', long_str)
 
-#         if collection.longitude:
-#             dir, deg, min, sec = longitude_to_dms(collection.longitude)
-#             long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
-#                 (collection.longitude, dir, deg, min, sec, geo_accy)
-#             self.set_widget_value('lon_data', long_str)
-
-#         if collection.elevation_accy:
-#             elevation = '%sm (+/- %sm)' % (collection.elevation,
-#                                            collection.elevation_accy)
-#             self.set_widget_value('elev_data', elevation)
-
-
-#         self.set_widget_value('coll_data', collection.collector)
-#         self.set_widget_value('date_data', collection.date)
-#         self.set_widget_value('collid_data', collection.collectors_code)
-#         self.set_widget_value('habitat_data', collection.habitat)
-#         self.set_widget_value('collnotes_data', collection.notes)
+        if collection.elevation_accy:
+            elevation = '%sm (+/- %sm)' % (collection.elevation,
+                                           collection.elevation_accy)
+            self.set_widget_value('elev_data', elevation)
 
 
-#     def update_donations(self, donation):
-#         self.current_obj = donation
-#         session = object_session(donation)
-#         contact = session.query(Contact).get(donation.contact_id)
-#         contact_str = utils.xml_safe(utils.utf8(contact))
-#         self.set_widget_value('contact_data', contact_str)
-#         self.set_widget_value('contact_id_data', donation.contact_acc)
-#         #self.set_widget_value('donnotes_data', donation.notes)
+        self.set_widget_value('coll_data', collection.collector)
+        self.set_widget_value('date_data', collection.date)
+        self.set_widget_value('collid_data', collection.collectors_code)
+        self.set_widget_value('habitat_data', collection.habitat)
+        self.set_widget_value('collnotes_data', collection.notes)
 
 
-#     def update_source_prop(self, source_prop):
-#         # TODO: implement this
-#         pass
+    def update(self, row):
+        if not row.source:
+            return
 
+        if row.source.source_detail:
+            self.widgets.source_name_label.props.visible = True
+            self.widgets.source_name_data.props.visible = True
+            self.set_widget_value('source_name_data',
+                                  utils.utf8(row.source.source_detail))
+        else:
+            self.widgets.source_name_label.props.visible = False
+            self.widgets.source_name_data.props.visible = False
 
-#     def update(self, value):
-#         if self.curr_box is not None:
-#             parent = self.curr_box.get_parent()
-#             if parent:
-#                 parent.remove(self.curr_box)
+        sources_code = ''
+        if row.source.sources_code:
+            sources_code = row.source.sources_code
+        self.set_widget_value('sources_code_data', utils.utf8(sources_code))
 
-#         if value is None:
-#             self.set_expanded(False)
-#             self.set_sensitive(False)
-#             return
+        if row.source.plant_propagation:
+            self.widgets.parent_plant_label.props.visible = True
+            self.widgets.parent_plant_eventbox.props.visible = True
+            self.set_widget_value('parent_plant_data',
+                                  str(row.plant_propagation.plant))
+            self.set_widget_value('propagation_data',
+                                  row.plant_propagation.get_summary())
+        else:
+            self.widgets.parent_plant_label.props.visible = False
+            self.widgets.parent_plant_eventbox.props.visible = False
 
-#         box, update = self.box_map[value.__class__]
-#         self.widgets.remove_parent(box)
-#         self.curr_box = box
-#         update(value)
-#         self.vbox.pack_start(self.curr_box)
-#         self.set_expanded(True)
-#         self.set_sensitive(True)
+        prop_str = ''
+        if row.source.propagation:
+            prop_str = row.propagation.get_summary()
+        self.set_widget_value('propagation_data', prop_str)
 
+        if row.source.collection:
+            self.widgets.collection_expander.props.expanded = True
+            self.widgets.collection_expander.props.sensitive = True
+            self.update_collection(row.source.collection)
+        else:
+            self.widgets.collection_expander.props.expanded = False
+            self.widgets.collection_expander.props.sensitive = False
 
 
 class VerificationsExpander(InfoExpander):
@@ -2215,7 +2210,7 @@ class VerificationsExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        super(VerificationsExpander, self).__init__(_("Verifications"),widgets)
+        super(VerificationsExpander, self).__init__(_("Verifications"), widgets)
         # notes_box = self.widgets.notes_box
         # self.widgets.notes_window.remove(notes_box)
         # self.vbox.pack_start(notes_box)
@@ -2279,12 +2274,13 @@ class AccessionInfoBox(InfoBox):
 
         self.general = GeneralAccessionExpander(self.widgets)
         self.add_expander(self.general)
-        # self.source = SourceExpander(self.widgets)
-        # self.add_expander(self.source)
-        self.vouchers = VouchersExpander(self.widgets)
-        self.add_expander(self.vouchers)
-        self.verifications = VerificationsExpander(self.widgets)
-        self.add_expander(self.verifications)
+        self.source = SourceExpander(self.widgets)
+        self.add_expander(self.source)
+
+        # self.vouchers = VouchersExpander(self.widgets)
+        # self.add_expander(self.vouchers)
+        # self.verifications = VerificationsExpander(self.widgets)
+        # self.add_expander(self.verifications)
 
         self.links = view.LinksExpander('notes')
         self.add_expander(self.links)
@@ -2292,17 +2288,19 @@ class AccessionInfoBox(InfoBox):
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
+        #self.show_all()
+
 
     def update(self, row):
         self.general.update(row)
         self.props.update(row)
 
-        if row.verifications:
-            self.verifications.update(row)
-        self.verifications.set_expanded(row.verifications != None)
-        self.verifications.set_sensitive(row.verifications != None)
+        # if row.verifications:
+        #     self.verifications.update(row)
+        # self.verifications.set_expanded(row.verifications != None)
+        # self.verifications.set_sensitive(row.verifications != None)
 
-        self.vouchers.update(row)
+        # self.vouchers.update(row)
 
         urls = filter(lambda x: x!=[], \
                           [utils.get_urls(note.note) for note in row.notes])
@@ -2315,7 +2313,7 @@ class AccessionInfoBox(InfoBox):
             self.links.update(row)
 
         # TODO: should test if the source should be expanded from the prefs
-        #self.source.update(row.source)
+        self.source.update(row)
 
 
 # it's easier just to put this here instead of source.py to avoid
