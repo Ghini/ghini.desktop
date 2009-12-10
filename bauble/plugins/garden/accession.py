@@ -1216,11 +1216,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.populate_source_combo(active)
 
 
-    def set_model_attr(self, attr, value):
-        setattr(self.source, attr, value)
-        self.__dirty = True
-
-
     def dirty(self):
         return self.__dirty or self.source_prop_presenter.dirty() or \
             self.prop_chooser_presenter.dirty() or \
@@ -1449,7 +1444,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         if not model.code:
             model.code = get_next_code()
-            self.__dirty = True
+            if self.model.species:
+                self.__dirty = True
 
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
                                                    self.session)
@@ -1631,10 +1627,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         presenters = [self.ver_presenter, self.voucher_presenter,
                       self.notes_presenter, self.source_presenter]
         dirty_kids = [p.dirty() for p in presenters]
-        if self.source_presenter is None:
-            return self.__dirty or True in dirty_kids
-        return self.source_presenter.dirty() or self.__dirty or \
-            True in dirty_kids
+        return self.__dirty or True in dirty_kids
 
 
     def on_acc_code_entry_changed(self, entry, data=None):
