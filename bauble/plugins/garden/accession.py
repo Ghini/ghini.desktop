@@ -1108,12 +1108,28 @@ class SourcePresenter(editor.GenericEditorPresenter):
             #     cell.props.text = self.garden_prop_str
 
         # populate the source combo
-        combo = self.view.widgets.acc_source_combo
+        combo = self.view.widgets.acc_source_comboentry
         cell = gtk.CellRendererText()
         combo.clear()
         combo.pack_start(cell, True)
         combo.set_cell_data_func(cell, cell_data_func)
-        self.view.connect(combo, 'changed', self.on_source_combo_changed)
+        def on_select(source):
+            if not source:
+                self.model.source = None
+            elif isinstance(source, SourceDetail):
+                self.model.source = self.source
+                self.model.source.source_detail = source
+            elif source == self.garden_prop_str:
+                self.model.source = self.source
+                self.model.source.source_detail = None
+            else:
+                warning('unknown source: %s' % source)
+            #self.model.source = self.source
+            #self.model.source.source_detail = source_detail
+        self.init_source_comboentry(on_select)
+        self.view.widgets.source_garden_prop_box.props.visible = False
+        self.view.widgets.source_sw.props.visible = False
+        self.view.widgets.source_none_label.props.visible = True
 
         if self.model.source:
             self.source = self.model.source
@@ -1192,7 +1208,12 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
 
     def start(self):
-        self.populate_source_combo(self.model.source.source_detail)
+        active = None
+        if self.model.source.source_detail:
+            active = self.model.source.source_detail
+        elif self.model.source.plant_propagation:
+            active = self.garden_prop_str
+        self.populate_source_combo(active)
 
 
     def set_model_attr(self, attr, value):
@@ -1269,7 +1290,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         If active=None then set whatever was previously active before
         repopulating the combo.
         """
-        combo = self.view.widgets.acc_source_combo
+        combo = self.view.widgets.acc_source_comboentry
         if not active:
             treeiter = combo.get_active_iter()
             if treeiter:
@@ -1278,9 +1299,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
-        for detail in self.session.query(SourceDetail):
-            model.append([detail])
+        map(lambda x: model.append([x]), self.session.query(SourceDetail))
         combo.set_model(model)
+        combo.child.get_completion().set_model(model)
+
         if active:
             results = utils.search_tree_model(model, active)
             if results:
@@ -1289,28 +1311,112 @@ class SourcePresenter(editor.GenericEditorPresenter):
             combo.set_active_iter(none_iter)
 
 
-    def on_source_combo_changed(self, combo, *args):
+
+    def init_source_comboentry(self, on_select):
         """
+        A comboentry that allows the location to be entered requires
+        more custom setup than view.attach_completion and
+        self.assign_simple_handler can provides.  This method allows us to
+        have completions on the location entry based on the location code,
+        location name and location string as well as selecting a location
+        from a combo drop down.
+
+        :param on_select: called when an item is selected
         """
-        treeiter = combo.get_active_iter()
-        value = combo.get_model()[treeiter][0]
+        PROBLEM = 'unknown_source'
+        combo = self.view.widgets.acc_source_comboentry
 
-        visible = dict(source_sw=False,
-                       source_garden_prop_box=False,
-                       source_none_label=False)
+        def cell_data_func(col, cell, model, treeiter, data=None):
+            cell.props.text = utils.utf8(model[treeiter][0])
 
-        if str(value) == self.garden_prop_str:
-            visible['source_garden_prop_box'] = True
-        elif not value:
-            visible['source_none_label'] = True
-        else:
-            self.model.source.source_detail = value
-            visible['source_sw'] = True
+        completion = gtk.EntryCompletion()
+        cell = gtk.CellRendererText() # set up the completion renderer
+        completion.pack_start(cell)
+        completion.set_cell_data_func(cell, cell_data_func)
 
-        for widget, value in visible.iteritems():
-            self.view.widgets[widget].props.visible = value
-        self.__dirty = False
-        self.refresh_sensitivity()
+        def match_func(completion, key, treeiter, data=None):
+            model = completion.get_model()
+            value = model[treeiter][0]
+            # UBC: also allows completions of source details by their
+            # ID since that's how UBC used them previously
+            if utils.utf8(value).lower().startswith(key.lower()) or \
+                    (isinstance(value, SourceDetail) and \
+                         str(value.id).startswith(key)):
+                return True
+            return False
+        completion.set_match_func(match_func)
+
+        entry = combo.child
+        entry.set_completion(completion)
+
+        combo.clear()
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell)
+        combo.set_cell_data_func(cell, cell_data_func)
+
+        def update_visible():
+            visible = dict(source_sw=False,
+                           source_garden_prop_box=False,
+                           source_none_label=False)
+            if entry.props.text == self.garden_prop_str:
+                visible['source_garden_prop_box'] = True
+            elif not self.model.source or not self.model.source.source_detail:
+                visible['source_none_label'] = True
+            else:
+                #self.model.source.source_detail = value
+                visible['source_sw'] = True
+            for widget, value in visible.iteritems():
+                self.view.widgets[widget].props.visible = value
+            self.view.widgets.source_alignment.props.sensitive = True
+
+        def on_match_select(completion, model, treeiter):
+            value = model[treeiter][0]
+            if not value:
+                combo.child.props.text = ''
+                on_select(None)
+            else:
+                combo.child.props.text = utils.utf8(value)
+                on_select(value)
+            return True
+        self.view.connect(completion, 'match-selected', on_match_select)
+
+        def on_entry_changed(entry, data=None):
+            text = utils.utf8(entry.props.text)
+            # see if the text matches a completion string
+            comp = entry.get_completion()
+            def _cmp(row, data):
+                val = row[0]
+                if utils.utf8(val) == data or \
+                    (isinstance(val, SourceDetail) and val.id==data):
+                    return True
+                else:
+                    return False
+
+            found = utils.search_tree_model(comp.get_model(), text, _cmp)
+            if len(found) == 1:
+                # the model and iter here should technically be the tree
+                comp.emit('match-selected', comp.get_model(), found[0])
+                self.remove_problem(PROBLEM, entry)
+            else:
+                self.add_problem(PROBLEM, entry)
+            update_visible()
+            return True
+        self.view.connect(entry, 'changed', on_entry_changed)
+
+        def on_combo_changed(combo, *args):
+            model = combo.get_model()
+            active = combo.get_active_iter()
+            if active:
+                detail = combo.get_model()[active][0]
+                # set the text value on the entry since its does all the validation
+                if not detail:
+                    combo.child.props.text = ''
+                else:
+                    combo.child.props.text = utils.utf8(detail)
+            update_visible()
+            return True
+
+        self.view.connect(combo, 'changed', on_combo_changed)
 
 
 
@@ -1607,7 +1713,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # all the required widgets that don't have values
 
         if not self.model.code or not self.model.species:
-           valid = False
+           return False
 
         # validate the source if there is one
         if self.model.source:
@@ -1860,30 +1966,13 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             else:
                 self._cleanup_propagation(self.model.source.propagation)
 
-        # clean the source up depending on what's selected in the source combo
-        combo = self.presenter.view.widgets.acc_source_combo
-        active = combo.get_active_iter()
-        value = None
-        if active:
-            value = combo.get_model()[active][0]
-        if not value:
-            # source not set
-            self.model.source = None
-        elif value == SourcePresenter.garden_prop_str:
-            # source is a garden propagation
-            if not self.model.source.plant_propagation:
-                self.model.source = None
-            else:
-                self.model.source.source_detail = None
-                self.model.source.propagation = None
-                self.model.source.collection = None
-        elif isinstance(value, SourceDetail):
-            # source is a source detail
+        if not self.model.source:
+            utils.delete_or_expunge(self.presenter.source_presenter.source)
+        else:
             if not self.model.source.propagation:
                 utils.delete_or_expunge(self.presenter.source_presenter.propagation)
-            self.model.source.plant_propagation = None
-        else:
-            raise ValueError(_('Unknown source type: %s') % value)
+            if not self.model.source.collection:
+                utils.delete_or_expunge(self.presenter.source_presenter.collection)
 
         if self.model.id_qual is None:
             self.model.id_qual_rank = None

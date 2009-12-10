@@ -779,7 +779,6 @@ class PropagationChooserPresenter(editor.GenericEditorPresenter):
             query = self.session.query(Plant).join('accession').\
                     filter(utils.ilike(Accession.code, '%s%%' % text)).\
                     filter(Accession.id != self.model.accession.id)
-            debug(list(query))
             return query
 
 

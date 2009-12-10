@@ -747,7 +747,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkComboBox" id="acc_source_combo">
+                          <object class="GtkComboBoxEntry" id="acc_source_comboentry">
                             <property name="visible">True</property>
                           </object>
                           <packing>
@@ -784,7 +784,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkAlignment" id="alignment4">
+                      <object class="GtkAlignment" id="source_alignment">
                         <property name="visible">True</property>
                         <property name="left_padding">5</property>
                         <child>
