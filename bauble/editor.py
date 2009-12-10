@@ -952,8 +952,11 @@ class NotesPresenter(GenericEditorPresenter):
                                    self.model.category or '')
             utils.setup_date_button(self.widgets.date_entry,
                                     self.widgets.date_button)
-            utils.set_widget_value(self.widgets.date_entry,
-                                   self.model.date or utils.today_str())
+            date_str = utils.today_str()
+            if self.model.date:
+                format = prefs.prefs[prefs.date_format_pref]
+                date_str = self.model.date.strftime(format)
+            utils.set_widget_value(self.widgets.date_entry, date_str)
             utils.set_widget_value(self.widgets.user_entry,
                                    self.model.user or '')
             buff = gtk.TextBuffer()
