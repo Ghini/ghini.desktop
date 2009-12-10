@@ -1182,7 +1182,7 @@ class GeneralPlantExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, _("General"), widgets)
+        super(GeneralPlantExpander, self).__init__(_("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
