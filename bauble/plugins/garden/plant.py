@@ -107,6 +107,25 @@ def plant_markup_func(plant):
         return utils.xml_safe_utf8(plant), sp_str
 
 
+def get_next_code(acc):
+    """
+    Return the next available plant code for an accession.
+
+    This function should be specific to the institution.
+
+    If there is an error getting the next code the None is returned.
+    """
+    # auto generate/increment the accession code
+    session = db.Session()
+    codes = session.query(Plant.code).join(Accession).filter(Accession.id==acc.id).all()
+    next = 1
+    if codes:
+        try:
+            next = max([int(code[0]) for code in codes])+1
+        except Exception, e:
+            return None
+    return next
+
 
 class PlantSearch(SearchStrategy):
 
@@ -817,6 +836,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
         from bauble.plugins.garden.propagation import PropagationTabPresenter
         self.prop_presenter = PropagationTabPresenter(self, self.model,
                                                      self.view, self.session)
+
+        if self.model.accession and not self.model.code:
+            code = get_next_code(self.model.accession)
+            if code:
+                # if get_next_code() returns None then there was an error
+                self.model.code = code
 
         self.refresh_view() # put model values in view
 
