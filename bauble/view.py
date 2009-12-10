@@ -1126,7 +1126,7 @@ class SearchView(pluginmgr.View):
             # object who's session was closed...we add it here for
             # performance reasons so we only add it onces its visible
             if not object_session(value):
-                if value in session:
+                if value in self.session:
                     # expire the object in the session with the same key
                     self.session.expire(value)
                 else:
