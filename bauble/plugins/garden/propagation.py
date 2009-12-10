@@ -903,28 +903,22 @@ class PropagationEditorPresenter(PropagationPresenter):
     def refresh_sensitivity(self):
         super(PropagationEditorPresenter, self).refresh_sensitivity()
         sensitive = True
-        model = None
 
         if utils.get_invalid_columns(self.model):
             sensitive = False
 
+        model = None
         if self.model.prop_type == u'UnrootedCutting':
             model = self.model._cutting
         elif self.model.prop_type == u'Seed':
             model = self.model._seed
 
         if model:
-            invalid = utils.get_invalid_columns(model)
+            invalid = utils.get_invalid_columns(model, ['id', 'propagation_id'])
             # TODO: highlight the widget with are associated with the
             # columns that have bad values
             if invalid:
                 sensitive = False
-            #     if self.model.prop_type == u'UnrootedCutting':
-            #         presenter = self._cutting_presenter
-            #         model = self.model._cutting
-            #     elif self.model.prop_type == u'Seed':
-            #         presenter = self._seed_presenter
-            #         model = self.model._seed
         else:
             sensitive = False
         self.view.widgets.prop_ok_button.props.sensitive = sensitive
