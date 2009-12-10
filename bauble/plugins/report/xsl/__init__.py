@@ -122,7 +122,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
         # invalid XML file
-        if self.for_labels:
+        if self.for_labels and self.species.label_distribution:
             etree.SubElement(unit, 'distribution').text=\
                 self.species.label_distribution
         else:
