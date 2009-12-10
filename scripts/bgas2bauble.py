@@ -874,10 +874,7 @@ def do_plants():
     source_rows = []
     collection_rows = []
     source_detail_rows = []
-
-    # different note types
     acc_notes = []
-    acc_wildnote = {}
 
     # TODO: some or all of these notes might be for the plant rather
     # than the accession...is that what pro_notes mean
@@ -1115,10 +1112,6 @@ def do_plants():
     insert_rows(notes_insert, acc_notes)
     info('inserted %s accession notes' % len(acc_notes))
     del acc_notes[:]
-
-    insert_rows(notes_insert, acc_wildnote.values())
-    info('inserted %s accession wildnote' % len(acc_wildnote.values()))
-    acc_wildnote.clear()
 
     gc.collect()
 
