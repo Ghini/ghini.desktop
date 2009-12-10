@@ -294,7 +294,7 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
             else:
                 widget.set_active(-1)
         if isinstance(widget, gtk.ComboBoxEntry):
-            widget.child.props.text = value
+            widget.child.props.text = value or ''
     elif isinstance(widget,(gtk.ToggleButton,gtk.CheckButton,gtk.RadioButton)):
         if value is True:
             widget.set_inconsistent(False)
