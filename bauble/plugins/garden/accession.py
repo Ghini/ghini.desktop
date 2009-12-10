@@ -1753,14 +1753,17 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         '''
         get the values from the model and put them in the view
         '''
+        date_format = prefs.prefs[prefs.date_format_pref]
         for widget, field in self.widget_to_field_map.iteritems():
             if field == 'species_id':
                 value = self.model.species
             else:
                 value = getattr(self.model, field)
-            if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month,
-                                      '%04d' % value.year)
+
+            # format date strings
+            if value and isinstance(value, (datetime.datetime, datetime.date)):
+                value = value.strftime(date_format)
+
             self.view.set_widget_value(widget, value)
 
 
