@@ -6,8 +6,9 @@ A common set of utility functions used throughout Bauble.
 """
 import imp
 import os
-import sys
 import re
+import sys
+import textwrap
 import xml.sax.saxutils as saxutils
 
 import gtk
@@ -986,9 +987,17 @@ class MessageBox(GenericMessageBox):
 
         self.details_expander = gtk.Expander(_('Show details'))
         self.vbox.pack_start(self.details_expander)
+
+        sw = gtk.ScrolledWindow()
+        sw.set_size_request(-1, 200)
+        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        viewport = gtk.Viewport()
+        sw.add(viewport)
         self.details_label = gtk.Label()
+        viewport.add(self.details_label)
+
         self.details = details
-        self.details_expander.add(self.details_label)
+        self.details_expander.add(sw)
 
         def on_expanded(*args):
             width, height = self.size_request()
@@ -1017,7 +1026,11 @@ class MessageBox(GenericMessageBox):
     def _get_message(self, msg):
         return self.label.text
     def _set_message(self, msg):
+        # TODO: we could probably do something smarter here that
+        # involved check the font size and window width and adjust the
+        # wrap widget accordingly
         if msg:
+            msg = '\n'.join(textwrap.wrap(msg, 100))
             self.label.set_markup(msg)
         else:
             self.label.set_markup('')
@@ -1028,6 +1041,7 @@ class MessageBox(GenericMessageBox):
         return self.details_label.text
     def _set_details(self, msg):
         if msg:
+            msg = '\n'.join(textwrap.wrap(msg, 100))
             self.details_label.set_markup(msg)
         else:
             self.details_label.set_markup('')
