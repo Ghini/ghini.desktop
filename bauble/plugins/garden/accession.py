@@ -472,6 +472,10 @@ class Accession(db.Base):
                              backref=backref('accession', uselist=False))
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
+    intended_loc = relation('Location',
+                  primaryjoin='Accession.intended_location_id==Location.id')
+    intended2_loc = relation('Location',
+                  primaryjoin='Accession.intended2_location_id==Location.id')
 
     # *** UBC specific
     pisbg = Column(Boolean, default=False)
@@ -1420,10 +1424,18 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_id_qual_combo': 'id_qual',
                            'acc_date_accd_entry': 'date_accd',
                            'acc_date_recvd_entry': 'date_recvd',
+                           'acc_date_recvd_entry': 'date_recvd',
+                           'acc_recvd_type_comboentry': 'recvd_type',
+                           'acc_quantity_recvd_entry': 'quantity_recvd',
+                           'intended_loc_comboentry': 'intended_loc',
+                           'intended2_loc_comboentry': 'intended2_loc',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
-                           'acc_private_check': 'private'}
+                           'acc_private_check': 'private',
+                           'acc_memorial_check': 'memorial',
+                           'acc_pisbg_check': 'pisbg'
+                           }
 
     PROBLEM_INVALID_DATE = random()
     PROBLEM_DUPLICATE_ACCESSION = random()
@@ -1773,6 +1785,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.set_widget_value('acc_prov_combo',
                                    prov_type_values[self.model.prov_type],
                                    index=1)
+        self.view.set_widget_value('acc_recvd_type_comboentry',
+                                   recvd_type_values[self.model.recvd_type],
+                                   index=1)
+
+
 
         if self.model.private is None:
             self.view.widgets.acc_private_check.set_inconsistent(False)
@@ -2038,8 +2055,67 @@ class GeneralAccessionExpander(InfoExpander):
 
         nplants = session.query(Plant).filter_by(accession_id=row.id).count()
         self.set_widget_value('nplants_data', nplants)
-        self.set_widget_value('prov_data', prov_type_values[row.prov_type],
-                              False)
+
+        format = prefs.prefs[prefs.date_format_pref]
+
+        date_str = ''
+        if row.date_recvd:
+            date_str = row.date_recvd.strftime(format)
+        self.set_widget_value('date_recvd_data', date_str)
+
+        date_str = ''
+        if row.date_accd:
+            date_str = row.date_accd.strftime(format)
+        self.set_widget_value('date_accd_data', date_str)
+
+        type_str = ''
+        if row.recvd_type:
+            type_str = recvd_type_values[row.recvd_type]
+        self.set_widget_value('recvd_type_data', type_str)
+
+        quantity_str = ''
+        if row.quantity_recvd:
+            quantity_str = row.quantity_recvd
+        self.set_widget_value('quantity_recvd_data', quantity_str)
+
+
+        prov_str = prov_type_values[row.prov_type]
+        if row.prov_type == u'Wild' and row.wild_prov_status:
+            prov_str = '%s (%s)' % \
+                     (prov_str, wild_prov_status_values[row.wild_prov_status])
+        self.set_widget_value('prov_data', prov_str, False)
+
+        image_size = gtk.ICON_SIZE_MENU
+        stock = gtk.STOCK_NO
+        if row.private:
+            stock = gtk.STOCK_YES
+        self.widgets.private_image.set_from_stock(stock, image_size)
+
+        stock = gtk.STOCK_NO
+        if row.memorial:
+            stock = gtk.STOCK_YES
+        self.widgets.memorial_image.set_from_stock(stock, image_size)
+
+        stock = gtk.STOCK_NO
+        if row.pisbg:
+            stock = gtk.STOCK_YES
+        self.widgets.pisbg_image.set_from_stock(stock, image_size)
+
+        loc_map = (('intended_loc_data', 'intended_loc'),
+                   ('intended2_loc_data', 'intended2_loc'))
+
+        for label, attr in loc_map:
+            location_str = ''
+            location = getattr(row, attr)
+            if location:
+                if location.name and location.code:
+                    location_str = '%s (%s)' % (location.name,
+                                                location.code)
+                elif location.name and not location.code:
+                    location_str = '%s' % location.name
+                elif not location.name and location.code:
+                    location_str = '(%s)' % location.code
+            self.set_widget_value(label, location_str)
 
 
 # class SourceExpander(InfoExpander):

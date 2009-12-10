@@ -526,6 +526,8 @@ def prettify_format(format):
 def today_str(format=None):
     """
     Return a string for of today's date according to format.
+
+    If format=None then the format uses the prefs.date_format_pref
     """
     import bauble.prefs as prefs
     if not format:
@@ -537,6 +539,9 @@ def today_str(format=None):
 
 def setup_date_button(entry, button, date_func=None):
     """
+    Associate a button with entry so that when the button is clicked a
+    date is inserted into the entry.
+
     :param entry: the entry that the data goes into
 
     :param button: the button that enters the data in entry
