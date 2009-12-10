@@ -101,7 +101,7 @@ def plant_markup_func(plant):
     # UBC
     #if plant.acc_status == 'Dead':
     if plant.removal:
-        color = '<span foreground="#666666">%s</span>'
+        color = '<span foreground="#777">%s</span>'
         return color % utils.xml_safe_utf8(plant), sp_str
     else:
         return utils.xml_safe_utf8(plant), sp_str
