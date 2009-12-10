@@ -124,9 +124,8 @@ def get_next_code():
             next = '%s%s0001' % (datetime.date.today().year,
                                  Plant.get_delimiter())
     except Exception, e:
-        debug('exception')
-        debug(e)
         pass
+        # debug(e)
     finally:
         session.close()
     return next
