@@ -876,8 +876,7 @@ def do_plants():
     source_detail_rows = []
 
     # different note types
-    acc_notes = {}
-    acc_pronotes = {}
+    acc_notes = []
     acc_wildnote = {}
 
     # TODO: some or all of these notes might be for the plant rather
@@ -926,7 +925,6 @@ def do_plants():
             plant_row['_created']= rec['dateaccd']
             #plant_row['date_accd'] = rec['dateaccd']
             #plant_row['date_recvd'] = rec['datercvd']
-            # TODO: should pronotes be for the plant
             plants[p] = plant_row
             plant_id_ctr += 1
         else:
@@ -981,28 +979,18 @@ def do_plants():
         if rec['intendloc2']:
             row['intended2_location_id'] = locations[rec['intendloc2']]
 
-        # TODO: are these notes unique for the accession or unique for
-        # the plant and should we therefore keep lists of notes
-
         # get the different type of notes
         if rec['notes'].strip():
-            acc_notes[p] = acc_notes_defaults.copy()
-            acc_notes[p]['note'] = utils.utf8(rec['notes'])
-            acc_notes[p]['accession_id'] = acc_id_ctr
+            note = acc_notes_defaults.copy()
+            note['note'] = utils.utf8(rec['notes'])
+            note['accession_id'] = acc_id_ctr
+            acc_notes.append(note)
 
         if rec['pronotes'].strip():
-            acc_pronotes[p] = acc_notes_defaults.copy()
-            acc_pronotes[p]['note'] = utils.utf8(rec['pronotes'])
-            acc_pronotes[p]['category'] = u'pronotes?'
-            acc_pronotes[p]['accession_id'] = acc_id_ctr
-
-        # TODO: this wildnotes is temporary and should probably go in
-        # the collection notes
-        if rec['wildnote'].strip():
-            acc_wildnote[p] = acc_notes_defaults.copy()
-            acc_wildnote[p]['note'] = utils.utf8(rec['wildnote'])
-            acc_wildnote[p]['category'] = u'wildnote?'
-            acc_wildnote[p]['accession_id'] = acc_id_ctr
+            note = acc_notes_defaults.copy()
+            note['note'] = utils.utf8(rec['pronotes'])
+            note['accession_id'] = acc_id_ctr
+            acc_notes.append(note)
 
         species = species_name_dict_from_rec(rec, species_defaults.copy())
         species_hash = hash(tuple(zip(species.keys(), species.values())))
@@ -1123,15 +1111,10 @@ def do_plants():
     del source_rows[:]
 
     # we now have all the information for the accession notes so commit
-    notes_insert = get_insert(AccessionNote.__table__,
-                              ['note', 'date', 'category', 'accession_id'])
-    insert_rows(notes_insert, acc_notes.values())
-    info('inserted %s accession notes' % len(acc_notes.values()))
-    acc_notes.clear()
-
-    insert_rows(notes_insert, acc_pronotes.values())
-    info('inserted %s accession pronotes' % len(acc_pronotes.values()))
-    acc_pronotes.clear()
+    notes_insert = get_insert(AccessionNote.__table__, acc_notes[0].keys())
+    insert_rows(notes_insert, acc_notes)
+    info('inserted %s accession notes' % len(acc_notes))
+    del acc_notes[:]
 
     insert_rows(notes_insert, acc_wildnote.values())
     info('inserted %s accession wildnote' % len(acc_wildnote.values()))
