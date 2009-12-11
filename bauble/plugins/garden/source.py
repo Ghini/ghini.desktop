@@ -532,6 +532,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
 
     def refresh_view(self):
+        from bauble.plugins.garden.accession import latitude_to_dms, \
+            longitude_to_dms
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
 ##            debug('%s, %s, %s' % (widget, field, value))
@@ -622,6 +624,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         '''
         parse a latitude or longitude in a variety of formats
         '''
+        from bauble.plugins.garden.accession import dms_to_decimal
         bits = re.split(':| ', text.strip())
 #        debug('%s: %s' % (direction, bits))
         if len(bits) == 1:
@@ -668,6 +671,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         '''
         set the latitude value from text
         '''
+        from bauble.plugins.garden.accession import latitude_to_dms, \
+            longitude_to_dms
         text = entry.get_text()
         latitude = None
         dms_string = ''
@@ -685,7 +690,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 #u"\N{DEGREE SIGN}"
                 dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
-#            debug(traceback.format_exc())
+            # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
@@ -698,6 +703,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
 
     def on_lon_entry_changed(self, entry, data=None):
+        from bauble.plugins.garden.accession import latitude_to_dms, \
+            longitude_to_dms
         text = entry.get_text()
         longitude = None
         dms_string = ''
@@ -714,7 +721,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
                 dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
         except Exception:
-#            debug(traceback.format_exc())
+            # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
