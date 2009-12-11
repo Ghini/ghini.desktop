@@ -645,6 +645,9 @@ class AccessionEditorView(editor.GenericEditorView):
                                      wild_prov_status_values)
         self.init_translatable_combo('acc_recvd_type_comboentry',
                                      recvd_type_values)
+        adjustment = self.widgets.source_sw.get_vadjustment()
+        adjustment.props.value = 0.0
+        self.widgets.source_sw.set_vadjustment(adjustment)
 
 
     def get_window(self):
