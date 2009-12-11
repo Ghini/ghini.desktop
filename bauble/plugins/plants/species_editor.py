@@ -38,6 +38,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_awards_entry': 'awards',
                            'sp_zone_entry': 'hardiness_zone',
                            'sp_label_dist_entry': 'label_distribution',
+                           'sp_bcdist_entry': 'bc_distribution',
                            }
 
 
@@ -145,6 +146,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_bcdist_entry', 'bc_distribution')
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution')
         self.assign_simple_handler('sp_awards_entry', 'awards')
         self.assign_simple_handler('sp_zone_entry', 'hardiness_zone')
