@@ -152,6 +152,7 @@ class Species(db.Base):
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
 
     label_distribution = Column(UnicodeText)
+    bc_distribution = Column(UnicodeText)
 
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
