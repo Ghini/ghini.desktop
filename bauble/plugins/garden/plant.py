@@ -98,11 +98,14 @@ def plant_markup_func(plant):
     '''
     '''
     sp_str = plant.accession.species_str(markup=True)
+    #dead_color = "#777"
+    dead_color = "#9900ff"
     # UBC
     #if plant.acc_status == 'Dead':
     if plant.removal:
-        color = '<span foreground="#777">%s</span>'
-        return color % utils.xml_safe_utf8(plant), sp_str
+        dead_markup = '<span foreground="%s">%s</span>' % \
+            (dead_color, utils.xml_safe_utf8(plant))
+        return dead_markup, sp_str
     else:
         return utils.xml_safe_utf8(plant), sp_str
 
