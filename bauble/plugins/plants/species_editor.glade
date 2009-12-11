@@ -388,21 +388,44 @@
                             <property name="visible">True</property>
                             <property name="left_padding">12</property>
                             <child>
-                              <object class="GtkVBox" id="vbox10">
+                              <object class="GtkHBox" id="hbox4">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
+                                <property name="spacing">15</property>
                                 <child>
-                                  <object class="GtkLabel" id="sp_dist_label">
+                                  <object class="GtkVBox" id="vbox10">
                                     <property name="visible">True</property>
-                                    <property name="xalign">0</property>
-                                    <property name="ypad">3</property>
-                                    <property name="label" translatable="yes">--</property>
-                                    <property name="wrap">True</property>
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkLabel" id="sp_dist_label">
+                                        <property name="visible">True</property>
+                                        <property name="xalign">0</property>
+                                        <property name="ypad">3</property>
+                                        <property name="label" translatable="yes">--</property>
+                                        <property name="wrap">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">False</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="bc_native_check">
+                                    <property name="label" translatable="yes">Native to BC</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">False</property>
-                                    <property name="position">0</property>
+                                    <property name="position">1</property>
                                   </packing>
                                 </child>
                               </object>

@@ -816,7 +816,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             path = tree_model.get_path(first)
             #self.set_model_attr('default_vernacular_name', value)
             self.model.default_vernacular_name = value
-            debug(self.model.default_vernacular_name)
             self.__dirty = True
             self.parent_ref().refresh_sensitivity()
         elif default_vernacular_name is None:
