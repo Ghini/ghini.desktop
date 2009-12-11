@@ -70,14 +70,13 @@ debug = lambda msg: logger(msg, 3)
 
 db.open(options.database, False)
 pluginmgr.load()
-# the one thing this script doesn't do that bauble does is called
-# pluginmgr.init()
+# the one thing this script doesn't do that bauble does is call pluginmgr.init()
 #pluginmgr.init(force=True)
 if options.stage == '0' or options.database == default_uri:
     db.create(import_defaults=False)
     from bauble.plugins.imex.csv_ import CSVImporter
 
-    # import default geography date
+    # import default geography data
     importer = CSVImporter()
     import bauble.plugins.plants as plants
     filename = os.path.join(plants.__path__[0], 'default', 'geography.txt')
@@ -564,13 +563,6 @@ def do_sciname():
     for row in sql.execute().fetchall():
         genus_ids[row[1]] = row[0]
 
-    columns = ['id', 'genus_id', 'sp', 'sp2', 'sp_author', 'hybrid', 'infrasp1',
-               'infrasp1_rank', 'infrasp1_author', 'infrasp2', 'infrasp2_rank',
-               'infrasp2_author', 'infrasp3', 'infrasp3_rank',
-               'infrasp3_author', '_created', '_last_updated', 'awards',
-               'habit_id', 'flower_color_id']
-    species_insert = get_insert(species_table, columns)
-
     species_hashes = set()
     species_ids = {} # cached species ids
 
@@ -648,6 +640,7 @@ def do_sciname():
         row['awards'] = get_value(rec, 'awards')
         row['habit'] = get_value(rec, 'habit')
         row['hardiness_zone'] = get_value(rec, 'hard_zone')
+        row['label_distribution'] = get_value(rec, 'nativity')
 
         # set the habit
         habit = row.pop('habit')
@@ -658,6 +651,7 @@ def do_sciname():
 
         # TODO: flower color can have -,>& delimiters....what should
         # we do, create two flower colors for a species????
+        # UPDATE: it turns out UBC doesn't use the flower_color field
         flower_color = get_value(rec, 'flower_color')
         if flower_color:
             print flower_color
@@ -666,7 +660,6 @@ def do_sciname():
             row['flower_color_id'] = None
 
         if has_value(rec, 'SCINOTE'):
-            #print get_value(rec, 'scinote')
             note = species_note_defaults.copy()
             note.update(dict(category=u'Scientific',
                              note=get_value(rec, 'scinote'),
@@ -678,11 +671,21 @@ def do_sciname():
                              note=get_value(rec, 'phenol'),
                              species_id=species_id))
             notes.append(note)
-        if has_value(rec, 'NOTES'):
+
+        if has_value(rec, 'REFERENCE'):
             note = species_note_defaults.copy()
-            note.update(dict(category=None, note=get_value(rec, 'notes'),
+            note.update(dict(category=u'Reference',
+                             note=get_value(rec, 'reference'),
                              species_id=species_id))
             notes.append(note)
+
+        if has_value(rec, 'CULTPARE'):
+            note = species_note_defaults.copy()
+            note.update(dict(category=u'Cultivar',
+                             note=get_value(rec, 'cultpare'),
+                             species_id=species_id))
+            notes.append(note)
+
 
         # if the species_hash is the same, e.g. the species name is
         # the same, we still has all the notes even though in some
@@ -729,6 +732,7 @@ def do_sciname():
         species['genus_id'] = genus_id
         species_rows.append(species)
 
+    species_insert = get_insert(species_table, species_rows[0].keys())
     insert_rows(species_insert, species_rows)
     info('inserted %s species in %s records (%s duplicates)' % \
              (len(species_rows), nrecords, dup_ctr))
