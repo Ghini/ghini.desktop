@@ -431,7 +431,7 @@ class Accession(db.Base):
 
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
-    quantity_recvd = Column(Integer)
+    quantity_recvd = Column(Integer, autoincrement=False)
     recvd_type = Column(types.Enum(values=recvd_type_values.keys()),
                         default=None)
 
