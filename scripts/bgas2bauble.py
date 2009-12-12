@@ -530,7 +530,6 @@ def do_sciname():
     # authcheck
 
     status('converting SCINAME.DBF ...')
-    genus_insert = get_insert(genus_table, ['genus', 'family_id'])
     species_defaults = get_defaults(species_table)
     genus_defaults = get_defaults(genus_table)
 
@@ -717,6 +716,7 @@ def do_sciname():
     dbf.close() # close it so we can garbage collect before insert
     gc.collect()
 
+    genus_insert = get_insert(genus_table, delayed_genera.values()[0].keys())
     insert_rows(genus_insert, delayed_genera.values())
     info('inserted %s genus' % len(delayed_genera))
 
@@ -747,14 +747,12 @@ def do_sciname():
     warning('** %s sciname entries with no genus.  Added to the genus %s' \
                 % (no_genus_ctr, unknown_genus_name))
 
-    note_insert = get_insert(SpeciesNote.__table__,
-                             ['category', 'date', 'note', 'species_id'])
+    note_insert = get_insert(SpeciesNote.__table__, notes[0].keys())
     insert_rows(note_insert, notes)
     info('%s species notes inserted' % len(notes))
     del notes[:]
 
-    name_insert = get_insert(VernacularName.__table__,
-                             ['id', 'name', 'language', 'species_id'])
+    name_insert = get_insert(VernacularName.__table__, vernac_names[0].keys())
     insert_rows(name_insert, vernac_names)
     info('%s vernacular names inserted' % len(vernac_names))
     del vernac_names[:]
@@ -769,7 +767,7 @@ def do_sciname():
             row['vernacular_name_id'] = names[0]['id']
             dvn_rows.append(row)
     names_map.clear()
-    dvn_insert = get_insert(dvn_table,['species_id','vernacular_name_id'])
+    dvn_insert = get_insert(dvn_table, dvn_rows[0].keys())
     insert_rows(dvn_insert, dvn_rows)
     info('%s default vernacular names inserted' % len(dvn_rows))
     del dvn_rows[:]
@@ -930,7 +928,7 @@ def do_plants():
             plant_row['date_recvd'] = rec['datercvd']
             plant_row['operator'] = None
             if rec['operator'].strip():
-                plant_row['operator'] = rec['operator']
+                plant_row['operator'] = utils.utf8(rec['operator'])
             plants[p] = plant_row
             plant_id_ctr += 1
         else:
@@ -1106,15 +1104,15 @@ def do_plants():
     dbf.close()
     del dbf
 
-    coll_insert = get_insert(Collection.__table__, collection_rows[0].keys())
-    insert_rows(coll_insert, collection_rows)
-    info('inserted %s collections'% len(collection_rows))
-    del collection_rows[:]
-
     source_insert = get_insert(Source.__table__, source_rows[0].keys())
     insert_rows(source_insert, source_rows)
     info('inserted %s sources'% len(source_rows))
     del source_rows[:]
+
+    coll_insert = get_insert(Collection.__table__, collection_rows[0].keys())
+    insert_rows(coll_insert, collection_rows)
+    info('inserted %s collections'% len(collection_rows))
+    del collection_rows[:]
 
     # we now have all the information for the accession notes so commit
     notes_insert = get_insert(AccessionNote.__table__, acc_notes[0].keys())
@@ -1147,8 +1145,7 @@ def do_plants():
         # previously since the last one should be the most recent
         plants[plant_tuple]['location_id'] = location_id
 
-    plant_insert = get_insert(plant_table, ['accession_id', 'code',
-                                            'location_id'])
+    plant_insert = get_insert(plant_table, plants.values()[0].keys())
     insert_rows(plant_insert, plants.values())
     print ''
     info('inserted %s plants' % len(plants.values()))
@@ -1276,12 +1273,8 @@ def do_habit():
         del rec
     dbf.close()
 
-    conn = db.engine.connect()
-    trans = conn.begin()
-    insert = get_insert(habit_table, ['name', 'code'])
-    conn.execute(insert, *habit_rows)
-    trans.commit()
-    conn.close()
+    insert = get_insert(habit_table, habit_rows[0].keys())
+    insert_rows(insert, habit_rows)
     info('inserted %s habits.' % len(habit_rows))
 
 
@@ -1302,12 +1295,8 @@ def do_color():
         del rec
     dbf.close()
 
-    conn = db.engine.connect()
-    trans = conn.begin()
-    insert = get_insert(color_table, ['name', 'code'])
-    conn.execute(insert, *color_rows)
-    trans.commit()
-    conn.close()
+    insert = get_insert(color_table, color_rows[0].keys())
+    insert_rows(insert, color_rows)
     info('inserted %s colors.' % len(color_rows))
 
 
@@ -1348,7 +1337,7 @@ def do_removals():
         # TODO: the date format is yyyy-mm-dd...does this work for us
         row['date'] = rec['remodate']
         row['from_location_id'] = locations[rec['remofrom']]
-        row['reason'] = rec['remocode']
+        row['reason'] = utils.utf8(rec['remocode'])
 
         plant_id = sa.select([plant_table.c.id],
                   from_obj=plant_table.join(acc_table),
@@ -1374,8 +1363,7 @@ def do_removals():
 
     print ''
 
-    insert = get_insert(PlantRemoval.__table__,
-                        ['date', 'from_location_id', 'plant_id'])
+    insert = get_insert(PlantRemoval.__table__, removal_rows[0].keys())
     insert_rows(insert, removal_rows)
     info('inserted %s removals' % len(removal_rows))
 
@@ -1422,7 +1410,7 @@ def do_source():
         del rec
     dbf.close()
 
-    sd_insert = get_insert(source_detail_table, ['id', 'name', 'description'])
+    sd_insert = get_insert(source_detail_table, source_detail_rows[0].keys())
     insert_rows(sd_insert, source_detail_rows)
     info('inserted %s source details.' % len(source_detail_rows))
 
