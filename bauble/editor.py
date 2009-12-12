@@ -180,30 +180,20 @@ class GenericEditorView(object):
         self.response = None
         self.__attached_signals = []
 
-        # pygtk 2.12.1 on win32 for some reason doesn't support the new
-        # gtk 2.12 gtk.Tooltip API
-#        if False:
-        if hasattr(gtk.Widget, 'set_tooltip_markup'):
-            for widget_name, markup in self._tooltips.iteritems():
-                try:
-                    self.widgets[widget_name].set_tooltip_markup(markup)
-                except Exception, e:
-                    values = dict(widget_name=widget_name, exception=e)
-                    debug(_('Couldn\'t set the tooltip on widget '\
-                            '%(widget_name)s\n\n%(exception)s' % values))
-        else:
-            tooltips = gtk.Tooltips()
-            for widget_name, markup in self._tooltips.iteritems():
-                widget = self.widgets[widget_name]
-                tooltips.set_tip(widget, markup)
+        # set the tooltips...use gtk.Tooltip api introducted in GTK+ 2.12
+        for widget_name, markup in self._tooltips.iteritems():
+            try:
+                self.widgets[widget_name].set_tooltip_markup(markup)
+            except Exception, e:
+                values = dict(widget_name=widget_name, exception=e)
+                debug(_('Couldn\'t set the tooltip on widget '\
+                        '%(widget_name)s\n\n%(exception)s' % values))
 
         window = self.get_window()
-        self.connect(window,  'delete-event',
-                     self.on_window_delete)
+        self.connect(window, 'delete-event', self.on_window_delete)
         if isinstance(window, gtk.Dialog):
             self.connect(window, 'close', self.on_dialog_close)
             self.connect(window, 'response', self.on_dialog_response)
-
 
 
     def connect(self, obj, signal, callback, *args):
@@ -375,6 +365,35 @@ class GenericEditorView(object):
         return completion
 
 
+    # TODO: add the ability to pass a sort function
+    # TODO: add a default value to set in the combo
+    def init_translatable_combo(self, combo, translations, default=None,
+                                cmp=None):
+        """
+        Initialize a gtk.ComboBox with translations values where
+        model[row][0] is the value that will be stored in the database
+        and model[row][1] is the value that will be visible in the
+        gtk.ComboBox.
+
+        A gtk.ComboBox initialized with this method should work with
+        self.assign_simple_handler()
+
+        :param combo:
+        :param translations: a dictionary of values->translation
+        """
+        if isinstance(combo, basestring):
+            combo = self.widgets[combo]
+        combo.clear()
+        # using 'object' avoids SA unicode warning
+        model = gtk.ListStore(object, str)
+        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
+            model.append([key, value])
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 1)
+
+
     def save_state(self):
         '''
         Save the state of the view by setting a value in the preferences
@@ -523,35 +542,6 @@ class GenericEditorPresenter(object):
             problem_widgets.queue_draw()
 
 
-    # TODO: add the ability to pass a sort function
-    # TODO: add a default value to set in the combo
-    def init_translatable_combo(self, combo, translations, default=None,
-                                cmp=None):
-        """
-        Initialize a gtk.ComboBox with translations values where
-        model[row][0] is the value that will be stored in the database
-        and model[row][1] is the value that will be visible in the
-        gtk.ComboBox.
-
-        A gtk.ComboBox initialized with this method should work with
-        self.assign_simple_handler()
-
-        :param combo:
-        :param translations: a dictionary of values->translation
-        """
-        if isinstance(combo, basestring):
-            combo = self.view.widgets[combo]
-        combo.clear()
-        # using 'object' avoids SA unicode warning
-        model = gtk.ListStore(object, str)
-        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
-            model.append([key, value])
-        combo.set_model(model)
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell, True)
-        combo.add_attribute(cell, 'text', 1)
-
-
     def init_enum_combo(self, widget_name, field):
         """
         Initialize a gtk.ComboBox widget with name widget_name from
@@ -655,8 +645,8 @@ class GenericEditorPresenter(object):
                 if not combo.get_active_iter():
                     # get here if there is no model on the ComboBoxEntry
                     return
-                value = combo.get_model()[combo.get_active_iter()][0]
                 model = combo.get_model()
+                value = model[combo.get_active_iter()][0]
                 if not isinstance(combo, gtk.ComboBoxEntry):
                     if model is None:
                         return
@@ -802,20 +792,23 @@ class GenericEditorPresenter(object):
     def refresh_sensitivity(self):
         """
         Refresh the sensitivity of the various widgets in the presenters view.
+
+        This is not a required method for classes tha extend
+        GenericEditorPresenter.
         """
-        raise NotImplementedError
+        pass
 
 
     def refresh_view(self):
         """
-        Put the values from the model into the widgets.  It is
-        possible that calling this method after the signal handlers
-        for the widgets have been attached that the signal
-        handlers will fire when the values are place in the widgets.
+        Refresh the view with the model values.  This method should be
+        called before any signal handlers are configured on the view
+        so that the model isn't changed when the widget values are set.
         """
         # TODO: should i provide a generic implementation of this method
         # as long as widget_to_field_map exist
-        raise NotImplementedError
+        pass
+
 
 
 
@@ -1002,15 +995,17 @@ class NotesPresenter(GenericEditorPresenter):
             values = utils.get_distinct_values(mapper.c['category'],
                                                self.session)
             utils.setup_text_combobox(self.widgets.category_comboentry, values)
-
+            utils.set_widget_value(self.widgets.category_comboentry,
+                                   self.model.category or '')
             utils.setup_date_button(self.widgets.date_entry,
                                     self.widgets.date_button)
-            utils.set_widget_value(self.widgets.date_entry,
-                                   self.model.date or utils.today_str())
+            date_str = utils.today_str()
+            if self.model.date:
+                format = prefs.prefs[prefs.date_format_pref]
+                date_str = self.model.date.strftime(format)
+            utils.set_widget_value(self.widgets.date_entry, date_str)
             utils.set_widget_value(self.widgets.user_entry,
                                    self.model.user or '')
-            utils.set_widget_value(self.widgets.category_comboentry,
-                                  self.model.category or '')
             buff = gtk.TextBuffer()
             self.widgets.note_textview.set_buffer(buff)
             utils.set_widget_value(self.widgets.note_textview,
@@ -1021,6 +1016,7 @@ class NotesPresenter(GenericEditorPresenter):
                                             self.on_date_entry_changed)
             self.widgets.user_entry.connect('changed',
                                             self.on_user_entry_changed)
+            # connect category comboentry widget and child entry
             self.widgets.category_comboentry.connect('changed',
                                              self.on_category_combo_changed)
             self.widgets.category_comboentry.child.connect('changed',

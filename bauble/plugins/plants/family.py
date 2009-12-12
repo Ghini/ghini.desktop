@@ -16,7 +16,6 @@ import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils.desktop as desktop
-from datetime import datetime
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.types as types
@@ -78,7 +77,7 @@ add_species_action = view.Action('family_genus_add', ('_Add accession'),
                                  accelerator='<ctrl>k')
 remove_action = view.Action('family_remove', ('_Remove'),
                             callback=remove_callback,
-                            accelerator='<delete>', multiselect=True)
+                            accelerator='Delete', multiselect=True)
 
 family_context_menu = [edit_action, add_species_action, remove_action]
 
@@ -484,9 +483,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
 class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
-    label = _('Family')
-    mnemonic_label = _('_Family')
-
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
@@ -745,27 +741,25 @@ class LinksExpander(view.LinksExpander):
 
     def __init__(self):
         super(LinksExpander, self).__init__('notes')
-        self.tooltips = gtk.Tooltips()
+
         buttons = []
         self.google_button = gtk.LinkButton("", _("Search Google"))
-        self.tooltips.set_tip(self.google_button, _("Search Google"))
+        self.google_button.set_tooltip_text(_("Search Google"))
         buttons.append(self.google_button)
 
         self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
-        self.tooltips.set_tip(self.gbif_button,
-                              _("Search the Global Biodiversity Information "\
-                                "Facility"))
+        tooltip = _("Search the Global Biodiversity Information Facility")
+        self.gbif_button.set_tooltip_text(tooltip)
         buttons.append(self.gbif_button)
 
         self.itis_button = gtk.LinkButton("", _("Search ITIS"))
-        self.tooltips.set_tip(self.itis_button,
-                              _("Search the Intergrated Taxonomic "\
-                                "Information System"))
+        tooltip = _("Search the Intergrated Taxonomic Information System")
+        self.itis_button.set_tooltip_text(tooltip)
         buttons.append(self.itis_button)
 
         self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
-        self.tooltips.set_tip(self.ipni_button,
-                              _("Search the International Plant Names Index"))
+        tooltip = _("Search the International Plant Names Index")
+        self.ipni_button.set_tooltip_text(tooltip)
         buttons.append(self.ipni_button)
 
         for b in buttons:
@@ -832,7 +826,3 @@ class FamilyInfoBox(InfoBox):
         self.synonyms.update(row)
         self.links.update(row)
         self.props.update(row)
-
-
-#__all__ = ['Family', 'FamilyEditor', 'FamilySynonym', 'FamilyInfoBox',
-#           'family_context_menu', 'family_markup_func']

@@ -2,9 +2,6 @@
 # all bauble exceptions and errors
 #
 
-
-# TODO: should I make everything extend from BaubleException
-
 class BaubleError(Exception):
     def __init__(self, msg=None):
         self.msg = msg

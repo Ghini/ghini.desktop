@@ -22,13 +22,18 @@ from sqlalchemy.exc import SQLError
 import bauble.db as db
 from bauble.error import check, CheckConditionError
 from bauble.editor import *
+import bauble.meta as meta
+import bauble.paths as paths
+#from bauble.plugins.garden import *
+from bauble.plugins.garden.location import Location, LocationEditor
+from bauble.plugins.garden.propagation import PlantPropagation
+import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
-import bauble.types as types
-import bauble.meta as meta
-from bauble.view import SearchStrategy, ResultSet, Action
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+    select_in_search_results, SearchStrategy, Action
 import bauble.view as view
-from bauble.plugins.garden.location import Location, LocationEditor
+
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work
@@ -84,7 +89,7 @@ change_action = Action('plant_status', ('_Transfer/Remove'),
                        accelerator='<ctrl>x', multiselect=True)
 
 remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>', multiselect=True)
+                       accelerator='Delete', multiselect=True)
 
 plant_context_menu = [edit_action, change_action, remove_action]
 
@@ -93,21 +98,42 @@ def plant_markup_func(plant):
     '''
     '''
     sp_str = plant.accession.species_str(markup=True)
+    #dead_color = "#777"
+    dead_color = "#9900ff"
     # UBC
     #if plant.acc_status == 'Dead':
     if plant.removal:
-        color = '<span foreground="#666666">%s</span>'
-        return color % utils.xml_safe_utf8(plant), sp_str
+        dead_markup = '<span foreground="%s">%s</span>' % \
+            (dead_color, utils.xml_safe_utf8(plant))
+        return dead_markup, sp_str
     else:
         return utils.xml_safe_utf8(plant), sp_str
 
+
+def get_next_code(acc):
+    """
+    Return the next available plant code for an accession.
+
+    This function should be specific to the institution.
+
+    If there is an error getting the next code the None is returned.
+    """
+    # auto generate/increment the accession code
+    session = db.Session()
+    codes = session.query(Plant.code).join(Accession).filter(Accession.id==acc.id).all()
+    next = 1
+    if codes:
+        try:
+            next = max([int(code[0]) for code in codes])+1
+        except Exception, e:
+            return None
+    return next
 
 
 class PlantSearch(SearchStrategy):
 
     def __init__(self):
         super(PlantSearch, self).__init__()
-        self._results = ResultSet()
 
 
     def search(self, text, session):
@@ -116,7 +142,6 @@ class PlantSearch(SearchStrategy):
 
         # TODO: searches like 2009.0039.% or * would be handy
         r1 = super(PlantSearch, self).search(text, session)
-        self._results.add(r1)
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
             return []
@@ -126,11 +151,11 @@ class PlantSearch(SearchStrategy):
         try:
             q = query.join('accession').\
                 filter(and_(Accession.code==acc_code, Plant.code==plant_code))
-            self._results.add(q)
         except Exception, e:
             debug(e)
             return []
-        return q
+        return q.all()
+
 
 
 # TODO: what would happend if the PlantRemove.plant_id and
@@ -138,7 +163,7 @@ class PlantSearch(SearchStrategy):
 # of cycles
 class PlantNote(db.Base):
     __tablename__ = 'plant_note'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'plant_note.date'}
 
     date = Column(types.Date, nullable=False)
     user = Column(Unicode(64))
@@ -155,7 +180,9 @@ class PlantNote(db.Base):
 # reason of "mistake"....shoud a transfer from a removal delete the
 # removal so that the plant can be removed again....since we can only
 # have one removal would should probably add a removal_id to Plant so
-# its a 1-1 relation
+# its a 1-1 relation....but if we have a table with a removal code
+# then how do we translate it unless we just hardcode the translation
+# strings here
 removal_reasons = {
     u'DEAD': _('Dead'),
     u'DISC': _('Discarded'),
@@ -178,9 +205,14 @@ removal_reasons = {
     u'OTHR': _('Other')
     }
 
+class RemovalReasons(db.Base):
+    __tablename__ = 'removal_reasons'
+    code = Column(Unicode(4), unique=True)
+
+
 class PlantRemoval(db.Base):
     __tablename__ = 'plant_removal'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'plant_removal.date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
     from_location_id = Column(Integer, ForeignKey('location.id'),
@@ -204,7 +236,7 @@ class PlantRemoval(db.Base):
 
 class PlantTransfer(db.Base):
     __tablename__ = 'plant_transfer'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'plant_transfer.date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
 
@@ -288,8 +320,6 @@ class Plant(db.Base):
 
                 * None: no information, unknown)
 
-        *notes*: :class:`sqlalchemy.types.UnicodeText`
-            Notes
 
         *accession_id*: :class:`sqlalchemy.types.ForeignKey`
             Required.
@@ -302,29 +332,30 @@ class Plant(db.Base):
             The accession for this plant.
         *location*:
             The location for this plant.
+        *notes*:
+            Thoe notes for this plant.
 
     :Constraints:
         The combination of code and accession_id must be unique.
     """
     __tablename__ = 'plant'
     __table_args__ = (UniqueConstraint('code', 'accession_id'), {})
-    __mapper_args__ = {'order_by': ['accession_id', 'plant.code']}
+    __mapper_args__ = {'order_by': ['plant.accession_id', 'plant.code']}
 
     # columns
     code = Column(Unicode(6), nullable=False)
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
 
-    # UBC: with removes then the acc_status is not really necessary
+    # UBC: with plant removals then the acc_status is not really necessary
     # acc_status = Column(types.Enum(values=acc_status_values.keys()),
     #                     default=None)
 
-    # TODO: notes is now a relation to PlantNote
-    #notes = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
 
-    #from bauble.plugins.garden.propagation import Propagation
     propagations = relation('Propagation', cascade='all, delete-orphan',
+                            single_parent=True,
+                            secondary=PlantPropagation.__table__,
                             backref=backref('plant', uselist=False))
 
     _delimiter = None
@@ -370,98 +401,13 @@ plant_actions = {REMOVAL_ACTION: _("Removal"),
                  TRANSFER_ACTION: _("Transfer")}
 
 
-def init_location_comboentry(presenter, combo, on_select):
-    """
-    The plant_loc_comboentry requires more custom setup than
-    view.attach_completion and self.assign_simple_handler can
-    provides.  This method allows us to have completions on the
-    location entry based on the location code, location name and
-    location string as well as selecting a location from a combo
-    drop down.
-
-    :param presenter:
-    :param combo:
-    :param on_select:
-    """
-    PROBLEM = 'unknown_location'
-
-    def cell_data_func(col, cell, model, treeiter, data=None):
-        cell.props.text = utils.utf8(model[treeiter][0])
-
-    completion = gtk.EntryCompletion()
-    cell = gtk.CellRendererText() # set up the completion renderer
-    completion.pack_start(cell)
-    completion.set_cell_data_func(cell, cell_data_func)
-
-    entry = combo.child
-    entry.set_completion(completion)
-
-    combo.clear()
-    cell = gtk.CellRendererText()
-    combo.pack_start(cell)
-    combo.set_cell_data_func(cell, cell_data_func)
-
-    model = gtk.ListStore(object)
-    for location in presenter.session.query(Location):
-        model.append([location])
-    combo.set_model(model)
-    completion.set_model(model)
-
-    def on_match_select(completion, model, treeiter):
-        value = model[treeiter][0]
-        on_select(value)
-        presenter.remove_problem(PROBLEM, entry)
-        presenter.refresh_sensitivity()
-        return True
-    presenter.view.connect(completion, 'match-selected', on_match_select)
-
-    def on_entry_changed(entry, presenter):
-        text = utils.utf8(entry.props.text)
-        # see if the text matches a completion string
-        comp = entry.get_completion()
-        compl_model = comp.get_model()
-        def _cmp(row, data):
-            return utils.utf8(row[0]) == data
-        found = utils.search_tree_model(compl_model, text, _cmp)
-        if len(found) == 1:
-            comp.emit('match-selected', compl_model, found[0])
-            return True
-        # see if the text matches exactly a code or name
-        codes = presenter.session.query(Location).filter(Location.code==text)
-        names = presenter.session.query(Location).filter(Location.name==text)
-        # TODO: why the hell do we get an error here when we run all
-        # the PlantTests but not the specific test_editor_transfer
-        if codes.count() == 1:
-            location = codes.first()
-            presenter.remove_problem(PROBLEM, entry)
-            on_select(location)
-        elif names.count() == 1:
-            location = names.first()
-            presenter.remove_problem(PROBLEM, entry)
-            on_select(location)
-        else:
-            presenter.add_problem(PROBLEM, entry)
-        return True
-    presenter.view.connect(entry, 'changed', on_entry_changed, presenter)
-
-    def on_combo_changed(combo, *args):
-        model = combo.get_model()
-        i = combo.get_active_iter()
-        if not i:
-            return
-        location = combo.get_model()[i][0]
-        combo.child.props.text = str(location)
-    presenter.view.connect(combo, 'changed', on_combo_changed)
-
-
-
 class PlantStatusEditorView(GenericEditorView):
     def __init__(self, parent=None):
         path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                             'plant_editor.glade')
         super(PlantStatusEditorView, self).__init__(path, parent)
-
         self.widgets.ped_ok_button.set_sensitive(False)
+        self.init_translatable_combo('rem_reason_combo', removal_reasons)
 
 
     def get_window(self):
@@ -540,14 +486,15 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         def on_user_changed(*args):
             # we don't set the note user here since that gets set in
             # commit_changes()
-            self._transfer.person = self.view.widgets.ped_user_entry.props.text
-            self._removal.person = self.view.widgets.ped_user_entry.props.text
+            person = utils.utf8(self.view.widgets.ped_user_entry.props.text)
+            self._transfer.person = person
+            self._removal.person = person
         self.view.connect('ped_user_entry', 'changed', on_user_changed)
 
         # set the user name entry to the current use if we're using postgres
         if db.engine.name in ('postgres', 'postgresql'):
             import bauble.plugins.users as users
-            self.view.set_widget_value('ped_user_entry', users.current_user())
+            self.view.widgets.ped_user_entry.props.text = users.current_user()
         elif 'USER' in os.environ:
             self.view.set_widget_value('ped_user_entry', os.environ['USER'])
         elif 'USERNAME' in os.environ:
@@ -573,7 +520,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         # extract the values and save the action on commit_changes()
 
         # initialize the removal reason combo
-        self.init_translatable_combo('rem_reason_combo', removal_reasons)
         def on_rem_reason_changed(combo, *args):
             model = combo.get_model()
             value = model[combo.get_active_iter()][0]
@@ -593,6 +539,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             if value:
                 self.__dirty = True
                 self.refresh_sensitivity()
+        from bauble.plugins.garden import init_location_comboentry
         init_location_comboentry(self, self.view.widgets.trans_to_comboentry,
                                  on_tran_to_select)
 
@@ -831,11 +778,12 @@ class PlantEditorView(GenericEditorView):
         super(PlantEditorView, self).__init__(glade_file, parent=parent)
         self.widgets.pad_ok_button.set_sensitive(False)
         self.widgets.pad_next_button.set_sensitive(False)
-        def acc_cell_data_func(column, renderer, model, iter, data=None):
-            v = model[iter][0]
+        def acc_cell_data_func(column, renderer, model, treeiter, data=None):
+            v = model[treeiter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)
+        self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
 
 
     def get_window(self):
@@ -879,33 +827,35 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.__dirty = False
 
-        self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
-
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
             self.model.acc_type = u'Plant'
         # if self.model.id is None and self.model.acc_status is None:
         #     self.model.acc_status = u'Living'
 
-        def on_location_select(location):
-            self.set_model_attr('location', location)
-
-        init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
-                                 on_location_select)
-
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
         from bauble.plugins.garden.propagation import PropagationTabPresenter
         self.prop_presenter = PropagationTabPresenter(self, self.model,
-                                                      self.view, self.session)
+                                                     self.view, self.session)
+
+        if self.model.accession and not self.model.code:
+            code = get_next_code(self.model.accession)
+            if code:
+                # if get_next_code() returns None then there was an error
+                self.model.code = code
 
         self.refresh_view() # put model values in view
 
-        # assign handlers to monitor changes now that the view has
-        # been filled in
+        def on_location_select(location):
+            self.set_model_attr('location', location)
+        from bauble.plugins.garden import init_location_comboentry
+        init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
+                                 on_location_select)
 
-        # connect signals
+        # assign signal handlers to monitor changes now that the view has
+        # been filled in
         def acc_get_completions(text):
             query = self.session.query(Accession)
             return query.filter(Accession.code.like(unicode('%s%%' % text)))
@@ -1057,9 +1007,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
 class PlantEditor(GenericModelViewPresenterEditor):
-
-    # label = _('Plant')
-    # mnemonic_label = _('_Plant')
 
     # these have to correspond to the response values in the view
     RESPONSE_NEXT = 22
@@ -1229,11 +1176,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
-import os
-import bauble.paths as paths
-from bauble.view  import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results
-
 
 class GeneralPlantExpander(InfoExpander):
     """
@@ -1243,7 +1185,7 @@ class GeneralPlantExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, _("General"), widgets)
+        super(GeneralPlantExpander, self).__init__(_("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
@@ -1278,7 +1220,7 @@ class GeneralPlantExpander(InfoExpander):
                               utils.xml_safe(unicode(tail)))
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
-        self.set_widget_value('location_data',row.location.name)
+        self.set_widget_value('location_data', str(row.location))
         # self.set_widget_value('status_data', acc_status_values[row.acc_status],
         #                       False)
         self.set_widget_value('type_data', acc_type_values[row.acc_type],
@@ -1294,28 +1236,41 @@ class TransferExpander(InfoExpander):
         """
         """
         super(TransferExpander, self).__init__(_('Transfers/Removal'), widgets)
+        self.vbox.set_spacing(3)
 
 
     def update(self, row):
         '''
         '''
-        # date: src to dest
-        # TODO: remove previous children
-        #debug(row.transfers)
         self.vbox.foreach(self.vbox.remove)
         self.vbox.get_children()
-        for transfer in row.transfers:
-            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
-                dict(date=transfer.date, from_loc=transfer.from_location,
-                     to=transfer.to_location, person=transfer.person)
-            #s = s.replace('None', '?')
-            self.vbox.pack_start(gtk.Label(s))
+        format = prefs.prefs[prefs.date_format_pref]
         if row.removal:
+            date = row.removal.date.strftime(format)
+            if not row.removal.reason:
+                reason = _('(no reason)')
+            else:
+                reason=row.removal.reason
             s = _('Removed from %(from_loc)s on %(date)s: %(reason)s') %\
-                dict(from_loc=row.removal.from_location, date=row.removal.date,
-                     reason=row.removal.reason)
-            #s = s.replace('None', '?')
-            self.vbox.pack_start(gtk.Label(s))
+                dict(from_loc=row.removal.from_location, date=date,
+                     reason=reason)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+
+        for transfer in reversed(row.transfers):
+            date = transfer.date.strftime(format)
+            if not transfer.person:
+                person = _('(unknown)')
+            else:
+                person = transfer.person
+            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
+                dict(date=date, from_loc=transfer.from_location,
+                     to=transfer.to_location, person=person)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+
         self.vbox.show_all()
 
 

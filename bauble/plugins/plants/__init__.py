@@ -75,6 +75,11 @@ class PlantsPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
             bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
 
+        if sys.platform == 'win32':
+            # TODO: for some reason using the cross as the hybrid
+            # character doesn't work on windows
+            Species.hybrid_char = 'x'
+
 
     @classmethod
     def create_tables(cls):

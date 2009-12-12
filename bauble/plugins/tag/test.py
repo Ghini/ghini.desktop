@@ -1,10 +1,24 @@
+import os
+
 from sqlalchemy import *
 from sqlalchemy.exc import *
 
 import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
 from bauble.plugins.tag import Tag
-from bauble.test import BaubleTestCase
+from bauble.test import BaubleTestCase, check_dupids
+
+
+def test_duplicate_ids():
+    """
+    Test for duplicate ids for all .glade files in the tag plugin.
+    """
+    import bauble.plugins.tag as mod
+    import glob
+    head, tail = os.path.split(mod.__file__)
+    files = glob.glob(os.path.join(head, '*.glade'))
+    for f in files:
+        assert(not check_dupids(f))
 
 
 class TagTests(BaubleTestCase):

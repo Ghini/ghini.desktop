@@ -6,8 +6,9 @@ A common set of utility functions used throughout Bauble.
 """
 import imp
 import os
-import sys
 import re
+import sys
+import textwrap
 import xml.sax.saxutils as saxutils
 
 import gtk
@@ -210,7 +211,7 @@ def combo_set_active_text(combo, value):
 
 def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
     '''
-    find value in combo model and set it as active, else raise ValueError
+    Find value in combo model and set it as active, else raise ValueError
     cmp(row, value) is the a function to use for comparison
 
     .. note:: if more than one value is found in the combo then the
@@ -294,7 +295,7 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
             else:
                 widget.set_active(-1)
         if isinstance(widget, gtk.ComboBoxEntry):
-            widget.child.props.text = value
+            widget.child.props.text = value or ''
     elif isinstance(widget,(gtk.ToggleButton,gtk.CheckButton,gtk.RadioButton)):
         if value is True:
             widget.set_inconsistent(False)
@@ -525,6 +526,8 @@ def prettify_format(format):
 def today_str(format=None):
     """
     Return a string for of today's date according to format.
+
+    If format=None then the format uses the prefs.date_format_pref
     """
     import bauble.prefs as prefs
     if not format:
@@ -536,6 +539,9 @@ def today_str(format=None):
 
 def setup_date_button(entry, button, date_func=None):
     """
+    Associate a button with entry so that when the button is clicked a
+    date is inserted into the entry.
+
     :param entry: the entry that the data goes into
 
     :param button: the button that enters the data in entry
@@ -986,9 +992,17 @@ class MessageBox(GenericMessageBox):
 
         self.details_expander = gtk.Expander(_('Show details'))
         self.vbox.pack_start(self.details_expander)
+
+        sw = gtk.ScrolledWindow()
+        sw.set_size_request(-1, 200)
+        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        viewport = gtk.Viewport()
+        sw.add(viewport)
         self.details_label = gtk.Label()
+        viewport.add(self.details_label)
+
         self.details = details
-        self.details_expander.add(self.details_label)
+        self.details_expander.add(sw)
 
         def on_expanded(*args):
             width, height = self.size_request()
@@ -1017,7 +1031,11 @@ class MessageBox(GenericMessageBox):
     def _get_message(self, msg):
         return self.label.text
     def _set_message(self, msg):
+        # TODO: we could probably do something smarter here that
+        # involved check the font size and window width and adjust the
+        # wrap widget accordingly
         if msg:
+            msg = '\n'.join(textwrap.wrap(msg, 100))
             self.label.set_markup(msg)
         else:
             self.label.set_markup('')
@@ -1028,6 +1046,7 @@ class MessageBox(GenericMessageBox):
         return self.details_label.text
     def _set_details(self, msg):
         if msg:
+            msg = '\n'.join(textwrap.wrap(msg, 100))
             self.details_label.set_markup(msg)
         else:
             self.details_label.set_markup('')
@@ -1122,7 +1141,7 @@ def get_distinct_values(column, session):
     return [v[0] for v in q if v != (None,)]
 
 
-def get_invalid_columns(obj):
+def get_invalid_columns(obj, ignore_columns=['id']):
     """
     Return column names on a mapped object that have values
     which aren't valid for the model.
@@ -1131,20 +1150,18 @@ def get_invalid_columns(obj):
     - nullable columns with null values
     - ...what else?
     """
+
+    # TODO: check for invalid enum types
+    if not obj:
+        return []
     from sqlalchemy.orm import object_mapper
-    mapper = object_mapper(obj)
+    table = obj.__table__
     invalid_columns = []
-    # filter out special columns that have nullable=True
-    col_filter = lambda c: not c.name.startswith('_') and \
-        not c.name.endswith('_id') and not c.name == 'id' and \
-        not c.nullable
-    for col in filter(col_filter, mapper.columns):
-        # specifically test for not None since the we're
-        # testing for nullable
-        name = col.name
-        if not getattr(obj, name) is not None:
-            #debug('%s: %s' % (col.name, getattr(model, col.name)))
-            invalid_columns.append(name)
+    for column in filter(lambda c: c.name not in ignore_columns, table.c):
+        v = getattr(obj, column.name)
+        #debug('%s.%s = %s' % (table.name, column.name, v))
+        if not v and not column.nullable:
+            invalid_columns.append(column.name)
     return invalid_columns
 
 

@@ -11,9 +11,11 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
+            <property name="orientation">vertical</property>
             <property name="spacing">5</property>
             <child>
               <object class="GtkFrame" id="frame1">
@@ -60,6 +62,7 @@
                   <object class="GtkAlignment" id="alignment3">
                     <property name="visible">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                    <property name="top_padding">5</property>
                     <property name="left_padding">12</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow1">
