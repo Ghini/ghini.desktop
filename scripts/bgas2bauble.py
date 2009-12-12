@@ -927,6 +927,10 @@ def do_plants():
             plant_row['_created']= rec['dateaccd']
             plant_row['date_accd'] = rec['dateaccd']
             plant_row['date_recvd'] = rec['datercvd']
+            plant_row['date_recvd'] = rec['datercvd']
+            plant_row['operator'] = None
+            if rec['operator'].strip():
+                plant_row['operator'] = rec['operator']
             plants[p] = plant_row
             plant_id_ctr += 1
         else:
