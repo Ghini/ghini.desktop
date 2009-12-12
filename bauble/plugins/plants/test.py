@@ -191,13 +191,12 @@ class PlantTestCase(BaubleTestCase):
     def __init__(self, *args):
         super(PlantTestCase, self).__init__(*args)
 
-
     def setUp(self):
         super(PlantTestCase, self).setUp()
         setUp_data()
 
     def tearDown(self):
-        pass
+        super(PlantTestCase, self).tearDown()
 
 
 class FamilyTests(PlantTestCase):

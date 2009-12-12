@@ -189,7 +189,6 @@ def create(import_defaults=True):
         # metadata whether they are in the registry or not, we should
         # really only be creating those tables from registered
         # plugins, maybe with an uninstall() method on Plugin
-        #debug('drop all')
         metadata.drop_all(bind=connection, checkfirst=True)
         metadata.create_all(bind=connection)
 
