@@ -925,8 +925,8 @@ def do_plants():
             plant_row['accession_id'] = acc_ids.setdefault(rec['accno'],
                                                            acc_id_ctr)
             plant_row['_created']= rec['dateaccd']
-            #plant_row['date_accd'] = rec['dateaccd']
-            #plant_row['date_recvd'] = rec['datercvd']
+            plant_row['date_accd'] = rec['dateaccd']
+            plant_row['date_recvd'] = rec['datercvd']
             plants[p] = plant_row
             plant_id_ctr += 1
         else:

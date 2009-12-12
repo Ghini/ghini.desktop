@@ -350,6 +350,13 @@ class Plant(db.Base):
     # acc_status = Column(types.Enum(values=acc_status_values.keys()),
     #                     default=None)
 
+    # UBC: these columns were used in BGAS but they aren't really
+    # relevant here, i've just added them so we don't lose the data
+    # when converting from BGAS->Bauble...we don't provide any
+    # interface for changing the values
+    date_accd = Column(types.Date)
+    date_recvd = Column(types.Date)
+
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
 
