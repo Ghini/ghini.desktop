@@ -895,6 +895,11 @@ class PropagationEditorPresenter(PropagationPresenter):
         self.view.widgets.prop_ok_button.props.sensitive = False
 
 
+    def cleanup(self):
+        self._cutting_presenter.cleanup()
+        self._seed_presenter.cleanup()
+
+
     def start(self):
         r = self.view.start()
         return r
