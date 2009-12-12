@@ -447,83 +447,63 @@ class MapperSearch(SearchStrategy):
         database types. For example, on a PostgreSQL database you can
         use ilike but this would raise an error on SQLite.
         """
-        # We build the queries by fetching the ids of the rows that
-        # match the condition and then returning a query to return the
-        # object that have ids in the built query.  This might seem
-        # like a roundabout way but it works on databases don't
-        # support union and/or intersect
-        #
-        # TODO: support 'not' as well, e.g sp where
+        # The method requires that the underlying database support
+        # union and intersect. At the time of writing this MySQL
+        # didn't.
+
+        # TODO: support 'not' a boolean op as well, e.g sp where
         # genus.genus=Maxillaria and not genus.family=Orchidaceae
         domain, expr = tokens
         check(domain in self._domains, 'Unknown search domain: %s' % domain)
         cls = self._domains[domain][0]
+        main_query = self._session.query(cls)
         mapper = class_mapper(cls)
         expr_iter = iter(expr)
-        op = None
-        id_query = self._session.query(cls.id)
-        clause = prev_clause = None
+        boolop = None
         for e in expr_iter:
             idents, cond, val = e
-            #debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
+            # debug('cls: %s, idents: %s, cond: %s, val: %s'
+            #       % (cls.__name__, idents, cond, val))
 
             if val == 'None':
                 val = None
+            if cond == 'is':
+                cond = '='
+            elif cond == 'is not':
+                cond = '!='
 
             if len(idents) == 1:
                 # we get here when the idents only refer to a property
-                # on the mapper table
+                # on the mapper table..i.e. a column
                 col = idents[0]
                 check(col in mapper.c, 'The %s table does not have a '\
                        'column named %s' % \
                        (mapper.local_table.name, col))
-                q = id_query.filter(getattr(cls, col).\
-                                        op(cond)(utils.utf8(val)))
-                clause = cls.id.in_(q.statement)
+                clause = getattr(cls, col).op(cond)(utils.utf8(val))
+                query = self._session.query(cls).filter(clause).order_by(None)
             else:
                 # we get here when the idents refer to a relation on a
                 # mapper/table
                 relations = idents[:-1]
                 col = idents[-1]
-                # TODO: do all the databases quote the same?
-                if val is None and cond in ('=', '==', 'is'):
-                    cond = 'is'
-                    val = 'NULL'
-                elif val is None and cond in ('!='):
-                    cond = 'is not'
-                    val = 'NULL'
-                elif val is not None:
-                    # use is not None b/c val could be ''
-                    val = "'%s'" % val
+                query = self._session.query(cls)
+                query = query.join(relations)
+                clause = query._joinpoint.c[col].op(cond)(utils.utf8(val))
+                query = query.filter(clause).order_by(None)
 
-                if col in cls.__table__.c and \
-                        relations[-1] == cls.__table__.name:
-                    where = "%s %s %s" % ('.'.join(idents), cond, val)
-                elif len(relations) and relations[-1] in \
-                        [t.name for t in bauble.db.metadata.sorted_tables]:
-                    # We get here when there are identifiers before
-                    # the column and the next to the last ident is a
-                    # table. Usually this means that the next to the
-                    # last ident is a table and not a join.  This
-                    # allows us to be more specific about the col in
-                    # the case that it is ambiguous.
-                    where = "%s.%s %s %s" % (idents[-2], col, cond, val)
-                else:
-                    where = "%s %s %s" % (col, cond, val)
+            if boolop == 'or':
+                main_query = main_query.union(query)
+            elif boolop == 'and':
+                main_query = main_query.intersect(query)
+            else:
+                main_query = query
 
-                clause = cls.id.in_(id_query.join(*relations).\
-                                    filter(where).statement)
-
-            if op is not None:
-                check(op in ('and', 'or'), 'Unsupported operator: %s' % op)
-                op = getattr(sqlalchemy.sql, '%s_' % op)
-                clause = op(prev_clause, clause)
-            prev_clause = clause
             try:
-                op = expr_iter.next()
+                boolop = expr_iter.next()
             except StopIteration:
                 pass
-        self._results.update(self._session.query(cls).filter(clause).all())
+
+        self._results.update(main_query.order_by(None).all())
 
 
     def on_domain_expression(self, s, loc, tokens):
