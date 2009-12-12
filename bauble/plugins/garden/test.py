@@ -40,12 +40,6 @@ location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
                        'code': u'RBW'},
                       )
 
-contact_test_data = ({'id': 1, 'name': u'SomeContact'},
-                   )
-
-# donation_test_data = ({'id': 1, 'accession_id': 1, 'donor_id': 1},
-#                       )
-
 collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere'},
                         )
 
@@ -85,7 +79,6 @@ default_seed_values = \
 test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
                            (Plant, plant_test_data),
-                           (Contact, contact_test_data),
                            (Collection, collection_test_data))
 
 def setUp_data():
