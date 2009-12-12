@@ -947,7 +947,6 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         self.view = None
         self.presenter = None
         if model is None:
-            debug('create propagation')
             model = Propagation()
         super(PropagationEditor, self).__init__(model, parent)
         # if mode already has a session then use it, this is unique to
