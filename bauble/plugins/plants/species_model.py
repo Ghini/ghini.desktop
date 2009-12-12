@@ -510,7 +510,7 @@ SpeciesDistribution.geography = relation('Geography',
 class Habit(db.Base):
     __tablename__ = 'habit'
 
-    name = Column(Unicode(32))
+    name = Column(Unicode(64))
     code = Column(Unicode(8), unique=True)
 
     def __str__(self):

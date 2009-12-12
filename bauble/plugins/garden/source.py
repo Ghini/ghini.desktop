@@ -147,7 +147,7 @@ class SourceDetail(db.Base):
     __tablename__ = 'source_detail'
     __mapper_args__ = {'order_by': 'name'}
 
-    name = Column(Unicode(64), unique=True)
+    name = Column(Unicode(75), unique=True)
     description = Column(UnicodeText)
     source_type = Column(types.Enum(values=source_type_values.keys()),
                          default=None)
