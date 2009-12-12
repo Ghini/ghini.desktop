@@ -1213,6 +1213,22 @@ class SourcePresenter(editor.GenericEditorPresenter):
                           self.on_prop_remove_button_clicked)
 
 
+    def all_problems(self):
+        """
+        Return a union of all the problems from this presenter and
+        child presenters
+        """
+        return self.problems | self.collection_presenter.problems | \
+            self.prop_chooser_presenter.problems | \
+            self.source_prop_presenter.problems
+
+
+    def cleanup(self):
+        self.collection_presenter.cleanup()
+        self.prop_chooser_presenter.cleanup()
+        self.source_prop_presenter.cleanup()
+
+
     def start(self):
         active = None
         if self.model.source.source_detail:
@@ -1310,7 +1326,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 combo.set_active_iter(results[0])
         else:
             combo.set_active_iter(none_iter)
-
 
 
     def init_source_comboentry(self, on_select):
@@ -1715,7 +1730,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         """
         Validate the self.model
         """
-
         # TODO: if add_problems=True then we should add problems to
         # all the required widgets that don't have values
 
@@ -1760,7 +1774,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         else:
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
-        sensitive = self.dirty() and self.validate()
+        sensitive = self.dirty() and self.validate() \
+            and not self.source_presenter.all_problems() \
+            and not self.ver_presenter.problems \
+            and not self.voucher_presenter.problems
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
@@ -1801,6 +1818,13 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         sensitive = self.model.prov_type == 'Wild'
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
+
+
+    def cleanup(self):
+        super(AccessionEditorPresenter, self).cleanup()
+        self.ver_presenter.cleanup()
+        self.voucher_presenter.cleanup()
+        self.source_presenter.cleanup()
 
 
     def start(self):
