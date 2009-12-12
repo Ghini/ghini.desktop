@@ -294,6 +294,13 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.view.widgets.sp_fullname_label.set_markup(sp_str)
 
 
+    def cleanup(self):
+        self.vern_presenter.cleanup()
+        self.synonyms_presenter.cleanup()
+        self.dist_presenter.cleanup()
+        self.infrasp_presenter.cleanup()
+
+
     def start(self):
         r = self.view.start()
         return r
