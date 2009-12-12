@@ -19,93 +19,142 @@ from bauble.plugins.plants.geography import Geography
 import bauble.utils as utils
 import bauble.types as types
 from bauble.utils.log import debug
-from bauble.view import Action
-#from bauble.plugins.garden.propagation import Propagation
+import bauble.view as view
+from bauble.plugins.garden.propagation import *
+
+def coll_markup_func(coll):
+    acc = coll.source.accession
+    safe = utils.xml_safe_utf8
+    return '%s - <small>%s</small>' %  \
+        (safe(acc), safe(acc.species_str())), safe(coll)
 
 
-def source_markup_func(source):
-    from bauble.plugins.garden.accession import acc_markup_func
-    return '%s - <small>%s</small>' % \
-        (source.accession, source.accession.species_str()), source
-
-def edit_callback(source):
+def collection_edit_callback(coll):
     from bauble.plugins.garden.accession import edit_callback
-    return edit_callback([source[0].accession])
+    # TODO: set the tab to the source tab on the accessio neditor
+    return edit_callback([coll[0].source.accession])
 
-def add_plants_callback(source):
+
+def collection_add_plants_callback(coll):
     from bauble.plugins.garden.accession import add_plants_callback
-    return add_plants_callback([source[0].accession])
+    return add_plants_callback([coll[0].source.accession])
 
-def remove_callback(source):
+
+def collection_remove_callback(coll):
     from bauble.plugins.garden.accession import remove_callback
-    return remove_callback([source[0].accession])
+    return remove_callback([coll[0].source.accession])
 
-edit_action = Action('source_edit', ('_Edit'), callback=edit_callback,
-                        accelerator='<ctrl>e')
-add_plant_action = Action('source_add', ('_Add plants'),
-                          callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('source_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>')#, multiselect=True)
+collection_edit_action = view.Action('collection_edit', ('_Edit'),
+                                     callback=collection_edit_callback,
+                                     accelerator='<ctrl>e')
+collection_add_plant_action = \
+    view.Action('collection_add', ('_Add plants'),
+                callback=collection_add_plants_callback,
+                accelerator='<ctrl>k')
+collection_remove_action = view.Action('collection_remove', ('_Remove'),
+                                       callback=collection_remove_callback,
+                                       accelerator='Delete')
 
-source_context_menu = [edit_action, add_plant_action, remove_action]
+collection_context_menu = [collection_edit_action, collection_add_plant_action,
+                           collection_remove_action]
 
-class Donation(db.Base):
+
+def source_detail_edit_callback(details):
+    detail = details[0]
+    e = SourceDetailEditor(model=detail)
+    return e.start() != None
+
+
+def source_detail_remove_callback(details):
+    detail = details[0]
+    s = '%s: %s' % (detail.__class__.__name__, str(detail))
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+    if not utils.yes_no_dialog(msg):
+        return
+    try:
+        session = db.Session()
+        obj = session.query(SourceDetail).get(detail.id)
+        session.delete(obj)
+        session.commit()
+    except Exception, e:
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        utils.message_details_dialog(msg, traceback.format_exc(),
+                                     type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
+    return True
+
+
+source_detail_edit_action = view.Action('source_detail_edit', ('_Edit'),
+                                        callback=source_detail_edit_callback,
+                                        accelerator='<ctrl>e')
+source_detail_remove_action = \
+    view.Action('source_detail_remove', ('_Remove'),
+                callback=source_detail_remove_callback,
+                accelerator='Delete', multiselect=True)
+
+source_detail_context_menu = [source_detail_edit_action,
+                              source_detail_remove_action]
+
+class Source(db.Base):
     """
-    :Table name: donation
-
-    :Columns:
-        *donor_id*: :class:`sqlalchemy.types.Integer(ForeignKey('donor.id'), nullable=False)`
-
-        *donor_acc*: :class:`sqlalchemy.types.Unicode(32)`
-
-        *notes*: :class:`sqlalchemy.types.UnicodeText`
-
-        *date*: :class:`bauble.types..Date`
-
-        *accession_id*: :class:`sqlalchemy.types.Integer(ForeignKey('accession.id'), nullable=False)`
-
-
-    :Properties:
-
-      donor:
-        created as a backref from the Donor mapper
-
-      _accession:
-        created as a backref from the Accession mapper _donation property
     """
-    __tablename__ = 'donation'
+    __tablename__ = 'source'
+    sources_code = Column(Unicode(32))
 
-    donor_id = Column(Integer, ForeignKey('donor.id'), nullable=False)
-    donor_acc = Column(Unicode(32)) # donor's accession id
-    notes = Column(UnicodeText)
-    date = Column(types.Date)
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+    accession_id = Column(Integer, ForeignKey('accession.id'), unique=True)
+
+    source_detail_id = Column(Integer, ForeignKey('source_detail.id'))
+    source_detail = relation('SourceDetail', uselist=False,
+                             backref=backref('sources',
+                                             cascade='all, delete-orphan'))
+
+    collection = relation('Collection', uselist=False,
+                          cascade='all, delete-orphan',
+                          backref=backref('source', uselist=False))
+
+    # relation to a propagation that is specific to this Source and
+    # not attached to a Plant
+    propagation_id = Column(Integer, ForeignKey('propagation.id'))
+    propagation = relation('Propagation', uselist=False, single_parent=True,
+                           primaryjoin='Source.propagation_id==Propagation.id',
+                           cascade='all, delete-orphan',
+                           backref=backref('source', uselist=False))
+
+    # relation to a Propagation that already exists and is attached
+    # to a Plant
+    plant_propagation_id = Column(Integer, ForeignKey('propagation.id'))
+    plant_propagation = relation('Propagation', uselist=False,
+                     primaryjoin='Source.plant_propagation_id==Propagation.id')
 
 
-    def _set_accession(self, accession):
-        accession.source = self
-    def _get_accession(self):
-        # self._accession is created as a backref on the accession's
-        # _donation property
-        return self._accession
-    accession = property(_get_accession, _set_accession)
+source_type_values = {u'Expedition': _('Expedition'),
+                      u'GeneBank': _('Gene Bank'),
+                      u'BG': _('Botanic Garden or Arboretum'),
+                      u'Research/FieldStation': _('Research/Field Station'),
+                      u'Staff': _('Staff member'),
+                      u'UniversityDepartment': _('University Department'),
+                      u'Club': \
+                          _('Horticultural Association/Garden Club'),
+                      u'MunicipalDepartment': _('Municipal department'),
+                      u'Commercial': _('Nursery/Commercial'),
+                      u'Individual': _('Individual'),
+                      u'Other': _('Other'),
+                      u'Unknown': _('Unknown'),
+                     None: _('')}
 
+class SourceDetail(db.Base):
+    __tablename__ = 'source_detail'
+    __mapper_args__ = {'order_by': 'name'}
+
+    name = Column(Unicode(64), unique=True)
+    description = Column(UnicodeText)
+    source_type = Column(types.Enum(values=source_type_values.keys()),
+                         default=None)
 
     def __str__(self):
-        if self.donor:
-            return 'Donation from %s' % self.donor
-        else:
-            return repr(self)
+        return utils.utf8(self.name)
 
-
-# TODO: is there anyway to get this date format from BaubleMeta, also
-#    i don't know why setting dateFormat here give me an error about getting
-#    the date in unicode instead of a DateTimeCol eventhough i set this
-#    column using a datetime object
-# TODO: deleting this foreign accession deletes this collection
-
-# TODO: collector combined with collectors_code should be a unique key, need to
-# also indicate this in the UI
 
 # TODO: should provide a collection type: alcohol, bark, boxed,
 # cytological, fruit, illustration, image, other, packet, pollen,
@@ -151,8 +200,6 @@ class Collection(db.Base):
 
     :Properties:
 
-    Also contains an _accession property that was created as a backref
-    from the Accession mapper
 
     :Constraints:
     """
@@ -183,45 +230,177 @@ class Collection(db.Base):
     habitat = Column(UnicodeText)
     geography_id = Column(Integer, ForeignKey('geography.id'))
     notes = Column(UnicodeText)
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
-
-    def _set_accession(self, accession):
-        accession.source = self
-    def _get_accession(self):
-        # self._accession is created as a backref on the accession's
-        # _donation property
-        return self._accession
-    accession = property(_get_accession, _set_accession)
-
+    source_id = Column(Integer, ForeignKey('source.id'), unique=True)
 
     def __str__(self):
-        return 'Collection at %s' % (self.locale or repr(self))
+        return _('Collection at %s') % (self.locale or repr(self))
 
 
+class SourceDetailEditorView(editor.GenericEditorView):
 
-class SourcePropagation(db.Base):
-    __tablename__ = 'source_propagation'
+    # i think the field names are pretty self explanatory and tooltips
+    # would be pointless
+    _tooltips = {}
 
-    # the propagation id is the parent propagation that created the accession
-    propagation_id = Column(Integer, ForeignKey('propagation.id'),
-                            nullable=False)
+    def __init__(self, parent=None):
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                'acc_editor.glade')
+        super(SourceDetailEditorView, self).__init__(filename, parent=parent)
+        self.set_accept_buttons_sensitive(False)
+        self.init_translatable_combo('source_type_combo', source_type_values)
+        # if sys.platform == 'win32':
+        #     # TODO: is this character width fix still necessary
+        #     import pango
+        #     combo = self.widgets.don_type_combo
+        #     context = combo.get_pango_context()
+        #     font_metrics = context.get_metrics(context.get_font_description(),
+        #                                        context.get_language())
+        #     width = font_metrics.get_approximate_char_width()
+        #     new_width = pango.PIXELS(width) * 20
+        #     combo.set_size_request(new_width, -1)
 
-    # the plant id is the child plant that was created from the
-    # propagation
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
-    propagation = relation('Propagation', uselist=False,
-                           backref=backref('_sources',
-                                           cascade='delete-orphan, all'))
+    def get_window(self):
+        return self.widgets.source_details_dialog
 
-    def _set_accession(self, accession):
-        accession.source = self
-    def _get_accession(self):
-        # self._accession is created as a backref on the accession's
-        # _donation property
-        return self._accession
-    accession = property(_get_accession, _set_accession)
+
+    def set_accept_buttons_sensitive(self, sensitive):
+        self.widgets.sd_ok_button.set_sensitive(sensitive)
+        #self.widgets.sd_next_button.set_sensitive(sensitive)
+
+
+    def start(self):
+        return self.get_window().run()
+
+
+class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {'source_name_entry': 'name',
+                           'source_type_combo': 'source_type',
+                           'source_desc_textview': 'description',
+                           }
+
+    def __init__(self, model, view):
+        super(SourceDetailEditorPresenter, self).__init__(model, view)
+        self.refresh_view()
+        validator = editor.UnicodeOrNoneValidator()
+        for widget, field in self.widget_to_field_map.iteritems():
+            self.assign_simple_handler(widget, field, validator)
+        self.__dirty = False
+
+
+    def set_model_attr(self, field, value, validator=None):
+        super(SourceDetailEditorPresenter, self).\
+            set_model_attr(field, value, validator)
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def refresh_sensitivity(self):
+        sensitive = False
+        if self.dirty() and self.model.name:
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
+
+
+    def refresh_view(self):
+        for widget, field in self.widget_to_field_map.iteritems():
+#            debug('contact refresh(%s, %s=%s)' % (widget, field,
+#                                                self.model[field]))
+            self.view.set_widget_value(widget, getattr(self.model, field))
+
+        self.view.set_widget_value('source_type_combo',
+                                   source_type_values[self.model.source_type],
+                                   index=1)
+
+
+    def start(self):
+        r = self.view.start()
+        return r
+
+
+class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
+
+    RESPONSE_NEXT = 11
+    ok_responses = (RESPONSE_NEXT,)
+
+    def __init__(self, model=None, parent=None):
+        '''
+        @param model: Contact instance or None
+        @param values to enter in the model if none are give
+        '''
+        if not model:
+            model = SourceDetail()
+        super(SourceDetailEditor, self).__init__(model, parent)
+        self.parent = parent
+        self._committed = []
+
+        view = SourceDetailEditorView(parent=self.parent)
+        self.presenter = SourceDetailEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        # self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+        #                      gtk.gdk.CONTROL_MASK)
+
+
+    def handle_response(self, response):
+        '''
+        handle the response from self.presenter.start() in self.start()
+        '''
+        not_ok_msg = _('Are you sure you want to lose your changes?')
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+            try:
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
+            except SQLError, e:
+                msg = _('Error committing changes.\n\n%s' \
+                        % utils.xml_safe_utf8(e.orig))
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                return False
+            except Exception, e:
+                msg = _('Unknown error when committing changes. See the '\
+                       'details for more information.\n\n%s' \
+                       % utils.xml_safe_utf8(e))
+                utils.message_details_dialog(msg, traceback.format_exc(),
+                                             gtk.MESSAGE_ERROR)
+                return False
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
+            self.session.rollback()
+            return True
+        else:
+            return False
+
+        # respond to responses
+        # more_committed = None
+        # if response == self.RESPONSE_NEXT:
+        #     self.presenter.cleanup()
+        #     e = ContactEditor(parent=self.parent)
+        #     more_committed = e.start()
+        # if more_committed is not None:
+        #     self._committed.append(more_committed)
+
+        return True
+
+
+    def start(self):
+        while True:
+            response = self.presenter.start()
+            self.presenter.view.save_state()
+            if self.handle_response(response):
+                break
+
+        self.session.close() # cleanup session
+        self.presenter.cleanup()
+        return self._committed
 
 
 # TODO: should have a label next to lat/lon entry to show what value will be
@@ -232,8 +411,17 @@ class SourcePropagation(db.Base):
 # same for geographic accuracy
 # TODO: should show an error if something other than a number is entered in
 # the altitude entry
+
 class CollectionPresenter(editor.GenericEditorPresenter):
 
+    """
+    CollectionPresenter
+
+    :param parent: an AccessionEditorPresenter
+    :param model: a Collection instance
+    :param view: an AccessionEditorView
+    :param session: a sqlalchemy.orm.session
+    """
     widget_to_field_map = {'collector_entry': 'collector',
                            'coll_date_entry': 'date',
                            'collid_entry': 'collectors_code',
@@ -344,6 +532,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
 
     def refresh_view(self):
+        from bauble.plugins.garden.accession import latitude_to_dms, \
+            longitude_to_dms
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
 ##            debug('%s, %s, %s' % (widget, field, value))
@@ -434,6 +624,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         '''
         parse a latitude or longitude in a variety of formats
         '''
+        from bauble.plugins.garden.accession import dms_to_decimal
         bits = re.split(':| ', text.strip())
 #        debug('%s: %s' % (direction, bits))
         if len(bits) == 1:
@@ -480,6 +671,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         '''
         set the latitude value from text
         '''
+        from bauble.plugins.garden.accession import latitude_to_dms, \
+            longitude_to_dms
         text = entry.get_text()
         latitude = None
         dms_string = ''
@@ -497,7 +690,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 #u"\N{DEGREE SIGN}"
                 dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
-#            debug(traceback.format_exc())
+            # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
@@ -510,6 +703,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
 
     def on_lon_entry_changed(self, entry, data=None):
+        from bauble.plugins.garden.accession import latitude_to_dms, \
+            longitude_to_dms
         text = entry.get_text()
         longitude = None
         dms_string = ''
@@ -526,7 +721,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
                 dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
         except Exception:
-#            debug(traceback.format_exc())
+            # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
@@ -538,182 +733,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         self.view.widgets.lon_dms_label.set_text(dms_string)
 
 
-# TODO: make the donor_combo insensitive if the model is empty
-class DonationPresenter(editor.GenericEditorPresenter):
 
-    widget_to_field_map = {'donor_combo': 'donor',
-                           'donid_entry': 'donor_acc',
-                           'donnotes_entry': 'notes',
-                           'don_date_entry': 'date'}
-    PROBLEM_INVALID_DATE = random()
-    PROBLEM_INVALID_DONOR = random()
-
-    def __init__(self, parent, model, view, session):
-        """
-        @param parent: the parent AccessionEditorPresenter
-        """
-        super(DonationPresenter, self).__init__(model, view)
-        self.parent_ref = weakref.ref(parent)
-        self.session = session
-
-        # set up donor_combo
-        donor_combo = self.view.widgets.donor_combo
-        donor_combo.clear() # avoid gchararry/PyObject warning
-        r = gtk.CellRendererText()
-        donor_combo.pack_start(r)
-        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
-
-        # set the values in the view before setting any signal handlers
-        self.refresh_view()
-
-        # assign handlers
-        self.view.connect('donor_combo', 'changed',
-                          self.on_donor_combo_changed)
-        self.assign_simple_handler('donid_entry', 'donor_acc',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('donnotes_entry', 'notes',
-                                   editor.UnicodeOrNoneValidator())
-        self.view.connect('don_date_entry', 'changed',
-                          self.on_date_entry_changed)
-
-        utils.setup_date_button(self.view.widgets.don_date_entry,
-                                self.view.widgets.don_date_button)
-        self.view.connect('don_new_button', 'clicked', self.on_don_new_clicked)
-        self.view.connect('don_edit_button', 'clicked',
-                          self.on_don_edit_clicked)
-
-        # if there is no donor and only one donor in the donor combo model
-        # then set it as the active donor
-        if self.model.donor is None and len(donor_combo.get_model()) == 1:
-            donor_combo.set_active(0)
-
-        if self.model.donor is None:
-            self.add_problem(self.PROBLEM_INVALID_DONOR)
-        self.__dirty = False
-
-
-    def set_model_attr(self, field, value, validator=None):
-#        debug('DonationPresenter.set_model_attr(%s, %s)' % (field, value))
-        super(DonationPresenter, self).set_model_attr(field, value, validator)
-        self.__dirty = True
-        if self.model.donor is None:
-            self.add_problem(self.PROBLEM_INVALID_DONOR)
-        else:
-            self.remove_problem(self.PROBLEM_INVALID_DONOR)
-        self.parent_ref().refresh_sensitivity()
-
-
-    def start(self):
-        raise Exception('DonationPresenter cannot be started')
-
-
-    def dirty(self):
-        return self.__dirty
-
-
-    def on_donor_combo_changed(self, combo, data=None):
-        """
-        Changed the sensitivity of the don_edit_button if the
-        selected item in the donor_combo is an instance of Donor
-        """
-        from bauble.plugins.garden.donor import Donor
-#        debug('on_donor_combo_changed')
-        it = combo.get_active_iter()
-        if not it:
-            return
-        value = combo.get_model()[it][0]
-        self.set_model_attr('donor', value)
-        sensitive = False
-        if isinstance(value, Donor):
-            sensitive = True
-        self.view.widgets.don_edit_button.set_sensitive(sensitive)
-
-
-    def on_date_entry_changed(self, entry):
-        text = entry.get_text()
-        if text == '':
-            self.set_model_attr('date', None)
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.don_date_entry)
-            return
-
-        m = _date_regex.match(text)
-        dt = None # datetime
-        try:
-            ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                    m.group('day')]]
-            dt = datetime(*ymd).date()
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.don_date_entry)
-        except Exception:
-            self.add_problem(self.PROBLEM_INVALID_DATE,
-                             self.view.widgets.don_date_entry)
-        self.set_model_attr('date', dt)
-
-
-    def on_don_new_clicked(self, button, data=None):
-        '''
-        create a new donor, setting the current donor on donor_combo
-        to the new donor
-        '''
-        from bauble.plugins.garden.donor import DonorEditor
-        donor = DonorEditor().start()
-        if donor is not None:
-            self.refresh_view()
-            self.view.set_widget_value('donor_combo', donor)
-
-
-    def on_don_edit_clicked(self, button, data=None):
-        '''
-        edit currently selected donor
-        '''
-        donor_combo = self.view.widgets.donor_combo
-        i = donor_combo.get_active_iter()
-        donor = donor_combo.get_model()[i][0]
-        from bauble.plugins.garden.donor import DonorEditor
-        e = DonorEditor(model=donor, parent=self.view.widgets.accession_dialog)
-        edited = e.start()
-        if edited is not None:
-            self.refresh_view()
-
-
-    @staticmethod
-    def combo_cell_data_func(column, renderer, model, treeiter):
-        """
-        This method is static to make sure this object gets garbage collected.
-        """
-        v = model[treeiter][0]
-        renderer.set_property('text', str(v))
-
-
-    def refresh_view(self):
-#        debug('DonationPresenter.refresh_view')
-
-        # populate the donor combo
-        model = gtk.ListStore(object)
-        from bauble.plugins.garden.donor import Donor
-        for value in self.session.query(Donor):
-#            debug(value)
-            model.append([value])
-        donor_combo = self.view.widgets.donor_combo
-        donor_combo.set_model(model)
-
-        for widget, field in self.widget_to_field_map.iteritems():
-            value = getattr(self.model, field)
-#            debug('%s, %s, %s' % (widget, field, value))
-            if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month,
-                                      '%04d' % value.year)
-            self.view.set_widget_value(widget, value)
-
-        if self.model.donor is None:
-            self.view.widgets.don_edit_button.set_sensitive(False)
-        else:
-            self.view.widgets.don_edit_button.set_sensitive(True)
-
-
-# TODO: make the donor_combo insensitive if the model is empty
-class SourcePropagationPresenter(editor.GenericEditorPresenter):
+class PropagationChooserPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {}
 
@@ -722,11 +743,11 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
     def __init__(self, parent, model, view, session):
         """
         :param parent: the parent AccessionEditorPresenter
-        :param model: a SourcePropagation instance
+        :param model: a Source instance
         :param view: an AccessionEditorView
-        :param session: an sqlalchemy session
+        :param session: an sqlalchemy.orm.session
         """
-        super(SourcePropagationPresenter, self).__init__(model, view)
+        super(PropagationChooserPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.__dirty = False
@@ -737,12 +758,14 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
         self.view.widgets.prop_toggle_column.\
             set_cell_data_func(cell, self.toggle_cell_data_func)
         def on_toggled(cell, path, data=None):
-            debug('on_toggled')
-            treeview = self.view.widgets.source_prop_treeview
-            prop = treeview.get_model()[path][0]
-            debug(prop)
-            self.model.propagation = prop
-        self.view.connect(cell, 'toggled', on_toggled)
+            prop = None
+            if not cell.get_active(): # its not active so we make it active
+                treeview = self.view.widgets.source_prop_treeview
+                prop = treeview.get_model()[path][0]
+            self.model.plant_propagation = prop
+            self.__dirty = True
+            self.parent_ref().refresh_sensitivity()
+        self.view.connect_after(cell, 'toggled', on_toggled)
 
         self.view.widgets.prop_summary_column.\
             set_cell_data_func(self.view.widgets.prop_summary_cell,
@@ -762,8 +785,7 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
             from bauble.plugins.garden.plant import Plant
             query = self.session.query(Plant).join('accession').\
                     filter(utils.ilike(Accession.code, '%s%%' % text)).\
-                    filter(Plant.id != self.model.id)
-            debug(list(query))
+                    filter(Accession.id != self.model.accession.id)
             return query
 
 
@@ -790,14 +812,17 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
     #     pass
 
     def refresh_view(self):
-        if not self.model.propagation:
-            return
-        parent_plant = self.model.propagation.plant
-        # set the parent accession
-        self.view.widgets.source_prop_plant_entry.props.text = \
-            parent_plant.code
-
         treeview = self.view.widgets.source_prop_treeview
+        if not self.model.plant_propagation:
+            self.view.widgets.source_prop_plant_entry.props.text = ''
+            utils.clear_model(treeview)
+            treeview.props.sensitive = False
+            return
+
+        parent_plant = self.model.plant_propagation.plant
+        # set the parent accession
+        self.view.widgets.source_prop_plant_entry.props.text = str(parent_plant)
+
         if not parent_plant.propagations:
             treeview.props.sensitive = False
             return
@@ -813,14 +838,14 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
         active = False
-        if self.model.propagation == propagation:
+        if self.model.plant_propagation == propagation:
             active = True
         cell.set_active(active)
 
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
         prop = model[treeiter][0]
-        cell.set_property('text', prop.get_summary())
+        cell.props.text = prop.get_summary()
 
 
     def dirty(self):
@@ -828,4 +853,53 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
 
 
 
+from bauble.view import InfoBox, InfoExpander
+
+class GeneralSourceDetailExpander(InfoExpander):
+    '''
+    displays name, number of donations, address, email, fax, tel,
+    type of contact
+    '''
+    def __init__(self, widgets):
+        super(GeneralSourceDetailExpander, self).__init__(_('General'), widgets)
+        gen_box = self.widgets.sd_gen_box
+        self.widgets.remove_parent(gen_box)
+        self.vbox.pack_start(gen_box)
+
+
+    def update(self, row):
+        from textwrap import TextWrapper
+        wrapper = TextWrapper(width=50, subsequent_indent='  ')
+        self.set_widget_value('sd_name_data', '<big>%s</big>' %
+                              utils.xml_safe_utf8(row.name))
+        source_type = ''
+        if row.source_type:
+            source_type = utils.xml_safe_utf8(row.source_type)
+        self.set_widget_value('sd_type_data', source_type)
+
+        description = ''
+        if row.description:
+            description = utils.xml_safe_utf8(row.description)
+        self.set_widget_value('sd_desc_data', description)
+
+        source = Source.__table__
+        nacc = select([source.c.id], source.c.source_detail_id==row.id).\
+            count().execute().fetchone()[0]
+        self.set_widget_value('sd_nacc_data', nacc)
+
+
+
+
+class SourceDetailInfoBox(InfoBox):
+
+    def __init__(self):
+        super(SourceDetailInfoBox, self).__init__()
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "source_detail_infobox.glade")
+        self.widgets = utils.load_widgets(filename)
+        self.general = GeneralSourceDetailExpander(self.widgets)
+        self.add_expander(self.general)
+
+    def update(self, row):
+        self.general.update(row)
 

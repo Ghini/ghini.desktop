@@ -1,14 +1,11 @@
 #
 # geography.py
 #
-from datetime import datetime
-
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
 import bauble.db as db
-from bauble.view import ResultSet
 from bauble.utils.log import debug
 
 

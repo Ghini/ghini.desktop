@@ -55,7 +55,7 @@ def remove_callback(tags):
     return True
 
 remove_action = Action('tag_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>', multiselect=True)
+                       accelerator='Delete', multiselect=True)
 
 tag_context_menu = [remove_action]
 
@@ -295,12 +295,18 @@ def get_tagged_objects(tag, session=None):
     if not isinstance(tag, Tag):
         if not session:
             session = db.Session()
-        tag = session.query(Tag).filter_by(tag=utils.utf8(tag)).one()
+        tag = session.query(Tag).filter_by(tag=utils.utf8(tag)).first()
     elif not session:
         session = object_session(tag)
 
-    r = [session.query(mapper).filter_by(id=obj_id).one() \
+    # filter out any None values from the query which can happen if
+    # you tag something and then delete it from the datebase
+
+    # TODO: the missing tagged objects should probably be removed from
+    # the database
+    r = [session.query(mapper).filter_by(id=obj_id).first() \
             for mapper, obj_id in _get_tagged_object_pairs(tag)]
+    r = filter(lambda x: x != None, r)
     if close_session:
         session.close()
     return r

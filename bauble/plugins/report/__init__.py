@@ -248,6 +248,39 @@ class ReportToolDialogView(object):
         utils.setup_text_combobox(self.widgets.names_combo)
         utils.setup_text_combobox(self.widgets.formatter_combo)
 
+        self._delete_sid = self.dialog.connect('delete-event',
+                                  self.on_dialog_close_or_delete)
+        self._close_sid = self.dialog.connect('close',
+                                             self.on_dialog_close_or_delete)
+        self._response_sid = self.dialog.connect('response',
+                                                 self.on_dialog_response)
+
+
+    def on_dialog_response(self, dialog, response, *args):
+        '''
+        Called if self.get_window() is a gtk.Dialog and it receives
+        the response signal.
+        '''
+        dialog.hide()
+        self.response = response
+        return response
+
+
+    def on_dialog_close_or_delete(self, dialog, event=None):
+        """
+        Called if self.get_window() is a gtk.Dialog and it receives
+        the close signal.
+        """
+        dialog.hide()
+        return False
+
+
+    def disconnect_all(self):
+        self.dialog.disconnect(self._delete_sid)
+        self.dialog.disconnect(self._close_sid)
+        self.dialog.disconnect(self._response_sid)
+
+
     def start(self):
         return self.dialog.run()
 
@@ -541,7 +574,7 @@ class ReportToolDialogPresenter(object):
                 break
             else:
                 break
-        self.view.dialog.destroy()
+        self.view.disconnect_all()
         return formatter, settings
 
 

@@ -82,8 +82,9 @@ class SpeciesABCDAdapter(ABCDAdapter):
     An adapter to convert a Species to an ABCD Unit, the SpeciesABCDAdapter
     does not create a valid ABCDUnit since we can't provide the required UnitID
     """
-    def __init__(self, species):
+    def __init__(self, species, for_labels=False):
         super(SpeciesABCDAdapter, self).__init__(species)
+        self.for_labels = for_labels
         self.species = species
 
     def get_UnitID(self):
@@ -121,8 +122,12 @@ class SpeciesABCDAdapter(ABCDAdapter):
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
         # invalid XML file
-        etree.SubElement(unit, 'distribution').text=\
-                               self.species.distribution_str()
+        if self.for_labels and self.species.label_distribution:
+            etree.SubElement(unit, 'distribution').text=\
+                self.species.label_distribution
+        else:
+            etree.SubElement(unit, 'distribution').text=\
+                self.species.distribution_str()
         if self.species.notes is not None:
             ABCDElement(unit, 'Notes',
                         text=utils.xml_safe(unicode(self.species.notes)))
@@ -132,8 +137,9 @@ class PlantABCDAdapter(SpeciesABCDAdapter):
     """
     An adapter to convert a Plant to an ABCD Unit
     """
-    def __init__(self, plant):
-        super(PlantABCDAdapter, self).__init__(plant.accession.species)
+    def __init__(self, plant, for_labels=False):
+        super(PlantABCDAdapter, self).__init__(plant.accession.species,
+                                               for_labels)
         self.plant = plant
 
 
@@ -155,8 +161,9 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     """
     An adapter to convert a Plant to an ABCD Unit
     """
-    def __init__(self, accession):
-        super(AccessionABCDAdapter, self).__init__(accession.species)
+    def __init__(self, accession, for_labels=False):
+        super(AccessionABCDAdapter, self).__init__(accession.species,
+                                                   for_labels)
         self.accession = accession
 
     def get_UnitID(self):
@@ -169,9 +176,12 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def collection_extra_elements(self, unit):
         pass
     def extra_elements(self, unit):
+        # TODO: this needs to be updated and filled in
+        return
         if self.accession.notes is not None:
             ABCDElement(unit, 'Notes',
                         text=utils.xml_safe(unicode(self.accession.notes)))
+                        #text=utils.xml_safe(unicode(self.accession.notes)))
         if self.accession.source_type == 'Collection':
             # see ABCD/Unit/Gathering, CollectorsFieldNumber
             self.collection_extra_elements(unit)
@@ -316,9 +326,9 @@ class XSLFormatterPlugin(FormatterPlugin):
                 return False
             for p in plants:
                 if use_private:
-                    adapted.append(PlantABCDAdapter(p))
+                    adapted.append(PlantABCDAdapter(p, for_labels=True))
                 elif not p.accession.private:
-                    adapted.append(PlantABCDAdapter(p))
+                    adapted.append(PlantABCDAdapter(p, for_labels=True))
         elif source_type == species_source_type:
             species = sorted(get_all_species(objs, session=session),
                              key=utils.natsort_key)
@@ -327,7 +337,7 @@ class XSLFormatterPlugin(FormatterPlugin):
                                        'results.  Please try another search.'))
                 return False
             for s in species:
-                adapted.append(SpeciesABCDAdapter(s))
+                adapted.append(SpeciesABCDAdapter(s, for_labels=True))
         elif source_type == accession_source_type:
             accessions = sorted(get_all_accessions(objs, session=session),
                                 key=utils.natsort_key)
@@ -337,9 +347,9 @@ class XSLFormatterPlugin(FormatterPlugin):
                 return False
             for a in accessions:
                 if use_private:
-                    adapted.append(AccessionABCDAdapter(a))
+                    adapted.append(AccessionABCDAdapter(a, for_labels=True))
                 elif not a.private:
-                    adapted.append(AccessionABCDAdapter(a))
+                    adapted.append(AccessionABCDAdapter(a, for_labels=True))
         else:
             raise NotImplementedError('unknown source type')
 

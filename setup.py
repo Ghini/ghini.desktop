@@ -48,7 +48,8 @@ package_data = {'': ['README', 'CHANGES', 'LICENSE'],
                            'images/*.svg', 'images/*.gif', 'images/*.ico']}
 
 # ceate a list of the data patterns to look for in the packages
-data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd']
+data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
+                 '*.html', '*.csv']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
 
@@ -78,7 +79,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             sqlalchemy_includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
 
     py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata', # 'MySQLdb',
-                       'fibra', 'psycopg2', 'encodings', 'mako',] + \
+                       'fibra', 'psycopg2', 'encodings', 'mako',
+                       'mako.cache'] + \
                        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {'console': ["scripts/bauble"],
                          'windows': [{'script': 'scripts/bauble',
@@ -203,11 +205,13 @@ class build(_build):
         dest_tmpl = os.path.join(self.build_base, locale_path, '%s',
                                  'LC_MESSAGES')
         matches = glob.glob('po/*.po')
+        from bauble.i18n import TEXT_DOMAIN
         for po in matches:
             # create an .mo in build/share/locale/$LANG/LC_MESSAGES
             loc, ext = os.path.splitext(os.path.basename(po))
             localedir = dest_tmpl % loc
-            mo = '%s/bauble.mo' % localedir
+            #mo = '%s/bauble-1.mo' % localedir
+            mo = '%s/%s.mo' % (localedir, TEXT_DOMAIN)
             if not os.path.exists(localedir):
                 dir_util.mkpath(localedir)
             if not os.path.exists(mo) or dep_util.newer(po, mo):

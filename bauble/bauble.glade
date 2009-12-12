@@ -34,21 +34,16 @@
               <object class="GtkHBox" id="hbox1">
                 <property name="visible">True</property>
                 <child>
-                  <object class="GtkVBox" id="vbox2">
+                  <object class="GtkComboBoxEntry" id="main_comboentry">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
+                    <property name="text_column">0</property>
                     <child>
-                      <object class="GtkComboBoxEntry" id="main_comboentry">
-                        <property name="visible">True</property>
+                      <object class="GtkCellRendererText" id="cellrenderertext1">
+                        <property name="xalign">0</property>
                       </object>
-                      <packing>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
                     </child>
                   </object>
                   <packing>
-                    <property name="padding">3</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
@@ -182,7 +177,10 @@
                               <object class="GtkTreeViewColumn" id="date_column">
                                 <property name="title">Date</property>
                                 <child>
-                                  <object class="GtkCellRendererText" id="date_cell"/>
+                                  <object class="GtkCellRendererText" id="date_cell">
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                  </object>
                                 </child>
                               </object>
                             </child>
@@ -190,7 +188,10 @@
                               <object class="GtkTreeViewColumn" id="name_column">
                                 <property name="title">Name</property>
                                 <child>
-                                  <object class="GtkCellRendererText" id="name_cell"/>
+                                  <object class="GtkCellRendererText" id="name_cell">
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                  </object>
                                 </child>
                               </object>
                             </child>
@@ -198,7 +199,10 @@
                               <object class="GtkTreeViewColumn" id="category_column">
                                 <property name="title">Category</property>
                                 <child>
-                                  <object class="GtkCellRendererText" id="category_cell"/>
+                                  <object class="GtkCellRendererText" id="category_cell">
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                  </object>
                                 </child>
                               </object>
                             </child>
@@ -206,7 +210,10 @@
                               <object class="GtkTreeViewColumn" id="note_column">
                                 <property name="title">Note</property>
                                 <child>
-                                  <object class="GtkCellRendererText" id="note_cell"/>
+                                  <object class="GtkCellRendererText" id="note_cell">
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                  </object>
                                 </child>
                               </object>
                             </child>

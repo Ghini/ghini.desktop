@@ -14,8 +14,7 @@ from bauble.test import BaubleTestCase
 from bauble.plugins.garden.accession import Accession
 from bauble.plugins.garden.location import Location
 from bauble.plugins.garden.plant import Plant
-from bauble.plugins.garden.donor import Donor
-from bauble.plugins.garden.source import Donation, Collection
+from bauble.plugins.garden.source import Collection
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
