@@ -457,7 +457,9 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         label = self.view.widgets.ped_plants_label
         label_str = ''
         getsid = lambda x: x.accession.species.id
-        if len(self.model) > 12:
+        if len(self.model) > 100:
+            label_str = _('<i>(changing over 100 plants)</i>')
+        elif len(self.model) < 13:
             label_str = ', '.join([str(p) for p in self.model])
         elif len(self.model) < 100:
             for sid, group in itertools.groupby(self.model, getsid):
@@ -467,8 +469,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
                 s = '<b>%s</b>: %s' % (plants[0].accession.species_str(),
                                        ', '.join([str(p) for p in plants]))
                 label_str += s
-        else:
-            label_str = _('(over 100 plants being transferred)')
         label.set_markup(label_str)
 
         def on_user_changed(*args):
