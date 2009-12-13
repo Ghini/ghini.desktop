@@ -679,7 +679,11 @@ def reset_sequence(column):
         # sqlalchemy.database.postgres.PGDefaultRunner
         if hasattr(column, "sequence") and column.sequence is not None:
             sequence_name = column.sequence.name
-        elif (isinstance(column.type, Integer) and column.autoincrement) and (column.default is None or (isinstance(column.default, schema.Sequence) and column.default.optional)) and len(column.foreign_keys)==0:
+        elif (isinstance(column.type, Integer) and column.autoincrement) and \
+                (column.default is None or \
+                     (isinstance(column.default, schema.Sequence) and \
+                          column.default.optional)) and \
+                          len(column.foreign_keys)==0:
             sequence_name = '%s_%s_seq' %(column.table.name, column.name)
         else:
             return

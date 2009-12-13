@@ -464,7 +464,6 @@ class MapperSearch(SearchStrategy):
             idents, cond, val = e
             # debug('cls: %s, idents: %s, cond: %s, val: %s'
             #       % (cls.__name__, idents, cond, val))
-
             if val == 'None':
                 val = None
             if cond == 'is':
@@ -476,9 +475,11 @@ class MapperSearch(SearchStrategy):
                 # we get here when the idents only refer to a property
                 # on the mapper table..i.e. a column
                 col = idents[0]
-                check(col in mapper.c, 'The %s table does not have a '\
-                       'column named %s' % \
-                       (mapper.local_table.name, col))
+                msg = _('The %(tablename)s table does not have a '\
+                       'column named "%(columname)s"') % \
+                       dict(tablename=mapper.local_table.name,
+                            columname=col)
+                check(col in mapper.c, msg)
                 clause = getattr(cls, col).op(cond)(utils.utf8(val))
                 query = self._session.query(cls).filter(clause).order_by(None)
             else:
