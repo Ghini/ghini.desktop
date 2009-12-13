@@ -750,6 +750,14 @@ class PropagationPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('notes_textview', 'notes',
                                    editor.UnicodeOrNoneValidator())
 
+        def on_expanded(*args):
+            if self.model.prop_type == u'Other':
+                # i don't really understand why setting the expanded
+                # property to false here cause the notes_expander to
+                # always stay expanded but it works
+                self.view.widgets.notes_expander.props.expanded = False
+        self.view.connect('notes_expander', 'activate', on_expanded)
+
 
     def on_prop_type_changed(self, combo, *args):
         #debug('PropagationPresenter.on_prop_type_changed()')
