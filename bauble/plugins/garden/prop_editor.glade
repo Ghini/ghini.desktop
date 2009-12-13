@@ -1496,27 +1496,36 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkVBox" id="prop_notes_box">
+                      <object class="GtkVBox" id="notes_box">
                         <property name="orientation">vertical</property>
                         <child>
-                          <object class="GtkAlignment" id="alignment161">
+                          <object class="GtkExpander" id="notes_expander">
                             <property name="visible">True</property>
-                            <property name="xalign">0.0099999997764825821</property>
-                            <property name="xscale">0</property>
-                            <property name="yscale">0</property>
+                            <property name="can_focus">True</property>
                             <child>
-                              <object class="GtkButton" id="button1">
-                                <property name="label">gtk-add</property>
+                              <object class="GtkAlignment" id="alignment5">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="use_stock">True</property>
+                                <property name="top_padding">5</property>
+                                <property name="left_padding">12</property>
+                                <child>
+                                  <object class="GtkTextView" id="notes_textview">
+                                    <property name="height_request">100</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="wrap_mode">word</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                            <child type="label">
+                              <object class="GtkLabel" id="label5">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Notes&lt;/b&gt;</property>
+                                <property name="use_markup">True</property>
                               </object>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
