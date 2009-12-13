@@ -903,11 +903,9 @@ class SearchView(pluginmgr.View):
         self.session = db.Session()
         bold = '<b>%s</b>'
         results = set()
-        #results = []
         try:
             for strategy in self.search_strategies:
                 results.update(strategy.search(text, self.session))
-                #results.extend(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
