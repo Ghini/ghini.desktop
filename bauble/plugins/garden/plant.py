@@ -435,26 +435,7 @@ class PlantStatusEditorView(GenericEditorView):
 
 
 
-# class PlantTransferPresenter(GenericEditorPresenter):
-
-#     def __init__(self, model, view):
-#         '''
-#         @param model: should be an list of Plants
-#         @param view: should be an instance of PlantEditorView
-#         '''
-#         super(PlantTransferPresenter, self).__init__(model, view)
-
-
 class PlantStatusEditorPresenter(GenericEditorPresenter):
-
-
-    # widget_to_field_map = {'plant_code_entry': 'code',
-    #                        'plant_acc_entry': 'accession',
-    #                        'plant_loc_comboentry': 'location',
-    #                        'plant_acc_type_combo': 'acc_type',
-    #                        #'plant_acc_status_combo': 'acc_status',
-    #                        }
-    #                        #'plant_notes_textview': 'notes'}
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
@@ -464,10 +445,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         @param view: should be an instance of PlantEditorView
         '''
         super(PlantStatusEditorPresenter, self).__init__(model, view)
-        #self.session = object_session(model[0])
         self.session = db.Session()
-        # self._original_accession_id = self.model.accession_id
-        # self._original_code = self.model.code
         self.__dirty = False
 
         self._transfer = PlantTransfer()
@@ -482,13 +460,18 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         label = self.view.widgets.ped_plants_label
         label_str = ''
         getsid = lambda x: x.accession.species.id
-        for sid, group in itertools.groupby(self.model, getsid):
-            if label_str:
-                label_str += '\n'
-            plants = list(group)
-            s = '<b>%s</b>: %s' % (plants[0].accession.species_str(),
-                            ', '.join([str(p) for p in plants]))
-            label_str += s
+        if len(self.model) > 12:
+            label_str = ', '.join([str(p) for p in self.model])
+        elif len(self.model) < 100:
+            for sid, group in itertools.groupby(self.model, getsid):
+                if label_str:
+                    label_str += '\n'
+                plants = list(group)
+                s = '<b>%s</b>: %s' % (plants[0].accession.species_str(),
+                                       ', '.join([str(p) for p in plants]))
+                label_str += s
+        else:
+            label_str = _('(over 100 plants being transferred)')
         label.set_markup(label_str)
 
         def on_user_changed(*args):
@@ -612,13 +595,7 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
         @param model: Plant instance or None
         @param parent: None
         '''
-        # if model is None:
-        #     model = Plant()
-        #self.plants = model
         self.model = Plant()
-        #GenericModelViewPresenterEditor.__init__(self, model, parent)
-        #super(NewPlantEditor, self).__init__(model, parent)
-        #self.template = Plant()
         super(PlantStatusEditor, self).__init__(self.model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
@@ -634,12 +611,6 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
                              gtk.gdk.CONTROL_MASK)
-
-        # set default focus
-        # if self.model.accession is None:
-        #     view.widgets.plant_acc_entry.grab_focus()
-        # else:
-        #     view.widgets.plant_code_entry.grab_focus()
 
 
     def commit_changes(self):
