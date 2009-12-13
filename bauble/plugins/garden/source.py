@@ -53,7 +53,7 @@ collection_add_plant_action = \
                 accelerator='<ctrl>k')
 collection_remove_action = view.Action('collection_remove', ('_Delete'),
                                        callback=collection_remove_callback,
-                                       accelerator='Delete')
+                                       accelerator='<ctrl>Delete')
 
 collection_context_menu = [collection_edit_action, collection_add_plant_action,
                            collection_remove_action]
@@ -91,7 +91,7 @@ source_detail_edit_action = view.Action('source_detail_edit', ('_Edit'),
 source_detail_remove_action = \
     view.Action('source_detail_remove', ('_Delete'),
                 callback=source_detail_remove_callback,
-                accelerator='Delete', multiselect=True)
+                accelerator='<ctrl>Delete', multiselect=True)
 
 source_detail_context_menu = [source_detail_edit_action,
                               source_detail_remove_action]

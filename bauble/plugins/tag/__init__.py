@@ -55,7 +55,7 @@ def remove_callback(tags):
     return True
 
 remove_action = Action('tag_remove', ('_Delete'), callback=remove_callback,
-                       accelerator='Delete', multiselect=True)
+                       accelerator='<ctrl>Delete', multiselect=True)
 
 tag_context_menu = [remove_action]
 

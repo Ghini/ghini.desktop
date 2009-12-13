@@ -56,7 +56,7 @@ edit_action = Action('loc_edit', ('_Edit'), callback=edit_callback,
 add_plant_action = Action('loc_add_plant', ('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
 remove_action = Action('loc_remove', ('_Delete'), callback=remove_callback,
-                       accelerator='Delete', multiselect=True)
+                       accelerator='<ctrl>Delete', multiselect=True)
 
 loc_context_menu = [edit_action, add_plant_action, remove_action]
 
