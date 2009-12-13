@@ -51,7 +51,7 @@ collection_add_plant_action = \
     view.Action('collection_add', ('_Add plants'),
                 callback=collection_add_plants_callback,
                 accelerator='<ctrl>k')
-collection_remove_action = view.Action('collection_remove', ('_Remove'),
+collection_remove_action = view.Action('collection_remove', ('_Delete'),
                                        callback=collection_remove_callback,
                                        accelerator='Delete')
 
@@ -89,7 +89,7 @@ source_detail_edit_action = view.Action('source_detail_edit', ('_Edit'),
                                         callback=source_detail_edit_callback,
                                         accelerator='<ctrl>e')
 source_detail_remove_action = \
-    view.Action('source_detail_remove', ('_Remove'),
+    view.Action('source_detail_remove', ('_Delete'),
                 callback=source_detail_remove_callback,
                 accelerator='Delete', multiselect=True)
 
