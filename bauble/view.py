@@ -903,9 +903,11 @@ class SearchView(pluginmgr.View):
         self.session = db.Session()
         bold = '<b>%s</b>'
         results = set()
+        #results = []
         try:
             for strategy in self.search_strategies:
                 results.update(strategy.search(text, self.session))
+                #results.extend(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
@@ -1025,13 +1027,15 @@ class SearchView(pluginmgr.View):
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         utils.clear_model(self.results_view)
 
-        # group the results by type. this is where all the results are
-        # actually fetched from the database
         groups = []
-        for key, group in itertools.groupby(results, lambda x: type(x)):
-            groups.append(list(group))
-            # sorting the results here is dead slow
-            #groups.append(sorted(group, key=utils.natsort_key))
+
+        # sort by type that that groupby works properly
+        results = sorted(results, key=lambda x: type(x))
+
+        for key, group in itertools.groupby(results, key=lambda x: type(x)):
+            # return groups by type and natural sort each of the
+            # groups by their strings
+            groups.append(sorted(group, key=utils.natsort_key))
 
         # sort the groups by type so we more or less always get the
         # results by type in the same order
