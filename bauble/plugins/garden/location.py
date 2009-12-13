@@ -97,7 +97,7 @@ class Location(db.Base):
 
     def __str__(self):
         if self.name:
-            return '%s (%s)' % (self.name, self.code)
+            return '(%s) %s' % (self.code, self.name)
         else:
             return str(self.code)
 
