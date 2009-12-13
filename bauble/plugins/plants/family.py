@@ -75,7 +75,7 @@ edit_action = view.Action('family_edit', ('_Edit'), callback=edit_callback,
 add_species_action = view.Action('family_genus_add', ('_Add accession'),
                                  callback=add_genera_callback,
                                  accelerator='<ctrl>k')
-remove_action = view.Action('family_remove', ('_Remove'),
+remove_action = view.Action('family_remove', ('_Delete'),
                             callback=remove_callback,
                             accelerator='Delete', multiselect=True)
 

@@ -69,7 +69,7 @@ edit_action = Action('species_edit', ('_Edit'), callback=edit_callback,
 add_accession_action = Action('species_acc_add', ('_Add accession'),
                               callback=add_accession_callback,
                               accelerator='<ctrl>k')
-remove_action = Action('species_remove', ('_Remove'), callback=remove_callback,
+remove_action = Action('species_remove', ('_Delete'), callback=remove_callback,
                        accelerator='Delete', multiselect=True)
 
 species_context_menu = [edit_action, remove_action]
