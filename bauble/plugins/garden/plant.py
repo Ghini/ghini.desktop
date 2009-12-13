@@ -1258,7 +1258,7 @@ class TransferExpander(InfoExpander):
             if not row.removal.reason:
                 reason = _('(no reason)')
             else:
-                reason=row.removal.reason
+                reason=removal_reasons[row.removal.reason]
             s = _('Removed from %(from_loc)s on %(date)s: %(reason)s') %\
                 dict(from_loc=row.removal.from_location, date=date,
                      reason=reason)
