@@ -205,9 +205,6 @@ removal_reasons = {
     u'OTHR': _('Other')
     }
 
-class RemovalReasons(db.Base):
-    __tablename__ = 'removal_reasons'
-    code = Column(Unicode(4), unique=True)
 
 
 class PlantRemoval(db.Base):
@@ -1200,8 +1197,12 @@ class GeneralPlantExpander(InfoExpander):
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
         self.set_widget_value('location_data', str(row.location))
-        # self.set_widget_value('status_data', acc_status_values[row.acc_status],
-        #                       False)
+
+        status_str = _('Alive')
+        if row.removal:
+            status_str = utils.utf8(removal_reasons[row.removal.reason])
+        self.set_widget_value('status_data', status_str, False)
+
         self.set_widget_value('type_data', acc_type_values[row.acc_type],
                               False)
 
@@ -1229,7 +1230,7 @@ class TransferExpander(InfoExpander):
             if not row.removal.reason:
                 reason = _('(no reason)')
             else:
-                reason=removal_reasons[row.removal.reason]
+                reason=utils.utf8(removal_reasons[row.removal.reason])
             s = _('Removed from %(from_loc)s on %(date)s: %(reason)s') %\
                 dict(from_loc=row.removal.from_location, date=date,
                      reason=reason)
@@ -1253,6 +1254,34 @@ class TransferExpander(InfoExpander):
         self.vbox.show_all()
 
 
+class PropagationExpander(InfoExpander):
+    """
+    Propagation Expander
+    """
+
+    def __init__(self, widgets):
+        """
+        """
+        super(PropagationExpander, self).__init__(_('Propagations'), widgets)
+        self.vbox.set_spacing(3)
+
+
+    def update(self, row):
+        sensitive = True
+        if not row.propagations:
+            sensitive = False
+        self.props.expanded = sensitive
+        self.props.sensitive = sensitive
+
+        self.vbox.foreach(self.vbox.remove)
+        format = prefs.prefs[prefs.date_format_pref]
+        for prop in row.propagations:
+            s = '%s: %s' % (prop.date.strftime(format), prop.get_summary())
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+        self.vbox.show_all()
+
 
 class PlantInfoBox(InfoBox):
     """
@@ -1272,6 +1301,9 @@ class PlantInfoBox(InfoBox):
         self.transfers = TransferExpander(self.widgets)
         self.add_expander(self.transfers)
 
+        self.propagations = PropagationExpander(self.widgets)
+        self.add_expander(self.propagations)
+
         self.links = view.LinksExpander('notes')
         self.add_expander(self.links)
 
@@ -1288,6 +1320,7 @@ class PlantInfoBox(InfoBox):
         #loc.update(row.location)
         self.general.update(row)
         self.transfers.update(row)
+        self.propagations.update(row)
 
         urls = filter(lambda x: x!=[], \
                           [utils.get_urls(note.note) for note in row.notes])
