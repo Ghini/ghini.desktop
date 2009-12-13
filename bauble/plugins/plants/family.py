@@ -77,7 +77,7 @@ add_species_action = view.Action('family_genus_add', ('_Add accession'),
                                  accelerator='<ctrl>k')
 remove_action = view.Action('family_remove', ('_Delete'),
                             callback=remove_callback,
-                            accelerator='Delete', multiselect=True)
+                            accelerator='<ctrl>Delete', multiselect=True)
 
 family_context_menu = [edit_action, add_species_action, remove_action]
 

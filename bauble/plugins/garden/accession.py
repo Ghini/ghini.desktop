@@ -177,7 +177,7 @@ edit_action = Action('acc_edit', ('_Edit'), callback=edit_callback,
 add_plant_action = Action('acc_add', ('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
 remove_action = Action('acc_remove', ('_Delete'), callback=remove_callback,
-                       accelerator='Delete')#, multiselect=True)
+                       accelerator='<ctrl>Delete')#, multiselect=True)
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
 
