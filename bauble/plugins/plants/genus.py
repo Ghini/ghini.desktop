@@ -249,10 +249,9 @@ class GenusEditorView(editor.GenericEditorView):
         'gen_author_entry': _('The name or abbreviation of the author that '\
                               'published this genus'),
         'gen_syn_box': _('A list of synonyms for this genus.\n\nTo add a '
-                         'synonym enter a family name and select one from the '
+                         'synonym enter a genus name and select one from the '
                          'list of completions.  Then click Add to add it to '\
                          'the list of synonyms.'),
-        #'gen_notes_textview': _('Miscelleanous notes about this genus.')
      }
 
 
