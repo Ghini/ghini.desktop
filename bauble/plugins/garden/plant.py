@@ -901,8 +901,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 sensitive = True
             self.view.widgets.plant_notebook.get_nth_page(1).\
                 props.sensitive = sensitive
-                self.view.widgets.plant_notebook_prop_label.\
-                    props.sensitive = sensitive
+            self.view.widgets.plant_notebook_prop_label.\
+                props.sensitive = sensitive
             entry.modify_bg(gtk.STATE_NORMAL, color)
             entry.modify_base(gtk.STATE_NORMAL, color)
             entry.queue_draw()
