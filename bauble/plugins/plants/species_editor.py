@@ -36,7 +36,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_spqual_combo': 'sp_qual',
                            'sp_awards_entry': 'awards',
-                           'sp_zone_entry': 'hardiness_zone',
+                           #'sp_zone_entry': 'hardiness_zone',
                            'sp_label_dist_entry': 'label_distribution',
                            'sp_bcdist_entry': 'bc_distribution',
                            }
@@ -149,7 +149,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_bcdist_entry', 'bc_distribution')
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution')
         self.assign_simple_handler('sp_awards_entry', 'awards')
-        self.assign_simple_handler('sp_zone_entry', 'hardiness_zone')
+        #self.assign_simple_handler('sp_zone_entry', 'hardiness_zone')
 
 
     def on_combo_entry_changed(self, combo, *args):
@@ -1011,6 +1011,7 @@ class SpeciesEditorView(editor.GenericEditorView):
                                match_func=self.genus_match_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.set_accept_buttons_sensitive(False)
+        self.widgets.notebook.set_current_page(0)
         self.restore_state()
 
 

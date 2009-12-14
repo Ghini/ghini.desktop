@@ -760,6 +760,7 @@ class PlantEditorView(GenericEditorView):
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)
         self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
+        self.widgets.plant_notebook.set_current_page(0)
 
 
     def get_window(self):

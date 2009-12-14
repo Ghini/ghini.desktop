@@ -649,6 +649,9 @@ class AccessionEditorView(editor.GenericEditorView):
         adjustment.props.value = 0.0
         self.widgets.source_sw.set_vadjustment(adjustment)
 
+        # set current page so we don't open the last one that was open
+        self.widgets.acc_notebook.set_current_page(0)
+
 
     def get_window(self):
         return self.widgets.accession_dialog
@@ -1487,9 +1490,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = \
             editor.NotesPresenter(self, 'notes', notes_parent)
-
-        # set current page so we don't open the last one that was open
-        self.view.widgets.acc_notebook.set_current_page(0)
 
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
 
