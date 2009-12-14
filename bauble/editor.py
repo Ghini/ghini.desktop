@@ -691,7 +691,6 @@ class GenericEditorPresenter(object):
 
         def on_changed(entry, *args):
             text = entry.get_text()
-            #debug('on_changed: %s' % text)
             comp = entry.get_completion()
             comp_model = comp.get_model()
             found = []
@@ -706,12 +705,9 @@ class GenericEditorPresenter(object):
                         return comp._match_func(comp, text, row.iter)
                     else:
                         return utils.utf8(row[0]) == text
-                #debug('search for %s' % text)
                 found = utils.search_tree_model(comp_model, text, _cmp)
-                #debug(found)
                 if len(found) == 1:
                     v = comp.get_model()[found[0]][0]
-                    #debug('found: %s'  % str(v))
                     # only auto select if the full string has been entered
                     if text.lower() == utils.utf8(v).lower():
                         comp.emit('match-selected', comp.get_model(), found[0])
@@ -724,13 +720,16 @@ class GenericEditorPresenter(object):
 
             if (not comp_model and len(text)>key_length) or \
                     len(text) == key_length:
-                #debug('add_completions: %s' % text)
                 add_completions(text)
             return True
 
         def on_match_select(completion, compl_model, treeiter):
             value = compl_model[treeiter][0]
+            # temporarily block the changed ID so that this function
+            # doesn't get called twice
+            widget.handler_block(_changed_sid)
             widget.props.text = utils.utf8(value)
+            widget.handler_unblock(_changed_sid)
             self.remove_problem(PROBLEM, widget)
             on_select(value)
             return True # return True or on_changed() will be called with ''
@@ -739,7 +738,7 @@ class GenericEditorPresenter(object):
         check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
               'completion attached to it' % widget.get_name())
 
-        self.view.connect(widget, 'changed', on_changed)
+        _changed_sid = self.view.connect(widget, 'changed', on_changed)
         self.view.connect(completion, 'match-selected', on_match_select)
 
 
