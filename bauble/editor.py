@@ -632,7 +632,7 @@ class GenericEditorPresenter(object):
                 #data = combo.get_model()[combo.get_active_iter()][0]
                 #debug('%s=%s' % (model_attr, data))
                 if isinstance(widget, gtk.ComboBoxEntry):
-                    debug(str(value))
+                    #debug(str(value))
                     widget.child.set_text(str(value))
                 self.set_model_attr(model_attr, value, validator)
             def entry_changed(entry, data=None):

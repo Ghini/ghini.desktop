@@ -472,9 +472,9 @@ class Accession(db.Base):
                              backref=backref('accession', uselist=False))
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
-    intended_loc = relation('Location',
-                  primaryjoin='Accession.intended_location_id==Location.id')
-    intended2_loc = relation('Location',
+    intended_location = relation('Location',
+                     primaryjoin='Accession.intended_location_id==Location.id')
+    intended2_location = relation('Location',
                   primaryjoin='Accession.intended2_location_id==Location.id')
 
     # *** UBC specific
@@ -1448,8 +1448,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_date_recvd_entry': 'date_recvd',
                            'acc_recvd_type_comboentry': 'recvd_type',
                            'acc_quantity_recvd_entry': 'quantity_recvd',
-                           'intended_loc_comboentry': 'intended_loc',
-                           'intended2_loc_comboentry': 'intended2_loc',
+                           'intended_loc_comboentry': 'intended_location',
+                           'intended2_loc_comboentry': 'intended2_location',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
@@ -1601,15 +1601,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         from bauble.plugins.garden import init_location_comboentry
         def on_loc1_select(value):
-            self.set_model_attr('intended_location_id')
+            self.set_model_attr('intended_location', value)
         init_location_comboentry(self,
                                  self.view.widgets.intended_loc_comboentry,
-                                 on_loc1_select)
+                                 on_loc1_select, required=False)
         def on_loc2_select(value):
-            self.set_model_attr('intended2_location_id')
+            self.set_model_attr('intended2_location', value)
         init_location_comboentry(self,
                                  self.view.widgets.intended2_loc_comboentry,
-                                 on_loc2_select)
+                                 on_loc2_select, required=False)
 
         self.refresh_sensitivity()
 
@@ -2170,8 +2170,8 @@ class GeneralAccessionExpander(InfoExpander):
             stock = gtk.STOCK_YES
         self.widgets.pisbg_image.set_from_stock(stock, image_size)
 
-        loc_map = (('intended_loc_data', 'intended_loc'),
-                   ('intended2_loc_data', 'intended2_loc'))
+        loc_map = (('intended_loc_data', 'intended_location'),
+                   ('intended2_loc_data', 'intended2_location'))
 
         for label, attr in loc_map:
             location_str = ''

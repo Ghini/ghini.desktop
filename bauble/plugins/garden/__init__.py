@@ -93,7 +93,7 @@ class GardenPlugin(pluginmgr.Plugin):
         meta.get_default(plant_delimiter_key, default_plant_delimiter)
 
 
-def init_location_comboentry(presenter, combo, on_select):
+def init_location_comboentry(presenter, combo, on_select, required=True):
     """
     A comboentry that allows the location to be entered requires
     more custom setup than view.attach_completion and
@@ -142,6 +142,11 @@ def init_location_comboentry(presenter, combo, on_select):
 
     def on_entry_changed(entry, presenter):
         text = utils.utf8(entry.props.text)
+
+        if not text and not required:
+            presenter.remove_problem(PROBLEM, entry)
+            on_select(None)
+            return
         # see if the text matches a completion string
         comp = entry.get_completion()
         compl_model = comp.get_model()
@@ -152,10 +157,10 @@ def init_location_comboentry(presenter, combo, on_select):
             comp.emit('match-selected', compl_model, found[0])
             return True
         # see if the text matches exactly a code or name
-        codes = presenter.session.query(Location).filter(Location.code==text)
-        names = presenter.session.query(Location).filter(Location.name==text)
-        # TODO: why the hell do we get an error here when we run all
-        # the PlantTests but not the specific test_editor_transfer
+        codes = presenter.session.query(Location).\
+            filter(utils.ilike(Location.code, text))
+        names = presenter.session.query(Location).\
+            filter(utils.ilike(Location.name, text))
         if codes.count() == 1:
             location = codes.first()
             presenter.remove_problem(PROBLEM, entry)
