@@ -494,8 +494,6 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.view.connect('east_radio', 'toggled',
                               self.on_east_west_radio_toggled)
 
-        if self.model.locale is None or self.model.locale in ('', u''):
-            self.add_problem(self.PROBLEM_INVALID_LOCALE)
         self.__dirty = False
 
 
