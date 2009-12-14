@@ -743,8 +743,6 @@ class PlantEditorView(GenericEditorView):
         'plant_acc_type_combo': _('The type of the plant material.\n\n' \
                                   'Possible values: %s') % \
                                   ', '.join(acc_type_values.values()),
-        #'pad_note_name_entry': _('The name of the person creating this note'),
-        #'pad_note_textview': _('Miscelleanous notes about this plant.'),
         }
 
 
@@ -897,8 +895,14 @@ class PlantEditorPresenter(GenericEditorPresenter):
             if len(utils.range_builder(self.model.code)) > 1:
                 color_str = '#B0C4DE' # light steel blue
                 color = gtk.gdk.color_parse(color_str)
+                sensitive = False
             else:
                 color = None
+                sensitive = True
+            self.view.widgets.plant_notebook.get_nth_page(1).\
+                props.sensitive = sensitive
+                self.view.widgets.plant_notebook_prop_label.\
+                    props.sensitive = sensitive
             entry.modify_bg(gtk.STATE_NORMAL, color)
             entry.modify_base(gtk.STATE_NORMAL, color)
             entry.queue_draw()
@@ -1045,11 +1049,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
         # we have to set the properties on the new objects
         # individually since session.merge won't create a new object
         # since the object is already in the session
+        import sqlalchemy.orm as orm
         for code in codes:
             new_plant = Plant()
             self.session.add(new_plant)
+            ignore = ('removal', 'transfers', 'notes', 'propagations')
             for prop in mapper.iterate_properties:
-                setattr(new_plant, prop.key, getattr(self.model, prop.key))
+                if prop.key not in ignore:
+                    setattr(new_plant, prop.key, getattr(self.model, prop.key))
             new_plant.code = utils.utf8(code)
             new_plant.id = None
             new_plant._created = None
