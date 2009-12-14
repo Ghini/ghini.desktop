@@ -862,6 +862,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def dirty(self):
         return self._dirty
 
+
     def refresh_view(self):
         pass
 
@@ -886,7 +887,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             check(not model or isinstance(model, Verification))
 
             self.dirty = False
-            self.presenter = parent
+            self.presenter = weakref.ref(parent)
             self.model = model
             if not self.model:
                 self.model = Verification()
@@ -917,7 +918,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             entry = self.widgets.ver_verifier_entry
             if self.model.verifier:
                 entry.props.text = self.model.verifier
-            self.presenter.view.connect(entry, 'changed',
+            self.presenter().view.connect(entry, 'changed',
                                         self.on_entry_changed, 'verifier')
 
             # date entry
@@ -928,19 +929,19 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 self.date_entry.props.text = safe
             else:
                 self.date_entry.props.text = utils.xml_safe(utils.today_str())
-            self.presenter.view.connect(self.date_entry, 'changed',
+            self.presenter().view.connect(self.date_entry, 'changed',
                                         self.on_date_entry_changed)
 
             # reference entry
             ref_entry = self.widgets.ver_ref_entry
             if self.model.reference:
                 ref_entry.props.text = self.model.reference
-            self.presenter.view.connect(ref_entry, 'changed',
+            self.presenter().view.connect(ref_entry, 'changed',
                                         self.on_entry_changed, 'reference')
 
             # species entries
             def sp_get_completions(text):
-                query = self.presenter.session.query(Species).join('genus').\
+                query = self.presenter().session.query(Species).join('genus').\
                     filter(utils.ilike(Genus.genus, '%s%%' % text)).\
                     filter(Species.id != self.model.id)
                 return query
@@ -953,20 +954,22 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             entry = self.widgets.ver_prev_taxon_entry
             def on_prevsp_select(value):
                 self.set_model_attr('prev_species', value)
-            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            self.presenter().view.attach_completion(entry, sp_cell_data_func)
             if self.model.prev_species:
                 entry.props.text = self.model.prev_species
-            self.presenter.assign_completions_handler(entry,sp_get_completions,
-                                                      on_prevsp_select)
+            self.presenter().\
+                assign_completions_handler(entry,sp_get_completions,
+                                           on_prevsp_select)
 
             entry = self.widgets.ver_new_taxon_entry
             def on_sp_select(value):
                 self.set_model_attr('species', value)
-            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            self.presenter().view.attach_completion(entry, sp_cell_data_func)
             if self.model.species:
                 entry.props.text = self.model.species
-            self.presenter.assign_completions_handler(entry,sp_get_completions,
-                                                      on_sp_select)
+            self.presenter().\
+                assign_completions_handler(entry,sp_get_completions,
+                                           on_sp_select)
 
             combo = self.widgets.ver_level_combo
             renderer = gtk.CellRendererText()
@@ -987,22 +990,21 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             combo.set_model(model)
             if self.model.level:
                 utils.set_widget_value(combo, self.model.level)
-            self.presenter.view.connect(combo, 'changed',
-                                        self.on_level_combo_changed)
+            self.presenter().view.connect(combo, 'changed',
+                                          self.on_level_combo_changed)
 
             # notes text view
             buff = gtk.TextBuffer()
             if self.model.notes:
                 buff.props.text = self.model.notes
-            self.presenter.view.connect(buff, 'changed', self.on_entry_changed,
+            self.presenter().view.connect(buff, 'changed',self.on_entry_changed,
                                         'notes')
             textview = self.widgets.ver_notes_textview
             textview.set_border_width(1)
 
             # remove button
             button = self.widgets.ver_remove_button
-            #self._sid = button.connect('clicked',self.on_remove_button_clicked)
-            self._sid = self.presenter.view.connect(button, 'clicked',
+            self._sid = self.presenter().view.connect(button, 'clicked',
                                           self.on_remove_button_clicked)
 
             self.update_label()
@@ -1015,9 +1017,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             try:
                 value = editor.DateValidator().to_python(entry.props.text)
             except ValidatorError, e:
-                self.presenter.add_problem(PROBLEM, entry)
+                self.presenter().add_problem(PROBLEM, entry)
             else:
-                self.presenter.remove_problem(PROBLEM, entry)
+                self.presenter().remove_problem(PROBLEM, entry)
             self.set_model_attr('date', value)
 
 
@@ -1035,8 +1037,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # remove verification from accession
             if self.model.accession:
                 self.model.accession.verifications.remove(self.model)
-            self.presenter._dirty = True
-            self.presenter.parent_ref().refresh_sensitivity()
+            self.presenter()._dirty = True
+            self.presenter().parent_ref().refresh_sensitivity()
 
 
         def on_entry_changed(self, entry, attr):
@@ -1070,10 +1072,10 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 # start changing values, this way we can setup a dummy
                 # verification in the interface
                 if not self.model.accession:
-                    self.presenter.model.verifications.append(self.model)
-            self.presenter._dirty = True
+                    self.presenter().model.verifications.append(self.model)
+            self.presenter()._dirty = True
             self.update_label()
-            self.presenter.parent_ref().refresh_sensitivity()
+            self.presenter().parent_ref().refresh_sensitivity()
 
 
         def update_label(self):
@@ -1777,6 +1779,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         if not self.model.code or not self.model.species:
            return False
+
+        for ver in self.model.verifications:
+            ignore = ('id', 'accession_id', 'species_id', 'prev_species_id')
+            if utils.get_invalid_columns(ver, ignore_columns=ignore) or \
+                    not ver.species or not ver.prev_species:
+                return False
 
         # validate the source if there is one
         if self.model.source:
