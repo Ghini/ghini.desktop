@@ -264,6 +264,7 @@ class GenusEditorView(editor.GenericEditorView):
         self.attach_completion('gen_syn_entry', self.syn_cell_data_func)
         self.attach_completion('gen_family_entry')
         self.set_accept_buttons_sensitive(False)
+        self.widgets.notebook.set_current_page(0)
         self.restore_state()
 
 

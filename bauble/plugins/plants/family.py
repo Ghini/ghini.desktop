@@ -241,6 +241,7 @@ class FamilyEditorView(editor.GenericEditorView):
         super(FamilyEditorView, self).__init__(filename, parent=parent)
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
         self.set_accept_buttons_sensitive(False)
+        self.widgets.notebook.set_current_page(0)
         self.restore_state()
 
 

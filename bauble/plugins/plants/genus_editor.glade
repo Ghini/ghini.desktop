@@ -26,7 +26,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkNotebook" id="notebook1">
+              <object class="GtkNotebook" id="notebook">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
