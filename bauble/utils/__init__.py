@@ -1153,7 +1153,6 @@ def get_invalid_columns(obj, ignore_columns=['id']):
     - nullable columns with null values
     - ...what else?
     """
-
     # TODO: check for invalid enum types
     if not obj:
         return []
@@ -1163,7 +1162,7 @@ def get_invalid_columns(obj, ignore_columns=['id']):
     for column in filter(lambda c: c.name not in ignore_columns, table.c):
         v = getattr(obj, column.name)
         #debug('%s.%s = %s' % (table.name, column.name, v))
-        if not v and not column.nullable:
+        if v is None and not column.nullable:
             invalid_columns.append(column.name)
     return invalid_columns
 
