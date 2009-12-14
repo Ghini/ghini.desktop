@@ -6,29 +6,19 @@
 #
 
 import os
+
+import gtk
+
 import bauble
 import bauble.editor as editor
 import bauble.meta as meta
-import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
+import bauble.utils as utils
 from bauble.utils.log import debug
 
-# TODO: the institution editor is a live editor where the database is
-# updated as the user types. This is a bit slow and maybe we could add
-# a callback so that the database isn't updated until the user stops
-# typing...or just commit on OK
 
-class Singleton(object):
-    __instance = None
-    def __new__(cls, *args, **kwargs):
-        if Singleton.__instance == None:
-            obj = object.__new__(cls, *args, **kwargs)
-            Singleton.__instance = obj
-        return Singleton.__instance
-
-
-class Institution(Singleton):
+class Institution(object):
     '''
     Institution is a "live" object. When properties are changed the changes
     are immediately reflected in the database.
@@ -36,43 +26,44 @@ class Institution(Singleton):
     Institution values are stored in the Bauble meta database and not in
     its own table
     '''
-    __properties = ('name', 'abbreviation', 'code', 'contact',
-                    'technical_contact', 'email', 'tel', 'fax', 'address')
-    __db_tmpl = 'inst_%s'
-    #table = meta.bauble_meta_table
-    # TODO: update this to not use this table directly
+    __properties = ('inst_name', 'inst_abbreviation', 'inst_code',
+                    'inst_contact', 'inst_technical_contact', 'inst_email',
+                    'inst_tel', 'inst_fax', 'inst_address')
+
     table = meta.BaubleMeta.__table__
-    prop = lambda s, p: utils.utf8(s.__db_tmpl % p)
 
-    def __getattr__(self, prop):
-        if prop not in self.__properties:
-            msg = _('Institution.__getattr__: %s not a property on '\
-                    'Intitution') % prop
-            raise ValueError(msg)
-        r = self.table.select(self.table.c.name==self.prop(prop)).execute().fetchone()
-        if r is None:
-            return None
-        return r['value']
+    def __init__(self):
+        # initialize properties to None
+        map(lambda p: setattr(self, p, None), self.__properties)
+
+        for prop in self.__properties:
+            prop = utils.utf8(prop)
+            result = self.table.select(self.table.c.name==prop).execute()
+            row = result.fetchone()
+            if row:
+                setattr(self, prop, row['value'])
+            result.close()
 
 
-    def __setattr__(self, prop, value):
-        if prop not in self.__properties:
-            msg = _('Institution.__setattr__: %s not a property on '\
-                    'Intitution') % prop
-            raise ValueError(msg)
-        prop = self.prop(prop)
-        value = utils.utf8(value)
-        s = self.table.select(self.table.c.name == prop).execute()
-        # have to check if the property exists first because sqlite doesn't
-        # raise an error if you try to update a value that doesn't exist and
-        # do an insert and then catching the exception if it exists and then
-        # updating the value is too slow
-        if s.fetchone() is None:
-##            debug('insert: %s = %s' % (prop, value))
-            self.table.insert().execute(name=prop, value=value)
-        else:
-##            debug('update: %s = %s' % (prop, value))
-            self.table.update(self.table.c.name==prop).execute(value=value)
+    def write(self):
+        for prop in self.__properties:
+            value = getattr(self, prop)
+            prop = utils.utf8(prop)
+            value = utils.utf8(value)
+            result = self.table.select(self.table.c.name == prop).\
+                execute()
+            row = result.fetchone()
+            result.close()
+            # have to check if the property exists first because sqlite doesn't
+            # raise an error if you try to update a value that doesn't exist and
+            # do an insert and then catching the exception if it exists and then
+            # updating the value is too slow
+            if not row:
+                debug('insert: %s = %s' % (prop, value))
+                self.table.insert().execute(name=prop, value=value)
+            else:
+                debug('update: %s = %s' % (prop, value))
+                self.table.update(self.table.c.name==prop).execute(value=value)
 
 
 
@@ -95,15 +86,15 @@ class InstitutionEditorView(editor.GenericEditorView):
 
 class InstitutionEditorPresenter(editor.GenericEditorPresenter):
 
-    widget_to_field_map = {'inst_name': 'name',
-                           'inst_abbr': 'abbreviation',
-                           'inst_code': 'code',
-                           'inst_contact': 'contact',
-                           'inst_tech': 'technical_contact',
-                           'inst_email': 'email',
-                           'inst_tel': 'tel',
-                           'inst_fax': 'fax',
-                           'inst_addr': 'address'
+    widget_to_field_map = {'inst_name': 'inst_name',
+                           'inst_abbr': 'inst_abbreviation',
+                           'inst_code': 'inst_code',
+                           'inst_contact': 'inst_contact',
+                           'inst_tech': 'inst_technical_contact',
+                           'inst_email': 'inst_email',
+                           'inst_tel': 'inst_tel',
+                           'inst_fax': 'inst_fax',
+                           'inst_addr': 'inst_address'
                            }
 
     def __init__(self, model, view):
@@ -112,7 +103,6 @@ class InstitutionEditorPresenter(editor.GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field)
         self.__dirty = False
-
 
 
     def set_model_attr(self, attr, value, validator):
@@ -143,7 +133,10 @@ class InstitutionEditor(object):
 
 
     def start(self):
-        self.presenter.start()
+        response = self.presenter.start()
+        if response == gtk.RESPONSE_OK:
+            self.model.write()
+
 
 
 class InstitutionCommand(pluginmgr.CommandHandler):
