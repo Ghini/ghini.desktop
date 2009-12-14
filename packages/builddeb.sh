@@ -1,6 +1,6 @@
 # branch this directory and create a source dist
 TOPLEVEL=`pwd`
-VERSION="ubc-1.0.0b7" # :bump
+VERSION="ubc-1.0.0b8" # :bump
 TARBALL="bauble-$VERSION.tar.gz"
 ORIG_TARBALL="bauble_$VERSION.orig.tar.gz"
 
