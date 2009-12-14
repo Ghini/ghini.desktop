@@ -638,7 +638,7 @@ def do_sciname():
         row['id'] = species_id
         row['awards'] = get_value(rec, 'awards')
         row['habit'] = get_value(rec, 'habit')
-        row['hardiness_zone'] = get_value(rec, 'hard_zone')
+        # row['hardiness_zone'] = get_value(rec, 'hard_zone')
         row['label_distribution'] = get_value(rec, 'nativity')
         row['bc_distribution'] = get_value(rec, 'natbc')
 
