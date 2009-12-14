@@ -91,12 +91,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect(self.view.widgets.sp_habit_comboentry.child,
                           'changed', self.on_habit_entry_changed)
 
-        # connect flower comboentry widget and child entry
-        self.view.connect('sp_flower_comboentry', 'changed',
-                          self.on_combo_entry_changed)
-        self.view.connect(self.view.widgets.sp_flower_comboentry.child,
-                          'changed', self.on_flower_entry_changed)
-
         # connect signals
         def gen_get_completions(text):
             clause = utils.ilike(Genus.genus, '%s%%' % unicode(text))
@@ -197,29 +191,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         else:
             self.add_problem(problem, entry)
             self.set_model_attr('habit', None)
-
-
-    def on_flower_entry_changed(self, entry, *args):
-        """
-        """
-        problem = 'BAD_COLOR'
-        text = entry.props.text
-        if not text.strip():
-            self.remove_problem(problem, entry)
-            self.set_model_attr('flower_color', None)
-            return
-        model = entry.get_parent().get_model()
-        def match_func(row, data):
-            return str(row[0].code).lower() == str(data).lower() or \
-                str(row[0].name).lower() == str(data).lower() or \
-                str(row[0]).lower() == str(data).lower()
-        results = utils.search_tree_model(model, text, match_func)
-        if results and len(results) == 1: # is match is unique
-            self.remove_problem(problem, entry)
-            self.set_model_attr('flower_color', model[results[0]][0])
-        else:
-            self.add_problem(problem, entry)
-            self.set_model_attr('flower_color', None)
 
 
     def __del__(self):
@@ -323,8 +294,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         utils.set_widget_value(self.view.widgets.sp_habit_comboentry,
                                self.model.habit or '')
-        utils.set_widget_value(self.view.widgets.sp_flower_comboentry,
-                               self.model.flower_color or '')
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.dist_presenter.refresh_view()
