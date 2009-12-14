@@ -1567,7 +1567,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
         self.assign_simple_handler('acc_prov_combo', 'prov_type')
         self.assign_simple_handler('acc_wild_prov_combo', 'wild_prov_status')
-        self.assign_simple_handler('acc_recvd_type_comboentry', 'recvd_type')
+
+        # connect recvd_type comboentry widget and child entry
+        self.view.connect('acc_recvd_type_comboentry', 'changed',
+                          self.on_recvd_type_comboentry_changed)
+        self.view.connect(self.view.widgets.acc_recvd_type_comboentry.child,
+                          'changed', self.on_recvd_type_entry_changed)
 
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
@@ -1657,6 +1662,43 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                       self.notes_presenter, self.source_presenter]
         dirty_kids = [p.dirty() for p in presenters]
         return self.__dirty or True in dirty_kids
+
+
+    def on_recvd_type_comboentry_changed(self, combo, *args):
+        """
+        """
+        value = None
+        treeiter = combo.get_active_iter()
+        if treeiter:
+            value = combo.get_model()[treeiter][0]
+        else:
+            # the changed handler is fired again after the
+            # combo.child.props.text with the activer iter set to None
+            return True
+        # the entry change handler does the validation of the model
+        combo.child.props.text = recvd_type_values[value]
+
+
+    def on_recvd_type_entry_changed(self, entry, *args):
+        """
+        """
+        problem = 'BAD_RECVD_TYPE'
+        text = entry.props.text
+        if not text.strip():
+            self.remove_problem(problem, entry)
+            self.set_model_attr('recvd_type', None)
+            return
+        model = entry.get_parent().get_model()
+        def match_func(row, data):
+            return str(row[0]).lower() == str(data).lower() or \
+                str(row[1]).lower() == str(data).lower()
+        results = utils.search_tree_model(model, text, match_func)
+        if results and len(results) == 1: # is match is unique
+            self.remove_problem(problem, entry)
+            self.set_model_attr('recvd_type', model[results[0]][0])
+        else:
+            self.add_problem(problem, entry)
+            self.set_model_attr('recvd_type', None)
 
 
     def on_acc_code_entry_changed(self, entry, data=None):

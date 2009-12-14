@@ -101,6 +101,21 @@ class UnicodeOrNoneValidator(Validator):
         return utils.to_unicode(value, self.encoding)
 
 
+class UnicodeOrEmptyValidator(Validator):
+    """
+    If the value is an empty unicode string then return '', else
+    return the unicode() of the value. The default encoding is
+    'utf-8'.
+    """
+    def __init__(self, encoding='utf-8'):
+        self.encoding = encoding
+
+    def to_python(self, value):
+        if not value.strip():
+            return ''
+        return utils.to_unicode(value, self.encoding)
+
+
 
 class IntOrNoneStringValidator(Validator):
     """
@@ -617,6 +632,7 @@ class GenericEditorPresenter(object):
                 #data = combo.get_model()[combo.get_active_iter()][0]
                 #debug('%s=%s' % (model_attr, data))
                 if isinstance(widget, gtk.ComboBoxEntry):
+                    debug(str(value))
                     widget.child.set_text(str(value))
                 self.set_model_attr(model_attr, value, validator)
             def entry_changed(entry, data=None):
