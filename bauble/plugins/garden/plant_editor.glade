@@ -441,7 +441,7 @@
               </packing>
             </child>
             <child type="tab">
-              <object class="GtkLabel" id="label3">
+              <object class="GtkLabel" id="plant_notebook_prop_label">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">Propagations</property>
               </object>
