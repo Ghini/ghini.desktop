@@ -249,7 +249,37 @@ class GeneralSpeciesExpander(InfoExpander):
         session = db.Session()
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
                               row.markup(True))
-        self.set_widget_value('sp_dist_data', row.distribution_str())
+
+        awards = ''
+        if row.awards:
+            awards = utils.utf8(row.awards)
+        self.set_widget_value('sp_awards_data', awards)
+
+        # zone = ''
+        # if row.hardiness_zone:
+        #     awards = utils.utf8(row.hardiness_zone)
+        # self.set_widget_value('sp_hardiness_data', zone)
+
+        habit = ''
+        if row.habit:
+            habit = utils.utf8(row.habit)
+        self.set_widget_value('sp_habit_data', habit)
+
+        dist = ''
+        if row.distribution:
+            dist = utils.utf8(row.distribution_str())
+        self.set_widget_value('sp_dist_data', dist)
+
+        dist = ''
+        if row.bc_distribution:
+            dist = utils.utf8(row.bc_distribution)
+        self.set_widget_value('sp_bcdist_data', dist)
+
+        dist = ''
+        if row.label_distribution:
+            dist = row.label_distribution
+        self.set_widget_value('sp_labeldist_data', dist)
+
 
         # stop here if not GardenPluin
         if 'GardenPlugin' not in pluginmgr.plugins:

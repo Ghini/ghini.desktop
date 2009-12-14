@@ -185,7 +185,7 @@ class Species(db.Base):
     flower_color_id = Column(Integer, ForeignKey('color.id'), default=None)
     flower_color = relation('Color', uselist=False, backref='species')
 
-    hardiness_zone = Column(Unicode(4))
+    #hardiness_zone = Column(Unicode(4))
 
     awards = Column(UnicodeText)
 
