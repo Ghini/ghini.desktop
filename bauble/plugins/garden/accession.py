@@ -831,6 +831,12 @@ class VoucherPresenter(editor.GenericEditorPresenter):
 
 class VerificationPresenter(editor.GenericEditorPresenter):
 
+    """
+    :param parent:
+    :param model:
+    :param view:
+    :param session:
+    """
     PROBLEM_INVALID_DATE = random()
 
     def __init__(self, parent, model, view, session):
@@ -872,6 +878,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
 
     def add_verification_box(self, model=None):
+        """
+        :param model:
+        """
         box = VerificationPresenter.VerificationBox(self, model)
         self.view.widgets.\
             verifications_parent_box.pack_start(box, expand=False, fill=False)
@@ -891,6 +900,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.model = model
             if not self.model:
                 self.model = Verification()
+                self.model.prev_species = self.presenter().model.species
 
             # copy UI definitions from the accession editor glade file
             filename = os.path.join(paths.lib_dir(), "plugins", "garden",
@@ -958,17 +968,38 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             if self.model.prev_species:
                 entry.props.text = self.model.prev_species
             self.presenter().\
-                assign_completions_handler(entry,sp_get_completions,
+                assign_completions_handler(entry, sp_get_completions,
                                            on_prevsp_select)
 
             entry = self.widgets.ver_new_taxon_entry
             def on_sp_select(value):
                 self.set_model_attr('species', value)
+                # only ask to change accession.species if the value
+                # isn't already set and only if this is the last
+                # verification, meaning the the top most verification
+                # box in the editor
+                #
+                # TODO: the only thing left to make this work is
+                # setting the species string in the entry without
+                # having it add a problem
+                #
+                # if value and value != self.presenter().model.species and \
+                #         self.model == self.presenter().model.verifications[-1]:
+                #     msg = _("The species you have selected doesn't match the "\
+                #             "species for the accession.  Would you like to "\
+                #             "set the species for the accession to: "\
+                #             "\n\n<b>%s</b>") \
+                #             % Species.str(value, markup=True, authors=True)
+                #     if utils.yes_no_dialog(msg):
+                #         self.presenter().view.\
+                #             set_widget_value('acc_species_entry', str(value))
+
+
             self.presenter().view.attach_completion(entry, sp_cell_data_func)
             if self.model.species:
                 entry.props.text = self.model.species
             self.presenter().\
-                assign_completions_handler(entry,sp_get_completions,
+                assign_completions_handler(entry, sp_get_completions,
                                            on_sp_select)
 
             combo = self.widgets.ver_level_combo
