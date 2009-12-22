@@ -462,37 +462,29 @@ class GenericEditorPresenter(object):
     def remove_problem(self, problem_id, problem_widgets=None):
         """
         Remove problem_id from self.problems and reset the background
-        color of the widget(s) in problem_widgets
+        color of the widget(s) in problem_widgets.  If problem_id is
+        None and problem_widgets is None then method won't do anything.
 
-        :param problem_id:
-        :param problem_widgets:
+        :param problem_id: the problem to remove, if None then remove
+        any problem from the problem_widget(s)
+
+        :param problem_widgets: a gtk.Widget instance or list of list
+        of widgets to remove the problem from, if None then remove all
+        occurrences of problem_id regardless of the widget
         """
-        if not problem_widgets:
-            # remove all the problem ids regardless of the widgets
-            # they are attached to
-
-            # TODO: should this only remove problem ids if the widget
-            # part of the problem is None?
-            tmp = self.problems.copy()
-            for p, w in tmp:
-                if p == problem_id:
-                    self.problems.remove((p, w))
-            return
-        elif isinstance(problem_widgets, (list, tuple)):
-            # call remove_problem() on each item in problem_widgets
-            map(lambda w: self.remove_problem(problem_id, w), problem_widgets)
+        if problem_id is None and not problem_widgets:
+            # if no problem id and not problem widgets then don't do anything
             return
 
-        try:
-            while True:
-                # keep removing matching problems until we get a key error
-                self.problems.remove((problem_id, problem_widgets))
+        tmp = self.problems.copy()
+        for p, w in tmp:
+            if (not problem_widgets and p == problem_id) or \
+                    (problem_id is None and w == problem_widgets) or \
+                    (p == problem_id and w == problem_widgets):
                 problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
                 problem_widgets.modify_base(gtk.STATE_NORMAL, None)
                 problem_widgets.queue_draw()
-        except KeyError, e:
-            #debug(e)
-            pass
+                self.problems.remove((p, w))
 
 
     def add_problem(self, problem_id, problem_widgets=None):
