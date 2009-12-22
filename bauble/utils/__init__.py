@@ -947,6 +947,7 @@ class GenericMessageBox(gtk.EventBox):
 
 
     def animate(self):
+        return
         # TODO: this animation should be smoother
         width, height = self.size_request()
         self.set_size_request(width, 0)
