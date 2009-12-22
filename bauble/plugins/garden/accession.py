@@ -1583,11 +1583,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(box)
                 box.destroy()
                 if response:
+                    completion = self.view.widgets.acc_species_entry.\
+                        get_completion()
+                    utils.clear_model(completion)
+                    model = gtk.ListStore(object)
+                    model.append([syn.species])
+                    completion.set_model(model)
                     self.view.widgets.acc_species_entry.\
                         set_text(utils.utf8(syn.species))
                     set_model(syn.species)
-                else:
-                    set_model(value)
             box = utils.add_message_box(self.view.widgets.message_box_parent,
                                         utils.MESSAGE_BOX_YESNO)
             box.message = msg
