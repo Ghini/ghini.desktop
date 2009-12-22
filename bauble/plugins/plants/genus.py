@@ -356,7 +356,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             syn = self.session.query(FamilySynonym).\
                 filter(FamilySynonym.synonym_id == value.id).first()
             if not syn:
-                self.set_model_attr('famil', value)
+                self.set_model_attr('family', value)
                 return
             msg = _('The family <b>%(synonym)s</b> is a synonym of '\
                         '<b>%(family)s</b>.\n\nWould you like to choose '\
@@ -367,11 +367,21 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(box)
                 box.destroy()
                 if response:
+                    # populate the completions model on the entry so
+                    # when we set the text it will match the
+                    # completion and set the value
+                    completion = self.view.widgets.gen_family_entry.\
+                        get_completion()
+                    utils.clear_model(completion)
+                    model = gtk.ListStore(object)
+                    model.append([syn.family])
+                    completion.set_model(model)
                     self.view.widgets.gen_family_entry.\
                         set_text(utils.utf8(syn.family))
+                    # the family value should be set properly when the
+                    # text is set on the entry but it doesn't hurt to
+                    # duplicate it here
                     self.set_model_attr('family', syn.family)
-                else:
-                    self.set_model_attr('family', value)
             box = utils.add_message_box(self.view.widgets.message_box_parent,
                                         utils.MESSAGE_BOX_YESNO)
             box.message = msg
