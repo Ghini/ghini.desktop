@@ -4,6 +4,7 @@
 
 import os
 import traceback
+import weakref
 import xml
 
 import gtk
@@ -338,8 +339,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
-                                                    self.session)
+        self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view() # put model values in view
 
         # connect signals
@@ -453,14 +453,14 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
     PROBLEM_INVALID_SYNONYM = 1
 
 
-    def __init__(self, genus, view, session):
+    def __init__(self, parent):
         '''
-        @param model: Genus instance
-        @param view: see GenericEditorPresenter
-        @param session:
+        :param parent: GenusEditorPreesnter
         '''
-        super(SynonymsPresenter, self).__init__(genus, view)
-        self.session = session
+        self.parent_ref = weakref.ref(parent)
+        super(SynonymsPresenter, self).__init__(self.parent_ref().model,
+                                                self.parent_ref().view)
+        self.session = self.parent_ref().session
         self.init_treeview()
 
         # use completions_model as a dummy object for completions, we'll create
@@ -481,7 +481,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self._selected = value
         self.assign_completions_handler('gen_syn_entry', gen_get_completions,
                                         on_select=on_select)
-
 
         self.view.connect('gen_syn_add_button', 'clicked',
                           self.on_add_button_clicked)
@@ -564,7 +563,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.__dirty = True
-        self.refresh_sensitivity()
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
