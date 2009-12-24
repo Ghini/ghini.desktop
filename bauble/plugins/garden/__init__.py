@@ -125,12 +125,17 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     combo.set_cell_data_func(cell, cell_data_func)
 
     model = gtk.ListStore(object)
-    locations = sorted(presenter.session.query(Location),
+    locations = sorted(presenter.session.query(Location).all(),
                        key=lambda loc: utils.natsort_key(loc.code))
-    for location in locations:
-        model.append([location])
+    map(lambda loc: model.append([loc]), locations)
     combo.set_model(model)
     completion.set_model(model)
+
+    def match_func(completion, key, treeiter, data=None):
+        loc = completion.get_model()[treeiter][0]
+        return (loc.name and loc.name.lower().startswith(key.lower())) or \
+               (loc.code and loc.code.lower().startswith(key.lower()))
+    completion.set_match_func(match_func)
 
     def on_match_select(completion, model, treeiter):
         value = model[treeiter][0]
@@ -158,9 +163,9 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
             return True
         # see if the text matches exactly a code or name
         codes = presenter.session.query(Location).\
-            filter(utils.ilike(Location.code, text))
+            filter(utils.ilike(Location.code, '%s%%' % utils.utf8(text)))
         names = presenter.session.query(Location).\
-            filter(utils.ilike(Location.name, text))
+            filter(utils.ilike(Location.name, '%s%%' % utils.utf8(text)))
         if codes.count() == 1:
             location = codes.first()
             presenter.remove_problem(PROBLEM, entry)
