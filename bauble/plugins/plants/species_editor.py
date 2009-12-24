@@ -204,10 +204,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model) or \
-            self.vern_presenter.dirty() or self.synonyms_presenter.dirty() or \
-            self.dist_presenter.dirty() or self.infrasp_presenter.dirty() or \
-            self.notes_presenter.dirty()
+        return self.__dirty or self.vern_presenter.dirty() or \
+            self.synonyms_presenter.dirty() or self.dist_presenter.dirty() \
+            or self.infrasp_presenter.dirty() or self.notes_presenter.dirty()
 
 
     def set_model_attr(self, field, value, validator=None):

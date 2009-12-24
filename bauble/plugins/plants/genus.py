@@ -426,8 +426,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
+        return self.__dirty or self.synonyms_presenter.dirty() or \
+            self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -655,12 +655,14 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() \
-                 and utils.yes_no_dialog(not_ok_msg) \
+        elif (self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg)) \
                  or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
+            # we should never really even get here since we would have
+            # to hit something besides "OK" and the above elif should
+            # handle all the possible cases
             return False
 
         # respond to responses

@@ -189,7 +189,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model)
+        return self.__dirty
 
 
     def refresh_view(self):

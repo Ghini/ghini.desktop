@@ -331,8 +331,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
+        return self.__dirty or self.synonyms_presenter.dirty() \
+            or self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -540,8 +540,9 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or \
+        elif (self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg)) or \
                 not self.presenter.dirty():
+            debug(self.presenter.dirty())
             self.session.rollback()
             return True
         else:
