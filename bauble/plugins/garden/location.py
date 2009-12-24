@@ -23,8 +23,13 @@ def edit_callback(locations):
 
 
 def add_plants_callback(locations):
+    # create a temporary session so that the temporary plant doesn't
+    # get added to the accession
+    session = db.Session()
+    loc = session.merge(locations[0])
     from bauble.plugins.garden.plant import Plant, PlantEditor
-    e = PlantEditor(model=Plant(location=locations[0]))
+    e = PlantEditor(model=Plant(location=loc))
+    session.close()
     return e.start() != None
 
 

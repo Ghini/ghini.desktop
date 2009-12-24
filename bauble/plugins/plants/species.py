@@ -57,10 +57,12 @@ def remove_callback(values):
 
 def add_accession_callback(values):
     from bauble.plugins.garden.accession import Accession, AccessionEditor
-    species = values[0]
+    session = db.Session()
+    species = session.merge(values[0])
     if isinstance(species, VernacularName):
         species = species.species
     e = AccessionEditor(model=Accession(species=species))
+    session.close()
     return e.start() != None
 
 

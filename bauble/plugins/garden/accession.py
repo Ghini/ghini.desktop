@@ -136,7 +136,12 @@ def edit_callback(accessions):
 
 
 def add_plants_callback(accessions):
-    e = PlantEditor(model=Plant(accession=accessions[0]))
+    # create a temporary session so that the temporary plant doesn't
+    # get added to the accession
+    session = db.Session()
+    acc = session.merge(accessions[0])
+    e = PlantEditor(model=Plant(accession=acc))
+    session.close()
     return e.start()
 
 
