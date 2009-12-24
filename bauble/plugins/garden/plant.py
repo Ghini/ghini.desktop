@@ -1100,7 +1100,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+        elif (self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg)) \
                 or not self.presenter.dirty():
             self.session.rollback()
             return True
