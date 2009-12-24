@@ -35,8 +35,11 @@ def add_genera_callback(families):
     """
     Family context menu callback
     """
-    family = families[0]
-    return GenusEditor(model=Genus(family=family)).start() != None
+    session = db.Session()
+    family = session.merge(families[0])
+    e = GenusEditor(model=Genus(family=family))
+    session.close()
+    return e.start() != None
 
 
 
