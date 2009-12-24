@@ -608,7 +608,11 @@ class AccessionEditorView(editor.GenericEditorView):
                                  'provenance\n\nPossible values: %s') % \
                                  ', '.join(wild_prov_status_values.values()),
         'acc_private_check': _('Indicates whether this accession record ' \
-                               'should be considered private.')
+                               'should be considered private.'),
+        'acc_pisbg_check': _('Indicates whether is part of the Plant '
+                             'Introduction Schema for Botanic Gardens'),
+        'acc_memorial_check': _('Indicates whether this accession was planted '
+                                'as a memorial')
         }
 
 
@@ -1894,11 +1898,20 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                    recvd_type_values[self.model.recvd_type],
                                    index=1)
 
+        self.view.widgets.acc_private_check.\
+            set_inconsistent(self.model.private is True)
+        self.view.widgets.acc_private_check.\
+            set_active(self.model.private is True)
 
+        self.view.widgets.acc_pisbg_check.\
+            set_inconsistent(self.model.pisbg is True)
+        self.view.widgets.acc_pisbg_check.\
+            set_active(self.model.pisbg is True)
 
-        if self.model.private is None:
-            self.view.widgets.acc_private_check.set_inconsistent(False)
-            self.view.widgets.acc_private_check.set_active(False)
+        self.view.widgets.acc_memorial_check.\
+            set_inconsistent(self.model.memorial is True)
+        self.view.widgets.acc_memorial_check.\
+            set_active(self.model.memorial is True)
 
         sensitive = self.model.prov_type == 'Wild'
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
