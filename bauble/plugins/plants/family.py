@@ -72,7 +72,7 @@ def remove_callback(families):
 
 edit_action = view.Action('family_edit', ('_Edit'), callback=edit_callback,
                           accelerator='<ctrl>e')
-add_species_action = view.Action('family_genus_add', ('_Add accession'),
+add_species_action = view.Action('family_genus_add', ('_Add genus'),
                                  callback=add_genera_callback,
                                  accelerator='<ctrl>k')
 remove_action = view.Action('family_remove', ('_Delete'),
