@@ -1487,7 +1487,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_id_qual_combo': 'id_qual',
                            'acc_date_accd_entry': 'date_accd',
                            'acc_date_recvd_entry': 'date_recvd',
-                           'acc_date_recvd_entry': 'date_recvd',
                            'acc_recvd_type_comboentry': 'recvd_type',
                            'acc_quantity_recvd_entry': 'quantity_recvd',
                            'intended_loc_comboentry': 'intended_location',
@@ -1869,6 +1868,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
         sensitive = self.dirty() and self.validate() \
+            and not self.problems \
             and not self.source_presenter.all_problems() \
             and not self.ver_presenter.problems \
             and not self.voucher_presenter.problems
@@ -2266,23 +2266,26 @@ class SourceExpander(InfoExpander):
         else:
             geo_accy = '(+/- %sm)' % geo_accy
 
+        lat_str = ''
         if collection.latitude:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
             lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lat_data', lat_str)
+        self.set_widget_value('lat_data', lat_str)
 
+        long_str = ''
         if collection.longitude:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
             long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lon_data', long_str)
+        self.set_widget_value('lon_data', long_str)
 
-        if collection.elevation_accy:
-            elevation = '%sm (+/- %sm)' % (collection.elevation,
-                                           collection.elevation_accy)
-            self.set_widget_value('elev_data', elevation)
-
+        elevation = ''
+        if collection.elevation:
+            elevation = '%sm' % collection.elevation
+            if collection.elevation_accy:
+                elevation += ' (+/- %sm)' % collection.elevation_accy
+        self.set_widget_value('elev_data', elevation)
 
         self.set_widget_value('coll_data', collection.collector)
         self.set_widget_value('date_data', collection.date)
@@ -2322,7 +2325,7 @@ class SourceExpander(InfoExpander):
 
         prop_str = ''
         if row.source.propagation:
-            prop_str = row.propagation.get_summary()
+            prop_str = row.source.propagation.get_summary()
         self.set_widget_value('propagation_data', prop_str)
 
         if row.source.collection:
