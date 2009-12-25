@@ -140,6 +140,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     def on_match_select(completion, model, treeiter):
         value = model[treeiter][0]
         on_select(value)
+        entry.props.text = str(value)
         presenter.remove_problem(PROBLEM, entry)
         presenter.refresh_sensitivity()
         return True
