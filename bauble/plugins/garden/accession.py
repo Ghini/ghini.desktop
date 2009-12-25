@@ -799,10 +799,10 @@ class VoucherPresenter(editor.GenericEditorPresenter):
     def on_cell_edited(self, cell, path, new_text, data):
         treeview, prop = data
         treemodel = self.view.widgets[treeview].get_model()
-        rooted = treemodel[path][0]
-        if getattr(rooted, prop) == new_text:
+        voucher = treemodel[path][0]
+        if getattr(voucher, prop) == new_text:
             return  # didn't change
-        setattr(rooted, prop, utils.utf8(new_text))
+        setattr(voucher, prop, utils.utf8(new_text))
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
 
@@ -1827,6 +1827,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             ignore = ('id', 'accession_id', 'species_id', 'prev_species_id')
             if utils.get_invalid_columns(ver, ignore_columns=ignore) or \
                     not ver.species or not ver.prev_species:
+                return False
+
+        for voucher in self.model.vouchers:
+            ignore = ('id', 'accession_id')
+            if utils.get_invalid_columns(voucher, ignore_columns=ignore):
                 return False
 
         # validate the source if there is one
