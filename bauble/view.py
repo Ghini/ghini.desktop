@@ -278,7 +278,8 @@ class InfoBox(gtk.Notebook):
         self.connect('switch-page', self.on_switch_page)
 
 
-    # TODO: this seems broken: self == notebook
+    # not sure why we pass have self and notebook in the arg list here
+    # since they are the same
     def on_switch_page(self, notebook, dummy_page, page_num,  *args):
         """
         Called when a page is switched
@@ -530,9 +531,6 @@ class MapperSearch(SearchStrategy):
             self._results.update(query.all())
             return
 
-        # TODO: should probably create a normalize_cond() method
-        # to convert things like contains and has into like conditions
-
         mapper = class_mapper(cls)
 
         if cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
@@ -546,8 +544,6 @@ class MapperSearch(SearchStrategy):
                 lambda val: mapper.c[col].op(cond)(val)
 
         for col in properties:
-            # TODO: i don't know how well this will work out if we're
-            # search for numbers
             ors = or_(*map(condition(col), values))
             self._results.update(query.filter(ors).all())
         return tokens
@@ -561,12 +557,10 @@ class MapperSearch(SearchStrategy):
         searches all the mapper and the properties configured with
         add_meta()
         """
-        #debug('values: %s' % tokens)
-#         debug('  s: %s' % s)
-#         debug('  loc: %s' % loc)
-#         debug('  toks: %s' % tokens)
-        # TODO: should also combine all the values into a single
-        # string and search for that string
+        # debug('values: %s' % tokens)
+        # debug('  s: %s' % s)
+        # debug('  loc: %s' % loc)
+        # debug('  toks: %s' % tokens)
 
         # make searches case-insensitive, in postgres use ilike,
         # in other use upper()
@@ -1087,9 +1081,6 @@ class SearchView(pluginmgr.View):
 
 
     def cell_data_func(self, col, cell, model, treeiter):
-        # TODO: maybe we should cache the strings on our side and then
-        # detect if the objects have been changed in their session in
-        # order to determine if the cache should be invalidated
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
         cell_rect = self.results_view.get_cell_area(path, col)
@@ -1190,9 +1181,9 @@ class SearchView(pluginmgr.View):
             # TODO: only show menu if all the types are the same, else
             # show the common menu
             if False in istype:
-                #debug('not all the same type')
-                raise NotImplementedError('calling an action on multiple '\
-                                              'types is not yet supported')
+                # raise NotImplementedError(_('You can only call an action if '
+                #                             'all the selected types are the '
+                #                             'same'))
                 return False
             else:
                 #debug('ALL the same type')

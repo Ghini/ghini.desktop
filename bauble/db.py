@@ -179,7 +179,6 @@ def create(import_defaults=True):
     import bauble
     import bauble.meta as meta
     import bauble.pluginmgr as pluginmgr
-    from bauble.task import TaskQuitting
     import datetime
 
     connection = engine.connect()
@@ -200,7 +199,7 @@ def create(import_defaults=True):
         meta_table.insert(bind=connection).\
             execute(name=meta.CREATED_KEY,
                     value=unicode(datetime.datetime.now())).close()
-    except (GeneratorExit, TaskQuitting), e:
+    except GeneratorExit, e:
         # this is here in case the main windows is closed in the middle
         # of a task
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
@@ -222,7 +221,7 @@ def create(import_defaults=True):
     transaction = connection.begin()
     try:
         pluginmgr.install('all', import_defaults, force=True)
-    except (GeneratorExit, TaskQuitting), e:
+    except GeneratorExit, e:
         # this is here in case the main windows is closed in the middle
         # of a task
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
