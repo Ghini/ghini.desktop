@@ -868,7 +868,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         if text == u'':
             self.set_model_attr('code', None)
         else:
-            self.set_model_attr('code', text)
+            self.set_model_attr('code', utils.utf8(text))
 
         if not self.model.accession:
             self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
