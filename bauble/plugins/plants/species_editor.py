@@ -36,7 +36,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_spqual_combo': 'sp_qual',
                            'sp_awards_entry': 'awards',
-                           #'sp_zone_entry': 'hardiness_zone',
                            'sp_label_dist_entry': 'label_distribution',
                            'sp_bcdist_entry': 'bc_distribution',
                            }
@@ -72,22 +71,12 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         combo.pack_start(renderer, True)
         combo.set_cell_data_func(renderer, cell_data_func)
 
-        combo = self.view.widgets.sp_flower_comboentry
-        values = utils.get_distinct_values(Color.name, self.session)
-        combo.clear()
-        model = gtk.ListStore(object)
-        map(lambda v: model.append([v]), self.session.query(Color))
-        combo.set_model(model)
-        renderer = gtk.CellRendererText()
-        combo.pack_start(renderer, True)
-        combo.set_cell_data_func(renderer, cell_data_func)
-
         # set the model values in the widgets
         self.refresh_view()
 
         # connect habit comboentry widget and child entry
         self.view.connect('sp_habit_comboentry', 'changed',
-                          self.on_combo_entry_changed)
+                          self.on_habit_combo_entry_changed)
         self.view.connect(self.view.widgets.sp_habit_comboentry.child,
                           'changed', self.on_habit_entry_changed)
 
@@ -147,12 +136,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_awards_entry', 'awards',
                                    editor.UnicodeOrNoneValidator())
-        #self.assign_simple_handler('sp_zone_entry', 'hardiness_zone')
 
 
-    def on_combo_entry_changed(self, combo, *args):
+    def on_habit_combo_entry_changed(self, combo, *args):
         """
-        Changed handler for sp_habit_comboentry and sp_flower_comboentry
+        Changed handler for sp_habit_comboentry.
 
         We don't need specific handlers for either comboentry because
         the validation is done in the specific gtk.Entry handlers for
@@ -965,7 +953,20 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_spqual_combo': _('Species qualifier'),
         'sp_dist_frame': _('Species distribution'),
         'sp_vern_frame': _('Vernacular names'),
-        'sp_syn_box': _('Species synonyms')
+        'sp_syn_frame': _('Species synonyms'),
+        'sp_bcdist_entry': _('The distribution of this species in British '
+                             'Columbia'),
+        'sp_label_dist_entry': _('The distribution string that will be used '
+                                 'on the label.  If this entry is blank then '
+                                 'the species distribution will be used'),
+        'sp_habit_comboentry': _('The habit of this species'),
+        'sp_awards_entry': _('The awards this species have been given'),
+        'sp_cancel_button': _('Cancel your changes'),
+        'sp_ok_button': _('Save your changes'),
+        'sp_ok_and_add_button': _('Save your changes changes and add an '
+                                  'accession to this species'),
+        'sp_next_button': _('Save your changes changes and add another '
+                             'species ')
         }
 
 
