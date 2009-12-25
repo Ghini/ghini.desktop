@@ -1112,8 +1112,6 @@ class NotesPresenter(GenericEditorPresenter):
 
             self.update_label()
 
-            # TODO: if refresh_sensitivity() part of the
-            # GenericEditorPresenter interface???
             self.presenter.parent_ref().refresh_sensitivity()
 
 

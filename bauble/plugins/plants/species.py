@@ -125,7 +125,9 @@ from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
 #
 class VernacularExpander(InfoExpander):
     '''
-    the constructor
+    VernacularExpander
+
+    :param widgets:
     '''
     def __init__(self, widgets):
         InfoExpander.__init__(self, _("Vernacular Names"), widgets)
