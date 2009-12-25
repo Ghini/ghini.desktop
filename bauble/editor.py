@@ -481,9 +481,9 @@ class GenericEditorPresenter(object):
             if (not problem_widgets and p == problem_id) or \
                     (problem_id is None and w == problem_widgets) or \
                     (p == problem_id and w == problem_widgets):
-                problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
-                problem_widgets.modify_base(gtk.STATE_NORMAL, None)
-                problem_widgets.queue_draw()
+                w.modify_bg(gtk.STATE_NORMAL, None)
+                w.modify_base(gtk.STATE_NORMAL, None)
+                w.queue_draw()
                 self.problems.remove((p, w))
 
 
