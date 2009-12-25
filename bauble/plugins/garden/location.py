@@ -91,7 +91,7 @@ class Location(db.Base):
     __mapper_args__ = {'order_by': 'name'}
 
     # columns
-    name = Column(Unicode(64))
+    name = Column(Unicode(64), nullable=False)
     description = Column(UnicodeText)
 
     # UBC: ubc refers to beds by unique codes
@@ -181,7 +181,9 @@ class LocationEditorPresenter(GenericEditorPresenter):
     def refresh_sensitivity(self):
         sensitive = False
         # UBC: self.model.code
-        if self.dirty() and self.model.code:
+        ignore = ('id')
+        if self.dirty() and not \
+                utils.get_invalid_columns(self.model, ignore_columns=ignore):
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
