@@ -252,10 +252,16 @@ class GenusEditorView(editor.GenericEditorView):
         'gen_genus_entry': _('The genus name'),
         'gen_author_entry': _('The name or abbreviation of the author that '\
                               'published this genus'),
-        'gen_syn_box': _('A list of synonyms for this genus.\n\nTo add a '
+        'gen_syn_frame': _('A list of synonyms for this genus.\n\nTo add a '
                          'synonym enter a genus name and select one from the '
                          'list of completions.  Then click Add to add it to '\
                          'the list of synonyms.'),
+        'gen_cancel_button': _('Cancel your changes.'),
+        'gen_ok_button': _('Save your changes.'),
+        'gen_ok_and_add_button': _('Save your changes changes and add a '
+                                  'species to this genus.'),
+        'gen_next_button': _('Save your changes changes and add another '
+                             'genus.')
      }
 
 

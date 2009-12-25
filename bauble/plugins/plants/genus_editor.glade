@@ -176,7 +176,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkFrame" id="frame1">
+                      <object class="GtkFrame" id="gen_syn_frame">
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
                         <property name="shadow_type">none</property>
@@ -324,7 +324,7 @@
             <property name="visible">True</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="cancelbutton2">
+              <object class="GtkButton" id="gen_cancel_button">
                 <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -430,7 +430,7 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-6">cancelbutton2</action-widget>
+      <action-widget response="-6">gen_cancel_button</action-widget>
       <action-widget response="-5">gen_ok_button</action-widget>
       <action-widget response="11">gen_ok_and_add_button</action-widget>
       <action-widget response="22">gen_next_button</action-widget>

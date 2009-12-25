@@ -227,14 +227,20 @@ class FamilyEditorView(editor.GenericEditorView):
     syn_expanded_pref = 'editor.family.synonyms.expanded'
 
     _tooltips = {
-        'fam_family_entry': _('The family name'),
+        'fam_family_entry': _('The family name.'),
         'fam_qualifier_combo': _('The family qualifier helps to remove '
                                  'ambiguities that might be associated with '
-                                 'this family name'),
-        'fam_syn_box': _('A list of synonyms for this family.\n\nTo add a '
-                         'synonym enter a family name and select one from the '
-                         'list of completions.  Then click Add to add it to '\
-                         'the list of synonyms.')
+                                 'this family name.'),
+        'fam_syn_frame': _('A list of synonyms for this family.\n\nTo add a '
+                           'synonym enter a family name and select one from '
+                           'the list of completions.  Then click Add to add '
+                           'it to the list of synonyms.'),
+        'fam_cancel_button': _('Cancel your changes.'),
+        'fam_ok_button': _('Save your changes.'),
+        'fam_ok_and_add_button': _('Save your changes changes and add a '
+                                  'genus to this family.'),
+        'fam_next_button': _('Save your changes changes and add another '
+                             'family.')
      }
 
 
