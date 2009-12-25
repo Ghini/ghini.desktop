@@ -487,11 +487,7 @@ class CSVImporter(Importer):
             # TODO: need to get those tables from depends that need to
             # be created but weren't created already
             metadata.create_all(connection, depends, checkfirst=True)
-        except (bauble.task.TaskQuitting, GeneratorExit), e:
-            # UPDATE 2009.06.18: i'm not sure TaskQuitting is still
-            # relevant since we switched the task system to use
-            # fibra...but it doesn't hurt having it here until we can
-            # make sure
+        except GeneratorExit, e:
             transaction.rollback()
             raise
         except Exception, e:
