@@ -59,10 +59,10 @@ class Institution(object):
             # do an insert and then catching the exception if it exists and then
             # updating the value is too slow
             if not row:
-                debug('insert: %s = %s' % (prop, value))
+                #debug('insert: %s = %s' % (prop, value))
                 self.table.insert().execute(name=prop, value=value)
             else:
-                debug('update: %s = %s' % (prop, value))
+                #debug('update: %s = %s' % (prop, value))
                 self.table.update(self.table.c.name==prop).execute(value=value)
 
 
