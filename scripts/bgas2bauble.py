@@ -894,9 +894,6 @@ def do_plants():
     source_id_ctr = get_next_id(Source.__table__)
     acc_id_ctr = get_next_id(acc_table)
     rec_ctr = 0
-
-    max_quantity = []
-
     # build up a list of all the accession and plants
     for rec in dbf:
         if (rec_ctr % granularity) == 0:
@@ -972,8 +969,6 @@ def do_plants():
         row['_created']= rec['dateaccd']
         row['date_recvd'] = rec['datercvd']
         row['recvd_type'] = utils.utf8(rec['rcvdas'])
-
-        max_quantity.append(rec['qtyrcvd'])
         row['quantity_recvd'] = rec['qtyrcvd']
 
         if rec['intendloc1']:
@@ -1079,7 +1074,7 @@ def do_plants():
         acc_id_ctr += 1
 
     print ''
-    print 'max quantity: %s' % sorted(max_quantity)[-5:]
+
     gc.collect()
 
     # TODO: could inserting all the delayed species cause problems
