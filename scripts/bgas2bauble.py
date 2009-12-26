@@ -123,11 +123,6 @@ plant_table = Plant.__table__
 # name from that shortened list. I could make it hiearchial but it is
 # a little more invasive into the way Bauble does things now.
 
-# TODO: we either need to patch dbfpy to not use so much memory or
-# dump the date to CSV first before importing it to dbf, or maybe do
-# each of the steps in different processes so that the previous
-# processes' memory gets freed...a script like:
-# python "from scripts import bgas2bauble ; bgas2bauble.do_family()"
 
 def print_tick(tick='.'):
     sys.stdout.write(tick)
@@ -522,7 +517,7 @@ def do_sciname():
     # reference:
     # awards:
     # cultpare:
-    # hardzone:
+    # hardzone: not used
     # nativity: (like jesus?) -- maybe label distribution
     # natbc: text field of where it grows naturally in British Columbia
     #
@@ -649,15 +644,13 @@ def do_sciname():
         else:
             row['habit_id'] = None
 
-        # TODO: flower color can have -,>& delimiters....what should
-        # we do, create two flower colors for a species????
-        # UPDATE: it turns out UBC doesn't use the flower_color field
-        flower_color = get_value(rec, 'flower_color')
-        if flower_color:
-            print flower_color
-            row['flower_color_id'] = colors[flower_color.strip()]
-        else:
-            row['flower_color_id'] = None
+
+        # flower_color = get_value(rec, 'flower_color')
+        # if flower_color:
+        #     print flower_color
+        #     row['flower_color_id'] = colors[flower_color.strip()]
+        # else:
+        #     row['flower_color_id'] = None
 
         if has_value(rec, 'SCINOTE'):
             note = species_note_defaults.copy()
@@ -901,6 +894,9 @@ def do_plants():
     source_id_ctr = get_next_id(Source.__table__)
     acc_id_ctr = get_next_id(acc_table)
     rec_ctr = 0
+
+    max_quantity = []
+
     # build up a list of all the accession and plants
     for rec in dbf:
         if (rec_ctr % granularity) == 0:
@@ -976,6 +972,8 @@ def do_plants():
         row['_created']= rec['dateaccd']
         row['date_recvd'] = rec['datercvd']
         row['recvd_type'] = utils.utf8(rec['rcvdas'])
+
+        max_quantity.append(rec['qtyrcvd'])
         row['quantity_recvd'] = rec['qtyrcvd']
 
         if rec['intendloc1']:
@@ -1081,7 +1079,7 @@ def do_plants():
         acc_id_ctr += 1
 
     print ''
-
+    print 'max quantity: %s' % sorted(max_quantity)[-5:]
     gc.collect()
 
     # TODO: could inserting all the delayed species cause problems
@@ -1467,6 +1465,7 @@ if __name__ == '__main__':
         nstages = len(stages)
         total_seconds = 0
         nruns = 1
+        # run each of the stages in order
         for stage in range(int(options.stage), nstages):
             current_stage = stages[str(stage)]
             t = timeit.timeit('current_stage()',
@@ -1477,6 +1476,16 @@ if __name__ == '__main__':
             total_seconds += t
         info('total run time: %s seconds' % total_seconds)
 
+        # TODO: this is giving erros for integer columns that don't
+        # have sequences like prop_cutting_rooted_pct_seq and
+        # verification_level_seq
+        for table in db.metadata.sorted_tables:
+            for col in table.c:
+                utils.reset_sequence(col)
+
+    # the following code prints problems found in the data...as of
+    # Dec. 25, 2009 it hasn't been tested much so i don't know what it
+    # actually does
     if nruns < 2 and options.problems:
         for key, probs in problems.iteritems():
             print problem_labels[key]
