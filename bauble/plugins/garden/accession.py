@@ -604,20 +604,36 @@ class AccessionEditorView(editor.GenericEditorView):
         'acc_id_qual_combo': _("The ID Qualifier\n\n" \
                                "Possible values: %s") \
                                % utils.enum_values_str('accession.id_qual'),
+        'acc_id_qual_rank_combo': _('The part of the taxon name that the id '
+                                    'qualifier refers to.'),
         'acc_date_accd_entry': _('The date this species was accessioned.'),
         'acc_date_recvd_entry': _('The date this species was received.'),
+        'acc_recvd_type_comboentry': _('The type of the accessioned material.'),
+        'acc_quantity_recvd_entry': _('The amount of plant material at the '
+                                      'time it was accessioned.'),
+        'intended_loc_comboentry': _('The intended location for plant '
+                                         'material being accessioned.'),
+        'intended2_loc_comboentry': _('The intended location for plant '
+                                          'material being accessioned.'),
+
         'acc_prov_combo': _('The origin or source of this accession.\n\n' \
                             'Possible values: %s') % \
                             ', '.join(prov_type_values.values()),
         'acc_wild_prov_combo': _('The wild status is used to clarify the ' \
-                                 'provenance\n\nPossible values: %s') % \
+                                 'provenance.\n\nPossible values: %s') % \
                                  ', '.join(wild_prov_status_values.values()),
         'acc_private_check': _('Indicates whether this accession record ' \
                                'should be considered private.'),
         'acc_pisbg_check': _('Indicates whether is part of the Plant '
-                             'Introduction Schema for Botanic Gardens'),
+                             'Introduction Schema for Botanic Gardens.'),
         'acc_memorial_check': _('Indicates whether this accession was planted '
-                                'as a memorial')
+                                'as a memorial.'),
+        'acc_cancel_button': _('Cancel your changes.'),
+        'acc_ok_button': _('Save your changes.'),
+        'acc_ok_and_add_button': _('Save your changes changes and add a '
+                                  'plant to this accession.'),
+        'acc_next_button': _('Save your changes changes and add another '
+                             'accession.')
         }
 
 

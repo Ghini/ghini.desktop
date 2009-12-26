@@ -95,8 +95,6 @@ metadata = Base.metadata
 """The default metadata for all Bauble tables.
 """
 
-#Session = None
-
 
 def open(uri, verify=True, show_error_dialogs=False):
     """
