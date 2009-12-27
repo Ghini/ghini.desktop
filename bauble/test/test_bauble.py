@@ -163,3 +163,37 @@ class BaubleTests(BaubleTestCase):
         files = glob.glob(os.path.join(head, '*.glade'))
         for f in files:
             assert(not check_dupids(f))
+
+
+class HistoryTests(BaubleTestCase):
+
+    def test(self):
+        from bauble.plugins.plants import *
+        f = Family(family=u'Family')
+        self.session.add(f)
+        self.session.commit()
+        history = self.session.query(db.History).\
+            order_by('history.timestamp').all()
+        for entry in history:
+            debug('%s (%s): %s' % (entry.operation, entry.user, entry.values))
+        return
+        m = meta.BaubleMeta(name=u'name', value=u'value')
+        table = m.__table__
+        self.session.add(m)
+        self.session.commit()
+        history = self.session.query(db.History).first()
+        #debug(history.values)
+
+        m.value = u'value2'
+        self.session.commit()
+        history = self.session.query(db.History).first()
+        #debug(history.values)
+
+        self.session.delete(m)
+        self.session.commit()
+
+        # history = self.session.query(db.History).\
+        #     order_by('history.timestamp').all()
+        # for entry in history:
+        #     debug('%s (%s): %s' % (entry.operation, entry.user, entry.values))
+
