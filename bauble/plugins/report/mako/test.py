@@ -75,7 +75,7 @@ class MakoFormatterTests(BaubleTestCase):
         Test the MakoFormatterPlugin.format() runs without raising an error.
         """
         plants = self.session.query(Plant).all()
-        filename = os.path.join(os.path.dirname(__file__), 'test.csv')
+        filename = os.path.join(os.path.dirname(__file__), 'example.csv')
         report = MakoFormatterPlugin.format(plants, template=filename)
         assert(isinstance(report, basestring))
         open('/tmp/testlabels.csv', 'w').write(report)
