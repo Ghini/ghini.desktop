@@ -689,9 +689,8 @@ class SourceTests(GardenTestCase):
 
     def test_propagation(self):
         """
-        Test the Source.propagation relation
+        Test cascading for the Source.propagation relation
         """
-        # test setting and then removing the propagation on the source
         source = Source()
         self.accession.source = source
         prop_id, seed_id, cutting_id = self._make_prop(source)
@@ -701,26 +700,11 @@ class SourceTests(GardenTestCase):
         self.assert_(seed_id)
         self.assert_(cutting_id)
         self.assert_(prop_id)
+        # make sure the propagation got cleaned up when the
+        # source.propagation attribute was set to None
         self.assert_(not self.session.query(PropSeed).get(seed_id))
         self.assert_(not self.session.query(PropCutting).get(cutting_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
-
-
-        source = Source()
-        self.accession.source = source
-        prop_id, seed_id, cutting_id = self._make_prop(source)
-        tmp_session = db.Session()
-        prop2 = source.propagation
-        #self.session.expunge(prop2)
-        source.propagation = None
-        #tmp_session.add(prop2)
-        #tmp_session.close()
-        self.session.commit()
-        #tmp_session.close()
-        self.assert_(not self.session.query(PropSeed).get(seed_id))
-        self.assert_(not self.session.query(PropCutting).get(cutting_id))
-        self.assert_(not self.session.query(Propagation).get(prop_id))
-        self.session.commit()
 
 
     def test(self):
@@ -728,17 +712,16 @@ class SourceTests(GardenTestCase):
         Test bauble.plugins.garden.Source and related properties
         """
         source = Source()
-        debug(source.plant_propagation)
         #self.assert_(hasattr(source, 'plant_propagation'))
 
-        location = Location(code=u'1')
+        location = Location(code=u'1', name=u'site1')
         plant = Plant(accession=self.accession, location=location, code=u'1')
         plant.propagations.append(Propagation(prop_type=u'Seed'))
         self.session.commit()
 
-        source.source_contact = SourceContact()
-        source.source_contact.contact = Contact(name=u'name')
-        source.source_contact.contact_code = u'1'
+        source.source_detail = SourceDetail()
+        source.source_detail.name = u'name'
+        source.sources_code = u'1'
         source.collection = Collection(locale=u'locale')
         source.propagation = Propagation(prop_type=u'Seed')
         source.plant_propagation = plant.propagations[0]
@@ -746,24 +729,22 @@ class SourceTests(GardenTestCase):
         self.session.commit()
 
         # test that cascading works properly
-        src_contact_id = source.source_contact.id
-        contact_id = source.source_contact.contact.id
+        source_detail_id = source.source_detail.id
         coll_id = source.collection.id
         prop_id = source.propagation.id
         plant_prop_id = source.plant_propagation.id
         self.accession.source = None # tests the accessions source
         self.session.commit()
 
-        # the SourceContact, Colection and Propagation should be
+        # the Colection and Propagation should be
         # deleted since they are specific to the source
-        self.assert_(not self.session.query(SourceContact).get(src_contact_id))
         self.assert_(not self.session.query(Collection).get(coll_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
 
-        # the contact and plant propagation shouldn't be deleted since
-        # they are independent of the source
-        self.assert_(self.session.query(Contact).get(contact_id))
+        # the SourceDetail and plant Propagation shouldn't be deleted
+        # since they are independent of the source
         self.assert_(self.session.query(Propagation).get(plant_prop_id))
+        self.assert_(self.session.query(SourceDetail).get(source_detail_id))
 
 
     def itest_details_editor(self):
@@ -1049,7 +1030,7 @@ class LocationTests(GardenTestCase):
 
         # test the accept buttons become sensitive when the name entry
         # is changed
-        widgets.loc_name_entry.set_text('')
+        widgets.loc_name_entry.set_text('something')
         update_gui()
         assert widgets.loc_ok_button.props.sensitive
         assert widgets.loc_ok_and_add_button.props.sensitive

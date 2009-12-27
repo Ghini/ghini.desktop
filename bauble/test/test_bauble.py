@@ -168,32 +168,27 @@ class BaubleTests(BaubleTestCase):
 class HistoryTests(BaubleTestCase):
 
     def test(self):
-        from bauble.plugins.plants import *
+        """
+        Test the HistoryMapperExtension
+        """
+        from bauble.plugins.plants import Family
         f = Family(family=u'Family')
         self.session.add(f)
         self.session.commit()
         history = self.session.query(db.History).\
-            order_by('history.timestamp').all()
-        for entry in history:
-            debug('%s (%s): %s' % (entry.operation, entry.user, entry.values))
-        return
-        m = meta.BaubleMeta(name=u'name', value=u'value')
-        table = m.__table__
-        self.session.add(m)
-        self.session.commit()
-        history = self.session.query(db.History).first()
-        #debug(history.values)
+            order_by(db.History.timestamp.desc()).first()
+        assert history.tablename == 'family' and history.operation == 'insert'
 
-        m.value = u'value2'
+        f.family = u'Family2'
         self.session.commit()
-        history = self.session.query(db.History).first()
-        #debug(history.values)
+        history = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc()).first()
+        assert history.tablename == 'family' and history.operation == 'update'
 
-        self.session.delete(m)
+        self.session.delete(f)
         self.session.commit()
+        history = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc()).first()
+        assert history.tablename == 'family' and history.operation == 'delete'
 
-        # history = self.session.query(db.History).\
-        #     order_by('history.timestamp').all()
-        # for entry in history:
-        #     debug('%s (%s): %s' % (entry.operation, entry.user, entry.values))
 
