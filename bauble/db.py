@@ -1,6 +1,8 @@
 #  Copyright (c) 2005,2006,2007,2008  Brett Adams <brett@belizebotanic.org>
 #  This is free software, see GNU General Public License v2 for details.
 
+import datetime
+import os
 import traceback
 import bauble.error as error
 
@@ -22,6 +24,7 @@ except ImportError:
 
 
 import gtk
+import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 import bauble.types as types
@@ -37,6 +40,51 @@ if SQLALCHEMY_DEBUG:
     logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
 
 
+class HistoryExtension(orm.MapperExtension):
+
+    """
+    HistoryExtension is a :class:`sqlalchemy.orm.MapperExtension` that
+    is added to all clases that inherit from bauble.db.Base so that
+    all inserts, updates, and deletes made to the mapped objects are
+    recorded in the `history` table.
+    """
+    def _add(self, operation, mapper, instance):
+        """
+        Add a new entry to the history table.
+        """
+        user = None
+        try:
+            if db.engine.name in ('postgres', 'postgresql'):
+                import bauble.plugins.users as users
+                user = users.current_user()
+        except:
+            if 'USER' in os.environ and os.environ['USER']:
+                user = os.environ['USER']
+            elif 'USERNAME' in os.environ and os.environ['USERNAME']:
+                user = os.environ['USERNAME']
+
+        row = {}
+        for c in mapper.local_table.c:
+            row[c.name] = utils.utf8(getattr(instance, c.name))
+        table = History.__table__
+        table.insert(dict(tablename=mapper.local_table.name, values=str(row),
+                          operation=operation, user=user,
+                          timestamp=datetime.datetime.today())).execute()
+
+
+    def after_update(self, mapper, connection, instance):
+        self._add('update', mapper, instance)
+
+
+    def after_insert(self, mapper, connection, instance):
+        self._add('insert', mapper, instance)
+
+
+    def after_delete(self, mapper, connection, instance):
+        self._add('delete', mapper, instance)
+
+
+
 class MapperBase(DeclarativeMeta):
     """
     MapperBase adds the id, _created and _last_updated columns to all
@@ -46,7 +94,6 @@ class MapperBase(DeclarativeMeta):
     than to extend it to add more default columns to all the bauble
     tables.
     """
-
     def __init__(cls, classname, bases, dict_):
         #print >>sys.stderr, dict_
         if '__tablename__' in dict_:
@@ -59,6 +106,7 @@ class MapperBase(DeclarativeMeta):
                                                types.DateTime(True),
                                                default=sa.func.now(),
                                                onupdate=sa.func.now())
+            cls.__mapper_args__ = {'extension': HistoryExtension()}
         super(MapperBase, cls).__init__(classname, bases, dict_)
 
 
@@ -95,7 +143,19 @@ metadata = Base.metadata
 """The default metadata for all Bauble tables.
 """
 
-#Session = None
+history_base = declarative_base(metadata=metadata)
+
+class History(history_base):
+    """
+    """
+    __tablename__ = 'history'
+    id = sa.Column(sa.Integer, sa.Sequence('history_id_seq'), primary_key=True)
+    tablename = sa.Column(sa.String, nullable=False)
+    values = sa.Column(sa.String, nullable=False)
+    operation = sa.Column(sa.String, nullable=False)
+    user = sa.Column(sa.String)
+    timestamp = sa.Column(sa.DateTime, nullable=False)
+
 
 
 def open(uri, verify=True, show_error_dialogs=False):
