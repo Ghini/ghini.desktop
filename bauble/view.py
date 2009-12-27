@@ -1396,57 +1396,88 @@ class SearchView(pluginmgr.View):
 
 
 
-# class HistoryView(pluginmgr.View):
-#     """Show the tables row in the order they were last updated
-#     """
-#     def __init__(self):
-#         super(HistoryView, self).__init__()
-#         init_gui()
+class StringColumn(gtk.TreeViewColumn):
+
+    """
+    A generic StringColumn for use in a gtk.TreeView.
+
+    This code partially based on the StringColumn from the Quidgets
+    project (http://launchpad.net/quidgets)
+    """
+    def __init__(self, title, format_func=None, **kwargs):
+        self.renderer = gtk.CellRendererText()
+        super(StringColumn, self).__init__(title, self.renderer, **kwargs)
+        self.renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+        if format_func:
+            self.set_cell_data_func(self.renderer, self.cell_data_func,
+                                    format_func)
+
+    def cell_data_func(self, column, cell, model, treeiter, format):
+        value = format(model[treeiter])
+        cell.set_property('text', value)
 
 
-#     def init_gui(self):
-#         self.treeview = gtk.TreeView()
-#         column = gtk.TreeViewColumn()
-#         self.pack_start(self.treeview)
 
-#     def populate_history(self):
-#         """
-#         Add the history items to the view.
-#         """
-#         utils.clear_model(self.treeview)
-#         # TODO: this is gonna be a little problematic because the
-#         # markup functions and infoboxes are registered as part of the
-#         # SearchView so it's not obvious how we're gonna use them
-#         # here...i was envisioning that we would just show a list of
-#         # the objects by their last modified date like the searchview
-#         # with infoboxes and everything but maybe it would be better
-#         # just to show the raw columns...what might make sense would
-#         # be to make :history a special type of search that groups the
-#         # results by their dates
-#         model = gtk.ListStore(object, str)
-
-# class HistoryCommandHandler(pluginmgr.CommandHandler):
-
-#     def __init__(self):
-#         super(HistoryCommandHandler, self).__init__()
-#         self.view = None
-
-#     command = 'history'
-
-#     def get_view(self):
-#         debug("HistoryCommandHandler.get_view()")
-#         if not self.view:
-#             self.view = HistoryView()
-#         return self.view
+class HistoryView(pluginmgr.View):
+    """Show the tables row in the order they were last updated
+    """
+    def __init__(self):
+        super(HistoryView, self).__init__()
+        self.init_gui()
 
 
-#     def __call__(self, cmd, arg):
-#         debug("HistoryCommandHandler.__call__(%s)" % arg)
-#         self.view.populate_history(arg)
-#         #self.view.search(arg)
+    def init_gui(self):
+        self.treeview = gtk.TreeView()
+        #self.treeview.set_fixed_height_mode(True)
+        columns = [(_('Timestamp'), 0), (_('Operation'), 1),
+                  (_('User'), 2), (_('Table'), 3), (_('Values'), 4)]
+        for name, index in columns:
+            column = StringColumn(name, text=index)
+            column.set_sort_column_id(index)
+            column.set_expand(False)
+            column.props.sizing = gtk.TREE_VIEW_COLUMN_AUTOSIZE
+            column.renderer.set_fixed_height_from_font(1)
+            self.treeview.append_column(column)
+        sw = gtk.ScrolledWindow()
+        sw.add(self.treeview)
+        self.pack_start(sw)
 
 
-# pluginmgr.register_command(HistoryCommandHandler)
+    def populate_history(self, arg):
+        """
+        Add the history items to the view.
+        """
+        session = db.Session()
+        utils.clear_model(self.treeview)
+        model = gtk.ListStore(str, str, str, str, str)
+        for item in session.query(db.History).\
+                order_by(db.History.timestamp.desc()).all():
+            model.append([item.timestamp, item.operation, item.user,
+                          item.tablename, item.values])
+        self.treeview.set_model(model)
+        session.close()
+
+
+
+class HistoryCommandHandler(pluginmgr.CommandHandler):
+
+    def __init__(self):
+        super(HistoryCommandHandler, self).__init__()
+        self.view = None
+
+    command = 'history'
+
+    def get_view(self):
+        if not self.view:
+            self.view = HistoryView()
+        return self.view
+
+
+    def __call__(self, cmd, arg):
+        self.view.populate_history(arg)
+
+
+pluginmgr.register_command(HistoryCommandHandler)
 
 
 def select_in_search_results(obj):
