@@ -1436,6 +1436,7 @@ class HistoryView(pluginmgr.View):
             column.set_sort_column_id(index)
             column.set_expand(False)
             column.props.sizing = gtk.TREE_VIEW_COLUMN_AUTOSIZE
+            column.set_resizable(True)
             column.renderer.set_fixed_height_from_font(1)
             self.treeview.append_column(column)
         sw = gtk.ScrolledWindow()
