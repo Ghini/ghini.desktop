@@ -240,7 +240,7 @@ class Species(db.Base):
 
 
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = u'\u2a09' # U+2A09
+    hybrid_char = utils.utf8(u'\u2a09') # U+2A09
 
     @staticmethod
     def str(species, authors=False, markup=False):
