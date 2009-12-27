@@ -857,6 +857,8 @@ class VoucherPresenter(editor.GenericEditorPresenter):
 class VerificationPresenter(editor.GenericEditorPresenter):
 
     """
+    VerificationPresenter
+
     :param parent:
     :param model:
     :param view:

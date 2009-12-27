@@ -272,8 +272,7 @@ class XSLFormatterPlugin(FormatterPlugin):
 	# copy default template files to user_dir
 	templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
 		     'plant_list_ex.xsl', 'small_labels.xsl']
-        base_dir = os.path.join(paths.lib_dir(),
-                         "plugins", "report", 'xsl')
+        base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
 	for template in templates:
 	    f = os.path.join(paths.user_dir(), template)
 	    if not os.path.exists(f):
