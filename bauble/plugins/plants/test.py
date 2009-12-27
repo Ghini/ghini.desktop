@@ -37,6 +37,14 @@ from bauble.test import BaubleTestCase, check_dupids
 # TODO: create more species name test cases
 # TODO: create some scenarios that should fail
 
+if sys.platform == 'win32':
+    # on windows the hybrid char is set to 'x'in PlantPlugin.init but
+    # these strings are initialized before init is called so we set it
+    # here...this sort of breaks the string tests since we aren't
+    # relying on the behavior of PlantPlugin.init but what can we do?
+    Species.hybrid_char = 'x'
+
+
 family_test_data = ({'id': 1, 'family': 'Orchidaceae'},
                     {'id': 2, 'family': 'Leguminosae'},
                     {'id': 3, 'family': 'Polypodiaceae'})
