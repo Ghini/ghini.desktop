@@ -229,14 +229,16 @@ if options.stage == '0':
 unknown_genus_id = get_column_value(genus_table.c.id,
                               genus_table.c.genus==unknown_genus_name)
 
-# create locations that some plants refer to but aren't in BEDTABLE.DBF
+# create locations for 8A and 1B49 which some plants refer but aren't
+# in BEDTABLE.DBF
 unknown_location_name = u'(unknown)'
 unknown_location_code = u'UNK'
 if options.stage == '0':
-    location_table.insert().values(code=unknown_location_code,
-                                  name=unknown_location_name).execute().close()
-    location_table.insert().values(code=u'8A', name=u'8A').execute().close()
-    location_table.insert().values(code=u'1B49', name=u'1B49').execute().close()
+    rows = [{'code': unknown_location_code, 'name': unknown_location_name},
+            {'code': u'8A', 'name': u'8A'},
+            {'code': u'1B49', 'name': u'1B49'},
+            {'code': u'-1', 'name': u'(Removed)'}]
+    insert_rows(location_table.insert(), rows)
 unknown_location_id = get_column_value(location_table.c.id,
                               location_table.c.code==unknown_location_code)
 
