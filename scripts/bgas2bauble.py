@@ -2,6 +2,7 @@
 
 import copy
 import csv
+import gc
 import logging
 import itertools
 import os
@@ -43,7 +44,7 @@ parser = OptionParser()
 parser.add_option("-b", "--bgas", dest="bgas",
                   default=os.path.join(os.getcwd(), 'bgas'),
                   help="path to BGAS files", metavar="DIR")
-parser.add_option("-s", "--stage", dest="stage", default='0',
+parser.add_option("-s", "--stage", dest="stage", default=0, type=int,
                   help="stage of conversion to start at", metavar="STAGE")
 parser.add_option("-t", "--test", dest="test", action="store_true",
                   default=False, help="run only tests")
@@ -72,7 +73,7 @@ db.open(options.database, False)
 pluginmgr.load()
 # the one thing this script doesn't do that bauble does is call pluginmgr.init()
 #pluginmgr.init(force=True)
-if options.stage == '0' or options.database == default_uri:
+if options.stage == 0 or options.database == default_uri:
     db.create(import_defaults=False)
     from bauble.plugins.imex.csv_ import CSVImporter
 
@@ -82,7 +83,6 @@ if options.stage == '0' or options.database == default_uri:
     filename = os.path.join(plants.__path__[0], 'default', 'geography.txt')
     importer.start([filename], force=True)
 
-
 family_table = Family.__table__
 genus_table = Genus.__table__
 species_table = Species.__table__
@@ -91,42 +91,14 @@ acc_table = Accession.__table__
 location_table = Location.__table__
 plant_table = Plant.__table__
 
-# TODO: this script needs to be very thoroughly tested
-
 # BGAS tables: bedtable colour dummy family geocode habit hereitis
 # plants rcvdas remocode removal removals sciname source subset
 # synonym transfer
 
-# BGAS data problems:
-#
-# 7. Do the removed codes need to be in their own table or can they
-# just be an enum column..if you need to add new removed codes then it
-# would probably be best to have their own table...is they need their
-# own table then we can probably drop the codes and just use the
-# descriptions
-#
-# 8 Do the colors need their own table...if you need to add new colors
-# then yes, in that case we can probably just drop the codes and just
-# use the descriptions
-#
-# 9. what should we do with the source.dbf table, are they donations
-# or would source be something different and we need to add then to
-# bauble, maybe the donations table should be changed to something
-# more general, some are persons others are institutions
-#
-# 10. The beds in BGAS are laid out hierachially?  Does this work well
-# for you or could you just use names like "Alpine Garden - Europe",
-# "Alpine Garden - Bulb Frame".  Right now there are 296 "beds" in the
-# bed table which would make a long list to choose from.  Although at
-# the moment in Bauble if you typed in Alpine it would show all beds
-# that matched the name Alpine and you would just have to choose a
-# name from that shortened list. I could make it hiearchial but it is
-# a little more invasive into the way Bauble does things now.
-
-
 def print_tick(tick='.'):
-    sys.stdout.write(tick)
-    sys.stdout.flush()
+    if options.verbosity >= 0:
+        sys.stdout.write(tick)
+        sys.stdout.flush()
 
 open_dbf = lambda f: dbf.Dbf(os.path.join(options.bgas, f), readOnly=True)
 
@@ -216,14 +188,14 @@ def get_column_value(column, where):
 
 # create (unknown) family for those genera that don't have a family
 unknown_family_name = u'(unknown)'
-if options.stage == '0':
+if options.stage == 0:
     family_table.insert().values(family=unknown_family_name).execute().close()
 unknown_family_id = get_column_value(family_table.c.id,
                               family_table.c.family==unknown_family_name)
 
 # create (unknown) genus for those species that don't have a genus
 unknown_genus_name = u'(unknown)'
-if options.stage == '0':
+if options.stage == 0:
     genus_table.insert().values(family_id=unknown_family_id,
                                 genus=unknown_genus_name).execute().close()
 unknown_genus_id = get_column_value(genus_table.c.id,
@@ -233,7 +205,7 @@ unknown_genus_id = get_column_value(genus_table.c.id,
 # in BEDTABLE.DBF
 unknown_location_name = u'(unknown)'
 unknown_location_code = u'UNK'
-if options.stage == '0':
+if options.stage == 0:
     rows = [{'code': unknown_location_code, 'name': unknown_location_name},
             {'code': u'8A', 'name': u'8A'},
             {'code': u'1B49', 'name': u'1B49'},
@@ -483,7 +455,8 @@ def do_family():
              % (len(genus_rows), len(dbf)))
     dbf.close()
     del dbf
-    print ''
+    if options.verbosity <= 0:
+        print ''
 
 
 
@@ -699,7 +672,7 @@ def do_sciname():
                 names_map.setdefault(species_id, []).append(vernac)
                 vernac_id_ctr += 1
 
-    print ''
+    status('')
 
     del species_hashes
     species_ids.clear()
@@ -792,6 +765,8 @@ def get_species_id(species, ignore_columns=None):
 
 
 
+plants = {}
+
 def do_plants():
     """
     BGAS Plants are what we refer to as accessions
@@ -880,7 +855,6 @@ def do_plants():
     # TODO: what if the data differs but the accession code is the
     # same...does this ever happen in practice
     added_codes = set()
-    plants = {}
     acc_ids = {}
 
     # map the locations ids by their codes for quick lookup
@@ -1075,7 +1049,8 @@ def do_plants():
         # increment the id ctr
         acc_id_ctr += 1
 
-    print ''
+    if options.verbosity <= 0:
+        print ''
 
     gc.collect()
 
@@ -1117,10 +1092,18 @@ def do_plants():
 
     gc.collect()
 
+
+def do_hereitis():
     # loop through the hereitis table to set the location_id, for any
     # plants that are in PLANTS.DBF but aren't in HEREITIS.DBF the
     # locations is set to unknown_location
     status('converting HEREITIS.DBF ...')
+
+    locations = {}
+    session = db.Session()
+    for loc in session.query(Location):
+        locations[loc.code] = loc.id
+    session.close()
 
     # There HEREITIS table seems to store the full history of the of
     # the plants in the table.  Fortunately it seems like the last one
@@ -1142,8 +1125,13 @@ def do_plants():
 
     plant_insert = get_insert(plant_table, plants.values()[0].keys())
     insert_rows(plant_insert, plants.values())
-    print ''
+    if options.verbosity <= 0:
+        print ''
     info('inserted %s plants' % len(plants.values()))
+
+
+pool = {}
+plant_ids = {}
 
 
 def do_transfer():
@@ -1182,11 +1170,15 @@ def do_transfer():
         row['to_location_id'] = locations[rec['tranto']]
         row['date'] = rec['movedate']
 
-        plant_id = sa.select([plant_table.c.id],
-                  from_obj=plant_table.join(acc_table),
-                  whereclause=and_(plant_table.c.code==unicode(rec['propno']),
-                                   acc_table.c.code==unicode(rec['accno']))).\
-                                   execute().fetchone()[0]
+        plant_tuple = (rec['accno'], rec['propno'])
+        plant_id = plant_ids.get(plant_tuple, None)
+        if not plant_id:
+            clause = and_(plant_table.c.code==unicode(rec['propno']),
+                          acc_table.c.code==unicode(rec['accno']))
+            plant_id = sa.select([plant_table.c.id],
+                                 from_obj=plant_table.join(acc_table),
+                                 whereclause=clause).execute().fetchone()[0]
+            plant_ids[plant_tuple] = plant_id
         row['plant_id'] = plant_id
 
         if rec['notes'].strip():
@@ -1199,7 +1191,8 @@ def do_transfer():
             row['note_id'] = note_id_ctr
             note_id_ctr += 1
 
-    print ''
+    if options.verbosity <= 0:
+        print ''
 
     transfer_insert = get_insert(transfer_table, transfer_rows[0].keys())
     insert_rows(transfer_insert, transfer_rows)
@@ -1297,7 +1290,7 @@ def do_color():
 
 def do_removals():
     """
-    Convert the REMOVALS.DBF table to bauble.plugins.garnde.plant.PlantRemoval
+    Convert the REMOVALS.DBF table to bauble.plugins.garden.plant.PlantRemoval
     """
     # accno;propno;remodate;remoqty;remocode;remofrom;notes
     # TODO: we don't have an equivalent for quantity
@@ -1334,12 +1327,15 @@ def do_removals():
         row['from_location_id'] = locations[rec['remofrom']]
         row['reason'] = utils.utf8(rec['remocode'])
 
-        plant_id = sa.select([plant_table.c.id],
-                  from_obj=plant_table.join(acc_table),
-                  whereclause=and_(plant_table.c.code==unicode(rec['propno']),
-                                   acc_table.c.code==unicode(rec['accno']))).\
-                                   execute().fetchone()[0]
-
+        plant_tuple = (rec['accno'], rec['propno'])
+        plant_id = plant_ids.get(plant_tuple, None)
+        if not plant_id:
+            clause = and_(plant_table.c.code==unicode(rec['propno']),
+                          acc_table.c.code==unicode(rec['accno']))
+            plant_id = sa.select([plant_table.c.id],
+                                 from_obj=plant_table.join(acc_table),
+                                 whereclause=clause).execute().fetchone()[0]
+            plant_ids[plant_tuple] = plant_id
         if not plant_id:
             error(row)
             raise ValueError
@@ -1356,7 +1352,8 @@ def do_removals():
             row['note_id'] = note_id_ctr
             note_id_ctr += 1
 
-    print ''
+    if options.verbosity <= 0:
+        print ''
 
     insert = get_insert(PlantRemoval.__table__, removal_rows[0].keys())
     insert_rows(insert, removal_rows)
@@ -1410,21 +1407,12 @@ def do_source():
     info('inserted %s source details.' % len(source_detail_rows))
 
 
-stages = {
-    '0': do_family,
-    '1': do_habit,
-    '2': do_color,
-    '3': do_source,
-    '4': do_sciname,
-    '5': do_bedtable,
-    '6': do_plants,
-    '7': do_transfer,
-    '8': do_synonym,
-    '9': do_removals}
+stages = [do_family, do_habit, do_color, do_source, do_sciname, do_bedtable,
+          do_plants, do_hereitis, do_transfer, do_synonym, do_removals]
 
 def run():
-    for stage in range(int(options.stage), nstages):
-        stages[str(stage)]()
+    for stage in stages[options.stage:]:
+        stage()
 
 
 def test():
@@ -1453,21 +1441,18 @@ def chunk(iterable, n):
 
 
 if __name__ == '__main__':
-    import gc
     global current_stage
     if options.test:
         test()
     else:
         import timeit
-        nstages = len(stages)
         total_seconds = 0
-        nruns = 1
         # run each of the stages in order
-        for stage in range(int(options.stage), nstages):
-            current_stage = stages[str(stage)]
+        for stage in stages[options.stage:]:
+            current_stage = stage
             t = timeit.timeit('current_stage()',
                               "from __main__ import current_stage;",
-                              number=nruns)
+                              number=1)
             gc.collect()
             info('... in %s seconds.' % t)
             total_seconds += t
@@ -1483,11 +1468,11 @@ if __name__ == '__main__':
     # the following code prints problems found in the data...as of
     # Dec. 25, 2009 it hasn't been tested much so i don't know what it
     # actually does
-    if nruns < 2 and options.problems:
+    if options.problems:
         for key, probs in problems.iteritems():
             print problem_labels[key]
             print '------------------------'
             for row in probs:
                 print row
-            print ''
-
+            if options.verbosity <= 0:
+                print ''
