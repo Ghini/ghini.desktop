@@ -212,7 +212,9 @@ if options.stage == 0:
             {'code': u'-1', 'name': u'(Removed)'}]
     insert_rows(location_table.insert(), rows)
 unknown_location_id = get_column_value(location_table.c.id,
-                              location_table.c.code==unknown_location_code)
+                                   location_table.c.code==unknown_location_code)
+removed_location_id = get_column_value(location_table.c.id,
+                                       location_table.c.code==u'-1')
 
 # precompute the _last_updated and _created columns so we don't have
 # to execute the default for every insert
@@ -547,6 +549,11 @@ def do_sciname():
     names_map = {} # used for setting the default name for a species
     names_set = set() # used for testing duplicate names on a species
 
+    # cache the .append() lookup
+    species_rows_append = species_rows.append
+    notes_append = notes.append
+    vernac_names_append = vernac_names.append
+
     for rec in dbf:
         if rec_ctr % granularity == 0:
             gc.collect()
@@ -593,7 +600,7 @@ def do_sciname():
             # delayed_species so we can look up the genera later
             if genus_id:
                 row['genus_id'] = genus_id
-                species_rows.append(row)
+                species_rows_append(row)
             else:
                 row['genus'] = genus
                 delayed_species.append(row)
@@ -632,27 +639,27 @@ def do_sciname():
             note.update(dict(category=u'Scientific',
                              note=get_value(rec, 'scinote'),
                              species_id=species_id))
-            notes.append(note)
+            notes_append(note)
         if has_value(rec, 'PHENOL'):
             note = species_note_defaults.copy()
             note.update(dict(category=u'Phenology',
                              note=get_value(rec, 'phenol'),
                              species_id=species_id))
-            notes.append(note)
+            notes_append(note)
 
         if has_value(rec, 'REFERENCE'):
             note = species_note_defaults.copy()
             note.update(dict(category=u'Reference',
                              note=get_value(rec, 'reference'),
                              species_id=species_id))
-            notes.append(note)
+            notes_append(note)
 
         if has_value(rec, 'CULTPARE'):
             note = species_note_defaults.copy()
             note.update(dict(category=u'Cultivar',
                              note=get_value(rec, 'cultpare'),
                              species_id=species_id))
-            notes.append(note)
+            notes_append(note)
 
 
         # if the species_hash is the same, e.g. the species name is
@@ -667,7 +674,7 @@ def do_sciname():
                 vernac['id'] = vernac_id_ctr
                 vernac['species_id'] = species_id
                 vernac['name'] = utils.utf8(name)
-                vernac_names.append(vernac)
+                vernac_names_append(vernac)
                 names_set.add((species_id, name))
                 names_map.setdefault(species_id, []).append(vernac)
                 vernac_id_ctr += 1
@@ -699,7 +706,7 @@ def do_sciname():
                                         genus_table.c.genus == genus)
             genus_ids[genus] = genus_id
         species['genus_id'] = genus_id
-        species_rows.append(species)
+        species_rows_append(species)
 
     species_insert = get_insert(species_table, species_rows[0].keys())
     insert_rows(species_insert, species_rows)
@@ -728,12 +735,13 @@ def do_sciname():
     dvn_rows = []
     dvn_table = DefaultVernacularName.__table__
     dvn_defaults = get_defaults(dvn_table)
+    dvn_rows_append = dvn_rows.append
     for species_id, names in names_map.iteritems():
         if len(names) == 1:
             row = dvn_defaults.copy()
             row['species_id'] = species_id
             row['vernacular_name_id'] = names[0]['id']
-            dvn_rows.append(row)
+            dvn_rows_append(row)
     names_map.clear()
     dvn_insert = get_insert(dvn_table, dvn_rows[0].keys())
     insert_rows(dvn_insert, dvn_rows)
@@ -870,6 +878,14 @@ def do_plants():
     source_id_ctr = get_next_id(Source.__table__)
     acc_id_ctr = get_next_id(acc_table)
     rec_ctr = 0
+
+    # cache the append() lookup gives a little speed increase
+    acc_rows_append = acc_rows.append
+    acc_notes_append = acc_notes.append
+    delayed_species_append = delayed_species.append
+    collection_rows_append = collection_rows.append
+    source_rows_append = source_rows.append
+
     # build up a list of all the accession and plants
     for rec in dbf:
         if (rec_ctr % granularity) == 0:
@@ -936,7 +952,7 @@ def do_plants():
 
         row = acc_defaults.copy()
         row['id'] = acc_id_ctr
-        acc_rows.append(row)
+        acc_rows_append(row)
         row['code'] = unicode(rec['accno'])
         row['_last_updated'] = rec['l_update']
         row['pisbg'] = rec['pisbg']
@@ -957,13 +973,13 @@ def do_plants():
             note = acc_notes_defaults.copy()
             note['note'] = utils.utf8(rec['notes'])
             note['accession_id'] = acc_id_ctr
-            acc_notes.append(note)
+            acc_notes_append(note)
 
         if rec['pronotes'].strip():
             note = acc_notes_defaults.copy()
             note['note'] = utils.utf8(rec['pronotes'])
             note['accession_id'] = acc_id_ctr
-            acc_notes.append(note)
+            acc_notes_append(note)
 
         species = species_name_dict_from_rec(rec, species_defaults.copy())
         species_hash = hash(tuple(zip(species.keys(), species.values())))
@@ -1012,7 +1028,7 @@ def do_plants():
             species['_created'] = _created
             species['id'] = species_id_ctr
             species_ids[species_hash] = species_id_ctr
-            delayed_species.append(species)
+            delayed_species_append(species)
             row['species_id'] = species_id_ctr
             species_id_ctr += 1
 
@@ -1027,7 +1043,7 @@ def do_plants():
             collection['collectors_code'] = utils.utf8(rec['wildnum'])
             collection['notes'] = utils.utf8(rec['wildnote'])
             collection['source_id'] = source_id_ctr
-            collection_rows.append(collection)
+            collection_rows_append(collection)
             source['id'] = source_id_ctr
             coll_id_ctr += 1
 
@@ -1043,7 +1059,7 @@ def do_plants():
             source['id'] = source_id_ctr
             source['accession_id'] = acc_id_ctr
             source.update(source_defaults)
-            source_rows.append(source)
+            source_rows_append(source)
             source_id_ctr += 1
 
         # increment the id ctr
@@ -1117,7 +1133,7 @@ def do_hereitis():
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
-        location_id = locations[unicode(rec['bedno'])]
+        location_id = locations[rec['bedno']]
         plant_tuple = (rec['accno'], rec['propno'])
         # set the location_id, don't worry if the location was set
         # previously since the last one should be the most recent
@@ -1204,6 +1220,95 @@ def do_transfer():
 
 
 
+def do_removals():
+    """
+    Convert the REMOVALS.DBF table to bauble.plugins.garden.plant.PlantRemoval
+    """
+    # accno;propno;remodate;remoqty;remocode;remofrom;notes
+    # TODO: we don't have an equivalent for quantity
+    status('converting REMOVALS.DBF ...')
+    removal_table = PlantRemoval.__table__
+    removal_defaults = get_defaults(removal_table)
+    dbf = open_dbf('REMOVALS.DBF')
+    removal_rows = []
+
+    note_rows = []
+    note_id_ctr = get_next_id(PlantNote.__table__)
+    note_defaults = get_defaults(PlantNote.__table__)
+    note_defaults['category'] = u'Removal'
+
+    locations = {}
+    session = db.Session()
+    for loc in session.query(Location):
+        locations[loc.code] = loc.id
+    session.close()
+
+    rec_ctr = 1
+    plant_updates = {}
+    # TODO: could we do one large query to cache the accesion codes,
+    # plant codes and plant ids and put them in an easy access dict
+    for rec in dbf:
+        rec_ctr += 1
+        if (rec_ctr % granularity) == 0:
+            # collect periodically so we don't run out of memory
+            print_tick()
+            gc.collect()
+        row = removal_defaults.copy()
+        # TODO: the date format is yyyy-mm-dd...does this work for us
+        row['date'] = rec['remodate']
+        row['from_location_id'] = locations[rec['remofrom']]
+        row['reason'] = utils.utf8(rec['remocode'])
+
+        plant_tuple = (rec['accno'], rec['propno'])
+        plant_id = plant_ids.get(plant_tuple, None)
+
+        if not plant_id:
+            clause = and_(plant_table.c.code==unicode(rec['propno']),
+                          acc_table.c.code==unicode(rec['accno']))
+            plant_id = sa.select([plant_table.c.id],
+                                 from_obj=plant_table.join(acc_table),
+                                 whereclause=clause).execute().fetchone()[0]
+            plant_ids[plant_tuple] = plant_id
+        if not plant_id:
+            error(row)
+            raise ValueError
+        plant_updates.setdefault(plant_id, {'id': plant_id,
+                                            'location_id': removed_location_id})
+        row['plant_id'] = plant_id
+        removal_rows.append(row)
+
+        if rec['notes'].strip():
+            note = note_defaults.copy()
+            note['id'] = note_id_ctr
+            note['date'] = rec['remodate']
+            note['note'] = utils.utf8(rec['notes'].strip())
+            note['plant_id'] = plant_id
+            note_rows.append(note)
+            row['note_id'] = note_id_ctr
+            note_id_ctr += 1
+
+    if options.verbosity <= 0:
+        print ''
+
+    insert = get_insert(PlantRemoval.__table__, removal_rows[0].keys())
+    insert_rows(insert, removal_rows)
+    info('inserted %s removals' % len(removal_rows))
+
+    note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
+    insert_rows(note_insert, note_rows)
+    info('inserted %s removal notes' % len(note_rows))
+
+    # update the location of removed plants6
+    conn = db.engine.connect()
+    trans = conn.begin()6
+    upd = plant_table.update().where(plant_table.c.id==bindparam('id')).\
+        values(location_id=bindparam('location_id'))
+    for row in plant_updates.values():
+        conn.execute(upd, row)
+    trans.commit()
+    conn.close()
+
+
 def do_bedtable():
     # TODO: for the bed table it might make sense to do a "section"
     # column so the section could be, say "Alpine Garden" and the
@@ -1287,81 +1392,6 @@ def do_color():
     insert_rows(insert, color_rows)
     info('inserted %s colors.' % len(color_rows))
 
-
-def do_removals():
-    """
-    Convert the REMOVALS.DBF table to bauble.plugins.garden.plant.PlantRemoval
-    """
-    # accno;propno;remodate;remoqty;remocode;remofrom;notes
-    # TODO: we don't have an equivalent for quantity
-    status('converting REMOVALS.DBF ...')
-    removal_table = PlantRemoval.__table__
-    removal_defaults = get_defaults(removal_table)
-    dbf = open_dbf('REMOVALS.DBF')
-    removal_rows = []
-
-    note_rows = []
-    note_id_ctr = get_next_id(PlantNote.__table__)
-    note_defaults = get_defaults(PlantNote.__table__)
-    note_defaults['category'] = u'Removal'
-
-    locations = {}
-    session = db.Session()
-    for loc in session.query(Location):
-        locations[loc.code] = loc.id
-    session.close()
-
-    rec_ctr = 1
-
-    # TODO: could we do one large query to cache the accesion codes,
-    # plant codes and plant ids and put them in an easy access dict
-    for rec in dbf:
-        rec_ctr += 1
-        if (rec_ctr % granularity) == 0:
-            # collect periodically so we don't run out of memory
-            print_tick()
-            gc.collect()
-        row = removal_defaults.copy()
-        # TODO: the date format is yyyy-mm-dd...does this work for us
-        row['date'] = rec['remodate']
-        row['from_location_id'] = locations[rec['remofrom']]
-        row['reason'] = utils.utf8(rec['remocode'])
-
-        plant_tuple = (rec['accno'], rec['propno'])
-        plant_id = plant_ids.get(plant_tuple, None)
-        if not plant_id:
-            clause = and_(plant_table.c.code==unicode(rec['propno']),
-                          acc_table.c.code==unicode(rec['accno']))
-            plant_id = sa.select([plant_table.c.id],
-                                 from_obj=plant_table.join(acc_table),
-                                 whereclause=clause).execute().fetchone()[0]
-            plant_ids[plant_tuple] = plant_id
-        if not plant_id:
-            error(row)
-            raise ValueError
-        row['plant_id'] = plant_id
-        removal_rows.append(row)
-
-        if rec['notes'].strip():
-            note = note_defaults.copy()
-            note['id'] = note_id_ctr
-            note['date'] = rec['remodate']
-            note['note'] = utils.utf8(rec['notes'].strip())
-            note['plant_id'] = plant_id
-            note_rows.append(note)
-            row['note_id'] = note_id_ctr
-            note_id_ctr += 1
-
-    if options.verbosity <= 0:
-        print ''
-
-    insert = get_insert(PlantRemoval.__table__, removal_rows[0].keys())
-    insert_rows(insert, removal_rows)
-    info('inserted %s removals' % len(removal_rows))
-
-    note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
-    insert_rows(note_insert, note_rows)
-    info('inserted %s removal notes' % len(note_rows))
 
 
 def do_source():
