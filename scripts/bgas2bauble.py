@@ -1150,6 +1150,55 @@ pool = {}
 plant_ids = {}
 
 
+histories = {}
+
+class History(object):
+
+    def __init__(self, start):
+        if isinstance(start, (list, tuple)):
+            self.path = start
+        else:
+            self.path = [start]
+        self.transfers = []
+
+    def __str__(self):
+        return str(self.path)
+
+
+plant_codes = {}
+def next_code(plant_tuple):
+    all_codes = plant_codes.setdefault(plant_tuple, [])
+    if all_codes:
+	next = int(all_codes[-1])+1
+    else:
+	next = plant_tuple[1]
+	if next > 0:
+	    next *= 1000
+
+    if next < 1000:
+	next_str = utils.utf8('%04d' % next)
+	plant_codes[plant_tuple].append(next_str)
+	return next_str
+    else:
+	next_str = utils.utf8('%s' % next)
+	plant_codes[plant_tuple].append(next_str)
+	return next_str
+
+def test_next_code():
+    """Test next_code()
+    """
+    assert next_code((2,0)) == '0000'
+    assert next_code((2,0)) == '0001'
+    assert next_code((2,0)) == '0002'
+    assert next_code((2,1)) == '1000'
+    assert next_code((2,1)) == '1001'
+    assert next_code((2,2)) == '2000'
+    assert next_code((2,2)) == '2001'
+    for x in range(0, 12):
+        next_code((2,3))
+    assert next_code((2,3)) == '3012'
+
+
 def do_transfer():
 
     # TODO: adding the transfers should probably be done in do_plants
@@ -1157,7 +1206,6 @@ def do_transfer():
     #
     # DBF Columns: accno;propno;movedate;moveqty;tranfrom;tranto;notes
     status('converting TRANSFER.DBF ...')
-    dbf = open_dbf('TRANSFER.DBF')
     transfer_rows = []
     transfer_id_ctr = 1
     transfer_table = PlantTransfer.__table__
@@ -1174,49 +1222,135 @@ def do_transfer():
         locations[loc.code] = loc.id
 
     rec_ctr = 0
-    for rec in dbf:
+    for rec in sorted(open_dbf('TRANSFER.DBF'), key=lambda x: x['movedate']):
         rec_ctr += 1
         if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
-        row = defaults.copy()
-        transfer_rows.append(row)
-        row['from_location_id'] = locations[rec['tranfrom']]
-        row['to_location_id'] = locations[rec['tranto']]
-        row['date'] = rec['movedate']
+
+        tranfrom = rec['tranfrom']
+        tranto = rec['tranto']
+        transfer_row = defaults.copy()
+        #transfer_rows.append(transfer_row)
+        transfer_row['from_location_id'] = locations[tranfrom]
+        transfer_row['to_location_id'] = locations[tranto]
+        transfer_row['date'] = rec['movedate']
 
         plant_tuple = (rec['accno'], rec['propno'])
         plant_id = plant_ids.get(plant_tuple, None)
-        if not plant_id:
-            clause = and_(plant_table.c.code==unicode(rec['propno']),
-                          acc_table.c.code==unicode(rec['accno']))
-            plant_id = sa.select([plant_table.c.id],
-                                 from_obj=plant_table.join(acc_table),
-                                 whereclause=clause).execute().fetchone()[0]
-            plant_ids[plant_tuple] = plant_id
-        row['plant_id'] = plant_id
+        # if not plant_id:
+        #     clause = and_(plant_table.c.code==unicode(rec['propno']),
+        #                   acc_table.c.code==unicode(rec['accno']))
+        #     plant_id = sa.select([plant_table.c.id],
+        #                          from_obj=plant_table.join(acc_table),
+        #                          whereclause=clause).execute().fetchone()[0]
+        #     plant_ids[plant_tuple] = plant_id
+        # row['plant_id'] = plant_id
+
+        pool.setdefault(plant_tuple, {})
+        if tranfrom in pool[plant_tuple]:
+            pool[plant_tuple][tranfrom] -= rec['moveqty']
+        n = pool[plant_tuple].get(tranto, 0)
+        pool[plant_tuple][tranto] = n+rec['moveqty']
+
 
         if rec['notes'].strip():
             note = note_defaults.copy()
             note['id'] = note_id_ctr
             note['note'] = utils.utf8(rec['notes'].strip())
             note['date'] = rec['movedate']
-            note['plant_id'] = plant_id
+            #note['plant_id'] = plant_id
             note_rows.append(note)
-            row['note_id'] = note_id_ctr
+            transfer_row['note_id'] = note_id_ctr
             note_id_ctr += 1
+
+        # add this transfer to an existing history item
+        added = False
+        for history in histories.setdefault(plant_tuple, [History(tranfrom)]):
+            index = -1
+            if tranfrom in history.path:
+                index = history.path.index(tranfrom)
+            if index >= 0 and index == len(history.path)-1:
+                # if tranfrom is the last item in this move
+                if tranfrom in pool[plant_tuple] and \
+                        pool[plant_tuple][tranfrom] > 0:
+                    # if there are still some in the tranfrom then branch
+                    # the transfer information
+                    new = copy.copy(history)
+                    new.path.append(tranto)
+                    new.transfers.append(transfer_row)
+                    histories[plant_tuple].append(new)
+                else:
+                    # add the destination to this move
+                    history.path.append(tranto)
+                added = True
+                break
+            elif index >= 0:
+                # if tranfrom is in the middle of this move then branch
+                # the original move from the point of diversion and append
+                # the tranto
+                new = History(history.path[0:index+1])
+                new.path.append(tranto)
+                new.transfers.append(transfer_row)
+                histories[plant_tuple].append(new)
+                added = True
+                break
+        if not added:
+            # this transfer didn't match an existing move so add a while
+            # new transfer record
+            history = History(tranfrom)
+            history.path.append(tranto)
+            history.transfers.append(transfer_row)
+            histories[plant_tuple].append(history)
+            #histories[plant_tuple].append([tranfrom, tranto])
 
     if options.verbosity <= 0:
         print ''
+
+    plant_rows = []
+    plant_id_ctr = get_next_id(plant_table)
+
+    for plant_tuple, history in histories.iteritems():
+        for story in history:
+            location = story.path[-1]
+            quantity = pool[plant_tuple][location]
+            # if quantity < 20:
+            #     for num in range(0, quantity):
+            #         new = copy.copy(plants[plant_tuple])
+            #         new['location_id'] = locations[location]
+            #         new['id'] = plant_id_ctr
+            #         new['code'] = next_code(plant_tuple)
+            #         plant_rows.append(new)
+            #         transfers = story.transfers[:]
+            #         map(lambda x: x.setdefault('plant_id', plant_id_ctr),
+            #             transfers)
+            #         transfer_rows.extend(transfers)
+            #         plant_id_ctr += 1
+            # else: # quantity >= 1000
+            # make the plant code the first digit and pad with zeroes
+            new = copy.copy(plants[plant_tuple])
+            new['location_id'] = locations[location]
+            new['id'] = plant_id_ctr
+            new['code'] = next_code(plant_tuple)
+            transfers = story.transfers[:]
+            map(lambda x: x.setdefault('plant_id', plant_id_ctr),
+                transfers)
+            transfer_rows.extend(transfers)
+            plant_id_ctr += 1
+            plant_rows.append(new)
+
+    plant_insert = get_insert(plant_table, plant_rows[0].keys())
+    insert_rows(plant_insert, plant_rows)
+    info('inserted %s plants' % len(plant_rows))
 
     transfer_insert = get_insert(transfer_table, transfer_rows[0].keys())
     insert_rows(transfer_insert, transfer_rows)
     info('inserted %s transfers' % len(transfer_rows))
 
-    note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
-    insert_rows(note_insert, note_rows)
-    info('inserted %s transfers notes' % len(note_rows))
+    # note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
+    # insert_rows(note_insert, note_rows)
+    # info('inserted %s transfers notes' % len(note_rows))
 
 
 
@@ -1272,6 +1406,12 @@ def do_removals():
         if not plant_id:
             error(row)
             raise ValueError
+
+        plant_tuple = (rec['accno'], rec['propno'])
+        pool.setdefault(plant_tuple, {})
+        if rec['remofrom'] in pool[plant_tuple]:
+            pool[plant_tuple][rec['remofrom']] -= rec['remoqty']
+
         plant_updates.setdefault(plant_id, {'id': plant_id,
                                             'location_id': removed_location_id})
         row['plant_id'] = plant_id
@@ -1300,7 +1440,7 @@ def do_removals():
 
     # update the location of removed plants6
     conn = db.engine.connect()
-    trans = conn.begin()6
+    trans = conn.begin()
     upd = plant_table.update().where(plant_table.c.id==bindparam('id')).\
         values(location_id=bindparam('location_id'))
     for row in plant_updates.values():
@@ -1347,6 +1487,7 @@ def do_synonym():
     """
     status('converting SYNONYM.DBF ...')
     dbf = open_dbf('SYNONYM.DBF')
+
 
 
 def do_habit():
@@ -1438,7 +1579,8 @@ def do_source():
 
 
 stages = [do_family, do_habit, do_color, do_source, do_sciname, do_bedtable,
-          do_plants, do_hereitis, do_transfer, do_synonym, do_removals]
+          do_plants, #do_hereitis,
+          do_transfer, do_synonym]#, do_removals]
 
 def run():
     for stage in stages[options.stage:]:
