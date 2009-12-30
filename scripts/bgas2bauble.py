@@ -1275,15 +1275,17 @@ def do_transfer():
                 # if tranfrom is the last item in this move
                 if tranfrom in pool[plant_tuple] and \
                         pool[plant_tuple][tranfrom] > 0:
-                    # if there are still some in the tranfrom then branch
-                    # the transfer information
-                    new = copy.copy(history)
+                    # if there are still some plants in the "tranfrom"
+                    # location then branch the history information
+                    new = History(history.path[:])
                     new.path.append(tranto)
+                    new.transfers = [d.copy() for d in history.transfers]
                     new.transfers.append(transfer_row)
                     histories[plant_tuple].append(new)
                 else:
                     # add the destination to this move
                     history.path.append(tranto)
+                    history.transfers.append(transfer_row)
                 added = True
                 break
             elif index >= 0:
@@ -1292,6 +1294,7 @@ def do_transfer():
                 # the tranto
                 new = History(history.path[0:index+1])
                 new.path.append(tranto)
+                new.transfers = [d.copy() for d in history.transfers[0:index]]
                 new.transfers.append(transfer_row)
                 histories[plant_tuple].append(new)
                 added = True
