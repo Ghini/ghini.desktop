@@ -172,7 +172,7 @@
                       </object>
                     </child>
                     <child type="label">
-                      <object class="GtkLabel" id="label5">
+                      <object class="GtkLabel" id="pad_message_label">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">&lt;b&gt;Enter a unique plant code&lt;/b&gt;</property>
                         <property name="use_markup">True</property>
@@ -233,7 +233,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkHBox" id="hbox43">
+                          <object class="GtkHBox" id="plant_loc_hbox">
                             <property name="visible">True</property>
                             <property name="spacing">6</property>
                             <child>
