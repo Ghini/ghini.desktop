@@ -92,6 +92,20 @@ class GardenPlugin(pluginmgr.Plugin):
         import bauble.meta as meta
         meta.get_default(plant_delimiter_key, default_plant_delimiter)
 
+        # if the "Removed" location doesn't exist then add it, if it
+        # doesn't exist but the name is not the same then update
+        # it...the name could change if the translation is updated
+        session = db.Session()
+        location = session.query(Location).filter(Location.code==u'-1').first()
+        name = _('(Removed)')
+        if not location:
+            location = Location(code=u'-1', name=utils.utf8(name))
+            session.add(location)
+        if location and location.name != name:
+            location.name = utils.utf8(name)
+        session.commit()
+        session.close()
+
 
 def init_location_comboentry(presenter, combo, on_select, required=True):
     """
@@ -115,6 +129,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     cell = gtk.CellRendererText() # set up the completion renderer
     completion.pack_start(cell)
     completion.set_cell_data_func(cell, cell_data_func)
+    completion.props.popup_set_width = False
 
     entry = combo.child
     entry.set_completion(completion)
