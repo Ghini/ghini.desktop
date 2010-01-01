@@ -737,12 +737,19 @@ class PlantEditorView(GenericEditorView):
                                   'plants.'),
         'plant_acc_entry': _('The accession must be selected from the list ' \
                              'of completions.  To add an accession use the '\
-                             'Accession editor'),
+                             'Accession editor.'),
         'plant_loc_comboentry': _('The location of the plant in your '\
                                       'collection.'),
         'plant_acc_type_combo': _('The type of the plant material.\n\n' \
                                   'Possible values: %s') % \
                                   ', '.join(acc_type_values.values()),
+        'plant_loc_add_button': _('Create a new location.'),
+        'plant_loc_add_button': _('Edit the selected location.'),
+        'prop_add_button': _('Create a new propagation record for this plant.'),
+        'pad_cancel_button': _('Cancel your changes.'),
+        'pad_ok_button': _('Save your changes.'),
+        'pad_next_button': _('Save your changes changes and add another '
+                             'plant.')
         }
 
 
@@ -821,6 +828,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 # if get_next_code() returns None then there was an error
                 self.model.code = code
 
+        # the location can only be changed on on a new plant
+        if self.model not in self.session.new:
+            self.view.widgets.plant_loc_hbox.props.sensitive = False
+        else:
+            self.view.widgets.plant_loc_hbox.props.sensitive = True
+
         self.refresh_view() # put model values in view
 
         def on_location_select(location):
@@ -892,7 +905,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             # then go into "bulk mode" and change the background color
             # to a light blue and disable the 'Add note' button
             from pyparsing import ParseException
-            if len(utils.range_builder(self.model.code)) > 1:
+            if len(utils.range_builder(self.model.code)) > 1 and \
+                    self.model in self.session.new:
                 color_str = '#B0C4DE' # light steel blue
                 color = gtk.gdk.color_parse(color_str)
                 sensitive = False
@@ -1034,7 +1048,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         """
         """
         codes = utils.range_builder(self.model.code)
-        if len(codes) <= 1:
+        if len(codes) <= 1 or self.model not in self.session.new:
             super(PlantEditor, self).commit_changes()
             self._committed.append(self.model)
             return
