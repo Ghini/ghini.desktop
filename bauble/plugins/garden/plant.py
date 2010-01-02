@@ -216,6 +216,7 @@ class PlantRemoval(db.Base):
                               nullable=False)
 
     reason = Column(types.Enum(values=removal_reasons.keys()))
+    person = Column(Unicode(64))
 
     # TODO: is this redundant with note.date
     date = Column(types.Date)
@@ -528,6 +529,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
                 self.__dirty = True
                 self.refresh_sensitivity()
         from bauble.plugins.garden import init_location_comboentry
+        self.view.widgets.trans_to_comboentry.child.props.text = ''
         init_location_comboentry(self, self.view.widgets.trans_to_comboentry,
                                  on_tran_to_select)
 
@@ -649,6 +651,8 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
             if self.presenter._note.note:
                 new_note = PlantNote()
                 new_note.note = self.presenter._note.note
+                new_note.category = \
+                    utils.utf8(self.presenter.get_current_action())
                 new_note.date = new_action.date
                 new_note.user = new_action.person
                 new_note.plant = plant

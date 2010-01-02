@@ -435,7 +435,7 @@ class VernacularName(db.Base):
     language = Column(Unicode(128))
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
     __table_args__ = (UniqueConstraint('name', 'language',
-                                        'species_id', name='vn_index'), {})
+                                       'species_id', name='vn_index'), {})
 
     def __str__(self):
         if self.name:
