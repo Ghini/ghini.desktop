@@ -1647,14 +1647,14 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # date received
         self.view.connect('acc_date_recvd_entry', 'changed',
                           self.on_date_entry_changed, 'date_recvd')
-        utils.setup_date_button(self.view.widgets.acc_date_recvd_entry,
-                               self.view.widgets.acc_date_recvd_button)
+        utils.setup_date_button(self.view, 'acc_date_recvd_entry',
+                               'acc_date_recvd_button')
 
         # date accessioned
         self.view.connect('acc_date_accd_entry', 'changed',
                           self.on_date_entry_changed, 'date_accd')
-        utils.setup_date_button(self.view.widgets.acc_date_accd_entry,
-                               self.view.widgets.acc_date_accd_button)
+        utils.setup_date_button(self.view, 'acc_date_accd_entry',
+                               'acc_date_accd_button')
 
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())

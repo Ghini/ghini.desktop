@@ -670,8 +670,8 @@ class SeedPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_sown_entry', 'date_sown',
                                    editor.DateValidator())
-        utils.setup_date_button(self.view.widgets.seed_sown_entry,
-                                self.view.widgets.seed_sown_button)
+        utils.setup_date_button(self.view, 'seed_sown_entry',
+                                'seed_sown_button')
         self.assign_simple_handler('seed_container_comboentry', 'container',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_media_comboentry', 'media',
@@ -684,14 +684,14 @@ class SeedPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_germdate_entry', 'germ_date',
                                    editor.DateValidator())
-        utils.setup_date_button(self.view.widgets.seed_germdate_entry,
-                                self.view.widgets.seed_germdate_button)
+        utils.setup_date_button(self.view, 'seed_germdate_entry',
+                                'seed_germdate_button')
         self.assign_simple_handler('seed_ngerm_entry', 'nseedlings')
         self.assign_simple_handler('seed_pctgerm_entry', 'germ_pct')
         self.assign_simple_handler('seed_date_planted_entry', 'date_planted',
                                    editor.DateValidator())
-        utils.setup_date_button(self.view.widgets.seed_date_planted_entry,
-                                self.view.widgets.seed_date_planted_button)
+        utils.setup_date_button(self.view, 'seed_date_planted_entry',
+                                'seed_date_planted_button')
 
 
     def dirty(self):
@@ -745,8 +745,8 @@ class PropagationPresenter(editor.GenericEditorPresenter):
         self._dirty = False
         self.assign_simple_handler('prop_date_entry', 'date',
                                    editor.DateValidator())
-        utils.setup_date_button(self.view.widgets.prop_date_entry,
-                                self.view.widgets.prop_date_button)
+        utils.setup_date_button(self.view, 'prop_date_entry',
+                                'prop_date_button')
         self.assign_simple_handler('notes_textview', 'notes',
                                    editor.UnicodeOrNoneValidator())
 

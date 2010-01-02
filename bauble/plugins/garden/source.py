@@ -482,8 +482,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         self.view.connect('coll_date_entry', 'changed',
                           self.on_date_entry_changed)
 
-        utils.setup_date_button(self.view.widgets.coll_date_entry,
-                                self.view.widgets.coll_date_button)
+        utils.setup_date_button(view, 'coll_date_entry',
+                                'coll_date_button')
 
         # don't need to connection to south/west since they are in the same
         # groups as north/east

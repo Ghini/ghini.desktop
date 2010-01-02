@@ -456,16 +456,17 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             self.view.set_widget_value('ped_user_entry',os.environ['USERNAME'])
 
         # initialize the date button
-        utils.setup_date_button(self.view.widgets.ped_date_entry,
-                                self.view.widgets.ped_date_button)
+        utils.setup_date_button(view, 'ped_date_entry', 'ped_date_button')
         def on_date_changed(*args):
             # we don't set the note date here since that gets set in
             # commit_changes()
             self._transfer.date = self.view.widgets.ped_date_entry.props.text
             self._removal.date = self.view.widgets.ped_date_entry.props.text
-
         self.view.connect(self.view.widgets.ped_date_entry, 'changed',
                           on_date_changed)
+        # set the text to the empty string to make sure the
+        # on_date_changed() handler is called
+        self.view.widgets.ped_date_entry.props.text = ''
         self.view.widgets.ped_date_button.clicked() # insert todays date
 
 
@@ -503,8 +504,10 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             self.__dirty = True
             self.refresh_sensitivity()
             self._note.note = utils.utf8(buff.props.text)
+        self.view.widgets.note_textview.props.buffer.props.text = ''
         self.view.connect(self.view.widgets.note_textview.get_buffer(),
                           'changed', on_buff_changed)
+
 
 
     def dirty(self):
@@ -599,7 +602,6 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
             new_action = type(action_model)()
             for prop in object_mapper(new_action).iterate_properties:
                 setattr(new_action, prop.key, getattr(action_model, prop.key))
-
             if action == 'Transfer':
                 new_action.to_location = \
                     session.merge(action_model.to_location)

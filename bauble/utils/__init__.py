@@ -537,7 +537,8 @@ def today_str(format=None):
     return today.strftime(format)
 
 
-def setup_date_button(entry, button, date_func=None):
+
+def setup_date_button(view, entry, button, date_func=None):
     """
     Associate a button with entry so that when the button is clicked a
     date is inserted into the entry.
@@ -549,6 +550,10 @@ def setup_date_button(entry, button, date_func=None):
     :param date_func: the function that returns a string represention
       of the date
     """
+    if isinstance(entry, basestring):
+        entry = view.widgets[entry]
+    if isinstance(button, basestring):
+        button = view.widgets[button]
     icon = os.path.join(paths.lib_dir(), 'images', 'calendar.png')
     image = gtk.Image()
     image.set_from_file(icon)
@@ -566,7 +571,10 @@ def setup_date_button(entry, button, date_func=None):
         else:
             s = date_func()
         entry.set_text(s)
-    button.connect('clicked', on_clicked)
+    if view and hasattr(view, 'connect'):
+        view.connect(button, 'clicked', on_clicked)
+    else:
+        button.connect('clicked', on_clicked)
 
 
 
