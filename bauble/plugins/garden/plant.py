@@ -100,8 +100,6 @@ def plant_markup_func(plant):
     sp_str = plant.accession.species_str(markup=True)
     #dead_color = "#777"
     dead_color = "#9900ff"
-    # UBC
-    #if plant.acc_status == 'Dead':
     if plant.removal:
         dead_markup = '<span foreground="%s">%s</span>' % \
             (dead_color, utils.xml_safe_utf8(plant))
@@ -225,8 +223,6 @@ class PlantRemoval(db.Base):
     from_location = relation('Location',
                  primaryjoin='PlantRemoval.from_location_id == Location.id')
 
-    # TODO: plan_id should probably go on the plant as removal_id
-    # since in theory there can only be one removal for a plant
     plant = relation('Plant', uselist=False,
                      backref=backref('removal', uselist=False,
                                      cascade='all, delete-orphan'))
@@ -246,10 +242,6 @@ class PlantTransfer(db.Base):
     # the name of the person who made the transfer
     person = Column(Unicode(64))
     """The name of the person who made the transfer"""
-
-    # TODO: do we need a standard set of reasons or shuld this just
-    # be relegated to notes
-    reason = Column(String(32))
 
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
@@ -272,12 +264,6 @@ acc_type_values = {u'Plant': _('Plant'),
                    u'Other': _('Other'),
                    None: _('')}
 
-# acc_status_values = {u'Living': _('Living accession'),
-#                      u'Dead': _('Dead'),
-#                      u'Transferred': _('Transferred'),
-#                      u'Dormant': _('Stored in dormant state'),
-#                      u'Other': _('Other'),
-#                      None: _('')}
 
 class Plant(db.Base):
     """
@@ -303,22 +289,6 @@ class Plant(db.Base):
 
                 * None: no information, unknown
 
-        *acc_status*: :class:`bauble.types.Enum`
-            The accession status
-
-            Possible values:
-                * Living accession: Current accession in living collection
-
-                * Dead: Noncurrent accession due to Death
-
-                * Transfered: Noncurrent accession due to Transfer
-                  Stored in dormant state: Stored in dormant state
-
-                * Other: Other, possible see notes for more information
-
-                * None: no information, unknown)
-
-
         *accession_id*: :class:`sqlalchemy.types.ForeignKey`
             Required.
 
@@ -343,10 +313,6 @@ class Plant(db.Base):
     # columns
     code = Column(Unicode(6), nullable=False)
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
-
-    # UBC: with plant removals then the acc_status is not really necessary
-    # acc_status = Column(types.Enum(values=acc_status_values.keys()),
-    #                     default=None)
 
     # UBC: date_accd, date_recvd and operator were used in BGAS but
     # they aren't really relevant here, i've just added them so we
@@ -651,8 +617,8 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
             if self.presenter._note.note:
                 new_note = PlantNote()
                 new_note.note = self.presenter._note.note
-                new_note.category = \
-                    utils.utf8(self.presenter.get_current_action())
+                category = plant_actions[self.presenter.get_current_action()]
+                new_note.category = utils.utf8(category)
                 new_note.date = new_action.date
                 new_note.user = new_action.person
                 new_note.plant = plant
@@ -796,9 +762,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                            'plant_acc_entry': 'accession',
                            'plant_loc_comboentry': 'location',
                            'plant_acc_type_combo': 'acc_type',
-                           #'plant_acc_status_combo': 'acc_status',
                            }
-                           #'plant_notes_textview': 'notes'}
+
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
@@ -813,11 +778,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.__dirty = False
 
-        # set default values for acc_status and acc_type
+        # set default values for acc_type
         if self.model.id is None and self.model.acc_type is None:
             self.model.acc_type = u'Plant'
-        # if self.model.id is None and self.model.acc_status is None:
-        #     self.model.acc_status = u'Living'
 
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
@@ -830,7 +793,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             code = get_next_code(self.model.accession)
             if code:
                 # if get_next_code() returns None then there was an error
-                self.model.code = code
+                self.model.code = utils.utf8(code)
 
         # the location can only be changed on on a new plant
         if self.model not in self.session.new:
