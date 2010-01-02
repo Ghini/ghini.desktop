@@ -957,7 +957,7 @@ class NotesPresenter(GenericEditorPresenter):
             utils.setup_text_combobox(self.widgets.category_comboentry, values)
             utils.set_widget_value(self.widgets.category_comboentry,
                                    self.model.category or '')
-            utils.setup_date_button(self.widgets.date_entry,
+            utils.setup_date_button(None, self.widgets.date_entry,
                                     self.widgets.date_button)
             date_str = utils.today_str()
             if self.model.date:
