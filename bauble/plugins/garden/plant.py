@@ -1238,42 +1238,58 @@ class TransferExpander(InfoExpander):
         """
         """
         super(TransferExpander, self).__init__(_('Transfers/Removal'), widgets)
-        self.vbox.set_spacing(3)
+        self.table = gtk.Table()
+        self.vbox.pack_start(self.table)
+        self.table.props.row_spacing = 3
+        self.table.props.column_spacing = 5
 
 
     def update(self, row):
         '''
         '''
-        self.vbox.foreach(self.vbox.remove)
-        self.vbox.get_children()
-        format = prefs.prefs[prefs.date_format_pref]
+        self.table.foreach(self.table.remove)
+        nrows = len(row.transfers)
         if row.removal:
-            date = row.removal.date.strftime(format)
+            nrows += 1
+        self.table.resize(nrows, 2)
+        date_format = prefs.prefs[prefs.date_format_pref]
+        current_row = 0
+        # add removal
+        if row.removal:
+            date = row.removal.date.strftime(date_format)
+            label = gtk.Label('%s:' % date)
+            self.table.attach(label, 0, 1, current_row, current_row+1,
+                              xoptions=gtk.FILL)
             if not row.removal.reason:
                 reason = _('(no reason)')
             else:
                 reason=utils.utf8(removal_reasons[row.removal.reason])
-            s = _('Removed from %(from_loc)s on %(date)s: %(reason)s') %\
-                dict(from_loc=row.removal.from_location, date=date,
-                     reason=reason)
+            s = _('Removed from %(from_loc)s: %(reason)s') % \
+                dict(from_loc=row.removal.from_location, reason=reason)
             label = gtk.Label(s)
-            label.set_alignment(0.0, 0.5)
-            self.vbox.pack_start(label)
+            label.set_alignment(0, .5)
+            self.table.attach(label, 1, 2, current_row, current_row+1)
+            current_row += 1
 
-        for transfer in reversed(row.transfers):
-            date = transfer.date.strftime(format)
+        # add transfers
+        for transfer in row.transfers:
+            date = transfer.date.strftime(date_format)
+            label = gtk.Label('%s:' % date)
+            self.table.attach(label, 0, 1, current_row, current_row+1,
+                              xoptions=gtk.FILL)
             if not transfer.person:
                 person = _('(unknown)')
             else:
                 person = transfer.person
-            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
-                dict(date=date, from_loc=transfer.from_location,
-                     to=transfer.to_location, person=person)
+            s = _('Transferred from %(from_loc)s to %(to)s by %(person)s') % \
+                  dict(from_loc=transfer.from_location,
+                       to=transfer.to_location, person=person)
             label = gtk.Label(s)
-            label.set_alignment(0.0, 0.5)
-            self.vbox.pack_start(label)
-
+            label.set_alignment(0, .5)
+            self.table.attach(label, 1, 2, current_row, current_row+1)
+            current_row += 1
         self.vbox.show_all()
+
 
 
 class PropagationExpander(InfoExpander):
