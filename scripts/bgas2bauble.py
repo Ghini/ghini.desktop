@@ -916,6 +916,7 @@ def do_plants():
                 plant_row['operator'] = utils.utf8(rec['operator'])
             plants[p] = plant_row
             plant_id_ctr += 1
+            start_quantity[p] = rec['qtyrcvd']
         else:
             raise ValueError('duplicate accession: %s' % p)
 
@@ -1109,7 +1110,15 @@ def do_plants():
     gc.collect()
 
 
+start_quantity = {}
+
 def do_hereitis():
+    """
+    Loop through the hereitis table and create only those plants that
+    have never been transferred from their original location.
+
+    do_hereitis() should always be called before do_transfer()
+    """
     # loop through the hereitis table to set the location_id, for any
     # plants that are in PLANTS.DBF but aren't in HEREITIS.DBF the
     # locations is set to unknown_location
@@ -1125,32 +1134,41 @@ def do_hereitis():
     # the plants in the table.  Fortunately it seems like the last one
     # in the table is the most current so we use that one for the
     # location.
-    dbf = open_dbf('HEREITIS.DBF')
     rec_ctr = 0
-    for rec in dbf:
+    plant_rows = []
+    plant_id_ctr = get_next_id(plant_table)
+
+    # go through the records in reverse order to make sure the first
+    # plant we set is the last one in the table which should be the most current
+    for rec in sorted(open_dbf('HEREITIS.DBF'), reverse=True):
         rec_ctr += 1
         if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
-        location_id = locations[rec['bedno']]
         plant_tuple = (rec['accno'], rec['propno'])
-        # set the location_id, don't worry if the location was set
-        # previously since the last one should be the most recent
-        plants[plant_tuple]['location_id'] = location_id
+        if plant_tuple not in pool:
+            # the plant isn't in the pool so it means it wasn't
+            # created in do_transfer()
+            p = plants[plant_tuple]
+            p['location_id'] = locations[rec['bedno']]
+            p['code'] = next_code(plant_tuple)
+            p['id'] = plant_id_ctr
+            plant_id_ctr += 1
+            plant_rows.append(p)
+            pool[plant_tuple] = start_quantity[plant_tuple]
 
-    plant_insert = get_insert(plant_table, plants.values()[0].keys())
-    insert_rows(plant_insert, plants.values())
+    plant_insert = get_insert(plant_table, plant_rows[0].keys())
+    insert_rows(plant_insert, plant_rows)
     if options.verbosity <= 0:
         print ''
-    info('inserted %s plants' % len(plants.values()))
+    info('inserted %s plants' % len(plant_rows))
 
 
 pool = {}
 plant_ids = {}
-
-
 histories = {}
+plant_codes = {}
 
 class History(object):
 
@@ -1165,8 +1183,13 @@ class History(object):
         return str(self.path)
 
 
-plant_codes = {}
+
 def next_code(plant_tuple):
+    """
+    Get the next plant code for the plant_tuple.  This function
+    doesn't query the database but generates the next code from the
+    plant_codes dict.
+    """
     all_codes = plant_codes.setdefault(plant_tuple, [])
     if all_codes:
 	next = int(all_codes[-1])+1
@@ -1183,6 +1206,7 @@ def next_code(plant_tuple):
 	next_str = utils.utf8('%s' % next)
 	plant_codes[plant_tuple].append(next_str)
 	return next_str
+
 
 def test_next_code():
     """Test next_code()
@@ -1356,7 +1380,6 @@ def do_transfer():
     # info('inserted %s transfers notes' % len(note_rows))
 
 
-
 def do_removals():
     """
     Convert the REMOVALS.DBF table to bauble.plugins.garden.plant.PlantRemoval
@@ -1374,6 +1397,11 @@ def do_removals():
     note_defaults = get_defaults(PlantNote.__table__)
     note_defaults['category'] = u'Removal'
 
+    acc_note_id_ctr = get_next_id(AccessionNote.__table__)
+    acc_note_defaults = get_defaults(AccessionNote.__table__)
+    acc_note_defaults['category'] = u'RemovalError'
+    acc_note_rows = []
+
     locations = {}
     session = db.Session()
     for loc in session.query(Location):
@@ -1390,6 +1418,7 @@ def do_removals():
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
+            #return
         row = removal_defaults.copy()
         # TODO: the date format is yyyy-mm-dd...does this work for us
         row['date'] = rec['remodate']
@@ -1397,23 +1426,55 @@ def do_removals():
         row['reason'] = utils.utf8(rec['remocode'])
 
         plant_tuple = (rec['accno'], rec['propno'])
-        plant_id = plant_ids.get(plant_tuple, None)
 
-        if not plant_id:
-            clause = and_(plant_table.c.code==unicode(rec['propno']),
-                          acc_table.c.code==unicode(rec['accno']))
-            plant_id = sa.select([plant_table.c.id],
-                                 from_obj=plant_table.join(acc_table),
-                                 whereclause=clause).execute().fetchone()[0]
-            plant_ids[plant_tuple] = plant_id
-        if not plant_id:
-            error(row)
-            raise ValueError
+        # TODO: it the remoqty doesn't match the number being
+        # removed then we should probably branch the plant history
+        # and create a new plant
 
-        plant_tuple = (rec['accno'], rec['propno'])
-        pool.setdefault(plant_tuple, {})
-        if rec['remofrom'] in pool[plant_tuple]:
-            pool[plant_tuple][rec['remofrom']] -= rec['remoqty']
+        # TODO: some removals don't match up with plant locations
+        # so maybe it would be better to just add a note with the
+        # record to the accession so the data isn't lost
+
+        clause = and_(acc_table.c.code==unicode(rec['accno']),
+                      plant_table.c.code.like('%s%%' % unicode(rec['propno'])),
+                      plant_table.c.location_id==locations[rec['remofrom']])
+        results = sa.select([plant_table.c.id],
+                  from_obj=plant_table.join(acc_table),
+                  whereclause=clause).execute().fetchone()
+        if results:
+            plant_id = results[0]
+        else:
+            acc_id = sa.select([acc_table.c.id],
+                               acc_table.c.code==unicode(rec['accno'])).\
+                               execute().fetchone()[0]
+            msg = 'No plant %s.%s in location %s to remove.' % \
+                (rec['accno'], rec['propno'], rec['remofrom'])
+            note = acc_note_defaults.copy()
+            note['id'] = acc_note_id_ctr
+            note['date'] = datetime.datetime.today()
+            note['note'] = utils.utf8(msg)
+            note['accession_id'] = acc_id
+            acc_note_id_ctr += 1
+            acc_note_rows.append(note)
+            continue
+
+        # if not plant_id:
+        #     print_tick('*')
+        #     continue
+        #     error(row)
+        #     print rec
+        #     raise ValueError
+
+        # if plant_tuple not in pool:
+        #     #print 'not in pool: %s' % str(plant_tuple)
+        #     print_tick('*')
+        #     pool[plant_tuple] = {rec['remofrom']: 0}
+        # else:
+        #     print_tick('-')
+        #     #print '****** IN POOL: %s' % str(plant_tuple)
+
+        #if rec['remofrom'] in pool[plant_tuple]:
+        #    pool[plant_tuple][rec['remofrom']] -= rec['remoqty']
 
         plant_updates.setdefault(plant_id, {'id': plant_id,
                                             'location_id': removed_location_id})
@@ -1441,7 +1502,11 @@ def do_removals():
     insert_rows(note_insert, note_rows)
     info('inserted %s removal notes' % len(note_rows))
 
-    # update the location of removed plants6
+    note_insert = get_insert(AccessionNote.__table__, acc_note_rows[0].keys())
+    insert_rows(note_insert, acc_note_rows)
+    info('inserted %s accession notes' % len(acc_note_rows))
+
+    # update the location of removed plants
     conn = db.engine.connect()
     trans = conn.begin()
     upd = plant_table.update().where(plant_table.c.id==bindparam('id')).\
@@ -1582,8 +1647,7 @@ def do_source():
 
 
 stages = [do_family, do_habit, do_color, do_source, do_sciname, do_bedtable,
-          do_plants, #do_hereitis,
-          do_transfer, do_synonym]#, do_removals]
+          do_plants, do_transfer, do_hereitis, do_synonym, do_removals]
 
 def run():
     for stage in stages[options.stage:]:
