@@ -1408,6 +1408,13 @@ def do_removals():
         locations[loc.code] = loc.id
     session.close()
 
+    acc_ids = {}
+    all_select = sa.select([acc_table.c.id, acc_table.c.code]).execute()
+    for acc_id, acc_code in all_select.fetchall():
+        acc_ids[int(acc_code)] = acc_id
+
+    removal_error_ctr = 0
+
     rec_ctr = 1
     plant_updates = {}
     # TODO: could we do one large query to cache the accesion codes,
@@ -1435,25 +1442,28 @@ def do_removals():
         # so maybe it would be better to just add a note with the
         # record to the accession so the data isn't lost
 
-        clause = and_(acc_table.c.code==unicode(rec['accno']),
+        # clause = and_(acc_table.c.code==unicode(rec['accno']),
+        #               plant_table.c.code.like('%s%%' % unicode(rec['propno'])),
+        #               plant_table.c.location_id==locations[rec['remofrom']])
+        # results = sa.select([plant_table.c.id],
+        #           from_obj=plant_table.join(acc_table),
+        #           whereclause=clause).execute().fetchone()
+        clause = and_(plant_table.c.accession_id == acc_ids[rec['accno']],
                       plant_table.c.code.like('%s%%' % unicode(rec['propno'])),
                       plant_table.c.location_id==locations[rec['remofrom']])
         results = sa.select([plant_table.c.id],
-                  from_obj=plant_table.join(acc_table),
-                  whereclause=clause).execute().fetchone()
+                            whereclause=clause).execute().fetchone()
         if results:
             plant_id = results[0]
         else:
-            acc_id = sa.select([acc_table.c.id],
-                               acc_table.c.code==unicode(rec['accno'])).\
-                               execute().fetchone()[0]
+            removal_error_ctr += 1
             msg = 'No plant %s.%s in location %s to remove.' % \
                 (rec['accno'], rec['propno'], rec['remofrom'])
             note = acc_note_defaults.copy()
             note['id'] = acc_note_id_ctr
             note['date'] = datetime.datetime.today()
             note['note'] = utils.utf8(msg)
-            note['accession_id'] = acc_id
+            note['accession_id'] = acc_ids[rec['accno']]
             acc_note_id_ctr += 1
             acc_note_rows.append(note)
             continue
@@ -1493,6 +1503,8 @@ def do_removals():
 
     if options.verbosity <= 0:
         print ''
+
+    info('removal errors: %s' % removal_error_ctr)
 
     insert = get_insert(PlantRemoval.__table__, removal_rows[0].keys())
     insert_rows(insert, removal_rows)
