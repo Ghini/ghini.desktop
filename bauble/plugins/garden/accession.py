@@ -484,7 +484,6 @@ class Accession(db.Base):
 
     # *** UBC specific
     pisbg = Column(Boolean, default=False)
-    memorial = Column(Boolean, default=False)
 
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
@@ -626,8 +625,6 @@ class AccessionEditorView(editor.GenericEditorView):
                                'should be considered private.'),
         'acc_pisbg_check': _('Indicates whether is part of the Plant '
                              'Introduction Schema for Botanic Gardens.'),
-        'acc_memorial_check': _('Indicates whether this accession was planted '
-                                'as a memorial.'),
         'acc_cancel_button': _('Cancel your changes.'),
         'acc_ok_button': _('Save your changes.'),
         'acc_ok_and_add_button': _('Save your changes changes and add a '
@@ -1513,7 +1510,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
-                           'acc_memorial_check': 'memorial',
                            'acc_pisbg_check': 'pisbg'
                            }
 
@@ -1659,7 +1655,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-        self.assign_simple_handler('acc_memorial_check', 'memorial')
         self.assign_simple_handler('acc_pisbg_check', 'pisbg')
 
         from bauble.plugins.garden import init_location_comboentry
@@ -1935,11 +1930,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             set_inconsistent(self.model.pisbg is True)
         self.view.widgets.acc_pisbg_check.\
             set_active(self.model.pisbg is True)
-
-        self.view.widgets.acc_memorial_check.\
-            set_inconsistent(self.model.memorial is True)
-        self.view.widgets.acc_memorial_check.\
-            set_active(self.model.memorial is True)
 
         sensitive = self.model.prov_type == 'Wild'
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
@@ -2243,11 +2233,6 @@ class GeneralAccessionExpander(InfoExpander):
         if row.private:
             stock = gtk.STOCK_YES
         self.widgets.private_image.set_from_stock(stock, image_size)
-
-        stock = gtk.STOCK_NO
-        if row.memorial:
-            stock = gtk.STOCK_YES
-        self.widgets.memorial_image.set_from_stock(stock, image_size)
 
         stock = gtk.STOCK_NO
         if row.pisbg:
