@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>Labels</title>
+<style type="text/css" media="all">  
+@page {
+    margin: 0;
+    orphans: 100;
+    widows: 100;
+    size: landscape;
+}
+.label {
+    border: 1px solid black;
+    padding: 2px;
+    margin: 1px;
+    width: 120mm;
+    height: 58mm;
+    float: left;
+    /*page-break-inside: avoid;*/
+    page-break-before: auto;
+    page-break-after: auto;
+    orphans: 100;
+    widows: 100;
+  }
+
+.family {
+    /*border: 1px solid red;*/
+    text-align: center;
+    font: normal bold 19pt Arial, sans;
+    margin-top: 3mm;
+    height: 1.2em;
+    width: 100%;
+  }
+.name {
+    /* border: 1px solid red; */
+    text-align: center;
+    margin-top: 3mm;
+    height: 30mm;
+    width: 100%;
+    vertical-align: middle;
+}
+.species {
+    /* border: 1px solid blue; */
+    text-align: center;
+    font: normal normal 22pt Arial, sans;
+    width: 100%;
+    margin-bottom: .5em;
+  }
+.vernacular {
+    /* border: 1px solid green; */
+    text-align: center;
+    font: normal bold 21pt Arial, sans;
+    width: 100%;
+  }
+
+.code {
+    /* border: 1px solid orange; */
+    font: normal normal 15pt serif;    
+    vertical-align: bottom;
+    text-align: left;
+  }
+.distribution {
+    /* border: 1px solid blue; */
+    font: normal normal 14pt serif; 
+    vertical-align: bottom;
+    text-align: right;
+  }
+
+  </style>
+</head>
+<body>
+<%
+   from bauble.plugins.garden import Plant
+   from bauble.plugins.report import get_all_plants
+   import bauble.db as db
+   session = db.Session()
+   delimiter = ','
+%>
+<%def name="make_label(plant)">
+  <table class="label">
+    <tr>
+      <td colspan="2" class="family">${plant.accession.species.genus.family}</td>
+    </tr>
+    <tr>
+      <td colspan="2" class="name">
+	<div class="species">
+	  ${plant.accession.species_str(markup=True)}
+	</div>
+	<div class="vernacular">
+	  <% 
+	  s = plant.accession.species.default_vernacular_name
+	  if s:
+	    context.write(str(s))
+	  %>
+	</div>
+      </td>
+    </tr>
+    <tr>
+      <td class="code">
+        ${plant}
+      </td>
+      <td class="distribution">
+	${plant.accession.species.distribution_str()}
+      </td>      
+    </tr>
+  </table>
+
+	
+</%def>
+   % for v in values:
+       % for p in get_all_plants(v, session):
+           ${make_label(p)}
+       % endfor
+   % endfor
+</body>
+
