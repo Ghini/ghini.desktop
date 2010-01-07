@@ -910,8 +910,8 @@ def do_plants():
             plant_row['_created']= rec['dateaccd']
             plant_row['date_accd'] = rec['dateaccd']
             plant_row['date_recvd'] = rec['datercvd']
-            plant_row['date_recvd'] = rec['datercvd']
             plant_row['operator'] = None
+            plant_row['memorial'] = rec['memorial']
             if rec['operator'].strip():
                 plant_row['operator'] = utils.utf8(rec['operator'])
             plants[p] = plant_row
@@ -957,7 +957,6 @@ def do_plants():
         row['code'] = unicode(rec['accno'])
         row['_last_updated'] = rec['l_update']
         row['pisbg'] = rec['pisbg']
-        row['memorial'] = rec['memorial']
         row['date_accd'] = rec['dateaccd']
         row['_created']= rec['dateaccd']
         row['date_recvd'] = rec['datercvd']

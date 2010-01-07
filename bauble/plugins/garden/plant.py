@@ -313,6 +313,8 @@ class Plant(db.Base):
     # columns
     code = Column(Unicode(6), nullable=False)
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
+    memorial = Column(Boolean, default=False)
+    quantity = Column(Integer, autoincrement=False)
 
     # UBC: date_accd, date_recvd and operator were used in BGAS but
     # they aren't really relevant here, i've just added them so we
