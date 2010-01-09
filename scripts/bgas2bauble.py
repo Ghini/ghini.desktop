@@ -208,13 +208,10 @@ unknown_location_code = u'UNK'
 if options.stage == 0:
     rows = [{'code': unknown_location_code, 'name': unknown_location_name},
             {'code': u'8A', 'name': u'8A'},
-            {'code': u'1B49', 'name': u'1B49'},
-            {'code': u'-1', 'name': u'(Removed)'}]
+            {'code': u'1B49', 'name': u'1B49'}]
     insert_rows(location_table.insert(), rows)
 unknown_location_id = get_column_value(location_table.c.id,
                                    location_table.c.code==unknown_location_code)
-removed_location_id = get_column_value(location_table.c.id,
-                                       location_table.c.code==u'-1')
 
 # precompute the _last_updated and _created columns so we don't have
 # to execute the default for every insert
@@ -1134,6 +1131,7 @@ def do_hereitis():
     # in the table is the most current so we use that one for the
     # location.
     rec_ctr = 0
+    deleted_ctr = 0
     plant_rows = []
     plant_id_ctr = get_next_id(plant_table)
 
@@ -1145,6 +1143,11 @@ def do_hereitis():
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
+
+        if rec.deleted:
+            deleted_ctr += 1
+            continue
+
         plant_tuple = (rec['accno'], rec['propno'])
         if plant_tuple not in pool:
             # the plant isn't in the pool so it means it wasn't
@@ -1155,12 +1158,14 @@ def do_hereitis():
             p['id'] = plant_id_ctr
             plant_id_ctr += 1
             plant_rows.append(p)
-            pool[plant_tuple] = start_quantity[plant_tuple]
+            pool.setdefault(plant_tuple,
+                            {rec['bedno']: start_quantity[plant_tuple]})
 
     plant_insert = get_insert(plant_table, plant_rows[0].keys())
     insert_rows(plant_insert, plant_rows)
     if options.verbosity <= 0:
         print ''
+    info('skipped %s deleted records' % deleted_ctr)
     info('inserted %s plants' % len(plant_rows))
 
 
@@ -1170,6 +1175,9 @@ histories = {}
 plant_codes = {}
 
 class History(object):
+    """
+    Represents the transfer history of a plant.
+    """
 
     def __init__(self, start):
         if isinstance(start, (list, tuple)):
@@ -1177,6 +1185,7 @@ class History(object):
         else:
             self.path = [start]
         self.transfers = []
+        self.notes = []
 
     def __str__(self):
         return str(self.path)
@@ -1244,6 +1253,7 @@ def do_transfer():
     for loc in session.query(Location):
         locations[loc.code] = loc.id
 
+    deleted_ctr = 0
     rec_ctr = 0
     for rec in sorted(open_dbf('TRANSFER.DBF'), key=lambda x: x['movedate']):
         rec_ctr += 1
@@ -1251,6 +1261,14 @@ def do_transfer():
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
+
+        if rec.deleted:
+            deleted_ctr += 1
+            continue
+            # if rec['notes'].strip():
+            #     print rec['notes']
+            # note['note'] = utils.utf8(rec['notes'].strip())
+            # note['date'] = rec['movedate']
 
         tranfrom = rec['tranfrom']
         tranto = rec['tranto']
@@ -1277,14 +1295,11 @@ def do_transfer():
         n = pool[plant_tuple].get(tranto, 0)
         pool[plant_tuple][tranto] = n+rec['moveqty']
 
-
+        note = {}
         if rec['notes'].strip():
             note = note_defaults.copy()
-            note['id'] = note_id_ctr
             note['note'] = utils.utf8(rec['notes'].strip())
             note['date'] = rec['movedate']
-            #note['plant_id'] = plant_id
-            note_rows.append(note)
             transfer_row['note_id'] = note_id_ctr
             note_id_ctr += 1
 
@@ -1304,11 +1319,16 @@ def do_transfer():
                     new.path.append(tranto)
                     new.transfers = [d.copy() for d in history.transfers]
                     new.transfers.append(transfer_row)
+                    new.notes = [d.copy() for d in history.notes]
+                    if note:
+                        new.notes.append(note)
                     histories[plant_tuple].append(new)
                 else:
                     # add the destination to this move
                     history.path.append(tranto)
                     history.transfers.append(transfer_row)
+                    if note:
+                        history.notes.append(note)
                 added = True
                 break
             elif index >= 0:
@@ -1319,17 +1339,20 @@ def do_transfer():
                 new.path.append(tranto)
                 new.transfers = [d.copy() for d in history.transfers[0:index]]
                 new.transfers.append(transfer_row)
+                if note:
+                    new.notes.append(note)
                 histories[plant_tuple].append(new)
                 added = True
                 break
         if not added:
-            # this transfer didn't match an existing move so add a while
+            # this transfer didn't match an existing move so add a whole
             # new transfer record
             history = History(tranfrom)
             history.path.append(tranto)
             history.transfers.append(transfer_row)
             histories[plant_tuple].append(history)
-            #histories[plant_tuple].append([tranfrom, tranto])
+            if note:
+                history.notes.append(note)
 
     if options.verbosity <= 0:
         print ''
@@ -1359,12 +1382,20 @@ def do_transfer():
             new['location_id'] = locations[location]
             new['id'] = plant_id_ctr
             new['code'] = next_code(plant_tuple)
+            new['quantity'] = pool[plant_tuple][location]
+            for note in story.notes:
+                note['id'] = note_id_ctr
+                note['plant_id'] = plant_id_ctr
+                note_rows.append(note)
+                note_id_ctr += 1
             transfers = story.transfers[:]
             map(lambda x: x.setdefault('plant_id', plant_id_ctr),
                 transfers)
             transfer_rows.extend(transfers)
             plant_id_ctr += 1
             plant_rows.append(new)
+
+    info('skipped %s deleted transfer records' % deleted_ctr)
 
     plant_insert = get_insert(plant_table, plant_rows[0].keys())
     insert_rows(plant_insert, plant_rows)
@@ -1374,9 +1405,9 @@ def do_transfer():
     insert_rows(transfer_insert, transfer_rows)
     info('inserted %s transfers' % len(transfer_rows))
 
-    # note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
-    # insert_rows(note_insert, note_rows)
-    # info('inserted %s transfers notes' % len(note_rows))
+    note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
+    insert_rows(note_insert, note_rows)
+    info('inserted %s transfers notes' % len(note_rows))
 
 
 def do_removals():
@@ -1425,10 +1456,12 @@ def do_removals():
             print_tick()
             gc.collect()
             #return
+        if rec.deleted:
+            continue
         row = removal_defaults.copy()
-        # TODO: the date format is yyyy-mm-dd...does this work for us
+        remofrom = unicode(rec['remofrom'])
         row['date'] = rec['remodate']
-        row['from_location_id'] = locations[rec['remofrom']]
+        row['from_location_id'] = locations[remofrom]
         row['reason'] = utils.utf8(rec['remocode'])
 
         plant_tuple = (rec['accno'], rec['propno'])
@@ -1441,20 +1474,55 @@ def do_removals():
         # so maybe it would be better to just add a note with the
         # record to the accession so the data isn't lost
 
-        # clause = and_(acc_table.c.code==unicode(rec['accno']),
-        #               plant_table.c.code.like('%s%%' % unicode(rec['propno'])),
-        #               plant_table.c.location_id==locations[rec['remofrom']])
-        # results = sa.select([plant_table.c.id],
-        #           from_obj=plant_table.join(acc_table),
-        #           whereclause=clause).execute().fetchone()
-        clause = and_(plant_table.c.accession_id == acc_ids[rec['accno']],
+        # TODO: the like() is really slow for sqlite...using a
+        # filter() on the python side to do the same thing is just as
+        # slow or slower
+
+        # TODO: this could match multiple plants with the same
+        # accession and location so how do we designate from which
+        # plant the plant is being removed...at the moment we just
+        # choose the first
+        # plants = filter(lambda r: r['code'].startswith(str(rec['propno'])),
+        #                 results)
+        # if len(plants) > 1:
+        #     raise ValueError('multiple %s.%s in %s' %
+        #                      (rec['accno'], rec['propno'], rec['remofrom']))
+        if not plant_tuple in pool or remofrom not in pool[plant_tuple] or \
+                pool[plant_tuple][remofrom] <= 0:
+            results = []
+        else:
+            clause = and_(plant_table.c.accession_id == acc_ids[rec['accno']],
                       plant_table.c.code.like('%s%%' % unicode(rec['propno'])),
                       plant_table.c.location_id==locations[rec['remofrom']])
-        results = sa.select([plant_table.c.id],
-                            whereclause=clause).execute().fetchone()
-        if results:
-            plant_id = results[0]
+            results = sa.select([plant_table.c.id, plant_table.c.code],
+                                whereclause=clause).execute().fetchall()
+                # print_tick('*')
+            # elif remofrom not in pool[plant_tuple]:
+            #     print_tick('?')
+            # elif pool[plant_tuple][remofrom] <= 0:
+            #     print_tick('-')
+
+        if results:# and plant_tuple in pool and remofrom in pool[plant_tuple]:
+            note = {}
+            if rec['notes'].strip():
+                note = note_defaults.copy()
+                note['date'] = rec['remodate']
+                note['note'] = utils.utf8(rec['notes'].strip())
+            for plant in results:
+                if pool[plant_tuple][rec['remofrom']] > 0:
+                    removal = row.copy()
+                    removal['plant_id'] = plant.id
+                    removal_rows.append(removal)
+                    if note:
+                        new = note.copy()
+                        new['plant_id'] = plant.id
+                        new['id'] = note_id_ctr
+                        note_id_ctr += 1
+                        note_rows.append(new)
+                        removal['note_id'] = note_id_ctr
+                pool[plant_tuple][rec['remofrom']] -= rec['remoqty']
         else:
+            #print_tick('*')
             removal_error_ctr += 1
             msg = 'No plant %s.%s in location %s to remove.' % \
                 (rec['accno'], rec['propno'], rec['remofrom'])
@@ -1466,6 +1534,10 @@ def do_removals():
             acc_note_id_ctr += 1
             acc_note_rows.append(note)
             continue
+
+
+        # row['plant_id'] = plant_id
+        # removal_rows.append(row)
 
         # if not plant_id:
         #     print_tick('*')
@@ -1485,20 +1557,9 @@ def do_removals():
         #if rec['remofrom'] in pool[plant_tuple]:
         #    pool[plant_tuple][rec['remofrom']] -= rec['remoqty']
 
-        plant_updates.setdefault(plant_id, {'id': plant_id,
-                                            'location_id': removed_location_id})
-        row['plant_id'] = plant_id
-        removal_rows.append(row)
+        # plant_updates.setdefault(plant_id, {'id': plant_id,
+        #                                     'location_id': removed_location_id})
 
-        if rec['notes'].strip():
-            note = note_defaults.copy()
-            note['id'] = note_id_ctr
-            note['date'] = rec['remodate']
-            note['note'] = utils.utf8(rec['notes'].strip())
-            note['plant_id'] = plant_id
-            note_rows.append(note)
-            row['note_id'] = note_id_ctr
-            note_id_ctr += 1
 
     if options.verbosity <= 0:
         print ''
@@ -1518,14 +1579,14 @@ def do_removals():
     info('inserted %s accession notes' % len(acc_note_rows))
 
     # update the location of removed plants
-    conn = db.engine.connect()
-    trans = conn.begin()
-    upd = plant_table.update().where(plant_table.c.id==bindparam('id')).\
-        values(location_id=bindparam('location_id'))
-    for row in plant_updates.values():
-        conn.execute(upd, row)
-    trans.commit()
-    conn.close()
+    # conn = db.engine.connect()
+    # trans = conn.begin()
+    # upd = plant_table.update().where(plant_table.c.id==bindparam('id')).\
+    #     values(location_id=bindparam('location_id'))
+    # for row in plant_updates.values():
+    #     conn.execute(upd, row)
+    # trans.commit()
+    # conn.close()
 
 
 def do_bedtable():
@@ -1667,27 +1728,21 @@ def run():
 
 def test():
     info('testing...')
+    session = db.Session()
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code=='24592', Plant.code=='0000')
+    assert plant.location.code == '3AD4'
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code=='24592', Plant.code=='0001')
+    assert plant.location.code == '3AD4'
+
     # test all possible combinations of imported species names
     # test for duplicate species
     # test that all accession codes are unique
     # test that all plant codes are unique
     pass
-
-def chunk(iterable, n):
-    '''
-    return iterable in chunks of size n
-    '''
-    # TODO: this could probably be implemented way more efficiently,
-    # maybe using itertools
-    chunk = []
-    ctr = 0
-    for it in iterable:
-        chunk.append(it)
-        ctr += 1
-        if ctr >= n:
-            yield chunk
-            chunk = []
-            ctr = 0
 
 
 if __name__ == '__main__':
@@ -1726,3 +1781,6 @@ if __name__ == '__main__':
                 print row
             if options.verbosity <= 0:
                 print ''
+
+    # test that the created values are correct
+    test()
