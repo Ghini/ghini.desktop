@@ -1188,11 +1188,13 @@ class GeneralPlantExpander(InfoExpander):
         head, tail = plant_code[:len(acc_code)], plant_code[len(acc_code):]
 
         self.set_widget_value('acc_code_data', '<big>%s</big>' % \
-                                                utils.xml_safe(unicode(head)))
+                                                utils.xml_safe(unicode(head)),
+                              markup=True)
         self.set_widget_value('plant_code_data', '<big>%s</big>' % \
-                              utils.xml_safe(unicode(tail)))
+                              utils.xml_safe(unicode(tail)), markup=True)
         self.set_widget_value('name_data',
-                              row.accession.species_str(markup=True))
+                              row.accession.species_str(markup=True),
+                              markup=True)
         self.set_widget_value('location_data', str(row.location))
 
         status_str = _('Alive')

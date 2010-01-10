@@ -243,7 +243,7 @@ class GenericEditorView(object):
         raise NotImplementedError
 
 
-    def set_widget_value(self, widget, value, markup=True, default=None,
+    def set_widget_value(self, widget, value, markup=False, default=None,
                          index=0):
         '''
         :param widget: a widget or name of a widget in self.widgets

@@ -2175,7 +2175,8 @@ class GeneralAccessionExpander(InfoExpander):
         '''
         self.current_obj = row
         self.set_widget_value('acc_code_data', '<big>%s</big>' % \
-                              utils.xml_safe(unicode(row.code)))
+                              utils.xml_safe(unicode(row.code)),
+                              markup=True)
 
         # TODO: i don't know why we can't just set the visible
         # property to False here
@@ -2188,7 +2189,8 @@ class GeneralAccessionExpander(InfoExpander):
 
         #self.set_widget_value('name_data', '%s %s' % \
         #                      (row.species.markup(True), row.id_qual or '',))
-        self.set_widget_value('name_data', row.species_str(markup=True))
+        self.set_widget_value('name_data', row.species_str(markup=True),
+                              markup=True)
 
         session = object_session(row)
         # TODO: it would be nice if we did something like 13 Living,

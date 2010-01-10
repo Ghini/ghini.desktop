@@ -655,7 +655,8 @@ class GeneralFamilyExpander(InfoExpander):
         @param row: the row to get the values from
         '''
         self.current_obj = row
-        self.set_widget_value('fam_name_data', '<big>%s</big>' % row)
+        self.set_widget_value('fam_name_data', '<big>%s</big>' % row,
+                              markup=True)
         session = db.Session()
         # get the number of genera
         ngen = session.query(Genus).filter_by(family_id=row.id).count()
