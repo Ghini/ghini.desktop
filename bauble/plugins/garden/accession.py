@@ -1921,13 +1921,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                    recvd_type_values[self.model.recvd_type],
                                    index=1)
 
-        self.view.widgets.acc_private_check.\
-            set_inconsistent(self.model.private is True)
+        self.view.widgets.acc_private_check.set_inconsistent(False)
         self.view.widgets.acc_private_check.\
             set_active(self.model.private is True)
 
-        self.view.widgets.acc_pisbg_check.\
-            set_inconsistent(self.model.pisbg is True)
+        self.view.widgets.acc_pisbg_check.set_inconsistent(False)
         self.view.widgets.acc_pisbg_check.\
             set_active(self.model.pisbg is True)
 
