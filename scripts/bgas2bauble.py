@@ -88,7 +88,7 @@ def test():
     # that end up in the same location
     plants = session.query(Plant).join(Accession).\
         filter(Accession.code==u'4084')
-    assert len(plants) == 2, plants
+    assert plants.count() == 2, plants
 
     plant = session.query(Plant).join(Accession).\
         filter(Accession.code==u'4084').filter(Plant.code==u'0000').one()
@@ -1219,13 +1219,14 @@ class History(object):
     Represents the transfer history of a plant.
     """
 
-    def __init__(self, start):
+    def __init__(self, start, quantity):
         if isinstance(start, (list, tuple)):
             self.path = start
         else:
             self.path = [start]
         self.transfers = []
         self.notes = []
+        self.quantity = quantity
 
     def __str__(self):
         return str(self.path)
@@ -1345,7 +1346,9 @@ def do_transfer():
 
         # add this transfer to an existing history item
         added = False
-        for history in histories.setdefault(plant_tuple, [History(tranfrom)]):
+        plant_histories = histories.\
+            setdefault(plant_tuple, [History(tranfrom, rec['moveqty'])])
+        for history in plant_histories:
             index = -1
             if tranfrom in history.path:
                 index = history.path.index(tranfrom)
@@ -1355,7 +1358,7 @@ def do_transfer():
                         pool[plant_tuple][tranfrom] > 0:
                     # if there are still some plants in the "tranfrom"
                     # location then branch the history information
-                    new = History(history.path[:])
+                    new = History(history.path[:], rec['moveqty'])
                     new.path.append(tranto)
                     new.transfers = [d.copy() for d in history.transfers]
                     new.transfers.append(transfer_row)
@@ -1363,6 +1366,9 @@ def do_transfer():
                     if note:
                         new.notes.append(note)
                     histories[plant_tuple].append(new)
+                    # remove the quantity that we branched from the
+                    # original location
+                    history.quantity -= rec['moveqty']
                 else:
                     # add the destination to this move
                     history.path.append(tranto)
@@ -1377,19 +1383,20 @@ def do_transfer():
                 # are some plants left in the pool for this location
                 # then branch the original move from the point of
                 # diversion and append the tranto
-                new = History(history.path[0:index+1])
+                new = History(history.path[0:index+1], rec['moveqty'])
                 new.path.append(tranto)
                 new.transfers = [d.copy() for d in history.transfers[0:index]]
                 new.transfers.append(transfer_row)
                 if note:
                     new.notes.append(note)
                 histories[plant_tuple].append(new)
+                history.quantity -= rec['moveqty']
                 added = True
                 break
         if not added:
             # this transfer didn't match an existing move so add a whole
             # new transfer record
-            history = History(tranfrom)
+            history = History(tranfrom, rec['moveqty'])
             history.path.append(tranto)
             history.transfers.append(transfer_row)
             histories[plant_tuple].append(history)
@@ -1404,27 +1411,11 @@ def do_transfer():
 
     for plant_tuple, history in histories.iteritems():
         for story in history:
-            location = story.path[-1]
-            quantity = pool[plant_tuple][location]
-            # if quantity < 20:
-            #     for num in range(0, quantity):
-            #         new = copy.copy(plants[plant_tuple])
-            #         new['location_id'] = locations[location]
-            #         new['id'] = plant_id_ctr
-            #         new['code'] = next_code(plant_tuple)
-            #         plant_rows.append(new)
-            #         transfers = story.transfers[:]
-            #         map(lambda x: x.setdefault('plant_id', plant_id_ctr),
-            #             transfers)
-            #         transfer_rows.extend(transfers)
-            #         plant_id_ctr += 1
-            # else: # quantity >= 1000
-            # make the plant code the first digit and pad with zeroes
-            new = copy.copy(plants[plant_tuple])
-            new['location_id'] = locations[location]
-            new['id'] = plant_id_ctr
-            new['code'] = next_code(plant_tuple)
-            new['quantity'] = pool[plant_tuple][location]
+            plant = copy.copy(plants[plant_tuple])
+            plant['location_id'] = locations[story.path[-1]]
+            plant['id'] = plant_id_ctr
+            plant['code'] = next_code(plant_tuple)
+            plant['quantity'] = story.quantity#pool[plant_tuple][location]
             for note in story.notes:
                 note['id'] = note_id_ctr
                 note['plant_id'] = plant_id_ctr
@@ -1435,7 +1426,7 @@ def do_transfer():
                 transfers)
             transfer_rows.extend(transfers)
             plant_id_ctr += 1
-            plant_rows.append(new)
+            plant_rows.append(plant)
 
     info('skipped %s deleted transfer records' % deleted_ctr)
 
