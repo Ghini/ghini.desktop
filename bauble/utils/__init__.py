@@ -245,7 +245,7 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     return matches[0]
 
 
-def set_widget_value(widget, value, markup=True, default=None, index=0):
+def set_widget_value(widget, value, markup=False, default=None, index=0):
     '''
     :param widget: an instance of gtk.Widget
     :param value: the value to put in the widget

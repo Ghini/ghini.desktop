@@ -869,7 +869,7 @@ class GeneralSourceDetailExpander(InfoExpander):
         from textwrap import TextWrapper
         wrapper = TextWrapper(width=50, subsequent_indent='  ')
         self.set_widget_value('sd_name_data', '<big>%s</big>' %
-                              utils.xml_safe_utf8(row.name))
+                              utils.xml_safe_utf8(row.name), markup=True)
         source_type = ''
         if row.source_type:
             source_type = utils.xml_safe_utf8(row.source_type)

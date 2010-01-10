@@ -252,7 +252,7 @@ class GeneralSpeciesExpander(InfoExpander):
         # species name
         session = db.Session()
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
-                              row.markup(True))
+                              row.markup(True), markup=True)
 
         awards = ''
         if row.awards:
