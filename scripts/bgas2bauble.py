@@ -71,6 +71,45 @@ debug = lambda msg: logger(msg, 3)
 
 db.open(options.database, False)
 pluginmgr.load()
+
+def test():
+    status('testing...')
+    session = db.Session()
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'24592').filter(Plant.code==u'0000').one()
+    assert plant.location.code == '3AD4'
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'24592').filter(Plant.code==u'0001').one()
+    assert plant.location.code == '3AD4'
+
+    # 4084 has two plants that have different transfer histories but
+    # that end up in the same location
+    plants = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'4084')
+    assert len(plants) == 2, plants
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'4084').filter(Plant.code==u'0000').one()
+    assert plant.location.code == '3AF1' and plant.quantity == 1, \
+        '%s (%s)' % (plant.location.code, plant.quantity)
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'4084').filter(Plant.code==u'0001').one()
+    assert plant.location.code == '3AF1' and plant.quantity == 1, \
+        '%s (%s)' % (plant.location.code, plant.quantity)
+
+
+    # test all possible combinations of imported species names
+    # test for duplicate species
+    # test that all accession codes are unique
+    # test that all plant codes are unique
+
+if options.test:
+    test()
+    sys.exit(1)
+
 # the one thing this script doesn't do that bauble does is call pluginmgr.init()
 #pluginmgr.init(force=True)
 if options.stage == 0 or options.database == default_uri:
@@ -1156,6 +1195,7 @@ def do_hereitis():
             p['location_id'] = locations[rec['bedno']]
             p['code'] = next_code(plant_tuple)
             p['id'] = plant_id_ctr
+            p['quantity'] = start_quantity[plant_tuple]
             plant_id_ctr += 1
             plant_rows.append(p)
             pool.setdefault(plant_tuple,
@@ -1331,10 +1371,12 @@ def do_transfer():
                         history.notes.append(note)
                 added = True
                 break
-            elif index >= 0:
-                # if tranfrom is in the middle of this move then branch
-                # the original move from the point of diversion and append
-                # the tranto
+            elif index >= 1 and not (tranfrom in pool[plant_tuple] and \
+                    pool[plant_tuple][tranfrom] <= 0):
+                # if tranfrom is in the middle of this move and there
+                # are some plants left in the pool for this location
+                # then branch the original move from the point of
+                # diversion and append the tranto
                 new = History(history.path[0:index+1])
                 new.path.append(tranto)
                 new.transfers = [d.copy() for d in history.transfers[0:index]]
@@ -1724,25 +1766,6 @@ stages = [do_family, do_habit, do_color, do_source, do_sciname, do_bedtable,
 def run():
     for stage in stages[options.stage:]:
         stage()
-
-
-def test():
-    info('testing...')
-    session = db.Session()
-
-    plant = session.query(Plant).join(Accession).\
-        filter(Accession.code=='24592', Plant.code=='0000')
-    assert plant.location.code == '3AD4'
-
-    plant = session.query(Plant).join(Accession).\
-        filter(Accession.code=='24592', Plant.code=='0001')
-    assert plant.location.code == '3AD4'
-
-    # test all possible combinations of imported species names
-    # test for duplicate species
-    # test that all accession codes are unique
-    # test that all plant codes are unique
-    pass
 
 
 if __name__ == '__main__':
