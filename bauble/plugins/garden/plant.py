@@ -511,7 +511,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
                           'changed', on_buff_changed)
 
 
-
     def dirty(self):
         return self.__dirty
 
@@ -766,6 +765,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                            'plant_acc_entry': 'accession',
                            'plant_loc_comboentry': 'location',
                            'plant_acc_type_combo': 'acc_type',
+                           'plant_memorial_check': 'memorial'
                            }
 
 
@@ -832,7 +832,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_plant_code_entry_changed)
 
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
-
+        self.assign_simple_handler('plant_memorial_check', 'memorial')
         self.view.connect('plant_loc_add_button', 'clicked',
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
@@ -964,6 +964,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.set_widget_value('plant_acc_type_combo',
                                    acc_type_values[self.model.acc_type],
                                    index=1)
+        self.view.widgets.plant_memorial_check.set_inconsistent(False)
+        self.view.widgets.plant_memorial_check.\
+            set_active(self.model.memorial is True)
+
         self.refresh_sensitivity()
 
 
@@ -1199,6 +1203,12 @@ class GeneralPlantExpander(InfoExpander):
         self.set_widget_value('type_data', acc_type_values[row.acc_type],
                               False)
 
+        image_size = gtk.ICON_SIZE_MENU
+        stock = gtk.STOCK_NO
+        if row.memorial:
+            stock = gtk.STOCK_YES
+        self.widgets.memorial_image.set_from_stock(stock, image_size)
+
 
 class TransferExpander(InfoExpander):
     """
@@ -1243,7 +1253,7 @@ class TransferExpander(InfoExpander):
             current_row += 1
 
         # add transfers
-        for transfer in row.transfers:
+        for transfer in reversed(row.transfers):
             date = transfer.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
             self.table.attach(label, 0, 1, current_row, current_row+1,
