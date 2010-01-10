@@ -936,8 +936,8 @@ def do_plants():
 
         # accno/propno combinations are unique in PLANTS.DBF but not
         # in HEREITIS.DBF
-        p = (rec['accno'], rec['propno'])
-        if p not in plants:
+        plant_tuple = (rec['accno'], rec['propno'])
+        if plant_tuple not in plants:
             plant_row = plant_defaults.copy()
             plant_row['id'] = plant_id_ctr
             plant_row['code'] = unicode(rec['propno'])
@@ -948,11 +948,13 @@ def do_plants():
             plant_row['date_recvd'] = rec['datercvd']
             plant_row['operator'] = None
             plant_row['memorial'] = rec['memorial']
+            plant_row['quantity'] = rec['qtyrcvd']
+            plant_row['location_id'] = locations[rec['initloc']]
             if rec['operator'].strip():
                 plant_row['operator'] = utils.utf8(rec['operator'])
-            plants[p] = plant_row
+            plants[plant_tuple] = plant_row
             plant_id_ctr += 1
-            start_quantity[p] = rec['qtyrcvd']
+            start_quantity[plant_tuple] = rec['qtyrcvd']
         else:
             raise ValueError('duplicate accession: %s' % p)
 
@@ -1148,6 +1150,7 @@ def do_plants():
 start_quantity = {}
 
 def do_hereitis():
+    return
     """
     Loop through the hereitis table and create only those plants that
     have never been transferred from their original location.
@@ -1411,11 +1414,13 @@ def do_transfer():
 
     for plant_tuple, history in histories.iteritems():
         for story in history:
+            if locations[story.path[0]] == plants[plant_tuple]['location_id']:
+                plants[plant_tuple]['quantity'] -= story.quantity
             plant = copy.copy(plants[plant_tuple])
+            plant['code'] = next_code(plant_tuple)
             plant['location_id'] = locations[story.path[-1]]
             plant['id'] = plant_id_ctr
-            plant['code'] = next_code(plant_tuple)
-            plant['quantity'] = story.quantity#pool[plant_tuple][location]
+            plant['quantity'] = story.quantity
             for note in story.notes:
                 note['id'] = note_id_ctr
                 note['plant_id'] = plant_id_ctr
@@ -1427,6 +1432,18 @@ def do_transfer():
             transfer_rows.extend(transfers)
             plant_id_ctr += 1
             plant_rows.append(plant)
+
+
+    for plant_tuple, plant in plants.iteritems():
+        if plant['quantity'] <= 0:
+            continue
+        # TODO: the left over plant should be considered the original
+        # and should really have the first plant ID, e.g. 0000...since
+        # plant_codes is a list i could just shift the list
+        plant['id'] = plant_id_ctr
+        plant['code'] = next_code(plant_tuple)
+        plant_id_ctr += 1
+        plant_rows.append(plant)
 
     info('skipped %s deleted transfer records' % deleted_ctr)
 
