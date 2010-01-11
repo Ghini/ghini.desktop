@@ -334,7 +334,8 @@ class GeneralLocationExpander(InfoExpander):
         '''
         from bauble.plugins.garden.plant import Plant
         self.set_widget_value('loc_name_data',
-                              '<big>%s</big>' % utils.xml_safe(str(row)))
+                              '<big>%s</big>' % utils.xml_safe(str(row)),
+                              markup=True)
         session = object_session(row)
         nplants = session.query(Plant).filter_by(location_id=row.id).count()
         self.set_widget_value('loc_nplants_data', nplants)
