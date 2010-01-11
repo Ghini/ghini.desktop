@@ -433,6 +433,26 @@ def species_name_dict_from_rec(rec, defaults=None):
     return row
 
 
+def get_species_id(species, ignore_columns=None):
+    """
+    :param species: a dict of species column and values used to build the query
+    :param ignore_columns: a list of columns names to not include in the query.
+    """
+    genus_id = None
+    if 'genus_id' not in species:
+        genus_id = get_column_value(genus_table.c.id,
+                                    genus_table.c.genus == species['genus'])
+        if not genus_id:
+            return None
+    ignore = []
+    if not ignore_columns:
+        ignore = ('_last_updated', '_created', 'genus')
+    else:
+        ignore = ignore_columns
+    where = where_from_dict(species_table, species, ignore)
+    return  get_column_value(species_table.c.id,
+                             and_(species_table.c.genus_id==genus_id, where))
+
 
 def do_family():
     """
@@ -495,6 +515,92 @@ def do_family():
     if options.verbosity <= 0:
         print ''
 
+
+def do_color():
+    """
+    Convert the COLOR.DBF table to bauble.plugins.plants.species_model.Color
+    """
+    status('converting COLOUR.DBF ...')
+    color_table = Color.__table__
+    defaults = get_defaults(color_table)
+    dbf = open_dbf('COLOUR.DBF')
+    color_rows = []
+    for rec in dbf:
+        row = defaults.copy()
+        row.update({'name': utils.utf8(rec['coldescr']),
+                    'code': utils.utf8(rec['colour'])})
+        color_rows.append(row)
+        del rec
+    dbf.close()
+
+    insert = get_insert(color_table, color_rows[0].keys())
+    insert_rows(insert, color_rows)
+    info('inserted %s colors.' % len(color_rows))
+
+
+def do_source():
+    """
+    Convert the SOURCE.DBF table to bauble.plugins.plants.species_model.Source
+    """
+    status('converting SOURCE.DBF ...')
+    source_detail_table = SourceDetail.__table__
+    defaults = get_defaults(source_detail_table)
+    dbf = open_dbf('SOURCE.DBF')
+    source_detail_rows = []
+    names = set()
+    name_ctr = {}
+    for rec in dbf:
+        row = defaults.copy()
+        name = utils.utf8(rec['keyword'])
+        if name in names and not name == 'Missing':
+            name = '%s - %s' % (name, rec['soudescr'].split(',')[0].strip())
+
+        # make sure the names are unique
+        if name in names:
+            orig_name = name
+            ctr = name_ctr.setdefault(name, 1)
+            name = '%s - %s' % (name, ctr)
+            name_ctr[orig_name] = ctr+1
+
+        # TODO: maybe we should add a name to source and only add a
+        # contact if the address is not None
+        description = '\n'.join(map(lambda s: utils.utf8(s).strip(),
+                                    rec['soudescr'].split(',')))
+        if not description:
+            description = None
+        row.update({'id': utils.utf8(rec['source']),
+                    'name': name,
+                    'description': description})
+        names.add(row['name'])
+        source_detail_rows.append(row)
+        del rec
+    dbf.close()
+
+    sd_insert = get_insert(source_detail_table, source_detail_rows[0].keys())
+    insert_rows(sd_insert, source_detail_rows)
+    info('inserted %s source details.' % len(source_detail_rows))
+
+
+def do_habit():
+    """
+    Convert the HABIT.DBF table to bauble.plugins.plants.species_model.Habit
+    """
+    status('converting HABIT.DBF ...')
+    habit_table = Habit.__table__
+    defaults = get_defaults(habit_table)
+    dbf = open_dbf('HABIT.DBF')
+    habit_rows = []
+    for rec in dbf:
+        row = defaults.copy()
+        row.update({'name': utils.utf8(rec['habdescr']),
+                    'code': utils.utf8(rec['habit'])})
+        habit_rows.append(row)
+        del rec
+    dbf.close()
+
+    insert = get_insert(habit_table, habit_rows[0].keys())
+    insert_rows(insert, habit_rows)
+    info('inserted %s habits.' % len(habit_rows))
 
 
 def do_sciname():
@@ -785,30 +891,54 @@ def do_sciname():
     gc.collect()
 
 
+locations = {}
+"""
+locations contains a mapping of location.code->location.id
+"""
 
-def get_species_id(species, ignore_columns=None):
-    """
-    :param species: a dict of species column and values used to build the query
-    :param ignore_columns: a list of columns names to not include in the query.
-    """
-    genus_id = None
-    if 'genus_id' not in species:
-        genus_id = get_column_value(genus_table.c.id,
-                                    genus_table.c.genus == species['genus'])
-        if not genus_id:
-            return None
-    ignore = []
-    if not ignore_columns:
-        ignore = ('_last_updated', '_created', 'genus')
-    else:
-        ignore = ignore_columns
-    where = where_from_dict(species_table, species, ignore)
-    return  get_column_value(species_table.c.id,
-                             and_(species_table.c.genus_id==genus_id, where))
+def do_bedtable():
+    # TODO: for the bed table it might make sense to do a "section"
+    # column so the section could be, say "Alpine Garden" and the
+    # specific locations could be "Australasia"...but what do we
+    # really gain from this...we would also need multiple sections
+    # like: Main Garden->Alpine Garden->Australasia which would
+    # probably be more suitable to just giving the location table a
+    # parent_id to another location....but then it gets difficult
+    # getting all the plants from sections with children
+    status('converting BEDTABLE.DBF ...')
+    dbf = open_dbf('BEDTABLE.DBF')
+    location_rows = []
+    defaults = get_defaults(location_table)
+    for rec in dbf:
+        row = defaults.copy()
+        row.update({'code': utils.utf8(rec['bedno']),
+                    'name': utils.utf8(rec['beddescr'])})
+        # row.update({'name': utils.utf8(rec['bedno']),
+        #             'description': utils.utf8(rec['beddescr'])})
+        location_rows.append(row)
+        del rec
+    conn = db.engine.connect()
+    trans = conn.begin()
+    conn.execute(location_table.insert(), *location_rows)
+    trans.commit()
+    conn.close()
+    info('inserted %s locations out of %s records' \
+             % (len(location_rows), len(dbf)))
+    dbf.close()
+    del dbf
 
+    # map the locations ids by their codes for quick lookup
+    session = db.Session()
+    for loc in session.query(Location):
+        locations[loc.code] = loc.id
+    session.close()
 
 
 plants = {}
+"""
+plants contains a mapping of (accno, propno)->plant_rows and is
+populated in do_plants()
+"""
 
 def do_plants():
     """
@@ -899,13 +1029,6 @@ def do_plants():
     # same...does this ever happen in practice
     added_codes = set()
     acc_ids = {}
-
-    # map the locations ids by their codes for quick lookup
-    locations = {}
-    session = db.Session()
-    for loc in session.query(Location):
-        locations[loc.code] = loc.id
-    session.close()
 
     plant_id_ctr = get_next_id(Plant.__table__)
     coll_id_ctr = get_next_id(Collection.__table__)
@@ -1146,9 +1269,24 @@ def do_plants():
 
 
 pool = {}
+"""
+pool contains a mapping of (accno, propno)->location->quantity
+"""
+
 plant_ids = {}
+"""
+plant_ids contains a mapping plant (accno, propno)->plant.id
+"""
+
 histories = {}
+"""
+histories contains a mapping of (accno, propno)->history instance
+"""
+
 plant_codes = {}
+"""
+plant_codes contains a mapping of (accno, propno)->plant.code
+"""
 
 class History(object):
     """
@@ -1166,7 +1304,6 @@ class History(object):
 
     def __str__(self):
         return str(self.path)
-
 
 
 def next_code(plant_tuple):
@@ -1224,11 +1361,6 @@ def do_transfer():
     note_id_ctr = get_next_id(PlantNote.__table__)
     note_defaults = get_defaults(PlantNote.__table__)
     note_defaults['category'] = u'Transfer'
-
-    locations = {}
-    session = db.Session()
-    for loc in session.query(Location):
-        locations[loc.code] = loc.id
 
     deleted_ctr = 0
     rec_ctr = 0
@@ -1415,12 +1547,6 @@ def do_removals():
     acc_note_defaults['category'] = u'RemovalError'
     acc_note_rows = []
 
-    locations = {}
-    session = db.Session()
-    for loc in session.query(Location):
-        locations[loc.code] = loc.id
-    session.close()
-
     acc_ids = {}
     all_select = sa.select([acc_table.c.id, acc_table.c.code]).execute()
     for acc_id, acc_code in all_select.fetchall():
@@ -1572,133 +1698,11 @@ def do_removals():
     # conn.close()
 
 
-def do_bedtable():
-    # TODO: for the bed table it might make sense to do a "section"
-    # column so the section could be, say "Alpine Garden" and the
-    # specific locations could be "Australasia"...but what do we
-    # really gain from this...we would also need multiple sections
-    # like: Main Garden->Alpine Garden->Australasia which would
-    # probably be more suitable to just giving the location table a
-    # parent_id to another location....but then it gets difficult
-    # getting all the plants from sections with children
-    status('converting BEDTABLE.DBF ...')
-    dbf = open_dbf('BEDTABLE.DBF')
-    location_rows = []
-    defaults = get_defaults(location_table)
-    for rec in dbf:
-        row = defaults.copy()
-        row.update({'code': utils.utf8(rec['bedno']),
-                    'name': utils.utf8(rec['beddescr'])})
-        # row.update({'name': utils.utf8(rec['bedno']),
-        #             'description': utils.utf8(rec['beddescr'])})
-        location_rows.append(row)
-        del rec
-    conn = db.engine.connect()
-    trans = conn.begin()
-    conn.execute(location_table.insert(), *location_rows)
-    trans.commit()
-    conn.close()
-    info('inserted %s locations out of %s records' \
-             % (len(location_rows), len(dbf)))
-    dbf.close()
-    del dbf
-
-
-
 def do_synonym():
     """
     """
     status('converting SYNONYM.DBF ...')
     dbf = open_dbf('SYNONYM.DBF')
-
-
-
-def do_habit():
-    """
-    Convert the HABIT.DBF table to bauble.plugins.plants.species_model.Habit
-    """
-    status('converting HABIT.DBF ...')
-    habit_table = Habit.__table__
-    defaults = get_defaults(habit_table)
-    dbf = open_dbf('HABIT.DBF')
-    habit_rows = []
-    for rec in dbf:
-        row = defaults.copy()
-        row.update({'name': utils.utf8(rec['habdescr']),
-                    'code': utils.utf8(rec['habit'])})
-        habit_rows.append(row)
-        del rec
-    dbf.close()
-
-    insert = get_insert(habit_table, habit_rows[0].keys())
-    insert_rows(insert, habit_rows)
-    info('inserted %s habits.' % len(habit_rows))
-
-
-def do_color():
-    """
-    Convert the COLOR.DBF table to bauble.plugins.plants.species_model.Color
-    """
-    status('converting COLOUR.DBF ...')
-    color_table = Color.__table__
-    defaults = get_defaults(color_table)
-    dbf = open_dbf('COLOUR.DBF')
-    color_rows = []
-    for rec in dbf:
-        row = defaults.copy()
-        row.update({'name': utils.utf8(rec['coldescr']),
-                    'code': utils.utf8(rec['colour'])})
-        color_rows.append(row)
-        del rec
-    dbf.close()
-
-    insert = get_insert(color_table, color_rows[0].keys())
-    insert_rows(insert, color_rows)
-    info('inserted %s colors.' % len(color_rows))
-
-
-
-def do_source():
-    """
-    Convert the SOURCE.DBF table to bauble.plugins.plants.species_model.Source
-    """
-    status('converting SOURCE.DBF ...')
-    source_detail_table = SourceDetail.__table__
-    defaults = get_defaults(source_detail_table)
-    dbf = open_dbf('SOURCE.DBF')
-    source_detail_rows = []
-    names = set()
-    name_ctr = {}
-    for rec in dbf:
-        row = defaults.copy()
-        name = utils.utf8(rec['keyword'])
-        if name in names and not name == 'Missing':
-            name = '%s - %s' % (name, rec['soudescr'].split(',')[0].strip())
-
-        # make sure the names are unique
-        if name in names:
-            orig_name = name
-            ctr = name_ctr.setdefault(name, 1)
-            name = '%s - %s' % (name, ctr)
-            name_ctr[orig_name] = ctr+1
-
-        # TODO: maybe we should add a name to source and only add a
-        # contact if the address is not None
-        description = '\n'.join(map(lambda s: utils.utf8(s).strip(),
-                                    rec['soudescr'].split(',')))
-        if not description:
-            description = None
-        row.update({'id': utils.utf8(rec['source']),
-                    'name': name,
-                    'description': description})
-        names.add(row['name'])
-        source_detail_rows.append(row)
-        del rec
-    dbf.close()
-
-    sd_insert = get_insert(source_detail_table, source_detail_rows[0].keys())
-    insert_rows(sd_insert, source_detail_rows)
-    info('inserted %s source details.' % len(source_detail_rows))
 
 
 stages = [do_family, do_habit, do_color, do_source, do_sciname, do_bedtable,
