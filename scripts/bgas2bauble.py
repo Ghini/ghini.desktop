@@ -1386,6 +1386,7 @@ def do_transfer():
         transfer_row['from_location_id'] = locations[tranfrom]
         transfer_row['to_location_id'] = locations[tranto]
         transfer_row['date'] = rec['movedate']
+        transfer_row['quantity'] = rec['moveqty']
 
         plant_tuple = (rec['accno'], rec['propno'])
         plant_id = plant_ids.get(plant_tuple, None)
@@ -1588,6 +1589,7 @@ def do_removals():
         row['date'] = rec['remodate']
         row['from_location_id'] = locations[remofrom]
         row['reason'] = utils.utf8(rec['remocode'])
+        row['quantity'] = rec['remoqty']
 
         # (id, code, location_id, quantity)
         results = \
@@ -1625,7 +1627,8 @@ def do_removals():
                 upd = plant_updates.setdefault(plant_id,
                                  {'id': plant_id, 'quantity': quantity})
                 upd['quantity'] -= rec['remoqty']
-
+                # if (rec['accno'], rec['propno']) == (5167,0):
+                #     print 'upd quantity: %s' % upd['quantity']
                 if note:
                     new = note.copy()
                     new['plant_id'] = plant_id
