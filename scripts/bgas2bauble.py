@@ -100,7 +100,6 @@ def test():
     assert plant.location.code == '3AF1' and plant.quantity == 1, \
         '%s (%s)' % (plant.location.code, plant.quantity)
 
-
     # test all possible combinations of imported species names
     # test for duplicate species
     # test that all accession codes are unique
@@ -954,7 +953,6 @@ def do_plants():
                 plant_row['operator'] = utils.utf8(rec['operator'])
             plants[plant_tuple] = plant_row
             plant_id_ctr += 1
-            start_quantity[plant_tuple] = rec['qtyrcvd']
         else:
             raise ValueError('duplicate accession: %s' % p)
 
@@ -1145,71 +1143,6 @@ def do_plants():
     del acc_notes[:]
 
     gc.collect()
-
-
-start_quantity = {}
-
-def do_hereitis():
-    return
-    """
-    Loop through the hereitis table and create only those plants that
-    have never been transferred from their original location.
-
-    do_hereitis() should always be called before do_transfer()
-    """
-    # loop through the hereitis table to set the location_id, for any
-    # plants that are in PLANTS.DBF but aren't in HEREITIS.DBF the
-    # locations is set to unknown_location
-    status('converting HEREITIS.DBF ...')
-
-    locations = {}
-    session = db.Session()
-    for loc in session.query(Location):
-        locations[loc.code] = loc.id
-    session.close()
-
-    # There HEREITIS table seems to store the full history of the of
-    # the plants in the table.  Fortunately it seems like the last one
-    # in the table is the most current so we use that one for the
-    # location.
-    rec_ctr = 0
-    deleted_ctr = 0
-    plant_rows = []
-    plant_id_ctr = get_next_id(plant_table)
-
-    # go through the records in reverse order to make sure the first
-    # plant we set is the last one in the table which should be the most current
-    for rec in sorted(open_dbf('HEREITIS.DBF'), reverse=True):
-        rec_ctr += 1
-        if (rec_ctr % granularity) == 0:
-            # collect periodically so we don't run out of memory
-            print_tick()
-            gc.collect()
-
-        if rec.deleted:
-            deleted_ctr += 1
-            continue
-
-        plant_tuple = (rec['accno'], rec['propno'])
-        if plant_tuple not in pool:
-            # the plant isn't in the pool so it means it wasn't
-            # created in do_transfer()
-            p = plants[plant_tuple]
-            p['location_id'] = locations[rec['bedno']]
-            p['code'] = next_code(plant_tuple)
-            p['id'] = plant_id_ctr
-            p['quantity'] = start_quantity[plant_tuple]
-            plant_id_ctr += 1
-            plant_rows.append(p)
-            pool.setdefault(plant_tuple,
-                            {rec['bedno']: start_quantity[plant_tuple]})
-
-    plant_insert = get_insert(plant_table, plant_rows[0].keys())
-    insert_rows(plant_insert, plant_rows)
-    if options.verbosity <= 0:
-        print ''
-    info('skipped %s deleted records' % deleted_ctr)
-    info('inserted %s plants' % len(plant_rows))
 
 
 pool = {}
@@ -1769,7 +1702,7 @@ def do_source():
 
 
 stages = [do_family, do_habit, do_color, do_source, do_sciname, do_bedtable,
-          do_plants, do_transfer, do_hereitis, do_synonym, do_removals]
+          do_plants, do_transfer, do_synonym, do_removals]
 
 def run():
     for stage in stages[options.stage:]:
