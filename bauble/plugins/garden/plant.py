@@ -214,7 +214,7 @@ class PlantRemoval(db.Base):
 
     reason = Column(types.Enum(values=removal_reasons.keys()))
     person = Column(Unicode(64))
-    #quantity = Column(Integer, autoincrement=False, nullable=False)
+    quantity = Column(Integer, autoincrement=False, nullable=False)
 
     # TODO: is this redundant with note.date
     date = Column(types.Date)
@@ -241,7 +241,7 @@ class PlantTransfer(db.Base):
     # the name of the person who made the transfer
     person = Column(Unicode(64))
     """The name of the person who made the transfer"""
-    #quantity = Column(Integer, autoincrement=False, nullable=False)
+    quantity = Column(Integer, autoincrement=False, nullable=False)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
     # TODO: is this redundant with note.date
@@ -1242,8 +1242,9 @@ class TransferExpander(InfoExpander):
                 reason = _('(no reason)')
             else:
                 reason=utils.utf8(removal_reasons[removal.reason])
-            s = _('Removed from %(from_loc)s: %(reason)s') % \
-                dict(from_loc=removal.from_location, reason=reason)
+            s = _('Removed %(quantity)s from %(from_loc)s: %(reason)s') % \
+                dict(from_loc=removal.from_location, quantity=removal.quantity,
+                     reason=reason)
             return s
 
         def transfer_str(transfer):
@@ -1251,9 +1252,11 @@ class TransferExpander(InfoExpander):
                 person = _('(unknown)')
             else:
                 person = transfer.person
-            s = _('Transferred from %(from_loc)s to %(to)s by %(person)s') % \
-                dict(from_loc=transfer.from_location,
-                     to=transfer.to_location, person=person)
+            s = _('Transferred %(quantity)s from %(from_loc)s to %(to)s '
+                  'by %(person)s') % \
+                  dict(from_loc=transfer.from_location,
+                       quantity=transfer.quantity, to=transfer.to_location,
+                       person=person)
             return s
 
         # sort the transfers and removals by date
