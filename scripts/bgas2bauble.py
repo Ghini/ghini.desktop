@@ -1477,6 +1477,7 @@ def do_transfer():
     plant_rows = []
     plant_id_ctr = get_next_id(plant_table)
 
+    # create the plant rows for all the plants with unique histories
     for plant_tuple, history in histories.iteritems():
         for story in history:
             if locations[story.path[0]] == plants[plant_tuple]['location_id']:
@@ -1498,7 +1499,10 @@ def do_transfer():
             plant_id_ctr += 1
             plant_rows.append(plant)
 
-
+    # create plants rows for any plants in the plants dict that still
+    # have a quantity > 0 since these will be plants where all of the
+    # plants still remain in the initial location where they were
+    # accessioned
     for plant_tuple, plant in plants.iteritems():
         if plant['quantity'] <= 0:
             continue
@@ -1529,12 +1533,11 @@ def do_removals():
     """
     Convert the REMOVALS.DBF table to bauble.plugins.garden.plant.PlantRemoval
     """
-    # accno;propno;remodate;remoqty;remocode;remofrom;notes
-    # TODO: we don't have an equivalent for quantity
+    # Columns
+    # accno, propno, remodate, remoqty, remocode, remofrom, notes
     status('converting REMOVALS.DBF ...')
     removal_table = PlantRemoval.__table__
     removal_defaults = get_defaults(removal_table)
-    dbf = open_dbf('REMOVALS.DBF')
     removal_rows = []
 
     note_rows = []
@@ -1547,6 +1550,9 @@ def do_removals():
     acc_note_defaults['category'] = u'RemovalError'
     acc_note_rows = []
 
+    # TODO: we probably don't need to cache all these ids since we
+    # sorted out the removals and now don't have as many removal
+    # errors
     acc_ids = {}
     all_select = sa.select([acc_table.c.id, acc_table.c.code]).execute()
     for acc_id, acc_code in all_select.fetchall():
@@ -1554,17 +1560,27 @@ def do_removals():
 
     removal_error_ctr = 0
 
+    # cache accession.code, plant.id, plant.code, plant.location_id,
+    # plant.quantity
+    all_plants = {}
+    results = sa.select([acc_table.c.code, plant_table.c.id, plant_table.c.code,
+                      plant_table.c.location_id, plant_table.c.quantity],
+                     from_obj=[plant_table.join(acc_table)]).\
+                     execute().fetchall()
+    for r in results:
+        acc_code, plant = r[0], r[1:]
+        kids = all_plants.setdefault(acc_code, [])
+        kids.append(plant)
+
     rec_ctr = 1
     plant_updates = {}
-    # TODO: could we do one large query to cache the accesion codes,
-    # plant codes and plant ids and put them in an easy access dict
+    dbf = open_dbf('REMOVALS.DBF')
     for rec in dbf:
         rec_ctr += 1
         if (rec_ctr % granularity) == 0:
             # collect periodically so we don't run out of memory
             print_tick()
             gc.collect()
-            #return
         if rec.deleted:
             continue
         row = removal_defaults.copy()
@@ -1573,68 +1589,64 @@ def do_removals():
         row['from_location_id'] = locations[remofrom]
         row['reason'] = utils.utf8(rec['remocode'])
 
-        plant_tuple = (rec['accno'], rec['propno'])
+        # (id, code, location_id, quantity)
+        results = \
+            filter(lambda p: p[1].startswith(unicode(rec['propno'])) and \
+                       locations[rec['remofrom']] == p[2] and p[3] > 0,
+                   all_plants[str(rec['accno'])])
 
-        # TODO: it the remoqty doesn't match the number being
-        # removed then we should probably branch the plant history
-        # and create a new plant
-
-        # TODO: some removals don't match up with plant locations
-        # so maybe it would be better to just add a note with the
-        # record to the accession so the data isn't lost
-
-        # TODO: the like() is really slow for sqlite...using a
-        # filter() on the python side to do the same thing is just as
-        # slow or slower
-
-        # TODO: this could match multiple plants with the same
-        # accession and location so how do we designate from which
-        # plant the plant is being removed...at the moment we just
-        # choose the first
-        # plants = filter(lambda r: r['code'].startswith(str(rec['propno'])),
-        #                 results)
-        # if len(plants) > 1:
-        #     raise ValueError('multiple %s.%s in %s' %
-        #                      (rec['accno'], rec['propno'], rec['remofrom']))
-        if not plant_tuple in pool or remofrom not in pool[plant_tuple] or \
-                pool[plant_tuple][remofrom] <= 0:
-            results = []
-        else:
-            clause = and_(plant_table.c.accession_id == acc_ids[rec['accno']],
-                      plant_table.c.code.like('%s%%' % unicode(rec['propno'])),
-                      plant_table.c.location_id==locations[rec['remofrom']])
-            results = sa.select([plant_table.c.id, plant_table.c.code],
-                                whereclause=clause).execute().fetchall()
-                # print_tick('*')
-            # elif remofrom not in pool[plant_tuple]:
-            #     print_tick('?')
-            # elif pool[plant_tuple][remofrom] <= 0:
-            #     print_tick('-')
-
-        if results:# and plant_tuple in pool and remofrom in pool[plant_tuple]:
+        nleft = rec['remoqty']
+        quantities = {}
+        if results:
             note = {}
             if rec['notes'].strip():
                 note = note_defaults.copy()
                 note['date'] = rec['remodate']
                 note['note'] = utils.utf8(rec['notes'].strip())
-            for plant in results:
-                if pool[plant_tuple][rec['remofrom']] > 0:
-                    removal = row.copy()
-                    removal['plant_id'] = plant.id
-                    removal_rows.append(removal)
-                    if note:
-                        new = note.copy()
-                        new['plant_id'] = plant.id
-                        new['id'] = note_id_ctr
-                        note_id_ctr += 1
-                        note_rows.append(new)
-                        removal['note_id'] = note_id_ctr
-                pool[plant_tuple][rec['remofrom']] -= rec['remoqty']
+            for plant_id, code, location_id, quantity in results:
+                nleft -= quantity
+                removal = row.copy()
+                removal['plant_id'] = plant_id
+                removal_rows.append(removal)
+                if (rec['accno'], rec['propno']) == (5167,0):
+                    print quantity, rec['remoqty']
+
+                # TODO: need to fix the quantities being updated
+                # properly
+
+                # if rec['remoqty'] > quantity:
+                #     quantity = 0
+                # else:
+                #     quantity -= rec['remoqty']
+                # if (rec['accno'], rec['propno']) == (5167,0):
+                #     print quantity
+                # n = quantities.set_default(plant_id, quantity)
+                # quantities[plant_id] = n-rec['remoqty']
+                upd = plant_updates.setdefault(plant_id,
+                                 {'id': plant_id, 'quantity': quantity})
+                upd['quantity'] -= rec['remoqty']
+
+                if note:
+                    new = note.copy()
+                    new['plant_id'] = plant_id
+                    new['id'] = note_id_ctr
+                    note_id_ctr += 1
+                    note_rows.append(new)
+                    removal['note_id'] = note_id_ctr
+                if nleft <= 0:
+                    break
+            # if nleft > 0:
+            #     warning('not all plants %s.%s were removed: %s from %s' %
+            #             (rec['accno'], rec['propno'], rec['remoqty'], remofrom))
+            # if nleft < 0:
+            #     warning('more %s.%s removed than exist: %s from %s' %
+            #             (rec['accno'], rec['propno'], rec['remoqty'], remofrom))
         else:
             #print_tick('*')
             removal_error_ctr += 1
             msg = 'No plant %s.%s in location %s to remove.' % \
                 (rec['accno'], rec['propno'], rec['remofrom'])
+            warning(msg)
             note = acc_note_defaults.copy()
             note['id'] = acc_note_id_ctr
             note['date'] = datetime.datetime.today()
@@ -1643,32 +1655,6 @@ def do_removals():
             acc_note_id_ctr += 1
             acc_note_rows.append(note)
             continue
-
-
-        # row['plant_id'] = plant_id
-        # removal_rows.append(row)
-
-        # if not plant_id:
-        #     print_tick('*')
-        #     continue
-        #     error(row)
-        #     print rec
-        #     raise ValueError
-
-        # if plant_tuple not in pool:
-        #     #print 'not in pool: %s' % str(plant_tuple)
-        #     print_tick('*')
-        #     pool[plant_tuple] = {rec['remofrom']: 0}
-        # else:
-        #     print_tick('-')
-        #     #print '****** IN POOL: %s' % str(plant_tuple)
-
-        #if rec['remofrom'] in pool[plant_tuple]:
-        #    pool[plant_tuple][rec['remofrom']] -= rec['remoqty']
-
-        # plant_updates.setdefault(plant_id, {'id': plant_id,
-        #                                     'location_id': removed_location_id})
-
 
     if options.verbosity <= 0:
         print ''
@@ -1688,14 +1674,14 @@ def do_removals():
     info('inserted %s accession notes' % len(acc_note_rows))
 
     # update the location of removed plants
-    # conn = db.engine.connect()
-    # trans = conn.begin()
-    # upd = plant_table.update().where(plant_table.c.id==bindparam('id')).\
-    #     values(location_id=bindparam('location_id'))
-    # for row in plant_updates.values():
-    #     conn.execute(upd, row)
-    # trans.commit()
-    # conn.close()
+    conn = db.engine.connect()
+    trans = conn.begin()
+    upd = plant_table.update().where(plant_table.c.id==bindparam('id')).\
+        values(quantity=bindparam('quantity'))
+    for row in plant_updates.values():
+        conn.execute(upd, row)
+    trans.commit()
+    conn.close()
 
 
 def do_synonym():
