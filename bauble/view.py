@@ -345,7 +345,7 @@ class SearchParser(object):
     """
     The parser for bauble.view.MapperSearch
     """
-    value_chars = Word(alphanums + '%.-_*')
+    value_chars = Word(alphanums + '%.-_*;:,')
     # value can contain any string once its quoted
     value = value_chars | quotedString.setParseAction(removeQuotes)
     value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
