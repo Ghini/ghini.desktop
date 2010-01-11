@@ -24,7 +24,6 @@ from bauble.error import check, CheckConditionError
 from bauble.editor import *
 import bauble.meta as meta
 import bauble.paths as paths
-#from bauble.plugins.garden import *
 from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import PlantPropagation
 import bauble.types as types
@@ -100,7 +99,7 @@ def plant_markup_func(plant):
     sp_str = plant.accession.species_str(markup=True)
     #dead_color = "#777"
     dead_color = "#9900ff"
-    if plant.removal:
+    if plant.quantity <= 0:
         dead_markup = '<span foreground="%s">%s</span>' % \
             (dead_color, utils.xml_safe_utf8(plant))
         return dead_markup, sp_str
@@ -215,6 +214,7 @@ class PlantRemoval(db.Base):
 
     reason = Column(types.Enum(values=removal_reasons.keys()))
     person = Column(Unicode(64))
+    #quantity = Column(Integer, autoincrement=False, nullable=False)
 
     # TODO: is this redundant with note.date
     date = Column(types.Date)
@@ -224,8 +224,7 @@ class PlantRemoval(db.Base):
                  primaryjoin='PlantRemoval.from_location_id == Location.id')
 
     plant = relation('Plant', uselist=False,
-                     backref=backref('removal', uselist=False,
-                                     cascade='all, delete-orphan'))
+                     backref=backref('removals', cascade='all, delete-orphan'))
 
 
 class PlantTransfer(db.Base):
@@ -242,7 +241,7 @@ class PlantTransfer(db.Base):
     # the name of the person who made the transfer
     person = Column(Unicode(64))
     """The name of the person who made the transfer"""
-
+    #quantity = Column(Integer, autoincrement=False, nullable=False)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
     # TODO: is this redundant with note.date
@@ -314,7 +313,7 @@ class Plant(db.Base):
     code = Column(Unicode(6), nullable=False)
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
     memorial = Column(Boolean, default=False)
-    quantity = Column(Integer, autoincrement=False)
+    quantity = Column(Integer, autoincrement=False, nullable=False)
 
     # UBC: date_accd, date_recvd and operator were used in BGAS but
     # they aren't really relevant here, i've just added them so we
@@ -1196,10 +1195,12 @@ class GeneralPlantExpander(InfoExpander):
                               row.accession.species_str(markup=True),
                               markup=True)
         self.set_widget_value('location_data', str(row.location))
+        self.set_widget_value('quantity_data', row.quantity)
+
 
         status_str = _('Alive')
-        if row.removal:
-            status_str = utils.utf8(removal_reasons[row.removal.reason])
+        if row.quantity <= 0:
+            status_str = _('Dead')
         self.set_widget_value('status_data', status_str, False)
 
         self.set_widget_value('type_data', acc_type_values[row.acc_type],
@@ -1231,42 +1232,42 @@ class TransferExpander(InfoExpander):
         '''
         '''
         self.table.foreach(self.table.remove)
-        nrows = len(row.transfers)
-        if row.removal:
-            nrows += 1
+        nrows = len(row.transfers) + len(row.removals)
         self.table.resize(nrows, 2)
         date_format = prefs.prefs[prefs.date_format_pref]
         current_row = 0
-        # add removal
-        if row.removal:
-            date = row.removal.date.strftime(date_format)
-            label = gtk.Label('%s:' % date)
-            self.table.attach(label, 0, 1, current_row, current_row+1,
-                              xoptions=gtk.FILL)
-            if not row.removal.reason:
+
+        def removal_str(removal):
+            if not removal.reason:
                 reason = _('(no reason)')
             else:
-                reason=utils.utf8(removal_reasons[row.removal.reason])
+                reason=utils.utf8(removal_reasons[removal.reason])
             s = _('Removed from %(from_loc)s: %(reason)s') % \
-                dict(from_loc=row.removal.from_location, reason=reason)
-            label = gtk.Label(s)
-            label.set_alignment(0, .5)
-            self.table.attach(label, 1, 2, current_row, current_row+1)
-            current_row += 1
+                dict(from_loc=removal.from_location, reason=reason)
+            return s
 
-        # add transfers
-        for transfer in reversed(row.transfers):
-            date = transfer.date.strftime(date_format)
-            label = gtk.Label('%s:' % date)
-            self.table.attach(label, 0, 1, current_row, current_row+1,
-                              xoptions=gtk.FILL)
+        def transfer_str(transfer):
             if not transfer.person:
                 person = _('(unknown)')
             else:
                 person = transfer.person
             s = _('Transferred from %(from_loc)s to %(to)s by %(person)s') % \
-                  dict(from_loc=transfer.from_location,
-                       to=transfer.to_location, person=person)
+                dict(from_loc=transfer.from_location,
+                     to=transfer.to_location, person=person)
+            return s
+
+        # sort the transfers and removals by date
+        movements = sorted(itertools.chain(row.removals, row.transfers),
+                           key=lambda x: x.date, reverse=True)
+        for move in movements:
+            date = move.date.strftime(date_format)
+            label = gtk.Label('%s:' % date)
+            self.table.attach(label, 0, 1, current_row, current_row+1,
+                              xoptions=gtk.FILL)
+            if isinstance(move, PlantTransfer):
+                s = transfer_str(move)
+            else:
+                s = removal_str(move)
             label = gtk.Label(s)
             label.set_alignment(0, .5)
             self.table.attach(label, 1, 2, current_row, current_row+1)
