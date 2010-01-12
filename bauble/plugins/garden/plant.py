@@ -52,6 +52,8 @@ def edit_callback(plants):
 
 
 def change_status_callback(plants):
+    if 0 in [p.quantity for p in plants]:
+        return
     e = PlantStatusEditor(model=plants)
     return e.start() != None
 
@@ -463,6 +465,8 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             # commit_changes()
             self._transfer.date = self.view.widgets.ped_date_entry.props.text
             self._removal.date = self.view.widgets.ped_date_entry.props.text
+            self.__dirty = True
+            self.refresh_sensitivity()
         self.view.connect(self.view.widgets.ped_date_entry, 'changed',
                           on_date_changed)
         # set the text to the empty string to make sure the
@@ -470,6 +474,34 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self.view.widgets.ped_date_entry.props.text = ''
         self.view.widgets.ped_date_button.clicked() # insert todays date
 
+        def on_quantity_changed(entry, *args):
+            text = entry.props.text
+            problem = 'BAD_QUANTITY'
+            if not text or int(text) < 0 or int(text) > self.model[0].quantity:
+                self.add_problem(problem, entry)
+                quantity = None
+            else:
+                self.remove_problem(problem, entry)
+                quantity = int(text)
+            self._transfer.quantity = quantity
+            self._removal.quantity = quantity
+            self.__dirty = True
+            self.refresh_sensitivity()
+
+        if len(self.model) > 1:
+            self.view.widgets.ped_quantity_label.props.label = _('(all)')
+            self.view.widgets.ped_quantity_entry.props.sensitive = False
+        else:
+            quantity = self.model[0].quantity
+            if quantity > 1:
+                label_str = '1-%s' % quantity
+            else:
+                label_str = ''
+            self.view.widgets.ped_quantity_label.props.label = label_str
+            self.view.widgets.ped_quantity_entry.props.sensitive = True
+            self.view.connect(self.view.widgets.ped_quantity_entry, 'changed',
+                              on_quantity_changed)
+            self.view.widgets.ped_quantity_entry.props.text = quantity
 
         # connect handlers for all the widget even if they aren't
         # visible or relevant to the current action type so that we
@@ -480,7 +512,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         def on_rem_reason_changed(combo, *args):
             model = combo.get_model()
             value = model[combo.get_active_iter()][0]
-            #debug('rem: %s' % value)
             self._removal.reason = value
             self.__dirty = True
             self.refresh_sensitivity()
@@ -517,9 +548,16 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
     def refresh_sensitivity(self):
         sensitive = False
         action = self.get_current_action()
-        if action == REMOVAL_ACTION and self._removal.reason:
+        transfer_ignore = ['id', 'plant_id', 'from_location_id',
+                           'to_location_id']
+        removal_ignore = ['id', 'plant_id', 'from_location_id']
+        if action == REMOVAL_ACTION and \
+                not utils.get_invalid_columns(self._removal, removal_ignore) \
+                and self._removal.reason:
             sensitive = True
-        elif action == TRANSFER_ACTION and self._transfer.to_location:
+        elif action == TRANSFER_ACTION and \
+                not utils.get_invalid_columns(self._transfer, transfer_ignore) \
+                and self._transfer.to_location:
             sensitive = True
         self.view.widgets.ped_ok_button.props.sensitive = sensitive
 
@@ -609,9 +647,8 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
                 new_action.from_location = plant.location
                 plant.location = new_action.to_location
             elif action == 'Removal':
-                # TODO: the plant will still be recorded as being in
-                # its old location
                 new_action.from_location = plant.location
+                plant.quantity -= new_action.quantity
 
             new_action.plant = plant
 
@@ -764,9 +801,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
                            'plant_acc_entry': 'accession',
                            'plant_loc_comboentry': 'location',
                            'plant_acc_type_combo': 'acc_type',
-                           'plant_memorial_check': 'memorial'
+                           'plant_memorial_check': 'memorial',
+                           'plant_quantity_entry': 'quantity'
                            }
-
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
@@ -832,6 +869,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
         self.assign_simple_handler('plant_memorial_check', 'memorial')
+        self.assign_simple_handler('plant_quantity_entry', 'quantity')
         self.view.connect('plant_loc_add_button', 'clicked',
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
