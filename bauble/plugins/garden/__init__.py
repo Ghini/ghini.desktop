@@ -120,7 +120,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     :param combo:
     :param on_select:
     """
-    PROBLEM = 'unknown_location'
+    PROBLEM = 'UNKNOWN_LOCATION'
 
     def cell_data_func(col, cell, model, treeiter, data=None):
         cell.props.text = utils.utf8(model[treeiter][0])
@@ -179,9 +179,9 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
             return True
         # see if the text matches exactly a code or name
         codes = presenter.session.query(Location).\
-            filter(utils.ilike(Location.code, '%s%%' % utils.utf8(text)))
+            filter(utils.ilike(Location.code, '%s' % utils.utf8(text)))
         names = presenter.session.query(Location).\
-            filter(utils.ilike(Location.name, '%s%%' % utils.utf8(text)))
+            filter(utils.ilike(Location.name, '%s' % utils.utf8(text)))
         if codes.count() == 1:
             location = codes.first()
             presenter.remove_problem(PROBLEM, entry)
