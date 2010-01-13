@@ -119,7 +119,8 @@ def get_next_code(acc):
     """
     # auto generate/increment the accession code
     session = db.Session()
-    codes = session.query(Plant.code).join(Accession).filter(Accession.id==acc.id).all()
+    codes = session.query(Plant.code).join(Accession).\
+        filter(Accession.id==acc.id).all()
     next = 1
     if codes:
         try:
@@ -127,6 +128,28 @@ def get_next_code(acc):
         except Exception, e:
             return None
     return next
+
+
+def is_code_unique(plant, code):
+    """
+    Return True/False if the code is a unique Plant code for accession.
+
+    This method will also take range values for code that can be passed
+    to utils.range_builder()
+    """
+    # TODO: this assumes that codes are integers and could probably
+    # use some more testing, e.g. for 0001 and 1
+    codes = map(utils.utf8, utils.range_builder(code))
+    codes.append(utils.utf8(code))
+    # reference accesssion.id instead of accession_id since
+    # setting the accession on the model doesn't set the
+    # accession_id until the session is flushed
+    session = db.Session()
+    count = session.query(Plant).join('accession').\
+        filter(and_(Accession.id==plant.accession.id,
+                    Plant.code.in_(codes))).count()
+    session.close()
+    return count == 0
 
 
 class PlantSearch(SearchStrategy):
@@ -405,6 +428,8 @@ class PlantStatusEditorView(GenericEditorView):
 class PlantStatusEditorPresenter(GenericEditorPresenter):
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
+    PROBLEM_INVALID_NEW_CODE = 'INVALID_NEW_CODE'
+    PROBLEM_INVALID_QUANTITY = 'INVALID_QUANTITY'
 
     def __init__(self, model, view):
         '''
@@ -474,15 +499,45 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self.view.widgets.ped_date_entry.props.text = ''
         self.view.widgets.ped_date_button.clicked() # insert todays date
 
+        def on_new_code_entry_changed(entry, *args):
+            code = entry.props.text
+            if code and is_code_unique(self.model[0], code):
+                self.remove_problem(self.PROBLEM_INVALID_NEW_CODE,
+                                    self.view.widgets.new_code_entry)
+            else:
+                self.add_problem(self.PROBLEM_INVALID_NEW_CODE,
+                                 self.view.widgets.new_code_entry)
+            self.__dirty = True
+            self.refresh_sensitivity()
+        self.view.connect('new_code_entry', 'changed',
+                          on_new_code_entry_changed)
+
+
         def on_quantity_changed(entry, *args):
+            """
+            This function will only be called when len(self.model) == 1
+            """
             text = entry.props.text
-            problem = 'BAD_QUANTITY'
+            quantity_problem = 'BAD_QUANTITY'
             if not text or int(text) < 0 or int(text) > self.model[0].quantity:
-                self.add_problem(problem, entry)
+                self.add_problem(self.PROBLEM_INVALID_QUANTITY, entry)
                 quantity = None
             else:
-                self.remove_problem(problem, entry)
+                self.remove_problem(self.PROBLEM_INVALID_QUANTITY, entry)
                 quantity = int(text)
+
+            if quantity == self.model[0].quantity:
+                self.view.widgets.new_code_entry.props.sensitive = False
+                self.remove_problem(self.PROBLEM_INVALID_NEW_CODE,
+                                    self.view.widgets.new_code_entry)
+            else:
+                self.view.widgets.new_code_entry.props.sensitive = True
+                self.view.widgets.new_code_entry.emit('changed')
+
+            if not self.view.widgets.new_code_entry.props.text:
+                self.view.widgets.new_code_entry.props.text = \
+                    get_next_code(self.model[0].accession)
+
             self._transfer.quantity = quantity
             self._removal.quantity = quantity
             self.__dirty = True
@@ -491,6 +546,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         if len(self.model) > 1:
             self.view.widgets.ped_quantity_label.props.label = _('(all)')
             self.view.widgets.ped_quantity_entry.props.sensitive = False
+            self.view.widgets.new_code_entry.props.sensitive = False
         else:
             quantity = self.model[0].quantity
             if quantity > 1:
@@ -499,6 +555,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
                 label_str = ''
             self.view.widgets.ped_quantity_label.props.label = label_str
             self.view.widgets.ped_quantity_entry.props.sensitive = True
+            self.view.widgets.new_code_entry.props.sensitive = True
             self.view.connect(self.view.widgets.ped_quantity_entry, 'changed',
                               on_quantity_changed)
             self.view.widgets.ped_quantity_entry.props.text = quantity
@@ -551,13 +608,16 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         transfer_ignore = ['id', 'plant_id', 'from_location_id',
                            'to_location_id']
         removal_ignore = ['id', 'plant_id', 'from_location_id']
-        if action == REMOVAL_ACTION and \
-                not utils.get_invalid_columns(self._removal, removal_ignore) \
-                and self._removal.reason:
+        if action == REMOVAL_ACTION and not \
+                utils.get_invalid_columns(self._removal, removal_ignore) and \
+                self._removal.reason and \
+                ((len(self.problems) == 1 and \
+                      self.has_problems(self.view.widgets.new_code_entry)) or \
+                     not self.problems):
             sensitive = True
-        elif action == TRANSFER_ACTION and \
-                not utils.get_invalid_columns(self._transfer, transfer_ignore) \
-                and self._transfer.to_location:
+        elif action == TRANSFER_ACTION and not \
+                utils.get_invalid_columns(self._transfer, transfer_ignore) and \
+                self._transfer.to_location and not self.problems:
             sensitive = True
         self.view.widgets.ped_ok_button.props.sensitive = sensitive
 
@@ -578,10 +638,14 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             action_box = self.view.widgets.plant_transfer_box
             action_box.props.visible = True
             self.view.widgets.plant_removal_box.props.visible = False
+            self.view.widgets.new_code_label.props.visible = True
+            self.view.widgets.new_code_entry.props.visible = True
         else:
             action_box = self.view.widgets.plant_removal_box
             action_box.props.visible = True
             self.view.widgets.plant_transfer_box.props.visible = False
+            self.view.widgets.new_code_label.props.visible = False
+            self.view.widgets.new_code_entry.props.visible = False
 
         # refresh the sensitivity in case the values for the new
         # action are set correctly
@@ -632,6 +696,7 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
         else:
             raise ValueError('unknown plant action: %s' % action)
 
+
         # create a copy of the action_model for each plant and set the
         # .plant attribute on each
         for plant in self.plants:
@@ -640,13 +705,14 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
             new_action = type(action_model)()
             for prop in object_mapper(new_action).iterate_properties:
                 setattr(new_action, prop.key, getattr(action_model, prop.key))
-            if action == 'Transfer':
+            if action == TRANSFER_ACTION:
                 new_action.to_location = \
                     session.merge(action_model.to_location)
                 # change the location of the plant
                 new_action.from_location = plant.location
                 plant.location = new_action.to_location
-            elif action == 'Removal':
+                plant.quantity -= new_action.quantity
+            elif action == REMOVAL_ACTION:
                 new_action.from_location = plant.location
                 plant.quantity -= new_action.quantity
 
@@ -662,6 +728,19 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
                 new_note.user = new_action.person
                 new_note.plant = plant
                 action_model.note = new_note
+
+        if action == TRANSFER_ACTION and len(self.plants) == 1:
+            # TODO: should the new plant also get the note
+            original = self.plants[0]
+            plant = Plant()
+            for prop in object_mapper(original).iterate_properties:
+                ignore = ('notes', 'id', 'code', 'transfers', 'removals')
+                if prop.key not in ignore:
+                    setattr(plant, prop.key, getattr(original, prop.key))
+            plant.code = utils.utf8(self.presenter.view.\
+                                        widgets.new_code_entry.props.text)
+            plant.quantity = new_action.quantity
+            self.session.add(plant)
 
         # delete dummy model and remove it from the session
         self.session.expunge(self.model)
@@ -904,7 +983,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # same accession and plant code that we started with when the
         # editor was opened
         if self.model.code is not None and not \
-                self.is_code_unique(self.model.code) and not \
+                is_code_unique(self.model, self.model.code) and not \
                 (self._original_accession_id==self.model.accession.id and \
                      self.model.code==self._original_code):
 
@@ -934,25 +1013,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             entry.queue_draw()
 
         self.refresh_sensitivity()
-
-
-    def is_code_unique(self, code):
-        """
-        Return True/False if the code is unique for the current
-        Accession on self.model.accession.
-
-        This method will take range values for code that can be passed
-        to utils.range_builder()
-        """
-        codes = map(utils.utf8, utils.range_builder(code))
-        # reference accesssion.id instead of accession_id since
-        # setting the accession on the model doesn't set the
-        # accession_id until the session is flushed
-        q = self.session.query(Plant).join('accession').\
-            filter(and_(Accession.id==self.model.accession.id,
-                        Plant.code.in_(codes)))
-        return q.count() == 0
-
 
 
     def refresh_sensitivity(self):
