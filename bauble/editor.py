@@ -450,7 +450,9 @@ class GenericEditorPresenter(object):
 
     def has_problems(self, widget):
         from operator import getitem
-        filter(lambda p: getitem(p, 1) == widget is not None, self.problems)
+        for p, w in self.problems:
+            if widget == w:
+                return True
 
 
     def clear_problems(self):
