@@ -829,17 +829,21 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.prop_presenter = PropagationTabPresenter(self, self.model,
                                                      self.view, self.session)
 
+        # if the PlantEditor has been started with a new plant but
+        # that is already associated with an accession
         if self.model.accession and not self.model.code:
             code = get_next_code(self.model.accession)
             if code:
                 # if get_next_code() returns None then there was an error
                 self.model.code = utils.utf8(code)
 
-        # the location can only be changed on on a new plant
+        # the location and quantity can only be changed on on a new plant
         if self.model not in self.session.new:
             self.view.widgets.plant_loc_hbox.props.sensitive = False
+            self.view.widgets.plant_quantity_entry.props.sensitive = False
         else:
             self.view.widgets.plant_loc_hbox.props.sensitive = True
+            self.view.widgets.plant_quantity_entry.props.sensitive = True
 
         self.refresh_view() # put model values in view
 
