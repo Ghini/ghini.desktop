@@ -270,7 +270,9 @@ problems = {0: [],
             3: []}
 
 def has_value(rec, col):
-        return col.upper() in rec.dbf.fieldNames and rec[col]
+    if isinstance(rec, dict):
+        return col in rec and rec[col]
+    return col.upper() in rec.dbf.fieldNames and rec[col]
 
 
 def get_value(rec, col, as_str=True):
@@ -327,7 +329,8 @@ def species_name_dict_from_rec(rec, defaults=None):
     row['genus'] = str('%s %s' % (rec['ig'], rec['genus'])).strip()
 
     def clean_rec(rec):
-        d = rec.asDict()
+        if not isinstance(rec, dict):
+            rec = rec.asDict()
         dirt = ['FLCOLOR', 'PIN', 'REFERENCE', 'HABIT',
                 'SCINOTE', 'HARDZONE', 'NATIVITY', 'AWARDS', 'PHENOL',
                 'AUTHCHECK', 'NATBC', 'WILDNUM', 'L_UPDATE', 'DATEACCD',
@@ -337,10 +340,10 @@ def species_name_dict_from_rec(rec, defaults=None):
                 'INITLOC', 'GEOCODE', 'SOURCE', 'PISBG', 'DATERCVD']
         for key in dirt:
             try:
-                d.pop(key)
+                rec.pop(key)
             except:
                 pass
-        return d
+        return rec
 
     row['sp'] = get_value(rec, 'species')
     row['sp2'] = None
@@ -767,7 +770,6 @@ def do_sciname():
         else:
             row['habit_id'] = None
 
-
         # flower_color = get_value(rec, 'flower_color')
         # if flower_color:
         #     print flower_color
@@ -952,7 +954,7 @@ def do_plants():
     #
     # verified: True/False
     #
-    # othernos:
+    # othernos: use for the source code
     # iswild:
     # wildnum,
     # wildcoll: collection locale, often seems like a long/lat
@@ -1692,10 +1694,94 @@ def do_synonym():
     """
     status('converting SYNONYM.DBF ...')
     dbf = open_dbf('SYNONYM.DBF')
+    species_defaults = get_defaults(species_table)
+    species_rows = []
+    species_id_ctr = get_next_id(species_table)
+
+    synonym_defaults = get_defaults(SpeciesSynonym.__table__)
+    synonym_rows = []
+
+    genus_defaults = get_defaults(genus_table)
+    genus_rows = []
+    genus_id_ctr = get_next_id(genus_table)
+
+    dupes = set()
+
+    for rec in dbf:
+        species = species_name_dict_from_rec(rec,
+                                             defaults=species_defaults.copy())
+        species_id = get_species_id(species)
+        if not species_id:
+            gen = species.pop('genus')
+            genus_id = get_column_value(genus_table.c.id,
+                                        genus_table.c.genus==gen)
+            if not genus_id:
+                genus = genus_defaults.copy()
+                genus['genus'] = gen
+                genus['family_id'] = unknown_family_id
+                genus_id = genus['id'] = genus_id_ctr
+                genus_id_ctr += 1
+                genus_rows.append(genus)
+            #raise ValueError('no genus: %s' % species['genus'])
+            species['genus_id'] = genus_id
+            species_id = species['id'] = species_id_ctr
+            species_id_ctr += 1
+            species_rows.append(species)
+
+        # get the id for the synonym
+        syn_dict = {'ig': rec['s_ig'], "genus": rec['s_genus'],
+                    "is": rec['s_is'], "species": rec['s_species'],
+                    "rank": rec['s_rank'], "infrepi": rec['s_infrepi'],
+                    "cultivar": rec['s_cultivar'],
+                    "authors": rec['s_authors']}
+        synonym = species_name_dict_from_rec(syn_dict,
+                                             defaults=species_defaults.copy())
+        synonym_id = get_species_id(synonym)
+        if not synonym_id:
+            gen = synonym.pop('genus')
+            genus_id = get_column_value(genus_table.c.id,
+                                        genus_table.c.genus == gen)
+            if not genus_id:
+                genus = genus_defaults.copy()
+                genus['genus'] = gen
+                genus['family_id'] = unknown_family_id
+                genus_id = genus['id'] = genus_id_ctr
+                genus_id_ctr += 1
+                genus_rows.append(genus)
+            synonym['genus_id'] = genus_id
+            synonym_id = synonym['id'] = species_id_ctr
+            species_id_ctr += 1
+            species_rows.append(synonym)
+
+        # TODO: there are some problems here with the data since BGAS
+        # apparently allows multiple synonyms for a parent
+        if synonym_id in dupes:
+            print synonym_id
+            continue
+            #print synonym
+            #raise ValueError('%s is a duplicate synonym_id' % synonym_id)
+        dupes.add(synonym_id)
+
+        # create species_synonym row
+        spsyn = synonym_defaults.copy()
+        spsyn['species_id'] = species_id
+        spsyn['synonym_id'] = synonym_id
+        synonym_rows.append(spsyn)
+
+    print len(dbf)
+    dbf.close()
+
+    species_insert = get_insert(species_table, species_rows[0].keys())
+    insert_rows(species_insert, species_rows)
+    info('inserted %s species' % (len(species_rows)))
+
+    syn_insert = get_insert(SpeciesSynonym.__table__, synonym_rows[0].keys())
+    insert_rows(syn_insert, synonym_rows)
+    info('inserted %s synonyms' % (len(synonym_rows)))
 
 
 stages = [do_family, do_habit, do_color, do_source, do_sciname, do_bedtable,
-          do_plants, do_transfer, do_synonym, do_removals]
+          do_synonym, do_plants, do_transfer, do_removals]
 
 def run():
     for stage in stages[options.stage:]:
