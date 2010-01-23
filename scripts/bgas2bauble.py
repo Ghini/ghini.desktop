@@ -1593,7 +1593,8 @@ def do_removals():
         row['reason'] = utils.utf8(rec['remocode'])
         row['quantity'] = rec['remoqty']
 
-        # (id, code, location_id, quantity)
+        # get the plant id, code, location and quantity for the plant
+        # being removed as (id, code, location_id, quantity)
         results = \
             filter(lambda p: p[1].startswith(unicode(rec['propno'])) and \
                        locations[rec['remofrom']] == p[2] and p[3] > 0,
@@ -1607,30 +1608,33 @@ def do_removals():
                 note = note_defaults.copy()
                 note['date'] = rec['remodate']
                 note['note'] = utils.utf8(rec['notes'].strip())
+
+            total_quantity = sum(map(lambda x: x[3], results))
             for plant_id, code, location_id, quantity in results:
-                nleft -= quantity
+                # loop through all the plants for rec['accno'] in this location
+                # update the quantity
                 removal = row.copy()
                 removal['plant_id'] = plant_id
                 removal_rows.append(removal)
-                if (rec['accno'], rec['propno']) == (5167,0):
-                    print quantity, rec['remoqty']
 
-                # TODO: need to fix the quantities being updated
-                # properly
-
-                # if rec['remoqty'] > quantity:
-                #     quantity = 0
-                # else:
-                #     quantity -= rec['remoqty']
-                # if (rec['accno'], rec['propno']) == (5167,0):
-                #     print quantity
-                # n = quantities.set_default(plant_id, quantity)
-                # quantities[plant_id] = n-rec['remoqty']
                 upd = plant_updates.setdefault(plant_id,
                                  {'id': plant_id, 'quantity': quantity})
-                upd['quantity'] -= rec['remoqty']
-                # if (rec['accno'], rec['propno']) == (5167,0):
-                #     print 'upd quantity: %s' % upd['quantity']
+
+                # TODO: need to double check that nleft,
+                # total_quantity and quantity are absolutely correct
+
+                if rec['remoqty'] >= upd['quantity']:
+                    # don't remove more than this plant has and
+                    # hopefully the rest will be removed from another
+                    # plant
+                    upd['quantity'] = 0
+                    nleft = 0
+                else:
+                    nleft -= upd['quantity']
+                    upd['quantity'] -= rec['remoqty']
+
+                total_quantity -= upd['quantity']
+
                 if note:
                     new = note.copy()
                     new['plant_id'] = plant_id
@@ -1638,14 +1642,16 @@ def do_removals():
                     note_id_ctr += 1
                     note_rows.append(new)
                     removal['note_id'] = note_id_ctr
+
                 if nleft <= 0:
+                    # all have been removed for this accession
                     break
-            # if nleft > 0:
-            #     warning('not all plants %s.%s were removed: %s from %s' %
-            #             (rec['accno'], rec['propno'], rec['remoqty'], remofrom))
-            # if nleft < 0:
-            #     warning('more %s.%s removed than exist: %s from %s' %
-            #             (rec['accno'], rec['propno'], rec['remoqty'], remofrom))
+
+            if total_quantity < 0:
+                    warning('more %s.%s removed than exist: %s from %s' %
+                        (rec['accno'], rec['propno'], rec['remoqty'], remofrom))
+                    warning('%s.%s' % (rec['accno'], code))
+
         else:
             #print_tick('*')
             removal_error_ctr += 1
