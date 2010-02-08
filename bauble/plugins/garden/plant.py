@@ -55,8 +55,8 @@ def change_status_callback(plants):
     if len(plants) > 1 and 0 in [p.quantity for p in plants]:
         return
     elif len(plants) == 1 and plants[0].quantity == 0:
-        msg = 'This Plant has a quantity of 0.\n\nDo you want to revive ' \
-            'this Plant?'
+        msg = _('This Plant has a quantity of 0.\n\nDo you want to revive ' \
+                    'this Plant?')
         if not utils.yes_no_dialog(msg):
             return
 
