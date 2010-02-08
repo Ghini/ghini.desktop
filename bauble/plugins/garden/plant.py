@@ -52,8 +52,14 @@ def edit_callback(plants):
 
 
 def change_status_callback(plants):
-    if 0 in [p.quantity for p in plants]:
+    if len(plants) > 1 and 0 in [p.quantity for p in plants]:
         return
+    elif len(plants) == 1 and plants[0].quantity == 0:
+        msg = 'This Plant has a quantity of 0.\n\nDo you want to revive ' \
+            'this Plant?'
+        if not utils.yes_no_dialog(msg):
+            return
+
     e = PlantStatusEditor(model=plants)
     return e.start() != None
 
@@ -497,6 +503,10 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self._note = PlantNote()
         self._removal = PlantRemoval()
 
+        self._revival = False
+        if len(self.model) == 1 and self.model[0].quantity == 0:
+            self._revival = True
+
         # TODO: we should put this in a scrolled window or something
         # since the list of labels will get way to big when working on
         # lots of species
@@ -572,7 +582,9 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             """
             text = entry.props.text
             quantity_problem = 'BAD_QUANTITY'
-            if not text or int(text) < 0 or int(text) > self.model[0].quantity:
+            if (self._revival and int(text) <= 0 and text) \
+                    and (not text or int(text) <= 0 \
+                             or int(text) > self.model[0].quantity):
                 self.add_problem(self.PROBLEM_INVALID_QUANTITY, entry)
                 quantity = None
             else:
@@ -583,11 +595,12 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
                 self.view.widgets.new_code_entry.props.sensitive = False
                 self.remove_problem(self.PROBLEM_INVALID_NEW_CODE,
                                     self.view.widgets.new_code_entry)
-            else:
+            elif not self._revival:
                 self.view.widgets.new_code_entry.props.sensitive = True
                 self.view.widgets.new_code_entry.emit('changed')
 
-            if not self.view.widgets.new_code_entry.props.text:
+            if not self._revival and \
+                    not self.view.widgets.new_code_entry.props.text:
                 self.view.widgets.new_code_entry.props.text = \
                     get_next_code(self.model[0].accession)
 
@@ -599,6 +612,12 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         if len(self.model) > 1:
             self.view.widgets.ped_quantity_label.props.label = _('(all)')
             self.view.widgets.ped_quantity_entry.props.sensitive = False
+            self.view.widgets.new_code_entry.props.sensitive = False
+        elif self._revival:
+            self.view.widgets.ped_quantity_entry.props.text = ''
+            self.view.widgets.ped_quantity_label.props.label = ''
+            self.view.connect(self.view.widgets.ped_quantity_entry, 'changed',
+                              on_quantity_changed)
             self.view.widgets.new_code_entry.props.sensitive = False
         else:
             quantity = self.model[0].quantity
@@ -630,6 +649,8 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self.view.connect('plant_transfer_radio', 'toggled',
                           self.on_plant_transfer_radio_toggled)
         self.view.widgets.plant_transfer_radio.toggled()
+        self.view.widgets.plant_remove_radio.props.sensitive = not self._revival
+
 
         # initialize the location combo
         def on_tran_to_select(value):
@@ -649,6 +670,10 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self.view.widgets.note_textview.props.buffer.props.text = ''
         self.view.connect(self.view.widgets.note_textview.get_buffer(),
                           'changed', on_buff_changed)
+        if self._revival:
+            msg = _('Plant revived from the dead.')
+            self.view.widgets.note_textview.props.buffer.props.text = msg
+
 
 
     def dirty(self):
@@ -763,7 +788,10 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
                 # change the location of the plant
                 new_action.from_location = plant.location
                 plant.location = new_action.to_location
-                plant.quantity -= new_action.quantity
+                if self.presenter._revival:
+                    plant.quantity += new_action.quantity
+                else:
+                    plant.quantity -= new_action.quantity
             elif action == REMOVAL_ACTION:
                 new_action.from_location = plant.location
                 plant.quantity -= new_action.quantity
