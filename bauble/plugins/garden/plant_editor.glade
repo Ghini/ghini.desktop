@@ -414,7 +414,8 @@
                 </child>
                 <child>
                   <object class="GtkLabel" id="new_message_label">
-                    <property name="label" translatable="yes">The location and quantity of a Plant can only be changed from this editor when creating a new plant.  To move or remove a plant right-click on the plant in the search results and select Transfer or Remove.</property>
+                    <property name="label" translatable="yes">The location and quantity of a Plant can only be changed from this editor when creating a new plant.  To move or remove a plant right-click on the plant in the search results and select &lt;i&gt;Transfer or Remove&lt;/i&gt;.</property>
+                    <property name="use_markup">True</property>
                     <property name="wrap">True</property>
                   </object>
                   <packing>
@@ -606,6 +607,7 @@
   </object>
   <object class="GtkDialog" id="plant_editor_dialog">
     <property name="border_width">5</property>
+    <property name="title" translatable="yes">Plant Status Editor</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <child internal-child="vbox">
