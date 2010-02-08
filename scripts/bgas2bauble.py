@@ -1433,6 +1433,15 @@ def create_plants():
                     # and create a new plant at the new location with the new
                     # quantity
                     plant['quantity'] -= quantity
+                    transfer = transfer_defaults.copy()
+                    init_transfer(transfer, tranfrom_id, tranto_id, date,
+                                  quantity, plant['id'])
+                    transfer_rows.append(transfer)
+                    histories.setdefault(plant['id'], []).append(transfer)
+                    if has_value(rec, 'notes'):
+                        note_id = make_note(rec['notes'], date, u'Transfer',
+                                            plant['id'])
+                        transfer['note_id'] = note_id
 
                     new_plant = plant.copy()
                     new_plant['id'] = plant_id_ctr
@@ -1452,25 +1461,10 @@ def create_plants():
                                                []).append(note)
                         note_rows.append(note)
 
-                    transfer = transfer_defaults.copy()
-                    init_transfer(transfer, tranfrom_id, tranto_id, date,
-                                  quantity, plant['id'])
-                    transfer_rows.append(transfer)
-                    histories.setdefault(plant['id'], []).append(transfer)
-                    if has_value(rec, 'notes'):
-                        note_id = make_note(rec['notes'], date, u'Transfer',
-                                            new_plant['id'])
-                        transfer['note_id'] = note_id
-
                     # copy transfers and removals from old plant
                     history = map(lambda h: h.copy(),
                                   histories.get(plant['id'], []))
                     for h in history:
-                        # TODO: iterate histories in reverse order and
-                        # throw out any that aren't relevant for this
-                        # plant...should be able to trace back to
-                        # origin by comparing from/to for each
-                        # transfer and remove any that aren't relevant
                         h['plant_id'] = new_plant['id']
                         if 'to_location_id' in h: # transfer
                             transfer_rows.append(h)
