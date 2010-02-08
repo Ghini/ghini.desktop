@@ -381,6 +381,59 @@ class Plant(db.Base):
         return "%s%s%s" % (self.accession, self.delimiter, self.code)
 
 
+    def duplicate(self, code=None, session=None):
+        """
+        Return a Plant that is a duplicate of this Plant with attached
+        notes, transfers, removals and propagations.
+        """
+        if not session:
+            session = object_session(self)
+        plant = Plant()
+        session.add(plant)
+
+        ignore = ('id', 'removal', 'transfers', 'notes', 'propagations')
+        properties = filter(lambda p: p.key not in ignore,
+                            object_mapper(self).iterate_properties)
+        for prop in properties:
+            setattr(plant, prop.key, getattr(self, prop.key))
+        plant.code = code
+
+        # duplicate notes
+        for note in self.notes:
+            new_note = PlantNote()
+            for prop in object_mapper(note).iterate_properties:
+                setattr(new_note, prop.key, getattr(note, prop.key))
+            new_note.id = None
+            new_note.plant = plant
+
+        # duplicate transfers
+        for transfer in self.transfers:
+            new_transfer = PlantTransfer()
+            for prop in object_mapper(transfer).iterate_properties:
+                setattr(new_transfer, prop.key, getattr(transfer, prop.key))
+            new_transfer.id = None
+            new_transfer.plant = plant
+
+        # duplicate removals
+        for removal in self.removals:
+            new_removal = PlantRemoval()
+            for prop in object_mapper(removal).iterate_properties:
+                setattr(new_removal, prop.key, getattr(removal, prop.key))
+            new_removal.id = None
+            new_removal.plant = plant
+
+        # duplicate propagations
+        for propagation in self.propagations:
+            new_propagation = PlantPropagation()
+            for prop in object_mapper(propagation).iterate_properties:
+                setattr(new_propagation, prop.key,
+                        getattr(propagation, prop.key))
+            new_propagation.id = None
+            new_propagation.plant = plant
+
+        return plant
+
+
     def markup(self):
         #return "%s.%s" % (self.accession, self.plant_id)
         # FIXME: this makes expanding accessions look ugly with too many
@@ -550,7 +603,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         else:
             quantity = self.model[0].quantity
             if quantity > 1:
-                label_str = '1-%s' % quantity
+                label_str = '(1-%s)' % quantity
             else:
                 label_str = ''
             self.view.widgets.ped_quantity_label.props.label = label_str
@@ -696,7 +749,6 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
         else:
             raise ValueError('unknown plant action: %s' % action)
 
-
         # create a copy of the action_model for each plant and set the
         # .plant attribute on each
         for plant in self.plants:
@@ -729,18 +781,13 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
                 new_note.plant = plant
                 action_model.note = new_note
 
-        if action == TRANSFER_ACTION and len(self.plants) == 1:
-            # TODO: should the new plant also get the note
-            original = self.plants[0]
-            plant = Plant()
-            for prop in object_mapper(original).iterate_properties:
-                ignore = ('notes', 'id', 'code', 'transfers', 'removals')
-                if prop.key not in ignore:
-                    setattr(plant, prop.key, getattr(original, prop.key))
+        if action == TRANSFER_ACTION and len(self.plants) == 1 and \
+                self.plants[0].quantity > new_action.quantity:
+            # branch the plant
+            plant = self.plants[0].duplicate(session=self.session)
             plant.code = utils.utf8(self.presenter.view.\
                                         widgets.new_code_entry.props.text)
             plant.quantity = new_action.quantity
-            self.session.add(plant)
 
         # delete dummy model and remove it from the session
         self.session.expunge(self.model)
