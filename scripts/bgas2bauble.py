@@ -109,7 +109,7 @@ def test():
     assert plant.location.code == '1X01' and plant.quantity == 11
     plant = session.query(Plant).join(Accession).\
         filter(Accession.code==u'11663').filter(Plant.code==u'1002').one()
-    assert plant.location.code == '1G05' and plant.quantity == 32
+    assert plant.location.code == '1G05' and plant.quantity == 31
     plant = session.query(Plant).join(Accession).\
         filter(Accession.code==u'11663').filter(Plant.code==u'1003').one()
     assert plant.location.code == '1X01' and plant.quantity == 2
@@ -119,7 +119,7 @@ def test():
     # test for duplicate species
     # test that all accession codes are unique
     # test that all plant codes are unique
-    # TODO: test 13729
+    # TODO: test 13729.0001 quantity numbers aren't correct
 
 if options.test:
     test()
@@ -1401,9 +1401,6 @@ def create_plants():
                             plant_pool.get(plant_tuple, []))
 
             if not plants:
-                if plant_tuple == (11663, 1):
-                    print 'creating %s plants at %s' %(quantity,rec['tranfrom'])
-
                 # no plants at the tranfrom location with a quantity>0
                 # so create a new plant
                 plant = copy.copy(bgas_plants[plant_tuple])
@@ -1419,11 +1416,6 @@ def create_plants():
 
             for plant in plants:
                 if quantity >= plant['quantity']:
-                    if plant_tuple == (11663, 1):
-                        print 'transfer %s (all) of 11663.%s from %s to %s' % \
-                            (plant['quantity'], plant['code'], rec['tranfrom'],
-                             rec['tranto'])
-
                     # move all of the plants at this location
                     transfer = transfer_defaults.copy()
                     init_transfer(transfer, tranfrom_id, tranto_id, date,
@@ -1437,10 +1429,6 @@ def create_plants():
                     plant['location_id'] = tranto_id
                     quantity -= plant['quantity']
                 else:
-                    if plant_tuple == (11663, 1):
-                        print 'transfer %s of 11663.%s from %s to %s' % \
-                            (quantity, plant['code'], rec['tranfrom'],
-                             rec['tranto'])
                     # move a portion of the plants that exist at this location
                     # and create a new plant at the new location with the new
                     # quantity
@@ -1478,6 +1466,11 @@ def create_plants():
                     history = map(lambda h: h.copy(),
                                   histories.get(plant['id'], []))
                     for h in history:
+                        # TODO: iterate histories in reverse order and
+                        # throw out any that aren't relevant for this
+                        # plant...should be able to trace back to
+                        # origin by comparing from/to for each
+                        # transfer and remove any that aren't relevant
                         h['plant_id'] = new_plant['id']
                         if 'to_location_id' in h: # transfer
                             transfer_rows.append(h)
