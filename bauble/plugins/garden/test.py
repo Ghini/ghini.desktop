@@ -33,7 +33,7 @@ accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1},
                        )
 
 plant_test_data = ({'id':1 , 'code': u'1', 'accession_id': 1,
-                    'location_id': 1},
+                    'location_id': 1, 'quantity': 1},
                    )
 
 location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
@@ -205,7 +205,7 @@ class PlantTests(GardenTestCase):
         self.accession = self.create(Accession, species=self.species,code=u'1')
         self.location = self.create(Location, name=u'site', code=u'STE')
         self.plant = self.create(Plant, accession=self.accession,
-                                 location=self.location, code=u'1')
+                                 location=self.location, code=u'1', quantity=1)
         self.session.commit()
 
     def tearDown(self):
@@ -218,7 +218,7 @@ class PlantTests(GardenTestCase):
         """
         # test that we can't have duplicate codes with the same accession
         plant2 = Plant(accession=self.accession, location=self.location,
-                       code=self.plant.code)
+                       code=self.plant.code, quantity=1)
         self.session.add(plant2)
         self.assertRaises(IntegrityError, self.session.commit)
         # rollback the IntegrityError so tearDown() can do its job
@@ -248,8 +248,10 @@ class PlantTests(GardenTestCase):
             self.session.delete(plant)
         self.session.commit()
 
-        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
-        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        p1 = Plant(accession=self.accession, location=self.location, code=u'1',
+                   quantity=1)
+        p2 = Plant(accession=self.accession, location=self.location, code=u'2',
+                   quantity=1)
         self.accession.plants.append(p1)
         self.accession.plants.append(p2)
         editor = PlantStatusEditor(model=[p1, p2])
@@ -286,8 +288,10 @@ class PlantTests(GardenTestCase):
             self.session.delete(plant)
         self.session.commit()
 
-        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
-        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        p1 = Plant(accession=self.accession, location=self.location, code=u'1',
+                   quantity=1)
+        p2 = Plant(accession=self.accession, location=self.location, code=u'2',
+                   quantity=1)
         self.accession.plants.append(p1)
         self.accession.plants.append(p2)
         editor = PlantStatusEditor(model=[p1, p2])
@@ -314,6 +318,31 @@ class PlantTests(GardenTestCase):
 
     def test_editor_addnote(self):
         raise SkipTest('Not Implemented')
+
+
+    def test_duplicate(self):
+        p = Plant(accession=self.accession, location=self.location, code=u'2',
+                  quantity=52)
+        self.session.add(p)
+        note = PlantNote(note=u'some note')
+        note.plant = p
+        note.date = datetime.date.today()
+
+        transfer = PlantTransfer(from_location=self.location,
+                                 to_location=self.location, quantity=1)
+        transfer.plant = p
+
+        removal = PlantRemoval(from_location=self.location, reason=u'DEAD',
+                               quantity=1)
+        removal.plant = p
+
+        self.session.commit()
+
+        dup = p.duplicate(code=u'3')
+        assert dup.notes is not []
+        assert dup.transfers is not []
+        assert dup.removals is not []
+        self.session.commit()
 
 
     def itest_status_editor(self):
