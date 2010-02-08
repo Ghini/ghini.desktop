@@ -100,13 +100,26 @@ def test():
     assert plant.location.code == '3AF1' and plant.quantity == 1, \
         '%s (%s)' % (plant.location.code, plant.quantity)
 
+    # 11663/1 has alot of branches and transfers
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'11663').filter(Plant.code==u'1000').one()
+    assert plant.location.code == '1G' and plant.quantity == 0
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'11663').filter(Plant.code==u'1001').one()
+    assert plant.location.code == '1X01' and plant.quantity == 11
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'11663').filter(Plant.code==u'1002').one()
+    assert plant.location.code == '1G05' and plant.quantity == 32
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'11663').filter(Plant.code==u'1003').one()
+    assert plant.location.code == '1X01' and plant.quantity == 2
+
+    # TODO:
     # test all possible combinations of imported species names
     # test for duplicate species
     # test that all accession codes are unique
     # test that all plant codes are unique
-
-    # TODO: 11663.1 is a good one to test since it has lots of
-    # transfers and removals
+    # TODO: test 13729
 
 if options.test:
     test()
@@ -205,6 +218,7 @@ def where_from_dict(table, dict_, ignore_columns):
     """
     cols = filter(lambda c: c not in ignore_columns, dict_.keys())
     return and_(*map(lambda col: table.c[col] == dict_[col], cols))
+
 
 
 def get_column_value(column, where):
@@ -1063,19 +1077,17 @@ def do_plants():
         plant_tuple = (rec['accno'], rec['propno'])
         if plant_tuple not in bgas_plants:
             plant_row = plant_defaults.copy()
-            plant_row['id'] = plant_id_ctr
-            plant_row['code'] = unicode(rec['propno'])
-            plant_row['accession_id'] = acc_ids.setdefault(rec['accno'],
-                                                           acc_id_ctr)
-            plant_row['_created']= rec['dateaccd']
-            plant_row['date_accd'] = rec['dateaccd']
-            plant_row['date_recvd'] = rec['datercvd']
-            plant_row['operator'] = None
-            plant_row['memorial'] = rec['memorial']
-            plant_row['quantity'] = rec['qtyrcvd']
-            plant_row['location_id'] = locations[rec['initloc']]
-            if rec['operator'].strip():
-                plant_row['operator'] = utils.utf8(rec['operator'])
+            plant_row.update(id=plant_id_ctr,
+                             code=unicode(rec['propno']),
+                             accession_id=acc_ids.setdefault(rec['accno'],
+                                                             acc_id_ctr),
+                             _created=rec['dateaccd'],
+                             date_accd=rec['dateaccd'],
+                             date_recvd=rec['datercvd'],
+                             operator=get_value(rec, 'operator'),
+                             memorial=rec['memorial'],
+                             quantity=rec['qtyrcvd'],
+                             location_id=locations[rec['initloc']])
             bgas_plants[plant_tuple] = plant_row
             plant_id_ctr += 1
         else:
@@ -1270,39 +1282,10 @@ def do_plants():
     gc.collect()
 
 
-
-plant_ids = {}
-"""
-plant_ids contains a mapping plant (accno, propno)->plant.id
-"""
-
-histories = {}
-"""
-histories contains a mapping of (accno, propno)->history instance
-"""
-
 plant_codes = {}
 """
 plant_codes contains a mapping of (accno, propno)->plant.code
 """
-
-class History(object):
-    """
-    Represents the transfer history of a plant.
-    """
-
-    def __init__(self, start, quantity):
-        if isinstance(start, (list, tuple)):
-            self.path = start
-        else:
-            self.path = [start]
-        self.transfers = []
-        self.notes = []
-        self.quantity = quantity
-
-    def __str__(self):
-        return str(self.path)
-
 
 def next_code(plant_tuple):
     """
@@ -1342,21 +1325,47 @@ def test_next_code():
         next_code((2,3))
     assert next_code((2,3)) == '3012'
 
-history = {}
-
-# list of plants by accno, propno
-plant_pool = {}
-plant_transfers = {}
-plant_removals = {}
-plant_rows = []
-note_rows = []
-plant_id_ctr = get_next_id(Plant.__table__)
+# note_id_ctr has(?) to be global so make_note() can access it
+note_id_ctr = get_next_id(PlantNote.__table__)
 
 def create_plants():
     # need to merge the transfers and removals and sort them by date
     # so that we can keep the quantities correct...e.g.
     print 'creating plants ...'
-    global plant_id_ctr
+    global note_id_ctr
+    plant_pool = {} # lists of plants by accno, propno
+    histories = {} # list of transfers and removals by plant_id
+    plant_rows = []
+    note_rows = []
+    plant_id_ctr = get_next_id(Plant.__table__)
+    plant_notes = {} # lists notes mapped by plant.id
+    note_defaults = get_defaults(PlantNote.__table__)
+    transfer_rows = []
+    transfer_defaults = get_defaults(PlantTransfer.__table__)
+    removal_defaults = get_defaults(PlantRemoval.__table__)
+    removal_rows = []
+
+    def make_note(note, date, category, plant_id):
+            global note_id_ctr
+            row = note_defaults.copy()
+            row['note'] = utils.utf8(note)
+            row['id'] = note_id_ctr
+            row['date'] = date
+            row['category'] = category
+            note_id_ctr += 1
+            row['plant_id'] = plant_id
+            note_rows.append(row)
+            plant_notes.setdefault(plant_id, []).append(row)
+            return row['id']
+
+    init_transfer = lambda d, fid, tid, date, q, pid: \
+        d.update(from_location_id=fid, to_location_id=tid,
+                 date=date, quantity=q, plant_id=pid)
+
+    init_removal = lambda d, fid, res, date, q, pid: \
+        d.update(from_location_id=fid, reason=utils.utf8(res), date=date,
+                 quantity=q, plant_id=pid)
+
     get_name = lambda r: r.dbf.name
     is_transfer = lambda r: get_name(r).endswith('TRANSFER.DBF')
     is_removal = lambda r: get_name(r).endswith('REMOVALS.DBF')
@@ -1369,11 +1378,7 @@ def create_plants():
     records = sorted(ifilter(lambda r: not r.deleted,
                              chain(open_dbf('TRANSFER.DBF'),
                                    open_dbf('REMOVALS.DBF'))),
-                             key=keyfunc)
-
-    note_id_ctr = get_next_id(PlantNote.__table__)
-    note_defaults = get_defaults(PlantNote.__table__)
-
+                     key=keyfunc)
     rec_ctr = 1
     for rec in records:
         rec_ctr += 1
@@ -1387,11 +1392,18 @@ def create_plants():
 
         plant_tuple = rec['accno'], rec['propno']
         if is_transfer(rec):
-            tranfrom = rec['tranfrom']
-            plants = filter(lambda p: p['location_id'] == locations[tranfrom] \
+            tranfrom_id = locations[rec['tranfrom']]
+            tranto_id = locations[rec['tranto']]
+            quantity = rec['moveqty']
+            date = rec['movedate']
+            plants = filter(lambda p: p['location_id'] == tranfrom_id \
                                 and p['quantity'] > 0,
                             plant_pool.get(plant_tuple, []))
+
             if not plants:
+                if plant_tuple == (11663, 1):
+                    print 'creating %s plants at %s' %(quantity,rec['tranfrom'])
+
                 # no plants at the tranfrom location with a quantity>0
                 # so create a new plant
                 plant = copy.copy(bgas_plants[plant_tuple])
@@ -1399,24 +1411,130 @@ def create_plants():
                 plant_id_ctr += 1
                 plant['code'] = next_code(plant_tuple)
                 plant['quantity'] = rec['moveqty']
-                plant['location_id'] = locations[tranfrom]
+                plant['location_id'] = tranfrom_id
                 plant_pool.setdefault(plant_tuple, []).append(plant)
-                # only want to pass the new plant to create_transfers()
-                plants = [plant]
                 plant_rows.append(plant)
+                # only want to iterate over the new plant
+                plants = [plant]
 
-            create_transfers(rec, plants)
+            for plant in plants:
+                if quantity >= plant['quantity']:
+                    if plant_tuple == (11663, 1):
+                        print 'transfer %s (all) of 11663.%s from %s to %s' % \
+                            (plant['quantity'], plant['code'], rec['tranfrom'],
+                             rec['tranto'])
+
+                    # move all of the plants at this location
+                    transfer = transfer_defaults.copy()
+                    init_transfer(transfer, tranfrom_id, tranto_id, date,
+                                  quantity, plant['id'])
+                    transfer_rows.append(transfer)
+                    histories.setdefault(plant['id'], []).append(transfer)
+                    if has_value(rec, 'notes'):
+                        note_id = make_note(rec['notes'], date, u'Transfer',
+                                            plant['id'])
+                        transfer['note_id'] = note_id
+                    plant['location_id'] = tranto_id
+                    quantity -= plant['quantity']
+                else:
+                    if plant_tuple == (11663, 1):
+                        print 'transfer %s of 11663.%s from %s to %s' % \
+                            (quantity, plant['code'], rec['tranfrom'],
+                             rec['tranto'])
+                    # move a portion of the plants that exist at this location
+                    # and create a new plant at the new location with the new
+                    # quantity
+                    plant['quantity'] -= quantity
+
+                    new_plant = plant.copy()
+                    new_plant['id'] = plant_id_ctr
+                    plant_id_ctr += 1
+                    new_plant['quantity'] = quantity
+                    new_plant['code'] = next_code(plant_tuple)
+                    new_plant['location_id'] = tranto_id
+
+                    # make a copy of all the notes of the old plant
+                    # for the new plant
+                    notes = map(lambda n: n.copy(), plant_notes.get(id, []))
+                    for note in notes:
+                        note['id'] = note_id_ctr
+                        note['plant_id'] = new_plant['id']
+                        note_id_ctr += 1
+                        plant_notes.setdefault(plant_notes[new_plant['id']],
+                                               []).append(note)
+                        note_rows.append(note)
+
+                    transfer = transfer_defaults.copy()
+                    init_transfer(transfer, tranfrom_id, tranto_id, date,
+                                  quantity, plant['id'])
+                    transfer_rows.append(transfer)
+                    histories.setdefault(plant['id'], []).append(transfer)
+                    if has_value(rec, 'notes'):
+                        note_id = make_note(rec['notes'], date, u'Transfer',
+                                            new_plant['id'])
+                        transfer['note_id'] = note_id
+
+                    # copy transfers and removals from old plant
+                    history = map(lambda h: h.copy(),
+                                  histories.get(plant['id'], []))
+                    for h in history:
+                        h['plant_id'] = new_plant['id']
+                        if 'to_location_id' in h: # transfer
+                            transfer_rows.append(h)
+                        else: # removals
+                            removal_rows.append(h)
+
+                    plant_rows.append(new_plant)
+                    plant_pool[plant_tuple].append(new_plant)
+                    quantity = 0
+
+                if quantity <= 0:
+                    break
         else:
-            remofrom = rec['remofrom']
-            plants = filter(lambda p: p['location_id'] == locations[remofrom] \
+            # handle removals
+            remofrom_id = locations[rec['remofrom']]
+            plants = filter(lambda p: p['location_id'] == remofrom_id \
                                 and p['quantity'] > 0,
                             plant_pool.get(plant_tuple, []))
-            if plants:
-                create_removals(rec, plants)
-            else:
-                # TODO: show a warning about no plants to remove
-                pass
+            if not plants:
+                # no plants to remove
+                #
+                # TODO: print warning
+                continue
 
+            quantity = rec['remoqty']
+            date = rec['remodate']
+
+            for plant in plants:
+                if quantity >= plant['quantity']:
+                    # removal all the plants
+                    removal = removal_defaults.copy()
+                    init_removal(removal, remofrom_id,rec['remocode'], date,
+                                 quantity, plant['id'])
+                    removal_rows.append(removal)
+                    if has_value(rec, 'notes'):
+                        note_id = make_note(rec['notes'], date, u'Removal',
+                                            plant['id'])
+                        removal['note_id'] = note_id
+                    quantity -= plant['quantity']
+                    plant['quantity'] = 0
+                    histories.setdefault(plant['id'], []).append(removal)
+                else:
+                    # remove some of the plants
+                    removal = removal_defaults.copy()
+                    init_removal(removal, remofrom_id, rec['remocode'], date,
+                                 quantity, plant['id'])
+                    removal_rows.append(removal)
+                    if has_value(rec, 'notes'):
+                        note_id = make_note(rec['notes'], date, u'Removal',
+                                            plant['id'])
+                        removal['note_id'] = note_id
+                    plant['quantity'] -= quantity
+                    quantity = 0
+                    histories.setdefault(plant['id'], []).append(removal)
+
+                if quantity <= 0:
+                    break
 
     print ''
 
@@ -1433,109 +1551,9 @@ def create_plants():
     insert_rows(insert, removal_rows)
     info('inserted %s removals' % len(removal_rows))
 
-    # note_insert = get_insert(PlantRemoval.__table__, note_rows[0].keys())
-    # insert_rows(note_insert, note_rows)
-    # info('inserted %s transfers notes' % len(note_rows))
-
-
-transfer_rows = []
-transfer_defaults = get_defaults(PlantTransfer.__table__)
-def create_transfers(rec, plants):
-    """
-    plants are all the plants that are in rec['tranfrom'] and have a
-    quantity > 0
-
-    This function will also create plants if only a portion of the
-    quantity of a plant
-    """
-    global plant_id_ctr
-    tranfrom_id = locations[rec['tranfrom']]
-    tranto_id = locations[rec['tranto']]
-    quantity = rec['moveqty']
-    plant_tuple = (rec['accno'], rec['propno'])
-    init_transfer = lambda d, r, p, q: \
-        d.update(from_location_id=tranfrom_id,
-                 to_location_id=tranto_id,
-                 date=rec['movedate'],
-                 quantity=q,
-                 plant_id=p['id'])
-
-    for plant in plants:
-        if quantity >= plant['quantity']:
-            # move all of the plants at this location
-            transfer = transfer_defaults.copy()
-            init_transfer(transfer, rec, plant, plant['quantity'])
-            transfer_rows.append(transfer)
-            plant_transfers.setdefault(plant['id'], []).append(transfer)
-
-            #plant['quantity'] = 0
-            plant['location_id'] = tranto_id
-            quantity -= plant['quantity']
-        else:
-            # move a portion of the plants that exist at this location
-            # and create a new plant at the new location with the new
-            # quantity
-            plant['quantity'] -= quantity
-
-            new_plant = plant.copy()
-            new_plant['id'] = plant_id_ctr
-            plant_id_ctr += 1
-            new_plant['quantity'] = quantity
-            new_plant['code'] = next_code(plant_tuple)
-            new_plant['location_id'] = tranto_id
-
-            transfer = transfer_defaults.copy()
-            init_transfer(transfer, rec, new_plant, quantity)
-            transfer_rows.append(transfer)
-            plant_transfers.setdefault(plant['id'], []).append(transfer)
-
-            # copy transfers from parent plant
-            transfers = map(lambda t: t.copy(),
-                            plant_transfers.get(plant['id'], []))
-            for t in transfers:
-                t.update(plant_id=new_plant['id'])
-                transfer_rows.append(t)
-
-            plant_rows.append(new_plant)
-            plant_pool[plant_tuple].append(new_plant)
-            quantity = 0
-
-
-        if quantity <= 0:
-            break
-
-
-
-removal_defaults = get_defaults(PlantRemoval.__table__)
-removal_rows = []
-def create_removals(rec, plants):
-    # return a list of removals from a removal record
-    quantity = rec['remoqty']
-    remofrom_id = locations[rec['remofrom']]
-    init_removal = lambda d, r, p, q: \
-        d.update(from_location_id=remofrom_id,
-                 reason=utils.utf8(rec['remocode']),
-                 date=rec['remodate'],
-                 quantity=q,
-                 plant_id=p['id'])
-    for plant in plants:
-        if quantity >= plant['quantity']:
-            # removal all the plants
-            removal = removal_defaults.copy()
-            init_removal(removal, rec, plant, plant['quantity'])
-            removal_rows.append(removal)
-            quantity -= plant['quantity']
-            plant['quantity'] = 0
-        else:
-            # remove some of the plants
-            removal = removal_defaults.copy()
-            init_removal(removal, rec, plant, quantity)
-            removal_rows.append(removal)
-            plant['quantity'] -= quantity
-            quantity = 0
-
-        if quantity <= 0:
-            break
+    note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
+    insert_rows(note_insert, note_rows)
+    info('inserted %s notes' % len(note_rows))
 
 
 
