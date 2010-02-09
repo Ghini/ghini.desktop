@@ -292,7 +292,7 @@ acc_type_values = {u'Plant': _('Plant'),
                    u'Vegetative': _('Vegetative Part'),
                    u'Tissue': _('Tissue Culture'),
                    u'Other': _('Other'),
-                   None: _('')}
+                   None: ''}
 
 
 class Plant(db.Base):

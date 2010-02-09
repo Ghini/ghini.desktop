@@ -141,7 +141,7 @@ source_type_values = {u'Expedition': _('Expedition'),
                       u'Individual': _('Individual'),
                       u'Other': _('Other'),
                       u'Unknown': _('Unknown'),
-                     None: _('')}
+                     None: ''}
 
 class SourceDetail(db.Base):
     __tablename__ = 'source_detail'
@@ -542,7 +542,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
         latitude = self.model.latitude
         if latitude is not None:
-            dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
+            dms_string = u'%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
             self.view.widgets.lat_dms_label.set_text(dms_string)
             if latitude < 0:
                 self.view.widgets.south_radio.set_active(True)
@@ -550,7 +550,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.north_radio.set_active(True)
         longitude = self.model.longitude
         if longitude is not None:
-            dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
+            dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
             self.view.widgets.lon_dms_label.set_text(dms_string)
             if longitude < 0:
                 self.view.widgets.west_radio.set_active(True)
@@ -686,7 +686,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 direction = self._get_lat_direction()
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
                 #u"\N{DEGREE SIGN}"
-                dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
+                dms_string = u'%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
             # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
@@ -717,7 +717,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
-                dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
+                dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
         except Exception:
             # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")

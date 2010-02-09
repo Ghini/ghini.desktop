@@ -269,9 +269,9 @@ def open(url, desktop=None, wait=0, dialog_on_error=False):
     try:
         if not cmd:
             # TODO: maybe we should tell the user to define DESKTOP_LAUNCH
-            raise OSError, _("Could not open %s\n\n" \
-                             "Unknown desktop environment: %s\n\n" \
-                             % (url, desktop_in_use))
+            raise OSError, _("Could not open %(url)s\n\n" \
+                             "Unknown desktop environment: %(desktop)s\n\n") \
+                             % dict(url=url, desktop=desktop_in_use))
     except Exception, e:
         if dialog_on_error:
             utils.message_dialog(utils.utf8(e))

@@ -45,7 +45,7 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
                        u'f.': _('f.'),
                        u'subf.': _('subf.'),
                        u'cv.': _('cv.'),
-                       None: _('')}
+                       None: ''}
 
 
 
