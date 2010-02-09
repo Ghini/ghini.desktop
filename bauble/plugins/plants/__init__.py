@@ -52,6 +52,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                                         context_menu=genus_context_menu,
                                         markup_func=genus_markup_func)
 
+        SearchView.add_search_strategy(SynonymSearch)
         mapper_search.add_meta(('sp', 'species'), Species,
                                ['sp', 'sp2', 'infrasp1', 'infrasp2',
                                 'infrasp3', 'infrasp4'])
@@ -79,11 +80,6 @@ class PlantsPlugin(pluginmgr.Plugin):
             # TODO: for some reason using the cross as the hybrid
             # character doesn't work on windows
             Species.hybrid_char = 'x'
-
-
-    @classmethod
-    def create_tables(cls):
-        super(PlantsPlugin, cls).create_tables()
 
 
     @classmethod

@@ -3,6 +3,7 @@
 #
 import bauble.db as db
 import bauble.pluginmgr as pluginmgr
+from bauble.prefs import prefs
 from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
 from bauble.view import SearchView, PropertiesExpander, Action
@@ -117,8 +118,46 @@ def vernname_markup_func(vernname):
     return str(vernname), vernname.species.markup(authors=False)
 
 
-from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
+from bauble.view import InfoBox, InfoBoxPage, InfoExpander, SearchStrategy, \
     select_in_search_results
+
+
+class SynonymSearch(SearchStrategy):
+    """
+    Return any synonyms for matching species.
+
+    This can by setting bauble.search.return_synonyms in the prefs to False.
+    """
+    return_synonyms_pref = 'bauble.search.return_synonyms'
+
+    def __init__(self):
+        super(SynonymSearch, self).__init__()
+        if self.return_synonyms_pref not in prefs:
+            prefs[self.return_synonyms_pref] = True
+            prefs.save()
+
+    def search(self, text, session):
+        super(SynonymSearch, self).search(text, session)
+        if not prefs[self.return_synonyms_pref]:
+            return
+        mapper_search = SearchView.get_search_strategy('MapperSearch')
+        r1 = mapper_search.search(text, session)
+        if not r1:
+            return []
+        results = []
+        for result in r1:
+            # iterate through the results and see if we can find some
+            # synonyms for the returned values
+            if isinstance(result, Species):
+                q = session.query(SpeciesSynonym).\
+                    filter_by(synonym_id=result.id)
+                results.extend([syn.species for syn in q])
+            elif isinstance(results, VernacularName):
+                q = session.query(SpeciesSynonym).\
+                    filter_by(synonym_id=result.species.id)
+                results.extend([syn.species for syn in q])
+        return results
+
 
 #
 # Species infobox for SearchView
@@ -283,7 +322,6 @@ class GeneralSpeciesExpander(InfoExpander):
         if row.label_distribution:
             dist = row.label_distribution
         self.set_widget_value('sp_labeldist_data', dist)
-
 
         # stop here if not GardenPluin
         if 'GardenPlugin' not in pluginmgr.plugins:
