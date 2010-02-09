@@ -65,8 +65,9 @@ def remove_callback(genera):
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
     safe_str = utils.xml_safe_utf8(str(genus))
     if nsp > 0:
-        msg = _('The genus <i>%s</i> has %s species.  Are you sure you want '
-                'to remove it?') % (safe_str, nsp)
+        msg = _('The genus <i>%(genus)s</i> has %(num_species)s species.  '
+                'Are you sure you want to remove it?') \
+                % dict(genus=safe_str, num_species=nsp)
     else:
         msg = _("Are you sure you want to remove the genus <i>%s</i>?") \
             % safe_str

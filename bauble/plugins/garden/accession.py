@@ -291,7 +291,7 @@ prov_type_values = {u'Wild': _('Wild'),
                     u'NotWild': _("Not of wild source"),
                     u'InsufficientData': _("Insufficient Data"),
                     u'Unknown': _("Unknown"),
-                    None: _('')}
+                    None: ''}
 
 
 wild_prov_status_values = {u'WildNative': _("Wild native"),
@@ -299,7 +299,7 @@ wild_prov_status_values = {u'WildNative': _("Wild native"),
                            u'CultivatedNative': _("Cultivated native"),
                            u'InsufficientData': _("Insufficient Data"),
                            u'Unknown': _("Unknown"),
-                           None: _('')}
+                           None: ''}
 
 
 recvd_type_values = {
@@ -331,7 +331,7 @@ recvd_type_values = {
     u'BBIL': _('Bulbil'),
     u'VEGS': _('Vegetative spreading'),
     u'SCKR': _('Root sucker'),
-    None: _('')
+    None: ''
     }
 
 class AccessionNote(db.Base):

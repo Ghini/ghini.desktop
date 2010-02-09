@@ -104,8 +104,9 @@ class Propagation(db.Base):
             values.append(_('Cutting type: %s') % \
                               cutting_type_values[c.cutting_type])
             if c.length:
-                values.append(_('Length: %s%s') % (c.length,
-                              length_unit_values[c.length_unit]))
+                values.append(_('Length: %(length)s%(unit)s') %
+                              dict(length=c.length,
+                                   unit=length_unit_values[c.length_unit]))
             values.append(_('Tip: %s') % tip_values[c.tip])
             s = _('Leaves: %s') % leaves_values[c.leaves]
             if c.leaves == u'Removed' and c.leaves_reduced_pct:
@@ -119,9 +120,9 @@ class Propagation(db.Base):
             if c.hormone:
                 values.append(_('Hormone treatment: %s' % c.hormone))
             if c.bottom_heat_temp:
-                values.append(_('Bottom heat: %s%s') % \
-                               (c.bottom_heat_temp,
-                                bottom_heat_unit_values[c.bottom_heat_unit]))
+                values.append(_('Bottom heat: %(temp)s%(unit)s') %
+                               dict(temp=c.bottom_heat_temp,
+                                    unit=bottom_heat_unit_values[c.bottom_heat_unit]))
             if c.container:
                 values.append(_('Container: %s' % c.container))
             if c.media:
