@@ -211,7 +211,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.dist_presenter.problems) != 0:
             sensitive = False
-        elif not (self.model.genus and self.model.sp):
+        elif not self.model.genus:
             sensitive = False
         # elif not (self.model.sp or self.model.cv_group or \
         #             (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
