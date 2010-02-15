@@ -66,7 +66,8 @@ class HistoryExtension(orm.MapperExtension):
         for c in mapper.local_table.c:
             row[c.name] = utils.utf8(getattr(instance, c.name))
         table = History.__table__
-        table.insert(dict(tablename=mapper.local_table.name, values=str(row),
+        table.insert(dict(table_name=mapper.local_table.name,
+                          table_id=instance.id, values=str(row),
                           operation=operation, user=user,
                           timestamp=datetime.datetime.today())).execute()
 
@@ -149,7 +150,8 @@ class History(history_base):
     """
     __tablename__ = 'history'
     id = sa.Column(sa.Integer, sa.Sequence('history_id_seq'), primary_key=True)
-    tablename = sa.Column(sa.String, nullable=False)
+    table_name = sa.Column(sa.String, nullable=False)
+    table_id = sa.Column(sa.Integer, nullable=False)
     values = sa.Column(sa.String, nullable=False)
     operation = sa.Column(sa.String, nullable=False)
     user = sa.Column(sa.String)
