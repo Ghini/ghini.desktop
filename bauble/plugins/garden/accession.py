@@ -576,7 +576,7 @@ class Accession(db.Base):
         return '%s (%s)' % (self.code, self.species.markup())
 
 
-from bauble.plugins.garden.plant import Plant, PlantStatusEditor, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor
 
 
 class AccessionEditorView(editor.GenericEditorView):

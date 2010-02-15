@@ -232,90 +232,6 @@ class PlantTests(GardenTestCase):
         pass
 
 
-    def test_editor_transfer(self):
-        """
-        """
-        # TODO: right now the test only shows adding a transfer to a
-        # plant but we need to be sure that transfers are appended if
-        # transfers already exist on the plant
-        try:
-            import gtk
-        except ImportError:
-            raise SkipTest('could not import gtk')
-
-        # delete any plants in the database
-        for plant in self.session.query(Plant):
-            self.session.delete(plant)
-        self.session.commit()
-
-        p1 = Plant(accession=self.accession, location=self.location, code=u'1',
-                   quantity=1)
-        p2 = Plant(accession=self.accession, location=self.location, code=u'2',
-                   quantity=1)
-        self.accession.plants.append(p1)
-        self.accession.plants.append(p2)
-        editor = PlantStatusEditor(model=[p1, p2])
-        update_gui()
-
-        widgets = editor.presenter.view.widgets
-        widgets.plant_transfer_radio.set_active(True)
-        widgets.trans_to_comboentry.child.props.text = self.location.name
-        update_gui()
-
-        editor.handle_response(gtk.RESPONSE_OK)
-        for p in editor.plants:
-            # TODO: need to assert that the values of
-            # editor.presenter._transfer are equal to the transfer in
-            # the plant
-            self.assert_(len(p.transfers) > 0)
-        editor.presenter.cleanup()
-
-
-    def test_editor_removal(self):
-        """
-        """
-        # TODO: right now the test only shows adding a transfer to a
-        # plant but we need to be sure that transfers are appended if
-        # transfers already exist on the plant
-        # TODO: need to also test the the plants.removal was not set
-        try:
-            import gtk
-        except ImportError:
-            raise SkipTest('could not import gtk')
-
-        # delete any plants in the database
-        for plant in self.session.query(Plant):
-            self.session.delete(plant)
-        self.session.commit()
-
-        p1 = Plant(accession=self.accession, location=self.location, code=u'1',
-                   quantity=1)
-        p2 = Plant(accession=self.accession, location=self.location, code=u'2',
-                   quantity=1)
-        self.accession.plants.append(p1)
-        self.accession.plants.append(p2)
-        editor = PlantStatusEditor(model=[p1, p2])
-        update_gui()
-
-        widgets = editor.presenter.view.widgets
-        widgets.plant_remove_radio.set_active(True)
-        utils.set_widget_value(widgets.rem_reason_combo, u'DEAD')
-        update_gui()
-
-
-        self.assert_(len(editor.presenter.problems)<1,
-                     'widgets have problems')
-
-        editor.handle_response(gtk.RESPONSE_OK)
-        for p in editor.plants:
-            # TODO: need to assert that the values of
-            # editor.presenter._transfer are equal to the transfer in
-            # the plant
-            #debug(p.removal)
-            self.assert_(p.removal)
-        editor.presenter.cleanup()
-
-
     def test_editor_addnote(self):
         raise SkipTest('Not Implemented')
 
@@ -343,19 +259,6 @@ class PlantTests(GardenTestCase):
         assert dup.transfers is not []
         assert dup.removals is not []
         self.session.commit()
-
-
-    def itest_status_editor(self):
-        p1 = Plant(accession=self.accession, location=self.location,
-                   code=u'52')
-        p2 = Plant(accession=self.accession, location=self.location,
-                   code=u'53')
-        self.accession.plants.append(p1)
-        self.accession.plants.append(p2)
-        plants = [p1, p2]
-        self.session.add_all(plants)
-        e = PlantStatusEditor(plants)
-        e.start()
 
 
     def test_bulk_plant_editor(self):
@@ -1099,7 +1002,7 @@ class LocationTests(GardenTestCase):
 
     def itest_editor(self):
         """
-        Interactively test the PlantStatusEditor
+        Interactively test the PlantEditor
         """
         loc = self.create(Location, name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
