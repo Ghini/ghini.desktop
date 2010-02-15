@@ -784,7 +784,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self.presenter.change.quantity = self.model.quantity
                 self.presenter.change.to_location = self.model.location
                 # TODO: need to set the reason
-                self.presenter.change.reason = u'DEAD'
+                #self.presenter.change.reason = u'DEAD'
+                self.presenter.change.reason = None
                 self.presenter.change.date = datetime.datetime.now()
             super(PlantEditor, self).commit_changes()
             self._committed.append(self.model)
