@@ -500,11 +500,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 self.model.code = utils.utf8(code)
 
         def _changes_data_func(column, cell, model, treeiter, prop):
-            v = model[treeiter][1]
-            if prop == 'to_location' and v.to_location == v.from_location:
-                cell.set_property('text', '')
+            change = model[treeiter][1]
+            if prop == 'reason' and change.reason:
+                value = change_reasons[change.reason]
             else:
-                cell.set_property('text', getattr(v, prop))
+                value = getattr(change, prop)
+            cell.set_property('text', value)
 
         tree = self.view.widgets.plant_changes_treeview
         def setup_column(column, cell, prop):
@@ -530,22 +531,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
             action = _('Nothing')
             if not change.from_location:
                 action = _('Created')
+            elif not change.to_location and change.quantity > prev_quantity:
+                action = _('Addition')
+            elif not change.to_location and change.quantity <= prev_quantity:
+                action = _('Removal')
             elif change.from_location != change.to_location:
                 action = _('Transfer')
-            elif change.to_location and change.quantity > prev_quantity:
-                action = _('Addition')
-            elif change.quantity < prev_quantity:
-                action = _('Removal')
-            # elif not change.to_location:
-            #     action = _('Removal')
-            # elif change.from_location == change.to_location \
-            #         and change.quantity < prev_quantity:
-            #     action = _('Addition')
-            # elif change.from_location == change.to_location \
-            #         and change.quantity > prev_quantity:
-            #     action = _('Removal')
-            # elif change.from_location != change.to_location:
-
             model.insert(0, [action, change])
             prev_quantity = change.quantity
         self.view.widgets.plant_changes_treeview.set_model(model)
@@ -561,9 +552,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.change.quantity = self.model.quantity
 
         def on_reason_changed(combo):
-            #v = self.view.widgets.reason_
-            #self.change.reason =
-            pass
+            it = combo.get_active_iter()
+            debug(combo.get_model()[it][0])
+            self.change.reason = combo.get_model()[it][0]
 
         sensitive = False
         if self.model not in self.session.new:
@@ -782,10 +773,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self.model.change = None
             else:
                 self.presenter.change.quantity = self.model.quantity
-                self.presenter.change.to_location = self.model.location
-                # TODO: need to set the reason
-                #self.presenter.change.reason = u'DEAD'
-                self.presenter.change.reason = None
+                if self.model.location != self.presenter.change.from_location:
+                    self.presenter.change.to_location = self.model.location
                 self.presenter.change.date = datetime.datetime.now()
             super(PlantEditor, self).commit_changes()
             self._committed.append(self.model)
