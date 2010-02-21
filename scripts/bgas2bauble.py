@@ -211,16 +211,6 @@ def get_insert(table, columns):
     return insert
 
 
-def where_from_dict(table, dict_, ignore_columns):
-    """
-    Create a where condition for table where dict_ is column/value
-    mapping and ignore_columns are the columns to ignore in dict_
-    """
-    cols = filter(lambda c: c not in ignore_columns, dict_.keys())
-    return and_(*map(lambda col: table.c[col] == dict_[col], cols))
-
-
-
 def get_column_value(column, where):
     """
     Return the value of a column in the database.
@@ -386,7 +376,8 @@ def species_name_dict_from_rec(rec, defaults=None):
         #
         # TODO: should we do some sort of smart capitalization here
         clean = lambda a: None if a in ('', ' ') else a
-        authors = map(clean, get_value(rec, 'authors').split('|'))
+        authors = [clean(author) for author in \
+                       get_value(rec, 'authors').split('|')]
     row['sp_author'] = authors[0]
     try:
         # not all species records have the same amount of author so we
@@ -469,7 +460,8 @@ def get_species_id(species, ignore_columns=None):
         ignore = ('_last_updated', '_created', 'genus')
     else:
         ignore = ignore_columns
-    where = where_from_dict(species_table, species, ignore)
+    cols = [col for col in species if col not in ignore]
+    where = and_(*[species_table.c[col] == species[col] for col in cols])
     return  get_column_value(species_table.c.id,
                              and_(species_table.c.genus_id==genus_id, where))
 
@@ -952,7 +944,7 @@ def do_bedtable():
         locations[loc.code] = loc.id
     session.close()
 
-
+deleted_plants = set()
 bgas_plants = {}
 """
 plants contains a mapping of (accno, propno)->plant_rows and is
@@ -1119,6 +1111,9 @@ def do_plants():
             # only enter those that are unique
             continue
 
+        if rec.deleted:
+            deleted_plants.add(plant_tuple)
+
         # *******************************************************************
         # EVERYTHING PAST HERE WILL BE SKIPPED IF THE ACCESSION CODE
         # IS A DUPLICATE
@@ -1209,7 +1204,7 @@ def do_plants():
 
         # add collection and source contact data if there is any
         coll_data = (rec['wildcoll'], rec['wildnum'], rec['wildnote'])
-        if filter(lambda x: x.strip(), coll_data):
+        if [d for d in coll_data if d.strip()]:
             collection = collection_defaults.copy()
             collection['id'] = coll_id_ctr
             collection['locale'] = utils.utf8(rec['wildcoll'])
@@ -1281,6 +1276,8 @@ def do_plants():
 
     gc.collect()
 
+    print 'deleted plants: %s' % len(deleted_plants)
+
 
 plant_codes = {}
 """
@@ -1343,6 +1340,8 @@ def create_plants():
     change_defaults = get_defaults(PlantChange.__table__)
     change_rows = []
 
+    created_tuples = set()
+
     def make_note(note, date, category, plant_id):
             global note_id_ctr
             row = note_defaults.copy()
@@ -1397,11 +1396,12 @@ def create_plants():
 
         if to_id:
             plant_id = None
-            plants = filter(lambda p: p['location_id'] == from_id \
-                            and p['quantity'] >= quantity,
-                        plant_pool.get(plant_tuple, []))
+            plants = [plant for plant in plant_pool.get(plant_tuple, []) \
+                          if plant['location_id'] == from_id \
+                          and plant['quantity'] >= quantity]
             if not plants:
                 # create from transfer
+                created_tuples.add(plant_tuple)
                 plant = copy.copy(bgas_plants[plant_tuple])
                 plant.update(id=plant_id_ctr, code=next_code(plant_tuple),
                              quantity=quantity, location_id=to_id)
@@ -1420,8 +1420,8 @@ def create_plants():
                           plant_id=plant_id, note_id=note_id)
             change_rows.append(change)
         else:
-            plants = filter(lambda p: p['location_id'] == from_id,
-                        plant_pool.get(plant_tuple, []))
+            plants = [plant for plant in plant_pool.get(plant_tuple, []) \
+                          if plant['location_id'] == from_id]
             if not plants:
                 # TODO: print warning about removing plants that don't exist
                 continue
@@ -1452,6 +1452,12 @@ def create_plants():
                 if nleft <= 0:
                     break
             quantity = -quantity
+
+
+    # create the rest of the plants that don't have transfers or removals
+    other_plants = set(bgas_plants.keys()).difference(created_tuples)
+    print 'remaining plants: %s' % len(other_plants)
+
 
     print ''
 
