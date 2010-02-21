@@ -255,8 +255,7 @@ class PropCutting(db.Base):
     # not null
 
     # F/C
-    bottom_heat_unit = Column(types.Enum(values=\
-                                             bottom_heat_unit_values.keys()),
+    bottom_heat_unit = Column(types.Enum(values=bottom_heat_unit_values.keys()),
                               nullable=True)
     rooted_pct = Column(Integer)
     #aftercare = Column(UnicodeText) # same as propgation.notes
@@ -509,6 +508,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_type_combo', 'cutting_type')
         self.assign_simple_handler('cutting_length_entry', 'length')
         self.assign_simple_handler('cutting_length_unit_combo', 'length_unit')
+        utils.combo_set_active_text(self.view.widgets.cutting_length_unit_combo,
+                                    self.model.length_unit)
         self.assign_simple_handler('cutting_tip_combo', 'tip')
         self.assign_simple_handler('cutting_leaves_combo', 'leaves')
         self.assign_simple_handler('cutting_lvs_reduced_entry',
@@ -532,6 +533,9 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_heat_entry', 'bottom_heat_temp')
         self.assign_simple_handler('cutting_heat_unit_combo',
                                    'bottom_heat_unit')
+        utils.combo_set_active_text(self.view.widgets.cutting_heat_unit_combo,
+                                    self.model.bottom_heat_unit)
+
         self.assign_simple_handler('cutting_rooted_pct_entry',
                                    'rooted_pct')
 
