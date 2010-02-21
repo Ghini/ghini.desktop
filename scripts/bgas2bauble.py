@@ -1423,12 +1423,18 @@ def create_plants():
             plants = [plant for plant in plant_pool.get(plant_tuple, []) \
                           if plant['location_id'] == from_id]
             if not plants:
-                # TODO: print warning about removing plants that don't exist
-                continue
+                # create the plant
+                created_tuples.add(plant_tuple)
+                plant = copy.copy(bgas_plants[plant_tuple])
+                plant.update(id=plant_id_ctr, code=next_code(plant_tuple),
+                             quantity=quantity, location_id=from_id)
+                plant_id = plant_id_ctr
+                plant_id_ctr += 1
+                plant_pool.setdefault(plant_tuple, []).append(plant)
+                plant_rows.append(plant)
+                plants = [plant] # so we can remove from this plant now
             # remove a plant
             nleft = quantity
-            plants = filter(lambda p: p['location_id'] == from_id,
-                        plant_pool.get(plant_tuple, []))
             for plant in plants:
                 change = change_defaults.copy()
                 if plant['quantity'] >= nleft:
@@ -1456,8 +1462,11 @@ def create_plants():
 
     # create the rest of the plants that don't have transfers or removals
     other_plants = set(bgas_plants.keys()).difference(created_tuples)
-    print 'remaining plants: %s' % len(other_plants)
-
+    for plant_tuple in other_plants:
+        plant = copy.copy(bgas_plants[plant_tuple])
+        plant.update(id=plant_id_ctr, code=next_code(plant_tuple))
+        plant_id_ctr += 1
+        plant_rows.append(plant)
 
     print ''
 
