@@ -114,6 +114,25 @@ def test():
         filter(Accession.code==u'11663').filter(Plant.code==u'1003').one()
     assert plant.location.code == '1X01' and plant.quantity == 2
 
+    # test 36762 which doesn't have any transfers or removals
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'36762').filter(Plant.code==u'0000').one()
+    assert plant.location.code == '1ANA' and plant.quantity == 3
+
+    # TODO: test that plants are created for plants with only removals
+    # and no transfers, e.g. 3
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'3').filter(Plant.code==u'0000').one()
+    assert plant.location.code == '3A' and plant.quantity == 0
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'3').filter(Plant.code==u'0001').one()
+    assert plant.location.code == '3AA7' and plant.quantity == 0
+
+    plant = session.query(Plant).join(Accession).\
+        filter(Accession.code==u'3').filter(Plant.code==u'0000').one()
+    assert plant.location.code == '1AAS' and plant.quantity == 0
+
     # TODO:
     # test all possible combinations of imported species names
     # test for duplicate species
