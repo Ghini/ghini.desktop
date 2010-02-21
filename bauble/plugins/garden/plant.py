@@ -437,6 +437,7 @@ class PlantEditorView(GenericEditorView):
                                minimum_key_length=1)
         self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
         self.init_translatable_combo('reason_combo', change_reasons)
+        utils.setup_date_button(self, 'plant_date_entry', 'plant_date_button')
         self.widgets.plant_notebook.set_current_page(0)
 
 
@@ -564,6 +565,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.widgets.reason_combo.props.sensitive = sensitive
         self.view.widgets.reason_label.props.sensitive = sensitive
 
+        self.view.connect('plant_date_entry', 'changed',
+                          self.on_date_entry_changed)
+
         def on_location_select(location):
             self.set_model_attr('location', location)
         from bauble.plugins.garden import init_location_comboentry
@@ -601,6 +605,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def dirty(self):
         return self.notes_presenter.dirty() or \
             self.prop_presenter.dirty() or self.__dirty
+
+
+    def on_date_entry_changed(self, entry, *args):
+        self.change.date = entry.props.text
 
 
     def on_quantity_changed(self, entry, *args):
@@ -787,7 +795,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
             else:
                 if self.model.location != self.presenter.change.from_location:
                     self.presenter.change.to_location = self.model.location
-                self.presenter.change.date = datetime.datetime.now()
             super(PlantEditor, self).commit_changes()
             self._committed.append(self.model)
             return
