@@ -217,7 +217,8 @@ bottom_heat_unit_values = {u'F': _('\302\260F'),
                            u'C': _('\302\260C'),
                            None: ''}
 
-length_unit_values = {u'cm': _('cm'),
+length_unit_values = {u'mm': _('mm'),
+                      u'cm': _('cm'),
                       u'in': _('in'),
                       None: ''}
 
@@ -500,7 +501,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
             self.model.length_unit = u'in'
             self.model.bottom_heat_unit = u'F'
         else:
-            self.model.length_unit = u'cm'
+            self.model.length_unit = u'mm'
             self.model.bottom_heat_unit = u'C'
 
         self.refresh_view()
