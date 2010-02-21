@@ -231,6 +231,7 @@ class PlantChange(db.Base):
 
     reason = Column(types.Enum(values=change_reasons.keys()))
 
+    # date of change
     date = Column(types.DateTime, default=func.now())
 
     # relations
@@ -478,6 +479,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code
+        self._original_quantity = self.model.quantity
         self.__dirty = False
 
         # set default values for acc_type
@@ -503,6 +505,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             change = model[treeiter][1]
             if prop == 'reason' and change.reason:
                 value = change_reasons[change.reason]
+            elif prop == 'quantity' and change.quantity < 0:
+                value = -change.quantity
             else:
                 value = getattr(change, prop)
             cell.set_property('text', value)
@@ -526,30 +530,26 @@ class PlantEditorPresenter(GenericEditorPresenter):
             add_attribute(self.view.widgets.changes_change_cell, 'text', 0)
 
         model = gtk.ListStore(str, object)
-        prev_quantity = -1
+        prev_quantity = 0
         for change in sorted(self.model.changes, key=lambda x: x.date):
             action = _('Nothing')
             if not change.from_location:
                 action = _('Created')
-            elif not change.to_location and change.quantity > prev_quantity:
-                action = _('Addition')
-            elif not change.to_location and change.quantity <= prev_quantity:
+                prev_quantity += change.quantity
+            if change.quantity < 0:
                 action = _('Removal')
+            elif not change.to_location and change.quantity > 0:
+                action = _('Addition')
             elif change.from_location != change.to_location:
+                prev_quantity = change.quantity
                 action = _('Transfer')
             model.insert(0, [action, change])
-            prev_quantity = change.quantity
         self.view.widgets.plant_changes_treeview.set_model(model)
         self.refresh_view() # put model values in view
 
         self.change = PlantChange()
         self.change.plant = self.model
         self.change.from_location = self.model.location
-
-        # use self.change to hold the initial quantity, if the
-        # quantity is the same and the location is the same on commit
-        # then we don't store the change
-        self.change.quantity = self.model.quantity
 
         def on_reason_changed(combo):
             it = combo.get_active_iter()
@@ -563,8 +563,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             sensitive = True
         self.view.widgets.reason_combo.props.sensitive = sensitive
         self.view.widgets.reason_label.props.sensitive = sensitive
-
-
 
         def on_location_select(location):
             self.set_model_attr('location', location)
@@ -592,7 +590,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
         self.assign_simple_handler('plant_memorial_check', 'memorial')
-        self.assign_simple_handler('plant_quantity_entry', 'quantity')
+        self.view.connect('plant_quantity_entry', 'changed',
+                          self.on_quantity_changed)
         self.view.connect('plant_loc_add_button', 'clicked',
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
@@ -602,6 +601,20 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def dirty(self):
         return self.notes_presenter.dirty() or \
             self.prop_presenter.dirty() or self.__dirty
+
+
+    def on_quantity_changed(self, entry, *args):
+        value = entry.props.text
+        if value:
+            self.set_model_attr('quantity', int(value))
+            if self.model.quantity == self._original_quantity:
+                self.change.quantity = self.model.quantity
+            else:
+                self.change.quantity = \
+                    self.model.quantity-self._original_quantity
+        else:
+            self.set_model_attr('quantity', None)
+        self.refresh_sensitivity()
 
 
     def on_plant_code_entry_changed(self, entry, *args):
@@ -772,7 +785,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 # don't save the change
                 self.model.change = None
             else:
-                self.presenter.change.quantity = self.model.quantity
                 if self.model.location != self.presenter.change.from_location:
                     self.presenter.change.to_location = self.model.location
                 self.presenter.change.date = datetime.datetime.now()
@@ -968,15 +980,15 @@ class GeneralPlantExpander(InfoExpander):
         self.widgets.memorial_image.set_from_stock(stock, image_size)
 
 
-class TransferExpander(InfoExpander):
+class ChangesExpander(InfoExpander):
     """
-    Transfer Expander
+    ChangesExpander
     """
 
     def __init__(self, widgets):
         """
         """
-        super(TransferExpander, self).__init__(_('Transfers/Removal'), widgets)
+        super(ChangesExpander, self).__init__(_('Changes'), widgets)
         self.table = gtk.Table()
         self.vbox.pack_start(self.table)
         self.table.props.row_spacing = 3
@@ -986,48 +998,36 @@ class TransferExpander(InfoExpander):
     def update(self, row):
         '''
         '''
-        # TODO: change this to work for changes
-        return
         self.table.foreach(self.table.remove)
-        nrows = len(row.transfers) + len(row.removals)
+        if not row.changes:
+            return
+        nrows = len(row.changes)
         self.table.resize(nrows, 2)
         date_format = prefs.prefs[prefs.date_format_pref]
         current_row = 0
-
-        def removal_str(removal):
-            if not removal.reason:
-                reason = _('(no reason)')
-            else:
-                reason=utils.utf8(removal_reasons[removal.reason])
-            s = _('Removed %(quantity)s from %(from_loc)s: %(reason)s') % \
-                dict(from_loc=removal.from_location, quantity=removal.quantity,
-                     reason=reason)
-            return s
-
-        def transfer_str(transfer):
-            if not transfer.person:
-                person = _('(unknown)')
-            else:
-                person = transfer.person
-            s = _('Transferred %(quantity)s from %(from_loc)s to %(to)s '
-                  'by %(person)s') % \
-                  dict(from_loc=transfer.from_location,
-                       quantity=transfer.quantity, to=transfer.to_location,
-                       person=person)
-            return s
-
-        # sort the transfers and removals by date
-        movements = sorted(itertools.chain(row.removals, row.transfers),
-                           key=lambda x: x.date, reverse=True)
-        for move in movements:
-            date = move.date.strftime(date_format)
+        action = ('Transfered', 'Added', 'Removed')
+        for change in sorted(row.changes, key=lambda x: x.date, reverse=True):
+            date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
             self.table.attach(label, 0, 1, current_row, current_row+1,
                               xoptions=gtk.FILL)
-            if isinstance(move, PlantTransfer):
-                s = transfer_str(move)
+            if not change.from_location:
+                s = '%(quantity)s Create at %(location)s' % \
+                    dict(quantity=change.quantity,location=change.to_location)
+            elif change.quantity < 0:
+                s = '%(quantity)s Removed from %(location)s' % \
+                    dict(quantity=-change.quantity,
+                         location=change.from_location)
+            elif not change.to_location and change.quantity > 0:
+                s = '%(quantity)s Added to %(location)s' % \
+                    dict(quantity=change.quantity,location=change.from_location)
+            elif change.to_location != change.from_location:
+                s = '%(quantity)s Transferred from %(from_loc)s to %(to)s' % \
+                    dict(quantity=change.quantity,
+                         from_loc=change.from_location, to=change.to_location)
             else:
-                s = removal_str(move)
+                s = '%s: %s -> %s' % (change.quantity, change.from_location,
+                                      change.to_location)
             label = gtk.Label(s)
             label.set_alignment(0, .5)
             self.table.attach(label, 1, 2, current_row, current_row+1)
@@ -1080,7 +1080,7 @@ class PlantInfoBox(InfoBox):
         self.general = GeneralPlantExpander(self.widgets)
         self.add_expander(self.general)
 
-        self.transfers = TransferExpander(self.widgets)
+        self.transfers = ChangesExpander(self.widgets)
         self.add_expander(self.transfers)
 
         self.propagations = PropagationExpander(self.widgets)
