@@ -1022,13 +1022,13 @@ class ChangesExpander(InfoExpander):
             label = gtk.Label('%s:' % date)
             self.table.attach(label, 0, 1, current_row, current_row+1,
                               xoptions=gtk.FILL)
-            if not change.from_location:
-                s = '%(quantity)s Create at %(location)s' % \
-                    dict(quantity=change.quantity,location=change.to_location)
-            elif change.quantity < 0:
+            if change.quantity < 0:
                 s = '%(quantity)s Removed from %(location)s' % \
                     dict(quantity=-change.quantity,
                          location=change.from_location)
+            elif not change.from_location:
+                s = '%(quantity)s Create at %(location)s' % \
+                    dict(quantity=change.quantity,location=change.to_location)
             elif not change.to_location and change.quantity > 0:
                 s = '%(quantity)s Added to %(location)s' % \
                     dict(quantity=change.quantity,location=change.from_location)
