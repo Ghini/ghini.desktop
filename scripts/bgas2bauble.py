@@ -130,7 +130,7 @@ def test():
     assert plant.location.code == '3AA7' and plant.quantity == 0
 
     plant = session.query(Plant).join(Accession).\
-        filter(Accession.code==u'3').filter(Plant.code==u'0000').one()
+        filter(Accession.code==u'3').filter(Plant.code==u'0002').one()
     assert plant.location.code == '1AAS' and plant.quantity == 0
 
     # TODO:
@@ -432,7 +432,6 @@ def species_name_dict_from_rec(rec, defaults=None):
     elif not rec['rank'] and rec['infrepi'] and rec['cultivar']:
         # have an infraspecific epithet and cultivar but no
         # infraspecific rank
-        # TODO: could this mean that the infrepi part is the hybrid part
         problems[2].append(clean_rec(rec))
         row['infrasp1_rank'] = u'cv.'
         row['infrasp1'] = get_value(rec, 'cultivar')
@@ -963,7 +962,6 @@ def do_bedtable():
         locations[loc.code] = loc.id
     session.close()
 
-deleted_plants = set()
 bgas_plants = {}
 """
 plants contains a mapping of (accno, propno)->plant_rows and is
@@ -1056,7 +1054,6 @@ def do_plants():
     added_codes = set()
     acc_ids = {}
 
-    plant_id_ctr = get_next_id(Plant.__table__)
     coll_id_ctr = get_next_id(Collection.__table__)
     source_detail_id_ctr = get_next_id(SourceDetail.__table__)
     source_id_ctr = get_next_id(Source.__table__)
@@ -1088,8 +1085,7 @@ def do_plants():
         plant_tuple = (rec['accno'], rec['propno'])
         if plant_tuple not in bgas_plants:
             plant_row = plant_defaults.copy()
-            plant_row.update(id=plant_id_ctr,
-                             code=unicode(rec['propno']),
+            plant_row.update(code=unicode(rec['propno']),
                              accession_id=acc_ids.setdefault(rec['accno'],
                                                              acc_id_ctr),
                              _created=rec['dateaccd'],
@@ -1100,7 +1096,6 @@ def do_plants():
                              quantity=rec['qtyrcvd'],
                              location_id=locations[rec['initloc']])
             bgas_plants[plant_tuple] = plant_row
-            plant_id_ctr += 1
         else:
             raise ValueError('duplicate accession: %s' % p)
 
@@ -1129,9 +1124,6 @@ def do_plants():
             # for now we're only creating accessions, not plants so
             # only enter those that are unique
             continue
-
-        if rec.deleted:
-            deleted_plants.add(plant_tuple)
 
         # *******************************************************************
         # EVERYTHING PAST HERE WILL BE SKIPPED IF THE ACCESSION CODE
@@ -1295,8 +1287,6 @@ def do_plants():
 
     gc.collect()
 
-    print 'deleted plants: %s' % len(deleted_plants)
-
 
 plant_codes = {}
 """
@@ -1344,11 +1334,15 @@ def test_next_code():
 # note_id_ctr has(?) to be global so make_note() can access it
 note_id_ctr = get_next_id(PlantNote.__table__)
 
+# plant_id_ctr has(?) to be global so make_plant() can access it
+plant_id_ctr = get_next_id(Plant.__table__)
+
 def create_plants():
     # need to merge the transfers and removals and sort them by date
     # so that we can keep the quantities correct...e.g.
     print 'creating plants ...'
     global note_id_ctr
+    global plant_id__ctr
     plant_pool = {} # lists of plants by accno, propno
     histories = {} # list of transfers and removals by plant_id
     plant_rows = []
@@ -1363,6 +1357,8 @@ def create_plants():
 
     def make_note(note, date, category, plant_id):
             global note_id_ctr
+            if not note.strip():
+                return None
             row = note_defaults.copy()
             row['note'] = utils.utf8(note)
             row['id'] = note_id_ctr
@@ -1373,6 +1369,24 @@ def create_plants():
             note_rows.append(row)
             plant_notes.setdefault(plant_id, []).append(row)
             return row['id']
+
+    def make_plant(plant_tuple, quantity=None, location_id=None):
+        global plant_id_ctr
+        plant = copy.copy(bgas_plants[plant_tuple])
+        if quantity is None:
+            quantity = plant['quantity']
+        if location_id is None:
+            location_id = plant['location_id']
+        plant.update(id=plant_id_ctr, code=next_code(plant_tuple),
+                     quantity=quantity, location_id=location_id)
+        plant_id_ctr += 1
+        plant_pool.setdefault(plant_tuple, []).append(plant)
+        plant_rows.append(plant)
+        # change = change_defaults.copy()
+        # change.update(to_location_id=to_id, date=plant['date_recvd'],
+        #               quantity=quantity, plant_id=plant['id'])
+        # change_rows.append(change)
+        return plant
 
     get_name = lambda r: r.dbf.name
     is_transfer = lambda r: get_name(r).endswith('TRANSFER.DBF')
@@ -1419,19 +1433,14 @@ def create_plants():
                           if plant['location_id'] == from_id \
                           and plant['quantity'] >= quantity]
             if not plants:
-                # create from transfer
+                # no plants to transfer so create one
                 created_tuples.add(plant_tuple)
-                plant = copy.copy(bgas_plants[plant_tuple])
-                plant.update(id=plant_id_ctr, code=next_code(plant_tuple),
-                             quantity=quantity, location_id=to_id)
-                plant_id = plant_id_ctr
-                plant_id_ctr += 1
-                plant_pool.setdefault(plant_tuple, []).append(plant)
-                plant_rows.append(plant)
-            else:
-                # transfer an existing plant
-                plants[0].update(quantity=quantity, location_id=to_id)
-                plant_id = plants[0]['id']
+                plant = make_plant(plant_tuple, quantity)#, from_id)
+                plant_id = plant['id']
+                plants = [plant]
+            # transfer an existing plant
+            plants[0].update(quantity=quantity, location_id=to_id)
+            plant_id = plants[0]['id']
             note_id = make_note(rec['notes'], date, u'Transfer', plant_id)
             change = change_defaults.copy()
             change.update(from_location_id=from_id, to_location_id=to_id,
@@ -1442,15 +1451,10 @@ def create_plants():
             plants = [plant for plant in plant_pool.get(plant_tuple, []) \
                           if plant['location_id'] == from_id]
             if not plants:
-                # create the plant
+                # no plants to remove, create one first
                 created_tuples.add(plant_tuple)
-                plant = copy.copy(bgas_plants[plant_tuple])
-                plant.update(id=plant_id_ctr, code=next_code(plant_tuple),
-                             quantity=quantity, location_id=from_id)
-                plant_id = plant_id_ctr
-                plant_id_ctr += 1
-                plant_pool.setdefault(plant_tuple, []).append(plant)
-                plant_rows.append(plant)
+                plant = make_plant(plant_tuple, quantity, from_id)
+
                 plants = [plant] # so we can remove from this plant now
             # remove a plant
             nleft = quantity
@@ -1482,10 +1486,7 @@ def create_plants():
     # create the rest of the plants that don't have transfers or removals
     other_plants = set(bgas_plants.keys()).difference(created_tuples)
     for plant_tuple in other_plants:
-        plant = copy.copy(bgas_plants[plant_tuple])
-        plant.update(id=plant_id_ctr, code=next_code(plant_tuple))
-        plant_id_ctr += 1
-        plant_rows.append(plant)
+        make_plant(plant_tuple)
 
     print ''
 
