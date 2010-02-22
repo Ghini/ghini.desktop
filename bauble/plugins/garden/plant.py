@@ -570,6 +570,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         def on_location_select(location):
             self.set_model_attr('location', location)
+            if self.change.quantity is None:
+                self.change.quantity = self.model.quantity
         from bauble.plugins.garden import init_location_comboentry
         init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
                                  on_location_select)
@@ -787,11 +789,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
         codes = utils.range_builder(self.model.code)
         if len(codes) <= 1 or self.model not in self.session.new:
             change = self.presenter.change
-            if change.quantity == self.model.quantity \
-                    and change.from_location == self.model.location:
+            if change.quantity is None \
+                    or (change.quantity == self.model.quantity \
+                            and change.from_location == self.model.location):
                 # if the quantity and location haven't changed then
                 # don't save the change
                 self.model.change = None
+                self.session.expunge(change)
             else:
                 if self.model.location != self.presenter.change.from_location:
                     self.presenter.change.to_location = self.model.location

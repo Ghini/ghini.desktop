@@ -377,8 +377,14 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         alignment.add(button)
         # TODO: add a * to the propagation label for uncommitted propagations
         prop_type = prop_type_values[propagation.prop_type]
+
+        # hack to format date properly
+        from bauble.types import DateTime
+        date = DateTime().process_bind_param(propagation.date, None)
+        date_format = prefs.prefs[prefs.date_format_pref]
+        date_str = date.strftime(date_format)
         title = ('%(prop_type)s on %(prop_date)s') \
-            % dict(prop_type=prop_type, prop_date=propagation.date)
+            % dict(prop_type=prop_type, prop_date=date_str)
         expander.set_label(title)
 
         hbox.show_all()
@@ -718,7 +724,11 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
 
 class PropagationPresenter(editor.GenericEditorPresenter):
-
+    """
+    PropagationPresenter is not used directly but is extended by
+    SeedPropagationPresenter, CuttingPropagationPresenter and
+    PropagatioEditorPresenter.
+    """
     widget_to_field_map = {'prop_type_combo': 'prop_type',
                            'prop_date_entry': 'date'}
 
@@ -749,10 +759,10 @@ class PropagationPresenter(editor.GenericEditorPresenter):
                                        utils.today_str())
 
         self._dirty = False
-        self.assign_simple_handler('prop_date_entry', 'date',
-                                   editor.DateValidator())
         utils.setup_date_button(self.view, 'prop_date_entry',
                                 'prop_date_button')
+        self.assign_simple_handler('prop_date_entry', 'date',
+                                   editor.DateValidator())
         self.assign_simple_handler('notes_textview', 'notes',
                                    editor.UnicodeOrNoneValidator())
 
@@ -766,7 +776,6 @@ class PropagationPresenter(editor.GenericEditorPresenter):
 
 
     def on_prop_type_changed(self, combo, *args):
-        #debug('PropagationPresenter.on_prop_type_changed()')
         it = combo.get_active_iter()
         prop_type = combo.get_model()[it][0]
         if self.model.prop_type != prop_type:
