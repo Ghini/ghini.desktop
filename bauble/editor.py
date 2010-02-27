@@ -486,7 +486,7 @@ class GenericEditorPresenter(object):
                 if w:
                     w.modify_bg(gtk.STATE_NORMAL, None)
                     w.modify_base(gtk.STATE_NORMAL, None)
-                w.queue_draw()
+                    w.queue_draw()
                 self.problems.remove((p, w))
 
 

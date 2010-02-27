@@ -15,7 +15,7 @@ from sqlalchemy.orm.session import object_session
 import bauble
 import bauble.db as db
 import bauble.editor as editor
-from bauble.plugins.plants.geography import Geography
+from bauble.plugins.plants.geography import Geography, GeographyMenu
 import bauble.utils as utils
 import bauble.types as types
 from bauble.utils.log import debug
@@ -228,8 +228,10 @@ class Collection(db.Base):
     elevation = Column(Float)
     elevation_accy = Column(Float)
     habitat = Column(UnicodeText)
-    geography_id = Column(Integer, ForeignKey('geography.id'))
     notes = Column(UnicodeText)
+
+    geography_id = Column(Integer, ForeignKey('geography.id'), nullable=False)
+    region = relation(Geography, uselist=False)
 
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)
 
@@ -433,7 +435,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                            'altacc_entry': 'elevation_accy',
                            'habitat_textview': 'habitat',
                            'coll_notes_textview': 'notes',
-                           'datum_entry': 'gps_datum'
+                           'datum_entry': 'gps_datum',
+                           'add_region_button': 'region',
                            }
 
     # TODO: could make the problems be tuples of an id and description to
@@ -494,7 +497,26 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.view.connect('east_radio', 'toggled',
                               self.on_east_west_radio_toggled)
 
+        self.view.widgets.add_region_button.set_sensitive(False)
+        def on_add_button_pressed(button, event):
+            self.geo_menu.popup(None, None, None, event.button, event.time)
+        self.view.connect('add_region_button', 'button-press-event',
+                          on_add_button_pressed)
+        def _init_geo():
+            add_button = self.view.widgets.add_region_button
+            self.geo_menu = GeographyMenu(self.set_region)
+            self.geo_menu.attach_to_widget(add_button, None)
+            add_button.set_sensitive(True)
+        gobject.idle_add(_init_geo)
+
         self.__dirty = False
+
+
+    def set_region(self, menu_item, geo_id):
+        geography = self.session.query(Geography).get(geo_id)
+        self.set_model_attr('region', geography)
+        self.set_model_attr('geography_id', geo_id)
+        self.view.widgets.add_region_button.props.label = str(geography)
 
 
     def set_model_attr(self, field, value, validator=None):

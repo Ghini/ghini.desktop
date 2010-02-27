@@ -305,6 +305,12 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
             widget.set_active(False)
         else:
             widget.set_inconsistent(True)
+    elif isinstance(widget, gtk.Button):
+        if value is None:
+            widget.props.label = ''
+        else:
+            widget.props.label = utf8(value)
+
     else:
         raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
                         'the widget type %s with name %s' % \
