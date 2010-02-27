@@ -69,8 +69,26 @@ class Institution(object):
 
 class InstitutionEditorView(editor.GenericEditorView):
 
-    # i think the institution editor's field are pretty self explanatory
-    _tooltips = {}
+
+    _tooltips = {'inst_name': _('The full name of the institution.'),
+                 'inst_abbr': _('The standard abbreviation of the ' \
+                                'institution.'),
+                 'inst_code': _('The intitution code should be unique among ' \
+                                'all institions.'),
+                 'inst_contact': _('The name of the person to contact for ' \
+                                   'information related to the institution.'),
+                 'inst_tech': _('The name of the person to contact for ' \
+                                'technical information related to the ' \
+                                'institution.'),
+                 'inst_technical_contact': _('The email address or phone ' \
+                                             'number of the person to contact '\
+                                             'for technical information '\
+                                             'related to the institution.'),
+                 'inst_email': _('The email address of the institution.'),
+                 'inst_tel': _('The telephone number of the institution.'),
+                 'inst_fax': _('The fax number of the institution.'),
+                 'inst_addr': _('The mailing address of the institition.')
+                 }
 
     def __init__(self, parent=None):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
