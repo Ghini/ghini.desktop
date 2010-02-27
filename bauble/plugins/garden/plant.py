@@ -252,6 +252,24 @@ class PlantChange(db.Base):
     to_location = relation('Location',
                    primaryjoin='PlantChange.to_location_id == Location.id')
 
+
+status_values = {u'Healthy': _('Healthy'),
+                 u'Very Poor Condition': _('Very Poor Condition'),
+                 u'Dead': _('Dead')}
+
+class PlantStatus(db.Base):
+    """
+    date: date checked
+    status: status of plant
+    comment: comments on check up
+    checked_by: person who did the check
+    """
+    date = Column(types.Date, default=func.now())
+    status = Column(types.Enum(values=status_values.keys()))
+    comment = Column(UnicodeText)
+    checked_by = Column(Unicode(64))
+
+
 acc_type_values = {u'Plant': _('Plant'),
                    u'Seed': _('Seed/Spore'),
                    u'Vegetative': _('Vegetative Part'),
