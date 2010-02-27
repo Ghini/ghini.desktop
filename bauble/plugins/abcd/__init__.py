@@ -288,7 +288,7 @@ class ABCDExporter(object):
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
         if plants == None:
-            plants = db.Session().query(Plant)
+            plants = list(db.Session().query(Plant))
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin

@@ -3,23 +3,24 @@
 #
 # Description: test the ABCD (Access to Biological Collection Data) plugin
 #
-import os, unittest, tempfile
 import lxml.etree as etree
+import os
+import sys
+import tempfile
+import unittest
+
+from lxml.etree import Element, SubElement, ElementTree, dump
 from sqlalchemy import *
 from sqlalchemy.exc import *
+
 import bauble
+import bauble.db as db
 import bauble.paths as paths
-from lxml.etree import Element, SubElement, ElementTree, dump
 from bauble.test import BaubleTestCase
-from bauble.plugins.garden.accession import Accession
-from bauble.plugins.garden.location import Location
-from bauble.plugins.garden.plant import Plant
-from bauble.plugins.garden.source import Collection
-from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species_model import Species
 from bauble.plugins.abcd import DataSets
 import bauble.plugins.abcd as abcd
+from bauble.plugins.garden import *
+from bauble.plugins.plants import *
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
 
@@ -72,6 +73,20 @@ class ABCDTestCase(BaubleTestCase):
 #         unit_id = ElementFactory(unit, 'UnitID', text='2222')
 
 #         self.assert_(self.validate(datasets), self.abcd_schema.error_log)
+
+
+    def test_export(self):
+        """
+        Test the ABCDExporter
+        """
+        self.assert_(db.Session().query(Plant).count() > 0)
+        from bauble.plugins.garden import Institution
+        inst = Institution()
+        inst.inst_name = inst.inst_code = inst.inst_contact = \
+            inst.inst_technical_contact = inst.inst_email = 'test'
+        inst.write()
+        dummy, filename = tempfile.mkstemp()
+        xml = abcd.ABCDExporter().start(filename)
 
 
     def test_plants_to_abcd(self):
