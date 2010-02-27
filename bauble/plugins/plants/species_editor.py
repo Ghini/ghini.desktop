@@ -461,8 +461,10 @@ class DistributionPresenter(editor.GenericEditorPresenter):
                           self.on_remove_button_pressed)
         self.view.widgets.sp_dist_add_button.set_sensitive(False)
         def _init_geo():
+            add_button = self.view.widgets.sp_dist_add_button
             self.geo_menu = GeographyMenu(self.on_activate_add_menu_item)
-            self.view.widgets.sp_dist_add_button.set_sensitive(True)
+            self.geo_menu.attach_to_widget(add_button, None)
+            add_button.set_sensitive(True)
         gobject.idle_add(_init_geo)
 
 
