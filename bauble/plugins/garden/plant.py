@@ -264,6 +264,7 @@ class PlantStatus(db.Base):
     comment: comments on check up
     checked_by: person who did the check
     """
+    __tablename__ = 'plant_status'
     date = Column(types.Date, default=func.now())
     status = Column(types.Enum(values=status_values.keys()))
     comment = Column(UnicodeText)
