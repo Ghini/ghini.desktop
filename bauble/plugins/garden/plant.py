@@ -52,8 +52,7 @@ def edit_callback(plants):
 
 
 def branch_callback(plants):
-    plant = plants[0].duplicate()
-    plant.code = None
+    plant = plants[0].duplicate(code=None)
     e = PlantEditor(model=plant)
     return e.start() != None
 
@@ -379,6 +378,7 @@ class Plant(db.Base):
         if not session:
             session = object_session(self)
         plant = Plant()
+        plant._duplicate = True
         session.add(plant)
 
         ignore = ('id', 'changes', 'notes', 'propagations')
@@ -412,7 +412,6 @@ class Plant(db.Base):
                         getattr(propagation, prop.key))
             new_propagation.id = None
             new_propagation.plant = plant
-
         return plant
 
 
@@ -575,7 +574,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         #         action = _('Transfer')
         #     model.insert(0, [action, change])
         # self.view.widgets.plant_changes_treeview.set_model(model)
-        # self.refresh_view() # put model values in view
+
+        self.refresh_view() # put model values in view
 
         self.change = PlantChange()
         self.change.plant = self.model
@@ -583,11 +583,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         def on_reason_changed(combo):
             it = combo.get_active_iter()
-            debug(combo.get_model()[it][0])
             self.change.reason = combo.get_model()[it][0]
 
         sensitive = False
-        if self.model not in self.session.new:
+        if self.model not in self.session.new or \
+                (hasattr(self.model, '_duplicate') and self.model._duplicate):
             self.view.connect(self.view.widgets.reason_combo, 'changed',
                               on_reason_changed)
             sensitive = True
@@ -753,6 +753,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
+            #debug('%s: %s = %s' % (widget, field, value))
 
         self.view.set_widget_value('plant_acc_type_combo',
                                    acc_type_values[self.model.acc_type],
@@ -784,6 +785,16 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Plant()
         super(PlantEditor, self).__init__(model, parent)
+
+        # the ._duplicate attribute is added in Plant.duplicate but it
+        # isn't copied over in session.merge() in
+        # GenericModelViewPresenterEditor.__init__()...but we need it
+        # in the PlantEditorPresenter
+        if hasattr(model, '_duplicate') and model._duplicate:
+            self.model._duplicate = True
+        else:
+            self.model._duplicate = False
+
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
@@ -827,7 +838,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self.session.expunge(change)
             else:
                 if self.model.location != self.presenter.change.from_location:
+                    # transfer
                     self.presenter.change.to_location = self.model.location
+                elif self.model.quantity > self.__original_quantity and \
+                        not self.presenter.change.to_location:
+                    # additions should use to_location
+                    self.presenter.change.to_location = self.model.location
+                    self.presenter.change.from_location = None
             super(PlantEditor, self).commit_changes()
             self._committed.append(self.model)
             return
@@ -1051,20 +1068,17 @@ class ChangesExpander(InfoExpander):
             label = gtk.Label('%s:' % date)
             self.table.attach(label, 0, 1, current_row, current_row+1,
                               xoptions=gtk.FILL)
-            if change.quantity < 0:
-                s = '%(quantity)s Removed from %(location)s' % \
-                    dict(quantity=-change.quantity,
-                         location=change.from_location)
-            elif not change.from_location:
-                s = '%(quantity)s Create at %(location)s' % \
-                    dict(quantity=change.quantity,location=change.to_location)
-            elif not change.to_location and change.quantity > 0:
-                s = '%(quantity)s Added to %(location)s' % \
-                    dict(quantity=change.quantity,location=change.from_location)
-            elif change.to_location != change.from_location:
+            if change.to_location and change.to_location!=change.from_location:
                 s = '%(quantity)s Transferred from %(from_loc)s to %(to)s' % \
                     dict(quantity=change.quantity,
                          from_loc=change.from_location, to=change.to_location)
+            elif change.quantity < 0:
+                s = '%(quantity)s Removed from %(location)s' % \
+                    dict(quantity=-change.quantity,
+                         location=change.from_location)
+            elif change.quantity > 0:
+                s = '%(quantity)s Added to %(location)s' % \
+                    dict(quantity=change.quantity, location=change.to_location)
             else:
                 s = '%s: %s -> %s' % (change.quantity, change.from_location,
                                       change.to_location)
