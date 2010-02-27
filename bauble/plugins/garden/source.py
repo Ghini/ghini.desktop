@@ -44,14 +44,14 @@ def collection_remove_callback(coll):
     from bauble.plugins.garden.accession import remove_callback
     return remove_callback([coll[0].source.accession])
 
-collection_edit_action = view.Action('collection_edit', ('_Edit'),
+collection_edit_action = view.Action('collection_edit', _('_Edit'),
                                      callback=collection_edit_callback,
                                      accelerator='<ctrl>e')
 collection_add_plant_action = \
-    view.Action('collection_add', ('_Add plants'),
+    view.Action('collection_add', _('_Add plants'),
                 callback=collection_add_plants_callback,
                 accelerator='<ctrl>k')
-collection_remove_action = view.Action('collection_remove', ('_Delete'),
+collection_remove_action = view.Action('collection_remove', _('_Delete'),
                                        callback=collection_remove_callback,
                                        accelerator='<ctrl>Delete')
 
@@ -85,11 +85,11 @@ def source_detail_remove_callback(details):
     return True
 
 
-source_detail_edit_action = view.Action('source_detail_edit', ('_Edit'),
+source_detail_edit_action = view.Action('source_detail_edit', _('_Edit'),
                                         callback=source_detail_edit_callback,
                                         accelerator='<ctrl>e')
 source_detail_remove_action = \
-    view.Action('source_detail_remove', ('_Delete'),
+    view.Action('source_detail_remove', _('_Delete'),
                 callback=source_detail_remove_callback,
                 accelerator='<ctrl>Delete', multiselect=True)
 

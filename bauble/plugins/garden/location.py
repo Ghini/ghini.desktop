@@ -56,11 +56,11 @@ def remove_callback(locations):
                                      type=gtk.MESSAGE_ERROR)
     return True
 
-edit_action = Action('loc_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('loc_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-add_plant_action = Action('loc_add_plant', ('_Add plants'),
+add_plant_action = Action('loc_add_plant', _('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('loc_remove', ('_Delete'), callback=remove_callback,
+remove_action = Action('loc_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 loc_context_menu = [edit_action, add_plant_action, remove_action]
