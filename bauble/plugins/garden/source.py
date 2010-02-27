@@ -641,24 +641,22 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
     @staticmethod
     def _parse_lat_lon(direction, text):
-        '''
-        parse a latitude or longitude in a variety of formats
-        '''
+        """
+        Parse a latitude or longitude in a variety of formats and
+        return a degress decimal
+        """
+        from decimal import Decimal
         from bauble.plugins.garden.accession import dms_to_decimal
-        bits = re.split(':| ', text.strip())
-#        debug('%s: %s' % (direction, bits))
-        if len(bits) == 1:
-            dec = abs(float(text))
+        parts = re.split(':| ', text.strip())
+        if len(parts) == 1:
+            dec = Decimal(text).copy_abs()
             if dec > 0 and direction in ('W', 'S'):
                 dec = -dec
-        elif len(bits) == 2:
-            deg, tmp = map(float, bits)
-            sec = tmp/60
-            min = tmp-60
-            dec = dms_to_decimal(direction, deg, min, sec)
-        elif len(bits) == 3:
-#            debug(bits)
-            dec = dms_to_decimal(direction, *map(float, bits))
+        elif len(parts) == 2:
+            deg, min = map(Decimal, parts)
+            dec = dms_to_decimal(direction, deg, min, 0)
+        elif len(parts) == 3:
+            dec = dms_to_decimal(direction, *map(Decimal, parts))
         else:
             raise ValueError(_('_parse_lat_lon() -- incorrect format: %s') % \
                              text)
