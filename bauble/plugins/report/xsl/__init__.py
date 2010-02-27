@@ -125,12 +125,12 @@ class SpeciesABCDAdapter(ABCDAdapter):
         if self.for_labels and self.species.label_distribution:
             etree.SubElement(unit, 'distribution').text=\
                 self.species.label_distribution
-        else:
-            etree.SubElement(unit, 'distribution').text=\
-                self.species.distribution_str()
-        if self.species.notes is not None:
-            ABCDElement(unit, 'Notes',
-                        text=utils.xml_safe(unicode(self.species.notes)))
+
+        # TODO: reenable notes..could do a list like (date) note, (date) note
+        #
+        # if self.species.notes is not None:
+        #     ABCDElement(unit, 'Notes',
+        #                 text=utils.xml_safe(unicode(self.species.notes)))
 
 
 class PlantABCDAdapter(SpeciesABCDAdapter):
@@ -151,9 +151,10 @@ class PlantABCDAdapter(SpeciesABCDAdapter):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
         ABCDElement(bg_unit, 'LocationInGarden',
                     text=utils.xml_safe_utf8(str(self.plant.location)))
-        if self.plant.notes is not None:
-            ABCDElement(unit, 'Notes',
-                        text=utils.xml_safe(unicode(self.plant.notes)))
+        # TODO: reenable notes
+        # if self.plant.notes is not None:
+        #     ABCDElement(unit, 'Notes',
+        #                 text=utils.xml_safe(unicode(self.plant.notes)))
         super(PlantABCDAdapter, self).extra_elements(unit)
 
 
@@ -178,6 +179,7 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def extra_elements(self, unit):
         # TODO: this needs to be updated and filled in
         return
+        # TODO: reenable notes
         if self.accession.notes is not None:
             ABCDElement(unit, 'Notes',
                         text=utils.xml_safe(unicode(self.accession.notes)))
