@@ -39,7 +39,7 @@ from bauble.plugins.garden.accession import Accession
 # we could have a special case just for generating labels
 #
 
-def validate(root):
+def validate_xml(root):
     '''
     validate root against ABCD 2.06 schema
     @param root: root of an XML tree to validate against
@@ -60,9 +60,10 @@ def validate(root):
 
 def verify_institution(institution):
     test = lambda x: x != '' and x != None
-    return test(institution.name) and test(institution.technical_contact) and \
-           test(institution.email) and test(institution.contact) and \
-           test(institution.code)
+    return test(institution.inst_name) and \
+        test(institution.inst_technical_contact) and \
+        test(institution.inst_email) and test(institution.inst_contact) and \
+        test(institution.inst_code)
 
 
 namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
@@ -146,7 +147,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     interface
     @param authors: flag to control whether to include the authors in the
     species name
-    @param validate: whether we should valid the data before returning
+    @param validate: whether we should validate the data before returning
     @returns: a valid ABCD ElementTree
     '''
     import bauble.plugins.garden.institution as institution
@@ -167,12 +168,12 @@ def create_abcd(decorated_objects, authors=True, validate=True):
 
     # TODO: need to include contact information in bauble meta when
     # creating a new database
-    ABCDElement(tech_contact, 'Name', text=inst.technical_contact)
-    ABCDElement(tech_contact, 'Email', text=inst.email)
+    ABCDElement(tech_contact, 'Name', text=inst.inst_technical_contact)
+    ABCDElement(tech_contact, 'Email', text=inst.inst_email)
     cont_contacts = ABCDElement(ds, 'ContentContacts')
     cont_contact = ABCDElement(cont_contacts, 'ContentContact')
-    ABCDElement(cont_contact, 'Name', text=inst.contact)
-    ABCDElement(cont_contact, 'Email', text=inst.email)
+    ABCDElement(cont_contact, 'Name', text=inst.inst_contact)
+    ABCDElement(cont_contact, 'Email', text=inst.inst_email)
     metadata = ABCDElement(ds, 'Metadata', )
     description = ABCDElement(metadata, 'Description')
 
@@ -187,7 +188,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     # build the ABCD unit
     for obj in decorated_objects:
         unit = ABCDElement(units, 'Unit')
-        ABCDElement(unit, 'SourceInstitutionID', text=inst.code)
+        ABCDElement(unit, 'SourceInstitutionID', text=inst.inst_code)
 
         # TODO: don't really understand the SourceID element
         ABCDElement(unit, 'SourceID', text='Bauble')
@@ -249,12 +250,13 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         return ElementTree(datasets)
 
     try:
-        check(validate(datasets), 'ABCD data not valid')
+        check(validate_xml(datasets), 'ABCD data not valid')
     except CheckConditionError, e:
-        #utils.message_dialog('ABCD data not valid')
-#         utils.message_details_dialog('ABCD data not valid',
-#                                      etree.tostring(datasets))
-        debug(etree.tostring(datasets))
+        # debug(e)
+        # utils.message_dialog('ABCD data not valid')
+        # utils.message_details_dialog('ABCD data not valid',
+        #                              etree.tostring(datasets))
+        # debug(etree.tostring(datasets))
         raise
 
     return ElementTree(datasets)
@@ -290,7 +292,7 @@ class ABCDExporter(object):
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin
-        from bauble.plugins.report.default import PlantABCDAdapter
+        from bauble.plugins.report.xsl import PlantABCDAdapter
         data = create_abcd([PlantABCDAdapter(p) for p in plants])
         data.write_c14n(filename)
 
