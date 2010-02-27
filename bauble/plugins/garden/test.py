@@ -1059,6 +1059,8 @@ class InstitutionTests(GardenTestCase):
 
 ALLOWED_DECIMAL_ERROR = 5
 THRESHOLD = .01
+
+# indexs into conversion_test_date
 DMS = 0 # DMS
 DEG_MIN_DEC = 1 # Deg with minutes decimal
 DEG_DEC = 2 # Degrees decimal
@@ -1074,13 +1076,13 @@ UTM = 3 # Datum(wgs84/nad83 or nad27), UTM Zone, Easting, Northing
 
 from decimal import Decimal
 dec = Decimal
-conversion_test_data = (
-                        ((('N', 17, 21, dec(59)), # dms
+conversion_test_data = (((('N', 17, 21, dec(59)), # dms
                           ('W', 89, 1, 41)),
                          ((dec(17), dec('21.98333333')), # deg min_dec
                           (dec(-89), dec('1.68333333'))),
                          (dec('17.366389'), dec('-89.028056')), # dec deg
                          (('wgs84', 16, 284513, 1921226))), # utm
+                        \
                         ((('S', 50, 19, dec('32.59')), # dms
                           ('W', 74, 2, dec('11.6'))),
                          ((dec(-50), dec('19.543166')), # deg min_dec
@@ -1088,21 +1090,28 @@ conversion_test_data = (
                          (dec('-50.325719'), dec('-74.036556')), # dec deg
                           (('wgs84', 18, 568579, 568579)),
                           (('nad27', 18, 568581, 4424928))),
+                        \
                         ((('N', 9, 0, dec('4.593384')),
                           ('W', 78, 3, dec('28.527984'))),
                          ((9, dec('0.0765564')),
                           (-78, dec('3.4754664'))),
-                         (dec('9.00127594'), dec('-78.05792444')))
-                        )
+                         (dec('9.00127594'), dec('-78.05792444'))),
+                        \
+                        ((('N', 49, 10, 28),
+                          ('W', 121, 40, 39)),
+                         ((49, dec('10.470')),
+                          (-121, dec('40.650'))),
+                         (dec('49.174444'), dec('-121.6775')))
+                         )
 
-#parse_lat_lon_data = ('17, 21, 59', '17 21 59', '17:21:59',
-#                      '17, 21.98333333', '17 21.98333333',
-#                      '17.36638889',
-#                      '50, 19, 32.59', '50 19 32.59', '50:19:32.59',
-#                      '-50 19.543166', '-50, 19.543166',
-#                      '-50.325719')
-parse_lat_lon_data = ('17 21 59', '17 21.98333333', '17.03656',
-                      '50 19 32.59', '-50 19.543166', '-50.32572')
+
+parse_lat_lon_data = ((('N', '17 21 59'), dec('17.366389')),
+                      (('N', '17 21.983333'), dec('17.366389')),
+                      (('N', '17.03656'), dec('17.03656')),
+                      (('W', '89 1 41'), dec('-89.028056')),
+                      (('W', '89 1.68333333'), dec('-89.028056')),
+                      (('W', '-89 1.68333333'), dec('-89.028056')),
+                      (('E', '121 40 39'), dec('121.6775')))
 
 
 class DMSConversionTests(unittest.TestCase):
@@ -1142,8 +1151,10 @@ class DMSConversionTests(unittest.TestCase):
 
 
     def test_parse_lat_lon(self):
-        for data in parse_lat_lon_data:
-            pass
+        parse = CollectionPresenter._parse_lat_lon
+        for data, dec in parse_lat_lon_data:
+            result = parse(*data)
+            self.assert_(result == dec, '%s: %s == %s' % (data, result, dec))
 
 
 
