@@ -1031,6 +1031,7 @@ def do_plants():
 
     plant_defaults = get_defaults(plant_table)
     plant_defaults['location_id'] = unknown_location_id
+    plant_defaults['acc_type'] = unicode('Plant')
 
     species_defaults = get_defaults(species_table)
     _last_updated = species_defaults.pop('_last_updated')
@@ -1414,20 +1415,12 @@ def create_plants():
             continue
 
         plant_tuple = rec['accno'], rec['propno']
+
         if is_transfer(rec):
             from_id = locations[rec['tranfrom']]
             to_id = locations[rec['tranto']]
             quantity = rec['moveqty']
             date = rec['movedate']
-            reason = None
-        else:
-            from_id = locations[rec['remofrom']]
-            to_id = None
-            quantity = rec['remoqty']
-            date = rec['remodate']
-            reason = utils.utf8(rec['remocode'])
-
-        if to_id:
             plant_id = None
             plants = [plant for plant in plant_pool.get(plant_tuple, []) \
                           if plant['location_id'] == from_id \
@@ -1444,10 +1437,14 @@ def create_plants():
             note_id = make_note(rec['notes'], date, u'Transfer', plant_id)
             change = change_defaults.copy()
             change.update(from_location_id=from_id, to_location_id=to_id,
-                          quantity=quantity, date=date, reason=reason,
+                          quantity=quantity, date=date, reason=None,
                           plant_id=plant_id, note_id=note_id)
             change_rows.append(change)
         else:
+            from_id = locations[rec['remofrom']]
+            quantity = rec['remoqty']
+            date = rec['remodate']
+            reason = utils.utf8(rec['remocode'])
             plants = [plant for plant in plant_pool.get(plant_tuple, []) \
                           if plant['location_id'] == from_id]
             if not plants:
