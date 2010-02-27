@@ -51,6 +51,13 @@ def edit_callback(plants):
     return e.start() != None
 
 
+def branch_callback(plants):
+    plant = plants[0].duplicate()
+    plant.code = None
+    e = PlantEditor(model=plant)
+    return e.start() != None
+
+
 def remove_callback(plants):
     s = ', '.join([str(p) for p in plants])
     msg = _("Are you sure you want to remove the following plants?\n\n%s") \
@@ -75,13 +82,16 @@ def remove_callback(plants):
 
 
 
-edit_action = Action('plant_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('plant_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e', multiselect=True)
 
-remove_action = Action('plant_remove', ('_Delete'), callback=remove_callback,
+branch_action = Action('plant_branch', _('_Branch'), callback=branch_callback,
+                       accelerator='<ctrl>b')
+
+remove_action = Action('plant_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
-plant_context_menu = [edit_action, remove_action]
+plant_context_menu = [edit_action, branch_action, remove_action]
 
 
 def plant_markup_func(plant):
@@ -116,7 +126,7 @@ def get_next_code(acc):
             next = max([int(code[0]) for code in codes])+1
         except Exception, e:
             return None
-    return next
+    return utils.utf8(next)
 
 
 def is_code_unique(plant, code):
@@ -495,12 +505,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                                      self.view, self.session)
 
         # if the PlantEditor has been started with a new plant but
-        # that is already associated with an accession
+        # the plant is already associated with an accession
         if self.model.accession and not self.model.code:
             code = get_next_code(self.model.accession)
             if code:
                 # if get_next_code() returns None then there was an error
-                self.model.code = utils.utf8(code)
+                self.set_model_attr('code', code)
 
         def _changes_data_func(column, cell, model, treeiter, prop):
             change = model[treeiter][1]
