@@ -441,6 +441,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'cutting_type_combo': 'cutting_type',
                            'cutting_length_entry': 'length',
+                           'cutting_length_unit_combo': 'length_unit'
                            'cutting_tip_combo': 'tip',
                            'cutting_leaves_combo': 'leaves',
                            'cutting_lvs_reduced_entry': 'leaves_reduced_pct',
@@ -454,7 +455,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
                            'cutting_cover_comboentry': 'cover',
                            'cutting_heat_entry': 'bottom_heat_temp',
                            'cutting_heat_unit_combo': 'bottom_heat_unit',
-                           'cutting_rooted_pct_entry': 'rooted_pct'
+                           'cutting_rooted_pct_entry': 'rooted_pct',
                            }
 
     def __init__(self, parent, model, view, session):
@@ -514,8 +515,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_type_combo', 'cutting_type')
         self.assign_simple_handler('cutting_length_entry', 'length')
         self.assign_simple_handler('cutting_length_unit_combo', 'length_unit')
-        utils.combo_set_active_text(self.view.widgets.cutting_length_unit_combo,
-                                    self.model.length_unit)
         self.assign_simple_handler('cutting_tip_combo', 'tip')
         self.assign_simple_handler('cutting_leaves_combo', 'leaves')
         self.assign_simple_handler('cutting_lvs_reduced_entry',
@@ -539,9 +538,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_heat_entry', 'bottom_heat_temp')
         self.assign_simple_handler('cutting_heat_unit_combo',
                                    'bottom_heat_unit')
-        utils.combo_set_active_text(self.view.widgets.cutting_heat_unit_combo,
-                                    self.model.bottom_heat_unit)
-
         self.assign_simple_handler('cutting_rooted_pct_entry',
                                    'rooted_pct')
 

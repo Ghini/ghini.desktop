@@ -1865,8 +1865,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             elif prop and prop.prop_type == 'UnrootedCutting':
                 prop_model = prop._cutting
             else:
-                msg = 'AccessionEditorPresenter.validate(): unknown prop_type'
-                warning(msg)
+                #msg = 'AccessionEditorPresenter.validate(): unknown prop_type'
+                #warning(msg)
                 return False # raise ValueError for unknown prop_type??
 
             if utils.get_invalid_columns(prop_model, prop_ignore):
