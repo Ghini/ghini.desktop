@@ -531,51 +531,51 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 # if get_next_code() returns None then there was an error
                 self.set_model_attr('code', code)
 
-        def _changes_data_func(column, cell, model, treeiter, prop):
-            change = model[treeiter][1]
-            if prop == 'reason' and change.reason:
-                value = change_reasons[change.reason]
-            elif prop == 'quantity' and change.quantity < 0:
-                value = -change.quantity
-            else:
-                value = getattr(change, prop)
-            cell.set_property('text', value)
+        # def _changes_data_func(column, cell, model, treeiter, prop):
+        #     change = model[treeiter][1]
+        #     if prop == 'reason' and change.reason:
+        #         value = change_reasons[change.reason]
+        #     elif prop == 'quantity' and change.quantity < 0:
+        #         value = -change.quantity
+        #     else:
+        #         value = getattr(change, prop)
+        #     cell.set_property('text', value)
 
-        tree = self.view.widgets.plant_changes_treeview
-        def setup_column(column, cell, prop):
-            column = self.view.widgets[column]
-            cell = self.view.widgets[cell]
-            column.set_cell_data_func(cell, _changes_data_func, prop)
+        # tree = self.view.widgets.plant_changes_treeview
+        # def setup_column(column, cell, prop):
+        #     column = self.view.widgets[column]
+        #     cell = self.view.widgets[cell]
+        #     column.set_cell_data_func(cell, _changes_data_func, prop)
 
-        setup_column('changes_date_column', 'changes_date_cell', 'date')
-        setup_column('changes_from_column', 'changes_from_cell','from_location')
-        setup_column('changes_to_column', 'changes_to_cell', 'to_location')
-        setup_column('changes_quantity_column', 'changes_quantity_cell',
-                     'quantity')
-        setup_column('changes_reason_column', 'changes_reason_cell',
-                     'reason')
-        setup_column('changes_user_column', 'changes_user_cell', 'person')
+        # setup_column('changes_date_column', 'changes_date_cell', 'date')
+        # setup_column('changes_from_column', 'changes_from_cell','from_location')
+        # setup_column('changes_to_column', 'changes_to_cell', 'to_location')
+        # setup_column('changes_quantity_column', 'changes_quantity_cell',
+        #              'quantity')
+        # setup_column('changes_reason_column', 'changes_reason_cell',
+        #              'reason')
+        # setup_column('changes_user_column', 'changes_user_cell', 'person')
 
-        self.view.widgets.changes_change_column.\
-            add_attribute(self.view.widgets.changes_change_cell, 'text', 0)
+        # self.view.widgets.changes_change_column.\
+        #     add_attribute(self.view.widgets.changes_change_cell, 'text', 0)
 
-        model = gtk.ListStore(str, object)
-        prev_quantity = 0
-        for change in sorted(self.model.changes, key=lambda x: x.date):
-            action = _('Nothing')
-            if not change.from_location:
-                action = _('Created')
-                prev_quantity += change.quantity
-            if change.quantity < 0:
-                action = _('Removal')
-            elif not change.to_location and change.quantity > 0:
-                action = _('Addition')
-            elif change.from_location != change.to_location:
-                prev_quantity = change.quantity
-                action = _('Transfer')
-            model.insert(0, [action, change])
-        self.view.widgets.plant_changes_treeview.set_model(model)
-        self.refresh_view() # put model values in view
+        # model = gtk.ListStore(str, object)
+        # prev_quantity = 0
+        # for change in sorted(self.model.changes, key=lambda x: x.date):
+        #     action = _('Nothing')
+        #     if not change.from_location:
+        #         action = _('Created')
+        #         prev_quantity += change.quantity
+        #     if change.quantity < 0:
+        #         action = _('Removal')
+        #     elif not change.to_location and change.quantity > 0:
+        #         action = _('Addition')
+        #     elif change.from_location != change.to_location:
+        #         prev_quantity = change.quantity
+        #         action = _('Transfer')
+        #     model.insert(0, [action, change])
+        # self.view.widgets.plant_changes_treeview.set_model(model)
+        # self.refresh_view() # put model values in view
 
         self.change = PlantChange()
         self.change.plant = self.model
