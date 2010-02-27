@@ -441,7 +441,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'cutting_type_combo': 'cutting_type',
                            'cutting_length_entry': 'length',
-                           'cutting_length_unit_combo': 'length_unit'
+                           'cutting_length_unit_combo': 'length_unit',
                            'cutting_tip_combo': 'tip',
                            'cutting_leaves_combo': 'leaves',
                            'cutting_lvs_reduced_entry': 'leaves_reduced_pct',
