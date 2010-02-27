@@ -177,11 +177,11 @@ def remove_callback(accessions):
     return True
 
 
-edit_action = Action('acc_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
                         accelerator='<ctrl>e')
-add_plant_action = Action('acc_add', ('_Add plants'),
+add_plant_action = Action('acc_add', _('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('acc_remove', ('_Delete'), callback=remove_callback,
+remove_action = Action('acc_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete')#, multiselect=True)
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
