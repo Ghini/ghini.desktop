@@ -68,12 +68,12 @@ def add_accession_callback(values):
     return e.start() != None
 
 
-edit_action = Action('species_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('species_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-add_accession_action = Action('species_acc_add', ('_Add accession'),
+add_accession_action = Action('species_acc_add', _('_Add accession'),
                               callback=add_accession_callback,
                               accelerator='<ctrl>k')
-remove_action = Action('species_remove', ('_Delete'), callback=remove_callback,
+remove_action = Action('species_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 species_context_menu = [edit_action, remove_action]
