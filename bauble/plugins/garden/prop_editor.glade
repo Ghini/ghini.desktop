@@ -5,6 +5,7 @@
   <object class="GtkListStore" id="proplist_model"/>
   <object class="GtkDialog" id="prop_dialog">
     <property name="border_width">5</property>
+    <property name="title" translatable="yes">Propagation Editor</property>
     <property name="resizable">False</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
