@@ -578,6 +578,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         self.change = PlantChange()
+        self.session.add(self.change)
         self.change.plant = self.model
         self.change.from_location = self.model.location
 
@@ -785,7 +786,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Plant()
         super(PlantEditor, self).__init__(model, parent)
-
         # the ._duplicate attribute is added in Plant.duplicate but it
         # isn't copied over in session.merge() in
         # GenericModelViewPresenterEditor.__init__()...but we need it
@@ -834,14 +834,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
                             and change.from_location == self.model.location):
                 # if the quantity and location haven't changed then
                 # don't save the change
-                self.model.change = None
                 self.session.expunge(change)
+                self.model.change = None
             else:
                 if self.model.location != self.presenter.change.from_location:
                     # transfer
                     self.presenter.change.to_location = self.model.location
-                elif self.model.quantity > self.__original_quantity and \
-                        not self.presenter.change.to_location:
+                elif self.model.quantity > self.presenter._original_quantity \
+                        and not self.presenter.change.to_location:
                     # additions should use to_location
                     self.presenter.change.to_location = self.model.location
                     self.presenter.change.from_location = None

@@ -336,17 +336,20 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or \
-            True in [p in self.session.dirty for p in self.model.propagations]
+        return self.__dirty
 
 
     def add_propagation(self):
-        # open propagation editor with start(commit=False) so that the
-        # propagation editor doesn't commit its changes since we'll be
-        # doing our own commit later
+        """
+        Open the PropagationEditor and append the resulting
+        propagation to self.model.propagations
+        """
         propagation = Propagation()
         propagation.plant = self.model
         editor = PropagationEditor(propagation, parent=self.view.get_window())
+        # open propagation editor with start(commit=False) so that the
+        # propagation editor doesn't commit its changes since we'll be
+        # doing our own commit later
         committed = editor.start(commit=False)
         if committed:
             box = self.create_propagation_box(committed)
@@ -375,14 +378,17 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         label.set_alignment(0.1, 0.5)
         label_alignment.add(label)
 
-        def on_clicked(button, prop, label):
+        def on_edit_clicked(button, prop, label):
             editor = PropagationEditor(model=prop,
                                        parent=self.view.get_window())
-            editor.start(commit=False)
-            label.props.label = prop.get_summary()
+            if editor.start(commit=False) is not None:
+                label.props.label = prop.get_summary()
+                self.__dirty = True
             self.parent_ref().refresh_sensitivity()
+
         button = gtk.Button(stock=gtk.STOCK_EDIT)
-        self.view.connect(button, 'clicked', on_clicked, propagation, label)
+        self.view.connect(button, 'clicked', on_edit_clicked, propagation,
+                          label)
         alignment.add(button)
         # TODO: add a * to the propagation label for uncommitted propagations
         prop_type = prop_type_values[propagation.prop_type]
@@ -716,6 +722,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
 
     def set_model_attr(self, field, value, validator=None):
+        #debug('%s = %s' % (field, value))
         super(SeedPresenter, self).set_model_attr(field, value, validator)
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
@@ -1055,8 +1062,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                if commit:
-                    self.session.rollback()
+                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
@@ -1065,13 +1071,11 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                if commit:
-                    self.session.rollback()
+                self.session.rollback()
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():
-            if commit:
-                self.session.rollback()
+            self.session.rollback()
             return True
         else:
             return False
