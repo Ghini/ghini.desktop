@@ -101,20 +101,25 @@ class Propagation(db.Base):
         if self.prop_type == u'UnrootedCutting':
             c = self._cutting
             values = []
-            values.append(_('Cutting type: %s') % \
-                              cutting_type_values[c.cutting_type])
+            if c.cutting_type is not None:
+                values.append(_('Cutting type: %s') % \
+                                  cutting_type_values[c.cutting_type])
             if c.length:
                 values.append(_('Length: %(length)s%(unit)s') %
                               dict(length=c.length,
                                    unit=length_unit_values[c.length_unit]))
-            values.append(_('Tip: %s') % tip_values[c.tip])
-            s = _('Leaves: %s') % leaves_values[c.leaves]
-            if c.leaves == u'Removed' and c.leaves_reduced_pct:
-                s.append('(%s%%)' % c.leaves_reduced_pct)
-            values.append(s)
-            values.append(_('Flower buds: %s') % \
-                              flower_buds_values[c.flower_buds])
-            values.append(_('Wounded: %s' % wound_values[c.wound]))
+            if c.tip:
+                values.append(_('Tip: %s') % tip_values[c.tip])
+            if c.leaves:
+                s = _('Leaves: %s') % leaves_values[c.leaves]
+                if c.leaves == u'Removed' and c.leaves_reduced_pct:
+                    s.append('(%s%%)' % c.leaves_reduced_pct)
+                values.append(s)
+            if c.flower_buds:
+                values.append(_('Flower buds: %s') % \
+                                  flower_buds_values[c.flower_buds])
+            if c.wound is not None:
+                values.append(_('Wounded: %s' % wound_values[c.wound]))
             if c.fungicide:
                 values.append(_('Fungal soak: %s' % c.fungicide))
             if c.hormone:
@@ -361,10 +366,14 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         alignment = gtk.Alignment()
         hbox.pack_start(alignment, expand=False, fill=False)
 
+        label_alignment = gtk.Alignment()
+        label_alignment.props.bottom_padding = 10
+        expander.add(label_alignment)
+
         label = gtk.Label(propagation.get_summary())
         label.props.wrap = True
         label.set_alignment(0.1, 0.5)
-        expander.add(label)
+        label_alignment.add(label)
 
         def on_clicked(button, prop, label):
             editor = PropagationEditor(model=prop,
