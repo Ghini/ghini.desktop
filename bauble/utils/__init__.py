@@ -518,6 +518,37 @@ def setup_text_combobox(combo, values=[], cell_data_func=None):
     if cell_data_func:
         combo.set_cell_data_func(renderer, cell_data_func)
 
+    if not isinstance(combo, gtk.ComboBoxEntry):
+        return
+
+    # if combo is a gtk.ComboBoxEntry then setup completions
+    def compl_cell_data_func(col, cell, model, treeiter, data=None):
+        cell.props.text = utf8(model[treeiter][0])
+    completion = gtk.EntryCompletion()
+    completion.set_model(model)
+    cell = gtk.CellRendererText() # set up the completion renderer
+    completion.pack_start(cell)
+    completion.set_cell_data_func(cell, compl_cell_data_func)
+    combo.child.set_completion(completion)
+
+    def match_func(completion, key, treeiter, data=None):
+        model = completion.get_model()
+        value = model[treeiter][0]
+        return utf8(value).lower().startswith(key.lower())
+    completion.set_match_func(match_func)
+
+    def on_match_select(completion, model, treeiter):
+        value = model[treeiter][0]
+        if not value:
+            combo.child.props.text = ''
+        else:
+            combo.child.props.text = utf8(value)
+        return True
+    # TODO: we should be able to disconnect this signal handler
+    completion.connect('match-selected', on_match_select)
+
+
+
 
 def prettify_format(format):
     """

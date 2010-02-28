@@ -1415,7 +1415,6 @@ def create_plants():
             continue
 
         plant_tuple = rec['accno'], rec['propno']
-
         if is_transfer(rec):
             from_id = locations[rec['tranfrom']]
             to_id = locations[rec['tranto']]
