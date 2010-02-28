@@ -693,13 +693,10 @@ class GenericEditorPresenter(object):
                 # search the tree model to see if the text in the
                 # entry matches one of the completions, if so then
                 # emit the match-selected signal, this allows us to
-                # entry a match in the entry without having to select
+                # type a match in the entry without having to select
                 # it from the popup
                 def _cmp(row, data):
-                    if hasattr(comp, '_match_func'):
-                        return comp._match_func(comp, text, row.iter)
-                    else:
-                        return utils.utf8(row[0]) == text
+                    return utils.utf8(row[0]) == text
                 found = utils.search_tree_model(comp_model, text, _cmp)
                 if len(found) == 1:
                     v = comp.get_model()[found[0]][0]
