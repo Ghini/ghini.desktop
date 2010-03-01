@@ -127,18 +127,6 @@ class ABCDAdapter(object):
     def get_InformalNameString(self):
         pass
 
-##     def get_dbURI(self):
-##         # db://user@host:password/database/table/id
-##         url = str(self._mapper.local_table.metadata.bind.url)
-##         # parse out the password
-##         at_i = url.find('@')
-##         if at_i != -1:
-##             col_i = url.find(':')
-##             i = url.find(':', col_i+1, at_i)
-##             url = url[:i] + url[at_i:]
-##         return '%s/%s/%s' % (url, self._mapper.local_table,
-##                              self._object.id)
-
 
 
 def create_abcd(decorated_objects, authors=True, validate=True):
@@ -207,9 +195,9 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         # TODO: ABCDDecorator should provide an iterator so that we can
         # have multiple HigherTaxonName's
         higher_taxon_name = ABCDElement(higher_taxon, 'HigherTaxonName',
-                                           text=obj.get_family())
+                                        text=obj.get_family())
         higher_taxon_rank = ABCDElement(higher_taxon, 'HigherTaxonRank',
-                                           text='familia')
+                                        text='familia')
 
         scientific_name = ABCDElement(taxon_identified, 'ScientificName')
         ABCDElement(scientific_name, 'FullScientificNameString',
@@ -235,16 +223,14 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ABCDElement(taxon_identified, 'InformalNameString',
                            text=vernacular_name)
 
-##         dburi = obj.get_dbURI()
-##         if dburi is not None:
-##             ABCDElement(unit, "Notes", text=dburi)
+        notes = obj.get_Notes()
+        if notes:
+            ABCDElement(unit, 'Notes', text=notes)
 
         # add all the extra non standard elements
         obj.extra_elements(unit)
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis
-        # TODO: Gathering, make our collection records fit Gatherings
-        # TODO: see BotanicalGardenUnit
 
     if not validate:
         return ElementTree(datasets)
@@ -320,11 +306,6 @@ class ABCDExportTool(pluginmgr.Tool):
 
     @classmethod
     def start(cls):
-        msg = _('DISCLAIMER: The ABCD Exporter is not fully implemented. At '
-                'the moment it will export the plants in the database but '
-                'will not include source information such as collection and '
-                'donation data.')
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         ABCDExporter().start()
 
 

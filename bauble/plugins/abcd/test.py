@@ -3,6 +3,7 @@
 #
 # Description: test the ABCD (Access to Biological Collection Data) plugin
 #
+import datetime
 import lxml.etree as etree
 import os
 import sys
@@ -79,12 +80,25 @@ class ABCDTestCase(BaubleTestCase):
         """
         Test the ABCDExporter
         """
-        self.assert_(db.Session().query(Plant).count() > 0)
+        self.assert_(self.session.query(Plant).count() > 0)
+        accession = self.session.query(Accession).first()
+        source = Source()
+        accession.source = source
+        source.sources_code = u'1'
+        collection = Collection(collector=u'Bob', collectors_code=u'1',
+                                geography_id=1, locale=u'locale',
+                                date=datetime.date.today(),
+                                latitude=u'1.1', longitude=u'1.1',
+                                habitat=u'habitat description',
+                                elevation=1, elevation_accy=1,
+                                notes=u'some notes')
+        source.collection = collection
         from bauble.plugins.garden import Institution
         inst = Institution()
         inst.inst_name = inst.inst_code = inst.inst_contact = \
             inst.inst_technical_contact = inst.inst_email = 'test'
         inst.write()
+        self.session.commit()
         dummy, filename = tempfile.mkstemp()
         xml = abcd.ABCDExporter().start(filename)
 
