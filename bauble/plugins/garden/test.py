@@ -40,7 +40,8 @@ location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
                        'code': u'RBW'},
                       )
 
-collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere'},
+collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere',
+                         'geography_id': 1},
                         )
 
 default_cutting_values = \
