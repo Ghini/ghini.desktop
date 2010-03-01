@@ -2277,14 +2277,14 @@ class SourceExpander(InfoExpander):
         lat_str = ''
         if collection.latitude:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
-            lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+            lat_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
         self.set_widget_value('lat_data', lat_str)
 
         long_str = ''
         if collection.longitude:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
-            long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+            long_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
         self.set_widget_value('lon_data', long_str)
 
