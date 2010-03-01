@@ -208,21 +208,10 @@ class Collection(db.Base):
     # columns
     collector = Column(Unicode(64))
     collectors_code = Column(Unicode(50))
-
-    # TODO: make sure the country names are translatable, maybe store
-    # the ISO country code, e.g es for Spain, en_US for US or
-    # something similar so that we can use the translated country
-    # names for completions but the same database can be opened with
-    # different locales and show the localized names....might in this
-    # case be better to create a country table instead of just the
-    # string column...google countrytransl.map
-
-    #Column(Unicode(64)) # ISO country name
-
     date = Column(types.Date)
     locale = Column(UnicodeText, nullable=False)
-    latitude = Column(Float)
-    longitude = Column(Float)
+    latitude = Column(Unicode(15))
+    longitude = Column(Unicode(15))
     gps_datum = Column(Unicode(32))
     geo_accy = Column(Float)
     elevation = Column(Float)
@@ -716,7 +705,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
 
-        self.set_model_attr('latitude', latitude)
+        self.set_model_attr('latitude', utils.utf8(latitude))
         self.view.widgets.lat_dms_label.set_text(dms_string)
 
 
@@ -747,7 +736,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
 
-        self.set_model_attr('longitude', longitude)
+        self.set_model_attr('longitude', utils.utf8(longitude))
         self.view.widgets.lon_dms_label.set_text(dms_string)
 
 
