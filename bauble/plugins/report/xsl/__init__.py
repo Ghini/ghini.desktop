@@ -32,6 +32,7 @@ import bauble.prefs as prefs
 from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
+from bauble.utils import xml_safe_utf8
 
 if sys.platform == "win32":
     fop_cmd = 'fop.bat'
@@ -86,6 +87,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
         super(SpeciesABCDAdapter, self).__init__(species)
         self.for_labels = for_labels
         self.species = species
+        self._date_format = prefs.prefs[prefs.date_format_pref]
 
     def get_UnitID(self):
         # **** Returning the empty string for the UnitID makes the
@@ -95,40 +97,42 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return ""
 
     def get_family(self):
-        return utils.xml_safe_utf8(self.species.genus.family)
+        return xml_safe_utf8(self.species.genus.family)
 
     def get_FullScientificNameString(self, authors=True):
         s = Species.str(self.species, authors=authors,markup=False)
-        return utils.xml_safe_utf8(s)
+        return xml_safe_utf8(s)
 
     def get_GenusOrMonomial(self):
-        return utils.xml_safe_utf8(str(self.species.genus))
+        return xml_safe_utf8(str(self.species.genus))
 
     def get_FirstEpithet(self):
-        return utils.xml_safe_utf8(str(self.species.sp))
+        return xml_safe_utf8(str(self.species.sp))
 
     def get_AuthorTeam(self):
         author = self.species.sp_author
         if author is None:
             return None
         else:
-            return utils.xml_safe_utf8(author)
+            return xml_safe_utf8(author)
 
     def get_InformalNameString(self):
         vernacular_name = self.species.default_vernacular_name
         if vernacular_name is None:
             return None
         else:
-            return utils.xml_safe_utf8(vernacular_name)
+            return xml_safe_utf8(vernacular_name)
 
     def get_Notes(self):
         if not self.species.notes:
             return None
         notes = []
         for note in self.species.notes:
-            notes.append(dict(date=note.date, user=note.user,
-                              category=note.category, note=note.note))
-        return utils.xml_safe_utf8(notes)
+            date = utf8(note.date.strftime(self._date_format))
+            notes.append(dict(date=date, user=xml_safe_utf8(note.user),
+                              category=xml_safe_utf8(note.category),
+                              note=xml_safe_utf8(note.note)))
+        return utf8(notes)
 
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
@@ -149,8 +153,9 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         self.accession = accession
 
 
+
     def get_UnitID(self):
-        return utils.xml_safe_utf8(str(self.accession))
+        return xml_safe_utf8(str(self.accession))
 
 
     def get_Notes(self):
@@ -158,16 +163,18 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
             return None
         notes = []
         for note in self.accession.notes:
-            notes.append(dict(date=note.date, user=note.user,
-                              category=note.category, note=note.note))
-        return utils.xml_safe_utf8(notes)
+            date = xml_safe_utf8(note.date.strftime(self._date_format))
+            notes.append(dict(date=date, user=xml_safe_utf8(note.user),
+                              category=xml_safe_utf8(note.category),
+                              note=xml_safe_utf8(note.note)))
+        return xml_safe_utf8(notes)
 
 
     def extra_elements(self, unit):
         super(AccessionABCDAdapter, self).extra_elements(unit)
         if self.accession.source.collection:
             collection = self.accession.source.collection
-            utf8 = utils.xml_safe_utf8
+            utf8 = xml_safe_utf8
             gathering = ABCDElement(unit, 'Gathering')
 
             if collection.collectors_code:
@@ -176,8 +183,7 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
 
             # TODO: get date pref for DayNumberBegin
             if collection.date:
-                format = prefs.prefs[prefs.date_format_pref]
-                date = utf8(collection.date.strftime(format))
+                date = utf8(collection.date.strftime(self._date_format))
                 date_time = ABCDElement(gathering, 'DateTime')
                 ABCDElement(date_time, 'DateText', date)
 
@@ -238,7 +244,7 @@ class PlantABCDAdapter(AccessionABCDAdapter):
 
 
     def get_UnitID(self):
-        return utils.xml_safe_utf8(str(self.plant))
+        return xml_safe_utf8(str(self.plant))
 
 
     def get_Notes(self):
@@ -246,17 +252,19 @@ class PlantABCDAdapter(AccessionABCDAdapter):
             return None
         notes = []
         for note in self.plant.notes:
-            notes.append(dict(date=note.date, user=note.user,
-                              category=note.category, note=note.note))
-        return utils.xml_safe_utf8(str(notes))
+            date = xml_safe_utf8(note.date.strftime(self._date_format))
+            notes.append(dict(date=date, user=xml_safe_utf8(note.user),
+                              category=xml_safe_utf8(note.category),
+                              note=xml_safe_utf8(note.note)))
+        return xml_safe_utf8(str(notes))
 
 
     def extra_elements(self, unit):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
         ABCDElement(bg_unit, 'AccessionSpecimenNumbers',
-                    text=utils.xml_safe_utf8(self.plant.quantity))
+                    text=xml_safe_utf8(self.plant.quantity))
         ABCDElement(bg_unit, 'LocationInGarden',
-                    text=utils.xml_safe_utf8(str(self.plant.location)))
+                    text=xml_safe_utf8(str(self.plant.location)))
         # TODO: AccessionStatus, AccessionMaterialtype,
         # ProvenanceCategory, AccessionLineage, DonorCategory,
         # PlantingDate, Propagation

@@ -77,10 +77,10 @@ def ABCDElement(parent, name, text=None, attrib=None):
     @param text: the text attribue to set on the new element
     @param attrib: any additional attributes for the new element
     """
-    if attrib == None:
+    if attrib is None:
         attrib = {}
     el = SubElement(parent, '{%s}%s' % (namespaces['abcd'], name),
-                    nsmap=namespaces, attrib=attrib)
+                   nsmap=namespaces, attrib=attrib)
     el.text = text
     return el
 
@@ -104,7 +104,6 @@ class ABCDAdapter(object):
 
     def __init__(self, obj):
         self._object = obj
-        self._mapper = object_mapper(self._object)
 
     def get_UnitID(self):
         pass
@@ -315,7 +314,3 @@ except ImportError:
                            'ABCD plugin'))
 else:
     plugin = ABCDImexPlugin
-
-
-__all__ = [DataSets, ABCDElement, #ElementFactory,
-           ABCDExporter, ABCDExportTool, create_abcd]
