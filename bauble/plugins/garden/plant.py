@@ -1062,7 +1062,6 @@ class ChangesExpander(InfoExpander):
         self.table.resize(nrows, 2)
         date_format = prefs.prefs[prefs.date_format_pref]
         current_row = 0
-        action = ('Transfered', 'Added', 'Removed')
         for change in sorted(row.changes, key=lambda x: x.date, reverse=True):
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
@@ -1082,6 +1081,8 @@ class ChangesExpander(InfoExpander):
             else:
                 s = '%s: %s -> %s' % (change.quantity, change.from_location,
                                       change.to_location)
+            if change.reason is not None:
+                s += '\n%s' % change.reason
             label = gtk.Label(s)
             label.set_alignment(0, .5)
             self.table.attach(label, 1, 2, current_row, current_row+1)
