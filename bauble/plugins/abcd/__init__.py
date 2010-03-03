@@ -252,6 +252,9 @@ def create_abcd(decorated_objects, authors=True, validate=True):
 
 
 class ABCDExporter(object):
+    """
+    Export Plants to an ABCD file.
+    """
 
     def start(self, filename=None, plants=None):
         if filename == None: # no filename, ask the user
@@ -271,7 +274,9 @@ class ABCDExporter(object):
         if filename == None:
             raise ValueError("filename can not be None")
 
-        # TODO: check if filename already exists give a message to the user
+        if os.path.exists(filename) and not os.path.isfile(filename):
+            raise ValueError("%s exists and is not a a regular file" \
+                                 % filename)
 
         # if plants is None then export all plants, this could be huge
         # TODO: do something about this, like list the number of plants
@@ -284,26 +289,8 @@ class ABCDExporter(object):
         from bauble.plugins.report.xsl import PlantABCDAdapter
         data = create_abcd([PlantABCDAdapter(p) for p in plants])
 
-        # TODO: check can write file first
-
         data.write_c14n(filename)
 
-
-#class ABCDImporter:
-#
-#    def start(self, filenames=None):
-#        pass
-#
-#    def run(self, filenames):
-#        pass
-
-#class ABCDImportTool(BaubleTool):
-#    category = "Import"
-#    label = "ABCD"
-#
-#    @classmethod
-#    def start(cls):
-#        ABCDImporter().start()
 
 
 class ABCDExportTool(pluginmgr.Tool):
