@@ -235,20 +235,11 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         if notes:
             ABCDElement(unit, 'Notes', text=notes)
 
-    if not validate:
-        return ElementTree(datasets)
-
-    try:
+    if validate:
         check(validate_xml(datasets), 'ABCD data not valid')
-    except CheckConditionError, e:
-        # debug(e)
-        # utils.message_dialog('ABCD data not valid')
-        # utils.message_details_dialog('ABCD data not valid',
-        #                              etree.tostring(datasets))
-        # debug(etree.tostring(datasets))
-        raise
 
     return ElementTree(datasets)
+
 
 
 class ABCDExporter(object):
@@ -287,9 +278,18 @@ class ABCDExporter(object):
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin
         from bauble.plugins.report.xsl import PlantABCDAdapter
-        data = create_abcd([PlantABCDAdapter(p) for p in plants])
+        data = create_abcd([PlantABCDAdapter(p) for p in plants],
+                           validate=False)
 
         data.write_c14n(filename)
+
+        # validate after the file is written so we still have some
+        # output but let the user know the file isn't valid ABCD
+        if not validate_xml(data):
+            msg = _("The ABCD file was created but failed to validate "
+                    "correctly against the ABCD standard.")
+            utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+
 
 
 
