@@ -88,16 +88,18 @@ class SpeciesABCDAdapter(ABCDAdapter):
         self.species = species
 
     def get_UnitID(self):
-        # **** This is makes the ABCD data NOT valid ABCD but it does make
-        # it work for creating reports without including the accession or
-        # plant code
+        # **** Returning the empty string for the UnitID makes the
+        # ABCD data NOT valid ABCD but it does make it work for
+        # creating reports without including the accession or plant
+        # code
         return ""
 
     def get_family(self):
         return utils.xml_safe_utf8(self.species.genus.family)
 
     def get_FullScientificNameString(self, authors=True):
-        return Species.str(self.species, authors=authors,markup=False)
+        s = Species.str(self.species, authors=authors,markup=False)
+        return utils.xml_safe_utf8(s)
 
     def get_GenusOrMonomial(self):
         return utils.xml_safe_utf8(str(self.species.genus))
@@ -246,7 +248,7 @@ class PlantABCDAdapter(AccessionABCDAdapter):
         for note in self.plant.notes:
             notes.append(dict(date=note.date, user=note.user,
                               category=note.category, note=note.note))
-        return utils.xml_safe_utf8(notes)
+        return utils.xml_safe_utf8(str(notes))
 
 
     def extra_elements(self, unit):
@@ -258,9 +260,7 @@ class PlantABCDAdapter(AccessionABCDAdapter):
         # TODO: AccessionStatus, AccessionMaterialtype,
         # ProvenanceCategory, AccessionLineage, DonorCategory,
         # PlantingDate, Propagation
-        debug('extra')
         super(PlantABCDAdapter, self).extra_elements(unit)
-        debug('extra1')
 
 
 
