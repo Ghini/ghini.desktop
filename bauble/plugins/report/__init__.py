@@ -312,7 +312,6 @@ class ReportToolDialogPresenter(object):
         try:
             self.set_names_combo(default)
         except Exception, e:
-#            debug('init: %s' % e)
             self.set_names_combo(0)
 
 
@@ -324,10 +323,8 @@ class ReportToolDialogPresenter(object):
         if the model on the combo is None then this method will return
         and not emit the changed signal
         """
-#        debug('set_names_combo(%s)' %  val)
         combo = self.view.widgets.names_combo
         if combo.get_model() is None:
-#            debug('--None')
             self.view.widgets.details_box.set_sensitive(False)
             return
         if isinstance(val, int):
@@ -355,13 +352,11 @@ class ReportToolDialogPresenter(object):
         '''
         this will overwrite any other report settings with name
         '''
-#        debug('set_prefs_for(%s, %s, %s)' % (name, formatter_title, settings))
         formatters = prefs[config_list_pref]
         if formatters is None:
             formatters = {}
         formatters[name] = formatter_title, settings
         prefs[config_list_pref] = formatters
-#        debug(prefs[config_list_pref])
 
 
     def on_new_button_clicked(self, *args):
@@ -519,14 +514,12 @@ class ReportToolDialogPresenter(object):
         configs = prefs[config_list_pref]
         combo = self.view.widgets.names_combo
         if configs is None:
-#            debug('configs is None')
             self.view.widgets.details_box.set_sensitive(False)
             utils.clear_model(combo)
             return
         try:
             model = gtk.ListStore(str)
             for cfg in configs.keys():
-#                debug('cfg: %s' % cfg)
                 model.append([cfg])
             combo.set_model(model)
         except AttributeError, e:
@@ -541,7 +534,6 @@ class ReportToolDialogPresenter(object):
             msg = _('No formatters found. To create a new formatter click '\
                     'the "New" button.')
             utils.message_dialog(msg, parent=self.view.dialog)
-##	    debug('names_combo.model=None')
             self.view.widgets.names_combo.set_model(None)
         self.populate_names_combo()
 
@@ -551,10 +543,8 @@ class ReportToolDialogPresenter(object):
         title, dummy =  prefs[config_list_pref][name]
         box = self.view.widgets.settings_expander.get_child()
         formatters = prefs[config_list_pref]
-#        debug('save_formatter_settings: %s: %s, %s' % (name, title, box.get_settings()))
         formatters[name] = title, box.get_settings()
         prefs[config_list_pref] = formatters
-#        debug(prefs[config_list_pref][name])
 
 
     def start(self):
