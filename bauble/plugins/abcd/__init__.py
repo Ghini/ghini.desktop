@@ -223,14 +223,17 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ABCDElement(taxon_identified, 'InformalNameString',
                            text=vernacular_name)
 
-        notes = obj.get_Notes()
-        if notes:
-            ABCDElement(unit, 'Notes', text=notes)
-
         # add all the extra non standard elements
         obj.extra_elements(unit)
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis
+
+        # notes are last in the schema and extra_elements() shouldn't
+        # add anything that comes past Notes, e.g. RecordURI,
+        # EAnnotations, UnitExtension
+        notes = obj.get_Notes()
+        if notes:
+            ABCDElement(unit, 'Notes', text=notes)
 
     if not validate:
         return ElementTree(datasets)
@@ -274,12 +277,15 @@ class ABCDExporter(object):
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
         if plants == None:
-            plants = list(db.Session().query(Plant))
+            plants = db.Session().query(Plant).all()
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin
         from bauble.plugins.report.xsl import PlantABCDAdapter
         data = create_abcd([PlantABCDAdapter(p) for p in plants])
+
+        # TODO: check can write file first
+
         data.write_c14n(filename)
 
 
