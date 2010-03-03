@@ -1449,8 +1449,8 @@ def create_plants():
             if not plants:
                 # no plants to remove, create one first
                 created_tuples.add(plant_tuple)
-                plant = make_plant(plant_tuple, quantity, from_id)
-
+                #plant = make_plant(plant_tuple, quantity, from_id)
+                plant = make_plant(plant_tuple, None, from_id)
                 plants = [plant] # so we can remove from this plant now
             # remove a plant
             nleft = quantity
