@@ -290,10 +290,13 @@ class Species(db.Base):
             if rank == 'cv.' and epithet:
                 infrasp_str.append("'%s'" % escape(epithet))
             else:
+                debug('rank: %s(%s)' % (rank, type(rank)))
                 if rank:
                     infrasp_str.append(rank)
-                if epithet:
+                if epithet and rank:
                     infrasp_str.append(italicize(epithet))
+                elif epithet:
+                    infrasp_str.append(escape(epithet))
 
             if authors and iauthor:
                 infrasp_str.append(escape(iauthor))

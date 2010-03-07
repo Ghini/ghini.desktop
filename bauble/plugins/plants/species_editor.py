@@ -413,8 +413,9 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
         def set_model_attr(self, attr, value):
             infrasp_attr = Species.infrasp_attr[self.level][attr]
+            debug('%s: %s(%s)' % (attr, value, type(value)))
             setattr(self.species, infrasp_attr, value)
-            self.presenter._dirty = False
+            self.presenter._dirty = True
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
 
@@ -422,7 +423,11 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         def on_rank_combo_changed(self, combo, *args):
             model = combo.get_model()
             it = combo.get_active_iter()
-            self.set_model_attr('rank', utils.utf8(model[it][0]))
+            value = model[it][0]
+            if value is not None:
+                self.set_model_attr('rank', utils.utf8(model[it][0]))
+            else:
+                self.set_model_attr('rank', None)
 
 
         def on_epithet_entry_changed(self, entry, *args):
@@ -796,8 +801,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
     def on_add_button_clicked(self, button, data=None):
         """
-        adds the synonym from the synonym entry to the list of synonyms for
-        this species
+        Adds the synonym from the synonym entry to the list of synonyms for
+        this species.
         """
         syn = SpeciesSynonym(species=self.model, synonym=self._selected)
         tree_model = self.treeview.get_model()
