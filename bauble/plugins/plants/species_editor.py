@@ -413,7 +413,6 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
         def set_model_attr(self, attr, value):
             infrasp_attr = Species.infrasp_attr[self.level][attr]
-            debug('%s: %s(%s)' % (attr, value, type(value)))
             setattr(self.species, infrasp_attr, value)
             self.presenter._dirty = True
             self.presenter.parent_ref().refresh_fullname_label()
