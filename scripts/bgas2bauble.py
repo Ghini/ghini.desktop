@@ -473,9 +473,12 @@ def get_species_id(species, ignore_columns=None):
                                     genus_table.c.genus == species['genus'])
         if not genus_id:
             return None
+    ignore = []
     if not ignore_columns:
-        ignore_columns = ('_last_updated', '_created', 'genus')
-    cols = [col for col in species if col not in ignore_columns]
+        ignore = ('_last_updated', '_created', 'genus')
+    else:
+        ignore = ignore_columns
+    cols = [col for col in species if col not in ignore]
     where = and_(*[species_table.c[col] == species[col] for col in cols])
     return  get_column_value(species_table.c.id,
                              and_(species_table.c.genus_id==genus_id, where))
@@ -1521,11 +1524,11 @@ def do_synonym():
     genus_id_ctr = get_next_id(genus_table)
 
     dupes = set()
-    ignore_columns = ('_last_updated', '_created', 'genus', 'sp_author')
+
     for rec in dbf:
         species = species_name_dict_from_rec(rec,
                                              defaults=species_defaults.copy())
-        species_id = get_species_id(species, ignore_columns)
+        species_id = get_species_id(species)
         if not species_id:
             gen = species.pop('genus')
             genus_id = get_column_value(genus_table.c.id,
@@ -1551,7 +1554,7 @@ def do_synonym():
                     "authors": rec['s_authors']}
         synonym = species_name_dict_from_rec(syn_dict,
                                              defaults=species_defaults.copy())
-        synonym_id = get_species_id(synonym, ignore_columns)
+        synonym_id = get_species_id(synonym)
         if not synonym_id:
             gen = synonym.pop('genus')
             genus_id = get_column_value(genus_table.c.id,
