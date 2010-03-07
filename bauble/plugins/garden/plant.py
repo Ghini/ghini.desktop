@@ -1083,7 +1083,7 @@ class ChangesExpander(InfoExpander):
         """
         super(ChangesExpander, self).__init__(_('Changes'), widgets)
         self.table = gtk.Table()
-        self.vbox.pack_start(self.table)
+        self.vbox.pack_start(self.table, expand=False, fill=False)
         self.table.props.row_spacing = 3
         self.table.props.column_spacing = 5
 
@@ -1120,6 +1120,7 @@ class ChangesExpander(InfoExpander):
         for change in sorted(row.changes, cmp=_cmp, reverse=True):
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
+            label.set_alignment(0, 0)
             self.table.attach(label, 0, 1, current_row, current_row+1,
                               xoptions=gtk.FILL)
             if change.to_location and change.to_location!=change.from_location:
@@ -1137,10 +1138,11 @@ class ChangesExpander(InfoExpander):
                 s = '%s: %s -> %s' % (change.quantity, change.from_location,
                                       change.to_location)
             if change.reason is not None:
-                s += '\n%s' % change.reason
+                s += '\n%s' % change_reasons[change.reason]
             label = gtk.Label(s)
             label.set_alignment(0, .5)
-            self.table.attach(label, 1, 2, current_row, current_row+1)
+            self.table.attach(label, 1, 2, current_row, current_row+1,
+                              xoptions=gtk.FILL)
             current_row += 1
         self.vbox.show_all()
 
