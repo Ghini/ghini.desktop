@@ -1428,16 +1428,23 @@ def create_plants():
                 # no plants to transfer so create one
                 created_tuples.add(plant_tuple)
                 plant = make_plant(plant_tuple, quantity)#, from_id)
-                plant_id = plant['id']
-                plants = [plant]
+            else:
+                plant = plants[0]
+
+            # TODO: if we don't transfer all the plants then we need
+            # to create a new one at the new location
+            if quantity < plant['quantity']:
+                plant['quantity'] -= quantity
+                plant = make_plant(plant_tuple, quantity)#, from_id)
+
             # transfer an existing plant
-            plants[0].update(quantity=quantity, location_id=to_id)
-            plant_id = plants[0]['id']
-            note_id = make_note(rec['notes'], date, u'Transfer', plant_id)
+            plant.update(quantity=quantity, location_id=to_id)
+            plant_id = plant['id']
+            note_id = make_note(rec['notes'], date, u'Transfer', plant['id'])
             change = change_defaults.copy()
             change.update(from_location_id=from_id, to_location_id=to_id,
                           quantity=quantity, date=date, reason=None,
-                          plant_id=plant_id, note_id=note_id)
+                          plant_id=plant['id'], note_id=note_id)
             change_rows.append(change)
         else:
             from_id = locations[rec['remofrom']]
