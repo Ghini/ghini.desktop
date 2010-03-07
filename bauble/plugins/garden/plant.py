@@ -52,9 +52,46 @@ def edit_callback(plants):
 
 
 def branch_callback(plants):
+    if plants[0].quantity <= 1:
+        msg = _("Can't branch a plant with a quantity of less than 2")
+        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        return
     plant = plants[0].duplicate(code=None)
+
     e = PlantEditor(model=plant)
-    return e.start() != None
+    title = e.presenter.view.get_window().props.title
+    e.presenter.view.get_window().props.title += \
+        utils.utf8(' - %s' % _('Branch Mode'))
+
+    message_box_parent = e.presenter.view.widgets.message_box_parent
+    map(message_box_parent.remove, message_box_parent.get_children())
+    msg = _('Branching from %(plant_code)s.  The quantity will '
+            'be subtracted from %(plant_code)s') \
+            % {'plant_code': str(plants[0])}
+    box = utils.add_message_box(message_box_parent, utils.MESSAGE_BOX_INFO)
+    box.message = msg
+    box.show_all()
+    committed = e.start()
+    map(message_box_parent.remove, message_box_parent.get_children())
+    if not committed:
+        return False
+    session = db.Session()
+    old_plant = session.merge(plants[0])
+    new_plant = session.merge(committed[0])
+    old_plant.quantity -= new_plant.quantity
+
+    # add the change
+    change = new_plant.changes[0]
+    session.merge(change).plant = old_plant
+
+    note = PlantNote()
+    note.plant = new_plant
+    note.note = utils.utf8(_('Plant branched from %s' % str(old_plant)))
+    note.category = u'Transfer'
+    note.date = datetime.date.today()
+
+    session.commit()
+    return True
 
 
 def remove_callback(plants):
@@ -777,11 +814,10 @@ class PlantEditor(GenericModelViewPresenterEditor):
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_NEXT,)
 
-
     def __init__(self, model=None, parent=None):
         '''
-        @param model: Plant instance or None
-        @param parent: None
+        :param model: Plant instance or None
+        :param parent: None
         '''
         if model is None:
             model = Plant()
