@@ -219,7 +219,7 @@ class Collection(db.Base):
     habitat = Column(UnicodeText)
     notes = Column(UnicodeText)
 
-    geography_id = Column(Integer, ForeignKey('geography.id'))
+    geography_id = Column(Integer, ForeignKey('geography.id'), nullable=False)
     region = relation(Geography, uselist=False)
 
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)
