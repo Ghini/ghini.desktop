@@ -1043,7 +1043,13 @@ class SearchView(pluginmgr.View):
         # slice to the model
         #for obj in itertools.islice(itertools.chain(*groups), 0,None, steps):
         #for obj in itertools.islice(itertools.chain(results), 0,None, steps):
+
+        added = set()
         for obj in itertools.chain(*groups):
+            if obj in added:  # only add unique object
+                continue
+            else:
+                added.add(obj)
             parent = model.append(None, [obj])
             obj_type = type(obj)
             if check_for_kids:
@@ -1052,7 +1058,6 @@ class SearchView(pluginmgr.View):
                     model.append(parent, ['-'])
             elif self.view_meta[obj_type].children is not None:
                 model.append(parent, ['-'])
-
             #steps_so_far += chunk_size
             steps_so_far += 1
             if steps_so_far % update_every == 0:
