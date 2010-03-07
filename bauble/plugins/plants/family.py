@@ -3,6 +3,7 @@
 #
 import os
 import traceback
+import weakref
 
 import gtk
 from sqlalchemy import *
@@ -303,8 +304,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
         # initialize widgets
         self.init_enum_combo('fam_qualifier_combo', 'qualifier')
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
-                                                    self.session)
+        self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view() # put model values in view
 
         # connect signals
@@ -364,14 +364,14 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
     PROBLEM_INVALID_SYNONYM = 1
 
 
-    def __init__(self, family, view, session):
+    def __init__(self, parent):
         '''
-        @param model: Family instance
-        @param view: see GenericEditorPresenter
-        @param session:
+        :param parent: FamilyEditorPresenter
         '''
-        super(SynonymsPresenter, self).__init__(family, view)
-        self.session = session
+        self.parent_ref = weakref.ref(parent)
+        super(SynonymsPresenter, self).__init__(self.parent_ref().model,
+                                                self.parent_ref().view)
+        self.session = self.parent_ref().session
         self.init_treeview()
 
         # use completions_model as a dummy object for completions, we'll create
@@ -465,7 +465,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.__dirty = True
-        self.refresh_sensitivity()
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
