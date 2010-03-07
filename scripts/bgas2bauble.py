@@ -473,9 +473,12 @@ def get_species_id(species, ignore_columns=None):
                                     genus_table.c.genus == species['genus'])
         if not genus_id:
             return None
+    ignore = []
     if not ignore_columns:
-        ignore_columns = ('_last_updated', '_created', 'genus')
-    cols = [col for col in species if col not in ignore_columns]
+        ignore = ('_last_updated', '_created', 'genus')
+    else:
+        ignore = ignore_columns
+    cols = [col for col in species if col not in ignore]
     where = and_(*[species_table.c[col] == species[col] for col in cols])
     return  get_column_value(species_table.c.id,
                              and_(species_table.c.genus_id==genus_id, where))
@@ -591,8 +594,8 @@ def do_source():
 
         # TODO: maybe we should add a name to source and only add a
         # contact if the address is not None
-        description = '\n'.join(map(lambda s: utils.utf8(s).strip(),
-                                    rec['soudescr'].split(',')))
+        description = '\n'.join([utils.utf8(s).strip() for s in \
+                                     rec['soudescr'].split(',')])
         if not description:
             description = None
         row.update({'id': utils.utf8(rec['source']),
@@ -1389,16 +1392,34 @@ def create_plants():
     get_name = lambda r: r.dbf.name
     is_transfer = lambda r: get_name(r).endswith('TRANSFER.DBF')
     is_removal = lambda r: get_name(r).endswith('REMOVALS.DBF')
-    def keyfunc(x):
+
+    def _cmp(x, y):
         if is_transfer(x):
-            return x['movedate']
-        return x['remodate']
+            x_date = x['movedate']
+        else:
+            x_date = x['remodate']
+
+        if is_transfer(y):
+            y_date = y['movedate']
+        else:
+            y_date = y['remodate']
+
+        if x_date < y_date:
+            return -1
+        if x_date > y_date:
+            return 1
+        elif is_removal(x):
+             return -1
+        elif is_removal(y):
+             return 1
+        else:
+            return -1
 
     # all transfers and removals sorted by date
     records = sorted(ifilter(lambda r: not r.deleted,
                              chain(open_dbf('TRANSFER.DBF'),
                                    open_dbf('REMOVALS.DBF'))),
-                     key=keyfunc)
+                     cmp=_cmp)
     rec_ctr = 1
     for rec in records:
         rec_ctr += 1
@@ -1521,11 +1542,11 @@ def do_synonym():
     genus_id_ctr = get_next_id(genus_table)
 
     dupes = set()
-    ignore_columns = ('_last_updated', '_created', 'genus', 'sp_author')
+
     for rec in dbf:
         species = species_name_dict_from_rec(rec,
                                              defaults=species_defaults.copy())
-        species_id = get_species_id(species, ignore_columns)
+        species_id = get_species_id(species)
         if not species_id:
             gen = species.pop('genus')
             genus_id = get_column_value(genus_table.c.id,
@@ -1551,7 +1572,7 @@ def do_synonym():
                     "authors": rec['s_authors']}
         synonym = species_name_dict_from_rec(syn_dict,
                                              defaults=species_defaults.copy())
-        synonym_id = get_species_id(synonym, ignore_columns)
+        synonym_id = get_species_id(synonym)
         if not synonym_id:
             gen = synonym.pop('genus')
             genus_id = get_column_value(genus_table.c.id,
