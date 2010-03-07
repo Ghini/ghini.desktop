@@ -1062,7 +1062,26 @@ class ChangesExpander(InfoExpander):
         self.table.resize(nrows, 2)
         date_format = prefs.prefs[prefs.date_format_pref]
         current_row = 0
-        for change in sorted(row.changes, key=lambda x: x.date, reverse=True):
+
+        def _cmp(x, y):
+            """
+            Sort by change.date and then change._created.  If they are
+            equal then removals sort before transfers.
+            """
+            if x.date < y.date:
+                return -1
+            elif x.date > y.date:
+                return 1
+            elif x.date == y.date and x._created < y._created:
+                return -1
+            elif x.date == y.date and x._created > y._created:
+                return 1
+            elif x.quantity < 0:
+                return -1
+            else:
+                return 1
+
+        for change in sorted(row.changes, cmp=_cmp, reverse=True):
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
             self.table.attach(label, 0, 1, current_row, current_row+1,
