@@ -1025,10 +1025,10 @@ class MessageBox(GenericMessageBox):
         self.box.pack_start(self.vbox)
 
         self.label = gtk.Label()
+        self.label.set_padding(8, 8)
+        self.label.set_alignment(0, 0)
         if msg:
-            debug(msg)
             self.label.set_markup(msg)
-        self.label.set_alignment(.1, .1)
         self.vbox.pack_start(self.label, expand=True, fill=True)
 
         button_box = gtk.VBox()
@@ -1164,7 +1164,6 @@ MESSAGE_BOX_YESNO = 3
 
 def add_message_box(parent, type=MESSAGE_BOX_INFO):
     """
-
     Arguments:
     - `parent`:
     - `type`:
@@ -1178,7 +1177,7 @@ def add_message_box(parent, type=MESSAGE_BOX_INFO):
         msg_box = YesNoMessageBox()
     else:
         raise ValueError('unknown message box type: %s' % type)
-    parent.pack_start(msg_box)
+    parent.pack_start(msg_box, expand=True, fill=True)
     return msg_box
 
 
