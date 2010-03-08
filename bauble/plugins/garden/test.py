@@ -1156,6 +1156,3 @@ class DMSConversionTests(unittest.TestCase):
         for data, dec in parse_lat_lon_data:
             result = parse(*data)
             self.assert_(result == dec, '%s: %s == %s' % (data, result, dec))
-
-
-

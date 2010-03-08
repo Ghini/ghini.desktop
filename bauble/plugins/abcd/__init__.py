@@ -181,10 +181,12 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         ABCDElement(unit, 'SourceID', text='Bauble')
 
         unit_id = ABCDElement(unit, 'UnitID', text=obj.get_UnitID())
-        # TODO: metadata--<DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
-        identifications = ABCDElement(unit, 'Identifications')
+        ABCDElement(unit, 'DateLastEdited', text=obj.get_DateLastEdited())
+
+        # TODO: add list of verifications to Identifications
 
         # scientific name identification
+        identifications = ABCDElement(unit, 'Identifications')
         identification = ABCDElement(identifications, 'Identification')
         result = ABCDElement(identification, 'Result')
         taxon_identified = ABCDElement(result, 'TaxonIdentified')
@@ -210,6 +212,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
+        ABCDElement(identification, 'PreferredFlag', text='true')
 
         # vernacular name identification
         # TODO: should we include all the vernacular names or only the default

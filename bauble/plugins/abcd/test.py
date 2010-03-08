@@ -115,13 +115,3 @@ class ABCDTestCase(BaubleTestCase):
 
     def validate(self, xml):
         return self.abcd_schema.validate(xml)
-
-
-class ABCDTestSuite(unittest.TestSuite):
-
-    def __init__(self):
-        unittest.TestSuite.__init__(self)
-        self.addTests(map(ABCDTestCase, ('test_abcd', 'test_plants_to_abcd')))
-
-
-testsuite = ABCDTestSuite
