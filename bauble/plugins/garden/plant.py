@@ -86,9 +86,13 @@ def branch_callback(plants):
 
     note = PlantNote()
     note.plant = new_plant
-    note.note = utils.utf8(_('Plant branched from %s' % str(old_plant)))
-    note.category = u'Transfer'
-    note.date = datetime.date.today()
+    note.note = utils.utf8(_('%(quantity)s plant(s) of %(plant_code)s branched '
+                             'to %(location)s') \
+                                 % dict(quantity=new_plant.quantity,
+                                        plant_code=str(old_plant),
+                                        location=new_plant.location))
+    note.category = u'Branch'
+    note.date = change.date
 
     session.commit()
     return True
@@ -567,51 +571,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 # if get_next_code() returns None then there was an error
                 self.set_model_attr('code', code)
 
-        # def _changes_data_func(column, cell, model, treeiter, prop):
-        #     change = model[treeiter][1]
-        #     if prop == 'reason' and change.reason:
-        #         value = change_reasons[change.reason]
-        #     elif prop == 'quantity' and change.quantity < 0:
-        #         value = -change.quantity
-        #     else:
-        #         value = getattr(change, prop)
-        #     cell.set_property('text', value)
-
-        # tree = self.view.widgets.plant_changes_treeview
-        # def setup_column(column, cell, prop):
-        #     column = self.view.widgets[column]
-        #     cell = self.view.widgets[cell]
-        #     column.set_cell_data_func(cell, _changes_data_func, prop)
-
-        # setup_column('changes_date_column', 'changes_date_cell', 'date')
-        # setup_column('changes_from_column', 'changes_from_cell','from_location')
-        # setup_column('changes_to_column', 'changes_to_cell', 'to_location')
-        # setup_column('changes_quantity_column', 'changes_quantity_cell',
-        #              'quantity')
-        # setup_column('changes_reason_column', 'changes_reason_cell',
-        #              'reason')
-        # setup_column('changes_user_column', 'changes_user_cell', 'person')
-
-        # self.view.widgets.changes_change_column.\
-        #     add_attribute(self.view.widgets.changes_change_cell, 'text', 0)
-
-        # model = gtk.ListStore(str, object)
-        # prev_quantity = 0
-        # for change in sorted(self.model.changes, key=lambda x: x.date):
-        #     action = _('Nothing')
-        #     if not change.from_location:
-        #         action = _('Created')
-        #         prev_quantity += change.quantity
-        #     if change.quantity < 0:
-        #         action = _('Removal')
-        #     elif not change.to_location and change.quantity > 0:
-        #         action = _('Addition')
-        #     elif change.from_location != change.to_location:
-        #         prev_quantity = change.quantity
-        #         action = _('Transfer')
-        #     model.insert(0, [action, change])
-        # self.view.widgets.plant_changes_treeview.set_model(model)
-
         self.refresh_view() # put model values in view
 
         self.change = PlantChange()
@@ -688,7 +647,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 self.change.quantity = self.model.quantity
             else:
                 self.change.quantity = \
-                    self.model.quantity-self._original_quantity
+                    abs(self.model.quantity-self._original_quantity)
         else:
             self.set_model_attr('quantity', None)
         self.refresh_sensitivity()
@@ -865,7 +824,11 @@ class PlantEditor(GenericModelViewPresenterEditor):
         codes = utils.range_builder(self.model.code)
         if len(codes) <= 1 or self.model not in self.session.new:
             change = self.presenter.change
-            if change.quantity is None \
+            if self.model._duplicate:
+                # branch mode
+                if not change.to_location:
+                    change.to_location = self.model.location
+            elif change.quantity is None \
                     or (change.quantity == self.model.quantity \
                             and change.from_location == self.model.location):
                 # if the quantity and location haven't changed then
@@ -873,14 +836,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self.session.expunge(change)
                 self.model.change = None
             else:
-                if self.model.location != self.presenter.change.from_location:
+                if self.model.location != change.from_location:
                     # transfer
-                    self.presenter.change.to_location = self.model.location
+                    change.to_location = self.model.location
                 elif self.model.quantity > self.presenter._original_quantity \
-                        and not self.presenter.change.to_location:
+                        and not change.to_location:
                     # additions should use to_location
-                    self.presenter.change.to_location = self.model.location
-                    self.presenter.change.from_location = None
+                    change.to_location = self.model.location
+                    change.from_location = None
             super(PlantEditor, self).commit_changes()
             self._committed.append(self.model)
             return
@@ -1123,7 +1086,7 @@ class ChangesExpander(InfoExpander):
             label.set_alignment(0, 0)
             self.table.attach(label, 0, 1, current_row, current_row+1,
                               xoptions=gtk.FILL)
-            if change.to_location and change.to_location!=change.from_location:
+            if change.to_location and change.from_location:
                 s = '%(quantity)s Transferred from %(from_loc)s to %(to)s' % \
                     dict(quantity=change.quantity,
                          from_loc=change.from_location, to=change.to_location)
