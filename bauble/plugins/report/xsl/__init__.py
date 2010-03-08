@@ -85,6 +85,9 @@ class SpeciesABCDAdapter(ABCDAdapter):
     """
     def __init__(self, species, for_labels=False):
         super(SpeciesABCDAdapter, self).__init__(species)
+
+        # hold on to the accession so it doesn't get cleaned up and closed
+        self.session = object_session(species)
         self.for_labels = for_labels
         self.species = species
         self._date_format = prefs.prefs[prefs.date_format_pref]
@@ -95,6 +98,9 @@ class SpeciesABCDAdapter(ABCDAdapter):
         # creating reports without including the accession or plant
         # code
         return ""
+
+    def get_DateLastEdited(self):
+        return utils.xml_safe_utf8(self.species._last_updated.isoformat())
 
     def get_family(self):
         return xml_safe_utf8(self.species.genus.family)
@@ -128,10 +134,10 @@ class SpeciesABCDAdapter(ABCDAdapter):
             return None
         notes = []
         for note in self.species.notes:
-            date = utf8(note.date.strftime(self._date_format))
-            notes.append(dict(date=date, user=xml_safe_utf8(note.user),
+            notes.append(dict(date=xml_safe_utf8(note.date.isoformat()),
+                              user=xml_safe_utf8(note.user),
                               category=xml_safe_utf8(note.category),
-                              note=xml_safe_utf8(note.note)))
+                              note=utils.xml_safe_utf8(note.note)))
         return utf8(notes)
 
     def extra_elements(self, unit):
@@ -153,9 +159,12 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         self.accession = accession
 
 
-
     def get_UnitID(self):
         return xml_safe_utf8(str(self.accession))
+
+
+    def get_DateLastEdited(self):
+        return utils.xml_safe_utf8(self.accession._last_updated.isoformat())
 
 
     def get_Notes(self):
@@ -163,8 +172,8 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
             return None
         notes = []
         for note in self.accession.notes:
-            date = xml_safe_utf8(note.date.strftime(self._date_format))
-            notes.append(dict(date=date, user=xml_safe_utf8(note.user),
+            notes.append(dict(date=xml_safe_utf8(note.date.isoformat()),
+                              user=xml_safe_utf8(note.user),
                               category=xml_safe_utf8(note.category),
                               note=xml_safe_utf8(note.note)))
         return xml_safe_utf8(notes)
@@ -183,9 +192,9 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
 
             # TODO: get date pref for DayNumberBegin
             if collection.date:
-                date = utf8(collection.date.strftime(self._date_format))
                 date_time = ABCDElement(gathering, 'DateTime')
-                ABCDElement(date_time, 'DateText', date)
+                ABCDElement(date_time, 'DateText',
+                            xml_safe_utf8(collection.date.isoformat()))
 
             if collection.collector:
                 agents = ABCDElement(gathering, 'Agents')
@@ -247,13 +256,17 @@ class PlantABCDAdapter(AccessionABCDAdapter):
         return xml_safe_utf8(str(self.plant))
 
 
+    def get_DateLastEdited(self):
+        return utils.xml_safe_utf8(self.plant._last_updated.isoformat())
+
+
     def get_Notes(self):
         if not self.plant.notes:
             return None
         notes = []
         for note in self.plant.notes:
-            date = xml_safe_utf8(note.date.strftime(self._date_format))
-            notes.append(dict(date=date, user=xml_safe_utf8(note.user),
+            notes.append(dict(date=utils.xml_safe_utf8(note.date.isoformat()),
+                              user=xml_safe_utf8(note.user),
                               category=xml_safe_utf8(note.category),
                               note=xml_safe_utf8(note.note)))
         return xml_safe_utf8(str(notes))
