@@ -1228,7 +1228,7 @@ def do_plants():
             coll_id_ctr += 1
 
         # check if we have a source or othernos
-        if filter(lambda x: str(x).strip(), [rec['source'], rec['othernos']]):
+        if [str(x).strip() for x in [rec['source'], rec['othernos']]]:
             source['source_detail_id'] = rec['source']
             source['sources_code'] = utils.utf8(rec['othernos'])
             source_detail_id_ctr += 1
@@ -1353,6 +1353,7 @@ def create_plants():
     note_defaults = get_defaults(PlantNote.__table__)
     change_defaults = get_defaults(PlantChange.__table__)
     change_rows = []
+    plant_changes = {}
 
     created_tuples = set()
 
@@ -1383,10 +1384,6 @@ def create_plants():
         plant_id_ctr += 1
         plant_pool.setdefault(plant_tuple, []).append(plant)
         plant_rows.append(plant)
-        # change = change_defaults.copy()
-        # change.update(to_location_id=to_id, date=plant['date_recvd'],
-        #               quantity=quantity, plant_id=plant['id'])
-        # change_rows.append(change)
         return plant
 
     get_name = lambda r: r.dbf.name
@@ -1449,11 +1446,20 @@ def create_plants():
             else:
                 plant = plants[0]
 
-            # TODO: if we don't transfer all the plants then we need
-            # to create a new one at the new location
+            # if not transferring all the plants then subtract the
+            # quantity from the original and branch the plant
             if quantity < plant['quantity']:
                 plant['quantity'] -= quantity
-                plant = make_plant(plant_tuple, quantity)#, from_id)
+                new_plant = make_plant(plant_tuple, quantity)#, from_id)
+
+                # copy changes from original plant
+                # for change in plant_changes.get((rec['accno'],plant['code']),[]):
+                #     new_change = change.copy()
+                #     new_change['plant_id'] = new_plant['id']
+                #     change_rows.append(new_change)
+                #     plant_changes.setdefault((rec['accno'], new_plant['code']),
+                #                               []).append(new_change)
+                plant = new_plant
 
             # transfer an existing plant
             plant.update(quantity=quantity, location_id=to_id)
@@ -1464,6 +1470,8 @@ def create_plants():
                           quantity=quantity, date=date, reason=None,
                           plant_id=plant['id'], note_id=note_id)
             change_rows.append(change)
+            plant_changes.setdefault((rec['accno'], plant['code']), []).\
+                                         append(change)
         else:
             from_id = locations[rec['remofrom']]
             quantity = rec['remoqty']
@@ -1497,7 +1505,8 @@ def create_plants():
                                   quantity=-plant['quantity'], reason=reason,
                                   plant_id=plant['id'], note_id=note_id)
                     plant['quantity'] = nleft-plant['quantity']
-
+                plant_changes.setdefault((rec['accno'], plant['code']),
+                                          []).append(change)
                 change_rows.append(change)
                 if nleft <= 0:
                     break
