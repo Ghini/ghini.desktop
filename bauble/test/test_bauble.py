@@ -177,18 +177,18 @@ class HistoryTests(BaubleTestCase):
         self.session.commit()
         history = self.session.query(db.History).\
             order_by(db.History.timestamp.desc()).first()
-        assert history.tablename == 'family' and history.operation == 'insert'
+        assert history.table_name == 'family' and history.operation == 'insert'
 
         f.family = u'Family2'
         self.session.commit()
         history = self.session.query(db.History).\
             order_by(db.History.timestamp.desc()).first()
-        assert history.tablename == 'family' and history.operation == 'update'
+        assert history.table_name == 'family' and history.operation == 'update'
 
         self.session.delete(f)
         self.session.commit()
         history = self.session.query(db.History).\
             order_by(db.History.timestamp.desc()).first()
-        assert history.tablename == 'family' and history.operation == 'delete'
+        assert history.table_name == 'family' and history.operation == 'delete'
 
 
