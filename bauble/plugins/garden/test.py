@@ -47,6 +47,7 @@ collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere',
 default_cutting_values = \
             {'cutting_type': u'Nodal',
              'length': 2,
+             'length_unit': u'mm',
              'tip': u'Intact',
              'leaves': u'Intact',
              'leaves_reduced_pct': 25,
@@ -244,21 +245,13 @@ class PlantTests(GardenTestCase):
         note = PlantNote(note=u'some note')
         note.plant = p
         note.date = datetime.date.today()
-
-        transfer = PlantTransfer(from_location=self.location,
-                                 to_location=self.location, quantity=1)
-        transfer.plant = p
-
-        removal = PlantRemoval(from_location=self.location, reason=u'DEAD',
-                               quantity=1)
-        removal.plant = p
-
+        change = PlantChange(from_location=self.location,
+                             to_location=self.location, quantity=1)
+        change.plant = p
         self.session.commit()
-
         dup = p.duplicate(code=u'3')
         assert dup.notes is not []
-        assert dup.transfers is not []
-        assert dup.removals is not []
+        assert dup.changes is not []
         self.session.commit()
 
 
@@ -270,7 +263,11 @@ class PlantTests(GardenTestCase):
             import gtk
         except ImportError:
             raise SkipTest('could not import gtk')
-        editor = PlantEditor(model=self.plant)
+        # use our own plant because PlantEditor.commit_changes() will
+        # only work in bulk mode when the plant is in session.new
+        p = Plant(accession=self.accession, location=self.location, code=u'2',
+                  quantity=52)
+        editor = PlantEditor(model=p)
         #editor.start()
         update_gui()
         rng = '2,3,4-6'
@@ -285,6 +282,7 @@ class PlantTests(GardenTestCase):
         # make sure the entry gets a Problem added to it if an
         # existing plant code is used in bulk mode
         widgets.plant_code_entry.set_text('1,' + rng)
+        widgets.plant_quantity_entry.set_text('2')
         update_gui()
         problem = (editor.presenter.PROBLEM_DUPLICATE_PLANT_CODE,
                    editor.presenter.view.widgets.plant_code_entry)
@@ -329,7 +327,7 @@ class PlantTests(GardenTestCase):
         loc2a = Location(name=u'site2a', code=u'2a')
         self.session.add_all([loc, loc2, loc2a])
         self.session.commit()
-        p = Plant(accession=self.accession, location=loc)
+        p = Plant(accession=self.accession, location=loc, quantity=1)
         editor = PlantEditor(model=p)
         editor.start()
         del editor
@@ -371,7 +369,8 @@ class PropagationTests(GardenTestCase):
         Test the Accession->AccessionPropagation->Propagation relation
         """
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
@@ -389,7 +388,7 @@ class PropagationTests(GardenTestCase):
         prop = Propagation()
         loc = self.create(Location, name=u'site1', code=u'1')
         plant = self.create(Plant, accession=self.accession, location=loc,
-                            code=u'1')
+                            code=u'1', quantity=1)
         prop.prop_type = u'UnrootedCutting'
         cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
@@ -401,7 +400,8 @@ class PropagationTests(GardenTestCase):
 
     def test_get_summary(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
@@ -427,7 +427,8 @@ class PropagationTests(GardenTestCase):
 
     def test_cutting_property(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
@@ -455,7 +456,8 @@ class PropagationTests(GardenTestCase):
 
     def test_seed_property(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         plant.propagations.append(prop)
         prop.prop_type = u'Seed'
@@ -476,7 +478,8 @@ class PropagationTests(GardenTestCase):
 
     def test_cutting_editor(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         propagation = Propagation()
         plant.propagations.append(propagation)
         editor = PropagationEditor(model=propagation)
@@ -486,7 +489,7 @@ class PropagationTests(GardenTestCase):
         view.set_widget_value('prop_date_entry', utils.today_str())
         cutting_presenter = editor.presenter._cutting_presenter
         for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
-            #debug('%s=%s' % (widget, self.default_cutting_values[attr]))
+            #debug('%s=%s' % (widget, default_cutting_values[attr]))
             view.set_widget_value(widget, default_cutting_values[attr])
         update_gui()
         editor.handle_response(gtk.RESPONSE_OK)
@@ -504,7 +507,8 @@ class PropagationTests(GardenTestCase):
 
     def test_seed_editor(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         propagation = Propagation()
         plant.propagations.append(propagation)
         editor = PropagationEditor(model=propagation)
@@ -648,7 +652,8 @@ class SourceTests(GardenTestCase):
         #self.assert_(hasattr(source, 'plant_propagation'))
 
         location = Location(code=u'1', name=u'site1')
-        plant = Plant(accession=self.accession, location=location, code=u'1')
+        plant = Plant(accession=self.accession, location=location, code=u'1',
+                      quantity=1)
         plant.propagations.append(Propagation(prop_type=u'Seed'))
         self.session.commit()
 
@@ -768,7 +773,7 @@ class AccessionTests(GardenTestCase):
         cleaned up.
         """
         acc = self.create(Accession, species=self.species, code=u'1')
-        plant = self.create(Plant, accession=acc,
+        plant = self.create(Plant, accession=acc, quantity=1,
                             location=Location(name=u'site', code=u'STE'),
                             code=u'1')
         self.session.commit()
@@ -863,7 +868,7 @@ class AccessionTests(GardenTestCase):
         acc.verifications.append(ver)
 
         location = Location(name=u'loc1', code=u'loc1')
-        plant = Plant(accession=acc, location=location, code=u'1')
+        plant = Plant(accession=acc, location=location, code=u'1', quantity=1)
         prop = Propagation(prop_type=u'Seed')
         seed = PropSeed(**default_seed_values)
         seed.propagation = prop
