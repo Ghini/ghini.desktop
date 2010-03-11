@@ -26,6 +26,8 @@ import bauble.meta as meta
 import bauble.paths as paths
 from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import PlantPropagation
+from bauble.plugins.plants import *
+import bauble.prefs as prefs
 import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -612,10 +614,18 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.set_model_attr('accession', value)
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946
+            self.view.widgets.acc_species_label.set_markup('')
             if value is not None:
+                sp_str = Species.str(self.model.accession.species, markup=True)
+                self.view.widgets.acc_species_label.set_markup(sp_str)
                 self.view.widgets.plant_code_entry.emit('changed')
         self.assign_completions_handler('plant_acc_entry', acc_get_completions,
                                         on_select=on_select)
+        if self.model.accession.species:
+            sp_str = Species.str(self.model.accession.species, markup=True)
+        else:
+            sp_str = ''
+        self.view.widgets.acc_species_label.set_markup(sp_str)
 
         self.view.connect('plant_code_entry', 'changed',
                           self.on_plant_code_entry_changed)
