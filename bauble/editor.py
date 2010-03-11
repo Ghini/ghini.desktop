@@ -331,8 +331,6 @@ class GenericEditorView(object):
         completion.set_match_func(match_func)
         completion.set_property('text-column', text_column)
         completion.set_minimum_key_length(minimum_key_length)
-        # TODO: inline completion doesn't work for me
-        #completion.set_inline_completion(True)
         completion.set_popup_completion(True)
         completion.props.popup_set_width = False
         if isinstance(entry, basestring):
@@ -664,16 +662,14 @@ class GenericEditorPresenter(object):
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
         PROBLEM = hash(widget.get_name())
-        key_length = 2
         def add_completions(text):
-            #debug('add_completions(%s)' % text)
             if get_completions is None:
                 # get_completions is None usually means that the
                 # completions model already has a static list of
                 # completions
                 return
-            # always get completions from the first two characters from
-            # a string
+            # get the completions using [0:key_length] as the start of
+            # the string
             def idle_callback(values):
                 completion = widget.get_completion()
                 utils.clear_model(completion)
@@ -681,6 +677,7 @@ class GenericEditorPresenter(object):
                 for v in values:
                     completion_model.append([v])
                 completion.set_model(completion_model)
+            key_length = widget.get_completion().props.minimum_key_length
             values = get_completions(text[:key_length])
             gobject.idle_add(idle_callback, values)
 
@@ -710,6 +707,7 @@ class GenericEditorPresenter(object):
                 self.add_problem(PROBLEM, widget)
                 on_select(None)
 
+            key_length = widget.get_completion().props.minimum_key_length
             if (not comp_model and len(text)>key_length) or \
                     len(text) == key_length:
                 add_completions(text)
