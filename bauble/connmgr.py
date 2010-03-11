@@ -663,7 +663,9 @@ class SQLiteParamsBox(CMParamsBox):
                                   buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         r = d.run()
-        self.file_entry.set_text(d.get_filename())
+        filename = d.get_filename()
+        if filename:
+            self.file_entry.set_text(filename)
         d.destroy()
 
 
