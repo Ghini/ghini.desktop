@@ -59,7 +59,7 @@ class MakoFormatterTests(BaubleTestCase):
                             loc = Location(id=pctr, code=u'%s' % pctr,
                                            name=u'site%s' % pctr)
                             plant = Plant(id=pctr, accession=acc, location=loc,
-                                          code=u'%s' % pctr)
+                                          code=u'%s' % pctr, quantity=1)
                             #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
                             #      % (fctr, gctr, actr, pctr))
                             self.session.add_all([loc, plant])
