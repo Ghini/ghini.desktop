@@ -852,7 +852,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self.session.expunge(change)
                 self.model.change = None
             else:
-               if self.model.location != change.from_location:
+                if self.model.location != change.from_location:
                     # transfer
                     change.to_location = self.model.location
                 elif self.model.quantity > self.presenter._original_quantity \
