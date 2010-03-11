@@ -351,6 +351,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         # propagation editor doesn't commit its changes since we'll be
         # doing our own commit later
         committed = editor.start(commit=False)
+        debug(committed)
         if committed:
             box = self.create_propagation_box(committed)
             self.view.widgets.prop_tab_box.pack_start(box, expand=False,

@@ -621,7 +621,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 self.view.widgets.plant_code_entry.emit('changed')
         self.assign_completions_handler('plant_acc_entry', acc_get_completions,
                                         on_select=on_select)
-        if self.model.accession.species:
+        if self.model.accession:
             sp_str = Species.str(self.model.accession.species, markup=True)
         else:
             sp_str = ''
