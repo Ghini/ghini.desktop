@@ -505,7 +505,7 @@ class PlantEditorView(GenericEditorView):
             v = model[treeiter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
-                               minimum_key_length=1)
+                               minimum_key_length=2)
         self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
         self.init_translatable_combo('reason_combo', change_reasons)
         utils.setup_date_button(self, 'plant_date_entry', 'plant_date_button')
