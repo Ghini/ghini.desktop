@@ -651,15 +651,19 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def on_quantity_changed(self, entry, *args):
         value = entry.props.text
-        if value:
-            self.set_model_attr('quantity', int(value))
+        try:
+            value = abs(int(value))
+        except ValueError, e:
+            value = None
+        self.set_model_attr('quantity', value)
+        if value is not None and self._original_quantity:
             if self.model.quantity == self._original_quantity:
                 self.change.quantity = self.model.quantity
             else:
                 self.change.quantity = \
                     abs(self.model.quantity-self._original_quantity)
         else:
-            self.set_model_attr('quantity', None)
+            self.change.quantity = self.model.quantity
         self.refresh_sensitivity()
 
 
@@ -727,7 +731,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         #                       and not self.has_problems(combo_entry))
         sensitive = (self.model.accession is not None and \
                      self.model.code is not None and \
-                     self.model.location is not None) \
+                     self.model.location is not None and \
+                     self.model.quantity is not None) \
                      and self.dirty() and len(self.problems)==0
         self.view.widgets.pad_ok_button.set_sensitive(sensitive)
         self.view.widgets.pad_next_button.set_sensitive(sensitive)
@@ -839,14 +844,15 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 if not change.to_location:
                     change.to_location = self.model.location
             elif change.quantity is None \
-                    or (change.quantity == self.model.quantity \
-                            and change.from_location == self.model.location):
+                    or (change.quantity == self.model.quantity and \
+                            change.from_location == self.model.location and \
+                            change.quantity==self.presenter._original_quantity):
                 # if the quantity and location haven't changed then
                 # don't save the change
                 self.session.expunge(change)
                 self.model.change = None
             else:
-                if self.model.location != change.from_location:
+               if self.model.location != change.from_location:
                     # transfer
                     change.to_location = self.model.location
                 elif self.model.quantity > self.presenter._original_quantity \
@@ -854,6 +860,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     # additions should use to_location
                     change.to_location = self.model.location
                     change.from_location = None
+                else:
+                    # removal
+                    change.quantity = -change.quantity
             super(PlantEditor, self).commit_changes()
             self._committed.append(self.model)
             return
