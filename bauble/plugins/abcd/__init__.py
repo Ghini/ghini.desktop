@@ -260,6 +260,19 @@ class ABCDExporter(object):
             d.destroy()
             if response != gtk.RESPONSE_ACCEPT or filename == None:
                 return
+
+        if plants:
+            nplants = len(plants)
+        else:
+            nplants = db.Session().query(Plant).count()
+
+        if nplants > 3000:
+            msg = _('You are exporting %(nplants)s plants to ABCD format.  ' \
+                    'Exporting this many plants may take several minutes.  '\
+                    '\n\n<i>Would you like to continue?</i>') \
+                    % ({'nplants': nplants})
+            if not utils.yes_no_dialog(msg):
+                return
         self.run(filename, plants)
 
 
