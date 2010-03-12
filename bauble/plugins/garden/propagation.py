@@ -315,9 +315,9 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
         '''
-        @param parent: an instance of AccessionEditorPresenter
-        @param model: an instance of class Accession
-        @param view: an instance of AccessionEditorView
+        @param parent: an instance of PlantEditorPresenter
+        @param model: an instance of class Plant
+        @param view: an instance of PlantEditorView
         @param session:
         '''
         super(PropagationTabPresenter, self).__init__(model, view)
@@ -351,7 +351,6 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         # propagation editor doesn't commit its changes since we'll be
         # doing our own commit later
         committed = editor.start(commit=False)
-        debug(committed)
         if committed:
             box = self.create_propagation_box(committed)
             self.view.widgets.prop_tab_box.pack_start(box, expand=False,
@@ -367,8 +366,6 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         hbox = gtk.HBox()
         expander = gtk.Expander()
         hbox.pack_start(expander, expand=True, fill=True)
-        alignment = gtk.Alignment()
-        hbox.pack_start(alignment, expand=False, fill=False)
 
         label_alignment = gtk.Alignment()
         label_alignment.props.bottom_padding = 10
@@ -387,10 +384,28 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
                 self.__dirty = True
             self.parent_ref().refresh_sensitivity()
 
+        alignment = gtk.Alignment()
+        hbox.pack_start(alignment, expand=False, fill=False)
+        button_box = gtk.HBox(spacing=5)
+        alignment.add(button_box)
         button = gtk.Button(stock=gtk.STOCK_EDIT)
         self.view.connect(button, 'clicked', on_edit_clicked, propagation,
                           label)
-        alignment.add(button)
+        button_box.pack_start(button, expand=False, fill=False)
+
+        def on_remove_clicked(button, propagation, box):
+            self.model.propagations.remove(propagation)
+            self.view.widgets.prop_tab_box.remove(box)
+            self.__dirty = True
+            self.parent_ref().refresh_sensitivity()
+
+        remove_button = gtk.Button()
+        img = gtk.image_new_from_stock(gtk.STOCK_REMOVE, gtk.ICON_SIZE_BUTTON)
+        remove_button.props.image = img
+        self.view.connect(remove_button, 'clicked', on_remove_clicked,
+                          propagation, hbox)
+        button_box.pack_start(remove_button, expand=False, fill=False)
+
         # TODO: add a * to the propagation label for uncommitted propagations
         prop_type = prop_type_values[propagation.prop_type]
 
@@ -407,10 +422,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         return hbox
 
 
-    def remove_propagation(self):
-        """
-        """
-        pass
+
 
 
     def on_add_button_clicked(self, *args):
