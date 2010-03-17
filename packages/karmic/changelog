@@ -1,3 +1,9 @@
+bauble-ubc (1.0.0~b18~karmic~ppa1) karmic; urgency=low
+
+  * Eighteenth beta release of the UBC version of Bauble
+
+ -- Brett Adams <brett@belizebotanic.org>  Tue, 16 Mar 2010 20:53:30 -0400
+
 bauble-ubc (1.0.0~b4~karmic~ppa1) karmic; urgency=low
 
   * Fourth beta release of the UBC version of Bauble
