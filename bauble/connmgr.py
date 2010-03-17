@@ -491,7 +491,10 @@ class ConnectionManager:
 	    filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
             return uri
-        subs['type'] = params['type'].lower()
+        if params['type'].lower() == "postgresql":
+            subs['type'] = 'postgres'
+        else:
+            subs['type'] = params['type'].lower()
         template = "%(type)s://%(user)s@%(host)s/%(db)s"
         if params["passwd"] == True:
             subs["passwd"] = self.get_passwd()
