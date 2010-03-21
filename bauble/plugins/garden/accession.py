@@ -2193,8 +2193,22 @@ class GeneralAccessionExpander(InfoExpander):
                               markup=True)
 
         session = object_session(row)
-        # TODO: it would be nice if we did something like 13 Living,
-        # 2 Dead, 6 Unknown, etc
+        plant_locations = {}
+        for plant in row.plants:
+            if plant.quantity == 0:
+                continue
+            q = plant_locations.setdefault(plant.location, 0)
+            plant_locations[plant.location] = q + plant.quantity
+        if plant_locations:
+            strs = []
+            for location, quantity in plant_locations.iteritems():
+                strs.append(_('%(quantity)s in %(location)s') \
+                              % dict(location=str(location), quantity=quantity))
+            s = '\n'.join(strs)
+        else:
+            s = '0'
+        self.set_widget_value('living_plants_data', s)
+
 
         nplants = session.query(Plant).filter_by(accession_id=row.id).count()
         self.set_widget_value('nplants_data', nplants)
