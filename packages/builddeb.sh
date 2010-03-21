@@ -1,4 +1,7 @@
-# branch this directory and create a source dist
+# Description: Branch this directory and create a source dist
+#
+# Requires bzr, devscripts, debhelper packages
+
 TOPLEVEL=`pwd`
 VERSION="ubc-1.0.0b18" # :bump
 TARBALL="bauble-$VERSION.tar.gz"
