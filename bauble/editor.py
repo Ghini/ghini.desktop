@@ -826,8 +826,9 @@ class GenericModelViewPresenterEditor(object):
 
 
     def __del__(self):
-        #debug('GenericEditor.__del__()')
-        self.session.close()
+        if hasattr(self, 'session'):
+            # in case one of the check()'s fail in __init__
+            self.session.close()
 
 
 # TODO: create a seperate class for browsing notes in a treeview
