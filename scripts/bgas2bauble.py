@@ -1352,6 +1352,7 @@ def create_plants():
     plant_notes = {} # lists notes mapped by plant.id
     note_defaults = get_defaults(PlantNote.__table__)
     change_defaults = get_defaults(PlantChange.__table__)
+    change_defaults['parent_plant_id'] = None
     change_rows = []
     plant_changes = {}
 
@@ -1446,26 +1447,20 @@ def create_plants():
             else:
                 plant = plants[0]
 
+            change = change_defaults.copy()
+
             # if not transferring all the plants then subtract the
             # quantity from the original and branch the plant
             if quantity < plant['quantity']:
                 plant['quantity'] -= quantity
-                new_plant = make_plant(plant_tuple, quantity)#, from_id)
-
-                # copy changes from original plant
-                # for change in plant_changes.get((rec['accno'],plant['code']),[]):
-                #     new_change = change.copy()
-                #     new_change['plant_id'] = new_plant['id']
-                #     change_rows.append(new_change)
-                #     plant_changes.setdefault((rec['accno'], new_plant['code']),
-                #                               []).append(new_change)
+                change['parent_plant_id'] = plant['id']
+                new_plant = make_plant(plant_tuple, quantity)
                 plant = new_plant
 
             # transfer an existing plant
             plant.update(quantity=quantity, location_id=to_id)
             plant_id = plant['id']
             note_id = make_note(rec['notes'], date, u'Transfer', plant['id'])
-            change = change_defaults.copy()
             change.update(from_location_id=from_id, to_location_id=to_id,
                           quantity=quantity, date=date, reason=None,
                           plant_id=plant['id'], note_id=note_id)

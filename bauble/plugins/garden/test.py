@@ -340,6 +340,97 @@ class PlantTests(GardenTestCase):
             'PlantEditorView not deleted'
 
 
+    def test_branch_editor(self):
+
+        try:
+            import gtk
+        except ImportError:
+            raise SkipTest('could not import gtk')
+
+        # test argument checks
+        self.assertRaises(CheckConditionError, PlantEditor, branch_mode=True)
+        plant = Plant(accession=self.accession, location=self.location,
+                      code=u'33', quantity=5)
+        self.assertRaises(CheckConditionError, PlantEditor, model=plant,
+                          branch_mode=True)
+        self.accession.plants.remove(plant) # remove from session
+        # TODO: test check where quantity < 2
+
+        quantity = 5
+        self.plant.quantity = quantity
+        self.session.commit()
+        editor = PlantEditor(model=self.plant, branch_mode=True)
+        update_gui()
+
+        widgets = editor.presenter.view.widgets
+        new_quantity = 2
+        widgets.plant_quantity_entry.props.text = new_quantity
+        update_gui()
+        editor.handle_response(gtk.RESPONSE_OK)
+
+        editor.presenter.cleanup()
+        del editor
+
+        # there should only be three plants,
+        new_plant = self.session.query(Plant).\
+            filter(Plant.code != self.plant.code).first()
+        # test the quantity was set properly on the new plant
+        assert new_plant.quantity == new_quantity, new_plant.quantity
+        self.session.refresh(self.plant)
+        # test the quantity is updated on the original plant
+        assert self.plant.quantity == quantity - new_plant.quantity, \
+            "%s == %s - %s" % (plant.quantity, quantity, new_plant.quantity)
+        # test the quantity for the change is the same as the quantity
+        # for the plant
+        assert new_plant.changes[0].quantity == new_plant.quantity, \
+            "%s == %s" % (new_plant.changes[0].quantity, new_plant.quantity)
+        # test the parent_plant for the change is the same as the
+        # original plant
+        assert new_plant.changes[0].parent_plant == self.plant, \
+            'change.parent_plant != original plant'
+
+        assert utils.gc_objects_by_type('PlantEditor') == [], \
+            'PlantEditor not deleted'
+        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
+            'PlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('PlantEditorView') == [], \
+            'PlantEditorView not deleted'
+
+    def itest_branch_callback(self):
+        for plant in self.session.query(Plant):
+            self.session.delete(plant)
+        for location in self.session.query(Location):
+            self.session.delete(location)
+        self.session.commit()
+
+        #editor = PlantEditor(model=self.plant)
+        loc = Location(name=u'site1', code=u'1')
+        loc2 = Location(name=u'site2', code=u'2')
+        quantity = 5
+        plant = Plant(accession=self.accession, code=u'1', location=loc,
+                      quantity=quantity)
+        self.session.add_all([loc, loc2, plant])
+        self.session.commit()
+
+        branch_callback([plant])
+        new_plant = self.session.query(Plant).filter(Plant.code!=u'1').first()
+        self.session.refresh(plant)
+        assert plant.quantity == quantity - new_plant.quantity, \
+            "%s == %s - %s" % (plant.quantity, quantity, new_plant.quantity)
+        assert new_plant.changes[0].quantity == new_plant.quantity, \
+            "%s == %s" % (new_plant.changes[0].quantity, new_plant.quantity)
+
+        assert utils.gc_objects_by_type('PlantEditor') == [], \
+            'PlantEditor not deleted'
+        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
+            'PlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('PlantEditorView') == [], \
+            'PlantEditorView not deleted'
+
+
+
+
+
 class PropagationTests(GardenTestCase):
 
 
