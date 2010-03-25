@@ -55,49 +55,13 @@ def edit_callback(plants):
 
 def branch_callback(plants):
     if plants[0].quantity <= 1:
-        msg = _("Can't branch a plant with a quantity of less than 2")
+        msg = _("Not enough plants to branch.  A plant should have at least "
+                "a quantity of 2 before it can be branched")
         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         return
-    plant = plants[0].duplicate(code=None)
 
-    e = PlantEditor(model=plant)
-    title = e.presenter.view.get_window().props.title
-    e.presenter.view.get_window().props.title += \
-        utils.utf8(' - %s' % _('Branch Mode'))
-
-    message_box_parent = e.presenter.view.widgets.message_box_parent
-    map(message_box_parent.remove, message_box_parent.get_children())
-    msg = _('Branching from %(plant_code)s.  The quantity will '
-            'be subtracted from %(plant_code)s') \
-            % {'plant_code': str(plants[0])}
-    box = utils.add_message_box(message_box_parent, utils.MESSAGE_BOX_INFO)
-    box.message = msg
-    box.show_all()
-    committed = e.start()
-    map(message_box_parent.remove, message_box_parent.get_children())
-    if not committed:
-        return False
-    session = db.Session()
-    old_plant = session.merge(plants[0])
-    new_plant = session.merge(committed[0])
-    old_plant.quantity -= new_plant.quantity
-
-    # add the change
-    change = new_plant.changes[0]
-    session.merge(change).plant = old_plant
-
-    note = PlantNote()
-    note.plant = new_plant
-    note.note = utils.utf8(_('%(quantity)s plant(s) of %(plant_code)s branched '
-                             'to %(location)s') \
-                                 % dict(quantity=new_plant.quantity,
-                                        plant_code=str(old_plant),
-                                        location=new_plant.location))
-    note.category = u'Branch'
-    note.date = change.date
-
-    session.commit()
-    return True
+    e = PlantEditor(model=plants[0], branch_mode=True)
+    return e.start() != None
 
 
 def remove_callback(plants):
@@ -268,6 +232,7 @@ class PlantChange(db.Base):
     __mapper_args__ = {'order_by': 'plant_change.date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
+    parent_plant_id = Column(Integer, ForeignKey('plant.id'))
 
     # - if to_location_id is None changeis a removal
     # - if from_location_id is None then this change is a creation
@@ -288,16 +253,53 @@ class PlantChange(db.Base):
 
     # relations
     plant = relation('Plant', uselist=False,
+                     primaryjoin='PlantChange.plant_id == Plant.id',
                      backref=backref('changes',cascade='all, delete-orphan'))
+    parent_plant = relation('Plant', uselist=False,
+                      primaryjoin='PlantChange.parent_plant_id == Plant.id',
+                      backref=backref('branches',cascade='all, delete-orphan'))
+
     from_location = relation('Location',
                    primaryjoin='PlantChange.from_location_id == Location.id')
     to_location = relation('Location',
                    primaryjoin='PlantChange.to_location_id == Location.id')
 
 
-status_values = {u'Healthy': _('Healthy'),
-                 u'Very Poor Condition': _('Very Poor Condition'),
-                 u'Dead': _('Dead')}
+condition_values = {
+    u'Excellent': _('Excellent'),
+    u'Good': _('Good'),
+    u'Fair': _('Fair'),
+    u'Poor': _('Poor'),
+    u'Questionable': _('Questionable'),
+    u'Indistinguishable': _('Indistinguishable Mass'),
+    u'UnableToLocate': _('Unable to Locate'),
+    u'Dead': _('Dead'),
+    None: ''}
+
+flowering_values = {
+    u'Immature': _('Immature'),
+    u'Flowering': _('Flowering'),
+    u'Old': _('Old Flowers'),
+    None: ''}
+
+fruiting_values = {
+    u'Unripe': _('Unripe'),
+    u'Ripe': _('Ripe'),
+    None: '',
+}
+
+# TODO: should sex be recorded at the species, accession or plant
+# level or just as part of a check since sex can change in some species
+sex_values = {
+    u'Female': _('Female'),
+    u'Male': _('Male'),
+    u'Both': ''}
+
+# class Container(db.Base):
+#     __tablename__ = 'container'
+#     __mapper_args__ = {'order_by': 'name'}
+#     code = Column(Unicode)
+#     name = Column(Unicode)
 
 class PlantStatus(db.Base):
     """
@@ -308,9 +310,21 @@ class PlantStatus(db.Base):
     """
     __tablename__ = 'plant_status'
     date = Column(types.Date, default=func.now())
-    status = Column(types.Enum(values=status_values.keys()))
+    condition = Column(types.Enum(values=condition_values.keys()))
     comment = Column(UnicodeText)
     checked_by = Column(Unicode(64))
+
+    flowering_status = Column(types.Enum(values=flowering_values.keys()))
+    fruiting_status = Column(types.Enum(values=fruiting_values.keys()))
+
+    autum_color_pct = Column(Integer)
+    leaf_drop_pct = Column(Integer)
+    leaf_emergence_pct = Column(Integer)
+
+    sex = Column(types.Enum(values=sex_values.keys()))
+
+    # TODO: needs container table
+    #container_id = Column(Integer)
 
 
 acc_type_values = {u'Plant': _('Plant'),
@@ -421,7 +435,6 @@ class Plant(db.Base):
         if not session:
             session = object_session(self)
         plant = Plant()
-        plant._duplicate = True
         session.add(plant)
 
         ignore = ('id', 'changes', 'notes', 'propagations')
@@ -551,7 +564,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code
-        self._original_quantity = self.model.quantity
+
+        # if the model is in session.new then it might be a branched
+        # plant so don't store it....is this hacky?
+        self._original_quantity = None
+        if model not in self.session.new:
+            self._original_quantity = self.model.quantity
         self.__dirty = False
 
         # set default values for acc_type
@@ -579,14 +597,14 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.session.add(self.change)
         self.change.plant = self.model
         self.change.from_location = self.model.location
+        self.change.quantity = self.model.quantity
 
         def on_reason_changed(combo):
             it = combo.get_active_iter()
             self.change.reason = combo.get_model()[it][0]
 
         sensitive = False
-        if self.model not in self.session.new or \
-                (hasattr(self.model, '_duplicate') and self.model._duplicate):
+        if self.model not in self.session.new:
             self.view.connect(self.view.widgets.reason_combo, 'changed',
                               on_reason_changed)
             sensitive = True
@@ -656,12 +674,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
         except ValueError, e:
             value = None
         self.set_model_attr('quantity', value)
-        if value is not None and self._original_quantity:
-            if self.model.quantity == self._original_quantity:
-                self.change.quantity = self.model.quantity
-            else:
-                self.change.quantity = \
-                    abs(self.model.quantity-self._original_quantity)
+        if value is None:
+            self.refresh_sensitivity()
+            return
+        if self._original_quantity:
+            self.change.quantity = \
+                abs(self._original_quantity-self.model.quantity)
         else:
             self.change.quantity = self.model.quantity
         self.refresh_sensitivity()
@@ -788,22 +806,32 @@ class PlantEditor(GenericModelViewPresenterEditor):
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_NEXT,)
 
-    def __init__(self, model=None, parent=None):
+    def __init__(self, model=None, parent=None, branch_mode=False):
         '''
         :param model: Plant instance or None
         :param parent: None
         '''
+        check(branch_mode and model is not None,
+              "branch_mode requires a model")
+        check(not (branch_mode and object_session(model) and \
+                  model in object_session(model).new),
+              "cannot branch a new plant")
+
         if model is None:
             model = Plant()
+
+        self.branched_parent = None
+        if branch_mode:
+            # duplicate the model so we can branch from it without
+            # destroying the first
+            self.branched_plant = model
+            model = self.branched_plant.duplicate(code=None)
+
         super(PlantEditor, self).__init__(model, parent)
-        # the ._duplicate attribute is added in Plant.duplicate but it
-        # isn't copied over in session.merge() in
-        # GenericModelViewPresenterEditor.__init__()...but we need it
-        # in the PlantEditorPresenter
-        if hasattr(model, '_duplicate') and model._duplicate:
-            self.model._duplicate = True
-        else:
-            self.model._duplicate = False
+
+        if self.branched_plant:
+            # make a copy of the branched plant for this session
+            self.branched_plant = self.session.merge(self.branched_plant)
 
         if not parent and bauble.gui:
             parent = bauble.gui.window
@@ -837,10 +865,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
         """
         """
         codes = utils.range_builder(self.model.code)
-        if len(codes) <= 1 or self.model not in self.session.new:
+        if len(codes) <= 1 or self.model not in self.session.new \
+                and not self.branched_plant:
             change = self.presenter.change
-            if self.model._duplicate:
+            if self.branched_plant:
                 # branch mode
+                self.branched_plant.quantity -= self.model.quantity
+                change.parent_plant = self.branched_plant
                 if not change.to_location:
                     change.to_location = self.model.location
             elif change.quantity is None \
@@ -942,7 +973,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
             e = PlantEditor(Plant(accession=self.model.accession),
-                               parent=self.parent)
+                            parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:
@@ -977,6 +1008,22 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self.presenter.cleanup()
                 sub_editor = LocationEditor()
                 self._commited = sub_editor.start()
+
+        if self.branched_plant:
+            # set title if in branch mode
+            title = self.presenter.view.get_window().props.title
+            self.presenter.view.get_window().props.title += \
+                utils.utf8(' - %s' % _('Branch Mode'))
+            message_box_parent = self.presenter.view.widgets.message_box_parent
+            map(message_box_parent.remove, message_box_parent.get_children())
+            msg = _('Branching from %(plant_code)s.  The quantity will '
+                    'be subtracted from %(plant_code)s') \
+                    % {'plant_code': str(self.branched_plant)}
+            box = utils.add_message_box(message_box_parent,
+                                        utils.MESSAGE_BOX_INFO)
+            box.message = msg
+            box.show_all()
+
 
         if not sub_editor:
             while True:
@@ -1064,10 +1111,22 @@ class ChangesExpander(InfoExpander):
         """
         """
         super(ChangesExpander, self).__init__(_('Changes'), widgets)
+        self.vbox.props.spacing = 5
         self.table = gtk.Table()
         self.vbox.pack_start(self.table, expand=False, fill=False)
         self.table.props.row_spacing = 3
         self.table.props.column_spacing = 5
+
+        eb = gtk.EventBox()
+        self.vbox.pack_start(eb)
+        self.branch_label = gtk.Label()
+        self.branch_label.props.xalign = 0
+        eb.add(self.branch_label)
+
+        def on_clicked(*args):
+            if self._parent_plant:
+                select_in_search_results(self._parent_plant)
+        utils.make_label_clickable(self.branch_label, on_clicked)
 
 
     def update(self, row):
@@ -1099,6 +1158,7 @@ class ChangesExpander(InfoExpander):
             else:
                 return 1
 
+        last_change = None
         for change in sorted(row.changes, cmp=_cmp, reverse=True):
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
@@ -1126,6 +1186,17 @@ class ChangesExpander(InfoExpander):
             self.table.attach(label, 1, 2, current_row, current_row+1,
                               xoptions=gtk.FILL)
             current_row += 1
+            last_change = change
+
+        # only the oldest change should have a parent_plant
+        s = ''
+        self._parent_plant = None
+        if last_change.parent_plant:
+            s = _('<i>Branched from %(plant)s</i>') % \
+                dict(plant=utils.xml_safe_utf8(last_change.parent_plant))
+            self._parent_plant = last_change.parent_plant
+        self.branch_label.set_markup(s)
+
         self.vbox.show_all()
 
 
