@@ -817,6 +817,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
                   model in object_session(model).new),
               "cannot branch a new plant")
 
+        # TODO: shouldn't allow branching plants with quantity < 2
+        # TODO: shouldn't allow changing the accession code in branch_mode
+
         if model is None:
             model = Plant()
 
@@ -1117,17 +1120,6 @@ class ChangesExpander(InfoExpander):
         self.table.props.row_spacing = 3
         self.table.props.column_spacing = 5
 
-        eb = gtk.EventBox()
-        self.vbox.pack_start(eb)
-        self.branch_label = gtk.Label()
-        self.branch_label.props.xalign = 0
-        eb.add(self.branch_label)
-
-        def on_clicked(*args):
-            if self._parent_plant:
-                select_in_search_results(self._parent_plant)
-        utils.make_label_clickable(self.branch_label, on_clicked)
-
 
     def update(self, row):
         '''
@@ -1158,7 +1150,6 @@ class ChangesExpander(InfoExpander):
             else:
                 return 1
 
-        last_change = None
         for change in sorted(row.changes, cmp=_cmp, reverse=True):
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
@@ -1186,16 +1177,21 @@ class ChangesExpander(InfoExpander):
             self.table.attach(label, 1, 2, current_row, current_row+1,
                               xoptions=gtk.FILL)
             current_row += 1
-            last_change = change
-
-        # only the oldest change should have a parent_plant
-        s = ''
-        self._parent_plant = None
-        if last_change.parent_plant:
-            s = _('<i>Branched from %(plant)s</i>') % \
-                dict(plant=utils.xml_safe_utf8(last_change.parent_plant))
-            self._parent_plant = last_change.parent_plant
-        self.branch_label.set_markup(s)
+            if change.parent_plant:
+                s = _('<i>Branched from %(plant)s</i>') % \
+                    dict(plant=utils.xml_safe_utf8(change.parent_plant))
+                label = gtk.Label()
+                label.set_alignment(0, .5)
+                label.set_markup(s)
+                eb = gtk.EventBox()
+                eb.add(label)
+                self.table.attach(eb, 1, 2, current_row, current_row+1,
+                                  xoptions=gtk.FILL)
+                def on_clicked(widget, event, parent):
+                    select_in_search_results(parent)
+                utils.make_label_clickable(label, on_clicked,
+                                           change.parent_plant)
+                current_row += 1
 
         self.vbox.show_all()
 
