@@ -386,14 +386,6 @@ class Plant(db.Base):
     memorial = Column(Boolean, default=False)
     quantity = Column(Integer, autoincrement=False, nullable=False)
 
-    # UBC: date_accd, date_recvd and operator were used in BGAS but
-    # they aren't really relevant here, i've just added them so we
-    # don't lose the data when converting from BGAS->Bauble...we don't
-    # provide any interface for changing the values
-    date_accd = Column(types.Date)
-    date_recvd = Column(types.Date)
-    operator = Column(Unicode(3))
-
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
 

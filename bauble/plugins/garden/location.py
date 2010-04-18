@@ -152,7 +152,7 @@ class LocationEditorView(GenericEditorView):
 class LocationEditorPresenter(GenericEditorPresenter):
 
     widget_to_field_map = {'loc_name_entry': 'name',
-                           'loc_code_entry': 'code', # UBC specific
+                           'loc_code_entry': 'code',
                            'loc_desc_textview': 'description'}
 
     def __init__(self, model, view):
@@ -168,7 +168,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         # connect signals
-        self.assign_simple_handler('loc_name_entry', 'name', # UBC
+        self.assign_simple_handler('loc_name_entry', 'name',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('loc_code_entry', 'code',
                                    UnicodeOrNoneValidator())
@@ -179,7 +179,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
     def refresh_sensitivity(self):
         sensitive = False
-        # UBC: self.model.code
         ignore = ('id')
         if self.dirty() and not \
                 utils.get_invalid_columns(self.model, ignore_columns=ignore):
