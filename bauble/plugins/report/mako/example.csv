@@ -7,7 +7,6 @@
    context.write('%s\n' % 'code,name,location')
    for v in values:
      for p in get_all_plants(v, session):
-       if not p.removal:
          s = delimiter.join([str(p), p.accession.species_str(), str(p.location)])
          context.write('%s\n' % str(s))
    session.close()

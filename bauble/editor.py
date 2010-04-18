@@ -101,6 +101,21 @@ class UnicodeOrNoneValidator(Validator):
         return utils.to_unicode(value, self.encoding)
 
 
+class UnicodeOrEmptyValidator(Validator):
+    """
+    If the value is an empty unicode string then return '', else
+    return the unicode() of the value. The default encoding is
+    'utf-8'.
+    """
+    def __init__(self, encoding='utf-8'):
+        self.encoding = encoding
+
+    def to_python(self, value):
+        if not value.strip():
+            return ''
+        return utils.to_unicode(value, self.encoding)
+
+
 
 class IntOrNoneStringValidator(Validator):
     """
@@ -262,7 +277,7 @@ class GenericEditorView(object):
         raise NotImplementedError
 
 
-    def set_widget_value(self, widget, value, markup=True, default=None,
+    def set_widget_value(self, widget, value, markup=False, default=None,
                          index=0):
         '''
         :param widget: a widget or name of a widget in self.widgets
@@ -350,8 +365,6 @@ class GenericEditorView(object):
         completion.set_match_func(match_func)
         completion.set_property('text-column', text_column)
         completion.set_minimum_key_length(minimum_key_length)
-        # TODO: inline completion doesn't work for me
-        #completion.set_inline_completion(True)
         completion.set_popup_completion(True)
         completion.props.popup_set_width = False
         if isinstance(entry, basestring):
@@ -473,7 +486,9 @@ class GenericEditorPresenter(object):
         attached to it.
         """
         from operator import getitem
-        filter(lambda p: getitem(p, 1) == widget is not None, self.problems)
+        for p, w in self.problems:
+            if widget == w:
+                return True
 
 
     def clear_problems(self):
@@ -488,37 +503,30 @@ class GenericEditorPresenter(object):
     def remove_problem(self, problem_id, problem_widgets=None):
         """
         Remove problem_id from self.problems and reset the background
-        color of the widget(s) in problem_widgets
+        color of the widget(s) in problem_widgets.  If problem_id is
+        None and problem_widgets is None then method won't do anything.
 
-        :param problem_id: A unique id for the problem
-        :param problem_widgets: The widget that as the problem (default=None)
+        :param problem_id: the problem to remove, if None then remove
+        any problem from the problem_widget(s)
+
+        :param problem_widgets: a gtk.Widget instance or list of list
+        of widgets to remove the problem from, if None then remove all
+        occurrences of problem_id regardless of the widget
         """
-        if not problem_widgets:
-            # remove all the problem ids regardless of the widgets
-            # they are attached to
-
-            # TODO: should this only remove problem ids if the widget
-            # part of the problem is None?
-            tmp = self.problems.copy()
-            for p, w in tmp:
-                if p == problem_id:
-                    self.problems.remove((p, w))
-            return
-        elif isinstance(problem_widgets, (list, tuple)):
-            # call remove_problem() on each item in problem_widgets
-            map(lambda w: self.remove_problem(problem_id, w), problem_widgets)
+        if problem_id is None and not problem_widgets:
+            # if no problem id and not problem widgets then don't do anything
             return
 
-        try:
-            while True:
-                # keep removing matching problems until we get a key error
-                self.problems.remove((problem_id, problem_widgets))
-                problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
-                problem_widgets.modify_base(gtk.STATE_NORMAL, None)
-                problem_widgets.queue_draw()
-        except KeyError, e:
-            #debug(e)
-            pass
+        tmp = self.problems.copy()
+        for p, w in tmp:
+            if (not problem_widgets and p == problem_id) or \
+                    (problem_id is None and w == problem_widgets) or \
+                    (p == problem_id and w == problem_widgets):
+                if w:
+                    w.modify_bg(gtk.STATE_NORMAL, None)
+                    w.modify_base(gtk.STATE_NORMAL, None)
+                    w.queue_draw()
+                self.problems.remove((p, w))
 
 
     def add_problem(self, problem_id, problem_widgets=None):
@@ -659,6 +667,7 @@ class GenericEditorPresenter(object):
                 #data = combo.get_model()[combo.get_active_iter()][0]
                 #debug('%s=%s' % (model_attr, data))
                 if isinstance(widget, gtk.ComboBoxEntry):
+                    #debug(str(value))
                     widget.child.set_text(str(value))
                 self.set_model_attr(model_attr, value, validator)
             def entry_changed(entry, data=None):
@@ -695,16 +704,14 @@ class GenericEditorPresenter(object):
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
         PROBLEM = hash(widget.get_name())
-        key_length = 2
         def add_completions(text):
-            #debug('add_completions(%s)' % text)
             if get_completions is None:
                 # get_completions is None usually means that the
                 # completions model already has a static list of
                 # completions
                 return
-            # always get completions from the first two characters from
-            # a string
+            # get the completions using [0:key_length] as the start of
+            # the string
             def idle_callback(values):
                 completion = widget.get_completion()
                 utils.clear_model(completion)
@@ -712,12 +719,12 @@ class GenericEditorPresenter(object):
                 for v in values:
                     completion_model.append([v])
                 completion.set_model(completion_model)
+            key_length = widget.get_completion().props.minimum_key_length
             values = get_completions(text[:key_length])
             gobject.idle_add(idle_callback, values)
 
         def on_changed(entry, *args):
             text = entry.get_text()
-            #debug('on_changed: %s' % text)
             comp = entry.get_completion()
             comp_model = comp.get_model()
             found = []
@@ -725,19 +732,13 @@ class GenericEditorPresenter(object):
                 # search the tree model to see if the text in the
                 # entry matches one of the completions, if so then
                 # emit the match-selected signal, this allows us to
-                # entry a match in the entry without having to select
+                # type a match in the entry without having to select
                 # it from the popup
                 def _cmp(row, data):
-                    if hasattr(comp, '_match_func'):
-                        return comp._match_func(comp, text, row.iter)
-                    else:
-                        return utils.utf8(row[0]) == text
-                #debug('search for %s' % text)
+                    return utils.utf8(row[0]) == text
                 found = utils.search_tree_model(comp_model, text, _cmp)
-                #debug(found)
                 if len(found) == 1:
                     v = comp.get_model()[found[0]][0]
-                    #debug('found: %s'  % str(v))
                     # only auto select if the full string has been entered
                     if text.lower() == utils.utf8(v).lower():
                         comp.emit('match-selected', comp.get_model(), found[0])
@@ -748,15 +749,19 @@ class GenericEditorPresenter(object):
                 self.add_problem(PROBLEM, widget)
                 on_select(None)
 
+            key_length = widget.get_completion().props.minimum_key_length
             if (not comp_model and len(text)>key_length) or \
                     len(text) == key_length:
-                #debug('add_completions: %s' % text)
                 add_completions(text)
             return True
 
         def on_match_select(completion, compl_model, treeiter):
             value = compl_model[treeiter][0]
+            # temporarily block the changed ID so that this function
+            # doesn't get called twice
+            widget.handler_block(_changed_sid)
             widget.props.text = utils.utf8(value)
+            widget.handler_unblock(_changed_sid)
             self.remove_problem(PROBLEM, widget)
             on_select(value)
             return True # return True or on_changed() will be called with ''
@@ -765,7 +770,7 @@ class GenericEditorPresenter(object):
         check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
               'completion attached to it' % widget.get_name())
 
-        self.view.connect(widget, 'changed', on_changed)
+        _changed_sid = self.view.connect(widget, 'changed', on_changed)
         self.view.connect(completion, 'match-selected', on_match_select)
 
 
@@ -863,6 +868,12 @@ class GenericModelViewPresenterEditor(object):
             self.session.add_all(objs)
             raise
         return True
+
+
+    def __del__(self):
+        if hasattr(self, 'session'):
+            # in case one of the check()'s fail in __init__
+            self.session.close()
 
 
 # TODO: create a seperate class for browsing notes in a treeview
@@ -997,7 +1008,7 @@ class NotesPresenter(GenericEditorPresenter):
             utils.setup_text_combobox(self.widgets.category_comboentry, values)
             utils.set_widget_value(self.widgets.category_comboentry,
                                    self.model.category or '')
-            utils.setup_date_button(self.widgets.date_entry,
+            utils.setup_date_button(None, self.widgets.date_entry,
                                     self.widgets.date_button)
             date_str = utils.today_str()
             if self.model.date:
@@ -1152,8 +1163,6 @@ class NotesPresenter(GenericEditorPresenter):
 
             self.update_label()
 
-            # TODO: if refresh_sensitivity() part of the
-            # GenericEditorPresenter interface???
             self.presenter.parent_ref().refresh_sensitivity()
 
 

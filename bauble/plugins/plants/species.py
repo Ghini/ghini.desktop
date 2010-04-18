@@ -3,6 +3,7 @@
 #
 import bauble.db as db
 import bauble.pluginmgr as pluginmgr
+from bauble.prefs import prefs
 from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
 from bauble.view import SearchView, PropertiesExpander, Action
@@ -35,8 +36,9 @@ def remove_callback(values):
     nacc = session.query(Accession).filter_by(species_id=species.id).count()
     safe_str = utils.xml_safe_utf8(str(species))
     if nacc > 0:
-        msg = _('The species <i>%s</i> has %s accessions.  Are you sure '
-                'you want remove it?') % (safe_str, nacc)
+        msg = _('The species <i>%(species)s</i> has %(num_accessions)s '
+                'accessions.  Are you sure you want remove it?') \
+                % dict(species=safe_str, num_accessions=nacc)
     else:
         msg = _("Are you sure you want to remove the species <i>%s</i>?") \
             % safe_str
@@ -57,20 +59,22 @@ def remove_callback(values):
 
 def add_accession_callback(values):
     from bauble.plugins.garden.accession import Accession, AccessionEditor
-    species = values[0]
+    session = db.Session()
+    species = session.merge(values[0])
     if isinstance(species, VernacularName):
         species = species.species
     e = AccessionEditor(model=Accession(species=species))
+    session.close()
     return e.start() != None
 
 
-edit_action = Action('species_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('species_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-add_accession_action = Action('species_acc_add', ('_Add accession'),
+add_accession_action = Action('species_acc_add', _('_Add accession'),
                               callback=add_accession_callback,
                               accelerator='<ctrl>k')
-remove_action = Action('species_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='Delete', multiselect=True)
+remove_action = Action('species_remove', _('_Delete'), callback=remove_callback,
+                       accelerator='<ctrl>Delete', multiselect=True)
 
 species_context_menu = [edit_action, remove_action]
 vernname_context_menu = [edit_action]
@@ -115,15 +119,55 @@ def vernname_markup_func(vernname):
     return str(vernname), vernname.species.markup(authors=False)
 
 
-from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
+from bauble.view import InfoBox, InfoBoxPage, InfoExpander, SearchStrategy, \
     select_in_search_results
+
+
+class SynonymSearch(SearchStrategy):
+    """
+    Return any synonyms for matching species.
+
+    This can by setting bauble.search.return_synonyms in the prefs to False.
+    """
+    return_synonyms_pref = 'bauble.search.return_synonyms'
+
+    def __init__(self):
+        super(SynonymSearch, self).__init__()
+        if self.return_synonyms_pref not in prefs:
+            prefs[self.return_synonyms_pref] = True
+            prefs.save()
+
+    def search(self, text, session):
+        super(SynonymSearch, self).search(text, session)
+        if not prefs[self.return_synonyms_pref]:
+            return
+        mapper_search = SearchView.get_search_strategy('MapperSearch')
+        r1 = mapper_search.search(text, session)
+        if not r1:
+            return []
+        results = []
+        for result in r1:
+            # iterate through the results and see if we can find some
+            # synonyms for the returned values
+            if isinstance(result, Species):
+                q = session.query(SpeciesSynonym).\
+                    filter_by(synonym_id=result.id)
+                results.extend([syn.species for syn in q])
+            elif isinstance(results, VernacularName):
+                q = session.query(SpeciesSynonym).\
+                    filter_by(synonym_id=result.species.id)
+                results.extend([syn.species for syn in q])
+        return results
+
 
 #
 # Species infobox for SearchView
 #
 class VernacularExpander(InfoExpander):
     '''
-    the constructor
+    VernacularExpander
+
+    :param widgets:
     '''
     def __init__(self, widgets):
         InfoExpander.__init__(self, _("Vernacular Names"), widgets)
@@ -248,8 +292,37 @@ class GeneralSpeciesExpander(InfoExpander):
         # species name
         session = db.Session()
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
-                              row.markup(True))
-        self.set_widget_value('sp_dist_data', row.distribution_str())
+                              row.markup(True), markup=True)
+
+        awards = ''
+        if row.awards:
+            awards = utils.utf8(row.awards)
+        self.set_widget_value('sp_awards_data', awards)
+
+        # zone = ''
+        # if row.hardiness_zone:
+        #     awards = utils.utf8(row.hardiness_zone)
+        # self.set_widget_value('sp_hardiness_data', zone)
+
+        habit = ''
+        if row.habit:
+            habit = utils.utf8(row.habit)
+        self.set_widget_value('sp_habit_data', habit)
+
+        dist = ''
+        if row.distribution:
+            dist = utils.utf8(row.distribution_str())
+        self.set_widget_value('sp_dist_data', dist)
+
+        dist = ''
+        if row.bc_distribution:
+            dist = utils.utf8(row.bc_distribution)
+        self.set_widget_value('sp_bcdist_data', dist)
+
+        dist = ''
+        if row.label_distribution:
+            dist = row.label_distribution
+        self.set_widget_value('sp_labeldist_data', dist)
 
         # stop here if not GardenPluin
         if 'GardenPlugin' not in pluginmgr.plugins:

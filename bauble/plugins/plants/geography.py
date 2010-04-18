@@ -1,6 +1,10 @@
 #
 # geography.py
 #
+from operator import itemgetter
+
+import gobject
+import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
@@ -37,6 +41,91 @@ def get_species_in_geography(geo):#, session=None):
     q = session.query(Species).join(SpeciesDistribution).\
         filter(SpeciesDistribution.geography_id.in_(master_ids))
     return list(q)
+
+
+class GeographyMenu(gtk.Menu):
+
+    def __init__(self, callback):
+        super(GeographyMenu, self).__init__()
+        geography_table = Geography.__table__
+        geos = select([geography_table.c.id, geography_table.c.name,
+                       geography_table.c.parent_id]).execute().fetchall()
+        geos_hash = {}
+        # TODO: i think the geo_hash should be calculated in an idle
+        # function so that starting the editor isn't delayed while the
+        # hash is being built
+        for geo_id, name, parent_id in geos:
+            try:
+                geos_hash[parent_id].append((geo_id, name))
+            except KeyError:
+                geos_hash[parent_id] = [(geo_id, name)]
+
+        for kids in geos_hash.values():
+            kids.sort(key=itemgetter(1)) # sort by name
+
+        def get_kids(pid):
+            try:
+                return geos_hash[pid]
+            except KeyError:
+                return []
+
+        def has_kids(pid):
+            try:
+                return len(geos_hash[pid]) > 0
+            except KeyError:
+                return False
+
+        def build_menu(geo_id, name):
+            item = gtk.MenuItem(name)
+            if not has_kids(geo_id):
+                if item.get_submenu() is None:
+                    item.connect('activate', callback, geo_id)
+                    # self.view.connect(item, 'activate',
+                    #                   self.on_activate_add_menu_item, geo_id)
+                return item
+
+            kids_added = False
+            submenu = gtk.Menu()
+            # removes two levels of kids with the same name, there must be a
+            # better way to do this but i got tired of thinking about it
+            kids = get_kids(geo_id)
+            if len(kids) > 0:
+                kids_added = True
+            for kid_id, kid_name in kids:#get_kids(geo_id):
+                submenu.append(build_menu(kid_id, kid_name))
+
+            if kids_added:
+                sel_item = gtk.MenuItem(name)
+                submenu.insert(sel_item, 0)
+                submenu.insert(gtk.SeparatorMenuItem(), 1)
+                item.set_submenu(submenu)
+                #self.view.connect(sel_item, 'activate',callback, geo_id)
+                sel_item.connect('activate', callback, geo_id)
+            else:
+                item.connect('activate', callback, geo_id)
+            return item
+
+        def populate():
+            """
+            add geography value to the menu, any top level items that don't
+            have any kids are appended to the bottom of the menu
+            """
+            if not geos_hash:
+                # we would get here if the Geography menu is populate,
+                # usually during a unit test
+                return
+            no_kids = []
+            for geo_id, geo_name in geos_hash[None]:
+                if geo_id not in geos_hash.keys():
+                    no_kids.append((geo_id, geo_name))
+                else:
+                    self.append(build_menu(geo_id, geo_name))
+
+            for geo_id, geo_name in sorted(no_kids):
+                self.append(build_menu(geo_id, geo_name))
+
+            self.show_all()
+        gobject.idle_add(populate)
 
 
 

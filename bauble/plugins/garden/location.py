@@ -23,8 +23,13 @@ def edit_callback(locations):
 
 
 def add_plants_callback(locations):
+    # create a temporary session so that the temporary plant doesn't
+    # get added to the accession
+    session = db.Session()
+    loc = session.merge(locations[0])
     from bauble.plugins.garden.plant import Plant, PlantEditor
-    e = PlantEditor(model=Plant(location=locations[0]))
+    e = PlantEditor(model=Plant(location=loc))
+    session.close()
     return e.start() != None
 
 
@@ -51,12 +56,12 @@ def remove_callback(locations):
                                      type=gtk.MESSAGE_ERROR)
     return True
 
-edit_action = Action('loc_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('loc_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-add_plant_action = Action('loc_add_plant', ('_Add plants'),
+add_plant_action = Action('loc_add_plant', _('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('loc_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='Delete', multiselect=True)
+remove_action = Action('loc_remove', _('_Delete'), callback=remove_callback,
+                       accelerator='<ctrl>Delete', multiselect=True)
 
 loc_context_menu = [edit_action, add_plant_action, remove_action]
 
@@ -86,7 +91,7 @@ class Location(db.Base):
     __mapper_args__ = {'order_by': 'name'}
 
     # columns
-    name = Column(Unicode(64))
+    name = Column(Unicode(64), nullable=False)
     description = Column(UnicodeText)
 
     # UBC: ubc refers to beds by unique codes
@@ -97,7 +102,7 @@ class Location(db.Base):
 
     def __str__(self):
         if self.name:
-            return '%s (%s)' % (self.name, self.code)
+            return '(%s) %s' % (self.code, self.name)
         else:
             return str(self.code)
 
@@ -176,7 +181,9 @@ class LocationEditorPresenter(GenericEditorPresenter):
     def refresh_sensitivity(self):
         sensitive = False
         # UBC: self.model.code
-        if self.dirty() and self.model.code:
+        ignore = ('id')
+        if self.dirty() and not \
+                utils.get_invalid_columns(self.model, ignore_columns=ignore):
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
@@ -189,7 +196,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model)
+        return self.__dirty
 
 
     def refresh_view(self):
@@ -327,7 +334,8 @@ class GeneralLocationExpander(InfoExpander):
         '''
         from bauble.plugins.garden.plant import Plant
         self.set_widget_value('loc_name_data',
-                              '<big>%s</big>' % utils.xml_safe(str(row)))
+                              '<big>%s</big>' % utils.xml_safe(str(row)),
+                              markup=True)
         session = object_session(row)
         nplants = session.query(Plant).filter_by(location_id=row.id).count()
         self.set_widget_value('loc_nplants_data', nplants)

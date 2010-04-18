@@ -54,7 +54,8 @@ class UsersTests(BaubleTestCase):
 
         # create a connection where the current user is set to
         # self.name
-        self.conn = users.connect_as_user(self.user)
+        #self.conn = users.connect_as_user(self.user)
+        self.conn = db.engine.connect()
 
         # the tables are created and owned by the user who we used to
         # connect to the database in the first place, not our test
@@ -63,11 +64,12 @@ class UsersTests(BaubleTestCase):
 
 
     def tearDown(self):
-        self.conn.close()
-        super(UsersTests, self).tearDown()
+        if self.conn:
+            self.conn.close()
         users.delete(self.group, revoke=True)
         users.delete(self.user, revoke=True)
         self.table.drop(checkfirst=True)
+        super(UsersTests, self).tearDown()
 
 
     def test_group_members(self):

@@ -21,9 +21,6 @@ from sqlalchemy.orm import *
 
 import bauble
 import bauble.db as db
-from bauble.utils.log import debug
-import bauble.utils as utils
-import bauble.utils.desktop as desktop
 import bauble.paths as paths
 from bauble.plugins.plants.species import Species
 from bauble.plugins.garden.plant import Plant
@@ -31,7 +28,11 @@ from bauble.plugins.garden.accession import Accession
 from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import get_all_plants, get_all_species, \
      get_all_accessions, FormatterPlugin, SettingsBox
-
+import bauble.prefs as prefs
+from bauble.utils.log import debug
+import bauble.utils as utils
+import bauble.utils.desktop as desktop
+from bauble.utils import xml_safe_utf8
 
 if sys.platform == "win32":
     fop_cmd = 'fop.bat'
@@ -84,40 +85,60 @@ class SpeciesABCDAdapter(ABCDAdapter):
     """
     def __init__(self, species, for_labels=False):
         super(SpeciesABCDAdapter, self).__init__(species)
+
+        # hold on to the accession so it doesn't get cleaned up and closed
+        self.session = object_session(species)
         self.for_labels = for_labels
         self.species = species
+        self._date_format = prefs.prefs[prefs.date_format_pref]
 
     def get_UnitID(self):
-        # **** This is makes the ABCD data NOT valid ABCD but it does make
-        # it work for creating reports without including the accession or
-        # plant code
+        # **** Returning the empty string for the UnitID makes the
+        # ABCD data NOT valid ABCD but it does make it work for
+        # creating reports without including the accession or plant
+        # code
         return ""
 
+    def get_DateLastEdited(self):
+        return utils.xml_safe_utf8(self.species._last_updated.isoformat())
+
     def get_family(self):
-        return utils.xml_safe_utf8(self.species.genus.family)
+        return xml_safe_utf8(self.species.genus.family)
 
     def get_FullScientificNameString(self, authors=True):
-        return Species.str(self.species, authors=authors,markup=False)
+        s = Species.str(self.species, authors=authors,markup=False)
+        return xml_safe_utf8(s)
 
     def get_GenusOrMonomial(self):
-        return utils.xml_safe_utf8(str(self.species.genus))
+        return xml_safe_utf8(str(self.species.genus))
 
     def get_FirstEpithet(self):
-        return utils.xml_safe_utf8(str(self.species.sp))
+        return xml_safe_utf8(str(self.species.sp))
 
     def get_AuthorTeam(self):
         author = self.species.sp_author
         if author is None:
             return None
         else:
-            return utils.xml_safe_utf8(author)
+            return xml_safe_utf8(author)
 
     def get_InformalNameString(self):
         vernacular_name = self.species.default_vernacular_name
         if vernacular_name is None:
             return None
         else:
-            return utils.xml_safe_utf8(vernacular_name)
+            return xml_safe_utf8(vernacular_name)
+
+    def get_Notes(self):
+        if not self.species.notes:
+            return None
+        notes = []
+        for note in self.species.notes:
+            notes.append(dict(date=xml_safe_utf8(note.date.isoformat()),
+                              user=xml_safe_utf8(note.user),
+                              category=xml_safe_utf8(note.category),
+                              note=utils.xml_safe_utf8(note.note)))
+        return utf8(notes)
 
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
@@ -125,36 +146,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
         if self.for_labels and self.species.label_distribution:
             etree.SubElement(unit, 'distribution').text=\
                 self.species.label_distribution
-        else:
-            etree.SubElement(unit, 'distribution').text=\
-                self.species.distribution_str()
-        if self.species.notes is not None:
-            ABCDElement(unit, 'Notes',
-                        text=utils.xml_safe(unicode(self.species.notes)))
 
-
-class PlantABCDAdapter(SpeciesABCDAdapter):
-    """
-    An adapter to convert a Plant to an ABCD Unit
-    """
-    def __init__(self, plant, for_labels=False):
-        super(PlantABCDAdapter, self).__init__(plant.accession.species,
-                                               for_labels)
-        self.plant = plant
-
-
-    def get_UnitID(self):
-        return utils.xml_safe_utf8(str(self.plant))
-
-
-    def extra_elements(self, unit):
-        bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
-        ABCDElement(bg_unit, 'LocationInGarden',
-                    text=utils.xml_safe_utf8(str(self.plant.location)))
-        if self.plant.notes is not None:
-            ABCDElement(unit, 'Notes',
-                        text=utils.xml_safe(unicode(self.plant.notes)))
-        super(PlantABCDAdapter, self).extra_elements(unit)
 
 
 class AccessionABCDAdapter(SpeciesABCDAdapter):
@@ -166,32 +158,131 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
                                                    for_labels)
         self.accession = accession
 
+
     def get_UnitID(self):
-        return utils.xml_safe_utf8(str(self.accession))
+        return xml_safe_utf8(str(self.accession))
 
 
-    # TODO: these values should probably alse be added for the PlantABCDAdapter
-    def donation_extra_elements(self, unit):
-        pass
-    def collection_extra_elements(self, unit):
-        pass
+    def get_DateLastEdited(self):
+        return utils.xml_safe_utf8(self.accession._last_updated.isoformat())
+
+
+    def get_Notes(self):
+        if not self.accession.notes:
+            return None
+        notes = []
+        for note in self.accession.notes:
+            notes.append(dict(date=xml_safe_utf8(note.date.isoformat()),
+                              user=xml_safe_utf8(note.user),
+                              category=xml_safe_utf8(note.category),
+                              note=xml_safe_utf8(note.note)))
+        return xml_safe_utf8(notes)
+
+
     def extra_elements(self, unit):
-        # TODO: this needs to be updated and filled in
-        return
-        if self.accession.notes is not None:
-            ABCDElement(unit, 'Notes',
-                        text=utils.xml_safe(unicode(self.accession.notes)))
-                        #text=utils.xml_safe(unicode(self.accession.notes)))
-        if self.accession.source_type == 'Collection':
-            # see ABCD/Unit/Gathering, CollectorsFieldNumber
-            self.collection_extra_elements(unit)
-        elif self.accession.source_type == 'Donation':
-            # see DonorCategory, DecodedDonorInstitute
-            self.donation_extra_elements(unit)
-        else:
-            # TODO: what should we do here
-            pass
         super(AccessionABCDAdapter, self).extra_elements(unit)
+        if self.accession.source.collection:
+            collection = self.accession.source.collection
+            utf8 = xml_safe_utf8
+            gathering = ABCDElement(unit, 'Gathering')
+
+            if collection.collectors_code:
+                ABCDElement(gathering, 'Code',
+                            text=utf8(collection.collectors_code))
+
+            # TODO: get date pref for DayNumberBegin
+            if collection.date:
+                date_time = ABCDElement(gathering, 'DateTime')
+                ABCDElement(date_time, 'DateText',
+                            xml_safe_utf8(collection.date.isoformat()))
+
+            if collection.collector:
+                agents = ABCDElement(gathering, 'Agents')
+                agent = ABCDElement(agents, 'GatheringAgent')
+                ABCDElement(agent, 'AgentText', text=utf8(collection.collector))
+
+            if collection.locale:
+                ABCDElement(gathering, 'LocalityText',
+                            text=utf8(collection.locale))
+
+            if collection.region:
+                named_areas = ABCDElement(gathering, 'NamedAreas')
+                named_area = ABCDElement(named_areas, 'NamedArea')
+                ABCDElement(named_area, 'AreaName',
+                            text=utf8(collection.region))
+
+            if collection.habitat:
+                ABCDElement(gathering, 'AreaDetail',
+                            text=utf8(collection.habitat))
+
+            if collection.longitude or collection.latitude:
+                site_coords = ABCDElement(gathering, 'SiteCoordinateSets')
+                coord = ABCDElement(site_coords, 'SiteCoordinates')
+                lat_long = ABCDElement(coord, 'CoordinatesLatLong')
+                ABCDElement(lat_long, 'LongitudeDecimal',
+                            text=utf8(collection.longitude))
+                ABCDElement(lat_long, 'LatitudeDecimal',
+                            text=utf8(collection.latitude))
+                if collection.gps_datum:
+                    ABCDElement(lat_long, 'SpatialDatum',
+                                text=utf8(collection.gps_datum))
+                if collection.geo_accy:
+                    ABCDElement(coord, 'CoordinateErrorDistanceInMeters',
+                                text=utf8(collection.geo_accy))
+
+            if collection.elevation:
+                altitude = ABCDElement(gathering, 'Altitude')
+                if collection.elevation_accy:
+                    text = '%sm (+/- %sm)' % (collection.elevation,
+                                              collection.elevation_accy)
+                else:
+                    text = '%sm' % collection.elevation
+                ABCDElement(altitude, 'MeasurementOrFactText', text=text)
+
+            if collection.notes:
+                ABCDElement(gathering, 'Notes', utf8(collection.notes))
+
+
+class PlantABCDAdapter(AccessionABCDAdapter):
+    """
+    An adapter to convert a Plant to an ABCD Unit
+    """
+    def __init__(self, plant, for_labels=False):
+        super(PlantABCDAdapter, self).__init__(plant.accession, for_labels)
+        self.plant = plant
+
+
+    def get_UnitID(self):
+        return xml_safe_utf8(str(self.plant))
+
+
+    def get_DateLastEdited(self):
+        return utils.xml_safe_utf8(self.plant._last_updated.isoformat())
+
+
+    def get_Notes(self):
+        if not self.plant.notes:
+            return None
+        notes = []
+        for note in self.plant.notes:
+            notes.append(dict(date=utils.xml_safe_utf8(note.date.isoformat()),
+                              user=xml_safe_utf8(note.user),
+                              category=xml_safe_utf8(note.category),
+                              note=xml_safe_utf8(note.note)))
+        return xml_safe_utf8(str(notes))
+
+
+    def extra_elements(self, unit):
+        bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
+        ABCDElement(bg_unit, 'AccessionSpecimenNumbers',
+                    text=xml_safe_utf8(self.plant.quantity))
+        ABCDElement(bg_unit, 'LocationInGarden',
+                    text=xml_safe_utf8(str(self.plant.location)))
+        # TODO: AccessionStatus, AccessionMaterialtype,
+        # ProvenanceCategory, AccessionLineage, DonorCategory,
+        # PlantingDate, Propagation
+        super(PlantABCDAdapter, self).extra_elements(unit)
+
 
 
 class SettingsBoxPresenter(object):
@@ -272,8 +363,7 @@ class XSLFormatterPlugin(FormatterPlugin):
 	# copy default template files to user_dir
 	templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
 		     'plant_list_ex.xsl', 'small_labels.xsl']
-        base_dir = os.path.join(paths.lib_dir(),
-                         "plugins", "report", 'xsl')
+        base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
 	for template in templates:
 	    f = os.path.join(paths.user_dir(), template)
 	    if not os.path.exists(f):

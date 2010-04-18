@@ -15,7 +15,7 @@ from sqlalchemy.orm.session import object_session
 import bauble
 import bauble.db as db
 import bauble.editor as editor
-from bauble.plugins.plants.geography import Geography
+from bauble.plugins.plants.geography import Geography, GeographyMenu
 import bauble.utils as utils
 import bauble.types as types
 from bauble.utils.log import debug
@@ -44,16 +44,16 @@ def collection_remove_callback(coll):
     from bauble.plugins.garden.accession import remove_callback
     return remove_callback([coll[0].source.accession])
 
-collection_edit_action = view.Action('collection_edit', ('_Edit'),
+collection_edit_action = view.Action('collection_edit', _('_Edit'),
                                      callback=collection_edit_callback,
                                      accelerator='<ctrl>e')
 collection_add_plant_action = \
-    view.Action('collection_add', ('_Add plants'),
+    view.Action('collection_add', _('_Add plants'),
                 callback=collection_add_plants_callback,
                 accelerator='<ctrl>k')
-collection_remove_action = view.Action('collection_remove', ('_Remove'),
+collection_remove_action = view.Action('collection_remove', _('_Delete'),
                                        callback=collection_remove_callback,
-                                       accelerator='Delete')
+                                       accelerator='<ctrl>Delete')
 
 collection_context_menu = [collection_edit_action, collection_add_plant_action,
                            collection_remove_action]
@@ -85,13 +85,13 @@ def source_detail_remove_callback(details):
     return True
 
 
-source_detail_edit_action = view.Action('source_detail_edit', ('_Edit'),
+source_detail_edit_action = view.Action('source_detail_edit', _('_Edit'),
                                         callback=source_detail_edit_callback,
                                         accelerator='<ctrl>e')
 source_detail_remove_action = \
-    view.Action('source_detail_remove', ('_Remove'),
+    view.Action('source_detail_remove', _('_Delete'),
                 callback=source_detail_remove_callback,
-                accelerator='Delete', multiselect=True)
+                accelerator='<ctrl>Delete', multiselect=True)
 
 source_detail_context_menu = [source_detail_edit_action,
                               source_detail_remove_action]
@@ -141,13 +141,13 @@ source_type_values = {u'Expedition': _('Expedition'),
                       u'Individual': _('Individual'),
                       u'Other': _('Other'),
                       u'Unknown': _('Unknown'),
-                     None: _('')}
+                     None: ''}
 
 class SourceDetail(db.Base):
     __tablename__ = 'source_detail'
     __mapper_args__ = {'order_by': 'name'}
 
-    name = Column(Unicode(64), unique=True)
+    name = Column(Unicode(75), unique=True)
     description = Column(UnicodeText)
     source_type = Column(types.Enum(values=source_type_values.keys()),
                          default=None)
@@ -208,28 +208,19 @@ class Collection(db.Base):
     # columns
     collector = Column(Unicode(64))
     collectors_code = Column(Unicode(50))
-
-    # TODO: make sure the country names are translatable, maybe store
-    # the ISO country code, e.g es for Spain, en_US for US or
-    # something similar so that we can use the translated country
-    # names for completions but the same database can be opened with
-    # different locales and show the localized names....might in this
-    # case be better to create a country table instead of just the
-    # string column...google countrytransl.map
-
-    #Column(Unicode(64)) # ISO country name
-
     date = Column(types.Date)
     locale = Column(UnicodeText, nullable=False)
-    latitude = Column(Float)
-    longitude = Column(Float)
+    latitude = Column(Unicode(15))
+    longitude = Column(Unicode(15))
     gps_datum = Column(Unicode(32))
     geo_accy = Column(Float)
     elevation = Column(Float)
     elevation_accy = Column(Float)
     habitat = Column(UnicodeText)
-    geography_id = Column(Integer, ForeignKey('geography.id'))
     notes = Column(UnicodeText)
+
+    geography_id = Column(Integer, ForeignKey('geography.id'))
+    region = relation(Geography, uselist=False)
 
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)
 
@@ -433,7 +424,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                            'altacc_entry': 'elevation_accy',
                            'habitat_textview': 'habitat',
                            'coll_notes_textview': 'notes',
-                           'datum_entry': 'gps_datum'
+                           'datum_entry': 'gps_datum',
+                           'add_region_button': 'region',
                            }
 
     # TODO: could make the problems be tuples of an id and description to
@@ -482,8 +474,8 @@ class CollectionPresenter(editor.GenericEditorPresenter):
         self.view.connect('coll_date_entry', 'changed',
                           self.on_date_entry_changed)
 
-        utils.setup_date_button(self.view.widgets.coll_date_entry,
-                                self.view.widgets.coll_date_button)
+        utils.setup_date_button(view, 'coll_date_entry',
+                                'coll_date_button')
 
         # don't need to connection to south/west since they are in the same
         # groups as north/east
@@ -494,9 +486,26 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.view.connect('east_radio', 'toggled',
                               self.on_east_west_radio_toggled)
 
-        if self.model.locale is None or self.model.locale in ('', u''):
-            self.add_problem(self.PROBLEM_INVALID_LOCALE)
+        self.view.widgets.add_region_button.set_sensitive(False)
+        def on_add_button_pressed(button, event):
+            self.geo_menu.popup(None, None, None, event.button, event.time)
+        self.view.connect('add_region_button', 'button-press-event',
+                          on_add_button_pressed)
+        def _init_geo():
+            add_button = self.view.widgets.add_region_button
+            self.geo_menu = GeographyMenu(self.set_region)
+            self.geo_menu.attach_to_widget(add_button, None)
+            add_button.set_sensitive(True)
+        gobject.idle_add(_init_geo)
+
         self.__dirty = False
+
+
+    def set_region(self, menu_item, geo_id):
+        geography = self.session.query(Geography).get(geo_id)
+        self.set_model_attr('region', geography)
+        self.set_model_attr('geography_id', geo_id)
+        self.view.widgets.add_region_button.props.label = str(geography)
 
 
     def set_model_attr(self, field, value, validator=None):
@@ -544,7 +553,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
         latitude = self.model.latitude
         if latitude is not None:
-            dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
+            dms_string = u'%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
             self.view.widgets.lat_dms_label.set_text(dms_string)
             if latitude < 0:
                 self.view.widgets.south_radio.set_active(True)
@@ -552,7 +561,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.north_radio.set_active(True)
         longitude = self.model.longitude
         if longitude is not None:
-            dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
+            dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
             self.view.widgets.lon_dms_label.set_text(dms_string)
             if longitude < 0:
                 self.view.widgets.west_radio.set_active(True)
@@ -621,24 +630,22 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
     @staticmethod
     def _parse_lat_lon(direction, text):
-        '''
-        parse a latitude or longitude in a variety of formats
-        '''
+        """
+        Parse a latitude or longitude in a variety of formats and
+        return a degress decimal
+        """
+        from decimal import Decimal
         from bauble.plugins.garden.accession import dms_to_decimal
-        bits = re.split(':| ', text.strip())
-#        debug('%s: %s' % (direction, bits))
-        if len(bits) == 1:
-            dec = abs(float(text))
+        parts = re.split(':| ', text.strip())
+        if len(parts) == 1:
+            dec = Decimal(text).copy_abs()
             if dec > 0 and direction in ('W', 'S'):
                 dec = -dec
-        elif len(bits) == 2:
-            deg, tmp = map(float, bits)
-            sec = tmp/60
-            min = tmp-60
-            dec = dms_to_decimal(direction, deg, min, sec)
-        elif len(bits) == 3:
-#            debug(bits)
-            dec = dms_to_decimal(direction, *map(float, bits))
+        elif len(parts) == 2:
+            deg, min = map(Decimal, parts)
+            dec = dms_to_decimal(direction, deg, min, 0)
+        elif len(parts) == 3:
+            dec = dms_to_decimal(direction, *map(Decimal, parts))
         else:
             raise ValueError(_('_parse_lat_lon() -- incorrect format: %s') % \
                              text)
@@ -688,7 +695,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 direction = self._get_lat_direction()
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
                 #u"\N{DEGREE SIGN}"
-                dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
+                dms_string = u'%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
             # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
@@ -698,7 +705,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
 
-        self.set_model_attr('latitude', latitude)
+        self.set_model_attr('latitude', utils.utf8(latitude))
         self.view.widgets.lat_dms_label.set_text(dms_string)
 
 
@@ -719,7 +726,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
-                dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
+                dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
         except Exception:
             # debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
@@ -729,7 +736,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
 
-        self.set_model_attr('longitude', longitude)
+        self.set_model_attr('longitude', utils.utf8(longitude))
         self.view.widgets.lon_dms_label.set_text(dms_string)
 
 
@@ -871,7 +878,7 @@ class GeneralSourceDetailExpander(InfoExpander):
         from textwrap import TextWrapper
         wrapper = TextWrapper(width=50, subsequent_indent='  ')
         self.set_widget_value('sd_name_data', '<big>%s</big>' %
-                              utils.xml_safe_utf8(row.name))
+                              utils.xml_safe_utf8(row.name), markup=True)
         source_type = ''
         if row.source_type:
             source_type = utils.xml_safe_utf8(row.source_type)

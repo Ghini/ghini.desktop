@@ -20,6 +20,7 @@ import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
 from bauble.utils.log import debug
+from bauble.plugins.plants.geography import GeographyMenu
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import *
@@ -36,7 +37,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_spqual_combo': 'sp_qual',
                            'sp_awards_entry': 'awards',
-                           'sp_zone_entry': 'hardiness_zone',
                            'sp_label_dist_entry': 'label_distribution',
                            'sp_bcdist_entry': 'bc_distribution',
                            }
@@ -72,30 +72,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         combo.pack_start(renderer, True)
         combo.set_cell_data_func(renderer, cell_data_func)
 
-        combo = self.view.widgets.sp_flower_comboentry
-        values = utils.get_distinct_values(Color.name, self.session)
-        combo.clear()
-        model = gtk.ListStore(object)
-        map(lambda v: model.append([v]), self.session.query(Color))
-        combo.set_model(model)
-        renderer = gtk.CellRendererText()
-        combo.pack_start(renderer, True)
-        combo.set_cell_data_func(renderer, cell_data_func)
-
         # set the model values in the widgets
         self.refresh_view()
 
         # connect habit comboentry widget and child entry
         self.view.connect('sp_habit_comboentry', 'changed',
-                          self.on_combo_entry_changed)
+                          self.on_habit_combo_entry_changed)
         self.view.connect(self.view.widgets.sp_habit_comboentry.child,
                           'changed', self.on_habit_entry_changed)
-
-        # connect flower comboentry widget and child entry
-        self.view.connect('sp_flower_comboentry', 'changed',
-                          self.on_combo_entry_changed)
-        self.view.connect(self.view.widgets.sp_flower_comboentry.child,
-                          'changed', self.on_flower_entry_changed)
 
         # connect signals
         def gen_get_completions(text):
@@ -143,18 +127,21 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_hybrid_check', 'hybrid')
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
+        self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_bcdist_entry', 'bc_distribution')
-        self.assign_simple_handler('sp_label_dist_entry', 'label_distribution')
-        self.assign_simple_handler('sp_awards_entry', 'awards')
-        self.assign_simple_handler('sp_zone_entry', 'hardiness_zone')
+        self.assign_simple_handler('sp_bcdist_entry', 'bc_distribution',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_awards_entry', 'awards',
+                                   editor.UnicodeOrNoneValidator())
 
 
-    def on_combo_entry_changed(self, combo, *args):
+    def on_habit_combo_entry_changed(self, combo, *args):
         """
-        Changed handler for sp_habit_comboentry and sp_flower_comboentry
+        Changed handler for sp_habit_comboentry.
 
         We don't need specific handlers for either comboentry because
         the validation is done in the specific gtk.Entry handlers for
@@ -195,29 +182,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('habit', None)
 
 
-    def on_flower_entry_changed(self, entry, *args):
-        """
-        """
-        problem = 'BAD_COLOR'
-        text = entry.props.text
-        if not text.strip():
-            self.remove_problem(problem, entry)
-            self.set_model_attr('flower_color', None)
-            return
-        model = entry.get_parent().get_model()
-        def match_func(row, data):
-            return str(row[0].code).lower() == str(data).lower() or \
-                str(row[0].name).lower() == str(data).lower() or \
-                str(row[0]).lower() == str(data).lower()
-        results = utils.search_tree_model(model, text, match_func)
-        if results and len(results) == 1: # is match is unique
-            self.remove_problem(problem, entry)
-            self.set_model_attr('flower_color', model[results[0]][0])
-        else:
-            self.add_problem(problem, entry)
-            self.set_model_attr('flower_color', None)
-
-
     def __del__(self):
         # we have to delete the views in the child presenters manually
         # to avoid the circular reference
@@ -229,10 +193,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model) or \
-            self.vern_presenter.dirty() or self.synonyms_presenter.dirty() or \
-            self.dist_presenter.dirty() or self.infrasp_presenter.dirty() or \
-            self.notes_presenter.dirty()
+        return self.__dirty or self.vern_presenter.dirty() or \
+            self.synonyms_presenter.dirty() or self.dist_presenter.dirty() \
+            or self.infrasp_presenter.dirty() or self.notes_presenter.dirty()
 
 
     def set_model_attr(self, field, value, validator=None):
@@ -249,7 +212,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.dist_presenter.problems) != 0:
             sensitive = False
-        elif not (self.model.genus and self.model.sp):
+        elif not self.model.genus:
             sensitive = False
         # elif not (self.model.sp or self.model.cv_group or \
         #             (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
@@ -319,8 +282,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         utils.set_widget_value(self.view.widgets.sp_habit_comboentry,
                                self.model.habit or '')
-        utils.set_widget_value(self.view.widgets.sp_flower_comboentry,
-                               self.model.flower_color or '')
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.dist_presenter.refresh_view()
@@ -453,7 +414,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         def set_model_attr(self, attr, value):
             infrasp_attr = Species.infrasp_attr[self.level][attr]
             setattr(self.species, infrasp_attr, value)
-            self.presenter._dirty = False
+            self.presenter._dirty = True
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
 
@@ -461,7 +422,11 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         def on_rank_combo_changed(self, combo, *args):
             model = combo.get_model()
             it = combo.get_active_iter()
-            self.set_model_attr('rank', utils.utf8(model[it][0]))
+            value = model[it][0]
+            if value is not None:
+                self.set_model_attr('rank', utils.utf8(model[it][0]))
+            else:
+                self.set_model_attr('rank', None)
 
 
         def on_epithet_entry_changed(self, entry, *args):
@@ -491,9 +456,6 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
         self.__dirty = False
-        self.add_menu = gtk.Menu()
-        self.add_menu.attach_to_widget(self.view.widgets.sp_dist_add_button,
-                                       None)
         self.remove_menu = gtk.Menu()
         self.remove_menu.attach_to_widget(self.view.widgets.sp_dist_remove_button,
                                           None)
@@ -501,7 +463,13 @@ class DistributionPresenter(editor.GenericEditorPresenter):
                           self.on_add_button_pressed)
         self.view.connect('sp_dist_remove_button', 'button-press-event',
                           self.on_remove_button_pressed)
-        self.init_add_button()
+        self.view.widgets.sp_dist_add_button.set_sensitive(False)
+        def _init_geo():
+            add_button = self.view.widgets.sp_dist_add_button
+            self.geo_menu = GeographyMenu(self.on_activate_add_menu_item)
+            self.geo_menu.attach_to_widget(add_button, None)
+            add_button.set_sensitive(True)
+        gobject.idle_add(_init_geo)
 
 
     def refresh_view(self):
@@ -511,7 +479,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 
 
     def on_add_button_pressed(self, button, event):
-        self.add_menu.popup(None, None, None, event.button, event.time)
+        self.geo_menu.popup(None, None, None, event.button, event.time)
 
 
     def on_remove_button_pressed(self, button, event):
@@ -553,91 +521,6 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         return self.__dirty
-
-
-    def init_add_button(self):
-        self.view.widgets.sp_dist_add_button.set_sensitive(False)
-        geography_table = Geography.__table__
-        geos = select([geography_table.c.id, geography_table.c.name,
-                       geography_table.c.parent_id]).execute().fetchall()
-        geos_hash = {}
-        # TODO: i think the geo_hash should be calculated in an idle
-        # function so that starting the editor isn't delayed while the
-        # hash is being built
-        for geo_id, name, parent_id in geos:
-            try:
-                geos_hash[parent_id].append((geo_id, name))
-            except KeyError:
-                geos_hash[parent_id] = [(geo_id, name)]
-
-        for kids in geos_hash.values():
-            kids.sort(key=itemgetter(1)) # sort by name
-
-        def get_kids(pid):
-            try:
-                return geos_hash[pid]
-            except KeyError:
-                return []
-
-        def has_kids(pid):
-            try:
-                return len(geos_hash[pid]) > 0
-            except KeyError:
-                return False
-
-        def build_menu(geo_id, name):
-            item = gtk.MenuItem(name)
-            if not has_kids(geo_id):
-                if item.get_submenu() is None:
-                    self.view.connect(item, 'activate',
-                                      self.on_activate_add_menu_item, geo_id)
-                return item
-
-            kids_added = False
-            submenu = gtk.Menu()
-            # removes two levels of kids with the same name, there must be a
-            # better way to do this but i got tired of thinking about it
-            kids = get_kids(geo_id)
-            if len(kids) > 0:
-                kids_added = True
-            for kid_id, kid_name in kids:#get_kids(geo_id):
-                submenu.append(build_menu(kid_id, kid_name))
-
-            if kids_added:
-                sel_item = gtk.MenuItem(name)
-                submenu.insert(sel_item, 0)
-                submenu.insert(gtk.SeparatorMenuItem(), 1)
-                item.set_submenu(submenu)
-                self.view.connect(sel_item, 'activate',
-                                  self.on_activate_add_menu_item, geo_id)
-            else:
-                self.view.connect(item, 'activate',
-                                  self.on_activate_add_menu_item, geo_id)
-            return item
-
-        def populate():
-            """
-            add geography value to the menu, any top level items that don't
-            have any kids are appended to the bottom of the menu
-            """
-            if not geos_hash:
-                # we should really only get here when running the
-                # species editor as a unit test since then the
-                # geography table probably isn't populated
-                return
-            no_kids = []
-            for geo_id, geo_name in geos_hash[None]:
-                if geo_id not in geos_hash.keys():
-                    no_kids.append((geo_id, geo_name))
-                else:
-                    self.add_menu.append(build_menu(geo_id, geo_name))
-
-            for geo_id, geo_name in sorted(no_kids):
-                self.add_menu.append(build_menu(geo_id, geo_name))
-
-            self.add_menu.show_all()
-            self.view.widgets.sp_dist_add_button.set_sensitive(True)
-        gobject.idle_add(populate)
 
 
 
@@ -917,8 +800,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
     def on_add_button_clicked(self, button, data=None):
         """
-        adds the synonym from the synonym entry to the list of synonyms for
-        this species
+        Adds the synonym from the synonym entry to the list of synonyms for
+        this species.
         """
         syn = SpeciesSynonym(species=self.model, synonym=self._selected)
         tree_model = self.treeview.get_model()
@@ -993,7 +876,20 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_spqual_combo': _('Species qualifier'),
         'sp_dist_frame': _('Species distribution'),
         'sp_vern_frame': _('Vernacular names'),
-        'sp_syn_box': _('Species synonyms')
+        'sp_syn_frame': _('Species synonyms'),
+        'sp_bcdist_entry': _('The distribution of this species in British '
+                             'Columbia'),
+        'sp_label_dist_entry': _('The distribution string that will be used '
+                                 'on the label.  If this entry is blank then '
+                                 'the species distribution will be used'),
+        'sp_habit_comboentry': _('The habit of this species'),
+        'sp_awards_entry': _('The awards this species have been given'),
+        'sp_cancel_button': _('Cancel your changes'),
+        'sp_ok_button': _('Save your changes'),
+        'sp_ok_and_add_button': _('Save your changes changes and add an '
+                                  'accession to this species'),
+        'sp_next_button': _('Save your changes changes and add another '
+                             'species ')
         }
 
 
@@ -1011,6 +907,7 @@ class SpeciesEditorView(editor.GenericEditorView):
                                match_func=self.genus_match_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.set_accept_buttons_sensitive(False)
+        self.widgets.notebook.set_current_page(0)
         self.restore_state()
 
 

@@ -94,15 +94,6 @@ def queue(task):
         clear_messages()
         bauble.set_busy(False)
 
-
-
-# TODO: This exception is probably not relevant since we switched to
-# the task system to using fibra...but i'm gonna leave it here for now
-# for compatibility reasons
-class TaskQuitting(Exception):
-    pass
-
-
 __message_ids = []
 
 def set_message(msg):
@@ -135,70 +126,3 @@ def clear_messages():
         bauble.gui.widgets.statusbar.remove(_context_id, mid)
 
 
-#_flushing = False
-
-# def flush():
-#     '''
-#     Flush out the task queue.  This is normally called by
-#     :func:`bauble.task.queue`
-#     '''
-#     global _flushing
-#     if _flushing:
-#         return
-
-#     _flushing = True
-#     bauble.set_busy(True)
-#     while not _task_queue.empty():
-#         if bauble.gui is not None:
-#             bauble.gui.progressbar.show()
-#             bauble.gui.progressbar.set_pulse_step(1.0)
-#             bauble.gui.progressbar.set_fraction(0)
-#         func, on_quit, on_error, args = _task_queue.get()
-#         try:
-#             _run_task(func, *args)
-#             if on_quit:
-#                 on_quit()
-#         except (GeneratorExit, TaskQuitting), e:
-#             raise
-#         except Exception, e:
-#             #  we can't raise an exception here since the other
-#             #  pending tasks would be able to complete...on_error also
-#             #  shouldn't raise an exception
-#             #gobject.idle_add(on_error, e)
-#             error(e)
-#             if on_error:
-#                 on_error(e)
-
-#     bauble.set_busy(False)
-#     clear_messages()
-#     if bauble.gui is not None:
-#         bauble.gui.progressbar.set_pulse_step(0)
-#         bauble.gui.progressbar.set_fraction(0)
-#         bauble.gui.progressbar.hide()
-#     _flushing = False
-
-
-# __quit_handler_id = None
-# __gtk_quitting = False
-
-# def _quit():
-#     global __gtk_quitting
-#     __gtk_quitting = True
-#     return 0 # return 0 to remove from gtk quit handlers
-
-
-# def queue(task, on_quit, on_error, *args):
-#     """
-#     Queue a new task
-
-#     :param task: the task to queue
-#     :param callback: the function to call when the task is finished
-#     :param args: the arguments to pass to the task
-#     """
-#     global _task_queue
-#     global __quit_handler_id
-#     if __quit_handler_id is None:
-#         level = gtk.main_level()
-#         __quit_handler_id = gtk.quit_add(level, _quit)
-#     _task_queue.put((task, on_quit, on_error, args))
-#     flush()

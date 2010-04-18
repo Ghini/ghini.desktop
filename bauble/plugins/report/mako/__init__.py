@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import tempfile
 
@@ -57,6 +58,17 @@ class MakoFormatterPlugin(FormatterPlugin):
     """
 
     title = _('Mako')
+
+    @classmethod
+    def install(cls, import_defaults=True):
+	# copy default template files to user_dir
+	templates = ['example.csv', 'example.csv']
+        base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
+	for template in templates:
+	    f = os.path.join(paths.user_dir(), template)
+	    if not os.path.exists(f):
+		shutil.copy(os.path.join(base_dir, template), f)
+
 
     @staticmethod
     def get_settings_box():
