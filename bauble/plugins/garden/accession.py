@@ -482,9 +482,6 @@ class Accession(db.Base):
     intended2_location = relation('Location',
                   primaryjoin='Accession.intended2_location_id==Location.id')
 
-    # *** UBC specific
-    pisbg = Column(Boolean, default=False)
-
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
         self.__cached_species_str = {}
