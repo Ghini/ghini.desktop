@@ -63,7 +63,7 @@ class ConnectionManager:
             warning('ConnectionManager: %s' % e)
         try:
             import psycopg2
-            self._working_dbtypes.append('Postgres')
+            self._working_dbtypes.append('PostgreSQL')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
         try:
@@ -74,7 +74,7 @@ class ConnectionManager:
 
         return self._working_dbtypes
 
-    _dbtypes = ['SQLite', 'Postgres', 'MySQL']
+    _dbtypes = ['SQLite', 'PostgreSQL', 'MySQL']
     # a list of dbtypes that are importable
     working_dbtypes = property(_get_working_dbtypes)
     _working_dbtypes = []
@@ -373,7 +373,7 @@ class ConnectionManager:
         if name is None: # in case no name selected, can happen on first run
             return True
         conn_list = prefs[bauble.conn_list_pref]
-        if conn_list is None or name not in conn_list:
+        if conn_list is None or name not in conn_list or not self.params_box:
             return False
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_prefs())
@@ -406,9 +406,16 @@ class ConnectionManager:
                     self.save_current_to_prefs()
 
         if conn_list is not None and name in conn_list:
-            conn = conn_list[name]
-            self.type_combo.set_active(self._dbtypes.index(conn["type"]))
-	    self.params_box.refresh_view(conn_list[name])
+            if conn_list[name]['type'] not in self._dbtypes:
+                # in case the connection type has changed or isn't supported
+                # on this computer
+                self.type_combo.set_active(-1)
+                self.type_combo.emit("changed") # in case 0 was already active
+            else:
+                self.type_combo.set_active(0)
+                self.type_combo.set_active(self._dbtypes.\
+                                               index(conn_list[name]["type"]))
+                self.params_box.refresh_view(conn_list[name])
         else: # this is for new connections
             self.type_combo.set_active(0)
             self.type_combo.emit("changed") # in case 0 was already active
@@ -484,7 +491,10 @@ class ConnectionManager:
 	    filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
             return uri
-        subs['type'] = params['type'].lower()
+        if params['type'].lower() == "postgresql":
+            subs['type'] = 'postgres'
+        else:
+            subs['type'] = params['type'].lower()
         template = "%(type)s://%(user)s@%(host)s/%(db)s"
         if params["passwd"] == True:
             subs["passwd"] = self.get_passwd()
@@ -663,7 +673,9 @@ class SQLiteParamsBox(CMParamsBox):
                                   buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         r = d.run()
-        self.file_entry.set_text(d.get_filename())
+        filename = d.get_filename()
+        if filename:
+            self.file_entry.set_text(filename)
         d.destroy()
 
 

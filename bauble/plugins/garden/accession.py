@@ -136,7 +136,12 @@ def edit_callback(accessions):
 
 
 def add_plants_callback(accessions):
-    e = PlantEditor(model=Plant(accession=accessions[0]))
+    # create a temporary session so that the temporary plant doesn't
+    # get added to the accession
+    session = db.Session()
+    acc = session.merge(accessions[0])
+    e = PlantEditor(model=Plant(accession=acc))
+    session.close()
     return e.start()
 
 
@@ -172,12 +177,12 @@ def remove_callback(accessions):
     return True
 
 
-edit_action = Action('acc_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
                         accelerator='<ctrl>e')
-add_plant_action = Action('acc_add', ('_Add plants'),
+add_plant_action = Action('acc_add', _('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('acc_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='Delete')#, multiselect=True)
+remove_action = Action('acc_remove', _('_Delete'), callback=remove_callback,
+                       accelerator='<ctrl>Delete')#, multiselect=True)
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
 
@@ -286,7 +291,7 @@ prov_type_values = {u'Wild': _('Wild'),
                     u'NotWild': _("Not of wild source"),
                     u'InsufficientData': _("Insufficient Data"),
                     u'Unknown': _("Unknown"),
-                    None: _('')}
+                    None: ''}
 
 
 wild_prov_status_values = {u'WildNative': _("Wild native"),
@@ -294,7 +299,7 @@ wild_prov_status_values = {u'WildNative': _("Wild native"),
                            u'CultivatedNative': _("Cultivated native"),
                            u'InsufficientData': _("Insufficient Data"),
                            u'Unknown': _("Unknown"),
-                           None: _('')}
+                           None: ''}
 
 
 recvd_type_values = {
@@ -326,7 +331,7 @@ recvd_type_values = {
     u'BBIL': _('Bulbil'),
     u'VEGS': _('Vegetative spreading'),
     u'SCKR': _('Root sucker'),
-    None: _('')
+    None: ''
     }
 
 class AccessionNote(db.Base):
@@ -431,7 +436,7 @@ class Accession(db.Base):
 
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
-    quantity_recvd = Column(Integer)
+    quantity_recvd = Column(Integer, autoincrement=False)
     recvd_type = Column(types.Enum(values=recvd_type_values.keys()),
                         default=None)
 
@@ -472,14 +477,13 @@ class Accession(db.Base):
                              backref=backref('accession', uselist=False))
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
-    intended_loc = relation('Location',
-                  primaryjoin='Accession.intended_location_id==Location.id')
-    intended2_loc = relation('Location',
+    intended_location = relation('Location',
+                     primaryjoin='Accession.intended_location_id==Location.id')
+    intended2_location = relation('Location',
                   primaryjoin='Accession.intended2_location_id==Location.id')
 
     # *** UBC specific
     pisbg = Column(Boolean, default=False)
-    memorial = Column(Boolean, default=False)
 
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
@@ -572,7 +576,7 @@ class Accession(db.Base):
         return '%s (%s)' % (self.code, self.species.markup())
 
 
-from bauble.plugins.garden.plant import Plant, PlantStatusEditor, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor
 
 
 class AccessionEditorView(editor.GenericEditorView):
@@ -599,16 +603,34 @@ class AccessionEditorView(editor.GenericEditorView):
         'acc_id_qual_combo': _("The ID Qualifier\n\n" \
                                "Possible values: %s") \
                                % utils.enum_values_str('accession.id_qual'),
+        'acc_id_qual_rank_combo': _('The part of the taxon name that the id '
+                                    'qualifier refers to.'),
         'acc_date_accd_entry': _('The date this species was accessioned.'),
         'acc_date_recvd_entry': _('The date this species was received.'),
+        'acc_recvd_type_comboentry': _('The type of the accessioned material.'),
+        'acc_quantity_recvd_entry': _('The amount of plant material at the '
+                                      'time it was accessioned.'),
+        'intended_loc_comboentry': _('The intended location for plant '
+                                         'material being accessioned.'),
+        'intended2_loc_comboentry': _('The intended location for plant '
+                                          'material being accessioned.'),
+
         'acc_prov_combo': _('The origin or source of this accession.\n\n' \
                             'Possible values: %s') % \
                             ', '.join(prov_type_values.values()),
         'acc_wild_prov_combo': _('The wild status is used to clarify the ' \
-                                 'provenance\n\nPossible values: %s') % \
+                                 'provenance.\n\nPossible values: %s') % \
                                  ', '.join(wild_prov_status_values.values()),
         'acc_private_check': _('Indicates whether this accession record ' \
-                               'should be considered private.')
+                               'should be considered private.'),
+        'acc_pisbg_check': _('Indicates whether is part of the Plant '
+                             'Introduction Schema for Botanic Gardens.'),
+        'acc_cancel_button': _('Cancel your changes.'),
+        'acc_ok_button': _('Save your changes.'),
+        'acc_ok_and_add_button': _('Save your changes changes and add a '
+                                  'plant to this accession.'),
+        'acc_next_button': _('Save your changes changes and add another '
+                             'accession.')
         }
 
 
@@ -648,6 +670,9 @@ class AccessionEditorView(editor.GenericEditorView):
         adjustment = self.widgets.source_sw.get_vadjustment()
         adjustment.props.value = 0.0
         self.widgets.source_sw.set_vadjustment(adjustment)
+
+        # set current page so we don't open the last one that was open
+        self.widgets.acc_notebook.set_current_page(0)
 
 
     def get_window(self):
@@ -787,10 +812,10 @@ class VoucherPresenter(editor.GenericEditorPresenter):
     def on_cell_edited(self, cell, path, new_text, data):
         treeview, prop = data
         treemodel = self.view.widgets[treeview].get_model()
-        rooted = treemodel[path][0]
-        if getattr(rooted, prop) == new_text:
+        voucher = treemodel[path][0]
+        if getattr(voucher, prop) == new_text:
             return  # didn't change
-        setattr(rooted, prop, utils.utf8(new_text))
+        setattr(voucher, prop, utils.utf8(new_text))
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
 
@@ -828,6 +853,14 @@ class VoucherPresenter(editor.GenericEditorPresenter):
 
 class VerificationPresenter(editor.GenericEditorPresenter):
 
+    """
+    VerificationPresenter
+
+    :param parent:
+    :param model:
+    :param view:
+    :param session:
+    """
     PROBLEM_INVALID_DATE = random()
 
     def __init__(self, parent, model, view, session):
@@ -859,6 +892,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def dirty(self):
         return self._dirty
 
+
     def refresh_view(self):
         pass
 
@@ -868,6 +902,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
 
     def add_verification_box(self, model=None):
+        """
+        :param model:
+        """
         box = VerificationPresenter.VerificationBox(self, model)
         self.view.widgets.\
             verifications_parent_box.pack_start(box, expand=False, fill=False)
@@ -883,10 +920,11 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             check(not model or isinstance(model, Verification))
 
             self.dirty = False
-            self.presenter = parent
+            self.presenter = weakref.ref(parent)
             self.model = model
             if not self.model:
                 self.model = Verification()
+                self.model.prev_species = self.presenter().model.species
 
             # copy UI definitions from the accession editor glade file
             filename = os.path.join(paths.lib_dir(), "plugins", "garden",
@@ -914,7 +952,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             entry = self.widgets.ver_verifier_entry
             if self.model.verifier:
                 entry.props.text = self.model.verifier
-            self.presenter.view.connect(entry, 'changed',
+            self.presenter().view.connect(entry, 'changed',
                                         self.on_entry_changed, 'verifier')
 
             # date entry
@@ -925,19 +963,19 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 self.date_entry.props.text = safe
             else:
                 self.date_entry.props.text = utils.xml_safe(utils.today_str())
-            self.presenter.view.connect(self.date_entry, 'changed',
+            self.presenter().view.connect(self.date_entry, 'changed',
                                         self.on_date_entry_changed)
 
             # reference entry
             ref_entry = self.widgets.ver_ref_entry
             if self.model.reference:
                 ref_entry.props.text = self.model.reference
-            self.presenter.view.connect(ref_entry, 'changed',
+            self.presenter().view.connect(ref_entry, 'changed',
                                         self.on_entry_changed, 'reference')
 
             # species entries
             def sp_get_completions(text):
-                query = self.presenter.session.query(Species).join('genus').\
+                query = self.presenter().session.query(Species).join('genus').\
                     filter(utils.ilike(Genus.genus, '%s%%' % text)).\
                     filter(Species.id != self.model.id)
                 return query
@@ -950,20 +988,43 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             entry = self.widgets.ver_prev_taxon_entry
             def on_prevsp_select(value):
                 self.set_model_attr('prev_species', value)
-            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            self.presenter().view.attach_completion(entry, sp_cell_data_func)
             if self.model.prev_species:
                 entry.props.text = self.model.prev_species
-            self.presenter.assign_completions_handler(entry,sp_get_completions,
-                                                      on_prevsp_select)
+            self.presenter().\
+                assign_completions_handler(entry, sp_get_completions,
+                                           on_prevsp_select)
 
             entry = self.widgets.ver_new_taxon_entry
             def on_sp_select(value):
                 self.set_model_attr('species', value)
-            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+                # only ask to change accession.species if the value
+                # isn't already set and only if this is the last
+                # verification, meaning the the top most verification
+                # box in the editor
+                #
+                # TODO: the only thing left to make this work is
+                # setting the species string in the entry without
+                # having it add a problem
+                #
+                # if value and value != self.presenter().model.species and \
+                #         self.model == self.presenter().model.verifications[-1]:
+                #     msg = _("The species you have selected doesn't match the "\
+                #             "species for the accession.  Would you like to "\
+                #             "set the species for the accession to: "\
+                #             "\n\n<b>%s</b>") \
+                #             % Species.str(value, markup=True, authors=True)
+                #     if utils.yes_no_dialog(msg):
+                #         self.presenter().view.\
+                #             set_widget_value('acc_species_entry', str(value))
+
+
+            self.presenter().view.attach_completion(entry, sp_cell_data_func)
             if self.model.species:
                 entry.props.text = self.model.species
-            self.presenter.assign_completions_handler(entry,sp_get_completions,
-                                                      on_sp_select)
+            self.presenter().\
+                assign_completions_handler(entry, sp_get_completions,
+                                           on_sp_select)
 
             combo = self.widgets.ver_level_combo
             renderer = gtk.CellRendererText()
@@ -984,22 +1045,21 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             combo.set_model(model)
             if self.model.level:
                 utils.set_widget_value(combo, self.model.level)
-            self.presenter.view.connect(combo, 'changed',
-                                        self.on_level_combo_changed)
+            self.presenter().view.connect(combo, 'changed',
+                                          self.on_level_combo_changed)
 
             # notes text view
             buff = gtk.TextBuffer()
             if self.model.notes:
                 buff.props.text = self.model.notes
-            self.presenter.view.connect(buff, 'changed', self.on_entry_changed,
+            self.presenter().view.connect(buff, 'changed',self.on_entry_changed,
                                         'notes')
             textview = self.widgets.ver_notes_textview
             textview.set_border_width(1)
 
             # remove button
             button = self.widgets.ver_remove_button
-            #self._sid = button.connect('clicked',self.on_remove_button_clicked)
-            self._sid = self.presenter.view.connect(button, 'clicked',
+            self._sid = self.presenter().view.connect(button, 'clicked',
                                           self.on_remove_button_clicked)
 
             self.update_label()
@@ -1012,9 +1072,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             try:
                 value = editor.DateValidator().to_python(entry.props.text)
             except ValidatorError, e:
-                self.presenter.add_problem(PROBLEM, entry)
+                self.presenter().add_problem(PROBLEM, entry)
             else:
-                self.presenter.remove_problem(PROBLEM, entry)
+                self.presenter().remove_problem(PROBLEM, entry)
             self.set_model_attr('date', value)
 
 
@@ -1032,8 +1092,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # remove verification from accession
             if self.model.accession:
                 self.model.accession.verifications.remove(self.model)
-            self.presenter._dirty = True
-            self.presenter.parent_ref().refresh_sensitivity()
+            self.presenter()._dirty = True
+            self.presenter().parent_ref().refresh_sensitivity()
 
 
         def on_entry_changed(self, entry, attr):
@@ -1067,10 +1127,10 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 # start changing values, this way we can setup a dummy
                 # verification in the interface
                 if not self.model.accession:
-                    self.presenter.model.verifications.append(self.model)
-            self.presenter._dirty = True
+                    self.presenter().model.verifications.append(self.model)
+            self.presenter()._dirty = True
             self.update_label()
-            self.presenter.parent_ref().refresh_sensitivity()
+            self.presenter().parent_ref().refresh_sensitivity()
 
 
         def update_label(self):
@@ -1442,16 +1502,14 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_id_qual_combo': 'id_qual',
                            'acc_date_accd_entry': 'date_accd',
                            'acc_date_recvd_entry': 'date_recvd',
-                           'acc_date_recvd_entry': 'date_recvd',
                            'acc_recvd_type_comboentry': 'recvd_type',
                            'acc_quantity_recvd_entry': 'quantity_recvd',
-                           'intended_loc_comboentry': 'intended_loc',
-                           'intended2_loc_comboentry': 'intended2_loc',
+                           'intended_loc_comboentry': 'intended_location',
+                           'intended2_loc_comboentry': 'intended2_location',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
-                           'acc_memorial_check': 'memorial',
                            'acc_pisbg_check': 'pisbg'
                            }
 
@@ -1487,9 +1545,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = \
             editor.NotesPresenter(self, 'notes', notes_parent)
-
-        # set current page so we don't open the last one that was open
-        self.view.widgets.acc_notebook.set_current_page(0)
 
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
 
@@ -1550,11 +1605,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(box)
                 box.destroy()
                 if response:
+                    completion = self.view.widgets.acc_species_entry.\
+                        get_completion()
+                    utils.clear_model(completion)
+                    model = gtk.ListStore(object)
+                    model.append([syn.species])
+                    completion.set_model(model)
                     self.view.widgets.acc_species_entry.\
                         set_text(utils.utf8(syn.species))
                     set_model(syn.species)
-                else:
-                    set_model(value)
             box = utils.add_message_box(self.view.widgets.message_box_parent,
                                         utils.MESSAGE_BOX_YESNO)
             box.message = msg
@@ -1567,7 +1626,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
         self.assign_simple_handler('acc_prov_combo', 'prov_type')
         self.assign_simple_handler('acc_wild_prov_combo', 'wild_prov_status')
-        self.assign_simple_handler('acc_recvd_type_comboentry', 'recvd_type')
+
+        # connect recvd_type comboentry widget and child entry
+        self.view.connect('acc_recvd_type_comboentry', 'changed',
+                          self.on_recvd_type_comboentry_changed)
+        self.view.connect(self.view.widgets.acc_recvd_type_comboentry.child,
+                          'changed', self.on_recvd_type_entry_changed)
 
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
@@ -1579,32 +1643,31 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # date received
         self.view.connect('acc_date_recvd_entry', 'changed',
                           self.on_date_entry_changed, 'date_recvd')
-        utils.setup_date_button(self.view.widgets.acc_date_recvd_entry,
-                               self.view.widgets.acc_date_recvd_button)
+        utils.setup_date_button(self.view, 'acc_date_recvd_entry',
+                               'acc_date_recvd_button')
 
         # date accessioned
         self.view.connect('acc_date_accd_entry', 'changed',
                           self.on_date_entry_changed, 'date_accd')
-        utils.setup_date_button(self.view.widgets.acc_date_accd_entry,
-                               self.view.widgets.acc_date_accd_button)
+        utils.setup_date_button(self.view, 'acc_date_accd_entry',
+                               'acc_date_accd_button')
 
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-        self.assign_simple_handler('acc_memorial_check', 'memorial')
         self.assign_simple_handler('acc_pisbg_check', 'pisbg')
 
         from bauble.plugins.garden import init_location_comboentry
         def on_loc1_select(value):
-            self.set_model_attr('intended_location_id')
+            self.set_model_attr('intended_location', value)
         init_location_comboentry(self,
                                  self.view.widgets.intended_loc_comboentry,
-                                 on_loc1_select)
+                                 on_loc1_select, required=False)
         def on_loc2_select(value):
-            self.set_model_attr('intended2_location_id')
+            self.set_model_attr('intended2_location', value)
         init_location_comboentry(self,
                                  self.view.widgets.intended2_loc_comboentry,
-                                 on_loc2_select)
+                                 on_loc2_select, required=False)
 
         self.refresh_sensitivity()
 
@@ -1657,6 +1720,43 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                       self.notes_presenter, self.source_presenter]
         dirty_kids = [p.dirty() for p in presenters]
         return self.__dirty or True in dirty_kids
+
+
+    def on_recvd_type_comboentry_changed(self, combo, *args):
+        """
+        """
+        value = None
+        treeiter = combo.get_active_iter()
+        if treeiter:
+            value = combo.get_model()[treeiter][0]
+        else:
+            # the changed handler is fired again after the
+            # combo.child.props.text with the activer iter set to None
+            return True
+        # the entry change handler does the validation of the model
+        combo.child.props.text = recvd_type_values[value]
+
+
+    def on_recvd_type_entry_changed(self, entry, *args):
+        """
+        """
+        problem = 'BAD_RECVD_TYPE'
+        text = entry.props.text
+        if not text.strip():
+            self.remove_problem(problem, entry)
+            self.set_model_attr('recvd_type', None)
+            return
+        model = entry.get_parent().get_model()
+        def match_func(row, data):
+            return str(row[0]).lower() == str(data).lower() or \
+                str(row[1]).lower() == str(data).lower()
+        results = utils.search_tree_model(model, text, match_func)
+        if results and len(results) == 1: # is match is unique
+            self.remove_problem(problem, entry)
+            self.set_model_attr('recvd_type', model[results[0]][0])
+        else:
+            self.add_problem(problem, entry)
+            self.set_model_attr('recvd_type', None)
 
 
     def on_acc_code_entry_changed(self, entry, data=None):
@@ -1736,6 +1836,17 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         if not self.model.code or not self.model.species:
            return False
 
+        for ver in self.model.verifications:
+            ignore = ('id', 'accession_id', 'species_id', 'prev_species_id')
+            if utils.get_invalid_columns(ver, ignore_columns=ignore) or \
+                    not ver.species or not ver.prev_species:
+                return False
+
+        for voucher in self.model.vouchers:
+            ignore = ('id', 'accession_id')
+            if utils.get_invalid_columns(voucher, ignore_columns=ignore):
+                return False
+
         # validate the source if there is one
         if self.model.source:
             if utils.get_invalid_columns(self.model.source.collection):
@@ -1754,8 +1865,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             elif prop and prop.prop_type == 'UnrootedCutting':
                 prop_model = prop._cutting
             else:
-                msg = 'AccessionEditorPresenter.validate(): unknown prop_type'
-                warning(msg)
+                #msg = 'AccessionEditorPresenter.validate(): unknown prop_type'
+                #warning(msg)
                 return False # raise ValueError for unknown prop_type??
 
             if utils.get_invalid_columns(prop_model, prop_ignore):
@@ -1775,6 +1886,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
         sensitive = self.dirty() and self.validate() \
+            and not self.problems \
             and not self.source_presenter.all_problems() \
             and not self.ver_presenter.problems \
             and not self.voucher_presenter.problems
@@ -1809,11 +1921,13 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                    recvd_type_values[self.model.recvd_type],
                                    index=1)
 
+        self.view.widgets.acc_private_check.set_inconsistent(False)
+        self.view.widgets.acc_private_check.\
+            set_active(self.model.private is True)
 
-
-        if self.model.private is None:
-            self.view.widgets.acc_private_check.set_inconsistent(False)
-            self.view.widgets.acc_private_check.set_active(False)
+        self.view.widgets.acc_pisbg_check.set_inconsistent(False)
+        self.view.widgets.acc_pisbg_check.\
+            set_active(self.model.pisbg is True)
 
         sensitive = self.model.prov_type == 'Wild'
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
@@ -2061,7 +2175,8 @@ class GeneralAccessionExpander(InfoExpander):
         '''
         self.current_obj = row
         self.set_widget_value('acc_code_data', '<big>%s</big>' % \
-                              utils.xml_safe(unicode(row.code)))
+                              utils.xml_safe(unicode(row.code)),
+                              markup=True)
 
         # TODO: i don't know why we can't just set the visible
         # property to False here
@@ -2074,11 +2189,26 @@ class GeneralAccessionExpander(InfoExpander):
 
         #self.set_widget_value('name_data', '%s %s' % \
         #                      (row.species.markup(True), row.id_qual or '',))
-        self.set_widget_value('name_data', row.species_str(markup=True))
+        self.set_widget_value('name_data', row.species_str(markup=True),
+                              markup=True)
 
         session = object_session(row)
-        # TODO: it would be nice if we did something like 13 Living,
-        # 2 Dead, 6 Unknown, etc
+        plant_locations = {}
+        for plant in row.plants:
+            if plant.quantity == 0:
+                continue
+            q = plant_locations.setdefault(plant.location, 0)
+            plant_locations[plant.location] = q + plant.quantity
+        if plant_locations:
+            strs = []
+            for location, quantity in plant_locations.iteritems():
+                strs.append(_('%(quantity)s in %(location)s') \
+                              % dict(location=str(location), quantity=quantity))
+            s = '\n'.join(strs)
+        else:
+            s = '0'
+        self.set_widget_value('living_plants_data', s)
+
 
         nplants = session.query(Plant).filter_by(accession_id=row.id).count()
         self.set_widget_value('nplants_data', nplants)
@@ -2119,17 +2249,12 @@ class GeneralAccessionExpander(InfoExpander):
         self.widgets.private_image.set_from_stock(stock, image_size)
 
         stock = gtk.STOCK_NO
-        if row.memorial:
-            stock = gtk.STOCK_YES
-        self.widgets.memorial_image.set_from_stock(stock, image_size)
-
-        stock = gtk.STOCK_NO
         if row.pisbg:
             stock = gtk.STOCK_YES
         self.widgets.pisbg_image.set_from_stock(stock, image_size)
 
-        loc_map = (('intended_loc_data', 'intended_loc'),
-                   ('intended2_loc_data', 'intended2_loc'))
+        loc_map = (('intended_loc_data', 'intended_location'),
+                   ('intended2_loc_data', 'intended2_location'))
 
         for label, attr in loc_map:
             location_str = ''
@@ -2163,23 +2288,26 @@ class SourceExpander(InfoExpander):
         else:
             geo_accy = '(+/- %sm)' % geo_accy
 
+        lat_str = ''
         if collection.latitude:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
-            lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+            lat_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lat_data', lat_str)
+        self.set_widget_value('lat_data', lat_str)
 
+        long_str = ''
         if collection.longitude:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
-            long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
+            long_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lon_data', long_str)
+        self.set_widget_value('lon_data', long_str)
 
-        if collection.elevation_accy:
-            elevation = '%sm (+/- %sm)' % (collection.elevation,
-                                           collection.elevation_accy)
-            self.set_widget_value('elev_data', elevation)
-
+        elevation = ''
+        if collection.elevation:
+            elevation = '%sm' % collection.elevation
+            if collection.elevation_accy:
+                elevation += ' (+/- %sm)' % collection.elevation_accy
+        self.set_widget_value('elev_data', elevation)
 
         self.set_widget_value('coll_data', collection.collector)
         self.set_widget_value('date_data', collection.date)
@@ -2219,7 +2347,7 @@ class SourceExpander(InfoExpander):
 
         prop_str = ''
         if row.source.propagation:
-            prop_str = row.propagation.get_summary()
+            prop_str = row.source.propagation.get_summary()
         self.set_widget_value('propagation_data', prop_str)
 
         if row.source.collection:

@@ -59,7 +59,7 @@ class MakoFormatterTests(BaubleTestCase):
                             loc = Location(id=pctr, code=u'%s' % pctr,
                                            name=u'site%s' % pctr)
                             plant = Plant(id=pctr, accession=acc, location=loc,
-                                          code=u'%s' % pctr)
+                                          code=u'%s' % pctr, quantity=1)
                             #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
                             #      % (fctr, gctr, actr, pctr))
                             self.session.add_all([loc, plant])
@@ -75,7 +75,7 @@ class MakoFormatterTests(BaubleTestCase):
         Test the MakoFormatterPlugin.format() runs without raising an error.
         """
         plants = self.session.query(Plant).all()
-        filename = os.path.join(os.path.dirname(__file__), 'test.csv')
+        filename = os.path.join(os.path.dirname(__file__), 'example.csv')
         report = MakoFormatterPlugin.format(plants, template=filename)
         assert(isinstance(report, basestring))
         open('/tmp/testlabels.csv', 'w').write(report)

@@ -4,6 +4,7 @@
 
 import os
 import traceback
+import weakref
 import xml
 
 import gtk
@@ -46,9 +47,12 @@ def edit_callback(genera):
 
 
 def add_species_callback(genera):
-    genus = genera[0]
+    session = db.Session()
+    genus = session.merge(genera[0])
     from bauble.plugins.plants.species_editor import SpeciesEditor
-    return SpeciesEditor(model=Species(genus=genus)).start() != None
+    e = SpeciesEditor(model=Species(genus=genus))
+    session.close()
+    return e.start() != None
 
 
 def remove_callback(genera):
@@ -61,8 +65,9 @@ def remove_callback(genera):
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
     safe_str = utils.xml_safe_utf8(str(genus))
     if nsp > 0:
-        msg = _('The genus <i>%s</i> has %s species.  Are you sure you want '
-                'to remove it?') % (safe_str, nsp)
+        msg = _('The genus <i>%(genus)s</i> has %(num_species)s species.  '
+                'Are you sure you want to remove it?') \
+                % dict(genus=safe_str, num_species=nsp)
     else:
         msg = _("Are you sure you want to remove the genus <i>%s</i>?") \
             % safe_str
@@ -80,13 +85,13 @@ def remove_callback(genera):
         session.close()
     return True
 
-edit_action = Action('genus_edit', ('_Edit'), callback=edit_callback,
+edit_action = Action('genus_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-add_species_action = Action('genus_sp_add', ('_Add species'),
+add_species_action = Action('genus_sp_add', _('_Add species'),
                               callback=add_species_callback,
                               accelerator='<ctrl>k')
-remove_action = Action('genus_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='Delete', multiselect=True)
+remove_action = Action('genus_remove', _('_Delete'), callback=remove_callback,
+                       accelerator='<ctrl>Delete', multiselect=True)
 
 genus_context_menu = [edit_action, add_species_action, remove_action]
 
@@ -248,11 +253,16 @@ class GenusEditorView(editor.GenericEditorView):
         'gen_genus_entry': _('The genus name'),
         'gen_author_entry': _('The name or abbreviation of the author that '\
                               'published this genus'),
-        'gen_syn_box': _('A list of synonyms for this genus.\n\nTo add a '
-                         'synonym enter a family name and select one from the '
+        'gen_syn_frame': _('A list of synonyms for this genus.\n\nTo add a '
+                         'synonym enter a genus name and select one from the '
                          'list of completions.  Then click Add to add it to '\
                          'the list of synonyms.'),
-        #'gen_notes_textview': _('Miscelleanous notes about this genus.')
+        'gen_cancel_button': _('Cancel your changes.'),
+        'gen_ok_button': _('Save your changes.'),
+        'gen_ok_and_add_button': _('Save your changes changes and add a '
+                                  'species to this genus.'),
+        'gen_next_button': _('Save your changes changes and add another '
+                             'genus.')
      }
 
 
@@ -264,6 +274,7 @@ class GenusEditorView(editor.GenericEditorView):
         self.attach_completion('gen_syn_entry', self.syn_cell_data_func)
         self.attach_completion('gen_family_entry')
         self.set_accept_buttons_sensitive(False)
+        self.widgets.notebook.set_current_page(0)
         self.restore_state()
 
 
@@ -338,8 +349,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
-                                                    self.session)
+        self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view() # put model values in view
 
         # connect signals
@@ -356,7 +366,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             syn = self.session.query(FamilySynonym).\
                 filter(FamilySynonym.synonym_id == value.id).first()
             if not syn:
-                self.set_model_attr('famil', value)
+                self.set_model_attr('family', value)
                 return
             msg = _('The family <b>%(synonym)s</b> is a synonym of '\
                         '<b>%(family)s</b>.\n\nWould you like to choose '\
@@ -367,11 +377,21 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.remove_parent(box)
                 box.destroy()
                 if response:
+                    # populate the completions model on the entry so
+                    # when we set the text it will match the
+                    # completion and set the value
+                    completion = self.view.widgets.gen_family_entry.\
+                        get_completion()
+                    utils.clear_model(completion)
+                    model = gtk.ListStore(object)
+                    model.append([syn.family])
+                    completion.set_model(model)
                     self.view.widgets.gen_family_entry.\
                         set_text(utils.utf8(syn.family))
+                    # the family value should be set properly when the
+                    # text is set on the entry but it doesn't hurt to
+                    # duplicate it here
                     self.set_model_attr('family', syn.family)
-                else:
-                    self.set_model_attr('family', value)
             box = utils.add_message_box(self.view.widgets.message_box_parent,
                                         utils.MESSAGE_BOX_YESNO)
             box.message = msg
@@ -416,8 +436,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
+        return self.__dirty or self.synonyms_presenter.dirty() or \
+            self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -443,14 +463,14 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
     PROBLEM_INVALID_SYNONYM = 1
 
 
-    def __init__(self, genus, view, session):
+    def __init__(self, parent):
         '''
-        @param model: Genus instance
-        @param view: see GenericEditorPresenter
-        @param session:
+        :param parent: GenusEditorPreesnter
         '''
-        super(SynonymsPresenter, self).__init__(genus, view)
-        self.session = session
+        self.parent_ref = weakref.ref(parent)
+        super(SynonymsPresenter, self).__init__(self.parent_ref().model,
+                                                self.parent_ref().view)
+        self.session = self.parent_ref().session
         self.init_treeview()
 
         # use completions_model as a dummy object for completions, we'll create
@@ -471,7 +491,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self._selected = value
         self.assign_completions_handler('gen_syn_entry', gen_get_completions,
                                         on_select=on_select)
-
 
         self.view.connect('gen_syn_add_button', 'clicked',
                           self.on_add_button_clicked)
@@ -554,7 +573,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.__dirty = True
-        self.refresh_sensitivity()
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
@@ -646,12 +665,14 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() \
-                 and utils.yes_no_dialog(not_ok_msg) \
+        elif (self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg)) \
                  or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
+            # we should never really even get here since we would have
+            # to hit something besides "OK" and the above elif should
+            # handle all the possible cases
             return False
 
         # respond to responses

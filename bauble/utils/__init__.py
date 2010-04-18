@@ -245,7 +245,7 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     return matches[0]
 
 
-def set_widget_value(widget, value, markup=True, default=None, index=0):
+def set_widget_value(widget, value, markup=False, default=None, index=0):
     '''
     :param widget: an instance of gtk.Widget
     :param value: the value to put in the widget
@@ -285,8 +285,9 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
         # handles gtk.ComboBox and gtk.ComboBoxEntry
         treeiter = None
         if not widget.get_model():
-            warning('utils.set_widget_value(): ' \
-                        'combo doesn\'t have a model: %s' % widget.get_name())
+            pass
+            # warning('utils.set_widget_value(): ' \
+            #             'combo doesn\'t have a model: %s' % widget.get_name())
         else:
             treeiter = combo_get_value_iter(widget, value,
                                   cmp = lambda row, value: row[index] == value)
@@ -305,6 +306,12 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
             widget.set_active(False)
         else:
             widget.set_inconsistent(True)
+    elif isinstance(widget, gtk.Button):
+        if value is None:
+            widget.props.label = ''
+        else:
+            widget.props.label = utf8(value)
+
     else:
         raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
                         'the widget type %s with name %s' % \
@@ -512,6 +519,37 @@ def setup_text_combobox(combo, values=[], cell_data_func=None):
     if cell_data_func:
         combo.set_cell_data_func(renderer, cell_data_func)
 
+    if not isinstance(combo, gtk.ComboBoxEntry):
+        return
+
+    # if combo is a gtk.ComboBoxEntry then setup completions
+    def compl_cell_data_func(col, cell, model, treeiter, data=None):
+        cell.props.text = utf8(model[treeiter][0])
+    completion = gtk.EntryCompletion()
+    completion.set_model(model)
+    cell = gtk.CellRendererText() # set up the completion renderer
+    completion.pack_start(cell)
+    completion.set_cell_data_func(cell, compl_cell_data_func)
+    combo.child.set_completion(completion)
+
+    def match_func(completion, key, treeiter, data=None):
+        model = completion.get_model()
+        value = model[treeiter][0]
+        return utf8(value).lower().startswith(key.lower())
+    completion.set_match_func(match_func)
+
+    def on_match_select(completion, model, treeiter):
+        value = model[treeiter][0]
+        if not value:
+            combo.child.props.text = ''
+        else:
+            combo.child.props.text = utf8(value)
+        return True
+    # TODO: we should be able to disconnect this signal handler
+    completion.connect('match-selected', on_match_select)
+
+
+
 
 def prettify_format(format):
     """
@@ -537,7 +575,8 @@ def today_str(format=None):
     return today.strftime(format)
 
 
-def setup_date_button(entry, button, date_func=None):
+
+def setup_date_button(view, entry, button, date_func=None):
     """
     Associate a button with entry so that when the button is clicked a
     date is inserted into the entry.
@@ -549,6 +588,10 @@ def setup_date_button(entry, button, date_func=None):
     :param date_func: the function that returns a string represention
       of the date
     """
+    if isinstance(entry, basestring):
+        entry = view.widgets[entry]
+    if isinstance(button, basestring):
+        button = view.widgets[button]
     icon = os.path.join(paths.lib_dir(), 'images', 'calendar.png')
     image = gtk.Image()
     image.set_from_file(icon)
@@ -566,7 +609,10 @@ def setup_date_button(entry, button, date_func=None):
         else:
             s = date_func()
         entry.set_text(s)
-    button.connect('clicked', on_clicked)
+    if view and hasattr(view, 'connect'):
+        view.connect(button, 'clicked', on_clicked)
+    else:
+        button.connect('clicked', on_clicked)
 
 
 
@@ -679,7 +725,11 @@ def reset_sequence(column):
         # sqlalchemy.database.postgres.PGDefaultRunner
         if hasattr(column, "sequence") and column.sequence is not None:
             sequence_name = column.sequence.name
-        elif (isinstance(column.type, Integer) and column.autoincrement) and (column.default is None or (isinstance(column.default, schema.Sequence) and column.default.optional)) and len(column.foreign_keys)==0:
+        elif (isinstance(column.type, Integer) and column.autoincrement) and \
+                (column.default is None or \
+                     (isinstance(column.default, schema.Sequence) and \
+                          column.default.optional)) and \
+                          len(column.foreign_keys)==0:
             sequence_name = '%s_%s_seq' %(column.table.name, column.name)
         else:
             return
@@ -943,6 +993,7 @@ class GenericMessageBox(gtk.EventBox):
 
 
     def animate(self):
+        return
         # TODO: this animation should be smoother
         width, height = self.size_request()
         self.set_size_request(width, 0)
@@ -975,10 +1026,10 @@ class MessageBox(GenericMessageBox):
         self.box.pack_start(self.vbox)
 
         self.label = gtk.Label()
+        self.label.set_padding(8, 8)
+        self.label.set_alignment(0, 0)
         if msg:
-            debug(msg)
             self.label.set_markup(msg)
-        self.label.set_alignment(.1, .1)
         self.vbox.pack_start(self.label, expand=True, fill=True)
 
         button_box = gtk.VBox()
@@ -1129,7 +1180,7 @@ def add_message_box(parent, type=MESSAGE_BOX_INFO):
         msg_box = YesNoMessageBox()
     else:
         raise ValueError('unknown message box type: %s' % type)
-    parent.pack_start(msg_box)
+    parent.pack_start(msg_box, expand=True, fill=True)
     return msg_box
 
 
@@ -1150,7 +1201,6 @@ def get_invalid_columns(obj, ignore_columns=['id']):
     - nullable columns with null values
     - ...what else?
     """
-
     # TODO: check for invalid enum types
     if not obj:
         return []
@@ -1160,7 +1210,7 @@ def get_invalid_columns(obj, ignore_columns=['id']):
     for column in filter(lambda c: c.name not in ignore_columns, table.c):
         v = getattr(obj, column.name)
         #debug('%s.%s = %s' % (table.name, column.name, v))
-        if not v and not column.nullable:
+        if v is None and not column.nullable:
             invalid_columns.append(column.name)
     return invalid_columns
 

@@ -34,8 +34,15 @@ from bauble.test import BaubleTestCase, check_dupids
 # make sure that deleting either of the species referred to in a synonym
 # deletes the synonym
 
-# TODO: create more species name test cases
 # TODO: create some scenarios that should fail
+
+if sys.platform == 'win32':
+    # on windows the hybrid char is set to 'x'in PlantPlugin.init but
+    # these strings are initialized before init is called so we set it
+    # here...this sort of breaks the string tests since we aren't
+    # relying on the behavior of PlantPlugin.init but what can we do?
+    Species.hybrid_char = 'x'
+
 
 family_test_data = ({'id': 1, 'family': 'Orchidaceae'},
                     {'id': 2, 'family': 'Leguminosae'},
@@ -88,7 +95,10 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'infrasp2_rank': u'var.', 'infrasp2': u'cochleata',
                       'infrasp2_author': u'L.',
                       'infrasp3_rank': u'cv.', 'infrasp3': u'Black',
-                      'infrasp3_author': u'L.'}
+                      'infrasp3_author': u'L.'},
+                     {'id': 16, 'genus_id': 1, 'sp': u'test',
+                      'infrasp1_rank': u'subsp.', 'infrasp1': u'test',
+                      'cv_group': u'SomeGroup'},
                      )
 
 species_str_map = {\
@@ -107,6 +117,7 @@ species_str_map = {\
     13:"Maxillaria 'Red'",
     14:"Maxillaria 'Red & Blue'",
     15:"Encyclia cochleata subsp. cochleata var. cochleata 'Black'",
+    16:"Maxillaria test subsp. test SomeGroup Group"
     }
 
 species_markup_map = {\
@@ -191,13 +202,12 @@ class PlantTestCase(BaubleTestCase):
     def __init__(self, *args):
         super(PlantTestCase, self).__init__(*args)
 
-
     def setUp(self):
         super(PlantTestCase, self).setUp()
         setUp_data()
 
     def tearDown(self):
-        pass
+        super(PlantTestCase, self).tearDown()
 
 
 class FamilyTests(PlantTestCase):
@@ -479,14 +489,12 @@ class SpeciesTests(PlantTestCase):
         """
         def get_sp_str(id, **kwargs):
             return Species.str(self.session.query(Species).get(id), **kwargs)
-        try:
-            for sid, s in species_str_map.iteritems():
+
+        for sid, s in species_str_map.iteritems():
                 sp = self.session.query(Species).get(sid)
                 spstr = get_sp_str(sid)
                 self.assert_(spstr == s,
                              '"%s" != "%s" ** %s' % (spstr, s, unicode(spstr)))
-        except Exception, e:
-            print >>sys.stderr, ' **** %s' % e
 
         for sid, s in species_str_authors_map.iteritems():
             spstr = get_sp_str(sid, authors=True)

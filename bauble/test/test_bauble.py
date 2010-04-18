@@ -163,3 +163,32 @@ class BaubleTests(BaubleTestCase):
         files = glob.glob(os.path.join(head, '*.glade'))
         for f in files:
             assert(not check_dupids(f))
+
+
+class HistoryTests(BaubleTestCase):
+
+    def test(self):
+        """
+        Test the HistoryMapperExtension
+        """
+        from bauble.plugins.plants import Family
+        f = Family(family=u'Family')
+        self.session.add(f)
+        self.session.commit()
+        history = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc()).first()
+        assert history.table_name == 'family' and history.operation == 'insert'
+
+        f.family = u'Family2'
+        self.session.commit()
+        history = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc()).first()
+        assert history.table_name == 'family' and history.operation == 'update'
+
+        self.session.delete(f)
+        self.session.commit()
+        history = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc()).first()
+        assert history.table_name == 'family' and history.operation == 'delete'
+
+

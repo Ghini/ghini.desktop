@@ -45,7 +45,7 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
                        u'f.': _('f.'),
                        u'subf.': _('subf.'),
                        u'cv.': _('cv.'),
-                       None: _('')}
+                       None: ''}
 
 
 
@@ -185,7 +185,7 @@ class Species(db.Base):
     flower_color_id = Column(Integer, ForeignKey('color.id'), default=None)
     flower_color = relation('Color', uselist=False, backref='species')
 
-    hardiness_zone = Column(Unicode(4))
+    #hardiness_zone = Column(Unicode(4))
 
     awards = Column(UnicodeText)
 
@@ -240,7 +240,7 @@ class Species(db.Base):
 
 
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = utils.utf8('\xe2\xa8\x89')
+    hybrid_char = utils.utf8(u'\u2a09') # U+2A09
 
     @staticmethod
     def str(species, authors=False, markup=False):
@@ -284,33 +284,28 @@ class Species(db.Base):
                    (species.infrasp4_rank, species.infrasp4,
                     species.infrasp4_author))
 
-        infrasp_str = []
+        infrasp_parts = []
+        group_added = False
         for rank, epithet, iauthor in infrasp:
-            #debug('%s %s %s' % (rank, epithet, iauthor))
             if rank == 'cv.' and epithet:
-                infrasp_str.append("'%s'" % escape(epithet))
+                if species.cv_group and not group_added:
+                    group_added = True
+                    infrasp_parts.append(_("(%(group)s Group)") % \
+                                             dict(group=species.cv_group))
+                infrasp_parts.append("'%s'" % escape(epithet))
             else:
                 if rank:
-                    infrasp_str.append(rank)
-                if epithet:
-                    infrasp_str.append(italicize(epithet))
+                    infrasp_parts.append(rank)
+                if epithet and rank:
+                    infrasp_parts.append(italicize(epithet))
+                elif epithet:
+                    infrasp_parts.append(escape(epithet))
 
             if authors and iauthor:
-                infrasp_str.append(escape(iauthor))
-
-        group = []
-        # TODO: should probaly get the index of the cv. do decide on
-        # the parenthesis for the group
-        ranks = (species.infrasp1_rank, species.infrasp2_rank,
-                 species.infrasp3_rank, species.infrasp4_rank)
-        if u'cv.' in ranks:
-            if species.cv_group:
-                group.append(_("(%(group)s Group)") % \
-                                 dict(group=species.cv_group))
-        else:
-            if species.cv_group:
-                group.append(_("%(group)s Group") % \
-                                 dict(group=species.cv_group))
+                infrasp_parts.append(escape(iauthor))
+        if species.cv_group and not group_added:
+            infrasp_parts.append(_("%(group)s Group") % \
+                                     dict(group=species.cv_group))
 
         # create the binomial part
         binomial = []
@@ -327,9 +322,7 @@ class Species(db.Base):
         if species.sp_qual:
             tail = [species.sp_qual]
 
-        infrasp = []
-        parts = chain(binomial, group, infrasp_str, tail)
-
+        parts = chain(binomial, infrasp_parts, tail)
         s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
         return s
 
@@ -435,7 +428,7 @@ class VernacularName(db.Base):
     language = Column(Unicode(128))
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
     __table_args__ = (UniqueConstraint('name', 'language',
-                                        'species_id', name='vn_index'), {})
+                                       'species_id', name='vn_index'), {})
 
     def __str__(self):
         if self.name:
@@ -510,7 +503,7 @@ SpeciesDistribution.geography = relation('Geography',
 class Habit(db.Base):
     __tablename__ = 'habit'
 
-    name = Column(Unicode(32))
+    name = Column(Unicode(64))
     code = Column(Unicode(8), unique=True)
 
     def __str__(self):

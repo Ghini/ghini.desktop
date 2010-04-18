@@ -3,6 +3,7 @@
 #
 import os
 import traceback
+import weakref
 
 import gtk
 from sqlalchemy import *
@@ -35,8 +36,11 @@ def add_genera_callback(families):
     """
     Family context menu callback
     """
-    family = families[0]
-    return GenusEditor(model=Genus(family=family)).start() != None
+    session = db.Session()
+    family = session.merge(families[0])
+    e = GenusEditor(model=Genus(family=family))
+    session.close()
+    return e.start() != None
 
 
 
@@ -50,8 +54,9 @@ def remove_callback(families):
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
     safe_str = utils.xml_safe_utf8(str(family))
     if ngen > 0:
-        msg = _('The family <i>%s</i> has %s genera.  Are you sure you want '
-                'to remove it?') % (safe_str, ngen)
+        msg = _('The family <i>%(family)s</i> has %(num_genera)s genera.  Are '
+                'you sure you want to remove it?') % dict(family=safe_str,
+                                                          num_genera=ngen)
     else:
         msg = _("Are you sure you want to remove the family <i>%s</i>?") \
             % safe_str
@@ -70,14 +75,14 @@ def remove_callback(families):
     return True
 
 
-edit_action = view.Action('family_edit', ('_Edit'), callback=edit_callback,
+edit_action = view.Action('family_edit', _('_Edit'), callback=edit_callback,
                           accelerator='<ctrl>e')
-add_species_action = view.Action('family_genus_add', ('_Add accession'),
+add_species_action = view.Action('family_genus_add', _('_Add genus'),
                                  callback=add_genera_callback,
                                  accelerator='<ctrl>k')
-remove_action = view.Action('family_remove', ('_Remove'),
+remove_action = view.Action('family_remove', _('_Delete'),
                             callback=remove_callback,
-                            accelerator='Delete', multiselect=True)
+                            accelerator='<ctrl>Delete', multiselect=True)
 
 family_context_menu = [edit_action, add_species_action, remove_action]
 
@@ -224,14 +229,20 @@ class FamilyEditorView(editor.GenericEditorView):
     syn_expanded_pref = 'editor.family.synonyms.expanded'
 
     _tooltips = {
-        'fam_family_entry': _('The family name'),
+        'fam_family_entry': _('The family name.'),
         'fam_qualifier_combo': _('The family qualifier helps to remove '
                                  'ambiguities that might be associated with '
-                                 'this family name'),
-        'fam_syn_box': _('A list of synonyms for this family.\n\nTo add a '
-                         'synonym enter a family name and select one from the '
-                         'list of completions.  Then click Add to add it to '\
-                         'the list of synonyms.')
+                                 'this family name.'),
+        'fam_syn_frame': _('A list of synonyms for this family.\n\nTo add a '
+                           'synonym enter a family name and select one from '
+                           'the list of completions.  Then click Add to add '
+                           'it to the list of synonyms.'),
+        'fam_cancel_button': _('Cancel your changes.'),
+        'fam_ok_button': _('Save your changes.'),
+        'fam_ok_and_add_button': _('Save your changes changes and add a '
+                                  'genus to this family.'),
+        'fam_next_button': _('Save your changes changes and add another '
+                             'family.')
      }
 
 
@@ -241,6 +252,7 @@ class FamilyEditorView(editor.GenericEditorView):
         super(FamilyEditorView, self).__init__(filename, parent=parent)
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
         self.set_accept_buttons_sensitive(False)
+        self.widgets.notebook.set_current_page(0)
         self.restore_state()
 
 
@@ -292,14 +304,14 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
         # initialize widgets
         self.init_enum_combo('fam_qualifier_combo', 'qualifier')
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
-                                                    self.session)
+        self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view() # put model values in view
 
         # connect signals
         self.assign_simple_handler('fam_family_entry', 'family',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
+        self.assign_simple_handler('fam_qualifier_combo', 'qualifier',
+                                   editor.UnicodeOrEmptyValidator())
 
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
@@ -329,8 +341,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
+        return self.__dirty or self.synonyms_presenter.dirty() \
+            or self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -352,14 +364,14 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
     PROBLEM_INVALID_SYNONYM = 1
 
 
-    def __init__(self, family, view, session):
+    def __init__(self, parent):
         '''
-        @param model: Family instance
-        @param view: see GenericEditorPresenter
-        @param session:
+        :param parent: FamilyEditorPresenter
         '''
-        super(SynonymsPresenter, self).__init__(family, view)
-        self.session = session
+        self.parent_ref = weakref.ref(parent)
+        super(SynonymsPresenter, self).__init__(self.parent_ref().model,
+                                                self.parent_ref().view)
+        self.session = self.parent_ref().session
         self.init_treeview()
 
         # use completions_model as a dummy object for completions, we'll create
@@ -453,7 +465,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.__dirty = True
-        self.refresh_sensitivity()
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
@@ -538,7 +550,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or \
+        elif (self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg)) or \
                 not self.presenter.dirty():
             self.session.rollback()
             return True
@@ -643,7 +655,8 @@ class GeneralFamilyExpander(InfoExpander):
         @param row: the row to get the values from
         '''
         self.current_obj = row
-        self.set_widget_value('fam_name_data', '<big>%s</big>' % row)
+        self.set_widget_value('fam_name_data', '<big>%s</big>' % row,
+                              markup=True)
         session = db.Session()
         # get the number of genera
         ngen = session.query(Genus).filter_by(family_id=row.id).count()

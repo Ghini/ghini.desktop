@@ -114,7 +114,7 @@ class InfoExpander(gtk.Expander):
             prefs.prefs.save()
 
 
-    def set_widget_value(self, widget_name, value, markup=True, default=None):
+    def set_widget_value(self, widget_name, value, markup=False, default=None):
         '''
         a shorthand for L{bauble.utils.set_widget_value()}
         '''
@@ -278,7 +278,8 @@ class InfoBox(gtk.Notebook):
         self.connect('switch-page', self.on_switch_page)
 
 
-    # TODO: this seems broken: self == notebook
+    # not sure why we pass have self and notebook in the arg list here
+    # since they are the same
     def on_switch_page(self, notebook, dummy_page, page_num,  *args):
         """
         Called when a page is switched
@@ -344,7 +345,7 @@ class SearchParser(object):
     """
     The parser for bauble.view.MapperSearch
     """
-    value_chars = Word(alphanums + '%.-_*')
+    value_chars = Word(alphanums + '%.-_*;:')
     # value can contain any string once its quoted
     value = value_chars | quotedString.setParseAction(removeQuotes)
     value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
@@ -447,83 +448,64 @@ class MapperSearch(SearchStrategy):
         database types. For example, on a PostgreSQL database you can
         use ilike but this would raise an error on SQLite.
         """
-        # We build the queries by fetching the ids of the rows that
-        # match the condition and then returning a query to return the
-        # object that have ids in the built query.  This might seem
-        # like a roundabout way but it works on databases don't
-        # support union and/or intersect
-        #
-        # TODO: support 'not' as well, e.g sp where
+        # The method requires that the underlying database support
+        # union and intersect. At the time of writing this MySQL
+        # didn't.
+
+        # TODO: support 'not' a boolean op as well, e.g sp where
         # genus.genus=Maxillaria and not genus.family=Orchidaceae
         domain, expr = tokens
         check(domain in self._domains, 'Unknown search domain: %s' % domain)
         cls = self._domains[domain][0]
+        main_query = self._session.query(cls)
         mapper = class_mapper(cls)
         expr_iter = iter(expr)
-        op = None
-        id_query = self._session.query(cls.id)
-        clause = prev_clause = None
+        boolop = None
         for e in expr_iter:
             idents, cond, val = e
-            #debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
-
+            # debug('cls: %s, idents: %s, cond: %s, val: %s'
+            #       % (cls.__name__, idents, cond, val))
             if val == 'None':
                 val = None
+            if cond == 'is':
+                cond = '='
+            elif cond == 'is not':
+                cond = '!='
 
             if len(idents) == 1:
                 # we get here when the idents only refer to a property
-                # on the mapper table
+                # on the mapper table..i.e. a column
                 col = idents[0]
-                check(col in mapper.c, 'The %s table does not have a '\
-                       'column named %s' % \
-                       (mapper.local_table.name, col))
-                q = id_query.filter(getattr(cls, col).\
-                                        op(cond)(utils.utf8(val)))
-                clause = cls.id.in_(q.statement)
+                msg = _('The %(tablename)s table does not have a '\
+                       'column named "%(columname)s"') % \
+                       dict(tablename=mapper.local_table.name,
+                            columname=col)
+                check(col in mapper.c, msg)
+                clause = getattr(cls, col).op(cond)(utils.utf8(val))
+                query = self._session.query(cls).filter(clause).order_by(None)
             else:
                 # we get here when the idents refer to a relation on a
                 # mapper/table
                 relations = idents[:-1]
                 col = idents[-1]
-                # TODO: do all the databases quote the same?
-                if val is None and cond in ('=', '==', 'is'):
-                    cond = 'is'
-                    val = 'NULL'
-                elif val is None and cond in ('!='):
-                    cond = 'is not'
-                    val = 'NULL'
-                elif val is not None:
-                    # use is not None b/c val could be ''
-                    val = "'%s'" % val
+                query = self._session.query(cls)
+                query = query.join(relations)
+                clause = query._joinpoint.c[col].op(cond)(utils.utf8(val))
+                query = query.filter(clause).order_by(None)
 
-                if col in cls.__table__.c and \
-                        relations[-1] == cls.__table__.name:
-                    where = "%s %s %s" % ('.'.join(idents), cond, val)
-                elif len(relations) and relations[-1] in \
-                        [t.name for t in bauble.db.metadata.sorted_tables]:
-                    # We get here when there are identifiers before
-                    # the column and the next to the last ident is a
-                    # table. Usually this means that the next to the
-                    # last ident is a table and not a join.  This
-                    # allows us to be more specific about the col in
-                    # the case that it is ambiguous.
-                    where = "%s.%s %s %s" % (idents[-2], col, cond, val)
-                else:
-                    where = "%s %s %s" % (col, cond, val)
+            if boolop == 'or':
+                main_query = main_query.union(query)
+            elif boolop == 'and':
+                main_query = main_query.intersect(query)
+            else:
+                main_query = query
 
-                clause = cls.id.in_(id_query.join(*relations).\
-                                    filter(where).statement)
-
-            if op is not None:
-                check(op in ('and', 'or'), 'Unsupported operator: %s' % op)
-                op = getattr(sqlalchemy.sql, '%s_' % op)
-                clause = op(prev_clause, clause)
-            prev_clause = clause
             try:
-                op = expr_iter.next()
+                boolop = expr_iter.next()
             except StopIteration:
                 pass
-        self._results.update(self._session.query(cls).filter(clause).all())
+
+        self._results.update(main_query.order_by(None).all())
 
 
     def on_domain_expression(self, s, loc, tokens):
@@ -549,9 +531,6 @@ class MapperSearch(SearchStrategy):
             self._results.update(query.all())
             return
 
-        # TODO: should probably create a normalize_cond() method
-        # to convert things like contains and has into like conditions
-
         mapper = class_mapper(cls)
 
         if cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
@@ -565,8 +544,6 @@ class MapperSearch(SearchStrategy):
                 lambda val: mapper.c[col].op(cond)(val)
 
         for col in properties:
-            # TODO: i don't know how well this will work out if we're
-            # search for numbers
             ors = or_(*map(condition(col), values))
             self._results.update(query.filter(ors).all())
         return tokens
@@ -580,12 +557,10 @@ class MapperSearch(SearchStrategy):
         searches all the mapper and the properties configured with
         add_meta()
         """
-        #debug('values: %s' % tokens)
-#         debug('  s: %s' % s)
-#         debug('  loc: %s' % loc)
-#         debug('  toks: %s' % tokens)
-        # TODO: should also combine all the values into a single
-        # string and search for that string
+        # debug('values: %s' % tokens)
+        # debug('  s: %s' % s)
+        # debug('  loc: %s' % loc)
+        # debug('  toks: %s' % tokens)
 
         # make searches case-insensitive, in postgres use ilike,
         # in other use upper()
@@ -980,6 +955,8 @@ class SearchView(pluginmgr.View):
                 statusbar.push(sbcontext_id,
                                _("%s search results") % len(results))
                 self.results_view.set_cursor(0)
+                gobject.idle_add(lambda: self.results_view.scroll_to_cell(0))
+
         self.update_notes()
 
 
@@ -1044,13 +1021,15 @@ class SearchView(pluginmgr.View):
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         utils.clear_model(self.results_view)
 
-        # group the results by type. this is where all the results are
-        # actually fetched from the database
         groups = []
-        for key, group in itertools.groupby(results, lambda x: type(x)):
-            groups.append(list(group))
-            # sorting the results here is dead slow
-            #groups.append(sorted(group, key=utils.natsort_key))
+
+        # sort by type that that groupby works properly
+        results = sorted(results, key=lambda x: type(x))
+
+        for key, group in itertools.groupby(results, key=lambda x: type(x)):
+            # return groups by type and natural sort each of the
+            # groups by their strings
+            groups.append(sorted(group, key=utils.natsort_key))
 
         # sort the groups by type so we more or less always get the
         # results by type in the same order
@@ -1064,7 +1043,13 @@ class SearchView(pluginmgr.View):
         # slice to the model
         #for obj in itertools.islice(itertools.chain(*groups), 0,None, steps):
         #for obj in itertools.islice(itertools.chain(results), 0,None, steps):
+
+        added = set()
         for obj in itertools.chain(*groups):
+            if obj in added:  # only add unique object
+                continue
+            else:
+                added.add(obj)
             parent = model.append(None, [obj])
             obj_type = type(obj)
             if check_for_kids:
@@ -1073,7 +1058,6 @@ class SearchView(pluginmgr.View):
                     model.append(parent, ['-'])
             elif self.view_meta[obj_type].children is not None:
                 model.append(parent, ['-'])
-
             #steps_so_far += chunk_size
             steps_so_far += 1
             if steps_so_far % update_every == 0:
@@ -1104,9 +1088,6 @@ class SearchView(pluginmgr.View):
 
 
     def cell_data_func(self, col, cell, model, treeiter):
-        # TODO: maybe we should cache the strings on our side and then
-        # detect if the objects have been changed in their session in
-        # order to determine if the cache should be invalidated
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
         cell_rect = self.results_view.get_cell_area(path, col)
@@ -1207,9 +1188,9 @@ class SearchView(pluginmgr.View):
             # TODO: only show menu if all the types are the same, else
             # show the common menu
             if False in istype:
-                #debug('not all the same type')
-                raise NotImplementedError('calling an action on multiple '\
-                                              'types is not yet supported')
+                # raise NotImplementedError(_('You can only call an action if '
+                #                             'all the selected types are the '
+                #                             'same'))
                 return False
             else:
                 #debug('ALL the same type')
@@ -1422,57 +1403,89 @@ class SearchView(pluginmgr.View):
 
 
 
-# class HistoryView(pluginmgr.View):
-#     """Show the tables row in the order they were last updated
-#     """
-#     def __init__(self):
-#         super(HistoryView, self).__init__()
-#         init_gui()
+class StringColumn(gtk.TreeViewColumn):
+
+    """
+    A generic StringColumn for use in a gtk.TreeView.
+
+    This code partially based on the StringColumn from the Quidgets
+    project (http://launchpad.net/quidgets)
+    """
+    def __init__(self, title, format_func=None, **kwargs):
+        self.renderer = gtk.CellRendererText()
+        super(StringColumn, self).__init__(title, self.renderer, **kwargs)
+        self.renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
+        if format_func:
+            self.set_cell_data_func(self.renderer, self.cell_data_func,
+                                    format_func)
+
+    def cell_data_func(self, column, cell, model, treeiter, format):
+        value = format(model[treeiter])
+        cell.set_property('text', value)
 
 
-#     def init_gui(self):
-#         self.treeview = gtk.TreeView()
-#         column = gtk.TreeViewColumn()
-#         self.pack_start(self.treeview)
 
-#     def populate_history(self):
-#         """
-#         Add the history items to the view.
-#         """
-#         utils.clear_model(self.treeview)
-#         # TODO: this is gonna be a little problematic because the
-#         # markup functions and infoboxes are registered as part of the
-#         # SearchView so it's not obvious how we're gonna use them
-#         # here...i was envisioning that we would just show a list of
-#         # the objects by their last modified date like the searchview
-#         # with infoboxes and everything but maybe it would be better
-#         # just to show the raw columns...what might make sense would
-#         # be to make :history a special type of search that groups the
-#         # results by their dates
-#         model = gtk.ListStore(object, str)
-
-# class HistoryCommandHandler(pluginmgr.CommandHandler):
-
-#     def __init__(self):
-#         super(HistoryCommandHandler, self).__init__()
-#         self.view = None
-
-#     command = 'history'
-
-#     def get_view(self):
-#         debug("HistoryCommandHandler.get_view()")
-#         if not self.view:
-#             self.view = HistoryView()
-#         return self.view
+class HistoryView(pluginmgr.View):
+    """Show the tables row in the order they were last updated
+    """
+    def __init__(self):
+        super(HistoryView, self).__init__()
+        self.init_gui()
 
 
-#     def __call__(self, cmd, arg):
-#         debug("HistoryCommandHandler.__call__(%s)" % arg)
-#         self.view.populate_history(arg)
-#         #self.view.search(arg)
+    def init_gui(self):
+        self.treeview = gtk.TreeView()
+        #self.treeview.set_fixed_height_mode(True)
+        columns = [(_('Timestamp'), 0), (_('Operation'), 1),
+                  (_('User'), 2), (_('Table'), 3), (_('Values'), 4)]
+        for name, index in columns:
+            column = StringColumn(name, text=index)
+            column.set_sort_column_id(index)
+            column.set_expand(False)
+            column.props.sizing = gtk.TREE_VIEW_COLUMN_AUTOSIZE
+            column.set_resizable(True)
+            column.renderer.set_fixed_height_from_font(1)
+            self.treeview.append_column(column)
+        sw = gtk.ScrolledWindow()
+        sw.add(self.treeview)
+        self.pack_start(sw)
 
 
-# pluginmgr.register_command(HistoryCommandHandler)
+    def populate_history(self, arg):
+        """
+        Add the history items to the view.
+        """
+        session = db.Session()
+        utils.clear_model(self.treeview)
+        model = gtk.ListStore(str, str, str, str, str)
+        for item in session.query(db.History).\
+                order_by(db.History.timestamp.desc()).all():
+            model.append([item.timestamp, item.operation, item.user,
+                          item.tablename, item.values])
+        self.treeview.set_model(model)
+        session.close()
+
+
+
+class HistoryCommandHandler(pluginmgr.CommandHandler):
+
+    def __init__(self):
+        super(HistoryCommandHandler, self).__init__()
+        self.view = None
+
+    command = 'history'
+
+    def get_view(self):
+        if not self.view:
+            self.view = HistoryView()
+        return self.view
+
+
+    def __call__(self, cmd, arg):
+        self.view.populate_history(arg)
+
+
+pluginmgr.register_command(HistoryCommandHandler)
 
 
 def select_in_search_results(obj):

@@ -55,30 +55,34 @@ from bauble.utils.log import debug, warning, error
 #         """
 
 
-def connect_as_user(name=None):
-    """
-    Return a connection where the user is set to name.
+# TODO: removed connect_as_user since for "set role" to be successful
+# the current user has to be a member of the role/name passed to
+# connect_as_user() which makes it not very useful
 
-    The returned connection should be closed when it is no longer
-    needed or deadlocks may occur.
-    """
-    conn = db.engine.connect()
-    # detach connection so when its closed it doesn't go back to the
-    # pool where there could be the possibility of it being reused and
-    # having future sql commands run as the user afer this connection
-    # has been closed
-    conn.detach()
-    trans = conn.begin()
-    try:
-        conn.execute('set role %s' % name)
-    except Exception, e:
-        warning(utils.utf8(e))
-        trans.rollback()
-        conn.close()
-        return None
-    else:
-        trans.commit()
-    return conn
+# def connect_as_user(name=None):
+#     """
+#     Return a connection where the user is set to name.
+
+#     The returned connection should be closed when it is no longer
+#     needed or deadlocks may occur.
+#     """
+#     conn = db.engine.connect()
+#     # detach connection so when its closed it doesn't go back to the
+#     # pool where there could be the possibility of it being reused and
+#     # having future sql commands run as the user afer this connection
+#     # has been closed
+#     conn.detach()
+#     trans = conn.begin()
+#     try:
+#         conn.execute('set role %s' % name)
+#     except Exception, e:
+#         warning(utils.utf8(e))
+#         trans.rollback()
+#         conn.close()
+#         return None
+#     else:
+#         trans.commit()
+#     return conn
 
 
 def get_users():
@@ -138,6 +142,7 @@ def create_user(name, password=None, admin=False, groups=[]):
         conn.execute(stmt)
     except Exception, e:
         error('users.create_users(): %s' % utils.utf8(e))
+        trans.rollback()
         raise
     else:
         trans.commit()
@@ -347,9 +352,10 @@ def set_privilege(role, privilege):
                         stmt = 'revoke all on sequence %s from %s' % \
                             (col.sequence.name, role)
                         conn.execute(stmt)
-            stmt = 'revoke all on database %s from %s' \
-                % (bauble.db.engine.url.database, role)
-            conn.execute(stmt)
+
+        stmt = 'revoke all on database %s from %s' \
+            % (bauble.db.engine.url.database, role)
+        conn.execute(stmt)
 
         # privilege is None so all permissions are revoked
         if not privilege:

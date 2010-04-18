@@ -33,25 +33,21 @@ accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1},
                        )
 
 plant_test_data = ({'id':1 , 'code': u'1', 'accession_id': 1,
-                    'location_id': 1},
+                    'location_id': 1, 'quantity': 1},
                    )
 
 location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
                        'code': u'RBW'},
                       )
 
-contact_test_data = ({'id': 1, 'name': u'SomeContact'},
-                   )
-
-# donation_test_data = ({'id': 1, 'accession_id': 1, 'donor_id': 1},
-#                       )
-
-collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere'},
+collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere',
+                         'geography_id': 1},
                         )
 
 default_cutting_values = \
             {'cutting_type': u'Nodal',
              'length': 2,
+             'length_unit': u'mm',
              'tip': u'Intact',
              'leaves': u'Intact',
              'leaves_reduced_pct': 25,
@@ -85,7 +81,6 @@ default_seed_values = \
 test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
                            (Plant, plant_test_data),
-                           (Contact, contact_test_data),
                            (Collection, collection_test_data))
 
 def setUp_data():
@@ -212,7 +207,7 @@ class PlantTests(GardenTestCase):
         self.accession = self.create(Accession, species=self.species,code=u'1')
         self.location = self.create(Location, name=u'site', code=u'STE')
         self.plant = self.create(Plant, accession=self.accession,
-                                 location=self.location, code=u'1')
+                                 location=self.location, code=u'1', quantity=1)
         self.session.commit()
 
     def tearDown(self):
@@ -225,7 +220,7 @@ class PlantTests(GardenTestCase):
         """
         # test that we can't have duplicate codes with the same accession
         plant2 = Plant(accession=self.accession, location=self.location,
-                       code=self.plant.code)
+                       code=self.plant.code, quantity=1)
         self.session.add(plant2)
         self.assertRaises(IntegrityError, self.session.commit)
         # rollback the IntegrityError so tearDown() can do its job
@@ -239,101 +234,25 @@ class PlantTests(GardenTestCase):
         pass
 
 
-    def test_editor_transfer(self):
-        """
-        """
-        # TODO: right now the test only shows adding a transfer to a
-        # plant but we need to be sure that transfers are appended if
-        # transfers already exist on the plant
-        try:
-            import gtk
-        except ImportError:
-            raise SkipTest('could not import gtk')
-
-        # delete any plants in the database
-        for plant in self.session.query(Plant):
-            self.session.delete(plant)
-        self.session.commit()
-
-        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
-        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
-        self.accession.plants.append(p1)
-        self.accession.plants.append(p2)
-        editor = PlantStatusEditor(model=[p1, p2])
-        update_gui()
-
-        widgets = editor.presenter.view.widgets
-        widgets.plant_transfer_radio.set_active(True)
-        widgets.trans_to_comboentry.child.props.text = self.location.name
-        update_gui()
-
-        editor.handle_response(gtk.RESPONSE_OK)
-        for p in editor.plants:
-            # TODO: need to assert that the values of
-            # editor.presenter._transfer are equal to the transfer in
-            # the plant
-            self.assert_(len(p.transfers) > 0)
-        editor.presenter.cleanup()
-
-
-    def test_editor_removal(self):
-        """
-        """
-        # TODO: right now the test only shows adding a transfer to a
-        # plant but we need to be sure that transfers are appended if
-        # transfers already exist on the plant
-        # TODO: need to also test the the plants.removal was not set
-        try:
-            import gtk
-        except ImportError:
-            raise SkipTest('could not import gtk')
-
-        # delete any plants in the database
-        for plant in self.session.query(Plant):
-            self.session.delete(plant)
-        self.session.commit()
-
-        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
-        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
-        self.accession.plants.append(p1)
-        self.accession.plants.append(p2)
-        editor = PlantStatusEditor(model=[p1, p2])
-        update_gui()
-
-        widgets = editor.presenter.view.widgets
-        widgets.plant_remove_radio.set_active(True)
-        utils.set_widget_value(widgets.rem_reason_combo, u'DEAD')
-        update_gui()
-
-
-        self.assert_(len(editor.presenter.problems)<1,
-                     'widgets have problems')
-
-        editor.handle_response(gtk.RESPONSE_OK)
-        for p in editor.plants:
-            # TODO: need to assert that the values of
-            # editor.presenter._transfer are equal to the transfer in
-            # the plant
-            #debug(p.removal)
-            self.assert_(p.removal)
-        editor.presenter.cleanup()
-
-
     def test_editor_addnote(self):
         raise SkipTest('Not Implemented')
 
 
-    def itest_status_editor(self):
-        p1 = Plant(accession=self.accession, location=self.location,
-                   code=u'52')
-        p2 = Plant(accession=self.accession, location=self.location,
-                   code=u'53')
-        self.accession.plants.append(p1)
-        self.accession.plants.append(p2)
-        plants = [p1, p2]
-        self.session.add_all(plants)
-        e = PlantStatusEditor(plants)
-        e.start()
+    def test_duplicate(self):
+        p = Plant(accession=self.accession, location=self.location, code=u'2',
+                  quantity=52)
+        self.session.add(p)
+        note = PlantNote(note=u'some note')
+        note.plant = p
+        note.date = datetime.date.today()
+        change = PlantChange(from_location=self.location,
+                             to_location=self.location, quantity=1)
+        change.plant = p
+        self.session.commit()
+        dup = p.duplicate(code=u'3')
+        assert dup.notes is not []
+        assert dup.changes is not []
+        self.session.commit()
 
 
     def test_bulk_plant_editor(self):
@@ -344,7 +263,11 @@ class PlantTests(GardenTestCase):
             import gtk
         except ImportError:
             raise SkipTest('could not import gtk')
-        editor = PlantEditor(model=self.plant)
+        # use our own plant because PlantEditor.commit_changes() will
+        # only work in bulk mode when the plant is in session.new
+        p = Plant(accession=self.accession, location=self.location, code=u'2',
+                  quantity=52)
+        editor = PlantEditor(model=p)
         #editor.start()
         update_gui()
         rng = '2,3,4-6'
@@ -359,6 +282,7 @@ class PlantTests(GardenTestCase):
         # make sure the entry gets a Problem added to it if an
         # existing plant code is used in bulk mode
         widgets.plant_code_entry.set_text('1,' + rng)
+        widgets.plant_quantity_entry.set_text('2')
         update_gui()
         problem = (editor.presenter.PROBLEM_DUPLICATE_PLANT_CODE,
                    editor.presenter.view.widgets.plant_code_entry)
@@ -403,7 +327,7 @@ class PlantTests(GardenTestCase):
         loc2a = Location(name=u'site2a', code=u'2a')
         self.session.add_all([loc, loc2, loc2a])
         self.session.commit()
-        p = Plant(accession=self.accession, location=loc)
+        p = Plant(accession=self.accession, location=loc, quantity=1)
         editor = PlantEditor(model=p)
         editor.start()
         del editor
@@ -414,6 +338,97 @@ class PlantTests(GardenTestCase):
             'PlantEditorPresenter not deleted'
         assert utils.gc_objects_by_type('PlantEditorView') == [], \
             'PlantEditorView not deleted'
+
+
+    def test_branch_editor(self):
+
+        try:
+            import gtk
+        except ImportError:
+            raise SkipTest('could not import gtk')
+
+        # test argument checks
+        self.assertRaises(CheckConditionError, PlantEditor, branch_mode=True)
+        plant = Plant(accession=self.accession, location=self.location,
+                      code=u'33', quantity=5)
+        self.assertRaises(CheckConditionError, PlantEditor, model=plant,
+                          branch_mode=True)
+        self.accession.plants.remove(plant) # remove from session
+        # TODO: test check where quantity < 2
+
+        quantity = 5
+        self.plant.quantity = quantity
+        self.session.commit()
+        editor = PlantEditor(model=self.plant, branch_mode=True)
+        update_gui()
+
+        widgets = editor.presenter.view.widgets
+        new_quantity = 2
+        widgets.plant_quantity_entry.props.text = new_quantity
+        update_gui()
+        editor.handle_response(gtk.RESPONSE_OK)
+
+        editor.presenter.cleanup()
+        del editor
+
+        # there should only be three plants,
+        new_plant = self.session.query(Plant).\
+            filter(Plant.code != self.plant.code).first()
+        # test the quantity was set properly on the new plant
+        assert new_plant.quantity == new_quantity, new_plant.quantity
+        self.session.refresh(self.plant)
+        # test the quantity is updated on the original plant
+        assert self.plant.quantity == quantity - new_plant.quantity, \
+            "%s == %s - %s" % (plant.quantity, quantity, new_plant.quantity)
+        # test the quantity for the change is the same as the quantity
+        # for the plant
+        assert new_plant.changes[0].quantity == new_plant.quantity, \
+            "%s == %s" % (new_plant.changes[0].quantity, new_plant.quantity)
+        # test the parent_plant for the change is the same as the
+        # original plant
+        assert new_plant.changes[0].parent_plant == self.plant, \
+            'change.parent_plant != original plant'
+
+        assert utils.gc_objects_by_type('PlantEditor') == [], \
+            'PlantEditor not deleted'
+        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
+            'PlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('PlantEditorView') == [], \
+            'PlantEditorView not deleted'
+
+    def itest_branch_callback(self):
+        for plant in self.session.query(Plant):
+            self.session.delete(plant)
+        for location in self.session.query(Location):
+            self.session.delete(location)
+        self.session.commit()
+
+        #editor = PlantEditor(model=self.plant)
+        loc = Location(name=u'site1', code=u'1')
+        loc2 = Location(name=u'site2', code=u'2')
+        quantity = 5
+        plant = Plant(accession=self.accession, code=u'1', location=loc,
+                      quantity=quantity)
+        self.session.add_all([loc, loc2, plant])
+        self.session.commit()
+
+        branch_callback([plant])
+        new_plant = self.session.query(Plant).filter(Plant.code!=u'1').first()
+        self.session.refresh(plant)
+        assert plant.quantity == quantity - new_plant.quantity, \
+            "%s == %s - %s" % (plant.quantity, quantity, new_plant.quantity)
+        assert new_plant.changes[0].quantity == new_plant.quantity, \
+            "%s == %s" % (new_plant.changes[0].quantity, new_plant.quantity)
+
+        assert utils.gc_objects_by_type('PlantEditor') == [], \
+            'PlantEditor not deleted'
+        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
+            'PlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('PlantEditorView') == [], \
+            'PlantEditorView not deleted'
+
+
+
 
 
 class PropagationTests(GardenTestCase):
@@ -445,7 +460,8 @@ class PropagationTests(GardenTestCase):
         Test the Accession->AccessionPropagation->Propagation relation
         """
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
@@ -463,7 +479,7 @@ class PropagationTests(GardenTestCase):
         prop = Propagation()
         loc = self.create(Location, name=u'site1', code=u'1')
         plant = self.create(Plant, accession=self.accession, location=loc,
-                            code=u'1')
+                            code=u'1', quantity=1)
         prop.prop_type = u'UnrootedCutting'
         cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
@@ -475,7 +491,8 @@ class PropagationTests(GardenTestCase):
 
     def test_get_summary(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
@@ -501,7 +518,8 @@ class PropagationTests(GardenTestCase):
 
     def test_cutting_property(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
@@ -529,7 +547,8 @@ class PropagationTests(GardenTestCase):
 
     def test_seed_property(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         prop = Propagation()
         plant.propagations.append(prop)
         prop.prop_type = u'Seed'
@@ -550,7 +569,8 @@ class PropagationTests(GardenTestCase):
 
     def test_cutting_editor(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         propagation = Propagation()
         plant.propagations.append(propagation)
         editor = PropagationEditor(model=propagation)
@@ -560,7 +580,7 @@ class PropagationTests(GardenTestCase):
         view.set_widget_value('prop_date_entry', utils.today_str())
         cutting_presenter = editor.presenter._cutting_presenter
         for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
-            #debug('%s=%s' % (widget, self.default_cutting_values[attr]))
+            #debug('%s=%s' % (widget, default_cutting_values[attr]))
             view.set_widget_value(widget, default_cutting_values[attr])
         update_gui()
         editor.handle_response(gtk.RESPONSE_OK)
@@ -578,7 +598,8 @@ class PropagationTests(GardenTestCase):
 
     def test_seed_editor(self):
         loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
         propagation = Propagation()
         plant.propagations.append(propagation)
         editor = PropagationEditor(model=propagation)
@@ -696,9 +717,8 @@ class SourceTests(GardenTestCase):
 
     def test_propagation(self):
         """
-        Test the Source.propagation relation
+        Test cascading for the Source.propagation relation
         """
-        # test setting and then removing the propagation on the source
         source = Source()
         self.accession.source = source
         prop_id, seed_id, cutting_id = self._make_prop(source)
@@ -708,26 +728,11 @@ class SourceTests(GardenTestCase):
         self.assert_(seed_id)
         self.assert_(cutting_id)
         self.assert_(prop_id)
+        # make sure the propagation got cleaned up when the
+        # source.propagation attribute was set to None
         self.assert_(not self.session.query(PropSeed).get(seed_id))
         self.assert_(not self.session.query(PropCutting).get(cutting_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
-
-
-        source = Source()
-        self.accession.source = source
-        prop_id, seed_id, cutting_id = self._make_prop(source)
-        tmp_session = db.Session()
-        prop2 = source.propagation
-        #self.session.expunge(prop2)
-        source.propagation = None
-        #tmp_session.add(prop2)
-        #tmp_session.close()
-        self.session.commit()
-        #tmp_session.close()
-        self.assert_(not self.session.query(PropSeed).get(seed_id))
-        self.assert_(not self.session.query(PropCutting).get(cutting_id))
-        self.assert_(not self.session.query(Propagation).get(prop_id))
-        self.session.commit()
 
 
     def test(self):
@@ -735,17 +740,17 @@ class SourceTests(GardenTestCase):
         Test bauble.plugins.garden.Source and related properties
         """
         source = Source()
-        debug(source.plant_propagation)
         #self.assert_(hasattr(source, 'plant_propagation'))
 
-        location = Location(code=u'1')
-        plant = Plant(accession=self.accession, location=location, code=u'1')
+        location = Location(code=u'1', name=u'site1')
+        plant = Plant(accession=self.accession, location=location, code=u'1',
+                      quantity=1)
         plant.propagations.append(Propagation(prop_type=u'Seed'))
         self.session.commit()
 
-        source.source_contact = SourceContact()
-        source.source_contact.contact = Contact(name=u'name')
-        source.source_contact.contact_code = u'1'
+        source.source_detail = SourceDetail()
+        source.source_detail.name = u'name'
+        source.sources_code = u'1'
         source.collection = Collection(locale=u'locale')
         source.propagation = Propagation(prop_type=u'Seed')
         source.plant_propagation = plant.propagations[0]
@@ -753,24 +758,22 @@ class SourceTests(GardenTestCase):
         self.session.commit()
 
         # test that cascading works properly
-        src_contact_id = source.source_contact.id
-        contact_id = source.source_contact.contact.id
+        source_detail_id = source.source_detail.id
         coll_id = source.collection.id
         prop_id = source.propagation.id
         plant_prop_id = source.plant_propagation.id
         self.accession.source = None # tests the accessions source
         self.session.commit()
 
-        # the SourceContact, Colection and Propagation should be
+        # the Colection and Propagation should be
         # deleted since they are specific to the source
-        self.assert_(not self.session.query(SourceContact).get(src_contact_id))
         self.assert_(not self.session.query(Collection).get(coll_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
 
-        # the contact and plant propagation shouldn't be deleted since
-        # they are independent of the source
-        self.assert_(self.session.query(Contact).get(contact_id))
+        # the SourceDetail and plant Propagation shouldn't be deleted
+        # since they are independent of the source
         self.assert_(self.session.query(Propagation).get(plant_prop_id))
+        self.assert_(self.session.query(SourceDetail).get(source_detail_id))
 
 
     def itest_details_editor(self):
@@ -861,7 +864,7 @@ class AccessionTests(GardenTestCase):
         cleaned up.
         """
         acc = self.create(Accession, species=self.species, code=u'1')
-        plant = self.create(Plant, accession=acc,
+        plant = self.create(Plant, accession=acc, quantity=1,
                             location=Location(name=u'site', code=u'STE'),
                             code=u'1')
         self.session.commit()
@@ -956,7 +959,7 @@ class AccessionTests(GardenTestCase):
         acc.verifications.append(ver)
 
         location = Location(name=u'loc1', code=u'loc1')
-        plant = Plant(accession=acc, location=location, code=u'1')
+        plant = Plant(accession=acc, location=location, code=u'1', quantity=1)
         prop = Propagation(prop_type=u'Seed')
         seed = PropSeed(**default_seed_values)
         seed.propagation = prop
@@ -1056,7 +1059,7 @@ class LocationTests(GardenTestCase):
 
         # test the accept buttons become sensitive when the name entry
         # is changed
-        widgets.loc_name_entry.set_text('')
+        widgets.loc_name_entry.set_text('something')
         update_gui()
         assert widgets.loc_ok_button.props.sensitive
         assert widgets.loc_ok_and_add_button.props.sensitive
@@ -1096,7 +1099,7 @@ class LocationTests(GardenTestCase):
 
     def itest_editor(self):
         """
-        Interactively test the PlantStatusEditor
+        Interactively test the PlantEditor
         """
         loc = self.create(Location, name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
@@ -1153,6 +1156,8 @@ class InstitutionTests(GardenTestCase):
 
 ALLOWED_DECIMAL_ERROR = 5
 THRESHOLD = .01
+
+# indexs into conversion_test_date
 DMS = 0 # DMS
 DEG_MIN_DEC = 1 # Deg with minutes decimal
 DEG_DEC = 2 # Degrees decimal
@@ -1168,13 +1173,13 @@ UTM = 3 # Datum(wgs84/nad83 or nad27), UTM Zone, Easting, Northing
 
 from decimal import Decimal
 dec = Decimal
-conversion_test_data = (
-                        ((('N', 17, 21, dec(59)), # dms
+conversion_test_data = (((('N', 17, 21, dec(59)), # dms
                           ('W', 89, 1, 41)),
                          ((dec(17), dec('21.98333333')), # deg min_dec
                           (dec(-89), dec('1.68333333'))),
                          (dec('17.366389'), dec('-89.028056')), # dec deg
                          (('wgs84', 16, 284513, 1921226))), # utm
+                        \
                         ((('S', 50, 19, dec('32.59')), # dms
                           ('W', 74, 2, dec('11.6'))),
                          ((dec(-50), dec('19.543166')), # deg min_dec
@@ -1182,21 +1187,28 @@ conversion_test_data = (
                          (dec('-50.325719'), dec('-74.036556')), # dec deg
                           (('wgs84', 18, 568579, 568579)),
                           (('nad27', 18, 568581, 4424928))),
+                        \
                         ((('N', 9, 0, dec('4.593384')),
                           ('W', 78, 3, dec('28.527984'))),
                          ((9, dec('0.0765564')),
                           (-78, dec('3.4754664'))),
-                         (dec('9.00127594'), dec('-78.05792444')))
-                        )
+                         (dec('9.00127594'), dec('-78.05792444'))),
+                        \
+                        ((('N', 49, 10, 28),
+                          ('W', 121, 40, 39)),
+                         ((49, dec('10.470')),
+                          (-121, dec('40.650'))),
+                         (dec('49.174444'), dec('-121.6775')))
+                         )
 
-#parse_lat_lon_data = ('17, 21, 59', '17 21 59', '17:21:59',
-#                      '17, 21.98333333', '17 21.98333333',
-#                      '17.36638889',
-#                      '50, 19, 32.59', '50 19 32.59', '50:19:32.59',
-#                      '-50 19.543166', '-50, 19.543166',
-#                      '-50.325719')
-parse_lat_lon_data = ('17 21 59', '17 21.98333333', '17.03656',
-                      '50 19 32.59', '-50 19.543166', '-50.32572')
+
+parse_lat_lon_data = ((('N', '17 21 59'), dec('17.366389')),
+                      (('N', '17 21.983333'), dec('17.366389')),
+                      (('N', '17.03656'), dec('17.03656')),
+                      (('W', '89 1 41'), dec('-89.028056')),
+                      (('W', '89 1.68333333'), dec('-89.028056')),
+                      (('W', '-89 1.68333333'), dec('-89.028056')),
+                      (('E', '121 40 39'), dec('121.6775')))
 
 
 class DMSConversionTests(unittest.TestCase):
@@ -1236,8 +1248,7 @@ class DMSConversionTests(unittest.TestCase):
 
 
     def test_parse_lat_lon(self):
-        for data in parse_lat_lon_data:
-            pass
-
-
-
+        parse = CollectionPresenter._parse_lat_lon
+        for data, dec in parse_lat_lon_data:
+            result = parse(*data)
+            self.assert_(result == dec, '%s: %s == %s' % (data, result, dec))

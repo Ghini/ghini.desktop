@@ -55,7 +55,7 @@ class GardenPlugin(pluginmgr.Plugin):
                                             context_menu=acc_context_menu,
                                             markup_func=acc_markup_func)
 
-        mapper_search.add_meta(('location', 'loc'), Location, ['name'])
+        mapper_search.add_meta(('location', 'loc'), Location, ['name', 'code'])
         SearchView.view_meta[Location].set(children=natsort_kids('plants'),
                                            infobox=LocationInfoBox,
                                            context_menu=loc_context_menu,
@@ -104,7 +104,8 @@ class GardenPlugin(pluginmgr.Plugin):
         meta.get_default(plant_delimiter_key, default_plant_delimiter)
 
 
-def init_location_comboentry(presenter, combo, on_select):
+
+def init_location_comboentry(presenter, combo, on_select, required=True):
     """
     A comboentry that allows the location to be entered requires
     more custom setup than view.attach_completion and
@@ -117,7 +118,7 @@ def init_location_comboentry(presenter, combo, on_select):
     :param combo:
     :param on_select:
     """
-    PROBLEM = 'unknown_location'
+    PROBLEM = 'UNKNOWN_LOCATION'
 
     def cell_data_func(col, cell, model, treeiter, data=None):
         cell.props.text = utils.utf8(model[treeiter][0])
@@ -126,6 +127,7 @@ def init_location_comboentry(presenter, combo, on_select):
     cell = gtk.CellRendererText() # set up the completion renderer
     completion.pack_start(cell)
     completion.set_cell_data_func(cell, cell_data_func)
+    completion.props.popup_set_width = False
 
     entry = combo.child
     entry.set_completion(completion)
@@ -136,16 +138,22 @@ def init_location_comboentry(presenter, combo, on_select):
     combo.set_cell_data_func(cell, cell_data_func)
 
     model = gtk.ListStore(object)
-    locations = sorted(presenter.session.query(Location),
+    locations = sorted(presenter.session.query(Location).all(),
                        key=lambda loc: utils.natsort_key(loc.code))
-    for location in locations:
-        model.append([location])
+    map(lambda loc: model.append([loc]), locations)
     combo.set_model(model)
     completion.set_model(model)
+
+    def match_func(completion, key, treeiter, data=None):
+        loc = completion.get_model()[treeiter][0]
+        return (loc.name and loc.name.lower().startswith(key.lower())) or \
+               (loc.code and loc.code.lower().startswith(key.lower()))
+    completion.set_match_func(match_func)
 
     def on_match_select(completion, model, treeiter):
         value = model[treeiter][0]
         on_select(value)
+        entry.props.text = str(value)
         presenter.remove_problem(PROBLEM, entry)
         presenter.refresh_sensitivity()
         return True
@@ -153,6 +161,11 @@ def init_location_comboentry(presenter, combo, on_select):
 
     def on_entry_changed(entry, presenter):
         text = utils.utf8(entry.props.text)
+
+        if not text and not required:
+            presenter.remove_problem(PROBLEM, entry)
+            on_select(None)
+            return
         # see if the text matches a completion string
         comp = entry.get_completion()
         compl_model = comp.get_model()
@@ -163,10 +176,10 @@ def init_location_comboentry(presenter, combo, on_select):
             comp.emit('match-selected', compl_model, found[0])
             return True
         # see if the text matches exactly a code or name
-        codes = presenter.session.query(Location).filter(Location.code==text)
-        names = presenter.session.query(Location).filter(Location.name==text)
-        # TODO: why the hell do we get an error here when we run all
-        # the PlantTests but not the specific test_editor_transfer
+        codes = presenter.session.query(Location).\
+            filter(utils.ilike(Location.code, '%s' % utils.utf8(text)))
+        names = presenter.session.query(Location).\
+            filter(utils.ilike(Location.name, '%s' % utils.utf8(text)))
         if codes.count() == 1:
             location = codes.first()
             presenter.remove_problem(PROBLEM, entry)

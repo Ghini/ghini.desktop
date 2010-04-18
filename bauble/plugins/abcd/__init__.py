@@ -39,7 +39,7 @@ from bauble.plugins.garden.accession import Accession
 # we could have a special case just for generating labels
 #
 
-def validate(root):
+def validate_xml(root):
     '''
     validate root against ABCD 2.06 schema
     @param root: root of an XML tree to validate against
@@ -60,9 +60,10 @@ def validate(root):
 
 def verify_institution(institution):
     test = lambda x: x != '' and x != None
-    return test(institution.name) and test(institution.technical_contact) and \
-           test(institution.email) and test(institution.contact) and \
-           test(institution.code)
+    return test(institution.inst_name) and \
+        test(institution.inst_technical_contact) and \
+        test(institution.inst_email) and test(institution.inst_contact) and \
+        test(institution.inst_code)
 
 
 namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
@@ -76,10 +77,10 @@ def ABCDElement(parent, name, text=None, attrib=None):
     @param text: the text attribue to set on the new element
     @param attrib: any additional attributes for the new element
     """
-    if attrib == None:
+    if attrib is None:
         attrib = {}
     el = SubElement(parent, '{%s}%s' % (namespaces['abcd'], name),
-                    nsmap=namespaces, attrib=attrib)
+                   nsmap=namespaces, attrib=attrib)
     el.text = text
     return el
 
@@ -103,7 +104,6 @@ class ABCDAdapter(object):
 
     def __init__(self, obj):
         self._object = obj
-        self._mapper = object_mapper(self._object)
 
     def get_UnitID(self):
         pass
@@ -126,18 +126,6 @@ class ABCDAdapter(object):
     def get_InformalNameString(self):
         pass
 
-##     def get_dbURI(self):
-##         # db://user@host:password/database/table/id
-##         url = str(self._mapper.local_table.metadata.bind.url)
-##         # parse out the password
-##         at_i = url.find('@')
-##         if at_i != -1:
-##             col_i = url.find(':')
-##             i = url.find(':', col_i+1, at_i)
-##             url = url[:i] + url[at_i:]
-##         return '%s/%s/%s' % (url, self._mapper.local_table,
-##                              self._object.id)
-
 
 
 def create_abcd(decorated_objects, authors=True, validate=True):
@@ -146,7 +134,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     interface
     @param authors: flag to control whether to include the authors in the
     species name
-    @param validate: whether we should valid the data before returning
+    @param validate: whether we should validate the data before returning
     @returns: a valid ABCD ElementTree
     '''
     import bauble.plugins.garden.institution as institution
@@ -167,12 +155,12 @@ def create_abcd(decorated_objects, authors=True, validate=True):
 
     # TODO: need to include contact information in bauble meta when
     # creating a new database
-    ABCDElement(tech_contact, 'Name', text=inst.technical_contact)
-    ABCDElement(tech_contact, 'Email', text=inst.email)
+    ABCDElement(tech_contact, 'Name', text=inst.inst_technical_contact)
+    ABCDElement(tech_contact, 'Email', text=inst.inst_email)
     cont_contacts = ABCDElement(ds, 'ContentContacts')
     cont_contact = ABCDElement(cont_contacts, 'ContentContact')
-    ABCDElement(cont_contact, 'Name', text=inst.contact)
-    ABCDElement(cont_contact, 'Email', text=inst.email)
+    ABCDElement(cont_contact, 'Name', text=inst.inst_contact)
+    ABCDElement(cont_contact, 'Email', text=inst.inst_email)
     metadata = ABCDElement(ds, 'Metadata', )
     description = ABCDElement(metadata, 'Description')
 
@@ -187,16 +175,18 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     # build the ABCD unit
     for obj in decorated_objects:
         unit = ABCDElement(units, 'Unit')
-        ABCDElement(unit, 'SourceInstitutionID', text=inst.code)
+        ABCDElement(unit, 'SourceInstitutionID', text=inst.inst_code)
 
         # TODO: don't really understand the SourceID element
         ABCDElement(unit, 'SourceID', text='Bauble')
 
         unit_id = ABCDElement(unit, 'UnitID', text=obj.get_UnitID())
-        # TODO: metadata--<DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
-        identifications = ABCDElement(unit, 'Identifications')
+        ABCDElement(unit, 'DateLastEdited', text=obj.get_DateLastEdited())
+
+        # TODO: add list of verifications to Identifications
 
         # scientific name identification
+        identifications = ABCDElement(unit, 'Identifications')
         identification = ABCDElement(identifications, 'Identification')
         result = ABCDElement(identification, 'Result')
         taxon_identified = ABCDElement(result, 'TaxonIdentified')
@@ -206,9 +196,9 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         # TODO: ABCDDecorator should provide an iterator so that we can
         # have multiple HigherTaxonName's
         higher_taxon_name = ABCDElement(higher_taxon, 'HigherTaxonName',
-                                           text=obj.get_family())
+                                        text=obj.get_family())
         higher_taxon_rank = ABCDElement(higher_taxon, 'HigherTaxonRank',
-                                           text='familia')
+                                        text='familia')
 
         scientific_name = ABCDElement(taxon_identified, 'ScientificName')
         ABCDElement(scientific_name, 'FullScientificNameString',
@@ -222,6 +212,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
+        ABCDElement(identification, 'PreferredFlag', text='true')
 
         # vernacular name identification
         # TODO: should we include all the vernacular names or only the default
@@ -234,33 +225,29 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ABCDElement(taxon_identified, 'InformalNameString',
                            text=vernacular_name)
 
-##         dburi = obj.get_dbURI()
-##         if dburi is not None:
-##             ABCDElement(unit, "Notes", text=dburi)
-
         # add all the extra non standard elements
         obj.extra_elements(unit)
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis
-        # TODO: Gathering, make our collection records fit Gatherings
-        # TODO: see BotanicalGardenUnit
 
-    if not validate:
-        return ElementTree(datasets)
+        # notes are last in the schema and extra_elements() shouldn't
+        # add anything that comes past Notes, e.g. RecordURI,
+        # EAnnotations, UnitExtension
+        notes = obj.get_Notes()
+        if notes:
+            ABCDElement(unit, 'Notes', text=notes)
 
-    try:
-        check(validate(datasets), 'ABCD data not valid')
-    except CheckConditionError, e:
-        #utils.message_dialog('ABCD data not valid')
-#         utils.message_details_dialog('ABCD data not valid',
-#                                      etree.tostring(datasets))
-        debug(etree.tostring(datasets))
-        raise
+    if validate:
+        check(validate_xml(datasets), 'ABCD data not valid')
 
     return ElementTree(datasets)
 
 
+
 class ABCDExporter(object):
+    """
+    Export Plants to an ABCD file.
+    """
 
     def start(self, filename=None, plants=None):
         if filename == None: # no filename, ask the user
@@ -273,6 +260,19 @@ class ABCDExporter(object):
             d.destroy()
             if response != gtk.RESPONSE_ACCEPT or filename == None:
                 return
+
+        if plants:
+            nplants = len(plants)
+        else:
+            nplants = db.Session().query(Plant).count()
+
+        if nplants > 3000:
+            msg = _('You are exporting %(nplants)s plants to ABCD format.  ' \
+                    'Exporting this many plants may take several minutes.  '\
+                    '\n\n<i>Would you like to continue?</i>') \
+                    % ({'nplants': nplants})
+            if not utils.yes_no_dialog(msg):
+                return
         self.run(filename, plants)
 
 
@@ -280,36 +280,32 @@ class ABCDExporter(object):
         if filename == None:
             raise ValueError("filename can not be None")
 
-        # TODO: check if filename already exists give a message to the user
+        if os.path.exists(filename) and not os.path.isfile(filename):
+            raise ValueError("%s exists and is not a a regular file" \
+                                 % filename)
 
         # if plants is None then export all plants, this could be huge
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
         if plants == None:
-            plants = db.Session().query(Plant)
+            plants = db.Session().query(Plant).all()
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin
-        from bauble.plugins.report.default import PlantABCDAdapter
-        data = create_abcd([PlantABCDAdapter(p) for p in plants])
+        from bauble.plugins.report.xsl import PlantABCDAdapter
+        data = create_abcd([PlantABCDAdapter(p) for p in plants],
+                           validate=False)
+
         data.write_c14n(filename)
 
+        # validate after the file is written so we still have some
+        # output but let the user know the file isn't valid ABCD
+        if not validate_xml(data):
+            msg = _("The ABCD file was created but failed to validate "
+                    "correctly against the ABCD standard.")
+            utils.message_dialog(msg, gtk.MESSAGE_WARNING)
 
-#class ABCDImporter:
-#
-#    def start(self, filenames=None):
-#        pass
-#
-#    def run(self, filenames):
-#        pass
 
-#class ABCDImportTool(BaubleTool):
-#    category = "Import"
-#    label = "ABCD"
-#
-#    @classmethod
-#    def start(cls):
-#        ABCDImporter().start()
 
 
 class ABCDExportTool(pluginmgr.Tool):
@@ -318,11 +314,6 @@ class ABCDExportTool(pluginmgr.Tool):
 
     @classmethod
     def start(cls):
-        msg = _('DISCLAIMER: The ABCD Exporter is not fully implemented. At '
-                'the moment it will export the plants in the database but '
-                'will not include source information such as collection and '
-                'donation data.')
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         ABCDExporter().start()
 
 
@@ -339,7 +330,3 @@ except ImportError:
                            'ABCD plugin'))
 else:
     plugin = ABCDImexPlugin
-
-
-__all__ = [DataSets, ABCDElement, #ElementFactory,
-           ABCDExporter, ABCDExportTool, create_abcd]
