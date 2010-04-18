@@ -7,23 +7,12 @@ import bauble
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
-from bauble.plugins.garden.accession import Accession, \
-    AccessionEditor, AccessionInfoBox, acc_markup_func, acc_context_menu, \
-    SourceInfoBox
-from bauble.plugins.garden.location import Location, \
-    LocationEditor, LocationInfoBox, loc_context_menu, loc_markup_func
-from bauble.plugins.garden.plant import Plant, PlantEditor, \
-    PlantStatusEditor, PlantInfoBox, plant_markup_func, \
-    plant_delimiter_key, default_plant_delimiter, PlantSearch, \
-    plant_context_menu
-from bauble.plugins.garden.source import Donation, \
-    Collection, source_markup_func, source_context_menu
-from bauble.plugins.garden.donor import Donor, DonorEditor, \
-    DonorInfoBox, donor_context_menu
-from bauble.plugins.garden.institution import InstitutionTool, \
-    InstitutionCommand
-from bauble.plugins.garden.propagation import Propagation, PropRooted, \
-    PropCutting, PropSeed
+from bauble.plugins.garden.accession import *
+from bauble.plugins.garden.location import *
+from bauble.plugins.garden.plant import *
+from bauble.plugins.garden.source import *
+from bauble.plugins.garden.institution import *
+from bauble.plugins.garden.propagation import *
 from bauble.utils.log import debug
 
 # other ideas:
