@@ -1410,8 +1410,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         def match_func(completion, key, treeiter, data=None):
             model = completion.get_model()
             value = model[treeiter][0]
-            # UBC: also allows completions of source details by their
-            # ID since that's how UBC used them previously
+            # allows completions of source details by their ID
             if utils.utf8(value).lower().startswith(key.lower()) or \
                     (isinstance(value, SourceDetail) and \
                          str(value.id).startswith(key)):
