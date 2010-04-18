@@ -842,7 +842,8 @@ class GeneralGenusExpander(InfoExpander):
         session = db.Session()
         self.current_obj = row
         self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \
-                                  (row, utils.xml_safe(unicode(row.author))))
+                                  (row, utils.xml_safe(unicode(row.author))),
+                              markup=True)
         self.set_widget_value('gen_fam_data',
                               (utils.xml_safe(unicode(row.family))))
 
