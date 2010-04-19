@@ -10,13 +10,13 @@
 !include "MUI.nsh"
 
 ; general
-Name "Bauble - UBC"
+Name "Bauble"
 
 !define version "1.0.0b1" ; :bump
 !define src_dir "../dist"
-Outfile "bauble-ubc-${version}-setup.exe"
+Outfile "bauble-${version}-setup.exe"
 
-!define prodname "Bauble-UBC"
+!define prodname "Bauble"
 !define exec "bauble.exe"
 !define license_file "LICENSE"
 !define readme "README"
