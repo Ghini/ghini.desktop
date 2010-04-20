@@ -620,8 +620,6 @@ class AccessionEditorView(editor.GenericEditorView):
                                  ', '.join(wild_prov_status_values.values()),
         'acc_private_check': _('Indicates whether this accession record ' \
                                'should be considered private.'),
-        'acc_pisbg_check': _('Indicates whether is part of the Plant '
-                             'Introduction Schema for Botanic Gardens.'),
         'acc_cancel_button': _('Cancel your changes.'),
         'acc_ok_button': _('Save your changes.'),
         'acc_ok_and_add_button': _('Save your changes changes and add a '
@@ -1506,7 +1504,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
-                           'acc_pisbg_check': 'pisbg'
                            }
 
     PROBLEM_INVALID_DATE = random()
@@ -1651,7 +1648,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-        self.assign_simple_handler('acc_pisbg_check', 'pisbg')
 
         from bauble.plugins.garden import init_location_comboentry
         def on_loc1_select(value):
@@ -1920,10 +1916,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.widgets.acc_private_check.set_inconsistent(False)
         self.view.widgets.acc_private_check.\
             set_active(self.model.private is True)
-
-        self.view.widgets.acc_pisbg_check.set_inconsistent(False)
-        self.view.widgets.acc_pisbg_check.\
-            set_active(self.model.pisbg is True)
 
         sensitive = self.model.prov_type == 'Wild'
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
@@ -2243,11 +2235,6 @@ class GeneralAccessionExpander(InfoExpander):
         if row.private:
             stock = gtk.STOCK_YES
         self.widgets.private_image.set_from_stock(stock, image_size)
-
-        stock = gtk.STOCK_NO
-        if row.pisbg:
-            stock = gtk.STOCK_YES
-        self.widgets.pisbg_image.set_from_stock(stock, image_size)
 
         loc_map = (('intended_loc_data', 'intended_location'),
                    ('intended2_loc_data', 'intended2_location'))

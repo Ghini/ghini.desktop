@@ -7,12 +7,10 @@
     <child>
       <object class="GtkVBox" id="general_box">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">5</property>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <child>
               <object class="GtkHBox" id="acc_code_box">
                 <property name="visible">True</property>
@@ -287,20 +285,6 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="label7">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;PISBG:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </object>
-              <packing>
-                <property name="top_attach">9</property>
-                <property name="bottom_attach">10</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkHSeparator" id="hseparator1_1">
                 <property name="visible">True</property>
               </object>
@@ -324,20 +308,6 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">8</property>
                 <property name="bottom_attach">9</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkImage" id="pisbg_image">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="stock">gtk-missing-image</property>
-                <property name="icon-size">1</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">9</property>
-                <property name="bottom_attach">10</property>
               </packing>
             </child>
             <child>
@@ -418,6 +388,12 @@
                 <property name="right_attach">2</property>
               </packing>
             </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
           </object>
           <packing>
             <property name="position">1</property>
@@ -460,7 +436,6 @@
     <child>
       <object class="GtkVBox" id="source_box">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">10</property>
         <child>
           <object class="GtkTable" id="table1">
@@ -610,7 +585,6 @@
                 <child>
                   <object class="GtkVBox" id="collections_box">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">8</property>
                     <child>
                       <object class="GtkTable" id="collection_table">
