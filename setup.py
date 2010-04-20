@@ -384,7 +384,7 @@ except ImportError:
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
 
-setuptools.setup(name="bauble-ubc",
+setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
                            'docs': docs, 'clean': clean,
