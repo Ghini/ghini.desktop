@@ -12,11 +12,9 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox7">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="ad_vbox1">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <child>
               <object class="GtkHBox" id="message_box_parent">
                 <property name="visible">True</property>
@@ -38,7 +36,6 @@
                   <object class="GtkVBox" id="vbox4">
                     <property name="visible">True</property>
                     <property name="border_width">10</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">15</property>
                     <child>
                       <object class="GtkFrame" id="frame2">
@@ -550,7 +547,6 @@
                             <child>
                               <object class="GtkVBox" id="vbox1">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkHBox" id="hbox7">
                                     <property name="visible">True</property>
@@ -571,18 +567,7 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkCheckButton" id="acc_pisbg_check">
-                                        <property name="label" translatable="yes">PISBG</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="receives_default">False</property>
-                                        <property name="draw_indicator">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
-                                        <property name="position">1</property>
-                                      </packing>
+                                      <placeholder/>
                                     </child>
                                   </object>
                                   <packing>
@@ -716,7 +701,6 @@
                   <object class="GtkVBox" id="source_box">
                     <property name="visible">True</property>
                     <property name="border_width">10</property>
-                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkHBox" id="hbox8">
                         <property name="visible">True</property>
@@ -776,7 +760,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox2">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkLabel" id="source_none_label">
                                 <property name="visible">True</property>
@@ -800,7 +783,6 @@
                                     <child>
                                       <object class="GtkVBox" id="vbox5">
                                         <property name="visible">True</property>
-                                        <property name="orientation">vertical</property>
                                         <property name="spacing">5</property>
                                         <child>
                                           <object class="GtkHBox" id="hbox18">
@@ -839,7 +821,6 @@
                                             <child>
                                               <object class="GtkVBox" id="vbox6">
                                                 <property name="visible">True</property>
-                                                <property name="orientation">vertical</property>
                                                 <child>
                                                   <object class="GtkButton" id="source_coll_add_button">
                                                     <property name="visible">True</property>
@@ -897,7 +878,6 @@
                                                       <object class="GtkVBox" id="collection_box">
                                                         <property name="visible">True</property>
                                                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                        <property name="orientation">vertical</property>
                                                         <property name="spacing">10</property>
                                                         <child>
                                                           <object class="GtkTable" id="table3">
@@ -1603,7 +1583,6 @@
                                             <child>
                                               <object class="GtkVBox" id="vbox7">
                                                 <property name="visible">True</property>
-                                                <property name="orientation">vertical</property>
                                                 <child>
                                                   <object class="GtkButton" id="source_prop_add_button">
                                                     <property name="visible">True</property>
@@ -1692,7 +1671,6 @@
                             <child>
                               <object class="GtkVBox" id="source_garden_prop_box">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkAlignment" id="alignment30">
                                     <property name="visible">True</property>
@@ -1794,7 +1772,6 @@
                   <object class="GtkVBox" id="vbox3">
                     <property name="visible">True</property>
                     <property name="border_width">10</property>
-                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkAlignment" id="ver_new_align">
                         <property name="visible">True</property>
@@ -1833,7 +1810,6 @@
                             <child>
                               <object class="GtkVBox" id="verifications_parent_box">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <property name="spacing">10</property>
                                 <child>
                                   <placeholder/>
@@ -1981,7 +1957,6 @@
                     <child>
                       <object class="GtkVSeparator" id="vseparator1">
                         <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -2121,7 +2096,6 @@
                     <child>
                       <object class="GtkVBox" id="notes_parent_box">
                         <property name="visible">True</property>
-                        <property name="orientation">vertical</property>
                         <child>
                           <placeholder/>
                         </child>
@@ -2275,7 +2249,6 @@
     <child>
       <object class="GtkVBox" id="ver_box">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">5</property>
         <child>
           <object class="GtkHBox" id="hbox3">
@@ -2640,7 +2613,6 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkTable" id="table9">
