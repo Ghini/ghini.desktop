@@ -11,14 +11,16 @@ import gobject
 
 import bauble
 import bauble.db as db
-import bauble.utils as utils
-import bauble.utils.desktop as desktop
+import bauble.error as err
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
+from bauble.query import *
+import bauble.utils as utils
+import bauble.utils.desktop as desktop
 from bauble.utils.log import debug, warning, error
 from bauble.view import SearchView
-import bauble.error as err
+
 
 
 class DefaultView(pluginmgr.View):
@@ -84,6 +86,9 @@ class GUI(object):
         go_button = self.widgets.go_button
         go_button.connect('clicked', self.on_go_button_clicked)
 
+        query_button = self.widgets.query_button
+        query_button.connect('clicked', self.on_query_button_clicked)
+
         self.set_default_view()
 
         # add a progressbar to the status bar
@@ -121,6 +126,8 @@ class GUI(object):
         cmd = StringStart() +':'+ Word(alphanums + '-_').setResultsName('cmd')
         arg = restOfLine.setResultsName('arg')
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
+
+        combo.grab_focus()
 
 
     def close_message_box(self, *args):
@@ -177,17 +184,6 @@ class GUI(object):
     history_size = property(_get_history_size)
 
 
-#     def on_main_entry_key_press(self, widget, event, data=None):
-#         '''
-#         '''
-#         keyname = gtk.gdk.keyval_name(event.keyval)
-#         if keyname == "Return":
-#             self.widgets.go_button.emit("clicked")
-#             return True
-#         else:
-#             return False
-
-
     def send_command(self, command):
         self.widgets.main_comboentry.child.set_text(command)
         self.widgets.go_button.emit("clicked")
@@ -219,6 +215,14 @@ class GUI(object):
             pass
 
         bauble.command_handler(cmd, arg)
+
+
+    def on_query_button_clicked(self, widget):
+        qb = QueryBuilder()
+        qb.start()
+        query = qb.get_query()
+        self.widgets.main_comboentry.child.set_text(query)
+        self.widgets.go_button.emit("clicked")
 
 
     def add_to_history(self, text, index=0):

@@ -439,6 +439,13 @@ class MapperSearch(SearchStrategy):
         self._properties[cls] = properties
 
 
+    @classmethod
+    def get_domain_classes(cls):
+        d = {}
+        for domain, item in cls._domains.iteritems():
+            d.setdefault(domain, item[0])
+        return d
+
     def on_query(self, s, loc, tokens):
         """
         Called when the parser hits a query token.
