@@ -394,7 +394,7 @@ def species_name_dict_from_rec(rec, defaults=None):
         # different epithet ranks
         #
         # TODO: should we do some sort of smart capitalization here
-        clean = lambda a: None if a in ('', ' ') else a
+        clean = lambda a: None if a in ('', ' ') else a.strip()
         authors = [clean(author) for author in \
                        get_value(rec, 'authors').split('|')]
     row['sp_author'] = authors[0]
@@ -1215,6 +1215,7 @@ def do_plants():
         source = {}
 
         # add collection and source contact data if there is any
+        row['prov_type'] = None
         coll_data = (rec['wildcoll'], rec['wildnum'], rec['wildnote'])
         if [d for d in coll_data if d.strip()]:
             collection = collection_defaults.copy()
@@ -1224,6 +1225,7 @@ def do_plants():
             collection['notes'] = utils.utf8(rec['wildnote'])
             collection['source_id'] = source_id_ctr
             collection_rows_append(collection)
+            row['prov_type'] = u'Wild'
             source['id'] = source_id_ctr
             coll_id_ctr += 1
 

@@ -811,8 +811,10 @@ class PlantEditor(GenericModelViewPresenterEditor):
         :param model: Plant instance or None
         :param parent: None
         '''
-        check(branch_mode and model is not None,
-              "branch_mode requires a model")
+        if branch_mode and not model:
+            raise CheckConditionError("branch_mode requires a model")
+        # check(branch_mode is True and model is None,
+        #       "branch_mode requires a model")
         check(not (branch_mode and object_session(model) and \
                   model in object_session(model).new),
               "cannot branch a new plant")
@@ -823,7 +825,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Plant()
 
-        self.branched_parent = None
+        self.branched_plant = None
         if branch_mode:
             # duplicate the model so we can branch from it without
             # destroying the first
