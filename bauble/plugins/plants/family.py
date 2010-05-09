@@ -351,6 +351,12 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
             self.view.set_widget_value(widget, value)
 
 
+    def cleanup(self):
+        super(FamilyEditorPresenter, self).cleanup()
+        self.synonyms_presenter.cleanup()
+        self.notes_presenter.cleanup()
+
+
     def start(self):
         r = self.view.start()
         return r
@@ -372,6 +378,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         super(SynonymsPresenter, self).__init__(self.parent_ref().model,
                                                 self.parent_ref().view)
         self.session = self.parent_ref().session
+        self.view.widgets.fam_syn_entry.props.text = ''
         self.init_treeview()
 
         # use completions_model as a dummy object for completions, we'll create
