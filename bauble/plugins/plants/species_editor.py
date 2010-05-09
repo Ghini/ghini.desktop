@@ -258,6 +258,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
 
     def cleanup(self):
+        super(SpeciesEditorPresenter, self).cleanup()
         self.vern_presenter.cleanup()
         self.synonyms_presenter.cleanup()
         self.dist_presenter.cleanup()
@@ -726,6 +727,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         super(SynonymsPresenter, self).__init__(parent.model, parent.view)
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
+        self.view.widgets.sp_syn_entry.props.text = ''
         self.init_treeview()
         # use completions_model as a dummy object for completions, we'll create
         # seperate SpeciesSynonym models on add

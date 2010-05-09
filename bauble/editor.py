@@ -744,7 +744,8 @@ class GenericEditorPresenter(object):
         By default it only calls self.view.cleanup()
         """
         self.clear_problems()
-        self.view.cleanup()
+        if isinstance(self.view, GenericEditorView):
+            self.view.cleanup()
 
 
     def refresh_sensitivity(self):
