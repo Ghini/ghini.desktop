@@ -1,9 +1,11 @@
 import gtk
+import pyparsing
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.properties import *
 
 import bauble
+import bauble.view as view
 import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug
@@ -17,7 +19,6 @@ class SchemaBrowser(gtk.VBox):
         self.props.spacing = 10
         # WARNING: this is a hack from bauble.view.MapperSearch
         self.domain_map = {}
-        import bauble.view as view
         self.domain_map = view.MapperSearch.get_domain_classes().copy()
 
         frame = gtk.Frame(_("Search Domain"))
@@ -110,7 +111,6 @@ class QueryBuilder(object):
         # TODO: warn that the current buffer contents will be destroyed
         self.buffer.set_text('') # clear the buffer first
         self.insert_text('%s where ' % combo.get_active_text())
-        return True
 
 
     def on_prop_row_activated(self, treeview, path, column):
@@ -135,9 +135,9 @@ class QueryBuilder(object):
             parent = bauble.gui.window
         self.dialog = gtk.Dialog(_("Query Builder"), parent,
                               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                      (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                                  gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-
+                      (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                  gtk.STOCK_OK, gtk.RESPONSE_OK))
+        self.dialog.set_response_sensitive(gtk.RESPONSE_OK, False)
         self.dialog.vbox.props.spacing = 10
         hbox = gtk.HBox()
         hbox.props.spacing = 20
@@ -192,6 +192,7 @@ class QueryBuilder(object):
         self.dialog.vbox.pack_start(frame)
 
         self.buffer = gtk.TextBuffer()
+        self.buffer.connect('changed', self.on_buffer_changed)
         self.text_view = gtk.TextView(self.buffer)
         self.text_view.set_size_request(400, 150)
         frame.add(self.text_view)
@@ -201,20 +202,22 @@ class QueryBuilder(object):
         self.dialog.hide()
 
 
-    def append_text(self, text):
-        """
-        """
-        end = self.buffer.get_end_iter()
-        self.buffer.insert(end, ' %s' % text)
-        self.text_view.grab_focus()
+    def on_buffer_changed(self, buffer):
+        # if SearchParser.query doesn't validate the string then make
+        # the OK button insensitive
+        sensitive = True
+        try:
+            view.SearchParser.query.parseString(self.buffer.props.text)
+        except pyparsing.ParseException, e:
+            #debug(e)
+            sensitive = False
+        self.dialog.set_response_sensitive(gtk.RESPONSE_OK, sensitive)
 
 
     def insert_text(self, text):
-        #end = self.buffer.insert_at_cursor(' %s ' % text)
-        end = self.buffer.insert_at_cursor(text)
+        self.buffer.insert_at_cursor(text)
         self.text_view.grab_focus()
-        # TODO: set ok button sensitive if it parses with the SearchParser
-        # self.dialog.set_response_sensitive(gtk.RESPONSE_OK, True)
+
 
 
 if __name__ == '__main__':
