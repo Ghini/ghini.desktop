@@ -11,14 +11,16 @@ import gobject
 
 import bauble
 import bauble.db as db
-import bauble.utils as utils
-import bauble.utils.desktop as desktop
+import bauble.error as err
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
+from bauble.query import *
+import bauble.utils as utils
+import bauble.utils.desktop as desktop
 from bauble.utils.log import debug, warning, error
 from bauble.view import SearchView
-import bauble.error as err
+
 
 
 class DefaultView(pluginmgr.View):
@@ -122,6 +124,8 @@ class GUI(object):
         arg = restOfLine.setResultsName('arg')
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
 
+        combo.grab_focus()
+
 
     def close_message_box(self, *args):
         parent = self.widgets.msg_box_parent
@@ -175,17 +179,6 @@ class GUI(object):
             prefs[self.history_size_pref] = self._default_history_size
         return int(prefs[self.history_size_pref])
     history_size = property(_get_history_size)
-
-
-#     def on_main_entry_key_press(self, widget, event, data=None):
-#         '''
-#         '''
-#         keyname = gtk.gdk.keyval_name(event.keyval)
-#         if keyname == "Return":
-#             self.widgets.go_button.emit("clicked")
-#             return True
-#         else:
-#             return False
 
 
     def send_command(self, command):

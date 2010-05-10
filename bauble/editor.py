@@ -791,7 +791,8 @@ class GenericEditorPresenter(object):
         By default it only calls self.view.cleanup()
         """
         self.clear_problems()
-        self.view.cleanup()
+        if isinstance(self.view, GenericEditorView):
+            self.view.cleanup()
 
 
     def refresh_sensitivity(self):
@@ -809,11 +810,13 @@ class GenericEditorPresenter(object):
         Refresh the view with the model values.  This method should be
         called before any signal handlers are configured on the view
         so that the model isn't changed when the widget values are set.
+
+        Any classes that extend GenericEditorPresenter are required to
+        implement this method.
         """
         # TODO: should i provide a generic implementation of this method
         # as long as widget_to_field_map exist
-        pass
-
+        raise NotImplementedError
 
 
 
