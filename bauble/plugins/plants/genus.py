@@ -420,6 +420,12 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.__dirty = False
 
 
+    def cleanup(self):
+        super(GenusEditorPresenter, self).cleanup()
+        self.synonyms_presenter.cleanup()
+        self.notes_presenter.cleanup()
+
+
     def refresh_sensitivity(self):
         # TODO: check widgets for problems
         sensitive = False
@@ -471,6 +477,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         super(SynonymsPresenter, self).__init__(self.parent_ref().model,
                                                 self.parent_ref().view)
         self.session = self.parent_ref().session
+        self.view.widgets.gen_syn_entry.props.text = ''
         self.init_treeview()
 
         # use completions_model as a dummy object for completions, we'll create
