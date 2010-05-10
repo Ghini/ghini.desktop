@@ -348,6 +348,7 @@ class PlantTests(GardenTestCase):
             raise SkipTest('could not import gtk')
 
         # test argument checks
+        self.assert_(PlantEditor())
         self.assertRaises(CheckConditionError, PlantEditor, branch_mode=True)
         plant = Plant(accession=self.accession, location=self.location,
                       code=u'33', quantity=5)

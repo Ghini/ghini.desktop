@@ -212,6 +212,20 @@ class GenericEditorView(object):
 
 
     def connect(self, obj, signal, callback, *args):
+        """
+        Attach a signal handler for signal on obj.  For more
+        information see :meth:`gobject.connect_after`
+
+        :param obj: An instance of a subclass of gobject that will
+          receive the signal
+
+        :param signal: the name of the signal the object will receive
+
+        :param callback: the function or method to call the object
+          receives the signal
+
+        :param *args: extra args to pass the the callback
+        """
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
         sid = obj.connect(signal, callback, *args)
@@ -219,18 +233,38 @@ class GenericEditorView(object):
         return sid
 
 
-    def connect_after(self, obj, signal, callback, data=None):
+    def connect_after(self, obj, signal, callback, *args):#data=None):
+        """
+        Attach a signal handler for signal on obj.  For more
+        information see :meth:`gobject.connect_after`
+
+        :param obj: An instance of a subclass of gobject that will
+          receive the signal
+
+        :param signal: the name of the signal the object will receive
+
+        :param callback: the function or method to call the object
+          receives the signal
+
+        :param *args: extra args to pass the the callback
+        """
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
-        if data:
-            sid = obj.connect_after(signal, callback, data)
-        else:
-            sid = obj.connect_after(signal, callback)
+        sid = obj.connect_after(signal, callback, *args)
+        # if data:
+        #     sid = obj.connect_after(signal, callback, data)
+        # else:
+        #     sid = obj.connect_after(signal, callback)
         self.__attached_signals.append((obj, sid))
         return sid
 
 
     def disconnect_all(self):
+        """
+        Disconnects all the signal handlers attached with
+        :meth:`GenericEditorView.connect` or
+        :meth:`GenericEditorView.connect_after`
+        """
         for obj, sid in self.__attached_signals:
             obj.disconnect(sid)
         del self.__attached_signals[:]
@@ -447,6 +481,10 @@ class GenericEditorPresenter(object):
 
 
     def has_problems(self, widget):
+        """
+        Return True/False depending on if widget has any problems
+        attached to it.
+        """
         from operator import getitem
         for p, w in self.problems:
             if widget == w:
@@ -454,6 +492,9 @@ class GenericEditorPresenter(object):
 
 
     def clear_problems(self):
+        """
+        Clear all the problems from all widgets associated with the presenter
+        """
         tmp = self.problems.copy()
         map(lambda p: self.remove_problem(p[0], p[1]), tmp)
         self.problems.clear()
@@ -493,10 +534,11 @@ class GenericEditorPresenter(object):
         Add problem_id to self.problems and change the background of widget(s)
         in problem_widgets.
 
-        :param problem_id:
+        :param problem_id: A unique id for the problem.
 
         :param problem_widgets: either a widget or list of widgets
-        whose background color should change to indicate a problem
+          whose background color should change to indicate a problem
+          (default=None)
         """
         if isinstance(problem_widgets, (tuple, list)):
             map(lambda w: self.add_problem(problem_id, w), problem_widgets)
@@ -733,11 +775,16 @@ class GenericEditorPresenter(object):
 
 
     def start(self):
+        """
+        Start the presenter.  This must be implemented by all classes
+        that subclass :class:`GenericEditorPresenter`
+        """
         raise NotImplementedError
 
 
     def cleanup(self):
-        """Revert any changes the presenter might have done to the
+        """
+        Revert any changes the presenter might have done to the
         widgets so that next time the same widgets are open everything
         will be normal.
 
@@ -750,7 +797,7 @@ class GenericEditorPresenter(object):
 
     def refresh_sensitivity(self):
         """
-        Refresh the sensitivity of the dialog buttons.
+        Refresh the sensitivity of the various widgets in the presenters view.
 
         This is not a required method for classes tha extend
         GenericEditorPresenter.
@@ -774,7 +821,6 @@ class GenericEditorPresenter(object):
 
 
 class GenericModelViewPresenterEditor(object):
-
     '''
     GenericModelViewPresenterEditor assume that model is an instance
     of object mapped to a SQLAlchemy table
@@ -783,14 +829,15 @@ class GenericModelViewPresenterEditor(object):
     it.  If the model is already in another session that original
     session will not be effected.
 
+    When creating a subclass of this editor then you should explicitly
+    close the session when you are finished with it.
+
     :param model: an instance of an object mapped to a SQLAlchemy
       Table, the model will be copied and merged into self.session so
       that the original model will not be changed
 
     :param parent: the parent windows for the view or None
     '''
-    label = ''
-    standalone = True
     ok_responses = ()
 
     def __init__(self, model, parent=None):
@@ -839,14 +886,18 @@ class GenericModelViewPresenterEditor(object):
 # True then show the add/remove buttons
 
 class NotesPresenter(GenericEditorPresenter):
+    """
+    The NotesPresenter provides a generic presenter for editor notes
+    on an item in the database.  This presenter requires that the
+    notes property provide a specific interface.
+
+    :param presenter: the parent presenter of this presenter
+    :param notes_property: the string name of the notes property of
+      the presenter.model
+    :param parent_container: the gtk.Container to add the notes editor box to
+    """
 
     def __init__(self, presenter, notes_property, parent_container):
-        """
-        :param presenter: the parent presenter of this presenter
-        :param notes_property: the string name of the notes property of
-        the presenter.mode
-        :parent_container: the gtk.Container to add the notes editor box to
-        """
         super(NotesPresenter, self).__init__(presenter.model, None)
 
         # open the glade file and extract the UI markup the presenter will use
@@ -904,6 +955,9 @@ class NotesPresenter(GenericEditorPresenter):
 
 
     def add_note(self, note=None):
+        """
+        Add a new note to the model.
+        """
         expander = NotesPresenter.NoteBox(self, note)
         self.box.pack_start(expander, expand=False, fill=False)#, padding=10)
         self.box.reorder_child(expander, 0)

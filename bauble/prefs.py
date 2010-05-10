@@ -13,6 +13,17 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 #from bauble.utils.log import debug, warning
 
+"""
+The prefs module exposes an API for getting and setting user
+preferences in the Bauble config file.
+
+To use the preferences import bauble.prefs and access the prefs object
+using a dictionary like interface. e.g. ::
+
+    import bauble.prefs
+    prefs.prefs[key] = value
+"""
+
 # TODO: include the version of the database in the prefs so that if the prefs
 # are opened with a different version then the user will know and possible
 # migrate pref version though i don't think the prefs format will change much
@@ -37,19 +48,52 @@ import bauble.pluginmgr as pluginmgr
 
 default_filename = 'config'
 default_prefs_file = os.path.join(paths.user_dir(), default_filename)
+"""
+The default file for the preference settings file.
+"""
 
+# TODO: i don't think we use these icons anymore
 prefs_icon_dir = os.path.join(paths.lib_dir(), 'images')
 general_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_general.png')
 security_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_security.png')
 
 config_version_pref = 'bauble.config.version'
+"""
+The preferences key for the bauble version of the preferences file.
+"""
+
 config_version = bauble.version_tuple[0], bauble.version_tuple[1]
 
 date_format_pref = 'bauble.default_date_format'
+"""
+The preferences key for the default data format.
+"""
+
 parse_dayfirst_pref = 'bauble.parse_dayfirst'
+"""
+The preferences key for to determine whether the date should come
+first when parsing date string.  For more information see the
+:meth:`dateutil.parser.parse` method.
+
+Values: True, False
+"""
+
 parse_yearfirst_pref = 'bauble.parse_yearfirst'
+"""
+The preferences key for to determine whether the date should come
+first when parsing date string.  For more information see the
+:meth:`dateutil.parser.parse` method.
+
+Values: True, False
+"""
 
 units_pref = 'bauble.units'
+"""
+The preferences key for the default units for Bauble.
+
+Values: metric, imperial
+"""
+
 ## class PreferencesMgr(gtk.Dialog):
 
 ##     def __init__(self):
