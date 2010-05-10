@@ -432,10 +432,11 @@ class Plant(db.Base):
         Return a Plant that is a duplicate of this Plant with attached
         notes, changes and propagations.
         """
+        plant = Plant()
         if not session:
             session = object_session(self)
-        plant = Plant()
-        session.add(plant)
+            if session:
+                session.add(plant)
 
         ignore = ('id', 'changes', 'notes', 'propagations')
         properties = filter(lambda p: p.key not in ignore,
@@ -810,14 +811,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
         '''
         :param model: Plant instance or None
         :param parent: None
+        :param branch_mode:
         '''
-        if branch_mode and not model:
-            raise CheckConditionError("branch_mode requires a model")
-        # check(branch_mode is True and model is None,
-        #       "branch_mode requires a model")
-        check(not (branch_mode and object_session(model) and \
-                  model in object_session(model).new),
-              "cannot branch a new plant")
+        if branch_mode:
+            if model is None:
+                raise CheckConditionError(_("branch_mode requires a model"))
+            elif object_session(model) and model in object_session(model).new:
+                raise CheckConditionError(_("cannot branch a new plant"))
 
         # TODO: shouldn't allow branching plants with quantity < 2
         # TODO: shouldn't allow changing the accession code in branch_mode
