@@ -219,10 +219,10 @@ class GUI(object):
 
     def on_query_button_clicked(self, widget):
         qb = QueryBuilder()
-        qb.start()
-        query = qb.get_query()
-        self.widgets.main_comboentry.child.set_text(query)
-        self.widgets.go_button.emit("clicked")
+        if qb.start() == gtk.RESPONSE_OK:
+            query = qb.get_query()
+            self.widgets.main_comboentry.child.set_text(query)
+            self.widgets.go_button.emit("clicked")
 
 
     def add_to_history(self, text, index=0):

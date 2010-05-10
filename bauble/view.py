@@ -409,6 +409,7 @@ class MapperSearch(SearchStrategy):
     """
 
     _domains = {}
+    _shorthand = {}
     _properties = {}
 
     def __init__(self):
@@ -432,8 +433,9 @@ class MapperSearch(SearchStrategy):
         check(len(properties) > 0, _('MapperSearch.add_meta(): '\
         'default_columns argument cannot be empty'))
         if isinstance(domain, (list, tuple)):
-            for d in domain:
-                self._domains[d] = cls, properties
+            self._domains[domain[0]] = cls, properties
+            for d in domain[1:]:
+                self._shorthand[d] = domain[0]
         else:
             self._domains[d] = cls, properties
         self._properties[cls] = properties
@@ -462,7 +464,10 @@ class MapperSearch(SearchStrategy):
         # TODO: support 'not' a boolean op as well, e.g sp where
         # genus.genus=Maxillaria and not genus.family=Orchidaceae
         domain, expr = tokens
-        check(domain in self._domains, 'Unknown search domain: %s' % domain)
+        check(domain in self._domains or domain in self._shorthand,
+              'Unknown search domain: %s' % domain)
+        if domain in self._shorthand:
+            domain = self._shorthand[domain]
         cls = self._domains[domain][0]
         main_query = self._session.query(cls)
         mapper = class_mapper(cls)
@@ -527,6 +532,8 @@ class MapperSearch(SearchStrategy):
         """
         domain, cond, values = tokens
         try:
+            if domain in self._shorthand:
+                domain = self._shorthand[domain]
             cls, properties = self._domains[domain]
         except KeyError:
             raise KeyError(_('Unknown search domain: %s' % domain))
