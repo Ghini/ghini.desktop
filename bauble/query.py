@@ -25,7 +25,7 @@ class SchemaBrowser(gtk.VBox):
         self.pack_start(frame, expand=False, fill=False)
         self.table_combo = gtk.combo_box_new_text()
         frame.add(self.table_combo)
-        for key in self.domain_map.keys():
+        for key in sorted(self.domain_map.keys()):
             self.table_combo.append_text(key)
 
         self.table_combo.connect('changed', self.on_table_combo_changed)
@@ -198,8 +198,9 @@ class QueryBuilder(object):
         frame.add(self.text_view)
 
         self.dialog.vbox.show_all()
-        self.dialog.run()
+        r = self.dialog.run()
         self.dialog.hide()
+        return r
 
 
     def on_buffer_changed(self, buffer):
