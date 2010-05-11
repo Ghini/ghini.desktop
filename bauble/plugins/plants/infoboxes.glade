@@ -20,7 +20,6 @@
                 <property name="ypad">5</property>
                 <property name="label" translatable="yes">--</property>
                 <property name="use_markup">True</property>
-                <property name="justify">fill</property>
                 <property name="selectable">True</property>
               </object>
               <packing>
