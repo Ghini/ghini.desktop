@@ -397,7 +397,11 @@ class PlantTests(GardenTestCase):
         assert utils.gc_objects_by_type('PlantEditorView') == [], \
             'PlantEditorView not deleted'
 
+
     def itest_branch_callback(self):
+        """
+        Test bauble.plugins.garden.plant.branch_callback()
+        """
         for plant in self.session.query(Plant):
             self.session.delete(plant)
         for location in self.session.query(Location):
@@ -428,6 +432,15 @@ class PlantTests(GardenTestCase):
         assert utils.gc_objects_by_type('PlantEditorView') == [], \
             'PlantEditorView not deleted'
 
+
+    def test_is_code_unique(self):
+        """
+        Test bauble.plugins.garden.plant.is_code_unique()
+        """
+        self.assertFalse(is_code_unique(self.plant, '1'))
+        self.assert_(is_code_unique(self.plant, '01'))
+        self.assertFalse(is_code_unique(self.plant, '1-2'))
+        self.assertFalse(is_code_unique(self.plant, '01-2'))
 
 
 
