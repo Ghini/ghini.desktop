@@ -142,10 +142,13 @@ def is_code_unique(plant, code):
     This method will also take range values for code that can be passed
     to utils.range_builder()
     """
-    # TODO: this assumes that codes are integers and could probably
-    # use some more testing, e.g. for 0001 and 1
-    codes = map(utils.utf8, utils.range_builder(code))
-    codes.append(utils.utf8(code))
+    # if the range builder only creates one number then we assume the
+    # code is not a range and so we test against the string version of
+    # code
+    codes = map(utils.utf8, utils.range_builder(code)) # test if a range
+    if len(codes) == 1:
+        codes = [utils.utf8(code)]
+
     # reference accesssion.id instead of accession_id since
     # setting the accession on the model doesn't set the
     # accession_id until the session is flushed
