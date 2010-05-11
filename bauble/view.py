@@ -475,14 +475,18 @@ class MapperSearch(SearchStrategy):
         boolop = None
         for e in expr_iter:
             idents, cond, val = e
-            # debug('cls: %s, idents: %s, cond: %s, val: %s'
-            #       % (cls.__name__, idents, cond, val))
+            debug('cls: %s, idents: %s, cond: %s, val: %s'
+                  % (cls.__name__, idents, cond, val))
             if val == 'None':
                 val = None
             if cond == 'is':
                 cond = '='
             elif cond == 'is not':
                 cond = '!='
+            elif cond in ('ilike', 'icontains', 'ihas'):
+                cond = lambda col: \
+                    lambda val: utils.ilike(col, '%%%s%%' % val)
+
 
             if len(idents) == 1:
                 # we get here when the idents only refer to a property
@@ -493,8 +497,15 @@ class MapperSearch(SearchStrategy):
                        dict(tablename=mapper.local_table.name,
                             columname=col)
                 check(col in mapper.c, msg)
-                clause = getattr(cls, col).op(cond)(utils.utf8(val))
+                debug(type(cond))
+                debug(cond)
+                if isinstance(cond, str):
+                    clause = getattr(cls, col).op(cond)(utils.utf8(val))
+                else:
+                    clause = cond(getattr(cls, col))(utils.utf8(val))
+                debug(str(clause))
                 query = self._session.query(cls).filter(clause).order_by(None)
+                debug(str(query))
             else:
                 # we get here when the idents refer to a relation on a
                 # mapper/table
