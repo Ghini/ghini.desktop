@@ -44,6 +44,7 @@ sys.stderr = dummyfile()
 import gdata.photos.service
 sys.stderr = tmp
 
+import gobject
 import gtk
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
@@ -247,7 +248,7 @@ class PicasaSettingsDialog(object):
         response = self.window.run()
         self.window.hide()
         if response != gtk.RESPONSE_OK:
-            return
+            return response
         stored_email = meta.get_default(PICASA_EMAIL_KEY).value
         email = self.widgets.email_entry.get_text()
         album = self.widgets.album_entry.get_text()
@@ -263,7 +264,7 @@ class PicasaSettingsDialog(object):
                 utils.message_dialog(_('Could not authorize Google '\
                                        'account: %s' % email),
                                      gtk.MESSAGE_ERROR)
-                return
+                return False
             update_meta(utils.utf8(email), utils.utf8(album),
                         utils.utf8(token))
         else:
@@ -517,15 +518,15 @@ class PicasaInfoPage(view.InfoBoxPage):
                     msg += exc.message
                 else:
                     msg += str(exc)
-                self.on_error(msg, row)
+                gobject.idle_add(self.on_error, msg, row)
                 return
             self.set_busy(False)
             model = self.iconview.get_model()
             if len(model) == 0:
-                self.status_box.set_text(_('No images'))
-                self.show_status_box()
+                gobject.idle_add(self.status_box.set_text, _('No images'))
+                gobject.idle_add(self.show_status_box)
             else:
-                self.hide_status_box()
+                gobject.idle_add(self.hide_status_box)
         worker.connect('done', on_done, False)
 
 
