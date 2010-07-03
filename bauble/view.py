@@ -593,9 +593,9 @@ class SearchView(pluginmgr.View):
 
 
     def search(self, text):
-        '''
+        """
         search the database using text
-        '''
+        """
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match

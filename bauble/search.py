@@ -11,21 +11,14 @@ import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug
 import bauble.utils as utils
 
-# 1. move SearchParser, SearchStrategy, MapperSearch and possible
-# SearchView in here
-#
-# 2. move everything inside query.py in here
-#
-# 3. refactor search stuff out of SearchView, e.g. search_strategies,
-# add_search_strategy, get_search_strategy and add some sort of
-# function for passing in a search string and returning results or
-# raise an exception or error
 
 def search(text, session):
     results = set()
     for strategy in _search_strategies:
         results.update(strategy.search(text, session))
     return list(results)
+
+
 
 class SearchParser(object):
     """
