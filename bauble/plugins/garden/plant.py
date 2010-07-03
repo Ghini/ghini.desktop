@@ -28,11 +28,12 @@ from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import PlantPropagation
 from bauble.plugins.plants import *
 import bauble.prefs as prefs
+from bauble.search import SearchStrategy
 import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-    select_in_search_results, SearchStrategy, Action
+    select_in_search_results, Action
 import bauble.view as view
 
 

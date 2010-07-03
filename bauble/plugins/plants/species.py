@@ -6,6 +6,7 @@ import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
+import bauble.search as search
 from bauble.view import SearchView, PropertiesExpander, Action
 import bauble.view as view
 import bauble.utils.desktop as desktop
@@ -119,11 +120,13 @@ def vernname_markup_func(vernname):
     return str(vernname), vernname.species.markup(authors=False)
 
 
-from bauble.view import InfoBox, InfoBoxPage, InfoExpander, SearchStrategy, \
-    select_in_search_results
+from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
 
 
-class SynonymSearch(SearchStrategy):
+select_in_search_results
+
+
+class SynonymSearch(search.SearchStrategy):
     """
     Return any synonyms for matching species.
 
@@ -141,7 +144,7 @@ class SynonymSearch(SearchStrategy):
         super(SynonymSearch, self).search(text, session)
         if not prefs[self.return_synonyms_pref]:
             return
-        mapper_search = SearchView.get_search_strategy('MapperSearch')
+        mapper_search = search.get_strategy('MapperSearch')
         r1 = mapper_search.search(text, session)
         if not r1:
             return []

@@ -10,8 +10,8 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
-from bauble.view import SearchParser
-from bauble.view import SearchView, MapperSearch
+from bauble.search import SearchParser, MapperSearch
+from bauble.view import SearchView
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
