@@ -16,6 +16,7 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 from bauble.query import *
+import bauble.search as search
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 from bauble.utils.log import debug, warning, error
@@ -218,7 +219,7 @@ class GUI(object):
 
 
     def on_query_button_clicked(self, widget):
-        qb = QueryBuilder()
+        qb = search.QueryBuilder()
         if qb.start() == gtk.RESPONSE_OK:
             query = qb.get_query()
             self.widgets.main_comboentry.child.set_text(query)
