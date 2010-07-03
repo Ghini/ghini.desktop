@@ -13,6 +13,7 @@ from bauble.plugins.garden.plant import *
 from bauble.plugins.garden.source import *
 from bauble.plugins.garden.institution import *
 from bauble.plugins.garden.propagation import *
+import bauble.search as search
 from bauble.utils.log import debug
 
 # other ideas:
@@ -36,7 +37,7 @@ class GardenPlugin(pluginmgr.Plugin):
     @classmethod
     def init(cls):
         from bauble.plugins.plants import Species
-        mapper_search = SearchView.get_search_strategy('MapperSearch')
+        mapper_search = search.get_strategy('MapperSearch')
 
         mapper_search.add_meta(('accession', 'acc'), Accession, ['code'])
         SearchView.view_meta[Accession].set(children=natsort_kids("plants"),
@@ -51,7 +52,7 @@ class GardenPlugin(pluginmgr.Plugin):
                                            markup_func=loc_markup_func)
 
         mapper_search.add_meta(('plant', 'plants'), Plant, ['code'])
-        SearchView.add_search_strategy(PlantSearch)
+        search.add_strategy(PlantSearch)
         SearchView.view_meta[Plant].set(infobox=PlantInfoBox,
                                         context_menu=plant_context_menu,
                                         markup_func=plant_markup_func)

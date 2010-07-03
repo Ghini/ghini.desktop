@@ -1,3 +1,16 @@
+import gtk
+from pyparsing import *
+from sqlalchemy import *
+from sqlalchemy.orm import *
+from sqlalchemy.orm.properties import *
+
+import bauble
+from bauble.error import check, CheckConditionError, BaubleError
+import bauble.db as db
+import bauble.pluginmgr as pluginmgr
+from bauble.utils.log import debug
+import bauble.utils as utils
+
 # 1. move SearchParser, SearchStrategy, MapperSearch and possible
 # SearchView in here
 #
@@ -8,26 +21,15 @@
 # function for passing in a search string and returning results or
 # raise an exception or error
 
-
-"""
-the search strategy is keyed by domain and each value will be a list of
-SearchStrategy instances
-    """
-_search_strategies = [MapperSearch()]
-
-def add_strategy(strategy):
-    _search_strategies.append(strategy())
-
-
-def get_strategy(name):
+def search(text, session):
+    results = set()
     for strategy in _search_strategies:
-        if strategy.__class__.__name__ == name:
-            return strategy
-
+        results.update(strategy.search(text, session))
+    return list(results)
 
 class SearchParser(object):
     """
-    The parser for bauble.view.MapperSearch
+    The parser for bauble.search.MapperSearch
     """
     value_chars = Word(alphanums + '%.-_*;:')
     # value can contain any string once its quoted
@@ -321,18 +323,20 @@ class MapperSearch(SearchStrategy):
         return self._results
 
 
-import gtk
-import pyparsing
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from sqlalchemy.orm.properties import *
+"""
+the search strategy is keyed by domain and each value will be a list of
+SearchStrategy instances
+    """
+_search_strategies = [MapperSearch()]
 
-import bauble
-import bauble.view as view
-import bauble.db as db
-import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import debug
-import bauble.utils as utils
+def add_strategy(strategy):
+    _search_strategies.append(strategy())
+
+
+def get_strategy(name):
+    for strategy in _search_strategies:
+        if strategy.__class__.__name__ == name:
+            return strategy
 
 
 class SchemaBrowser(gtk.VBox):
@@ -716,7 +720,7 @@ class QueryBuilder(gtk.Dialog):
 
     def start(self):
         self.domain_map = {}
-        self.domain_map = view.MapperSearch.get_domain_classes().copy()
+        self.domain_map = MapperSearch.get_domain_classes().copy()
 
         frame = gtk.Frame(_("Search Domain"))
         self.vbox.pack_start(frame, expand=False, fill=False)

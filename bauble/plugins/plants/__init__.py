@@ -27,6 +27,7 @@ from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.species import *
 from bauble.plugins.plants.geography import *
+import bauble.search as search
 from bauble.view import SearchView
 
 
@@ -38,7 +39,7 @@ class PlantsPlugin(pluginmgr.Plugin):
             species_context_menu.insert(1, add_accession_action)
             vernname_context_menu.insert(1, add_accession_action)
 
-        mapper_search = SearchView.get_search_strategy('MapperSearch')
+        mapper_search = search.get_strategy('MapperSearch')
 
         mapper_search.add_meta(('family', 'fam'), Family, ['family'])
         SearchView.view_meta[Family].set(children="genera",
@@ -52,7 +53,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                                         context_menu=genus_context_menu,
                                         markup_func=genus_markup_func)
 
-        SearchView.add_search_strategy(SynonymSearch)
+        search.add_strategy(SynonymSearch)
         mapper_search.add_meta(('species', 'sp'), Species,
                                ['sp', 'sp2', 'infrasp1', 'infrasp2',
                                 'infrasp3', 'infrasp4'])
