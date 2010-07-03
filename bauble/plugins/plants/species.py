@@ -121,9 +121,7 @@ def vernname_markup_func(vernname):
 
 
 from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
-
-
-select_in_search_results
+    select_in_search_results
 
 
 class SynonymSearch(search.SearchStrategy):
