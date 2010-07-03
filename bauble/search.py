@@ -11,6 +11,10 @@ import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug
 import bauble.utils as utils
 
+# TODO: remove date columns from searches
+
+# TODO: show list of completions of valid values, maybe even create
+# combos for enum types values instead of text entries
 
 def search(text, session):
     results = set()
@@ -526,9 +530,10 @@ class ExpressionRow(object):
         table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
-        conditions = ['=', '==', '!=', '<',
-                      '<=', '>', '>=', 'is', 'is not', 'like', 'ilike']
+        conditions = ['=', '!=', '<', '<=', '>', '>=', 'is', 'is not', 'like',
+                      'ilike']
         map(self.cond_combo.append_text, conditions)
+        self.cond_combo.set_active(0)
         table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
 
         self.value_entry = gtk.Entry()
