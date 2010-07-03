@@ -370,7 +370,7 @@ class SearchTests(BaubleTestCase):
         self.assert_(set(results) == set([genus, genus2]))
 
 
-class QueryBuilderTests(unittest.TestCase):
+class QueryBuilderTests(BaubleTestCase):
 
     def itest_gui(self):
         qb = search.QueryBuilder()

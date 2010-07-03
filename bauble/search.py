@@ -332,8 +332,8 @@ def get_strategy(name):
             return strategy
 
 
-class SchemaBrowser(gtk.VBox):
 
+class SchemaBrowser(gtk.VBox):
 
     def __init__(self, *args, **kwargs):
         super(SchemaBrowser, self).__init__(*args, **kwargs)
@@ -422,126 +422,9 @@ class SchemaBrowser(gtk.VBox):
 
 
 
-# class QueryBuilder2(object):
-
-#     def __init__(self, *args, **kwargs):
-#         pass
-
-
-#     def on_table_combo_changed(self, combo, *args):
-#         # TODO: warn that the current buffer contents will be destroyed
-#         self.buffer.set_text('') # clear the buffer first
-#         self.insert_text('%s where ' % combo.get_active_text())
-
-
-#     def on_prop_row_activated(self, treeview, path, column):
-#         model = treeview.props.model
-#         it = model.get_iter(path)
-#         if model.iter_has_child(it):
-#             return
-#         parts = []
-#         # walk down the path getting the strings for each level
-#         for n in xrange(0, len(path)):
-#             parts.append(model[path[0:n+1]][0])
-#         self.insert_text('.'.join(parts))
-
-
-#     def get_query(self):
-#         return self.buffer.props.text
-
-
-#     def start(self):
-#         parent = None
-#         if bauble.gui and bauble.gui.window:
-#             parent = bauble.gui.window
-#         self.dialog = gtk.Dialog(_("Query Builder"), parent,
-#                               gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-#                       (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-#                                   gtk.STOCK_OK, gtk.RESPONSE_OK))
-#         self.dialog.set_response_sensitive(gtk.RESPONSE_OK, False)
-#         self.dialog.vbox.props.spacing = 10
-#         hbox = gtk.HBox()
-#         hbox.props.spacing = 20
-#         self.dialog.vbox.pack_start(hbox, expand=False, fill=False)
-#         self.schema_browser = SchemaBrowser()
-#         self.schema_browser.set_size_request(-1, 200)
-#         self.schema_browser.prop_tree.\
-#             connect('row_activated', self.on_prop_row_activated)
-
-#         self.schema_browser.table_combo.\
-#             connect('changed', self.on_table_combo_changed)
-#         hbox.pack_start(self.schema_browser)
-
-#         table = gtk.Table(rows=3, columns=3)
-#         vbox = gtk.VBox()
-#         vbox.props.spacing = 30
-#         vbox.pack_start(table, expand=False, fill=False)
-#         hbox.pack_start(vbox, expand=False, fill=False)
-
-#         operators = ['=', '!=', '<', '<=', '>', '>=', 'like']
-#         row = 0
-#         column = 0
-#         for op in operators:
-#             b = gtk.Button(op)
-#             def insert_op(text):
-#                 self.insert_text(' %s "" ' % text)
-#                 # move cursor between the inserted quotes
-#                 position = self.buffer.props.cursor_position
-#                 it = self.buffer.get_iter_at_offset(position)
-#                 it.backward_cursor_positions(2)
-#                 self.buffer.place_cursor(it)
-#             b.connect('clicked', lambda w, o: insert_op(o), op)
-#             table.attach(b, column, column+1, row, row+1)
-#             if column % 3 == 2:
-#                 row += 1
-#                 column = 0
-#             else:
-#                 column += 1
-
-#         table = gtk.Table(rows=1, columns=2)
-#         vbox.pack_start(table, expand=False, fill=False)
-#         operators = ['and', 'or']
-#         row = 0
-#         column = 0
-#         for op in operators:
-#             b = gtk.Button(op)
-#             b.connect('clicked', lambda x: self.insert_text(' %s ' % op))
-#             table.attach(b, column, column+1, row, row+1)
-#             column += 1
-
-#         frame = gtk.Frame(_('Query'))
-#         self.dialog.vbox.pack_start(frame)
-
-#         self.buffer = gtk.TextBuffer()
-#         self.buffer.connect('changed', self.on_buffer_changed)
-#         self.text_view = gtk.TextView(self.buffer)
-#         self.text_view.set_size_request(400, 150)
-#         frame.add(self.text_view)
-
-#         self.dialog.vbox.show_all()
-#         r = self.dialog.run()
-#         self.dialog.hide()
-#         return r
-
-
-#     def on_buffer_changed(self, buffer):
-#         # if SearchParser.query doesn't validate the string then make
-#         # the OK button insensitive
-#         sensitive = True
-#         try:
-#             view.SearchParser.query.parseString(self.buffer.props.text)
-#         except pyparsing.ParseException, e:
-#             #debug(e)
-#             sensitive = False
-#         self.dialog.set_response_sensitive(gtk.RESPONSE_OK, sensitive)
-
-
-#     def insert_text(self, text):
-#         self.buffer.insert_at_cursor(text)
-#         self.text_view.grab_focus()
-
-
 class SchemaMenu(gtk.Menu):
+    """
+    """
 
     def __init__(self, mapper, activate_cb=None):
         """
@@ -614,22 +497,22 @@ class SchemaMenu(gtk.Menu):
 
 
 
-class ExpressionRow(gtk.HBox):
+class ExpressionRow(object):
+    """
+    """
 
-    def __init__(self, mapper, show_and_or_combo=True):
-        """
-        :param mapper:
-        """
-        super(ExpressionRow, self).__init__()
-        self.props.spacing = 10
+    def __init__(self, mapper, table, row_number=None):
+        if row_number is None:
+            # assume we want the row appended to the end of the table
+            row_number = table.props.n_rows
 
         self.and_or_combo = None
-        if show_and_or_combo:
+        if row_number != 1:
             self.and_or_combo = gtk.combo_box_new_text()
             self.and_or_combo.append_text("and")
             self.and_or_combo.append_text("or")
             self.and_or_combo.set_active(0)
-            self.pack_start(self.and_or_combo)
+            table.attach(self.and_or_combo, 0, 1, row_number, row_number+1)
 
         self.prop_button = gtk.Button(_('Choose a property...'))
         self.prop_button.props.use_underline = False
@@ -640,18 +523,16 @@ class ExpressionRow(gtk.HBox):
         self.schema_menu = SchemaMenu(mapper, menu_activated)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
                             self.schema_menu)
-        self.pack_start(self.prop_button)
+        table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
         conditions = ['=', '==', '!=', '<',
                       '<=', '>', '>=', 'is', 'is not', 'like', 'ilike']
         map(self.cond_combo.append_text, conditions)
-        self.pack_start(self.cond_combo)
+        table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
 
         self.value_entry = gtk.Entry()
-        self.pack_start(self.value_entry)
-
-        self.show_all()
+        table.attach(self.value_entry, 3, 4, row_number, row_number+1)
 
 
     def get_expression(self):
@@ -659,9 +540,12 @@ class ExpressionRow(gtk.HBox):
 
         :param self:
         """
-        return ' '.join([self.prop_button.props.label,
+        and_or = ''
+        if self.and_or_combo:
+            and_or = self.and_or_combo.get_active_text()
+        return ' '.join([and_or, self.prop_button.props.label,
                          self.cond_combo.get_active_text(),
-                         self.value_entry.props.text])
+                         '"', self.value_entry.props.text], '"').strip()
 
 
 
@@ -684,15 +568,20 @@ class QueryBuilder(gtk.Dialog):
 
     def on_domain_combo_changed(self, *args):
         """
+        Change the search domain.  Resets the expression table and
+        deletes all the expression rows.
         """
         if self._first_choice:
             self.domain_combo.remove_text(0)
             self._first_choice = False
 
-        # TODO: each time its changed we should remove all the expression
-        # row and add one to the top
-        self.expressions_vbox.props.sensitive = True
-        self.add_expression_row(show_and_or_combo=False)
+        for kid in self.expressions_table.get_children():
+            self.expressions_table.remove(kid)
+        self.expressions_table.props.n_rows = 1
+        del self.expression_rows[:]
+        self.add_button.props.sensitive = True
+        self.add_expression_row()
+        self.expressions_table.show_all()
 
 
     def validate(self):
@@ -702,17 +591,18 @@ class QueryBuilder(gtk.Dialog):
         return True
 
 
-    def add_expression_row(self, show_and_or_combo=True):
+    def add_expression_row(self):
+        """
+        Add a row to the expressions table.
+        """
         domain = self.domain_map[self.domain_combo.get_active_text()]
         self.mapper = class_mapper(domain)
-        row = ExpressionRow(self.mapper, show_and_or_combo=show_and_or_combo)
+        row = ExpressionRow(self.mapper, self.expressions_table)
         self.expression_rows.append(row)
-        self.expressions_vbox.pack_start(row)
-        self.expressions_vbox.show_all()
+        self.expressions_table.show_all()
 
 
     def start(self):
-        self.domain_map = {}
         self.domain_map = MapperSearch.get_domain_classes().copy()
 
         frame = gtk.Frame(_("Search Domain"))
@@ -727,25 +617,25 @@ class QueryBuilder(gtk.Dialog):
         self.domain_combo.connect('changed', self.on_domain_combo_changed)
 
         frame = gtk.Frame(_("Expressions"))
-        self.expressions_vbox = gtk.VBox()
-        self.expressions_vbox.props.spacing = 5
-        frame.add(self.expressions_vbox)
-        self.vbox.pack_start(frame)
+        self.expressions_table = gtk.Table()
+        self.expressions_table.props.column_spacing = 10
+        frame.add(self.expressions_table)
+        self.vbox.pack_start(frame, expand=False, fill=False)
 
-        add_button = gtk.Button()
+        # add button to add additional expression rows
+        self.add_button = gtk.Button()
+        self.add_button.props.sensitive = False
         img = gtk.image_new_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_BUTTON)
-        add_button.props.image = img
-        add_button.connect("clicked", lambda w: self.add_expression_row())
+        self.add_button.props.image = img
+        self.add_button.connect("clicked", lambda w: self.add_expression_row())
         align = gtk.Alignment(0, 0, 0, 0)
-        align.add(add_button)
-        self.expressions_vbox.pack_end(align, fill=False, expand=False)
-        #self.expressions_vbox.pack_end(add_button, fill=False, expand=False)
-
-        # made sensitive when a search domain is first chosen
-        self.expressions_vbox.props.sensitive = False
+        align.add(self.add_button)
+        self.vbox.pack_end(align, fill=False, expand=False)
 
         self.vbox.show_all()
-        self.run()
+        response = self.run()
+        self.hide()
+        return response
 
 
 
@@ -753,11 +643,12 @@ class QueryBuilder(gtk.Dialog):
         """
         Return query expression string.
         """
+
         domain = self.domain_combo.get_active_text()
-        debug(domain)
-        debug('where')
+        query = [domain, 'where']
         for row in self.expression_rows:
-            debug(row.get_expression())
+            query.append(row.get_expression())
+        return ' '.join(query)
 
 
 if __name__ == '__main__':
