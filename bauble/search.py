@@ -430,12 +430,13 @@ class SchemaMenu(gtk.Menu):
     """
     """
 
-    def __init__(self, mapper, activate_cb=None):
+    def __init__(self, mapper, activate_cb=None, show_list_relations=True):
         """
         :param mapper:
         """
         super(SchemaMenu, self).__init__()
         self.activate_cb = activate_cb
+        self.show_list_relations = show_list_relations
         map(self.append, self._get_prop_menuitems(mapper))
         self.show_all()
 
@@ -491,6 +492,8 @@ class SchemaMenu(gtk.Menu):
                                           mapper.iterate_properties),
                                    key=lambda k: k.key)
         for prop in relation_properties:
+            if prop.uselist and not self.show_list_relations:
+                continue
             item = gtk.MenuItem(prop.key)
             item.props.use_underline = False
             items.append(item)
@@ -550,7 +553,7 @@ class ExpressionRow(object):
             and_or = self.and_or_combo.get_active_text()
         return ' '.join([and_or, self.prop_button.props.label,
                          self.cond_combo.get_active_text(),
-                         '"', self.value_entry.props.text], '"').strip()
+                         '"%s"' % self.value_entry.props.text.strip()]).strip()
 
 
 
