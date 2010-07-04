@@ -802,12 +802,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def cleanup(self):
         super(PlantEditorPresenter, self).cleanup()
-        # reset the code entry colors
-        # entry.modify_bg(gtk.STATE_NORMAL, color)
-        # entry.modify_base(gtk.STATE_NORMAL, color)
-        message_box_parent = self.presenter.view.widgets.message_box_parent
+        msg_box_parent = self.view.widgets.message_box_parent
         map(msg_box_parent.remove,  msg_box_parent.get_children())
         return
+
 
     def start(self):
         return self.view.start()
