@@ -800,6 +800,15 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
 
 
+    def cleanup(self):
+        super(PlantEditorPresenter, self).cleanup()
+        # reset the code entry colors
+        # entry.modify_bg(gtk.STATE_NORMAL, color)
+        # entry.modify_base(gtk.STATE_NORMAL, color)
+        message_box_parent = self.presenter.view.widgets.message_box_parent
+        map(msg_box_parent.remove,  msg_box_parent.get_children())
+        return
+
     def start(self):
         return self.view.start()
 
@@ -863,11 +872,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             view.widgets.plant_code_entry.grab_focus()
 
 
-    def cleanup(self):
-        super(PlantEditor, self).cleanup()
-        # reset the code entry colors
-        entry.modify_bg(gtk.STATE_NORMAL, color)
-        entry.modify_base(gtk.STATE_NORMAL, color)
+
 
 
     def commit_changes(self):
@@ -1018,6 +1023,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 sub_editor = LocationEditor()
                 self._commited = sub_editor.start()
 
+        debug(self.branched_plant)
         if self.branched_plant:
             # set title if in branch mode
             title = self.presenter.view.get_window().props.title
@@ -1042,6 +1048,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     break
 
         self.session.close() # cleanup session
+        debug('cleanup()')
         self.presenter.cleanup()
         return self._committed
 
