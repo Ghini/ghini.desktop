@@ -76,6 +76,8 @@ class GUI(object):
         combo.set_model(model)
         self.populate_main_entry()
 
+        combo.connect('changed', lambda c: c.grab_focus())
+
         main_entry = combo.child
 #        main_entry.connect('key_press_event', self.on_main_entry_key_press)
         main_entry.connect('activate', self.on_main_entry_activate)
