@@ -481,8 +481,7 @@ class SchemaMenu(gtk.Menu):
                                    key=lambda k: k.key)
 
         for prop in column_properties:
-            item = gtk.MenuItem(prop.key)
-            item.props.use_underline = False
+            item = gtk.MenuItem(prop.key, use_underline=False)
             item.connect('activate', self.on_activate)
             items.append(item)
 
@@ -494,8 +493,7 @@ class SchemaMenu(gtk.Menu):
         for prop in relation_properties:
             if prop.uselist and not self.show_list_relations:
                 continue
-            item = gtk.MenuItem(prop.key)
-            item.props.use_underline = False
+            item = gtk.MenuItem(prop.key, use_underline=False)
             items.append(item)
             submenu = gtk.Menu()
             item.set_submenu(submenu)
