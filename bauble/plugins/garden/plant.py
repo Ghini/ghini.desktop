@@ -1022,7 +1022,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 sub_editor = LocationEditor()
                 self._commited = sub_editor.start()
 
-        debug(self.branched_plant)
         if self.branched_plant:
             # set title if in branch mode
             title = self.presenter.view.get_window().props.title
@@ -1050,7 +1049,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     break
 
         self.session.close() # cleanup session
-        debug('cleanup()')
         self.presenter.cleanup()
         return self._committed
 
