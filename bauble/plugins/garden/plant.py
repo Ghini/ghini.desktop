@@ -805,7 +805,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         msg_box_parent = self.view.widgets.message_box_parent
         map(msg_box_parent.remove,  msg_box_parent.get_children())
         # the entry is made not editable for branch mode
-        self.presenter.view.widgets.plant_acc_entry.props.editable = True
+        self.view.widgets.plant_acc_entry.props.editable = True
 
 
     def start(self):
