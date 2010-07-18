@@ -149,7 +149,8 @@ class SourceDetail(db.Base):
 
     name = Column(Unicode(75), unique=True)
     description = Column(UnicodeText)
-    source_type = Column(types.Enum(values=source_type_values.keys()),
+    source_type = Column(types.Enum(values=source_type_values.keys(),
+                                    translations=source_type_values),
                          default=None)
 
     def __str__(self):

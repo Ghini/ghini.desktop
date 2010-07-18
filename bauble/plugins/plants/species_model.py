@@ -134,19 +134,23 @@ class Species(db.Base):
     trade_name = Column(Unicode(64))
 
     infrasp1 = Column(Unicode(64))
-    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
     infrasp1_author = Column(Unicode(64))
 
     infrasp2 = Column(Unicode(64))
-    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
     infrasp2_author = Column(Unicode(64))
 
     infrasp3 = Column(Unicode(64))
-    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
     infrasp3_author = Column(Unicode(64))
 
     infrasp4 = Column(Unicode(64))
-    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
     infrasp4_author = Column(Unicode(64))
 
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
