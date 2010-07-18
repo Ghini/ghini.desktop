@@ -506,7 +506,7 @@ class ExpressionRow(object):
     """
     """
 
-    def __init__(self, mapper, table, row_number=None):
+    def __init__(self, mapper, table, remove_callback, row_number=None):
         if row_number is None:
             # assume we want the row appended to the end of the table
             row_number = table.props.n_rows
@@ -538,6 +538,21 @@ class ExpressionRow(object):
 
         self.value_entry = gtk.Entry()
         table.attach(self.value_entry, 3, 4, row_number, row_number+1)
+
+
+        if row_number != 1:
+            image = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
+                                             gtk.ICON_SIZE_BUTTON)
+            self.remove_button = gtk.Button()
+            self.remove_button.props.image = image
+            self.remove_button.connect('clicked',
+                                       lambda b: remove_callback(self))
+            table.attach(self.remove_button, 4, 5, row_number, row_number+1)
+
+
+    def get_widgets(self):
+        return self.and_or_combo, self.prop_button, self.cond_combo, \
+            self.value_entry, self.remove_button
 
 
     def get_expression(self):
@@ -593,7 +608,19 @@ class QueryBuilder(gtk.Dialog):
         """
         Validate the search expression is a valid expression.
         """
+        # TODO: need to make sure all the widgets are filled in properly
         return True
+
+
+    def remove_expression_row(self, row):
+        """
+        Remove a row from the expressions table.
+        """
+        map(self.expressions_table.remove, row.get_widgets())
+        self.expressions_table.props.n_rows -= 1
+        self.expression_rows.remove(row)
+        del row
+
 
 
     def add_expression_row(self):
@@ -602,7 +629,8 @@ class QueryBuilder(gtk.Dialog):
         """
         domain = self.domain_map[self.domain_combo.get_active_text()]
         self.mapper = class_mapper(domain)
-        row = ExpressionRow(self.mapper, self.expressions_table)
+        row = ExpressionRow(self.mapper, self.expressions_table,
+                            self.remove_expression_row)
         self.expression_rows.append(row)
         self.expressions_table.show_all()
 
