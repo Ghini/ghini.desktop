@@ -574,10 +574,16 @@ class ExpressionRow(object):
             self.value_widget = gtk.ComboBox()
             cell = gtk.CellRendererText()
             self.value_widget.pack_start(cell, True)
-            self.value_widget.add_attribute(cell, 'text', 0)
+            self.value_widget.add_attribute(cell, 'text', 1)
             model = gtk.ListStore(str, str)
-            for value in sorted(prop.columns[0].type.values):
-                model.append([value, ''])
+            if prop.columns[0].type.translations:
+                trans = prop.columns[0].type.translations
+                prop_values = [(k,trans[k]) for k in sorted(trans.keys())]
+            else:
+                values = prop.columns[0].type.values
+                prop_values = [(v,v) for v in sorted(values)]
+            for value, translation in prop_values:
+                model.append([value, translation])
             self.value_widget.props.model = model
         elif not isinstance(self.value_widget, gtk.Entry):
             self.value_widget = gtk.Entry()

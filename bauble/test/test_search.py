@@ -375,3 +375,4 @@ class QueryBuilderTests(BaubleTestCase):
     def itest_gui(self):
         qb = search.QueryBuilder()
         qb.start()
+        debug(qb.get_query())
