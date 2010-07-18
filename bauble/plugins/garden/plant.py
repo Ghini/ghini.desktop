@@ -250,7 +250,8 @@ class PlantChange(db.Base):
     quantity = Column(Integer, autoincrement=False, nullable=False)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
-    reason = Column(types.Enum(values=change_reasons.keys()))
+    reason = Column(types.Enum(values=change_reasons.keys(),
+                               translations=change_reasons))
 
     # date of change
     date = Column(types.DateTime, default=func.now())
@@ -314,18 +315,22 @@ class PlantStatus(db.Base):
     """
     __tablename__ = 'plant_status'
     date = Column(types.Date, default=func.now())
-    condition = Column(types.Enum(values=condition_values.keys()))
+    condition = Column(types.Enum(values=condition_values.keys(),
+                                  translations=condition_values))
     comment = Column(UnicodeText)
     checked_by = Column(Unicode(64))
 
-    flowering_status = Column(types.Enum(values=flowering_values.keys()))
-    fruiting_status = Column(types.Enum(values=fruiting_values.keys()))
+    flowering_status = Column(types.Enum(values=flowering_values.keys(),
+                                         translations=flowering_values))
+    fruiting_status = Column(types.Enum(values=fruiting_values.keys(),
+                                        translations=fruiting_values))
 
     autum_color_pct = Column(Integer)
     leaf_drop_pct = Column(Integer)
     leaf_emergence_pct = Column(Integer)
 
-    sex = Column(types.Enum(values=sex_values.keys()))
+    sex = Column(types.Enum(values=sex_values.keys(),
+                            translations=sex_values))
 
     # TODO: needs container table
     #container_id = Column(Integer)
@@ -386,7 +391,9 @@ class Plant(db.Base):
 
     # columns
     code = Column(Unicode(6), nullable=False)
-    acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
+    acc_type = Column(types.Enum(values=acc_type_values.keys(),
+                                 translations=acc_type_values),
+                      default=None)
     memorial = Column(Boolean, default=False)
     quantity = Column(Integer, autoincrement=False, nullable=False)
 
