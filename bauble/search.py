@@ -441,9 +441,9 @@ class SchemaMenu(gtk.Menu):
         self.show_all()
 
 
-    def on_activate(self, menuitem):
+    def on_activate(self, menuitem, prop):
         """
-        Call when menu items that hold column properties are activated
+        Call when menu items that hold column properties are activated.
         """
         path = []
         path = [menuitem.get_child().props.label]
@@ -456,7 +456,7 @@ class SchemaMenu(gtk.Menu):
             path.append(label)
             menu = menuitem.get_parent()
         full_path = '.'.join(reversed(path))
-        self.activate_cb(self, menuitem, full_path)
+        self.activate_cb(menuitem, full_path, prop)
 
 
     def on_select(self, menuitem, prop):
@@ -483,9 +483,11 @@ class SchemaMenu(gtk.Menu):
             if not self.relation_filter(prop):
                 continue
             item = gtk.MenuItem(prop.key, use_underline=False)
-            item.connect('activate', self.on_activate)
+            item.connect('activate', self.on_activate, prop)
             items.append(item)
 
+        # filter out properties that start with underscore since they
+        # are considered private
         relation_properties = sorted(filter(lambda x:  \
                                                 isinstance(x, RelationProperty)\
                                               and not x.key.startswith('_'),
@@ -508,6 +510,8 @@ class ExpressionRow(object):
     """
 
     def __init__(self, mapper, table, remove_callback, row_number=None):
+        self.mapper = mapper
+        self.table = table
         if row_number is None:
             # assume we want the row appended to the end of the table
             row_number = table.props.n_rows
@@ -521,12 +525,11 @@ class ExpressionRow(object):
             table.attach(self.and_or_combo, 0, 1, row_number, row_number+1)
 
         self.prop_button = gtk.Button(_('Choose a property...'))
+        self.prop_button.props.use_underline = False
         def on_prop_button_clicked(button, event, menu):
             menu.popup(None, None, None, event.button, event.time)
-        def menu_activated(menu, menuitem, path):
-            self.prop_button.props.label = path
-        self.schema_menu = SchemaMenu(mapper, menu_activated,
-                                      self._relation_filter)
+        self.schema_menu = SchemaMenu(mapper, self.on_schema_menu_activated,
+                                      self.relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
                             self.schema_menu)
         table.attach(self.prop_button, 1, 2, row_number, row_number+1)
@@ -538,9 +541,11 @@ class ExpressionRow(object):
         self.cond_combo.set_active(0)
         table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
 
-        self.value_entry = gtk.Entry()
-        table.attach(self.value_entry, 3, 4, row_number, row_number+1)
-
+        # by default we start with an entry but value_widget can
+        # change depending on the type of the property chosen in the
+        # schema menu, see self.on_schema_menu_activated
+        self.value_widget = gtk.Entry()
+        table.attach(self.value_widget, 3, 4, row_number, row_number+1)
 
         if row_number != 1:
             image = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
@@ -552,7 +557,35 @@ class ExpressionRow(object):
             table.attach(self.remove_button, 4, 5, row_number, row_number+1)
 
 
-    def _relation_filter(self, prop):
+    def on_schema_menu_activated(self, menuitem, path, prop):
+        """
+        Called when an item in the schema menu is activated
+        """
+        self.prop_button.props.label = path
+        top = self.table.child_get_property(self.value_widget, 'top-attach')
+        bottom = self.table.child_get_property(self.value_widget,
+                                               'bottom-attach')
+        right = self.table.child_get_property(self.value_widget, 'right-attach')
+        left = self.table.child_get_property(self.value_widget, 'left-attach')
+        self.table.remove(self.value_widget)
+
+        # change the widget depending on the type of the selected property
+        if isinstance(prop.columns[0].type, bauble.types.Enum):
+            self.value_widget = gtk.ComboBox()
+            cell = gtk.CellRendererText()
+            self.value_widget.pack_start(cell, True)
+            self.value_widget.add_attribute(cell, 'text', 0)
+            model = gtk.ListStore(str, str)
+            for value in sorted(prop.columns[0].type.values):
+                model.append([value, ''])
+            self.value_widget.props.model = model
+        elif not isinstance(self.value_widget, gtk.Entry):
+            self.value_widget = gtk.Entry()
+        self.table.attach(self.value_widget, left, right, top, bottom)
+        self.table.show_all()
+
+
+    def relation_filter(self, prop):
         if isinstance(prop, ColumnProperty) and \
                 isinstance(prop.columns[0].type, bauble.types.Date):
             return False
@@ -561,7 +594,7 @@ class ExpressionRow(object):
 
     def get_widgets(self):
         return self.and_or_combo, self.prop_button, self.cond_combo, \
-            self.value_entry, self.remove_button
+            self.value_widget, self.remove_button
 
 
     def get_expression(self):
@@ -569,12 +602,21 @@ class ExpressionRow(object):
 
         :param self:
         """
+        value = ''
+        if isinstance(self.value_widget, gtk.ComboBox):
+            model = self.value_widget.props.model
+            active_iter = self.value_widget.get_active_iter()
+            if active_iter:
+                value = model[active_iter][0]
+        else:
+            # assume its a gtk.Entry or other widget with a text property
+            value = self.value_entry.props.text.strip()
         and_or = ''
         if self.and_or_combo:
             and_or = self.and_or_combo.get_active_text()
         return ' '.join([and_or, self.prop_button.props.label,
                          self.cond_combo.get_active_text(),
-                         '"%s"' % self.value_entry.props.text.strip()]).strip()
+                         '"%s"' % value]).strip()
 
 
 
