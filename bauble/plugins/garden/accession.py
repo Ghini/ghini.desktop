@@ -429,9 +429,12 @@ class Accession(db.Base):
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
 
-    prov_type = Column(types.Enum(values=prov_type_values.keys()),default=None)
+    prov_type = Column(types.Enum(values=prov_type_values.keys(),
+                                  translations=prov_type_values),
+                       default=None)
 
-    wild_prov_status =Column(types.Enum(values=wild_prov_status_values.keys()),
+    wild_prov_status =Column(types.Enum(values=wild_prov_status_values.keys(),
+                                        translations=wild_prov_status_values),
                              default=None)
 
     date_accd = Column(types.Date)
