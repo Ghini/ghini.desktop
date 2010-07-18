@@ -70,7 +70,7 @@ class SearchStrategy(object):
     def search(self, text, session):
         '''
         :param text: the search string
-        :param: the session to use for the search
+        :param session: the session to use for the search
 
         Return an iterator that iterates over mapped classes retrieved
         from the search.
@@ -428,18 +428,17 @@ class SchemaBrowser(gtk.VBox):
 
 class SchemaMenu(gtk.Menu):
     """
+    :param mapper:
+    :param activate cb:
+    :param relation_filter:
     """
 
-    def __init__(self, mapper, activate_cb=None, show_list_relations=True):
-        """
-        :param mapper:
-        """
+    def __init__(self, mapper, activate_cb=None, relation_filter=lambda p:True):
         super(SchemaMenu, self).__init__()
         self.activate_cb = activate_cb
-        self.show_list_relations = show_list_relations
+        self.relation_filter = relation_filter
         map(self.append, self._get_prop_menuitems(mapper))
         self.show_all()
-
 
 
     def on_activate(self, menuitem):
@@ -481,6 +480,8 @@ class SchemaMenu(gtk.Menu):
                                    key=lambda k: k.key)
 
         for prop in column_properties:
+            if not self.relation_filter(prop):
+                continue
             item = gtk.MenuItem(prop.key, use_underline=False)
             item.connect('activate', self.on_activate)
             items.append(item)
@@ -491,7 +492,7 @@ class SchemaMenu(gtk.Menu):
                                           mapper.iterate_properties),
                                    key=lambda k: k.key)
         for prop in relation_properties:
-            if prop.uselist and not self.show_list_relations:
+            if not self.relation_filter(prop):
                 continue
             item = gtk.MenuItem(prop.key, use_underline=False)
             items.append(item)
@@ -524,7 +525,8 @@ class ExpressionRow(object):
             menu.popup(None, None, None, event.button, event.time)
         def menu_activated(menu, menuitem, path):
             self.prop_button.props.label = path
-        self.schema_menu = SchemaMenu(mapper, menu_activated)
+        self.schema_menu = SchemaMenu(mapper, menu_activated,
+                                      self._relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
                             self.schema_menu)
         table.attach(self.prop_button, 1, 2, row_number, row_number+1)
@@ -548,6 +550,13 @@ class ExpressionRow(object):
             self.remove_button.connect('clicked',
                                        lambda b: remove_callback(self))
             table.attach(self.remove_button, 4, 5, row_number, row_number+1)
+
+
+    def _relation_filter(self, prop):
+        if isinstance(prop, ColumnProperty) and \
+                isinstance(prop.columns[0].type, bauble.types.Date):
+            return False
+        return True
 
 
     def get_widgets(self):
@@ -622,7 +631,6 @@ class QueryBuilder(gtk.Dialog):
         del row
 
 
-
     def add_expression_row(self):
         """
         Add a row to the expressions table.
@@ -671,7 +679,6 @@ class QueryBuilder(gtk.Dialog):
         return response
 
 
-
     def get_query(self):
         """
         Return query expression string.
@@ -682,6 +689,7 @@ class QueryBuilder(gtk.Dialog):
         for row in self.expression_rows:
             query.append(row.get_expression())
         return ' '.join(query)
+
 
 
 if __name__ == '__main__':
