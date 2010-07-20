@@ -15,7 +15,6 @@ import bauble.error as err
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
-from bauble.query import *
 import bauble.search as search
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
