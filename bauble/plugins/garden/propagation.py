@@ -59,7 +59,8 @@ class Propagation(db.Base):
     __tablename__ = 'propagation'
     #recvd_as = Column(Unicode(10)) # seed, urcu, other
     #recvd_as_other = Column(UnicodeText) # ** maybe this should be in the notes
-    prop_type = Column(types.Enum(values=prop_type_values.keys()),
+    prop_type = Column(types.Enum(values=prop_type_values.keys(),
+                                  translations=prop_type_values),
                        nullable=False)
     notes = Column(UnicodeText)
     date = Column(types.Date)
@@ -232,19 +233,25 @@ class PropCutting(db.Base):
     A cutting
     """
     __tablename__ = 'prop_cutting'
-    cutting_type = Column(types.Enum(values=cutting_type_values.keys()),
+    cutting_type = Column(types.Enum(values=cutting_type_values.keys(),
+                                     translations=cutting_type_values),
                           default=u'Other')
-    tip = Column(types.Enum(values=tip_values.keys()))
-    leaves = Column(types.Enum(values=leaves_values.keys()))
+    tip = Column(types.Enum(values=tip_values.keys(),
+                            translations=tip_values))
+    leaves = Column(types.Enum(values=leaves_values.keys(),
+                               translations=leaves_values))
     leaves_reduced_pct = Column(Integer)
     length = Column(Integer)
-    length_unit = Column(types.Enum(values=length_unit_values.keys()))
+    length_unit = Column(types.Enum(values=length_unit_values.keys(),
+                                    translations=length_unit_values))
 
     # single/double/slice
-    wound = Column(types.Enum(values=wound_values.keys()))
+    wound = Column(types.Enum(values=wound_values.keys(),
+                              translations=wound_values))
 
     # removed/None
-    flower_buds = Column(types.Enum(values=flower_buds_values.keys()))
+    flower_buds = Column(types.Enum(values=flower_buds_values.keys(),
+                                    translations=flower_buds_values))
 
     fungicide = Column(Unicode) # fungal soak
     hormone = Column(Unicode) # powder/liquid/None....solution
@@ -260,7 +267,8 @@ class PropCutting(db.Base):
     # not null
 
     # F/C
-    bottom_heat_unit = Column(types.Enum(values=bottom_heat_unit_values.keys()),
+    bottom_heat_unit = Column(types.Enum(values=bottom_heat_unit_values.keys(),
+                                         translations=bottom_heat_unit_values),
                               nullable=True)
     rooted_pct = Column(Integer)
     #aftercare = Column(UnicodeText) # same as propgation.notes

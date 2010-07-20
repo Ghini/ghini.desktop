@@ -25,7 +25,7 @@ def init_bauble(uri, create=False):
     prefs.init()
     pluginmgr.load()
     db.create(create)
-    pluginmgr.init(True)
+    pluginmgr.init(force=True)
 
 
 def update_gui():

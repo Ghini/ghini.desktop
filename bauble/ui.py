@@ -16,6 +16,7 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 from bauble.query import *
+import bauble.search as search
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 from bauble.utils.log import debug, warning, error
@@ -75,6 +76,8 @@ class GUI(object):
         combo.set_model(model)
         self.populate_main_entry()
 
+        combo.connect('changed', lambda c: c.grab_focus())
+
         main_entry = combo.child
 #        main_entry.connect('key_press_event', self.on_main_entry_key_press)
         main_entry.connect('activate', self.on_main_entry_activate)
@@ -85,6 +88,9 @@ class GUI(object):
 
         go_button = self.widgets.go_button
         go_button.connect('clicked', self.on_go_button_clicked)
+
+        query_button = self.widgets.query_button
+        query_button.connect('clicked', self.on_query_button_clicked)
 
         self.set_default_view()
 
@@ -212,6 +218,14 @@ class GUI(object):
             pass
 
         bauble.command_handler(cmd, arg)
+
+
+    def on_query_button_clicked(self, widget):
+        qb = search.QueryBuilder()
+        if qb.start() == gtk.RESPONSE_OK:
+            query = qb.get_query()
+            self.widgets.main_comboentry.child.set_text(query)
+            self.widgets.go_button.emit("clicked")
 
 
     def add_to_history(self, text, index=0):

@@ -26,6 +26,7 @@ from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.prefs as prefs
+import bauble.search as search
 import bauble.utils as utils
 from bauble.utils.log import debug, error, warning
 
@@ -341,278 +342,6 @@ class LinksExpander(InfoExpander):
             self.dynamic_box.show_all()
 
 
-class SearchParser(object):
-    """
-    The parser for bauble.view.MapperSearch
-    """
-    value_chars = Word(alphanums + '%.-_*;:')
-    # value can contain any string once its quoted
-    value = value_chars | quotedString.setParseAction(removeQuotes)
-    value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
-    binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
-                  'icontains ihas is')('binop')
-    domain = Word(alphas, alphanums)('domain')
-    domain_values = Group(value_list.copy())
-    domain_expression = (domain + Literal('=') + Literal('*') + StringEnd()) \
-                        | (domain + binop + domain_values + StringEnd())
-
-    and_token = CaselessKeyword('and')
-    or_token = CaselessKeyword('or')
-    log_op = and_token | or_token
-
-    identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
-    ident_expression = Group(identifier + binop + value)
-    query_expression = ident_expression \
-                       + ZeroOrMore(log_op + ident_expression)
-    query = domain + CaselessKeyword('where').suppress() \
-            + Group(query_expression) + StringEnd()
-
-    statement = query | domain_expression | value_list
-
-
-    def parse_string(self, text):
-        '''
-        returns a pyparsing.ParseResults objects that represents either a
-        query, an expression or a list of values
-        '''
-        return self.statement.parseString(text)
-
-
-
-class SearchStrategy(object):
-    """
-    Interface for adding search strategies to a view.
-    """
-
-    def search(self, text, session):
-        '''
-        :param text: the search string
-        :param: the session to use for the search
-
-        Return an iterator that iterates over mapped classes retrieved
-        from the search.
-        '''
-        pass
-
-
-
-class MapperSearch(SearchStrategy):
-
-    """
-    Mapper Search support three types of search expression:
-    1. value searches: search that are just list of values, e.g. value1,
-    value2, value3, searches all domains and registered columns for values
-    2. expression searches: searched of the form domain=value, resolves the
-    domain and searches specific columns from the mapping
-    3. query searchs: searches of the form domain where ident.ident = value,
-    resolve the domain and identifiers and search for value
-    """
-
-    _domains = {}
-    _properties = {}
-
-    def __init__(self):
-        super(MapperSearch, self).__init__()
-        self._results = set()
-        self.parser = SearchParser()
-
-
-    def add_meta(self, domain, cls, properties):
-        """
-        Adds search meta to the domain
-
-        :param domain: a string, list or tuple of domains that will resolve
-        to cls a search string, domain act as a shorthand to the class name
-        :param cls: the class the domain will resolve to
-        :param properties: a list of string names of the properties to
-        search by default
-        """
-        check(isinstance(properties, list), _('MapperSearch.add_meta(): '\
-        'default_columns argument must be list'))
-        check(len(properties) > 0, _('MapperSearch.add_meta(): '\
-        'default_columns argument cannot be empty'))
-        if isinstance(domain, (list, tuple)):
-            for d in domain:
-                self._domains[d] = cls, properties
-        else:
-            self._domains[d] = cls, properties
-        self._properties[cls] = properties
-
-
-    def on_query(self, s, loc, tokens):
-        """
-        Called when the parser hits a query token.
-
-        Queries can use more database specific features.  This also
-        means that the same query might not work the same on different
-        database types. For example, on a PostgreSQL database you can
-        use ilike but this would raise an error on SQLite.
-        """
-        # The method requires that the underlying database support
-        # union and intersect. At the time of writing this MySQL
-        # didn't.
-
-        # TODO: support 'not' a boolean op as well, e.g sp where
-        # genus.genus=Maxillaria and not genus.family=Orchidaceae
-        domain, expr = tokens
-        check(domain in self._domains, 'Unknown search domain: %s' % domain)
-        cls = self._domains[domain][0]
-        main_query = self._session.query(cls)
-        mapper = class_mapper(cls)
-        expr_iter = iter(expr)
-        boolop = None
-        for e in expr_iter:
-            idents, cond, val = e
-            # debug('cls: %s, idents: %s, cond: %s, val: %s'
-            #       % (cls.__name__, idents, cond, val))
-            if val == 'None':
-                val = None
-            if cond == 'is':
-                cond = '='
-            elif cond == 'is not':
-                cond = '!='
-
-            if len(idents) == 1:
-                # we get here when the idents only refer to a property
-                # on the mapper table..i.e. a column
-                col = idents[0]
-                msg = _('The %(tablename)s table does not have a '\
-                       'column named "%(columname)s"') % \
-                       dict(tablename=mapper.local_table.name,
-                            columname=col)
-                check(col in mapper.c, msg)
-                clause = getattr(cls, col).op(cond)(utils.utf8(val))
-                query = self._session.query(cls).filter(clause).order_by(None)
-            else:
-                # we get here when the idents refer to a relation on a
-                # mapper/table
-                relations = idents[:-1]
-                col = idents[-1]
-                query = self._session.query(cls)
-                query = query.join(relations)
-                clause = query._joinpoint.c[col].op(cond)(utils.utf8(val))
-                query = query.filter(clause).order_by(None)
-
-            if boolop == 'or':
-                main_query = main_query.union(query)
-            elif boolop == 'and':
-                main_query = main_query.intersect(query)
-            else:
-                main_query = query
-
-            try:
-                boolop = expr_iter.next()
-            except StopIteration:
-                pass
-
-        self._results.update(main_query.order_by(None).all())
-
-
-    def on_domain_expression(self, s, loc, tokens):
-        """
-        Called when the parser hits a domain_expression token.
-
-        Searching using domain expressions is a little more magical
-        and queries mapper properties that were passed to add_meta()
-
-        To do a case sensitive search for a specific string use the
-        double equals, '=='
-        """
-        domain, cond, values = tokens
-        try:
-            cls, properties = self._domains[domain]
-        except KeyError:
-            raise KeyError(_('Unknown search domain: %s' % domain))
-
-	query = self._session.query(cls)
-
-	# select all objects from the domain
-        if values == '*':
-            self._results.update(query.all())
-            return
-
-        mapper = class_mapper(cls)
-
-        if cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
-            condition = lambda col: \
-                lambda val: utils.ilike(mapper.c[col], '%%%s%%' % val)
-        elif cond == '=':
-            condition = lambda col: \
-                lambda val: utils.ilike(mapper.c[col], utils.utf8(val))
-        else:
-            condition = lambda col: \
-                lambda val: mapper.c[col].op(cond)(val)
-
-        for col in properties:
-            ors = or_(*map(condition(col), values))
-            self._results.update(query.filter(ors).all())
-        return tokens
-
-
-    def on_value_list(self, s, loc, tokens):
-        """
-        Called when the parser hits a value_list token
-
-        Search with a list of values is the broadest search and
-        searches all the mapper and the properties configured with
-        add_meta()
-        """
-        # debug('values: %s' % tokens)
-        # debug('  s: %s' % s)
-        # debug('  loc: %s' % loc)
-        # debug('  toks: %s' % tokens)
-
-        # make searches case-insensitive, in postgres use ilike,
-        # in other use upper()
-        like = lambda table, col, val: \
-            utils.ilike(table.c[col], ('%%%s%%' % val))
-
-        for cls, columns in self._properties.iteritems():
-            q = self._session.query(cls)
-            cv = [(c,v) for c in columns for v in tokens]
-            # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
-            # object if the col is a Unicode or UnicodeText column in order
-            # to avoid the "Unicode type received non-unicode bind param"
-            def unicol(col, v):
-                mapper = class_mapper(cls)
-                if isinstance(mapper.c[col].type, (Unicode,UnicodeText)):
-                    return unicode(v)
-                else:
-                    return v
-            mapper = class_mapper(cls)
-            q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c,v in cv]))
-            self._results.update(q.all())
-
-
-    def search(self, text, session):
-        """
-        Returns a set() of database hits for the text search string.
-
-        If session=None then the session should be closed after the results
-        have been processed or it is possible that some database backends
-        could cause deadlocks.
-        """
-        self._session = session
-
-        # this looks kinda ridiculous to add the parse actions and
-        # then remove them but then it allows us to reuse the parser
-        # for other things, particulary tests, without calling the
-        # parse actions
-        self.parser.query.setParseAction(self.on_query)
-        self.parser.domain_expression.setParseAction(self.on_domain_expression)
-        self.parser.value_list.setParseAction(self.on_value_list)
-
-        self._results.clear()
-        self.parser.parse_string(text)
-
-        self.parser.query.parseAction = []
-        self.parser.domain_expression.parseAction = []
-        self.parser.value_list.parseAction = []
-
-        # these results get filled in when the parse actions are called
-        return self._results
-
-
 
 class SearchView(pluginmgr.View):
     """
@@ -682,24 +411,6 @@ class SearchView(pluginmgr.View):
             return self.get(item)
 
     view_meta = ViewMeta()
-
-
-    '''
-    the search strategy is keyed by domain and each value will be a list of
-    SearchStrategy instances
-    '''
-    search_strategies = [MapperSearch()]
-
-    @classmethod
-    def add_search_strategy(cls, strategy):
-        cls.search_strategies.append(strategy())
-
-
-    @classmethod
-    def get_search_strategy(cls, name):
-        for strategy in cls.search_strategies:
-            if strategy.__class__.__name__ == name:
-                return strategy
 
 
     def __init__(self):
@@ -882,9 +593,9 @@ class SearchView(pluginmgr.View):
 
 
     def search(self, text):
-        '''
+        """
         search the database using text
-        '''
+        """
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match
@@ -896,10 +607,9 @@ class SearchView(pluginmgr.View):
         # even have session as a class attribute
         self.session = db.Session()
         bold = '<b>%s</b>'
-        results = set()
+        results = []
         try:
-            for strategy in self.search_strategies:
-                results.update(strategy.search(text, self.session))
+            results = search.search(text, self.session)
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
