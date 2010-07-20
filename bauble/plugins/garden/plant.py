@@ -28,11 +28,12 @@ from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import PlantPropagation
 from bauble.plugins.plants import *
 import bauble.prefs as prefs
+from bauble.search import SearchStrategy
 import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-    select_in_search_results, SearchStrategy, Action
+    select_in_search_results, Action
 import bauble.view as view
 
 
@@ -142,10 +143,13 @@ def is_code_unique(plant, code):
     This method will also take range values for code that can be passed
     to utils.range_builder()
     """
-    # TODO: this assumes that codes are integers and could probably
-    # use some more testing, e.g. for 0001 and 1
-    codes = map(utils.utf8, utils.range_builder(code))
-    codes.append(utils.utf8(code))
+    # if the range builder only creates one number then we assume the
+    # code is not a range and so we test against the string version of
+    # code
+    codes = map(utils.utf8, utils.range_builder(code)) # test if a range
+    if len(codes) == 1:
+        codes = [utils.utf8(code)]
+
     # reference accesssion.id instead of accession_id since
     # setting the accession on the model doesn't set the
     # accession_id until the session is flushed
@@ -246,7 +250,8 @@ class PlantChange(db.Base):
     quantity = Column(Integer, autoincrement=False, nullable=False)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
-    reason = Column(types.Enum(values=change_reasons.keys()))
+    reason = Column(types.Enum(values=change_reasons.keys(),
+                               translations=change_reasons))
 
     # date of change
     date = Column(types.DateTime, default=func.now())
@@ -310,18 +315,22 @@ class PlantStatus(db.Base):
     """
     __tablename__ = 'plant_status'
     date = Column(types.Date, default=func.now())
-    condition = Column(types.Enum(values=condition_values.keys()))
+    condition = Column(types.Enum(values=condition_values.keys(),
+                                  translations=condition_values))
     comment = Column(UnicodeText)
     checked_by = Column(Unicode(64))
 
-    flowering_status = Column(types.Enum(values=flowering_values.keys()))
-    fruiting_status = Column(types.Enum(values=fruiting_values.keys()))
+    flowering_status = Column(types.Enum(values=flowering_values.keys(),
+                                         translations=flowering_values))
+    fruiting_status = Column(types.Enum(values=fruiting_values.keys(),
+                                        translations=fruiting_values))
 
     autum_color_pct = Column(Integer)
     leaf_drop_pct = Column(Integer)
     leaf_emergence_pct = Column(Integer)
 
-    sex = Column(types.Enum(values=sex_values.keys()))
+    sex = Column(types.Enum(values=sex_values.keys(),
+                            translations=sex_values))
 
     # TODO: needs container table
     #container_id = Column(Integer)
@@ -382,7 +391,9 @@ class Plant(db.Base):
 
     # columns
     code = Column(Unicode(6), nullable=False)
-    acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
+    acc_type = Column(types.Enum(values=acc_type_values.keys(),
+                                 translations=acc_type_values),
+                      default=None)
     memorial = Column(Boolean, default=False)
     quantity = Column(Integer, autoincrement=False, nullable=False)
 
@@ -788,6 +799,14 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
 
 
+    def cleanup(self):
+        super(PlantEditorPresenter, self).cleanup()
+        msg_box_parent = self.view.widgets.message_box_parent
+        map(msg_box_parent.remove,  msg_box_parent.get_children())
+        # the entry is made not editable for branch mode
+        self.view.widgets.plant_acc_entry.props.editable = True
+
+
     def start(self):
         return self.view.start()
 
@@ -849,13 +868,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
             view.widgets.plant_acc_entry.grab_focus()
         else:
             view.widgets.plant_code_entry.grab_focus()
-
-
-    def cleanup(self):
-        super(PlantEditor, self).cleanup()
-        # reset the code entry colors
-        entry.modify_bg(gtk.STATE_NORMAL, color)
-        entry.modify_base(gtk.STATE_NORMAL, color)
 
 
     def commit_changes(self):
@@ -1021,6 +1033,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
             box.message = msg
             box.show_all()
 
+            # don't allow editing the accession code in a branched plant
+            self.presenter.view.widgets.plant_acc_entry.props.editable = False
 
         if not sub_editor:
             while True:

@@ -373,7 +373,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             table.attach(self.author_entry, 2, 3, level, level+1,
                          xoptions=gtk.FILL|gtk.EXPAND, yoptions=-1)
 
-            self.remove_button = gtk.Button()#stock=gtk.STOCK_ADD)
+            self.remove_button = gtk.Button()
             img = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
                                            gtk.ICON_SIZE_BUTTON)
             self.remove_button.props.image = img

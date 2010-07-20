@@ -1,5 +1,5 @@
 #
-# test_view.py
+# test_search.py
 #
 import os
 import sys
@@ -10,8 +10,7 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
-from bauble.view import SearchParser
-from bauble.view import SearchView, MapperSearch
+import bauble.search as search
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
@@ -25,7 +24,7 @@ from bauble.test import BaubleTestCase
 # means we need to include the operator in the parse instead of just
 # suppressing
 
-parser = SearchParser()
+parser = search.SearchParser()
 
 # TODO: should we make these search tests independent of any plugins,
 # we could use setup() to initialize a custom MapperSearch instead of
@@ -208,13 +207,12 @@ class SearchTests(BaubleTestCase):
         """
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
-        view = SearchView()
         family = Family(family=u'family')
         genus = Genus(family=family, genus=u'genus')
         self.session.add_all([family, genus])
         self.session.commit()
-        mapper_search = view.search_strategies[0]
-        self.assert_(isinstance(mapper_search, MapperSearch))
+        mapper_search = search._search_strategies[0]
+        self.assert_(isinstance(mapper_search, search.MapperSearch))
 
         # search for family by family name
         results = mapper_search.search('family', self.session)
@@ -236,13 +234,12 @@ class SearchTests(BaubleTestCase):
         """
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
-        view = SearchView()
         family = Family(family=u'family')
         genus = Genus(family=family, genus=u'genus')
         self.session.add_all([family, genus])
         self.session.commit()
-        mapper_search = view.search_strategies[0]
-        self.assert_(isinstance(mapper_search, MapperSearch))
+        mapper_search = search._search_strategies[0]
+        self.assert_(isinstance(mapper_search, search.MapperSearch))
 
         # search for family by domain
         results = mapper_search.search('fam=family', self.session)
@@ -264,15 +261,14 @@ class SearchTests(BaubleTestCase):
         """
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
-        view = SearchView()
         family = Family(family=u'family')
         family2 = Family(family=u'family2')
         genus = Genus(family=family, genus=u'genus')
         genus2 = Genus(family=family2, genus=u'genus2')
         self.session.add_all([family, family2, genus, genus2])
         self.session.commit()
-        mapper_search = view.search_strategies[0]
-        self.assert_(isinstance(mapper_search, MapperSearch))
+        mapper_search = search._search_strategies[0]
+        self.assert_(isinstance(mapper_search, search.MapperSearch))
 
         # search cls.column
         results = mapper_search.search('fam where family=family', self.session)
@@ -373,3 +369,10 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         self.assert_(set(results) == set([genus, genus2]))
 
+
+class QueryBuilderTests(BaubleTestCase):
+
+    def itest_gui(self):
+        qb = search.QueryBuilder()
+        qb.start()
+        debug(qb.get_query())
