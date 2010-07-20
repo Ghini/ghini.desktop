@@ -162,7 +162,8 @@ class BaubleTests(BaubleTestCase):
         head, tail = os.path.split(mod.__file__)
         files = glob.glob(os.path.join(head, '*.glade'))
         for f in files:
-            assert(not check_dupids(f))
+            ids = check_dupids(f)
+            self.assert_(ids == [], "%s has duplicate ids: %s" % (f, str(ids)))
 
 
 class HistoryTests(BaubleTestCase):
