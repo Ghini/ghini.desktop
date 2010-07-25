@@ -48,7 +48,7 @@ API Documentation
 :mod:`bauble.connmgr`
 =======================
 .. automodule:: bauble.connmgr
-.. autoclass:: bauble.db.ConnectionManager
+.. autoclass:: bauble.connmgr.ConnectionManager
    :show-inheritance:
    :members:
 

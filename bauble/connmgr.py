@@ -43,12 +43,6 @@ class ConnectionManager:
     :param default: the name of the connection to select from the list
       of connection names
     """
-
-    _dbtypes = ['SQLite', 'PostgreSQL', 'MySQL']
-    # a list of dbtypes that are importable
-    working_dbtypes = property(_get_working_dbtypes)
-    _working_dbtypes = []
-
     def __init__(self, default=None):
         self.default_name = default
         self.current_name = None
@@ -90,6 +84,11 @@ class ConnectionManager:
 
         return self._working_dbtypes
 
+
+    _dbtypes = ['SQLite', 'PostgreSQL', 'MySQL']
+    # a list of dbtypes that are importable
+    working_dbtypes = property(_get_working_dbtypes)
+    _working_dbtypes = []
 
 
     def start(self):

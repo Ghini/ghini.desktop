@@ -42,9 +42,10 @@ if SQLALCHEMY_DEBUG:
 
 class HistoryExtension(orm.MapperExtension):
     """
-    HistoryExtension is a :class:`sqlalchemy.orm.MapperExtension` that
-    is added to all clases that inherit from bauble.db.Base so that
-    all inserts, updates, and deletes made to the mapped objects are
+    HistoryExtension is a
+    :class:`~sqlalchemy.orm.interfaces.MapperExtension` that is added
+    to all clases that inherit from bauble.db.Base so that all
+    inserts, updates, and deletes made to the mapped objects are
     recorded in the `history` table.
     """
     def _add(self, operation, mapper, instance):
@@ -139,14 +140,37 @@ plugin for declaring tables and mappers should derive from this class.
 An instance of :class:`sqlalchemy.ext.declarative.Base`
 """
 
+
 metadata = Base.metadata
 """The default metadata for all Bauble tables.
+
+An instance of :class:`sqlalchemy.schema.Metadata`
 """
 
 history_base = declarative_base(metadata=metadata)
 
 class History(history_base):
     """
+    The history table records ever changed made to every table that
+    inherits from :ref:`Base`
+
+    :Table name: history
+
+    :Columns:
+      id: :class:`sqlalchemy.types.Integer`
+        A unique identifier.
+      table_name: :class:`sqlalchemy.types.String`
+        The name of the table the change was made on.
+      table_id: :class:`sqlalchemy.types.Integer`
+        The id in the table of the row that was changed.
+      values: :class:`sqlalchemy.types.String`
+        The changed values.
+      operation: :class:`sqlalchemy.types.String`
+        The type of change.  This is usually one of insert, update or delete.
+      user: :class:`sqlalchemy.types.String`
+        The name of the user who made the change.
+      timestamp: :class:`sqlalchemy.types.DateTime`
+        When the change was made.
     """
     __tablename__ = 'history'
     id = sa.Column(sa.Integer, sa.Sequence('history_id_seq'), primary_key=True)
