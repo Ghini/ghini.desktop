@@ -323,6 +323,11 @@ API Documentation
 :mod:`bauble.plugins.abcd`
 ==========================
 .. automodule:: bauble.plugins.abcd
+.. autofunction:: bauble.plugins.abcd.validate_xml
+.. autofunction:: bauble.plugins.abcd.create_abcd
+.. autoclass:: bauble.plugins.abcd.ABCDAdapter
+   :members:
+.. autoclass:: bauble.plugins.abcd.ABCDExporter
 
 :mod:`bauble.plugins.imex`
 ==========================
@@ -343,3 +348,12 @@ API Documentation
 :mod:`bauble.plugins.tag`
 =========================
 .. automodule:: bauble.plugins.tag
+.. autofunction:: bauble.plugins.tag.remove_callback
+.. autofunction:: bauble.plugins.tag.get_tagged_objects
+.. autofunction:: bauble.plugins.tag.untag_objects
+.. autofunction:: bauble.plugins.tag.tag_objects
+.. autofunction:: bauble.plugins.tag.get_tag_ids
+.. autoclass:: bauble.plugins.tag.Tag
+.. autoclass:: bauble.plugins.tag.TaggedObj
+.. autoclass:: bauble.plugins.tag.TagItemGUI
+
