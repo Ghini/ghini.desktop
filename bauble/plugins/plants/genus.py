@@ -618,8 +618,8 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
 
     def __init__(self, model=None, parent=None):
         '''
-        @param model: Genus instance or None
-        @param parent: None
+        :param model: Genus instance or None
+        :param parent: None
         '''
         # the view and presenter are created in self.start()
         self.view = None
@@ -844,7 +844,7 @@ class GeneralGenusExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get the values from
+        :param row: the row to get the values from
         '''
         session = db.Session()
         self.current_obj = row
@@ -908,7 +908,7 @@ class SynonymsExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get the values from
+        :param row: the row to get the values from
         '''
         syn_box = self.widgets.gen_synonyms_box
         # remove old labels

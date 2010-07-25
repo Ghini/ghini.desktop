@@ -47,7 +47,7 @@ def register_command(handler):
     Register command handlers.  If a command is a duplicate then it
     will overwrite the old command of the same name.
 
-    @param handler:  A class which extends pluginmgr.CommandHandler
+    :param handler:  A class which extends pluginmgr.CommandHandler
     """
     global commands
     if isinstance(handler.command, str):

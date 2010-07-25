@@ -98,7 +98,7 @@ class BuilderWidgets(dict):
 
     def __init__(self, ui):
         '''
-        @params filename: a gtk.Builder XML UI file
+        :params filename: a gtk.Builder XML UI file
         '''
         if isinstance(ui, basestring):
             self.builder = gtk.Builder()
@@ -109,7 +109,7 @@ class BuilderWidgets(dict):
 
     def __getitem__(self, name):
         '''
-        @param name:
+        :param name:
         '''
         w = self.builder.get_object(name)
         if not w:
@@ -120,7 +120,7 @@ class BuilderWidgets(dict):
 
     def __getattr__(self, name):
         '''
-        @param name:
+        :param name:
         '''
         w = self.builder.get_object(name)
         if not w:
@@ -156,10 +156,10 @@ def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
     Return a iterable of gtk.TreeIter instances to all occurences
     of data in model
 
-    :parent: a gtk.TreeModel or a gtk.TreeModelRow instance
-    :data: the data to look for
-    :cmp: the function to call on each row to check if it matches
-      data, default is C{lambda row, data: row[0] == data}
+    :param parent: a gtk.TreeModel or a gtk.TreeModelRow instance
+    :param data: the data to look for
+    :param cmp: the function to call on each row to check if it matches
+     data, default is C{lambda row, data: row[0] == data}
     """
     if isinstance(parent, gtk.TreeModel):
         if not parent.get_iter_root(): # model empty

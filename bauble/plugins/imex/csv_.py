@@ -225,9 +225,9 @@ class CSVImporter(Importer):
         This method periodically yields control so that the GUI can
         update.
 
-        @params filenames:
-        @param metadata:
-        @param force: default=False
+        :param filenames:
+        :param metadata:
+        :param force: default=False
         '''
         transaction = None
         connection = None

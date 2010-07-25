@@ -42,7 +42,7 @@ from bauble.plugins.garden.accession import Accession
 def validate_xml(root):
     '''
     validate root against ABCD 2.06 schema
-    @param root: root of an XML tree to validate against
+    :param root: root of an XML tree to validate against
     @type root: an lxml.etree.Element
     @returns: True or False depending if root validates correctly
     '''
@@ -72,10 +72,10 @@ namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
 def ABCDElement(parent, name, text=None, attrib=None):
     """
     create an ABCDElement, must be a subelement
-    @param parent: an element
-    @param name: a string, the name of the new element
-    @param text: the text attribue to set on the new element
-    @param attrib: any additional attributes for the new element
+    :param parent: an element
+    :param name: a string, the name of the new element
+    :param text: the text attribue to set on the new element
+    :param attrib: any additional attributes for the new element
     """
     if attrib is None:
         attrib = {}
@@ -130,11 +130,11 @@ class ABCDAdapter(object):
 
 def create_abcd(decorated_objects, authors=True, validate=True):
     '''
-    @param objects: a list/tuple of objects that implement the ABCDDecorator
+    :param objects: a list/tuple of objects that implement the ABCDDecorator
     interface
-    @param authors: flag to control whether to include the authors in the
+    :param authors: flag to control whether to include the authors in the
     species name
-    @param validate: whether we should validate the data before returning
+    :param validate: whether we should validate the data before returning
     @returns: a valid ABCD ElementTree
     '''
     import bauble.plugins.garden.institution as institution

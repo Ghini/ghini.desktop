@@ -81,7 +81,7 @@ class ConnectionManager:
 
     def __init__(self, default=None):
         """
-        @param default: the name of the connection to select from the list
+        :param default: the name of the connection to select from the list
         of connection names
         """
         self.default_name = default

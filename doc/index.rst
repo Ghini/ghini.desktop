@@ -4,8 +4,8 @@
 
 
 
-Documentation for Bauble
-########################
+Documentation for Bauble 1.0
+############################
 
 Bauble is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
@@ -16,13 +16,22 @@ the needs of the institution.
 It is `open <http://www.opensource.org>`_ and `free
 <http://www.fsf.org>`_ and is released under the `GNU Public License <http://www.fsf.org/licensing/licenses/gpl.html>`_
 
+
+Installing Bauble
+=================
+
+.. toctree::
+   :maxdepth: 2
+
+   installing
+
+
 Using Bauble
 ============
 
 .. toctree::
    :maxdepth: 2
 
-   installing
    started
    searching
    editing

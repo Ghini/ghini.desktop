@@ -323,10 +323,10 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
         '''
-        @param parent: an instance of PlantEditorPresenter
-        @param model: an instance of class Plant
-        @param view: an instance of PlantEditorView
-        @param session:
+        :param parent: an instance of PlantEditorPresenter
+        :param model: an instance of class Plant
+        :param view: an instance of PlantEditorView
+        :param session:
         '''
         super(PropagationTabPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
@@ -496,8 +496,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
         '''
-        @param model: an instance of class Propagation
-        @param view: an instance of PropagationEditorView
+        :param model: an instance of class Propagation
+        :param view: an instance of PropagationEditorView
         '''
         super(CuttingPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
@@ -679,8 +679,8 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
         '''
-        @param model: an instance of class Propagation
-        @param view: an instance of PropagationEditorView
+        :param model: an instance of class Propagation
+        :param view: an instance of PropagationEditorView
         '''
         super(SeedPresenter, self).__init__(model, view)
         self.__dirty = False
@@ -954,8 +954,8 @@ class PropagationEditorPresenter(PropagationPresenter):
 
     def __init__(self, model, view):
         '''
-        @param model: an instance of class Propagation
-        @param view: an instance of PropagationEditorView
+        :param model: an instance of class Propagation
+        :param view: an instance of PropagationEditorView
         '''
         super(PropagationEditorPresenter, self).__init__(model, view)
         # don't allow changing the propagation type if we are editing

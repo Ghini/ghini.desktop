@@ -9,7 +9,7 @@ generating reports. More information about Mako and it's language can
 be found at `makotemplates.org <http://www.makotemplates.org>`_.
 
 The Mako templating system should already be installed on your
-computerif Bauble is installed.
+computer if Bauble is installed.
 
 Creating reports with Mako is similar in the way that you would create
 a web page from a template.  It is much simpler than the XSL
@@ -25,6 +25,14 @@ template `report.csv`.
 
 The template will receive a variable called `values` which will
 contain the list of values in the current search.
+
+The type of each value in `values` will be the same as the search
+domain used in the search query.  For more information on search
+domains see :ref:`search-domains`.
+
+If the query does not have a search domain then the values could all
+be of a different type and the Mako template should prepared to handle
+them.
 
 
 Using the XSL Report Formatter
@@ -44,14 +52,12 @@ using the following command::
 Installing Apache FOP on Windows
 ................................
 
-1. Download the latest Apache FOP.  The current version when this was
-   written is 0.95 and can be downloaded `here
-   <http://www.apache.org/dist/xmlgraphics/fop/binaries/fop-0.95-bin.zip>`_.
+You have two options for installing FOP on Windows. The easiest way is
+to download the prebuilt `ApacheFOP-0.95-1-setup.exe <http://code.google.com/p/apache-fop-installer/downloads/detail?name=ApacheFOP-0.95-1-setup.exe&can=2&q=#makechanges>`_ installer.
 
-2. Extract the FOP archive to the C drive, i.e. C:\
+Alternatively you can download the `archive
+<http://www.apache.org/dist/xmlgraphics/fop/binaries/>`_.  After
+extracting the archive you must add the directory you extracted the
+archive to to your PATH environment variable.
 
-3. Add the directory where you extracted FOP to the PATH environment
-   variable.  If you extract FOP to C:\ add c:\fop-0.95 to the path.
-   For more information about setting environment variables and the
-   PATH in Windows XP go `here
-   <http://vlaurie.com/computers2/Articles/environment.htm>`_.
+

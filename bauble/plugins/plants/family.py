@@ -296,8 +296,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, model, view):
         '''
-        @param model: should be an instance of class Family
-        @param view: should be an instance of FamilyEditorView
+        :param model: should be an instance of class Family
+        :param view: should be an instance of FamilyEditorView
         '''
         super(FamilyEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
@@ -510,8 +510,8 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
     def __init__(self, model=None, parent=None):
         '''
-        @param model: Family instance or None
-        @param parent: the parent window or None
+        :param model: Family instance or None
+        :param parent: the parent window or None
         '''
         if model is None:
             model = Family()
@@ -659,7 +659,7 @@ class GeneralFamilyExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get the values from
+        :param row: the row to get the values from
         '''
         self.current_obj = row
         self.set_widget_value('fam_name_data', '<big>%s</big>' % row,
@@ -731,7 +731,7 @@ class SynonymsExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get thevalues from
+        :param row: the row to get thevalues from
         '''
         syn_box = self.widgets.fam_synonyms_box
         # remove old labels

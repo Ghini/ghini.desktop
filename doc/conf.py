@@ -80,6 +80,8 @@ add_function_parentheses = True
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# The default domain
+primary_domain = 'py'
 
 # Options for HTML output
 # -----------------------
@@ -183,4 +185,5 @@ latex_documents = [
 #latex_use_modindex = True
 
 
-intersphinx_mapping = {'http://www.sqlalchemy.org/docs/05/': None}
+intersphinx_mapping = {'sqlalchemy':
+                       ('http://www.sqlalchemy.org/docs/05/', None)}

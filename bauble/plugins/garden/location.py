@@ -219,8 +219,8 @@ class LocationEditor(GenericModelViewPresenterEditor):
 
     def __init__(self, model=None, parent=None):
         '''
-        @param model: Location instance or None
-        @param parent: the parent widget or None
+        :param model: Location instance or None
+        :param parent: the parent widget or None
         '''
         # view and presenter are created in self.start()
         self.view = None

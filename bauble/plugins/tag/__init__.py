@@ -260,7 +260,7 @@ class TaggedObj(db.Base):
 # this function can use so that we can expose that functionality
 def _get_tagged_object_pairs(tag):
     """
-    @param tag: a Tag instance
+    :param tag: a Tag instance
     """
     from bauble.view import SearchView
     kids = []
@@ -315,8 +315,8 @@ def get_tagged_objects(tag, session=None):
 
 def untag_objects(name, objs):
     """
-    @param name:
-    @param objs:
+    :param name:
+    :param objs:
 
     untag objs
     """
@@ -348,12 +348,12 @@ _classname = lambda x: unicode('%s.%s', 'utf-8') % (type(x).__module__, type(x).
 
 def tag_objects(name, objs):
     '''
-    @param name: The tag name, if its a str object then it will be
+    :param name: The tag name, if its a str object then it will be
     converted to unicode() using the default encoding. If a tag with
     this name doesn't exist it will be created
     @type name: string
 
-    @param obj: The object to tag.
+    :param obj: The object to tag.
     @type obj: a list of mapper objects
     '''
     session = db.Session()
@@ -380,7 +380,7 @@ def tag_objects(name, objs):
 
 def get_tag_ids(objs):
     """
-    @param objs: a list or tuple of objects
+    :param objs: a list or tuple of objects
 
     Return a list of tag id's for tags associated with obj, only returns those
     tag ids that are common between all the objs
@@ -513,8 +513,8 @@ class TagPlugin(pluginmgr.Plugin):
 #    # a single object
 #    def __init__(self, model=None, parent=None):
 #        '''
-#        @param model: Accession instance or None
-#        @param parent: the parent widget
+#        :param model: Accession instance or None
+#        :param parent: the parent widget
 #        '''
 #        if model is None:
 #            model = Tag()

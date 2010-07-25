@@ -55,10 +55,10 @@ formatter_settings_expanded_pref = 'report.settings.expanded'
 
 def _get_all_objects(cls, get_query_func, objs, session):
     """
-    @param cls:
-    @param get_query_func:
-    @param objs:
-    @param session:
+    :param cls:
+    :param get_query_func:
+    :param objs:
+    :param session:
     """
     if not isinstance(objs, (tuple, list)):
         objs = [objs]
@@ -102,8 +102,8 @@ def get_plant_query(obj, session):
 
 def get_all_plants(objs, session):
     """
-    @param objs: an instance of a mapped object
-    @param session: the session to use for the queries
+    :param objs: an instance of a mapped object
+    :param session: the session to use for the queries
 
     Return all the plants found in objs.
     """
@@ -143,8 +143,8 @@ def get_accession_query(obj, session):
 
 def get_all_accessions(objs, session):
     """
-    @param objs: an instance of a mapped object
-    @param session: the session to use for the queries
+    :param objs: an instance of a mapped object
+    :param session: the session to use for the queries
 
     Return all the accessions found in objs.
     """
@@ -185,8 +185,8 @@ def get_species_query(obj, session):
 
 def get_all_species(objs, session):
     """
-    @param objs: an instance of a mapped object
-    @param session: the session to use for the queries
+    :param objs: an instance of a mapped object
+    :param session: the session to use for the queries
 
     Return all the species found in objs.
     """
@@ -318,7 +318,7 @@ class ReportToolDialogPresenter(object):
     def set_names_combo(self, val):
         """
         set the names combo to val and emit the 'changed' signal,
-        @param val: either an integer index or a string value in the combo
+        :param val: either an integer index or a string value in the combo
 
         if the model on the combo is None then this method will return
         and not emit the changed signal
@@ -337,7 +337,7 @@ class ReportToolDialogPresenter(object):
     def set_formatter_combo(self, val):
         """
         set the formatter combo to val and emit the 'changed' signal,
-        @param val: either an integer index or a string value in the combo
+        :param val: either an integer index or a string value in the combo
         combo = self.view.widgets.formatter_combo
         """
         combo = self.view.widgets.formatter_combo

@@ -178,10 +178,12 @@ def default_completion_match_func(completion, key_string, treeiter):
 class GenericEditorView(object):
     """
     An generic object meant to be extended to provide the view for a
-    GenericModelViewPresenterEditor
+    GenericModelViewPresenterEditor.
 
     :param filename: a gtk.Builder UI definition
-    :param parent:
+
+    :param parent: a gtk.Window or subclass to use as the parent
+     window, if parent=None then bauble.gui.window is used
     """
     _tooltips = {}
 
@@ -224,7 +226,7 @@ class GenericEditorView(object):
         :param callback: the function or method to call the object
           receives the signal
 
-        :param *args: extra args to pass the the callback
+        :param args: extra args to pass the the callback
         """
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
@@ -246,7 +248,7 @@ class GenericEditorView(object):
         :param callback: the function or method to call the object
           receives the signal
 
-        :param *args: extra args to pass the the callback
+        :param args: extra args to pass the the callback
         """
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
@@ -507,11 +509,11 @@ class GenericEditorPresenter(object):
         None and problem_widgets is None then method won't do anything.
 
         :param problem_id: the problem to remove, if None then remove
-        any problem from the problem_widget(s)
+         any problem from the problem_widget(s)
 
         :param problem_widgets: a gtk.Widget instance or list of list
-        of widgets to remove the problem from, if None then remove all
-        occurrences of problem_id regardless of the widget
+         of widgets to remove the problem from, if None then remove
+         all occurrences of problem_id regardless of the widget
         """
         if problem_id is None and not problem_widgets:
             # if no problem id and not problem widgets then don't do anything
