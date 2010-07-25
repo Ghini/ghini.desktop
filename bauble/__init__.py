@@ -104,23 +104,6 @@ def quit():
         sys.exit(1)
 
 
-# TODO: this functions seems redundant when we already have
-# bauble.gui.set_busy
-def set_busy(busy):
-    """
-    Set the interface to appear busy.
-    """
-    import gtk.gdk
-    if gui is None or gui.widgets.main_box is None:
-        return
-    # main_box is everything but the statusbar
-    gui.widgets.main_box.set_sensitive(not busy)
-    if busy:
-        gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-    else:
-        gui.window.window.set_cursor(None)
-
-
 last_handler = None
 
 def command_handler(cmd, arg):

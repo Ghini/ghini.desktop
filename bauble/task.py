@@ -73,8 +73,8 @@ def queue(task):
     # pre-fibra task manager had but raising StopIteration in the task
     # idle function might be enough...just needs more testing
     schedule.install(task)
-    bauble.set_busy(True)
     if bauble.gui is not None:
+        bauble.gui.set_busy()
         bauble.gui.progressbar.show()
         bauble.gui.progressbar.set_pulse_step(1.0)
         bauble.gui.progressbar.set_fraction(0)
@@ -91,8 +91,9 @@ def queue(task):
             bauble.gui.progressbar.set_pulse_step(0)
             bauble.gui.progressbar.set_fraction(0)
             bauble.gui.progressbar.hide()
+            bauble.gui.set_busy(False)
         clear_messages()
-        bauble.set_busy(False)
+
 
 __message_ids = []
 
