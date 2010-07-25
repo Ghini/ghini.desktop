@@ -40,12 +40,12 @@ from bauble.plugins.garden.accession import Accession
 #
 
 def validate_xml(root):
-    '''
-    validate root against ABCD 2.06 schema
+    """
+    Validate root against ABCD 2.06 schema
+
     :param root: root of an XML tree to validate against
-    @type root: an lxml.etree.Element
-    @returns: True or False depending if root validates correctly
-    '''
+    :returns: True or False depending if root validates correctly
+    """
     schema_file = os.path.join(paths.lib_dir(), 'plugins',
             'abcd','abcd_2.06.xsd')
     xmlschema_doc = etree.parse(schema_file)
@@ -71,7 +71,8 @@ namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
 
 def ABCDElement(parent, name, text=None, attrib=None):
     """
-    create an ABCDElement, must be a subelement
+    A factory function to create an ABCDElement, must be a subelement.
+
     :param parent: an element
     :param name: a string, the name of the new element
     :param text: the text attribue to set on the new element
@@ -86,11 +87,15 @@ def ABCDElement(parent, name, text=None, attrib=None):
 
 
 def DataSets():
+    """
+    """
     return Element('{%s}DataSets' % namespaces['abcd'], nsmap=namespaces)
 
 
 class ABCDAdapter(object):
-
+    """
+    An abstract base class for creating ABCD adapters.
+    """
     # TODO: create a HigherTaxonRank/HigherTaxonName iteratorator for a list
     # of all the higher taxon
 
@@ -98,7 +103,7 @@ class ABCDAdapter(object):
     # are optional
     def extra_elements(self, unit):
         """
-        add extra non required elements
+        Add extra non required elements
         """
         pass
 
@@ -106,37 +111,58 @@ class ABCDAdapter(object):
         self._object = obj
 
     def get_UnitID(self):
+        """
+        Get a value for the UnitID
+        """
         pass
 
     def get_family(self):
+        """
+        Get a value for the family.
+        """
         pass
 
     def get_FullScientificNameString(self, authors=True):
+        """
+        Get the full scientific name string.
+        """
         pass
 
     def get_GenusOrMonomial(self):
+        """
+        Get the Genus string.
+        """
         pass
 
     def get_FirstEpithet(self):
+        """
+        Get the first epithet.
+        """
         pass
 
     def get_AuthorTeam(self):
+        """
+        Get the Author string.
+        """
         pass
 
     def get_InformalNameString(self):
+        """
+        Get the common name string.
+        """
         pass
 
 
 
 def create_abcd(decorated_objects, authors=True, validate=True):
-    '''
+    """
     :param objects: a list/tuple of objects that implement the ABCDDecorator
-    interface
+      interface
     :param authors: flag to control whether to include the authors in the
-    species name
+      species name
     :param validate: whether we should validate the data before returning
-    @returns: a valid ABCD ElementTree
-    '''
+    :returns: a valid ABCD ElementTree
+    """
     import bauble.plugins.garden.institution as institution
     inst = institution.Institution()
     if not verify_institution(inst):

@@ -34,6 +34,9 @@ from bauble.view import SearchView, Action
 
 
 def remove_callback(tags):
+    """
+    :param tags: a list of :class:`Tag` objects.
+    """
     tag = tags[0]
     s = '%s: %s' % (tag.__class__.__name__, utils.xml_safe_utf8(tag))
     msg = _("Are you sure you want to remove %s?") % s
@@ -63,7 +66,7 @@ tag_context_menu = [remove_action]
 
 class TagItemGUI(editor.GenericEditorView):
     '''
-    interface for tagging individual items in the results of the SearchView
+    Interface for tagging individual items in the results of the SearchView
     '''
     def __init__(self, values):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'tag',
@@ -212,6 +215,14 @@ class TagItemGUI(editor.GenericEditorView):
 
 
 class Tag(db.Base):
+    """
+    :Table name: tag
+    :Columns:
+      tag: :class:`sqlalchemy.types.Unicode`
+        The tag name.
+      description: :class:`sqlalchemy.types.Unicode`
+        A description of this tag.
+    """
     __tablename__ = 'tag'
     __mapper_args__ = {'order_by': 'tag'}
 
@@ -236,6 +247,17 @@ class Tag(db.Base):
 
 
 class TaggedObj(db.Base):
+    """
+    :Table name: tagged_obj
+    :Columns:
+      obj_id: :class:`sqlalchemy.types.Integer`
+        The id of the tagged object.
+      obj_class: :class:`sqlalchemy.types.Unicode`
+        The class name of the tagged object.
+      tag_id: :class:`sqlalchemy.types.Integer`
+        A ForeignKey to :class:`Tag`.
+
+    """
     __tablename__ = 'tagged_obj'
 
     # columns
@@ -291,6 +313,9 @@ def _get_tagged_object_pairs(tag):
 def get_tagged_objects(tag, session=None):
     """
     Return all object tagged with tag.
+
+    :param tag: A string or :class:`Tag`
+    :param session:
     """
     close_session = False
     if not isinstance(tag, Tag):
@@ -315,17 +340,18 @@ def get_tagged_objects(tag, session=None):
 
 def untag_objects(name, objs):
     """
-    :param name:
-    :param objs:
+    Remove the tag name from objs.
 
-    untag objs
+    :param name: The name of the tag
+    :type name: str
+    :param objs: The list of objects to untag.
+    :type objs: list
     """
     # TODO: should we loop through objects in a tag to delete
     # the TaggedObject or should we delete tags is they match
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
     session = db.Session()
     try:
-        #tag = session.query(Tag).filter(tag_table.c.tag==unicode(name)).one()
         tag = session.query(Tag).filter_by(tag=utils.utf8(name)).one()
     except Exception, e:
         debug(traceback.format_exc())
@@ -347,15 +373,16 @@ def untag_objects(name, objs):
 _classname = lambda x: unicode('%s.%s', 'utf-8') % (type(x).__module__, type(x).__name__)
 
 def tag_objects(name, objs):
-    '''
-    :param name: The tag name, if its a str object then it will be
-    converted to unicode() using the default encoding. If a tag with
-    this name doesn't exist it will be created
-    @type name: string
+    """
+    Tag a list of objects.
 
-    :param obj: The object to tag.
-    @type obj: a list of mapper objects
-    '''
+    :param name: The tag name, if its a str object then it will be
+      converted to unicode() using the default encoding. If a tag with
+      this name doesn't exist it will be created
+    :type name: str
+    :param obj: A list of mapped objects to tag.
+    :type obj: list
+    """
     session = db.Session()
     name = utils.utf8(name)
     try:

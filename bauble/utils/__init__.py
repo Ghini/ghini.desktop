@@ -28,7 +28,7 @@ def find_dependent_tables(table, metadata=None):
 
     :param table: The tables who dependencies we want to find
 
-    :param metadata: The :class:`sqlalchemy.engine.Metadata` object
+    :param metadata: The :class:`sqlalchemy.engine.MetaData` object
       that holds the tables to search through.  If None then use
       bauble.db.metadata
     '''
