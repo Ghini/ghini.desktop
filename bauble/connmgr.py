@@ -95,7 +95,7 @@ class ConnectionManager:
         """
         Show the connection manager.
         """
-        self._create_gui()
+        self.create_gui()
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
@@ -198,7 +198,7 @@ class ConnectionManager:
         return True
 
 
-    def _create_gui(self):
+    def create_gui(self):
         if self.working_dbtypes is None or len(self.working_dbtypes) == 0:
             msg = _("No Python database connectors installed.\n"\
                     "Please consult the documentation for the "\
