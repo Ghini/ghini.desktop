@@ -95,7 +95,7 @@ class ConnectionManager:
         """
         Show the connection manager.
         """
-        self.create_gui()
+        self._create_gui()
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
@@ -145,6 +145,7 @@ class ConnectionManager:
 
     def on_dialog_response(self, dialog, response, data=None):
         """
+        The dialog's response signal handler.
         """
         self._error = False
         if response == gtk.RESPONSE_OK:
@@ -197,7 +198,7 @@ class ConnectionManager:
         return True
 
 
-    def create_gui(self):
+    def _create_gui(self):
         if self.working_dbtypes is None or len(self.working_dbtypes) == 0:
             msg = _("No Python database connectors installed.\n"\
                     "Please consult the documentation for the "\
@@ -453,7 +454,7 @@ class ConnectionManager:
 
     def get_passwd(self, title=_("Enter your password"), before_main=False):
         """
-        show a dialog with and entry and returh the value entered
+        Show a dialog with and entry and return the value entered.
         """
         # TODO: if self.dialog is None then ask from the command line
         # or just set dialog parent to None
