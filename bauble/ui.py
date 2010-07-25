@@ -282,9 +282,8 @@ class GUI(object):
     title = property(__get_title)
 
 
-    # TODO: why do we have this if we already have bauble.set_busy()
     def set_busy(self, busy):
-        self.window.set_sensitive(not busy)
+        self.widgets.main_box.set_sensitive(not busy)
         if busy:
             self.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         else:

@@ -601,7 +601,7 @@ class ReportTool(pluginmgr.Tool):
             utils.message_dialog(_('Search for something first.'))
             return
 
-        bauble.set_busy(True)
+        bauble.gui.set_busy(True)
         ok = False
         try:
             while True:
@@ -628,7 +628,7 @@ class ReportTool(pluginmgr.Tool):
                                              {"exception": utils.utf8(e)},
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
-        bauble.set_busy(False)
+        bauble.gui.set_busy(False)
         return
 
 
