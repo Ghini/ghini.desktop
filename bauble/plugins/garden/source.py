@@ -170,19 +170,19 @@ class Collection(db.Base):
     :Table name: collection
 
     :Columns:
-            *collector*: :class:`sqlalchemy.types.Unicode(64)`
+            *collector*: :class:`sqlalchemy.types.Unicode`
 
-            *collectors_code*: :class:`sqlalchemy.types.Unicode(50)`
+            *collectors_code*: :class:`sqlalchemy.types.Unicode`
 
             *date*: :class:`sqlalchemy.types.Date`
 
-            *locale*: :class:`sqlalchemy.types.UnicodeText(nullable=False)`
+            *locale*: :class:`sqlalchemy.types.UnicodeText`
 
             *latitude*: :class:`sqlalchemy.types.Float`
 
             *longitude*: :class:`sqlalchemy.types.Float`
 
-            *gps_datum*: :class:`sqlalchemy.types.Unicode(32)`
+            *gps_datum*: :class:`sqlalchemy.types.Unicode`
 
             *geo_accy*: :class:`sqlalchemy.types.Float`
 
@@ -192,11 +192,11 @@ class Collection(db.Base):
 
             *habitat*: :class:`sqlalchemy.types.UnicodeText`
 
-            *geography_id*: :class:`sqlalchemy.types.Integer(ForeignKey('geography.id'))`
+            *geography_id*: :class:`sqlalchemy.types.Integer`
 
             *notes*: :class:`sqlalchemy.types.UnicodeText`
 
-            *accession_id*: :class:`sqlalchemy.types.Integer(ForeignKey('accession.id'), nullable=False)`
+            *accession_id*: :class:`sqlalchemy.types.Integer`
 
 
     :Properties:
@@ -323,8 +323,8 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
 
     def __init__(self, model=None, parent=None):
         '''
-        @param model: Contact instance or None
-        @param values to enter in the model if none are give
+        :param model: Contact instance or None
+        :param values to enter in the model if none are give
         '''
         if not model:
             model = SourceDetail()

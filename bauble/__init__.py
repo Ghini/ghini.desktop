@@ -159,6 +159,9 @@ conn_list_pref = "conn.list"
 def main(uri=None):
     """
     Run the main Bauble application.
+
+    :param uri:  the URI of the database to connect to.  For more information about database URIs see `<http://www.sqlalchemy.org/docs/05/dbengine.html#create-engine-url-arguments>`_
+    :type uri: str
     """
     # TODO: it would be nice to show a Tk dialog here saying we can't
     # import gtk...but then we would have to include all of the Tk libs in

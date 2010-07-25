@@ -9,7 +9,7 @@ thinking about". You can then select "for that report i was thinking
 about" from the tags menu to show you all the objects you tagged.
 
 Tagging can be done two ways. By selecting one or more items in the
-search results and pressing Ctrl-T or by selecting Tag Selection from
-the Tag menu. If you have selected multiple items then only that tags
-that are common to all the selected items will have a check next to
-it.
+search results and pressing Ctrl-T or by selecting
+:menuselection:`Tag-->Tag Selection` from the menu. If you have
+selected multiple items then only that tags that are common to all the
+selected items will have a check next to it.

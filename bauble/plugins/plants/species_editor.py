@@ -899,7 +899,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         the constructor
 
-        @param parent: the parent window
+        :param parent: the parent window
         '''
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'species_editor.glade')
@@ -999,8 +999,8 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
     def __init__(self, model=None, parent=None):
         '''
-        @param model: a species instance or None
-        @param parent: the parent window or None
+        :param model: a species instance or None
+        :param parent: the parent window or None
         '''
         if model is None:
             model = Species()

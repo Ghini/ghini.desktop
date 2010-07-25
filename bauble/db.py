@@ -206,7 +206,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     elif new_engine is None:
         return None
 
-    _verify_connection(new_engine, show_error_dialogs)
+    verify_connection(new_engine, show_error_dialogs)
     _bind()
     return engine
 
@@ -300,7 +300,7 @@ def create(import_defaults=True):
         connection.close()
 
 
-def _verify_connection(engine, show_error_dialogs=False):
+def verify_connection(engine, show_error_dialogs=False):
     """
     Test whether a connection to an engine is a valid Bauble database. This
     method will raise an error for the first problem it finds with the
@@ -312,12 +312,12 @@ def _verify_connection(engine, show_error_dialogs=False):
         dialogs detailing the error, default=False
     :type show_error_dialogs: bool
     """
-##    debug('entered _verify_connection(%s)' % show_error_dialogs)
+##    debug('entered verify_connection(%s)' % show_error_dialogs)
     import bauble
     import bauble.pluginmgr as pluginmgr
     if show_error_dialogs:
         try:
-            return _verify_connection(engine, False)
+            return verify_connection(engine, False)
         except error.EmptyDatabaseError:
             msg = _('The database you have connected to is empty.')
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)

@@ -181,7 +181,7 @@ class VernacularExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get thevalues from
+        :param row: the row to get thevalues from
         '''
         if len(row.vernacular_names) == 0:
             self.set_sensitive(False)
@@ -216,7 +216,7 @@ class SynonymsExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get thevalues from
+        :param row: the row to get thevalues from
         '''
         #debug(row.synonyms)
         if len(row.synonyms) == 0:
@@ -284,7 +284,7 @@ class GeneralSpeciesExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get the values from
+        :param row: the row to get the values from
         '''
         self.current_obj = row
         # TODO: how do we put the genus in a seperate label so it
@@ -484,7 +484,7 @@ class SpeciesInfoPage(InfoBoxPage):
         '''
         update the expanders in this infobox
 
-        @param row: the row to get the values from
+        :param row: the row to get the values from
         '''
         self.general.update(row)
         self.vernacular.update(row)

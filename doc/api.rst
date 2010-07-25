@@ -11,8 +11,6 @@ API Documentation
 .. autofunction:: bauble.main_is_frozen
 .. autofunction:: bauble.quit
 .. autofunction:: bauble.save_state
-.. autofunction:: bauble.set_busy
-
 
 
 :mod:`bauble.db`
@@ -20,14 +18,32 @@ API Documentation
 .. automodule:: bauble.db
 .. autodata:: bauble.db.Session
 .. autodata:: bauble.db.engine
-.. autodata:: bauble.db.Base
-.. autodata:: bauble.db.metadata
+.. .. autodata:: bauble.db.Base
+.. py:data:: bauble.db.Base
+
+   All tables/mappers in Bauble which use the SQLAlchemy declarative
+   plugin for declaring tables and mappers should derive from this
+   class.
+
+   An instance of :class:`sqlalchemy.ext.declarative.Base`
+
+.. .. autoattribute:: bauble.db.metadata
+.. py:data:: bauble.db.metadata
+
+   The default metadata for all Bauble tables.
+
+   An instance of :class:`sqlalchemy.schema.MetaData`
+
 .. autoclass:: bauble.db.MapperBase
+.. autoclass:: bauble.db.HistoryExtension
    :show-inheritance:
    :members:
-
+.. autoclass:: bauble.db.History
+   :show-inheritance:
+   :members:
 .. autofunction:: bauble.db.open
 .. autofunction:: bauble.db.create
+.. autofunction:: bauble.db.verify_connection
 
 
 :mod:`bauble.connmgr`
@@ -191,7 +207,7 @@ API Documentation
 
 
 :mod:`bauble.view`
-=======================
+==================
 .. automodule:: bauble.view
 .. autoclass:: bauble.view.Action
    :show-inheritance:
@@ -211,19 +227,22 @@ API Documentation
 .. autoclass:: bauble.view.LinksExpander
    :show-inheritance:
    :members: update
-.. autoclass:: bauble.view.SearchParser
-   :members: parse_string
-.. autoclass:: bauble.view.SearchStrategy
-   :members:
-.. autoclass:: bauble.view.MapperSearch
-   :show-inheritance:
-   :members: search
-.. autoclass:: bauble.view.ResultSet
-   :members: add, count, clear
 .. autoclass:: bauble.view.SearchView
    :show-inheritance:
 .. class:: bauble.view.SearchView.ViewMeta
    
+
+:mod:`bauble.search`
+====================
+.. autoclass:: bauble.search.SearchParser
+   :members: parse_string
+.. autoclass:: bauble.search.SearchStrategy
+   :members:
+.. autoclass:: bauble.search.MapperSearch
+   :show-inheritance:
+   :members: search
+.. autoclass:: bauble.search.QueryBuilder
+   :show-inheritance:
 
 
 :mod:`bauble.plugins.plants`
@@ -266,16 +285,18 @@ API Documentation
 .. automodule:: bauble.plugins.garden
 .. autoclass:: bauble.plugins.garden.Accession
    :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.AccessionNote
+   :show-inheritance: 
 .. autoclass:: bauble.plugins.garden.Plant
    :show-inheritance: 
    :members: get_delimiter
+.. autoclass:: bauble.plugins.garden.PlantNote
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.PlantChange
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.PlantStatus
+   :show-inheritance: 
 .. autoclass:: bauble.plugins.garden.Location
-   :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Collection
-   :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Donation
-   :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Donor
    :show-inheritance: 
 .. autoclass:: bauble.plugins.garden.Propagation
    :show-inheritance: 
@@ -285,7 +306,16 @@ API Documentation
    :show-inheritance: 
 .. autoclass:: bauble.plugins.garden.PropSeed
    :show-inheritance: 
-
+.. autoclass:: bauble.plugins.garden.Source
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.SourceDetail
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.Collection
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.Verification
+   :show-inheritance: 
+.. autoclass:: bauble.plugins.garden.Voucher
+   :show-inheritance: 
 
 
 :mod:`bauble.plugins.abcd`

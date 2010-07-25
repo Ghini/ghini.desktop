@@ -5,14 +5,14 @@ The main way that we add or change information in Bauble is by using
 the editors.  Each basic type of data has its own editor.  For example
 there is a Family editor, a Genus editor, an Accession editor, etc.
 
-To create a new record click on the Insert menu on the menubar and
-then select the type of record your would like to create.  This will
-open a new blank editor for the type.
+To create a new record click on the :menuselection:`Insert` menu on
+the menubar and then select the type of record your would like to
+create.  This will open a new blank editor for the type.
 
 To edit an existing record in the database right click on an item in
-the search results and select Edit from the popup menu.  This will
-open an editor that will allow you to change the values on the record
-that you selected.
+the search results and select :menuselection:`Edit` from the popup
+menu.  This will open an editor that will allow you to change the
+values on the record that you selected.
 
 Most types also have children which you can add by right clicking on
 the parent and selecting "Add ???..." on the context menu.  For

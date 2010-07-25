@@ -237,7 +237,7 @@ class Species(db.Base):
         '''
         returns this object as a string with markup
 
-        @param authors: flag to toggle whethe the author names should be
+        :param authors: flag to toggle whethe the author names should be
         included
         '''
         return Species.str(self, authors, True)
@@ -251,10 +251,10 @@ class Species(db.Base):
         '''
         returns a string for species
 
-        @param species: the species object to get the values from
-        @param authors: flags to toggle whether the author names should be
+        :param species: the species object to get the values from
+        :param authors: flags to toggle whether the author names should be
         included
-        @param markup: flags to toggle whether the returned text is marked up
+        :param markup: flags to toggle whether the returned text is marked up
         to show italics on the epithets
         '''
         # TODO: this method will raise an error if the session is none

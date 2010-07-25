@@ -368,10 +368,10 @@ class Plant(db.Base):
 
                 * None: no information, unknown
 
-        *accession_id*: :class:`sqlalchemy.types.ForeignKey`
+        *accession_id*: :class:`sqlalchemy.types.Integer`
             Required.
 
-        *location_id*: :class:`sqlalchemy.types.ForeignKey`
+        *location_id*: :class:`sqlalchemy.types.Integer`
             Required.
 
     :Properties:
@@ -561,8 +561,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def __init__(self, model, view):
         '''
-        @param model: should be an instance of Plant class
-        @param view: should be an instance of PlantEditorView
+        :param model: should be an instance of Plant class
+        :param view: should be an instance of PlantEditorView
         '''
         super(PlantEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)

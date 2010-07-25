@@ -1,5 +1,45 @@
 Searching in Bauble
 -------------------
+
+Searching allows you to view, browse and create reports from your
+data. You can perform searches by either entering the queries in the
+main search entry or by using the Query Builder to create the queries
+for you. The results of Bauble searches are listed in the main window.
+
+
+The Query Builder
+=================
+
+The Query Builder can help you build complex search queries through a
+point and click interface.  To open the Query Builder click the to the
+left of the search entry or select :menuselection:`Tools-->Query
+Builder` from the menu.
+
+After opening the Query Builder you must select a search domain.  The
+search domain will determine the type of data that is returned and the
+properties that you can search.  The search domain is similar to a
+table in the database and the properties would be the columns on the
+table.  Often the table/domain and properties/columns are the same but
+not always.
+
+Once a search domain is selected you can then select a property of the
+domain to compare values to.  The search operator can then be changed
+for how you want to make the search comparison.  Finally you must
+enter a value to compare to the search property.  If the search
+property you have selected can only have specific values then a list
+of possible values will be provided for you to choose from.
+
+If multiple search properties are necessary then clicking on the plus
+sign will add more search properties.  Select And/Or next to the
+property name choose how the properties will be combined in the search
+query.
+
+When you are done building your query click OK to perform the search.
+
+
+The Query Language
+==================
+
 Three are three types of search queries available in Bauble. You can
 search by value, expression or query.
 
@@ -8,7 +48,7 @@ maxillaria will return the same results.
 
 
 Search by Value
-===============
++++++++++++++++
 
 Search by value is the simplest way to search. You just type in a
 string and see what matches. Which fields/columns are search for your
@@ -30,7 +70,7 @@ should quote the string like ``"Block 10"``.
 
 
 Search by Expression
-====================
+++++++++++++++++++++
 
 Searching with expression gives you a little more control over what
 you are searching for. It can narrow the search down to a specific
@@ -56,7 +96,7 @@ for the string gen and the string like.
 
 
 Search by Query
-===============
++++++++++++++++
 
 Queries allow the most control over searching. With queries you can
 search across relations, specific columns and join search using
@@ -71,14 +111,15 @@ are located in Block 10.
 Searching with queries usually requires some knowledge of the Bauble
 internals and database table layouts.  
 
+.. _search-domains:
 
 Domains 
-======= 
++++++++ 
 
-The following are the common search domain and the
-columns they search by default. The default columns are used when
-searching by value and expression. The queries do not use the default
-columns.
+The following are the common search domain and the columns they search
+by default. The default columns are used when searching by value and
+expression. The queries do not use the default columns.
+
 
 :Domains:
     fam, family: Search :class:`bauble.plugins.plants.Family`
