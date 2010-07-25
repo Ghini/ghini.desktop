@@ -40,7 +40,6 @@ API Documentation
    :members:
 .. autoclass:: bauble.db.History
    :show-inheritance:
-   :members:
 .. autofunction:: bauble.db.open
 .. autofunction:: bauble.db.create
 .. autofunction:: bauble.db.verify_connection
@@ -49,6 +48,9 @@ API Documentation
 :mod:`bauble.connmgr`
 =======================
 .. automodule:: bauble.connmgr
+.. autoclass:: bauble.db.ConnectionManager
+   :show-inheritance:
+   :members:
 
 
 :mod:`bauble.editor`
