@@ -37,10 +37,26 @@ from bauble.utils.log import debug, warning
 # close the connection and then open it using SQLAlchemy
 
 class ConnectionManager:
-
     """
     The main class that starts the connection manager GUI.
+
+    :param default: the name of the connection to select from the list
+      of connection names
     """
+
+    _dbtypes = ['SQLite', 'PostgreSQL', 'MySQL']
+    # a list of dbtypes that are importable
+    working_dbtypes = property(_get_working_dbtypes)
+    _working_dbtypes = []
+
+    def __init__(self, default=None):
+        self.default_name = default
+        self.current_name = None
+        # old_params is used to cache the parameter values for when the param
+        # box changes but we want to keep the values, e.g. when the type
+        # changes
+        self.old_params = {}
+
 
     def _get_working_dbtypes(self, retry=False):
         """
@@ -74,26 +90,6 @@ class ConnectionManager:
 
         return self._working_dbtypes
 
-    _dbtypes = ['SQLite', 'PostgreSQL', 'MySQL']
-    # a list of dbtypes that are importable
-    working_dbtypes = property(_get_working_dbtypes)
-    _working_dbtypes = []
-
-    def __init__(self, default=None):
-        """
-        :param default: the name of the connection to select from the list
-        of connection names
-        """
-        self.default_name = default
-        self.current_name = None
-        # old_params is used to cache the parameter values for when the param
-        # box changes but we want to keep the values, e.g. when the type
-        # changes
-        self.old_params = {}
-
-
-    # def __del__(self):
-    #     debug('ConnectionManager.__del__()')
 
 
     def start(self):
