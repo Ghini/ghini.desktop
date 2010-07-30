@@ -739,7 +739,7 @@ class SearchView(pluginmgr.View):
         for key, group in itertools.groupby(results, key=lambda x: type(x)):
             # return groups by type and natural sort each of the
             # groups by their strings
-            groups.append(sorted(group, key=utils.natsort_key, reverse=True))
+            groups.append(sorted(group, key=utils.natsort_key))
 
         # sort the groups by type so we more or less always get the
         # results by type in the same order
@@ -760,14 +760,14 @@ class SearchView(pluginmgr.View):
                 continue
             else:
                 added.add(obj)
-            parent = model.prepend(None, [obj])
+            parent = model.append(None, [obj])
             obj_type = type(obj)
             if check_for_kids:
                 kids = self.view_meta[obj_type].get_children(obj)
                 if len(kids) > 0:
-                    model.prepend(parent, ['-'])
+                    model.append(parent, ['-'])
             elif self.view_meta[obj_type].children is not None:
-                model.prepend(parent, ['-'])
+                model.append(parent, ['-'])
             #steps_so_far += chunk_size
             steps_so_far += 1
             if steps_so_far % update_every == 0:
