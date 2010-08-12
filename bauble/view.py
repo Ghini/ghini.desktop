@@ -733,17 +733,17 @@ class SearchView(pluginmgr.View):
 
         groups = []
 
-        # sort by type that that groupby works properly
+        # sort by type so that groupby works properly
         results = sorted(results, key=lambda x: type(x))
 
         for key, group in itertools.groupby(results, key=lambda x: type(x)):
             # return groups by type and natural sort each of the
             # groups by their strings
-            groups.append(sorted(group, key=utils.natsort_key))
+            groups.append(sorted(group, key=utils.natsort_key, reverse=True))
 
         # sort the groups by type so we more or less always get the
         # results by type in the same order
-        groups = sorted(groups, key=lambda x: type(x[0]))
+        groups = sorted(groups, key=lambda x: type(x[0]), reverse=True)
 
         chunk_size = 100
         update_every = 200
@@ -760,14 +760,14 @@ class SearchView(pluginmgr.View):
                 continue
             else:
                 added.add(obj)
-            parent = model.append(None, [obj])
+            parent = model.prepend(None, [obj])
             obj_type = type(obj)
             if check_for_kids:
                 kids = self.view_meta[obj_type].get_children(obj)
                 if len(kids) > 0:
-                    model.append(parent, ['-'])
+                    model.prepend(parent, ['-'])
             elif self.view_meta[obj_type].children is not None:
-                model.append(parent, ['-'])
+                model.prepend(parent, ['-'])
             #steps_so_far += chunk_size
             steps_so_far += 1
             if steps_so_far % update_every == 0:
