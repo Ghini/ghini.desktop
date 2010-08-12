@@ -124,10 +124,12 @@ def _create_role(name, password=None, login=False, admin=False):
 
 
 
-def create_user(name, password=None, admin=False, groups=[]):
+def create_user(name, password=None, admin=False, groups=None):
     """
     Create a role that can login.
     """
+    if groups is None:
+        groups = []
     _create_role(name, password, login=True, admin=False)
     conn = db.engine.connect()
     trans = conn.begin()
@@ -157,10 +159,12 @@ def create_group(name, admin=False):
     _create_role(name, login=False, password=None, admin=admin)
 
 
-def add_member(name, groups=[]):
+def add_member(name, groups=None):
     """
     Add name to groups.
     """
+    if groups is None:
+        groups = []
     conn = db.engine.connect()
     trans = conn.begin()
     try:
@@ -175,10 +179,12 @@ def add_member(name, groups=[]):
         conn.close()
 
 
-def remove_member(name, groups=[]):
+def remove_member(name, groups=None):
     """
     Remove name from groups.
     """
+    if groups is None:
+        groups = []
     conn = db.engine.connect()
     trans = conn.begin()
     try:

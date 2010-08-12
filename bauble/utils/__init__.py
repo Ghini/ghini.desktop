@@ -499,7 +499,7 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     return r
 
 
-def setup_text_combobox(combo, values=[], cell_data_func=None):
+def setup_text_combobox(combo, values=None, cell_data_func=None):
     """
     Configure a gtk.ComboBox as a text combobox
 
@@ -508,6 +508,8 @@ def setup_text_combobox(combo, values=[], cell_data_func=None):
     garbage collected.  To avoid this problem either don't pass a
     method of object or make the method static
     """
+    if values is None:
+        values = []
     combo.clear()
     model = gtk.ListStore(str)
     for v in values:
