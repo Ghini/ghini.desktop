@@ -583,6 +583,8 @@ def setup_date_button(view, entry, button, date_func=None):
     Associate a button with entry so that when the button is clicked a
     date is inserted into the entry.
 
+    :param view: a bauble.editor.GenericEditorView
+
     :param entry: the entry that the data goes into
 
     :param button: the button that enters the data in entry
