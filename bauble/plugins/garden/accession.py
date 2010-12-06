@@ -1145,13 +1145,14 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                           self.on_level_combo_changed)
 
             # notes text view
+            textview = self.widgets.ver_notes_textview
+            textview.set_border_width(1)
             buff = gtk.TextBuffer()
             if self.model.notes:
                 buff.props.text = self.model.notes
-            self.presenter().view.connect(buff, 'changed',self.on_entry_changed,
-                                        'notes')
-            textview = self.widgets.ver_notes_textview
-            textview.set_border_width(1)
+            textview.set_buffer(buff)
+            self.presenter().view.connect(buff, 'changed',
+                                          self.on_entry_changed, 'notes')
 
             # remove button
             button = self.widgets.ver_remove_button
@@ -1302,6 +1303,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             # self.model.source will be reset the None if the source
             # combo value is None in commit_changes()
             self.model.source = self.source
+            self.view.widgets.sources_code_entry.props.text = ''
 
         if self.source.collection:
             self.collection = self.source.collection
