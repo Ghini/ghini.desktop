@@ -963,8 +963,3 @@ class GenusInfoBox(InfoBox):
         self.synonyms.update(row)
         self.links.update(row)
         self.props.update(row)
-
-
-
-__all__ = ['Genus', 'GenusSynonym', 'GenusEditor', 'GenusInfoBox',
-           'genus_context_menu', 'genus_markup_func']
