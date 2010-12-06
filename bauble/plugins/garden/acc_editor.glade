@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
@@ -8,7 +8,6 @@
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox7">
         <property name="visible">True</property>
@@ -58,7 +57,7 @@
                                   <object class="GtkEntry" id="acc_species_entry">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -251,7 +250,7 @@
                                           <object class="GtkEntry" id="acc_quantity_recvd_entry">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
-                                            <property name="invisible_char">&#x25CF;</property>
+                                            <property name="invisible_char">●</property>
                                             <property name="width_chars">5</property>
                                           </object>
                                         </child>
@@ -269,7 +268,7 @@
                                       <object class="GtkEntry" id="acc_code_entry">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="invisible_char">&#x25CF;</property>
+                                        <property name="invisible_char">●</property>
                                         <property name="width_chars">15</property>
                                       </object>
                                       <packing>
@@ -362,7 +361,7 @@
                                               <object class="GtkEntry" id="acc_date_accd_entry">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="invisible_char">&#x25CF;</property>
+                                                <property name="invisible_char">●</property>
                                                 <property name="width_chars">12</property>
                                               </object>
                                               <packing>
@@ -397,7 +396,7 @@
                                               <object class="GtkEntry" id="acc_date_recvd_entry">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="invisible_char">&#x25CF;</property>
+                                                <property name="invisible_char">●</property>
                                                 <property name="width_chars">12</property>
                                               </object>
                                               <packing>
@@ -802,7 +801,7 @@
                                               <object class="GtkEntry" id="sources_code_entry">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
-                                                <property name="invisible_char">&#x25CF;</property>
+                                                <property name="invisible_char">●</property>
                                               </object>
                                               <packing>
                                                 <property name="position">1</property>
@@ -891,7 +890,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">30</property>
                                                             </object>
                                                             <packing>
@@ -908,7 +907,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">10</property>
                                                             </object>
                                                             <packing>
@@ -968,7 +967,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">10</property>
                                                             </object>
                                                             <packing>
@@ -1003,7 +1002,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             </object>
                                                             <packing>
                                                             <property name="left_attach">1</property>
@@ -1174,7 +1173,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">12</property>
                                                             </object>
                                                             <packing>
@@ -1187,7 +1186,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">12</property>
                                                             </object>
                                                             <packing>
@@ -1201,7 +1200,7 @@
                                                             <object class="GtkEntry" id="datum_entry">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             </object>
                                                             <packing>
                                                             <property name="left_attach">1</property>
@@ -1215,7 +1214,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">8</property>
                                                             </object>
                                                             <packing>
@@ -1244,7 +1243,7 @@
                                                             <object class="GtkEntry" id="altacc_entry">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">6</property>
                                                             </object>
                                                             <packing>
@@ -1399,7 +1398,7 @@
                                                             <object class="GtkEntry" id="geoacc_entry">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
-                                                            <property name="invisible_char">&#x25CF;</property>
+                                                            <property name="invisible_char">●</property>
                                                             <property name="width_chars">5</property>
                                                             </object>
                                                             <packing>
@@ -1656,6 +1655,7 @@
                                             </child>
                                           </object>
                                           <packing>
+                                            <property name="expand">False</property>
                                             <property name="position">2</property>
                                           </packing>
                                         </child>
@@ -1692,7 +1692,7 @@
                                           <object class="GtkEntry" id="source_prop_plant_entry">
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
-                                            <property name="invisible_char">&#x25CF;</property>
+                                            <property name="invisible_char">●</property>
                                           </object>
                                           <packing>
                                             <property name="position">1</property>
@@ -2269,7 +2269,7 @@
                       <object class="GtkEntry" id="ver_verifier_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2280,7 +2280,7 @@
                       <object class="GtkEntry" id="ver_date_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                       </object>
                       <packing>
                         <property name="left_attach">3</property>
@@ -2293,7 +2293,7 @@
                       <object class="GtkEntry" id="ver_new_taxon_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2308,7 +2308,7 @@
                       <object class="GtkEntry" id="ver_prev_taxon_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2369,7 +2369,7 @@
                       <object class="GtkEntry" id="ver_ref_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="invisible_char">&#x25CF;</property>
+                        <property name="invisible_char">●</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>
@@ -2609,7 +2609,6 @@
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Source Details</property>
     <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
@@ -2677,7 +2676,7 @@
               <object class="GtkEntry" id="source_name_entry">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
+                <property name="invisible_char">●</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
