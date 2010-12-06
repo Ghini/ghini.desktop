@@ -743,18 +743,19 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
 
 class PropagationChooserPresenter(editor.GenericEditorPresenter):
+    """
+    Chooser for selecting an existing propagation for the source.
 
+    :param parent: the parent AccessionEditorPresenter
+    :param model: a Source instance
+    :param view: an AccessionEditorView
+    :param session: an sqlalchemy.orm.session
+    """
     widget_to_field_map = {}
 
     PROBLEM_INVALID_DATE = random()
 
     def __init__(self, parent, model, view, session):
-        """
-        :param parent: the parent AccessionEditorPresenter
-        :param model: a Source instance
-        :param view: an AccessionEditorView
-        :param session: an sqlalchemy.orm.session
-        """
         super(PropagationChooserPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
@@ -865,7 +866,7 @@ from bauble.view import InfoBox, InfoExpander
 
 class GeneralSourceDetailExpander(InfoExpander):
     '''
-    displays name, number of donations, address, email, fax, tel,
+    Displays name, number of donations, address, email, fax, tel,
     type of contact
     '''
     def __init__(self, widgets):
