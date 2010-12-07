@@ -1,22 +1,18 @@
 #!/usr/bin/env python
 #
-# bauble-upgrade-0.8-to-0.9.py
+# bauble-upgrade-0.9-to-1.0.py
 #
-# export CSV files from a Bauble 0.8 database to save them as CSV
-# files that can be imported into a Bauble 0.9 databa
+# export CSV files from a Bauble 0.9 database to save them as CSV
+# files that can be imported into a Bauble 1.0 databa
 #
-
-# What has changed from 0.8 -> 0.9
-# 1. species.id_qual_rank field added
-# 2. tag.description added
-# 3. the datetime format changed
 
 import csv
 import glob
+from optparse import OptionParser
 import os
 import shutil
 import sys
-from optparse import OptionParser
+
 
 import bauble
 if bauble.version_tuple[0] != '1' and bauble.version_tuple[1] != '0':
@@ -432,10 +428,9 @@ def do_source():
     for line in donor_reader:
         description = ''
         if line['address']:
-            description = line['address']
-        # TODO: this adds an extra blank line at the top if address is None
+            description = '%s\n' % line['address']
         if line['email']:
-            description += '\nemail: %s' % line['email']
+            description += 'email: %s' % line['email']
         if line['tel']:
             description += '\ntel: %s' % line['tel']
         if line['fax']:
@@ -462,10 +457,10 @@ def do_source():
     note_writer = NoteWriter("accession_note.txt", 'accession_id',
                              id_start=next_accession_note_id)
     for line in donation_reader:
-        # TODO: donation date and notes should go on the accession
         source_writer.writerow([line['id'], None, line['accession_id'],
                                 line['donor_id'], # same as source_id
-                                None, None, dummy_timestamp, dummy_timestamp])
+                                None, None, line['_created'],
+                                line['_last_updated']])
         source_ids.add(int(line['id']))
         note_writer.write(line['notes'], line['accession_id'],
                          category='Donation')
