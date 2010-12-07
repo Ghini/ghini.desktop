@@ -72,7 +72,7 @@ def build_id_map(filename):
     return id_map
 
 
-def create_writer(filename, columns, mode="a+b"):
+def create_writer(filename, columns):
     writer = UnicodeWriter(open(filename, "a+b"))
     writer.writerow(columns)
     return writer
