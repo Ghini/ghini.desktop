@@ -175,7 +175,7 @@ class History(history_base):
     __tablename__ = 'history'
     id = sa.Column(sa.Integer, sa.Sequence('history_id_seq'), primary_key=True)
     table_name = sa.Column(sa.String, nullable=False)
-    table_id = sa.Column(sa.Integer, nullable=False)
+    table_id = sa.Column(sa.Integer, nullable=False, autoincrement=False)
     values = sa.Column(sa.String, nullable=False)
     operation = sa.Column(sa.String, nullable=False)
     user = sa.Column(sa.String)

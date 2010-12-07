@@ -186,7 +186,7 @@ class PropRooted(db.Base):
     __mapper_args__ = {'order_by': 'date'}
 
     date = Column(types.Date)
-    quantity = Column(Integer)
+    quantity = Column(Integer, autoincrement=False)
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
 
 
@@ -240,8 +240,8 @@ class PropCutting(db.Base):
                             translations=tip_values))
     leaves = Column(types.Enum(values=leaves_values.keys(),
                                translations=leaves_values))
-    leaves_reduced_pct = Column(Integer)
-    length = Column(Integer)
+    leaves_reduced_pct = Column(Integer, autoincrement=False)
+    length = Column(Integer, autoincrement=False)
     length_unit = Column(types.Enum(values=length_unit_values.keys(),
                                     translations=length_unit_values))
 
@@ -261,7 +261,7 @@ class PropCutting(db.Base):
     location = Column(Unicode)
     cover = Column(Unicode) # vispore, poly, plastic dome, poly bag
 
-    bottom_heat_temp = Column(Integer) # temperature of bottom heat
+    bottom_heat_temp = Column(Integer, autoincrement=False) # temperature of bottom heat
 
     # TODO: make the bottom heat unit required if bottom_heat_temp is
     # not null
@@ -270,7 +270,7 @@ class PropCutting(db.Base):
     bottom_heat_unit = Column(types.Enum(values=bottom_heat_unit_values.keys(),
                                          translations=bottom_heat_unit_values),
                               nullable=True)
-    rooted_pct = Column(Integer)
+    rooted_pct = Column(Integer, autoincrement=False)
     #aftercare = Column(UnicodeText) # same as propgation.notes
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
@@ -285,7 +285,7 @@ class PropSeed(db.Base):
     """
     __tablename__ = 'prop_seed'
     pretreatment = Column(UnicodeText)
-    nseeds = Column(Integer, nullable=False)
+    nseeds = Column(Integer, nullable=False, autoincrement=False)
     date_sown = Column(types.Date, nullable=False)
     container = Column(Unicode) # 4" pot plug tray, other
     media = Column(Unicode) # seedling media, sphagnum, other
@@ -304,8 +304,8 @@ class PropSeed(db.Base):
 
     germ_date = Column(types.Date)
 
-    nseedlings = Column(Integer) # number of seedling
-    germ_pct = Column(Integer) # % of germination
+    nseedlings = Column(Integer, autoincrement=False) # number of seedling
+    germ_pct = Column(Integer, autoincrement=False) # % of germination
     date_planted = Column(types.Date)
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),

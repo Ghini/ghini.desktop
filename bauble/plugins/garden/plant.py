@@ -325,9 +325,9 @@ class PlantStatus(db.Base):
     fruiting_status = Column(types.Enum(values=fruiting_values.keys(),
                                         translations=fruiting_values))
 
-    autum_color_pct = Column(Integer)
-    leaf_drop_pct = Column(Integer)
-    leaf_emergence_pct = Column(Integer)
+    autumn_color_pct = Column(Integer, autoincrement=False)
+    leaf_drop_pct = Column(Integer, autoincrement=False)
+    leaf_emergence_pct = Column(Integer, autoincrement=False)
 
     sex = Column(types.Enum(values=sex_values.keys(),
                             translations=sex_values))
