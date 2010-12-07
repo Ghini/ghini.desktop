@@ -410,13 +410,9 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.notes_presenter = \
             editor.NotesPresenter(self, 'notes', notes_parent)
 
-        #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
-        # self.assign_simple_handler('gen_notes_textview', 'notes',
-        #                            editor.UnicodeOrNoneValidator())
+        if self.model not in self.session.new:
+            self.view.widgets.gen_ok_and_add_button.set_sensitive(True)
 
-        # for each widget register a signal handler to be notified when the
-        # value in the widget changes, that way we can do things like sensitize
-        # the ok button
         self.__dirty = False
 
 

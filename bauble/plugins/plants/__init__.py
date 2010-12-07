@@ -86,7 +86,7 @@ class PlantsPlugin(pluginmgr.Plugin):
     @classmethod
     def install(cls, import_defaults=True):
         """
-        do any setup and configuration required bt this plugin like
+        Do any setup and configuration required by this plugin like
         creating tables, etc...
         """
         if not import_defaults:

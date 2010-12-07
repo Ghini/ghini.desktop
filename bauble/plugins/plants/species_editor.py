@@ -138,6 +138,13 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_awards_entry', 'awards',
                                    editor.UnicodeOrNoneValidator())
 
+        try:
+            import bauble.plugins.garden
+            if self.model not in self.model.new:
+                self.view.widgets.sp_ok_and_add_button.set_sensitive(True)
+        except Exception:
+            pass
+
 
     def on_habit_combo_entry_changed(self, combo, *args):
         """

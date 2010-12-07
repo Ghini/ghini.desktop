@@ -489,7 +489,9 @@ class GUI(object):
 
 
     def on_tools_menu_item_activate(self, widget, tool):
-#        debug('on_tools_menu_item_activate(%s)' % tool)
+        """
+        Start a tool on the Tool menu.
+        """
         try:
             tool.start()
         except Exception, e:
