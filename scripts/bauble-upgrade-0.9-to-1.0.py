@@ -72,7 +72,7 @@ def build_id_map(filename):
     return id_map
 
 
-def create_writer(filename, columns):
+def create_writer(filename, columns, mode="a+b"):
     writer = UnicodeWriter(open(filename, "a+b"))
     writer.writerow(columns)
     return writer
@@ -80,8 +80,8 @@ def create_writer(filename, columns):
 
 class NoteWriter(object):
 
-    def __init__(self, filename, parent_id_column):
-        self.id_ctr = 1
+    def __init__(self, filename, parent_id_column, id_start=1):
+        self.id_ctr = id_start
         self.columns = ['id', 'note', 'date', 'user', 'category', '_created',
                         '_last_updated']
         self.columns.append(parent_id_column)
@@ -225,6 +225,8 @@ wild_prov_map = {"Wild native": 'WildNative',
                  'None': None}
 
 
+next_accession_note_id = -1
+
 def do_accession(filename):
     from bauble.plugins.garden import Accession, AccessionNote
     reader = UnicodeReader(open(filename))
@@ -244,7 +246,7 @@ def do_accession(filename):
         prov_type = prov_type_map[line['prov_type']]
         wild_prov_status = wild_prov_map[line['wild_prov_status']]
         accession_writer.writerow([line['id'], line['code'], prov_type,
-                                   wild_prov_status, None, None,
+                                   wild_prov_status, line['date'], None,
                                    None, None, line['id_qual'],
                                    line['id_qual_rank'], line['private'],
                                    line['species_id'], None, None,
@@ -253,6 +255,7 @@ def do_accession(filename):
         if note:
             note_writer.write(note, line['id'])
 
+    next_accession_note_id = note_writer.id_ctr
 
 acc_type_map = {'Plant': 'Plant',
                 'Seed/Spore': 'Seed',
@@ -456,12 +459,16 @@ def do_source():
     source_ids = set()
 
     donation_reader = UnicodeReader(open(os.path.join(src_path,'donation.txt')))
+    note_writer = NoteWriter("accession_note.txt", 'accession_id',
+                             id_start=next_accession_note_id)
     for line in donation_reader:
         # TODO: donation date and notes should go on the accession
         source_writer.writerow([line['id'], None, line['accession_id'],
                                 line['donor_id'], # same as source_id
                                 None, None, dummy_timestamp, dummy_timestamp])
         source_ids.add(int(line['id']))
+        note_writer.write(line['notes'], line['accession_id'],
+                         category='Donation')
 
     collection_reader = UnicodeReader(open(os.path.join(src_path,
                                                         'collection.txt')))
