@@ -1,26 +1,8 @@
-bauble-ubc (1.0.0~b18~lucid~ppa1) lucid; urgency=low
+bauble (1.0.0b3~ppa1) lucid; urgency=low
 
-  * Eighteenth beta release of the UBC version of Bauble
+  * 1.0.0b3 Release
 
- -- Brett Adams <brett@belizebotanic.org>  Tue, 16 Mar 2010 20:53:30 -0400
-
-bauble-ubc (1.0.0~b4~karmic~ppa1) karmic; urgency=low
-
-  * Fourth beta release of the UBC version of Bauble
-
- -- Brett Adams <brett@belizebotanic.org>  Mon, 30 Nov 2009 21:43:42 -0600
-
-bauble-ubc (1.0.0~b2~karmic~ppa1) karmic; urgency=low
-
-  * Second beta release of the UBC version of Bauble
-
- -- Brett Adams <brett@belizebotanic.org>  Sat, 07 Nov 2009 13:33:49 -0600
-
-bauble-ubc (1.0.0~b1~ppa1) jaunty; urgency=low
-
-  * First beta release of the UBC version of Bauble
-
- -- Brett Adams <brett@belizebotanic.org>  Wed, 07 Oct 2009 11:56:42 -0600
+ -- Brett Adams <brett@belizebotanic.org>  Tue, 07 Dec 2010 15:18:29 -0500
 
 bauble (0.9.5~ppa1) jaunty; urgency=low
 
