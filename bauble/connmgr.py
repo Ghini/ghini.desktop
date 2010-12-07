@@ -491,11 +491,23 @@ class ConnectionManager:
             subs['type'] = 'postgres'
         else:
             subs['type'] = params['type'].lower()
-        template = "%(type)s://%(user)s@%(host)s/%(db)s"
+        if 'port' in params:
+            template = "%(type)s://%(user)s@%(host)s:%(port)s/%(db)s"
+        else:
+            template = "%(type)s://%(user)s@%(host)s/%(db)s"
         if params["passwd"] == True:
             subs["passwd"] = self.get_passwd()
-            template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
-        return template % subs
+            #template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
+            # insert password
+            if subs["passwd"]:
+                template = template.replace('@', ':%(passwd)s@')
+        uri = template % subs
+        options = []
+        if 'options' in params:
+            options = params['options'].join('&')
+            uri.append('?')
+            uri.append(options)
+        return uri
 
 
     def _get_connection_uri(self):
@@ -676,6 +688,15 @@ class SQLiteParamsBox(CMParamsBox):
 
 
 
+class PGParamsBox(CMParamsBox):
+
+    def __init__(self, conn_mgr):
+        CMParamsBox.__init__(self, conn_mgr)
+        # for child in children:
+        #   if child
+
+
+
 class CMParamsBoxFactory:
 
     def __init__(self):
@@ -684,6 +705,8 @@ class CMParamsBoxFactory:
     def createParamsBox(db_type, conn_mgr):
         if db_type.lower() == "sqlite":
             return SQLiteParamsBox(conn_mgr)
+        elif 'postgres' in db_type.lower(): # works for postgres and postgresql
+            return PGParamsBox(conn_mgr)
         return CMParamsBox(conn_mgr)
     createParamsBox = staticmethod(createParamsBox)
 
