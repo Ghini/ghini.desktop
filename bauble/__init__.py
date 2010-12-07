@@ -9,7 +9,7 @@ import imp, os, sys
 import bauble.paths as paths
 
 # major, minor, revision version tuple
-version = '1.0.0b2' # :bump
+version = '1.0.0b3' # :bump
 """The Bauble version.
 """
 version_tuple = version.split('.')
