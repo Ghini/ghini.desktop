@@ -699,9 +699,6 @@ class CSVImportTool(pluginmgr.Tool):
             c = CSVImporter()
             c.start()
 
-        # reinitialized the plugins now that the data has changed
-        pluginmgr.init()
-
 
 
 class CSVExportTool(pluginmgr.Tool):
