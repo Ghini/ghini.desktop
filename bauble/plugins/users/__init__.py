@@ -244,6 +244,7 @@ def drop(role, revoke=False):
     except Exception, e:
         error(e)
         trans.rollback()
+        raise
     else:
         trans.commit()
     finally:
@@ -290,9 +291,9 @@ def has_privileges(role, privilege):
     - `role`:
     - `privileges`:
     """
-    # if the user has all on database with grant privileges he has
-    # the grant privilege on the database then he has admin
-
+    # if the user has all on database with grant privileges and he has
+    # the grant privilege on the database then he has admin and he can
+    # create roles
     if privilege == 'admin':
         # test admin privileges on the database
         for priv in _database_privs:
@@ -329,6 +330,14 @@ def has_privileges(role, privilege):
                 # exist in the database which can happen if this
                 # plugin is run on a mismatched version of bauble
                 pass
+
+    # if admin check that the user can also create roles
+    if privilege == 'admin':
+        stmt = "select rolname from pg_roles where rolcreaterole is true and rolname = '%s'" % role
+        r = db.engine.execute(stmt).fetchone()
+        if not r:
+            return False
+
     return True
 
 
@@ -363,6 +372,9 @@ def set_privilege(role, privilege):
             % (bauble.db.engine.url.database, role)
         conn.execute(stmt)
 
+        stmt = 'alter role %s with nocreaterole' % role
+        conn.execute(stmt)
+
         # privilege is None so all permissions are revoked
         if not privilege:
             trans.commit()
@@ -375,6 +387,8 @@ def set_privilege(role, privilege):
                 (bauble.db.engine.url.database, role)
             if privilege == 'admin':
                     stmt += ' with grant option'
+            conn.execute(stmt)
+            stmt = 'alter role %s with createuser' % role
             conn.execute(stmt)
 
         # grant privileges on the tables and sequences
@@ -400,6 +414,7 @@ def set_privilege(role, privilege):
     except Exception, e:
         error('users.set_privilege(): %s' % utils.utf8(e))
         trans.rollback()
+        raise
     else:
         trans.commit()
     finally:
@@ -414,6 +429,29 @@ def current_user():
     user = r.fetchone()[0]
     r.close()
     return user
+
+
+
+def set_password(password, user=None):
+    """
+    Set a user's password.
+
+    If user is None then change the password of the current user.
+    """
+    if not user:
+        user = current_user()
+    conn = db.engine.connect()
+    trans = conn.begin()
+    try:
+        stmt = "alter role %s with encrypted password '%s'" % (user, password)
+        conn.execute(stmt)
+    except Exception, e:
+        error('users.set_password(): %s' % utils.utf8(e))
+        trans.rollback()
+    else:
+        trans.commit()
+    finally:
+        conn.close()
 
 
 class UsersEditor(editor.GenericEditorView):
@@ -466,12 +504,26 @@ class UsersEditor(editor.GenericEditorView):
             active = button.get_active()
             if active and not has_privileges(role, priv):
                 #debug('grant %s to %s' % (priv, role))
-                set_privilege(role, priv)
+                try:
+                    set_privilege(role, priv)
+                except Exception, e:
+                    utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+                                         parent=self.get_window())
             return True
 
         self.connect('read_button', 'toggled', on_toggled, 'read')
         self.connect('write_button', 'toggled', on_toggled, 'write')
         self.connect('admin_button', 'toggled', on_toggled, 'admin')
+
+
+        # only superusers can toggle the admin flag
+        stmt = "select rolname from pg_roles where rolsuper is true and rolname = '%s'" % current_user()
+        r = db.engine.execute(stmt).fetchone()
+        if r:
+            self.widgets.admin_button.props.sensitive = True
+        else:
+            self.widgets.admin_button.props.sensitive = False
+
 
         self.connect('pwd_button', 'clicked', self.on_pwd_button_clicked)
         self.connect('add_button', 'clicked', self.on_add_button_clicked)
@@ -507,8 +559,15 @@ class UsersEditor(editor.GenericEditorView):
                     '<i>It is possible that this user could have permissions '\
                     'on other databases not related to Bauble.</i>') \
                     % {'name': user}
-        if utils.yes_no_dialog(msg):
+        if not utils.yes_no_dialog(msg):
+            return
+
+        try:
             drop(user, revoke=True)
+        except Exception, e:
+            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+                                 parent=self.get_window())
+        else:
             active = self.widgets.filter_check.get_active()
             self.populate_users_tree(only_bauble=active)
 
@@ -569,6 +628,13 @@ class UsersEditor(editor.GenericEditorView):
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING,
                                      parent=self.get_window())
                 return
+            else:
+                try:
+                    set_password(pwd1, user)
+                except Exception, e:
+                    utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+                                         parent=self.get_window())
+
         # TODO: show a dialog that says the pwd has been changed or
         # just put a message in the status bar
 
@@ -627,10 +693,16 @@ class UsersEditor(editor.GenericEditorView):
             model.remove(treeiter)
             return True
         model[path] = (user,)
-        create_user(user)
-        set_privilege(user, 'read')
-        self.widgets.read_button.props.active = True
-        cell.props.editable = False
+        try:
+            create_user(user)
+            set_privilege(user, 'read')
+        except Exception, e:
+            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+                                 parent=self.get_window())
+            model.remove(model.get_iter(path))
+        else:
+            self.widgets.read_button.props.active = True
+            cell.props.editable = False
         return False
 
 
