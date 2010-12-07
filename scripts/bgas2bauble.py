@@ -1196,10 +1196,9 @@ def do_plants():
                         family_id = unknown_family_id
                 if family_id == unknown_family_id:
                     warning('genus has no family: %s' % genus)
-                genus_table.insert().values(family_id=family_id,
+                genus_id = get_next_id(genus_table)
+                genus_table.insert().values(id=genus_id, family_id=family_id,
                                             genus=genus).execute().close()
-                genus_id = get_column_value(genus_table.c.id,
-                                            genus_table.c.genus==genus)
 
             # add the timestamps back in since these are species we'll
             # be creating later
@@ -1519,15 +1518,16 @@ def create_plants():
     insert_rows(plant_insert, plant_rows)
     info('inserted %s plants' % len(plant_rows))
 
-    change_insert = get_insert(PlantChange.__table__, change_rows[0].keys())
-    insert_rows(change_insert, change_rows)
-    info('inserted %s changes' % len(change_rows))
-
     note_insert = get_insert(PlantNote.__table__, note_rows[0].keys())
     insert_rows(note_insert, note_rows)
     info('inserted %s notes' % len(note_rows))
 
+    change_insert = get_insert(PlantChange.__table__, change_rows[0].keys())
+    insert_rows(change_insert, change_rows)
+    info('inserted %s changes' % len(change_rows))
 
+
+syn_genus_id_ctr = 0
 
 def do_synonym():
     """
@@ -1543,9 +1543,28 @@ def do_synonym():
 
     genus_defaults = get_defaults(genus_table)
     genus_rows = []
-    genus_id_ctr = get_next_id(genus_table)
+    global syn_genus_id_ctr  # needs to be global for get_genus_id()
+    syn_genus_id_ctr = get_next_id(genus_table)
+    new_genus_ids = {}
 
     dupes = set()
+
+    def get_genus_id(genus):
+        if genus in new_genus_ids:
+            return new_genus_ids[genus]
+        genus_id = get_column_value(genus_table.c.id,
+                                    genus_table.c.genus==genus)
+        if not genus_id:
+            global syn_genus_id_ctr
+            new_genus = genus_defaults.copy()
+            new_genus['genus'] = genus
+            new_genus['family_id'] = unknown_family_id
+            genus_id = syn_genus_id_ctr
+            syn_genus_id_ctr += 1
+            new_genus['id'] = genus_id
+            new_genus_ids[genus] = genus_id
+            genus_rows.append(new_genus)
+        return genus_id
 
     for rec in dbf:
         species = species_name_dict_from_rec(rec,
@@ -1553,17 +1572,8 @@ def do_synonym():
         species_id = get_species_id(species)
         if not species_id:
             gen = species.pop('genus')
-            genus_id = get_column_value(genus_table.c.id,
-                                        genus_table.c.genus==gen)
-            if not genus_id:
-                genus = genus_defaults.copy()
-                genus['genus'] = gen
-                genus['family_id'] = unknown_family_id
-                genus_id = genus['id'] = genus_id_ctr
-                genus_id_ctr += 1
-                genus_rows.append(genus)
             #raise ValueError('no genus: %s' % species['genus'])
-            species['genus_id'] = genus_id
+            species['genus_id'] = get_genus_id(gen)
             species_id = species['id'] = species_id_ctr
             species_id_ctr += 1
             species_rows.append(species)
@@ -1579,16 +1589,7 @@ def do_synonym():
         synonym_id = get_species_id(synonym)
         if not synonym_id:
             gen = synonym.pop('genus')
-            genus_id = get_column_value(genus_table.c.id,
-                                        genus_table.c.genus == gen)
-            if not genus_id:
-                genus = genus_defaults.copy()
-                genus['genus'] = gen
-                genus['family_id'] = unknown_family_id
-                genus_id = genus['id'] = genus_id_ctr
-                genus_id_ctr += 1
-                genus_rows.append(genus)
-            synonym['genus_id'] = genus_id
+            synonym['genus_id'] = get_genus_id(gen)
             synonym_id = synonym['id'] = species_id_ctr
             species_id_ctr += 1
             species_rows.append(synonym)
@@ -1599,7 +1600,6 @@ def do_synonym():
             print synonym
             print synonym_id
             continue
-            #print synonym
             #raise ValueError('%s is a duplicate synonym_id' % synonym_id)
         dupes.add(synonym_id)
 
@@ -1610,6 +1610,9 @@ def do_synonym():
         synonym_rows.append(spsyn)
 
     dbf.close()
+
+    genus_insert = get_insert(genus_table, genus_rows[0].keys())
+    insert_rows(genus_insert, genus_rows)
 
     species_insert = get_insert(species_table, species_rows[0].keys())
     insert_rows(species_insert, species_rows)
@@ -1636,18 +1639,17 @@ if __name__ == '__main__':
         total_seconds = 0
         # run each of the stages in order
         for stage in stages[options.stage:]:
-            current_stage = stage
-            t = timeit.timeit('current_stage()',
-                              "from __main__ import current_stage;",
-                              number=1)
+            stage()
+            #current_stage = stage
+            # t = timeit.timeit('current_stage()',
+            #                   "from __main__ import current_stage;",
+            #                   number=1)
             gc.collect()
-            info('... in %s seconds.' % t)
-            total_seconds += t
-        info('total run time: %s seconds' % total_seconds)
+            # info('... in %s seconds.' % t)
+            # total_seconds += t
+        #info('total run time: %s seconds' % total_seconds)
 
-        # TODO: this is giving erros for integer columns that don't
-        # have sequences like prop_cutting_rooted_pct_seq and
-        # verification_level_seq
+        # reset all sequences on all tables
         for table in db.metadata.sorted_tables:
             for col in table.c:
                 utils.reset_sequence(col)

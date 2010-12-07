@@ -350,6 +350,17 @@ class clean(Command):
         if os.path.exists(deb_dist):
             dir_util.remove_tree(deb_dist)
 
+
+class run(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        cwd = os.getcwd()
+        os.system(os.path.join(cwd, 'bauble.sh'))
+
 # TODO: sdist_deb should be run from a fresh checkout and never from a
 # working directory as it could contain uncommited files and other
 # files in the tarball that shouldn't be included in the dist
@@ -387,7 +398,7 @@ except ImportError:
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
-                           'docs': docs, 'clean': clean,
+                           'docs': docs, 'clean': clean, 'run': run,
                            'sdist_deb': sdist_deb},
                  version=version,
                  scripts=["scripts/bauble", "scripts/bauble-admin"],

@@ -94,6 +94,11 @@ class UnicodeWriter(object):
 
 
     def writerow(self, row):
+        """
+        Write a row.  If row is a dict then row.values() is written
+        and therefore care should be taken to ensure that row.values()
+        returns a consisten order.
+        """
         if isinstance(row, dict):
             row = row.values()
         t = []

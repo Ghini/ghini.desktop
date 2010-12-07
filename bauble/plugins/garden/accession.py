@@ -255,77 +255,18 @@ class Verification(db.Base):
         table. What it was verified from.
 
     """
-
-# sdasda
-#       - *verifier*: :class:`~sqlalchemy.types.Unicode(64)`:
-# 	The name of the person that made the verification.
-
-#       - *date*: :class:`sqlalchemy.types.Date()`
-
-#       	The date of the verification
-
-#       - *reference*: :class:`sqlalchemy.types.UnicodeText()`
-
-#         The reference material used to make this verification
-
-#       - *level*: :class:`sqlalchemy.types.Integer()`
-
-#         If it is not known whether the name of the record has been
-#         verified by an authority, then this field must not be filled.
-
-#         0: The name of the record has not been checked by any
-#         authority
-
-#         1: The name of the record determined by comparison with other
-#         named plants
-
-#         2: The name of the record determined by a taxonomist or by
-#         other competent persons using herbarium and/or library and/or
-#         documented living material
-
-#         3: The name of the plant determined by taxonomist engaged in
-#         systematic revision of the group
-
-#         4: The record is part of type gathering or propagated from
-#         type material by asexual methods
-
-#       - *notes*: :class:`sqlalchemy.types.UnicodeText()`
-
-#         Notes about this verification.
-
-#       - *accession_id*: :class:`sqlalchemy.types.Integer()`
-
-#         Foreign Key to the :class:`Accession` table.
-
-#       - *species_id*: :class:`sqlalchemy.types.Integer()`
-
-#         Foreign Key to the :class:`~bauble.plugins.plants.Species` table.
-
-#       - *prev_species_id*: :class:`~sqlalchemy.types.Integer()`
-
-#         Foreign key to the :class:`~bauble.plugins.plants.Species`
-#         table. What it was verified from.
-
-
-    # :Properties:
-    #   - *species*:
-
-    #   - *prev_species*:
-
-    #   - *accession*:
-
     __tablename__ = 'verification'
     __mapper_args__ = {'order_by': 'verification.date'}
 
     # columns
     verifier = Column(Unicode(64), nullable=False)
-
     date = Column(types.Date, nullable=False)
     reference = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
     # the level of assurance of this verification
-    level = Column(Integer, nullable=False)
+    level = Column(Integer, nullable=False, autoincrement=False)
+
     # what it was verified as
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
