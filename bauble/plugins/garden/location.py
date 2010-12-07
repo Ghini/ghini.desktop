@@ -175,6 +175,8 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('loc_desc_textview', 'description',
                                    UnicodeOrNoneValidator())
         self.refresh_sensitivity()
+        if self.model not in self.session.new:
+            self.view.widgets.loc_ok_and_add_button.set_sensitive(True)
 
 
     def refresh_sensitivity(self):

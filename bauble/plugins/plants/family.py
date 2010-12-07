@@ -318,6 +318,9 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.notes_presenter = \
             editor.NotesPresenter(self, 'notes', notes_parent)
 
+        if self.model not in self.session.new:
+            self.view.widgets.fam_ok_and_add_button.set_sensitive(True)
+
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
         # the ok button

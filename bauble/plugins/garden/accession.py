@@ -1766,6 +1766,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         self.refresh_sensitivity()
 
+        if self.model not in self.session.new:
+            self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
+
 
     def refresh_id_qual_rank_combo(self):
         """
