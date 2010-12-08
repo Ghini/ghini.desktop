@@ -36,8 +36,12 @@ if not args:
     print parser.error('a directory with a dumped CSV files is required')
 
 
-dummy_date = "1900-1-1"
-dummy_timestamp = "1900-01-01 01:01:01.000000-00:00"
+
+#dummy_date = "1902-01-01"
+#dummy_timestamp = '1902-01-01 00:00:00.0-00:00'
+dummy_date = None
+dummy_timestamp = None
+
 
 # a directory full of CSV text files exported from Bauble 0.8
 src_path = args[0]
@@ -84,8 +88,8 @@ class NoteWriter(object):
         self.writer = create_writer(filename, self.columns)
 
     def write(self, note, parent_id, date=dummy_date, category=None):
-        new_note = [self.id_ctr, note, date, None, category, date, date,
-                    parent_id]
+        new_note = [self.id_ctr, note, date, None, category, dummy_timestamp,
+                    dummy_timestamp, parent_id]
         self.writer.writerow(new_note)
         self.id_ctr += 1
 
