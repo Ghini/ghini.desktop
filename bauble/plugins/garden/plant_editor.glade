@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
@@ -11,11 +11,9 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox7">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <child>
               <object class="GtkHBox" id="message_box_parent">
                 <property name="visible">True</property>
@@ -36,7 +34,6 @@
                 <child>
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
                     <child>
                       <object class="GtkAlignment" id="alignment8">
@@ -118,7 +115,7 @@
                                   <object class="GtkEntry" id="plant_quantity_entry">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                     <property name="width_chars">7</property>
                                   </object>
                                   <packing>
@@ -394,7 +391,7 @@
                               <object class="GtkEntry" id="plant_code_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                                 <property name="width_chars">12</property>
                               </object>
                               <packing>
@@ -414,8 +411,8 @@
                                   <object class="GtkEntry" id="plant_acc_entry">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="invisible_char">&#x25CF;</property>
-                                    <property name="width_chars">8</property>
+                                    <property name="invisible_char">●</property>
+                                    <property name="width_chars">10</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -503,7 +500,7 @@
                                       <object class="GtkEntry" id="plant_date_entry">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="invisible_char">&#x25CF;</property>
+                                        <property name="invisible_char">●</property>
                                         <property name="width_chars">15</property>
                                       </object>
                                       <packing>
@@ -666,7 +663,6 @@
                   <object class="GtkVBox" id="prop_tab_box">
                     <property name="visible">True</property>
                     <property name="border_width">10</property>
-                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkAlignment" id="alignment3">
                         <property name="visible">True</property>
@@ -715,7 +711,6 @@
                 <child>
                   <object class="GtkVBox" id="notes_parent_box">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <child>
                       <placeholder/>
                     </child>
