@@ -173,7 +173,7 @@ class FamilyNote(db.Base):
     """
     __tablename__ = 'family_note'
 
-    date = Column(types.DateTime, nullable=False)
+    date = Column(types.Date, default=func.now())
     user = Column(Unicode(64))
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)

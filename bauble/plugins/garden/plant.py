@@ -196,7 +196,7 @@ class PlantNote(db.Base):
     __tablename__ = 'plant_note'
     __mapper_args__ = {'order_by': 'plant_note.date'}
 
-    date = Column(types.Date, nullable=False)
+    date = Column(types.Date, default=func.now())
     user = Column(Unicode(64))
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)

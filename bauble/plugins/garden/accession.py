@@ -379,7 +379,7 @@ class AccessionNote(db.Base):
     __tablename__ = 'accession_note'
     __mapper_args__ = {'order_by': 'accession_note.date'}
 
-    date = Column(types.DateTime, nullable=False)
+    date = Column(types.Date, default=func.now())
     user = Column(Unicode(64))
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)
@@ -481,8 +481,6 @@ class Accession(db.Base):
     recvd_type = Column(types.Enum(values=recvd_type_values.keys(),
                                    translations=recvd_type_values),
                         default=None)
-
-    # date = Column(types.Date)
 
     # "id_qual" new in 0.7
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
