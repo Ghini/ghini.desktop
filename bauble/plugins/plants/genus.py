@@ -732,28 +732,20 @@ class LinksExpander(view.LinksExpander):
         super(LinksExpander, self).__init__("notes")
         buttons = []
 
-        self.google_button = gtk.LinkButton("", _("Search Google"))
-        self.google_button.set_tooltip_text(_("Search Google"))
+        import bauble.utils.web as web
+        self.google_button = web.GoogleButton()
         buttons.append(self.google_button)
 
-        self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
-        tooltip = _("Search the Global Biodiversity Information Facility")
-        self.gbif_button.set_tooltip_text(tooltip)
+        self.gbif_button = web.GBIFButton()
         buttons.append(self.gbif_button)
 
-        self.itis_button = gtk.LinkButton("", _("Search ITIS"))
-        tooltip = _("Search the Intergrated Taxonomic Information System")
-        self.itis_button.set_tooltip_text(tooltip)
+        self.itis_button = web.ITISButton()
         buttons.append(self.itis_button)
 
-        self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
-        tooltip = _("Search the International Plant Names Index")
-        self.ipni_button.set_tooltip_text(tooltip)
+        self.ipni_button = web.IPNIButton()
         buttons.append(self.ipni_button)
 
-        self.bgci_button = gtk.LinkButton("", _("Search BGCI"))
-        tooltip = _("Search Botanic Gardens Conservation International")
-        self.bgci_button.set_tooltip_text(tooltip)
+        self.bgci_button = web.BGCIButton()
         buttons.append(self.bgci_button)
 
         for b in buttons:
@@ -763,30 +755,11 @@ class LinksExpander(view.LinksExpander):
 
     def update(self, row):
         super(LinksExpander, self).update(row)
-        s = str(row)
-        self.gbif_button.set_uri("http://data.gbif.org/search/%s" % \
-                                 s.replace(' ', '+'))
-        itis_uri = "http://www.itis.gov/servlet/SingleRpt/SingleRpt?"\
-                   "search_topic=Scientific_Name" \
-                   "&search_value=%(search_value)s" \
-                   "&search_kingdom=Plant" \
-                   "&search_span=containing" \
-                   "&categories=All&source=html&search_credRating=All" \
-                   % {'search_value': s.replace(' ', '%20')}
-        self.itis_button.set_uri(itis_uri)
-
-        self.google_button.set_uri("http://www.google.com/search?q=%s" % \
-                                   s.replace(' ', '+'))
-
-        bgci_uri = "http://www.bgci.org/plant_search.php?action=Find"\
-                   "&ftrGenus=%s&ftrRedList="\
-                   "&ftrRedList1997=&ftrEpithet=&ftrCWR=&x=0&y=0#results" % s
-        self.bgci_button.set_uri(bgci_uri)
-
-        ipni_uri = "http://www.ipni.org/ipni/advPlantNameSearch.do?"\
-                   "find_genus=%s&find_isAPNIRecord=on& find_isGCIRecord=on" \
-                   "&find_isIKRecord=on&output_format=normal" % s
-        self.ipni_button.set_uri(ipni_uri)
+        self.google_button.set_string(row)
+        self.gbif_button.set_string(row)
+        self.itis_button.set_string(row)
+        self.ipni_button.set_keywords(genus=row.genus, species='')
+        self.bgci_button.set_keywords(genus=row.genus, species='')
 
 
 class GeneralGenusExpander(InfoExpander):

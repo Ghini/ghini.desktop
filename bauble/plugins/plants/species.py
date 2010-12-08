@@ -378,10 +378,9 @@ class LinksExpander(view.LinksExpander):
 
     def update(self, row):
         super(LinksExpander, self).update(row)
-        s = str(row)
-        self.google_button.set_string(s)
-        self.gbif_button.set_string(s)
-        self.itis_button.set_string(s)
+        self.google_button.set_string(row)
+        self.gbif_button.set_string(row)
+        self.itis_button.set_string(row)
         self.ipni_button.set_keywords(genus=row.genus, species=row.sp)
         self.bgci_button.set_keywords(genus=row.genus, species=row.sp)
 
