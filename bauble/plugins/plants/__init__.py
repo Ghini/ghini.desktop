@@ -93,7 +93,8 @@ class PlantsPlugin(pluginmgr.Plugin):
             return
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
         filenames = [os.path.join(path, f) for f in 'family.txt',
-                     'genus.txt', 'genus_synonym.txt', 'geography.txt']
+                     'genus.txt', 'genus_synonym.txt', 'geography.txt',
+                     'habit.txt']
         #filenames = [os.path.join(path, 'genus_synonym.txt')]
         from bauble.plugins.imex.csv_ import CSVImporter
         csv = CSVImporter()

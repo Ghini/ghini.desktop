@@ -559,3 +559,8 @@ def do_source():
 
 do_source()
 
+# copy the habit
+habit_file = os.path.join
+rootdir = os.path.split(bauble.__file__)[0]
+habit_file = os.path.join(rootdir, 'plugins', 'plants', 'default', 'habit.txt')
+shutil.copy(habit_file, dst_path)
