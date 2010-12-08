@@ -164,7 +164,9 @@ def do_species(filename):
 
     for line in reader:
         # in bauble 0.9 if sp_hybrid was not None then the infrasp held sp2
+        hybrid = False
         if line['sp_hybrid']:
+            hybrid = True
             if line['infrasp_rank'] or line['infrasp_author']:
                 print '**', line['sp'], line['infrasp'], line['infrasp_rank'], \
                     line['infrasp_author']
@@ -175,7 +177,7 @@ def do_species(filename):
             infrasp1 = line['infrasp']
 
         species_writer.writerow([line['id'], line['sp'], sp2,
-                                 line['sp_author'], line['sp_hybrid'],
+                                 line['sp_author'], hybrid,
                                  line['sp_qual'], line['cv_group'],
                                  line['trade_name'], infrasp1,
                                  line['infrasp_rank'], line['infrasp_author'],
@@ -194,6 +196,7 @@ def do_species(filename):
             note_writer.write(note, line['id'])
 
 
+geography_id_map = {}
 
 def do_geography(filename):
     # geography changed slightly with Bauble 1.0 so just copy the
@@ -201,6 +204,36 @@ def do_geography(filename):
     rootdir = os.path.split(bauble.__file__)[0]
     default_file = os.path.join(rootdir, 'plugins', 'plants', 'default',
                                 'geography.txt')
+    default_reader = UnicodeReader(open(default_file))
+    geography_reader = UnicodeReader(open(filename))
+    columns = ['id', 'name', 'tdwg_code', 'iso_code', 'parent_id', '_created',
+               '_last_updated']
+
+    writer = create_writer(os.path.join(dst_path, filename), columns)
+
+    # build map of default tdwg codes to geography.id
+    default_tdwg_map = {}
+    for line in default_reader:
+        default_tdwg_map[line['tdwg_code']] = line['id']
+
+    # built a map of the default geography id's to 0.9 geography.id's
+    for line in geography_reader:
+        # TODO: this might miss some id's and might need to be
+        # corrected but it works for us at the moment
+        try:
+            default_id = default_tdwg_map[line['tdwg_code']]
+        except:
+            pass
+            # print line
+            # print line['tdwg_code'].partition('-')
+            # head, middle, tail = line['tdwg_code'].partition('-')
+            # default_id = default_tdwg_map[head]
+        geography_id_map[line['id']] = default_id
+
+    # manually add 'Cultivated'
+    geography_id_map[None] = default_tdwg_map[None]
+
+    # now that the map is built just copy over the default geography
     shutil.copy(default_file, dst_path)
 
 
@@ -350,6 +383,20 @@ def do_vernacular(filename):
                                   line['_last_updated']])
 
 
+def do_species_distribution(filename):
+    from bauble.plugins.plants import SpeciesDistribution
+    reader = UnicodeReader(open(filename))
+
+    distribution_filename = os.path.join(dst_path, 'species_distribution.txt')
+    distribution_columns = ['id', 'species_id', 'geography_id', '_created',
+                            '_last_updated']
+    writer = create_writer(distribution_filename, distribution_columns)
+    for line in reader:
+        geo_id = geography_id_map[line['geography_id']]
+        writer.writerow([line['id'], line['species_id'], geo_id,
+                         line['_created'], line['_last_updated']])
+
+
 
 def copy_file(filename):
     """
@@ -375,12 +422,13 @@ file_map = {'accession.txt': do_accession,
             'family.txt': do_family,
             'genus_synonym.txt': copy_file,
             'genus.txt': do_genus,
-            'geography.txt': do_geography,
+            #'geography.txt': do_geography,
+            'geography.txt': skip_file,
             'location.txt': do_location,
             'plant_history.txt': skip_file,
             'plant.txt': do_plant,
             'plugin.txt': skip_file,
-            'species_distribution.txt': copy_file,
+            'species_distribution.txt': do_species_distribution,
             'species_synonym.txt': copy_file,
             'species.txt': do_species,
             'tagged_obj.txt': copy_file,
@@ -388,6 +436,8 @@ file_map = {'accession.txt': do_accession,
             'verification.txt': skip_file,
             'vernacular_name.txt': do_vernacular}
 
+# geography needs to be done first
+do_geography(os.path.join(src_path, "geography.txt"))
 
 # for each text file in src_path call the appropriate entry in file_map
 for f in glob.glob(os.path.join(src_path, "*.txt")):
@@ -490,13 +540,14 @@ def do_source():
                                 None,  # plant_propagation_id
                                 line['_created'],
                                 line['_last_updated']])
+        geo_id = geography_id_map[line['geography_id']]
         collection_writer.writerow([line['id'], line['collector'],
                                     line['collectors_code'], line['date'],
                                     line['locale'], line['latitude'],
                                     line['longitude'], line['gps_datum'],
                                     line['geo_accy'], line['elevation'],
                                     line['elevation_accy'], line['habitat'],
-                                    line['notes'], line['geography_id'],
+                                    line['notes'], geo_id,
                                     next_source_id,
                                     line['_created'], line['_last_updated']])
         next_source_id += 1
