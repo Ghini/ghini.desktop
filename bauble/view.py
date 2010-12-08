@@ -544,15 +544,11 @@ class SearchView(pluginmgr.View):
         self.update_infobox()
         self.update_notes()
 
-        # switch the accelerators depending on what the cursor is
-        # currently pointing to
         for accel, cb in self.installed_accels:
-            # disconnect previously installed accelerators by
-            # the key and modifier,
-            # accel_group.disconnect_by_func won't work here
-            # since we install a closure as the actual
-            # callback in instead of the original
-            # action.callback
+            # disconnect previously installed accelerators by the key
+            # and modifier, accel_group.disconnect_by_func won't work
+            # here since we install a closure as the actual callback
+            # in instead of the original action.callback
             r = self.accel_group.disconnect_key(accel[0], accel[1])
             if not r:
                 warning('callback not removed: %s' % cb)
