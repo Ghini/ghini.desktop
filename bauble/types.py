@@ -27,7 +27,7 @@ class Enum(types.TypeDecorator):
     def __init__(self, values, empty_to_none=False, strict=True,
                  translations={}, **kwargs):
         """
-        : values: A list of valid values for column.
+        : param values: A list of valid values for column.
         :param empty_to_none: Treat the empty string '' as None.  None
         must be in the values list in order to set empty_to_none=True.
         :param strict:
@@ -146,7 +146,6 @@ class Date(types.TypeDecorator):
             import bauble.prefs as prefs
             Date._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
             Date._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
-        from bauble.utils.log import debug
         return date_parser.parse(value, dayfirst=Date._dayfirst,
                                  yearfirst=Date._yearfirst).date()
 
