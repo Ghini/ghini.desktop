@@ -316,11 +316,6 @@ class GeneralSpeciesExpander(InfoExpander):
         self.set_widget_value('sp_dist_data', dist)
 
         dist = ''
-        if row.bc_distribution:
-            dist = utils.utf8(row.bc_distribution)
-        self.set_widget_value('sp_bcdist_data', dist)
-
-        dist = ''
         if row.label_distribution:
             dist = row.label_distribution
         self.set_widget_value('sp_labeldist_data', dist)
