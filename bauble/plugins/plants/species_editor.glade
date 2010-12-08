@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
@@ -9,15 +9,12 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox5">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
-            <property name="orientation">vertical</property>
             <child>
               <object class="GtkVBox" id="message_box_parent">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
                 <child>
                   <placeholder/>
                 </child>
@@ -35,7 +32,6 @@
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
                     <property name="border_width">5</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">15</property>
                     <child>
                       <object class="GtkLabel" id="sp_fullname_label">
@@ -66,7 +62,7 @@
                               <object class="GtkEntry" id="sp_genus_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -122,7 +118,7 @@
                               <object class="GtkEntry" id="sp_species_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -192,7 +188,7 @@
                               <object class="GtkEntry" id="sp_author_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -217,7 +213,7 @@
                               <object class="GtkEntry" id="sp_cvgroup_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="invisible_char">●</property>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -277,7 +273,6 @@
                             <child>
                               <object class="GtkVBox" id="vbox6">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkTable" id="infrasp_table">
                                     <property name="visible">True</property>
@@ -375,7 +370,6 @@
                   <object class="GtkVBox" id="vbox4">
                     <property name="visible">True</property>
                     <property name="border_width">10</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">15</property>
                     <child>
                       <object class="GtkFrame" id="sp_dist_frame">
@@ -389,7 +383,6 @@
                             <child>
                               <object class="GtkVBox" id="vbox10">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkLabel" id="sp_dist_label">
                                     <property name="visible">True</property>
@@ -471,7 +464,7 @@
                     <child>
                       <object class="GtkTable" id="table1">
                         <property name="visible">True</property>
-                        <property name="n_rows">4</property>
+                        <property name="n_rows">3</property>
                         <property name="n_columns">2</property>
                         <property name="column_spacing">5</property>
                         <property name="row_spacing">3</property>
@@ -482,8 +475,6 @@
                             <property name="label" translatable="yes">Label distribution</property>
                           </object>
                           <packing>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_FILL</property>
                           </packing>
                         </child>
@@ -491,13 +482,11 @@
                           <object class="GtkEntry" id="sp_label_dist_entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="invisible_char">●</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">1</property>
-                            <property name="bottom_attach">2</property>
                           </packing>
                         </child>
                         <child>
@@ -507,8 +496,8 @@
                             <property name="label" translatable="yes">Habit</property>
                           </object>
                           <packing>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                             <property name="x_options">GTK_FILL</property>
                           </packing>
                         </child>
@@ -519,29 +508,8 @@
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">2</property>
-                            <property name="bottom_attach">3</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label19">
-                            <property name="visible">True</property>
-                            <property name="xalign">0</property>
-                            <property name="label" translatable="yes">BC Distribution</property>
-                          </object>
-                          <packing>
-                            <property name="x_options">GTK_FILL</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="sp_bcdist_entry">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="invisible_char">&#x25CF;</property>
-                          </object>
-                          <packing>
-                            <property name="left_attach">1</property>
-                            <property name="right_attach">2</property>
+                            <property name="top_attach">1</property>
+                            <property name="bottom_attach">2</property>
                           </packing>
                         </child>
                         <child>
@@ -551,8 +519,8 @@
                             <property name="label" translatable="yes">Awards</property>
                           </object>
                           <packing>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                             <property name="x_options">GTK_FILL</property>
                           </packing>
                         </child>
@@ -560,13 +528,13 @@
                           <object class="GtkEntry" id="sp_awards_entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="invisible_char">●</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">3</property>
-                            <property name="bottom_attach">4</property>
+                            <property name="top_attach">2</property>
+                            <property name="bottom_attach">3</property>
                           </packing>
                         </child>
                       </object>
@@ -718,7 +686,6 @@
                         <child>
                           <object class="GtkVSeparator" id="vseparator1">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -739,13 +706,12 @@
                                 <child>
                                   <object class="GtkVBox" id="sp_syn_box">
                                     <property name="visible">True</property>
-                                    <property name="orientation">vertical</property>
                                     <property name="spacing">2</property>
                                     <child>
                                       <object class="GtkEntry" id="sp_syn_entry">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
-                                        <property name="invisible_char">&#x25CF;</property>
+                                        <property name="invisible_char">●</property>
                                         <property name="width_chars">32</property>
                                       </object>
                                       <packing>
@@ -787,7 +753,6 @@
                                         <child>
                                           <object class="GtkVBox" id="vbox14">
                                             <property name="visible">True</property>
-                                            <property name="orientation">vertical</property>
                                             <child>
                                               <object class="GtkButton" id="sp_syn_add_button">
                                                 <property name="label">gtk-add</property>
@@ -868,7 +833,6 @@
                 <child>
                   <object class="GtkVBox" id="notes_parent_box">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <child>
                       <placeholder/>
                     </child>
@@ -1018,7 +982,6 @@
     <child>
       <object class="GtkVBox" id="vbox3">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>

@@ -38,7 +38,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_spqual_combo': 'sp_qual',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
-                           'sp_bcdist_entry': 'bc_distribution',
                            }
 
 
@@ -130,8 +129,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_author_entry', 'sp_author',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_bcdist_entry', 'bc_distribution',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
                                    editor.UnicodeOrNoneValidator())
@@ -886,8 +883,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_dist_frame': _('Species distribution'),
         'sp_vern_frame': _('Vernacular names'),
         'sp_syn_frame': _('Species synonyms'),
-        'sp_bcdist_entry': _('The distribution of this species in British '
-                             'Columbia'),
         'sp_label_dist_entry': _('The distribution string that will be used '
                                  'on the label.  If this entry is blank then '
                                  'the species distribution will be used'),
