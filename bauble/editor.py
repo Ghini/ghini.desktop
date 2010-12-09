@@ -81,7 +81,7 @@ class StringOrNoneValidator(Validator):
     """
 
     def to_python(self, value):
-        if value in (u'', ''):
+        if value in (u'', '', None):
             return None
         return str(value)
 
@@ -96,7 +96,7 @@ class UnicodeOrNoneValidator(Validator):
         self.encoding = encoding
 
     def to_python(self, value):
-        if value in (u'', ''):
+        if value in (u'', '', None):
             return None
         return utils.to_unicode(value, self.encoding)
 
