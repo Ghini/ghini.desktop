@@ -181,7 +181,7 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
 
     def extra_elements(self, unit):
         super(AccessionABCDAdapter, self).extra_elements(unit)
-        if self.accession.source.collection:
+        if self.accession.source and self.accession.source.collection:
             collection = self.accession.source.collection
             utf8 = xml_safe_utf8
             gathering = ABCDElement(unit, 'Gathering')
