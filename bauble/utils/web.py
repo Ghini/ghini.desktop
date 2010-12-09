@@ -1,5 +1,14 @@
 import gtk
 
+import bauble.utils.desktop as desktop
+
+
+def _open_link(func, data=None):
+    desktop.open(data)
+
+gtk.link_button_set_uri_hook(_open_link)
+
+
 class StringLinkButton(gtk.LinkButton):
 
     _base_uri = "%s"
@@ -12,9 +21,11 @@ class StringLinkButton(gtk.LinkButton):
         else:
             self.set_tooltip_text(tooltip)
 
+
     def set_string(self, search):
         s = str(search) # just in case an object is passed in
         self.set_uri(self._base_uri % s.replace(' ', self._space))
+
 
 
 class KeywordsLinkButton(gtk.LinkButton):
@@ -100,3 +111,13 @@ class IPNIButton(KeywordsLinkButton):
     def __init__(self, title=_("Search IPNI"),
              tooltip=_("Search the International Plant Names Index")):
         super(IPNIButton, self).__init__(title, tooltip)
+
+
+class GRINButton(StringLinkButton):
+
+    _base_uri = "http://www.ars-grin.gov/cgi-bin/npgs/swish/accboth?query=%s&submit=Submit+Text+Query&si=0"
+    _space = '+'
+
+    def __init__(self, title=_("Search NPGRS/GRIN"),
+                 tooltip='Search National Germplasm System'):
+        super(GRINButton, self).__init__(title, tooltip)
