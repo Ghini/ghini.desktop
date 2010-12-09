@@ -118,6 +118,6 @@ class GRINButton(StringLinkButton):
     _base_uri = "http://www.ars-grin.gov/cgi-bin/npgs/swish/accboth?query=%s&submit=Submit+Text+Query&si=0"
     _space = '+'
 
-    def __init__(self, title=_("Search NPGRS/GRIN"),
-                 tooltip=_('Search National Germplasm System')):
+    def __init__(self, title=_("Search NPGS/GRIN"),
+                 tooltip=_('Search National Plant Germplasm System')):
         super(GRINButton, self).__init__(title, tooltip)
