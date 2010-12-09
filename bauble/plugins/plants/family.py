@@ -788,6 +788,9 @@ class LinksExpander(view.LinksExpander):
         self.ipni_button = IPNIFamilyButton()
         buttons.append(self.ipni_button)
 
+        self.grin_button = web.GRINButton()
+        buttons.append(self.grin_button)
+
         for b in buttons:
             b.set_alignment(0, -1)
             self.vbox.pack_start(b)
@@ -799,6 +802,7 @@ class LinksExpander(view.LinksExpander):
         self.gbif_button.set_string(row)
         self.itis_button.set_string(row)
         self.ipni_button.set_keywords(family=row)
+        self.grin_button.set_string(row)
 
 
 

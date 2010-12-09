@@ -745,6 +745,9 @@ class LinksExpander(view.LinksExpander):
         self.ipni_button = web.IPNIButton()
         buttons.append(self.ipni_button)
 
+        self.grin_button = web.GRINButton()
+        buttons.append(self.grin_button)
+
         self.bgci_button = web.BGCIButton()
         buttons.append(self.bgci_button)
 
@@ -759,6 +762,7 @@ class LinksExpander(view.LinksExpander):
         self.gbif_button.set_string(row)
         self.itis_button.set_string(row)
         self.ipni_button.set_keywords(genus=row.genus, species='')
+        self.grin_button.set_string(row)
         self.bgci_button.set_keywords(genus=row.genus, species='')
 
 
