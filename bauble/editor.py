@@ -755,6 +755,12 @@ class GenericEditorPresenter(object):
             if (not comp_model and len(text)>key_length) or \
                     len(text) == key_length:
                 add_completions(text)
+
+            # if entry is entry select nothing and remove all problem
+            if text == '':
+                on_select(None)
+                self.remove_problem(PROBLEM, widget)
+
             return True
 
         def on_match_select(completion, compl_model, treeiter):
