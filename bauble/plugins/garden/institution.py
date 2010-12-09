@@ -77,13 +77,9 @@ class InstitutionEditorView(editor.GenericEditorView):
                                 'all institions.'),
                  'inst_contact': _('The name of the person to contact for ' \
                                    'information related to the institution.'),
-                 'inst_tech': _('The name of the person to contact for ' \
-                                'technical information related to the ' \
-                                'institution.'),
-                 'inst_technical_contact': _('The email address or phone ' \
-                                             'number of the person to contact '\
-                                             'for technical information '\
-                                             'related to the institution.'),
+                 'inst_tech': _('The email address or phone number of the '\
+                                    'person to contact for technical '\
+                                    'information related to the institution.'),
                  'inst_email': _('The email address of the institution.'),
                  'inst_tel': _('The telephone number of the institution.'),
                  'inst_fax': _('The fax number of the institution.'),
