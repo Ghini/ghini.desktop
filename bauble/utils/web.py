@@ -119,5 +119,5 @@ class GRINButton(StringLinkButton):
     _space = '+'
 
     def __init__(self, title=_("Search NPGRS/GRIN"),
-                 tooltip='Search National Germplasm System'):
+                 tooltip=_('Search National Germplasm System')):
         super(GRINButton, self).__init__(title, tooltip)
