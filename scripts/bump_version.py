@@ -82,6 +82,6 @@ bump_desktop_file('data/bauble.desktop')
 bump_nsi_file('scripts/build.nsi')
 
 # TODO: the bauble UBC version is prefixed with ubc-
-rx = "(^VERSION=\"ubc-).*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
+rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file('packages/builddeb.sh', rx)
 
