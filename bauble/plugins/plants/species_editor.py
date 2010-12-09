@@ -750,6 +750,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self._selected = value
         self.assign_completions_handler('sp_syn_entry', sp_get_completions,
                                         on_select=on_select)
+        on_select(None) # set to default state
 
         self._selected = None
         self.view.connect('sp_syn_add_button', 'clicked',
@@ -818,8 +819,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
-        self.parent_ref().refresh_sensitivity()
         self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
 
 
     def on_remove_button_clicked(self, button, data=None):
@@ -837,34 +839,37 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current species?\n\n<i>Note: This will not remove the species '\
               '%s from the database.</i>' % (s, s)
-        if utils.yes_no_dialog(msg, parent=self.view.get_window()):
-            tree_model.remove(tree_model.get_iter(path))
-            self.model.synonyms.remove(value.synonym)
-            utils.delete_or_expunge(value)
-            # TODO: ** important ** this doesn't respect any unique
-            # contraints on the species for synonyms and allow a
-            # species to have another species as a synonym multiple
-            # times...see below
+        if not utils.yes_no_dialog(msg, parent=self.view.get_window()):
+            return
 
-            # TODO: using session.flush here with an argument is
-            # deprecated in SA 0.5 and will probably removed in SA
-            # 0.6...but how do we only flush the one value..unless we
-            # create a new session, merge it, commit that session,
-            # close it and then refresh the same object in
-            # self.session
+        tree_model.remove(tree_model.get_iter(path))
+        self.model.synonyms.remove(value.synonym)
+        utils.delete_or_expunge(value)
+        # TODO: ** important ** this doesn't respect any unique
+        # contraints on the species for synonyms and allow a
+        # species to have another species as a synonym multiple
+        # times...see below
 
-            # make the change in synonym immediately available so that if
-            # we try to add the same species again we don't break the
-            # SpeciesSynonym UniqueConstraint
+        # TODO: using session.flush here with an argument is
+        # deprecated in SA 0.5 and will probably removed in SA
+        # 0.6...but how do we only flush the one value..unless we
+        # create a new session, merge it, commit that session,
+        # close it and then refresh the same object in
+        # self.session
 
-            # tmp_session = db.Session()
-            # tmp_value = tmp.session.merge(value)
-            # tmp.session.commit()
-            # tmp.session.close()
-            # self.session.refresh(value)
-            self.session.flush([value])
-            self.parent_ref().refresh_sensitivity()
-            self.__dirty = True
+        # make the change in synonym immediately available so that if
+        # we try to add the same species again we don't break the
+        # SpeciesSynonym UniqueConstraint
+
+        # tmp_session = db.Session()
+        # tmp_value = tmp.session.merge(value)
+        # tmp.session.commit()
+        # tmp.session.close()
+        # self.session.refresh(value)
+        #self.session.flush([value])
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
 
 
 
