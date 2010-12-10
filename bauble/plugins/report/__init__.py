@@ -318,10 +318,10 @@ class ReportToolDialogPresenter(object):
 
     def set_names_combo(self, val):
         """
-        set the names combo to val and emit the 'changed' signal,
+        Set the names combo to val and emit the 'changed' signal,
         :param val: either an integer index or a string value in the combo
 
-        if the model on the combo is None then this method will return
+        If the model on the combo is None then this method will return
         and not emit the changed signal
         """
         combo = self.view.widgets.names_combo
@@ -336,9 +336,10 @@ class ReportToolDialogPresenter(object):
 
     def set_formatter_combo(self, val):
         """
-        set the formatter combo to val and emit the 'changed' signal,
-        :param val: either an integer index or a string value in the combo
-        combo = self.view.widgets.formatter_combo
+        Set the formatter combo to val and emit the 'changed' signal.
+
+        :param val: either an integer index or a string value in the
+          combo combo = self.view.widgets.formatter_combo
         """
         combo = self.view.widgets.formatter_combo
         if isinstance(val, int):
@@ -349,7 +350,7 @@ class ReportToolDialogPresenter(object):
 
     def set_prefs_for(self, name, formatter_title, settings):
         '''
-        this will overwrite any other report settings with name
+        This will overwrite any other report settings with name
         '''
         formatters = prefs[config_list_pref]
         if formatters is None:
