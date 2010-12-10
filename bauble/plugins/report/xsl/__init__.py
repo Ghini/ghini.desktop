@@ -74,8 +74,12 @@ def on_path(exe):
     if not PATH:
         return False
     for p in PATH.split(os.pathsep):
-        if exe in os.listdir(p):
-            return True
+        try:
+            # handle exceptions in case the path doesn't exist
+            if exe in os.listdir(p):
+                return True
+        except:
+            pass
     return False
 
 
