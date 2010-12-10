@@ -294,15 +294,19 @@ class SettingsBoxPresenter(object):
             self.widgets.renderer_combo.append_text(name)
 
 
-
+# TODO: could make this look more a gtk.FileChooserButton but make it
+# an hbox and adding the seperator and file icon
 class FileChooserButton(gtk.Button):
     """
     Create our own basic FileChooserButton to work around the issue that
     if you click the gtk.FileChooseButton the label gets reset to "None"
     but doesn't revert back to the original file of the dialog is cancelled.
     """
+
+    _default_label = _("Select a file...")
+
     def __init__(self, dialog_parent):
-        super(FileChooserButton, self).__init__(_("Select a file..."))
+        super(FileChooserButton, self).__init__(self._default_label)
         self._filename = False
         self.props.use_underline = False
         self.props.xalign = 0
@@ -312,6 +316,7 @@ class FileChooserButton(gtk.Button):
                                   buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_REJECT,
                                            gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         self.dialog.set_select_multiple(False)
+        self.dialog.set_current_folder(paths.user_dir())
         self.dialog.connect('response', self._on_response)
         self.connect('clicked', self._on_clicked)
 
@@ -328,10 +333,16 @@ class FileChooserButton(gtk.Button):
         return self._filename
 
     def set_filename(self, filename):
-        self._filename = filename
-        head, tail = os.path.split(self._filename)
-        self.dialog.set_filename(self._filename)
-        self.props.label = tail
+        if not filename:
+            self._filename = None
+            self.dialog.set_filename('')
+            self.dialog.set_current_folder(paths.user_dir())
+            self.props.label = self._default_label
+        else:
+            self._filename = filename
+            head, tail = os.path.split(self._filename)
+            self.dialog.set_filename(self._filename)
+            self.props.label = tail
 
 
 
@@ -374,6 +385,8 @@ class XSLFormatterSettingsBox(SettingsBox):
     def update(self, settings):
         if 'stylesheet' in settings and settings['stylesheet'] != None:
             self.stylesheet_chooser.set_filename(settings['stylesheet'])
+        else:
+            self.stylesheet_chooser.set_filename(None)
 
         if 'renderer' not in settings:
             utils.combo_set_active_text(self.widgets.renderer_combo,
@@ -391,9 +404,13 @@ class XSLFormatterSettingsBox(SettingsBox):
 
         if 'authors' in settings:
             self.widgets.author_check.set_active(settings['authors'])
+        else:
+            self.widgets.author_check.set_active(False)
 
         if 'private' in settings:
             self.widgets.private_check.set_active(settings['private'])
+        else:
+            self.widgets.private_check.set_active(False)
 
 
 _settings_box = XSLFormatterSettingsBox()
