@@ -223,6 +223,7 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
         raise ValueError('set_combo_from_value() - could not find value in '\
                          'combo: %s' % value)
     combo.set_active_iter(matches[0])
+    combo.emit('changed')
 
 
 def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
