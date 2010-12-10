@@ -328,7 +328,9 @@ class ReportToolDialogPresenter(object):
         if combo.get_model() is None:
             self.view.widgets.details_box.set_sensitive(False)
             return
-        if isinstance(val, int):
+        if val is None:
+            combo.set_active(-1)
+        elif isinstance(val, int):
             combo.set_active(val)
         else:
             utils.combo_set_active_text(combo, val)
@@ -342,7 +344,9 @@ class ReportToolDialogPresenter(object):
           combo combo = self.view.widgets.formatter_combo
         """
         combo = self.view.widgets.formatter_combo
-        if isinstance(val, int):
+        if val is None:
+            combo.set_active(-1)
+        elif isinstance(val, int):
             combo.set_active(val)
         else:
             utils.combo_set_active_text(combo, val)
