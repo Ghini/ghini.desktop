@@ -15,6 +15,7 @@ import os
 import tempfile
 import traceback
 
+import gobject
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
@@ -294,6 +295,46 @@ class SettingsBoxPresenter(object):
 
 
 
+class FileChooserButton(gtk.Button):
+    """
+    Create our own basic FileChooserButton to work around the issue that
+    if you click the gtk.FileChooseButton the label gets reset to "None"
+    but doesn't revert back to the original file of the dialog is cancelled.
+    """
+    def __init__(self, dialog_parent):
+        super(FileChooserButton, self).__init__(_("Select a file..."))
+        self._filename = False
+        self.props.use_underline = False
+        self.props.xalign = 0
+        self.dialog = \
+            gtk.FileChooserDialog(title=_('Select a stylesheet'),
+                                  parent=dialog_parent,
+                                  buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_REJECT,
+                                           gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        self.dialog.set_select_multiple(False)
+        self.dialog.connect('response', self._on_response)
+        self.connect('clicked', self._on_clicked)
+
+
+    def _on_clicked(self, *args):
+        self.dialog.run()
+        self.dialog.hide()
+
+    def _on_response(self, dialog, response):
+        if response == gtk.RESPONSE_ACCEPT:
+            self.set_filename(self.dialog.get_filename())
+
+    def get_filename(self):
+        return self._filename
+
+    def set_filename(self, filename):
+        self._filename = filename
+        head, tail = os.path.split(self._filename)
+        self.dialog.set_filename(self._filename)
+        self.props.label = tail
+
+
+
 class XSLFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
@@ -315,12 +356,15 @@ class XSLFormatterSettingsBox(SettingsBox):
         self.pack_start(self.settings_box)
         self.presenter = SettingsBoxPresenter(self.widgets)
 
+        self.stylesheet_chooser = FileChooserButton(dialog_parent=report_dialog)
+        self.widgets.stylesheet_alignment.add(self.stylesheet_chooser)
+
 
     def get_settings(self):
         '''
         return a dict of settings from the settings box gui
         '''
-        return {'stylesheet': self.widgets.stylesheet_chooser.get_filename(),
+        return {'stylesheet': self.stylesheet_chooser.get_filename(),
                 'renderer': self.widgets.renderer_combo.get_active_text(),
                 'source_type':self.widgets.source_type_combo.get_active_text(),
                 'authors': self.widgets.author_check.get_active(),
@@ -329,8 +373,8 @@ class XSLFormatterSettingsBox(SettingsBox):
 
     def update(self, settings):
         if 'stylesheet' in settings and settings['stylesheet'] != None:
-            self.widgets.stylesheet_chooser.\
-                                        set_filename(settings['stylesheet'])
+            self.stylesheet_chooser.set_filename(settings['stylesheet'])
+
         if 'renderer' not in settings:
             utils.combo_set_active_text(self.widgets.renderer_combo,
                                         default_renderer)

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy toplevel-contextual -->
@@ -14,14 +14,12 @@
             <property name="label_xalign">0</property>
             <property name="shadow_type">none</property>
             <child>
-              <object class="GtkAlignment" id="alignment2">
+              <object class="GtkAlignment" id="stylesheet_alignment">
                 <property name="visible">True</property>
                 <property name="border_width">5</property>
                 <property name="left_padding">12</property>
                 <child>
-                  <object class="GtkFileChooserButton" id="stylesheet_chooser">
-                    <property name="visible">True</property>
-                  </object>
+                  <placeholder/>
                 </child>
               </object>
             </child>
