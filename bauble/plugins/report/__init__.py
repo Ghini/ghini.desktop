@@ -363,15 +363,19 @@ class ReportToolDialogPresenter(object):
         # TODO: don't set the OK button as sensitive in the name dialog
         # if the name already exists
         # TOD0: make "Enter" in the entry fire the default response
-        d = gtk.Dialog('', self.view.dialog,
+        d = gtk.Dialog(_("Formatter Name"), self.view.dialog,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                                 gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.vbox.set_spacing(10)
-        label = gtk.Label(_('Enter a name for the new formatter'))
+        d.set_default_response(gtk.RESPONSE_ACCEPT)
+        text = '<b>%s</b>' % _('Enter a name for the new formatter')
+        label = gtk.Label()
+        label.set_markup(text)
         label.set_padding(10, 10)
         d.vbox.pack_start(label)
         entry = gtk.Entry()
+        entry.set_activates_default(True)
         d.vbox.pack_start(entry)
         d.show_all()
         names_model = self.view.widgets.names_combo.get_model()
