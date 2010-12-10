@@ -13,6 +13,7 @@ import gtk
 from sqlalchemy import *
 
 import bauble
+from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs
@@ -97,7 +98,7 @@ def get_plant_query(obj, session):
         plants = get_all_plants(obj.objects, session)
         return q.filter(Plant.id.in_([p.id for p in plants]))
     else:
-        raise BaubleError(_("Can't get plants from a %s" % type(cls).__name__))
+        raise BaubleError(_("Can't get plants from a %s" % type(obj).__name__))
 
 
 def get_all_plants(objs, session):
@@ -138,7 +139,7 @@ def get_accession_query(obj, session):
         return q.filter(Accession.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get accessions from a %s" % \
-                            type(cls).__name__))
+                            type(obj).__name__))
 
 
 def get_all_accessions(objs, session):
@@ -180,7 +181,7 @@ def get_species_query(obj, session):
         return q.filter(Species.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get species from a %s" % \
-                            type(cls).__name__))
+                            type(obj).__name__))
 
 
 def get_all_species(objs, session):
