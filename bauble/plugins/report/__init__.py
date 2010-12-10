@@ -331,7 +331,6 @@ class ReportToolDialogPresenter(object):
             combo.set_active(val)
         else:
             utils.combo_set_active_text(combo, val)
-        combo.emit('changed')
 
 
     def set_formatter_combo(self, val):
@@ -345,7 +344,6 @@ class ReportToolDialogPresenter(object):
             combo.set_active(val)
         else:
             utils.combo_set_active_text(combo, val)
-        combo.emit('changed')
 
 
     def set_prefs_for(self, name, formatter_title, settings):
@@ -442,9 +440,6 @@ class ReportToolDialogPresenter(object):
 
     def _formatter_combo_changed_idle(self, combo):
         formatter = combo.get_active_text()
-        # main loop never has a chance to change sensitivity, maybe we could
-        # do some of this in idle function
-        #
         name = self.view.widgets.names_combo.get_active_text()
         try:
             # TODO: settings seems to always be {} here
