@@ -148,9 +148,14 @@ class SpeciesABCDAdapter(ABCDAdapter):
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
         # invalid XML file
-        if self.for_labels and self.species.label_distribution:
-            etree.SubElement(unit, 'distribution').text=\
-                self.species.label_distribution
+        if self.for_labels:
+            if self.species.label_distribution:
+                etree.SubElement(unit, 'distribution').text=\
+                    self.species.label_distribution
+            elif self.species.distribution:
+                etree.SubElement(unit, 'distribution').text=\
+                    self.species.distribution_str()
+
 
 
 
@@ -186,6 +191,14 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
 
     def extra_elements(self, unit):
         super(AccessionABCDAdapter, self).extra_elements(unit)
+        if self.for_labels:
+            if self.species.label_distribution:
+                etree.SubElement(unit, 'distribution').text=\
+                    self.species.label_distribution
+            elif self.species.distribution:
+                etree.SubElement(unit, 'distribution').text=\
+                    self.species.distribution_str()
+
         if self.accession.source and self.accession.source.collection:
             collection = self.accession.source.collection
             utf8 = xml_safe_utf8
@@ -283,6 +296,13 @@ class PlantABCDAdapter(AccessionABCDAdapter):
                     text=xml_safe_utf8(self.plant.quantity))
         ABCDElement(bg_unit, 'LocationInGarden',
                     text=xml_safe_utf8(str(self.plant.location)))
+        if self.for_labels:
+            if self.species.label_distribution:
+                etree.SubElement(unit, 'distribution').text=\
+                    self.species.label_distribution
+            elif self.species.distribution:
+                etree.SubElement(unit, 'distribution').text=\
+                    self.species.distribution_str()
         # TODO: AccessionStatus, AccessionMaterialtype,
         # ProvenanceCategory, AccessionLineage, DonorCategory,
         # PlantingDate, Propagation
