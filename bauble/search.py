@@ -428,6 +428,8 @@ class SchemaBrowser(gtk.VBox):
 
 class SchemaMenu(gtk.Menu):
     """
+    SchemaMenu
+
     :param mapper:
     :param activate cb:
     :param relation_filter:
@@ -452,7 +454,7 @@ class SchemaMenu(gtk.Menu):
             menuitem = menu.props.attach_widget
             if not menuitem:
                 break
-            label = menuitem.props.label
+            label = menuitem.get_child().props.label
             path.append(label)
             menu = menuitem.get_parent()
         full_path = '.'.join(reversed(path))
@@ -468,7 +470,6 @@ class SchemaMenu(gtk.Menu):
         if len(submenu.get_children()) == 0:
             map(submenu.append, self._get_prop_menuitems(prop.mapper))
         submenu.show_all()
-
 
 
     def _get_prop_menuitems(self, mapper):
