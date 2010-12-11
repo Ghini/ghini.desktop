@@ -680,6 +680,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         cell = self.view.widgets.vn_default_cell
         self.view.widgets.vn_default_column.\
             set_cell_data_func(cell, _default_data_func)
+        self.view.connect(cell, 'toggled', self.on_default_toggled)
 
         utils.clear_model(self.treeview)
 
