@@ -668,7 +668,7 @@ class SearchView(pluginmgr.View):
 
     def remove_children(self, model, parent):
         """
-        remove all children of some parent in the model, reverse
+        Remove all children of some parent in the model, reverse
         iterate through them so you don't invalidate the iter
         """
         while model.iter_has_child(parent):
@@ -679,7 +679,7 @@ class SearchView(pluginmgr.View):
 
     def on_test_expand_row(self, view, treeiter, path, data=None):
         '''
-        look up the table type of the selected row and if it has
+        Look up the table type of the selected row and if it has
         any children then add them to the row
         '''
         expand = False
@@ -708,10 +708,10 @@ class SearchView(pluginmgr.View):
 
     def populate_results(self, results, check_for_kids=False):
         """
+        Adds results to the search view in a task.
+
         :param results: a list or list-like object
         :param check_for_kids: only used for testing
-
-        This method adds results to the search view in a task.
         """
         bauble.task.queue(self._populate_worker(results, check_for_kids))
 
@@ -956,7 +956,14 @@ class SearchView(pluginmgr.View):
         update the infobox.
         """
         model, paths = self.results_view.get_selection().get_selected_rows()
-        ref = gtk.TreeRowReference(model, paths[0])
+        ref = None
+        try:
+            # try to get the reference to the selected object, if the
+            # object has been deleted then we won't try to reselect it later
+            ref = gtk.TreeRowReference(model, paths[0])
+        except:
+            pass
+
         self.session.expire_all()
 
         # the invalidate_str_cache() method are specific to Species
@@ -971,6 +978,8 @@ class SearchView(pluginmgr.View):
         expanded_rows = self.get_expanded_rows()
         self.results_view.collapse_all()
         # expand_to_all_refs will invalidate the ref so get the path first
+        if not ref:
+            return
         path = None
         if ref.valid():
             path = ref.get_path()
