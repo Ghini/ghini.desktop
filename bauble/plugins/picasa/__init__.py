@@ -140,18 +140,23 @@ class PhotoCache(object):
         """
         if not path:
             path = os.path.join(default_path, 'photos.db')
+        _created = False
         if create and not os.path.exists(path):
             # create the file
             head, tail = os.path.split(path)
-            os.makedirs(head)
+            try:
+                os.makedirs(head)
+            except:
+                pass
             open(path, 'wb+').close()
+            _created = True
         uri = 'sqlite:///%s' % path
         self.engine = sa.create_engine(uri)
         self.engine.connect()
         self.metadata = Base.metadata
         self.metadata.bind = self.engine
         self.Session = orm.sessionmaker(bind=self.engine, autoflush=False)
-        if create:
+        if create and _created:
             self.metadata.drop_all(checkfirst=True)
             self.metadata.create_all()
 
@@ -249,10 +254,10 @@ class PicasaSettingsDialog(object):
         self.window.hide()
         if response != gtk.RESPONSE_OK:
             return response
-        stored_email = meta.get_default(PICASA_EMAIL_KEY).value
-        email = self.widgets.email_entry.get_text()
-        album = self.widgets.album_entry.get_text()
-        passwd = self.widgets.password_entry.get_text()
+        stored_email = meta.get_default(PICASA_EMAIL_KEY).value.strip()
+        email = self.widgets.email_entry.get_text().strip()
+        album = self.widgets.album_entry.get_text().strip()
+        passwd = self.widgets.password_entry.get_text().strip()
 
         if stored_email != email or self._changed:
             try:
@@ -324,6 +329,7 @@ def _get_feed_worker(worker, gd_client, tag):
             _get()
         # publish the id of the image in the image cache
         worker.publish(photo_id)
+        worker.publishQueue.join()  # wait for publish tofinish
 
 
 
@@ -334,6 +340,10 @@ iconview_worker = None
 def _on_get_feed_publish(worker, data, iconview):
     """
     Add the photo the the iconview.
+
+    :param worker: GtkWorker
+    :param data: a list of ids of the image in the PhotoCache
+    :param iconview: gtk.IconView
     """
     model = iconview.get_model()
     cache = PhotoCache()
@@ -341,6 +351,8 @@ def _on_get_feed_publish(worker, data, iconview):
         filename = cache[photo_id].path
         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
         model.append([pixbuf])
+    worker.publishQueue.task_done()
+
 
 
 def populate_iconview(gd_client, iconview, tag):
@@ -442,7 +454,6 @@ class PicasaInfoPage(view.InfoBoxPage):
         self.vbox.pack_start(self.iconview)
 
         self._current_row = None
-        from Queue import Queue
         def on_clicked(*args):
             d = PicasaSettingsDialog()
             if d.run():
