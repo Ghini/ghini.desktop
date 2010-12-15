@@ -470,7 +470,7 @@ class SearchView(pluginmgr.View):
 
     def update_infobox(self):
         '''
-        sets the infobox according to the currently selected row
+        Sets the infobox according to the currently selected row
         or remove the infobox is nothing is selected
         '''
         self.set_infobox_from_row(None)
@@ -488,7 +488,7 @@ class SearchView(pluginmgr.View):
 
     def set_infobox_from_row(self, row):
         '''
-        get the infobox from the view meta for the type of row and
+        Get the infobox from the view meta for the type of row and
         set the infobox values from row
 
         :param row: the row to use to update the infobox
