@@ -447,8 +447,8 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
         except Exception:
             parent = None
 
-    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                         parent=parent,type=type, buttons=buttons)
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          parent=parent,type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
 
@@ -461,9 +461,9 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     # if the character width is less than 300 pixels then set the
     # message dialog's label to be 300 to avoid tiny dialogs
     if width/pango.SCALE*len(msg) < 300:
-        d.label.set_size_request(300, -1)
+        d.set_size_request(300, -1)
 
-    expand = gtk.Expander("Details")
+    expand = gtk.Expander(_("Details"))
     text_view = gtk.TextView()
     text_view.set_editable(False)
     text_view.set_wrap_mode(gtk.WRAP_WORD)
@@ -472,6 +472,7 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     text_view.set_buffer(tb)
     sw = gtk.ScrolledWindow()
     sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+    sw.set_size_request(-1, 200)
     sw.add(text_view)
     expand.add(sw)
     d.vbox.pack_start(expand)
