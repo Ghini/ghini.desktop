@@ -1,3 +1,5 @@
+import weakref
+
 import gtk
 from pyparsing import *
 from sqlalchemy import *
@@ -510,12 +512,14 @@ class ExpressionRow(object):
     """
     """
 
-    def __init__(self, mapper, table, remove_callback, row_number=None):
-        self.mapper = mapper
-        self.table = table
+    def __init__(self, query_builder, remove_callback, row_number=None):
+        self.mapper = weakref.proxy(query_builder.mapper)
+        self.table = weakref.proxy(query_builder.expressions_table)
+        self.dialog = weakref.proxy(query_builder)
+        self.menu_item_selected = False
         if row_number is None:
             # assume we want the row appended to the end of the table
-            row_number = table.props.n_rows
+            row_number = self.table.props.n_rows
 
         self.and_or_combo = None
         if row_number != 1:
@@ -523,30 +527,32 @@ class ExpressionRow(object):
             self.and_or_combo.append_text("and")
             self.and_or_combo.append_text("or")
             self.and_or_combo.set_active(0)
-            table.attach(self.and_or_combo, 0, 1, row_number, row_number+1)
+            self.table.attach(self.and_or_combo, 0, 1, row_number, row_number+1)
 
         self.prop_button = gtk.Button(_('Choose a property...'))
         self.prop_button.props.use_underline = False
         def on_prop_button_clicked(button, event, menu):
             menu.popup(None, None, None, event.button, event.time)
-        self.schema_menu = SchemaMenu(mapper, self.on_schema_menu_activated,
+        self.schema_menu = SchemaMenu(self.mapper,
+                                      self.on_schema_menu_activated,
                                       self.relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
                             self.schema_menu)
-        table.attach(self.prop_button, 1, 2, row_number, row_number+1)
+        self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
         conditions = ['=', '!=', '<', '<=', '>', '>=', 'is', 'is not', 'like',
                       'ilike']
         map(self.cond_combo.append_text, conditions)
         self.cond_combo.set_active(0)
-        table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
+        self.table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
 
         # by default we start with an entry but value_widget can
         # change depending on the type of the property chosen in the
         # schema menu, see self.on_schema_menu_activated
         self.value_widget = gtk.Entry()
-        table.attach(self.value_widget, 3, 4, row_number, row_number+1)
+        self.value_widget.connect('changed', self.on_value_changed)
+        self.table.attach(self.value_widget, 3, 4, row_number, row_number+1)
 
         if row_number != 1:
             image = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
@@ -555,7 +561,15 @@ class ExpressionRow(object):
             self.remove_button.props.image = image
             self.remove_button.connect('clicked',
                                        lambda b: remove_callback(self))
-            table.attach(self.remove_button, 4, 5, row_number, row_number+1)
+            self.table.attach(self.remove_button, 4, 5, row_number,row_number+1)
+
+
+    def on_value_changed(self, widget, *args):
+        """
+        Call the QueryBuilder.validate() for this row.
+        Set the sensitivity of the gtk.RESPONSE_OK button on the QueryBuilder.
+        """
+        self.dialog.validate()
 
 
     def on_schema_menu_activated(self, menuitem, path, prop):
@@ -563,6 +577,7 @@ class ExpressionRow(object):
         Called when an item in the schema menu is activated
         """
         self.prop_button.props.label = path
+        self.menu_item_activated = True
         top = self.table.child_get_property(self.value_widget, 'top-attach')
         bottom = self.table.child_get_property(self.value_widget,
                                                'bottom-attach')
@@ -586,10 +601,14 @@ class ExpressionRow(object):
             for value, translation in prop_values:
                 model.append([value, translation])
             self.value_widget.props.model = model
+            self.value_widget.connect('changed', self.on_value_changed)
         elif not isinstance(self.value_widget, gtk.Entry):
             self.value_widget = gtk.Entry()
+            self.value_widget.connect('changed', self.on_value_changed)
+
         self.table.attach(self.value_widget, left, right, top, bottom)
         self.table.show_all()
+        self.dialog.validate()
 
 
     def relation_filter(self, prop):
@@ -600,15 +619,25 @@ class ExpressionRow(object):
 
 
     def get_widgets(self):
+        """
+        Returns a tuple of the and_or_combo, prop_button, cond_combo,
+        value_widget, and remove_button widgets.
+        """
         return self.and_or_combo, self.prop_button, self.cond_combo, \
             self.value_widget, self.remove_button
 
 
     def get_expression(self):
         """
+        Return the expression represented but this ExpressionRow.  If
+        the expression is not valid then return None.
 
         :param self:
         """
+
+        if not self.menu_item_activated:
+            return None
+
         value = ''
         if isinstance(self.value_widget, gtk.ComboBox):
             model = self.value_widget.props.model
@@ -642,6 +671,7 @@ class QueryBuilder(gtk.Dialog):
         self.expression_rows = []
         self.mapper = None
         self._first_choice = True
+        self.set_response_sensitive(gtk.RESPONSE_OK, False)
 
 
     def on_domain_combo_changed(self, *args):
@@ -666,8 +696,24 @@ class QueryBuilder(gtk.Dialog):
         """
         Validate the search expression is a valid expression.
         """
-        # TODO: need to make sure all the widgets are filled in properly
-        return True
+        valid = False
+        for row in self.expression_rows:
+            sensitive = False
+            value = None
+            if isinstance(row.value_widget, gtk.Entry):
+                value = row.value_widget.props.text
+            elif isinstance(row.value_widget, gtk.ComboBox):
+                value = row.value_widget.get_active() >= 0
+
+            if value and row.menu_item_activated:
+                valid = True
+            else:
+                valid = False
+                break
+
+        self.set_response_sensitive(gtk.RESPONSE_OK, valid)
+        return valid
+
 
 
     def remove_expression_row(self, row):
@@ -686,8 +732,8 @@ class QueryBuilder(gtk.Dialog):
         """
         domain = self.domain_map[self.domain_combo.get_active_text()]
         self.mapper = class_mapper(domain)
-        row = ExpressionRow(self.mapper, self.expressions_table,
-                            self.remove_expression_row)
+        row = ExpressionRow(self, self.remove_expression_row)
+        self.set_response_sensitive(gtk.RESPONSE_OK, False)
         self.expression_rows.append(row)
         self.expressions_table.show_all()
 
@@ -736,7 +782,9 @@ class QueryBuilder(gtk.Dialog):
         domain = self.domain_combo.get_active_text()
         query = [domain, 'where']
         for row in self.expression_rows:
-            query.append(row.get_expression())
+            expr = row.get_expression()
+            if expr:
+                query.append(expr)
         return ' '.join(query)
 
 
