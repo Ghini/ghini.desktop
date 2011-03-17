@@ -43,10 +43,10 @@ import bauble.view as view
 # e.g. Malvaceae (sensu lato), Hibiscus (senso stricto)
 
 def longitude_to_dms(decimal):
-    return decimal_to_dms(decimal, 'long')
+    return decimal_to_dms(Decimal(decimal), 'long')
 
 def latitude_to_dms(decimal):
-    return decimal_to_dms(decimal, 'lat')
+    return decimal_to_dms(Decimal(decimal), 'lat')
 
 
 def decimal_to_dms(decimal, long_or_lat):
