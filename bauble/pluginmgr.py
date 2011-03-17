@@ -321,7 +321,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
 class PluginRegistry(db.Base):
     """
     The PluginRegistry contains a list of plugins that have been installed
-    in a particular instance of a Bauble database.  At the momeny it only
+    in a particular instance of a Bauble database.  At the moment it only
     includes the name and version of the plugin but this is likely to change
     in future versions.
     """
