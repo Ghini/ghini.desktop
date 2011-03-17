@@ -716,25 +716,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         else:
             # remove_problem() won't complain if problem doesn't exist
             self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
-
-            # if there are no problems and the code represents a range
-            # then go into "bulk mode" and change the background color
-            # to a light blue and disable the 'Add note' button
-            from pyparsing import ParseException
-            if len(utils.range_builder(self.model.code)) > 1 and \
-                    self.model in self.session.new:
-                color_str = '#B0C4DE' # light steel blue
-                color = gtk.gdk.color_parse(color_str)
-                sensitive = False
-            else:
-                color = None
-                sensitive = True
-            self.view.widgets.plant_notebook.get_nth_page(1).\
-                props.sensitive = sensitive
-            self.view.widgets.plant_notebook_prop_label.\
-                props.sensitive = sensitive
-            entry.modify_bg(gtk.STATE_NORMAL, color)
-            entry.modify_base(gtk.STATE_NORMAL, color)
+            entry.modify_bg(gtk.STATE_NORMAL, None)
+            entry.modify_base(gtk.STATE_NORMAL, None)
             entry.queue_draw()
 
         self.refresh_sensitivity()
