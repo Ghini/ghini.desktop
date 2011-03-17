@@ -11,7 +11,7 @@ SQLALCHEMY_DEBUG = False
 try:
     import sqlalchemy as sa
     parts = sa.__version__.split('.')
-    if int(parts[1]) < 5:
+    if int(parts[1]) != 5:
         msg = _('This version of Bauble requires SQLAlchemy 0.5.0 or greater.'\
                 'Please download and install a newer version of SQLAlchemy ' \
                 'from http://www.sqlalchemy.org or contact your system '
@@ -96,7 +96,6 @@ class MapperBase(DeclarativeMeta):
     tables.
     """
     def __init__(cls, classname, bases, dict_):
-        #print >>sys.stderr, dict_
         if '__tablename__' in dict_:
             seqname = '%s_id_seq' % dict_['__tablename__']
             dict_['id'] = sa.Column('id', sa.Integer, sa.Sequence(seqname),
