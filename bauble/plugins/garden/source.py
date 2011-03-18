@@ -706,8 +706,12 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
 
-        self.set_model_attr('latitude', utils.utf8(latitude))
         self.view.widgets.lat_dms_label.set_text(dms_string)
+        if text is None or text.strip() == '':
+            self.set_model_attr('latitude', None)
+        else:
+            self.set_model_attr('latitude', utils.utf8(latitude))
+            
 
 
     def on_lon_entry_changed(self, entry, data=None):
@@ -737,8 +741,13 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
 
-        self.set_model_attr('longitude', utils.utf8(longitude))
         self.view.widgets.lon_dms_label.set_text(dms_string)
+        # self.set_model_attr('longitude', utils.utf8(longitude))
+        if text is None or text.strip() == '':
+            self.set_model_attr('longitude', None)
+        else:
+            self.set_model_attr('longitude', utils.utf8(longitude))
+
 
 
 
