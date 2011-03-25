@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-03-24 10:49+0000\n"
+"Last-Translator: Ewout De cat <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-03-24 06:18+0000\n"
+"X-Launchpad-Export-Date: 2011-03-25 06:15+0000\n"
 "X-Generator: Launchpad (build 12559)\n"
 
 #: bauble/prefs.py:280
@@ -32,29 +32,29 @@ msgstr ""
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
-msgstr ""
+msgstr "<b>Plugins</b>"
 
 #: bauble/prefs.py:379
 msgid "Names"
-msgstr ""
+msgstr "Namen"
 
 #: bauble/prefs.py:379 bauble/view.py:1155
 msgid "Values"
-msgstr ""
+msgstr "Waardes"
 
 #: bauble/prefs.py:388 bauble/notes.glade.h:3
 #: bauble/plugins/garden/loc_editor.glade.h:5
 #: bauble/plugins/garden/acc_editor.glade.h:37
 msgid "Name"
-msgstr ""
+msgstr "Naam"
 
 #: bauble/prefs.py:388
 msgid "Version"
-msgstr ""
+msgstr "Versie"
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
-msgstr ""
+msgstr "Zoeken"
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
