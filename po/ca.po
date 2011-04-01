@@ -1,4 +1,4 @@
-# Danish translation for bauble
+# Catalan translation for bauble
 # Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the bauble package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
@@ -10,7 +10,7 @@ msgstr ""
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
 "PO-Revision-Date: 2011-03-23 19:50+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Danish <da@li.org>\n"
+"Language-Team: Catalan <ca@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -25,13 +25,10 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
-"Bauble kan ikke gemme dine brugerindstillinger. \n"
-"Kontroller filrettigheder på din konfigurationsfil:\n"
-" %s"
 
 #: bauble/prefs.py:335
 msgid "<b>Preferences</b>"
-msgstr "<b>Præferencer</b>"
+msgstr "<b>Preferències</b>"
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
@@ -39,21 +36,21 @@ msgstr ""
 
 #: bauble/prefs.py:379
 msgid "Names"
-msgstr "Navne"
+msgstr "Noms"
 
 #: bauble/prefs.py:379 bauble/view.py:1155
 msgid "Values"
-msgstr "Værdier"
+msgstr "Valors"
 
 #: bauble/prefs.py:388 bauble/notes.glade.h:3
 #: bauble/plugins/garden/loc_editor.glade.h:5
 #: bauble/plugins/garden/acc_editor.glade.h:37
 msgid "Name"
-msgstr "Navn"
+msgstr ""
 
 #: bauble/prefs.py:388
 msgid "Version"
-msgstr "Version"
+msgstr ""
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
@@ -61,39 +58,39 @@ msgstr ""
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
-msgstr "Søg på Google"
+msgstr "Cerca a Google"
 
 #: bauble/utils/web.py:68
 msgid "Search GBIF"
-msgstr "Søg på GBIF"
+msgstr "Cerca GBIF"
 
 #: bauble/utils/web.py:69
 msgid "Search the Global Biodiversity Information Facility"
-msgstr "Søg på Global Biodiversity Information Facility"
+msgstr ""
 
 #: bauble/utils/web.py:84
 msgid "Search ITIS"
-msgstr "Søg på ITIS"
+msgstr "Cerca ITIS"
 
 #: bauble/utils/web.py:85
 msgid "Search the Intergrated Taxonomic Information System"
-msgstr "Søg på det integrerede taksonomi informationssystem"
+msgstr ""
 
 #: bauble/utils/web.py:97
 msgid "Search BGCI"
-msgstr "Søg på BGCI"
+msgstr "Cerca BGCI"
 
 #: bauble/utils/web.py:98
 msgid "Search Botanic Gardens Conservation International"
-msgstr "Søg på Botanic Gardens Conservation International"
+msgstr ""
 
 #: bauble/utils/web.py:111
 msgid "Search IPNI"
-msgstr "Søg på IPNI"
+msgstr "Cerca IPNI"
 
 #: bauble/utils/web.py:112
 msgid "Search the International Plant Names Index"
-msgstr "Søg på Internationale Plante navns index"
+msgstr ""
 
 #: bauble/utils/web.py:121
 msgid "Search NPGS/GRIN"
@@ -123,17 +120,16 @@ msgstr ""
 
 #: bauble/utils/__init__.py:604
 msgid "Today's date"
-msgstr "Dagsdato"
+msgstr ""
 
 #: bauble/utils/__init__.py:770
 #, python-format
 msgid "Error: using sequences hasn't been tested on this database type: %s"
 msgstr ""
-"Fejl: brugte sekvenser er ikke blevet testet på denne database type: %s"
 
 #: bauble/utils/__init__.py:1050
 msgid "Show details"
-msgstr "Vis detaljer"
+msgstr ""
 
 #: bauble/utils/log.py:39
 #, python-format
@@ -143,9 +139,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"** Kan ikke åbne standard logfil.\n"
-"Tryk på OK for at fortsætte.\n"
-"%s"
 
 #: bauble/pluginmgr.py:167
 #, python-format
@@ -199,14 +192,11 @@ msgid ""
 "\n"
 "%(error)s"
 msgstr ""
-"Kunne ikke importere %(module)s module.\n"
-"\n"
-"%(error)s"
 
 #: bauble/pluginmgr.py:564
 #, python-format
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
-msgstr "%s.plugin er ikke et tilfælde af pluginmgr.Plugin"
+msgstr ""
 
 #: bauble/editor.py:206
 #, python-format
@@ -219,7 +209,7 @@ msgstr ""
 #: bauble/editor.py:620
 #, python-format
 msgid "no widget with name %s"
-msgstr "Ingen widget med navn %s"
+msgstr ""
 
 #: bauble/editor.py:1130
 #, python-format
@@ -241,7 +231,7 @@ msgstr ""
 
 #: bauble/db.py:345
 msgid "The database you have connected to is empty."
-msgstr "Den database, du har tilsluttet til, er tom."
+msgstr ""
 
 #: bauble/db.py:349
 msgid ""
@@ -249,9 +239,6 @@ msgid ""
 "This usually means that the database is either corrupt or it was created "
 "with an old version of Bauble"
 msgstr ""
-"Den database, du har tilsluttet til har kke bauble meta table. Det betyder "
-"normalt, at databasen er enten beskadiget eller den blev oprettet med en "
-"gammel version af Bauble"
 
 #: bauble/db.py:356
 msgid ""
@@ -259,9 +246,6 @@ msgid ""
 "created. This usually means that there was a problem when you created the "
 "database or the database you connected to wasn't created with Bauble."
 msgstr ""
-"Den database, du har tilsluttet  har ikke et tidsstempel for da den blev "
-"oprettet. Det betyder normalt, at der var et problem, da du oprettede "
-"databasen eller databasen du tilsluttet blev ikke oprettet med Bauble."
 
 #: bauble/db.py:364
 #, python-format
@@ -272,11 +256,6 @@ msgid ""
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
-"Du bruger Bauble version %(version)s mens den database, du har tilsluttet "
-"blev oprettet med version %(db_version)s\n"
-"\n"
-"Some things might not work as or some of your data may become unexpectedly "
-"corrupted."
 
 #: bauble/notes.glade.h:1
 msgid "Category"
@@ -306,15 +285,15 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:883
 msgid "Genus "
-msgstr "Slægten "
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:884
 msgid "Species epithet"
-msgstr "Species epithet"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:885
 msgid "Species author"
-msgstr "Species forfatter"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:886
 msgid "Species hybrid flag"
@@ -322,24 +301,24 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:887
 msgid "Cultivar group"
-msgstr "Kultivar gruppe"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:888
 #: bauble/plugins/plants/species_editor.glade.h:23
 msgid "Species qualifier"
-msgstr "Art kvalifikation"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:889
 msgid "Species distribution"
-msgstr "Artsfordeling"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:890
 msgid "Vernacular names"
-msgstr "Slægtsnavne"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:891
 msgid "Species synonyms"
-msgstr "Art synonymer"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:892
 msgid ""
@@ -383,9 +362,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Fejl begå ændringer.\n"
-"\n"
-"%s"
 
 #: bauble/plugins/plants/species_editor.py:1061
 #: bauble/plugins/plants/genus.py:665 bauble/plugins/plants/family.py:559
@@ -400,10 +376,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Ukendt fejl under registrering af ændringer. Se detaljerne for yderligere "
-"information.\n"
-"\n"
-"%s"
 
 #: bauble/plugins/plants/species_model.py:42
 msgid "subsp."
@@ -453,7 +425,7 @@ msgstr ""
 #: bauble/plugins/plants/species_editor.glade.h:5
 #: bauble/plugins/plants/genus_editor.glade.h:2
 msgid "<b>Synonyms</b>"
-msgstr "<b>Synonymer</b>"
+msgstr "<b>Sinònims:</b>"
 
 #: bauble/plugins/plants/family_editor.glade.h:3
 msgid "Add Genera"
@@ -463,18 +435,18 @@ msgstr ""
 #: bauble/plugins/plants/__init__.py:76
 #: bauble/plugins/plants/genus_editor.glade.h:5
 msgid "Family"
-msgstr "Familie"
+msgstr "Família"
 
 #: bauble/plugins/plants/family_editor.glade.h:5
 msgid "Family Editor"
-msgstr "Familie Editor"
+msgstr ""
 
 #: bauble/plugins/plants/family_editor.glade.h:6
 #: bauble/plugins/plants/species_editor.glade.h:17
 #: bauble/plugins/plants/genus_editor.glade.h:9
 #: bauble/plugins/garden/loc_editor.glade.h:6
 msgid "Next"
-msgstr "Næste"
+msgstr "Següent"
 
 #: bauble/plugins/plants/family_editor.glade.h:7
 #: bauble/plugins/plants/species_editor.glade.h:18
@@ -482,7 +454,7 @@ msgstr "Næste"
 #: bauble/plugins/garden/acc_editor.glade.h:41
 #: bauble/plugins/garden/plant_editor.glade.h:12 bauble/bauble.glade.h:2
 msgid "Notes"
-msgstr "Noter"
+msgstr "Notes"
 
 #: bauble/plugins/plants/family_editor.glade.h:8
 msgid "Qualifier"
@@ -492,14 +464,14 @@ msgstr ""
 #: bauble/plugins/plants/species_editor.glade.h:13
 #: bauble/plugins/plants/genus_editor.glade.h:7
 msgid "Genus"
-msgstr "Slægten"
+msgstr "Gens"
 
 #: bauble/plugins/plants/__init__.py:78
 #: bauble/plugins/plants/species_editor.glade.h:21
 #: bauble/plugins/report/xsl/__init__.py:68
 #: bauble/plugins/report/xsl/__init__.py:384
 msgid "Species"
-msgstr "Arter"
+msgstr "Espècies"
 
 #: bauble/plugins/plants/genus.py:68
 #, python-format
@@ -511,7 +483,7 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:72
 #, python-format
 msgid "Are you sure you want to remove the genus <i>%s</i>?"
-msgstr "er du sikker på at du ønsker at fjerne slægten <i>%s</i>?"
+msgstr ""
 
 #: bauble/plugins/plants/genus.py:81 bauble/plugins/plants/family.py:72
 #: bauble/plugins/plants/species.py:53 bauble/plugins/garden/source.py:80
@@ -523,9 +495,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Kunne ikke slette.\n"
-"\n"
-"%s"
 
 #: bauble/plugins/plants/genus.py:88 bauble/plugins/plants/family.py:80
 #: bauble/plugins/plants/species.py:72 bauble/plugins/garden/source.py:47
@@ -533,7 +502,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:180 bauble/plugins/garden/plant.py:92
 #: bauble/ui.py:346
 msgid "_Edit"
-msgstr "_Rediger"
+msgstr "_Edita"
 
 #: bauble/plugins/plants/genus.py:90
 msgid "_Add species"
@@ -549,16 +518,15 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:252
 msgid "The family name"
-msgstr "Familie navn"
+msgstr ""
 
 #: bauble/plugins/plants/genus.py:253
 msgid "The genus name"
-msgstr "Slægtens navn"
+msgstr ""
 
 #: bauble/plugins/plants/genus.py:254
 msgid "The name or abbreviation of the author that published this genus"
 msgstr ""
-"Navn eller forkortelsen af forfatteren, der blev offentliggjorde denne slægt"
 
 #: bauble/plugins/plants/genus.py:256
 msgid ""
@@ -606,15 +574,13 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:653 bauble/plugins/garden/source.py:349
 #: bauble/plugins/garden/accession.py:2026 bauble/plugins/garden/plant.py:934
 msgid "Are you sure you want to lose your changes?"
-msgstr "Er du sikker på at du vil miste dine ændringer?"
+msgstr ""
 
 #: bauble/plugins/plants/genus.py:704
 msgid ""
 "You must first add or import at least one Family into the database before "
 "you can add plants."
 msgstr ""
-"Du skal først tilføje eller importere mindst én familie i databasen, før du "
-"kan tilføje planter."
 
 #: bauble/plugins/plants/genus.py:778 bauble/plugins/plants/family.py:623
 #: bauble/plugins/plants/genus_editor.glade.h:6
@@ -625,12 +591,12 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:1043
 #: bauble/plugins/garden/plant_editor.glade.h:9
 msgid "General"
-msgstr "Almindelige"
+msgstr "General"
 
 #: bauble/plugins/plants/genus.py:874 bauble/plugins/plants/family.py:729
 #: bauble/plugins/plants/species.py:209
 msgid "Synonyms"
-msgstr "Synonymer"
+msgstr "Sinònims"
 
 #: bauble/plugins/plants/species_editor.glade.h:2
 #: bauble/plugins/plants/infoboxes.glade.h:1
@@ -645,7 +611,7 @@ msgstr "--"
 
 #: bauble/plugins/plants/species_editor.glade.h:3
 msgid "<b>Distribution</b>"
-msgstr "<b>Distribution</b>"
+msgstr "<b>Distribució</b>"
 
 #: bauble/plugins/plants/species_editor.glade.h:4
 msgid "<b>Infraspecific parts</b>"
@@ -694,7 +660,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade.h:19
 msgid "Plant Species Editor"
-msgstr "Plante arts editor"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade.h:20
 msgid "Rank"
@@ -714,7 +680,7 @@ msgstr ""
 #: bauble/plugins/plants/family.py:63
 #, python-format
 msgid "Are you sure you want to remove the family <i>%s</i>?"
-msgstr "Er du sikker på at du ønsker at fjerne familien <i>%s</i>?"
+msgstr ""
 
 #: bauble/plugins/plants/family.py:82
 msgid "_Add genus"
@@ -752,7 +718,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus_editor.glade.h:8
 msgid "Genus Editor"
-msgstr "Slægts editor"
+msgstr ""
 
 #: bauble/plugins/plants/species.py:40
 #, python-format
@@ -764,7 +730,7 @@ msgstr ""
 #: bauble/plugins/plants/species.py:44
 #, python-format
 msgid "Are you sure you want to remove the species <i>%s</i>?"
-msgstr "Er du sikker på du vil fjerne de arter <i>%s</i>?"
+msgstr ""
 
 #: bauble/plugins/plants/species.py:74
 msgid "_Add accession"
@@ -772,25 +738,25 @@ msgstr ""
 
 #: bauble/plugins/plants/species.py:174
 msgid "Vernacular Names"
-msgstr "Lokalt navn"
+msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:2
 #: bauble/plugins/garden/source_detail_infobox.glade.h:2
 msgid "<b># of Accessions:</b>"
-msgstr "<b># af tilknyttede:</b>"
+msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:3
 msgid "<b># of Genera:</b>"
-msgstr "<b># af slægter:</b>"
+msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:4
 #: bauble/plugins/garden/loc_infobox.glade.h:2
 msgid "<b># of Plants:</b>"
-msgstr "<b># af planter:</b>"
+msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:5
 msgid "<b># of Plants</b>"
-msgstr "<b># af planter</b>"
+msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:6
 msgid "<b># of Taxa:</b>"
@@ -806,7 +772,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:9
 msgid "<b>Distribution:</b>"
-msgstr "<b>Distribution:</b>"
+msgstr "<b>Distribució:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:10
 msgid "<b>Habit:</b>"
@@ -814,15 +780,15 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:11
 msgid "family_window"
-msgstr "familie_vindue"
+msgstr "family_window"
 
 #: bauble/plugins/plants/infoboxes.glade.h:12
 msgid "genus_window"
-msgstr "slægt_vindue"
+msgstr "genus_window"
 
 #: bauble/plugins/plants/infoboxes.glade.h:13
 msgid "species_window"
-msgstr "art_vindue"
+msgstr "species_window"
 
 #: bauble/plugins/garden/source.py:51 bauble/plugins/garden/location.py:61
 #: bauble/plugins/garden/accession.py:182
@@ -833,7 +799,7 @@ msgstr ""
 #: bauble/plugins/tag/__init__.py:42
 #, python-format
 msgid "Are you sure you want to remove %s?"
-msgstr "Er du sikker på du vil fjerne %s?"
+msgstr "Estàs segur/a que vols esborrar %s ?"
 
 #: bauble/plugins/garden/source.py:131
 msgid "Expedition"
@@ -971,7 +937,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:2
 msgid "<b>Collection ID:</b>"
-msgstr "<b>Indsamling ID:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:3
 #: bauble/plugins/garden/acc_editor.glade.h:6
@@ -980,7 +946,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:4
 msgid "<b>Collector:</b>"
-msgstr "<b>Indsamler:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:5
 msgid "<b>Date accessioned:</b>"
@@ -988,7 +954,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:6
 msgid "<b>Date collected:</b>"
-msgstr "<b>Dato indsamlet:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:7
 msgid "<b>Date received:</b>"
@@ -996,15 +962,15 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:8
 msgid "<b>Elevation:</b>"
-msgstr "<b>Højde:</b>"
+msgstr "<b>Elevació:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:9
 msgid "<b>GPS Datum</b>"
-msgstr ""
+msgstr "<b>Dades GPS</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:10
 msgid "<b>Habitat</b>"
-msgstr "<b>Habitat</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:11
 msgid "<b>Intended Location 2:</b>"
@@ -1016,7 +982,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:13
 msgid "<b>Latitude:</b>"
-msgstr "<b>Breddegrad:</b>"
+msgstr "<b>Latitud:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:14
 msgid "<b>Living Plants:</b>"
@@ -1025,11 +991,11 @@ msgstr ""
 #: bauble/plugins/garden/acc_infobox.glade.h:15
 #: bauble/plugins/garden/plant_infobox.glade.h:4
 msgid "<b>Location:</b>"
-msgstr "<b>Placering:</b>"
+msgstr "<b>Ubicació:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:16
 msgid "<b>Longitude:</b>"
-msgstr "<b>Længdegrad:</b>"
+msgstr "<b>Longitud:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:17
 msgid "<b>Name:</b>"
@@ -1038,7 +1004,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_infobox.glade.h:18
 #: bauble/plugins/garden/prop_editor.glade.h:12
 msgid "<b>Notes</b>"
-msgstr "<b>Noter</b>"
+msgstr "<b>Notes</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:19
 msgid "<b>Parent Plant:</b>"
@@ -1058,7 +1024,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:23
 msgid "<b>Provenance:</b>"
-msgstr "<b>Oprindelse:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:24
 msgid "<b>Quantity received:</b>"
@@ -1074,7 +1040,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:27
 msgid "<i>--</i>"
-msgstr "<i>--</i>"
+msgstr ""
 
 #: bauble/plugins/garden/institution.glade.h:1
 msgid "Abbreviation"
@@ -1232,7 +1198,7 @@ msgstr ""
 #: bauble/plugins/garden/__init__.py:89
 #: bauble/plugins/garden/plant_editor.glade.h:10
 msgid "Location"
-msgstr ""
+msgstr "Localització"
 
 #: bauble/plugins/garden/prop_editor.glade.h:33
 msgid "Media/Compost"
@@ -1396,7 +1362,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade.h:42
 #: bauble/plugins/garden/plant.py:339
 msgid "Plant"
-msgstr "Plante"
+msgstr "Planta"
 
 #: bauble/plugins/garden/accession.py:356
 msgid "Pseudobulb"
@@ -1570,7 +1536,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:2303
 #: bauble/plugins/garden/acc_editor.glade.h:52
 msgid "Source"
-msgstr "Kilde"
+msgstr "Font"
 
 #: bauble/plugins/garden/accession.py:2396
 #: bauble/plugins/garden/acc_editor.glade.h:58
@@ -1683,7 +1649,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:26
 msgid "East"
-msgstr "Øst"
+msgstr "Est"
 
 #: bauble/plugins/garden/acc_editor.glade.h:27
 msgid "GPS Datum"
@@ -1780,7 +1746,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:55
 msgid "South"
-msgstr "Syd"
+msgstr "Sud"
 
 #: bauble/plugins/garden/acc_editor.glade.h:56
 msgid "Type"
@@ -1796,7 +1762,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:61
 msgid "West"
-msgstr "Vest"
+msgstr "Oest"
 
 #: bauble/plugins/garden/acc_editor.glade.h:62
 msgid "Wild status"
@@ -2231,7 +2197,7 @@ msgstr ""
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:4 bauble/view.py:152
 msgid "<b>Type:</b>"
-msgstr "<b>Type:</b>"
+msgstr "<b>Tipus:</b>"
 
 #: bauble/plugins/garden/plant_editor.glade.h:2
 msgid "<b>Change history</b>"
@@ -2247,7 +2213,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:6
 msgid "Add"
-msgstr "Tilføj"
+msgstr "Afegeix"
 
 #: bauble/plugins/garden/plant_editor.glade.h:7
 msgid "Date of Change"
@@ -2255,7 +2221,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:8
 msgid "Edit"
-msgstr "Rediger"
+msgstr "Edita"
 
 #: bauble/plugins/garden/plant_editor.glade.h:11
 msgid "Memorial"
@@ -2279,15 +2245,15 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade.h:3
 msgid "<b>Permissions</b>"
-msgstr "<b> Tilladelser </b>"
+msgstr ""
 
 #: bauble/plugins/users/ui.glade.h:4
 msgid "<b>Users</b>"
-msgstr "Brugere"
+msgstr ""
 
 #: bauble/plugins/users/ui.glade.h:5
 msgid "Administrator"
-msgstr "Administrator"
+msgstr ""
 
 #: bauble/plugins/users/ui.glade.h:6
 msgid "Change Password"
@@ -2307,7 +2273,7 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade.h:10
 msgid "Write"
-msgstr "Skrive"
+msgstr ""
 
 #: bauble/plugins/users/__init__.py:468
 msgid "The Users editor is only valid on a PostgreSQL database"
@@ -2352,7 +2318,7 @@ msgstr ""
 
 #: bauble/plugins/report/mako/__init__.py:83
 msgid "Please selecte a template."
-msgstr "Vælg en skabelon."
+msgstr ""
 
 #: bauble/plugins/report/mako/__init__.py:99
 #: bauble/plugins/report/xsl/__init__.py:576
@@ -2361,8 +2327,6 @@ msgid ""
 "Could not open the report with the default program. You can open the file "
 "manually at %s"
 msgstr ""
-"Kunne ikke åbne den rapport med standard programmet. Du kan åbne filen "
-"manuelt på %s"
 
 #: bauble/plugins/report/mako/gui.glade.h:1
 #: bauble/plugins/report/xsl/gui.glade.h:1
@@ -2371,22 +2335,22 @@ msgstr ""
 
 #: bauble/plugins/report/mako/gui.glade.h:2
 msgid "<b>Template</b>"
-msgstr "<b>Skabeloner</b>"
+msgstr ""
 
 #: bauble/plugins/report/__init__.py:101
 #, python-format
 msgid "Can't get plants from a %s"
-msgstr "Kan ikke få planter fra %s"
+msgstr ""
 
 #: bauble/plugins/report/__init__.py:141
 #, python-format
 msgid "Can't get accessions from a %s"
-msgstr "Kan ikke få tiltrædelser fra %s"
+msgstr ""
 
 #: bauble/plugins/report/__init__.py:183
 #, python-format
 msgid "Can't get species from a %s"
-msgstr "Kan ikke få arter fra et %s"
+msgstr ""
 
 #: bauble/plugins/report/__init__.py:370
 msgid "Formatter Name"
@@ -2394,16 +2358,16 @@ msgstr ""
 
 #: bauble/plugins/report/__init__.py:376
 msgid "Enter a name for the new formatter"
-msgstr "Indtast et navn til den nye format"
+msgstr ""
 
 #: bauble/plugins/report/__init__.py:393
 #, python-format
 msgid "%s already exists"
-msgstr "%s findes allerede"
+msgstr "ja existeix %s"
 
 #: bauble/plugins/report/__init__.py:503
 msgid "No formatter plugins defined"
-msgstr "Ingen formatter plugins defineret"
+msgstr ""
 
 #: bauble/plugins/report/__init__.py:539
 msgid ""
@@ -2416,7 +2380,7 @@ msgstr ""
 
 #: bauble/plugins/report/__init__.py:601 bauble/plugins/report/__init__.py:606
 msgid "Search for something first."
-msgstr "Søg efter noget først."
+msgstr ""
 
 #: bauble/plugins/report/__init__.py:631
 #, python-format
@@ -2428,16 +2392,16 @@ msgstr ""
 
 #: bauble/plugins/report/report.glade.h:1
 msgid "<b>Formatter</b>"
-msgstr "<b>Formatter</b>"
+msgstr ""
 
 #: bauble/plugins/report/report.glade.h:2
 msgid "<b>Settings</b>"
-msgstr "<b>Indstillinger</b>"
+msgstr "<b>Paràmetres</b>"
 
 #: bauble/plugins/report/xsl/__init__.py:66
 #: bauble/plugins/report/xsl/__init__.py:384
 msgid "Plant/Clone"
-msgstr "Plant / Klon"
+msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:330
 msgid "Select a file..."
@@ -2453,11 +2417,11 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:473
 msgid "Please select a stylesheet."
-msgstr "Vælg et typografiark."
+msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:475
 msgid "Please select a a renderer"
-msgstr "Vælg en renderer"
+msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:483
 #, python-format
@@ -2469,25 +2433,23 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:499
 msgid ""
 "There are no plants in the search results.  Please try another search."
-msgstr "Der er ingen planter i søgeresultaterne. Prøv en anden søgning."
+msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:511
 msgid ""
 "There are no species in the search results.  Please try another search."
-msgstr "Der er ingen arter i søgeresultaterne. Prøv en anden søgning."
+msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:520
 msgid ""
 "There are no accessions in the search results.  Please try another search."
-msgstr "Der er ingen tiltrædelser i søgeresultaterne. Prøv en anden søgning."
+msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:568
 msgid ""
 "Error creating the PDF file. Please ensure that your PDF formatter is "
 "properly installed."
 msgstr ""
-"Fejl ved oprettelse af PDF-filen. Sørg for, at dine PDF-formatter er korrekt "
-"installeret."
 
 #: bauble/plugins/report/xsl/gui.glade.h:2
 msgid "<b>Renderer</b>"
@@ -2495,7 +2457,7 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade.h:3
 msgid "<b>Source type</b>"
-msgstr "<b>kildetype</b>"
+msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade.h:4
 msgid "<b>Stylesheet</b>"
@@ -2503,7 +2465,7 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade.h:5
 msgid "<b>Use author names</b>"
-msgstr "<b>Brug forfatter navne</b>"
+msgstr ""
 
 #: bauble/plugins/tag/__init__.py:90
 msgid "Enter a tag name"
@@ -2516,7 +2478,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:445
 msgid "Nothing selected"
-msgstr "Intet valgt"
+msgstr "No s'ha seleccionat res"
 
 #: bauble/plugins/tag/__init__.py:457
 msgid ""
@@ -2534,32 +2496,32 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:503 bauble/plugins/tag/tag.glade.h:5
 msgid "Tags"
-msgstr "Tags"
+msgstr "Etiquetes"
 
 #: bauble/plugins/tag/tag.glade.h:2
 msgid "<b>Item(s)</b>"
-msgstr ""
+msgstr "<b>Ítem(s)</b>"
 
 #: bauble/plugins/tag/tag.glade.h:3
 msgid "<b>Tags</b>"
-msgstr "<b>Tags</b>"
+msgstr "<b>Etiquetes</b>"
 
 #: bauble/plugins/tag/tag.glade.h:4
 msgid "New Tag"
-msgstr "Nyt Tag"
+msgstr "Etiqueta nova"
 
 #: bauble/plugins/imex/xml.py:67 bauble/plugins/imex/csv_.py:581
 msgid "Select a directory"
-msgstr "Vælg en mappe"
+msgstr "Selecciona un directori"
 
 #: bauble/plugins/imex/xml.py:71
 msgid "Save all data in one file"
-msgstr "Gem alle data i en fil"
+msgstr ""
 
 #: bauble/plugins/imex/xml.py:142 bauble/plugins/imex/csv_.py:710
 #: bauble/plugins/abcd/__init__.py:338
 msgid "Export"
-msgstr "Export"
+msgstr "Exporta"
 
 #: bauble/plugins/imex/xml.py:143
 msgid "XML"
@@ -2567,7 +2529,7 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:239
 msgid "Unknown Error."
-msgstr "Ukendt fejl."
+msgstr "Error desconegut."
 
 #: bauble/plugins/imex/csv_.py:248
 #, python-format
@@ -2576,9 +2538,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Fejl ved tilslutning til database.\n"
-"\n"
-"%s"
 
 #: bauble/plugins/imex/csv_.py:263
 #, python-format
@@ -2624,11 +2583,11 @@ msgstr ""
 #: bauble/plugins/imex/csv_.py:522
 #, python-format
 msgid "Error: Could not set the sequence for column: %s"
-msgstr "Fejl: Kunne ikke indstille sekvens for kolonne: %s"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:554
 msgid "Choose file(s) to import..."
-msgstr "Vælge fil(r) til import..."
+msgstr "Escolliu un fitxer(s) per importar..."
 
 #: bauble/plugins/imex/csv_.py:592
 #, python-format
@@ -2636,8 +2595,6 @@ msgid ""
 "CSVExporter: path does not exist.\n"
 "%s"
 msgstr ""
-"CSVExporter: Stien findes ikke.\n"
-"%s"
 
 #: bauble/plugins/imex/csv_.py:613
 #, python-format
@@ -2646,23 +2603,19 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
-"Export fil <b>%(filename)s</b> for <b>%(table)s</b> tabellen findes "
-"allerede.\n"
-"\n"
-"<i>Would you like to continue?</i>"
 
 #: bauble/plugins/imex/csv_.py:638
 #, python-format
 msgid "exporting %(table)s table to %(filename)s"
-msgstr "eksporterende %(table)s tabellen til %(filename)s"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:691
 msgid "Import"
-msgstr "Import"
+msgstr "Importa"
 
 #: bauble/plugins/imex/csv_.py:692 bauble/plugins/imex/csv_.py:711
 msgid "Comma Separated Value"
-msgstr "Komma separerede værdier"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:700
 msgid ""
@@ -2671,10 +2624,6 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
-"Det er muligt at importere data ind i denne database kan ødelægge eller "
-"beskadige dine eksisterende data.\n"
-"\n"
-"<i>Would you like to continue?</i>"
 
 #: bauble/plugins/abcd/__init__.py:169
 msgid ""
@@ -2685,7 +2634,7 @@ msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:280
 msgid "Choose a file to export to..."
-msgstr "Vælg en fil at ekportere til..."
+msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:296
 #, python-format
@@ -2704,7 +2653,7 @@ msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:339
 msgid "ABCD"
-msgstr "ABCD"
+msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:355
 msgid "The <i>lxml</i> package is required for the ABCD plugin"
@@ -2713,23 +2662,23 @@ msgstr ""
 #: bauble/plugins/picasa/__init__.py:269
 #, python-format
 msgid "Could not authorize Google account: %s"
-msgstr "Kunne ikke tillade Google-konto: %s"
+msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:400 bauble/plugins/picasa/__init__.py:610
 msgid "Settings"
-msgstr "Indstillinger"
+msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:441
 msgid "Images"
-msgstr "Billeder"
+msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:516
 msgid "Could not login to PicasaWeb account."
-msgstr "Kan ikke logge ind på PicasaWeb konto."
+msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:537
 msgid "No images"
-msgstr "Ingen billeder"
+msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:609
 msgid "Picasa"
@@ -2762,21 +2711,19 @@ msgstr ""
 #: bauble/paths.py:117
 msgid "Could not get path for user settings: unsupported platform"
 msgstr ""
-"Kunne ikke finde stien til brugerens indstillinger: ikke understøttet "
-"platform"
 
 #: bauble/bauble.glade.h:1 bauble/connmgr.glade.h:1
 msgid "Bauble"
-msgstr "Bauble"
+msgstr ""
 
 #: bauble/__init__.py:129
 msgid "No default handler registered"
-msgstr "Ingen standard handling registreret"
+msgstr ""
 
 #: bauble/__init__.py:131
 #, python-format
 msgid "No command handler for %s"
-msgstr "Ingen kommando handling for %s"
+msgstr "No hi ha cap gestor per a l'ordre %s"
 
 #: bauble/__init__.py:172
 msgid "** Error: could not import gtk and/or gobject"
@@ -2797,7 +2744,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Kunne ikke åbne forbindelse.\n"
+"Error: no s'ha pogut obrir la connexió \n"
 "\n"
 "%s"
 
@@ -2808,32 +2755,26 @@ msgid ""
 "<i>Warning: If there is already a database at this connection any existing "
 "data will be destroyed!</i>"
 msgstr ""
-"Kunne du tænke dig at oprette en ny Bauble database på den aktuelle "
-"forbindelse?"
 
 #: bauble/connmgr.glade.h:2
 msgid "Connection Details"
-msgstr "Kontakt-detaljer"
+msgstr "Detalls de la connexió"
 
 #: bauble/connmgr.glade.h:3
 msgid "Type:"
-msgstr "Type:"
+msgstr "Tipus:"
 
 #: bauble/connmgr.py:104
 msgid ""
 "You don't have any connections in your connection list.\n"
 "Close this message and click on \"Add\" to create a new connection."
 msgstr ""
-"Du har ikke nogen forbindelser på din forbindelse-liste.\n"
-"Luk denne meddelelse, og klik på \"Tilføj\" for at oprette en ny forbindelse."
 
 #: bauble/connmgr.py:121
 msgid ""
 "You have to choose or create a new connection before you can connect to the "
 "database."
 msgstr ""
-"Du er nødt til at vælge eller oprette en ny forbindelse, før du kan oprette "
-"forbindelse til databasen."
 
 #: bauble/connmgr.py:160
 #, python-format
@@ -2842,9 +2783,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at læse denne mappe:\n"
-"\n"
-"%s"
 
 #: bauble/connmgr.py:165
 #, python-format
@@ -2853,9 +2791,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at skrive til denne mappe:\n"
-"\n"
-"%s"
 
 #: bauble/connmgr.py:170
 #, python-format
@@ -2864,9 +2799,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at læse databasefil:\n"
-"\n"
-"%s"
 
 #: bauble/connmgr.py:175
 #, python-format
@@ -2875,13 +2807,10 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at skrive til databasefilen:\n"
-"\n"
-"%s"
 
 #: bauble/connmgr.py:183
 msgid "Do you want to save your changes?"
-msgstr "Ønsker du at gemme dine ændringer?"
+msgstr ""
 
 #: bauble/connmgr.py:203
 msgid ""
@@ -2892,7 +2821,7 @@ msgstr ""
 #: bauble/connmgr.py:217 bauble/ui.py:65
 #, python-format
 msgid "Could not load icon from %s"
-msgstr "Kunne ikke indlæse ikon fra %s"
+msgstr "No és possible carregar la icona des de %s"
 
 #: bauble/connmgr.py:307
 #, python-format
@@ -2905,53 +2834,53 @@ msgstr ""
 
 #: bauble/connmgr.py:320
 msgid "Enter a connection name"
-msgstr "Indtast et forbindelse navn"
+msgstr ""
 
 #: bauble/connmgr.py:391
 #, python-format
 msgid "Do you want to save %s?"
-msgstr "Vil du gemme %s ?"
+msgstr "Voleu desar %s?"
 
 #: bauble/connmgr.py:399
 #, python-format
 msgid "Do you want to save your changes to %s ?"
-msgstr "Ønsker du at gemme dine ændringer %s ?"
+msgstr "Voleu desar les modificacions a %s?"
 
 #: bauble/connmgr.py:455
 msgid "Enter your password"
-msgstr "Indtast din adgangskode"
+msgstr "Introdueix la teva contrasenya"
 
 #: bauble/connmgr.py:539
 msgid "Please choose a name for this connection"
-msgstr "Vælg et navn for denne forbindelse"
+msgstr ""
 
 #: bauble/connmgr.py:542
 msgid "Please choose a user name for this connection"
-msgstr "Vælg et brugernavn til denne forbindelse"
+msgstr "Si us plau, elegeix un nom d'usuari per aquesta connexió"
 
 #: bauble/connmgr.py:562
 msgid "Database: "
-msgstr "Database: "
+msgstr "Base de dades: "
 
 #: bauble/connmgr.py:568
 msgid "Host: "
-msgstr "Host: "
+msgstr "Servidor: "
 
 #: bauble/connmgr.py:575
 msgid "User: "
-msgstr "Bruger: "
+msgstr "Usuari/a: "
 
 #: bauble/connmgr.py:581
 msgid "Password: "
-msgstr "Password: "
+msgstr "Contrasenya: "
 
 #: bauble/connmgr.py:629
 msgid "Use default filename"
-msgstr "Brug standard filnavn"
+msgstr "Utilitza un nom de fitxer per defecte"
 
 #: bauble/connmgr.py:635
 msgid "Filename: "
-msgstr "Filnavn: "
+msgstr "Nom del fitxer: "
 
 #: bauble/connmgr.py:642
 msgid "Browse..."
@@ -2959,11 +2888,11 @@ msgstr ""
 
 #: bauble/connmgr.py:679
 msgid "Choose a file..."
-msgstr "Vælg en fil..."
+msgstr "Escull un arxiu..."
 
 #: bauble/view.py:137
 msgid "Properties"
-msgstr "Egenskaber"
+msgstr "Propietats"
 
 #: bauble/view.py:143
 msgid "<b>ID:</b>"
@@ -2971,25 +2900,25 @@ msgstr "<b>ID:</b>"
 
 #: bauble/view.py:161
 msgid "<b>Date created:</b>"
-msgstr "<b>Dato oprettet:</b>"
+msgstr ""
 
 #: bauble/view.py:170
 msgid "<b>Last updated:</b>"
-msgstr "<b>Seneste opdatering:</b>"
+msgstr ""
 
 #: bauble/view.py:321
 msgid "Links"
-msgstr "Links"
+msgstr "Enllaços"
 
 #: bauble/view.py:610
 #, python-format
 msgid "Error in search string at column %s"
-msgstr "Fejl i søgestreng på kolonnen %s"
+msgstr ""
 
 #: bauble/view.py:613
 #, python-format
 msgid "** Error: %s"
-msgstr "** Fejl: %s"
+msgstr ""
 
 #: bauble/view.py:628
 #, python-format
@@ -3002,18 +2931,16 @@ msgid ""
 "This query returned %s results.  It may take a long time to get all the "
 "data. Are you sure you want to continue?"
 msgstr ""
-"Denne forespørgsel returnerede %s resultater. Det kan tage lang tid at få "
-"alle data. Er du sikker på at du vil fortsætte?"
 
 #: bauble/view.py:639
 #, python-format
 msgid "Retrieving %s search results..."
-msgstr "Henter %s søgeresultater..."
+msgstr ""
 
 #: bauble/view.py:662
 #, python-format
 msgid "%s search results"
-msgstr "%s søgeresultater"
+msgstr "%s Resultats de la cerca"
 
 #: bauble/view.py:1154
 msgid "Timestamp"
@@ -3029,11 +2956,11 @@ msgstr ""
 
 #: bauble/search.py:116
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
-msgstr "MapperSearch.add_meta(): default_columns argument skal vises"
+msgstr ""
 
 #: bauble/search.py:118
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
-msgstr "MapperSearch.add_meta(): default_columns argument kan ikke være tom"
+msgstr ""
 
 #: bauble/search.py:180
 #, python-format
@@ -3044,7 +2971,7 @@ msgstr ""
 #: bauble/search.py:234
 #, python-format
 msgid "Unknown search domain: %s"
-msgstr "Ukendt søge domæne: %s"
+msgstr ""
 
 #: bauble/search.py:351 bauble/search.py:744
 msgid "Search Domain"
@@ -3077,59 +3004,58 @@ msgstr ""
 #: bauble/ui.py:237
 msgid "history size must be greater than zero and less than the history size"
 msgstr ""
-"historikstørrelse skal være større end nul og mindre end historikstørrelse"
 
 #: bauble/ui.py:339
 msgid "_File"
-msgstr "_Filer"
+msgstr "_Fitxer"
 
 #: bauble/ui.py:340
 msgid "_New"
-msgstr "_Ny"
+msgstr "_Nou"
 
 #: bauble/ui.py:344
 msgid "_Quit"
-msgstr "_Afslut"
+msgstr "_Surt"
 
 #: bauble/ui.py:347
 msgid "_Cut"
-msgstr "_Klip"
+msgstr "_Talla"
 
 #: bauble/ui.py:349
 msgid "_Copy"
-msgstr "_Kopier"
+msgstr "_Copia"
 
 #: bauble/ui.py:351
 msgid "_Paste"
-msgstr "_Sæt ind"
+msgstr "_Enganxa"
 
 #: bauble/ui.py:357
 msgid "_Insert"
-msgstr "_Indsæt"
+msgstr "_Inserix"
 
 #: bauble/ui.py:358
 msgid "_Tools"
-msgstr "_Værktøj"
+msgstr "_Eines"
 
 #: bauble/ui.py:359
 msgid "_Help"
-msgstr "_Hjælp"
+msgstr "Aj_uda"
 
 #: bauble/ui.py:361
 msgid "Contents"
-msgstr "Indhold"
+msgstr "Continguts"
 
 #: bauble/ui.py:363
 msgid "Report a bug"
-msgstr "Fejlmeld et problem"
+msgstr "Avisa d'un error"
 
 #: bauble/ui.py:366
 msgid "Bauble website"
-msgstr "Bauble website"
+msgstr ""
 
 #: bauble/ui.py:368
 msgid "About"
-msgstr "Om programmet"
+msgstr "Sobre"
 
 #: bauble/ui.py:580
 #, python-format
@@ -3138,9 +3064,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Kunne ikke oprette en ny database.\n"
-"\n"
-"%s"
 
 #: bauble/ui.py:665
 msgid "http://bauble.belizebotanic.org"
@@ -3152,11 +3075,11 @@ msgstr "Copyright © Belize Botanic Gardens"
 
 #: bauble/ui.py:686
 msgid "Would you like the cancel the current tasks?"
-msgstr "Vil du annullere den nuværende opgaver?"
+msgstr ""
 
 #: bauble/types.py:43
 msgid "Enum requires a list of values"
-msgstr "Enum kræver en liste med værdier"
+msgstr ""
 
 #: bauble/types.py:45
 msgid ""

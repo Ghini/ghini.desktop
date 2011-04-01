@@ -1171,7 +1171,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
         def update_label(self):
             parts = []
-            if self.model.date:
+            # TODO: the parts string isn't being translated
+            if self.model.date:                
                 parts.append('<b>%(date)s</b> : ')
             if self.model.species:
                 parts.append('verified as %(species)s ')
@@ -1189,6 +1190,13 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
 
 class SourcePresenter(editor.GenericEditorPresenter):
+    """
+    SourcePresenter
+    :param parent:
+    :param model:
+    :param view:
+    :param session:
+    """
 
     garden_prop_str = _('Garden Propagation')
 
@@ -1390,7 +1398,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         Opens a new SourceDetailEditor when clicked and repopulates the
         source combo if a new SourceDetail is created.
         """
-        e = SourceDetailEditor()
+        e = SourceDetailEditor(parent=self.view.get_window())
         committed = e.start()
         new_detail = None
         if committed:
