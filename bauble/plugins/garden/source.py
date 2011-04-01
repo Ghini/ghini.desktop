@@ -324,7 +324,7 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
     def __init__(self, model=None, parent=None):
         '''
         :param model: Contact instance or None
-        :param values to enter in the model if none are give
+        :param parent: the parent window
         '''
         if not model:
             model = SourceDetail()

@@ -6,7 +6,7 @@
 find ./bauble -name "*.glade" -exec intltool-extract --type=gettext/glade {} \;
 
 # Create the message.pot file from the python and .glade.h files
-xgettext -k_ -kN_ -o messages.pot `find ./bauble -name "*.py" -o -name *.h`
+xgettext -k_ -kN_ -o po/messages.pot `find ./bauble -name "*.py" -o -name *.h`
 
 #
 # Use the following command to create the .mo files for each
