@@ -323,7 +323,7 @@ class clean(Command):
     def finalize_options(self):
         pass
     def run(self):
-        patterns = ['MANIFEST', '*~', '*flymake*', '*.pyc']
+        patterns = ['MANIFEST', '*~', '*flymake*', '*.pyc', '*.h']
         cwd = os.getcwd()
         import fnmatch
         for path, subdirs, files in os.walk(cwd):
@@ -361,30 +361,6 @@ class run(Command):
         cwd = os.getcwd()
         os.system(os.path.join(cwd, 'bauble.sh'))
 
-# TODO: sdist_deb should be run from a fresh checkout and never from a
-# working directory as it could contain uncommited files and other
-# files in the tarball that shouldn't be included in the dist
-
-# TODO: we shouldn't be using stdeb anymore and should just run the
-# builddeb.sh script from 0.9
-
-# sdist_deb command
-class sdist_deb(_sdist):
-    user_options = []
-#     def initialize_options(self):
-#         pass
-    def finalize_options(self):
-        _sdist.finalize_options(self)
-        self.formats = ['gztar']
-
-    def run(self):
-        _sdist.run(self)
-        cfg = os.path.abspath('stdeb.cfg')
-        cmd = ['py2dsc', '--extra-cfg-file', cfg, #'--no-pycentral',
-               '--dist-dir', 'dist/deb_dist',
-               '--ignore-install-requires', self.archive_files[0]]
-        spawn.spawn(cmd)
-
 # require pysqlite if not using python2.5 or greater
 needs_sqlite = []
 try:
@@ -398,8 +374,7 @@ except ImportError:
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
-                           'docs': docs, 'clean': clean, 'run': run,
-                           'sdist_deb': sdist_deb},
+                           'docs': docs, 'clean': clean, 'run': run},
                  version=version,
                  scripts=["scripts/bauble", "scripts/bauble-admin"],
                  packages = all_packages,
