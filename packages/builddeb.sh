@@ -63,7 +63,7 @@ run "cd bauble-$VERSION"
 if ! [ -d "debian" ] ; then
     run "mkdir debian"
 fi
-run "cp $TOPLEVEL/packages/$DIST/* debian"
+run "cp -R $TOPLEVEL/packages/$DIST/* debian"
 
 # build the source package
 run "debuild -S"
