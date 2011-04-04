@@ -2,17 +2,13 @@ Source: bauble
 Maintainer: Brett Adams <brett@belizebotanic.org>
 Section: python
 Priority: optional
-Build-Depends: python-setuptools (>= 0.6b3), python-all-dev (>= 2.3.5-11), debhelper (>= 5.0.38), python-central (>= 0.5.6), debhelper (>= 7), python, python-support, gettext, python-sqlalchemy-0.5, python-lxml (>= 1.3), python-pysqlite2 (>= 2.3.2), python-setuptools, python-gdata (>= 1.1.1), python-mako (>= 0.2.2), librsvg2-common, xdg-utils
-Standards-Version: 3.7.2
-XS-Python-Version: >= 2.5, <<3.0
+Build-Depends: python-setuptools (>= 0.6b3), debhelper (>= 7), gettext, python-support, python-sqlalchemy-0.5, python-lxml (>= 1.3), python-pysqlite2 (>= 2.3.2), python-setuptools, python-gdata (>= 1.1.1), python-mako (>= 0.2.2), librsvg2-common, xdg-utils
+Standards-Version: 3.8.4
+XS-Python-Version: current
 
 Package: bauble
 Architecture: all
-Depends: ${python:Depends}, xdg-utils, python, python-egenix-mxdatetime, python-sqlalchemy-0.5, python-lxml, python-gtk2 (>=2.12), librsvg2-common, python-glade2, python-gdata (>=1.1.1), python-mako (>=0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, ${misc:Depends}, ${python:Depends}, libgtk2.0-0 (>= 2.14), python-fibra (>= 0.0.17), python-dateutil, python-pyparsing
-Recommends: python-mysqldb | python-psycopg2
-Suggests: 
+Depends: ${misc:Depends}, ${python:Depends}, xdg-utils, python, python-egenix-mxdatetime, python-sqlalchemy-0.5, python-lxml, python-gtk2 (>=2.12), librsvg2-common, python-glade2, python-gdata (>=1.1.1), python-mako (>=0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, ${misc:Depends}, ${python:Depends}, libgtk2.0-0 (>= 2.14), python-fibra (>= 0.0.17), python-dateutil, python-pyparsing
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
-Conflicts: bauble
-Description: Bauble is a biodiversity collection manager software application for managing plant collections.
-
+Description: Biodiversity collection manager software application for managing plant collections.
