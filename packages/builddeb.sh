@@ -3,7 +3,7 @@
 # Requires bzr, devscripts, debhelper packages
 
 TOPLEVEL=`pwd`
-VERSION="1.0.0" # :bump
+VERSION="1.0.1" # :bump
 TARBALL="bauble-$VERSION.tar.gz"
 ORIG_TARBALL="bauble_$VERSION.orig.tar.gz"
 
@@ -63,7 +63,7 @@ run "cd bauble-$VERSION"
 if ! [ -d "debian" ] ; then
     run "mkdir debian"
 fi
-run "cp $TOPLEVEL/packages/$DIST/* debian"
+run "cp -R $TOPLEVEL/packages/$DIST/* debian"
 
 # build the source package
 run "debuild -S"
