@@ -1674,7 +1674,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect('acc_recvd_type_comboentry', 'changed',
                           self.on_recvd_type_comboentry_changed)
         self.view.connect(self.view.widgets.acc_recvd_type_comboentry.child,
-                          'changed', self.on_recvd_type_entry_changed)
+                          'changed', self.on_recvd_type_entry_changed)        
 
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
@@ -1695,6 +1695,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         utils.setup_date_button(self.view, 'acc_date_accd_entry',
                                'acc_date_accd_button')
 
+        self.assign_simple_handler('acc_quantity_recvd_entry','quantity_recvd')
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
