@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-05-05 22:23+0000\n"
+"Last-Translator: ptr <Unknown>\n"
 "Language-Team: Greek <el@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-16 07:05+0000\n"
-"X-Generator: Launchpad (build 12735)\n"
+"X-Launchpad-Export-Date: 2011-05-06 05:40+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -28,11 +28,11 @@ msgstr ""
 
 #: bauble/prefs.py:335
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>Προτιμήσεις</b>"
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
-msgstr ""
+msgstr "<b>Πρόσθετα</b>"
 
 #: bauble/prefs.py:379
 msgid "Names"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: bauble/utils/web.py:84
 msgid "Search ITIS"
-msgstr ""
+msgstr "Αναζήτηση ITIS"
 
 #: bauble/utils/web.py:85
 msgid "Search the Intergrated Taxonomic Information System"
@@ -2940,7 +2940,7 @@ msgstr ""
 #: bauble/view.py:662
 #, python-format
 msgid "%s search results"
-msgstr ""
+msgstr "Αποτελέσματα αναζήτησης %s"
 
 #: bauble/view.py:1154
 msgid "Timestamp"
