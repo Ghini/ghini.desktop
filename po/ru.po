@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-05-07 05:21+0000\n"
+"Last-Translator: Arthur Shniv <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-16 07:05+0000\n"
-"X-Generator: Launchpad (build 12735)\n"
+"X-Launchpad-Export-Date: 2011-05-07 06:02+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -25,6 +25,10 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
+"Bauble не может сохранить ваши пользовательские настройки.\n"
+"\n"
+"Пожалуйста, проверьте права доступа на ваш файл конфигурации.\n"
+" %s"
 
 #: bauble/prefs.py:335
 msgid "<b>Preferences</b>"
@@ -40,21 +44,21 @@ msgstr "Имена"
 
 #: bauble/prefs.py:379 bauble/view.py:1155
 msgid "Values"
-msgstr ""
+msgstr "Значения"
 
 #: bauble/prefs.py:388 bauble/notes.glade.h:3
 #: bauble/plugins/garden/loc_editor.glade.h:5
 #: bauble/plugins/garden/acc_editor.glade.h:37
 msgid "Name"
-msgstr ""
+msgstr "Имя"
 
 #: bauble/prefs.py:388
 msgid "Version"
-msgstr ""
+msgstr "Версия"
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
-msgstr ""
+msgstr "Поиск"
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
@@ -109,6 +113,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"Невозможно открыть %(url)s\n"
+"\n"
+"Неизвестное рабочее окружение: %(desktop)s\n"
+"\n"
 
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
@@ -117,7 +125,7 @@ msgstr ""
 
 #: bauble/utils/__init__.py:466
 msgid "Details"
-msgstr ""
+msgstr "Подробности"
 
 #: bauble/utils/__init__.py:604
 msgid "Today's date"
@@ -156,6 +164,11 @@ msgid ""
 "\n"
 "<i>Would you like to install them now?</i>"
 msgstr ""
+"Указаные моудли не были найдены в реестре модулей:\n"
+"\n"
+"<b>%s</b>\n"
+"\n"
+"<i>Желаете установить их сейчас?</i>"
 
 #: bauble/pluginmgr.py:183
 #, python-format
@@ -164,6 +177,8 @@ msgid ""
 "\n"
 "%(plugins)s"
 msgstr ""
+"Указаные модули находятся в реестре, но не могут быть загружены:\n"
+"%(plugins)s"
 
 #: bauble/pluginmgr.py:198
 msgid ""
@@ -177,6 +192,8 @@ msgid ""
 "The %(plugin_name)s plugin is listed in the registry but isn't wasn't found "
 "in the plugin directory"
 msgstr ""
+"Модуль %(plugin_name)s есть в списке в реестре, но не был найден в папке "
+"модулей"
 
 #: bauble/pluginmgr.py:222
 #, python-format
@@ -185,6 +202,9 @@ msgid ""
 "\n"
 "%(exception)s."
 msgstr ""
+"Ошибка: Не удалось инициализировать %(entry_name)s\n"
+"\n"
+"%(exception)s."
 
 #: bauble/pluginmgr.py:279
 msgid ""
@@ -261,6 +281,9 @@ msgid ""
 "created. This usually means that there was a problem when you created the "
 "database or the database you connected to wasn't created with Bauble."
 msgstr ""
+"База данных с которой вы соединились не имеет метки, когда она была создана. "
+"Это обычно означает, что была некая проблема при создании базы данных или "
+"база данных не была создана при помощи Bauble."
 
 #: bauble/db.py:364
 #, python-format
@@ -271,19 +294,23 @@ msgid ""
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
+"Вы используете Bauble версии %(version)s , когда база дынных к которой вы "
+"подключены была создана в версии %(db_version)s\n"
+"Некоторые вещи могут не работать, а ваши данные в любой момент могут быть "
+"повреждены."
 
 #: bauble/notes.glade.h:1
 msgid "Category"
-msgstr ""
+msgstr "Категория"
 
 #: bauble/notes.glade.h:2 bauble/plugins/garden/prop_editor.glade.h:21
 #: bauble/plugins/garden/acc_editor.glade.h:22
 msgid "Date"
-msgstr ""
+msgstr "Дата"
 
 #: bauble/notes.glade.h:4 bauble/view.py:1155
 msgid "User"
-msgstr ""
+msgstr "Пользователь"
 
 #: bauble/plugins/plants/species_editor.py:101
 #, python-format
@@ -351,11 +378,11 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:897
 msgid "Cancel your changes"
-msgstr ""
+msgstr "Отменить изменения"
 
 #: bauble/plugins/plants/species_editor.py:898
 msgid "Save your changes"
-msgstr ""
+msgstr "Сохранить изменения"
 
 #: bauble/plugins/plants/species_editor.py:899
 msgid "Save your changes changes and add an accession to this species"
@@ -457,7 +484,7 @@ msgstr ""
 #: bauble/plugins/plants/__init__.py:76
 #: bauble/plugins/plants/genus_editor.glade.h:5
 msgid "Family"
-msgstr ""
+msgstr "Семья"
 
 #: bauble/plugins/plants/family_editor.glade.h:5
 msgid "Family Editor"
@@ -480,20 +507,20 @@ msgstr "Примечания"
 
 #: bauble/plugins/plants/family_editor.glade.h:8
 msgid "Qualifier"
-msgstr ""
+msgstr "Спецификатор"
 
 #: bauble/plugins/plants/__init__.py:77
 #: bauble/plugins/plants/species_editor.glade.h:13
 #: bauble/plugins/plants/genus_editor.glade.h:7
 msgid "Genus"
-msgstr ""
+msgstr "Род"
 
 #: bauble/plugins/plants/__init__.py:78
 #: bauble/plugins/plants/species_editor.glade.h:21
 #: bauble/plugins/report/xsl/__init__.py:68
 #: bauble/plugins/report/xsl/__init__.py:384
 msgid "Species"
-msgstr ""
+msgstr "Вид"
 
 #: bauble/plugins/plants/genus.py:68
 #, python-format
@@ -564,12 +591,12 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:260 bauble/plugins/plants/family.py:242
 #: bauble/plugins/garden/accession.py:663 bauble/plugins/garden/plant.py:508
 msgid "Cancel your changes."
-msgstr ""
+msgstr "Отменить изменения"
 
 #: bauble/plugins/plants/genus.py:261 bauble/plugins/plants/family.py:243
 #: bauble/plugins/garden/accession.py:664 bauble/plugins/garden/plant.py:509
 msgid "Save your changes."
-msgstr ""
+msgstr "Сохранить изменения"
 
 #: bauble/plugins/plants/genus.py:262
 msgid "Save your changes changes and add a species to this genus."
