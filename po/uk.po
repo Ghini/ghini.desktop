@@ -1,4 +1,4 @@
-# Arabic translation for bauble
+# Ukrainian translation for bauble
 # Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the bauble package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Arabic <ar@li.org>\n"
+"PO-Revision-Date: 2011-05-29 20:13+0000\n"
+"Last-Translator: Rax <Unknown>\n"
+"Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-16 07:04+0000\n"
-"X-Generator: Launchpad (build 12735)\n"
+"X-Launchpad-Export-Date: 2011-05-30 05:41+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -25,14 +25,18 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
+"Bauble не зміг зберегти ваші налаштування. \n"
+"\n"
+"Перевірте права доступу до вашого файлу налаштувань:\n"
+" %s"
 
 #: bauble/prefs.py:335
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>Налаштування</b>"
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
-msgstr ""
+msgstr "<b>Додатки</b>"
 
 #: bauble/prefs.py:379
 msgid "Names"
@@ -50,15 +54,15 @@ msgstr ""
 
 #: bauble/prefs.py:388
 msgid "Version"
-msgstr ""
+msgstr "Версія"
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
-msgstr ""
+msgstr "Пошук"
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
-msgstr "ابحث في جوجل"
+msgstr "Пошук Google"
 
 #: bauble/utils/web.py:68
 msgid "Search GBIF"
@@ -108,6 +112,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"Не вдалося відкрити %(url)s\n"
+"\n"
+"Невідоме робоче середовище: %(desktop)s\n"
+"\n"
 
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
@@ -116,11 +124,11 @@ msgstr ""
 
 #: bauble/utils/__init__.py:466
 msgid "Details"
-msgstr ""
+msgstr "Подробиці"
 
 #: bauble/utils/__init__.py:604
 msgid "Today's date"
-msgstr ""
+msgstr "Сьогоднішня дата"
 
 #: bauble/utils/__init__.py:770
 #, python-format
@@ -129,7 +137,7 @@ msgstr ""
 
 #: bauble/utils/__init__.py:1050
 msgid "Show details"
-msgstr "عرض التفاصيل"
+msgstr "Показати подробиці"
 
 #: bauble/utils/log.py:39
 #, python-format
@@ -139,6 +147,10 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"** Не вдалося відкрити типовий файл логу.\n"
+"Натисніть \"Гаразд\", щоб продовжити.\n"
+"\n"
+"%s"
 
 #: bauble/pluginmgr.py:167
 #, python-format
@@ -446,7 +458,7 @@ msgstr ""
 #: bauble/plugins/plants/genus_editor.glade.h:9
 #: bauble/plugins/garden/loc_editor.glade.h:6
 msgid "Next"
-msgstr "التالي"
+msgstr ""
 
 #: bauble/plugins/plants/family_editor.glade.h:7
 #: bauble/plugins/plants/species_editor.glade.h:18
@@ -454,7 +466,7 @@ msgstr "التالي"
 #: bauble/plugins/garden/acc_editor.glade.h:41
 #: bauble/plugins/garden/plant_editor.glade.h:12 bauble/bauble.glade.h:2
 msgid "Notes"
-msgstr "ملاحظات"
+msgstr ""
 
 #: bauble/plugins/plants/family_editor.glade.h:8
 msgid "Qualifier"
@@ -495,8 +507,6 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"الحذف غير ممكن.\n"
-"%s"
 
 #: bauble/plugins/plants/genus.py:88 bauble/plugins/plants/family.py:80
 #: bauble/plugins/plants/species.py:72 bauble/plugins/garden/source.py:47
@@ -504,7 +514,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:180 bauble/plugins/garden/plant.py:92
 #: bauble/ui.py:346
 msgid "_Edit"
-msgstr "_تحرير"
+msgstr ""
 
 #: bauble/plugins/plants/genus.py:90
 msgid "_Add species"
@@ -593,12 +603,12 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:1043
 #: bauble/plugins/garden/plant_editor.glade.h:9
 msgid "General"
-msgstr "معلومات عامة"
+msgstr ""
 
 #: bauble/plugins/plants/genus.py:874 bauble/plugins/plants/family.py:729
 #: bauble/plugins/plants/species.py:209
 msgid "Synonyms"
-msgstr "مرادفات"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade.h:2
 #: bauble/plugins/plants/infoboxes.glade.h:1
@@ -609,7 +619,7 @@ msgstr "مرادفات"
 #: bauble/plugins/garden/source_detail_infobox.glade.h:1
 #: bauble/plugins/tag/tag.glade.h:1
 msgid "--"
-msgstr "--"
+msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade.h:3
 msgid "<b>Distribution</b>"
@@ -774,7 +784,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:9
 msgid "<b>Distribution:</b>"
-msgstr "<b>الاصدار:</b>"
+msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:10
 msgid "<b>Habit:</b>"
@@ -1006,7 +1016,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_infobox.glade.h:18
 #: bauble/plugins/garden/prop_editor.glade.h:12
 msgid "<b>Notes</b>"
-msgstr "<b>ملاحظات</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:19
 msgid "<b>Parent Plant:</b>"
@@ -2199,7 +2209,7 @@ msgstr ""
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:4 bauble/view.py:152
 msgid "<b>Type:</b>"
-msgstr "<b>النوع:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:2
 msgid "<b>Change history</b>"
@@ -2223,7 +2233,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:8
 msgid "Edit"
-msgstr "تحرير"
+msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:11
 msgid "Memorial"
@@ -2531,7 +2541,7 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:239
 msgid "Unknown Error."
-msgstr "خطأ غير معروف"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:248
 #, python-format
@@ -2820,7 +2830,7 @@ msgstr ""
 #: bauble/connmgr.py:217 bauble/ui.py:65
 #, python-format
 msgid "Could not load icon from %s"
-msgstr "لا يمكن تحميل الأيقونة من %s"
+msgstr ""
 
 #: bauble/connmgr.py:307
 #, python-format
@@ -2891,33 +2901,33 @@ msgstr ""
 
 #: bauble/view.py:137
 msgid "Properties"
-msgstr "الخصائص"
+msgstr ""
 
 #: bauble/view.py:143
 msgid "<b>ID:</b>"
-msgstr "<b>الهوية:</b>"
+msgstr ""
 
 #: bauble/view.py:161
 msgid "<b>Date created:</b>"
-msgstr "<b>تاريخ الإنشاء:</b>"
+msgstr ""
 
 #: bauble/view.py:170
 msgid "<b>Last updated:</b>"
-msgstr "<b>آخر تحديث:</b>"
+msgstr ""
 
 #: bauble/view.py:321
 msgid "Links"
-msgstr "روابط"
+msgstr ""
 
 #: bauble/view.py:610
 #, python-format
 msgid "Error in search string at column %s"
-msgstr "خطأ اثناء البحث عن النص في العامود %s"
+msgstr ""
 
 #: bauble/view.py:613
 #, python-format
 msgid "** Error: %s"
-msgstr "** خطأ: %s"
+msgstr ""
 
 #: bauble/view.py:628
 #, python-format
@@ -2939,7 +2949,7 @@ msgstr ""
 #: bauble/view.py:662
 #, python-format
 msgid "%s search results"
-msgstr "نتائج البحت عن %s"
+msgstr ""
 
 #: bauble/view.py:1154
 msgid "Timestamp"
@@ -2956,12 +2966,10 @@ msgstr ""
 #: bauble/search.py:116
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
 msgstr ""
-"MapperSearch.add_meta(): default_columns arguments يجب ان تكون في صيغة قائمة"
 
 #: bauble/search.py:118
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
 msgstr ""
-"MapperSearch.add_meta(): default_columns argument لا يمكن ان تكون فارغة"
 
 #: bauble/search.py:180
 #, python-format
@@ -2972,7 +2980,7 @@ msgstr ""
 #: bauble/search.py:234
 #, python-format
 msgid "Unknown search domain: %s"
-msgstr "محرك بحث غير معروف: %s"
+msgstr ""
 
 #: bauble/search.py:351 bauble/search.py:744
 msgid "Search Domain"
@@ -3008,55 +3016,55 @@ msgstr ""
 
 #: bauble/ui.py:339
 msgid "_File"
-msgstr "_ملف"
+msgstr ""
 
 #: bauble/ui.py:340
 msgid "_New"
-msgstr "_جديد"
+msgstr ""
 
 #: bauble/ui.py:344
 msgid "_Quit"
-msgstr "أ_غلق"
+msgstr ""
 
 #: bauble/ui.py:347
 msgid "_Cut"
-msgstr "_قص"
+msgstr ""
 
 #: bauble/ui.py:349
 msgid "_Copy"
-msgstr "_نسخ"
+msgstr ""
 
 #: bauble/ui.py:351
 msgid "_Paste"
-msgstr "_لصق"
+msgstr ""
 
 #: bauble/ui.py:357
 msgid "_Insert"
-msgstr "_أدرج"
+msgstr ""
 
 #: bauble/ui.py:358
 msgid "_Tools"
-msgstr "أد_وات"
+msgstr ""
 
 #: bauble/ui.py:359
 msgid "_Help"
-msgstr "_مساعدة"
+msgstr ""
 
 #: bauble/ui.py:361
 msgid "Contents"
-msgstr "المحتويات"
+msgstr ""
 
 #: bauble/ui.py:363
 msgid "Report a bug"
-msgstr "الإبلاغ عن خطأ"
+msgstr ""
 
 #: bauble/ui.py:366
 msgid "Bauble website"
-msgstr "موقع Bauble"
+msgstr ""
 
 #: bauble/ui.py:368
 msgid "About"
-msgstr "حول"
+msgstr ""
 
 #: bauble/ui.py:580
 #, python-format
@@ -3065,21 +3073,18 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"لا يمكن إنشاء قاعدة بيانات جديدة.\n"
-"\n"
-"%s"
 
 #: bauble/ui.py:665
 msgid "http://bauble.belizebotanic.org"
-msgstr "http://bauble.belizebotanic.org"
+msgstr ""
 
 #: bauble/ui.py:669
 msgid "Copyright © Belize Botanic Gardens"
-msgstr "حقوق النشر محفوظة © Belize Botanic Gardens"
+msgstr ""
 
 #: bauble/ui.py:686
 msgid "Would you like the cancel the current tasks?"
-msgstr "هل تريد إلغاء المهام الحالية؟"
+msgstr ""
 
 #: bauble/types.py:43
 msgid "Enum requires a list of values"

@@ -1,4 +1,4 @@
-# Arabic translation for bauble
+# Hungarian translation for bauble
 # Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
 # This file is distributed under the same license as the bauble package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
+"PO-Revision-Date: 2011-06-04 18:08+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Arabic <ar@li.org>\n"
+"Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-16 07:04+0000\n"
-"X-Generator: Launchpad (build 12735)\n"
+"X-Launchpad-Export-Date: 2011-06-05 06:15+0000\n"
+"X-Generator: Launchpad (build 12959)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -28,7 +28,7 @@ msgstr ""
 
 #: bauble/prefs.py:335
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>Beállítások</b>"
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
@@ -36,21 +36,21 @@ msgstr ""
 
 #: bauble/prefs.py:379
 msgid "Names"
-msgstr ""
+msgstr "Nevek"
 
 #: bauble/prefs.py:379 bauble/view.py:1155
 msgid "Values"
-msgstr ""
+msgstr "Értékek"
 
 #: bauble/prefs.py:388 bauble/notes.glade.h:3
 #: bauble/plugins/garden/loc_editor.glade.h:5
 #: bauble/plugins/garden/acc_editor.glade.h:37
 msgid "Name"
-msgstr ""
+msgstr "Név"
 
 #: bauble/prefs.py:388
 msgid "Version"
-msgstr ""
+msgstr "Verzió"
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
@@ -58,11 +58,11 @@ msgstr ""
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
-msgstr "ابحث في جوجل"
+msgstr "Google Keresés"
 
 #: bauble/utils/web.py:68
 msgid "Search GBIF"
-msgstr ""
+msgstr "GBIF Keresés"
 
 #: bauble/utils/web.py:69
 msgid "Search the Global Biodiversity Information Facility"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: bauble/utils/web.py:84
 msgid "Search ITIS"
-msgstr ""
+msgstr "ITIS Keresés"
 
 #: bauble/utils/web.py:85
 msgid "Search the Intergrated Taxonomic Information System"
@@ -78,7 +78,7 @@ msgstr ""
 
 #: bauble/utils/web.py:97
 msgid "Search BGCI"
-msgstr ""
+msgstr "BGCI Keresés"
 
 #: bauble/utils/web.py:98
 msgid "Search Botanic Gardens Conservation International"
@@ -86,7 +86,7 @@ msgstr ""
 
 #: bauble/utils/web.py:111
 msgid "Search IPNI"
-msgstr ""
+msgstr "IPNI Keresés"
 
 #: bauble/utils/web.py:112
 msgid "Search the International Plant Names Index"
@@ -129,7 +129,7 @@ msgstr ""
 
 #: bauble/utils/__init__.py:1050
 msgid "Show details"
-msgstr "عرض التفاصيل"
+msgstr "Részletek Megjelenítése"
 
 #: bauble/utils/log.py:39
 #, python-format
@@ -231,7 +231,7 @@ msgstr ""
 
 #: bauble/db.py:345
 msgid "The database you have connected to is empty."
-msgstr ""
+msgstr "Az adatbázis amihez kapcsolódott üres."
 
 #: bauble/db.py:349
 msgid ""
@@ -425,7 +425,7 @@ msgstr ""
 #: bauble/plugins/plants/species_editor.glade.h:5
 #: bauble/plugins/plants/genus_editor.glade.h:2
 msgid "<b>Synonyms</b>"
-msgstr ""
+msgstr "<b>Szinonimák</b>"
 
 #: bauble/plugins/plants/family_editor.glade.h:3
 msgid "Add Genera"
@@ -435,18 +435,18 @@ msgstr ""
 #: bauble/plugins/plants/__init__.py:76
 #: bauble/plugins/plants/genus_editor.glade.h:5
 msgid "Family"
-msgstr ""
+msgstr "Család"
 
 #: bauble/plugins/plants/family_editor.glade.h:5
 msgid "Family Editor"
-msgstr ""
+msgstr "Család Szerkesztő"
 
 #: bauble/plugins/plants/family_editor.glade.h:6
 #: bauble/plugins/plants/species_editor.glade.h:17
 #: bauble/plugins/plants/genus_editor.glade.h:9
 #: bauble/plugins/garden/loc_editor.glade.h:6
 msgid "Next"
-msgstr "التالي"
+msgstr "Következő"
 
 #: bauble/plugins/plants/family_editor.glade.h:7
 #: bauble/plugins/plants/species_editor.glade.h:18
@@ -454,7 +454,7 @@ msgstr "التالي"
 #: bauble/plugins/garden/acc_editor.glade.h:41
 #: bauble/plugins/garden/plant_editor.glade.h:12 bauble/bauble.glade.h:2
 msgid "Notes"
-msgstr "ملاحظات"
+msgstr "Jegyzetek"
 
 #: bauble/plugins/plants/family_editor.glade.h:8
 msgid "Qualifier"
@@ -471,7 +471,7 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:68
 #: bauble/plugins/report/xsl/__init__.py:384
 msgid "Species"
-msgstr ""
+msgstr "Faj"
 
 #: bauble/plugins/plants/genus.py:68
 #, python-format
@@ -495,7 +495,8 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"الحذف غير ممكن.\n"
+"Nem törölhető.\n"
+"\n"
 "%s"
 
 #: bauble/plugins/plants/genus.py:88 bauble/plugins/plants/family.py:80
@@ -504,7 +505,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:180 bauble/plugins/garden/plant.py:92
 #: bauble/ui.py:346
 msgid "_Edit"
-msgstr "_تحرير"
+msgstr "_Szerkeszt"
 
 #: bauble/plugins/plants/genus.py:90
 msgid "_Add species"
@@ -520,7 +521,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:252
 msgid "The family name"
-msgstr ""
+msgstr "A család neve"
 
 #: bauble/plugins/plants/genus.py:253
 msgid "The genus name"
@@ -576,7 +577,7 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:653 bauble/plugins/garden/source.py:349
 #: bauble/plugins/garden/accession.py:2026 bauble/plugins/garden/plant.py:934
 msgid "Are you sure you want to lose your changes?"
-msgstr ""
+msgstr "Biztosan nem menti a változásokat?"
 
 #: bauble/plugins/plants/genus.py:704
 msgid ""
@@ -593,12 +594,12 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:1043
 #: bauble/plugins/garden/plant_editor.glade.h:9
 msgid "General"
-msgstr "معلومات عامة"
+msgstr "Általános"
 
 #: bauble/plugins/plants/genus.py:874 bauble/plugins/plants/family.py:729
 #: bauble/plugins/plants/species.py:209
 msgid "Synonyms"
-msgstr "مرادفات"
+msgstr "Szinonimák"
 
 #: bauble/plugins/plants/species_editor.glade.h:2
 #: bauble/plugins/plants/infoboxes.glade.h:1
@@ -720,7 +721,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus_editor.glade.h:8
 msgid "Genus Editor"
-msgstr ""
+msgstr "Nemzetség Szerkesztő"
 
 #: bauble/plugins/plants/species.py:40
 #, python-format
@@ -754,11 +755,11 @@ msgstr ""
 #: bauble/plugins/plants/infoboxes.glade.h:4
 #: bauble/plugins/garden/loc_infobox.glade.h:2
 msgid "<b># of Plants:</b>"
-msgstr ""
+msgstr "<b>Növények száma:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:5
 msgid "<b># of Plants</b>"
-msgstr ""
+msgstr "<b>Növények száma</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:6
 msgid "<b># of Taxa:</b>"
@@ -774,7 +775,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:9
 msgid "<b>Distribution:</b>"
-msgstr "<b>الاصدار:</b>"
+msgstr "<b>Disztribúció:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:10
 msgid "<b>Habit:</b>"
@@ -782,15 +783,15 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:11
 msgid "family_window"
-msgstr ""
+msgstr "család_ablak"
 
 #: bauble/plugins/plants/infoboxes.glade.h:12
 msgid "genus_window"
-msgstr ""
+msgstr "nemzetség_ablak"
 
 #: bauble/plugins/plants/infoboxes.glade.h:13
 msgid "species_window"
-msgstr ""
+msgstr "faj_ablak"
 
 #: bauble/plugins/garden/source.py:51 bauble/plugins/garden/location.py:61
 #: bauble/plugins/garden/accession.py:182
@@ -993,7 +994,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_infobox.glade.h:15
 #: bauble/plugins/garden/plant_infobox.glade.h:4
 msgid "<b>Location:</b>"
-msgstr ""
+msgstr "<b>Hely:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:16
 msgid "<b>Longitude:</b>"
@@ -1006,7 +1007,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_infobox.glade.h:18
 #: bauble/plugins/garden/prop_editor.glade.h:12
 msgid "<b>Notes</b>"
-msgstr "<b>ملاحظات</b>"
+msgstr "<b>Jegyzetek</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:19
 msgid "<b>Parent Plant:</b>"
@@ -1042,7 +1043,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:27
 msgid "<i>--</i>"
-msgstr ""
+msgstr "<i>--</i>"
 
 #: bauble/plugins/garden/institution.glade.h:1
 msgid "Abbreviation"
@@ -1200,7 +1201,7 @@ msgstr ""
 #: bauble/plugins/garden/__init__.py:89
 #: bauble/plugins/garden/plant_editor.glade.h:10
 msgid "Location"
-msgstr ""
+msgstr "Hely"
 
 #: bauble/plugins/garden/prop_editor.glade.h:33
 msgid "Media/Compost"
@@ -1538,7 +1539,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:2303
 #: bauble/plugins/garden/acc_editor.glade.h:52
 msgid "Source"
-msgstr ""
+msgstr "Forrás"
 
 #: bauble/plugins/garden/accession.py:2396
 #: bauble/plugins/garden/acc_editor.glade.h:58
@@ -1579,7 +1580,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:3
 msgid "+/-"
-msgstr ""
+msgstr "+/-"
 
 #: bauble/plugins/garden/acc_editor.glade.h:5
 msgid "<b>Accession</b>"
@@ -1651,7 +1652,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:26
 msgid "East"
-msgstr ""
+msgstr "Kelet"
 
 #: bauble/plugins/garden/acc_editor.glade.h:27
 msgid "GPS Datum"
@@ -1699,7 +1700,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:40
 msgid "North"
-msgstr ""
+msgstr "Észak"
 
 #: bauble/plugins/garden/acc_editor.glade.h:43
 msgid "Previous taxon"
@@ -1748,7 +1749,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:55
 msgid "South"
-msgstr ""
+msgstr "Dél"
 
 #: bauble/plugins/garden/acc_editor.glade.h:56
 msgid "Type"
@@ -1764,7 +1765,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:61
 msgid "West"
-msgstr ""
+msgstr "Nyugat"
 
 #: bauble/plugins/garden/acc_editor.glade.h:62
 msgid "Wild status"
@@ -1772,7 +1773,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:63
 msgid "m"
-msgstr ""
+msgstr "m"
 
 #: bauble/plugins/garden/propagation.py:106
 #, python-format
@@ -2199,7 +2200,7 @@ msgstr ""
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:4 bauble/view.py:152
 msgid "<b>Type:</b>"
-msgstr "<b>النوع:</b>"
+msgstr "<b>Tipus:</b>"
 
 #: bauble/plugins/garden/plant_editor.glade.h:2
 msgid "<b>Change history</b>"
@@ -2215,7 +2216,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:6
 msgid "Add"
-msgstr ""
+msgstr "Hozzáadás"
 
 #: bauble/plugins/garden/plant_editor.glade.h:7
 msgid "Date of Change"
@@ -2223,7 +2224,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:8
 msgid "Edit"
-msgstr "تحرير"
+msgstr "Szerkeszt"
 
 #: bauble/plugins/garden/plant_editor.glade.h:11
 msgid "Memorial"
@@ -2251,7 +2252,7 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade.h:4
 msgid "<b>Users</b>"
-msgstr ""
+msgstr "<b>Felhasználók</b>"
 
 #: bauble/plugins/users/ui.glade.h:5
 msgid "Administrator"
@@ -2365,7 +2366,7 @@ msgstr ""
 #: bauble/plugins/report/__init__.py:393
 #, python-format
 msgid "%s already exists"
-msgstr ""
+msgstr "%s már létezik"
 
 #: bauble/plugins/report/__init__.py:503
 msgid "No formatter plugins defined"
@@ -2398,7 +2399,7 @@ msgstr ""
 
 #: bauble/plugins/report/report.glade.h:2
 msgid "<b>Settings</b>"
-msgstr ""
+msgstr "<b>Beállítások</b>"
 
 #: bauble/plugins/report/xsl/__init__.py:66
 #: bauble/plugins/report/xsl/__init__.py:384
@@ -2514,7 +2515,7 @@ msgstr ""
 
 #: bauble/plugins/imex/xml.py:67 bauble/plugins/imex/csv_.py:581
 msgid "Select a directory"
-msgstr ""
+msgstr "Válasszon ki egy könyvtárat"
 
 #: bauble/plugins/imex/xml.py:71
 msgid "Save all data in one file"
@@ -2523,7 +2524,7 @@ msgstr ""
 #: bauble/plugins/imex/xml.py:142 bauble/plugins/imex/csv_.py:710
 #: bauble/plugins/abcd/__init__.py:338
 msgid "Export"
-msgstr ""
+msgstr "Exportálás"
 
 #: bauble/plugins/imex/xml.py:143
 msgid "XML"
@@ -2531,7 +2532,7 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:239
 msgid "Unknown Error."
-msgstr "خطأ غير معروف"
+msgstr "Ismeretlen Hiba."
 
 #: bauble/plugins/imex/csv_.py:248
 #, python-format
@@ -2613,7 +2614,7 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:691
 msgid "Import"
-msgstr ""
+msgstr "Importálás"
 
 #: bauble/plugins/imex/csv_.py:692 bauble/plugins/imex/csv_.py:711
 msgid "Comma Separated Value"
@@ -2668,11 +2669,11 @@ msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:400 bauble/plugins/picasa/__init__.py:610
 msgid "Settings"
-msgstr ""
+msgstr "Beállítások"
 
 #: bauble/plugins/picasa/__init__.py:441
 msgid "Images"
-msgstr ""
+msgstr "Képek"
 
 #: bauble/plugins/picasa/__init__.py:516
 msgid "Could not login to PicasaWeb account."
@@ -2680,7 +2681,7 @@ msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:537
 msgid "No images"
-msgstr ""
+msgstr "Nincs kép"
 
 #: bauble/plugins/picasa/__init__.py:609
 msgid "Picasa"
@@ -2716,7 +2717,7 @@ msgstr ""
 
 #: bauble/bauble.glade.h:1 bauble/connmgr.glade.h:1
 msgid "Bauble"
-msgstr ""
+msgstr "Bauble"
 
 #: bauble/__init__.py:129
 msgid "No default handler registered"
@@ -2761,7 +2762,7 @@ msgstr ""
 
 #: bauble/connmgr.glade.h:3
 msgid "Type:"
-msgstr ""
+msgstr "Tipus:"
 
 #: bauble/connmgr.py:104
 msgid ""
@@ -2809,7 +2810,7 @@ msgstr ""
 
 #: bauble/connmgr.py:183
 msgid "Do you want to save your changes?"
-msgstr ""
+msgstr "Menteni kívánja a változtatásait?"
 
 #: bauble/connmgr.py:203
 msgid ""
@@ -2820,7 +2821,7 @@ msgstr ""
 #: bauble/connmgr.py:217 bauble/ui.py:65
 #, python-format
 msgid "Could not load icon from %s"
-msgstr "لا يمكن تحميل الأيقونة من %s"
+msgstr "Nem tölthető be az ikon: %s"
 
 #: bauble/connmgr.py:307
 #, python-format
@@ -2838,7 +2839,7 @@ msgstr ""
 #: bauble/connmgr.py:391
 #, python-format
 msgid "Do you want to save %s?"
-msgstr ""
+msgstr "Menteni kívánja %s?"
 
 #: bauble/connmgr.py:399
 #, python-format
@@ -2847,7 +2848,7 @@ msgstr ""
 
 #: bauble/connmgr.py:455
 msgid "Enter your password"
-msgstr ""
+msgstr "Adja meg jelszavát"
 
 #: bauble/connmgr.py:539
 msgid "Please choose a name for this connection"
@@ -2859,7 +2860,7 @@ msgstr ""
 
 #: bauble/connmgr.py:562
 msgid "Database: "
-msgstr ""
+msgstr "Adatbázis: "
 
 #: bauble/connmgr.py:568
 msgid "Host: "
@@ -2867,11 +2868,11 @@ msgstr ""
 
 #: bauble/connmgr.py:575
 msgid "User: "
-msgstr ""
+msgstr "Felhasználó: "
 
 #: bauble/connmgr.py:581
 msgid "Password: "
-msgstr ""
+msgstr "Jelszó: "
 
 #: bauble/connmgr.py:629
 msgid "Use default filename"
@@ -2879,7 +2880,7 @@ msgstr ""
 
 #: bauble/connmgr.py:635
 msgid "Filename: "
-msgstr ""
+msgstr "Fájlnév: "
 
 #: bauble/connmgr.py:642
 msgid "Browse..."
@@ -2887,37 +2888,37 @@ msgstr ""
 
 #: bauble/connmgr.py:679
 msgid "Choose a file..."
-msgstr ""
+msgstr "Válasszon fájlt…"
 
 #: bauble/view.py:137
 msgid "Properties"
-msgstr "الخصائص"
+msgstr "Beállítások"
 
 #: bauble/view.py:143
 msgid "<b>ID:</b>"
-msgstr "<b>الهوية:</b>"
+msgstr "<b>ID:</b>"
 
 #: bauble/view.py:161
 msgid "<b>Date created:</b>"
-msgstr "<b>تاريخ الإنشاء:</b>"
+msgstr "<b>Létrehozás dátuma:</b>"
 
 #: bauble/view.py:170
 msgid "<b>Last updated:</b>"
-msgstr "<b>آخر تحديث:</b>"
+msgstr "<b>Legutóbb frissítve:</b>"
 
 #: bauble/view.py:321
 msgid "Links"
-msgstr "روابط"
+msgstr "Hivatkozások"
 
 #: bauble/view.py:610
 #, python-format
 msgid "Error in search string at column %s"
-msgstr "خطأ اثناء البحث عن النص في العامود %s"
+msgstr ""
 
 #: bauble/view.py:613
 #, python-format
 msgid "** Error: %s"
-msgstr "** خطأ: %s"
+msgstr "** Hiba: %s"
 
 #: bauble/view.py:628
 #, python-format
@@ -2934,12 +2935,12 @@ msgstr ""
 #: bauble/view.py:639
 #, python-format
 msgid "Retrieving %s search results..."
-msgstr ""
+msgstr "%s találat lekérése..."
 
 #: bauble/view.py:662
 #, python-format
 msgid "%s search results"
-msgstr "نتائج البحت عن %s"
+msgstr "%s keresési eredmény"
 
 #: bauble/view.py:1154
 msgid "Timestamp"
@@ -2956,12 +2957,10 @@ msgstr ""
 #: bauble/search.py:116
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
 msgstr ""
-"MapperSearch.add_meta(): default_columns arguments يجب ان تكون في صيغة قائمة"
 
 #: bauble/search.py:118
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
 msgstr ""
-"MapperSearch.add_meta(): default_columns argument لا يمكن ان تكون فارغة"
 
 #: bauble/search.py:180
 #, python-format
@@ -2972,7 +2971,7 @@ msgstr ""
 #: bauble/search.py:234
 #, python-format
 msgid "Unknown search domain: %s"
-msgstr "محرك بحث غير معروف: %s"
+msgstr ""
 
 #: bauble/search.py:351 bauble/search.py:744
 msgid "Search Domain"
@@ -3008,55 +3007,55 @@ msgstr ""
 
 #: bauble/ui.py:339
 msgid "_File"
-msgstr "_ملف"
+msgstr "_Fájl"
 
 #: bauble/ui.py:340
 msgid "_New"
-msgstr "_جديد"
+msgstr "_Új"
 
 #: bauble/ui.py:344
 msgid "_Quit"
-msgstr "أ_غلق"
+msgstr "_Kilép"
 
 #: bauble/ui.py:347
 msgid "_Cut"
-msgstr "_قص"
+msgstr "_Kivág"
 
 #: bauble/ui.py:349
 msgid "_Copy"
-msgstr "_نسخ"
+msgstr "_Másol"
 
 #: bauble/ui.py:351
 msgid "_Paste"
-msgstr "_لصق"
+msgstr "_Beilleszt"
 
 #: bauble/ui.py:357
 msgid "_Insert"
-msgstr "_أدرج"
+msgstr "_Beszúr"
 
 #: bauble/ui.py:358
 msgid "_Tools"
-msgstr "أد_وات"
+msgstr "_Eszközök"
 
 #: bauble/ui.py:359
 msgid "_Help"
-msgstr "_مساعدة"
+msgstr "_Súgó"
 
 #: bauble/ui.py:361
 msgid "Contents"
-msgstr "المحتويات"
+msgstr "Tartalom"
 
 #: bauble/ui.py:363
 msgid "Report a bug"
-msgstr "الإبلاغ عن خطأ"
+msgstr "Hibajelentés"
 
 #: bauble/ui.py:366
 msgid "Bauble website"
-msgstr "موقع Bauble"
+msgstr "Bauble weboldal"
 
 #: bauble/ui.py:368
 msgid "About"
-msgstr "حول"
+msgstr "Egyebek"
 
 #: bauble/ui.py:580
 #, python-format
@@ -3065,7 +3064,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"لا يمكن إنشاء قاعدة بيانات جديدة.\n"
+"Nem hozható létre új adatbázis.\n"
 "\n"
 "%s"
 
@@ -3075,11 +3074,11 @@ msgstr "http://bauble.belizebotanic.org"
 
 #: bauble/ui.py:669
 msgid "Copyright © Belize Botanic Gardens"
-msgstr "حقوق النشر محفوظة © Belize Botanic Gardens"
+msgstr "Copyright © Belize Botanic Gardens"
 
 #: bauble/ui.py:686
 msgid "Would you like the cancel the current tasks?"
-msgstr "هل تريد إلغاء المهام الحالية؟"
+msgstr ""
 
 #: bauble/types.py:43
 msgid "Enum requires a list of values"
