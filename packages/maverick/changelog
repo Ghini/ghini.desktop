@@ -1,5 +1,6 @@
-bauble (1.0.0~ppa2) maverick; urgency=low
+bauble (1.0.1~ppa1) maverick; urgency=low
 
+  * 1.0.1 Release
   * New source package based on stdeb 0.6.0
 
  -- Brett Adams <brett@belizebotanic.org>  Sun, 03 Apr 2011 09:17:14 -0400
