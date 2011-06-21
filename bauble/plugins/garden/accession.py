@@ -1172,7 +1172,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         def update_label(self):
             parts = []
             # TODO: the parts string isn't being translated
-            if self.model.date:                
+            if self.model.date:
                 parts.append('<b>%(date)s</b> : ')
             if self.model.species:
                 parts.append('verified as %(species)s ')
@@ -1674,7 +1674,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect('acc_recvd_type_comboentry', 'changed',
                           self.on_recvd_type_comboentry_changed)
         self.view.connect(self.view.widgets.acc_recvd_type_comboentry.child,
-                          'changed', self.on_recvd_type_entry_changed)        
+                          'changed', self.on_recvd_type_entry_changed)
 
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
@@ -2326,14 +2326,14 @@ class SourceExpander(InfoExpander):
             geo_accy = '(+/- %sm)' % geo_accy
 
         lat_str = ''
-        if collection.latitude:
+        if collection.latitude is not None:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
             lat_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
         self.set_widget_value('lat_data', lat_str)
 
         long_str = ''
-        if collection.longitude:
+        if collection.longitude is not None:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
             long_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
