@@ -1329,6 +1329,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
 
     def cleanup(self):
+        super(SourcePresenter, self).cleanup()
         self.collection_presenter.cleanup()
         self.prop_chooser_presenter.cleanup()
         self.source_prop_presenter.cleanup()
