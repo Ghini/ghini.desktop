@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-07-21 15:23+0000\n"
+"Last-Translator: Łukasz Komorowski <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-07-08 06:07+0000\n"
-"X-Generator: Launchpad (build 13168)\n"
+"X-Launchpad-Export-Date: 2011-07-22 05:17+0000\n"
+"X-Generator: Launchpad (build 13405)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -36,7 +36,7 @@ msgstr "<b>Ustawienia</b>"
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
-msgstr ""
+msgstr "<b>Wtyczki</b>"
 
 #: bauble/prefs.py:379
 msgid "Names"
@@ -50,19 +50,19 @@ msgstr "Wartości"
 #: bauble/plugins/garden/loc_editor.glade.h:5
 #: bauble/plugins/garden/acc_editor.glade.h:37
 msgid "Name"
-msgstr ""
+msgstr "Nazwa"
 
 #: bauble/prefs.py:388
 msgid "Version"
-msgstr ""
+msgstr "Wersja"
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
-msgstr ""
+msgstr "Wyszukaj"
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
-msgstr "Przeszukaj Google"
+msgstr "Szukaj w Google"
 
 #: bauble/utils/web.py:68
 msgid "Search GBIF"
@@ -98,11 +98,11 @@ msgstr "Szukaj w International Plant Names Index"
 
 #: bauble/utils/web.py:121
 msgid "Search NPGS/GRIN"
-msgstr ""
+msgstr "Szukaj w NPGS/GRIN"
 
 #: bauble/utils/web.py:122
 msgid "Search National Plant Germplasm System"
-msgstr ""
+msgstr "Szukaj w National Plant Germplasm System"
 
 #: bauble/utils/desktop.py:272
 #, python-format
@@ -112,6 +112,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"Nie można odtworzyć %(url)s\n"
+"\n"
+"Nieznane środowisko graficzne: %(desktop)s\n"
+"\n"
 
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
@@ -120,7 +124,7 @@ msgstr ""
 
 #: bauble/utils/__init__.py:466
 msgid "Details"
-msgstr ""
+msgstr "Detale"
 
 #: bauble/utils/__init__.py:604
 msgid "Today's date"
@@ -145,6 +149,10 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"** Nie można otworzyć domyślnego pliku dziennika.\n"
+"Naciśnij OK by kontynuować.\n"
+"\n"
+"%s"
 
 #: bauble/pluginmgr.py:167
 #, python-format
@@ -168,12 +176,17 @@ msgid ""
 "\n"
 "%(plugins)s"
 msgstr ""
+"Następujące wtyczki znajdują się w rejestrze, ale nie mogą być wczytane:\n"
+"\n"
+"%(plugins)s"
 
 #: bauble/pluginmgr.py:198
 msgid ""
 "The plugins contain a dependency loop. This can happen if two plugins "
 "directly or indirectly rely on each other"
 msgstr ""
+"Wtyczka zawiera pętlę zależności. Ma to miejsce, gdy dwie wtyczki pośrednio "
+"lub bezpośrednio są zależne od siebie."
 
 #: bauble/pluginmgr.py:212
 #, python-format
