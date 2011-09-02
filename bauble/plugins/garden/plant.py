@@ -17,7 +17,7 @@ import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exc import SQLError
+from sqlalchemy.exc import DBAPIError
 
 import bauble.db as db
 from bauble.error import check, CheckConditionError
@@ -938,7 +938,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     # commit_changes() will append the commited plants
                     # to self._committed
                     self.commit_changes()
-            except SQLError, e:
+            except DBAPIError, e:
                 exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s') % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)

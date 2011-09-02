@@ -11,8 +11,8 @@ SQLALCHEMY_DEBUG = False
 try:
     import sqlalchemy as sa
     parts = sa.__version__.split('.')
-    if int(parts[1]) != 5:
-        msg = _('This version of Bauble requires SQLAlchemy 0.5.0 or greater.'\
+    if int(parts[1]) not in (6,7):
+        msg = _('This version of Bauble requires SQLAlchemy 0.6 or greater.'\
                 'Please download and install a newer version of SQLAlchemy ' \
                 'from http://www.sqlalchemy.org or contact your system '
                 'administrator.')
@@ -98,14 +98,13 @@ class MapperBase(DeclarativeMeta):
     def __init__(cls, classname, bases, dict_):
         if '__tablename__' in dict_:
             seqname = '%s_id_seq' % dict_['__tablename__']
-            dict_['id'] = sa.Column('id', sa.Integer, sa.Sequence(seqname),
-                                    primary_key=True)
-            dict_['_created'] = sa.Column('_created', types.DateTime(True),
-                                          default=sa.func.now())
-            dict_['_last_updated'] = sa.Column('_last_updated',
-                                               types.DateTime(True),
-                                               default=sa.func.now(),
-                                               onupdate=sa.func.now())
+            cls.id = sa.Column('id', sa.Integer, sa.Sequence(seqname),
+                               primary_key=True)
+            cls._created = sa.Column('_created', types.DateTime(True),
+                                     default=sa.func.now())
+            cls._last_updated = sa.Column('_last_updated', types.DateTime(True),
+                                          default=sa.func.now(),
+                                          onupdate=sa.func.now())
             cls.__mapper_args__ = {'extension': HistoryExtension()}
         super(MapperBase, cls).__init__(classname, bases, dict_)
 

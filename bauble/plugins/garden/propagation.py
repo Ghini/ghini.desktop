@@ -18,7 +18,7 @@ import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exc import SQLError
+from sqlalchemy.exc import DBAPIError
 
 import bauble
 import bauble.db as db
@@ -1079,7 +1079,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 self._return = self.model
                 if self.presenter.dirty() and commit:
                     self.commit_changes()
-            except SQLError, e:
+            except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
