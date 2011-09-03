@@ -237,7 +237,7 @@ from bauble.plugins.plants.family import Family, FamilySynonym
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
-                         order_by=['Species.sp'],
+                         order_by=[Species.sp],
                          backref=backref('genus', uselist=False))
 
 
