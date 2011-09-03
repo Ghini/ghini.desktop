@@ -12,10 +12,11 @@ try:
     import sqlalchemy as sa
     parts = sa.__version__.split('.')
     if int(parts[1]) not in (6,7):
-        msg = _('This version of Bauble requires SQLAlchemy 0.6 or greater.'\
+        msg = _('This version of Bauble requires SQLAlchemy 0.6 or greater. '\
+                'You are using version %s. ' \
                 'Please download and install a newer version of SQLAlchemy ' \
                 'from http://www.sqlalchemy.org or contact your system '
-                'administrator.')
+                'administrator.') % '.'.join(parts)
         raise error.SQLAlchemyVersionError(msg)
 except ImportError:
     msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
