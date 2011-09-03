@@ -463,13 +463,18 @@ class CSVImporter(Importer):
                             line[column] = None
                         elif column in line and line[column] == 'False' and \
                                 isinstance(table.c[column].type, Boolean):
+                            # need bool value, not 'False' string
+                            line[column] = False
+                        elif column in line and line[column] == 'True' and \
+                                isinstance(table.c[column].type, Boolean):
+                            # need bool value, not 'True' string
+                            line[column] = True                        
                             # in SA 0.5.5 and only on an SQLite
                             # database the 'False' will import as True
                             # for some reason whereas True will import
-                            # as True automatically
-                            line[column] = False
+                            # as True automatically...probably because
+                            # bool('False') == True
                     values.append(line)
-
                     steps_so_far += 1
                     if steps_so_far % update_every == 0:
                         do_insert()
