@@ -4,7 +4,7 @@ import gtk
 from pyparsing import *
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.orm.properties import *
+from sqlalchemy.orm.properties import ColumnProperty, RelationProperty
 
 import bauble
 from bauble.error import check, CheckConditionError, BaubleError
@@ -189,7 +189,7 @@ class MapperSearch(SearchStrategy):
                 query = self._session.query(cls).filter(clause).order_by(None)
             else:
                 # we get here when the idents refer to a relation on a
-                # mapper/table                
+                # mapper/table
                 relations = idents[:-1]
                 col = idents[-1]
                 query = self._session.query(cls)
