@@ -1,6 +1,7 @@
-bauble (1.5.0~ppa1) natty; urgency=low
+bauble (1.0.10~ppa1) natty; urgency=low
 
-  * 1.5 Release
+  * 1.0.10 Release
+  * Now compatible with SQLAlchemy 0.6 and 0.7
 
  -- Brett Adams <brett@belizebotanic.org>  Sat, 03 Sep 2011 19:28:36 -0400
 
