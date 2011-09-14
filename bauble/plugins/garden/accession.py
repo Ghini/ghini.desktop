@@ -1329,6 +1329,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
 
     def cleanup(self):
+        super(SourcePresenter, self).cleanup()
         self.collection_presenter.cleanup()
         self.prop_chooser_presenter.cleanup()
         self.source_prop_presenter.cleanup()
@@ -2330,14 +2331,14 @@ class SourceExpander(InfoExpander):
             geo_accy = '(+/- %sm)' % geo_accy
 
         lat_str = ''
-        if collection.latitude:
+        if collection.latitude is not None:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
             lat_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
         self.set_widget_value('lat_data', lat_str)
 
         long_str = ''
-        if collection.longitude:
+        if collection.longitude is not None:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
             long_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
