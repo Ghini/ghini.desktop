@@ -711,7 +711,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('latitude', None)
         else:
             self.set_model_attr('latitude', utils.utf8(latitude))
-            
+
 
 
     def on_lon_entry_changed(self, entry, data=None):
