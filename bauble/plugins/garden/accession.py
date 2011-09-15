@@ -1326,10 +1326,11 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def start(self):
         active = None
-        if self.model.source.source_detail:
-            active = self.model.source.source_detail
-        elif self.model.source.plant_propagation:
-            active = self.garden_prop_str
+        if self.model.source:
+            if self.model.source.source_detail:
+                active = self.model.source.source_detail
+            elif self.model.source.plant_propagation:
+                active = self.garden_prop_str
         self.populate_source_combo(active)
 
 
@@ -2149,25 +2150,28 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
 
     def commit_changes(self):
-        if self.model.source.propagation:
-            if not self.model.source.propagation.prop_type:
-                # TODO: why do we have to manually delete the _cutting
-                # and _seed relations...shouldn't they be deleted
-                # automatically when source.propagation is set to None
-                utils.delete_or_expunge(self.model.source.propagation._cutting)
-                utils.delete_or_expunge(self.model.source.propagation._seed)
-                utils.delete_or_expunge(self.model.source.propagation)
-                self.model.source.propagation = None
-            else:
-                self._cleanup_propagation(self.model.source.propagation)
+        if self.model.source:
 
-        if not self.model.source:
-            utils.delete_or_expunge(self.presenter.source_presenter.source)
-        else:
-            if not self.model.source.propagation:
-                utils.delete_or_expunge(self.presenter.source_presenter.propagation)
             if not self.model.source.collection:
                 utils.delete_or_expunge(self.presenter.source_presenter.collection)
+
+            if self.model.source.propagation:
+                if not self.model.source.propagation.prop_type:
+                    # TODO: why do we have to manually delete the _cutting
+                    # and _seed relations...shouldn't they be deleted
+                    # automatically when source.propagation is set to None
+                    utils.delete_or_expunge(self.model.source.propagation._cutting)
+                    utils.delete_or_expunge(self.model.source.propagation._seed)
+                    utils.delete_or_expunge(self.model.source.propagation)
+                    self.model.source.propagation = None
+                else:
+                    self._cleanup_propagation(self.model.source.propagation)
+            else:
+                utils.delete_or_expunge(self.presenter.source_presenter.propagation)
+        else:
+            utils.delete_or_expunge(self.presenter.source_presenter.source)
+            utils.delete_or_expunge(self.presenter.source_presenter.collection)
+            utils.delete_or_expunge(self.presenter.source_presenter.propagation)
 
         if self.model.id_qual is None:
             self.model.id_qual_rank = None
