@@ -657,20 +657,12 @@ class GenericEditorPresenter(object):
                     return
                 model = combo.get_model()
                 value = model[combo.get_active_iter()][0]
-                if not isinstance(combo, gtk.ComboBoxEntry):
-                    if model is None:
-                        return
-                    i = combo.get_active_iter()
-                    if i is None:
-                        return
-                    value = combo.get_model()[combo.get_active_iter()][0]
-                else:
-                    value = combo.child.props.text
-                #data = combo.get_model()[combo.get_active_iter()][0]
-                #debug('%s=%s' % (model_attr, data))
+                debug(value)
+                if model is None or combo.get_active_iter() is None:
+                    return
+                value = combo.get_model()[combo.get_active_iter()][0]
                 if isinstance(widget, gtk.ComboBoxEntry):
-                    #debug(str(value))
-                    widget.child.set_text(str(value))
+                    widget.child.set_text(utils.utf8(value))
                 self.set_model_attr(model_attr, value, validator)
             def entry_changed(entry, data=None):
                 self.set_model_attr(model_attr, entry.props.text, validator)
