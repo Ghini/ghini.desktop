@@ -657,7 +657,6 @@ class GenericEditorPresenter(object):
                     return
                 model = combo.get_model()
                 value = model[combo.get_active_iter()][0]
-                debug(value)
                 if model is None or combo.get_active_iter() is None:
                     return
                 value = combo.get_model()[combo.get_active_iter()][0]
