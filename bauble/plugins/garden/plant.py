@@ -872,7 +872,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                             change.quantity==self.presenter._original_quantity):
                 # if the quantity and location haven't changed then
                 # don't save the change
-                self.session.expunge(change)
+                utils.delete_or_expunge(change)
                 self.model.change = None
             else:
                 if self.model.location != change.from_location:
