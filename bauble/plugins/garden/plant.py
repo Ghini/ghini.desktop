@@ -1210,8 +1210,11 @@ class PropagationExpander(InfoExpander):
         self.vbox.foreach(self.vbox.remove)
         format = prefs.prefs[prefs.date_format_pref]
         for prop in row.propagations:
-            s = '%s: %s' % (prop.date.strftime(format), prop.get_summary())
-            label = gtk.Label(s)
+            s = '<b>%s</b>: %s' % (prop.date.strftime(format), 
+                                   prop.get_summary())
+            label = gtk.Label()
+            label.set_markup(s)
+            label.props.wrap = True
             label.set_alignment(0.0, 0.5)
             self.vbox.pack_start(label)
         self.vbox.show_all()
