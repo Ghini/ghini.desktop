@@ -290,18 +290,13 @@ def _get_feed_worker(worker, gd_client, tag):
     # this session, maybe we need some sort of in memory database of
     # feeds that have been fetched
     email = meta.get_default(PICASA_EMAIL_KEY).value
-    try:
-        user, domain = email.split('@', 1)
-    except Exception, e:
-        #debug(e)
-        user = email
     album = meta.get_default(PICASA_ALBUM_KEY).value
 
     if tag in __feed_cache:
         feed = __feed_cache[tag]
     else:
         try:
-            feed = get_photo_feed(gd_client, user, album, tag)
+            feed = get_photo_feed(gd_client, email, album, tag)
         except Exception, e:
             worker.canceled = True
             _exc_queue.put(e)
