@@ -10,7 +10,7 @@ Documentation for Bauble 1.0
 Bauble is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
 
-Bauble is also extensible through plugins and can be customized to suite
+Bauble is also extensible through plugins and can be customized to suit
 the needs of the institution.
 
 It is `open <http://www.opensource.org>`_ and `free

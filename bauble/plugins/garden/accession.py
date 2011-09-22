@@ -1209,20 +1209,11 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.view.connect('new_source_button', 'clicked',
                           self.on_new_source_button_clicked)
 
-        def cell_data_func(column, cell, model, treeiter, data=None):
-            value = model[treeiter][0]
-            cell.props.text = utils.utf8(value)
-            # if isinstance(value, SourceDetail):
-            #     cell.props.text = utils.utf8(value)
-            # else:
-            #     cell.props.text = self.garden_prop_str
+        self.view.widgets.source_garden_prop_box.props.visible = False
+        self.view.widgets.source_sw.props.visible = False
+        self.view.widgets.source_none_label.props.visible = True
 
         # populate the source combo
-        combo = self.view.widgets.acc_source_comboentry
-        cell = gtk.CellRendererText()
-        combo.clear()
-        combo.pack_start(cell, True)
-        combo.set_cell_data_func(cell, cell_data_func)
         def on_select(source):
             if not source:
                 self.model.source = None
@@ -1236,10 +1227,8 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 warning('unknown source: %s' % source)
             #self.model.source = self.source
             #self.model.source.source_detail = source_detail
+
         self.init_source_comboentry(on_select)
-        self.view.widgets.source_garden_prop_box.props.visible = False
-        self.view.widgets.source_sw.props.visible = False
-        self.view.widgets.source_none_label.props.visible = True
 
         if self.model.source:
             self.source = self.model.source
@@ -1427,12 +1416,15 @@ class SourcePresenter(editor.GenericEditorPresenter):
         combo.set_model(model)
         combo.child.get_completion().set_model(model)
 
+        combo._populate = True
         if active:
             results = utils.search_tree_model(model, active)
             if results:
                 combo.set_active_iter(results[0])
         else:
             combo.set_active_iter(none_iter)
+        combo._populate = False
+
 
 
     def init_source_comboentry(self, on_select):
@@ -1447,16 +1439,19 @@ class SourcePresenter(editor.GenericEditorPresenter):
         :param on_select: called when an item is selected
         """
         PROBLEM = 'unknown_source'
-        combo = self.view.widgets.acc_source_comboentry
-
         def cell_data_func(col, cell, model, treeiter, data=None):
             cell.props.text = utils.utf8(model[treeiter][0])
+
+        combo = self.view.widgets.acc_source_comboentry
+        combo.clear()
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell)
+        combo.set_cell_data_func(cell, cell_data_func)
 
         completion = gtk.EntryCompletion()
         cell = gtk.CellRendererText() # set up the completion renderer
         completion.pack_start(cell)
         completion.set_cell_data_func(cell, cell_data_func)
-
         def match_func(completion, key, treeiter, data=None):
             model = completion.get_model()
             value = model[treeiter][0]
@@ -1470,11 +1465,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         entry = combo.child
         entry.set_completion(completion)
-
-        combo.clear()
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell)
-        combo.set_cell_data_func(cell, cell_data_func)
 
         def update_visible():
             visible = dict(source_sw=False,
@@ -1493,12 +1483,21 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         def on_match_select(completion, model, treeiter):
             value = model[treeiter][0]
+            # TODO: should we reset/store the entry values if the
+            # source is changed and restore them if they are switched
+            # back
             if not value:
                 combo.child.props.text = ''
                 on_select(None)
             else:
                 combo.child.props.text = utils.utf8(value)
                 on_select(value)
+
+            # don't set the model as dirty if this is called during
+            # populate_source_combo
+            if not combo._populate:
+                self.__dirty = True
+                self.refresh_sensitivity()
             return True
         self.view.connect(completion, 'match-selected', on_match_select)
 
