@@ -872,7 +872,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                             change.quantity==self.presenter._original_quantity):
                 # if the quantity and location haven't changed then
                 # don't save the change
-                self.session.expunge(change)
+                utils.delete_or_expunge(change)
                 self.model.change = None
             else:
                 if self.model.location != change.from_location:
@@ -1210,8 +1210,11 @@ class PropagationExpander(InfoExpander):
         self.vbox.foreach(self.vbox.remove)
         format = prefs.prefs[prefs.date_format_pref]
         for prop in row.propagations:
-            s = '%s: %s' % (prop.date.strftime(format), prop.get_summary())
-            label = gtk.Label(s)
+            s = '<b>%s</b>: %s' % (prop.date.strftime(format), 
+                                   prop.get_summary())
+            label = gtk.Label()
+            label.set_markup(s)
+            label.props.wrap = True
             label.set_alignment(0.0, 0.5)
             self.vbox.pack_start(label)
         self.vbox.show_all()

@@ -954,6 +954,14 @@ class AccessionTests(GardenTestCase):
         seed = PropSeed(**default_seed_values)
         seed.propagation = prop
         plant.propagations.append(prop)
+
+        source_detail = SourceDetail(name=u'Test Source',
+                                     source_type=u'Expedition')
+        source = Source(sources_code=u'22')
+        source.source_detail = source_detail
+        acc.source = source
+
+
         self.session.commit()
 
         self.editor = AccessionEditor(model=acc)

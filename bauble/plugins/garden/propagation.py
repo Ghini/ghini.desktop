@@ -430,9 +430,6 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         return hbox
 
 
-
-
-
     def on_add_button_clicked(self, *args):
         """
         """

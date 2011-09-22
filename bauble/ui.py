@@ -643,7 +643,7 @@ class GUI(object):
 
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://bauble.belizebotanic.org/docs/0.9/',
+        desktop.open('http://bauble.belizebotanic.org/docs/1.0/',
                      dialog_on_error=True)
 
 
