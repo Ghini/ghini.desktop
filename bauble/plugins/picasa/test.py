@@ -124,10 +124,6 @@ class PicasaTests(BaubleTestCase):
             return
 
         email = meta.get_default(picasa.PICASA_EMAIL_KEY).value
-        try:
-            user, domain = email.split('@', 1)
-        except Exception:
-            user = email
         album = meta.get_default(picasa.PICASA_ALBUM_KEY).value
         token = meta.get_default(picasa.PICASA_TOKEN_KEY).value
 	picasa.update_meta(email, album, utils.utf8(token))
@@ -136,6 +132,6 @@ class PicasaTests(BaubleTestCase):
 	gd_client.SetClientLoginToken(token)
 
         # this tag is specific to the Plant album on brettatoms account
-        tag = 'Maxillaria elatior'
-	feed = picasa.get_photo_feed(gd_client, user, album, tag)
+        tag = 'Maxillaria variabilis'
+	feed = picasa.get_photo_feed(gd_client, email, album, tag)
         self.assert_(len(feed.entry) > 0)
