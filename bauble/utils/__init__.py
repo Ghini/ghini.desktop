@@ -605,15 +605,10 @@ def setup_date_button(view, entry, button, date_func=None):
     button.set_image(image)
     def on_clicked(b):
         s = ''
-        if not date_func:
-            import datetime
-            today = datetime.date.today()
-            # TODO: once we have the option to change whether the
-            # month is first or the day is first this should be set accordingly
-            #s = '%s/%s/%s' % (today.day, today.month, today.year)
-            s = today_str()
-        else:
+        if date_func:
             s = date_func()
+        else:
+            s = today_str()
         entry.set_text(s)
     if view and hasattr(view, 'connect'):
         view.connect(button, 'clicked', on_clicked)
