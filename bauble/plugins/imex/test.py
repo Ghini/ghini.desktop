@@ -115,17 +115,17 @@ class CSVTests(ImexTestCase):
     def test_import_bool_column(self):
         """
         """
-        class Test(db.Base):
-            __tablename__ = 'test'
+        class BoolTest(db.Base):
+            __tablename__ = 'bool_test'
             id = Column(Integer, primary_key=True)
             col1 = Column(Boolean, default=False)
-        table = Test.__table__
+        table = BoolTest.__table__
         table.create(bind=db.engine)
         data = [{'id': 1, 'col1': u'True'},
                 {'id': 2, 'col1': u'False'},
                 {'id': 3, 'col1': u''},
                 ]
-        filename = os.path.join(self.path, 'test.txt')
+        filename = os.path.join(self.path, 'bool_test.txt')
         f = open(filename, 'wb')
         format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
                   'quotechar': QUOTE_CHAR}
@@ -139,13 +139,13 @@ class CSVTests(ImexTestCase):
         importer = TestImporter()
         importer.start([filename], force=True)
 
-        t = self.session.query(Test).get(1)
+        t = self.session.query(BoolTest).get(1)
         self.assert_(t.col1==True)
 
-        t = self.session.query(Test).get(2)
+        t = self.session.query(BoolTest).get(2)
         self.assert_(t.col1==False)
 
-        t = self.session.query(Test).get(3)
+        t = self.session.query(BoolTest).get(3)
         self.assert_(t.col1==False)
         table.drop(bind=db.engine)
 

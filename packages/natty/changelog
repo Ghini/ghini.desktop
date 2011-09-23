@@ -1,9 +1,9 @@
-bauble (1.0.10~ppa1) maverick; urgency=low
+bauble (1.0.10~ppa1) natty; urgency=low
 
   * 1.0.10 Release
   * Now compatible with SQLAlchemy 0.6 and 0.7
 
- -- Brett Adams <brett@belizebotanic.org>  Sat, 10 Sep 2011 06:49:34 -0400
+ -- Brett Adams <brett@belizebotanic.org>  Sat, 03 Sep 2011 19:28:36 -0400
 
 bauble (1.0.1~ppa1) maverick; urgency=low
 

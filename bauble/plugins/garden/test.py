@@ -189,7 +189,7 @@ class ContactTests(GardenTestCase):
     #     # isn't allowed by the scheme....is this the best we can do? or can we
     #     # get some sort of error when creating a dangling reference
     #     session.delete(contact)
-    #     self.assertRaises(SQLError, session.commit)
+    #     self.assertRaises(DBAPIError, session.commit)
 
 
     def itest_contact_editor(self):

@@ -18,7 +18,7 @@ import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exc import SQLError
+from sqlalchemy.exc import DBAPIError
 
 import bauble
 import bauble.db as db
@@ -1050,7 +1050,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         if self.model.prop_type == u'UnrootedCutting':
             utils.delete_or_expunge(self.model._seed)
             self.model._seed = None
-            del self.model._seed
+            #del self.model._seed
             if not self.model._cutting.bottom_heat_temp:
                 self.model._cutting.bottom_heat_unit = None
             if not self.model._cutting.length:
@@ -1058,7 +1058,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         elif self.model.prop_type == u'Seed':
             utils.delete_or_expunge(self.model._cutting)
             self.model._cutting = None
-            del self.model._cutting
+            #del self.model._cutting
         else:
             utils.delete_or_expunge(self.model._seed)
             utils.delete_or_expunge(self.model._cutting)
@@ -1076,7 +1076,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 self._return = self.model
                 if self.presenter.dirty() and commit:
                     self.commit_changes()
-            except SQLError, e:
+            except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
