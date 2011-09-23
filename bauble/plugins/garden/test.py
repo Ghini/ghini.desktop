@@ -1029,12 +1029,10 @@ class LocationTests(GardenTestCase):
         widgets = editor.presenter.view.widgets
 
         # test that the accept buttons are NOT sensitive since nothing
-        # has changed and that the and the text entries and model are
-        # the same
+        # has changed and that the text entries and model are the same
         assert widgets.loc_name_entry.get_text() == loc.name
         assert widgets.loc_code_entry.get_text() == loc.code
         assert not widgets.loc_ok_button.props.sensitive
-        assert not widgets.loc_ok_and_add_button.props.sensitive
         assert not widgets.loc_next_button.props.sensitive
 
         # test the accept buttons become sensitive when the name entry
