@@ -2379,17 +2379,16 @@ class SourceExpander(InfoExpander):
             self.widgets.parent_plant_label.props.visible = True
             self.widgets.parent_plant_eventbox.props.visible = True
             self.set_widget_value('parent_plant_data',
-                                  str(row.plant_propagation.plant))
+                                  str(row.source.plant_propagation.plant))
             self.set_widget_value('propagation_data',
-                                  row.plant_propagation.get_summary())
+                                  row.source.plant_propagation.get_summary())
         else:
             self.widgets.parent_plant_label.props.visible = False
             self.widgets.parent_plant_eventbox.props.visible = False
 
-        prop_str = ''
         if row.source.propagation:
-            prop_str = row.source.propagation.get_summary()
-        self.set_widget_value('propagation_data', prop_str)
+            self.set_widget_value('propagation_data',
+                                  row.source.propagation.get_summary())
 
         if row.source.collection:
             self.widgets.collection_expander.props.expanded = True
