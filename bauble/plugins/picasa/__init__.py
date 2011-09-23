@@ -317,6 +317,7 @@ def _get_feed_worker(worker, gd_client, tag):
             fd, filename = tempfile.mkstemp(suffix=extension, dir=path)
             urllib.urlretrieve(url, filename)
             cache.add(photo_id, filename)
+            photo = cache[photo_id]
         if not photo:
             _get()
         if not os.path.exists(photo.path):
