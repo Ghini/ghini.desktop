@@ -9,7 +9,7 @@ import traceback
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.exc import SQLError, InvalidRequestError
+from sqlalchemy.exc import DBAPIError, InvalidRequestError
 
 import bauble
 import bauble.db as db
@@ -297,8 +297,8 @@ def _get_tagged_object_pairs(tag):
         except KeyError, e:
             warning('KeyError -- tag.get_tagged_objects(%s): %s' % (tag, e))
             continue
-        except SQLError, e:
-            warning('SQLError -- tag.get_tagged_objects(%s): %s' % (tag, e))
+        except DBAPIError, e:
+            warning('DBAPIError -- tag.get_tagged_objects(%s): %s' % (tag, e))
             continue
         except AttributeError, e:
             warning('AttributeError -- tag.get_tagged_objects(%s): %s' \

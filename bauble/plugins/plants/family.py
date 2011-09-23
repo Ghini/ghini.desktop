@@ -9,7 +9,7 @@ import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exc import SQLError
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
@@ -550,7 +550,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except SQLError, e:
+            except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
