@@ -4,7 +4,7 @@ import gtk
 from pyparsing import *
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.orm.properties import *
+from sqlalchemy.orm.properties import ColumnProperty, RelationProperty
 
 import bauble
 from bauble.error import check, CheckConditionError, BaubleError
@@ -193,11 +193,15 @@ class MapperSearch(SearchStrategy):
                 relations = idents[:-1]
                 col = idents[-1]
                 query = self._session.query(cls)
-                query = query.join(relations)
+                query = query.join(*relations)
+
+                # NOTE: SA07 - this depends on Query._joinpoint not changing,
+                # it changed in SA05 which broke this
+                local_table = query._joinpoint['prev'][0][1].local_table
                 if isinstance(cond, str):
-                    clause = query._joinpoint.c[col].op(cond)(utils.utf8(val))
+                    clause = local_table.c[col].op(cond)(utils.utf8(val))
                 else:
-                    clause = cond(query._joinpoint.c[col])(utils.utf8(val))
+                    clause = cond(local_table.c[col])(utils.utf8(val))
                 query = query.filter(clause).order_by(None)
 
             if boolop == 'or':

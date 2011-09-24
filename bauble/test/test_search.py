@@ -261,7 +261,7 @@ class SearchTests(BaubleTestCase):
         """
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
-        family = Family(family=u'family')
+        family = Family(family=u'family1')
         family2 = Family(family=u'family2')
         genus = Genus(family=family, genus=u'genus')
         genus2 = Genus(family=family2, genus=u'genus2')
@@ -271,12 +271,12 @@ class SearchTests(BaubleTestCase):
         self.assert_(isinstance(mapper_search, search.MapperSearch))
 
         # search cls.column
-        results = mapper_search.search('fam where family=family', self.session)
+        results = mapper_search.search('fam where family=family1', self.session)
         f = list(results)[0]
         self.assert_(isinstance(f, Family) and f.id==family.id)
 
         # search cls.parent.column
-        results = mapper_search.search('genus where family.family=family',
+        results = mapper_search.search('genus where family.family=family1',
                                        self.session)
         g = list(results)[0]
         self.assert_(len(results) == 1 and isinstance(g, Genus) \
@@ -290,7 +290,6 @@ class SearchTests(BaubleTestCase):
                          and f.id==family.id)
 
         # search with multiple conditions and'ed together
-        #debug('--------')
         f3 = Family(family=u'fam3')
         g3 = Genus(family=f3, genus=u'genus2')
         self.session.add_all([f3, g3])

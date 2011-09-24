@@ -79,14 +79,14 @@ def get_plant_query(obj, session):
     # will work properly
     q = session.query(Plant).order_by(None)
     if isinstance(obj, Family):
-        return q.join(['accession', 'species', 'genus', 'family']).\
+        return q.join('accession', 'species', 'genus', 'family').\
                filter_by(id=obj.id)
     elif isinstance(obj, Genus):
-        return q.join(['accession', 'species', 'genus']).filter_by(id=obj.id)
+        return q.join('accession', 'species', 'genus').filter_by(id=obj.id)
     elif isinstance(obj, Species):
-        return q.join(['accession', 'species']).filter_by(id=obj.id)
+        return q.join('accession', 'species').filter_by(id=obj.id)
     elif isinstance(obj, VernacularName):
-        return q.join(['accession', 'species', 'vernacular_names']).\
+        return q.join('accession', 'species', 'vernacular_names').\
                filter_by(id=obj.id)
     elif isinstance(obj, Plant):
         return q.filter_by(id=obj.id)
@@ -119,14 +119,14 @@ def get_accession_query(obj, session):
     # will work properly
     q = session.query(Accession).order_by(None)
     if isinstance(obj, Family):
-        return q.join(['species', 'genus', 'family']).\
+        return q.join('species', 'genus', 'family').\
                filter_by(id=obj.id)
     elif isinstance(obj, Genus):
-        return q.join(['species', 'genus']).filter_by(id=obj.id)
+        return q.join('species', 'genus').filter_by(id=obj.id)
     elif isinstance(obj, Species):
-        return q.join(['species']).filter_by(id=obj.id)
+        return q.join('species').filter_by(id=obj.id)
     elif isinstance(obj, VernacularName):
-        return q.join(['species', 'vernacular_names']).\
+        return q.join('species', 'vernacular_names').\
                filter_by(id=obj.id)
     elif isinstance(obj, Plant):
         return q.join('plants').filter_by(id=obj.id)
@@ -160,24 +160,24 @@ def get_species_query(obj, session):
     # will work properly
     q = session.query(Species).order_by(None)
     if isinstance(obj, Family):
-        return q.join(['genus', 'family']).\
+        return q.join('genus', 'family').\
                filter_by(id=obj.id)
     elif isinstance(obj, Genus):
-        return q.join(['genus']).filter_by(id=obj.id)
+        return q.join('genus').filter_by(id=obj.id)
     elif isinstance(obj, Species):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, VernacularName):
-        return q.join(['vernacular_names']).\
+        return q.join('vernacular_names').\
                filter_by(id=obj.id)
     elif isinstance(obj, Plant):
-        return q.join(['accessions', 'plants']).filter_by(id=obj.id)
+        return q.join('accessions', 'plants').filter_by(id=obj.id)
     elif isinstance(obj, Accession):
         return q.join('accessions').filter_by(id=obj.id)
     elif isinstance(obj, Location):
-        return q.join(['accessions', 'plants', 'location']).\
+        return q.join('accessions', 'plants', 'location').\
                filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        acc = get_all_species(obj.objects, session)
+        acc = get_all_species(obj.objects, session)        
         return q.filter(Species.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get species from a %s" % \

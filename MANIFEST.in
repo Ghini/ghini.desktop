@@ -4,4 +4,4 @@ recursive-include po *.po
 recursive-include bauble/images *.*
 recursive-include bauble/pixmaps *.*
 recursive-include data *.*
-include README LICENSE CHANGES INSTALL ez_setup.py setup.cfg stdeb.cfg
+include README LICENSE CHANGES ez_setup.py setup.cfg
