@@ -12,7 +12,7 @@ import gtk
 import gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exc import SQLError
+from sqlalchemy.exc import DBAPIError
 
 import bauble
 from bauble.prefs import prefs
@@ -1051,7 +1051,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except SQLError, e:
+            except DBAPIError, e:
                 exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)

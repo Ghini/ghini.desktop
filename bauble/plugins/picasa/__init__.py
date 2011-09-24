@@ -140,7 +140,6 @@ class PhotoCache(object):
         """
         if not path:
             path = os.path.join(default_path, 'photos.db')
-        _created = False
         if create and not os.path.exists(path):
             # create the file
             head, tail = os.path.split(path)
@@ -149,14 +148,13 @@ class PhotoCache(object):
             except:
                 pass
             open(path, 'wb+').close()
-            _created = True
         uri = 'sqlite:///%s' % path
         self.engine = sa.create_engine(uri)
         self.engine.connect()
         self.metadata = Base.metadata
         self.metadata.bind = self.engine
         self.Session = orm.sessionmaker(bind=self.engine, autoflush=False)
-        if create and _created:
+        if create and os.path.exists(path):
             self.metadata.drop_all(checkfirst=True)
             self.metadata.create_all()
 
@@ -317,6 +315,7 @@ def _get_feed_worker(worker, gd_client, tag):
             fd, filename = tempfile.mkstemp(suffix=extension, dir=path)
             urllib.urlretrieve(url, filename)
             cache.add(photo_id, filename)
+            photo = cache[photo_id]
         if not photo:
             _get()
         if not os.path.exists(photo.path):

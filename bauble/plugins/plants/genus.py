@@ -11,7 +11,7 @@ import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exc import SQLError
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
@@ -237,7 +237,7 @@ from bauble.plugins.plants.family import Family, FamilySynonym
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
-                         order_by=['Species.sp'],
+                         order_by=[Species.sp],
                          backref=backref('genus', uselist=False))
 
 
@@ -656,7 +656,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except SQLError, e:
+            except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
