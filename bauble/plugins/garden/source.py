@@ -560,6 +560,10 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.south_radio.set_active(True)
             else:
                 self.view.widgets.north_radio.set_active(True)
+        else:
+            self.view.widgets.lat_dms_label.set_text('')
+            self.view.widgets.north_radio.set_active(True)
+
         longitude = self.model.longitude
         if longitude is not None:
             dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
@@ -568,6 +572,9 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.west_radio.set_active(True)
             else:
                 self.view.widgets.east_radio.set_active(True)
+        else:
+            self.view.widgets.lon_dms_label.set_text('')
+            self.view.widgets.east_radio.set_active(True)
 
         if self.model.elevation == None:
             self.view.widgets.altacc_entry.set_sensitive(False)
