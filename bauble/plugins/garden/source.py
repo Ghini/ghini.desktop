@@ -556,7 +556,7 @@ class CollectionPresenter(editor.ChildPresenter):
         if latitude is not None:
             dms_string = u'%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
             self.view.widgets.lat_dms_label.set_text(dms_string)
-            if latitude < 0:
+            if float(latitude) < 0:
                 self.view.widgets.south_radio.set_active(True)
             else:
                 self.view.widgets.north_radio.set_active(True)
@@ -564,7 +564,7 @@ class CollectionPresenter(editor.ChildPresenter):
         if longitude is not None:
             dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
             self.view.widgets.lon_dms_label.set_text(dms_string)
-            if longitude < 0:
+            if float(longitude) < 0:
                 self.view.widgets.west_radio.set_active(True)
             else:
                 self.view.widgets.east_radio.set_active(True)
