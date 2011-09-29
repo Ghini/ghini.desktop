@@ -321,13 +321,15 @@ class PropSeed(db.Base):
 
 class PropagationTabPresenter(editor.GenericEditorPresenter):
 
+    """PropagationTabPresenter
+
+    :param parent: an instance of PlantEditorPresenter
+    :param model: an instance of class Plant
+    :param view: an instance of PlantEditorView
+    :param session:
+    """
+
     def __init__(self, parent, model, view, session):
-        '''
-        :param parent: an instance of PlantEditorPresenter
-        :param model: an instance of class Plant
-        :param view: an instance of PlantEditorView
-        :param session:
-        '''
         super(PropagationTabPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
@@ -747,8 +749,11 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
 
     def refresh_view(self):
+        date_format = prefs.prefs[prefs.date_format_pref]
         for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
+            if isinstance(value, datetime.date):
+                value = value.strftime(date_format)
             self.view.set_widget_value(widget, value)
 
 
@@ -760,7 +765,8 @@ class PropagationPresenter(editor.GenericEditorPresenter):
     PropagatioEditorPresenter.
     """
     widget_to_field_map = {'prop_type_combo': 'prop_type',
-                           'prop_date_entry': 'date'}
+                           'prop_date_entry': 'date',
+                           'notes_textview': 'notes'}
 
     def __init__(self, model, view):
         '''
@@ -784,9 +790,17 @@ class PropagationPresenter(editor.GenericEditorPresenter):
         if not self.model.prop_type:
             view.widgets.prop_details_box.props.visible = False
 
-        if not self.model.date:
+        if self.model.date:
+            format = prefs.prefs[prefs.date_format_pref]
+            date = self.model.date.strftime(format)
+            self.view.set_widget_value(self.view.widgets.prop_date_entry, date)
+        else:
             self.view.set_widget_value(self.view.widgets.prop_date_entry,
                                        utils.today_str())
+
+        if self.model.notes:
+            self.view.set_widget_value(self.view.widgets.notes_textview,
+                                       self.model.notes)
 
         self._dirty = False
         utils.setup_date_button(self.view, 'prop_date_entry',
@@ -946,8 +960,6 @@ class SourcePropagationPresenter(PropagationPresenter):
 
 class PropagationEditorPresenter(PropagationPresenter):
 
-    widget_to_field_map = {'prop_type_combo': 'prop_type',
-                           'prop_date_entry': 'date'}
 
     def __init__(self, model, view):
         '''
