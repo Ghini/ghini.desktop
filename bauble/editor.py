@@ -819,6 +819,35 @@ class GenericEditorPresenter(object):
 
 
 
+class ChildPresenter(GenericEditorPresenter):
+    """
+    This Presenter acts as a proxy to another presenter that shares
+    the same view. This avoids circular references by not having a
+    presenter within a presenter that both hold references to the
+    view.
+
+    This Presenter keeps a weakref to the parent presenter and
+    provides a pass through to the parent presenter for calling
+    methods that reference the view.
+    """
+
+    def __init__(self, model, view):
+        super(ChildPresenter, self).__init__(model, view)
+        #self._view_ref = weakref.ref(view)
+
+    def _get_view(self):
+        return self._view_ref()
+
+    def _set_view(self, view):
+        if isinstance(view, GenericEditorView):
+            self._view_ref = weakref.ref(view)
+        else:
+            raise ValueError('view must be an instance of GenericEditorView')
+
+    view = property(_get_view, _set_view)
+
+
+
 class GenericModelViewPresenterEditor(object):
     '''
     GenericModelViewPresenterEditor assume that model is an instance

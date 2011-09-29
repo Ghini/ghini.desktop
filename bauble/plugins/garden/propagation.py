@@ -753,7 +753,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
 
 
-class PropagationPresenter(editor.GenericEditorPresenter):
+class PropagationPresenter(editor.ChildPresenter):
     """
     PropagationPresenter is not used directly but is extended by
     SeedPropagationPresenter, CuttingPropagationPresenter and
