@@ -404,7 +404,7 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
 # TODO: should show an error if something other than a number is entered in
 # the altitude entry
 
-class CollectionPresenter(editor.GenericEditorPresenter):
+class CollectionPresenter(editor.ChildPresenter):
 
     """
     CollectionPresenter
@@ -757,8 +757,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
 
 
-
-class PropagationChooserPresenter(editor.GenericEditorPresenter):
+class PropagationChooserPresenter(editor.ChildPresenter):
     """
     Chooser for selecting an existing propagation for the source.
 
