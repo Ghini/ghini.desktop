@@ -645,13 +645,12 @@ class PropagationTests(GardenTestCase):
                     expected = expected.strftime(format)
             self.assert_(v==expected, '%s = %s(%s)' % (attr, expected, v))
 
-
         for attr, expected in default_propagation_values.iteritems():
             v = getattr(propagation, attr)
-            print >>sys.stderr, v
             self.assert_(v==expected, '%s = %s(%s)' % (attr, expected, v))
 
         s.close()
+
 
     def test_seed_editor_load(self):
         loc = Location(name=u'name', code=u'code')
