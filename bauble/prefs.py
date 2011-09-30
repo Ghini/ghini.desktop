@@ -210,7 +210,7 @@ class _prefs(dict):
                 self[parse_dayfirst_pref] = False
         if parse_yearfirst_pref not in self:
             format = self[date_format_pref]
-            if format.find('%Y') == 0 or format.find('%y'):
+            if format.find('%Y') == 0 or format.find('%y') == 0:
                 self[parse_yearfirst_pref] = True
             else:
                 self[parse_yearfirst_pref] = False
