@@ -993,11 +993,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # date entry
             self.date_entry = self.widgets.ver_date_entry
             if self.model.date:
-                format = prefs.prefs[prefs.date_format_pref]
-                safe = utils.xml_safe(self.model.date.strftime(format))
-                self.date_entry.props.text = safe
+                utils.set_widget_value(self.date_entry, self.model.date)
             else:
-                self.date_entry.props.text = utils.xml_safe(utils.today_str())
+                self.date_entry.props.text = utils.today_str()
             self.presenter().view.connect(self.date_entry, 'changed',
                                         self.on_date_entry_changed)
 
@@ -1950,11 +1948,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = self.model.species
             else:
                 value = getattr(self.model, field)
-
-            # format date strings
-            if value and isinstance(value, (datetime.datetime, datetime.date)):
-                value = value.strftime(date_format)
-
             self.view.set_widget_value(widget, value)
 
 
@@ -2136,17 +2129,17 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         # PropagationEditor.clean_model()...we need a sensible way to
         # share this code
         if propagation.prop_type == u'UnrootedCutting':
-            utils.delete_or_expunge(propagation._seed)
-            propagation._seed = None
-            del propagation._seed
+            if propagation._seed is not None:
+                utils.delete_or_expunge(propagation._seed)
+                propagation._seed = None
             if not propagation._cutting.bottom_heat_temp:
                 propagation._cutting.bottom_heat_unit = None
             if not propagation._cutting.length:
                 propagation._cutting.length_unit = None
-        elif propagation.prop_type == u'Seed':
+        elif propagation.prop_type == u'Seed' and \
+                propagation._cutting is not None:
             utils.delete_or_expunge(propagation._cutting)
             propagation._cutting = None
-            del propagation._cutting
 
 
     def commit_changes(self):
@@ -2258,24 +2251,13 @@ class GeneralAccessionExpander(InfoExpander):
 
         nplants = session.query(Plant).filter_by(accession_id=row.id).count()
         self.set_widget_value('nplants_data', nplants)
-
-        format = prefs.prefs[prefs.date_format_pref]
-
-        date_str = ''
-        if row.date_recvd:
-            date_str = row.date_recvd.strftime(format)
-        self.set_widget_value('date_recvd_data', date_str)
-
-        date_str = ''
-        if row.date_accd:
-            date_str = row.date_accd.strftime(format)
-        self.set_widget_value('date_accd_data', date_str)
+        self.set_widget_value('date_recvd_data', row.date_recvd)
+        self.set_widget_value('date_accd_data', row.date_accd)
 
         type_str = ''
         if row.recvd_type:
             type_str = recvd_type_values[row.recvd_type]
         self.set_widget_value('recvd_type_data', type_str)
-
         quantity_str = ''
         if row.quantity_recvd:
             quantity_str = row.quantity_recvd
