@@ -4,6 +4,7 @@
 """
 A common set of utility functions used throughout Bauble.
 """
+import datetime
 import imp
 import os
 import re
@@ -250,7 +251,7 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
     '''
     :param widget: an instance of gtk.Widget
     :param value: the value to put in the widget
-    :param markup: whether or not
+    :param markup: whether or not value is markup
     :param default: the default value to put in the widget if the value is None
     :param index: the row index to use for those widgets who use a model
 
@@ -264,6 +265,13 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
             value = ''
         else:
             value = default
+
+    # assume that if value is a date then we want to display it with
+    # the default date format
+    import bauble.prefs as prefs
+    if isinstance(value, datetime.date):
+        date_format = prefs.prefs[prefs.date_format_pref]
+        value = value.strftime(date_format)
 
     if isinstance(widget, gtk.Label):
         #widget.set_text(str(value))

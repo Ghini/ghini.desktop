@@ -44,24 +44,28 @@ collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere',
                          'geography_id': 1},
                         )
 
+default_propagation_values = \
+    {'notes': u'test notes',
+     'date': datetime.date(2011, 11, 25)}
+
 default_cutting_values = \
-            {'cutting_type': u'Nodal',
-             'length': 2,
-             'length_unit': u'mm',
-             'tip': u'Intact',
-             'leaves': u'Intact',
-             'leaves_reduced_pct': 25,
-             'flower_buds': u'None',
-             'wound': u'Single',
-             'fungicide': u'Physan',
-             'media': u'standard mix',
-             'container': u'4" pot',
-             'hormone': u'Auxin powder',
-             'cover': u'Poly cover',
-             'location': u'Mist frame',
-             'bottom_heat_temp': 65,
-             'bottom_heat_unit': u'F',
-             'rooted_pct': 90}
+    {'cutting_type': u'Nodal',
+     'length': 2,
+     'length_unit': u'mm',
+     'tip': u'Intact',
+     'leaves': u'Intact',
+     'leaves_reduced_pct': 25,
+     'flower_buds': u'None',
+     'wound': u'Single',
+     'fungicide': u'Physan',
+     'media': u'standard mix',
+     'container': u'4" pot',
+     'hormone': u'Auxin powder',
+     'cover': u'Poly cover',
+     'location': u'Mist frame',
+     'bottom_heat_temp': 65,
+     'bottom_heat_unit': u'F',
+     'rooted_pct': 90}
 
 default_seed_values = \
             {'pretreatment': u'Soaked in peroxide solution',
@@ -76,7 +80,8 @@ default_seed_values = \
              'germ_date': datetime.date.today(),#utils.today_str(),
              'germ_pct': 99,
              'nseedlings': 23,
-             'date_planted': datetime.date.today()} #utils.today_str()}
+             'date_planted': datetime.date.today(),
+             }
 
 test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
@@ -595,7 +600,7 @@ class PropagationTests(GardenTestCase):
         self.editor.session.close()
 
 
-    def test_seed_editor(self):
+    def test_seed_editor_commit(self):
         loc = Location(name=u'name', code=u'code')
         plant = Plant(accession=self.accession, location=loc, code=u'1',
                       quantity=1)
@@ -603,33 +608,102 @@ class PropagationTests(GardenTestCase):
         plant.propagations.append(propagation)
         editor = PropagationEditor(model=propagation)
         widgets = editor.presenter.view.widgets
+        seed_presenter = editor.presenter._seed_presenter
         view = editor.presenter.view
+
+        # set default values in editor widgets
         view.set_widget_value('prop_type_combo', u'Seed')
-        view.set_widget_value('prop_date_entry', utils.today_str())
-        cutting_presenter = editor.presenter._seed_presenter
-        for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
+        view.set_widget_value('prop_date_entry',
+                              default_propagation_values['date'])
+        view.set_widget_value('notes_textview',
+                              default_propagation_values['notes'])
+        for widget, attr in seed_presenter.widget_to_field_map.iteritems():
             w = widgets[widget]
             if isinstance(w, gtk.ComboBoxEntry) and not w.get_model():
                 widgets[widget].child.props.text = default_seed_values[attr]
             view.set_widget_value(widget, default_seed_values[attr])
+
+        # update the editor, send the RESPONSE_OK signal and commit the changes
         update_gui()
         editor.handle_response(gtk.RESPONSE_OK)
         editor.presenter.cleanup()
-        model = editor.model
-        s = object_session(model)
+        model_id = editor.model.id
         editor.commit_changes()
-        s.expire(model)
-        self.assert_(model.prop_type == u'Seed')
+        editor.session.close()
+
+        s = db.Session()
+        propagation = s.query(Propagation).get(model_id)
+
+        self.assert_(propagation.prop_type == u'Seed')
+        # make sure the each value in default_seed_values matches the model
         for attr, expected in default_seed_values.iteritems():
-            v = getattr(model._seed, attr)
+            v = getattr(propagation._seed, attr)
             if isinstance(v, datetime.date):
                 format = prefs.prefs[prefs.date_format_pref]
                 v = v.strftime(format)
                 if isinstance(expected, datetime.date):
                     expected = expected.strftime(format)
             self.assert_(v==expected, '%s = %s(%s)' % (attr, expected, v))
-        editor.session.close()
 
+        for attr, expected in default_propagation_values.iteritems():
+            v = getattr(propagation, attr)
+            self.assert_(v==expected, '%s = %s(%s)' % (attr, expected, v))
+
+        s.close()
+
+
+    def test_seed_editor_load(self):
+        loc = Location(name=u'name', code=u'code')
+        plant = Plant(accession=self.accession, location=loc, code=u'1',
+                      quantity=1)
+        propagation = Propagation(**default_propagation_values)
+        propagation.prop_type = u'Seed'
+        propagation._seed = PropSeed(**default_seed_values)
+        plant.propagations.append(propagation)
+
+        editor = PropagationEditor(model=propagation)
+        widgets = editor.presenter.view.widgets
+        seed_presenter = editor.presenter._seed_presenter
+        view = editor.presenter.view
+
+        update_gui()
+
+        # check that the values loaded correctly from the model in the
+        # editor widget
+        def get_widget_text(w):
+            if isinstance(w, gtk.TextView):
+                return w.get_buffer().props.text
+            elif isinstance(w, gtk.Entry):
+                return w.props.text
+            elif isinstance(w, gtk.ComboBoxEntry):
+                return w.get_active_text()
+            else:
+                raise ValueError('%s not supported' % type(w))
+
+        # make sure the default values match the values in the widgets
+        date_format = prefs.prefs[prefs.date_format_pref]
+        for widget, attr in editor.presenter.widget_to_field_map.iteritems():
+            if not attr in default_propagation_values:
+                continue
+            default = default_propagation_values[attr]
+            if isinstance(default, datetime.date):
+                default = default.strftime(date_format)
+            value = get_widget_text(widgets[widget])
+            self.assert_(value == default,
+                         '%s = %s (%s)' % (attr, value, default))
+
+        # check the default for the PropSeed and SeedPresenter
+        for widget, attr in seed_presenter.widget_to_field_map.iteritems():
+            if not attr in default_seed_values:
+                continue
+            default = default_seed_values[attr]
+            if isinstance(default, datetime.date):
+                default = default.strftime(date_format)
+            if isinstance(default, int):
+                default = str(default)
+            value = get_widget_text(widgets[widget])
+            self.assert_(value == default,
+                         '%s = %s (%s)' % (attr, value, default))
 
 
     def itest_editor(self):
