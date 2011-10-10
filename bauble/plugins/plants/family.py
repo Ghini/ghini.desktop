@@ -681,7 +681,7 @@ class GeneralFamilyExpander(InfoExpander):
             self.set_widget_value('fam_nsp_data', 0)
         else:
             ngen_in_sp = session.query(Species.genus_id).\
-                join(['genus', 'family']).\
+                join('genus', 'family').\
                 filter_by(id=row.id).distinct().count()
             self.set_widget_value('fam_nsp_data', '%s in %s genera' \
                                   % (nsp, ngen_in_sp))
@@ -694,26 +694,26 @@ class GeneralFamilyExpander(InfoExpander):
         from bauble.plugins.garden.accession import Accession
         from bauble.plugins.garden.plant import Plant
 
-        nacc = session.query(Accession).join(['species', 'genus', 'family']).\
+        nacc = session.query(Accession).join('species', 'genus', 'family').\
                filter_by(id=row.id).count()
         if nacc == 0:
             self.set_widget_value('fam_nacc_data', nacc)
         else:
             nsp_in_acc = session.query(Accession.species_id).\
-                join(['species', 'genus', 'family']).\
+                join('species', 'genus', 'family').\
                 filter_by(id=row.id).distinct().count()
             self.set_widget_value('fam_nacc_data', '%s in %s species' \
                                   % (nacc, nsp_in_acc))
 
         # get the number of plants in the family
         nplants = session.query(Plant).\
-                  join(['accession', 'species', 'genus', 'family']).\
+                  join('accession', 'species', 'genus', 'family').\
                   filter_by(id=row.id).count()
         if nplants == 0:
             self.set_widget_value('fam_nplants_data', nplants)
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
-                join(['accession', 'species', 'genus','family']).\
+                join('accession', 'species', 'genus','family').\
                 filter_by(id=row.id).distinct().count()
             self.set_widget_value('fam_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))

@@ -839,26 +839,26 @@ class GeneralGenusExpander(InfoExpander):
         from bauble.plugins.garden.plant import Plant
 
         # get number of accessions
-        nacc = session.query(Accession).join(['species', 'genus']).\
+        nacc = session.query(Accession).join('species', 'genus').\
                filter_by(id=row.id).count()
         if nacc == 0:
             self.set_widget_value('gen_nacc_data', nacc)
         else:
             nsp_in_acc = session.query(Accession.species_id).\
-                         join(['species', 'genus']).\
+                         join('species', 'genus').\
                          filter_by(id=row.id).distinct().count()
             self.set_widget_value('gen_nacc_data', '%s in %s species' \
                                   % (nacc, nsp_in_acc))
 
         # get the number of plants in the genus
         nplants = session.query(Plant).\
-                  join(['accession', 'species', 'genus']).\
+                  join('accession', 'species', 'genus').\
                   filter_by(id=row.id).count()
         if nplants == 0:
             self.set_widget_value('gen_nplants_data', nplants)
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
-                    join(['accession', 'species', 'genus']).\
+                    join('accession', 'species', 'genus').\
                     filter_by(id=row.id).distinct().count()
             self.set_widget_value('gen_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))
