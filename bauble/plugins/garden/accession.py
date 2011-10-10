@@ -2341,6 +2341,8 @@ class SourceExpander(InfoExpander):
 
     def update(self, row):
         if not row.source:
+            self.props.expanded = False
+            self.props.sensitive = False
             return
 
         if row.source.source_detail:
@@ -2368,9 +2370,11 @@ class SourceExpander(InfoExpander):
             self.widgets.parent_plant_label.props.visible = False
             self.widgets.parent_plant_eventbox.props.visible = False
 
+        prop_str = ''
         if row.source.propagation:
-            self.set_widget_value('propagation_data',
-                                  row.source.propagation.get_summary())
+            prop_str = row.source.propagation.get_summary()
+        self.set_widget_value('propagation_data', prop_str)
+
 
         if row.source.collection:
             self.widgets.collection_expander.props.expanded = True
@@ -2490,6 +2494,9 @@ class AccessionInfoBox(InfoBox):
             self.links.update(row)
 
         # TODO: should test if the source should be expanded from the prefs
+        expanded = prefs.prefs.get('acc_source_expander', True)
+        self.source.props.expanded = expanded
+        self.source.props.sensitive = True
         self.source.update(row)
 
 
