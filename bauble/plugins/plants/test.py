@@ -460,12 +460,14 @@ class SpeciesTests(PlantTestCase):
     def itest_editor(self):
         # import default geography data
         import bauble.paths as paths
-        filename = os.path.join(paths.lib_dir(), "plugins", "plants",
-                                "default", 'geography.txt')
+        default_path = os.path.join(paths.lib_dir(), "plugins", "plants",
+                                "default")
+        filenames = [os.path.join(default_path, f) for f in 'geography.txt',
+                     'habit.txt']
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
+        importer.start(filenames, force=True)
 
-        importer.start([filename], force=True)
         f = Family(family=u'family')
         g2 = Genus(genus=u'genus2', family=f)
         g = Genus(genus=u'genus', family=f)

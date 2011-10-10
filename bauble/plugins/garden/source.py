@@ -585,31 +585,16 @@ class CollectionPresenter(editor.ChildPresenter):
 
 
     def on_date_entry_changed(self, entry, data=None):
-        text = entry.get_text()
-        if text == '':
-            self.set_model_attr('date', None)
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.coll_date_entry)
-            return
-
-        dt = None # datetime
-        m = _date_regex.match(text)
-        if m is None:
-            self.add_problem(self.PROBLEM_INVALID_DATE,
-                             self.view.widgets.coll_date_entry)
+        from bauble.editor import ValidatorError
+        value = None
+        PROBLEM = 'INVALID_DATE'
+        try:
+            value = editor.DateValidator().to_python(entry.props.text)
+        except ValidatorError, e:
+            self.parent_ref().add_problem(PROBLEM, entry)
         else:
-#            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
-#                                    m.group('day')))
-            try:
-                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                        m.group('day')]]
-                dt = datetime(*ymd).date()
-                self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                    self.view.widgets.coll_date_entry)
-            except Exception:
-                self.add_problem(self.PROBLEM_INVALID_DATE,
-                                    self.view.widgets.coll_date_entry)
-        self.set_model_attr('date', dt)
+            self.parent_ref().remove_problem(PROBLEM, entry)
+        self.set_model_attr('date', value)
 
 
     def on_east_west_radio_toggled(self, button, data=None):
