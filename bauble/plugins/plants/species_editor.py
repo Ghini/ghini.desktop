@@ -62,23 +62,29 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             cell.props.text = utils.utf8(model[treeiter][0])
 
         combo = self.view.widgets.sp_habit_comboentry
-        values = utils.get_distinct_values(Habit.name, self.session)
-        combo.clear()
-        model = gtk.ListStore(object)
-        map(lambda v: model.append([v]), self.session.query(Habit))
-        combo.set_model(model)
-        renderer = gtk.CellRendererText()
-        combo.pack_start(renderer, True)
-        combo.set_cell_data_func(renderer, cell_data_func)
+        model = gtk.ListStore(str, object)
+        map(lambda p: model.append(p),
+            [(str(h),h) for h in self.session.query(Habit)])
+        utils.setup_text_combobox(combo, model)
+
+        def on_focus_out(entry, event):
+            # check if the combo has a problem then check if the value
+            # in the entry matches one of the habit codes and if so
+            # then change the value to the habit
+            code = entry.props.text
+            try:
+                utils.set_combo_from_value(combo, code.lower(),
+                                       cmp=lambda r,v:str(r[1].code).lower()==v)
+            except ValueError:
+                pass
+        combo.child.connect('focus-out-event', on_focus_out)
 
         # set the model values in the widgets
         self.refresh_view()
 
         # connect habit comboentry widget and child entry
         self.view.connect('sp_habit_comboentry', 'changed',
-                          self.on_habit_combo_entry_changed)
-        self.view.connect(self.view.widgets.sp_habit_comboentry.child,
-                          'changed', self.on_habit_entry_changed)
+                          self.on_habit_comboentry_changed)
 
         # connect signals
         def gen_get_completions(text):
@@ -143,7 +149,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             pass
 
 
-    def on_habit_combo_entry_changed(self, combo, *args):
+    def on_habit_comboentry_changed(self, combo, *args):
         """
         Changed handler for sp_habit_comboentry.
 
@@ -151,39 +157,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         the validation is done in the specific gtk.Entry handlers for
         the child of the combo entries.
         """
-        value = None
         treeiter = combo.get_active_iter()
-        if treeiter:
-            value = combo.get_model()[treeiter][0]
-        else:
-            # the changed handler is fired again after the
-            # combo.child.props.text with the activer iter set to None
-            return True
+        if not treeiter:
+            return
+        value = combo.get_model()[treeiter][1]
+        self.set_model_attr('habit', value)
         # the entry change handler does the validation of the model
         combo.child.props.text = utils.utf8(value)
-
-
-    def on_habit_entry_changed(self, entry, *args):
-        """
-        """
-        problem = 'BAD_HABIT'
-        text = entry.props.text
-        if not text.strip():
-            self.remove_problem(problem, entry)
-            self.set_model_attr('habit', None)
-            return
-        model = entry.get_parent().get_model()
-        def match_func(row, data):
-            return str(row[0].code).lower() == str(data).lower() or \
-                str(row[0].name).lower() == str(data).lower() or \
-                str(row[0]).lower() == str(data).lower()
-        results = utils.search_tree_model(model, text, match_func)
-        if results and len(results) == 1: # is match is unique
-            self.remove_problem(problem, entry)
-            self.set_model_attr('habit', model[results[0]][0])
-        else:
-            self.add_problem(problem, entry)
-            self.set_model_attr('habit', None)
+        combo.child.set_position(-1)
 
 
     def __del__(self):

@@ -517,22 +517,35 @@ def setup_text_combobox(combo, values=None, cell_data_func=None):
     holds a reference to combo then the object will not be properly
     garbage collected.  To avoid this problem either don't pass a
     method of object or make the method static
+
+    :param combo: gtk.ComboBox
+    :param values: list vales or gtk.ListStore
+    :param cell_date_func:
     """
-    if values is None:
-        values = []
     combo.clear()
-    model = gtk.ListStore(str)
-    for v in values:
-        model.append([v])
+    if isinstance(values, gtk.ListStore):
+        model = values
+    else:
+        if values is None:
+            values = []
+        model = gtk.ListStore(str)
+        map(lambda v: model.append([v]), values)
+
+    combo.clear()
     combo.set_model(model)
     renderer = gtk.CellRendererText()
     combo.pack_start(renderer, True)
     combo.add_attribute(renderer, 'text', 0)
+
     if cell_data_func:
         combo.set_cell_data_func(renderer, cell_data_func)
 
     if not isinstance(combo, gtk.ComboBoxEntry):
         return
+
+    # enables things like scrolling through values with keyboard and
+    # other goodies
+    combo.props.text_column = 0
 
     # if combo is a gtk.ComboBoxEntry then setup completions
     def compl_cell_data_func(col, cell, model, treeiter, data=None):
@@ -542,6 +555,7 @@ def setup_text_combobox(combo, values=None, cell_data_func=None):
     cell = gtk.CellRendererText() # set up the completion renderer
     completion.pack_start(cell)
     completion.set_cell_data_func(cell, compl_cell_data_func)
+    completion.props.text_column = 0
     combo.child.set_completion(completion)
 
     def match_func(completion, key, treeiter, data=None):
@@ -552,14 +566,14 @@ def setup_text_combobox(combo, values=None, cell_data_func=None):
 
     def on_match_select(completion, model, treeiter):
         value = model[treeiter][0]
-        if not value:
-            combo.child.props.text = ''
-        else:
+        if value:
+            set_combo_from_value(combo, value)
             combo.child.props.text = utf8(value)
-        return True
+        else:
+            combo.child.props.text = ''
+
     # TODO: we should be able to disconnect this signal handler
     completion.connect('match-selected', on_match_select)
-
 
 
 

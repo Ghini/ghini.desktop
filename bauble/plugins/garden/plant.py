@@ -205,6 +205,7 @@ class PlantNote(db.Base):
                       backref=backref('notes', cascade='all, delete-orphan'))
 
 
+# TODO: some of these reasons are specific to UBC and could probably be culled.
 change_reasons = {
     u'DEAD': _('Dead'),
     u'DISC': _('Discarded'),
@@ -872,6 +873,10 @@ class PlantEditor(GenericModelViewPresenterEditor):
                             change.quantity==self.presenter._original_quantity):
                 # if the quantity and location haven't changed then
                 # don't save the change
+                # UPDATE:
+                # TODO: why save the change, what if we want to indicate
+                # a change even if the quantity and location hasn't
+                # changed?
                 utils.delete_or_expunge(change)
                 self.model.change = None
             else:
@@ -1210,7 +1215,7 @@ class PropagationExpander(InfoExpander):
         self.vbox.foreach(self.vbox.remove)
         format = prefs.prefs[prefs.date_format_pref]
         for prop in row.propagations:
-            s = '<b>%s</b>: %s' % (prop.date.strftime(format), 
+            s = '<b>%s</b>: %s' % (prop.date.strftime(format),
                                    prop.get_summary())
             label = gtk.Label()
             label.set_markup(s)
