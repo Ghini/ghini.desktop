@@ -173,6 +173,11 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         return xml_safe_utf8(str(self.accession))
 
 
+    def get_FullScientificNameString(self, authors=True):
+        s = self.accession.species_str(authors=authors , markup=False)
+        return xml_safe_utf8(s)
+
+
     def get_DateLastEdited(self):
         return utils.xml_safe_utf8(self.accession._last_updated.isoformat())
 

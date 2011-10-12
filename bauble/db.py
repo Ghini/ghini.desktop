@@ -178,7 +178,7 @@ class History(history_base):
     values = sa.Column(sa.String, nullable=False)
     operation = sa.Column(sa.String, nullable=False)
     user = sa.Column(sa.String)
-    timestamp = sa.Column(sa.DateTime, nullable=False)
+    timestamp = sa.Column(types.DateTime, nullable=False)
 
 
 def open(uri, verify=True, show_error_dialogs=False):
