@@ -37,7 +37,8 @@ from bauble import version
 # relative path for locale files
 locale_path = os.path.join('share', 'locale')
 
-gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
+gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo",
+            "gio"]
 plugins = setuptools.find_packages(where='bauble/plugins',
 				   exclude=['test', 'bauble.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
@@ -65,23 +66,9 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     from distutils.command.py2exe import py2exe as _py2exe_cmd
     # setuptools.find packages doesn't dig deep enough so we search
     # for a list of all packages in the sqlalchemy namespace
-
-    # TODO: although this works its kind of crappy, find_packages
-    # should really be enough and maybe the problem lies elsewhere
-
-    sqlalchemy_includes = []
-    from imp import find_module
-    f, path, descr = find_module('sqlalchemy')
-    for parent, subdir, files in os.walk(path):
-        submod = parent[len(path)+1:]
-        sqlalchemy_includes.append('sqlalchemy.%s' % submod)
-        if submod in ('mods', 'ext', 'databases'):
-            sqlalchemy_includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
-
     py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata', # 'MySQLdb',
                        'fibra', 'psycopg2', 'encodings', 'mako',
-                       'mako.cache'] + \
-                       gtk_pkgs + plugins_pkgs + sqlalchemy_includes
+                       'mako.cache'] + gtk_pkgs + plugins_pkgs
     py2exe_setup_args = {'console': ["scripts/bauble"],
                          'windows': [{'script': 'scripts/bauble',
                                       'icon_resources': [(1, "bauble/images/icon.ico")]}]}
@@ -127,13 +114,16 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
 
-            # copy GTK to the dist directory
-            # TODO: create a flag to control whether or not to copy
-            gtk_root = 'c:\\gtk'
-            #if os.path.exists(gtk_root):
+            # copy GTK to the dist directory, assuming PyGTK
+            # all-in-one installer
+            gtk_root = 'c:\\python27\\lib\\site-packages\\gtk-2.0\\runtime'
             dist_gtk = os.path.join(self.dist_dir, 'gtk')
+            import shutil
             if not os.path.exists(dist_gtk):
-                dir_util.copy_tree(gtk_root, dist_gtk)
+                ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
+                                                'man','demo', 'aclocal',
+                                                'doc', 'include')
+                shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
             # register the pixbuf loaders
             exe = '%s\\bin\\gdk-pixbuf-query-loaders.exe' % dist_gtk
