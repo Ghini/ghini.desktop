@@ -2452,7 +2452,6 @@ class AccessionInfoBox(InfoBox):
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "acc_infobox.glade")
         self.widgets = utils.load_widgets(filename)
-
         self.general = GeneralAccessionExpander(self.widgets)
         self.add_expander(self.general)
         self.source = SourceExpander(self.widgets)
@@ -2473,6 +2472,9 @@ class AccessionInfoBox(InfoBox):
 
 
     def update(self, row):
+        if isinstance(row, Collection):
+            row = row.source.accession
+
         self.general.update(row)
         self.props.update(row)
 
@@ -2498,13 +2500,6 @@ class AccessionInfoBox(InfoBox):
         self.source.props.expanded = expanded
         self.source.props.sensitive = True
         self.source.update(row)
-
-
-# it's easier just to put this here instead of source.py to avoid
-# playing around with imports for AccessionInfoBox
-class CollectionInfoBox(AccessionInfoBox):
-    def update(self, row):
-        super(CollectionInfoBox, self).update(row.source.accession)
 
 
 #
