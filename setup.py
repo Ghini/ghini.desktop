@@ -66,9 +66,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     from distutils.command.py2exe import py2exe as _py2exe_cmd
     # setuptools.find packages doesn't dig deep enough so we search
     # for a list of all packages in the sqlalchemy namespace
+    sqlalchemy_includes = ['sqlalchemy.dialects.sqlite',
+                           'sqlalchemy.dialects.postgresql']
     py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata', # 'MySQLdb',
                        'fibra', 'psycopg2', 'encodings', 'mako',
-                       'mako.cache'] + gtk_pkgs + plugins_pkgs
+                       'mako.cache'] + gtk_pkgs + plugins_pkgs + \
+                       sqlalchemy_includes
     py2exe_setup_args = {'console': ["scripts/bauble"],
                          'windows': [{'script': 'scripts/bauble',
                                       'icon_resources': [(1, "bauble/images/icon.ico")]}]}
