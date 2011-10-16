@@ -34,24 +34,24 @@ run () {
 make_tarball () {
     # create a sdist
     ! [ -d "dist" ] && run "mkdir dist"
-    run "bzr checkout --lightweight . dist/$DIST"
-    run "rm -fr dist/$DIST/.bzr"
-    run "cd dist/$DIST"
+    run "bzr checkout --lightweight . dist/deb"
+    run "rm -fr dist/deb/.bzr"
+    run "cd dist/deb"
     run "python setup.py sdist --format=gztar"
 }
 
-if [ -f "dist/$DIST/dist/$TARBALL" ] ; then
-    read -s -n1 -p "Would you like to use the existing tarball? (y/n) " reply
+if [ -d "dist/deb" ] ; then
+    read -s -n1 -p "Would you like to use the existing dist/deb checkout? (y/n) " reply
     if [ "$reply" != 'y' ] ; then
+	run "mv dist/deb dist/deb_`date +'%F-%T'`"
 	make_tarball
     else
-	cd "dist/$DIST"
+	cd "dist/deb"
     fi
 	
 else
     make_tarball
 fi
-
 
 # copy the sdist to a deb orig tarball
 run "cd dist"
@@ -60,10 +60,12 @@ run "cp $TARBALL $ORIG_TARBALL"
 # debian the tarball
 run "tar zxvf $TARBALL"
 run "cd bauble-$VERSION"
-if ! [ -d "debian" ] ; then
-    run "mkdir debian"
+if [ -L "debian" ] ; then
+    run "rm debian"
 fi
-run "cp -R $TOPLEVEL/packages/$DIST/* debian"
+
+# link the debian directory to the package specific directory
+run "ln -s $TOPLEVEL/packages/$DIST debian"
 
 # build the source package
 run "debuild -S"
