@@ -734,6 +734,9 @@ def reset_sequence(column):
     sequence then do nothing and return
 
     The SQL statements are executed directly from db.engine
+
+    This function only works for PostgreSQL database.  It does nothing
+    for other database engines.
     """
     import bauble
     import bauble.db as db
@@ -743,10 +746,8 @@ def reset_sequence(column):
         return
 
     sequence_name = None
-    # this crazy elif conditional is from
-    # sqlalchemy.database.postgresql.PGDefaultRunner
-    if hasattr(column, "sequence") and column.sequence is not None:
-        sequence_name = column.sequence.name
+    if hasattr(column,'default') and isinstance(column.default,schema.Sequence):
+        sequence_name = column.default.name
     elif (isinstance(column.type, Integer) and column.autoincrement) and \
             (column.default is None or \
                  (isinstance(column.default, schema.Sequence) and \
@@ -755,7 +756,6 @@ def reset_sequence(column):
         sequence_name = '%s_%s_seq' %(column.table.name, column.name)
     else:
         return
-
     conn = db.engine.connect()
     trans = conn.begin()
     try:
