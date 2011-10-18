@@ -762,7 +762,7 @@ class PropagationPresenter(editor.ChildPresenter):
     """
     PropagationPresenter is not used directly but is extended by
     SeedPropagationPresenter, CuttingPropagationPresenter and
-    PropagatioEditorPresenter.
+    PropagationEditorPresenter.
     """
     widget_to_field_map = {'prop_type_combo': 'prop_type',
                            'prop_date_entry': 'date',
@@ -798,9 +798,9 @@ class PropagationPresenter(editor.ChildPresenter):
             self.view.set_widget_value(self.view.widgets.prop_date_entry,
                                        utils.today_str())
 
-        if self.model.notes:
-            self.view.set_widget_value(self.view.widgets.notes_textview,
-                                       self.model.notes)
+        self.view.set_widget_value(self.view.widgets.notes_textview,
+                                   self.model.notes)
+
 
         self._dirty = False
         utils.setup_date_button(self.view, 'prop_date_entry',

@@ -76,7 +76,7 @@ class GardenPlugin(pluginmgr.Plugin):
         coll_kids = lambda coll: sorted(coll.source.accession.plants,
                                         key=utils.natsort_key)
         SearchView.view_meta[Collection].set(children=coll_kids,
-                                             infobox=CollectionInfoBox,
+                                             infobox=AccessionInfoBox,
                                              markup_func=coll_markup_func,
                                            context_menu=collection_context_menu)
 

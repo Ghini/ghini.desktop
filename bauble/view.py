@@ -265,6 +265,11 @@ class InfoBox(gtk.Notebook):
     use InfoBox(tabbed=True).  When using tabs then you can either add
     expanders directly to the InfoBoxPage or using
     InfoBox.add_expander with the page_num argument.
+
+    Also, it's not recommended to create a subclass of a subclass of
+    InfoBox since if they both use bauble.utils.BuilderWidgets then
+    the widgets will be parented to the infobox that is created first
+    and the expanders of the second infobox will appear empty.
     """
 
     def __init__(self, tabbed=False):
@@ -509,7 +514,13 @@ class SearchView(pluginmgr.View):
             new_infobox = self.infobox_cache[selected_type]
         elif selected_type in self.view_meta and \
           self.view_meta[selected_type].infobox is not None:
-            new_infobox = self.view_meta[selected_type].infobox()
+            # reuse an instance of an existing infobox if it's of the
+            # same type
+            for ib in self.infobox_cache.values():
+                if isinstance(ib, self.view_meta[selected_type].infobox):
+                    new_infobox = ib
+            if not new_infobox:
+                new_infobox = self.view_meta[selected_type].infobox()
             self.infobox_cache[selected_type] = new_infobox
 
         # remove any old infoboxes connected to the pane
