@@ -199,7 +199,7 @@ class ResetSequenceTests(BaubleTestCase):
 
     @staticmethod
     def get_currval(col):
-        if db.engine.name == 'postgres':
+        if db.engine.name == 'postgresql':
             name = col.sequence.name
             stmt = "select currval('%s');" % name
             return db.engine.execute(stmt).fetchone()[0]
@@ -245,6 +245,8 @@ class ResetSequenceTests(BaubleTestCase):
         """
         Test utils.reset_sequence on a column that has an Sequence()
         """
+        # UPDATE: 10/18/2011 -- we don't use Sequence() explicitly,
+        # just autoincrement=True on primary_key columns
         table = Table('test_reset_sequence', self.metadata,
                            Column('id', Integer,
                                   Sequence('test_id_seq'),

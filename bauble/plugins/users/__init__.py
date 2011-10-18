@@ -723,9 +723,9 @@ class UsersPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
-        if bauble.db.engine.name != 'postgres':
+        if bauble.db.engine.name != 'postgresql':
             del cls.tools[:]
-        elif bauble.db.engine.name == 'postgres' and not cls.tools:
+        elif bauble.db.engine.name == 'postgresql' and not cls.tools:
             cls.tools.append(UsersTool)
 
 plugin = UsersPlugin
