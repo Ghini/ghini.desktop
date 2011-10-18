@@ -98,7 +98,6 @@ class MapperBase(DeclarativeMeta):
     """
     def __init__(cls, classname, bases, dict_):
         if '__tablename__' in dict_:
-            seqname = '%s_id_seq' % dict_['__tablename__']
             cls.id = sa.Column('id', sa.Integer, primary_key=True,
                                autoincrement=True)
             cls._created = sa.Column('_created', types.DateTime(True),
