@@ -239,7 +239,7 @@ class CSVTests(ImexTestCase):
         highest_id = len(family_data)
         currval = None
         conn = db.engine.connect()
-        if db.engine.name == 'postgres':
+        if db.engine.name == 'postgresql':
             stmt = "SELECT currval('family_id_seq');"
             nextval = conn.execute(stmt).fetchone()[0]
         elif db.engine.name == 'sqlite':
@@ -247,7 +247,7 @@ class CSVTests(ImexTestCase):
             stmt = "SELECT max(id) from family;"
             nextval = conn.execute(stmt).fetchone()[0] + 1
         else:
-            raise "no test for engine type: %s" % db.engine.name
+            raise Exception("no test for engine type: %s" % db.engine.name)
 
         #debug(list(conn.execute("SELECT * FROM family").fetchall()))
         maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]
@@ -275,7 +275,7 @@ class CSVTests(ImexTestCase):
 
     def test_export_none_is_empty(self):
         """
-        Test the exporting a None column exports a ''
+        Test exporting a None column exports a ''
         """
         species = Species(genus_id=1, sp='sp')
         from tempfile import mkdtemp

@@ -8,10 +8,8 @@ from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug
 
-uri = 'sqlite:///:memory:'
-#uri = 'postgres://test:test@localhost/test'
-#uri = 'postgres://postgres:4postgres*@localhost/test'
-#uri = 'postgres://postgres:4postgres*@ceiba/test'
+#uri = 'sqlite:///:memory:'
+uri = 'postgresql://test:test@localhost/test'
 
 
 def init_bauble(uri, create=False):

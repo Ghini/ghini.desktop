@@ -99,8 +99,8 @@ class MapperBase(DeclarativeMeta):
     def __init__(cls, classname, bases, dict_):
         if '__tablename__' in dict_:
             seqname = '%s_id_seq' % dict_['__tablename__']
-            cls.id = sa.Column('id', sa.Integer, sa.Sequence(seqname),
-                               primary_key=True)
+            cls.id = sa.Column('id', sa.Integer, primary_key=True,
+                               autoincrement=True)
             cls._created = sa.Column('_created', types.DateTime(True),
                                      default=sa.func.now())
             cls._last_updated = sa.Column('_last_updated', types.DateTime(True),
@@ -172,7 +172,7 @@ class History(history_base):
         When the change was made.
     """
     __tablename__ = 'history'
-    id = sa.Column(sa.Integer, sa.Sequence('history_id_seq'), primary_key=True)
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     table_name = sa.Column(sa.String, nullable=False)
     table_id = sa.Column(sa.Integer, nullable=False, autoincrement=False)
     values = sa.Column(sa.String, nullable=False)
@@ -214,6 +214,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     # the threadlocal strategy but it doesn't cause as many lockups
     import sqlalchemy.pool as pool
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
+                                  implicit_returning=False,
                                   poolclass=pool.SingletonThreadPool)
     new_engine.connect().close() # make sure we can connect
     def _bind():
