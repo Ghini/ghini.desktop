@@ -603,9 +603,18 @@ class CollectionPresenter(editor.ChildPresenter):
         lon_text = entry.get_text()
         if lon_text == '':
             return
-        if direction == 'W' and lon_text[0] != '-'  and len(lon_text) > 2:
+
+        try:
+            # make sure that the first part of the string is an
+            # integer before toggling
+            int(lon_text.split(' ')[0])
+        except Exception, e:
+            print e
+            return
+
+        if direction == 'W' and lon_text[0] != '-':
             entry.set_text('-%s' % lon_text)
-        elif direction == 'E' and lon_text[0] == '-' and len(lon_text) > 2:
+        elif direction == 'E' and lon_text[0] == '-':
             entry.set_text(lon_text[1:])
 
 
@@ -615,9 +624,17 @@ class CollectionPresenter(editor.ChildPresenter):
         lat_text = entry.get_text()
         if lat_text == '':
             return
-        if direction == 'S' and lat_text[0] != '-' and len(lat_text) > 2:
+
+        try:
+            # make sure that the first part of the string is an
+            # integer before toggling
+            int(lat_text.split(' ')[0])
+        except Exception, e:
+            return
+
+        if direction == 'S' and lat_text[0] != '-':
             entry.set_text('-%s' % lat_text)
-        elif direction == 'N' and lat_text[0] == '-' and len(lat_text) > 2:
+        elif direction == 'N' and lat_text[0] == '-':
             entry.set_text(lat_text[1:])
 
 
