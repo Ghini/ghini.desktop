@@ -76,16 +76,11 @@ class ConnectionManager:
             self._working_dbtypes.append('PostgreSQL')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
-        try:
-            import MySQLdb
-            self._working_dbtypes.append('MySQL')
-        except ImportError, e:
-            warning('ConnectionManager: %s' % e)
 
         return self._working_dbtypes
 
 
-    _dbtypes = ['SQLite', 'PostgreSQL', 'MySQL']
+    _dbtypes = ['SQLite', 'PostgreSQL']
     # a list of dbtypes that are importable
     working_dbtypes = property(_get_working_dbtypes)
     _working_dbtypes = []
@@ -488,7 +483,7 @@ class ConnectionManager:
             uri = "sqlite:///" + filename
             return uri
         if params['type'].lower() == "postgresql":
-            subs['type'] = 'postgres'
+            subs['type'] = 'postgresql'
         else:
             subs['type'] = params['type'].lower()
         if 'port' in params:

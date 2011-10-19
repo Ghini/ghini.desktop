@@ -40,6 +40,8 @@ location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
                        'code': u'RBW'},
                       )
 
+geography_test_data = [{'id': 1, 'name': u'Somewhere'}]
+
 collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere',
                          'geography_id': 1},
                         )
@@ -86,6 +88,7 @@ default_seed_values = \
 test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
                            (Plant, plant_test_data),
+                           (Geography, geography_test_data),
                            (Collection, collection_test_data))
 
 def setUp_data():
