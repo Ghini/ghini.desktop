@@ -41,12 +41,8 @@ if not options.user:
     options.user = os.environ['USER']
 
 dbapi = None
-if options.dbtype == 'postgres':
+if options.dbtype == 'postgresql':
     dbapi = __import__('psycopg2')
-elif options.dbtype == 'mysql':
-    dbapi = __import__('MySQLdb')
-    parser.error('At the moment this script only support postgres '\
-                 'database types')
 else:
     parser.error('You must specify the database type with -d')
 

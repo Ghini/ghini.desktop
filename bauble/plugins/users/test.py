@@ -42,7 +42,7 @@ class UsersTests(BaubleTestCase):
         from nose import SkipTest
 
         # these tests are for postgres only
-        if db.engine.name != 'postgres':
+        if db.engine.name != 'postgresql':
             raise SkipTest
 
         # the test user and group may still exist if a test didn't
@@ -73,7 +73,7 @@ class UsersTests(BaubleTestCase):
 
 
     def test_group_members(self):
-        # if db.engine.name != 'postgres':
+        # if db.engine.name != 'postgresql':
         #     raise SkipTest
         # test adding a member to a group
         users.add_member(self.user, [self.group])

@@ -726,7 +726,6 @@ def delete_or_expunge(obj):
         session.delete(obj)
 
 
-
 def reset_sequence(column):
     """
     If column.sequence is not None or the column is an Integer and
@@ -735,58 +734,53 @@ def reset_sequence(column):
     sequence then do nothing and return
 
     The SQL statements are executed directly from db.engine
+
+    This function only works for PostgreSQL database.  It does nothing
+    for other database engines.
     """
     import bauble
     import bauble.db as db
     from sqlalchemy.types import Integer
     from sqlalchemy import schema
-    if db.engine.name in ('sqlite', 'mysql'):
-        pass # sqlite and mysql increment automatically
-    elif db.engine.name == 'postgres':
-        sequence_name = None
-        # this crazy elif conditional is from
-        # sqlalchemy.database.postgres.PGDefaultRunner
-        if hasattr(column, "sequence") and column.sequence is not None:
-            sequence_name = column.sequence.name
-        elif (isinstance(column.type, Integer) and column.autoincrement) and \
-                (column.default is None or \
-                     (isinstance(column.default, schema.Sequence) and \
-                          column.default.optional)) and \
-                          len(column.foreign_keys)==0:
-            sequence_name = '%s_%s_seq' %(column.table.name, column.name)
-        else:
-            return
+    if not db.engine.name == 'postgresql':
+        return
 
-        conn = db.engine.connect()
-        trans = conn.begin()
-        try:
-            # the FOR UPDATE locks the table for the transaction
-            stmt = "SELECT %s from %s FOR UPDATE;" % \
-                (column.name, column.table.name)
-            result = conn.execute(stmt)
-            maxid = None
-            vals = list(result)
-            if vals:
-                maxid = max(vals, key=lambda x: x[0])[0]
-            result.close()
-            if maxid == None:
-                # set the sequence to nextval()
-                stmt = "SELECT nextval('%s');" % (sequence_name)
-            else:
-                stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
-                    % (sequence_name, column.name, column.table.name)
-            conn.execute(stmt)
-        except Exception, e:
-            warning('bauble.utils.reset_sequence(): %s' % utf8(e))
-            trans.rollback()
-        else:
-            trans.commit()
-        finally:
-            conn.close()
+    sequence_name = None
+    if hasattr(column,'default') and isinstance(column.default,schema.Sequence):
+        sequence_name = column.default.name
+    elif (isinstance(column.type, Integer) and column.autoincrement) and \
+            (column.default is None or \
+                 (isinstance(column.default, schema.Sequence) and \
+                      column.default.optional)) and \
+                      len(column.foreign_keys)==0:
+        sequence_name = '%s_%s_seq' %(column.table.name, column.name)
     else:
-        raise NotImplementedError(_('Error: using sequences hasn\'t been '\
-                                    'tested on this database type: %s' % \
-                                    db.engine.name))
+        return
+    conn = db.engine.connect()
+    trans = conn.begin()
+    try:
+        # the FOR UPDATE locks the table for the transaction
+        stmt = "SELECT %s from %s FOR UPDATE;" %(column.name, column.table.name)
+        result = conn.execute(stmt)
+        maxid = None
+        vals = list(result)
+        if vals:
+            maxid = max(vals, key=lambda x: x[0])[0]
+        result.close()
+        if maxid == None:
+            # set the sequence to nextval()
+            stmt = "SELECT nextval('%s');" % (sequence_name)
+        else:
+            stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
+                % (sequence_name, column.name, column.table.name)
+        conn.execute(stmt)
+    except Exception, e:
+        warning('bauble.utils.reset_sequence(): %s' % utf8(e))
+        trans.rollback()
+    else:
+        trans.commit()
+    finally:
+        conn.close()
 
 
 def make_label_clickable(label, on_clicked, *args):
@@ -852,7 +846,7 @@ def ilike(col, val, engine=None):
     from sqlalchemy import func
     if not engine:
         engine = bauble.db.engine
-    if engine.name == 'postgres':
+    if engine.name == 'postgresql':
         return col.op('ILIKE')(val)
     else:
         return func.lower(col).like(func.lower(val))
