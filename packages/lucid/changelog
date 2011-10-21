@@ -1,4 +1,4 @@
-bauble (1.0.10~ppa1) lucid; urgency=low
+bauble (1.0.10~lucid1) lucid; urgency=low
 
   * 1.0.10 Release
   * Now compatible with SQLAlchemy 0.6 and 0.7

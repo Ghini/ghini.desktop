@@ -1,4 +1,4 @@
-bauble (1.0.10~ppa1) maverick; urgency=low
+bauble (1.0.10~maverick1) maverick; urgency=low
 
   * 1.0.10 Release
   * Now compatible with SQLAlchemy 0.6 and 0.7
