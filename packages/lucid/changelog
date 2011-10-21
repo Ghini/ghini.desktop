@@ -1,3 +1,10 @@
+bauble (1.0.10~ppa1) lucid; urgency=low
+
+  * 1.0.10 Release
+  * Now compatible with SQLAlchemy 0.6 and 0.7
+
+ -- Brett Adams <brett@belizebotanic.org>  Thu, 20 Oct 2011 21:11:47 -0400
+
 bauble (1.0.0b3~ppa1) lucid; urgency=low
 
   * 1.0.0b3 Release
