@@ -60,12 +60,10 @@ run "cp $TARBALL $ORIG_TARBALL"
 # debian the tarball
 run "tar zxvf $TARBALL"
 run "cd bauble-$VERSION"
-if [ -L "debian" ] ; then
-    run "rm debian"
-fi
 
-# link the debian directory to the package specific directory
-run "ln -s $TOPLEVEL/packages/$DIST debian"
+# copy the debian directory to the package specific directory
+run "rm -fr debian"
+run "cp -R $TOPLEVEL/packages/$DIST debian"
 
 # build the source package
 run "debuild -S"
