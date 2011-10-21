@@ -1,3 +1,9 @@
+bauble (1.0.10~oneiric1) oneiric; urgency=low
+
+  * Make it easier to seperate package with better naming scheme.
+
+ -- Brett Adams <brett@belizebotanic.org>  Thu, 20 Oct 2011 21:30:46 -0400
+
 bauble (1.0.10~ppa1) oneiric; urgency=low
 
   * 1.0.10 Release
