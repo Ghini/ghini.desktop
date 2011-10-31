@@ -58,19 +58,23 @@ class TagTests(BaubleTestCase):
         family2 = Family(family=u'family2')
         self.session.add(family2)
         self.session.commit()
+        family1_id = self.family.id
+        family2_id = family2.id
         tag_plugin.tag_objects('test', [self.family, family2])
         # get object by string
         tagged_objs = tag_plugin.get_tagged_objects('test')
         sorted_pairs= sorted([(type(o), o.id) for o in tagged_objs],
                              cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family, 1), (Family, 2)], sorted_pairs)
+        self.assert_(sorted_pairs == [(Family,family1_id), (Family,family2_id)],
+                     sorted_pairs)
 
         # get object by tag
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
         tagged_objs = tag_plugin.get_tagged_objects(tag)
         sorted_pairs= sorted([(type(o), o.id) for o in tagged_objs],
                              cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family, 1), (Family, 2)], sorted_pairs)
+        self.assert_(sorted_pairs == [(Family,family1_id), (Family,family2_id)],
+                     sorted_pairs)
 
         tag_plugin.tag_objects('test', [self.family, family2])
 
@@ -109,8 +113,8 @@ class TagTests(BaubleTestCase):
         #                                   tag_table.c.tag==u'test2'))
         results = self.session.query(Tag.id).filter(or_(Tag.tag==u'test',
                                                         Tag.tag==u'test2'))
-        test_id = [r[0] for r in results]
+        test_id = sorted([r[0] for r in results])
         # should return ids for both test and test2
-        ids = tag_plugin.get_tag_ids([self.family, family2])
+        ids = sorted(tag_plugin.get_tag_ids([self.family, family2]))
         self.assert_(ids==test_id, '%s == %s' % (ids, test_id))
 
