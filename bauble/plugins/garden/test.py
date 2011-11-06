@@ -966,6 +966,59 @@ class AccessionTests(GardenTestCase):
         self.assertRaises(IntegrityError, self.session.commit)
 
 
+    def test_accession_source_editor(self, accession=None):
+        acc = self.create(Accession, species=self.species, code=u'parent')
+        plant = self.create(Plant, accession=acc, quantity=1,
+                            location=Location(name=u'site', code=u'STE'),
+                            code=u'1')
+        # creating a dummy propagtion without a related seed/cutting
+        prop = self.create(Propagation, prop_type='Seed')
+        plant.propagations.append(prop)
+        self.session.commit()
+        plant_prop_id = prop.id
+        assert plant_prop_id # assert we got a valid id after the commit
+
+        acc = Accession(code=u'code', species=self.species)
+        self.editor = AccessionEditor(acc)
+        # normally called by editor.presenter.start() but we don't call it here
+        self.editor.presenter.source_presenter.start()
+        widgets = self.editor.presenter.view.widgets
+        update_gui()
+
+        # set the date so the presenter will be "dirty"
+        widgets.acc_date_recvd_entry.props.text = utils.today_str()
+
+        # set the source type as "Garden Propagation"
+        widgets.acc_source_comboentry.child.props.text = \
+            SourcePresenter.garden_prop_str
+        assert not self.editor.presenter.problems
+
+        # set the source plant
+        widgets.source_prop_plant_entry.props.text = str(plant)
+        update_gui()
+        comp = widgets.source_prop_plant_entry.get_completion()
+        comp.emit('match-selected', comp.get_model(),
+                  comp.get_model().get_iter_first())
+
+        # assert that the propagations were added to the treevide
+        treeview = widgets.source_prop_treeview
+        assert treeview.get_model()
+
+        # select the first/only propagation in the treeview
+        toggle_cell = widgets.prop_toggle_cell.emit('toggled', 0)
+
+        # commit the changes and cleanup
+        import gtk
+        self.editor.handle_response(gtk.RESPONSE_OK)
+        self.editor.session.close()
+
+        # open a seperate session and make sure everything committed
+        session = db.Session()
+        acc = session.query(Accession).filter_by(code=u'code')[0]
+        parent = session.query(Accession).filter_by(code=u'parent')[0]
+        assert acc.source.plant_propagation_id == plant_prop_id
+
+
     def test_accession_editor(self):
         acc = Accession(code=u'code', species=self.species)
         self.editor = AccessionEditor(acc)
@@ -985,7 +1038,7 @@ class AccessionTests(GardenTestCase):
         update_gui() # ensures idle callback is called to add completions
         # set the fill string which should match from completions
         widgets.acc_species_entry.set_text(str(self.species))
-        assert not self.editor.presenter.problems, self.editor.presenter.problems
+        assert not self.editor.presenter.problems,self.editor.presenter.problems
 
         # commit the changes and cleanup
         self.editor.model.name = u'asda'
