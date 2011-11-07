@@ -810,7 +810,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             from bauble.plugins.garden.accession import Accession
             from bauble.plugins.garden.plant import Plant
             query = self.session.query(Plant).join('accession').\
-                    filter(utils.ilike(Accession.code, '%s%%' % text)).\
+                    filter(utils.ilike(Accession.code, u'%s%%' % text)).\
                     filter(Accession.id != self.model.accession.id)
             return query
 
@@ -858,7 +858,6 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             model.append([propagation])
         treeview.set_model(model)
         treeview.props.sensitive = True
-
 
 
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
