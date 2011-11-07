@@ -62,10 +62,12 @@ class GUI(object):
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.window.set_icon(pixbuf)
         except Exception:
-            utils.message_details_dialog(_('Could not load icon from %s' % \
-                                         bauble.default_icon),
-                                         traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR)
+            warning(_('Could not load icon from %s' % bauble.default_icon))
+            warning(traceback.format_exc())
+            # utils.message_details_dialog(_('Could not load icon from %s' % \
+            #                              bauble.default_icon),
+            #                              traceback.format_exc(),
+            #                              gtk.MESSAGE_ERROR)
 
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
