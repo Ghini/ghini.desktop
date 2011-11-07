@@ -747,7 +747,7 @@ class GenericEditorPresenter(object):
                     len(text) == key_length:
                 add_completions(text)
 
-            # if entry is entry select nothing and remove all problem
+            # if entry is empty select nothing and remove all problem
             if text == '':
                 on_select(None)
                 self.remove_problem(PROBLEM, widget)
