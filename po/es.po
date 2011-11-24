@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2011-11-24 03:34+0000\n"
+"Last-Translator: Maykel Jesus Cepeda Gomez <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-11 05:23+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2011-11-24 05:40+0000\n"
+"X-Generator: Launchpad (build 14336)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -50,7 +50,7 @@ msgstr "Valores"
 #: bauble/plugins/garden/loc_editor.glade.h:5
 #: bauble/plugins/garden/acc_editor.glade.h:37
 msgid "Name"
-msgstr "Nombre"
+msgstr "Nome"
 
 #: bauble/prefs.py:388
 msgid "Version"
@@ -58,7 +58,7 @@ msgstr "Versión"
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
-msgstr ""
+msgstr "Buscar"
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
@@ -105,7 +105,7 @@ msgstr ""
 
 #: bauble/utils/web.py:122
 msgid "Search National Plant Germplasm System"
-msgstr ""
+msgstr "Buscar Planta del Sistema Nacional de Germoplasma"
 
 #: bauble/utils/desktop.py:272
 #, python-format
@@ -115,6 +115,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"No se pudo abrir %(url)s\n"
+"\n"
+"Entorno de escritorio desconocido: %(desktop)s\n"
+"\n"
 
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
@@ -133,8 +137,8 @@ msgstr "Fecha de hoy"
 #, python-format
 msgid "Error: using sequences hasn't been tested on this database type: %s"
 msgstr ""
-"Error: el uso de secuencias no ha sido probado en este tipo de base de "
-"datos: %s"
+"Error: esta usando secuencias que no han sido testeadas en este tipo de base "
+"de datos: %s"
 
 #: bauble/utils/__init__.py:1050
 msgid "Show details"
