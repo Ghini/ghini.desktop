@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-12-28 22:39+0000\n"
+"PO-Revision-Date: 2011-12-29 10:26+0000\n"
 "Last-Translator: Zbyněk Schwarz <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-12-29 05:01+0000\n"
+"X-Launchpad-Export-Date: 2011-12-30 05:57+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 
 #: bauble/prefs.py:280
@@ -302,6 +302,11 @@ msgid ""
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
+"Používáte Bauble verzi %(version)s zatímco databáze, ke které jste se "
+"připojili byla vytvořena verzí %(db_version)s\n"
+"\n"
+"Některé věci nemusejí fungovat nebo některá data mohou být najednou "
+"poškozená."
 
 #: bauble/notes.glade.h:1
 msgid "Category"
@@ -323,11 +328,14 @@ msgid ""
 "\n"
 "Would you like to choose <b>%(genus)s</b> instead?"
 msgstr ""
+"Rod <b>%(synonym)s</b> je synonymum <b>%(genus)s</b>.\n"
+"\n"
+"Chtěli byste místo toho zvolit <b>%(genus)s</b>?"
 
 #: bauble/plugins/plants/species_editor.py:588
 #, python-format
 msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
-msgstr ""
+msgstr "Jste si jisti, že chcete odstranit místní jméno <b>%s</b>?"
 
 #: bauble/plugins/plants/species_editor.py:883
 msgid "Genus "
@@ -394,7 +402,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:901
 msgid "Save your changes changes and add another species "
-msgstr ""
+msgstr "Uložit Vaše změny a přidat nový druh "
 
 #: bauble/plugins/plants/species_editor.py:1056
 #: bauble/plugins/plants/genus.py:660 bauble/plugins/plants/family.py:554
@@ -462,7 +470,7 @@ msgstr "(Skupina %(group)s)"
 #: bauble/plugins/plants/species_model.py:311
 #, python-format
 msgid "%(group)s Group"
-msgstr ""
+msgstr "Skupina %(group)s"
 
 #: bauble/plugins/plants/family_editor.glade.h:1
 #: bauble/plugins/plants/species_editor.glade.h:1
@@ -820,7 +828,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:7
 msgid "<b>Awards:</b>"
-msgstr ""
+msgstr "<b>Ocenění:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:8
 msgid "<b>Distribution for label:</b>"
@@ -859,7 +867,7 @@ msgstr "Chcete odstranit %s?"
 
 #: bauble/plugins/garden/source.py:131
 msgid "Expedition"
-msgstr ""
+msgstr "Expedice"
 
 #: bauble/plugins/garden/source.py:132
 msgid "Gene Bank"
@@ -1002,7 +1010,7 @@ msgstr "<b>Sběr</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:4
 msgid "<b>Collector:</b>"
-msgstr ""
+msgstr "<b>Sběratel:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:5
 msgid "<b>Date accessioned:</b>"
@@ -1042,7 +1050,7 @@ msgstr "<b>Zeměpisná šířka:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:14
 msgid "<b>Living Plants:</b>"
-msgstr ""
+msgstr "<b>Žijící rostliny:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:15
 #: bauble/plugins/garden/plant_infobox.glade.h:4
@@ -1096,28 +1104,28 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:27
 msgid "<i>--</i>"
-msgstr ""
+msgstr "<i>--</i>"
 
 #: bauble/plugins/garden/institution.glade.h:1
 msgid "Abbreviation"
-msgstr ""
+msgstr "Zkratka"
 
 #: bauble/plugins/garden/institution.glade.h:2
 msgid "Address"
-msgstr ""
+msgstr "Adresa"
 
 #: bauble/plugins/garden/institution.glade.h:3
 msgid "Contact name"
-msgstr ""
+msgstr "Jméno kontaktu"
 
 #: bauble/plugins/garden/institution.glade.h:4
 #: bauble/plugins/picasa/gui.glade.h:3
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: bauble/plugins/garden/institution.glade.h:5
 msgid "Fax"
-msgstr ""
+msgstr "Fax"
 
 #: bauble/plugins/garden/institution.glade.h:6
 msgid "Institution Editor"
@@ -1137,11 +1145,11 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade.h:10
 msgid "Telephone"
-msgstr ""
+msgstr "Telefon"
 
 #: bauble/plugins/garden/institution.glade.h:11
 msgid "brett@belizebotanic.org"
-msgstr ""
+msgstr "brett@belizebotanic.org"
 
 #: bauble/plugins/garden/prop_editor.glade.h:1
 msgid "# Germinated"
@@ -1154,7 +1162,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade.h:4
 #, no-c-format
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: bauble/plugins/garden/prop_editor.glade.h:6
 #, no-c-format
@@ -1164,7 +1172,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade.h:8
 #: bauble/plugins/garden/acc_editor.glade.h:2
 msgid "*\t"
-msgstr ""
+msgstr "*\t"
 
 #: bauble/plugins/garden/prop_editor.glade.h:9
 msgid "<b>Chemical treatment</b>"
@@ -1240,7 +1248,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade.h:29
 msgid "Hormone"
-msgstr ""
+msgstr "Hormon"
 
 #: bauble/plugins/garden/prop_editor.glade.h:30
 msgid "Leaves"
@@ -1254,7 +1262,7 @@ msgstr ""
 #: bauble/plugins/garden/__init__.py:89
 #: bauble/plugins/garden/plant_editor.glade.h:10
 msgid "Location"
-msgstr ""
+msgstr "Umístění"
 
 #: bauble/plugins/garden/prop_editor.glade.h:33
 msgid "Media/Compost"
@@ -1290,7 +1298,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade.h:41
 msgid "to"
-msgstr ""
+msgstr "do"
 
 #: bauble/plugins/garden/loc_editor.glade.h:2
 #: bauble/plugins/garden/acc_editor.glade.h:17
@@ -1299,7 +1307,7 @@ msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade.h:3
 msgid "Code"
-msgstr ""
+msgstr "Kód"
 
 #: bauble/plugins/garden/accession.py:157
 #, python-format
@@ -1412,7 +1420,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:354
 msgid "Layer"
-msgstr ""
+msgstr "Vrstva"
 
 #: bauble/plugins/garden/accession.py:355 bauble/plugins/garden/__init__.py:88
 #: bauble/plugins/garden/acc_editor.glade.h:42
@@ -1438,7 +1446,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:360
 msgid "Root"
-msgstr ""
+msgstr "Kořen"
 
 #: bauble/plugins/garden/accession.py:361
 msgid "Scion"
@@ -1592,7 +1600,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:2303
 #: bauble/plugins/garden/acc_editor.glade.h:52
 msgid "Source"
-msgstr ""
+msgstr "Zdroj"
 
 #: bauble/plugins/garden/accession.py:2396
 #: bauble/plugins/garden/acc_editor.glade.h:58
@@ -1633,7 +1641,7 @@ msgstr "Přistupování"
 
 #: bauble/plugins/garden/acc_editor.glade.h:3
 msgid "+/-"
-msgstr ""
+msgstr "+/-"
 
 #: bauble/plugins/garden/acc_editor.glade.h:5
 msgid "<b>Accession</b>"
@@ -1677,7 +1685,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:16
 msgid "Accuracy"
-msgstr ""
+msgstr "Přesnost"
 
 #: bauble/plugins/garden/acc_editor.glade.h:18
 msgid "Altitude/Depth"
@@ -1705,7 +1713,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:26
 msgid "East"
-msgstr ""
+msgstr "Východ"
 
 #: bauble/plugins/garden/acc_editor.glade.h:27
 msgid "GPS Datum"
@@ -1721,11 +1729,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:31
 msgid "Latitude"
-msgstr ""
+msgstr "Zeměpisná šířka"
 
 #: bauble/plugins/garden/acc_editor.glade.h:32
 msgid "Level"
-msgstr ""
+msgstr "Úroveň"
 
 #: bauble/plugins/garden/acc_editor.glade.h:33
 msgid "Locale"
@@ -1741,7 +1749,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:36
 msgid "Longitude"
-msgstr ""
+msgstr "Zeměpisná délka"
 
 #: bauble/plugins/garden/acc_editor.glade.h:38
 msgid "Name "
@@ -1753,7 +1761,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:40
 msgid "North"
-msgstr ""
+msgstr "Sever"
 
 #: bauble/plugins/garden/acc_editor.glade.h:43
 msgid "Previous taxon"
@@ -1761,7 +1769,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:44
 msgid "Private"
-msgstr ""
+msgstr "Soukromé"
 
 #: bauble/plugins/garden/acc_editor.glade.h:45
 msgid "Provenance"
@@ -1774,7 +1782,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade.h:47
 #: bauble/plugins/garden/plant_editor.glade.h:15
 msgid "Quantity"
-msgstr ""
+msgstr "Množství"
 
 #: bauble/plugins/garden/acc_editor.glade.h:48
 msgid "Reference"
@@ -1782,7 +1790,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:49
 msgid "Region"
-msgstr ""
+msgstr "Kraj"
 
 #: bauble/plugins/garden/acc_editor.glade.h:50
 msgid "Select a Region"
@@ -1802,15 +1810,15 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:55
 msgid "South"
-msgstr ""
+msgstr "Jih"
 
 #: bauble/plugins/garden/acc_editor.glade.h:56
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: bauble/plugins/garden/acc_editor.glade.h:57
 msgid "Type of material"
-msgstr ""
+msgstr "Typ materiálu"
 
 #: bauble/plugins/garden/acc_editor.glade.h:59
 msgid "Verifier"
@@ -1818,7 +1826,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:61
 msgid "West"
-msgstr ""
+msgstr "Západ"
 
 #: bauble/plugins/garden/acc_editor.glade.h:62
 msgid "Wild status"
