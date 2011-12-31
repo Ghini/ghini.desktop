@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-12-29 10:26+0000\n"
+"PO-Revision-Date: 2011-12-30 21:16+0000\n"
 "Last-Translator: Zbyněk Schwarz <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-12-30 05:57+0000\n"
+"X-Launchpad-Export-Date: 2011-12-31 06:14+0000\n"
 "X-Generator: Launchpad (build 14560)\n"
 
 #: bauble/prefs.py:280
@@ -343,7 +343,7 @@ msgstr "Rod "
 
 #: bauble/plugins/plants/species_editor.py:884
 msgid "Species epithet"
-msgstr ""
+msgstr "Přídomek druhu"
 
 #: bauble/plugins/plants/species_editor.py:885
 msgid "Species author"
@@ -351,7 +351,7 @@ msgstr "Autor druhu"
 
 #: bauble/plugins/plants/species_editor.py:886
 msgid "Species hybrid flag"
-msgstr ""
+msgstr "Hybridní příznak druhu"
 
 #: bauble/plugins/plants/species_editor.py:887
 msgid "Cultivar group"
@@ -379,10 +379,12 @@ msgid ""
 "The distribution string that will be used on the label.  If this entry is "
 "blank then the species distribution will be used"
 msgstr ""
+"Distribuční řetězec, který bude použit ve jmenovce. Pokud je tento záznam "
+"prázdný, bude použito rozšíření druhu"
 
 #: bauble/plugins/plants/species_editor.py:895
 msgid "The habit of this species"
-msgstr ""
+msgstr "Prostředí tohoto druhu"
 
 #: bauble/plugins/plants/species_editor.py:896
 msgid "The awards this species have been given"
@@ -398,7 +400,7 @@ msgstr "Uložit Vaše změny"
 
 #: bauble/plugins/plants/species_editor.py:899
 msgid "Save your changes changes and add an accession to this species"
-msgstr ""
+msgstr "Uložit Vaše změny a přidat přístup k tomuto druhu"
 
 #: bauble/plugins/plants/species_editor.py:901
 msgid "Save your changes changes and add another species "
@@ -540,6 +542,8 @@ msgid ""
 "The genus <i>%(genus)s</i> has %(num_species)s species.  Are you sure you "
 "want to remove it?"
 msgstr ""
+"Rod <i>%(genus)s</i> má %(num_species)s druhů. Jste si jisti, že ho chcete "
+"odstranit?"
 
 #: bauble/plugins/plants/genus.py:72
 #, python-format
@@ -599,6 +603,10 @@ msgid ""
 "To add a synonym enter a genus name and select one from the list of "
 "completions.  Then click Add to add it to the list of synonyms."
 msgstr ""
+"Seznamy synonym tohoto rodu.\n"
+"\n"
+"Pro přidání synonyma zadejte jméno rodu a vyberte jedno ze seznamu "
+"dokončení. Pak klikněte na přidat pro přidání do seznamu synonym."
 
 #: bauble/plugins/plants/genus.py:260 bauble/plugins/plants/family.py:242
 #: bauble/plugins/garden/accession.py:663 bauble/plugins/garden/plant.py:508
@@ -625,6 +633,9 @@ msgid ""
 "\n"
 "Would you like to choose <b>%(family)s</b> instead?"
 msgstr ""
+"Rodina <b>%(synonym)s</b> je synonymum <b>%(family)s</b>.\n"
+"\n"
+"Chtěli byste místo toho zvolit <b>%(family)s</b>?"
 
 #: bauble/plugins/plants/genus.py:594
 #, python-format
@@ -634,6 +645,10 @@ msgid ""
 "\n"
 "<i>Note: This will not remove the genus from the database.</i>"
 msgstr ""
+"Jste si jisti, že chcete odstranit %(genus)s jako synonymum současného "
+"rodu?\n"
+"\n"
+"<i>Poznámka: Toto neodstraní rod z databáze.</i>"
 
 #: bauble/plugins/plants/genus.py:653 bauble/plugins/garden/source.py:349
 #: bauble/plugins/garden/accession.py:2026 bauble/plugins/garden/plant.py:934
@@ -645,6 +660,8 @@ msgid ""
 "You must first add or import at least one Family into the database before "
 "you can add plants."
 msgstr ""
+"Nejdříve musíte přidat nebo importovat alespoň jednu rodinu do databáze "
+"předtím, než můžete přidat rosliny."
 
 #: bauble/plugins/plants/genus.py:778 bauble/plugins/plants/family.py:623
 #: bauble/plugins/plants/genus_editor.glade.h:6
@@ -687,7 +704,7 @@ msgstr "<b>Lidové názvy</b>"
 
 #: bauble/plugins/plants/species_editor.glade.h:7
 msgid "Add Accessions"
-msgstr ""
+msgstr "Přidat přístupy"
 
 #: bauble/plugins/plants/species_editor.glade.h:8
 msgid "Additional info"
@@ -704,7 +721,7 @@ msgstr "Ocenění"
 
 #: bauble/plugins/plants/species_editor.glade.h:11
 msgid "Cultivar Group"
-msgstr ""
+msgstr "Skupina odrůdy"
 
 #: bauble/plugins/plants/species_editor.glade.h:12
 msgid "Epithet"
@@ -716,11 +733,11 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade.h:15
 msgid "Hybrid"
-msgstr ""
+msgstr "Hybrid"
 
 #: bauble/plugins/plants/species_editor.glade.h:16
 msgid "Label distribution"
-msgstr ""
+msgstr "Rozšíření jmenovky"
 
 #: bauble/plugins/plants/species_editor.glade.h:19
 msgid "Plant Species Editor"
@@ -752,7 +769,7 @@ msgstr "_Přidat rod"
 
 #: bauble/plugins/plants/family.py:234
 msgid "The family name."
-msgstr ""
+msgstr "Jméno rodiny."
 
 #: bauble/plugins/plants/family.py:235
 msgid ""
@@ -767,14 +784,18 @@ msgid ""
 "To add a synonym enter a family name and select one from the list of "
 "completions.  Then click Add to add it to the list of synonyms."
 msgstr ""
+"Seznam synonym této rodiny.\n"
+"\n"
+"Pro přidání synonyma zadejte jméno rodiny a vyberte jedno ze seznamu "
+"dokončení. Pak klikněte Přidat pro jeho přidání do seznamu synonym."
 
 #: bauble/plugins/plants/family.py:244
 msgid "Save your changes changes and add a genus to this family."
-msgstr ""
+msgstr "Uložit Vaše změny a přidat rod do této rodiny."
 
 #: bauble/plugins/plants/family.py:246
 msgid "Save your changes changes and add another family."
-msgstr ""
+msgstr "Uložit Vaše změny a přidat další rodinu."
 
 #: bauble/plugins/plants/genus_editor.glade.h:3
 msgid "Add Species"
