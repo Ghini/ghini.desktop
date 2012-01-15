@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-11-29 15:59+0000\n"
-"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
+"PO-Revision-Date: 2012-01-15 02:57+0000\n"
+"Last-Translator: Fitoschido <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-30 06:50+0000\n"
-"X-Generator: Launchpad (build 14404)\n"
+"X-Launchpad-Export-Date: 2012-01-15 05:43+0000\n"
+"X-Generator: Launchpad (build 14664)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -939,7 +939,7 @@ msgstr "Individual"
 #: bauble/plugins/garden/propagation.py:196 bauble/plugins/garden/plant.py:227
 #: bauble/plugins/garden/plant.py:343
 msgid "Other"
-msgstr "Otros/as"
+msgstr "Otros"
 
 #: bauble/plugins/garden/source.py:143 bauble/plugins/garden/accession.py:331
 #: bauble/plugins/garden/accession.py:339
