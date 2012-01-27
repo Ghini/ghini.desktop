@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-01-21 20:33+0000\n"
+"PO-Revision-Date: 2012-01-26 17:45+0000\n"
 "Last-Translator: rustyBSD <cypherique@ymail.com>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-01-22 05:53+0000\n"
-"X-Generator: Launchpad (build 14700)\n"
+"X-Launchpad-Export-Date: 2012-01-27 05:40+0000\n"
+"X-Generator: Launchpad (build 14727)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -112,6 +112,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"Impossible d'ouvrir %(url)s\n"
+"\n"
+"Environnement de bureau inconnu: %(desktop)s\n"
+"\n"
 
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
