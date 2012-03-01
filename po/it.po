@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-05-19 12:41+0000\n"
-"Last-Translator: Guybrush88 <Unknown>\n"
+"PO-Revision-Date: 2012-02-29 15:45+0000\n"
+"Last-Translator: Daniele Napolitano <dnax88@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2012-03-01 05:13+0000\n"
+"X-Generator: Launchpad (build 14874)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -112,6 +112,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"Impossibile aprire %(url)s\n"
+"\n"
+"Ambiente desktop sconoscuto: %(desktop)s\n"
+"\n"
 
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
@@ -172,6 +176,9 @@ msgid ""
 "\n"
 "%(plugins)s"
 msgstr ""
+"I plugin seguenti sono nel registro ma non possono essere caricati:\n"
+"\n"
+"%(plugins)s"
 
 #: bauble/pluginmgr.py:198
 msgid ""
@@ -323,11 +330,14 @@ msgid ""
 "\n"
 "Would you like to choose <b>%(genus)s</b> instead?"
 msgstr ""
+"Il genere <b>%(synonym)s</b> è un sinonimo di <b>%(genus)s</b>.\n"
+"\n"
+"Scegliere <b>%(genus)s</b> invece?"
 
 #: bauble/plugins/plants/species_editor.py:588
 #, python-format
 msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
-msgstr ""
+msgstr "Si è sicuri di voler rimuovere il nome volgare <b>%s</b>?"
 
 #: bauble/plugins/plants/species_editor.py:883
 msgid "Genus "
