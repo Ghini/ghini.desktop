@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-01-19 22:07+0000\n"
+"PO-Revision-Date: 2012-04-16 19:43+0000\n"
 "Last-Translator: Zbyněk Schwarz <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-01-20 05:10+0000\n"
-"X-Generator: Launchpad (build 14700)\n"
+"X-Launchpad-Export-Date: 2012-04-17 05:29+0000\n"
+"X-Generator: Launchpad (build 15099)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -926,7 +926,7 @@ msgstr "Městský odbor"
 
 #: bauble/plugins/garden/source.py:140
 msgid "Nursery/Commercial"
-msgstr ""
+msgstr "Sádka/Komerční"
 
 #: bauble/plugins/garden/source.py:141
 msgid "Individual"
@@ -956,11 +956,11 @@ msgstr "_parse_lat_lon() -- nesprávný formát: %s"
 
 #: bauble/plugins/garden/source.py:664
 msgid "North/South radio buttons in a confused state"
-msgstr ""
+msgstr "Přepínače sever/jih jsou ve zmateném stavu"
 
 #: bauble/plugins/garden/source.py:675
 msgid "East/West radio buttons in a confused state"
-msgstr ""
+msgstr "Přepínače východ/sever jsou ve zmateném stavu"
 
 #: bauble/plugins/garden/institution.py:73
 msgid "The full name of the institution."
@@ -1211,7 +1211,7 @@ msgstr "<b>Chemické ošetření</b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:10
 msgid "<b>Cutting treatment</b>"
-msgstr ""
+msgstr "<b>Ošetření řezem</b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:11
 msgid "<b>Germination data</b>"
@@ -1243,11 +1243,11 @@ msgstr "Kryt"
 
 #: bauble/plugins/garden/prop_editor.glade.h:19
 msgid "Cutting length"
-msgstr ""
+msgstr "Délka řezu"
 
 #: bauble/plugins/garden/prop_editor.glade.h:20
 msgid "Cutting type"
-msgstr ""
+msgstr "Typ řezu"
 
 #: bauble/plugins/garden/prop_editor.glade.h:22
 msgid "Date Germinated"
@@ -1267,15 +1267,15 @@ msgstr "Data"
 
 #: bauble/plugins/garden/prop_editor.glade.h:26
 msgid "Flower buds"
-msgstr ""
+msgstr "Poupata"
 
 #: bauble/plugins/garden/prop_editor.glade.h:27
 msgid "Fungal"
-msgstr ""
+msgstr "Houba"
 
 #: bauble/plugins/garden/prop_editor.glade.h:28
 msgid "Germination media"
-msgstr ""
+msgstr "Médium kíčení"
 
 #: bauble/plugins/garden/prop_editor.glade.h:29
 msgid "Hormone"
@@ -1283,11 +1283,11 @@ msgstr "Hormon"
 
 #: bauble/plugins/garden/prop_editor.glade.h:30
 msgid "Leaves"
-msgstr ""
+msgstr "Listy"
 
 #: bauble/plugins/garden/prop_editor.glade.h:31
 msgid "Leaves reduced by"
-msgstr ""
+msgstr "Listy sníženy o"
 
 #: bauble/plugins/garden/prop_editor.glade.h:32
 #: bauble/plugins/garden/__init__.py:89
@@ -1297,7 +1297,7 @@ msgstr "Umístění"
 
 #: bauble/plugins/garden/prop_editor.glade.h:33
 msgid "Media/Compost"
-msgstr ""
+msgstr "Médium/kompost"
 
 #: bauble/plugins/garden/prop_editor.glade.h:34
 msgid "Moved from"
@@ -1347,107 +1347,116 @@ msgid ""
 "\n"
 "Are you sure you want to remove accession <b>%(acc_code)s</b>?"
 msgstr ""
+"%(num_plants)s rostlin závisí na těchto přírůstcích<b>%(plant_codes)s</b>\n"
+"\n"
+"Jste si jisti, že chcete odstranit přírůstek <b>%(acc_code)s</b>?"
 
 #: bauble/plugins/garden/accession.py:162
 #, python-format
 msgid "Are you sure you want to remove accession <b>%s</b>?"
-msgstr ""
+msgstr "Jste si jisti, že chcete odstranit přírůstek <b>%s</b>?"
 
 #: bauble/plugins/garden/accession.py:207
 msgid "The name of the record has not been checked by any authority."
-msgstr ""
+msgstr "Název záznamu nebyl zkontrolován orgánem."
 
 #: bauble/plugins/garden/accession.py:208
 msgid ""
 "The name of the record determined by comparison with other named plants."
 msgstr ""
+"Název záznamu zjištěn porovnáním s ostatními pojmenovanými rostlinami."
 
 #: bauble/plugins/garden/accession.py:210
 msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or  documented living material."
 msgstr ""
+"Název záznamu zjištěn taxonomistou nebo jinou odpovědnou osobou za použití "
+"herbáře a/nebo knihovny a/nebo zdokumentovaného žijícího materiálu."
 
 #: bauble/plugins/garden/accession.py:213
 msgid ""
 "The name of the plant determined by taxonomist engaged in systematic "
 "revision of the group."
 msgstr ""
+"Název rostliny zjištěný taxonomistou zapojený do systematické revize skupiny."
 
 #: bauble/plugins/garden/accession.py:215
 msgid ""
 "The record is part of type gathering or propagated from type material by "
 "asexual methods."
 msgstr ""
+"Záznam je součástí sběru typu nebo vypěstován z typu materiálu pomocí "
+"asexuálních metod."
 
 #: bauble/plugins/garden/accession.py:327
 msgid "Wild"
-msgstr ""
+msgstr "Divoké"
 
 #: bauble/plugins/garden/accession.py:328
 msgid "Propagule of cultivated wild plant"
-msgstr ""
+msgstr "Propagule vypěstované divoké rostliny"
 
 #: bauble/plugins/garden/accession.py:329
 msgid "Not of wild source"
-msgstr ""
+msgstr "Není z volně žijícího zdroje"
 
 #: bauble/plugins/garden/accession.py:330
 #: bauble/plugins/garden/accession.py:338
 msgid "Insufficient Data"
-msgstr ""
+msgstr "Nedostatečná data"
 
 #: bauble/plugins/garden/accession.py:335
 msgid "Wild native"
-msgstr ""
+msgstr "Původem volně žijící"
 
 #: bauble/plugins/garden/accession.py:336
 msgid "Wild non-native"
-msgstr ""
+msgstr "Původem volně nežíjící"
 
 #: bauble/plugins/garden/accession.py:337
 msgid "Cultivated native"
-msgstr ""
+msgstr "Vypěstovaná volě žijící"
 
 #: bauble/plugins/garden/accession.py:344
 msgid "Air layer"
-msgstr ""
+msgstr "Vzduchová vrstva"
 
 #: bauble/plugins/garden/accession.py:345
 msgid "Balled & burlapped plant"
-msgstr ""
+msgstr "Rostlina sevřená a zabalená do pytloviny"
 
 #: bauble/plugins/garden/accession.py:346
 msgid "Bare root plant"
-msgstr ""
+msgstr "Rostlina s holým kořenem"
 
 #: bauble/plugins/garden/accession.py:347
 msgid "Bud cutting"
-msgstr ""
+msgstr "Řez poupěte"
 
 #: bauble/plugins/garden/accession.py:348
 msgid "Budded"
-msgstr ""
+msgstr "S pupeny"
 
 #: bauble/plugins/garden/accession.py:349
 msgid "Bulb"
-msgstr ""
+msgstr "Cibule"
 
 #: bauble/plugins/garden/accession.py:350
 msgid "Clump"
-msgstr ""
+msgstr "Chomáč"
 
 #: bauble/plugins/garden/accession.py:351
 msgid "Corm"
-msgstr ""
+msgstr "Hlíza"
 
 #: bauble/plugins/garden/accession.py:352
 msgid "Division"
-msgstr ""
+msgstr "Dělení"
 
 #: bauble/plugins/garden/accession.py:353
 msgid "Graft"
-msgstr ""
+msgstr "Štěp"
 
 #: bauble/plugins/garden/accession.py:354
 msgid "Layer"
@@ -1457,23 +1466,23 @@ msgstr "Vrstva"
 #: bauble/plugins/garden/acc_editor.glade.h:42
 #: bauble/plugins/garden/plant.py:339
 msgid "Plant"
-msgstr ""
+msgstr "Rostlina"
 
 #: bauble/plugins/garden/accession.py:356
 msgid "Pseudobulb"
-msgstr ""
+msgstr "Pseudocibule"
 
 #: bauble/plugins/garden/accession.py:357
 msgid "Rooted cutting"
-msgstr ""
+msgstr "Zakořeněný odřez"
 
 #: bauble/plugins/garden/accession.py:358
 msgid "Rhizome"
-msgstr ""
+msgstr "Oddenek"
 
 #: bauble/plugins/garden/accession.py:359
 msgid "Root cutting"
-msgstr ""
+msgstr "Odřez kořene"
 
 #: bauble/plugins/garden/accession.py:360
 msgid "Root"
@@ -1481,60 +1490,62 @@ msgstr "Kořen"
 
 #: bauble/plugins/garden/accession.py:361
 msgid "Scion"
-msgstr ""
+msgstr "Štěp"
 
 #: bauble/plugins/garden/accession.py:362
 msgid "Seedling"
-msgstr ""
+msgstr "Sazenice"
 
 #: bauble/plugins/garden/accession.py:363
 #: bauble/plugins/garden/propagation.py:36
 msgid "Seed"
-msgstr ""
+msgstr "Semeno"
 
 #: bauble/plugins/garden/accession.py:364
 msgid "Spore"
-msgstr ""
+msgstr "Spora"
 
 #: bauble/plugins/garden/accession.py:365
 msgid "Sporeling"
-msgstr ""
+msgstr "Sporenice"
 
 #: bauble/plugins/garden/accession.py:366
 msgid "Tuber"
-msgstr ""
+msgstr "Bulva"
 
 #: bauble/plugins/garden/accession.py:368
 #: bauble/plugins/garden/propagation.py:37
 msgid "Unrooted cutting"
-msgstr ""
+msgstr "Nezakořeněný odřezek"
 
 #: bauble/plugins/garden/accession.py:369
 msgid "Bulbil"
-msgstr ""
+msgstr "Malá cibulka"
 
 #: bauble/plugins/garden/accession.py:370
 msgid "Vegetative spreading"
-msgstr ""
+msgstr "Vegetativní šíření"
 
 #: bauble/plugins/garden/accession.py:371
 msgid "Root sucker"
-msgstr ""
+msgstr "výhonek kořene"
 
 #: bauble/plugins/garden/accession.py:581
 #, python-format
 msgid "If the id_qual is aff. or cf. then id_qual_rank is required. %s "
-msgstr ""
+msgstr "Pokud id_qual je aff. nebo cf. pak je vyžadován id_qual_rank. %s "
 
 #: bauble/plugins/garden/accession.py:636
 msgid ""
 "The species must be selected from the list of completions. To add a species "
 "use the Species editor."
 msgstr ""
+"Druhy musí bát zvoleny ze seznamu dokončených. Pro přidání druhu, použijte "
+"editor Druhů."
 
 #: bauble/plugins/garden/accession.py:639
 msgid "The accession ID must be a unique code"
-msgstr ""
+msgstr "ID bírky musí být jedinečný kód"
 
 #: bauble/plugins/garden/accession.py:640
 #, python-format
@@ -1543,26 +1554,29 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
+"Kvalifikátor ID\n"
+"\n"
+"Možné hodnoty: %s"
 
 #: bauble/plugins/garden/accession.py:643
 msgid "The part of the taxon name that the id qualifier refers to."
-msgstr ""
+msgstr "Část názvu taxonu, na který odkazuje kvalifikátor id."
 
 #: bauble/plugins/garden/accession.py:645
 msgid "The date this species was accessioned."
-msgstr ""
+msgstr "Datum, kdy byl tento druh získán."
 
 #: bauble/plugins/garden/accession.py:646
 msgid "The date this species was received."
-msgstr ""
+msgstr "Datum, kdy byl tento druh obdržen."
 
 #: bauble/plugins/garden/accession.py:647
 msgid "The type of the accessioned material."
-msgstr ""
+msgstr "Typ získaného materiálu."
 
 #: bauble/plugins/garden/accession.py:648
 msgid "The amount of plant material at the time it was accessioned."
-msgstr ""
+msgstr "Množství rostlinného materiálu v době, kdy byl získán."
 
 #: bauble/plugins/garden/accession.py:650
 #: bauble/plugins/garden/accession.py:652
