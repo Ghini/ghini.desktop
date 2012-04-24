@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-04-20 11:13+0000\n"
+"PO-Revision-Date: 2012-04-23 14:15+0000\n"
 "Last-Translator: Zbyněk Schwarz <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-21 05:24+0000\n"
-"X-Generator: Launchpad (build 15120)\n"
+"X-Launchpad-Export-Date: 2012-04-24 05:19+0000\n"
+"X-Generator: Launchpad (build 15135)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -2201,59 +2201,63 @@ msgstr "Nelze nalézt"
 
 #: bauble/plugins/garden/plant.py:285
 msgid "Immature"
-msgstr ""
+msgstr "Nedospělé"
 
 #: bauble/plugins/garden/plant.py:286
 msgid "Flowering"
-msgstr ""
+msgstr "Kvetoucí"
 
 #: bauble/plugins/garden/plant.py:287
 msgid "Old Flowers"
-msgstr ""
+msgstr "Staré květiny"
 
 #: bauble/plugins/garden/plant.py:291
 msgid "Unripe"
-msgstr ""
+msgstr "Nezralé"
 
 #: bauble/plugins/garden/plant.py:292
 msgid "Ripe"
-msgstr ""
+msgstr "Zralé"
 
 #: bauble/plugins/garden/plant.py:299
 msgid "Female"
-msgstr ""
+msgstr "Samice"
 
 #: bauble/plugins/garden/plant.py:300
 msgid "Male"
-msgstr ""
+msgstr "Samec"
 
 #: bauble/plugins/garden/plant.py:340
 msgid "Seed/Spore"
-msgstr ""
+msgstr "Semeno/Spora"
 
 #: bauble/plugins/garden/plant.py:341
 msgid "Vegetative Part"
-msgstr ""
+msgstr "Vegetativní část"
 
 #: bauble/plugins/garden/plant.py:342
 msgid "Tissue Culture"
-msgstr ""
+msgstr "Tkáňová kultura"
 
 #: bauble/plugins/garden/plant.py:493
 msgid ""
 "The plant code must be a unique code for the accession.  You may also use "
 "ranges like 1,2,7 or 1-3 to create multiple plants."
 msgstr ""
+"Kód rostliny musí být pro sbírku jedinečný. Můžete použít rozsahy jako 1,2,7 "
+"nebo 1-3 pro vytvoření mnoha rostlin."
 
 #: bauble/plugins/garden/plant.py:497
 msgid ""
 "The accession must be selected from the list of completions.  To add an "
 "accession use the Accession editor."
 msgstr ""
+"Pro seznam dokončení musí být vybrána sbírka. Pro přidání sbírky použijte "
+"editor."
 
 #: bauble/plugins/garden/plant.py:500
 msgid "The location of the plant in your collection."
-msgstr ""
+msgstr "Umístění rostliyn ve Vaší sbírce."
 
 #: bauble/plugins/garden/plant.py:502
 #, python-format
@@ -2262,63 +2266,66 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
+"Typ rostlinného materiálu.\n"
+"\n"
+"Možné hodnoty: %s"
 
 #: bauble/plugins/garden/plant.py:505
 msgid "Create a new location."
-msgstr ""
+msgstr "Vytvořit nové umístění."
 
 #: bauble/plugins/garden/plant.py:506
 msgid "Edit the selected location."
-msgstr ""
+msgstr "Upravit vybrané umístění."
 
 #: bauble/plugins/garden/plant.py:507
 msgid "Create a new propagation record for this plant."
-msgstr ""
+msgstr "Vytvořit nový záznam šíření pro tuto rostlinu."
 
 #: bauble/plugins/garden/plant.py:510
 msgid "Save your changes changes and add another plant."
-msgstr ""
+msgstr "Uložit Vaše změny a přidat další rostlinu."
 
 #: bauble/plugins/garden/plant.py:812
 msgid "branch_mode requires a model"
-msgstr ""
+msgstr "branch_mode vyžaduje model"
 
 #: bauble/plugins/garden/plant.py:814
 msgid "cannot branch a new plant"
-msgstr ""
+msgstr "nelze větvit novou rostlinu"
 
 #: bauble/plugins/garden/plant.py:1008
 msgid "Branch Mode"
-msgstr ""
+msgstr "Režim větvení"
 
 #: bauble/plugins/garden/plant.py:1011
 #, python-format
 msgid ""
 "Branching from %(plant_code)s.  The quantity will be subtracted from "
 "%(plant_code)s"
-msgstr ""
+msgstr "Větvení z %(plant_code)s. Množství bude odečteno z %(plant_code)s"
 
 #: bauble/plugins/garden/plant.py:1084
 msgid "Alive"
-msgstr ""
+msgstr "Naživu"
 
 #: bauble/plugins/garden/plant.py:1107
 msgid "Changes"
-msgstr ""
+msgstr "Změny"
 
 #: bauble/plugins/garden/plant.py:1172
 #, python-format
 msgid "<i>Branched from %(plant)s</i>"
-msgstr ""
+msgstr "<i>Větveno z %(plant)s</i>"
 
 #: bauble/plugins/garden/plant.py:1199
 #: bauble/plugins/garden/plant_editor.glade.h:14
 msgid "Propagations"
-msgstr ""
+msgstr "Šíření"
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:3
 msgid "<b>Description:</b>"
-msgstr ""
+msgstr "<b>Popis:</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:4 bauble/view.py:152
 msgid "<b>Type:</b>"
@@ -2326,23 +2333,23 @@ msgstr "<b>Typ:</b>"
 
 #: bauble/plugins/garden/plant_editor.glade.h:2
 msgid "<b>Change history</b>"
-msgstr ""
+msgstr "<b>Změnit historii</b>"
 
 #: bauble/plugins/garden/plant_editor.glade.h:3
 msgid "<b>Current change</b>"
-msgstr ""
+msgstr "<b>Současná změna</b>"
 
 #: bauble/plugins/garden/plant_editor.glade.h:5
 msgid "Accession type"
-msgstr ""
+msgstr "Typ sbírky"
 
 #: bauble/plugins/garden/plant_editor.glade.h:6
 msgid "Add"
-msgstr ""
+msgstr "Přidat"
 
 #: bauble/plugins/garden/plant_editor.glade.h:7
 msgid "Date of Change"
-msgstr ""
+msgstr "Datum změny"
 
 #: bauble/plugins/garden/plant_editor.glade.h:8
 msgid "Edit"
@@ -2350,71 +2357,71 @@ msgstr "Úpravy"
 
 #: bauble/plugins/garden/plant_editor.glade.h:11
 msgid "Memorial"
-msgstr ""
+msgstr "Památník"
 
 #: bauble/plugins/garden/plant_editor.glade.h:13
 msgid "Plant code"
-msgstr ""
+msgstr "Köd rostliny"
 
 #: bauble/plugins/garden/plant_editor.glade.h:16
 msgid "Reason"
-msgstr ""
+msgstr "Důvod"
 
 #: bauble/plugins/users/ui.glade.h:1
 msgid "<b>Confirm new password</b>"
-msgstr ""
+msgstr "<b>Potvrďte nové heslo</b>"
 
 #: bauble/plugins/users/ui.glade.h:2
 msgid "<b>New password</b>"
-msgstr ""
+msgstr "<b>Nové heslo</b>"
 
 #: bauble/plugins/users/ui.glade.h:3
 msgid "<b>Permissions</b>"
-msgstr ""
+msgstr "<b>Oprávnění</b>"
 
 #: bauble/plugins/users/ui.glade.h:4
 msgid "<b>Users</b>"
-msgstr ""
+msgstr "<b>Uživatelé</b>"
 
 #: bauble/plugins/users/ui.glade.h:5
 msgid "Administrator"
-msgstr ""
+msgstr "Správce"
 
 #: bauble/plugins/users/ui.glade.h:6
 msgid "Change Password"
-msgstr ""
+msgstr "Změnit heslo"
 
 #: bauble/plugins/users/ui.glade.h:7
 msgid "Groups"
-msgstr ""
+msgstr "Skupiny"
 
 #: bauble/plugins/users/ui.glade.h:8
 msgid "Read"
-msgstr ""
+msgstr "Čtení"
 
 #: bauble/plugins/users/ui.glade.h:9
 msgid "Show only Bauble users"
-msgstr ""
+msgstr "Zobrazit pouze uživatele Bauble"
 
 #: bauble/plugins/users/ui.glade.h:10
 msgid "Write"
-msgstr ""
+msgstr "Zápis"
 
 #: bauble/plugins/users/__init__.py:468
 msgid "The Users editor is only valid on a PostgreSQL database"
-msgstr ""
+msgstr "Editor uživatelů je platný pouze v databázi PostgreSQL"
 
 #: bauble/plugins/users/__init__.py:476
 msgid "You do not have privileges to change other user privileges"
-msgstr ""
+msgstr "Nemáte oprávnění ke změně oprávnění jiných uživatelů"
 
 #: bauble/plugins/users/__init__.py:491 bauble/plugins/users/__init__.py:712
 msgid "Users"
-msgstr ""
+msgstr "Uživatelé"
 
 #: bauble/plugins/users/__init__.py:542
 msgid "Enter a user name"
-msgstr ""
+msgstr "Zadejte uživatelské jméno"
 
 #: bauble/plugins/users/__init__.py:558
 #, python-format
@@ -2424,26 +2431,30 @@ msgid ""
 "<i>It is possible that this user could have permissions on other databases "
 "not related to Bauble.</i>"
 msgstr ""
+"Jste si jisti, že chcete odstranit uživatele <b>%(name)s</b>?\n"
+"\n"
+"<i>Je možné, že tento uživatel by mohl mít oprávnění v jiných databázích, "
+"které se nevztahují k Bauble.</i>"
 
 #: bauble/plugins/users/__init__.py:620
 #, python-format
 msgid "The password for user <b>%s</b> has not been changed."
-msgstr ""
+msgstr "Heslo pro uživatele <b>%s</b> nebylo změněno."
 
 #: bauble/plugins/users/__init__.py:626
 #, python-format
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
-msgstr ""
+msgstr "Hesla se neshodují. Heslo pro uživatele <b>%s</b> nebylo změněno."
 
 #: bauble/plugins/report/mako/__init__.py:60
 msgid "Mako"
-msgstr ""
+msgstr "Mako"
 
 #: bauble/plugins/report/mako/__init__.py:83
 msgid "Please selecte a template."
-msgstr ""
+msgstr "Prosím vyberte šablonu."
 
 #: bauble/plugins/report/mako/__init__.py:99
 #: bauble/plugins/report/xsl/__init__.py:576
@@ -2452,60 +2463,63 @@ msgid ""
 "Could not open the report with the default program. You can open the file "
 "manually at %s"
 msgstr ""
+"Nelze otevřít záznam pomocí výchozího programu. Můžete ho otevřít ručně v %s"
 
 #: bauble/plugins/report/mako/gui.glade.h:1
 #: bauble/plugins/report/xsl/gui.glade.h:1
 msgid "<b>Include data marked as private</b>"
-msgstr ""
+msgstr "<b>Zahrnout data označená jako soukromé</b>"
 
 #: bauble/plugins/report/mako/gui.glade.h:2
 msgid "<b>Template</b>"
-msgstr ""
+msgstr "<b>Šablona</b>"
 
 #: bauble/plugins/report/__init__.py:101
 #, python-format
 msgid "Can't get plants from a %s"
-msgstr ""
+msgstr "Nelze získat rostliny z %s"
 
 #: bauble/plugins/report/__init__.py:141
 #, python-format
 msgid "Can't get accessions from a %s"
-msgstr ""
+msgstr "Nelze získat sbírky z %s"
 
 #: bauble/plugins/report/__init__.py:183
 #, python-format
 msgid "Can't get species from a %s"
-msgstr ""
+msgstr "Nelze získat druh z %s"
 
 #: bauble/plugins/report/__init__.py:370
 msgid "Formatter Name"
-msgstr ""
+msgstr "Název formátora"
 
 #: bauble/plugins/report/__init__.py:376
 msgid "Enter a name for the new formatter"
-msgstr ""
+msgstr "Zadejte název pro nového formátora"
 
 #: bauble/plugins/report/__init__.py:393
 #, python-format
 msgid "%s already exists"
-msgstr ""
+msgstr "%s již existuje"
 
 #: bauble/plugins/report/__init__.py:503
 msgid "No formatter plugins defined"
-msgstr ""
+msgstr "Nejsou určeny žádné zásuvné moduly formátora"
 
 #: bauble/plugins/report/__init__.py:539
 msgid ""
 "No formatters found. To create a new formatter click the \"New\" button."
 msgstr ""
+"Žádné formátory nenalezeny. Pro vytvoření nového formátora klikněte na "
+"tlačítko \"Nový\"."
 
 #: bauble/plugins/report/__init__.py:591
 msgid "Report"
-msgstr ""
+msgstr "Záznam"
 
 #: bauble/plugins/report/__init__.py:601 bauble/plugins/report/__init__.py:606
 msgid "Search for something first."
-msgstr ""
+msgstr "Nejdříve něco hledejte."
 
 #: bauble/plugins/report/__init__.py:631
 #, python-format
@@ -2514,39 +2528,42 @@ msgid ""
 "\n"
 "%(exception)s"
 msgstr ""
+"Chyba formátování\n"
+"\n"
+"%(exception)s"
 
 #: bauble/plugins/report/report.glade.h:1
 msgid "<b>Formatter</b>"
-msgstr ""
+msgstr "<b>Formátor</b>"
 
 #: bauble/plugins/report/report.glade.h:2
 msgid "<b>Settings</b>"
-msgstr ""
+msgstr "<b>Nastavení</b>"
 
 #: bauble/plugins/report/xsl/__init__.py:66
 #: bauble/plugins/report/xsl/__init__.py:384
 msgid "Plant/Clone"
-msgstr ""
+msgstr "Rostlina/Klon"
 
 #: bauble/plugins/report/xsl/__init__.py:330
 msgid "Select a file..."
-msgstr ""
+msgstr "Vyberte soubor..."
 
 #: bauble/plugins/report/xsl/__init__.py:338
 msgid "Select a stylesheet"
-msgstr ""
+msgstr "Vyberte stylopis"
 
 #: bauble/plugins/report/xsl/__init__.py:444
 msgid "XSL"
-msgstr ""
+msgstr "XSL"
 
 #: bauble/plugins/report/xsl/__init__.py:473
 msgid "Please select a stylesheet."
-msgstr ""
+msgstr "Vyberte prosím stylopis"
 
 #: bauble/plugins/report/xsl/__init__.py:475
 msgid "Please select a a renderer"
-msgstr ""
+msgstr "Vyberte prosím vykreslovač"
 
 #: bauble/plugins/report/xsl/__init__.py:483
 #, python-format
@@ -2554,86 +2571,94 @@ msgid ""
 "Could not find the command \"%(exe)s\" to start the %(renderer_name)s "
 "renderer."
 msgstr ""
+"Nelze najít příkaz \"%(exe)s\" pro spuštění vykreslovače %(renderer_name)s."
 
 #: bauble/plugins/report/xsl/__init__.py:499
 msgid ""
 "There are no plants in the search results.  Please try another search."
 msgstr ""
+"Ve výsledcích hledání nejsou žádné rostliny. Zkuste prosím jiné hledání."
 
 #: bauble/plugins/report/xsl/__init__.py:511
 msgid ""
 "There are no species in the search results.  Please try another search."
 msgstr ""
+"Ve výsledcích hledání nejsou žádné druhy. Zkuste prosím jiné hledání."
 
 #: bauble/plugins/report/xsl/__init__.py:520
 msgid ""
 "There are no accessions in the search results.  Please try another search."
 msgstr ""
+"Ve výsledcích hledání nejsou žádné sbírky. Zkuste prosím jiné hledání."
 
 #: bauble/plugins/report/xsl/__init__.py:568
 msgid ""
 "Error creating the PDF file. Please ensure that your PDF formatter is "
 "properly installed."
 msgstr ""
+"Chyba při vytváření souboru PDF. Ujistěte se, prosím, že Váš formátor PDF je "
+"správně nainstalován."
 
 #: bauble/plugins/report/xsl/gui.glade.h:2
 msgid "<b>Renderer</b>"
-msgstr ""
+msgstr "<b>Vykreslovač</b>"
 
 #: bauble/plugins/report/xsl/gui.glade.h:3
 msgid "<b>Source type</b>"
-msgstr ""
+msgstr "<b>Typ zdroje</b>"
 
 #: bauble/plugins/report/xsl/gui.glade.h:4
 msgid "<b>Stylesheet</b>"
-msgstr ""
+msgstr "<b>Stylopis</b>"
 
 #: bauble/plugins/report/xsl/gui.glade.h:5
 msgid "<b>Use author names</b>"
-msgstr ""
+msgstr "<b>Použít jména autorů</b>"
 
 #: bauble/plugins/tag/__init__.py:90
 msgid "Enter a tag name"
-msgstr ""
+msgstr "Zadejte název štítku"
 
 #: bauble/plugins/tag/__init__.py:157
 #, python-format
 msgid "Are you sure you want to delete the tag \"%s\"?"
-msgstr ""
+msgstr "Jste si jisti, že chcete smazat značku \"%s\"?"
 
 #: bauble/plugins/tag/__init__.py:445
 msgid "Nothing selected"
-msgstr ""
+msgstr "Není nic vybráno"
 
 #: bauble/plugins/tag/__init__.py:457
 msgid ""
 "In order to tag an item you must first search for something and select one "
 "of the results."
 msgstr ""
+"Abyste označili položku, musíte nejdříve něco hledat a pak ji zvolit ve "
+"výsledcích."
 
 #: bauble/plugins/tag/__init__.py:475
 msgid "Tag Selection"
-msgstr ""
+msgstr "Výběr štítku"
 
 #: bauble/plugins/tag/__init__.py:495
 msgid "Could not create the tags menus"
-msgstr ""
+msgstr "Nelze vytvořit nabídky značek"
 
 #: bauble/plugins/tag/__init__.py:503 bauble/plugins/tag/tag.glade.h:5
 msgid "Tags"
-msgstr ""
+msgstr "Značky"
 
 #: bauble/plugins/tag/tag.glade.h:2
 msgid "<b>Item(s)</b>"
-msgstr ""
+msgstr "<b>Položky</b>"
 
 #: bauble/plugins/tag/tag.glade.h:3
 msgid "<b>Tags</b>"
-msgstr ""
+msgstr "<b>Značky</b>"
 
 #: bauble/plugins/tag/tag.glade.h:4
 msgid "New Tag"
-msgstr ""
+msgstr "Nová značka"
 
 #: bauble/plugins/imex/xml.py:67 bauble/plugins/imex/csv_.py:581
 msgid "Select a directory"
@@ -2641,7 +2666,7 @@ msgstr "Zvolte adresář"
 
 #: bauble/plugins/imex/xml.py:71
 msgid "Save all data in one file"
-msgstr ""
+msgstr "Uložit všechna data v jednom souboru"
 
 #: bauble/plugins/imex/xml.py:142 bauble/plugins/imex/csv_.py:710
 #: bauble/plugins/abcd/__init__.py:338
@@ -2650,7 +2675,7 @@ msgstr "Export"
 
 #: bauble/plugins/imex/xml.py:143
 msgid "XML"
-msgstr ""
+msgstr "XML"
 
 #: bauble/plugins/imex/csv_.py:239
 msgid "Unknown Error."
@@ -2663,6 +2688,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Chyba při připojování k databázi.\n"
+"\n"
+"%s"
 
 #: bauble/plugins/imex/csv_.py:263
 #, python-format
@@ -2670,6 +2698,8 @@ msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
 msgstr ""
+"Byl zadán více než jeden soubor k importu do tabulky <b>%(table_name)s</b>: "
+"%(file_name)s, (file_name2)s"
 
 #: bauble/plugins/imex/csv_.py:281
 #, python-format
@@ -2678,6 +2708,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Nelze nalézt shodu ve všech názvech souborů a tabulek.\n"
+"\n"
+"%s"
 
 #: bauble/plugins/imex/csv_.py:316
 #, python-format
