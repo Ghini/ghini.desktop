@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-04-23 14:15+0000\n"
+"PO-Revision-Date: 2012-04-24 20:43+0000\n"
 "Last-Translator: Zbyněk Schwarz <Unknown>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-04-24 05:19+0000\n"
-"X-Generator: Launchpad (build 15135)\n"
+"X-Launchpad-Export-Date: 2012-04-25 05:08+0000\n"
+"X-Generator: Launchpad (build 15139)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -2721,11 +2721,16 @@ msgid ""
 "\n"
 "Would you like to continue?"
 msgstr ""
+"Abyste soubory importovali, budou muset být odstraněny následující tabulky:\n"
+"\n"
+"<b>%s</b>\n"
+"\n"
+"Chcete pokračovat?"
 
 #: bauble/plugins/imex/csv_.py:346
 #, python-format
 msgid "importing %(table)s table from %(filename)s"
-msgstr ""
+msgstr "importování tabulky %(table)s z %(filename)s"
 
 #: bauble/plugins/imex/csv_.py:370
 #, python-format
@@ -2737,11 +2742,17 @@ msgid ""
 "<i>Would you like to drop the table in the database first. You will lose the "
 "data in your database if you do this?</i>"
 msgstr ""
+"Tabulka <b>%s</b> již v databázi existuje a může obsahovat jistá data. Pokud "
+"řádek, který soubor importu obsahuje, má stejné id jako řádek v databázi, "
+"pak soubor nebude správně importován.\n"
+"\n"
+"<i>Chtěli byste nejdříve tabulku smazat? Tímto ztratíte data ve Vaší "
+"databázi.</i>"
 
 #: bauble/plugins/imex/csv_.py:522
 #, python-format
 msgid "Error: Could not set the sequence for column: %s"
-msgstr ""
+msgstr "Chyba: Nelze nastavit sekvenci pro sloupec: %s"
 
 #: bauble/plugins/imex/csv_.py:554
 msgid "Choose file(s) to import..."
@@ -2753,6 +2764,8 @@ msgid ""
 "CSVExporter: path does not exist.\n"
 "%s"
 msgstr ""
+"CSVExporter: Cesta neexistuje.\n"
+"%s"
 
 #: bauble/plugins/imex/csv_.py:613
 #, python-format
@@ -2761,11 +2774,15 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"Soubor exportu <b>%(filename)s</b> pro tabulku <b>%(table)s</b> již "
+"existuje.\n"
+"\n"
+"<i>Chtěli byste pokračovat?</i>"
 
 #: bauble/plugins/imex/csv_.py:638
 #, python-format
 msgid "exporting %(table)s table to %(filename)s"
-msgstr ""
+msgstr "exportování tabulky %(table)s do %(filename)s"
 
 #: bauble/plugins/imex/csv_.py:691
 msgid "Import"
@@ -2773,7 +2790,7 @@ msgstr "Import"
 
 #: bauble/plugins/imex/csv_.py:692 bauble/plugins/imex/csv_.py:711
 msgid "Comma Separated Value"
-msgstr ""
+msgstr "Čárkou oddělené hodnoty"
 
 #: bauble/plugins/imex/csv_.py:700
 msgid ""
@@ -2782,6 +2799,10 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"Je možné, že import dat do této databáze může poškodit nebo zničit Vaše "
+"existující data.\n"
+"\n"
+"<i>Chtěli byste pokračovat?</i>"
 
 #: bauble/plugins/abcd/__init__.py:169
 msgid ""
@@ -2789,10 +2810,13 @@ msgid ""
 "complete. Please make sure that the Name, Technical Contact, Email, Contact "
 "and Institution Code fields are filled in."
 msgstr ""
+"Některé nebo všechny informace o Vašem zařízení či byznysu nejsou dokončeny. "
+"Ujistěte se, že pole Jméno, Technický kontakt, Email, Kontakt a kód "
+"instituce jsou vyplněny."
 
 #: bauble/plugins/abcd/__init__.py:280
 msgid "Choose a file to export to..."
-msgstr ""
+msgstr "Zvolte soubor do kterého exportovat..."
 
 #: bauble/plugins/abcd/__init__.py:296
 #, python-format
@@ -2802,62 +2826,69 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"Exportujete %(nplants)s rostlin do formátu ABCD. Exportování tolika rostlin "
+"může trvat několik minut.  \n"
+"\n"
+"<i>Chtěli byste pokračovat?</i>"
 
 #: bauble/plugins/abcd/__init__.py:330
 msgid ""
 "The ABCD file was created but failed to validate correctly against the ABCD "
 "standard."
 msgstr ""
+"Soubor ABCD byl vytvořen, ale nelze ho správně ověřit se standardy ABCD."
 
 #: bauble/plugins/abcd/__init__.py:339
 msgid "ABCD"
-msgstr ""
+msgstr "ABCD"
 
 #: bauble/plugins/abcd/__init__.py:355
 msgid "The <i>lxml</i> package is required for the ABCD plugin"
-msgstr ""
+msgstr "Zásuvný modul ABCD vyžaduje balíček <i>lxml</i>"
 
 #: bauble/plugins/picasa/__init__.py:269
 #, python-format
 msgid "Could not authorize Google account: %s"
-msgstr ""
+msgstr "Nelze ověřit účet Google: %s"
 
 #: bauble/plugins/picasa/__init__.py:400 bauble/plugins/picasa/__init__.py:610
 msgid "Settings"
-msgstr ""
+msgstr "Nastavení"
 
 #: bauble/plugins/picasa/__init__.py:441
 msgid "Images"
-msgstr ""
+msgstr "Obrázky"
 
 #: bauble/plugins/picasa/__init__.py:516
 msgid "Could not login to PicasaWeb account."
-msgstr ""
+msgstr "Nelze se přihlásit na účet PicasaWeb."
 
 #: bauble/plugins/picasa/__init__.py:537
 msgid "No images"
-msgstr ""
+msgstr "Žádné obrázky"
 
 #: bauble/plugins/picasa/__init__.py:609
 msgid "Picasa"
-msgstr ""
+msgstr "Picasa"
 
 #: bauble/plugins/picasa/gui.glade.h:1
 msgid "Album"
-msgstr ""
+msgstr "Album"
 
 #: bauble/plugins/picasa/gui.glade.h:2
 msgid "Bauble - Picasa Settings"
-msgstr ""
+msgstr "Bauble - Nastavení Picasa"
 
 #: bauble/plugins/picasa/gui.glade.h:4
 msgid "Password"
-msgstr ""
+msgstr "Heslo"
 
 #: bauble/paths.py:103
 msgid ""
 "Could not get path for user settings: no APPDATA or USERPROFILE variable"
 msgstr ""
+"Nelze získat cestu pro uživatelská nastavení: neexistuje proměnná APPDATA "
+"nebo USERPROFILE"
 
 #: bauble/paths.py:113
 #, python-format
@@ -2865,10 +2896,13 @@ msgid ""
 "Could not get path for user settings: could not expand $HOME for user "
 "%(username)s"
 msgstr ""
+"Nelze získat cestu pro uživatelská nastavení: nelze rozšířit $HOME pro "
+"uživatele %(username)s"
 
 #: bauble/paths.py:117
 msgid "Could not get path for user settings: unsupported platform"
 msgstr ""
+"Nelze získat cestu pro uživatelská nastavení: nepodporovaná platforma"
 
 #: bauble/bauble.glade.h:1 bauble/connmgr.glade.h:1
 msgid "Bauble"
@@ -2876,24 +2910,24 @@ msgstr "Bauble"
 
 #: bauble/__init__.py:129
 msgid "No default handler registered"
-msgstr ""
+msgstr "Není registrována žádná výchozí obslužná rutina"
 
 #: bauble/__init__.py:131
 #, python-format
 msgid "No command handler for %s"
-msgstr ""
+msgstr "Žádná obslužná rutina příkazu pro %s"
 
 #: bauble/__init__.py:172
 msgid "** Error: could not import gtk and/or gobject"
-msgstr ""
+msgstr "** Chyba: nelze importovat gtk a/nebo gobjekt"
 
 #: bauble/__init__.py:175
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
-msgstr ""
+msgstr "Ujistěte se prosím, že GTK_ROOT\\bin je ve Vaší PATH."
 
 #: bauble/__init__.py:185
 msgid "**Error: Bauble must be run in a windowed environment."
-msgstr ""
+msgstr "**Chyba: Bauble musí být spouštěn v režimu do okna."
 
 #: bauble/__init__.py:251
 #, python-format
@@ -2902,6 +2936,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Nelze otevřít spojení.\n"
+"\n"
+"%s"
 
 #: bauble/__init__.py:284
 msgid ""
@@ -2910,26 +2947,34 @@ msgid ""
 "<i>Warning: If there is already a database at this connection any existing "
 "data will be destroyed!</i>"
 msgstr ""
+"Chtěli byste vytvořit novou databázi Bauble na současném spojení?\n"
+"\n"
+"<i>Varování: pokud již na tomto připojení databáze existuje, jakákoliv data "
+"budou zničena!</i>"
 
 #: bauble/connmgr.glade.h:2
 msgid "Connection Details"
-msgstr ""
+msgstr "Podrobnosti spojení"
 
 #: bauble/connmgr.glade.h:3
 msgid "Type:"
-msgstr ""
+msgstr "Typ:"
 
 #: bauble/connmgr.py:104
 msgid ""
 "You don't have any connections in your connection list.\n"
 "Close this message and click on \"Add\" to create a new connection."
 msgstr ""
+"V seznamu nemáte žádná spojení.\n"
+"Zavřete tuto zprávu a klikněte na \"Přidat\" pro přidání nového spojení."
 
 #: bauble/connmgr.py:121
 msgid ""
 "You have to choose or create a new connection before you can connect to the "
 "database."
 msgstr ""
+"Musíte zvolit nebo vytvočit nové spojení předtím, než se můžete spojit s "
+"databází."
 
 #: bauble/connmgr.py:160
 #, python-format
@@ -2938,6 +2983,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Bauble nemá oprávnění pro čtení adresáře:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:165
 #, python-format
@@ -2946,6 +2994,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Bauble nemá oprávnění pro zápis do adresáře:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:170
 #, python-format
@@ -2954,6 +3005,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Bauble nemá oprávnění pro čtení souboru databáze:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:175
 #, python-format
@@ -2962,16 +3016,21 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Bauble nemá oprávnění pro zápis do souboru databáze:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:183
 msgid "Do you want to save your changes?"
-msgstr ""
+msgstr "Chcete uložit Vaše změny?"
 
 #: bauble/connmgr.py:203
 msgid ""
 "No Python database connectors installed.\n"
 "Please consult the documentation for the prerequesites for installing Bauble."
 msgstr ""
+"Nejsou nainstalovány žádné konektory Python s databázemi.\n"
+"Prosím prohlédněte si dokumentaci pro požadavky instalace Bauble."
 
 #: bauble/connmgr.py:217 bauble/ui.py:65
 #, python-format
@@ -2986,64 +3045,68 @@ msgid ""
 "<i>Note: This only removes the connection to the database and does not "
 "affect the database or it's data</i>"
 msgstr ""
+"Jste si jisti, že chcete odstranit \"%s\"?\n"
+"\n"
+"<i>Poznámka: Toto odstraní poue spojení s databází a nemá vliv na vlastní "
+"databázi či její data</i>"
 
 #: bauble/connmgr.py:320
 msgid "Enter a connection name"
-msgstr ""
+msgstr "Zadejte název spojení"
 
 #: bauble/connmgr.py:391
 #, python-format
 msgid "Do you want to save %s?"
-msgstr ""
+msgstr "Chcete uložit %s"
 
 #: bauble/connmgr.py:399
 #, python-format
 msgid "Do you want to save your changes to %s ?"
-msgstr ""
+msgstr "Chcete uložit Vaše změny do %s ?"
 
 #: bauble/connmgr.py:455
 msgid "Enter your password"
-msgstr ""
+msgstr "Zadejte své heslo"
 
 #: bauble/connmgr.py:539
 msgid "Please choose a name for this connection"
-msgstr ""
+msgstr "Prosím zvolte název pro toto spojení"
 
 #: bauble/connmgr.py:542
 msgid "Please choose a user name for this connection"
-msgstr ""
+msgstr "Prosím zvolte uživatelské jméno pro toto spojení"
 
 #: bauble/connmgr.py:562
 msgid "Database: "
-msgstr ""
+msgstr "Databáze: "
 
 #: bauble/connmgr.py:568
 msgid "Host: "
-msgstr ""
+msgstr "Hostitel: "
 
 #: bauble/connmgr.py:575
 msgid "User: "
-msgstr ""
+msgstr "Uživatel: "
 
 #: bauble/connmgr.py:581
 msgid "Password: "
-msgstr ""
+msgstr "Heslo: "
 
 #: bauble/connmgr.py:629
 msgid "Use default filename"
-msgstr ""
+msgstr "Použít výchozí název souboru"
 
 #: bauble/connmgr.py:635
 msgid "Filename: "
-msgstr ""
+msgstr "Jméno souboru: "
 
 #: bauble/connmgr.py:642
 msgid "Browse..."
-msgstr ""
+msgstr "Procházet..."
 
 #: bauble/connmgr.py:679
 msgid "Choose a file..."
-msgstr ""
+msgstr "Zvolte soubor..."
 
 #: bauble/view.py:137
 msgid "Properties"
@@ -3078,7 +3141,7 @@ msgstr "** Chyba: %s"
 #: bauble/view.py:628
 #, python-format
 msgid "Couldn't find anything for search: \"%s\""
-msgstr ""
+msgstr "Nelze najít žádné výsledky pro hledání: \"%s\""
 
 #: bauble/view.py:634
 #, python-format
@@ -3101,29 +3164,29 @@ msgstr "%s výsledků vyhledávání"
 
 #: bauble/view.py:1154
 msgid "Timestamp"
-msgstr ""
+msgstr "Časové razítko"
 
 #: bauble/view.py:1154
 msgid "Operation"
-msgstr ""
+msgstr "Operace"
 
 #: bauble/view.py:1155
 msgid "Table"
-msgstr ""
+msgstr "Tabulka"
 
 #: bauble/search.py:116
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
-msgstr ""
+msgstr "MapperSearch.add_meta(): argument default_columns musí být seznam"
 
 #: bauble/search.py:118
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
-msgstr ""
+msgstr "MapperSearch.add_meta(): argument default_columns nemůže být prázdný"
 
 #: bauble/search.py:180
 #, python-format
 msgid ""
 "The %(tablename)s table does not have a column named \"%(columname)s\""
-msgstr ""
+msgstr "Tabulka %(tablename)s nemá sloupec s názvem \"%(columname)s\""
 
 #: bauble/search.py:234
 #, python-format
@@ -3132,35 +3195,36 @@ msgstr "Neznámá vyhledávací doména: %s"
 
 #: bauble/search.py:351 bauble/search.py:744
 msgid "Search Domain"
-msgstr ""
+msgstr "Prohledat doménu"
 
 #: bauble/search.py:363
 msgid "Property"
-msgstr ""
+msgstr "Vlastnost"
 
 #: bauble/search.py:369
 msgid "Domain Properties"
-msgstr ""
+msgstr "VLastnosti domény"
 
 #: bauble/search.py:532
 msgid "Choose a property..."
-msgstr ""
+msgstr "Zvolte vlastnost..."
 
 #: bauble/search.py:665
 msgid "Query Builder"
-msgstr ""
+msgstr "Tvůrce dotazu"
 
 #: bauble/search.py:750
 msgid "Choose a search domain..."
-msgstr ""
+msgstr "Zvolte doménu hledání..."
 
 #: bauble/search.py:755
 msgid "Expressions"
-msgstr ""
+msgstr "Výrazy"
 
 #: bauble/ui.py:237
 msgid "history size must be greater than zero and less than the history size"
 msgstr ""
+"velikost historie musí být větší než nula a menší než velikost historie"
 
 #: bauble/ui.py:339
 msgid "_File"
@@ -3239,14 +3303,14 @@ msgstr "Chcete zrušit právě probíhající operace?"
 
 #: bauble/types.py:43
 msgid "Enum requires a list of values"
-msgstr ""
+msgstr "Enum vyžaduje seznam hodnot"
 
 #: bauble/types.py:45
 msgid ""
 "You have configured empty_to_none=True but None is not in the values lists"
-msgstr ""
+msgstr "Nastavili jste empty_to_none=True ale None není v seznamech hodnot"
 
 #: bauble/types.py:63
 #, python-format
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr ""
+msgstr "\"%(value)s\" není v Enum.values: %(all_values)s"
