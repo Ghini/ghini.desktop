@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-24 10:49+0000\n"
-"Last-Translator: Ewout De cat <Unknown>\n"
+"PO-Revision-Date: 2012-09-17 10:28+0000\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
+"X-Generator: Launchpad (build 15966)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -28,7 +28,7 @@ msgstr ""
 
 #: bauble/prefs.py:335
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>Voorkeuren</b>"
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
@@ -2142,7 +2142,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:500
 msgid "The location of the plant in your collection."
-msgstr ""
+msgstr "De locatie van de plant in uw collectie."
 
 #: bauble/plugins/garden/plant.py:502
 #, python-format
@@ -2151,6 +2151,9 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
+"Het type van het plant materiaal.\n"
+"\n"
+"Mogelijke waarden: %s"
 
 #: bauble/plugins/garden/plant.py:505
 msgid "Create a new location."
