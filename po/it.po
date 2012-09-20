@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-09-17 10:53+0000\n"
+"PO-Revision-Date: 2012-09-19 11:20+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
-"X-Generator: Launchpad (build 15966)\n"
+"X-Launchpad-Export-Date: 2012-09-20 04:53+0000\n"
+"X-Generator: Launchpad (build 15985)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -1006,6 +1006,8 @@ msgstr "Istituzione"
 #, python-format
 msgid "Please remove the plants from <b>%(location)s</b> before deleting it."
 msgstr ""
+"Prima di poter rimuovere <b>%(location)s</b> devi far sì che nessuna pianta "
+"la riferisca."
 
 #: bauble/plugins/garden/location.py:114
 msgid "The name that you will use later to refer to this location."
@@ -1147,11 +1149,11 @@ msgstr "Nome del contatto"
 #: bauble/plugins/garden/institution.glade.h:4
 #: bauble/plugins/picasa/gui.glade.h:3
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: bauble/plugins/garden/institution.glade.h:5
 msgid "Fax"
-msgstr ""
+msgstr "Fax"
 
 #: bauble/plugins/garden/institution.glade.h:6
 msgid "Institution Editor"
@@ -1159,7 +1161,7 @@ msgstr "Editore Istituzione"
 
 #: bauble/plugins/garden/institution.glade.h:7
 msgid "Institution Name"
-msgstr ""
+msgstr "Nome istituzione"
 
 #: bauble/plugins/garden/institution.glade.h:8
 msgid "Institutional code"
@@ -1167,7 +1169,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade.h:9
 msgid "Technical contact"
-msgstr ""
+msgstr "Contatto tecnico"
 
 #: bauble/plugins/garden/institution.glade.h:10
 msgid "Telephone"
@@ -1188,7 +1190,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade.h:4
 #, no-c-format
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: bauble/plugins/garden/prop_editor.glade.h:6
 #, no-c-format
@@ -1198,7 +1200,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade.h:8
 #: bauble/plugins/garden/acc_editor.glade.h:2
 msgid "*\t"
-msgstr ""
+msgstr "*\t"
 
 #: bauble/plugins/garden/prop_editor.glade.h:9
 msgid "<b>Chemical treatment</b>"
@@ -1557,7 +1559,7 @@ msgstr "La data in cui queste specie sono state inserite."
 
 #: bauble/plugins/garden/accession.py:646
 msgid "The date this species was received."
-msgstr ""
+msgstr "La data in cui questa specie è stata ricevuta."
 
 #: bauble/plugins/garden/accession.py:647
 msgid "The type of the accessioned material."
@@ -1619,6 +1621,9 @@ msgid ""
 "\n"
 "Would you like to choose <b>%(species)s</b> instead?"
 msgstr ""
+"La specie <b>%(synonym)s</b> è un sinonimo per <b>%(species)s</b>.\n"
+"\n"
+"Preferisci utilizzare <b>%(species)s</b>?"
 
 #: bauble/plugins/garden/accession.py:2081
 msgid ""
@@ -1636,7 +1641,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:2238
 #, python-format
 msgid "%(quantity)s in %(location)s"
-msgstr ""
+msgstr "%(quantity)s in %(location)s"
 
 #: bauble/plugins/garden/accession.py:2303
 #: bauble/plugins/garden/acc_editor.glade.h:52
