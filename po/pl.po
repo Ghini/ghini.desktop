@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-07-21 15:23+0000\n"
-"Last-Translator: Łukasz Komorowski <Unknown>\n"
+"PO-Revision-Date: 2012-11-08 22:25+0000\n"
+"Last-Translator: Łukasz Cieliński <lukasc@mp.pl>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-11-11 05:23+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Launchpad-Export-Date: 2012-11-09 04:59+0000\n"
+"X-Generator: Launchpad (build 16250)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -86,7 +86,7 @@ msgstr "Przeszukaj BGCI"
 
 #: bauble/utils/web.py:98
 msgid "Search Botanic Gardens Conservation International"
-msgstr "Szukaj w Botanic Gardens Conservation International"
+msgstr "Szukaj w Botanic Gardens Conservation International (BGCI)"
 
 #: bauble/utils/web.py:111
 msgid "Search IPNI"
@@ -102,7 +102,7 @@ msgstr "Szukaj w NPGS/GRIN"
 
 #: bauble/utils/web.py:122
 msgid "Search National Plant Germplasm System"
-msgstr "Szukaj w National Plant Germplasm System"
+msgstr "Szukaj w National Plant Germplasm System (NPGS)"
 
 #: bauble/utils/desktop.py:272
 #, python-format
@@ -120,7 +120,7 @@ msgstr ""
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
 msgid "%(widget_name)s not in glade file"
-msgstr ""
+msgstr "Brak apletu %(widget_name)s w pliku glade"
 
 #: bauble/utils/__init__.py:466
 msgid "Details"
@@ -243,7 +243,7 @@ msgstr ""
 #: bauble/editor.py:620
 #, python-format
 msgid "no widget with name %s"
-msgstr ""
+msgstr "Brak apletu  %s"
 
 #: bauble/editor.py:1130
 #, python-format
@@ -315,7 +315,7 @@ msgstr ""
 
 #: bauble/notes.glade.h:4 bauble/view.py:1155
 msgid "User"
-msgstr ""
+msgstr "Użytkownik"
 
 #: bauble/plugins/plants/species_editor.py:101
 #, python-format
@@ -324,6 +324,9 @@ msgid ""
 "\n"
 "Would you like to choose <b>%(genus)s</b> instead?"
 msgstr ""
+"Rodzaj <b>%(synonym)s</b> występuje również pod nazwą <b>%(genus)s</b>.\n"
+"\n"
+"Czy chcesz wybrać alternatywną nazwę  <b>%(genus)s</b> ?"
 
 #: bauble/plugins/plants/species_editor.py:588
 #, python-format
@@ -383,11 +386,11 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:897
 msgid "Cancel your changes"
-msgstr ""
+msgstr "Anuluj zmiany"
 
 #: bauble/plugins/plants/species_editor.py:898
 msgid "Save your changes"
-msgstr ""
+msgstr "Zapisz zmiany"
 
 #: bauble/plugins/plants/species_editor.py:899
 msgid "Save your changes changes and add an accession to this species"
@@ -395,7 +398,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:901
 msgid "Save your changes changes and add another species "
-msgstr ""
+msgstr "Zapisz zmiany o dodaj następny gatunek. "
 
 #: bauble/plugins/plants/species_editor.py:1056
 #: bauble/plugins/plants/genus.py:660 bauble/plugins/plants/family.py:554
@@ -433,23 +436,23 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:42
 msgid "subsp."
-msgstr ""
+msgstr "podgatunek"
 
 #: bauble/plugins/plants/species_model.py:43
 msgid "var."
-msgstr ""
+msgstr "odmiana"
 
 #: bauble/plugins/plants/species_model.py:44
 msgid "subvar"
-msgstr ""
+msgstr "pododmiana"
 
 #: bauble/plugins/plants/species_model.py:45
 msgid "f."
-msgstr ""
+msgstr "forma"
 
 #: bauble/plugins/plants/species_model.py:46
 msgid "subf."
-msgstr ""
+msgstr "podforma"
 
 #: bauble/plugins/plants/species_model.py:47
 msgid "cv."
@@ -533,11 +536,13 @@ msgid ""
 "The genus <i>%(genus)s</i> has %(num_species)s species.  Are you sure you "
 "want to remove it?"
 msgstr ""
+"W obrębie rodzaju <i>%(genus)s</i> znajduje się %(num_species)s gatunków.  "
+"Czy nadal chcesz usunąć ten rodzaj?"
 
 #: bauble/plugins/plants/genus.py:72
 #, python-format
 msgid "Are you sure you want to remove the genus <i>%s</i>?"
-msgstr ""
+msgstr "Czy chcesz usunąć rodzaj <i>%s</i>?"
 
 #: bauble/plugins/plants/genus.py:81 bauble/plugins/plants/family.py:72
 #: bauble/plugins/plants/species.py:53 bauble/plugins/garden/source.py:80
@@ -563,7 +568,7 @@ msgstr "_Edytuj"
 
 #: bauble/plugins/plants/genus.py:90
 msgid "_Add species"
-msgstr ""
+msgstr "_Dodaj gatunek"
 
 #: bauble/plugins/plants/genus.py:93 bauble/plugins/plants/family.py:85
 #: bauble/plugins/plants/species.py:77 bauble/plugins/garden/source.py:54
@@ -571,7 +576,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:184 bauble/plugins/garden/plant.py:98
 #: bauble/plugins/tag/__init__.py:61
 msgid "_Delete"
-msgstr ""
+msgstr "_Usuń"
 
 #: bauble/plugins/plants/genus.py:252
 msgid "The family name"
@@ -596,20 +601,20 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:260 bauble/plugins/plants/family.py:242
 #: bauble/plugins/garden/accession.py:663 bauble/plugins/garden/plant.py:508
 msgid "Cancel your changes."
-msgstr ""
+msgstr "Kasuj zmiany"
 
 #: bauble/plugins/plants/genus.py:261 bauble/plugins/plants/family.py:243
 #: bauble/plugins/garden/accession.py:664 bauble/plugins/garden/plant.py:509
 msgid "Save your changes."
-msgstr ""
+msgstr "zapisz zmiany"
 
 #: bauble/plugins/plants/genus.py:262
 msgid "Save your changes changes and add a species to this genus."
-msgstr ""
+msgstr "Zapisz wprowadzone zmiany i dodaj do rodzaju kolejny gatunek"
 
 #: bauble/plugins/plants/genus.py:264
 msgid "Save your changes changes and add another genus."
-msgstr ""
+msgstr "Zapisz wprowadzone zmiany i dodaj kolejny rodzaj"
 
 #: bauble/plugins/plants/genus.py:371
 #, python-format
@@ -681,7 +686,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade.h:6
 msgid "<b>Vernacular Names</b>"
-msgstr ""
+msgstr "<b>Nazwy zwyczajowe</b>"
 
 #: bauble/plugins/plants/species_editor.glade.h:7
 msgid "Add Accessions"
@@ -689,12 +694,12 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade.h:8
 msgid "Additional info"
-msgstr ""
+msgstr "Dodatkowe informacje"
 
 #: bauble/plugins/plants/species_editor.glade.h:9
 #: bauble/plugins/plants/genus_editor.glade.h:4
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: bauble/plugins/plants/species_editor.glade.h:10
 msgid "Awards"
@@ -780,7 +785,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus_editor.glade.h:3
 msgid "Add Species"
-msgstr ""
+msgstr "Dodaj gatunek"
 
 #: bauble/plugins/plants/genus_editor.glade.h:8
 msgid "Genus Editor"
