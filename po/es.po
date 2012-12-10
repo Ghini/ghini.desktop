@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-09-17 10:37+0000\n"
-"Last-Translator: Josecuervo86 <josecuervo86@gmail.com>\n"
+"PO-Revision-Date: 2012-12-10 00:53+0000\n"
+"Last-Translator: Victor Roman <eInvrom@Gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-09-18 05:13+0000\n"
-"X-Generator: Launchpad (build 15966)\n"
+"X-Launchpad-Export-Date: 2012-12-10 04:48+0000\n"
+"X-Generator: Launchpad (build 16341)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -396,7 +396,7 @@ msgstr "El hábito de esta especie"
 
 #: bauble/plugins/plants/species_editor.py:896
 msgid "The awards this species have been given"
-msgstr ""
+msgstr "Los premios a esta especie se han dado"
 
 #: bauble/plugins/plants/species_editor.py:897
 msgid "Cancel your changes"
@@ -461,7 +461,7 @@ msgstr "Sub - Variedad"
 
 #: bauble/plugins/plants/species_model.py:45
 msgid "f."
-msgstr ""
+msgstr "f."
 
 #: bauble/plugins/plants/species_model.py:46
 msgid "subf."
@@ -499,7 +499,7 @@ msgstr "<b>Sinonimos</b>"
 
 #: bauble/plugins/plants/family_editor.glade.h:3
 msgid "Add Genera"
-msgstr ""
+msgstr "Añadir Genera"
 
 #: bauble/plugins/plants/family_editor.glade.h:4
 #: bauble/plugins/plants/__init__.py:76
@@ -900,7 +900,7 @@ msgstr "Expedición"
 
 #: bauble/plugins/garden/source.py:132
 msgid "Gene Bank"
-msgstr ""
+msgstr "Banco de Genes"
 
 #: bauble/plugins/garden/source.py:133
 msgid "Botanic Garden or Arboretum"
@@ -1292,7 +1292,7 @@ msgstr "Hojas"
 
 #: bauble/plugins/garden/prop_editor.glade.h:31
 msgid "Leaves reduced by"
-msgstr ""
+msgstr "Hojas reducida por"
 
 #: bauble/plugins/garden/prop_editor.glade.h:32
 #: bauble/plugins/garden/__init__.py:89
@@ -1330,7 +1330,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade.h:40
 msgid "Wounded"
-msgstr ""
+msgstr "Herido"
 
 #: bauble/plugins/garden/prop_editor.glade.h:41
 msgid "to"
@@ -1390,7 +1390,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:327
 msgid "Wild"
-msgstr ""
+msgstr "Salvaje"
 
 #: bauble/plugins/garden/accession.py:328
 msgid "Propagule of cultivated wild plant"
@@ -1403,7 +1403,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:330
 #: bauble/plugins/garden/accession.py:338
 msgid "Insufficient Data"
-msgstr ""
+msgstr "Datos Insuficientes"
 
 #: bauble/plugins/garden/accession.py:335
 msgid "Wild native"
