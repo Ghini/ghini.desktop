@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-12-15 15:22+0000\n"
-"Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
+"PO-Revision-Date: 2012-12-22 03:31+0000\n"
+"Last-Translator: Victor Roman <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-16 05:12+0000\n"
-"X-Generator: Launchpad (build 16372)\n"
+"X-Launchpad-Export-Date: 2012-12-22 06:29+0000\n"
+"X-Generator: Launchpad (build 16378)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -1058,7 +1058,7 @@ msgstr "<b>Fecha coleccionada:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:7
 msgid "<b>Date received:</b>"
-msgstr ""
+msgstr "<b>Fecha recibida:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:8
 msgid "<b>Elevation:</b>"
@@ -1314,11 +1314,11 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade.h:36
 msgid "Pretreatment"
-msgstr ""
+msgstr "Pretratamiento"
 
 #: bauble/plugins/garden/prop_editor.glade.h:37
 msgid "Progagation Type"
-msgstr ""
+msgstr "Tipo de Propagación"
 
 #: bauble/plugins/garden/prop_editor.glade.h:38
 msgid "Propagation Editor"
@@ -1419,7 +1419,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:344
 msgid "Air layer"
-msgstr ""
+msgstr "Capa de Aire"
 
 #: bauble/plugins/garden/accession.py:345
 msgid "Balled & burlapped plant"
@@ -1502,7 +1502,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:364
 msgid "Spore"
-msgstr ""
+msgstr "Espora"
 
 #: bauble/plugins/garden/accession.py:365
 msgid "Sporeling"
@@ -1567,7 +1567,7 @@ msgstr "La fecha de adquisición de esta especie."
 
 #: bauble/plugins/garden/accession.py:646
 msgid "The date this species was received."
-msgstr ""
+msgstr "La fecha en que esta especie fue recibida."
 
 #: bauble/plugins/garden/accession.py:647
 msgid "The type of the accessioned material."
@@ -1738,7 +1738,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:18
 msgid "Altitude/Depth"
-msgstr ""
+msgstr "Altura/Profundidad"
 
 #: bauble/plugins/garden/acc_editor.glade.h:19
 msgid "Collection ID"
@@ -1843,7 +1843,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:50
 msgid "Select a Region"
-msgstr ""
+msgstr "Seleccione una Región"
 
 #: bauble/plugins/garden/acc_editor.glade.h:51
 msgid "Select a source"
@@ -1903,7 +1903,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:115
 #, python-format
 msgid "Leaves: %s"
-msgstr ""
+msgstr "Hojas: %s"
 
 #: bauble/plugins/garden/propagation.py:120
 #, python-format
@@ -1966,7 +1966,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:151
 #, python-format
 msgid "# of seeds: %s"
-msgstr ""
+msgstr "# de semillas: %s"
 
 #: bauble/plugins/garden/propagation.py:154
 #, python-format
@@ -2009,7 +2009,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:198
 #: bauble/plugins/garden/propagation.py:203
 msgid "Intact"
-msgstr ""
+msgstr "Intacto"
 
 #: bauble/plugins/garden/propagation.py:199
 #: bauble/plugins/garden/propagation.py:204
@@ -2177,7 +2177,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:278
 msgid "Questionable"
-msgstr ""
+msgstr "Cuestionable"
 
 #: bauble/plugins/garden/plant.py:279
 msgid "Indistinguishable Mass"
@@ -2217,7 +2217,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:340
 msgid "Seed/Spore"
-msgstr ""
+msgstr "Semilla/Espora"
 
 #: bauble/plugins/garden/plant.py:341
 msgid "Vegetative Part"
@@ -2304,7 +2304,7 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:1199
 #: bauble/plugins/garden/plant_editor.glade.h:14
 msgid "Propagations"
-msgstr ""
+msgstr "Propagaciones"
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:3
 msgid "<b>Description:</b>"
@@ -2332,7 +2332,7 @@ msgstr "Añadir"
 
 #: bauble/plugins/garden/plant_editor.glade.h:7
 msgid "Date of Change"
-msgstr ""
+msgstr "Fecha del Cambio"
 
 #: bauble/plugins/garden/plant_editor.glade.h:8
 msgid "Edit"
@@ -2397,6 +2397,7 @@ msgstr ""
 #: bauble/plugins/users/__init__.py:476
 msgid "You do not have privileges to change other user privileges"
 msgstr ""
+"Tú no tienes privilegios para cambiar los privilegios de otro usuario"
 
 #: bauble/plugins/users/__init__.py:491 bauble/plugins/users/__init__.py:712
 msgid "Users"
@@ -3177,7 +3178,7 @@ msgstr ""
 
 #: bauble/search.py:532
 msgid "Choose a property..."
-msgstr ""
+msgstr "Escoje una propiedad..."
 
 #: bauble/search.py:665
 msgid "Query Builder"
