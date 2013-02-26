@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-12-22 03:31+0000\n"
-"Last-Translator: Victor Roman <Unknown>\n"
+"PO-Revision-Date: 2013-02-25 10:41+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-12-23 04:52+0000\n"
-"X-Generator: Launchpad (build 16378)\n"
+"X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
+"X-Generator: Launchpad (build 16506)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -836,24 +836,24 @@ msgstr "Nmbres vernáculos"
 #: bauble/plugins/plants/infoboxes.glade.h:2
 #: bauble/plugins/garden/source_detail_infobox.glade.h:2
 msgid "<b># of Accessions:</b>"
-msgstr "<b>Nº de adquisiciones:</b>"
+msgstr "<b>N.º de adquisiciones:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:3
 msgid "<b># of Genera:</b>"
-msgstr "<b>Nº de géneros:</b>"
+msgstr "<b>N.º de géneros:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:4
 #: bauble/plugins/garden/loc_infobox.glade.h:2
 msgid "<b># of Plants:</b>"
-msgstr "<b>Nº de plantas:</b>"
+msgstr "<b>N.º de plantas:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:5
 msgid "<b># of Plants</b>"
-msgstr "<b>Nº de plantas</b>"
+msgstr "<b>N.º de plantas</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:6
 msgid "<b># of Taxa:</b>"
-msgstr ""
+msgstr "<b>N.º de taxones:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:7
 msgid "<b>Awards:</b>"
@@ -1193,7 +1193,7 @@ msgstr "# Germinadas"
 
 #: bauble/plugins/garden/prop_editor.glade.h:2
 msgid "# of seeds"
-msgstr "# de semillas"
+msgstr "N.º de semillas"
 
 #: bauble/plugins/garden/prop_editor.glade.h:4
 #, no-c-format
@@ -1268,7 +1268,7 @@ msgstr "Fecha de siembra"
 
 #: bauble/plugins/garden/prop_editor.glade.h:25
 msgid "Dates"
-msgstr ""
+msgstr "Fechas"
 
 #: bauble/plugins/garden/prop_editor.glade.h:26
 msgid "Flower buds"
@@ -1322,7 +1322,7 @@ msgstr "Tipo de Propagación"
 
 #: bauble/plugins/garden/prop_editor.glade.h:38
 msgid "Propagation Editor"
-msgstr ""
+msgstr "Editor de propagación"
 
 #: bauble/plugins/garden/prop_editor.glade.h:39
 msgid "Tip"
@@ -1493,7 +1493,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:362
 msgid "Seedling"
-msgstr ""
+msgstr "Plántula"
 
 #: bauble/plugins/garden/accession.py:363
 #: bauble/plugins/garden/propagation.py:36
@@ -1966,7 +1966,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:151
 #, python-format
 msgid "# of seeds: %s"
-msgstr "# de semillas: %s"
+msgstr "N.º de semillas: %s"
 
 #: bauble/plugins/garden/propagation.py:154
 #, python-format
@@ -1986,7 +1986,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:167
 #, python-format
 msgid "# of seedlings: %s"
-msgstr ""
+msgstr "N.º de plántulas: %s"
 
 #: bauble/plugins/garden/propagation.py:169
 #, python-format
