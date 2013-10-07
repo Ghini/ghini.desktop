@@ -1,1 +1,4 @@
 .bzr
+doc/.build
+*~
+*pyc
