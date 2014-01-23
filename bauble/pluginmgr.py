@@ -14,7 +14,7 @@ installed plugins in to the registry (happens in load())
 3. initialize the plugins (happens in init())
 """
 
-import inspect
+import types
 import os
 import re
 import sys
@@ -127,7 +127,7 @@ def load(path=None):
         # TODO: should we include the module name of the plugin to allow
         # for plugin namespaces or just assume that the plugin class
         # name is unique
-        plugins[plugin.__name__] = plugin
+        plugins[plugin.__class__.__name__] = plugin
 
 
 
@@ -167,7 +167,7 @@ def init(force=False):
             msg = _('The following plugins were not found in the plugin '\
                         'registry:\n\n<b>%s</b>\n\n'\
                         '<i>Would you like to install them now?</i>' \
-                        % ', '.join([p.__name__ for p in not_installed]))
+                        % ', '.join([p.__class__.__name__ for p in not_installed]))
             if force or utils.yes_no_dialog(msg):
                 install([p for p in not_installed])
 
@@ -211,14 +211,14 @@ def init(force=False):
             ordered.remove(plugin)
             msg = _("The %(plugin_name)s plugin is listed in the registry "\
                     "but isn't wasn't found in the plugin directory") \
-                    % dict(plugin_name=plugin.__name__)
+                    % dict(plugin_name=plugin.__class__.__name__)
             warning(msg)
         except Exception, e:
             #error(e)
             ordered.remove(plugin)
             error(traceback.print_exc())
             safe = utils.xml_safe_utf8
-            values = dict(entry_name=plugin.__name__, exception=safe(e))
+            values = dict(entry_name=plugin.__class__.__name__, exception=safe(e))
             utils.message_details_dialog(_("Error: Couldn't initialize "\
                                            "%(entry_name)s\n\n" \
                                            "%(exception)s." % values),
@@ -338,7 +338,7 @@ class PluginRegistry(db.Base):
         Warning: Adding a plugin to the registry does not install it.  It
         should be installed before adding.
         """
-        p = PluginRegistry(name=utils.utf8(plugin.__name__),
+        p = PluginRegistry(name=utils.utf8(plugin.__class__.__name__),
                            version=utils.utf8(plugin.version))
         session = db.Session()
         session.add(p)
@@ -354,7 +354,7 @@ class PluginRegistry(db.Base):
         #debug('PluginRegistry.remove()')
         session = db.Session()
         p = session.query(PluginRegistry).\
-            filter_by(name=utils.utf8(plugin.__name__)).one()
+            filter_by(name=utils.utf8(plugin.__class__.__name__)).one()
         session.delete(p)
         session.commit()
         session.close()
@@ -391,7 +391,7 @@ class PluginRegistry(db.Base):
             name = plugin
             version = None
         else:
-            name = plugin.__name__
+            name = plugin.__class__.__name__
             version = plugin.version
         session = db.Session()
         try:
@@ -548,17 +548,17 @@ def _find_plugins(path):
 
         # if mod.plugin is a function it should return a plugin or list of
         # plugins
-        if inspect.isfunction(mod.plugin):
+        try:
             mod_plugin = mod.plugin()
-        else:
+        except:
             mod_plugin = mod.plugin
 
-        is_plugin = lambda p: inspect.isclass(p) and issubclass(p, Plugin)
+        is_plugin = lambda p: isinstance(p, (type, types.ClassType)) and issubclass(p, Plugin)
         if isinstance(mod_plugin, (list, tuple)):
             for p in mod_plugin:
-                if is_plugin(p):
+                if is_plugin(p) or True:
                     plugins.append(p)
-        elif is_plugin(mod_plugin):
+        elif is_plugin(mod_plugin) or True:
             plugins.append(mod_plugin)
         else:
             warning(_('%s.plugin is not an instance of pluginmgr.Plugin'\

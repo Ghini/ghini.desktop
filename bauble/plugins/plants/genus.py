@@ -20,7 +20,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
-import bauble.types as types
+import bauble.btypes as types
 from bauble.utils.log import debug
 import bauble.paths as paths
 from bauble.prefs import prefs

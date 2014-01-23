@@ -61,21 +61,21 @@ http://xmlgraphics.apache.org/fop/
 Installation:
 -------------
 
-	Linux
-	-----
-        1. Download the bauble.classic sources from either:
-           * http://bauble.belizebotanic.org (and extract the archive to a directory)
-           * git clone https://github.com/Bauble/bauble.classic.git
-        2. Change to the bauble directory containing the sources
-        3. (optional) make a virtual environment with --system-site-packages.
-        4. install system wide: pygtk
-        4. Type "python setup.py install" on the command line.
-        5. (optional) install a python DBMS wrapper (or use sqlite3).
-        6. To run Bauble type bauble on the command line.
-	
-	Windows
-	-------
-	1. Download the bauble-<version>-.exe file from 
-	   http://bauble.belizebotanic.org
-	2. Double click on the file when it finishes downloading.
-	3. Run Bauble from the Start menu.
+Linux
+~~~~~
+1. Download the bauble.classic sources from either:
+   * http://bauble.belizebotanic.org (and extract the archive to a directory)
+   * git clone https://github.com/Bauble/bauble.classic.git
+2. Change to the bauble directory containing the sources
+3. (optional) make a virtual environment with --system-site-packages.
+4. install system wide: pygtk
+4. Type "python setup.py install" on the command line.
+5. (optional) install a python DBMS wrapper (or use sqlite3).
+6. To run Bauble type bauble on the command line.
+
+Windows
+~~~~~~~
+1. Download the bauble-<version>-.exe file from 
+   http://bauble.belizebotanic.org
+2. Double click on the file when it finishes downloading.
+3. Run Bauble from the Start menu.

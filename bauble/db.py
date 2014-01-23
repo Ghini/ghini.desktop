@@ -28,7 +28,7 @@ import gtk
 import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
-import bauble.types as types
+import bauble.btypes as types
 import bauble.utils as utils
 from bauble.utils.log import debug, warning
 

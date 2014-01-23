@@ -4,7 +4,7 @@ import gtk
 from pyparsing import *
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.orm.properties import ColumnProperty, RelationProperty
+from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
 
 import bauble
 from bauble.error import check, CheckConditionError, BaubleError
@@ -590,7 +590,7 @@ class ExpressionRow(object):
         self.table.remove(self.value_widget)
 
         # change the widget depending on the type of the selected property
-        if isinstance(prop.columns[0].type, bauble.types.Enum):
+        if isinstance(prop.columns[0].type, bauble.btypes.Enum):
             self.value_widget = gtk.ComboBox()
             cell = gtk.CellRendererText()
             self.value_widget.pack_start(cell, True)
@@ -617,7 +617,7 @@ class ExpressionRow(object):
 
     def relation_filter(self, prop):
         if isinstance(prop, ColumnProperty) and \
-                isinstance(prop.columns[0].type, bauble.types.Date):
+                isinstance(prop.columns[0].type, bauble.btypes.Date):
             return False
         return True
 
