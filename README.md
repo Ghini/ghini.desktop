@@ -1,8 +1,8 @@
 Bauble
 ======
 
-terms and names:
-----------------
+terms and names
+---------------
 
 This file describes 'bauble.classic', a standalone
 application. 'bauble.classic' was formerly known as 'Bauble'. currently
@@ -18,11 +18,8 @@ pair 'bauble2/bauble.api' is similar so any data you would insert using
 'bauble.classic' will be available once you install a running version of
 'bauble2/bauble.api'.
 
-
-**********
-WARNING:  This file is terribly out of date and most like not very accurate.
-**********
-
+what is Bauble
+--------------
 
 At its heart Bauble is a framework for creating database applications.  In
 its distributed form Bauble is an application to manage plant records and 
