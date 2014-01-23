@@ -10,8 +10,8 @@ SQLALCHEMY_DEBUG = False
 
 try:
     import sqlalchemy as sa
-    parts = sa.__version__.split('.')
-    if int(parts[1]) not in (6,7):
+    parts = tuple(int(i) for i in sa.__version__.split('.'))
+    if parts < (0, 6):
         msg = _('This version of Bauble requires SQLAlchemy 0.6 or greater. '\
                 'You are using version %s. ' \
                 'Please download and install a newer version of SQLAlchemy ' \
