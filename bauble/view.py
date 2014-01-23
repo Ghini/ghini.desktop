@@ -18,7 +18,7 @@ from sqlalchemy.orm import *
 import sqlalchemy.sql
 import sqlalchemy.exc as saexc
 from sqlalchemy.orm.mapper import Mapper
-from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
+from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty as PropertyLoader
 
 import bauble
 import bauble.db as db

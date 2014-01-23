@@ -20,7 +20,7 @@ import bauble.utils.desktop as desktop
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.utils.web as web
-import bauble.types as types
+import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
 

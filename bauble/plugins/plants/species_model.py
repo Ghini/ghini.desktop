@@ -16,7 +16,7 @@ import bauble
 import bauble.db as db
 import bauble.utils as utils
 from bauble.utils.log import debug
-import bauble.types as types
+import bauble.btypes as types
 from bauble.plugins.plants.geography import Geography#, geography_table
 
 from sqlalchemy.orm.collections import collection

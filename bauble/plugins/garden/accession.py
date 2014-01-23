@@ -30,7 +30,7 @@ import bauble.paths as paths
 from bauble.plugins.garden.propagation import *
 from bauble.plugins.garden.source import *
 import bauble.prefs as prefs
-import bauble.types as types
+import bauble.btypes as types
 import bauble.utils as utils
 from bauble.utils.log import debug, warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
