@@ -40,14 +40,18 @@ Bauble requires the following packages to run.  The installer for Windows comes
 with everything already built in except for GTK+ and the optional XSL->PDF 
 renderer which is need to use the formatter plugin.
 
+
 Python 2.4 (not tested with other versions but they may work as well)
-SQLAlchemy>=0.6.0
-pygtk>=2.12
-lxml>=2.0
+
+* SQLAlchemy>=0.6.0
+* pygtk>=2.12
+* lxml>=2.0
+
 At least one of the following database connectors:
-    pysqlite >= 2.3.2
-    psycopg2 >= 2.0.5 
-    mysql-python >= 1.2.1 
+
+* pysqlite >= 2.3.2
+* psycopg2 >= 2.0.5 
+* mysql-python >= 1.2.1 
 
 To use the formatter plugin you will also need to install an XSL->PDF renderer. For
 a free renderer check out Apache FOP (>=.92beta) at 
