@@ -34,8 +34,8 @@ GNU GPLv2+.
 
 
 
-Requirements:
--------------
+Requirements
+------------
 Bauble requires the following packages to run.  The installer for Windows comes 
 with everything already built in except for GTK+ and the optional XSL->PDF 
 renderer which is need to use the formatter plugin.
@@ -58,11 +58,11 @@ a free renderer check out Apache FOP (>=.92beta) at
 http://xmlgraphics.apache.org/fop/
 
 
-Installation:
--------------
+Installation
+------------
 
-Linux
-~~~~~
+### Linux
+
 1. Download the bauble.classic sources from either:
    * http://bauble.belizebotanic.org (and extract the archive to a directory)
    * git clone https://github.com/Bauble/bauble.classic.git
@@ -73,8 +73,8 @@ Linux
 5. (optional) install a python DBMS wrapper (or use sqlite3).
 6. To run Bauble type bauble on the command line.
 
-Windows
-~~~~~~~
+### Windows
+
 1. Download the bauble-<version>-.exe file from 
    http://bauble.belizebotanic.org
 2. Double click on the file when it finishes downloading.
