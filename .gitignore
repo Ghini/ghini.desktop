@@ -2,3 +2,6 @@
 doc/.build
 *~
 *pyc
+build
+dist
+bauble.egg-info
