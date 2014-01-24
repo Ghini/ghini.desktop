@@ -1,53 +1,54 @@
 Bauble
 ======
 
-terms and names
----------------
-
-This file describes 'bauble.classic', a standalone
-application. 'bauble.classic' was formerly known as 'Bauble'. currently
-'Bauble' is the name of an organization on github, enclosing
-'bauble.classic', 'bauble2' and 'bauble.api'.
-
-'bauble.classic' is what you would install if you want to use 'Bauble'.
-
-the two new projects 'bauble2' and 'bauble.api' are what you would
-fork/download if you want to participate to the development of a web-based
-version of 'Bauble'. the database structure of both 'bauble.classic' and the
-pair 'bauble2/bauble.api' is similar so any data you would insert using
-'bauble.classic' will be available once you install a running version of
-'bauble2/bauble.api'.
-
-what is Bauble
---------------
+what is Bauble (classic)
+------------------------
 
 At its heart Bauble is a framework for creating database applications.  In
-its distributed form Bauble is an application to manage plant records and 
-specifically living collections.  It is used by Belize Botanic Gardens to 
-manage their live collections.  Included by default is RBG Kew's Family and 
-Genera list from Vascular Plant Families and Genera compiled by R. K. Brummitt
-and published by the Royal Botanic Gardens, Kew in 1992 used by permission 
-from RBG Kew.
+its distributed form Bauble is an application to manage plant records and
+specifically living collections.  It is used among others by Belize Botanic
+Gardens to manage their live collections.  Included by default is RBG Kew's
+Family and Genera list from Vascular Plant Families and Genera compiled by
+R. K. Brummitt and published by the Royal Botanic Gardens, Kew in 1992 used
+by permission from RBG Kew.
 
 All code contained as part of the Buable package is licenced under the
 GNU GPLv2+.
 
+Terms and Names
+---------------
 
+This file describes 'bauble.classic', a standalone
+application. 'bauble.classic' was formerly known just as as
+'Bauble'. currently 'Bauble' is the name of an organization on github,
+enclosing 'bauble.classic', 'bauble2' and 'bauble.api'.
+
+the two new projects 'bauble2' and 'bauble.api' are what you would
+fork/download if you want to participate to the development of a web-based
+version of 'Bauble'.
+
+'bauble.classic' is what you would install if you want to start using
+'Bauble' straight away.
+
+The database structure of both 'bauble.classic' and the pair
+'bauble2/bauble.api' is similar so any data you would insert using
+'bauble.classic' will be available once you install a running version of
+'bauble2/bauble.api'.
 
 Requirements
 ------------
-Bauble requires the following packages to run.  The installer for Windows comes 
+bauble.classic requires the following packages to run.  The installer for Windows comes 
 with everything already built in except for GTK+ and the optional XSL->PDF 
 renderer which is need to use the formatter plugin.
 
 
-Python 2.4 (not tested with other versions but they may work as well)
+* a debug version of Python (>= 2.4, recently tested with 2.7.5)
+* SQLAlchemy (>= 0.6.0, recently tested with 0.9.1)
+* pygtk (>= 2.12)
+* PyGObject (>= 2.11.1)
+* lxml (>= 2.0)
 
-* SQLAlchemy>=0.6.0
-* pygtk>=2.12
-* lxml>=2.0
-
-At least one of the following database connectors:
+each of the following database connectors is optional, but at least one is needed:
 
 * pysqlite >= 2.3.2
 * psycopg2 >= 2.0.5 
@@ -64,14 +65,14 @@ Installation
 ### Linux
 
 1. Download the bauble.classic sources from either:
-   * http://bauble.belizebotanic.org (and extract the archive to a directory)
    * git clone https://github.com/Bauble/bauble.classic.git
+   * git clone https://github.com/mfrasca/bauble.classic.git
 2. Change to the bauble directory containing the sources
 3. (optional) make a virtual environment with --system-site-packages.
-4. install system wide: pygtk
-4. Type "python setup.py install" on the command line.
-5. (optional) install a python DBMS wrapper (or use sqlite3).
-6. To run Bauble type bauble on the command line.
+4. install system wide: pygtk (ubuntu, debian: python-gtk2)
+5. Type "[sudo] python setup.py install" on the command line.
+6. (optional) install a python DBMS wrapper (or use sqlite3).
+7. Type bauble on the command line to run Bauble.
 
 ### Windows
 
