@@ -299,5 +299,5 @@ if __name__ == "__main__":
 
     w.connect("destroy", gtk.main_quit)
     w.show_all()
-    gtk.gdk.threads_init()
+    gobject.threads_init()
     gtk.main()

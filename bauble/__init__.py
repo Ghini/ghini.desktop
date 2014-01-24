@@ -195,8 +195,7 @@ def main(uri=None):
         os.makedirs(paths.user_dir())
 
     # initialize threading
-    gtk.gdk.threads_init()
-    gtk.gdk.threads_enter()
+    gobject.threads_init()
 
     try:
         import bauble.db as db
@@ -311,5 +310,6 @@ def main(uri=None):
     gobject.idle_add(_post_loop)
 
     gui.show()
+    gtk.threads_enter()
     gtk.main()
-    gtk.gdk.threads_leave()
+    gtk.threads_leave()
