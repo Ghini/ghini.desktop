@@ -645,12 +645,12 @@ class GUI(object):
 
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://bauble.belizebotanic.org/docs/1.0/',
+        desktop.open('http://bauble.readthedocs.org/en/latest/',
                      dialog_on_error=True)
 
 
     def on_help_menu_bug(self, widget, data=None):
-	desktop.open('https://bugs.launchpad.net/bauble/+bugs',
+	desktop.open('https://github.com/mfrasca/bauble.classic/issues/new',
                      dialog_on_error=True)
 
 
@@ -664,7 +664,7 @@ class GUI(object):
 	about.set_name('Bauble')
 	about.set_version(bauble.version)
         gtk.about_dialog_set_url_hook(lambda d, l: desktop.open(l, dialog_on_error=True))
-        about.set_website(_('http://bauble.belizebotanic.org'))
+        about.set_website(_('http://bauble.io'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
         about.set_logo(pixbuf)
