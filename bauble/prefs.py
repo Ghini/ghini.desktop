@@ -170,11 +170,11 @@ Values: metric, imperial
 
 from ConfigParser import RawConfigParser
 
+
 class _prefs(dict):
 
     def __init__(self, filename=default_prefs_file):
         self._filename = filename
-
 
     def init(self):
         '''
@@ -197,7 +197,7 @@ class _prefs(dict):
             from bauble.utils.log import warning
             warning('%s has no config version pref' % self._filename)
             warning('setting the config version to %s.%s' % (config_version))
-	    self[config_version_pref] = config_version
+            self[config_version_pref] = config_version
 
         # set some defaults if they don't exist
         if date_format_pref not in self:
@@ -218,12 +218,10 @@ class _prefs(dict):
         if units_pref not in self:
             self[units_pref] = 'metric'
 
-
     @staticmethod
     def _parse_key(name):
         index = name.rfind(".")
         return name[:index], name[index+1:]
-
 
     def get(self, key, default):
         '''
@@ -234,7 +232,6 @@ class _prefs(dict):
             return default
         return value
 
-
     def __getitem__(self, key):
         section, option = _prefs._parse_key(key)
         # this doesn't allow None values for preferences
@@ -244,24 +241,21 @@ class _prefs(dict):
         else:
             i = self.config.get(section, option)
             eval_chars = '{[('
-            if i[0] in eval_chars: # then the value is a dict, list or tuple
+            if i[0] in eval_chars:  # then the value is a dict, list or tuple
                 return eval(i)
             elif i == 'True' or i == 'False':
                 return eval(i)
             return i
             #return self.config.get(section, option)
 
-
     def iteritems(self):
         return [('%s.%s' % (section, name), value) for section in sorted(prefs.config.sections()) for name, value in prefs.config.items(section)]
-
 
     def __setitem__(self, key, value):
         section, option = _prefs._parse_key(key)
         if not self.config.has_section(section):
             self.config.add_section(section)
         self.config.set(section, option, str(value))
-
 
     def __contains__(self, key):
         section, option = _prefs._parse_key(key)
@@ -270,7 +264,6 @@ class _prefs(dict):
             return True
         return False
 
-
     def save(self):
         try:
             f = open(self._filename, "w+")
@@ -278,7 +271,7 @@ class _prefs(dict):
             f.close()
         except Exception:
             msg = _("Bauble can't save your user preferences. \n\nPlease "
-                    "check the file permissions of your config file:\n %s" \
+                    "check the file permissions of your config file:\n %s"
                     % self._filename)
             if bauble.gui is not None and bauble.gui.window is not None:
                 import bauble.utils as utils
@@ -313,10 +306,10 @@ class PrefsView(pluginmgr.View):
         pane.set_border_width(5)
         width, height = pane.size_request()
 
-
         # TODO: check-resize and move_handle are not the correct
         # signals when the pane is resized....so right now the size is
         # not getting saved in the prefs
+
         def on_move_handle(paned, data=None):
             print p.get_position()
             prefs[self.pane_size_pref] = p.get_position()
@@ -349,7 +342,6 @@ class PrefsView(pluginmgr.View):
         frame.add(view)
         pane.pack2(frame)
 
-
     def create_tree(self, columns, itemsiter):
         treeview = gtk.TreeView()
         treeview.set_rules_hint(True)
@@ -373,12 +365,10 @@ class PrefsView(pluginmgr.View):
         sw.add(treeview)
         return sw
 
-
     def create_prefs_view(self):
         global prefs
         tree = self.create_tree([_('Names'), _('Values')], prefs.iteritems())
         return tree
-
 
     def create_registry_view(self):
         #from bauble.pluginmgr import Registry
@@ -391,8 +381,6 @@ class PrefsView(pluginmgr.View):
         return tree
 
 
-
-
 class PrefsCommandHandler(pluginmgr.CommandHandler):
 
     command = ('prefs', 'config')
@@ -401,16 +389,12 @@ class PrefsCommandHandler(pluginmgr.CommandHandler):
     def __call__(self, cmd, arg):
         pass
 
-
     def get_view(self):
         if self.view is None:
             self.view = PrefsView()
         return self.view
 
 
-
 pluginmgr.register_command(PrefsCommandHandler)
 
 prefs = _prefs()
-
-

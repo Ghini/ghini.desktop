@@ -1,9 +1,3 @@
-.. Bauble documentation master file, created by sphinx-quickstart on Sun Oct 19 13:24:19 2008.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-
-
 Documentation for Bauble 1.0
 ############################
 

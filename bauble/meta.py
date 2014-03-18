@@ -21,6 +21,7 @@ REGISTRY_KEY = u'registry'
 # m - number month, two digits when necessary
 DATE_FORMAT_KEY = u'date_format'
 
+
 def get_default(name, default=None, session=None):
     """
     Get a BaubleMeta object with name.  If the default value is not

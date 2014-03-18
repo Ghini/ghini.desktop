@@ -11,6 +11,7 @@ import sys
 usage = """Usage: %s <version>
 """ % os.path.basename(sys.argv[0])
 
+
 def usage_and_exit(msg=None):
     print >>sys.stderr, usage
     if msg:
@@ -26,11 +27,14 @@ if not re.match('.*?\..*?\..*?', version):
 
 bump_tag = ':bump'
 
+
 def bump_file(filename, rx):
     """
-    rx should have two groups, everything before the version and
-    everything after the version
+    rx is either a compiled regular expression or a string that can be
+    compiled into one.  rx should have two groups, everything before the
+    version and everything after the version.
     """
+
     # TODO; make sure that there is only one instance of
     # version=some_version in a file...don't have to if we can add
     # :bump somewhere in the comment on the same line
@@ -84,4 +88,3 @@ bump_nsi_file('scripts/build.nsi')
 # TODO: the bauble UBC version is prefixed with ubc-
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file('packages/builddeb.sh', rx)
-

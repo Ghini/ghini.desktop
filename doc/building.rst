@@ -52,13 +52,19 @@ Building on Windows
 Building on Linux
 -----------------
 
-Building on Linux will require you to be familiar with the package
-manager for your distribution.  
+Building on Linux will require you to be familiar with the package manager
+for your distribution.  The installation procedure described here attempts
+minimizing the amount of globally installed packages, most of the
+dependencies will be placed in a virtual environment and installed using
+pip.
 
 1. Using your package manager install the following dependencies::
 
-   	      python, pygtk, lxml, pyparsing, mako, gdata, sqlalchemy-0.5, 
-	      fibra==0.0.17, python-dateutil
+              python, pygtk, virtualenvwrapper
+
+2. create a virtual environment named bauble.classic
+
+              mkvirtualenv bauble.classic
 
 2. You can test if you have all the Bauble depedencies properly
    installed by running Bauble from the top directory of the source
