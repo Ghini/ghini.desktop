@@ -14,6 +14,7 @@ import bauble.error as error
 
 # TODO: store all times as UTC or support timezones
 
+
 class EnumError(error.BaubleError):
     """Raised when a bad value is inserted or returned from the Enum type"""
 
@@ -36,13 +37,13 @@ class Enum(types.TypeDecorator):
         # create the translations from the values and set those from
         # the translations argument, this way if some translations are
         # missing then the translation will be the same as value
-        self.translations = dict((v,v) for v in values)
+        self.translations = dict((v, v) for v in values)
         for key, value in translations.iteritems():
             self.translations[key] = value
         if values is None or len(values) is 0:
             raise EnumError(_('Enum requires a list of values'))
         if empty_to_none and None not in values:
-            raise EnumError(_('You have configured empty_to_none=True but '\
+            raise EnumError(_('You have configured empty_to_none=True but '
                               'None is not in the values lists'))
         self.values = values[:]
         self.strict = strict
@@ -52,7 +53,6 @@ class Enum(types.TypeDecorator):
         size = max([len(v) for v in values if v is not None])
         super(Enum, self).__init__(size, **kwargs)
 
-
     def process_bind_param(self, value, dialect):
         """
         Process the value going into the database.
@@ -60,10 +60,9 @@ class Enum(types.TypeDecorator):
         if self.empty_to_none and value is '':
             value = None
         if value not in self.values:
-           raise EnumError(_('"%(value)s" not in Enum.values: %(all_values)s') %
-                           dict(value=value, all_values=self.values))
+            raise EnumError(_('"%(value)s" not in Enum.values: %(all_values)s'
+                              ) % dict(value=value, all_values=self.values))
         return value
-
 
     def process_result_value(self, value, dialect):
         """
@@ -73,10 +72,8 @@ class Enum(types.TypeDecorator):
         #     raise ValueError(_('"%s" not in Enum.values') % value)
         return value
 
-
     def copy(self):
         return Enum(self.values, self.empty_to_none, self.strict)
-
 
 
 # class tzinfo(datetime.tzinfo):
@@ -95,7 +92,6 @@ class Enum(types.TypeDecorator):
 
 #     def utcoffset(self, dt):
 #         return self._utcoffset
-
 
 
 class DateTime(types.TypeDecorator):
@@ -120,14 +116,11 @@ class DateTime(types.TypeDecorator):
         return date_parser.parse(value, dayfirst=DateTime._dayfirst,
                                  yearfirst=DateTime._yearfirst)
 
-
     def process_result_value(self, value, dialect):
         return value
 
-
     def copy(self):
         return DateTime()
-
 
 
 class Date(types.TypeDecorator):
@@ -149,11 +142,8 @@ class Date(types.TypeDecorator):
         return date_parser.parse(value, dayfirst=Date._dayfirst,
                                  yearfirst=Date._yearfirst).date()
 
-
     def process_result_value(self, value, dialect):
         return value
 
-
     def copy(self):
         return Date()
-

@@ -18,12 +18,12 @@ import bauble.utils as utils
 # TODO: show list of completions of valid values, maybe even create
 # combos for enum types values instead of text entries
 
+
 def search(text, session):
     results = set()
     for strategy in _search_strategies:
         results.update(strategy.search(text, session))
     return list(results)
-
 
 
 class SearchParser(object):
@@ -34,12 +34,12 @@ class SearchParser(object):
     # value can contain any string once its quoted
     value = value_chars | quotedString.setParseAction(removeQuotes)
     value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
-    binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
+    binop = oneOf('= == != <> < <= > >= not like contains has ilike '
                   'icontains ihas is')('binop')
     domain = Word(alphas, alphanums)('domain')
     domain_values = Group(value_list.copy())
     domain_expression = (domain + Literal('=') + Literal('*') + StringEnd()) \
-                        | (domain + binop + domain_values + StringEnd())
+        | (domain + binop + domain_values + StringEnd())
 
     and_token = CaselessKeyword('and')
     or_token = CaselessKeyword('or')
@@ -48,12 +48,11 @@ class SearchParser(object):
     identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
     ident_expression = Group(identifier + binop + value)
     query_expression = ident_expression \
-                       + ZeroOrMore(log_op + ident_expression)
+        + ZeroOrMore(log_op + ident_expression)
     query = domain + CaselessKeyword('where').suppress() \
-            + Group(query_expression) + StringEnd()
+        + Group(query_expression) + StringEnd()
 
     statement = query | domain_expression | value_list
-
 
     def parse_string(self, text):
         '''
@@ -61,7 +60,6 @@ class SearchParser(object):
         query, an expression or a list of values
         '''
         return self.statement.parseString(text)
-
 
 
 class SearchStrategy(object):
@@ -78,7 +76,6 @@ class SearchStrategy(object):
         from the search.
         '''
         pass
-
 
 
 class MapperSearch(SearchStrategy):
@@ -102,7 +99,6 @@ class MapperSearch(SearchStrategy):
         self._results = set()
         self.parser = SearchParser()
 
-
     def add_meta(self, domain, cls, properties):
         """
         Adds search meta to the domain
@@ -113,10 +109,12 @@ class MapperSearch(SearchStrategy):
         :param properties: a list of string names of the properties to
         search by default
         """
-        check(isinstance(properties, list), _('MapperSearch.add_meta(): '\
-        'default_columns argument must be list'))
-        check(len(properties) > 0, _('MapperSearch.add_meta(): '\
-        'default_columns argument cannot be empty'))
+        check(isinstance(properties, list),
+              _('MapperSearch.add_meta(): '
+                'default_columns argument must be list'))
+        check(len(properties) > 0,
+              _('MapperSearch.add_meta(): '
+                'default_columns argument cannot be empty'))
         if isinstance(domain, (list, tuple)):
             self._domains[domain[0]] = cls, properties
             for d in domain[1:]:
@@ -124,7 +122,6 @@ class MapperSearch(SearchStrategy):
         else:
             self._domains[d] = cls, properties
         self._properties[cls] = properties
-
 
     @classmethod
     def get_domain_classes(cls):
@@ -172,15 +169,14 @@ class MapperSearch(SearchStrategy):
                 cond = lambda col: \
                     lambda val: utils.ilike(col, '%s' % val)
 
-
             if len(idents) == 1:
                 # we get here when the idents only refer to a property
                 # on the mapper table..i.e. a column
                 col = idents[0]
-                msg = _('The %(tablename)s table does not have a '\
-                       'column named "%(columname)s"') % \
+                msg = (_('The %(tablename)s table does not have a '
+                         'column named "%(columname)s"') %
                        dict(tablename=mapper.local_table.name,
-                            columname=col)
+                            columname=col))
                 check(col in mapper.c, msg)
                 if isinstance(cond, str):
                     clause = getattr(cls, col).op(cond)(utils.utf8(val))
@@ -218,7 +214,6 @@ class MapperSearch(SearchStrategy):
 
         self._results.update(main_query.order_by(None).all())
 
-
     def on_domain_expression(self, s, loc, tokens):
         """
         Called when the parser hits a domain_expression token.
@@ -237,9 +232,9 @@ class MapperSearch(SearchStrategy):
         except KeyError:
             raise KeyError(_('Unknown search domain: %s' % domain))
 
-	query = self._session.query(cls)
+        query = self._session.query(cls)
 
-	# select all objects from the domain
+        # select all objects from the domain
         if values == '*':
             self._results.update(query.all())
             return
@@ -261,7 +256,6 @@ class MapperSearch(SearchStrategy):
             self._results.update(query.filter(ors).all())
         return tokens
 
-
     def on_value_list(self, s, loc, tokens):
         """
         Called when the parser hits a value_list token
@@ -282,20 +276,21 @@ class MapperSearch(SearchStrategy):
 
         for cls, columns in self._properties.iteritems():
             q = self._session.query(cls)
-            cv = [(c,v) for c in columns for v in tokens]
+            cv = [(c, v) for c in columns for v in tokens]
             # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
             # object if the col is a Unicode or UnicodeText column in order
             # to avoid the "Unicode type received non-unicode bind param"
+
             def unicol(col, v):
                 mapper = class_mapper(cls)
-                if isinstance(mapper.c[col].type, (Unicode,UnicodeText)):
+                if isinstance(mapper.c[col].type, (Unicode, UnicodeText)):
                     return unicode(v)
                 else:
                     return v
-            mapper = class_mapper(cls)
-            q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c,v in cv]))
-            self._results.update(q.all())
 
+            mapper = class_mapper(cls)
+            q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c, v in cv]))
+            self._results.update(q.all())
 
     def search(self, text, session):
         """
@@ -332,6 +327,7 @@ SearchStrategy instances
     """
 _search_strategies = [MapperSearch()]
 
+
 def add_strategy(strategy):
     _search_strategies.append(strategy())
 
@@ -340,7 +336,6 @@ def get_strategy(name):
     for strategy in _search_strategies:
         if strategy.__class__.__name__ == name:
             return strategy
-
 
 
 class SchemaBrowser(gtk.VBox):
@@ -376,33 +371,31 @@ class SchemaBrowser(gtk.VBox):
         frame.add(sw)
         self.pack_start(frame, expand=True, fill=True)
 
-
     def _insert_props(self, mapper, model, treeiter):
         """
         Insert the properties from mapper into the model at treeiter
         """
-        column_properties = sorted(filter(lambda x:  \
-                                              isinstance(x, ColumnProperty) \
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        column_properties = sorted(
+            filter(lambda x: isinstance(x, ColumnProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
         for prop in column_properties:
             model.append(treeiter, [prop.key, prop])
 
-
-        relation_properties = sorted(filter(lambda x:  \
-                                                isinstance(x, RelationProperty)\
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        relation_properties = sorted(
+            filter(lambda x: isinstance(x, RelationProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
         for prop in relation_properties:
             it = model.append(treeiter, [prop.key, prop])
             model.append(it, ['', None])
 
-
     def on_row_expanded(self, treeview, treeiter, path):
         """
-        Called before the row is expanded and populates the children of the row.
+        Called before the row is expanded and populates the children of the
+        row.
         """
         debug('on_row_expanded')
         model = treeview.props.model
@@ -415,7 +408,6 @@ class SchemaBrowser(gtk.VBox):
         # prop should always be a RelationProperty
         prop = treeview.props.model[treeiter][1]
         self._insert_props(prop.mapper, model, treeiter)
-
 
     def on_table_combo_changed(self, combo, *args):
         """
@@ -431,7 +423,6 @@ class SchemaBrowser(gtk.VBox):
         self.prop_tree.props.model = model
 
 
-
 class SchemaMenu(gtk.Menu):
     """
     SchemaMenu
@@ -441,13 +432,13 @@ class SchemaMenu(gtk.Menu):
     :param relation_filter:
     """
 
-    def __init__(self, mapper, activate_cb=None, relation_filter=lambda p:True):
+    def __init__(self, mapper, activate_cb=None,
+                 relation_filter=lambda p: True):
         super(SchemaMenu, self).__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
         map(self.append, self._get_prop_menuitems(mapper))
         self.show_all()
-
 
     def on_activate(self, menuitem, prop):
         """
@@ -466,7 +457,6 @@ class SchemaMenu(gtk.Menu):
         full_path = '.'.join(reversed(path))
         self.activate_cb(menuitem, full_path, prop)
 
-
     def on_select(self, menuitem, prop):
         """
         Called when menu items that have submenus are selected
@@ -477,14 +467,13 @@ class SchemaMenu(gtk.Menu):
             map(submenu.append, self._get_prop_menuitems(prop.mapper))
         submenu.show_all()
 
-
     def _get_prop_menuitems(self, mapper):
         items = []
-        column_properties = sorted(filter(lambda x:  \
-                                              isinstance(x, ColumnProperty) \
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        column_properties = sorted(
+            filter(lambda x: isinstance(x, ColumnProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
 
         for prop in column_properties:
             if not self.relation_filter(prop):
@@ -495,11 +484,11 @@ class SchemaMenu(gtk.Menu):
 
         # filter out properties that start with underscore since they
         # are considered private
-        relation_properties = sorted(filter(lambda x:  \
-                                                isinstance(x, RelationProperty)\
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        relation_properties = sorted(
+            filter(lambda x: isinstance(x, RelationProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
         for prop in relation_properties:
             if not self.relation_filter(prop):
                 continue
@@ -509,7 +498,6 @@ class SchemaMenu(gtk.Menu):
             item.set_submenu(submenu)
             item.connect('select', self.on_select, prop)
         return items
-
 
 
 class ExpressionRow(object):
@@ -531,17 +519,20 @@ class ExpressionRow(object):
             self.and_or_combo.append_text("and")
             self.and_or_combo.append_text("or")
             self.and_or_combo.set_active(0)
-            self.table.attach(self.and_or_combo, 0, 1, row_number, row_number+1)
+            self.table.attach(self.and_or_combo, 0, 1,
+                              row_number, row_number + 1)
 
         self.prop_button = gtk.Button(_('Choose a property...'))
         self.prop_button.props.use_underline = False
+
         def on_prop_button_clicked(button, event, menu):
             menu.popup(None, None, None, event.button, event.time)
+
         self.schema_menu = SchemaMenu(self.mapper,
                                       self.on_schema_menu_activated,
                                       self.relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
-                            self.schema_menu)
+                                 self.schema_menu)
         self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
@@ -565,8 +556,8 @@ class ExpressionRow(object):
             self.remove_button.props.image = image
             self.remove_button.connect('clicked',
                                        lambda b: remove_callback(self))
-            self.table.attach(self.remove_button, 4, 5, row_number,row_number+1)
-
+            self.table.attach(self.remove_button, 4, 5,
+                              row_number, row_number + 1)
 
     def on_value_changed(self, widget, *args):
         """
@@ -574,7 +565,6 @@ class ExpressionRow(object):
         Set the sensitivity of the gtk.RESPONSE_OK button on the QueryBuilder.
         """
         self.dialog.validate()
-
 
     def on_schema_menu_activated(self, menuitem, path, prop):
         """
@@ -598,10 +588,10 @@ class ExpressionRow(object):
             model = gtk.ListStore(str, str)
             if prop.columns[0].type.translations:
                 trans = prop.columns[0].type.translations
-                prop_values = [(k,trans[k]) for k in sorted(trans.keys())]
+                prop_values = [(k, trans[k]) for k in sorted(trans.keys())]
             else:
                 values = prop.columns[0].type.values
-                prop_values = [(v,v) for v in sorted(values)]
+                prop_values = [(v, v) for v in sorted(values)]
             for value, translation in prop_values:
                 model.append([value, translation])
             self.value_widget.props.model = model
@@ -614,13 +604,11 @@ class ExpressionRow(object):
         self.table.show_all()
         self.dialog.validate()
 
-
     def relation_filter(self, prop):
         if isinstance(prop, ColumnProperty) and \
                 isinstance(prop.columns[0].type, bauble.btypes.Date):
             return False
         return True
-
 
     def get_widgets(self):
         """
@@ -629,7 +617,6 @@ class ExpressionRow(object):
         """
         return self.and_or_combo, self.prop_button, self.cond_combo, \
             self.value_widget, self.remove_button
-
 
     def get_expression(self):
         """
@@ -659,7 +646,6 @@ class ExpressionRow(object):
                          '"%s"' % value]).strip()
 
 
-
 class QueryBuilder(gtk.Dialog):
 
     def __init__(self, parent=None):
@@ -677,7 +663,6 @@ class QueryBuilder(gtk.Dialog):
         self._first_choice = True
         self.set_response_sensitive(gtk.RESPONSE_OK, False)
 
-
     def on_domain_combo_changed(self, *args):
         """
         Change the search domain.  Resets the expression table and
@@ -694,7 +679,6 @@ class QueryBuilder(gtk.Dialog):
         self.add_button.props.sensitive = True
         self.add_expression_row()
         self.expressions_table.show_all()
-
 
     def validate(self):
         """
@@ -718,8 +702,6 @@ class QueryBuilder(gtk.Dialog):
         self.set_response_sensitive(gtk.RESPONSE_OK, valid)
         return valid
 
-
-
     def remove_expression_row(self, row):
         """
         Remove a row from the expressions table.
@@ -728,7 +710,6 @@ class QueryBuilder(gtk.Dialog):
         self.expressions_table.props.n_rows -= 1
         self.expression_rows.remove(row)
         del row
-
 
     def add_expression_row(self):
         """
@@ -740,7 +721,6 @@ class QueryBuilder(gtk.Dialog):
         self.set_response_sensitive(gtk.RESPONSE_OK, False)
         self.expression_rows.append(row)
         self.expressions_table.show_all()
-
 
     def start(self):
         self.domain_map = MapperSearch.get_domain_classes().copy()
@@ -777,7 +757,6 @@ class QueryBuilder(gtk.Dialog):
         self.hide()
         return response
 
-
     def get_query(self):
         """
         Return query expression string.
@@ -792,7 +771,6 @@ class QueryBuilder(gtk.Dialog):
         return ' '.join(query)
 
 
-
 if __name__ == '__main__':
     import bauble.test
     uri = 'sqlite:///:memory:'
@@ -800,4 +778,3 @@ if __name__ == '__main__':
     qb = QueryBuilder()
     qb.start()
     debug(qb.get_query())
-

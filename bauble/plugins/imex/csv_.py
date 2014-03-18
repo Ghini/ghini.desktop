@@ -49,6 +49,7 @@ from sqlalchemy.sql.util import sort_tables
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
 
+
 def pb_set_fraction(fraction):
     """
     provides a safe way to handle the progress bar if the gui isn't started,
@@ -58,13 +59,11 @@ def pb_set_fraction(fraction):
         bauble.gui.progressbar.set_fraction(fraction)
 
 
-
 class UnicodeReader(object):
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         self.reader = csv.DictReader(f, dialect=dialect, **kwds)
         self.encoding = encoding
-
 
     def next(self):
         row = self.reader.next()
@@ -76,7 +75,6 @@ class UnicodeReader(object):
                 t[k] = utils.to_unicode(v, self.encoding)
 
         return t
-
 
     def __iter__(self):
         return self
@@ -92,7 +90,6 @@ class UnicodeWriter(object):
         self.writer = csv.writer(f, dialect=dialect, **kwds)
         self.encoding = encoding
 
-
     def writerow(self, row):
         """
         Write a row.  If row is a dict then row.values() is written
@@ -103,12 +100,11 @@ class UnicodeWriter(object):
             row = row.values()
         t = []
         for s in row:
-            if s == None:
+            if s is None:
                 t.append(None)
             else:
                 t.append(utils.to_unicode(s, self.encoding))
         self.writer.writerow(t)
-
 
     def writerows(self, rows):
         for row in rows:
@@ -123,7 +119,6 @@ class Importer(object):
         process as a bauble task
         '''
         return bauble.task.queue(self.run, **kwargs)
-
 
     def run(self, **kwargs):
         '''
@@ -147,11 +142,10 @@ class CSVImporter(Importer):
     """
     def __init__(self):
         super(CSVImporter, self).__init__()
-        self.__error = False  # flag to indicate error on import
-        self.__cancel = False # flag to cancel importing
-        self.__pause = False  # flag to pause importing
+        self.__error = False   # flag to indicate error on import
+        self.__cancel = False  # flag to cancel importing
+        self.__pause = False   # flag to pause importing
         self.__error_exc = False
-
 
     def start(self, filenames=None, metadata=None, force=False):
         '''
@@ -167,7 +161,6 @@ class CSVImporter(Importer):
             return
 
         bauble.task.queue(self.run(filenames, metadata, force))
-
 
     @staticmethod
     def _toposort_file(filename, key_pairs):
@@ -223,7 +216,6 @@ class CSVImporter(Importer):
         del writer
         return filename
 
-
     def run(self, filenames, metadata, force=False):
         '''
         A generator method for importing filenames into the database.
@@ -246,7 +238,7 @@ class CSVImporter(Importer):
             transaction = connection.begin()
         except Exception, e:
             msg = _('Error connecting to database.\n\n%s') % \
-                  utils.xml_safe_utf8(e)
+                utils.xml_safe_utf8(e)
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
@@ -260,13 +252,12 @@ class CSVImporter(Importer):
                 values = dict(table_name=safe(table_name),
                               file_name=safe(filename_dict[table_name]),
                               file_name2=safe(f))
-                msg = _('More than one file given to import into table '\
-                        '<b>%(table_name)s</b>: %(file_name)s, '\
+                msg = _('More than one file given to import into table '
+                        '<b>%(table_name)s</b>: %(file_name)s, '
                         '(file_name2)s') % values
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 return
             filename_dict[table_name] = f
-
 
         # resolve filenames to table names and return them in sorted order
         sorted_tables = []
@@ -279,7 +270,7 @@ class CSVImporter(Importer):
 
         if len(filename_dict) > 0:
             msg = _('Could not match all filenames to table names.\n\n%s') \
-                  % filename_dict
+                % filename_dict
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
@@ -292,37 +283,36 @@ class CSVImporter(Importer):
             total_lines += nlines
 
         created_tables = []
+
         def create_table(table):
             table.create(bind=connection)
             if table.name not in created_tables:
                 created_tables.append(table.name)
-#             created_tables.extend([n for n in names \
-#                                    if n not in created_tables])
 
         steps_so_far = 0
         cleaned = None
         insert = None
-        depends = set() # the type will be changed to a [] later
+        depends = set()  # the type will be changed to a [] later
         try:
-            # get all the dependencies
+            ## get all the dependencies
             for table, filename in sorted_tables:
                 #debug(table.name)
                 d = utils.find_dependent_tables(table)
                 depends.update(list(d))
 
-            # drop all of the dependencies together
+            ## drop all of the dependencies together
             if len(depends) > 0:
                 if not force:
-                    msg = _('In order to import the files the following '\
-                                'tables will need to be dropped:' \
-                                '\n\n<b>%s</b>\n\n' \
-                                'Would you like to continue?' \
-                                % ', '.join(sorted([d.name for d in depends])))
+                    msg = _('In order to import the files the following '
+                            'tables will need to be dropped:'
+                            '\n\n<b>%s</b>\n\n'
+                            'Would you like to continue?'
+                            % ', '.join(sorted([d.name for d in depends])))
                     response = utils.yes_no_dialog(msg)
                 else:
                     response = True
 
-                if response and len(depends)>0:
+                if response and len(depends) > 0:
                     # debug('dropping: %s' \
                     #           % ', '.join([d.name for d in depends]))
                     metadata.drop_all(bind=connection, tables=depends)
@@ -344,10 +334,10 @@ class CSVImporter(Importer):
                 if self.__cancel or self.__error:
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
-                        % {'table': table.name, 'filename': filename}
+                    % {'table': table.name, 'filename': filename}
                 #log.info(msg)
                 bauble.task.set_message(msg)
-                yield # allow progress bar update
+                yield  # allow progress bar update
 
                 # don't do anything if the file is empty:
                 if filesizes[filename] <= 1:
@@ -367,13 +357,13 @@ class CSVImporter(Importer):
                     # dropped because it was a dependency of another
                     # table
                     if not force:
-                        msg = _('The <b>%s</b> table already exists in the '\
-                                'database and may contain some data. If a '\
+                        msg = _('The <b>%s</b> table already exists in the '
+                                'database and may contain some data. If a '
                                 'row the import file has the same id as a '
-                                'row in the database then the file will not '\
+                                'row in the database then the file will not '
                                 'import correctly.\n\n<i>Would you like to '
-                                'drop the table in the database first. You '\
-                                'will lose the data in your database if you '\
+                                'drop the table in the database first. You '
+                                'will lose the data in your database if you '
                                 'do this?</i>') % table.name
                         response = utils.yes_no_dialog(msg)
                     else:
@@ -414,8 +404,8 @@ class CSVImporter(Importer):
                 # the lines sorted in order of dependency so that we
                 # don't get errors about importing values into a
                 # foreign_key that don't reference and existin row
-                self_keys = filter(lambda f: f.column.table==table, \
-                                      table.foreign_keys)
+                self_keys = filter(lambda f: f.column.table == table,
+                                   table.foreign_keys)
                 if self_keys:
                     key_pairs = map(lambda x: (x.parent.name, x.column.name),
                                     self_keys)
@@ -429,12 +419,13 @@ class CSVImporter(Importer):
                     compile(column_keys=column_keys)
 
                 values = []
+
                 def do_insert():
                     if values:
                         connection.execute(insert, *values)
                     del values[:]
                     percent = float(steps_so_far)/float(total_lines)
-                    if 0 < percent < 1.0: # avoid warning
+                    if 0 < percent < 1.0:  # avoid warning
                         if bauble.gui is not None:
                             pb_set_fraction(percent)
 
@@ -456,8 +447,8 @@ class CSVImporter(Importer):
                     # columns in line
                     for column in table.c.keys():
                         if column in defaults \
-                                and (column not in line \
-                                         or isempty(line[column])):
+                                and (column not in line
+                                     or isempty(line[column])):
                             line[column] = defaults[column]
                         elif column in line and isempty(line[column]):
                             line[column] = None
@@ -468,7 +459,7 @@ class CSVImporter(Importer):
                         elif column in line and line[column] == 'True' and \
                                 isinstance(table.c[column].type, Boolean):
                             # need bool value, not 'True' string
-                            line[column] = True                        
+                            line[column] = True
                             # in SA 0.5.5 and only on an SQLite
                             # database the 'False' will import as True
                             # for some reason whereas True will import
@@ -490,7 +481,8 @@ class CSVImporter(Importer):
                 # or Postgres will complain if two tables that are
                 # being imported have a foreign key relationship
                 transaction.commit()
-                #debug('%s: %s' % (table.name, table.select().alias().count().execute().fetchone()[0]))
+                ## debug('%s: %s' % (table.name,
+                ## table.select().alias().count().execute().fetchone()[0]))
                 transaction = connection.begin()
 
             #debug('creating: %s' % ', '.join([d.name for d in depends]))
@@ -525,11 +517,10 @@ class CSVImporter(Importer):
             except Exception:
                 pass
             msg = _('Error: Could not set the sequence for column: %s') \
-                  % col_name
+                % col_name
             utils.message_details_dialog(_(utils.xml_safe_utf8(msg)),
                                          traceback.format_exc(),
                                          type=gtk.MESSAGE_ERROR)
-
 
 # TODO: we don't use the progress dialog any more but we'll leave this
 # around to remind us when we support cancelling via the progress statusbar
@@ -545,7 +536,6 @@ class CSVImporter(Importer):
 #             self.__cancel = True
 ##         self.__pause = False
 
-
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
             """
@@ -557,10 +547,10 @@ class CSVImporter(Importer):
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
         fc = gtk.FileChooserDialog(_("Choose file(s) to import..."),
-                                  None,
-                                  gtk.FILE_CHOOSER_ACTION_OPEN,
-                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                   gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+                                   None,
+                                   gtk.FILE_CHOOSER_ACTION_OPEN,
+                                   (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                    gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
         fc.set_select_multiple(True)
         fc.connect("selection-changed", on_selection_changed)
         r = fc.run()
@@ -570,7 +560,6 @@ class CSVImporter(Importer):
         filenames = fc.get_filenames()
         fc.destroy()
         return filenames
-
 
     def on_response(self, widget, response, data=None):
         debug('on_response')
@@ -582,11 +571,11 @@ class CSVImporter(Importer):
 class CSVExporter(object):
 
     def start(self, path=None):
-        if path == None:
+        if path is None:
             d = gtk.FileChooserDialog(_("Select a directory"), None,
                                       gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
                                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+                                       gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
             response = d.run()
             path = d.get_filename()
             d.destroy()
@@ -603,7 +592,6 @@ class CSVExporter(object):
         except Exception, e:
             debug(e)
 
-
     def __export_task(self, path):
 #        if not os.path.exists(path):
 #            raise ValueError("CSVExporter: path does not exist.\n" + path)
@@ -615,9 +603,9 @@ class CSVExporter(object):
             ntables += 1
             filename = filename_template % table.name
             if os.path.exists(filename):
-                msg = _('Export file <b>%(filename)s</b> for '\
-                        '<b>%(table)s</b> table already exists.\n\n<i>Would '\
-                        'you like to continue?</i>') \
+                msg = _('Export file <b>%(filename)s</b> for '
+                        '<b>%(table)s</b> table already exists.\n\n<i>Would '
+                        'you like to continue?</i>')\
                         % {'filename': filename, 'table': table.name}
                 if utils.yes_no_dialog(msg):
                     return
@@ -629,19 +617,19 @@ class CSVExporter(object):
 
         def write_csv(filename, rows):
             f = open(filename, 'wb')
-            #writer = csv.writer(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
-            writer = UnicodeWriter(f, quotechar=QUOTE_CHAR,quoting=QUOTE_STYLE)
+            writer = UnicodeWriter(f, quotechar=QUOTE_CHAR,
+                                   quoting=QUOTE_STYLE)
             writer.writerows(rows)
             f.close()
 
         update_every = 30
         for table in db.metadata.sorted_tables:
             filename = filename_template % table.name
-            steps_so_far+=1
+            steps_so_far += 1
             fraction = float(steps_so_far)/float(ntables)
             pb_set_fraction(fraction)
-            msg = _('exporting %(table)s table to %(filename)s') \
-                    % {'table': table.name, 'filename': filename}
+            msg = _('exporting %(table)s table to %(filename)s')\
+                % {'table': table.name, 'filename': filename}
             bauble.task.set_message(msg)
             #log.info("exporting %s" % table.name)
 
@@ -657,7 +645,7 @@ class CSVExporter(object):
                 continue
 
             rows = []
-            rows.append(table.c.keys()) # append col names
+            rows.append(table.c.keys())  # append col names
             ctr = 0
             for row in results:
                 values = map(replace, row.values())
@@ -666,7 +654,7 @@ class CSVExporter(object):
                     yield
                     #yield timeout
                     #tasklet.get_event()
-                    ctr=0
+                    ctr = 0
                 ctr += 1
             write_csv(filename, rows)
 
@@ -688,6 +676,7 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
         exporter = CSVExporter()
         exporter.start(arg)
 
+
 #
 # plugin classes
 #
@@ -702,13 +691,12 @@ class CSVImportTool(pluginmgr.Tool):
         Start the CSV importer.  This tool will also reinitialize the
         plugins after importing.
         """
-        msg = _('It is possible that importing data into this database could '\
-                'destroy or corrupt your existing data.\n\n<i>Would you '\
+        msg = _('It is possible that importing data into this database could '
+                'destroy or corrupt your existing data.\n\n<i>Would you '
                 'like to continue?</i>')
         if utils.yes_no_dialog(msg):
             c = CSVImporter()
             c.start()
-
 
 
 class CSVExportTool(pluginmgr.Tool):
@@ -722,4 +710,3 @@ class CSVExportTool(pluginmgr.Tool):
 
 
 # TODO: add support to import from the command line
-

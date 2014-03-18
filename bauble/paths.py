@@ -17,6 +17,7 @@ import sys
 # this kinds sucks b/c it just pushes the problem onto someone else,
 # it also doesn't really solve things like virtualenv installs
 
+
 def main_is_frozen():
     """
     Returns True/False if Bauble is being run from a py2exe
@@ -24,9 +25,9 @@ def main_is_frozen():
     to make paths.py not depend on any other Bauble modules.
     """
     import imp
-    return (hasattr(sys, "frozen") or # new py2exe
-            hasattr(sys, "importers") or # old py2exe
-            imp.is_frozen("__main__")) # tools/freeze
+    return (hasattr(sys, "frozen") or  # new py2exe
+            hasattr(sys, "importers") or  # old py2exe
+            imp.is_frozen("__main__"))  # tools/freeze
 
 
 def main_dir():
@@ -84,7 +85,7 @@ def locale_dir():
     elif sys.platform == 'win32':
         d = os.path.join(main_dir(), 'share', 'locale')
     else:
-        raise NotImplementedError('This platform does not support '\
+        raise NotImplementedError('This platform does not support '
                                   'translations: %s' % sys.platform)
     return os.path.abspath(d)
 
@@ -98,9 +99,9 @@ def user_dir():
             d = os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
             d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
-                               'Bauble')
+                             'Bauble')
         else:
-            raise Exception(_('Could not get path for user settings: no ' \
+            raise Exception(_('Could not get path for user settings: no '
                               'APPDATA or USERPROFILE variable'))
     elif sys.platform == "linux2":
         # using os.expanduser is more reliable than os.environ['HOME']
@@ -110,11 +111,11 @@ def user_dir():
             d = os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
                              '.bauble')
         except Exception:
-            raise Exception(_('Could not get path for user settings: '\
-                              'could not expand $HOME for user %(username)s' %\
+            raise Exception(_('Could not get path for user settings: '
+                              'could not expand $HOME for user %(username)s' %
                               dict(username=os.environ['USER'])))
     else:
-        raise Exception(_('Could not get path for user settings: '\
+        raise Exception(_('Could not get path for user settings: '
                           'unsupported platform'))
     return os.path.abspath(d)
 

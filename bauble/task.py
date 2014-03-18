@@ -31,6 +31,7 @@ schedule = fibra.schedule()
 __running = False
 __kill = False
 
+
 def running():
     """
     Return True/False if a task is running.
@@ -97,6 +98,7 @@ def queue(task):
 
 __message_ids = []
 
+
 def set_message(msg):
     """
     A convenience function for setting a message on the
@@ -107,7 +109,7 @@ def set_message(msg):
     global _context_id
     try:
         _context_id
-    except NameError, e: # context_id not defined
+    except NameError, e:  # context_id not defined
         _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
     msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
     __message_ids.append(msg_id)
@@ -120,10 +122,8 @@ def clear_messages():
     :func:`bauble.task.set_message`
     """
     if bauble.gui is None or bauble.gui.widgets is None \
-           or bauble.gui.widgets.statusbar is None:
+            or bauble.gui.widgets.statusbar is None:
         return
     global _context_id, __message_ids
     for mid in __message_ids:
         bauble.gui.widgets.statusbar.remove(_context_id, mid)
-
-
