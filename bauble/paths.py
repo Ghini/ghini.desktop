@@ -80,8 +80,9 @@ def locale_dir():
     Returns the root path of the locale files
     """
     if sys.platform == 'linux2':
-        # TODO: how do we get the locale directory for linux?
-        d = os.path.join('/usr', 'share', 'locale')
+        this_file_location = __file__.split(os.path.sep)
+        the_installation_directory = this_file_location[:-7]
+        d = os.path.sep.join(the_installation_directory + ['share', 'locale'])
     elif sys.platform == 'win32':
         d = os.path.join(main_dir(), 'share', 'locale')
     else:
