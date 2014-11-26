@@ -1,8 +1,19 @@
 issues.txt
 .bzr
 doc/.build
+po
+.tx
 *~
 *pyc
 build
 dist
 bauble.egg-info
+
+## temporary files from the Cuchubo activity. ask mario@anche.no
+scripts/drop2bauble.py
+scripts/fixme.py
+scripts/gh-issues-import.py
+scripts/map2db.py
+scripts/tomongo.py
+scripts/what_are_the_problems.py
+scripts/what_is_available.py
