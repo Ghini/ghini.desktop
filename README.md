@@ -74,9 +74,32 @@ Installation
 6. (optional) install a python DBMS wrapper (or use sqlite3).
 7. Type bauble on the command line to run Bauble.
 
+### MacOSX
+
+being MacOSX a unix environment, most stuff should work just like in Linux,
+but we've never tried.
+
 ### Windows
+
+the 'batteries included' install allows the simple sequence:
 
 1. Download the bauble-<version>-.exe file from 
    http://bauble.belizebotanic.org
 2. Double click on the file when it finishes downloading.
 3. Run Bauble from the Start menu.
+
+unfortunately, nobody maintains the above installer, so you possibly better
+do a source install and take care of installing the 'batteries', which are
+just two:
+
+1. python (32bit)
+2. pygtk (requires 32bit python)
+
+now you sort of follow the same steps as in a normal operating system,
+taking care of the usual obvious differences between Windows and the unix
+world:
+
+1. install pip, virtualenvwrapper-win (which requires pip), git.
+2. download the bauble.classic sources (requires git)
+3. create a new virtual environment and activate it
+4. install the program (takes long)
