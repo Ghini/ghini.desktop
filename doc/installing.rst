@@ -62,10 +62,12 @@ itself.
 Installing on Windows
 =====================
 
-The Windows installer is a "batteries-included" installer.  It
-installs everything needed to run Bauble.  If you would
-like to install Bauble manually then you can download and install the
-dependencies and then install Bauble from the source package.
+The Windows installer used to be a "batteries-included" installer,
+installing everything needed to run Bauble.  It is now unmaintained and if
+you do use it, you will end up with a possibly obsolete version of
+bauble.classic.  If you want the latest version, you need to install Bauble
+manually: download and install the dependencies and then install Bauble from
+the source package.
 
 .. note:: Bauble has been tested with and is known to work on Windows
    XP. Although it should work fine on other versions Windows it has
