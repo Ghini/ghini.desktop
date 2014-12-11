@@ -22,7 +22,7 @@ itself.
 #. Download and extract the Bauble source package from
    https://github.com/mfrasca/bauble.classic.git
 #. Make and activate a virtual environment with
-   `--system-site-packages`.
+   ``--system-site-packages``.
 #. If you would like to use the default `SQLite
    <http://sqlite.org/>`_ database or you don't know what this means
    then you can skip this step.  If you would like to use a database
@@ -53,6 +53,10 @@ Installing on MacOSX
 Being MacOSX a unix environment, most stuff should work just like in
 Linux, but we've never tried. Feedback highly welcome.
 
+.. rubric:: Next...
+
+:ref:`connecting`.
+
 Installing on Windows
 =====================
 
@@ -75,9 +79,9 @@ the installation steps on Windows:
    http://www.python.org
 #. download and install pygtk (requires 32bit python) from:
    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
-#. download and install `pip` from:
+#. download and install ``pip`` from:
    http://bootstrap.pypa.io/get-pip.py
-#. download and install git (comes with a unix like `sh`).
+#. download and install git (comes with a unix-like ``sh``).
 #. install virtualenvwrapper-win (using pip)
 #. create the virtual environment now.
 #. download gettext from
@@ -85,15 +89,15 @@ the installation steps on Windows:
    you will need manually unpack the statically linked binaries,
    Windows will probably complain about the risks of unpacking a zip
    archive that contains executable files, ignore this. A safe place
-   to put the executable files is into the `Scripts` directory of
+   to put the executable files is into the ``Scripts`` directory of
    the virtual environment.
 #. (optional) download and install a database connector other than
-   `sqlite3`. TODO: still don't know how to do this for
-   `psycopg2`. On Windows, pip does not manage install it.
+   ``sqlite3``. TODO: still don't know how to do this for
+   ``psycopg2``. On Windows, pip does not manage install it.
 #. download the bauble.classic sources (using git) from:
    http://www.github.com/mfrasca/bauble.classic/
 #. activate the virtual environment.
-#. `python setup.py install`
+#. ``python setup.py install``
 #. TODO: write a git-shell script that activates the virtual
    environment, sets the language, invokes bauble.
 #. TODO: put the above git-shell script at a convenient place.
@@ -144,7 +148,7 @@ Troubleshooting the Install
 
     http://code.google.com/p/gdata-python-client/downloads/list
 
-    Unzip it and run `python setup.py install` in the folder you unzip it to.
+    Unzip it and run ``python setup.py installw` in the folder you unzip it to.
 
 .. rubric:: Next...
 
