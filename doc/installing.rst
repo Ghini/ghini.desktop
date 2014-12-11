@@ -1,87 +1,108 @@
 Installation
 ------------
 
-Bauble will run on both Windows and Linux.  
+bauble.classic is a cross-platform program and it will run on unix machines
+like Linux and MacOSX, as well as on Windows.
 
 Installing on Linux
 ===================
 
-To install Bauble on Linux first requires that you install some of its
-dependencies.  These include Python, GTK+, PyGTK, SQLAlchemy and
-others. Fortunately as long as you have these four packages installed
-then Bauble should be able to install the rest of its dependencies by
+To install Bauble on Linux first requires that you install its
+dependencies that cannot be installed automatically.  These include
+virtualenvwrapper, PyGTK and pip. Python and GTK+, you probably
+already have. As long as you have these packages installed then
+Bauble should be able to install the rest of its dependencies by
 itself.
 
-.. warning:: The following instructions details installing Bauble and
-   its dependent packages system-wide.  It is possible that this could
-   update some files on your computer that might affect other
-   applications.
+#. Make sure your `Python <http://www.python.org>`_ version is 2.4
+   or greater, that you have the develompent environment for `GTK+
+   <http://www.gtk.org>`_ and that you have installed `PyGTK
+   <http://www.pygtk.org>`_ using your package manager (ubuntu,
+   debian: python-gtk2).
+#. Download and extract the Bauble source package from
+   https://github.com/mfrasca/bauble.classic.git
+#. Make and activate a virtual environment with
+   `--system-site-packages`.
+#. If you would like to use the default `SQLite
+   <http://sqlite.org/>`_ database or you don't know what this means
+   then you can skip this step.  If you would like to use a database
+   backend other than the default SQLite backend then you will also
+   need to install a database connector.
 
-#.  Install `Python <http://www.python.org>`_ 2.4 or greater, `GTK+
-    <http://www.gtk.org>`_ and `PyGTK <http://www.pygtk.org>`_ using
-    your package manager.
-#.  Download and extract the Bauble source package from
-    http://bauble.belizebotanic.org/#download
-#.  In the directory where you extracted Bauble run the following command:
+   If you would like to use a `PostgreSQL <http://www.postgresql.org>`_
+   database then install psycopg2 with the following commands:
 
-    ``python ez_setup.py``
+   ``pip install -U psycopg2``
 
-#.  Install `SQLAlchemy <http://www.sqlalchemy.org>`_ with the
-    following command:
+#. In the installation directory execute the following command:
 
-    For Bauble 0.9:
-    ``easy_install -U 'SQLAlchemy>0.5'``
-    
-    For Bauble 0.8
-    ``easy_install -U 'SQLAlchemy<0.5b1'``
+   ``python setup.py install``
 
-#.  In the installation direction execute the following command:
+   If this doesn't complete successfully see :ref:`troubleshoot_install`.
 
-    ``python setup.py install``
-
-    If this doesn't complete successfully see :ref:`troubleshoot_install`.
-
-#.  If you would like to use the default `SQLite
-    <http://sqlite.org/>`_ database or you don't know what this means
-    then you can skip this step.  If you would like to use a database
-    backend other than the default SQLite backend then you will also
-    need to install a database connector.
-
-    If you would like to use a `PostgreSQL <http://www.postgresql.org>`_
-    database then install psycopg2 with the following commands:
-
-    ``easy_install -U psycopg2``
-
-#.  Run Bauble from the command line with the ``bauble`` command or in
-    the application menu under *Education*
+#. Any time you want to run Bauble, open a terminal window, activate
+   the virtual environment and execute the ``bauble`` command.
 
 .. rubric:: Next...
 
 :ref:`connecting`.
 
+Installing on MacOSX
+====================
+
+Being MacOSX a unix environment, most stuff should work just like in
+Linux, but we've never tried. Feedback highly welcome.
+
 Installing on Windows
 =====================
 
 The Windows installer used to be a "batteries-included" installer,
-installing everything needed to run Bauble.  It is now unmaintained and if
-you do use it, you will end up with a possibly obsolete version of
-bauble.classic.  If you want the latest version, you need to install Bauble
-manually: download and install the dependencies and then install Bauble from
-the source package.
+installing everything needed to run Bauble.  The current maintainer
+of bauble.classic cannot run Windows applications. If you want to
+run the latest version of bauble on Windows: download and install
+the dependencies and then install Bauble from the source package.
 
-.. note:: Bauble has been tested with and is known to work on Windows
-   XP. Although it should work fine on other versions Windows it has
-   not been thoroughly tested.
+Please report any trouble and help with packaging will be very
+welcome.
 
-#.  Download the latest windows installer from http://bauble.belizebotanic.org/#download.
-#.  Double-click on the installation file you just downloaded.
-#.  Run Bauble from the Windows Start Menu under Bauble.
+.. note:: Bauble has been tested with and is known to work on
+   Windows XP and Windows-8. Although it should work fine on other
+   versions Windows it has not been thoroughly tested.
 
+the installation steps on Windows:
+
+#. download and install python (32bit) from:
+   http://www.python.org
+#. download and install pygtk (requires 32bit python) from:
+   http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
+#. download and install `pip` from:
+   http://bootstrap.pypa.io/get-pip.py
+#. download and install git (comes with a unix like `sh`).
+#. install virtualenvwrapper-win (using pip)
+#. create the virtual environment now.
+#. download gettext from
+   http://www.boost.org/doc/libs/1_56_0/libs/locale/doc/html/gettext_for_windows.html
+   you will need manually unpack the statically linked binaries,
+   Windows will probably complain about the risks of unpacking a zip
+   archive that contains executable files, ignore this. A safe place
+   to put the executable files is into the `Scripts` directory of
+   the virtual environment.
+#. (optional) download and install a database connector other than
+   `sqlite3`. TODO: still don't know how to do this for
+   `psycopg2`. On Windows, pip does not manage install it.
+#. download the bauble.classic sources (using git) from:
+   http://www.github.com/mfrasca/bauble.classic/
+#. activate the virtual environment.
+#. `python setup.py install`
+#. TODO: write a git-shell script that activates the virtual
+   environment, sets the language, invokes bauble.
+#. TODO: put the above git-shell script at a convenient place.
 
 If you would like to generate and print PDF reports using Bauble's
 default report generator then you will need to download and install
-`Apache FOP <http://xmlgraphics.apache.org/fop/>`_. After extracting the FOP archive you will need to include
-the directory you extracted to in your PATH.
+`Apache FOP <http://xmlgraphics.apache.org/fop/>`_. After extracting
+the FOP archive you will need to include the directory you extracted
+to in your PATH.
 
 .. rubric:: Next...
 
@@ -102,7 +123,7 @@ Troubleshooting the Install
     The following packages are optional:
 
     	* Mako - required by the template based report generator
-    	* gdata - required by the Picassa photos InfoBox
+    	* gdata - required by the Picasa photos InfoBox
 
 
 #.  Couldn't install lxml.
