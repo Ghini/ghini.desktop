@@ -12,7 +12,7 @@ Family and Genera list from Vascular Plant Families and Genera compiled by
 R. K. Brummitt and published by the Royal Botanic Gardens, Kew in 1992 used
 by permission from RBG Kew.
 
-All code contained as part of the Buable package is licenced under the
+All code contained as part of the Bauble package is licenced under the
 GNU GPLv2+.
 
 Terms and Names
@@ -21,7 +21,7 @@ Terms and Names
 This file describes 'bauble.classic', a standalone
 application. 'bauble.classic' was formerly known just as as
 'Bauble'. currently 'Bauble' is the name of an organization on github,
-enclosing 'bauble.classic', 'bauble2' and 'bauble.api'.
+enclosing 'bauble.classic', 'bauble.webapp' and 'bauble.api'.
 
 the two new projects 'bauble2' and 'bauble.api' are what you would
 fork/download if you want to participate to the development of a web-based
@@ -90,16 +90,31 @@ the 'batteries included' install allows the simple sequence:
 
 unfortunately, nobody maintains the above installer, so you possibly better
 do a source install and take care of installing the 'batteries', which are
-just two:
+not so many:
 
-1. python (32bit)
-2. pygtk (requires 32bit python)
+1. python (32bit) from:
+   http://www.python.org
+2. pygtk (requires 32bit python) from:
+   http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
+3. gettext from
+   http://www.boost.org/doc/libs/1_56_0/libs/locale/doc/html/gettext_for_windows.html
+4. psycopg2 from
+   TODO: still don't know. on Windows, pip does not manage install it.
+   without it, you can use bauble on sqlite3 databases.
 
 now you sort of follow the same steps as in a normal operating system,
 taking care of the usual obvious differences between Windows and the unix
 world:
 
-1. install pip, virtualenvwrapper-win (which requires pip), git.
-2. download the bauble.classic sources (requires git)
-3. create a new virtual environment and activate it
-4. install the program (takes long)
+1. install pip (from http://bootstrap.pypa.io/get-pip.py),
+   virtualenvwrapper-win (using pip),
+   git (includes git-shell)
+2. download the bauble.classic sources (using git)
+3. create a new virtual environment
+   (the parameter is the relative path to the directory that is to contain it)
+4. activate it
+5. python setup.py install
+6. prepare a git-shell script that:
+   activates the virtual environment
+   sets the language
+   invokes bauble
