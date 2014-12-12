@@ -849,31 +849,24 @@ class SearchView(pluginmgr.View):
         """
         Popup a context menu on the selected row.
         """
-        # TODO: should probably fix this so you can right click on something
-        # that is not the selection, but get the path from where the click
-        # happened, make that that selection and then popup the menu,
-        # see the pygtk FAQ about this at
-        #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
+        # TODO: there's an open issue that requests that right click on
+        # something that is not the selection first gets the path from where
+        # the click happened, make that the current selection, and finally
+        # popup the menu, see the pygtk FAQ about this at
+        # http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3:
             return False  # if not right click then leave
 
         selected = self.get_selected_values()
         if not selected:
             return
-        selected_type = type(selected[0])
-        if len(selected) > 1:
-            # make sure all the selected items are of the same type
-            istype = set(map(lambda o: isinstance(o, selected_type), selected))
-            # TODO: only show menu if all the types are the same, else
-            # show the common menu
-            if False in istype:
-                # raise NotImplementedError(_('You can only call an action if '
-                #                             'all the selected types are the '
-                #                             'same'))
-                return False
-            else:
-                #debug('ALL the same type')
-                pass
+        selected_types = set(map(type, selected))
+        if len(selected_types) > 1:
+            # TODO: currently we only show the menu when all objects are of
+            # the same type. we could also show a common menu in case the
+            # selection is of different types.
+            return False
+        selected_type = selected_types.pop()
 
         if not self.view_meta[selected_type].actions:
             # no actions
