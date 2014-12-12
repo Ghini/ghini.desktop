@@ -30,7 +30,7 @@ class SearchParser(object):
     """
     The parser for bauble.search.MapperSearch
     """
-    value_chars = Word(alphanums + '%.-_*;:')
+    value_chars = Word(alphanums + '%.-_*;:' + alphas8bit)
     # value can contain any string once its quoted
     value = value_chars | quotedString.setParseAction(removeQuotes)
     value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
@@ -59,6 +59,7 @@ class SearchParser(object):
         returns a pyparsing.ParseResults objects that represents either a
         query, an expression or a list of values
         '''
+
         return self.statement.parseString(text)
 
 
@@ -311,7 +312,7 @@ class MapperSearch(SearchStrategy):
         self.parser.value_list.setParseAction(self.on_value_list)
 
         self._results.clear()
-        self.parser.parse_string(text)
+        self.parser.parse_string(text.decode())
 
         self.parser.query.parseAction = []
         self.parser.domain_expression.parseAction = []
