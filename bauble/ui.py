@@ -343,9 +343,12 @@ class GUI(object):
                                    self.on_help_menu_contents),
                                   ("help_bug", None, _("Report a bug"), None,
                                    None, self.on_help_menu_bug),
-                                  ("help_web", gtk.STOCK_HOME,
-                                   _("Bauble website"), None,
-                                   None, self.on_help_menu_web),
+                                  ("help_web.c", gtk.STOCK_HOME,
+                                   _("Bauble (classic) website"), None,
+                                   None, self.on_help_menu_web_classic),
+                                  ("help_web.w", gtk.STOCK_HOME,
+                                   _("Bauble (webapp) website"), None,
+                                   None, self.on_help_menu_web_webapp),
                                   ("help_about", gtk.STOCK_ABOUT, _("About"),
                                    None, None, self.on_help_menu_about),
                                   ])
@@ -618,8 +621,12 @@ class GUI(object):
         desktop.open('https://github.com/mfrasca/bauble.classic/issues/new',
                      dialog_on_error=True)
 
-    def on_help_menu_web(self, widget, data=None):
-        desktop.open('http://bauble.belizebotanic.org',
+    def on_help_menu_web_webapp(self, widget, data=None):
+        desktop.open('http://bauble.io',
+                     dialog_on_error=True)
+
+    def on_help_menu_web_classic(self, widget, data=None):
+        desktop.open('http://bauble.wikidot.com',
                      dialog_on_error=True)
 
     def on_help_menu_about(self, widget, data=None):
@@ -627,7 +634,7 @@ class GUI(object):
         about.set_name('Bauble')
         about.set_version(bauble.version)
         gtk.about_dialog_set_url_hook(lambda d, l: desktop.open(l, dialog_on_error=True))
-        about.set_website(_('http://bauble.io'))
+        about.set_website(_('http://bauble.wikidot.com'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
         about.set_logo(pixbuf)
