@@ -846,14 +846,10 @@ class SearchView(pluginmgr.View):
                 self.results_view.expand_to_path(ref.get_path())
 
     def on_view_button_release(self, view, event, data=None):
-        """
+        """right-mouse-button release.
+
         Popup a context menu on the selected row.
         """
-        # TODO: there's an open issue that requests that right click on
-        # something that is not the selection first gets the path from where
-        # the click happened, make that the current selection, and finally
-        # popup the menu, see the pygtk FAQ about this at
-        # http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3:
             return False  # if not right click then leave
 
@@ -990,11 +986,20 @@ class SearchView(pluginmgr.View):
                                   self.on_view_button_release)
 
         def on_press(view, event):
-            """
+            """Ignore the mouse right-click event.
+
             This makes sure that we don't remove the multiple selection
             when clicking a mouse button.
             """
+            # TODO: issue #13: plain right click (meaning, no ctrl key
+            # pressed) on something that is not the selection should get the
+            # path from where the click happened and make that the current
+            # selection (removing any previous selection).
             if event.button == 3:
+                if (event.get_state() & gtk.gdk.CONTROL_MASK) == 0:
+                    path, _, _, _ = view.get_path_at_pos(int(event.x), int(event.y))
+                    if not view.get_selection().path_is_selected(path):
+                        return False
                 return True
             else:
                 return False
