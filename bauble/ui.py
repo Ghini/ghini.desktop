@@ -638,7 +638,9 @@ class GUI(object):
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
         about.set_logo(pixbuf)
-        about.set_copyright(_(u'Copyright \u00A9 Belize Botanic Gardens'))
+        about.set_copyright(_(u'Copyright \u00A9 by its contributors.'))
+        ## TODO: issue #14: add the LICENSE text into installed resources
+        ## about.set_license(license)  # not translated
         about.run()
         about.destroy()
 
