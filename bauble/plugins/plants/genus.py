@@ -155,6 +155,7 @@ class Genus(db.Base):
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
     # relations
+    ## `species` relation is defined outside of `Genus` class definition
     synonyms = association_proxy('_synonyms', 'synonym')
     _synonyms = relation('GenusSynonym',
                          primaryjoin='Genus.id==GenusSynonym.genus_id',
@@ -236,6 +237,9 @@ class GenusSynonym(db.Base):
 from bauble.plugins.plants.family import Family, FamilySynonym
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
+
+# only now that we have `Species` can we define the sorted `species` in
+# the `Genus` class.
 Genus.species = relation('Species', cascade='all, delete-orphan',
                          order_by=[Species.sp],
                          backref=backref('genus', uselist=False))

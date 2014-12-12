@@ -142,8 +142,8 @@ class Family(db.Base):
                        default=u'')
 
     # relations
+    ## `genera` relation is defined outside of `Family` class definition
     synonyms = association_proxy('_synonyms', 'synonym')
-    genera = relation('Genus', backref='family', cascade='all, delete-orphan')
     _synonyms =  relation('FamilySynonym',
                           primaryjoin='Family.id==FamilySynonym.family_id',
                           cascade='all, delete-orphan', uselist=True,
@@ -221,10 +221,15 @@ class FamilySynonym(db.Base):
 
 
 #
-# late imports
+# late bindings
 #
 from bauble.plugins.plants.genus import Genus, GenusEditor
 
+# only now that we have `Genus` can we define the sorted `genera` in the
+# `Family` class.
+Family.genera = relation('Genus', 
+                         order_by=[Genus.genus],
+                         backref='family', cascade='all, delete-orphan')
 
 class FamilyEditorView(editor.GenericEditorView):
 
