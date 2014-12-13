@@ -1,17 +1,16 @@
 Downloading the source
 ======================
 
-The Bauble source can be downloaded from either the source archives on
-the `website <http://bauble.belizebotanic.org/>`_ or from our source
-repository.
+The Bauble source can be downloaded from our source
+repository on `github <http://github.com/mfrasca/bauble.classic>`_.
 
-To download the last released Bauble source archive go to `open
-<http://bauble.belizebotanic.org/#download>`_ and download one of the
-source archives.
+We do not currently `release` a specially quality checked Bauble version,
+all of our commits to the Master branch are equally quality checked.
 
-To check out the most recent but unreleased code from the source repository
-you will need to install the `Git <http://www.git.org>`_ version control
-system. Git is incuded in all reasonable Linux distributions.
+To check out the most recent code from the source repository you will need
+to install the `Git <http://www.git.org>`_ version control system. Git is
+incuded in all reasonable Linux distributions and available on all current
+operating systems.
 
 Once you have installed Git you can checkout the latest Bauble code with
 the following command:
