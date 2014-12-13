@@ -62,10 +62,6 @@ class GUI(object):
         except Exception:
             warning(_('Could not load icon from %s' % bauble.default_icon))
             warning(traceback.format_exc())
-            # utils.message_details_dialog(_('Could not load icon from %s' % \
-            #                              bauble.default_icon),
-            #                              traceback.format_exc(),
-            #                              gtk.MESSAGE_ERROR)
 
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
@@ -75,11 +71,7 @@ class GUI(object):
         combo.set_model(model)
         self.populate_main_entry()
 
-        # disable: causes the entry contents to be selected on backspace
-        #combo.connect('changed', lambda c: c.grab_focus())
-
         main_entry = combo.child
-#        main_entry.connect('key_press_event', self.on_main_entry_key_press)
         main_entry.connect('activate', self.on_main_entry_activate)
         accel_group = gtk.AccelGroup()
         main_entry.add_accelerator("grab-focus", accel_group, ord('L'),
@@ -520,11 +512,6 @@ class GUI(object):
             if obj != []:
                 warning('%s leaked: %s' % (view_cls.__name__, obj))
 
-##     def on_edit_menu_prefs(self, widget, data=None):
-##         p = PreferencesMgr()
-##         p.run()
-##         p.destroy()
-
     def on_edit_menu_cut(self, widget, data=None):
         self.widgets.main_comboentry.child.cut_clipboard()
 
@@ -639,8 +626,11 @@ class GUI(object):
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
         about.set_logo(pixbuf)
         about.set_copyright(_(u'Copyright \u00A9 by its contributors.'))
-        ## TODO: issue #14: add the LICENSE text into installed resources
-        ## about.set_license(license)  # not translated
+
+        import codecs
+        with codecs.open(os.path.join(paths.installation_dir(), 'share', 'LICENSE.bauble')) as f:
+            license = f.read()
+        about.set_license(license)  # not translated
         about.run()
         about.destroy()
 

@@ -212,19 +212,19 @@ class build(_build):
 
         # copy .desktop and icons
         if sys.platform == 'linux2':
-            app_dir = os.path.join(self.build_base, 'share/applications')
+            app_dir = os.path.join(self.build_base, 'share', 'applications')
             dir_util.mkpath(app_dir)
             file_util.copy_file('data/bauble.desktop', app_dir)
 
             icon_sizes = [16, 22, 24, 32, 48, 64]
-            icon_root = os.path.join(self.build_base, 'share/icons/hicolor')
+            icon_root = os.path.join(self.build_base, 'share', 'icons', 'hicolor')
 
             # copy scalable icon
-            scalable_dir = os.path.join(icon_root, 'scalable/apps')
+            scalable_dir = os.path.join(icon_root, 'scalable', 'apps')
             dir_util.mkpath(scalable_dir)
             file_util.copy_file('data/bauble.svg', scalable_dir)
 
-            pixmaps_dir = os.path.join(self.build_base, 'share/pixmaps')
+            pixmaps_dir = os.path.join(self.build_base, 'share', 'pixmaps')
             dir_util.mkpath(pixmaps_dir)
             file_util.copy_file('data/bauble.svg', pixmaps_dir)
 
@@ -275,6 +275,9 @@ class install(_install):
             build_base = install_cmd.build_base
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.install_data, locales))
+
+        file_util.copy_file("LICENSE",
+                            os.path.join(self.install_data, 'share', 'LICENSE.bauble'))
 
 
 

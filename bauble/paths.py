@@ -54,40 +54,31 @@ def lib_dir():
     return os.path.abspath(d)
 
 
-# def data_dir():
-#     """
-#     Return the data directory.  The data directory should contain any
-#     files required by Bauble or its plugins but aren't code.
-#     e.g. image, pixmaps
-
-#     Windows = main_dir()
-#     Linux = /usr/share/bauble
-
-#     images = data_dir()/images
-#     glade = data_dir()/glade
-#     """
-#     if sys.platform == 'linux2':
-#         base = os.path.dirname(os.path.dirname(main_dir()))
-#         return os.path.join(base, 'share', 'bauble')
-#     elif sys.platform == 'win32':
-#         return os.path.join(main_dir(), 'share')
-#     else:
-#         raise NotImplementedError('Unknown platform: %s' % sys.platform)
-
-
 def locale_dir():
     """
     Returns the root path of the locale files
     """
-    if sys.platform == 'linux2':
+
+    the_installation_directory = installation_dir()
+    d = os.path.join(the_installation_directory, 'share', 'locale')
+    return os.path.abspath(d)
+
+
+def installation_dir():
+    """
+    Returns the root path of the installation target
+    """
+
+    if sys.platform in ('linux2', 'darwin'):
         this_file_location = __file__.split(os.path.sep)
-        the_installation_directory = this_file_location[:-7]
-        d = os.path.sep.join(the_installation_directory + ['share', 'locale'])
+        d = os.path.sep.join(this_file_location[:-7])
     elif sys.platform == 'win32':
-        d = os.path.join(main_dir(), 'share', 'locale')
+        d = main_dir()
     else:
         raise NotImplementedError('This platform does not support '
                                   'translations: %s' % sys.platform)
+    print d
+    print os.path.abspath(d)
     return os.path.abspath(d)
 
 
