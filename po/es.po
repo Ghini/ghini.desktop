@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2014-12-06 15:08-0500\n"
+"PO-Revision-Date: 2014-12-13 13:30-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -934,7 +934,7 @@ msgstr "Departamento municipal"
 
 #: bauble/plugins/garden/source.py:140
 msgid "Nursery/Commercial"
-msgstr ""
+msgstr "Vivero/Comercial"
 
 #: bauble/plugins/garden/source.py:141
 msgid "Individual"
@@ -1368,24 +1368,29 @@ msgstr "¿Seguro que quiere borrar la adquisición <b>%s</b>?"
 
 #: bauble/plugins/garden/accession.py:207
 msgid "The name of the record has not been checked by any authority."
-msgstr ""
+msgstr "El nombre del registro no ha sido averiguado por ninguna autoridad."
 
 #: bauble/plugins/garden/accession.py:208
 msgid ""
 "The name of the record determined by comparison with other named plants."
-msgstr ""
+msgstr "El nombre del registro, determinado comparando con otras plantas."
 
 #: bauble/plugins/garden/accession.py:210
 msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or  documented living material."
 msgstr ""
+"El nombre del registro, determinado por un taxonomista u otra persona "
+"competente, utilizando un herbario y/o biblioteca y/o material vivo "
+"documentado."
 
 #: bauble/plugins/garden/accession.py:213
 msgid ""
 "The name of the plant determined by taxonomist engaged in systematic "
 "revision of the group."
 msgstr ""
+"El nombe de la planta, determinado por un taxonomista ocupado en una "
+"revisión sistemática del grupo."
 
 #: bauble/plugins/garden/accession.py:215
 msgid ""
@@ -1403,7 +1408,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:329
 msgid "Not of wild source"
-msgstr ""
+msgstr "No de procedencia salvaje"
 
 #: bauble/plugins/garden/accession.py:330
 #: bauble/plugins/garden/accession.py:338
@@ -1412,15 +1417,15 @@ msgstr "Datos insuficientes"
 
 #: bauble/plugins/garden/accession.py:335
 msgid "Wild native"
-msgstr ""
+msgstr "Salvaje nativo"
 
 #: bauble/plugins/garden/accession.py:336
 msgid "Wild non-native"
-msgstr ""
+msgstr "Salvaje non nativo"
 
 #: bauble/plugins/garden/accession.py:337
 msgid "Cultivated native"
-msgstr ""
+msgstr "Cultivado nativo"
 
 #: bauble/plugins/garden/accession.py:344
 msgid "Air layer"
@@ -1608,15 +1613,15 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:661
 msgid "Indicates whether this accession record should be considered private."
-msgstr "Indica si este registro de adquisición debería considerarse privado."
+msgstr "Indica si este registro de accesión debería considerarse privado."
 
 #: bauble/plugins/garden/accession.py:665
 msgid "Save your changes changes and add a plant to this accession."
-msgstr ""
+msgstr "Guardar las motificas y añadir otra planta a este accesión."
 
 #: bauble/plugins/garden/accession.py:667
 msgid "Save your changes changes and add another accession."
-msgstr ""
+msgstr "Guardar las modificas y añadir otra accesión."
 
 #: bauble/plugins/garden/accession.py:1119
 msgid "Are you sure you want to remove this verification?"
@@ -1774,7 +1779,7 @@ msgstr "Este"
 
 #: bauble/plugins/garden/acc_editor.glade.h:27
 msgid "GPS Datum"
-msgstr ""
+msgstr "Fecha GPS"
 
 #: bauble/plugins/garden/acc_editor.glade.h:29
 msgid "Habitat description"
@@ -1810,7 +1815,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:38
 msgid "Name "
-msgstr ""
+msgstr "Nombre"
 
 #: bauble/plugins/garden/acc_editor.glade.h:39
 msgid "New taxon"
@@ -1830,7 +1835,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:45
 msgid "Provenance"
-msgstr ""
+msgstr "Procedencia"
 
 #: bauble/plugins/garden/acc_editor.glade.h:46
 msgid "Qualifier Rank"
