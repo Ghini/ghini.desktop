@@ -83,7 +83,6 @@ welcome.
 
 the installation steps on Windows:
 
-
 #. Install GTK+. The easiest way to install GTK+ is to download the
    latest runtime packages from `gtk-win.sourceforge.net
    <http://gtk-win.sourceforge.net/home/index.php/Downloads>`_.
@@ -140,9 +139,6 @@ the installation steps on Windows:
    environment, sets the language, invokes bauble.
 
 #. TODO: put the above git-shell script at a convenient place.
-
-
-
 
 If you would like to generate and print PDF reports using Bauble's
 default report generator then you will need to download and install
