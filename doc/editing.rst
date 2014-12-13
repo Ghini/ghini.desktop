@@ -98,7 +98,7 @@ genus and open a new blank genus editor.
 
 
 Species/Taxon
--------
+-------------
 A species is a taxon in the database.  It represents a unique name in
 the database.  The species editor will allow you to construct the name
 as well as associate metadata with the taxon such as its distribution,
@@ -119,9 +119,9 @@ Accessions
 ----------
 
 The Accession editor allows us to add an accession to a species.  In
-Bauble an acsession represents a group of plants or clones.  The
+Bauble an accession represents a group of plants or clones.  The
 accession would refer maybe a group of seed or cuttings from a
-species.  A plant would be an individual from that accesssion, e.g. a
+species.  A plant would be an individual from that accesssion, i.e. a
 specific plant in a specific location.
 
 Accession Source

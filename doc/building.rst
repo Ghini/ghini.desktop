@@ -1,85 +1,36 @@
 Building the source
 ========================
 
-In order to build Bauble from the source code you will first need to
-download the code.  For more information about download the Bauble
-source go to :doc:`devdl`.
+Building a python program is a bit of a contraddiction.  You don't normally
+`build` nor `compile` a python program, you run it in its environment, and
+python will process the modules loaded and produce faster-loading `compiled`
+python files.  You can, however, produce a Windows executable from a python
+script, executable containing the whole python environment and dependencies.
 
-Building on Windows
--------------------
+Building (on Windows)
+---------------------
 
-1. Install Python.  Python has mostly been devloped and tested using
-   Python 2.6.  It may work with other 2.x versions of Python but will
-   definitely not work with Python 3.0 and greater.  You can download
-   Python 2.6.2 from `python.org
-   <http://www.python.org/download/releases/2.6.2/>`_.
+1. In order to build a Bauble executable you will first need to download the
+   source code.  For more information about download the Bauble source go to
+   :doc:`devdl`.
 
-2. Install GTK+. The easiest way to install GTK+ is to download the
-   latest runtime packages from `gtk-win.sourceforge.net
-   <http://gtk-win.sourceforge.net/home/index.php/Downloads>`_.
+2. Follow all steps needed to set up a working Bauble environment from
+   :doc:`installing`, but skip the final `install` step.
 
-   .. note:: The gtk-win package currently doesn't support SVG which can
-      cause a problem with Bauble.
-
-   There is also a script in the Bauble source archive in
-   scripts/install_gtk.py which will download the GTK+ Win32
-   installer.  This will also download and install the SVG pixbuf
-   loader for GTK+.
-
-3. Install the Python GTK+ packages.  These installers have to be
-   downloaded and run individually.
-
-   - `PyCairo <http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/>`_
-   - `PyGObject <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/>`_
-   - `PyGTK <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/>`_
-
-4. Compile Bauble.  From the command line go to the directory where the
-   bauble source code is and type the following::
+3. instead of `installing` Bauble, you produce a Windows executable.  This
+   is achieved with the ``py2exe`` target, which is only available on
+   Windows systems.
 
 		 python setup.py py2exe
 
-5. Run Bauble.  To run the compiled executable run::
+4. At this point you can run Bauble.  To run the compiled executable run::
 
 		.\dist\bauble.exe
+
+   or copy the executable to wherever you think appropriate.
 
 6. To optionally build an NSIS installer package you must install NSIS
    from `nsis.sourceforge.net
    <http://nsis.sourceforge.net/Download>`_.  After installing NSIS
    right click on ``.\scripts\build.nsi`` in Explorer and select
    *Compile NSIS Script*.
-
-
-Building on Linux
------------------
-
-Building on Linux will require you to be familiar with the package manager
-for your distribution.  The installation procedure described here attempts
-minimizing the amount of globally installed packages, most of the
-dependencies will be placed in a virtual environment and installed using
-pip.
-
-1. Using your package manager install the following dependencies::
-
-              python, pygtk, virtualenvwrapper
-
-2. create a virtual environment named bauble.classic
-
-              mkvirtualenv bauble.classic
-
-2. You can test if you have all the Bauble depedencies properly
-   installed by running Bauble from the top directory of the source
-   archive with the command::
-   
-		./bauble.sh
-
-3. Install Bauble with the following command::
-
-   	   	  sudo python setup.py install
-
-   .. warning:: This will install Bauble directly into the system
-      python package directory and will not use your systems package
-      manager.  This usually means that you can not automatically
-      uninstall Bauble.  If you do not need to install Bauble into the
-      system python package directory then run Bauble the same as in Step 2.
-
-
