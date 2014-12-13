@@ -13,7 +13,7 @@ incuded in all reasonable Linux distributions and can be installed on all
 current operating systems.
 
 Once you have installed Git you can checkout the latest Bauble code with
-the following command:
+the following command::
 
         git clone https://github.com/mfrasca/bauble.classic.git
 

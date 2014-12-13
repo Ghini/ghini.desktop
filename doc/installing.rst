@@ -27,10 +27,14 @@ Installing on Linux
    <http://www.gtk.org>`_ and that you have installed `PyGTK
    <http://www.pygtk.org>`_ using your package manager (ubuntu,
    debian: python-gtk2).
+
 #. Download and extract the Bauble source package from
+
    https://github.com/mfrasca/bauble.classic.git
+
 #. Make and activate a virtual environment with
    ``--system-site-packages``.
+
 #. If you would like to use the default `SQLite
    <http://sqlite.org/>`_ database or you don't know what this means
    then you can skip this step.  If you would like to use a database
@@ -38,13 +42,13 @@ Installing on Linux
    need to install a database connector.
 
    If you would like to use a `PostgreSQL <http://www.postgresql.org>`_
-   database then install psycopg2 with the following commands:
+   database then install psycopg2 with the following commands::
 
-   ``pip install -U psycopg2``
+     pip install -U psycopg2
 
-#. In the installation directory execute the following command:
+#. In the installation directory execute the following command::
 
-   ``python setup.py install``
+     python setup.py install
 
    If this doesn't complete successfully see :ref:`troubleshoot_install`.
 
@@ -104,9 +108,11 @@ the installation steps on Windows:
    port to Python 3.x, please contact the Bauble maintainers.
 
 #. download and install ``pygtk`` (requires 32bit python) from:
+
    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
 #. download and install ``pip`` from:
+
    http://bootstrap.pypa.io/get-pip.py
 
 #. download and install ``git`` (comes with a unix-like ``sh``).
@@ -115,7 +121,8 @@ the installation steps on Windows:
 
 #. create the virtual environment now.
 
-#. download ``gettext`` from
+#. download ``gettext`` from:
+
    http://www.boost.org/doc/libs/1_56_0/libs/locale/doc/html/gettext_for_windows.html
 
    You will need manually unpack the statically linked binaries,

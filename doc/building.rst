@@ -19,7 +19,7 @@ Building (on Windows)
 
 3. instead of `installing` Bauble, you produce a Windows executable.  This
    is achieved with the ``py2exe`` target, which is only available on
-   Windows systems.
+   Windows systems::
 
 		 python setup.py py2exe
 
