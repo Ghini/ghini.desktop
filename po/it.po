@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2014-11-24 07:25-0500\n"
+"PO-Revision-Date: 2014-12-13 13:34-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -834,7 +834,7 @@ msgstr "Nomi Vernacolari"
 #: bauble/plugins/plants/infoboxes.glade.h:2
 #: bauble/plugins/garden/source_detail_infobox.glade.h:2
 msgid "<b># of Accessions:</b>"
-msgstr "<b># di Accessi:</b>"
+msgstr "<b># di Accessioni:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:3
 msgid "<b># of Genera:</b>"
@@ -1540,7 +1540,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:639
 msgid "The accession ID must be a unique code"
-msgstr "L'ID di accesso deve essere un codice univoco"
+msgstr "L'ID dell'accessione deve essere un codice univoco"
 
 #: bauble/plugins/garden/accession.py:640
 #, python-format
@@ -1585,7 +1585,7 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
-"L'origine o sorgente di questo accesso.\n"
+"L'origine o sorgente di questa accessione.\n"
 "\n"
 "Possibili valori: %s"
 
@@ -1600,7 +1600,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:661
 msgid "Indicates whether this accession record should be considered private."
 msgstr ""
-"indica se questo record di accesso dovrebbe essere considerato privato."
+"indica se questo record di accessione dovrebbe essere considerato privato."
 
 #: bauble/plugins/garden/accession.py:665
 msgid "Save your changes changes and add a plant to this accession."
@@ -1635,7 +1635,7 @@ msgid ""
 "you can add accessions."
 msgstr ""
 "Devi aggiungere o importare almeno una specie nel database prima che tu "
-"possa aggiungere degli accessi."
+"possa aggiungere delle accessioni."
 
 #: bauble/plugins/garden/accession.py:2110
 msgid "model must have both latitude and longitude or neither"
@@ -1664,11 +1664,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_infobox.glade.h:2
 msgid "<b>Accession Status:</b>"
-msgstr "<b>Stato Accesso:</b>"
+msgstr "<b>Stato dell'Accessione:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade.h:3
 msgid "<b>Accession Type:</b>"
-msgstr "<b>Tipo Accesso:</b>"
+msgstr "<b>Tipo Accessione:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade.h:5
 msgid "<b>Memorial:</b>"
@@ -1687,7 +1687,7 @@ msgstr "finestra_generale"
 #: bauble/plugins/report/xsl/__init__.py:67
 #: bauble/plugins/report/xsl/__init__.py:384
 msgid "Accession"
-msgstr "Accesso"
+msgstr "Accessione"
 
 #: bauble/plugins/garden/acc_editor.glade.h:3
 msgid "+/-"
@@ -2569,8 +2569,8 @@ msgstr ""
 msgid ""
 "There are no accessions in the search results.  Please try another search."
 msgstr ""
-"Non ci sono accessi nei risultati della ricerca. Per piacere prova un'altra "
-"ricerca."
+"Non ci sono accessioni nei risultati della ricerca. Per piacere prova "
+"un'altra ricerca."
 
 #: bauble/plugins/report/xsl/__init__.py:568
 msgid ""
