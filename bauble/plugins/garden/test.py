@@ -287,6 +287,7 @@ class PlantTests(GardenTestCase):
             import gtk
         except ImportError:
             raise SkipTest('could not import gtk')
+
         # use our own plant because PlantEditor.commit_changes() will
         # only work in bulk mode when the plant is in session.new
         p = Plant(accession=self.accession, location=self.location, code=u'2',
