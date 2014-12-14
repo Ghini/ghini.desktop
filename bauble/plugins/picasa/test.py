@@ -59,9 +59,8 @@ class PicasaTests(BaubleTestCase):
         """
         Test retrieving auth token from Google
         """
-        # TODO: will probably have to skip this test since requires a
-        # password
-        raise SkipTest
+
+        raise SkipTest("test requires a valid authentication on picasa")
         user = ''
         passwd = ''
         token = picasa.get_auth_token(user, passwd)
@@ -72,6 +71,7 @@ class PicasaTests(BaubleTestCase):
         """
         Test bauble.plugins.picasa.update_meta() function.
         """
+
         email = u'email'
         album = u'album'
         token = u'token'
