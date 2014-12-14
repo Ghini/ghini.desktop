@@ -202,8 +202,7 @@ class SearchTests(BaubleTestCase):
         """
         Test searching by values with MapperSearch
 
-        This test does not test that of the plugins setup their search
-        properly, it only tests the MapperSearch works as expected
+        test whether the MapperSearch works, not a test on plugins.
         """
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
@@ -229,8 +228,7 @@ class SearchTests(BaubleTestCase):
         """
         Test searching by expression with MapperSearch
 
-        This test does not test that of the plugins setup their search
-        properly, it only tests the MapperSearch works as expected
+        test whether the MapperSearch works, not a test on plugins.
         """
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
@@ -256,8 +254,7 @@ class SearchTests(BaubleTestCase):
         """
         Test searching by expression with MapperSearch
 
-        This test does not test that of the plugins setup their search
-        properly, it only tests the MapperSearch works as expected
+        test whether the MapperSearch works, not a test on plugins.
         """
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus

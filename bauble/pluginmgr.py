@@ -336,6 +336,7 @@ class PluginRegistry(db.Base):
         Warning: Adding a plugin to the registry does not install it.  It
         should be installed before adding.
         """
+        
         p = PluginRegistry(name=utils.utf8(plugin.__class__.__name__),
                            version=utils.utf8(plugin.version))
         session = db.Session()
