@@ -8,8 +8,8 @@ from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug
 
-#uri = 'sqlite:///:memory:'
-uri = 'postgresql://test:test@localhost/test'
+## for sake of testing, just use sqlite3.
+uri = 'sqlite:///:memory:'
 
 
 def init_bauble(uri, create=False):
@@ -66,6 +66,4 @@ class BaubleTestCase(unittest.TestCase):
         self.session.close()
         db.metadata.drop_all(bind=db.engine)
         bauble.pluginmgr.commands.clear()
-        # why do we create the database again...?
-        #db.create(False)
         pluginmgr.plugins.clear()
