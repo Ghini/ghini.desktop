@@ -224,7 +224,7 @@ class Verification(db.Base):
       verifier: :class:`sqlalchemy.types.Unicode`
         The name of the person that made the verification.
       date: :class:`sqlalchemy.types.Date`
-      	The date of the verification
+        The date of the verification
       reference: :class:`sqlalchemy.types.UnicodeText`
         The reference material used to make this verification
       level: :class:`sqlalchemy.types.Integer`

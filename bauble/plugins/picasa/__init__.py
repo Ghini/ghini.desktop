@@ -511,8 +511,8 @@ class PicasaInfoPage(view.InfoBoxPage):
             self.on_error(msg, species=row)
             return
         token = token_meta.value
-	self.gd_client.SetClientLoginToken(token)
-	tag = Species.str(row, markup=False, authors=False)
+        self.gd_client.SetClientLoginToken(token)
+        tag = Species.str(row, markup=False, authors=False)
         self.set_busy()
         worker = populate_iconview(self.gd_client, self.iconview, tag)
         def on_done(*args):
@@ -554,7 +554,7 @@ class PicasaInfoPage(view.InfoBoxPage):
 #     album_url = '/data/feed/api/user/%s/album/%s' % (username,
 #                                                      album.gphoto_id.text)
 #     photo = gd_client.InsertPhoto(album_url, new_entry, filename,
-# 				  content_type='image/jpeg')
+#                                   content_type='image/jpeg')
 
 # class PicasaUploader(object):
 
