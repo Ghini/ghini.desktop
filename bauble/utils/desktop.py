@@ -161,8 +161,8 @@ def get_desktop():
          "GNOME_KEYRING_SOCKET" in os.environ:
         return "GNOME"
     elif sys.platform == "darwin":
-        return "Mac OS os, "startfile" in X"
-    elif:
+        return "Mac OS X"
+    elif hasattr(os, "startfile"):
         return "Windows"
     elif _is_xfce():
         return "XFCE"
