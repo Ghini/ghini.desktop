@@ -1,6 +1,21 @@
-#  Copyright (c) 2005,2006,2007,2008,2009
-#  Brett Adams <brett@belizebotanic.org>
-#  This is free software, see GNU General Public License v2 for details.
+# Copyright (c) 2005,2006,2007,2008,2009
+# Brett Adams <brett@belizebotanic.org>
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 """
 The top level module for Bauble.
 """
@@ -50,8 +65,9 @@ if main_is_frozen():  # main is frozen
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
 
-#sys.stderr.write('sys.path: %s\n' % sys.path)
-#sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
+if False:
+    sys.stderr.write('sys.path: %s\n' % sys.path)
+    sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
 
 
 # set SQLAlchemy logging level
@@ -252,9 +268,9 @@ def main(uri=None):
                 break
             except err.DatabaseError, e:
                 debug(e)
-                #traceback.format_exc()
+                # traceback.format_exc()
                 open_exc = e
-                #break
+                # break
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % \
                     utils.xml_safe_utf8(e)
@@ -263,9 +279,6 @@ def main(uri=None):
                 uri = None
     else:
         db.open(uri, True, True)
-
-    # make session available as a convenience to other modules
-    #Session = db.Session
 
     # load the plugins
     pluginmgr.load()
@@ -280,7 +293,6 @@ def main(uri=None):
 
     # now that we have a connection create the gui, start before the plugins
     # are initialized in case they have to do anything like add a menu
-    #import bauble._gui as _gui
     import bauble.ui as ui
     gui = ui.GUI()
 
