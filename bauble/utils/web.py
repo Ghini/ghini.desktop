@@ -1,3 +1,18 @@
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 import gtk
 
 import bauble.utils.desktop as desktop
@@ -21,11 +36,9 @@ class StringLinkButton(gtk.LinkButton):
         else:
             self.set_tooltip_text(tooltip)
 
-
     def set_string(self, search):
-        s = str(search) # just in case an object is passed in
+        s = str(search)  # just in case an object is passed in
         self.set_uri(self._base_uri % s.replace(' ', self._space))
-
 
 
 class KeywordsLinkButton(gtk.LinkButton):
@@ -41,14 +54,13 @@ class KeywordsLinkButton(gtk.LinkButton):
             self.set_tooltip_text(tooltip)
 
     def set_string(self, search):
-        #s = str(search) # just in case an object is passed in
-        #self.set_uri(self._base_uri % s.replace(' ', self._space))
-        #self.set_keywords(s=search)
+        # s = str(search)  # just in case an object is passed in
+        # self.set_uri(self._base_uri % s.replace(' ', self._space))
+        # self.set_keywords(s=search)
         raise NotImplementedError
 
     def set_keywords(self, **kwargs):
         self.set_uri(self._base_uri % kwargs)
-
 
 
 class GoogleButton(StringLinkButton):
@@ -65,8 +77,8 @@ class GBIFButton(StringLinkButton):
     _base_uri = "http://data.gbif.org/search/%s"
     _space = '+'
 
-    def __init__(self, title=_("Search GBIF"),
-             tooltip=_("Search the Global Biodiversity Information Facility")):
+    def __init__(self, title=_("Search GBIF"), tooltip=_(
+            "Search the Global Biodiversity Information Facility")):
         super(GBIFButton, self).__init__(title, tooltip)
 
 
@@ -81,8 +93,8 @@ class ITISButton(StringLinkButton):
 
     _space = '%20'
 
-    def __init__(self, title=_("Search ITIS"),
-             tooltip=_("Search the Intergrated Taxonomic Information System")):
+    def __init__(self, title=_("Search ITIS"), tooltip=_(
+            "Search the Intergrated Taxonomic Information System")):
         super(ITISButton, self).__init__(title, tooltip)
 
 
@@ -94,28 +106,29 @@ class BGCIButton(KeywordsLinkButton):
 
     _space = ' '
 
-    def __init__(self, title=_("Search BGCI"),
-             tooltip=_("Search Botanic Gardens Conservation International")):
+    def __init__(self, title=_("Search BGCI"), tooltip=_(
+            "Search Botanic Gardens Conservation International")):
         super(BGCIButton, self).__init__(title, tooltip)
 
 
 class IPNIButton(KeywordsLinkButton):
 
     _base_uri = "http://www.ipni.org/ipni/advPlantNameSearch.do?"\
-        "find_genus=%(genus)s&find_species=%(species)s" \
-        "&find_isAPNIRecord=on& find_isGCIRecord=on" \
-        "&find_isIKRecord=on&output_format=normal"
+                "find_genus=%(genus)s&find_species=%(species)s" \
+                "&find_isAPNIRecord=on& find_isGCIRecord=on" \
+                "&find_isIKRecord=on&output_format=normal"
 
     _space = ' '
 
-    def __init__(self, title=_("Search IPNI"),
-             tooltip=_("Search the International Plant Names Index")):
+    def __init__(self, title=_("Search IPNI"), tooltip=_(
+            "Search the International Plant Names Index")):
         super(IPNIButton, self).__init__(title, tooltip)
 
 
 class GRINButton(StringLinkButton):
 
-    _base_uri = "http://www.ars-grin.gov/cgi-bin/npgs/swish/accboth?query=%s&submit=Submit+Text+Query&si=0"
+    _base_uri = "http://www.ars-grin.gov/cgi-bin/npgs/swish/accboth?"\
+                "query=%s&submit=Submit+Text+Query&si=0"
     _space = '+'
 
     def __init__(self, title=_("Search NPGS/GRIN"),

@@ -1,3 +1,18 @@
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 from threading import Lock, RLock, Thread, _MainThread, currentThread
 import Queue
 from gtk.gdk import threads_enter, threads_leave
@@ -6,7 +21,8 @@ from gobject import GObject, SIGNAL_RUN_FIRST
 # This code originally from:
 # http://code.activestate.com/recipes/521881/
 
-class GtkWorker (GObject, Thread):
+
+class GtkWorker(GObject, Thread):
 
     __gsignals__ = {
         "progressed": (SIGNAL_RUN_FIRST, None, (float,)),
@@ -14,7 +30,7 @@ class GtkWorker (GObject, Thread):
         "done":       (SIGNAL_RUN_FIRST, None, ())
     }
 
-    def __init__ (self, func, *func_args, **func_kwargs):
+    def __init__(self, func, *func_args, **func_kwargs):
         """ Initialize a new GtkWorker around a specific function """
 
         # WARNING: This deadlocks if calling code already has the gdk lock and
@@ -44,10 +60,10 @@ class GtkWorker (GObject, Thread):
         # Publish and progress queues                                         #
         #######################################################################
 
-        class Publisher (Thread):
+        class Publisher(Thread):
             SEND_LIST, SEND_LAST = range(2)
 
-            def __init__ (self, parrent, queue, signal, sendPolicy):
+            def __init__(self, parrent, queue, signal, sendPolicy):
                 Thread.__init__(self)
                 self.setDaemon(True)
                 self.parrent = parrent
@@ -55,10 +71,10 @@ class GtkWorker (GObject, Thread):
                 self.signal = signal
                 self.sendPolicy = sendPolicy
 
-            def run (self):
+            def run(self):
                 while True:
                     v = self.queue.get()
-                    if v == None:
+                    if v is None:
                         break
                     threads_enter()
                     l = [v]
@@ -67,7 +83,8 @@ class GtkWorker (GObject, Thread):
                             v = self.queue.get_nowait()
                         except Queue.Empty:
                             break
-                        else: l.append(v)
+                        else:
+                            l.append(v)
                     try:
                         if self.sendPolicy == self.SEND_LIST:
                             self.parrent.emit(self.signal, l)
@@ -77,13 +94,13 @@ class GtkWorker (GObject, Thread):
                         threads_leave()
 
         self.publishQueue = Queue.Queue()
-        self.publisher = Publisher (
-                self, self.publishQueue, "published", Publisher.SEND_LIST)
+        self.publisher = Publisher(
+            self, self.publishQueue, "published", Publisher.SEND_LIST)
         self.publisher.start()
 
         self.progressQueue = Queue.Queue()
-        self.progressor = Publisher (
-                self, self.progressQueue, "progressed", Publisher.SEND_LAST)
+        self.progressor = Publisher(
+            self, self.progressQueue, "progressed", Publisher.SEND_LAST)
         self.progressor.start()
 
     ###########################################################################
@@ -93,37 +110,41 @@ class GtkWorker (GObject, Thread):
     # no clients are connected anyways                                        #
     ###########################################################################
 
-    def _mul_connect (self, method, signal, handler, *args):
+    def _mul_connect(self, method, signal, handler, *args):
         self.connections[signal] += 1
-        handler_id = method (self, signal, handler, *args)
+        handler_id = method(self, signal, handler, *args)
         self.handler_ids[handler_id] = signal
         return handler_id
 
-    def connect (self, detailed_signal, handler, *args):
-        return self._mul_connect (GObject.connect,
-                detailed_signal, handler, *args)
-    def connect_after (self, detailed_signal, handler, *args):
-        return self._mul_connect (GObject.connect_after,
-                detailed_signal, handler, *args)
-    def connect_object (self, detailed_signal, handler, gobject, *args):
-        return self._mul_connect (GObject.connect_object,
-                detailed_signal, handler, gobject, *args)
-    def connect_object_after (self, detailed_signal, handler, gobject, *args):
-        return self._mul_connect (GObject.connect,
-                detailed_signal, handler, gobject, *args)
+    def connect(self, detailed_signal, handler, *args):
+        return self._mul_connect(GObject.connect,
+                                 detailed_signal, handler, *args)
 
-    def disconnect (self, handler_id):
+    def connect_after(self, detailed_signal, handler, *args):
+        return self._mul_connect(GObject.connect_after,
+                                 detailed_signal, handler, *args)
+
+    def connect_object(self, detailed_signal, handler, gobject, *args):
+        return self._mul_connect(GObject.connect_object,
+                                 detailed_signal, handler, gobject, *args)
+
+    def connect_object_after(self, detailed_signal, handler, gobject, *args):
+        return self._mul_connect(GObject.connect,
+                                 detailed_signal, handler, gobject, *args)
+
+    def disconnect(self, handler_id):
         self.connections[self.handler_ids[handler_id]] -= 1
         del self.handler_ids[handler_id]
         return GObject.disconnect(self, handler_id)
+
     handler_disconnect = disconnect
 
     ###########################################################################
-    # The following methods (besides run()) are used to interact with the     #
+    # The following methods(besides run()) are used to interact with the     #
     # worker                                                                  #
     ###########################################################################
 
-    def get (self, timeout=None):
+    def get(self, timeout=None):
         """
         'get' will block until the processed function returns, timeout
         happens, or the work is cancelled.  You can test if you were
@@ -153,14 +174,14 @@ class GtkWorker (GObject, Thread):
             self.done = True
         return self.result
 
-    def execute (self):
+    def execute(self):
         """ Start the worker """
         if not self.isDone():
             self.start()
 
-    def run (self):
-        #print self.func_args
-        #print self.func_kwargs
+    def run(self):
+        # print self.func_args
+        # print self.func_kwargs
         self.result = self.func(self, *self.func_args, **self.func_kwargs)
         self.done = True
         if self.connections["done"] >= 1:
@@ -170,7 +191,7 @@ class GtkWorker (GObject, Thread):
             self.emit("done")
             threads_leave()
 
-    def cancel (self):
+    def cancel(self):
         """
         Cancel work.  As python has no way of trying to interupt a
         thread, we don't try to do so. The cancelled attribute is
@@ -186,13 +207,13 @@ class GtkWorker (GObject, Thread):
     # Get stuff                                                               #
     ###########################################################################
 
-    def isCancelled (self):
+    def isCancelled(self):
         return self.cancelled
 
-    def isDone (self):
+    def isDone(self):
         return self.done
 
-    def getProgress (self):
+    def getProgress(self):
         return self.progress
 
     ###########################################################################
@@ -200,7 +221,7 @@ class GtkWorker (GObject, Thread):
     # process                                                                 #
     ###########################################################################
 
-    def setProgress (self, progress):
+    def setProgress(self, progress):
         """
         setProgress should be called from inside the processed
         function.  When the gdklock gets ready, it will emit the
@@ -213,7 +234,7 @@ class GtkWorker (GObject, Thread):
             self.progress = progress
             self.progressQueue.put(progress)
 
-    def publish (self, val):
+    def publish(self, val):
         """
         Publish should be called from inside the processed
         function. It will queue up the latest results, and when we get
@@ -227,7 +248,7 @@ class GtkWorker (GObject, Thread):
     # Other                                                                   #
     ###########################################################################
 
-    def __del__ (self):
+    def __del__(self):
         self.cancel()
 
 ###############################################################################
@@ -235,7 +256,7 @@ class GtkWorker (GObject, Thread):
 ###############################################################################
 
 if __name__ == "__main__":
-    def findPrimes (worker):
+    def findPrimes(worker):
         from math import sqrt
         limit = 10**4.
         primes = []
@@ -261,39 +282,44 @@ if __name__ == "__main__":
     worker = GtkWorker(findPrimes)
 
     sbut = gtk.Button("Start")
-    def callback (button, *args):
+
+    def callback(button, *args):
         sbut.set_sensitive(False)
         worker.execute()
     sbut.connect("clicked", callback)
     vbox.add(sbut)
 
     cbut = gtk.Button("Cancel")
-    def callback (button, *args):
+
+    def callback(button, *args):
         cbut.set_sensitive(False)
         worker.cancel()
     cbut.connect("clicked", callback)
     vbox.add(cbut)
 
     gbut = gtk.Button("Get")
-    def callback (button, *args):
+
+    def callback(button, *args):
         gbut.set_sensitive(False)
         print "Found:", worker.get()
     gbut.connect("clicked", callback)
     vbox.add(gbut)
 
     prog = gtk.ProgressBar()
-    def callback (worker, progress):
+
+    def callback(worker, progress):
         prog.set_fraction(progress)
     worker.connect("progressed", callback)
     vbox.add(prog)
 
     field = gtk.Entry()
-    def process (worker, primes):
+
+    def process(worker, primes):
         field.set_text(str(primes[-1]))
     worker.connect("published", process)
     vbox.add(field)
 
-    def done (worker):
+    def done(worker):
         print "Finished, Cancelled:", worker.isCancelled()
     worker.connect("done", done)
 

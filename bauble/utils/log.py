@@ -7,11 +7,12 @@ import logging
 
 import bauble.utils
 
+
 def _main_is_frozen():
     import imp
-    return (hasattr(sys, "frozen") or # new py2exe
-	    hasattr(sys, "importers") or # old py2exe
-	    imp.is_frozen("__main__")) # tools/freeze
+    return (hasattr(sys, "frozen") or  # new py2exe
+            hasattr(sys, "importers") or  # old py2exe
+            imp.is_frozen("__main__"))  # tools/freeze
 
 
 def _default_handler():
@@ -29,6 +30,7 @@ def _default_handler():
 # warning: HACK! so the error message only shows once
 __yesyesiknow = False
 
+
 def _config_logger(name, level, format, propagate=False):
     try:
         handler = _default_handler()
@@ -36,9 +38,9 @@ def _config_logger(name, level, format, propagate=False):
         import traceback
         global __yesyesiknow
         if not __yesyesiknow and not _main_is_frozen():
-            msg = _('** Could not open the default log file.\n'\
+            msg = _('** Could not open the default log file.\n'
                     'Press OK key to continue.\n\n%s') % \
-                    bauble.utils.xml_safe_utf8(e)
+                bauble.utils.xml_safe_utf8(e)
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_WARNING)
             __yesyesiknow = True
@@ -60,7 +62,7 @@ def sa_echo(logger='sqlalchemy', level=logging.DEBUG):
 
 def echo(toggle=True):
     import bauble.db as db
-    if toggle == True:
+    if toggle is True:
         db.engine.echo = False
         sa_echo(level=logging.DEBUG)
     else:
@@ -68,13 +70,12 @@ def echo(toggle=True):
         sa_echo(level=logging.ERROR)
 
 
-
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
-#root_logger = _config_logger('', logging.DEBUG, '%(levelname)s: %(message)s',
-#			     True)
+# root_logger = _config_logger('', logging.DEBUG, '%(levelname)s: %(message)s',
+#                              True)
 
 # info logger, prints only the message
-info_logger = _config_logger('bauble.info',logging.INFO, '%(message)s')
+info_logger = _config_logger('bauble.info', logging.INFO, '%(message)s')
 info = info_logger.info
 
 # debug logger, prints file and line name with the message
@@ -84,11 +85,11 @@ debug = debug_logger.debug
 
 # warning logger
 warning_logger = _config_logger('bauble.warning', logging.WARNING,
-			     '%(filename)s(%(lineno)d): %(message)s')
+                                '%(filename)s(%(lineno)d): %(message)s')
 warning = warning_logger.warning
 
 
 # error logger
 error_logger = _config_logger('bauble.error', logging.ERROR,
-			     '%(filename)s(%(lineno)d): %(message)s')
+                              '%(filename)s(%(lineno)d): %(message)s')
 error = error_logger.error
