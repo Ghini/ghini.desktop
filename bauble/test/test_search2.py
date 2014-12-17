@@ -2,9 +2,10 @@
 
 import unittest
 from bauble import search
+plants = __import__("bauble.plugins", globals(), locals(), ['plants'], -1).plants
 
 from pyparsing import ( alphas, alphas8bit, alphanums, Group, Literal, CaselessLiteral, Word, Keyword, quotedString,
-                        removeQuotes, OneOrMore, infixNotation, stringEnd, opAssoc, oneOf, delimitedList ) 
+                        removeQuotes, OneOrMore, infixNotation, stringEnd, opAssoc, oneOf, delimitedList, Regex ) 
 
 from sqlalchemy import and_, or_, not_
 
@@ -43,7 +44,7 @@ class UnaryLogical(object):
         self.op, self.operand = t[0]
 
     def __repr__(self):
-        return "(%s %s)" % (self.op, str(self.operand))    
+        return "%s %s" % (self.op, str(self.operand))    
 
     def express(self, env):
         return self.operator(self.operand.express())
@@ -56,13 +57,12 @@ class BinaryLogical(object):
         self.operands = t[0][0::2]  # every second object is an operand
 
     def __repr__(self):
-        return "(%s %s)" % ( self.name,  
-                             " ".join(str(oper) for oper in self.operands) )    
+        return "(%s %s %s)" % (self.operands[0], self.name, self.operands[1])
 
     def express(self, env):
         return self.operator(*( oper.express() for oper in self.operands ))    
 
-class ValueAction(object):
+class StringAction(object):
     ## op is the textual operator, while operator, defined in derived class,
     ## is the function implementing the operation.
     def __init__(self, t):
@@ -70,6 +70,30 @@ class ValueAction(object):
 
     def __repr__(self):
         return "'%s'" % ( self.value )
+
+    def express(self, env):
+        return self.value
+
+class NumericFloatAction(object):
+    ## op is the textual operator, while operator, defined in derived class,
+    ## is the function implementing the operation.
+    def __init__(self, t):
+        self.value = float(t[0])
+
+    def __repr__(self):
+        return "%s" % ( self.value )
+
+    def express(self, env):
+        return self.value
+
+class NumericIntegerAction(object):
+    ## op is the textual operator, while operator, defined in derived class,
+    ## is the function implementing the operation.
+    def __init__(self, t):
+        self.value = int(t[0])
+
+    def __repr__(self):
+        return "%s" % ( self.value )
 
     def express(self, env):
         return self.value
@@ -99,8 +123,7 @@ class IdentExpressionAction(object):
         self.operands = t[0][0::2]  # every second object is an operand
 
     def __repr__(self):
-        return "(%s %s)" % ( self.op,  
-                             " ".join(repr(oper) for oper in self.operands) )    
+        return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
 
     def express(self, env):
         return self.operation(*[oper.express(env) for oper in self.operands])    
@@ -146,10 +169,14 @@ def domain_expression_action(*args):
 def value_list_action(*args):
     print 'v:', args, [type(i) for i in args]
 
+integer_value = Regex(r'[-]?\d+').setParseAction(NumericIntegerAction)
+float_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?').setParseAction(NumericFloatAction)
 value_chars = Word(alphas + alphas8bit, alphanums + alphas8bit + '%.-_*;:')
+string_value = (value_chars | quotedString.setParseAction(removeQuotes)).setParseAction(StringAction)
 # value can contain any string once its quoted
-value = (value_chars | quotedString.setParseAction(removeQuotes)).setParseAction(ValueAction)
-value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
+
+value = string_value | integer_value | float_value
+value_list = (string_value ^ delimitedList(string_value) ^ OneOrMore(string_value))
 
 binop = oneOf('= == != <> < <= > >= not like contains has ilike '
               'icontains ihas is').setName('binop')
@@ -174,7 +201,8 @@ query = (domain + Keyword('where', caseless=True).suppress() +
 
 statement = (query.setParseAction(QueryAction)('query')
              | domain_expression.setParseAction(domain_expression_action)('domain')
-             | value_list.setParseAction(value_list_action)('values')).setParseAction(StatementAction)('statement')
+             | value_list.setParseAction(value_list_action)('values')
+         ).setParseAction(StatementAction)('statement')
 
 
 ###############################################################################
@@ -226,6 +254,8 @@ class SearchStrategyTest(unittest.TestCase):
 
     def test_database_was_created(self):
         "test the database was initialised"
+
+        # our_user = self.session.query(getattr(locals(), 'Species')).filter_by(sp=u's2.2.1').first() 
         our_user = self.session.query(Species).filter_by(sp=u's2.2.1').first() 
         self.assertEqual(our_user, self.test_species)
 
@@ -241,28 +271,36 @@ class SearchStrategyTest(unittest.TestCase):
         mapper_search = search.get_strategy('MapperSearch')
         results = mapper_search.search('species where species.genus=genus1')
         print dir(results)
-        self.assertEqual(str(results), '')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE (species.genus = 'genus1')")
 
     def test_canuselogicaloperators(self):
         'can use logical operators'
 
         mapper_search = search.get_strategy('MapperSearch')
         results = mapper_search.search('species where species.genus=genus1 or species.sp=name and species.genus.family.family=name')
-        self.assertEqual(str(results), '123')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((species.genus = 'genus1') OR ((species.sp = 'name') AND (species.genus.family.family = 'name')))")
 
     def test_canfindfamilyfromgenus(self):
         'can find family from genus'
 
         mapper_search = search.get_strategy('MapperSearch')
         results = mapper_search.search('family where family.genus=genus1')
-        self.assertEqual(str(results), '')
+        self.assertEqual(str(results.statement), "SELECT * FROM family WHERE (family.genus = 'genus1')")
 
     def test_canfindgenusfromfamily(self):
         'can find genus from family'
 
         mapper_search = search.get_strategy('MapperSearch')
         results = mapper_search.search('genus where genus.family=family2')
+        print dir(plants)
         print 1, results, type(results)
         print 2, results.statement
         print 3, results.statement.query.filter.express(self.session)
-        self.assertEqual(str(results), '123')
+        self.assertEqual(str(results.statement), "SELECT * FROM genus WHERE (genus.family = 'family2')")
+
+    def test_canfindplantbyaccession(self):
+        'can find plant from the accession id'
+
+        mapper_search = search.get_strategy('MapperSearch')
+        results = mapper_search.search('plant where accession.species.id=113')
+        self.assertEqual(str(results.statement), 'SELECT * FROM plant WHERE (accession.species.id = 113)')
