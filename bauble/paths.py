@@ -77,8 +77,6 @@ def installation_dir():
     else:
         raise NotImplementedError('This platform does not support '
                                   'translations: %s' % sys.platform)
-    print d
-    print os.path.abspath(d)
     return os.path.abspath(d)
 
 
