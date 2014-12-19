@@ -6,9 +6,8 @@ import traceback
 import weakref
 
 import gtk
-from sqlalchemy.orm import (and_, Column, Unicode, UnicodeText, Integer,
-                            ForeignKey, relation, backref, UniqueConstraint,
-                            String, func, _)
+from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
