@@ -1,14 +1,10 @@
 #
 # test_search.py
 #
-import os
-import sys
 import unittest
 
-from pyparsing import *
-from sqlalchemy import *
+from pyparsing import ParseException
 
-import bauble
 import bauble.db as db
 import bauble.search as search
 from bauble.utils.log import debug
@@ -24,6 +20,18 @@ from bauble.test import BaubleTestCase
 # means we need to include the operator in the parse instead of just
 # suppressing
 
+
+class Results(object):
+    def __init__(self):
+        self.results = {}
+
+    def callback(self, *args, **kwargs):
+        self.results['args'] = args
+        self.results['kwargs'] = kwargs
+
+
+parse_results = Results()
+
 parser = search.SearchParser()
 
 # TODO: should we make these search tests independent of any plugins,
@@ -31,30 +39,24 @@ parser = search.SearchParser()
 # expecting a plugin to set it up
 
 class SearchParserTests(unittest.TestCase):
-
+    error_msg = lambda me, s, v, e:  '%s: %s == %s' % (s, v, e)
 
     def test_query_expression_token(self):
         s = 'domain where col=value'
         #debug(s)
-        tokens = parser.query.parseString(s)
-        #debug(tokens)
+        parseresult = parser.query.parseString(s)
 
         s = 'domain where relation.col=value'
-        tokens = parser.query.parseString(s)
-        #debug(tokens)
+        parseresult = parser.query.parseString(s)
 
         s = 'domain where relation.relation.col=value'
-        tokens = parser.query.parseString(s)
-        #debug(tokens)
+        parseresult = parser.query.parseString(s)
 
         s = 'domain where relation.relation.col=value and col2=value2'
-        tokens = parser.query.parseString(s)
-        #debug(tokens)
-
+        parseresult = parser.query.parseString(s)
 
     def test_statement_token(self):
         pass
-
 
     def test_domain_expression_token(self):
         """
@@ -62,128 +64,131 @@ class SearchParserTests(unittest.TestCase):
         """
         # allow dom=val1, val2, val3
         s = 'domain=test'
-        expected = ['domain', '=', 'test']
-        tokens = parser.domain_expression.parseString(s, parseAll=True)
-
-        def breakup(tokens):
-            domain, op, values = tokens
-            values = list(values)
-            return [domain, op, values]
+        expected = "[domain = ['test']]"
+        results = parser.domain_expression.parseString(s, parseAll=True)
+        self.assertEquals(results.getName(), 'domain_expression')
+        self.assertEqual(str(results), expected)
 
         s = 'domain==test'
-        expected = ['domain', '==', ['test']]
-        tokens = parser.domain_expression.parseString(s, parseAll=True)
-        self.assert_(breakup(tokens)==expected,
-                     self.error_msg(s, breakup(tokens), expected))
-
-        s = 'domain=test1 test2 test3'
-        expected = ['domain', '=', ['test1', 'test2', 'test3']]
-        tokens = parser.domain_expression.parseString(s, parseAll=True)
-        self.assert_(breakup(tokens)==expected,
-                     self.error_msg(s, breakup(tokens), expected))
-
-        s = 'domain=test1 "test2 test3" test4'
-        expected = ['domain', '=', ['test1', 'test2 test3', 'test4']]
-        tokens = parser.domain_expression.parseString(s, parseAll=True)
-        self.assert_(breakup(tokens)==expected,
-                     self.error_msg(s, breakup(tokens), expected))
-
-        s = 'domain="test test"'
-        expected = ['domain', '=', ['test test']]
-        tokens = parser.domain_expression.parseString(s, parseAll=True)
-        self.assert_(breakup(tokens)==expected,
-                     self.error_msg(s, breakup(tokens), expected))
+        expected = "[domain == ['test']]"
+        results = parser.domain_expression.parseString(s, parseAll=True)
+        self.assertEqual(str(results), expected)
 
         s = 'domain=*'
-        expected = ['domain', '=', '*']
-        tokens = parser.domain_expression.parseString(s, parseAll=True)
-        self.assert_(list(tokens) == expected,
-                     self.error_msg(s, tokens, expected))
+        expected = "[domain = *]"
+        results = parser.domain_expression.parseString(s, parseAll=True)
+        self.assertEqual(str(results), expected)
 
+        s = 'domain=test1 test2 test3'
+        expected = "[domain = ['test1', 'test2', 'test3']]"
+        results = parser.statement.parseString(s, parseAll=True)
+        self.assertEqual(str(results), expected)
+
+        s = 'domain=test1 "test2 test3" test4'
+        expected = "[domain = ['test1', 'test2 test3', 'test4']]"
+        results = parser.domain_expression.parseString(s, parseAll=True)
+        self.assertEqual(str(results), expected)
+
+        s = 'domain="test test"'
+        expected = "[domain = ['test test']]"
+        results = parser.domain_expression.parseString(s, parseAll=True)
+        self.assertEqual(str(results), expected)
+
+    def test_integer_token(self):
+        "recognizes integers or floats as floats"
+        
+        results = parser.value.parseString('123')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), 123.0)
+        results = parser.value.parseString('123.1')
+        self.assertEquals(results.value.express(), 123.1)
 
     def test_value_token(self):
+        """value: should only return the first string or raise a parse exception
         """
-        Test the value token
-        """
+
         strings = ['test', '"test"', "'test'"]
-        expected = ['test']
+        expected = 'test'
         for s in strings:
-            tokens = parser.value.parseString(s, parseAll=True)
-            self.assert_(list(tokens) == ['test'],
-                         self.error_msg(s, tokens, expected))
+            results = parser.value.parseString(s, parseAll=True)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), expected)
+
+
+        strings = ['123.000', '123.', "123.0"]
+        expected = 123.0
+        for s in strings:
+            results = parser.value.parseString(s)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), expected)
 
         strings = ['"test1 test2"', "'test1 test2'"]
-        expected = ['test1 test2']
+        expected = 'test1 test2'  # this is one string! :)
         for s in strings:
-            tokens = parser.value.parseString(s, parseAll=True)
-            self.assert_(list(tokens) == expected,
-                         self.error_msg(s, tokens, expected))
-
+            results = parser.value.parseString(s, parseAll=True)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), expected)
 
         strings = ['%.-_*', '"%.-_*"']
-        expected = ['%.-_*']
+        expected = '%.-_*'
         for s in strings:
-            tokens = parser.value.parseString(s, parseAll=True)
-            self.assert_(list(tokens) == expected,
-                         self.error_msg(s, tokens, expected))
-
+            results = parser.value.parseString(s, parseAll=True)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), expected)
 
         # these should be invalid
         strings = ['test test', '"test', "test'", '$',]
         for s in strings:
             try:
-                tokens = parser.value.parseString(s, parseAll=True)
+                results = parser.value.parseString(s, parseAll=True)
             except ParseException, e:
                 pass
             else:
                 self.fail('ParseException not raised: "%s" - %s' \
-                          % (s, tokens))
-
-    error_msg = lambda me, s, v, e:  '%s: %s == %s' % (s, v, e)
+                          % (s, results))
 
     def test_value_list_token(self):
+        """value_list: should return all values
         """
-        Test the value_list token
-        """
-        strings = ['test', '"test"', "'test'"]
-        expected = ['test']
-        for s in strings:
-            tokens = parser.value_list.parseString(s, parseAll=True)
-            self.assert_(list(tokens) == expected,
-                         self.error_msg(s, tokens, expected))
 
-        strings = ['test1, test2', '"test1", test2', "test1, 'test2'"]
-        expected = ['test1', 'test2']
+        strings = ['test1, test2',
+                   '"test1", test2',
+                   "test1, 'test2'"]
+        expected = [['test1', 'test2']]
         for s in strings:
-            tokens = parser.value_list.parseString(s, parseAll=True)
-            self.assert_(list(tokens)==expected,
-                          self.error_msg(s, tokens, expected))
+            results = parser.value_list.parseString(s, parseAll=True)
+            self.assertEquals(results.getName(), 'value_list')
+            self.assertEquals(str(results), str(expected))
+
+        strings = ['test', '"test"', "'test'"]
+        expected = [['test']]
+        for s in strings:
+            results = parser.value_list.parseString(s, parseAll=True)
+            self.assertEquals(results.getName(), 'value_list')
+            self.assertEquals(str(results), str(expected))
 
         strings = ['test1 test2 test3', '"test1" test2 \'test3\'']
-        expected = ['test1', 'test2', 'test3']
+        expected = [['test1', 'test2', 'test3']]
         for s in strings:
-            tokens = parser.value_list.parseString(s, parseAll=True)
-            self.assert_(list(tokens) == expected,
-                         self.error_msg(s, tokens, expected))
+            results = parser.value_list.parseString(s, parseAll=True)
+            self.assertEquals(str(results), str(expected))
 
         strings = ['"test1 test2", test3']
-        expected = ['test1 test2', 'test3']
+        expected = [['test1 test2', 'test3']]
         for s in strings:
-            tokens = parser.value_list.parseString(s, parseAll=True)
-            self.assert_(list(tokens) == expected,
-                         self.error_msg(s, tokens, expected))
-
+            results = parser.value_list.parseString(s, parseAll=True)
+            self.assertEquals(str(results), str(expected))
 
         # these should be invalid
         strings = ['"test', "test'", "'test tes2"]
         for s in strings:
             try:
-                tokens = parser.value_list.parseString(s, parseAll=True)
+                results = parser.value_list.parseString(s, parseAll=True)
             except ParseException, e:
                 pass
             else:
                 self.fail('ParseException not raised: "%s" - %s' \
-                          % (s, tokens))
+                          % (s, results))
 
 
 class SearchTests(BaubleTestCase):
@@ -193,10 +198,37 @@ class SearchTests(BaubleTestCase):
 
     def setUp(self):
         super(SearchTests, self).setUp()
+        db.engine.execute('delete from genus')
+        db.engine.execute('delete from family')
+        from bauble.plugins.plants.family import Family
+        from bauble.plugins.plants.genus import Genus
+        self.family = Family(family=u'family1', qualifier=u's. lat.')
+        self.genus = Genus(family=self.family, genus=u'genus1')
+        self.Family = Family
+        self.Genus = Genus
+        self.session.add_all([self.family, self.genus])
+        self.session.commit()
 
     def tearDown(self):
         super(SearchTests, self).tearDown()
 
+    def test_find_correct_strategy_internal(self):
+        "verify the MapperSearch strategy is available (low-level)"
+
+        mapper_search = search._search_strategies['MapperSearch']
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+    def test_find_correct_strategy(self):
+        "verify the MapperSearch strategy is available"
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+    def test_look_for_wrong_strategy(self):
+        "verify the NotExisting strategy gives None"
+
+        mapper_search = search.get_strategy('NotExisting')
+        self.assertIsNone(mapper_search)
 
     def test_search_by_values(self):
         """
@@ -204,25 +236,20 @@ class SearchTests(BaubleTestCase):
 
         test whether the MapperSearch works, not a test on plugins.
         """
-        from bauble.plugins.plants.family import Family
-        from bauble.plugins.plants.genus import Genus
-        family = Family(family=u'family')
-        genus = Genus(family=family, genus=u'genus')
-        self.session.add_all([family, genus])
-        self.session.commit()
-        mapper_search = search._search_strategies[0]
-        self.assert_(isinstance(mapper_search, search.MapperSearch))
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search for family by family name
-        results = mapper_search.search('family', self.session)
+        results = mapper_search.search('family1', self.session)
+        self.assertEquals(len(results), 1)
         f = list(results)[0]
-        self.assert_(isinstance(f, Family) and f.id==family.id)
+        self.assertEqual(f.id, self.family.id)
 
         # search for genus by genus name
-        results = mapper_search.search('genus', self.session)
+        results = mapper_search.search('genus1', self.session)
+        self.assertEquals(len(results), 1)
         g = list(results)[0]
-        self.assert_(isinstance(g, Genus) and g.id==genus.id)
-
+        self.assertEqual(g.id, self.genus.id)
 
     def test_search_by_expression(self):
         """
@@ -230,61 +257,62 @@ class SearchTests(BaubleTestCase):
 
         test whether the MapperSearch works, not a test on plugins.
         """
-        from bauble.plugins.plants.family import Family
-        from bauble.plugins.plants.genus import Genus
-        family = Family(family=u'family')
-        genus = Genus(family=family, genus=u'genus')
-        self.session.add_all([family, genus])
-        self.session.commit()
-        mapper_search = search._search_strategies[0]
-        self.assert_(isinstance(mapper_search, search.MapperSearch))
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search for family by domain
-        results = mapper_search.search('fam=family', self.session)
+        results = mapper_search.search('fam=family1', self.session)
+        self.assertEquals(len(results), 1)
         f = list(results)[0]
-        self.assert_(isinstance(f, Family) and f.id==family.id)
+        self.assertTrue(isinstance(f, self.Family))
+        self.assertEquals(f.id, self.family.id)
 
         # search for genus by domain
-        results = mapper_search.search('gen=genus', self.session)
+        results = mapper_search.search('gen=genus1', self.session)
+        self.assertEquals(len(results), 1)
         g = list(results)[0]
-        self.assert_(isinstance(g, Genus) and g.id==genus.id)
-
+        self.assertTrue(isinstance(g, self.Genus))
+        self.assertEqual(g.id, self.genus.id)
 
     def test_search_by_query(self):
         """
-        Test searching by expression with MapperSearch
+        Test searching by query with MapperSearch
 
         test whether the MapperSearch works, not a test on plugins.
         """
-        from bauble.plugins.plants.family import Family
-        from bauble.plugins.plants.genus import Genus
-        family = Family(family=u'family1')
+        Family = self.Family
+        Genus = self.Genus
         family2 = Family(family=u'family2')
-        genus = Genus(family=family, genus=u'genus')
         genus2 = Genus(family=family2, genus=u'genus2')
-        self.session.add_all([family, family2, genus, genus2])
+        self.session.add_all([family2, genus2])
         self.session.commit()
-        mapper_search = search._search_strategies[0]
-        self.assert_(isinstance(mapper_search, search.MapperSearch))
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search cls.column
-        results = mapper_search.search('fam where family=family1', self.session)
+        results = mapper_search.search('genus where genus=genus1', self.session)
+        self.assertEquals(len(results), 1)
         f = list(results)[0]
-        self.assert_(isinstance(f, Family) and f.id==family.id)
+        self.assertTrue(isinstance(f, Family))
+        self.assertEqual(f.id, self.family.id)
 
         # search cls.parent.column
         results = mapper_search.search('genus where family.family=family1',
                                        self.session)
-        g = list(results)[0]
-        self.assert_(len(results) == 1 and isinstance(g, Genus) \
-                     and g.id==genus.id, [str(o) for o in list(results)])
+        self.assertEquals(len(results), 1)
+        g0 = list(results)[0]
+        self.assertTrue(isinstance(g0, Genus))
+        self.assertEquals(g0.id, self.genus.id)
 
         # search cls.children.column
-        results = mapper_search.search('family where genera.genus=genus',
+        results = mapper_search.search('family where genera.genus=genus1',
                                        self.session)
+        self.assertEquals(len(results), 1)
         f = list(results)[0]
-        self.assert_(len(results) == 1 and isinstance(f, Family) \
-                         and f.id==family.id)
+        self.assertEqual(len(results), 1)
+        self.assertTrue(isinstance(f, Family))
+        self.assertEqual(f.id, self.family.id)
 
         # search with multiple conditions and'ed together
         f3 = Family(family=u'fam3')
@@ -293,19 +321,20 @@ class SearchTests(BaubleTestCase):
         self.session.commit()
         s = 'genus where genus=genus2 and family.family=fam3'
         results = mapper_search.search(s, self.session)
-        g = list(results)[0]
-        self.assert_(len(results) == 1 and isinstance(g, Genus) \
-                     and g.id==g3.id)
+        g0 = list(results)[0]
+        self.assertEqual(len(results), 1)
+        self.assertTrue(isinstance(g0, Genus))
+        self.assertEqual(g0.id, g3.id)
 
         # search with or conditions
         g4 = Genus(family=f3, genus=u'genus4')
         self.session.add(g4)
         self.session.commit()
-        s = 'genus where genus=genus2 or genus=genus'
+        s = 'genus where genus=genus2 or genus=genus1'
         results = mapper_search.search(s, self.session)
-        self.assert_(len(results) == 3)
+        self.assertEqual(len(results), 3)
         self.assert_(sorted([r.id for r in results]) \
-                     == [g.id for g in (genus, genus2, g3)])
+                     == [g.id for g in (self.genus, genus2, g3)])
 
         s = 'genus where family.family="Orchidaceae" and family.qualifier=""'
         results = mapper_search.search(s, self.session)
@@ -363,7 +392,7 @@ class SearchTests(BaubleTestCase):
         # test partial string matches on a query
         s = 'genus where family.family like family%'
         results = mapper_search.search(s, self.session)
-        self.assert_(set(results) == set([genus, genus2]))
+        self.assert_(set(results) == set([self.genus, genus2]))
 
 
 class QueryBuilderTests(BaubleTestCase):
@@ -372,3 +401,44 @@ class QueryBuilderTests(BaubleTestCase):
         qb = search.QueryBuilder()
         qb.start()
         debug(qb.get_query())
+
+
+class BuildingSQLStatements(BaubleTestCase):
+
+    from bauble.search import SearchParser
+
+    def test_canfindspeciesfromgenus(self):
+        'can find species from genus'
+
+        text = u'species where species.genus=genus1'
+        sp = self.SearchParser()
+        results = sp.parse_string(text)
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE (species.genus = 'genus1')")
+
+    def test_canuselogicaloperators(self):
+        'can use logical operators'
+
+        sp = self.SearchParser()
+        results = sp.parse_string('species where species.genus=genus1 or species.sp=name and species.genus.family.family=name')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((species.genus = 'genus1') OR ((species.sp = 'name') AND (species.genus.family.family = 'name')))")
+
+    def test_canfindfamilyfromgenus(self):
+        'can find family from genus'
+
+        sp = self.SearchParser()
+        results = sp.parse_string('family where family.genus=genus1')
+        self.assertEqual(str(results.statement), "SELECT * FROM family WHERE (family.genus = 'genus1')")
+
+    def test_canfindgenusfromfamily(self):
+        'can find genus from family'
+
+        sp = self.SearchParser()
+        results = sp.parse_string('genus where genus.family=family2')
+        self.assertEqual(str(results.statement), "SELECT * FROM genus WHERE (genus.family = 'family2')")
+
+    def test_canfindplantbyaccession(self):
+        'can find plant from the accession id'
+
+        sp = self.SearchParser()
+        results = sp.parse_string('plant where accession.species.id=113')
+        self.assertEqual(str(results.statement), 'SELECT * FROM plant WHERE (accession.species.id = 113.0)')
