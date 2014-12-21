@@ -158,7 +158,7 @@ class Family(db.Base):
     @staticmethod
     def str(family, qualifier=False):
         if family.family is None:
-            return repr(family)
+            return db.Base.__repr__(family)
         else:
             return ' '.join([s for s in [
                 family.family, family.qualifier] if s not in (None, '')])
