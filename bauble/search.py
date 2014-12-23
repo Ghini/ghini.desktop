@@ -47,25 +47,6 @@ def search(text, session=None):
     return list(results)
 
 
-class UnaryLogical(object):
-    ## abstract base class. `name` is defined in derived classes
-    def __init__(self, t):
-        self.op, self.operand = t[0]
-
-    def __repr__(self):
-        return "%s %s" % (self.name, str(self.operand))
-
-
-class BinaryLogical(object):
-    ## abstract base class. `name` is defined in derived classes
-    def __init__(self, t):
-        self.op = t[0][1]
-        self.operands = t[0][0::2]  # every second object is an operand
-
-    def __repr__(self):
-        return "(%s %s %s)" % (self.operands[0], self.name, self.operands[1])
-
-
 class ValueABC(object):
     ## abstract base class.
 
@@ -129,19 +110,58 @@ class IdentExpressionAction(object):
         return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
 
 
+class UnaryLogical(object):
+    ## abstract base class. `name` is defined in derived classes
+    def __init__(self, t):
+        self.op, self.operand = t[0]
+
+    def __repr__(self):
+        return "%s %s" % (self.name, str(self.operand))
+
+
+class BinaryLogical(object):
+    ## abstract base class. `name` is defined in derived classes
+    def __init__(self, t):
+        self.op = t[0][1]
+        self.operands = t[0][0::2]  # every second object is an operand
+
+    def __repr__(self):
+        return "(%s %s %s)" % (self.operands[0], self.name, self.operands[1])
+
+
 class SearchAndAction(BinaryLogical):
     name = 'AND'
-    operator = and_
+
+    def evaluate(self, domain, session):
+        return self.operands[0].evaluate(domain, session).intersect_all(
+            map(lambda i: i.evaluate(domain, session), self.operands[1:]))
 
 
 class SearchOrAction(BinaryLogical):
     name = 'OR'
-    operator = or_
+
+    def evaluate(self, domain, session):
+        return self.operands[0].evaluate(domain, session).union_all(
+            map(lambda i: i.evaluate(domain, session), self.operands[1:]))
 
 
 class SearchNotAction(UnaryLogical):
     name = 'NOT'
-    operator = not_
+
+    def evaluate(self, domain, session):
+        print session.query(domain)
+        return session.query(domain).except_all(self.operand.evaluate(domain, session))
+
+
+class ParenthesisedQuery(object):
+    def __init__(self, t):
+        self.query = t[1]
+
+    def __repr__(self):
+        return "(%s)" % self.query.__repr__()
+
+    def evaluate(self, domain, session):
+        return self.query.evaluate(domain, session)
 
 
 class QueryAction(object):
@@ -170,12 +190,9 @@ class QueryAction(object):
         cls = search_strategy._domains[domain][0]
 
         result = set()
-        if search_strategy._session is not None:
-            main_query = search_strategy._session.query(cls)
-            main_query.from_statement(text(str(self)))
-
-            query_result = main_query.all()
-            result.update(query_result)
+        if False:
+            records = self.filter.evaluate(cls, search_strategy._session).all()
+            result.update(records)
 
         return result
 
@@ -301,7 +318,7 @@ class ValueListAction(object):
 from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
                        OneOrMore, oneOf, alphas, alphanums, Group, Literal,
                        stringEnd, Keyword, quotedString, ZeroOrMore,
-                       CaselessLiteral, infixNotation, opAssoc)
+                       CaselessLiteral, infixNotation, opAssoc, Forward)
 
 class SearchParser(object):
     """The parser for bauble.search.MapperSearch
@@ -327,11 +344,15 @@ class SearchParser(object):
     OR_  = CaselessLiteral("or")
     NOT_ = CaselessLiteral("not") | Literal('!')
 
+    query_expression = Forward()
     identifier = Group(delimitedList(Word(alphas, alphanums+'_'),
                                      '.')).setParseAction(IdentifierAction)
-    ident_expression = Group(identifier + binop + value).setParseAction(
-        IdentExpressionAction)
-    query_expression = infixNotation(
+    ident_expression = (
+        Group(identifier + binop + value).setParseAction(IdentExpressionAction)
+        | (
+            Literal('(') + query_expression + Literal(')')
+        ).setParseAction(ParenthesisedQuery))
+    query_expression << infixNotation(
         ident_expression,
         [ (NOT_, 1, opAssoc.RIGHT, SearchNotAction),
           (AND_, 2, opAssoc.LEFT,  SearchAndAction),
