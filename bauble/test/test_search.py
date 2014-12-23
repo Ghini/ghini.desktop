@@ -442,3 +442,12 @@ class BuildingSQLStatements(BaubleTestCase):
         sp = self.SearchParser()
         results = sp.parse_string('plant where accession.species.id=113')
         self.assertEqual(str(results.statement), 'SELECT * FROM plant WHERE (accession.species.id = 113.0)')
+
+    def test_canuseNOToperator(self):
+        'can use the NOT operator'
+
+        sp = self.SearchParser()
+        results = sp.parse_string('species where not species.genus.family.family=name')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE NOT (species.genus.family.family = 'name')")
+        results = sp.parse_string('species where family=1 or family=2 and not genus.id=3')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((family = 1.0) OR ((family = 2.0) AND NOT (genus.id = 3.0)))")
