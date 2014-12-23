@@ -109,6 +109,9 @@ class IdentExpressionAction(object):
     def __repr__(self):
         return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
 
+    def evaluate(self, domain, session):
+        return session.query(domain)
+
 
 class UnaryLogical(object):
     ## abstract base class. `name` is defined in derived classes
@@ -149,8 +152,7 @@ class SearchNotAction(UnaryLogical):
     name = 'NOT'
 
     def evaluate(self, domain, session):
-        print session.query(domain)
-        return session.query(domain).except_all(self.operand.evaluate(domain, session))
+        return session.query(domain).except_(self.operand.evaluate(domain, session))
 
 
 class ParenthesisedQuery(object):
@@ -185,12 +187,11 @@ class QueryAction(object):
         domain = self.domain
         check(domain in search_strategy._domains or domain in search_strategy._shorthand,
               'Unknown search domain: %s' % domain)
-        if domain in search_strategy._shorthand:
-            domain = search_strategy._shorthand[domain]
+        domain = search_strategy._shorthand.get(domain, domain)
         cls = search_strategy._domains[domain][0]
 
         result = set()
-        if False:
+        if search_strategy._session is not None:
             records = self.filter.evaluate(cls, search_strategy._session).all()
             result.update(records)
 
