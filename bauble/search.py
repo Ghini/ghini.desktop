@@ -35,10 +35,6 @@ from bauble.utils.log import debug
 import bauble.utils as utils
 
 
-# TODO: show list of completions of valid values, maybe even create
-# combos for enum types values instead of text entries
-
-
 def search(text, session=None):
     results = set()
     for strategy in _search_strategies.values():
