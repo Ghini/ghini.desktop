@@ -252,9 +252,6 @@ def create(import_defaults=True):
     # maybe we can use a dialog without the progress bar to show the status,
     # should probably work on the status bar to display this
 
-    # TODO: we create a transaction here and the csv import creates another
-    # nested transaction, we need to verify that if we rollback here then all
-    # of the changes made by csv import are rolled back as well
 ##    debug('entered db.create()')
     if not engine:
         raise ValueError('engine is None, not connected to a database')
