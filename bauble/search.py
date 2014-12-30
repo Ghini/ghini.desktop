@@ -49,10 +49,9 @@ class ValueABC(object):
         return self.value
 
 
-class ValueTokenAction(object):
+class ValueToken(object):
 
     def __init__(self, t):
-        print 'ValueTokenAction.__init__', t, type(t[0])
         self.value = t[0]
 
 
@@ -63,25 +62,23 @@ class ValueTokenAction(object):
         return self.value.express()
     
 
-class StringAction(ValueABC):
+class StringToken(ValueABC):
     def __init__(self, t):
-        print 'StringAction.__init__', t, type(t[0])
         self.value = t[0]  # no need to parse the string
 
     def __repr__(self):
         return "'%s'" % ( self.value )
 
 
-class NumericAction(ValueABC):
+class NumericToken(ValueABC):
     def __init__(self, t):
-        print 'NumericAction.__init__', t, type(t[0])
         self.value = float(t[0])  # store the float value
 
     def __repr__(self):
         return "%s" % ( self.value )
 
 
-class IdentifierAction(object):
+class IdentifierToken(object):
     def __init__(self, t):
         self.value = t[0]
 
@@ -89,13 +86,19 @@ class IdentifierAction(object):
         return '.'.join(self.value)
 
     def evaluate(self, domain, session):
-        q = session.query(domain)
-        if len(self.value) > 1:
-            q = q.join(self.value[:-1], aliased=True)
-        return q.subquery().c[self.value[-1]]
+        if len(self.value) == 1:
+            # identifier is an attribute of the table being queried
+            return getattr(domain, self.value[0])
+        elif len(self.value) > 1:
+            # identifier is an attribute of a joined table
+            q = session.query(domain)
+            q = q.join(*(self.value[:-1]))
+            # using private function to get the last join point
+            local_table = q._joinpoint['prev'][0][1].local_table
+            return local_table.c[self.value[-1]]
 
 
-class IdentExpressionAction(object):
+class IdentExpressionToken(object):
     def __init__(self, t):
         self.op = t[0][1]
         self.operation = {'>': lambda x,y: x>y,
@@ -111,8 +114,8 @@ class IdentExpressionAction(object):
         return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
 
     def evaluate(self, domain, session):
-        return session.query(domain).filter(self.operation(self.operands[0].evaluate(domain, session),
-                                                           self.operands[1].express()))
+        clause = lambda x: self.operation(self.operands[0].evaluate(domain, session), x)
+        return session.query(domain).filter(clause(self.operands[1].express()))
 
 
 class UnaryLogical(object):
@@ -138,16 +141,20 @@ class SearchAndAction(BinaryLogical):
     name = 'AND'
 
     def evaluate(self, domain, session):
-        return self.operands[0].evaluate(domain, session).intersect_all(
-            map(lambda i: i.evaluate(domain, session), self.operands[1:]))
+        result = self.operands[0].evaluate(domain, session)
+        for i in self.operands[1:]:
+            result = result.intersect(i.evaluate(domain, session))
+        return result
 
 
 class SearchOrAction(BinaryLogical):
     name = 'OR'
 
     def evaluate(self, domain, session):
-        return self.operands[0].evaluate(domain, session).union_all(
-            map(lambda i: i.evaluate(domain, session), self.operands[1:]))
+        result = self.operands[0].evaluate(domain, session)
+        for i in self.operands[1:]:
+            result = result.union(i.evaluate(domain, session))
+        return result
 
 
 class SearchNotAction(UnaryLogical):
@@ -267,8 +274,6 @@ class DomainExpressionAction(object):
 class ValueListAction(object):
 
     def __init__(self, t):
-        print 250, t
-        print 251, [type(i) for i in t]
         self.values = t[0]
 
     def __repr__(self):
@@ -327,11 +332,11 @@ class SearchParser(object):
     """The parser for bauble.search.MapperSearch
     """
 
-    numeric_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?').setParseAction(NumericAction)('number')
+    numeric_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?').setParseAction(NumericToken)('number')
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
-    string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringAction)('string')
+    string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringToken)('string')
 
-    value = (numeric_value | string_value).setParseAction(ValueTokenAction)('value')
+    value = (numeric_value | string_value).setParseAction(ValueToken)('value')
     value_list = Group(OneOrMore(string_value) ^ delimitedList(string_value)).setParseAction(ValueListAction)('value_list')
 
     domain = Word(alphas, alphanums)
@@ -349,9 +354,9 @@ class SearchParser(object):
 
     query_expression = Forward()
     identifier = Group(delimitedList(Word(alphas, alphanums+'_'),
-                                     '.')).setParseAction(IdentifierAction)
+                                     '.')).setParseAction(IdentifierToken)
     ident_expression = (
-        Group(identifier + binop + value).setParseAction(IdentExpressionAction)
+        Group(identifier + binop + value).setParseAction(IdentExpressionToken)
         | (
             Literal('(') + query_expression + Literal(')')
         ).setParseAction(ParenthesisedQuery))
