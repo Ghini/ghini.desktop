@@ -8,10 +8,8 @@ import gtk
 
 import bauble
 import bauble.db as db
-#import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-#from bauble.utils.log import debug, warning
 
 """
 The prefs module exposes an API for getting and setting user
@@ -23,10 +21,6 @@ using a dictionary like interface. e.g. ::
     import bauble.prefs
     prefs.prefs[key] = value
 """
-
-# TODO: include the version of the database in the prefs so that if the prefs
-# are opened with a different version then the user will know and possible
-# migrate pref version though i don't think the prefs format will change much
 
 # TODO: make sure the version numbers are compatible, if we are
 # upgrading to a new version we should copy the old config somewhere
