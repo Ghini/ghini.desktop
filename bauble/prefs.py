@@ -22,16 +22,6 @@ using a dictionary like interface. e.g. ::
     prefs.prefs[key] = value
 """
 
-# TODO: make sure the version numbers are compatible, if we are
-# upgrading to a new version we should copy the old config somewhere
-# else, copy any relevant keys and set the config version in the new
-# file...might be better to check if a user_dir()/config-version file
-# exists first and open that so we can have different configs for
-# different versions
-
-# TODO: should also possibly check that the config version and
-# database versions match up
-
 # TODO: maybe we should have a create method that creates the preferences
 # todo a one time thing if the files doesn't exist
 
