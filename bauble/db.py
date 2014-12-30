@@ -244,13 +244,6 @@ def create(import_defaults=True):
     :type import_defaults: bool
 
     """
-    # TODO: when creating a database there shouldn't be any errors
-    # on import since we are importing from the default values, we should
-    # just force the import and send everything in the database at once
-    # instead of using slices, this would make it alot faster but it may
-    # make it more difficult to make the interface more responsive,
-    # maybe we can use a dialog without the progress bar to show the status,
-    # should probably work on the status bar to display this
 
 ##    debug('entered db.create()')
     if not engine:
