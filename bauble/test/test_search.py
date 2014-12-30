@@ -274,12 +274,10 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(g, self.Genus))
         self.assertEqual(g.id, self.genus.id)
 
-    def test_search_by_query(self):
-        """
-        Test searching by query with MapperSearch
+    def test_search_by_query11(self):
+        "query with MapperSearch, single table, single test"
 
-        test whether the MapperSearch works, not a test on plugins.
-        """
+        # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
         family2 = Family(family=u'family2')
@@ -294,8 +292,74 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search('genus where genus=genus1', self.session)
         self.assertEquals(len(results), 1)
         f = list(results)[0]
-        self.assertTrue(isinstance(f, Family))
+        self.assertTrue(isinstance(f, Genus))
         self.assertEqual(f.id, self.family.id)
+
+    def test_search_by_query12(self):
+        "query with MapperSearch, single table, p1 OR p2"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        genus2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3')
+        g3 = Genus(family=f3, genus=u'genus2')
+        g4 = Genus(family=f3, genus=u'genus4')
+        self.session.add_all([family2, genus2, f3, g3, g4])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        # search with or conditions
+        s = 'genus where genus=genus2 or genus=genus1'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(len(results), 3)
+        self.assert_(sorted([r.id for r in results]) \
+                     == [g.id for g in (self.genus, genus2, g3)])
+
+    def test_search_by_query13(self):
+        "query with MapperSearch, single table, p1 AND p2"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        genus2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3')
+        g3 = Genus(family=f3, genus=u'genus2')
+        g4 = Genus(family=f3, genus=u'genus4')
+        self.session.add_all([family2, genus2, f3, g3, g4])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where id>1 and id<3'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(len(results), 1)
+        result = results.pop()
+        self.assertEqual(result.id, 2)
+
+        s = 'genus where id>0 and id<3'
+        results = list(mapper_search.search(s, self.session))
+        self.assertEqual(len(results), 2)
+        self.assertEqual(set(i.id for i in results), set([1,2]))
+
+    def test_search_by_query21(self):
+        "query with MapperSearch, joined tables, one predicate"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        genus2 = Genus(family=family2, genus=u'genus2')
+        self.session.add_all([family2, genus2])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search cls.parent.column
         results = mapper_search.search('genus where family.family=family1',
@@ -314,27 +378,28 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(f, Family))
         self.assertEqual(f.id, self.family.id)
 
-        # search with multiple conditions and'ed together
+    def test_search_by_query22(self):
+        "query with MapperSearch, joined tables, multiple predicates"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        genus2 = Genus(family=family2, genus=u'genus2')
         f3 = Family(family=u'fam3')
         g3 = Genus(family=f3, genus=u'genus2')
-        self.session.add_all([f3, g3])
+        self.session.add_all([family2, genus2, f3, g3])
         self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
         s = 'genus where genus=genus2 and family.family=fam3'
         results = mapper_search.search(s, self.session)
         g0 = list(results)[0]
         self.assertEqual(len(results), 1)
         self.assertTrue(isinstance(g0, Genus))
         self.assertEqual(g0.id, g3.id)
-
-        # search with or conditions
-        g4 = Genus(family=f3, genus=u'genus4')
-        self.session.add(g4)
-        self.session.commit()
-        s = 'genus where genus=genus2 or genus=genus1'
-        results = mapper_search.search(s, self.session)
-        self.assertEqual(len(results), 3)
-        self.assert_(sorted([r.id for r in results]) \
-                     == [g.id for g in (self.genus, genus2, g3)])
 
         s = 'genus where family.family="Orchidaceae" and family.qualifier=""'
         results = mapper_search.search(s, self.session)
@@ -356,14 +421,12 @@ class SearchTests(BaubleTestCase):
         s = 'genus where family.family=Orchidaceae and family.qualifier=""'
         results = mapper_search.search(s, self.session)
         r = list(results)
-        #debug(list(results))
 
         # make sure None isn't treated as the string 'None' and that
         # the query picks up the is operator
         s = 'genus where author is None'
         results = mapper_search.search(s, self.session)
         r = list(results)
-        #debug(list(results))
 
         s = 'genus where author is not None'
         results = mapper_search.search(s, self.session)
@@ -380,7 +443,6 @@ class SearchTests(BaubleTestCase):
             'and accession.species.genus.family.qualifier=""'
         results = mapper_search.search(s, self.session)
         r = list(results)
-        #debug(r)
 
         # id is an ambiguous column because it occurs on plant,
         # accesion and species...the results here don't matter as much
