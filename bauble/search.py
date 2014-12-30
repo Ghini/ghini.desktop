@@ -34,7 +34,6 @@ import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug
 import bauble.utils as utils
 
-# TODO: remove date columns from searches
 
 # TODO: show list of completions of valid values, maybe even create
 # combos for enum types values instead of text entries
@@ -88,10 +87,16 @@ class NumericAction(ValueABC):
 
 class IdentifierAction(object):
     def __init__(self, t):
-        self.value = '.'.join(t[0])
+        self.value = t[0]
 
     def __repr__(self):
-        return "%s" % ( self.value )
+        return '.'.join(self.value)
+
+    def evaluate(self, domain, session):
+        q = session.query(domain)
+        if len(self.value) > 1:
+            q = q.join(self.value[:-1], aliased=True)
+        return q.subquery().c[self.value[-1]]
 
 
 class IdentExpressionAction(object):
@@ -110,7 +115,8 @@ class IdentExpressionAction(object):
         return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
 
     def evaluate(self, domain, session):
-        return session.query(domain)
+        return session.query(domain).filter(self.operation(self.operands[0].evaluate(domain, session),
+                                                           self.operands[1].express()))
 
 
 class UnaryLogical(object):
