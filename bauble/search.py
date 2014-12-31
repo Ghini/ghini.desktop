@@ -85,17 +85,18 @@ class IdentifierToken(object):
     def __repr__(self):
         return '.'.join(self.value)
 
-    def evaluate(self, domain, session):
+    def evaluate(self, env):
         if len(self.value) == 1:
             # identifier is an attribute of the table being queried
-            return getattr(domain, self.value[0])
+            return getattr(env.domain, self.value[0])
         elif len(self.value) > 1:
             # identifier is an attribute of a joined table
-            q = session.query(domain)
-            q = q.join(*(self.value[:-1]))
-            # using private function to get the last join point
-            local_table = q._joinpoint['prev'][0][1].local_table
-            return local_table.c[self.value[-1]]
+            domain = env.search_strategy._shorthand.get(self.value[-2], self.value[-2])
+            domain = env.search_strategy._domains[domain][0]
+            return getattr(domain, self.value[-1])
+
+    def needs_join(self, env):
+        return self.value[:-1]
 
 
 class IdentExpressionToken(object):
@@ -113,9 +114,14 @@ class IdentExpressionToken(object):
     def __repr__(self):
         return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
 
-    def evaluate(self, domain, session):
-        clause = lambda x: self.operation(self.operands[0].evaluate(domain, session), x)
-        return session.query(domain).filter(clause(self.operands[1].express()))
+    def evaluate(self, env):
+        clause = lambda x: self.operation(self.operands[0].evaluate(env), x)
+        q = env.session.query(env.domain)
+        q = q.join(*self.operands[0].needs_join(env))
+        return q.filter(clause(self.operands[1].express()))
+
+    def needs_join(self, env):
+        return [self.operands[0].needs_join(env)]
 
 
 class UnaryLogical(object):
@@ -125,6 +131,9 @@ class UnaryLogical(object):
 
     def __repr__(self):
         return "%s %s" % (self.name, str(self.operand))
+
+    def needs_join(self, env):
+        return self.operand.needs_join(env)
 
 
 class BinaryLogical(object):
@@ -136,32 +145,38 @@ class BinaryLogical(object):
     def __repr__(self):
         return "(%s %s %s)" % (self.operands[0], self.name, self.operands[1])
 
+    def needs_join(self, env):
+        return self.operands[0].needs_join(env) + self.operands[1].needs_join(env)
+
 
 class SearchAndAction(BinaryLogical):
     name = 'AND'
 
-    def evaluate(self, domain, session):
-        result = self.operands[0].evaluate(domain, session)
+    def evaluate(self, env):
+        result = self.operands[0].evaluate(env)
         for i in self.operands[1:]:
-            result = result.intersect(i.evaluate(domain, session))
+            result = result.intersect(i.evaluate(env))
         return result
 
 
 class SearchOrAction(BinaryLogical):
     name = 'OR'
 
-    def evaluate(self, domain, session):
-        result = self.operands[0].evaluate(domain, session)
+    def evaluate(self, env):
+        result = self.operands[0].evaluate(env)
         for i in self.operands[1:]:
-            result = result.union(i.evaluate(domain, session))
+            result = result.union(i.evaluate(env))
         return result
 
 
 class SearchNotAction(UnaryLogical):
     name = 'NOT'
 
-    def evaluate(self, domain, session):
-        return session.query(domain).except_(self.operand.evaluate(domain, session))
+    def evaluate(self, env):
+        q = env.session.query(env.domain)
+        for i in env.domains:
+            q.join(*i)
+        return q.except_(self.operand.evaluate(env))
 
 
 class ParenthesisedQuery(object):
@@ -171,8 +186,11 @@ class ParenthesisedQuery(object):
     def __repr__(self):
         return "(%s)" % self.query.__repr__()
 
-    def evaluate(self, domain, session):
-        return self.query.evaluate(domain, session)
+    def evaluate(self, env):
+        return self.query.evaluate(env)
+
+    def needs_join(self, env):
+        return self.query.needs_join(env)
 
 
 class QueryAction(object):
@@ -196,12 +214,15 @@ class QueryAction(object):
         domain = self.domain
         check(domain in search_strategy._domains or domain in search_strategy._shorthand,
               'Unknown search domain: %s' % domain)
-        domain = search_strategy._shorthand.get(domain, domain)
-        cls = search_strategy._domains[domain][0]
+        self.domain = search_strategy._shorthand.get(domain, domain)
+        self.domain = search_strategy._domains[domain][0]
+        self.search_strategy = search_strategy
 
         result = set()
         if search_strategy._session is not None:
-            records = self.filter.evaluate(cls, search_strategy._session).all()
+            self.domains = self.filter.needs_join(self)
+            self.session = search_strategy._session
+            records = self.filter.evaluate(self).all()
             result.update(records)
 
         return result
@@ -352,7 +373,7 @@ class SearchParser(object):
     OR_  = CaselessLiteral("or")
     NOT_ = CaselessLiteral("not") | Literal('!')
 
-    query_expression = Forward()
+    query_expression = Forward()('filter')
     identifier = Group(delimitedList(Word(alphas, alphanums+'_'),
                                      '.')).setParseAction(IdentifierToken)
     ident_expression = (
