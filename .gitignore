@@ -20,3 +20,4 @@ scripts/what_is_available.py
 bauble/test/test_search2.py
 bauble/multiple-orig.py 
 bauble/multiple.py
+piccolo_test.py

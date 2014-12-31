@@ -147,6 +147,18 @@ class SearchParserTests(unittest.TestCase):
                 self.fail('ParseException not raised: "%s" - %s' \
                           % (s, results))
 
+    def test_needs_join(self):
+        "check the join steps"
+
+        env = None
+        results = parser.statement.parseString("plant where accession.species.id=44")
+        self.assertEquals(results.statement.content.filter.needs_join(env), [['accession', 'species']])
+        results = parser.statement.parseString("plant where accession.id=44")
+        self.assertEquals(results.statement.content.filter.needs_join(env), [['accession']])
+        results = parser.statement.parseString("plant where accession.id=4 or accession.species.id=3")
+        self.assertEquals(results.statement.content.filter.needs_join(env), [['accession'], ['accession', 'species']])
+
+
     def test_value_list_token(self):
         """value_list: should return all values
         """
@@ -387,7 +399,7 @@ class SearchTests(BaubleTestCase):
         family2 = Family(family=u'family2')
         genus2 = Genus(family=family2, genus=u'genus2')
         f3 = Family(family=u'fam3')
-        g3 = Genus(family=f3, genus=u'genus2')
+        g3 = Genus(family=f3, genus=u'genus3')
         self.session.add_all([family2, genus2, f3, g3])
         self.session.commit()
 
@@ -396,25 +408,25 @@ class SearchTests(BaubleTestCase):
 
         s = 'genus where genus=genus2 and family.family=fam3'
         results = mapper_search.search(s, self.session)
-        g0 = list(results)[0]
+        self.assertEqual(len(results), 0)
+
+        s = 'genus where genus=genus3 and family.family=fam3'
+        results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 1)
+        g0 = list(results)[0]
         self.assertTrue(isinstance(g0, Genus))
         self.assertEqual(g0.id, g3.id)
 
         s = 'genus where family.family="Orchidaceae" and family.qualifier=""'
         results = mapper_search.search(s, self.session)
         r = list(results)
-        #debug(list(results))
+        self.assertEqual(r, [])
 
         # TODO: create a query to test the =None statement, can't use
         # family.qualifier b/c its default value is ''
         s = 'genus where family.family=fam3 and family.qualifier=""'
         results = mapper_search.search(s, self.session)
-        r = list(results)
-        #debug(list(results))
-        # self.assert_(results.count() == 3)
-        # self.assert_(sorted([r.id for r in results]) \
-        #              == [g.id for g in (genus, genus2, g3)])
+        self.assertEqual(results, set([g3]))
 
         # test the searching with the empty string does exactly that
         # and does try to use None
