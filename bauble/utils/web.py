@@ -74,7 +74,7 @@ class GoogleButton(StringLinkButton):
 
 class GBIFButton(StringLinkButton):
 
-    _base_uri = "http://data.gbif.org/search/%s"
+    _base_uri = "http://www.gbif.org/species/search/%s"
     _space = '+'
 
     def __init__(self, title=_("Search GBIF"), tooltip=_(
