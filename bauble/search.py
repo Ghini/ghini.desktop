@@ -108,6 +108,8 @@ class IdentExpressionToken(object):
                           '<=': lambda x,y: x<=y,
                           '=': lambda x,y: x==y,
                           '!=': lambda x,y: x!=y,
+                          'is': lambda x,y: x is y,
+                          'like': lambda x,y: utils.ilike(x, '%s' % y)
                       }[self.op]
         self.operands = t[0][0::2]  # every second object is an operand
 

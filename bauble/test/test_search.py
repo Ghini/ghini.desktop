@@ -434,6 +434,22 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         r = list(results)
 
+    def test_search_by_query22None(self):
+        "query with MapperSearch, joined tables, predicates using None"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        genus2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3')
+        g3 = Genus(family=f3, genus=u'genus3')
+        self.session.add_all([family2, genus2, f3, g3])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
         # make sure None isn't treated as the string 'None' and that
         # the query picks up the is operator
         s = 'genus where author is None'
@@ -456,12 +472,44 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         r = list(results)
 
+    def test_search_by_query22id(self):
+        "query with MapperSearch, joined tables, test on id of dependent table"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        genus2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3')
+        g3 = Genus(family=f3, genus=u'genus3')
+        self.session.add_all([family2, genus2, f3, g3])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
         # id is an ambiguous column because it occurs on plant,
         # accesion and species...the results here don't matter as much
         # as the fact that the query doesn't raise and exception
         s = 'plant where accession.species.id=1'
         results = mapper_search.search(s, self.session)
         r = list(results)
+
+    def test_search_by_query22like(self):
+        "query with MapperSearch, joined tables, LIKE"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        genus2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3')
+        g3 = Genus(family=f3, genus=u'genus3')
+        self.session.add_all([family2, genus2, f3, g3])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # test partial string matches on a query
         s = 'genus where family.family like family%'
