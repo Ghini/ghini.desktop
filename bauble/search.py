@@ -86,14 +86,22 @@ class IdentifierToken(object):
         return '.'.join(self.value)
 
     def evaluate(self, env):
+        """return pair (query, attribute)
+
+        the value associated to the identifier is an altered query where the
+        joinpoint is the one relative to the attribute, and the attribute
+        itself.
+        """
+
+        query = env.session.query(env.domain)
         if len(self.value) == 1:
             # identifier is an attribute of the table being queried
-            return getattr(env.domain, self.value[0])
+            attr = getattr(env.domain, self.value[0])
         elif len(self.value) > 1:
             # identifier is an attribute of a joined table
-            domain = env.search_strategy._shorthand.get(self.value[-2], self.value[-2])
-            domain = env.search_strategy._domains[domain][0]
-            return getattr(domain, self.value[-1])
+            query = query.join(*self.value[:-1], aliased=True)
+            attr = getattr(query._joinpoint['_joinpoint_entity'], self.value[-1])
+        return query, attr
 
     def needs_join(self, env):
         return self.value[:-1]
@@ -117,9 +125,8 @@ class IdentExpressionToken(object):
         return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
 
     def evaluate(self, env):
-        clause = lambda x: self.operation(self.operands[0].evaluate(env), x)
-        q = env.session.query(env.domain)
-        q = q.join(*self.operands[0].needs_join(env))
+        q, a = self.operands[0].evaluate(env)
+        clause = lambda x: self.operation(a, x)
         return q.filter(clause(self.operands[1].express()))
 
     def needs_join(self, env):
