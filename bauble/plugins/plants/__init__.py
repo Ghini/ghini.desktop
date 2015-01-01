@@ -47,7 +47,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                                          context_menu=family_context_menu,
                                          markup_func=family_markup_func)
 
-        mapper_search.add_meta(('genus', 'gen', 'genera'), Genus, ['genus'])
+        mapper_search.add_meta(('genus', 'gen'), Genus, ['genus'])
         SearchView.view_meta[Genus].set(children="species",
                                         infobox=GenusInfoBox,
                                         context_menu=genus_context_menu,
