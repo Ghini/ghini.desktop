@@ -96,11 +96,12 @@ class IdentifierToken(object):
         query = env.session.query(env.domain)
         if len(self.value) == 1:
             # identifier is an attribute of the table being queried
-            attr = getattr(env.domain, self.value[0])
+            cls = env.domain
         elif len(self.value) > 1:
             # identifier is an attribute of a joined table
             query = query.join(*self.value[:-1], aliased=True)
-            attr = getattr(query._joinpoint['_joinpoint_entity'], self.value[-1])
+            cls = query._joinpoint['_joinpoint_entity']
+        attr = getattr(cls, self.value[-1])
         return query, attr
 
     def needs_join(self, env):
