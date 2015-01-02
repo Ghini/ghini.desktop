@@ -10,9 +10,13 @@ import sys
 import traceback
 import weakref
 
+try:
+    import gtk
+    import gobject
+except:
+    from bauble.fake_gtk import gtk, gobject
+
 import dateutil.parser as date_parser
-import gtk
-import gobject
 import lxml.etree as etree
 import pango
 from sqlalchemy import *
