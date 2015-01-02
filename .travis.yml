@@ -4,7 +4,7 @@ python:
     - "2.7"
 before-install: 
     - sudo apt-get install python-gtk2
-    - python setup.py build 
-install: python setup.py install
+    - python setup.py -q build 
+install: python setup.py -q install
 # command to run tests, e.g. python setup.py test
 script:  python setup.py test
