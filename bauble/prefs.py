@@ -4,7 +4,13 @@
 import os
 import sys
 
-import gtk
+try:
+    import gtk
+except:
+    class fake:
+        pass
+
+    gtk = fake()
 
 import bauble
 import bauble.db as db
