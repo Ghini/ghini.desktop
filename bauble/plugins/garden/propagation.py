@@ -13,8 +13,12 @@ import traceback
 import xml.sax.saxutils as saxutils
 
 import dateutil.parser as date_parser
-import gtk
-import gobject
+
+try:
+    import gtk
+except:
+    from bauble.fake_gtk import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session

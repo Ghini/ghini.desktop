@@ -11,8 +11,12 @@ import sys
 import traceback
 from random import random
 
-import gtk
-import gobject
+try:
+    import gtk
+    import gobject
+except:
+    from bauble.fake_gtk import gtk, gobject
+
 import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *

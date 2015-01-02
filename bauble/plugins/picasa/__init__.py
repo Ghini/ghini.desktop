@@ -44,8 +44,12 @@ sys.stderr = dummyfile()
 import gdata.photos.service
 sys.stderr = tmp
 
-import gobject
-import gtk
+try:
+    import gtk
+    import gobject
+except:
+    from bauble.fake_gtk import gtk, gobject
+
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base

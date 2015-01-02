@@ -3,7 +3,11 @@ import shutil
 import sys
 import tempfile
 
-import gtk
+try:
+    import gtk
+except:
+    from bauble.fake_gtk import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from mako.template import Template

@@ -2,7 +2,12 @@ import os
 import datetime
 import unittest
 
-import gtk
+
+try:
+    import gtk
+except:
+    from bauble.fake_gtk import gtk
+
 from nose import SkipTest
 from sqlalchemy import *
 from sqlalchemy.exc import *

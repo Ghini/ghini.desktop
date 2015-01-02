@@ -13,7 +13,11 @@
 # You should have received a copy of the GNU General Public License
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
-import gtk
+
+try:
+    import gtk
+except:
+    from bauble.fake_gtk import gtk
 
 import bauble.utils.desktop as desktop
 
