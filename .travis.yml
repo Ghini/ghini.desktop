@@ -2,7 +2,9 @@ language: python
 python: 
     - "2.6"
     - "2.7"
-before-install: python setup.py build 
+before-install: 
+    - sudo apt-get install python-gtk2
+    - python setup.py build 
 install: python setup.py install
 # command to run tests, e.g. python setup.py test
 script:  python setup.py test
