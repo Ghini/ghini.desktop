@@ -8,8 +8,13 @@ import sys
 import traceback
 import re
 
-import gobject
-import gtk
+
+try:
+    import gtk
+    import gobject
+except:
+    from bauble.fake_gtk import gtk, gobject
+
 from sqlalchemy import *
 
 import bauble
