@@ -21,7 +21,15 @@ import re
 import sys
 import traceback
 
-import gtk
+try:
+    import gtk
+except:
+    class fake:
+        MESSAGE_ERROR = ''
+        MESSAGE_WARNING = ''
+        VBox = object
+    gtk = fake()
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 import sqlalchemy.orm.exc as orm_exc

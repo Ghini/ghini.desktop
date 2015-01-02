@@ -9,7 +9,17 @@ import re
 import sys
 import traceback
 
-import gtk
+
+try:
+    import gtk
+except:
+    class fake:
+        MESSAGE_ERROR = ''
+        MESSAGE_WARNING = ''
+        VBox = object
+        Action = Expander = ScrolledWindow = object
+    gtk = fake()
+
 import gobject
 import pango
 from pyparsing import *

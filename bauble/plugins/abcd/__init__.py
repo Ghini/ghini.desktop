@@ -5,7 +5,15 @@
 import os
 import csv
 
-import gtk
+
+try:
+    import gtk
+except:
+    class fake:
+        pass
+
+    gtk = fake()
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
