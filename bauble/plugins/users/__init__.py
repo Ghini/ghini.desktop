@@ -2,7 +2,11 @@
 import os
 import re
 
-import gtk
+try:
+    import gtk
+except:
+    from bauble.fake_gtk import gtk
+
 from sqlalchemy import *
 from sqlalchemy.exc import *
 from sqlalchemy.orm.exc import *
