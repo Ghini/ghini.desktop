@@ -8,8 +8,12 @@ import traceback
 import weakref
 import xml.sax.saxutils as sax
 
-import gtk
-import gobject
+try:
+    import gtk
+    import gobject
+except:
+    from bauble.fake_gtk import gtk, gobject
+
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError

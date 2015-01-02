@@ -5,14 +5,10 @@
 import os
 import csv
 
-
 try:
     import gtk
 except:
-    class fake:
-        pass
-
-    gtk = fake()
+    from bauble.fake_gtk import gtk
 
 from sqlalchemy import *
 from sqlalchemy.orm import *

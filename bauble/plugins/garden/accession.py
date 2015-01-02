@@ -13,8 +13,12 @@ import traceback
 import weakref
 import xml.sax.saxutils as saxutils
 
-import gtk
-import gobject
+try:
+    import gtk
+    import gobject
+except:
+    from bauble.fake_gtk import gtk, gobject
+
 import lxml.etree as etree
 import pango
 from sqlalchemy import *

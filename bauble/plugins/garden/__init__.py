@@ -113,6 +113,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     def cell_data_func(col, cell, model, treeiter, data=None):
         cell.props.text = utils.utf8(model[treeiter][0])
 
+    import gtk
     completion = gtk.EntryCompletion()
     cell = gtk.CellRendererText() # set up the completion renderer
     completion.pack_start(cell)
