@@ -6,7 +6,11 @@
 import os
 import traceback
 
-import gtk
+try:
+    import gtk
+except:
+    from bauble.fake_gtk import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.exc import DBAPIError, InvalidRequestError
