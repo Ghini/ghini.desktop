@@ -279,21 +279,6 @@ def install(plugins_to_install, import_defaults=True, force=False):
                             'can happend if two plugins directly or '
                             'indirectly rely on each other'))
 
-#         msg = _('The %(plugin)s plugin depends on the %(other_plugin)s '\
-#                 'plugin but the %(other_plugin)s plugin wasn\'t found.') \
-#                 % {'plugin': e.plugin.__name__, 'other_plugin': e.not_found}
-#         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-
-#         to_install = topological_sort(to_install, depends)
-#     except DependencyError, e:
-#         msg = _('The %(plugin)s plugin depends on the %(other_plugin)s '\
-#                 'plugin but the %(other_plugin)s plugin wasn\'t found.') \
-#                 % {'plugin': e.plugin.__name__, 'other_plugin': e.not_found}
-#         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-#         raise
-#     except DependencyError, e:
-#         error(utils.utf8(e))
-
     try:
         for p in to_install:
             #debug('install: %s' % p.__name__)
@@ -304,17 +289,9 @@ def install(plugins_to_install, import_defaults=True, force=False):
             # (if ever)
             if not PluginRegistry.exists(p):
                 PluginRegistry.add(p)
-        #session.commit()
     except Exception, e:
         warning('bauble.pluginmgr.install(): %s' % utils.utf8(e))
         raise
-#         msg = _('Error installing plugins: %s' % p)
-#         debug(e)
-#         #safe = utils.xml_safe_utf8
-#         #utils.message_details_dialog(safe(msg),
-#         #                             safe(traceback.format_exc()),
-#         #                             gtk.MESSAGE_ERROR)
-#         debug(traceback.format_exc())
 
 
 class PluginRegistry(db.Base):
