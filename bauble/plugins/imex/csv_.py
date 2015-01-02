@@ -148,9 +148,10 @@ class CSVImporter(Importer):
         self.__error_exc = False
 
     def start(self, filenames=None, metadata=None, force=False):
-        '''
-        start the import process, this is a non blocking method queue the
-        process as a bauble task
+        '''start the import process. this is a non blocking method: we queue the
+        process as a bauble task. there is no callback informing whether it
+        is successfully completed or not.
+
         '''
         if metadata is None:
             metadata = db.metadata  # use the default metadata
