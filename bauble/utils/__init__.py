@@ -12,7 +12,14 @@ import sys
 import textwrap
 import xml.sax.saxutils as saxutils
 
-import gtk
+try:
+    import gtk
+except:
+    class fake:
+        MESSAGE_INFO = '' 
+        BUTTONS_OK = ''
+
+    gtk = fake()
 
 import bauble
 from bauble.error import check, CheckConditionError
@@ -258,7 +265,7 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
     .. note:: any values passed in for widgets that expect a string will call
       the values __str__ method
     '''
-    import gtk
+
     if value is None:  # set the value from the default
         if isinstance(widget, (gtk.Label, gtk.TextView, gtk.Entry)) \
                and default is None:
