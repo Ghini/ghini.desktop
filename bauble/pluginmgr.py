@@ -24,11 +24,7 @@ import traceback
 try:
     import gtk
 except:
-    class fake:
-        MESSAGE_ERROR = ''
-        MESSAGE_WARNING = ''
-        VBox = object
-    gtk = fake()
+    from bauble.fake_gtk import gtk
 
 from sqlalchemy import *
 from sqlalchemy.orm import *

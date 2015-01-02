@@ -6,7 +6,11 @@ import traceback
 import xml.sax.saxutils as sax
 from itertools import chain
 
-import gtk
+try:
+    import gtk
+except:
+    from bauble.fake_gtk import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
