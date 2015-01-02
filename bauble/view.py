@@ -12,15 +12,10 @@ import traceback
 
 try:
     import gtk
+    import gobject
 except:
-    class fake:
-        MESSAGE_ERROR = ''
-        MESSAGE_WARNING = ''
-        VBox = object
-        Action = Expander = ScrolledWindow = object
-    gtk = fake()
+    from bauble.fake_gtk import gtk, gobject
 
-import gobject
 import pango
 from pyparsing import *
 from sqlalchemy import *

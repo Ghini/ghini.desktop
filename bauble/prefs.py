@@ -7,10 +7,7 @@ import sys
 try:
     import gtk
 except:
-    class fake:
-        pass
-
-    gtk = fake()
+    from bauble.fake_gtk import gtk
 
 import bauble
 import bauble.db as db

@@ -28,10 +28,7 @@ except ImportError:
 try:
     import gtk
 except:
-    class fake:
-        MESSAGE_ERROR = ''
-
-    gtk = fake()
+    from bauble.fake_gtk import gtk
 
 import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
