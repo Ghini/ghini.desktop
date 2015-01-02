@@ -15,11 +15,7 @@ import xml.sax.saxutils as saxutils
 try:
     import gtk
 except:
-    class fake:
-        MESSAGE_INFO = '' 
-        BUTTONS_OK = ''
-
-    gtk = fake()
+    from bauble.fake_gtk import gtk
 
 import bauble
 from bauble.error import check, CheckConditionError
