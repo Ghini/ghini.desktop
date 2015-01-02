@@ -24,7 +24,15 @@ except ImportError:
     raise
 
 
-import gtk
+
+try:
+    import gtk
+except:
+    class fake:
+        MESSAGE_ERROR = ''
+
+    gtk = fake()
+
 import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
