@@ -67,3 +67,10 @@ class BaubleTestCase(unittest.TestCase):
         db.metadata.drop_all(bind=db.engine)
         bauble.pluginmgr.commands.clear()
         pluginmgr.plugins.clear()
+
+    # assertIsNone is not available before 2.7
+    import sys
+    if sys.version_info[:2] < (2, 7):
+        def assertIsNone(self, item):
+            self.assertTrue(item is None)
+

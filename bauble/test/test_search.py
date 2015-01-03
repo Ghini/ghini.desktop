@@ -241,12 +241,7 @@ class SearchTests(BaubleTestCase):
 
         mapper_search = search.get_strategy('NotExisting')
 
-        # assertIsNone is not available before 2.7
-        import sys
-        if sys.version_info[:2] <= (2, 6):
-            self.assertTrue(mapper_search is None)
-        elif sys.version_info[:2] >= (2, 7):
-            self.assertIsNone(mapper_search)
+        self.assertIsNone(mapper_search)
 
     def test_search_by_values(self):
         """
