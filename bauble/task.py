@@ -7,8 +7,12 @@ running tasks still block but allows the GUI to update.
 import Queue
 
 import fibra
-import gobject
-import gtk
+
+try:
+    import gtk
+    import gobject
+except:
+    from bauble.fake_gtk import gtk, gobject
 
 import bauble
 import bauble.utils as utils
