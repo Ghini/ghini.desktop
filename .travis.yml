@@ -3,7 +3,7 @@ python:
     - "2.6"
     - "2.7"
 before_install: 
-    - sudo apt-get install python-gtk2
+    - sudo apt-get install python-gtk2 libpango-1.0-0
     - python setup.py -q build 
 install: python setup.py -q install
 # command to run tests, e.g. python setup.py test
