@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2014-12-13 13:34-0500\n"
+"PO-Revision-Date: 2015-01-03 12:36-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -2090,11 +2090,11 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:209 bauble/plugins/garden/plant.py:281
 #: bauble/plugins/garden/plant.py:1086
 msgid "Dead"
-msgstr ""
+msgstr "Morta"
 
 #: bauble/plugins/garden/plant.py:210
 msgid "Discarded"
-msgstr ""
+msgstr "Scartata"
 
 #: bauble/plugins/garden/plant.py:211
 msgid "Discarded, weedy"
@@ -2102,11 +2102,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:212
 msgid "Lost, whereabouts unknown"
-msgstr ""
+msgstr "Persa, non si sa dove sia"
 
 #: bauble/plugins/garden/plant.py:213
 msgid "Stolen"
-msgstr ""
+msgstr "Rubata"
 
 #: bauble/plugins/garden/plant.py:214
 msgid "Winter kill"
@@ -2162,27 +2162,27 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:274
 msgid "Excellent"
-msgstr ""
+msgstr "Eccellente"
 
 #: bauble/plugins/garden/plant.py:275
 msgid "Good"
-msgstr ""
+msgstr "Buono"
 
 #: bauble/plugins/garden/plant.py:276
 msgid "Fair"
-msgstr ""
+msgstr "Discreto"
 
 #: bauble/plugins/garden/plant.py:277
 msgid "Poor"
-msgstr ""
+msgstr "Scarso"
 
 #: bauble/plugins/garden/plant.py:278
 msgid "Questionable"
-msgstr ""
+msgstr "Dubbio"
 
 #: bauble/plugins/garden/plant.py:279
 msgid "Indistinguishable Mass"
-msgstr ""
+msgstr "Massa indistinta"
 
 #: bauble/plugins/garden/plant.py:280
 msgid "Unable to Locate"
@@ -2190,31 +2190,31 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:285
 msgid "Immature"
-msgstr ""
+msgstr "Immaturo"
 
 #: bauble/plugins/garden/plant.py:286
 msgid "Flowering"
-msgstr ""
+msgstr "Fiorito"
 
 #: bauble/plugins/garden/plant.py:287
 msgid "Old Flowers"
-msgstr ""
+msgstr "Fiori appassiti"
 
 #: bauble/plugins/garden/plant.py:291
 msgid "Unripe"
-msgstr ""
+msgstr "Acerbo"
 
 #: bauble/plugins/garden/plant.py:292
 msgid "Ripe"
-msgstr ""
+msgstr "Maturo"
 
 #: bauble/plugins/garden/plant.py:299
 msgid "Female"
-msgstr ""
+msgstr "Femminile"
 
 #: bauble/plugins/garden/plant.py:300
 msgid "Male"
-msgstr ""
+msgstr "Maschile"
 
 #: bauble/plugins/garden/plant.py:340
 msgid "Seed/Spore"
@@ -2222,11 +2222,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:341
 msgid "Vegetative Part"
-msgstr ""
+msgstr "Parte vegetativa"
 
 #: bauble/plugins/garden/plant.py:342
 msgid "Tissue Culture"
-msgstr ""
+msgstr "Coltura di tessuti"
 
 #: bauble/plugins/garden/plant.py:493
 msgid ""
@@ -2271,7 +2271,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:510
 msgid "Save your changes changes and add another plant."
-msgstr ""
+msgstr "Salva le modifiche ed aggiungi una nuova pianta."
 
 #: bauble/plugins/garden/plant.py:812
 msgid "branch_mode requires a model"
@@ -2279,7 +2279,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:814
 msgid "cannot branch a new plant"
-msgstr ""
+msgstr "non è possibile clonare una nuova pianta"
 
 #: bauble/plugins/garden/plant.py:1008
 msgid "Branch Mode"
@@ -2328,7 +2328,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:5
 msgid "Accession type"
-msgstr ""
+msgstr "Tipo di accessione"
 
 #: bauble/plugins/garden/plant_editor.glade.h:6
 msgid "Add"
@@ -2336,7 +2336,7 @@ msgstr "Aggiungi"
 
 #: bauble/plugins/garden/plant_editor.glade.h:7
 msgid "Date of Change"
-msgstr ""
+msgstr "Data della modifica"
 
 #: bauble/plugins/garden/plant_editor.glade.h:8
 msgid "Edit"
@@ -2348,11 +2348,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:13
 msgid "Plant code"
-msgstr ""
+msgstr "Codice della pianta"
 
 #: bauble/plugins/garden/plant_editor.glade.h:16
 msgid "Reason"
-msgstr ""
+msgstr "Motivo"
 
 #: bauble/plugins/users/ui.glade.h:1
 msgid "<b>Confirm new password</b>"
@@ -2384,7 +2384,7 @@ msgstr "Gruppi"
 
 #: bauble/plugins/users/ui.glade.h:8
 msgid "Read"
-msgstr ""
+msgstr "Leggere"
 
 #: bauble/plugins/users/ui.glade.h:9
 msgid "Show only Bauble users"
@@ -2392,7 +2392,7 @@ msgstr "Mostra solo gli utenti Bauble"
 
 #: bauble/plugins/users/ui.glade.h:10
 msgid "Write"
-msgstr ""
+msgstr "Scrivere"
 
 #: bauble/plugins/users/__init__.py:468
 msgid "The Users editor is only valid on a PostgreSQL database"
@@ -2401,6 +2401,7 @@ msgstr "L'editore utenti può essere utilizzato solo su un database PostgreSQL"
 #: bauble/plugins/users/__init__.py:476
 msgid "You do not have privileges to change other user privileges"
 msgstr ""
+"Non hai i diritti di accesso necessari per cambiare diritti di altri utenti."
 
 #: bauble/plugins/users/__init__.py:491 bauble/plugins/users/__init__.py:712
 msgid "Users"
@@ -2418,6 +2419,10 @@ msgid ""
 "<i>It is possible that this user could have permissions on other databases "
 "not related to Bauble.</i>"
 msgstr ""
+"Sei sicuro di voler rimuovere l'utente <b>%(name)s</b>?\n"
+"\n"
+"<i>L'utente potrebbe essere associato ad altri database oltre che a Bauble.</"
+"i>"
 
 #: bauble/plugins/users/__init__.py:620
 #, python-format
@@ -2807,6 +2812,10 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"Sei in procinto di esportare %(nplants)s piante in formato ABCD.  Esportare "
+"un tale numero di piante potrebbe durare vari minuti.  \n"
+"\n"
+"<i>Sei sicuro di voler continuare?</i>"
 
 #: bauble/plugins/abcd/__init__.py:330
 msgid ""
@@ -3188,16 +3197,17 @@ msgid "Domain Properties"
 msgstr ""
 
 #: bauble/search.py:532
+#, fuzzy
 msgid "Choose a property..."
-msgstr ""
+msgstr "Scegli una proprietà"
 
 #: bauble/search.py:665
 msgid "Query Builder"
-msgstr ""
+msgstr "Costruttore di interrogazioni"
 
 #: bauble/search.py:750
 msgid "Choose a search domain..."
-msgstr ""
+msgstr "Scegli un dominio di ricerca..."
 
 #: bauble/search.py:755
 msgid "Expressions"
@@ -3297,4 +3307,4 @@ msgstr ""
 #: bauble/types.py:63
 #, python-format
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr ""
+msgstr "\"%(value)s\" non inclusa in Enum.values: %(all_values)s"
