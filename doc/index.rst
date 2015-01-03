@@ -1,6 +1,8 @@
 Documentation for Bauble 1.0
 ############################
 
+.. image:: https://travis-ci.org/mfrasca/bauble.classic.svg?branch=master
+
 Bauble is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
 
