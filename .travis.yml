@@ -1,10 +1,40 @@
 language: python
+
 python: 
     - "2.6"
     - "2.7"
+
 before_install: 
-    - sudo apt-get install python-gtk2 libpango1.0-0
+    # Environment setup
+    - export VIRT_ROOT=/home/travis/virtualenv/python$TRAVIS_PYTHON_VERSION
+    - export PKG_CONFIG_PATH=$VIRT_ROOT/lib/pkgconfig
+    # PyCairo
+    - wget http://www.cairographics.org/releases/py2cairo-1.10.0.tar.bz2
+    - tar xf py2cairo-1.10.0.tar.bz2
+    - cd py2cairo-1.10.0
+    - ./waf configure --prefix=$VIRT_ROOT > /dev/null
+    - ./waf build > /dev/null
+    - ./waf install > /dev/null
+    - cd ..
+    # PyGobject
+    - wget http://ftp.gnome.org/pub/GNOME/sources/pygobject/2.28/pygobject-2.28.6.tar.bz2
+    - tar xf pygobject-2.28.6.tar.bz2
+    - cd pygobject-2.28.6
+    - ./configure --prefix=$VIRT_ROOT --disable-introspection > /dev/null
+    - make > /dev/null
+    - make install > /dev/null
+    - cd ..
+    # PyGtk
+    - wget http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.24/pygtk-2.24.0.tar.bz2
+    - tar xf pygtk-2.24.0.tar.bz2
+    - cd pygtk-2.24.0
+    - ./configure --prefix=$VIRT_ROOT > /dev/null
+    - make > /dev/null
+    - make install > /dev/null
+    - cd ..
+    # build before install
     - python setup.py -q build 
+
 install: python setup.py -q install
-# command to run tests, e.g. python setup.py test
+
 script:  python setup.py test
