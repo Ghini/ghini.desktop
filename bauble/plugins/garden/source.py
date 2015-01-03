@@ -9,8 +9,9 @@ from random import random
 
 try:
     import gtk
+    import gobject
 except:
-    from bauble.fake_gtk import gtk
+    from bauble.fake_gtk import gtk, gobject
 
 from sqlalchemy import *
 from sqlalchemy.orm import *
