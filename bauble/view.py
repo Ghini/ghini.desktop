@@ -50,10 +50,10 @@ class Action(gtk.Action):
     An Action allows a label, tooltip, callback and accelerator to be called
     when specific items are selected in the SearchView
     """
-    # TODO: multiselect and singleselect are really specific to the
-    # SearchView and we could probably generalize this class a little
-    # bit more...or we just assume this class is specific to the
-    # SearchView and document it that way
+    # issue #30: multiselect and singleselect are really specific to the
+    # SearchView and we could probably generalize this class a little bit
+    # more...or we just assume this class is specific to the SearchView and
+    # document it that way
 
     def __init__(self, name, label, tooltip=None, stock_id=None,
                  callback=None, accelerator=None,
