@@ -123,8 +123,8 @@ def load(path=None):
         debug('No plugins found at path: %s' % path)
 
     for plugin in found:
-        # TODO: should we include the module name of the plugin to allow
-        # for plugin namespaces or just assume that the plugin class
+        # issue #27: should we include the module name of the plugin to
+        # allow for plugin namespaces or just assume that the plugin class
         # name is unique
         plugins[plugin.__class__.__name__] = plugin
 
