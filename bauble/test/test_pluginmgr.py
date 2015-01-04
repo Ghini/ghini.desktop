@@ -18,13 +18,6 @@ import bauble.pluginmgr as pluginmgr
 from bauble.pluginmgr import PluginRegistry
 
 
-# TODO: need tests for
-# 1. what happens when a plugin is in the plugins dict but not the registry
-# 2. what happens when a plugin has an error on init()
-# 3. what happens when a plugin has an error on install()
-# 4. what happens when a plugin is in the registry but not in plugins
-
-
 class A(pluginmgr.Plugin):
     initialized = False
     installed = False
