@@ -27,10 +27,6 @@ parse_results = Results()
 
 parser = search.SearchParser()
 
-# TODO: should we make these search tests independent of any plugins,
-# we could use setup() to initialize a custom MapperSearch instead of
-# expecting a plugin to set it up
-
 class SearchParserTests(unittest.TestCase):
     error_msg = lambda me, s, v, e:  '%s: %s == %s' % (s, v, e)
 
@@ -391,10 +387,10 @@ class SearchTests(BaubleTestCase):
         Family = self.Family
         Genus = self.Genus
         family2 = Family(family=u'family2')
-        genus2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3')
+        g2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3', qualifier=u's. lat.')
         g3 = Genus(family=f3, genus=u'genus3')
-        self.session.add_all([family2, genus2, f3, g3])
+        self.session.add_all([family2, g2, f3, g3])
         self.session.commit()
 
         mapper_search = search.get_strategy('MapperSearch')
@@ -416,47 +412,14 @@ class SearchTests(BaubleTestCase):
         r = list(results)
         self.assertEqual(r, [])
 
-        # TODO: create a query to test the =None statement, can't use
-        # family.qualifier b/c its default value is ''
         s = 'genus where family.family=fam3 and family.qualifier=""'
         results = mapper_search.search(s, self.session)
-        self.assertEqual(results, set([g3]))
+        self.assertEqual(results, set([]))
 
-        # test the searching with the empty string does exactly that
-        # and does try to use None
-        s = 'genus where family.family=Orchidaceae and family.qualifier=""'
+        # sqlite3 stores None as the empty string.
+        s = 'genus where family.qualifier=""'
         results = mapper_search.search(s, self.session)
-        r = list(results)
-
-    def test_search_by_query22None(self):
-        "query with MapperSearch, joined tables, predicates using None"
-
-        # test does not depend on plugin functionality
-        Family = self.Family
-        Genus = self.Genus
-        family2 = Family(family=u'family2')
-        genus2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3')
-        g3 = Genus(family=f3, genus=u'genus3')
-        self.session.add_all([family2, genus2, f3, g3])
-        self.session.commit()
-
-        mapper_search = search.get_strategy('MapperSearch')
-        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
-
-        # make sure None isn't treated as the string 'None' and that
-        # the query picks up the is operator
-        s = 'genus where author is None'
-        results = mapper_search.search(s, self.session)
-        r = list(results)
-
-        s = 'genus where author is not None'
-        results = mapper_search.search(s, self.session)
-        r = list(results)
-
-        s = 'genus where author != None'
-        results = mapper_search.search(s, self.session)
-        r = list(results)
+        self.assertEqual(results, set([g2]))
 
         # test where the column is ambiguous so make sure we choose
         # the right one, in this case we want to make sure we get the
@@ -464,7 +427,50 @@ class SearchTests(BaubleTestCase):
         s = 'plant where accession.species.genus.family.family="Orchidaceae" '\
             'and accession.species.genus.family.qualifier=""'
         results = mapper_search.search(s, self.session)
-        r = list(results)
+        self.assertEqual(results, set([]))
+
+    def test_search_by_query22None(self):
+        """query with MapperSearch, joined tables, predicates using None
+
+        results are irrelevant, because sqlite3 uses the empty string to
+        represent None
+
+        """
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        g2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3', qualifier=u's. lat.')
+        g3 = Genus(family=f3, genus=u'genus3')
+        self.session.add_all([family2, g2, f3, g3])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where family.qualifier is None'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([]))
+
+        # make sure None isn't treated as the string 'None' and that
+        # the query picks up the is operator
+        s = 'genus where author is None'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([]))
+
+        s = 'genus where author is not None'
+        resultsNone = mapper_search.search(s, self.session)
+        s = 'genus where not author = ""'
+        resultsEmptyString = mapper_search.search(s, self.session)
+        self.assertEqual(resultsNone, resultsEmptyString)
+
+        s = 'genus where author != None'
+        resultsNone = mapper_search.search(s, self.session)
+        s = 'genus where not author = ""'
+        resultsEmptyString = mapper_search.search(s, self.session)
+        self.assertEqual(resultsNone, resultsEmptyString)
 
     def test_search_by_query22id(self):
         "query with MapperSearch, joined tables, test on id of dependent table"
