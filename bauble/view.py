@@ -873,11 +873,11 @@ class SearchView(pluginmgr.View):
             # no actions
             return True
 
-        # TODO: ** important ** we need a common menu for all types
+        # issue #31: ** important ** we need a common menu for all types
         # that can be merged with the specific menu for the selection,
         # e.g. provide a menu with a "Tag" action so you can tag
-        # everything...or we could just ignore this and add "Tag" to
-        # all of our action lists
+        # everything...or we could just ignore this and add "Tag" to all of
+        # our action lists
         menu = None
         try:
             menu = self.context_menu_cache[selected_type]
@@ -996,10 +996,6 @@ class SearchView(pluginmgr.View):
             This makes sure that we don't remove the multiple selection
             when clicking a mouse button.
             """
-            # TODO: issue #13: plain right click (meaning, no ctrl key
-            # pressed) on something that is not the selection should get the
-            # path from where the click happened and make that the current
-            # selection (removing any previous selection).
             if event.button == 3:
                 if (event.get_state() & gtk.gdk.CONTROL_MASK) == 0:
                     path, _, _, _ = view.get_path_at_pos(int(event.x), int(event.y))
