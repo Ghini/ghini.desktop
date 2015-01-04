@@ -13,13 +13,6 @@ from bauble.test import BaubleTestCase
 
 # TODO: test for memory leaks, could probably test
 
-# TODO: allow AND and OR in possible values, especially so we can do...
-# species where genus.family=='Orchidaceae' and accessions.acc_status!='Dead'
-
-# TODO: this also means that we need to somehow support != as well as = which
-# means we need to include the operator in the parse instead of just
-# suppressing
-
 
 class Results(object):
     def __init__(self):
