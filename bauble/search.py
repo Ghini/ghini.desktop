@@ -45,6 +45,17 @@ def search(text, session=None):
     return list(results)
 
 
+class NoneToken(object):
+    def __init__(self, t):
+        pass
+
+    def __repr__(self):
+        return '(None<NoneType>)'
+
+    def express(self):
+        return None
+
+
 class ValueABC(object):
     ## abstract base class.
 
@@ -370,7 +381,8 @@ class SearchParser(object):
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
     string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringToken)('string')
 
-    value = (numeric_value | string_value).setParseAction(ValueToken)('value')
+    none_token = Literal('None').setParseAction(NoneToken)
+    value = (numeric_value | string_value | none_token).setParseAction(ValueToken)('value')
     value_list = Group(OneOrMore(string_value) ^ delimitedList(string_value)).setParseAction(ValueListAction)('value_list')
 
     domain = Word(alphas, alphanums)
