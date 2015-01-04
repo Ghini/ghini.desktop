@@ -863,9 +863,9 @@ class SearchView(pluginmgr.View):
             return
         selected_types = set(map(type, selected))
         if len(selected_types) > 1:
-            # TODO: currently we only show the menu when all objects are of
-            # the same type. we could also show a common menu in case the
-            # selection is of different types.
+            # issue #31: currently we only show the menu when all objects
+            # are of the same type. we could also show a common menu in case
+            # the selection is of different types.
             return False
         selected_type = selected_types.pop()
 
