@@ -281,10 +281,9 @@ def install(plugins_to_install, import_defaults=True, force=False):
         for p in to_install:
             #debug('install: %s' % p.__name__)
             p.install(import_defaults=import_defaults)
-            # TODO: here we make sure we don't add the plugin to the
-            # registry twice but we should really update the version
-            # number in the future when we accept versioned plugins
-            # (if ever)
+            # issue #28: here we make sure we don't add the plugin to the
+            # registry twice but we should really update the version number
+            # in the future when we accept versioned plugins (if ever)
             if not PluginRegistry.exists(p):
                 PluginRegistry.add(p)
     except Exception, e:
