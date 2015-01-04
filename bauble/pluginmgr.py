@@ -37,12 +37,6 @@ import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug, warning, error
 
-# TODO: should make plugins and ordered dict that is sorted by
-# dependency, maybe use odict from
-# http://www.voidspace.org.uk/python/odict.html...or we could just
-# have function called dependency_sort or something that returns the
-# plugins sorted by dependency
-
 plugins = {}
 commands = {}
 
