@@ -139,6 +139,40 @@ class PluginMgrTests(BaubleTestCase):
         pluginmgr.install([Dummy])
 
 
+class LocalFunctions(unittest.TestCase):
+    def setUp(self):
+        A.initialized = A.installed = False
+        B.initialized = B.installed = False
+        C.initialized = C.installed = False
+        bauble.pluginmgr.plugins = {}
+    
+    def tearDown(self):
+        bauble.pluginmgr.plugins = {}
+
+    def test_create_dependency_pairs(self):
+        a, b, c = A(), B(), C()
+        a.__name__ = 'A'
+        b.__name__ = 'B'
+        c.__name__ = 'C'
+        bauble.pluginmgr.plugins[C.__name__] = c
+        bauble.pluginmgr.plugins[B.__name__] = b
+        bauble.pluginmgr.plugins[A.__name__] = a
+        dep, unmet = bauble.pluginmgr._create_dependency_pairs([a,b,c])
+        self.assertEquals(dep, [(a, b), (b, c)])
+        self.assertEquals(unmet, {})
+
+    def test_create_dependency_pairs_missing_base(self):
+        a, b, c = A(), B(), C()
+        a.__name__ = 'A'
+        b.__name__ = 'B'
+        c.__name__ = 'C'
+        bauble.pluginmgr.plugins[C.__name__] = c
+        bauble.pluginmgr.plugins[B.__name__] = b
+        dep, unmet = bauble.pluginmgr._create_dependency_pairs([b,c])
+        self.assertEquals(dep, [(b, c)])
+        self.assertEquals(unmet, {'B': ['A']})
+
+
 class StandalonePluginMgrTests(unittest.TestCase):
 
     def setUp(self):
