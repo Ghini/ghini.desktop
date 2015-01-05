@@ -913,15 +913,19 @@ def topological_sort(items, partial_order):
     Perform topological sort.
 
     :param items: a list of items to be sorted.
+
     :param partial_order: a list of pairs. If pair (a,b) is in it, it
         means that item a should appear before item b. Returns a list of
         the items in one of the possible orders, or None if partial_order
         contains a loop.
+
     """
+
     def add_node(graph, node):
         """Add a node to the graph if not already exists."""
         if not graph.has_key(node):
             graph[node] = [0] # 0 = number of arcs coming into this node.
+
     def add_arc(graph, fromnode, tonode):
         """
         Add an arc to a graph. Can create multiple arcs. The end nodes must
@@ -943,6 +947,7 @@ def topological_sort(items, partial_order):
     # Note that our representation does not contain reference loops to
     # cause GC problems even when the represented graph contains loops,
     # because we keep the node names rather than references to the nodes.
+
     graph = {}
     for v in items:
         add_node(graph, v)
@@ -950,17 +955,16 @@ def topological_sort(items, partial_order):
         add_arc(graph, a, b)
 
     # Step 2 - find all roots (nodes with zero incoming arcs).
+
     roots = [node for (node,nodeinfo) in graph.items() if nodeinfo[0] == 0]
 
     # step 3 - repeatedly emit a root and remove it from the graph. Removing
     # a node may convert some of the node's direct children into roots.
     # Whenever that happens, we append the new roots to the list of
     # current roots.
+
     sorted = []
     while len(roots) != 0:
-        # If len(roots) is always 1 when we get here, it means that
-        # the input describes a complete ordering and there is only
-        # one possible output.
         # When len(roots) > 1, we can choose any root to send to the
         # output; this freedom represents the multiple complete orderings
         # that satisfy the input restrictions. We arbitrarily take one of
@@ -968,16 +972,25 @@ def topological_sort(items, partial_order):
         # this operation must be done in O(1) time.
         root = roots.pop()
         sorted.append(root)
+
+        # remove 'root' from the graph to be explored: first remove its
+        # outgoing arcs, then remove the node. if any of the nodes which was
+        # connected to 'root' remains without incoming arcs, it goes into
+        # the 'roots' list.
+
+        # if the input describes a complete ordering, len(roots) stays equal
+        # to 1 at each iteration.
         for child in graph[root][1:]:
             graph[child][0] = graph[child][0] - 1
             if graph[child][0] == 0:
                 roots.append(child)
         del graph[root]
+
     if len(graph.items()) != 0:
         # There is a loop in the input.
         return None
-    return sorted
 
+    return sorted
 
 
 class GenericMessageBox(gtk.EventBox):

@@ -60,18 +60,16 @@ def register_command(handler):
             commands[cmd] = handler
 
 
-def _check_dependencies(plugin):
-    '''
-    Check the dependencies of plugin
-    '''
-
-
 def _create_dependency_pairs(plugs):
-    """
-    Returns a tuple.  The first item in the tuple is the dependency
-    pairs that can be passed to topological sort.  The second item is
-    a dictionary whose keys are plugin names and value are a list of
-    unmet dependencies.
+    """calculate plugin dependencies, met and unmet
+
+    plugs is an iterable of plugins.
+
+    returned value is a pair, the first item is the dependency pairs that
+    can be passed to utils.topological_sort.  The second item is a
+    dictionary associating plugin names (from plugs) with the list of unmet
+    dependencies.
+
     """
     depends = []
     unmet = {}
@@ -152,12 +150,12 @@ def init(force=False):
     # search for plugins that are in the plugins dict but not in the registry
     registered = plugins.values()
     try:
-        # try to access the plugin registry, if the tables does not
-        # exists then it might mean that we are opening a pre 0.9
-        # database, in this case we just assume all the plugins have
-        # been installed and registered, this might be the right thing
-        # to do but it least it allows you to connect to a pre bauble 0.9
-        # database and use it to upgrade to a >=0.9 database
+        # try to access the plugin registry, if the table does not exist
+        # then it might mean that we are opening a pre 0.9 database, in this
+        # case we just assume all the plugins have been installed and
+        # registered, this might be the right thing to do but it least it
+        # allows you to connect to a pre bauble 0.9 database and use it to
+        # upgrade to a >=0.9 database
         registered_names = PluginRegistry.names()
         not_installed = [p for n, p in plugins.iteritems()
                          if n not in registered_names]
