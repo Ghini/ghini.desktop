@@ -7,14 +7,10 @@
 import datetime
 import os
 import sys
-import traceback
 import weakref
 
-try:
-    import gtk
-    import gobject
-except:
-    from bauble.fake_gtk import gtk, gobject
+import gtk
+import gobject
 
 import dateutil.parser as date_parser
 import lxml.etree as etree
@@ -24,11 +20,10 @@ from sqlalchemy.orm import *
 
 import bauble
 import bauble.db as db
-from bauble.error import check, CheckConditionError, BaubleError
+from bauble.error import check
 import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
-from bauble.error import CommitException
 from bauble.utils.log import debug, warning
 
 # TODO: create a generic date entry that can take a mask for the date format

@@ -26,14 +26,14 @@ try:
 except:
     from bauble.fake_gtk import gtk
 
-from sqlalchemy import or_, and_, not_, Unicode, UnicodeText, text
+from sqlalchemy import or_
+from sqlalchemy import Unicode
+from sqlalchemy import UnicodeText
 from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty
+from sqlalchemy.orm.properties import ColumnProperty
 
 import bauble
-from bauble.error import check, CheckConditionError, BaubleError
-import bauble.db as db
-import bauble.pluginmgr as pluginmgr
+from bauble.error import check
 from bauble.utils.log import debug
 import bauble.utils as utils
 
@@ -370,7 +370,7 @@ class ValueListAction(object):
 
 from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
                        OneOrMore, oneOf, alphas, alphanums, Group, Literal,
-                       stringEnd, Keyword, quotedString, ZeroOrMore,
+                       stringEnd, Keyword, quotedString,
                        CaselessLiteral, infixNotation, opAssoc, Forward)
 
 class SearchParser(object):
