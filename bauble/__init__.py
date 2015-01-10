@@ -31,7 +31,7 @@ version = '1.0.11'  # :bump
 """
 version_tuple = version.split('.')
 
-import bauble.i18n  # bauble.i18n needs version_tuple
+from bauble.i18n import _
 
 
 def main_is_frozen():

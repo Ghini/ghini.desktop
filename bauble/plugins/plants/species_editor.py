@@ -3,16 +3,12 @@
 #
 import os
 import sys
-from operator import itemgetter
 import traceback
 import weakref
 import xml.sax.saxutils as sax
 
-try:
-    import gtk
-    import gobject
-except:
-    from bauble.fake_gtk import gtk, gobject
+import gtk
+import gobject
 
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session

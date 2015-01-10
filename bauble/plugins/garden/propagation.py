@@ -14,10 +14,7 @@ import xml.sax.saxutils as saxutils
 
 import dateutil.parser as date_parser
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 from sqlalchemy import *
 from sqlalchemy.orm import *

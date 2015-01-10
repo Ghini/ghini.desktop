@@ -12,10 +12,7 @@ import sys
 import textwrap
 import xml.sax.saxutils as saxutils
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 import bauble
 from bauble.error import check, CheckConditionError

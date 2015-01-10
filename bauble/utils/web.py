@@ -14,10 +14,7 @@
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 import bauble.utils.desktop as desktop
 

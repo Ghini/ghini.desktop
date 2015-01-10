@@ -13,13 +13,8 @@ import shutil
 import sys
 import os
 import tempfile
-import traceback
 
-try:
-    import gtk
-    import gobject
-except:
-    from bauble.fake_gtk import gtk, gobject
+import gtk
 
 from sqlalchemy import *
 from sqlalchemy.orm import *

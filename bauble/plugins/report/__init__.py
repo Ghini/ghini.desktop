@@ -9,11 +9,8 @@ import traceback
 import re
 
 
-try:
-    import gtk
-    import gobject
-except:
-    from bauble.fake_gtk import gtk, gobject
+import gtk
+import gobject
 
 from sqlalchemy import *
 

@@ -5,35 +5,28 @@
 #
 import itertools
 import os
-import re
 import sys
 import traceback
 
 
-try:
-    import gtk
-    import gobject
-except:
-    from bauble.fake_gtk import gtk, gobject
+import gtk
+import gobject
 
 import pango
-from pyparsing import *
-from sqlalchemy import *
-from sqlalchemy.orm import *
-import sqlalchemy.sql
+from bauble.i18n import _
+from pyparsing import ParseException
+from sqlalchemy.orm import object_session
 import sqlalchemy.exc as saexc
-from sqlalchemy.orm.mapper import Mapper
-from sqlalchemy.orm.properties import ColumnProperty, RelationshipProperty as PropertyLoader
 
 import bauble
 import bauble.db as db
-from bauble.error import check, CheckConditionError, BaubleError
+from bauble.error import check, BaubleError
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.prefs as prefs
 import bauble.search as search
 import bauble.utils as utils
-from bauble.utils.log import debug, error, warning
+from bauble.utils.log import debug, warning
 
 # use different formatting template for the result view depending on the
 # platform

@@ -10,10 +10,10 @@ import copy
 import traceback
 
 import gtk
-from sqlalchemy import *
 
+from bauble.i18n import _
 import bauble.utils as utils
-from bauble.error import check, CheckConditionError
+from bauble.error import check
 import bauble
 import bauble.paths as paths
 from bauble.prefs import prefs

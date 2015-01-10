@@ -3,10 +3,7 @@ import datetime
 import unittest
 
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 from nose import SkipTest
 from sqlalchemy import *
