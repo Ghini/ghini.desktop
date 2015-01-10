@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-01-03 12:36-0500\n"
+"PO-Revision-Date: 2015-01-06 14:30-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -825,7 +825,7 @@ msgstr "Sei sicuro di voler eliminare la specie <i>%s</i>?"
 
 #: bauble/plugins/plants/species.py:74
 msgid "_Add accession"
-msgstr ""
+msgstr "_Aggiungi accessione"
 
 #: bauble/plugins/plants/species.py:174
 msgid "Vernacular Names"
@@ -902,7 +902,7 @@ msgstr ""
 
 #: bauble/plugins/garden/source.py:133
 msgid "Botanic Garden or Arboretum"
-msgstr ""
+msgstr "Orto Botanico o Arboreto"
 
 #: bauble/plugins/garden/source.py:134
 msgid "Research/Field Station"
@@ -922,7 +922,7 @@ msgstr ""
 
 #: bauble/plugins/garden/source.py:139
 msgid "Municipal department"
-msgstr ""
+msgstr "Dipartimento municipale"
 
 #: bauble/plugins/garden/source.py:140
 msgid "Nursery/Commercial"
@@ -978,12 +978,15 @@ msgstr "Il codice di istituzione deve essere unico fra tutte le istituzioni."
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr ""
+"Il nome della persona da contattare per informazioni riguardo l'istituzione."
 
 #: bauble/plugins/garden/institution.py:80
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
 msgstr ""
+"Indirizzo email o numero telefonico della persona da contattare per dettabli "
+"tecnici riguardo l'istituzione."
 
 #: bauble/plugins/garden/institution.py:83
 msgid "The email address of the institution."
@@ -1184,7 +1187,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade.h:1
 msgid "# Germinated"
-msgstr ""
+msgstr "quantità germinata"
 
 #: bauble/plugins/garden/prop_editor.glade.h:2
 msgid "# of seeds"
@@ -1198,7 +1201,7 @@ msgstr "%"
 #: bauble/plugins/garden/prop_editor.glade.h:6
 #, no-c-format
 msgid "% Germinated"
-msgstr ""
+msgstr "percentuale germinata"
 
 #: bauble/plugins/garden/prop_editor.glade.h:8
 #: bauble/plugins/garden/acc_editor.glade.h:2
@@ -1386,7 +1389,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:327
 msgid "Wild"
-msgstr ""
+msgstr "Selvatico"
 
 #: bauble/plugins/garden/accession.py:328
 msgid "Propagule of cultivated wild plant"
@@ -1431,11 +1434,11 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:348
 msgid "Budded"
-msgstr ""
+msgstr "Con boccioli"
 
 #: bauble/plugins/garden/accession.py:349
 msgid "Bulb"
-msgstr ""
+msgstr "Bulbo"
 
 #: bauble/plugins/garden/accession.py:350
 msgid "Clump"
