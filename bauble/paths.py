@@ -6,6 +6,7 @@ Access to standard paths used by Bauble.
 """
 import os
 import sys
+from bauble.i18n import _
 
 
 def main_is_frozen():

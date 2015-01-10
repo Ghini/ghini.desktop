@@ -3,18 +3,12 @@
 #
 from operator import itemgetter
 
-try:
-    import gtk
-    import gobject
-except:
-    from bauble.fake_gtk import gtk, gobject
+import gtk
 
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
-import bauble
 import bauble.db as db
-from bauble.utils.log import debug
 
 
 def get_species_in_geography(geo):#, session=None):

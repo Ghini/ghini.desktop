@@ -21,13 +21,10 @@ import re
 import sys
 import traceback
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from bauble.i18n import _
+from sqlalchemy import Column, Unicode, select
 import sqlalchemy.orm.exc as orm_exc
 
 import bauble

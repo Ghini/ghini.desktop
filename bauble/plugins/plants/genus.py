@@ -7,10 +7,7 @@ import traceback
 import weakref
 import xml
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 from sqlalchemy import *
 from sqlalchemy.orm import *

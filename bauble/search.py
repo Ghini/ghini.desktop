@@ -21,10 +21,7 @@
 
 import weakref
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 from sqlalchemy import or_
 from sqlalchemy import Unicode

@@ -2,14 +2,10 @@
 # prefs.py
 #
 import os
-import sys
-
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 import bauble
+from bauble.i18n import _
 import bauble.db as db
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr

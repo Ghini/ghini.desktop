@@ -3,8 +3,8 @@
 
 import datetime
 import os
-import traceback
 import bauble.error as error
+from bauble.i18n import _
 
 SQLALCHEMY_DEBUG = False
 
@@ -24,18 +24,14 @@ except ImportError:
     raise
 
 
-
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.utils.log import debug, warning
+from bauble.utils.log import warning
 
 
 if SQLALCHEMY_DEBUG:
@@ -59,6 +55,7 @@ class HistoryExtension(orm.MapperExtension):
         Add a new entry to the history table.
         """
         user = None
+        from bauble import db
         try:
             if db.engine.name in ('postgres', 'postgresql'):
                 import bauble.plugins.users as users
@@ -207,7 +204,6 @@ def open(uri, verify=True, show_error_dialogs=False):
     # ** WARNING: this can print your passwd
 ##    debug('db.open(%s)' % uri)
     from sqlalchemy.orm import sessionmaker
-    import bauble
     global engine
     new_engine = None
 
@@ -331,7 +327,6 @@ def verify_connection(engine, show_error_dialogs=False):
     """
 ##    debug('entered verify_connection(%s)' % show_error_dialogs)
     import bauble
-    import bauble.pluginmgr as pluginmgr
     if show_error_dialogs:
         try:
             return verify_connection(engine, False)

@@ -7,10 +7,7 @@
 
 import os
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 import bauble
 import bauble.editor as editor

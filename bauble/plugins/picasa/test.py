@@ -1,10 +1,7 @@
 import os
 from nose import *
 
-try:
-    import gtk
-except:
-    from bauble.fake_gtk import gtk
+import gtk
 
 import bauble.meta as meta
 import bauble.plugins.picasa as picasa
