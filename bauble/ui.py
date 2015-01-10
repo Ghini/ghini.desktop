@@ -3,15 +3,9 @@
 #
 
 import os
-import sys
 import traceback
 
-
-try:
-    import gtk
-    import gobject
-except:
-    from bauble.fake_gtk import gtk, gobject
+import gtk
 
 import bauble
 import bauble.db as db
