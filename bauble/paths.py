@@ -6,7 +6,6 @@ Access to standard paths used by Bauble.
 """
 import os
 import sys
-from bauble.i18n import _
 
 
 def main_is_frozen():
@@ -82,8 +81,8 @@ def user_dir():
             d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
                              'Bauble')
         else:
-            raise Exception(_('Could not get path for user settings: no '
-                              'APPDATA or USERPROFILE variable'))
+            raise Exception('Could not get path for user settings: no '
+                            'APPDATA or USERPROFILE variable')
     elif sys.platform == "linux2":
         # using os.expanduser is more reliable than os.environ['HOME']
         # because if the user runs bauble with sudo then it will
@@ -92,12 +91,12 @@ def user_dir():
             d = os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
                              '.bauble')
         except Exception:
-            raise Exception(_('Could not get path for user settings: '
-                              'could not expand $HOME for user %(username)s' %
-                              dict(username=os.environ['USER'])))
+            raise Exception('Could not get path for user settings: '
+                            'could not expand $HOME for user %(username)s' %
+                            dict(username=os.environ['USER']))
     else:
-        raise Exception(_('Could not get path for user settings: '
-                          'unsupported platform'))
+        raise Exception('Could not get path for user settings: '
+                        'unsupported platform')
     return os.path.abspath(d)
 
 
