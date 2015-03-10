@@ -83,6 +83,26 @@ class GBIFButton(StringLinkButton):
         super(GBIFButton, self).__init__(title, tooltip)
 
 
+class TPLButton(KeywordsLinkButton):
+
+    _base_uri = "http://www.theplantlist.org/tpl1.1/search?q=%(genus)s+%(species)s"
+    _space = '+'
+
+    def __init__(self, title=_("Search TPL"), tooltip=_(
+            "Search The Plant List online database")):
+        super(TPLButton, self).__init__(title, tooltip)
+
+
+class WikipediaButton(KeywordsLinkButton):
+
+    _base_uri = "http://en.wikipedia.org/wiki/%(genus)s_%(species)s"
+    _space = '+'
+
+    def __init__(self, title=_("Search the Wikipedia"), tooltip=_(
+            "open the wikipedia page about this species")):
+        super(WikipediaButton, self).__init__(title, tooltip)
+
+
 class ITISButton(StringLinkButton):
 
     _base_uri = "http://www.itis.gov/servlet/SingleRpt/SingleRpt?"\
