@@ -13,10 +13,9 @@ import shutil
 import sys
 import os
 import tempfile
-import traceback
 
-import gobject
 import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
@@ -450,14 +449,14 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
-	# copy default template files to user_dir
-	templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
-		     'plant_list_ex.xsl', 'small_labels.xsl']
+        # copy default template files to user_dir
+        templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
+                     'plant_list_ex.xsl', 'small_labels.xsl']
         base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
-	for template in templates:
-	    f = os.path.join(paths.user_dir(), template)
-	    if not os.path.exists(f):
-		shutil.copy(os.path.join(base_dir, template), f)
+        for template in templates:
+            f = os.path.join(paths.user_dir(), template)
+            if not os.path.exists(f):
+                shutil.copy(os.path.join(base_dir, template), f)
 
 
     @staticmethod

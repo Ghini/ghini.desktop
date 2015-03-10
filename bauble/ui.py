@@ -3,15 +3,13 @@
 #
 
 import os
-import sys
 import traceback
 
 import gtk
-import gobject
 
 import bauble
 import bauble.db as db
-import bauble.error as err
+from bauble.i18n import _
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
@@ -20,7 +18,6 @@ import bauble.utils as utils
 import bauble.utils.desktop as desktop
 from bauble.utils.log import debug, warning, error
 from bauble.view import SearchView
-
 
 
 class DefaultView(pluginmgr.View):
@@ -33,7 +30,6 @@ class DefaultView(pluginmgr.View):
         image.set_from_file(os.path.join(paths.lib_dir(), 'images',
                                          'bauble_logo.png'))
         self.pack_start(image)
-
 
 
 class GUI(object):
@@ -64,10 +60,6 @@ class GUI(object):
         except Exception:
             warning(_('Could not load icon from %s' % bauble.default_icon))
             warning(traceback.format_exc())
-            # utils.message_details_dialog(_('Could not load icon from %s' % \
-            #                              bauble.default_icon),
-            #                              traceback.format_exc(),
-            #                              gtk.MESSAGE_ERROR)
 
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
@@ -77,11 +69,7 @@ class GUI(object):
         combo.set_model(model)
         self.populate_main_entry()
 
-        # disable: causes the entry contents to be selected on backspace
-        #combo.connect('changed', lambda c: c.grab_focus())
-
         main_entry = combo.child
-#        main_entry.connect('key_press_event', self.on_main_entry_key_press)
         main_entry.connect('activate', self.on_main_entry_activate)
         accel_group = gtk.AccelGroup()
         main_entry.add_accelerator("grab-focus", accel_group, ord('L'),
@@ -103,9 +91,11 @@ class GUI(object):
         statusbar.set_spacing(10)
         statusbar.set_has_resize_grip(True)
         self._cids = []
+
         def on_statusbar_push(sb, cid, txt):
             if cid not in self._cids:
                 self._cids.append(cid)
+
         statusbar.connect('text-pushed', on_statusbar_push)
 
         # remove label from frame
@@ -128,12 +118,12 @@ class GUI(object):
 
         from pyparsing import StringStart, Word, alphanums, restOfLine, \
             StringEnd
-        cmd = StringStart() +':'+ Word(alphanums + '-_').setResultsName('cmd')
+        cmd = StringStart() + ':' + Word(
+            alphanums + '-_').setResultsName('cmd')
         arg = restOfLine.setResultsName('arg')
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
 
         combo.grab_focus()
-
 
     def close_message_box(self, *args):
         parent = self.widgets.msg_box_parent
@@ -141,14 +131,12 @@ class GUI(object):
             parent.remove(kid)
         return
 
-
     def show_yesno_box(self, msg):
         self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_YESNO)
         box.message = msg
         box.show()
-
 
     def show_error_box(self, msg, details=None):
         self.close_message_box()
@@ -161,7 +149,6 @@ class GUI(object):
         for color in colors:
             box.set_color(*color)
         box.show()
-
 
     def show_message_box(self, msg):
         """
@@ -176,10 +163,8 @@ class GUI(object):
         # self._msg_common(msg, colors)
         # self.widgets.msg_eventbox.show()
 
-
     def show(self):
         self.window.show()
-
 
     def _get_history_size(self):
         history = prefs[self.history_size_pref]
@@ -188,23 +173,20 @@ class GUI(object):
         return int(prefs[self.history_size_pref])
     history_size = property(_get_history_size)
 
-
     def send_command(self, command):
         self.widgets.main_comboentry.child.set_text(command)
         self.widgets.go_button.emit("clicked")
 
-
     def on_main_entry_activate(self, widget, data=None):
         self.widgets.go_button.emit("clicked")
-
 
     def on_go_button_clicked(self, widget):
         '''
         '''
         self.close_message_box()
         text = self.widgets.main_comboentry.child.get_text()
-	if text == '':
-	    return
+        if text == '':
+            return
         self.add_to_history(text)
         tokens = self.cmd_parser.parseString(text)
         cmd = None
@@ -221,7 +203,6 @@ class GUI(object):
 
         bauble.command_handler(cmd, arg)
 
-
     def on_query_button_clicked(self, widget):
         qb = search.QueryBuilder()
         if qb.start() == gtk.RESPONSE_OK:
@@ -229,14 +210,13 @@ class GUI(object):
             self.widgets.main_comboentry.child.set_text(query)
             self.widgets.go_button.emit("clicked")
 
-
     def add_to_history(self, text, index=0):
         """
         add text to history, if text is already in the history then set its
         index to index parameter
         """
         if index < 0 or index > self.history_size:
-            raise ValueError(_('history size must be greater than zero and '\
+            raise ValueError(_('history size must be greater than zero and '
                                'less than the history size'))
         history = prefs.get(self.entry_history_pref, [])
         if text in history:
@@ -249,7 +229,6 @@ class GUI(object):
         history.insert(index, text)
         prefs[self.entry_history_pref] = history
         self.populate_main_entry()
-
 
     def populate_main_entry(self):
         history = prefs[self.entry_history_pref]
@@ -275,7 +254,6 @@ class GUI(object):
                 main_combo.append_text(herstory)
                 compl_model.append([herstory])
 
-
     def __get_title(self):
         if bauble.conn_name is None:
             return '%s %s' % ('Bauble', bauble.version)
@@ -284,7 +262,6 @@ class GUI(object):
                                    bauble.conn_name)
     title = property(__get_title)
 
-
     def set_busy(self, busy):
         self.widgets.main_box.set_sensitive(not busy)
         if busy:
@@ -292,13 +269,11 @@ class GUI(object):
         else:
             self.window.window.set_cursor(None)
 
-
     def set_default_view(self):
         main_entry = self.widgets.main_comboentry.child
         if main_entry is not None:
             main_entry.set_text('')
         self.set_view(DefaultView())
-
 
     def set_view(self, view=None):
         '''
@@ -308,19 +283,17 @@ class GUI(object):
         '''
         view_box = self.widgets.view_box
         if view_box is None:
-            return # viewbox should never be None, why is this here?
+            return  # viewbox should never be None, why is this here?
         for kids in view_box.get_children():
             view_box.remove(kids)
         view_box.pack_start(view, True, True, 0)
         view.show_all()
-
 
     def get_view(self):
         '''
         return the current view in the view box
         '''
         return self.widgets.view_box.get_children()[0]
-
 
     def create_main_menu(self):
         """
@@ -352,23 +325,22 @@ class GUI(object):
                                    None, None, self.on_edit_menu_copy),
                                   ("edit_paste", gtk.STOCK_PASTE, _("_Paste"),
                                    None, None, self.on_edit_menu_paste),
-##                                   ("edit_preferences", None,
-##                                    _("_Preferences"),
-##                                    "<control>P", None,
-##                                    self.on_edit_menu_prefs),
                                   ("insert", None, _("_Insert")),
                                   ("tools", None, _("_Tools")),
-				  ("help", None, _("_Help")),
-				  ("help_contents", gtk.STOCK_HELP,
-				   _("Contents"), None, None,
-				   self.on_help_menu_contents),
-				  ("help_bug", None, _("Report a bug"), None,
-				   None, self.on_help_menu_bug),
-				  ("help_web", gtk.STOCK_HOME,
-				   _("Bauble website"), None,
-				   None, self.on_help_menu_web),
-				  ("help_about", gtk.STOCK_ABOUT, _("About"),
-				   None, None, self.on_help_menu_about),
+                                  ("help", None, _("_Help")),
+                                  ("help_contents", gtk.STOCK_HELP,
+                                   _("Contents"), None, None,
+                                   self.on_help_menu_contents),
+                                  ("help_bug", None, _("Report a bug"), None,
+                                   None, self.on_help_menu_bug),
+                                  ("help_web.c", gtk.STOCK_HOME,
+                                   _("Bauble (classic) website"), None,
+                                   None, self.on_help_menu_web_classic),
+                                  ("help_web.w", gtk.STOCK_HOME,
+                                   _("Bauble (webapp) website"), None,
+                                   None, self.on_help_menu_web_webapp),
+                                  ("help_about", gtk.STOCK_ABOUT, _("About"),
+                                   None, None, self.on_help_menu_about),
                                   ])
         self.ui_manager.insert_action_group(menu_actions, 0)
 
@@ -386,9 +358,8 @@ class GUI(object):
         self.clear_menu('/ui/MenuBar/insert_menu')
         self.clear_menu('/ui/MenuBar/tools_menu')
 
-        self.insert_menu= self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
+        self.insert_menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         return self.menubar
-
 
     def clear_menu(self, path):
         """
@@ -401,7 +372,6 @@ class GUI(object):
             submenu.remove(c)
         menu.show()
 
-
     def add_menu(self, name, menu, index=-1):
         '''
         add a menu to the menubar
@@ -412,12 +382,12 @@ class GUI(object):
         '''
         menu_item = gtk.MenuItem(name)
         menu_item.set_submenu(menu)
-	self.menubar.insert(menu_item, len(self.menubar.get_children())-1)
+        self.menubar.insert(menu_item, len(self.menubar.get_children())-1)
         self.menubar.show_all()
         return menu_item
 
-
     __insert_menu_cache = {}
+
     def add_to_insert_menu(self, editor, label):
         """
         add an editor to the insert menu
@@ -437,7 +407,6 @@ class GUI(object):
         for label in sorted(self.__insert_menu_cache.keys()):
             submenu.reorder_child(self.__insert_menu_cache[label], i)
             i += 1
-
 
     def build_tools_menu(self):
         """
@@ -490,7 +459,6 @@ class GUI(object):
         menu.show_all()
         return menu
 
-
     def on_tools_menu_item_activate(self, widget, tool):
         """
         Start a tool on the Tool menu.
@@ -502,7 +470,6 @@ class GUI(object):
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
             debug(traceback.format_exc())
-
 
     def on_insert_menu_item_activate(self, widget, editor_cls):
         try:
@@ -518,8 +485,8 @@ class GUI(object):
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
-            error('bauble.gui.on_insert_menu_item_activate():\n %s' \
-                      % traceback.format_exc())
+            error('bauble.gui.on_insert_menu_item_activate():\n %s'
+                  % traceback.format_exc())
             return
 
         presenter_cls = view_cls = None
@@ -543,24 +510,14 @@ class GUI(object):
             if obj != []:
                 warning('%s leaked: %s' % (view_cls.__name__, obj))
 
-
-##     def on_edit_menu_prefs(self, widget, data=None):
-##         p = PreferencesMgr()
-##         p.run()
-##         p.destroy()
-
-
     def on_edit_menu_cut(self, widget, data=None):
         self.widgets.main_comboentry.child.cut_clipboard()
-
 
     def on_edit_menu_copy(self, widget, data=None):
         self.widgets.main_comboentry.child.copy_clipboard()
 
-
     def on_edit_menu_paste(self, widget, data=None):
         self.widgets.main_comboentry.child.paste_clipboard()
-
 
     def on_file_menu_new(self, widget, data=None):
         msg = "If a database already exists at this connection then creating "\
@@ -579,13 +536,12 @@ class GUI(object):
             db.create()
             pluginmgr.init()
         except Exception, e:
-            msg = _('Could not create a new database.\n\n%s' % \
-                        utils.xml_safe_utf8(e))
+            msg = _('Could not create a new database.\n\n%s' %
+                    utils.xml_safe_utf8(e))
             tb = utils.xml_safe_utf8(traceback.format_exc())
             utils.message_details_dialog(msg, tb, gtk.MESSAGE_ERROR)
             return
         self.set_default_view()
-
 
     def on_file_menu_open(self, widget, data=None):
         """
@@ -629,7 +585,6 @@ class GUI(object):
             self.statusbar_clear()
             pluginmgr.init()
 
-
     def statusbar_clear(self):
         """
         Call gtk.Statusbar.pop() for each context_id that had previously
@@ -643,35 +598,39 @@ class GUI(object):
         for cid in self._cids:
             self.widgets.statusbar.pop(cid)
 
-
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://bauble.belizebotanic.org/docs/1.0/',
+        desktop.open('http://bauble.readthedocs.org/en/latest/',
                      dialog_on_error=True)
-
 
     def on_help_menu_bug(self, widget, data=None):
-	desktop.open('https://bugs.launchpad.net/bauble/+bugs',
+        desktop.open('https://github.com/mfrasca/bauble.classic/issues/new',
                      dialog_on_error=True)
 
-
-    def on_help_menu_web(self, widget, data=None):
-	desktop.open('http://bauble.belizebotanic.org',
+    def on_help_menu_web_webapp(self, widget, data=None):
+        desktop.open('http://bauble.io',
                      dialog_on_error=True)
 
+    def on_help_menu_web_classic(self, widget, data=None):
+        desktop.open('http://bauble.wikidot.com',
+                     dialog_on_error=True)
 
     def on_help_menu_about(self, widget, data=None):
-	about = gtk.AboutDialog()
-	about.set_name('Bauble')
-	about.set_version(bauble.version)
+        about = gtk.AboutDialog()
+        about.set_name('Bauble')
+        about.set_version(bauble.version)
         gtk.about_dialog_set_url_hook(lambda d, l: desktop.open(l, dialog_on_error=True))
-        about.set_website(_('http://bauble.belizebotanic.org'))
+        about.set_website(_('http://bauble.wikidot.com'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
         about.set_logo(pixbuf)
-	about.set_copyright(_(u'Copyright \u00A9 Belize Botanic Gardens'))
-	about.run()
-	about.destroy()
+        about.set_copyright(_(u'Copyright \u00A9 by its contributors.'))
 
+        import codecs
+        with codecs.open(os.path.join(paths.installation_dir(), 'share', 'LICENSE.bauble')) as f:
+            license = f.read()
+        about.set_license(license)  # not translated
+        about.run()
+        about.destroy()
 
     def save_state(self):
         """
@@ -680,7 +639,6 @@ class GUI(object):
         rect = self.window.allocation
         prefs[self.window_geometry_pref] = rect.width, rect.height
         # prefs.save() is called in bauble/__init__.py
-
 
     def on_delete_event(self, *args):
         import bauble.task as task

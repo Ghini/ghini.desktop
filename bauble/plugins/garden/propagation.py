@@ -13,8 +13,9 @@ import traceback
 import xml.sax.saxutils as saxutils
 
 import dateutil.parser as date_parser
+
 import gtk
-import gobject
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
@@ -29,7 +30,7 @@ import bauble.editor as editor
 from bauble.utils.log import debug
 import bauble.prefs as prefs
 from bauble.error import CommitException
-import bauble.types as types
+import bauble.btypes as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
 
@@ -420,7 +421,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         prop_type = prop_type_values[propagation.prop_type]
 
         # hack to format date properly
-        from bauble.types import DateTime
+        from bauble.btypes import DateTime
         date = DateTime().process_bind_param(propagation.date, None)
         date_format = prefs.prefs[prefs.date_format_pref]
         date_str = date.strftime(date_format)

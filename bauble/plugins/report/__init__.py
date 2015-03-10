@@ -8,8 +8,10 @@ import sys
 import traceback
 import re
 
-import gobject
+
 import gtk
+import gobject
+
 from sqlalchemy import *
 
 import bauble

@@ -1,32 +1,50 @@
-#  Copyright (c) 2005,2006,2007,2008,2009
-#  Brett Adams <brett@belizebotanic.org>
-#  This is free software, see GNU General Public License v2 for details.
+# Copyright (c) 2005,2006,2007,2008,2009
+# Brett Adams <brett@belizebotanic.org>
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 """
 The top level module for Bauble.
 """
 
-import imp, os, sys
+import imp
+import os
+import sys
 import bauble.paths as paths
 
 # major, minor, revision version tuple
-version = '1.0.11' # :bump
+version = '1.0.11'  # :bump
 """The Bauble version.
 """
 version_tuple = version.split('.')
 
-import bauble.i18n # bauble.i18n needs version_tuple
+from bauble.i18n import _
+
 
 def main_is_frozen():
     """
     Return True if we are running in a py2exe environment, else
     return False
     """
-    return (hasattr(sys, "frozen") or # new py2exe
-            hasattr(sys, "importers") or # old py2exe
-            imp.is_frozen("__main__")) # tools/freeze
+    return (hasattr(sys, "frozen") or  # new py2exe
+            hasattr(sys, "importers") or  # old py2exe
+            imp.is_frozen("__main__"))  # tools/freeze
 
 
-if main_is_frozen(): # main is frozen
+if main_is_frozen():  # main is frozen
     # put library.zip first in the path when using py2exe so libxml2
     # gets imported correctly,
     zipfile = sys.path[-1]
@@ -34,9 +52,9 @@ if main_is_frozen(): # main is frozen
     # put the bundled gtk at the beginning of the path to make it the
     # preferred version
     os.environ['PATH'] = '%s%s%s%s%s%s' \
-                % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
-                   os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
-                   os.pathsep, os.environ['PATH'])
+        % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
+           os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
+           os.pathsep, os.environ['PATH'])
 
 
 # if not hasattr(gtk.Widget, 'set_tooltip_markup'):
@@ -47,8 +65,9 @@ if main_is_frozen(): # main is frozen
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
 
-#sys.stderr.write('sys.path: %s\n' % sys.path)
-#sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
+if False:
+    sys.stderr.write('sys.path: %s\n' % sys.path)
+    sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
 
 
 # set SQLAlchemy logging level
@@ -106,6 +125,7 @@ def quit():
 
 last_handler = None
 
+
 def command_handler(cmd, arg):
     """
     Call a command handler.
@@ -156,18 +176,23 @@ def command_handler(cmd, arg):
 conn_default_pref = "conn.default"
 conn_list_pref = "conn.list"
 
+
 def main(uri=None):
     """
     Run the main Bauble application.
 
-    :param uri:  the URI of the database to connect to.  For more information about database URIs see `<http://www.sqlalchemy.org/docs/05/dbengine.html#create-engine-url-arguments>`_
+    :param uri:  the URI of the database to connect to.  For more information
+    about database URIs see `<http://www.sqlalchemy.org/docs/05/dbengine.html\
+    #create-engine-url-arguments>`_
+
     :type uri: str
     """
     # TODO: it would be nice to show a Tk dialog here saying we can't
     # import gtk...but then we would have to include all of the Tk libs in
     # with the win32 batteries-included installer
     try:
-        import gtk, gobject
+        import gtk
+        import gobject
     except ImportError, e:
         print _('** Error: could not import gtk and/or gobject')
         print e
@@ -195,8 +220,7 @@ def main(uri=None):
         os.makedirs(paths.user_dir())
 
     # initialize threading
-    gtk.gdk.threads_init()
-    gtk.gdk.threads_enter()
+    gobject.threads_init()
 
     try:
         import bauble.db as db
@@ -244,21 +268,17 @@ def main(uri=None):
                 break
             except err.DatabaseError, e:
                 debug(e)
-                #traceback.format_exc()
+                # traceback.format_exc()
                 open_exc = e
-                #break
+                # break
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % \
-                      utils.xml_safe_utf8(e)
+                    utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 uri = None
     else:
         db.open(uri, True, True)
-
-
-    # make session available as a convenience to other modules
-    #Session = db.Session
 
     # load the plugins
     pluginmgr.load()
@@ -273,7 +293,6 @@ def main(uri=None):
 
     # now that we have a connection create the gui, start before the plugins
     # are initialized in case they have to do anything like add a menu
-    #import bauble._gui as _gui
     import bauble.ui as ui
     gui = ui.GUI()
 
@@ -281,9 +300,9 @@ def main(uri=None):
         gtk.gdk.threads_enter()
         try:
             if isinstance(open_exc, err.DatabaseError):
-                msg = _('Would you like to create a new Bauble database at ' \
-                        'the current connection?\n\n<i>Warning: If there is '\
-                        'already a database at this connection any existing '\
+                msg = _('Would you like to create a new Bauble database at '
+                        'the current connection?\n\n<i>Warning: If there is '
+                        'already a database at this connection any existing '
                         'data will be destroyed!</i>')
                 if utils.yes_no_dialog(msg, yes_delay=2):
                     try:
@@ -311,5 +330,6 @@ def main(uri=None):
     gobject.idle_add(_post_loop)
 
     gui.show()
+    gtk.threads_enter()
     gtk.main()
-    gtk.gdk.threads_leave()
+    gtk.threads_leave()

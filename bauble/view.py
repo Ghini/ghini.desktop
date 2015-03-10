@@ -5,30 +5,28 @@
 #
 import itertools
 import os
-import re
 import sys
 import traceback
 
+
 import gtk
 import gobject
+
 import pango
-from pyparsing import *
-from sqlalchemy import *
-from sqlalchemy.orm import *
-import sqlalchemy.sql
+from bauble.i18n import _
+from pyparsing import ParseException
+from sqlalchemy.orm import object_session
 import sqlalchemy.exc as saexc
-from sqlalchemy.orm.mapper import Mapper
-from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 
 import bauble
 import bauble.db as db
-from bauble.error import check, CheckConditionError, BaubleError
+from bauble.error import check, BaubleError
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.prefs as prefs
 import bauble.search as search
 import bauble.utils as utils
-from bauble.utils.log import debug, error, warning
+from bauble.utils.log import debug, warning
 
 # use different formatting template for the result view depending on the
 # platform
@@ -45,10 +43,10 @@ class Action(gtk.Action):
     An Action allows a label, tooltip, callback and accelerator to be called
     when specific items are selected in the SearchView
     """
-    # TODO: multiselect and singleselect are really specific to the
-    # SearchView and we could probably generalize this class a little
-    # bit more...or we just assume this class is specific to the
-    # SearchView and document it that way
+    # issue #30: multiselect and singleselect are really specific to the
+    # SearchView and we could probably generalize this class a little bit
+    # more...or we just assume this class is specific to the SearchView and
+    # document it that way
 
     def __init__(self, name, label, tooltip=None, stock_id=None,
                  callback=None, accelerator=None,
@@ -68,7 +66,6 @@ class Action(gtk.Action):
         self.singleselect = singleselect
         self.accelerator = accelerator
 
-
     def _set_enabled(self, enable):
         self.set_visible(enable)
         # if enable:
@@ -80,7 +77,6 @@ class Action(gtk.Action):
         return self.get_visible()
 
     enabled = property(_get_enabled, _set_enabled)
-
 
 
 class InfoExpander(gtk.Expander):
@@ -108,12 +104,10 @@ class InfoExpander(gtk.Expander):
             self.set_expanded(True)
         self.connect("notify::expanded", self.on_expanded)
 
-
     def on_expanded(self, expander, *args):
         if self.expanded_pref:
             prefs.prefs[self.expanded_pref] = expander.get_expanded()
             prefs.prefs.save()
-
 
     def set_widget_value(self, widget_name, value, markup=False, default=None):
         '''
@@ -122,13 +116,11 @@ class InfoExpander(gtk.Expander):
         utils.set_widget_value(self.widgets[widget_name], value,
                                markup, default)
 
-
     def update(self, value):
         '''
         This method should be implemented by classes that extend InfoExpander
         '''
         raise NotImplementedError("InfoExpander.update(): not implemented")
-
 
 
 class PropertiesExpander(InfoExpander):
@@ -179,7 +171,6 @@ class PropertiesExpander(InfoExpander):
         box.pack_start(table, expand=False, fill=False)
         self.vbox.pack_start(box, expand=False, fill=False)
 
-
     def update(self, row):
         """"
         Update the widget in the expander.
@@ -188,7 +179,6 @@ class PropertiesExpander(InfoExpander):
         self.type_data.set_text(str(type(row).__name__))
         self.created_data.set_text(str(row._created))
         self.updated_data.set_text(str(row._last_updated))
-
 
 
 class InfoBoxPage(gtk.ScrolledWindow):
@@ -208,7 +198,6 @@ class InfoBoxPage(gtk.ScrolledWindow):
         self.expanders = {}
         self.label = None
 
-
     def add_expander(self, expander):
         '''
         Add an expander to the list of exanders in this infobox
@@ -221,7 +210,6 @@ class InfoBoxPage(gtk.ScrolledWindow):
         expander._sep = gtk.HSeparator()
         self.vbox.pack_start(expander._sep, False, False)
 
-
     def get_expander(self, label):
         """
         Returns an expander by the expander's label name
@@ -230,8 +218,8 @@ class InfoBoxPage(gtk.ScrolledWindow):
         """
         if label in self.expanders:
             return self.expanders[label]
-        else: return None
-
+        else:
+            return None
 
     def remove_expander(self, label):
         """
@@ -244,7 +232,6 @@ class InfoBoxPage(gtk.ScrolledWindow):
         if label in self.expanders:
             return self.vbox.remove(self.expanders[label])
 
-
     def update(self, row):
         """
         Updates the infobox with values from row
@@ -254,7 +241,6 @@ class InfoBoxPage(gtk.ScrolledWindow):
         """
         for expander in self.expanders.values():
             expanders.update(row)
-
 
 
 class InfoBox(gtk.Notebook):
@@ -283,7 +269,6 @@ class InfoBox(gtk.Notebook):
         self.set_current_page(0)
         self.connect('switch-page', self.on_switch_page)
 
-
     # not sure why we pass have self and notebook in the arg list here
     # since they are the same
     def on_switch_page(self, notebook, dummy_page, page_num,  *args):
@@ -295,7 +280,6 @@ class InfoBox(gtk.Notebook):
         page = self.get_nth_page(page_num)
         page.update(self.row)
 
-
     def add_expander(self, expander, page_num=0):
         """
         Add an expander to a page.
@@ -306,7 +290,6 @@ class InfoBox(gtk.Notebook):
         page = self.get_nth_page(page_num)
         page.add_expander(expander)
 
-
     def update(self, row):
         """
         Update the current page with row.
@@ -314,7 +297,6 @@ class InfoBox(gtk.Notebook):
         self.row = row
         page_num = self.get_current_page()
         self.get_nth_page(page_num).update(row)
-
 
 
 class LinksExpander(InfoExpander):
@@ -327,7 +309,6 @@ class LinksExpander(InfoExpander):
         self.dynamic_box = gtk.VBox()
         self.vbox.pack_start(self.dynamic_box)
         self.notes = notes
-
 
     def update(self, row):
         import pango
@@ -343,9 +324,8 @@ class LinksExpander(InfoExpander):
                     button = gtk.LinkButton(uri=url)
                     button.add(label)
                     button.set_alignment(0, -1)
-                    self.dynamic_box.pack_start(button, expand=False,fill=False)
+                    self.dynamic_box.pack_start(button, expand=False, fill=False)
             self.dynamic_box.show_all()
-
 
 
 class SearchView(pluginmgr.View):
@@ -367,7 +347,6 @@ class SearchView(pluginmgr.View):
                 self.infobox = None
                 self.markup_func = None
                 self.actions = []
-
 
             def set(self, children=None, infobox=None, context_menu=None,
                     markup_func=None):
@@ -395,7 +374,6 @@ class SearchView(pluginmgr.View):
                     self.actions = filter(lambda x: isinstance(x, Action),
                                           self.context_menu)
 
-
             def get_children(self, obj):
                 '''
                 :param obj: get the children from obj according to
@@ -409,14 +387,12 @@ class SearchView(pluginmgr.View):
                     return self.children(obj)
                 return getattr(obj, self.children)
 
-
         def __getitem__(self, item):
-            if item not in self: # create on demand
+            if item not in self:  # create on demand
                 self[item] = self.Meta()
             return self.get(item)
 
     view_meta = ViewMeta()
-
 
     def __init__(self):
         '''
@@ -440,7 +416,6 @@ class SearchView(pluginmgr.View):
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
         self.session = db.Session()
-
 
     def update_notes(self):
         """
@@ -471,8 +446,6 @@ class SearchView(pluginmgr.View):
             self.widgets.notes_expander.props.expanded = False
             self.widgets.notes_expander.props.sensitive = False
 
-
-
     def update_infobox(self):
         '''
         Sets the infobox according to the currently selected row
@@ -489,7 +462,6 @@ class SearchView(pluginmgr.View):
             debug(traceback.format_exc())
             debug(values)
             self.set_infobox_from_row(None)
-
 
     def set_infobox_from_row(self, row):
         '''
@@ -513,7 +485,7 @@ class SearchView(pluginmgr.View):
         if selected_type in self.infobox_cache.keys():
             new_infobox = self.infobox_cache[selected_type]
         elif selected_type in self.view_meta and \
-          self.view_meta[selected_type].infobox is not None:
+                self.view_meta[selected_type].infobox is not None:
             # reuse an instance of an existing infobox if it's of the
             # same type
             for ib in self.infobox_cache.values():
@@ -525,7 +497,7 @@ class SearchView(pluginmgr.View):
 
         # remove any old infoboxes connected to the pane
         if self.infobox is not None and \
-          type(self.infobox) != type(new_infobox):
+                type(self.infobox) != type(new_infobox):
             if self.infobox.parent == self.pane:
                 self.pane.remove(self.infobox)
 
@@ -536,7 +508,6 @@ class SearchView(pluginmgr.View):
             self.pane.show_all()
             self.infobox.update(row)
 
-
     def get_selected_values(self):
         '''
         Return the values in all the selected rows.
@@ -545,7 +516,6 @@ class SearchView(pluginmgr.View):
         if model is None:
             return None
         return [model[row][0] for row in rows]
-
 
     def on_cursor_changed(self, view):
         '''
@@ -572,7 +542,7 @@ class SearchView(pluginmgr.View):
 
         for action in self.view_meta[selected_type].actions:
             enabled = (len(selected) > 1 and action.multiselect) or \
-                (len(selected)<=1 and action.singleselect)
+                (len(selected) <= 1 and action.singleselect)
             if not enabled:
                 continue
             # if enabled then connect the accelerator
@@ -593,11 +563,9 @@ class SearchView(pluginmgr.View):
                                                cb(action.callback))
                 self.installed_accels.append(((keyval, mod), action.callback))
             else:
-                warning('Could not parse accelerator: %s' %(action.accelerator))
-
+                warning('Could not parse accelerator: %s' % (action.accelerator))
 
     nresults_statusbar_context = 'searchview.nresults'
-
 
     def search(self, text):
         """
@@ -642,12 +610,12 @@ class SearchView(pluginmgr.View):
             self.results_view.set_model(model)
         else:
             if len(results) > 5000:
-                msg = _('This query returned %s results.  It may take a '\
-                        'long time to get all the data. Are you sure you '\
+                msg = _('This query returned %s results.  It may take a '
+                        'long time to get all the data. Are you sure you '
                         'want to continue?') % len(results)
                 if not utils.yes_no_dialog(msg):
                     return
-            statusbar.push(sbcontext_id, _("Retrieving %s search " \
+            statusbar.push(sbcontext_id, _("Retrieving %s search "
                                            "results...") % len(results))
             try:
                 # don't bother with a task if the results are small,
@@ -676,7 +644,6 @@ class SearchView(pluginmgr.View):
 
         self.update_notes()
 
-
     def remove_children(self, model, parent):
         """
         Remove all children of some parent in the model, reverse
@@ -686,7 +653,6 @@ class SearchView(pluginmgr.View):
             nkids = model.iter_n_children(parent)
             child = model.iter_nth_child(parent, nkids-1)
             model.remove(child)
-
 
     def on_test_expand_row(self, view, treeiter, path, data=None):
         '''
@@ -716,7 +682,6 @@ class SearchView(pluginmgr.View):
             self.append_children(model, treeiter, kids)
             return False
 
-
     def populate_results(self, results, check_for_kids=False):
         """
         Adds results to the search view in a task.
@@ -725,7 +690,6 @@ class SearchView(pluginmgr.View):
         :param check_for_kids: only used for testing
         """
         bauble.task.queue(self._populate_worker(results, check_for_kids))
-
 
     def _populate_worker(self, results, check_for_kids=False):
         """
@@ -779,13 +743,12 @@ class SearchView(pluginmgr.View):
             steps_so_far += 1
             if steps_so_far % update_every == 0:
                 percent = float(steps_so_far)/float(nresults)
-                if 0< percent < 1.0:
+                if 0 < percent < 1.0:
                     bauble.gui.progressbar.set_fraction(percent)
                 yield
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)
         self.results_view.thaw_child_notify()
-
 
     def append_children(self, model, parent, kids):
         """
@@ -802,7 +765,6 @@ class SearchView(pluginmgr.View):
             if self.view_meta[type(k)].children is not None:
                 model.append(i, ["_dummy"])
         return model
-
 
     def cell_data_func(self, col, cell, model, treeiter):
         path = model.get_path(treeiter)
@@ -833,7 +795,7 @@ class SearchView(pluginmgr.View):
                 func = self.view_meta[type(value)].markup_func
                 if func is not None:
                     r = func(value)
-                    if isinstance(r, (list,tuple)):
+                    if isinstance(r, (list, tuple)):
                         main, substr = r
                     else:
                         main = r
@@ -841,20 +803,20 @@ class SearchView(pluginmgr.View):
                 else:
                     main = utils.xml_safe(str(value))
                     substr = '(%s)' % type(value).__name__
-                cell.set_property('markup', '%s\n%s' % \
+                cell.set_property('markup', '%s\n%s' %
                                   (_mainstr_tmpl % utils.utf8(main),
                                    _substr_tmpl % utils.utf8(substr)))
 
             except (saexc.InvalidRequestError, TypeError), e:
                 warning('bauble.view.SearchView.cell_data_func(): \n%s' % e)
+
                 def remove():
                     model = self.results_view.get_model()
-                    self.results_view.set_model(None) # detach model
+                    self.results_view.set_model(None)  # detach model
                     for found in utils.search_tree_model(model, value):
                         model.remove(found)
                     self.results_view.set_model(model)
                 gobject.idle_add(remove)
-
 
     def get_expanded_rows(self):
         '''
@@ -869,7 +831,6 @@ class SearchView(pluginmgr.View):
         expanded_rows.reverse()
         return expanded_rows
 
-
     def expand_to_all_refs(self, references):
         '''
         :param references: a list of TreeRowReferences to expand to
@@ -882,46 +843,34 @@ class SearchView(pluginmgr.View):
             if ref.valid():
                 self.results_view.expand_to_path(ref.get_path())
 
-
     def on_view_button_release(self, view, event, data=None):
-        """
+        """right-mouse-button release.
+
         Popup a context menu on the selected row.
         """
-        # TODO: should probably fix this so you can right click on something
-        # that is not the selection, but get the path from where the click
-        # happened, make that that selection and then popup the menu,
-        # see the pygtk FAQ about this at
-        #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3:
-            return False # if not right click then leave
+            return False  # if not right click then leave
 
         selected = self.get_selected_values()
         if not selected:
             return
-        selected_type = type(selected[0])
-        if len(selected) > 1:
-            # make sure all the selected items are of the same type
-            istype = set(map(lambda o: isinstance(o, selected_type), selected))
-            # TODO: only show menu if all the types are the same, else
-            # show the common menu
-            if False in istype:
-                # raise NotImplementedError(_('You can only call an action if '
-                #                             'all the selected types are the '
-                #                             'same'))
-                return False
-            else:
-                #debug('ALL the same type')
-                pass
+        selected_types = set(map(type, selected))
+        if len(selected_types) > 1:
+            # issue #31: currently we only show the menu when all objects
+            # are of the same type. we could also show a common menu in case
+            # the selection is of different types.
+            return False
+        selected_type = selected_types.pop()
 
         if not self.view_meta[selected_type].actions:
             # no actions
             return True
 
-        # TODO: ** important ** we need a common menu for all types
+        # issue #31: ** important ** we need a common menu for all types
         # that can be merged with the specific menu for the selection,
         # e.g. provide a menu with a "Tag" action so you can tag
-        # everything...or we could just ignore this and add "Tag" to
-        # all of our action lists
+        # everything...or we could just ignore this and add "Tag" to all of
+        # our action lists
         menu = None
         try:
             menu = self.context_menu_cache[selected_type]
@@ -930,6 +879,7 @@ class SearchView(pluginmgr.View):
             for action in self.view_meta[selected_type].actions:
                 #debug('path: %s' %  action.get_accel_path())
                 item = action.create_menu_item()
+
                 def on_activate(item, cb):
                     result = False
                     try:
@@ -943,10 +893,11 @@ class SearchView(pluginmgr.View):
                     except Exception, e:
                         msg = utils.xml_safe_utf8(str(e))
                         tb = utils.xml_safe_utf8(traceback.format_exc())
-                        utils.message_details_dialog(msg, tb,gtk.MESSAGE_ERROR)
+                        utils.message_details_dialog(msg, tb, gtk.MESSAGE_ERROR)
                         warning(traceback.format_exc())
                     if result:
                         self.reset_view()
+
                 item.connect('activate', on_activate, action.callback)
                 menu.append(item)
             self.context_menu_cache[selected_type] = menu
@@ -954,11 +905,10 @@ class SearchView(pluginmgr.View):
         # enable/disable the menu items depending on the selection
         for action in self.view_meta[selected_type].actions:
             action.enabled = (len(selected) > 1 and action.multiselect) or \
-                (len(selected)<=1 and action.singleselect)
+                (len(selected) <= 1 and action.singleselect)
 
         menu.popup(None, None, None, event.button, event.time)
         return True
-
 
     def reset_view(self):
         """
@@ -997,13 +947,11 @@ class SearchView(pluginmgr.View):
         self.expand_to_all_refs(expanded_rows)
         self.results_view.set_cursor(path)
 
-
     def on_view_row_activated(self, view, path, column, data=None):
         '''
         expand the row on activation
         '''
         view.expand_row(path, False)
-
 
     def create_gui(self):
         '''
@@ -1034,15 +982,22 @@ class SearchView(pluginmgr.View):
                                   self.on_test_expand_row)
         self.results_view.connect("button-release-event",
                                   self.on_view_button_release)
+
         def on_press(view, event):
-            """
+            """Ignore the mouse right-click event.
+
             This makes sure that we don't remove the multiple selection
             when clicking a mouse button.
             """
             if event.button == 3:
+                if (event.get_state() & gtk.gdk.CONTROL_MASK) == 0:
+                    path, _, _, _ = view.get_path_at_pos(int(event.x), int(event.y))
+                    if not view.get_selection().path_is_selected(path):
+                        return False
                 return True
             else:
                 return False
+
         self.results_view.connect("button-press-event", on_press)
 
         self.results_view.connect("row-activated",
@@ -1058,6 +1013,7 @@ class SearchView(pluginmgr.View):
 
         # initialize the notes expander and tree view
         self._notes_expanded = False
+
         def on_expanded(expander, *args):
             self._notes_expanded = expander.props.expanded
             if not self._notes_expanded:
@@ -1065,13 +1021,13 @@ class SearchView(pluginmgr.View):
                 # expander is collapsed then the top pane will
                 # maximize itself
                 self.widgets.search_vpane.props.position_set = False
+
         self.widgets.notes_expander.connect_after('activate', on_expanded)
         self.init_notes_treeview()
 
         vbox = self.widgets.search_vbox
         self.widgets.remove_parent(vbox)
         self.pack_start(vbox)
-
 
     def on_notes_size_allocation(self, treeview, allocation, column, cell):
         """
@@ -1089,8 +1045,7 @@ class SearchView(pluginmgr.View):
         while treeiter and store.iter_is_valid(treeiter):
             store.row_changed(store.get_path(treeiter), treeiter)
             treeiter = store.iter_next(treeiter)
-            treeview.set_size_request(0,-1)
-
+            treeview.set_size_request(0, -1)
 
     def init_notes_treeview(self):
         def cell_data_func(col, cell, model, treeiter, prop):
@@ -1103,7 +1058,6 @@ class SearchView(pluginmgr.View):
                 cell.set_property('text', utils.utf8(val))
             else:
                 cell.set_property('text', '')
-
 
         date_cell = self.widgets.date_cell
         date_col = self.widgets.date_column
@@ -1128,7 +1082,6 @@ class SearchView(pluginmgr.View):
                           note_col, note_cell)
 
 
-
 class StringColumn(gtk.TreeViewColumn):
 
     """
@@ -1150,7 +1103,6 @@ class StringColumn(gtk.TreeViewColumn):
         cell.set_property('text', value)
 
 
-
 class HistoryView(pluginmgr.View):
     """Show the tables row in the order they were last updated
     """
@@ -1158,12 +1110,11 @@ class HistoryView(pluginmgr.View):
         super(HistoryView, self).__init__()
         self.init_gui()
 
-
     def init_gui(self):
         self.treeview = gtk.TreeView()
         #self.treeview.set_fixed_height_mode(True)
         columns = [(_('Timestamp'), 0), (_('Operation'), 1),
-                  (_('User'), 2), (_('Table'), 3), (_('Values'), 4)]
+                   (_('User'), 2), (_('Table'), 3), (_('Values'), 4)]
         for name, index in columns:
             column = StringColumn(name, text=index)
             column.set_sort_column_id(index)
@@ -1175,7 +1126,6 @@ class HistoryView(pluginmgr.View):
         sw = gtk.ScrolledWindow()
         sw.add(self.treeview)
         self.pack_start(sw)
-
 
     def populate_history(self, arg):
         """
@@ -1192,7 +1142,6 @@ class HistoryView(pluginmgr.View):
         session.close()
 
 
-
 class HistoryCommandHandler(pluginmgr.CommandHandler):
 
     def __init__(self):
@@ -1205,7 +1154,6 @@ class HistoryCommandHandler(pluginmgr.CommandHandler):
         if not self.view:
             self.view = HistoryView()
         return self.view
-
 
     def __call__(self, cmd, arg):
         self.view.populate_history(arg)
@@ -1224,7 +1172,7 @@ def select_in_search_results(obj):
 
     The the obj is not in the model then we add it.
     """
-    check(obj != None, 'select_in_search_results: arg is None')
+    check(obj is not None, 'select_in_search_results: arg is None')
     view = bauble.gui.get_view()
     if not isinstance(view, SearchView):
         return None
@@ -1255,4 +1203,3 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
 
     def __call__(self, cmd, arg):
         self.view.search(arg)
-

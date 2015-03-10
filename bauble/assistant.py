@@ -3,5 +3,5 @@
 #
 # Descriptions: use gtk.Assistant to create a new database wizard
 #
-# TODO: implement the assistant
+# issue #29: implement the assistant
 #

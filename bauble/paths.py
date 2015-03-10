@@ -7,15 +7,6 @@ Access to standard paths used by Bauble.
 import os
 import sys
 
-# TODO: we could just have setup or whatever create a file in the lib
-# directory that tells us where all the other directories are but this
-# would make the program non-relocatable whereas this approach allows
-# us to be more dynamic about it...except that where it doesn't work,
-# e.g. if the locale files are installed anywhere except
-# /usr/share/locale...the other side of the coin is just make this the
-# packagers problem, i.e make the packagers patch this file although
-# this kinds sucks b/c it just pushes the problem onto someone else,
-# it also doesn't really solve things like virtualenv installs
 
 def main_is_frozen():
     """
@@ -24,9 +15,9 @@ def main_is_frozen():
     to make paths.py not depend on any other Bauble modules.
     """
     import imp
-    return (hasattr(sys, "frozen") or # new py2exe
-            hasattr(sys, "importers") or # old py2exe
-            imp.is_frozen("__main__")) # tools/freeze
+    return (hasattr(sys, "frozen") or  # new py2exe
+            hasattr(sys, "importers") or  # old py2exe
+            imp.is_frozen("__main__"))  # tools/freeze
 
 
 def main_dir():
@@ -53,38 +44,28 @@ def lib_dir():
     return os.path.abspath(d)
 
 
-# def data_dir():
-#     """
-#     Return the data directory.  The data directory should contain any
-#     files required by Bauble or its plugins but aren't code.
-#     e.g. image, pixmaps
-
-#     Windows = main_dir()
-#     Linux = /usr/share/bauble
-
-#     images = data_dir()/images
-#     glade = data_dir()/glade
-#     """
-#     if sys.platform == 'linux2':
-#         base = os.path.dirname(os.path.dirname(main_dir()))
-#         return os.path.join(base, 'share', 'bauble')
-#     elif sys.platform == 'win32':
-#         return os.path.join(main_dir(), 'share')
-#     else:
-#         raise NotImplementedError('Unknown platform: %s' % sys.platform)
-
-
 def locale_dir():
     """
     Returns the root path of the locale files
     """
-    if sys.platform == 'linux2':
-        # TODO: how do we get the locale directory for linux?
-        d = os.path.join('/usr', 'share', 'locale')
+
+    the_installation_directory = installation_dir()
+    d = os.path.join(the_installation_directory, 'share', 'locale')
+    return os.path.abspath(d)
+
+
+def installation_dir():
+    """
+    Returns the root path of the installation target
+    """
+
+    if sys.platform in ('linux2', 'darwin'):
+        this_file_location = __file__.split(os.path.sep)
+        d = os.path.sep.join(this_file_location[:-7])
     elif sys.platform == 'win32':
-        d = os.path.join(main_dir(), 'share', 'locale')
+        d = main_dir()
     else:
-        raise NotImplementedError('This platform does not support '\
+        raise NotImplementedError('This platform does not support '
                                   'translations: %s' % sys.platform)
     return os.path.abspath(d)
 
@@ -98,10 +79,10 @@ def user_dir():
             d = os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
             d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
-                               'Bauble')
+                             'Bauble')
         else:
-            raise Exception(_('Could not get path for user settings: no ' \
-                              'APPDATA or USERPROFILE variable'))
+            raise Exception('Could not get path for user settings: no '
+                            'APPDATA or USERPROFILE variable')
     elif sys.platform == "linux2":
         # using os.expanduser is more reliable than os.environ['HOME']
         # because if the user runs bauble with sudo then it will
@@ -110,12 +91,12 @@ def user_dir():
             d = os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
                              '.bauble')
         except Exception:
-            raise Exception(_('Could not get path for user settings: '\
-                              'could not expand $HOME for user %(username)s' %\
-                              dict(username=os.environ['USER'])))
+            raise Exception('Could not get path for user settings: '
+                            'could not expand $HOME for user %(username)s' %
+                            dict(username=os.environ['USER']))
     else:
-        raise Exception(_('Could not get path for user settings: '\
-                          'unsupported platform'))
+        raise Exception('Could not get path for user settings: '
+                        'unsupported platform')
     return os.path.abspath(d)
 
 

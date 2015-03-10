@@ -1,67 +1,430 @@
+# encoding: utf-8
+#
+# Copyright 2008, 2009, 2010 Brett Adams
+# Copyright 2014 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
+
 import weakref
 
 import gtk
-from pyparsing import *
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from sqlalchemy.orm.properties import ColumnProperty, RelationProperty
+
+from sqlalchemy import or_
+from sqlalchemy import Unicode
+from sqlalchemy import UnicodeText
+from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.properties import ColumnProperty
 
 import bauble
-from bauble.error import check, CheckConditionError, BaubleError
-import bauble.db as db
-import bauble.pluginmgr as pluginmgr
+from bauble.error import check
 from bauble.utils.log import debug
 import bauble.utils as utils
 
-# TODO: remove date columns from searches
 
-# TODO: show list of completions of valid values, maybe even create
-# combos for enum types values instead of text entries
-
-def search(text, session):
+def search(text, session=None):
     results = set()
-    for strategy in _search_strategies:
+    for strategy in _search_strategies.values():
         results.update(strategy.search(text, session))
     return list(results)
 
 
+class NoneToken(object):
+    def __init__(self, t):
+        pass
+
+    def __repr__(self):
+        return '(None<NoneType>)'
+
+    def express(self):
+        return None
+
+
+class ValueABC(object):
+    ## abstract base class.
+
+    def express(self):
+        return self.value
+
+
+class ValueToken(object):
+
+    def __init__(self, t):
+        self.value = t[0]
+
+
+    def __repr__(self):
+        return repr(self.value)
+
+    def express(self):
+        return self.value.express()
+    
+
+class StringToken(ValueABC):
+    def __init__(self, t):
+        self.value = t[0]  # no need to parse the string
+
+    def __repr__(self):
+        return "'%s'" % ( self.value )
+
+
+class NumericToken(ValueABC):
+    def __init__(self, t):
+        self.value = float(t[0])  # store the float value
+
+    def __repr__(self):
+        return "%s" % ( self.value )
+
+
+class IdentifierToken(object):
+    def __init__(self, t):
+        self.value = t[0]
+
+    def __repr__(self):
+        return '.'.join(self.value)
+
+    def evaluate(self, env):
+        """return pair (query, attribute)
+
+        the value associated to the identifier is an altered query where the
+        joinpoint is the one relative to the attribute, and the attribute
+        itself.
+        """
+
+        query = env.session.query(env.domain)
+        if len(self.value) == 1:
+            # identifier is an attribute of the table being queried
+            cls = env.domain
+        elif len(self.value) > 1:
+            # identifier is an attribute of a joined table
+            query = query.join(*self.value[:-1], aliased=True)
+            cls = query._joinpoint['_joinpoint_entity']
+        attr = getattr(cls, self.value[-1])
+        return query, attr
+
+    def needs_join(self, env):
+        return self.value[:-1]
+
+
+class IdentExpressionToken(object):
+    def __init__(self, t):
+        self.op = t[0][1]
+        self.operation = {'>': lambda x,y: x>y,
+                          '<': lambda x,y: x<y,
+                          '>=': lambda x,y: x>=y,
+                          '<=': lambda x,y: x<=y,
+                          '=': lambda x,y: x==y,
+                          '!=': lambda x,y: x!=y,
+                          'is': lambda x,y: x is y,
+                          'like': lambda x,y: utils.ilike(x, '%s' % y)
+                      }[self.op]
+        self.operands = t[0][0::2]  # every second object is an operand
+
+    def __repr__(self):
+        return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
+
+    def evaluate(self, env):
+        q, a = self.operands[0].evaluate(env)
+        clause = lambda x: self.operation(a, x)
+        return q.filter(clause(self.operands[1].express()))
+
+    def needs_join(self, env):
+        return [self.operands[0].needs_join(env)]
+
+
+class UnaryLogical(object):
+    ## abstract base class. `name` is defined in derived classes
+    def __init__(self, t):
+        self.op, self.operand = t[0]
+
+    def __repr__(self):
+        return "%s %s" % (self.name, str(self.operand))
+
+    def needs_join(self, env):
+        return self.operand.needs_join(env)
+
+
+class BinaryLogical(object):
+    ## abstract base class. `name` is defined in derived classes
+    def __init__(self, t):
+        self.op = t[0][1]
+        self.operands = t[0][0::2]  # every second object is an operand
+
+    def __repr__(self):
+        return "(%s %s %s)" % (self.operands[0], self.name, self.operands[1])
+
+    def needs_join(self, env):
+        return self.operands[0].needs_join(env) + self.operands[1].needs_join(env)
+
+
+class SearchAndAction(BinaryLogical):
+    name = 'AND'
+
+    def evaluate(self, env):
+        result = self.operands[0].evaluate(env)
+        for i in self.operands[1:]:
+            result = result.intersect(i.evaluate(env))
+        return result
+
+
+class SearchOrAction(BinaryLogical):
+    name = 'OR'
+
+    def evaluate(self, env):
+        result = self.operands[0].evaluate(env)
+        for i in self.operands[1:]:
+            result = result.union(i.evaluate(env))
+        return result
+
+
+class SearchNotAction(UnaryLogical):
+    name = 'NOT'
+
+    def evaluate(self, env):
+        q = env.session.query(env.domain)
+        for i in env.domains:
+            q.join(*i)
+        return q.except_(self.operand.evaluate(env))
+
+
+class ParenthesisedQuery(object):
+    def __init__(self, t):
+        self.query = t[1]
+
+    def __repr__(self):
+        return "(%s)" % self.query.__repr__()
+
+    def evaluate(self, env):
+        return self.query.evaluate(env)
+
+    def needs_join(self, env):
+        return self.query.needs_join(env)
+
+
+class QueryAction(object):
+    def __init__(self, t):
+        self.domain = t[0]
+        self.filter = t[1][0]
+
+    def __repr__(self):
+        return "SELECT * FROM %s WHERE %s" % ( self.domain, self.filter )
+
+    def invoke(self, search_strategy):
+        """
+        update search_strategy object with statement results
+
+        Queries can use more database specific features.  This also
+        means that the same query might not work the same on different
+        database types. For example, on a PostgreSQL database you can
+        use ilike but this would raise an error on SQLite.
+        """
+
+        domain = self.domain
+        check(domain in search_strategy._domains or domain in search_strategy._shorthand,
+              'Unknown search domain: %s' % domain)
+        self.domain = search_strategy._shorthand.get(domain, domain)
+        self.domain = search_strategy._domains[domain][0]
+        self.search_strategy = search_strategy
+
+        result = set()
+        if search_strategy._session is not None:
+            self.domains = self.filter.needs_join(self)
+            self.session = search_strategy._session
+            records = self.filter.evaluate(self).all()
+            result.update(records)
+
+        return result
+
+
+class StatementAction(object):
+    def __init__(self, t):
+        self.content = t[0]
+        self.invoke = lambda x: self.content.invoke(x)
+
+    def __repr__(self):
+        return repr(self.content)
+
+
+class DomainExpressionAction(object):
+
+    def __init__(self, t):
+        self.domain = t[0]
+        self.cond = t[1]
+        self.values = t[2]
+
+    def __repr__(self):
+        return "%s %s %s" % (self.domain, self.cond, self.values)
+
+    def invoke(self, search_strategy):
+        """
+        Called when the parser hits a domain_expression token.
+
+        Searching using domain expressions is a little more magical
+        and queries mapper properties that were passed to add_meta()
+
+        To do a case sensitive search for a specific string use the
+        double equals, '=='
+        """
+
+        try:
+            if self.domain in search_strategy._shorthand:
+                self.domain = search_strategy._shorthand[self.domain]
+            cls, properties = search_strategy._domains[self.domain]
+        except KeyError:
+            raise KeyError(_('Unknown search domain: %s' % self.domain))
+
+        query = search_strategy._session.query(cls)
+
+        # select all objects from the domain
+        if self.values == '*':
+            search_strategy._results.update(query.all())
+            return
+
+        mapper = class_mapper(cls)
+
+        if self.cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
+            condition = lambda col: \
+                lambda val: utils.ilike(mapper.c[col], '%%%s%%' % val)
+        elif self.cond == '=':
+            condition = lambda col: \
+                lambda val: utils.ilike(mapper.c[col], utils.utf8(val))
+        else:
+            condition = lambda col: \
+                lambda val: mapper.c[col].op(self.cond)(val)
+
+        result = set()
+        for col in properties:
+            ors = or_(*map(condition(col), self.values.express()))
+            result.update(query.filter(ors).all())
+
+        return result
+
+
+class ValueListAction(object):
+
+    def __init__(self, t):
+        self.values = t[0]
+
+    def __repr__(self):
+        return str(self.values)
+
+    def express(self):
+        return [i.express() for i in self.values]
+
+    def invoke(self, search_strategy):
+        """
+        Called when the parser hits a value_list token
+
+        Search with a list of values is the broadest search and
+        searches all the mapper and the properties configured with
+        add_meta()
+        """
+        # debug('values: %s' % tokens)
+        # debug('  s: %s' % s)
+        # debug('  loc: %s' % loc)
+        # debug('  toks: %s' % tokens)
+
+        # make searches case-insensitive, in postgres use ilike,
+        # in other use upper()
+        like = lambda table, col, val: \
+            utils.ilike(table.c[col], ('%%%s%%' % val))
+
+        result = set()
+        for cls, columns in search_strategy._properties.iteritems():
+            q = search_strategy._session.query(cls)  # prepares SELECT
+            column_cross_value = [(c, v) for c in columns for v in self.express()]
+            # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
+            # object if the col is a Unicode or UnicodeText column in order
+            # to avoid the "Unicode type received non-unicode bind param"
+
+            def unicol(col, v):
+                mapper = class_mapper(cls)
+                if isinstance(mapper.c[col].type, (Unicode, UnicodeText)):
+                    return unicode(v)
+                else:
+                    return v
+
+            mapper = class_mapper(cls)
+            q = q.filter(or_(*[like(mapper, c, unicol(c, v))
+                               for c, v in column_cross_value]))
+            result.update(q.all())
+
+        return result
+        
+
+from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
+                       OneOrMore, oneOf, alphas, alphanums, Group, Literal,
+                       stringEnd, Keyword, quotedString,
+                       CaselessLiteral, infixNotation, opAssoc, Forward)
 
 class SearchParser(object):
+    """The parser for bauble.search.MapperSearch
     """
-    The parser for bauble.search.MapperSearch
-    """
-    value_chars = Word(alphanums + '%.-_*;:')
-    # value can contain any string once its quoted
-    value = value_chars | quotedString.setParseAction(removeQuotes)
-    value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
-    binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
-                  'icontains ihas is')('binop')
-    domain = Word(alphas, alphanums)('domain')
-    domain_values = Group(value_list.copy())
-    domain_expression = (domain + Literal('=') + Literal('*') + StringEnd()) \
-                        | (domain + binop + domain_values + StringEnd())
 
-    and_token = CaselessKeyword('and')
-    or_token = CaselessKeyword('or')
-    log_op = and_token | or_token
+    numeric_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?').setParseAction(NumericToken)('number')
+    unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
+    string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringToken)('string')
 
-    identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
-    ident_expression = Group(identifier + binop + value)
-    query_expression = ident_expression \
-                       + ZeroOrMore(log_op + ident_expression)
-    query = domain + CaselessKeyword('where').suppress() \
-            + Group(query_expression) + StringEnd()
+    none_token = Literal('None').setParseAction(NoneToken)
+    value = (numeric_value | string_value | none_token).setParseAction(ValueToken)('value')
+    value_list = Group(OneOrMore(string_value) ^ delimitedList(string_value)).setParseAction(ValueListAction)('value_list')
 
-    statement = query | domain_expression | value_list
+    domain = Word(alphas, alphanums)
+    binop = oneOf('= == != <> < <= > >= not like contains has ilike '
+                  'icontains ihas is')
+    equals = Literal('=')
+    star_value = Literal('*')
+    domain_values = (value_list.copy())('domain_values')
+    domain_expression = ((domain + equals + star_value + stringEnd)
+                         | (domain + binop + domain_values + stringEnd)).setParseAction(DomainExpressionAction)('domain_expression')
 
+    AND_ = CaselessLiteral("and")
+    OR_  = CaselessLiteral("or")
+    NOT_ = CaselessLiteral("not") | Literal('!')
+
+    query_expression = Forward()('filter')
+    identifier = Group(delimitedList(Word(alphas, alphanums+'_'),
+                                     '.')).setParseAction(IdentifierToken)
+    ident_expression = (
+        Group(identifier + binop + value).setParseAction(IdentExpressionToken)
+        | (
+            Literal('(') + query_expression + Literal(')')
+        ).setParseAction(ParenthesisedQuery))
+    query_expression << infixNotation(
+        ident_expression,
+        [ (NOT_, 1, opAssoc.RIGHT, SearchNotAction),
+          (AND_, 2, opAssoc.LEFT,  SearchAndAction),
+          (OR_,  2, opAssoc.LEFT,  SearchOrAction) ] )
+    query = (domain + Keyword('where', caseless=True).suppress() +
+             Group(query_expression) + stringEnd).setParseAction(QueryAction)
+
+    statement = (query('query')
+                 | domain_expression('domain')
+                 | value_list('value_list')
+             ).setParseAction(StatementAction)('statement')
 
     def parse_string(self, text):
-        '''
-        returns a pyparsing.ParseResults objects that represents either a
-        query, an expression or a list of values
-        '''
-        return self.statement.parseString(text)
+        '''request pyparsing object to parse text
 
+        `text` can be either a query, or a domain expression, or a list of
+        values. the `self.statement` pyparsing object parses the input text
+        and return a pyparsing.ParseResults object that represents the input
+        '''
+
+        return self.statement.parseString(text)
 
 
 class SearchStrategy(object):
@@ -69,7 +432,7 @@ class SearchStrategy(object):
     Interface for adding search strategies to a view.
     """
 
-    def search(self, text, session):
+    def search(self, text, session=None):
         '''
         :param text: the search string
         :param session: the session to use for the search
@@ -78,7 +441,6 @@ class SearchStrategy(object):
         from the search.
         '''
         pass
-
 
 
 class MapperSearch(SearchStrategy):
@@ -102,21 +464,28 @@ class MapperSearch(SearchStrategy):
         self._results = set()
         self.parser = SearchParser()
 
-
     def add_meta(self, domain, cls, properties):
-        """
-        Adds search meta to the domain
+        """Add a domain to the search space
+
+        an example of domain is a database table, where the properties would
+        be the table columns to consider in the search.  continuing this
+        example, a record is be selected if any of the fields matches the
+        searched value.
 
         :param domain: a string, list or tuple of domains that will resolve
-        to cls a search string, domain act as a shorthand to the class name
+                       a search string to cls.  domain act as a shorthand to
+                       the class name.
         :param cls: the class the domain will resolve to
         :param properties: a list of string names of the properties to
-        search by default
+                           search by default
         """
-        check(isinstance(properties, list), _('MapperSearch.add_meta(): '\
-        'default_columns argument must be list'))
-        check(len(properties) > 0, _('MapperSearch.add_meta(): '\
-        'default_columns argument cannot be empty'))
+
+        check(isinstance(properties, list),
+              _('MapperSearch.add_meta(): '
+                'default_columns argument must be list'))
+        check(len(properties) > 0,
+              _('MapperSearch.add_meta(): '
+                'default_columns argument cannot be empty'))
         if isinstance(domain, (list, tuple)):
             self._domains[domain[0]] = cls, properties
             for d in domain[1:]:
@@ -125,7 +494,6 @@ class MapperSearch(SearchStrategy):
             self._domains[d] = cls, properties
         self._properties[cls] = properties
 
-
     @classmethod
     def get_domain_classes(cls):
         d = {}
@@ -133,171 +501,7 @@ class MapperSearch(SearchStrategy):
             d.setdefault(domain, item[0])
         return d
 
-    def on_query(self, s, loc, tokens):
-        """
-        Called when the parser hits a query token.
-
-        Queries can use more database specific features.  This also
-        means that the same query might not work the same on different
-        database types. For example, on a PostgreSQL database you can
-        use ilike but this would raise an error on SQLite.
-        """
-        # The method requires that the underlying database support
-        # union and intersect. At the time of writing this MySQL
-        # didn't.
-
-        # TODO: support 'not' a boolean op as well, e.g sp where
-        # genus.genus=Maxillaria and not genus.family=Orchidaceae
-        domain, expr = tokens
-        check(domain in self._domains or domain in self._shorthand,
-              'Unknown search domain: %s' % domain)
-        if domain in self._shorthand:
-            domain = self._shorthand[domain]
-        cls = self._domains[domain][0]
-        main_query = self._session.query(cls)
-        mapper = class_mapper(cls)
-        expr_iter = iter(expr)
-        boolop = None
-        for e in expr_iter:
-            idents, cond, val = e
-            # debug('cls: %s, idents: %s, cond: %s, val: %s'
-            #       % (cls.__name__, idents, cond, val))
-            if val == 'None':
-                val = None
-            if cond == 'is':
-                cond = '='
-            elif cond == 'is not':
-                cond = '!='
-            elif cond in ('ilike', 'icontains', 'ihas'):
-                cond = lambda col: \
-                    lambda val: utils.ilike(col, '%s' % val)
-
-
-            if len(idents) == 1:
-                # we get here when the idents only refer to a property
-                # on the mapper table..i.e. a column
-                col = idents[0]
-                msg = _('The %(tablename)s table does not have a '\
-                       'column named "%(columname)s"') % \
-                       dict(tablename=mapper.local_table.name,
-                            columname=col)
-                check(col in mapper.c, msg)
-                if isinstance(cond, str):
-                    clause = getattr(cls, col).op(cond)(utils.utf8(val))
-                else:
-                    clause = cond(getattr(cls, col))(utils.utf8(val))
-                query = self._session.query(cls).filter(clause).order_by(None)
-            else:
-                # we get here when the idents refer to a relation on a
-                # mapper/table
-                relations = idents[:-1]
-                col = idents[-1]
-                query = self._session.query(cls)
-                query = query.join(*relations)
-
-                # NOTE: SA07 - this depends on Query._joinpoint not changing,
-                # it changed in SA05 which broke this
-                local_table = query._joinpoint['prev'][0][1].local_table
-                if isinstance(cond, str):
-                    clause = local_table.c[col].op(cond)(utils.utf8(val))
-                else:
-                    clause = cond(local_table.c[col])(utils.utf8(val))
-                query = query.filter(clause).order_by(None)
-
-            if boolop == 'or':
-                main_query = main_query.union(query)
-            elif boolop == 'and':
-                main_query = main_query.intersect(query)
-            else:
-                main_query = query
-
-            try:
-                boolop = expr_iter.next()
-            except StopIteration:
-                pass
-
-        self._results.update(main_query.order_by(None).all())
-
-
-    def on_domain_expression(self, s, loc, tokens):
-        """
-        Called when the parser hits a domain_expression token.
-
-        Searching using domain expressions is a little more magical
-        and queries mapper properties that were passed to add_meta()
-
-        To do a case sensitive search for a specific string use the
-        double equals, '=='
-        """
-        domain, cond, values = tokens
-        try:
-            if domain in self._shorthand:
-                domain = self._shorthand[domain]
-            cls, properties = self._domains[domain]
-        except KeyError:
-            raise KeyError(_('Unknown search domain: %s' % domain))
-
-	query = self._session.query(cls)
-
-	# select all objects from the domain
-        if values == '*':
-            self._results.update(query.all())
-            return
-
-        mapper = class_mapper(cls)
-
-        if cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
-            condition = lambda col: \
-                lambda val: utils.ilike(mapper.c[col], '%%%s%%' % val)
-        elif cond == '=':
-            condition = lambda col: \
-                lambda val: utils.ilike(mapper.c[col], utils.utf8(val))
-        else:
-            condition = lambda col: \
-                lambda val: mapper.c[col].op(cond)(val)
-
-        for col in properties:
-            ors = or_(*map(condition(col), values))
-            self._results.update(query.filter(ors).all())
-        return tokens
-
-
-    def on_value_list(self, s, loc, tokens):
-        """
-        Called when the parser hits a value_list token
-
-        Search with a list of values is the broadest search and
-        searches all the mapper and the properties configured with
-        add_meta()
-        """
-        # debug('values: %s' % tokens)
-        # debug('  s: %s' % s)
-        # debug('  loc: %s' % loc)
-        # debug('  toks: %s' % tokens)
-
-        # make searches case-insensitive, in postgres use ilike,
-        # in other use upper()
-        like = lambda table, col, val: \
-            utils.ilike(table.c[col], ('%%%s%%' % val))
-
-        for cls, columns in self._properties.iteritems():
-            q = self._session.query(cls)
-            cv = [(c,v) for c in columns for v in tokens]
-            # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
-            # object if the col is a Unicode or UnicodeText column in order
-            # to avoid the "Unicode type received non-unicode bind param"
-            def unicol(col, v):
-                mapper = class_mapper(cls)
-                if isinstance(mapper.c[col].type, (Unicode,UnicodeText)):
-                    return unicode(v)
-                else:
-                    return v
-            mapper = class_mapper(cls)
-            q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c,v in cv]))
-            self._results.update(q.all())
-
-
-    def search(self, text, session):
+    def search(self, text, session=None):
         """
         Returns a set() of database hits for the text search string.
 
@@ -307,40 +511,25 @@ class MapperSearch(SearchStrategy):
         """
         self._session = session
 
-        # this looks kinda ridiculous to add the parse actions and
-        # then remove them but then it allows us to reuse the parser
-        # for other things, particulary tests, without calling the
-        # parse actions
-        self.parser.query.setParseAction(self.on_query)
-        self.parser.domain_expression.setParseAction(self.on_domain_expression)
-        self.parser.value_list.setParseAction(self.on_value_list)
-
         self._results.clear()
-        self.parser.parse_string(text)
+        results = self.parser.parse_string(text.decode())
+        self._results.update(results.statement.invoke(self))
 
-        self.parser.query.parseAction = []
-        self.parser.domain_expression.parseAction = []
-        self.parser.value_list.parseAction = []
-
-        # these results get filled in when the parse actions are called
+        # these _results get filled in when the parse actions are called
         return self._results
 
 
-"""
-the search strategy is keyed by domain and each value will be a list of
-SearchStrategy instances
-    """
-_search_strategies = [MapperSearch()]
+## list of search strategies to be tried on each search string
+_search_strategies = {'MapperSearch': MapperSearch()}
+
 
 def add_strategy(strategy):
-    _search_strategies.append(strategy())
+    obj = strategy()
+    _search_strategies[obj.__class__.__name__] = obj
 
 
 def get_strategy(name):
-    for strategy in _search_strategies:
-        if strategy.__class__.__name__ == name:
-            return strategy
-
+    return _search_strategies.get(name, None)
 
 
 class SchemaBrowser(gtk.VBox):
@@ -376,33 +565,31 @@ class SchemaBrowser(gtk.VBox):
         frame.add(sw)
         self.pack_start(frame, expand=True, fill=True)
 
-
     def _insert_props(self, mapper, model, treeiter):
         """
         Insert the properties from mapper into the model at treeiter
         """
-        column_properties = sorted(filter(lambda x:  \
-                                              isinstance(x, ColumnProperty) \
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        column_properties = sorted(
+            filter(lambda x: isinstance(x, ColumnProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
         for prop in column_properties:
             model.append(treeiter, [prop.key, prop])
 
-
-        relation_properties = sorted(filter(lambda x:  \
-                                                isinstance(x, RelationProperty)\
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        relation_properties = sorted(
+            filter(lambda x: isinstance(x, RelationProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
         for prop in relation_properties:
             it = model.append(treeiter, [prop.key, prop])
             model.append(it, ['', None])
 
-
     def on_row_expanded(self, treeview, treeiter, path):
         """
-        Called before the row is expanded and populates the children of the row.
+        Called before the row is expanded and populates the children of the
+        row.
         """
         debug('on_row_expanded')
         model = treeview.props.model
@@ -415,7 +602,6 @@ class SchemaBrowser(gtk.VBox):
         # prop should always be a RelationProperty
         prop = treeview.props.model[treeiter][1]
         self._insert_props(prop.mapper, model, treeiter)
-
 
     def on_table_combo_changed(self, combo, *args):
         """
@@ -431,7 +617,6 @@ class SchemaBrowser(gtk.VBox):
         self.prop_tree.props.model = model
 
 
-
 class SchemaMenu(gtk.Menu):
     """
     SchemaMenu
@@ -441,13 +626,13 @@ class SchemaMenu(gtk.Menu):
     :param relation_filter:
     """
 
-    def __init__(self, mapper, activate_cb=None, relation_filter=lambda p:True):
+    def __init__(self, mapper, activate_cb=None,
+                 relation_filter=lambda p: True):
         super(SchemaMenu, self).__init__()
         self.activate_cb = activate_cb
         self.relation_filter = relation_filter
         map(self.append, self._get_prop_menuitems(mapper))
         self.show_all()
-
 
     def on_activate(self, menuitem, prop):
         """
@@ -466,7 +651,6 @@ class SchemaMenu(gtk.Menu):
         full_path = '.'.join(reversed(path))
         self.activate_cb(menuitem, full_path, prop)
 
-
     def on_select(self, menuitem, prop):
         """
         Called when menu items that have submenus are selected
@@ -477,14 +661,13 @@ class SchemaMenu(gtk.Menu):
             map(submenu.append, self._get_prop_menuitems(prop.mapper))
         submenu.show_all()
 
-
     def _get_prop_menuitems(self, mapper):
         items = []
-        column_properties = sorted(filter(lambda x:  \
-                                              isinstance(x, ColumnProperty) \
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        column_properties = sorted(
+            filter(lambda x: isinstance(x, ColumnProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
 
         for prop in column_properties:
             if not self.relation_filter(prop):
@@ -495,11 +678,11 @@ class SchemaMenu(gtk.Menu):
 
         # filter out properties that start with underscore since they
         # are considered private
-        relation_properties = sorted(filter(lambda x:  \
-                                                isinstance(x, RelationProperty)\
-                                              and not x.key.startswith('_'),
-                                          mapper.iterate_properties),
-                                   key=lambda k: k.key)
+        relation_properties = sorted(
+            filter(lambda x: isinstance(x, RelationProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
         for prop in relation_properties:
             if not self.relation_filter(prop):
                 continue
@@ -509,7 +692,6 @@ class SchemaMenu(gtk.Menu):
             item.set_submenu(submenu)
             item.connect('select', self.on_select, prop)
         return items
-
 
 
 class ExpressionRow(object):
@@ -531,17 +713,20 @@ class ExpressionRow(object):
             self.and_or_combo.append_text("and")
             self.and_or_combo.append_text("or")
             self.and_or_combo.set_active(0)
-            self.table.attach(self.and_or_combo, 0, 1, row_number, row_number+1)
+            self.table.attach(self.and_or_combo, 0, 1,
+                              row_number, row_number + 1)
 
         self.prop_button = gtk.Button(_('Choose a property...'))
         self.prop_button.props.use_underline = False
+
         def on_prop_button_clicked(button, event, menu):
             menu.popup(None, None, None, event.button, event.time)
+
         self.schema_menu = SchemaMenu(self.mapper,
                                       self.on_schema_menu_activated,
                                       self.relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
-                            self.schema_menu)
+                                 self.schema_menu)
         self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
@@ -565,8 +750,8 @@ class ExpressionRow(object):
             self.remove_button.props.image = image
             self.remove_button.connect('clicked',
                                        lambda b: remove_callback(self))
-            self.table.attach(self.remove_button, 4, 5, row_number,row_number+1)
-
+            self.table.attach(self.remove_button, 4, 5,
+                              row_number, row_number + 1)
 
     def on_value_changed(self, widget, *args):
         """
@@ -574,7 +759,6 @@ class ExpressionRow(object):
         Set the sensitivity of the gtk.RESPONSE_OK button on the QueryBuilder.
         """
         self.dialog.validate()
-
 
     def on_schema_menu_activated(self, menuitem, path, prop):
         """
@@ -590,7 +774,7 @@ class ExpressionRow(object):
         self.table.remove(self.value_widget)
 
         # change the widget depending on the type of the selected property
-        if isinstance(prop.columns[0].type, bauble.types.Enum):
+        if isinstance(prop.columns[0].type, bauble.btypes.Enum):
             self.value_widget = gtk.ComboBox()
             cell = gtk.CellRendererText()
             self.value_widget.pack_start(cell, True)
@@ -598,10 +782,10 @@ class ExpressionRow(object):
             model = gtk.ListStore(str, str)
             if prop.columns[0].type.translations:
                 trans = prop.columns[0].type.translations
-                prop_values = [(k,trans[k]) for k in sorted(trans.keys())]
+                prop_values = [(k, trans[k]) for k in sorted(trans.keys())]
             else:
                 values = prop.columns[0].type.values
-                prop_values = [(v,v) for v in sorted(values)]
+                prop_values = [(v, v) for v in sorted(values)]
             for value, translation in prop_values:
                 model.append([value, translation])
             self.value_widget.props.model = model
@@ -614,13 +798,11 @@ class ExpressionRow(object):
         self.table.show_all()
         self.dialog.validate()
 
-
     def relation_filter(self, prop):
         if isinstance(prop, ColumnProperty) and \
-                isinstance(prop.columns[0].type, bauble.types.Date):
+                isinstance(prop.columns[0].type, bauble.btypes.Date):
             return False
         return True
-
 
     def get_widgets(self):
         """
@@ -629,7 +811,6 @@ class ExpressionRow(object):
         """
         return self.and_or_combo, self.prop_button, self.cond_combo, \
             self.value_widget, self.remove_button
-
 
     def get_expression(self):
         """
@@ -659,7 +840,6 @@ class ExpressionRow(object):
                          '"%s"' % value]).strip()
 
 
-
 class QueryBuilder(gtk.Dialog):
 
     def __init__(self, parent=None):
@@ -677,7 +857,6 @@ class QueryBuilder(gtk.Dialog):
         self._first_choice = True
         self.set_response_sensitive(gtk.RESPONSE_OK, False)
 
-
     def on_domain_combo_changed(self, *args):
         """
         Change the search domain.  Resets the expression table and
@@ -694,7 +873,6 @@ class QueryBuilder(gtk.Dialog):
         self.add_button.props.sensitive = True
         self.add_expression_row()
         self.expressions_table.show_all()
-
 
     def validate(self):
         """
@@ -718,8 +896,6 @@ class QueryBuilder(gtk.Dialog):
         self.set_response_sensitive(gtk.RESPONSE_OK, valid)
         return valid
 
-
-
     def remove_expression_row(self, row):
         """
         Remove a row from the expressions table.
@@ -728,7 +904,6 @@ class QueryBuilder(gtk.Dialog):
         self.expressions_table.props.n_rows -= 1
         self.expression_rows.remove(row)
         del row
-
 
     def add_expression_row(self):
         """
@@ -740,7 +915,6 @@ class QueryBuilder(gtk.Dialog):
         self.set_response_sensitive(gtk.RESPONSE_OK, False)
         self.expression_rows.append(row)
         self.expressions_table.show_all()
-
 
     def start(self):
         self.domain_map = MapperSearch.get_domain_classes().copy()
@@ -777,7 +951,6 @@ class QueryBuilder(gtk.Dialog):
         self.hide()
         return response
 
-
     def get_query(self):
         """
         Return query expression string.
@@ -792,7 +965,6 @@ class QueryBuilder(gtk.Dialog):
         return ' '.join(query)
 
 
-
 if __name__ == '__main__':
     import bauble.test
     uri = 'sqlite:///:memory:'
@@ -800,4 +972,3 @@ if __name__ == '__main__':
     qb = QueryBuilder()
     qb.start()
     debug(qb.get_query())
-

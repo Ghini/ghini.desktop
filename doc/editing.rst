@@ -14,10 +14,10 @@ the search results and select :menuselection:`Edit` from the popup
 menu.  This will open an editor that will allow you to change the
 values on the record that you selected.
 
-Most types also have children which you can add by right clicking on
-the parent and selecting "Add ???..." on the context menu.  For
-example you can add a Genus to a Family by right clicking on a Family
-and selecting "Add genus".
+Most types also have children which you can add by right clicking on the
+parent and selecting "Add ???..." on the context menu.  For example, a
+Family has Genus children: you can add a Genus to a Family by right clicking
+on a Family and selecting "Add genus".
 
 
 Notes
@@ -65,6 +65,7 @@ family and open a new blank family editor.
 
 Genus
 -----
+
 The Genus editor allows you to add or change a botanical genus.
 
 The *Family* field on the genus editor allows you to choose the family
@@ -98,11 +99,16 @@ genus and open a new blank genus editor.
 
 
 Species/Taxon
--------
-A species is a taxon in the database.  It represents a unique name in
-the database.  The species editor will allow you to construct the name
-as well as associate metadata with the taxon such as its distribution,
-synonyms and other informaiton.
+-------------
+
+For historical reasons called a `species`, but by this we mean a `taxon` at
+rank `species` or lower.  It represents a unique name in the database.  The
+species editor will allow you to construct the name as well as associate
+metadata with the taxon such as its distribution, synonyms and other
+information.
+
+The *Infraspecific parts* in the species editor will allow you to specify
+the `taxon` further than at `species` rank.
 
 To cancel your changes without saving then click on the *Cancel* button.
 
@@ -119,9 +125,9 @@ Accessions
 ----------
 
 The Accession editor allows us to add an accession to a species.  In
-Bauble an acsession represents a group of plants or clones.  The
+Bauble an accession represents a group of plants or clones.  The
 accession would refer maybe a group of seed or cuttings from a
-species.  A plant would be an individual from that accesssion, e.g. a
+species.  A plant would be an individual from that accesssion, i.e. a
 specific plant in a specific location.
 
 Accession Source

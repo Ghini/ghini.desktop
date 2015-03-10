@@ -7,6 +7,7 @@ import xml.sax.saxutils as sax
 from itertools import chain
 
 import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
@@ -16,7 +17,7 @@ import bauble
 import bauble.db as db
 import bauble.utils as utils
 from bauble.utils.log import debug
-import bauble.types as types
+import bauble.btypes as types
 from bauble.plugins.plants.geography import Geography#, geography_table
 
 from sqlalchemy.orm.collections import collection
