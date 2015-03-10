@@ -4,6 +4,7 @@ import sys
 import tempfile
 
 import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from mako.template import Template
@@ -61,13 +62,13 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
-	# copy default template files to user_dir
-	templates = ['example.csv', 'example.csv']
+        # copy default template files to user_dir
+        templates = ['example.csv', 'example.csv']
         base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
-	for template in templates:
-	    f = os.path.join(paths.user_dir(), template)
-	    if not os.path.exists(f):
-		shutil.copy(os.path.join(base_dir, template), f)
+        for template in templates:
+            f = os.path.join(paths.user_dir(), template)
+            if not os.path.exists(f):
+                shutil.copy(os.path.join(base_dir, template), f)
 
 
     @staticmethod

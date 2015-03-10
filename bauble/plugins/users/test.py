@@ -11,6 +11,7 @@ import bauble.db as db
 from bauble.test import BaubleTestCase, check_dupids
 import bauble.plugins.users as users
 from bauble.utils.log import debug
+from nose import SkipTest
 
 def test_duplicate_ids():
     """
@@ -39,11 +40,10 @@ class UsersTests(BaubleTestCase):
 
     def setUp(self):
         super(UsersTests, self).setUp()
-        from nose import SkipTest
 
         # these tests are for postgres only
         if db.engine.name != 'postgresql':
-            raise SkipTest
+            raise SkipTest("users management only on PostgreSQL")
 
         # the test user and group may still exist if a test didn't
         # clean up properly
@@ -73,8 +73,9 @@ class UsersTests(BaubleTestCase):
 
 
     def test_group_members(self):
-        # if db.engine.name != 'postgresql':
-        #     raise SkipTest
+        if db.engine.name != 'postgresql':
+            raise SkipTest("users management only on PostgreSQL")
+
         # test adding a member to a group
         users.add_member(self.user, [self.group])
         members = users.get_members(self.group)

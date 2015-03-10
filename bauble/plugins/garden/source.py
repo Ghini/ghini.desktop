@@ -8,6 +8,8 @@ import weakref
 from random import random
 
 import gtk
+import gobject
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
@@ -17,7 +19,7 @@ import bauble.db as db
 import bauble.editor as editor
 from bauble.plugins.plants.geography import Geography, GeographyMenu
 import bauble.utils as utils
-import bauble.types as types
+import bauble.btypes as types
 from bauble.utils.log import debug
 import bauble.view as view
 from bauble.plugins.garden.propagation import *

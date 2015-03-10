@@ -25,7 +25,8 @@ TEXT_DOMAIN = 'bauble-%s' % '.'.join(version_tuple[0:2])
 
 #
 # most of the following code was adapted from:
-# http://www.learningpython.com/2006/12/03/translating-your-pythonpygtk-application/
+# http://www.learningpython.com/2006/12/03/\
+# translating-your-pythonpygtk-application/
 
 langs = []
 #Check the default locale

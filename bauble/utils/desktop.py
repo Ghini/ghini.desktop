@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-"""
-Simple desktop integration for Python. This module provides desktop environment
-detection and resource opening support for a selection of common and
-standardised desktop environments.
+"""Simple desktop integration for Python. This module provides desktop
+environment detection and resource opening support for a selection of common
+and standardised desktop environments.
 
 Copyright (C) 2005, 2006, 2007 Paul Boddie <paul@boddie.org.uk>
 
@@ -64,8 +63,9 @@ DESKTOP_LAUNCH="my\ opener --url"       Should run the "my opener" program to
                                         open URLs.
                                         (Command "my opener" plus parameter.)
 
-Details of the DESKTOP_LAUNCH environment variable convention can be found here:
-http://lists.freedesktop.org/archives/xdg/2004-August/004489.html
+Details of the DESKTOP_LAUNCH environment variable convention can be found
+here: http://lists.freedesktop.org/archives/xdg/2004-August/004489.html
+
 """
 
 __version__ = "0.2.4"
@@ -75,15 +75,19 @@ import sys
 
 # Provide suitable process creation functions.
 
+
 try:
     import subprocess
+
     def _run(cmd, shell, wait):
         opener = subprocess.Popen(cmd, shell=shell)
-        if wait: opener.wait()
+        if wait:
+            opener.wait()
         return opener.pid
 
     def _readfrom(cmd, shell):
-        opener = subprocess.Popen(cmd, shell=shell, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+        opener = subprocess.Popen(cmd, shell=shell, stdin=subprocess.PIPE,
+                                  stdout=subprocess.PIPE)
         opener.stdin.close()
         return opener.stdout.read()
 
@@ -92,11 +96,14 @@ try:
         opener.wait()
         return opener.returncode == 0
 
+
 except ImportError:
     import popen2
+
     def _run(cmd, shell, wait):
         opener = popen2.Popen3(cmd)
-        if wait: opener.wait()
+        if wait:
+            opener.wait()
         return opener.pid
 
     def _readfrom(cmd, shell):
@@ -110,9 +117,13 @@ except ImportError:
         opener.wait()
         return opener.poll() == 0
 
+
 import commands
 
+#
 # Private functions.
+#
+
 
 def _is_xfce():
 
@@ -125,12 +136,16 @@ def _is_xfce():
             vars = "DISPLAY=:0.0 "
         else:
             vars = ""
-        return _readfrom(vars + "xprop -root _DT_SAVE_MODE", shell=1).strip().endswith(' = "xfce4"')
+        return (_readfrom(vars + "xprop -root _DT_SAVE_MODE", shell=1)
+                .strip().endswith(' = "xfce4"'))
 
     except OSError:
         return 0
 
+
+#
 # Introspection functions.
+#
 
 def get_desktop():
 
@@ -139,11 +154,11 @@ def get_desktop():
     environment. If no environment could be detected, None is returned.
     """
 
-    if os.environ.has_key("KDE_FULL_SESSION") or \
-        os.environ.has_key("KDE_MULTIHEAD"):
+    if "KDE_FULL_SESSION" in os.environ or \
+       "KDE_MULTIHEAD" in os.environ:
         return "KDE"
-    elif os.environ.has_key("GNOME_DESKTOP_SESSION_ID") or \
-        os.environ.has_key("GNOME_KEYRING_SOCKET"):
+    elif "GNOME_DESKTOP_SESSION_ID" in os.environ or \
+         "GNOME_KEYRING_SOCKET" in os.environ:
         return "GNOME"
     elif sys.platform == "darwin":
         return "Mac OS X"
@@ -154,18 +169,17 @@ def get_desktop():
 
     # XFCE runs on X11, so we have to test for X11 last.
 
-    if os.environ.has_key("DISPLAY"):
+    if "DISPLAY" in os.environ:
         return "X11"
     else:
         return None
 
-def use_desktop(desktop):
 
-    """
-    Decide which desktop should be used, based on the detected desktop and a
+def use_desktop(desktop):
+    """Decide which desktop should be used, based on the detected desktop and a
     supplied 'desktop' argument (which may be None). Return an identifier
-    indicating the desktop type as being either "standard" or one of the results
-    from the 'get_desktop' function.
+    indicating the desktop type as being either "standard" or one of the
+    results from the 'get_desktop' function.
     """
 
     # Attempt to detect a desktop environment.
@@ -194,6 +208,7 @@ def use_desktop(desktop):
     else:
         return None
 
+
 def is_standard():
 
     """
@@ -201,7 +216,7 @@ def is_standard():
     launching.
     """
 
-    return os.environ.has_key("DESKTOP_LAUNCH")
+    return "DESKTOP_LAUNCH" in os.environ
 
 
 # Activity functions.
@@ -254,7 +269,7 @@ def open(url, desktop=None, wait=0, dialog_on_error=False):
     elif desktop_in_use == "Mac OS X":
         cmd = ["open", url]
 
-    elif desktop_in_use == "X11" and os.environ.has_key("BROWSER"):
+    elif desktop_in_use == "X11" and "BROWSER" in os.environ:
         cmd = [os.environ["BROWSER"], url]
 
     if not cmd:
@@ -269,9 +284,9 @@ def open(url, desktop=None, wait=0, dialog_on_error=False):
     try:
         if not cmd:
             # TODO: maybe we should tell the user to define DESKTOP_LAUNCH
-            raise OSError, _("Could not open %(url)s\n\n" \
+            raise OSError, _("Could not open %(url)s\n\n"
                              "Unknown desktop environment: %(desktop)s\n\n") \
-                             % dict(url=url, desktop=desktop_in_use)
+                % dict(url=url, desktop=desktop_in_use)
     except Exception, e:
         if dialog_on_error:
             utils.message_dialog(utils.utf8(e))
@@ -279,5 +294,3 @@ def open(url, desktop=None, wait=0, dialog_on_error=False):
             raise
 
     return _run(cmd, 0, wait)
-
-# vim: tabstop=4 expandtab shiftwidth=4

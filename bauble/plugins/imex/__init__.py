@@ -8,7 +8,6 @@
 # transform from any format to another
 
 import os, csv, traceback
-import gtk.gdk, gobject
 from sqlalchemy import *
 import bauble
 import bauble.utils as utils

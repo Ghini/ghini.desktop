@@ -3,14 +3,12 @@
 #
 from operator import itemgetter
 
-import gobject
 import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
-import bauble
 import bauble.db as db
-from bauble.utils.log import debug
 
 
 def get_species_in_geography(geo):#, session=None):

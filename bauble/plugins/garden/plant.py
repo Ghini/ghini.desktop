@@ -13,6 +13,7 @@ from random import random
 
 import gtk
 import gobject
+
 import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
@@ -29,7 +30,7 @@ from bauble.plugins.garden.propagation import PlantPropagation
 from bauble.plugins.plants import *
 import bauble.prefs as prefs
 from bauble.search import SearchStrategy
-import bauble.types as types
+import bauble.btypes as types
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \

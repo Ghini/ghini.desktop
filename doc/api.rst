@@ -18,7 +18,7 @@ API Documentation
 .. automodule:: bauble.db
 .. autodata:: bauble.db.Session
 .. autodata:: bauble.db.engine
-.. .. autodata:: bauble.db.Base
+.. autodata:: bauble.db.Base
 .. py:data:: bauble.db.Base
 
    All tables/mappers in Bauble which use the SQLAlchemy declarative
@@ -27,7 +27,7 @@ API Documentation
 
    An instance of :class:`sqlalchemy.ext.declarative.Base`
 
-.. .. autoattribute:: bauble.db.metadata
+.. autoattribute:: bauble.db.metadata
 .. py:data:: bauble.db.metadata
 
    The default metadata for all Bauble tables.
@@ -111,10 +111,10 @@ API Documentation
 .. autofunction:: bauble.pluginmgr.load
 .. autofunction:: bauble.pluginmgr.init
 .. autofunction:: bauble.pluginmgr.install
-.. .. autoclass:: bauble.pluginmgr.RegistryEmptyError
-.. .. autoclass:: bauble.pluginmgr.Registry
+.. autoclass:: bauble.pluginmgr.RegistryEmptyError
+.. autoclass:: bauble.pluginmgr.Registry
 ..   :members:
-.. .. autoclass:: bauble.pluginmgr.RegistryEntry
+.. autoclass:: bauble.pluginmgr.RegistryEntry
 ..   :members:
 .. autoclass:: bauble.pluginmgr.Plugin
    :members:
@@ -138,7 +138,7 @@ API Documentation
 =======================
 .. automodule:: bauble.task
 .. autofunction:: bauble.task.queue
-.. .. autofunction:: bauble.task.flush
+.. autofunction:: bauble.task.flush
 .. autofunction:: bauble.task.set_message
 .. autofunction:: bauble.task.clear_messages
 
@@ -160,7 +160,7 @@ API Documentation
 =======================
 .. automodule:: bauble.utils
 .. autofunction:: bauble.utils.find_dependent_tables
-.. .. autoclass:: bauble.utils.GladeWidgets
+.. autoclass:: bauble.utils.GladeWidgets
 ..   :members: remove_parent, signal_autoconnect
 .. autofunction:: bauble.utils.tree_model_has
 .. autofunction:: bauble.utils.search_tree_model

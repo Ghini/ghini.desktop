@@ -8,7 +8,7 @@ Connecting to a database
 
 When you start Bauble the first thing that comes up is the connection dialog. 
 
-.. image:: ../web/images/screenshots/bauble-create-new-0.7.png
+.. image:: ../web/images/screenshots/0.7/bauble-closed-conn-dialog-0.7.0.png
 
 From this dialog you can select the different connection parameters.
 
@@ -25,7 +25,7 @@ Bauble allows you to connect to any existing database. If you connect
 to an empty database a message will popup asking asking you if you
 would like to create a new database. 
 
-XXX. TODO: If you are connecting to an existing database you can continue to Inserting Datase or Searching
+XXX. TODO: If you are connecting to an existing database you can continue to Inserting or Searching
 
 Creating a new database
 =======================

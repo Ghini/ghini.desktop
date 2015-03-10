@@ -59,9 +59,8 @@ class PicasaTests(BaubleTestCase):
         """
         Test retrieving auth token from Google
         """
-        # TODO: will probably have to skip this test since requires a
-        # password
-        raise SkipTest
+
+        raise SkipTest("test requires a valid authentication on picasa")
         user = ''
         passwd = ''
         token = picasa.get_auth_token(user, passwd)
@@ -72,6 +71,7 @@ class PicasaTests(BaubleTestCase):
         """
         Test bauble.plugins.picasa.update_meta() function.
         """
+
         email = u'email'
         album = u'album'
         token = u'token'
@@ -117,7 +117,7 @@ class PicasaTests(BaubleTestCase):
 
 
     def itest_get_photo_feed(self):
-	"""
+        """
         Interactively test picasa.get_photo_feed()
         """
         if self._get_settings() != gtk.RESPONSE_OK:
@@ -126,12 +126,12 @@ class PicasaTests(BaubleTestCase):
         email = meta.get_default(picasa.PICASA_EMAIL_KEY).value
         album = meta.get_default(picasa.PICASA_ALBUM_KEY).value
         token = meta.get_default(picasa.PICASA_TOKEN_KEY).value
-	picasa.update_meta(email, album, utils.utf8(token))
-	import gdata.photos.service
-	gd_client = gdata.photos.service.PhotosService()
-	gd_client.SetClientLoginToken(token)
+        picasa.update_meta(email, album, utils.utf8(token))
+        import gdata.photos.service
+        gd_client = gdata.photos.service.PhotosService()
+        gd_client.SetClientLoginToken(token)
 
         # this tag is specific to the Plant album on brettatoms account
         tag = 'Maxillaria variabilis'
-	feed = picasa.get_photo_feed(gd_client, email, album, tag)
+        feed = picasa.get_photo_feed(gd_client, email, album, tag)
         self.assert_(len(feed.entry) > 0)

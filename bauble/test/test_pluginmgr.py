@@ -16,13 +16,9 @@ from bauble.utils.log import debug, error
 from bauble.test import BaubleTestCase, uri
 import bauble.pluginmgr as pluginmgr
 from bauble.pluginmgr import PluginRegistry
+from bauble.error import BaubleError
+import bauble.utils as utils
 
-
-# TODO: need tests for
-# 1. what happens when a plugin is in the plugins dict but not the registry
-# 2. what happens when a plugin has an error on init()
-# 3. what happens when a plugin has an error on install()
-# 4. what happens when a plugin is in the registry but not in plugins
 
 class A(pluginmgr.Plugin):
     initialized = False
@@ -34,20 +30,18 @@ class A(pluginmgr.Plugin):
     def install(cls, *args, **kwargs):
         cls.installed = True
 
+
 class B(pluginmgr.Plugin):
     depends = ['A']
     initialized = False
     installed = False
     @classmethod
     def init(cls):
-        assert A.initialized and not C.initialized, \
-               '%s, %s' % (A.initialized, C.instalialized)
         cls.initialized = True
     @classmethod
     def install(cls, *args, **kwargs):
-        assert A.installed and not C.installed, \
-               '%s, %s' % (A.installed, C.installed)
         cls.installed = True
+
 
 class C(pluginmgr.Plugin):
     depends = ['B']
@@ -59,7 +53,54 @@ class C(pluginmgr.Plugin):
         cls.initialized = True
     @classmethod
     def install(cls, *args, **kwargs):
-        assert A.installed and B.installed
+        cls.installed = True
+
+
+class FailingInitPlugin(pluginmgr.Plugin):
+    initialized = False
+    installed = False
+    @classmethod
+    def init(cls):
+        cls.initialized = True
+        raise BaubleError("can't init")
+    @classmethod
+    def install(cls, *args, **kwargs):
+        cls.installed = True
+
+
+class DependsOnFailingInitPlugin(pluginmgr.Plugin):
+    depends = ['FailingInitPlugin']
+    initialized = False
+    installed = False
+    @classmethod
+    def init(cls):
+        cls.initialized = True
+    @classmethod
+    def install(cls, *args, **kwargs):
+        cls.installed = True
+
+
+class FailingInstallPlugin(pluginmgr.Plugin):
+    initialized = False
+    installed = False
+    @classmethod
+    def init(cls):
+        cls.initialized = True
+    @classmethod
+    def install(cls, *args, **kwargs):
+        cls.installed = True
+        raise BaubleError("can't install")
+
+
+class DependsOnFailingInstallPlugin(pluginmgr.Plugin):
+    depends = ['FailingInstallPlugin']
+    initialized = False
+    installed = False
+    @classmethod
+    def init(cls):
+        cls.initialized = True
+    @classmethod
+    def install(cls, *args, **kwargs):
         cls.installed = True
 
 
@@ -98,6 +139,38 @@ class PluginMgrTests(BaubleTestCase):
         pluginmgr.install([Dummy])
 
 
+class LocalFunctions(unittest.TestCase):
+    def setUp(self):
+        A.initialized = A.installed = False
+        B.initialized = B.installed = False
+        C.initialized = C.installed = False
+        bauble.pluginmgr.plugins = {}
+    
+    def tearDown(self):
+        bauble.pluginmgr.plugins = {}
+
+    def test_create_dependency_pairs(self):
+        a, b, c = A(), B(), C()
+        a.__name__ = 'A'
+        b.__name__ = 'B'
+        c.__name__ = 'C'
+        bauble.pluginmgr.plugins[C.__name__] = c
+        bauble.pluginmgr.plugins[B.__name__] = b
+        bauble.pluginmgr.plugins[A.__name__] = a
+        dep, unmet = bauble.pluginmgr._create_dependency_pairs([a,b,c])
+        self.assertEquals(dep, [(a, b), (b, c)])
+        self.assertEquals(unmet, {})
+
+    def test_create_dependency_pairs_missing_base(self):
+        a, b, c = A(), B(), C()
+        a.__name__ = 'A'
+        b.__name__ = 'B'
+        c.__name__ = 'C'
+        bauble.pluginmgr.plugins[C.__name__] = c
+        bauble.pluginmgr.plugins[B.__name__] = b
+        dep, unmet = bauble.pluginmgr._create_dependency_pairs([b,c])
+        self.assertEquals(dep, [(b, c)])
+        self.assertEquals(unmet, {'B': ['A']})
 
 
 class StandalonePluginMgrTests(unittest.TestCase):
@@ -106,11 +179,11 @@ class StandalonePluginMgrTests(unittest.TestCase):
         A.initialized = A.installed = False
         B.initialized = B.installed = False
         C.initialized = C.installed = False
+        bauble.pluginmgr.plugins = {}
 
     def tearDown(self):
-        A.initialized = A.installed = False
-        B.initialized = B.installed = False
-        C.initialized = C.installed = False
+        for z in [A, B, C]:
+            z.initialized = z.installed = False
 
     def test_command_handler(self):
         """
@@ -119,29 +192,93 @@ class StandalonePluginMgrTests(unittest.TestCase):
         """
         pass
 
-    def test_init(self):
-        """
-        Test bauble.pluginmgr.init()
-        """
+    def test_successfulinit(self):
+        "bauble.pluginmgr.init() should be successful"
+
         db.open(uri, verify=False)
         db.create(False)
-        bauble.pluginmgr.plugins[C.__name__] = C
-        bauble.pluginmgr.plugins[B.__name__] = B
-        bauble.pluginmgr.plugins[A.__name__] = A
+        bauble.pluginmgr.plugins[C.__name__] = C()
+        bauble.pluginmgr.plugins[B.__name__] = B()
+        bauble.pluginmgr.plugins[A.__name__] = A()
         bauble.pluginmgr.init(force=True)
-        self.assert_(A.initialized and B.initialized and C.initialized)
+        self.assertTrue(A.initialized)
+        self.assertTrue(B.initialized)
+        self.assertTrue(C.initialized)
 
-#     def test_install(self):
-#         """
-#         Test bauble.pluginmgr.install()
-#         """
-#         bauble.pluginmgr.plugins[C.__name__] = C
-#         bauble.pluginmgr.plugins[B.__name__] = B
-#         bauble.pluginmgr.plugins[A.__name__] = A
-#         db.open(uri, verify=False)
-#         db.create(False)
-#         #bauble.pluginmgr.install((A, B, C), force=True)
-#         self.assert_(A.installed and B.installed and C.installed)
+    def test_init_with_problem(self):
+        "bauble.pluginmgr.init() using plugin which can't initialize"
+
+        old_dialog = utils.message_details_dialog
+        self.invoked = False
+
+        def fake_dialog(a,b,c):
+            "trap dialog box invocation"
+            self.invoked = True
+
+        utils.message_details_dialog = fake_dialog
+
+        db.open(uri, verify=False)
+        db.create(False)
+        bauble.pluginmgr.plugins[FailingInitPlugin.__name__] = FailingInitPlugin()
+        bauble.pluginmgr.plugins[DependsOnFailingInitPlugin.__name__] = DependsOnFailingInitPlugin()
+        bauble.pluginmgr.init(force=True)
+        self.assertTrue(self.invoked)
+        # self.assertFalse(FailingInitPlugin.initialized)  # irrelevant
+        self.assertFalse(DependsOnFailingInitPlugin.initialized)
+        utils.message_details_dialog = old_dialog
+
+    def test_install_with_problem(self):
+        "bauble.pluginmgr.init() using plugin which can't install"
+
+        db.open(uri, verify=False)
+        db.create(False)
+        bauble.pluginmgr.plugins[FailingInstallPlugin.__name__] = FailingInstallPlugin()
+        bauble.pluginmgr.plugins[DependsOnFailingInstallPlugin.__name__] = DependsOnFailingInstallPlugin()
+        self.assertRaises(BaubleError, bauble.pluginmgr.init, force=True)
+
+    def test_install(self):
+        """
+        Test bauble.pluginmgr.install()
+        """
+
+        pA = A()
+        pB = B()
+        pC = C()
+        bauble.pluginmgr.plugins[C.__name__] = pC
+        bauble.pluginmgr.plugins[B.__name__] = pB
+        bauble.pluginmgr.plugins[A.__name__] = pA
+        db.open(uri, verify=False)
+        db.create(False)
+        bauble.pluginmgr.install((pA, pB, pC), force=True)
+        self.assert_(A.installed and B.installed and C.installed)
+
+    def test_dependencies_BA(self):
+        "test that loading B will also load A"
+
+        pA = A()
+        pB = B()
+        pC = C()
+        bauble.pluginmgr.plugins[B.__name__] = pB
+        bauble.pluginmgr.plugins[A.__name__] = pA
+        bauble.pluginmgr.plugins[C.__name__] = pC
+        db.open(uri, verify=False)
+        db.create(False)
+        ## should try to load the A plugin
+        self.assertRaises(KeyError, bauble.pluginmgr.install, (pB, ), force=True)
+
+    def test_dependencies_CA(self):
+        "test that loading C will also load A"
+
+        pA = A()
+        pB = B()
+        pC = C()
+        bauble.pluginmgr.plugins[B.__name__] = pB
+        bauble.pluginmgr.plugins[A.__name__] = pA
+        bauble.pluginmgr.plugins[C.__name__] = pC
+        db.open(uri, verify=False)
+        db.create(False)
+        ## should try to load the A plugin
+        self.assertRaises(KeyError, bauble.pluginmgr.install, (pC, ), force=True)
 
 
 class PluginRegistryTests(BaubleTestCase):
@@ -150,15 +287,14 @@ class PluginRegistryTests(BaubleTestCase):
         """
         Test bauble.pluginmgr.PluginRegistry
         """
+
+        ## this is the plugin object
+        p = A()
+
         # test that adding works
-        PluginRegistry.add(A)
-        self.assert_(PluginRegistry.exists(A))
+        PluginRegistry.add(p)
+        self.assert_(PluginRegistry.exists(p))
 
         # test that removing works
-        PluginRegistry.remove(A)
-        self.assert_(not PluginRegistry.exists(A))
-
-
-
-
-
+        PluginRegistry.remove(p)
+        self.assert_(not PluginRegistry.exists(p))

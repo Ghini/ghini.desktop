@@ -3,34 +3,35 @@
 
 import datetime
 import os
-import traceback
 import bauble.error as error
+from bauble.i18n import _
 
 SQLALCHEMY_DEBUG = False
 
 try:
     import sqlalchemy as sa
-    parts = sa.__version__.split('.')
-    if int(parts[1]) not in (6,7):
-        msg = _('This version of Bauble requires SQLAlchemy 0.6 or greater. '\
-                'You are using version %s. ' \
-                'Please download and install a newer version of SQLAlchemy ' \
+    parts = tuple(int(i) for i in sa.__version__.split('.'))
+    if parts < (0, 6):
+        msg = _('This version of Bauble requires SQLAlchemy 0.6 or greater. '
+                'You are using version %s. '
+                'Please download and install a newer version of SQLAlchemy '
                 'from http://www.sqlalchemy.org or contact your system '
                 'administrator.') % '.'.join(parts)
         raise error.SQLAlchemyVersionError(msg)
 except ImportError:
-    msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
+    msg = _('SQLAlchemy not installed. Please install SQLAlchemy from '
             'http://www.sqlalchemy.org')
     raise
 
 
 import gtk
+
 import sqlalchemy.orm as orm
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
-import bauble.types as types
+import bauble.btypes as types
 import bauble.utils as utils
-from bauble.utils.log import debug, warning
+from bauble.utils.log import warning
 
 
 if SQLALCHEMY_DEBUG:
@@ -54,6 +55,7 @@ class HistoryExtension(orm.MapperExtension):
         Add a new entry to the history table.
         """
         user = None
+        from bauble import db
         try:
             if db.engine.name in ('postgres', 'postgresql'):
                 import bauble.plugins.users as users
@@ -73,18 +75,14 @@ class HistoryExtension(orm.MapperExtension):
                           operation=operation, user=user,
                           timestamp=datetime.datetime.today())).execute()
 
-
     def after_update(self, mapper, connection, instance):
         self._add('update', mapper, instance)
-
 
     def after_insert(self, mapper, connection, instance):
         self._add('insert', mapper, instance)
 
-
     def after_delete(self, mapper, connection, instance):
         self._add('delete', mapper, instance)
-
 
 
 class MapperBase(DeclarativeMeta):
@@ -102,7 +100,8 @@ class MapperBase(DeclarativeMeta):
                                autoincrement=True)
             cls._created = sa.Column('_created', types.DateTime(True),
                                      default=sa.func.now())
-            cls._last_updated = sa.Column('_last_updated', types.DateTime(True),
+            cls._last_updated = sa.Column('_last_updated',
+                                          types.DateTime(True),
                                           default=sa.func.now(),
                                           onupdate=sa.func.now())
             cls.__mapper_args__ = {'extension': HistoryExtension()}
@@ -146,6 +145,7 @@ An instance of :class:`sqlalchemy.schema.Metadata`
 """
 
 history_base = declarative_base(metadata=metadata)
+
 
 class History(history_base):
     """
@@ -204,7 +204,6 @@ def open(uri, verify=True, show_error_dialogs=False):
     # ** WARNING: this can print your passwd
 ##    debug('db.open(%s)' % uri)
     from sqlalchemy.orm import sessionmaker
-    import bauble
     global engine
     new_engine = None
 
@@ -215,12 +214,13 @@ def open(uri, verify=True, show_error_dialogs=False):
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
                                   implicit_returning=False,
                                   poolclass=pool.SingletonThreadPool)
-    new_engine.connect().close() # make sure we can connect
+    new_engine.connect().close()  # make sure we can connect
+
     def _bind():
         """bind metadata to engine and create sessionmaker """
         global Session, engine
         engine = new_engine
-        metadata.bind = engine # make engine implicit for metadata
+        metadata.bind = engine  # make engine implicit for metadata
         Session = sessionmaker(bind=engine, autoflush=False)
 
     if new_engine is not None and not verify:
@@ -245,17 +245,7 @@ def create(import_defaults=True):
     :type import_defaults: bool
 
     """
-    # TODO: when creating a database there shouldn't be any errors
-    # on import since we are importing from the default values, we should
-    # just force the import and send everything in the database at once
-    # instead of using slices, this would make it alot faster but it may
-    # make it more difficult to make the interface more responsive,
-    # maybe we can use a dialog without the progress bar to show the status,
-    # should probably work on the status bar to display this
 
-    # TODO: we create a transaction here and the csv import creates another
-    # nested transaction, we need to verify that if we rollback here then all
-    # of the changes made by csv import are rolled back as well
 ##    debug('entered db.create()')
     if not engine:
         raise ValueError('engine is None, not connected to a database')
@@ -337,7 +327,6 @@ def verify_connection(engine, show_error_dialogs=False):
     """
 ##    debug('entered verify_connection(%s)' % show_error_dialogs)
     import bauble
-    import bauble.pluginmgr as pluginmgr
     if show_error_dialogs:
         try:
             return verify_connection(engine, False)
@@ -353,21 +342,21 @@ def verify_connection(engine, show_error_dialogs=False):
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
         except error.TimestampError:
-            msg = _('The database you have connected to does not have a '\
-                    'timestamp for when it was created. This usually means '\
-                    'that there was a problem when you created the '\
-                    'database or the database you connected to wasn\'t '\
+            msg = _('The database you have connected to does not have a '
+                    'timestamp for when it was created. This usually means '
+                    'that there was a problem when you created the '
+                    'database or the database you connected to wasn\'t '
                     'created with Bauble.')
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
         except error.VersionError, e:
-            msg = _('You are using Bauble version %(version)s while the '\
-                    'database you have connected to was created with '\
-                    'version %(db_version)s\n\nSome things might not work as '\
-                    'or some of your data may become unexpectedly '\
-                    'corrupted.') % \
-                    {'version': bauble.version,
-                     'db_version':'%s' % e.version}
+            msg = (_('You are using Bauble version %(version)s while the '
+                     'database you have connected to was created with '
+                     'version %(db_version)s\n\nSome things might not work as '
+                     'or some of your data may become unexpectedly '
+                     'corrupted.') %
+                   {'version': bauble.version,
+                    'db_version': '%s' % e.version})
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
 
@@ -384,18 +373,18 @@ def verify_connection(engine, show_error_dialogs=False):
     # if we don't close this session before raising an exception then we
     # will probably get deadlocks....i'm not really sure why
     session = sessionmaker(bind=engine)()
-    query = session.query#(meta.BaubleMeta)
+    query = session.query  # (meta.BaubleMeta)
 
     # check that the database we connected to has a "created" timestamp
     # in the bauble meta table
-    result = query(meta.BaubleMeta).filter_by(name = meta.CREATED_KEY).first()
+    result = query(meta.BaubleMeta).filter_by(name=meta.CREATED_KEY).first()
     if not result:
         session.close()
         raise error.TimestampError()
 
     # check that the database we connected to has a "version" in the bauble
     # meta table and the the major and minor version are the same
-    result = query(meta.BaubleMeta).filter_by(name = meta.VERSION_KEY).first()
+    result = query(meta.BaubleMeta).filter_by(name=meta.VERSION_KEY).first()
     if not result:
         session.close()
         raise error.VersionError(None)

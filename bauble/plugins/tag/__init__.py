@@ -7,6 +7,7 @@ import os
 import traceback
 
 import gtk
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.exc import DBAPIError, InvalidRequestError

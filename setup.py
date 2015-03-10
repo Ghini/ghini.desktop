@@ -113,7 +113,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             # install locale files
             locales = os.path.dirname(locale_path)
             build_base = self.get_finalized_command('build').build_base
-            #print build_base
+
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
 
@@ -155,7 +155,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
         def run(self):
             print "**Error: Can't run this command."
             print sys.exit(1)
-            # run py2exe
+
 else:
     py2exe_options = {}
     py2exe_setup_args = {}
@@ -203,7 +203,7 @@ class build(_build):
             # create an .mo in build/share/locale/$LANG/LC_MESSAGES
             loc, ext = os.path.splitext(os.path.basename(po))
             localedir = dest_tmpl % loc
-            #mo = '%s/bauble-1.mo' % localedir
+
             mo = '%s/%s.mo' % (localedir, TEXT_DOMAIN)
             if not os.path.exists(localedir):
                 dir_util.mkpath(localedir)
@@ -212,19 +212,19 @@ class build(_build):
 
         # copy .desktop and icons
         if sys.platform == 'linux2':
-            app_dir = os.path.join(self.build_base, 'share/applications')
+            app_dir = os.path.join(self.build_base, 'share', 'applications')
             dir_util.mkpath(app_dir)
             file_util.copy_file('data/bauble.desktop', app_dir)
 
-            icon_sizes = [16, 22, 24, 32, 48, 64]#, 128]
-            icon_root = os.path.join(self.build_base, 'share/icons/hicolor')
+            icon_sizes = [16, 22, 24, 32, 48, 64]
+            icon_root = os.path.join(self.build_base, 'share', 'icons', 'hicolor')
 
             # copy scalable icon
-            scalable_dir = os.path.join(icon_root, 'scalable/apps')
+            scalable_dir = os.path.join(icon_root, 'scalable', 'apps')
             dir_util.mkpath(scalable_dir)
             file_util.copy_file('data/bauble.svg', scalable_dir)
 
-            pixmaps_dir = os.path.join(self.build_base, 'share/pixmaps')
+            pixmaps_dir = os.path.join(self.build_base, 'share', 'pixmaps')
             dir_util.mkpath(pixmaps_dir)
             file_util.copy_file('data/bauble.svg', pixmaps_dir)
 
@@ -253,7 +253,7 @@ class install(_install):
         _install.finalize_options(self)
 
     def run(self):
-        if sys.platform not in ('linux2', 'win32'):
+        if sys.platform not in ('linux2', 'win32', 'darwin'):
             msg = "**Error: Can't install on this platform: %s" % sys.platform
             print msg
             sys.exit(1)
@@ -262,11 +262,6 @@ class install(_install):
             self.do_egg_install()
         else:
             _install.run(self)
-
-
-        # check if someone else is copying the files to the destination
-        #if self.single_version_externally_managed:# and not self.root:
-        #    return
 
         # install bauble.desktop and icons
         if sys.platform == 'linux2':
@@ -280,6 +275,9 @@ class install(_install):
             build_base = install_cmd.build_base
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.install_data, locales))
+
+        file_util.copy_file("LICENSE",
+                            os.path.join(self.install_data, 'share', 'LICENSE.bauble'))
 
 
 
@@ -303,7 +301,6 @@ class docs(Command):
         cmd = ['sphinx-build', '-b', 'html', 'doc', DOC_BUILD_PATH]
         if self.all:
             # rebuild all the docs
-            #cmd.insert(1, '-E -a')
             cmd.insert(1, '-E')
         spawn.spawn(cmd)
 

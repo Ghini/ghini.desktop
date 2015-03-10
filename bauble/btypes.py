@@ -1,18 +1,29 @@
 #
 # types.py
 #
-import datetime
-import re
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
 import dateutil.parser as date_parser
 import sqlalchemy.types as types
-import sqlalchemy.exc as exc
+from bauble.i18n import _
 
 import bauble.error as error
-#import bauble.prefs as prefs
-#from bauble.utils.log import debug
 
 # TODO: store all times as UTC or support timezones
+
 
 class EnumError(error.BaubleError):
     """Raised when a bad value is inserted or returned from the Enum type"""
@@ -36,13 +47,13 @@ class Enum(types.TypeDecorator):
         # create the translations from the values and set those from
         # the translations argument, this way if some translations are
         # missing then the translation will be the same as value
-        self.translations = dict((v,v) for v in values)
+        self.translations = dict((v, v) for v in values)
         for key, value in translations.iteritems():
             self.translations[key] = value
         if values is None or len(values) is 0:
             raise EnumError(_('Enum requires a list of values'))
         if empty_to_none and None not in values:
-            raise EnumError(_('You have configured empty_to_none=True but '\
+            raise EnumError(_('You have configured empty_to_none=True but '
                               'None is not in the values lists'))
         self.values = values[:]
         self.strict = strict
@@ -52,7 +63,6 @@ class Enum(types.TypeDecorator):
         size = max([len(v) for v in values if v is not None])
         super(Enum, self).__init__(size, **kwargs)
 
-
     def process_bind_param(self, value, dialect):
         """
         Process the value going into the database.
@@ -60,10 +70,9 @@ class Enum(types.TypeDecorator):
         if self.empty_to_none and value is '':
             value = None
         if value not in self.values:
-           raise EnumError(_('"%(value)s" not in Enum.values: %(all_values)s') %
-                           dict(value=value, all_values=self.values))
+            raise EnumError(_('"%(value)s" not in Enum.values: %(all_values)s'
+                              ) % dict(value=value, all_values=self.values))
         return value
-
 
     def process_result_value(self, value, dialect):
         """
@@ -73,10 +82,8 @@ class Enum(types.TypeDecorator):
         #     raise ValueError(_('"%s" not in Enum.values') % value)
         return value
 
-
     def copy(self):
         return Enum(self.values, self.empty_to_none, self.strict)
-
 
 
 # class tzinfo(datetime.tzinfo):
@@ -95,7 +102,6 @@ class Enum(types.TypeDecorator):
 
 #     def utcoffset(self, dt):
 #         return self._utcoffset
-
 
 
 class DateTime(types.TypeDecorator):
@@ -120,14 +126,11 @@ class DateTime(types.TypeDecorator):
         return date_parser.parse(value, dayfirst=DateTime._dayfirst,
                                  yearfirst=DateTime._yearfirst)
 
-
     def process_result_value(self, value, dialect):
         return value
 
-
     def copy(self):
         return DateTime()
-
 
 
 class Date(types.TypeDecorator):
@@ -149,11 +152,8 @@ class Date(types.TypeDecorator):
         return date_parser.parse(value, dayfirst=Date._dayfirst,
                                  yearfirst=Date._yearfirst).date()
 
-
     def process_result_value(self, value, dialect):
         return value
 
-
     def copy(self):
         return Date()
-

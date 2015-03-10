@@ -12,7 +12,7 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
-from bauble.types import Enum
+from bauble.btypes import Enum
 from bauble.utils.log import debug
 from bauble.search import SearchParser
 from bauble.test import BaubleTestCase, check_dupids
@@ -46,25 +46,25 @@ class BaubleTests(BaubleTestCase):
         Test bauble.types.Date
         """
         import bauble.prefs as prefs
-        dt = bauble.types.Date()
+        dt = bauble.btypes.Date()
 
-        bauble.types.Date._dayfirst = False
-        bauble.types.Date._yearfirst = False
+        bauble.btypes.Date._dayfirst = False
+        bauble.btypes.Date._yearfirst = False
         s = '12-30-2008'
         v = dt.process_bind_param(s, None)
         self.assert_(v.month==12 and v.day==30 and v.year==2008,
                      '%s == %s' % (v, s))
 
-        bauble.types.Date._dayfirst = True
-        bauble.types.Date._yearfirst = False
+        bauble.btypes.Date._dayfirst = True
+        bauble.btypes.Date._yearfirst = False
         s = '30-12-2008'
         v = dt.process_bind_param(s, None)
         self.assert_(v.month==12 and v.day==30 and v.year==2008,
                      '%s == %s' % (v, s))
 
 
-        bauble.types.Date._dayfirst = False
-        bauble.types.Date._yearfirst = True
+        bauble.btypes.Date._dayfirst = False
+        bauble.btypes.Date._yearfirst = True
         s = '2008-12-30'
         v = dt.process_bind_param(s, None)
         self.assert_(v.month==12 and v.day==30 and v.year==2008,
@@ -89,7 +89,7 @@ class BaubleTests(BaubleTestCase):
         """
         Test bauble.types.DateTime
         """
-        dt = bauble.types.DateTime()
+        dt = bauble.btypes.DateTime()
 
         # TODO: *** this needs to be updated since now we don't do our
         # own date parsing and use the dateutils module instead
