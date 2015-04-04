@@ -288,10 +288,12 @@ class DomainExpressionAction(object):
 
         query = search_strategy._session.query(cls)
 
+        result = set()
+
         # select all objects from the domain
         if self.values == '*':
-            search_strategy._results.update(query.all())
-            return
+            result.update(query.all())
+            return result
 
         mapper = class_mapper(cls)
 
@@ -305,7 +307,6 @@ class DomainExpressionAction(object):
             condition = lambda col: \
                 lambda val: mapper.c[col].op(self.cond)(val)
 
-        result = set()
         for col in properties:
             ors = or_(*map(condition(col), self.values.express()))
             result.update(query.filter(ors).all())
