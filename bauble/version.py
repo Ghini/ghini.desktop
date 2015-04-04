@@ -13,4 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
+# major, minor, revision version tuple
 version = "1.0.12"
+"""The Bauble version.
+"""
