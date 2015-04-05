@@ -826,7 +826,7 @@ class GenericModelViewPresenterEditor(object):
     GenericModelViewPresenterEditor assume that model is an instance
     of object mapped to a SQLAlchemy table
 
-    The editor creates it's own session and merges the model into
+    The editor creates its own session and merges the model into
     it.  If the model is already in another session that original
     session will not be effected.
 

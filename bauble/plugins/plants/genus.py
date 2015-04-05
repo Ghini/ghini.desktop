@@ -188,6 +188,12 @@ class Genus(db.Base):
                              xml.sax.saxutils.escape(genus.author)]
                  if s not in ('', None)])
 
+    def has_accessions(self):
+        '''true if genus is linked to at least one accession
+        '''
+
+        return False
+
 
 class GenusNote(db.Base):
     """
@@ -765,17 +771,14 @@ class GeneralGenusExpander(InfoExpander):
 
         def on_family_clicked(*args):
             select_in_search_results(self.current_obj.family)
-
-        utils.make_label_clickable(self.widgets.gen_fam_data,
-                                   on_family_clicked)
+        utils.make_label_clickable(self.widgets.gen_fam_data, on_family_clicked)
 
         def on_nsp_clicked(*args):
             g = self.current_obj
             cmd = 'species where genus.genus="%s" and genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
-        utils.make_label_clickable(self.widgets.gen_nsp_data,
-                                   on_nsp_clicked)
+        utils.make_label_clickable(self.widgets.gen_nsp_data, on_nsp_clicked)
 
         def on_nacc_clicked(*args):
             g = self.current_obj
@@ -783,8 +786,7 @@ class GeneralGenusExpander(InfoExpander):
                 'and species.genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
-        utils.make_label_clickable(self.widgets.gen_nacc_data,
-                                   on_nacc_clicked)
+        utils.make_label_clickable(self.widgets.gen_nacc_data, on_nacc_clicked)
 
         def on_nplants_clicked(*args):
             g = self.current_obj
@@ -792,8 +794,7 @@ class GeneralGenusExpander(InfoExpander):
                 'accession.species.genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
-        utils.make_label_clickable(self.widgets.gen_nplants_data,
-                                   on_nplants_clicked)
+        utils.make_label_clickable(self.widgets.gen_nplants_data, on_nplants_clicked)
 
     def update(self, row):
         '''

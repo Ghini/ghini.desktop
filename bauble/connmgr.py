@@ -292,11 +292,11 @@ class ConnectionManager:
     def on_remove_button_clicked(self, button, data=None):
         """
         remove the connection from connection list, this does not affect
-        the database or it's data
+        the database or its data
         """
         msg = (_('Are you sure you want to remove "%s"?\n\n'
                  '<i>Note: This only removes the connection to the database '
-                 'and does not affect the database or it\'s data</i>')
+                 'and does not affect the database or its data</i>')
                % self.current_name)
 
         if not utils.yes_no_dialog(msg):

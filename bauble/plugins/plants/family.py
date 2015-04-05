@@ -164,6 +164,12 @@ class Family(db.Base):
             return ' '.join([s for s in [
                 family.family, family.qualifier] if s not in (None, '')])
 
+    def has_accessions(self):
+        '''true if family is linked to at least one accession
+        '''
+
+        return False
+
 
 class FamilyNote(db.Base):
     """
