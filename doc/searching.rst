@@ -87,7 +87,8 @@ max% then it search for all value that start with max. If you search
 for %max it searches for all values that end in max. The string %max%a
 would search for all value that contain max and end in a.
 
-For more information about the different search domain see…..TODO
+For more information about the different search domain and their short-hand
+aliases, see search-domains_ .
 
 If expression are invalid they are usually used as search by value
 searchs. For example the search string ``gen=`` will execute a search by
@@ -111,6 +112,14 @@ are located in Block 10.
 Searching with queries usually requires some knowledge of the Bauble
 internals and database table layouts.  
 
+A couple of useful examples:
+
+Which locations are in use:
+``location where plants.id!=0``
+
+Which genera are associated to at least one accession:
+``genus where species.accession.id!=0``
+
 .. _search-domains:
 
 Domains 
@@ -122,11 +131,11 @@ expression. The queries do not use the default columns.
 
 
 :Domains:
-    fam, family: Search :class:`bauble.plugins.plants.Family`
+    family, fam: Search :class:`bauble.plugins.plants.Family`
 
-    gen, genus: Search :class:`bauble.plugins.plants.Genus`
+    genus, gen: Search :class:`bauble.plugins.plants.Genus`
 
-    sp: Search :class:`bauble.plugins.plants.Species`
+    species, sp: Search :class:`bauble.plugins.plants.Species`
     
     geography: Search :class:`bauble.plugins.plants.Geography`
 
@@ -134,4 +143,4 @@ expression. The queries do not use the default columns.
 
     plant: Search :class:`bauble.plugins.garden.Plant`
 
-    loc, location: Search :class:`bauble.plugins.garden.Location`
+    location, loc: Search :class:`bauble.plugins.garden.Location`

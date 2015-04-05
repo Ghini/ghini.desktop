@@ -1,7 +1,7 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 #
 # Copyright 2008, 2009, 2010 Brett Adams
-# Copyright 2014 Mario Frasca <mario@anche.no>.
+# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
 #
 # This file is part of bauble.classic.
 #
@@ -259,6 +259,14 @@ class StatementAction(object):
 
 
 class DomainExpressionAction(object):
+    """created when the parser hits a domain_expression token.
+
+    Searching using domain expressions is a little more magical than an
+    explicit query. you give a domain, a binary_operator and a value,
+    the domain expression will return all object with at least one
+    property (as passed to add_meta) matching (according to the binop)
+    the value.
+    """
 
     def __init__(self, t):
         self.domain = t[0]
@@ -269,16 +277,6 @@ class DomainExpressionAction(object):
         return "%s %s %s" % (self.domain, self.cond, self.values)
 
     def invoke(self, search_strategy):
-        """
-        Called when the parser hits a domain_expression token.
-
-        Searching using domain expressions is a little more magical
-        and queries mapper properties that were passed to add_meta()
-
-        To do a case sensitive search for a specific string use the
-        double equals, '=='
-        """
-
         try:
             if self.domain in search_strategy._shorthand:
                 self.domain = search_strategy._shorthand[self.domain]
@@ -287,6 +285,10 @@ class DomainExpressionAction(object):
             raise KeyError(_('Unknown search domain: %s' % self.domain))
 
         query = search_strategy._session.query(cls)
+
+        ## here is the place where to optionally filter out unrepresented
+        ## domain values. each domain class should define its own 'I have
+        ## accessions' filter. see issue #42
 
         result = set()
 

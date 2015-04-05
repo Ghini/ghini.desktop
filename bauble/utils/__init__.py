@@ -785,13 +785,14 @@ def reset_sequence(column):
 
 def make_label_clickable(label, on_clicked, *args):
     """
-    :param label: a gtk.Label that has a gtk.EventBox as it's parent
+    :param label: a gtk.Label that has a gtk.EventBox as its parent
     :param on_clicked: callback to be called when the label is clicked
       on_clicked(label, event, data)
     """
     eventbox = label.parent
+
     check(eventbox != None and isinstance(eventbox, gtk.EventBox),
-          'label must have an gtk.EventBox as it\'s parent')
+          'label must have an gtk.EventBox as its parent')
     label.__pressed = False
     def on_enter_notify(*args):
         label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("blue"))

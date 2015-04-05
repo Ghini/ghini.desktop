@@ -5,7 +5,7 @@ Using the Mako Report Formatter
 -------------------------------
 
 The Mako report formatter uses the Mako template language for
-generating reports. More information about Mako and it's language can
+generating reports. More information about Mako and its language can
 be found at `makotemplates.org <http://www.makotemplates.org>`_.
 
 The Mako templating system should already be installed on your

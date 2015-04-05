@@ -1,6 +1,22 @@
+# -*- coding: utf-8 -*-
 #
-# species_model.py
+# Copyright 2008-2010 Brett Adams
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
 #
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
 import traceback
 import xml.sax.saxutils as sax
@@ -197,7 +213,6 @@ class Species(db.Base):
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
 
-
     def __str__(self):
         '''
         returns a string representation of this species,
@@ -205,11 +220,11 @@ class Species(db.Base):
         '''
         return Species.str(self)
 
-
     def _get_default_vernacular_name(self):
         if self._default_vernacular_name is None:
             return None
         return self._default_vernacular_name.vernacular_name
+
     def _set_default_vernacular_name(self, vn):
         if vn is None:
             del self.default_vernacular_name
@@ -233,7 +248,6 @@ class Species(db.Base):
             dist = ['%s' % d for d in self.distribution]
             return unicode(', ').join(sorted(dist))
 
-
     def markup(self, authors=False):
         '''
         returns this object as a string with markup
@@ -242,7 +256,6 @@ class Species(db.Base):
         included
         '''
         return Species.str(self, authors, True)
-
 
     # in PlantPlugins.init() we set this to 'x' for win32
     hybrid_char = utils.utf8(u'\u2a09') # U+2A09
@@ -331,6 +344,11 @@ class Species(db.Base):
         s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
         return s
 
+    def has_accessions(self):
+        '''true if species is linked to at least one accession
+        '''
+
+        return False
 
     infrasp_attr = {1: {'rank': 'infrasp1_rank',
                         'epithet': 'infrasp1',
@@ -345,7 +363,6 @@ class Species(db.Base):
                         'epithet': 'infrasp4',
                         'author': 'infrasp4_author'}}
 
-
     def get_infrasp(self, level):
         """
         level should be 1-4
@@ -354,7 +371,6 @@ class Species(db.Base):
             getattr(self, self.infrasp_attr[level]['epithet']), \
             getattr(self, self.infrasp_attr[level]['author'])
 
-
     def set_infrasp(self, level, rank, epithet, author=None):
         """
         level should be 1-4
@@ -362,7 +378,6 @@ class Species(db.Base):
         setattr(self, self.infrasp_attr[level]['rank'], rank)
         setattr(self, self.infrasp_attr[level]['epithet'], epithet)
         setattr(self, self.infrasp_attr[level]['author'], author)
-
 
 
 class SpeciesNote(db.Base):
