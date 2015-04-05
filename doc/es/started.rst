@@ -1,16 +1,17 @@
-Getting Started
----------------
+Primeros Pasos
+--------------
 
 .. _connecting:
 
-Connecting to a database
-========================
+Conectarse a una base de datos
+==============================
 
-When you start Bauble the first thing that comes up is the connection dialog. 
+Al arrancar Bauble, se activa un cuadro de diálogo que te pide escojer cual
+conexión utilizar.
 
 .. image:: ../web/images/screenshots/0.7/bauble-closed-conn-dialog-0.7.0.png
 
-From this dialog you can select the different connection parameters.
+En este cuadro puedes seleccionar los distintos parametros de la conexión.
 
 If this is the first time that you are starting Bauble then you will
 not having any connections to choose from.  Click on the add button to
