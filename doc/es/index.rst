@@ -1,20 +1,22 @@
-Documentation for Bauble 1.0
-############################
+Documentación de Bauble 1.0
+###########################
 
 .. image:: https://travis-ci.org/mfrasca/bauble.classic.svg?branch=master
 
-Bauble is an application for managing botanical specimen collections.
-With it you can create a searchable database of plant records.
+Bauble es una aplicación para manejar colecciones de objectos botánicos.
+Utilizando Bauble puedes crear una base de datos de ``plant records``, y
+Bauble te permite de interrogar la base de datos.
 
-Bauble is also extensible through plugins and can be customized to suit
-the needs of the institution.
+Bauble puede ser ampliado con ``plugin`` y se puede adaptar a las exigencias
+de cada institución.
 
-It is `open <http://www.opensource.org>`_ and `free
-<http://www.fsf.org>`_ and is released under the `GNU Public License <http://www.fsf.org/licensing/licenses/gpl.html>`_
+Bauble es `abierto <http://www.opensource.org>`_ y `libre
+<http://www.fsf.org>`_ y es distribuido bajo la `Licencia Pública GNU (GPL)
+<http://www.fsf.org/licensing/licenses/gpl.html>`_
 
 
-Installing Bauble
-=================
+Como instalar Bauble
+====================
 
 .. toctree::
    :maxdepth: 2
@@ -22,8 +24,8 @@ Installing Bauble
    installing
 
 
-Using Bauble
-============
+Guía al uso de Bauble
+=====================
 
 .. toctree::
    :maxdepth: 2
@@ -37,8 +39,8 @@ Using Bauble
    users
 
 
-Bauble Development
-==================
+Contribuir al desarrollo de Bauble
+==================================
 
 .. toctree::
    :maxdepth: 2
