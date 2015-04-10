@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-10 17:07+0200\n"
+"PO-Revision-Date: 2015-04-11 01:46+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/bauble/master/nl/>"
 "\n"
@@ -115,6 +115,10 @@ msgid ""
 "Unknown desktop environment: %(desktop)s\n"
 "\n"
 msgstr ""
+"Kan %(url)s niet openen.\n"
+"\n"
+"Onbekende desktop omgeving: %(desktop)s\n"
+"\n"
 
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
@@ -160,6 +164,11 @@ msgid ""
 "\n"
 "<i>Would you like to install them now?</i>"
 msgstr ""
+"De volgende plugins werden niet in het plugin-register gevonden:\n"
+"\n"
+"<b>%s</b>\n"
+"\n"
+"<i>wilt u deze nu installeren?</i>"
 
 #: bauble/pluginmgr.py:183
 #, python-format
@@ -205,6 +214,8 @@ msgid ""
 "The plugins contain a dependency loop. This can happend if two plugins "
 "directly or indirectly rely on each other"
 msgstr ""
+"De plugins bevatten een afhankelijkheidslus. Dit kan gebeuren als twee "
+"plugins rechtstreeks of indirect een beroep op elkaar doen"
 
 #: bauble/pluginmgr.py:542
 #, python-format
@@ -213,11 +224,14 @@ msgid ""
 "\n"
 "%(error)s"
 msgstr ""
+"De %(module)s module kan niet worden geïmporteerd.\n"
+"\n"
+"%(error)s"
 
 #: bauble/pluginmgr.py:564
 #, python-format
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
-msgstr ""
+msgstr "%s.plugin is niet een instantie van pluginmgr.Plugin"
 
 #: bauble/editor.py:206
 #, python-format
@@ -226,16 +240,19 @@ msgid ""
 "\n"
 "%(exception)s"
 msgstr ""
+"Het lukte niet de tooltip op widget %(widget_name)s in te instellen.\n"
+"\n"
+"%(exception)s"
 
 #: bauble/editor.py:620
 #, python-format
 msgid "no widget with name %s"
-msgstr ""
+msgstr "geen widget met naam %s"
 
 #: bauble/editor.py:1130
 #, python-format
 msgid "%(user)s on %(date)s"
-msgstr ""
+msgstr "%(user)s op datum %(date)s"
 
 #: bauble/db.py:15
 msgid ""
@@ -243,16 +260,21 @@ msgid ""
 "and install a newer version of SQLAlchemy from http://www.sqlalchemy.org or "
 "contact your system administrator."
 msgstr ""
+"Deze versie van Bauble vereist SQLAlchemy 0.5.0 of hoger.Gelieve een "
+"nieuwere versie van SQLAlchemy te downloaden en installeren. Dit kan via "
+"http://www.sqlalchemy.org. Of neem contact op met uw systeembeheerder."
 
 #: bauble/db.py:21
 msgid ""
 "SQLAlchemy not installed. Please install SQLAlchemy from "
 "http://www.sqlalchemy.org"
 msgstr ""
+"SQLAlchemy niet geïnstalleerd. Installeer SQLAlchemy van "
+"http://www.sqlalchemy.org"
 
 #: bauble/db.py:345
 msgid "The database you have connected to is empty."
-msgstr ""
+msgstr "De database waarme u verbinding heeft is leeg."
 
 #: bauble/db.py:349
 msgid ""
@@ -260,6 +282,9 @@ msgid ""
 "This usually means that the database is either corrupt or it was created "
 "with an old version of Bauble"
 msgstr ""
+"De database waarmee u verbinding heeft beschikt niet over de bauble meta "
+"tabel.  Dit betekent meestal dat de database is beschadigd of hij is gemaakt "
+"met een oude Bauble versie"
 
 #: bauble/db.py:356
 msgid ""
@@ -277,19 +302,24 @@ msgid ""
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
+"U gebruikt Bauble versie %(version)s terwijl de database waarmee u "
+"verbinding heeft werd met versie %(db_version)s aangemaakt.\n"
+"\n"
+"Het is mogelijk dat niet alles correct werkt en het is ook mogelijk dat een "
+"deel van uw gegevens beschadigd raakt."
 
 #: bauble/notes.glade.h:1
 msgid "Category"
-msgstr ""
+msgstr "Categorie"
 
 #: bauble/notes.glade.h:2 bauble/plugins/garden/prop_editor.glade.h:21
 #: bauble/plugins/garden/acc_editor.glade.h:22
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: bauble/notes.glade.h:4 bauble/view.py:1155
 msgid "User"
-msgstr ""
+msgstr "Gebruiker"
 
 #: bauble/plugins/plants/species_editor.py:101
 #, python-format
@@ -349,7 +379,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:895
 msgid "The habit of this species"
-msgstr ""
+msgstr "De habitus van deze soort"
 
 #: bauble/plugins/plants/species_editor.py:896
 msgid "The awards this species have been given"
