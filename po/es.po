@@ -8,15 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2014-12-13 13:30-0500\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2015-04-10 14:07+0200\n"
+"Last-Translator: Michal Čihař <michal@cihar.com>\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/bauble/master/es/>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2.3-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
-"X-Generator: Poedit 1.5.4\n"
-"Language: spanish\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -708,7 +710,7 @@ msgstr "<b>Partes infraespecíficas</b>"
 
 #: bauble/plugins/plants/species_editor.glade.h:6
 msgid "<b>Vernacular Names</b>"
-msgstr "<b> vernáculo </ b>"
+msgstr "<b> vernáculo </b>"
 
 #: bauble/plugins/plants/species_editor.glade.h:7
 msgid "Add Accessions"
@@ -867,7 +869,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:8
 msgid "<b>Distribution for label:</b>"
-msgstr "<b> Distribución de la etiqueta: </ b>"
+msgstr "<b> Distribución de la etiqueta: </b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:9
 msgid "<b>Distribution:</b>"
@@ -875,7 +877,7 @@ msgstr "<b>Distribución:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:10
 msgid "<b>Habit:</b>"
-msgstr "<b>Hábito:</ b>"
+msgstr "<b>Hábito:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:11
 msgid "family_window"
@@ -955,7 +957,7 @@ msgstr "Desconocido"
 #: bauble/plugins/garden/source.py:229
 #, python-format
 msgid "Collection at %s"
-msgstr "Colección de% s"
+msgstr "Colección de %s"
 
 #: bauble/plugins/garden/source.py:651
 #, python-format
@@ -1091,7 +1093,7 @@ msgstr "<b>Latitud:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:14
 msgid "<b>Living Plants:</b>"
-msgstr "<b> plantas vivas: </ b>"
+msgstr "<b> plantas vivas: </b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:15
 #: bauble/plugins/garden/plant_infobox.glade.h:4
@@ -1217,27 +1219,27 @@ msgstr "*\t"
 
 #: bauble/plugins/garden/prop_editor.glade.h:9
 msgid "<b>Chemical treatment</b>"
-msgstr "<b> Tratamiento químico </ b>"
+msgstr "<b> Tratamiento químico </b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:10
 msgid "<b>Cutting treatment</b>"
-msgstr "<b>Tratamiento de corte </ b>"
+msgstr "<b>Tratamiento de corte </b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:11
 msgid "<b>Germination data</b>"
-msgstr "<b> Datos de germinación </ b>"
+msgstr "<b> Datos de germinación </b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:13
 msgid "<b>Rooted plants</b>"
-msgstr "<b> Plantas enraizadas </ b>"
+msgstr "<b> Plantas enraizadas </b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:14
 msgid "<b>Rooting conditions</b>"
-msgstr "<b> Condiciones de enraizamiento </ b>"
+msgstr "<b> Condiciones de enraizamiento </b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:15
 msgid "<b>Sowing data</b>"
-msgstr "<b> Datos de siembra </ b>"
+msgstr "<b> Datos de siembra </b>"
 
 #: bauble/plugins/garden/prop_editor.glade.h:16
 msgid "Bottom heat"
