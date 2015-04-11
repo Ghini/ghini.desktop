@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-11 01:47+0200\n"
+"PO-Revision-Date: 2015-04-11 15:47+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian "
 "<https://hosted.weblate.org/projects/bauble/master/it/>\n"
@@ -384,6 +384,8 @@ msgid ""
 "The distribution string that will be used on the label.  If this entry is "
 "blank then the species distribution will be used"
 msgstr ""
+"La stringa di distribuzione che verrà utilizzata sull'etichetta.  Se questa "
+"voce è vuota si utilizza la distribuzione della specie"
 
 #: bauble/plugins/plants/species_editor.py:895
 msgid "The habit of this species"
@@ -391,7 +393,7 @@ msgstr "Il portamento di questa specie"
 
 #: bauble/plugins/plants/species_editor.py:896
 msgid "The awards this species have been given"
-msgstr ""
+msgstr "I riconoscimenti dati a questa specie"
 
 #: bauble/plugins/plants/species_editor.py:897
 msgid "Cancel your changes"
@@ -460,8 +462,9 @@ msgid "f."
 msgstr "f."
 
 #: bauble/plugins/plants/species_model.py:46
+#, fuzzy
 msgid "subf."
-msgstr ""
+msgstr "subf."
 
 #: bauble/plugins/plants/species_model.py:47
 msgid "cv."
@@ -724,7 +727,7 @@ msgstr "Riconoscimenti"
 
 #: bauble/plugins/plants/species_editor.glade.h:11
 msgid "Cultivar Group"
-msgstr ""
+msgstr "Gruppo cultivar"
 
 #: bauble/plugins/plants/species_editor.glade.h:12
 msgid "Epithet"
@@ -853,7 +856,7 @@ msgstr "<b># di Piante</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:6
 msgid "<b># of Taxa:</b>"
-msgstr ""
+msgstr "<b># di Taxa:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:7
 msgid "<b>Awards:</b>"
@@ -920,7 +923,7 @@ msgstr "Dipartimento universitario"
 
 #: bauble/plugins/garden/source.py:138
 msgid "Horticultural Association/Garden Club"
-msgstr ""
+msgstr "Associazione orticola/Club di Giardineria"
 
 #: bauble/plugins/garden/source.py:139
 msgid "Municipal department"
@@ -928,7 +931,7 @@ msgstr "Dipartimento municipale"
 
 #: bauble/plugins/garden/source.py:140
 msgid "Nursery/Commercial"
-msgstr ""
+msgstr "Vivaio/Commerciale"
 
 #: bauble/plugins/garden/source.py:141
 msgid "Individual"
@@ -1050,7 +1053,7 @@ msgstr "<b>Collettore:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:5
 msgid "<b>Date accessioned:</b>"
-msgstr ""
+msgstr "<b>Data dell'accessione:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:6
 msgid "<b>Date collected:</b>"
@@ -1058,7 +1061,7 @@ msgstr "<b>Collezionato in data:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:7
 msgid "<b>Date received:</b>"
-msgstr ""
+msgstr "<b>Data ricevimento:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:8
 msgid "<b>Elevation:</b>"
@@ -1173,7 +1176,7 @@ msgstr "Nome istituzione"
 
 #: bauble/plugins/garden/institution.glade.h:8
 msgid "Institutional code"
-msgstr ""
+msgstr "Codice istituzionale"
 
 #: bauble/plugins/garden/institution.glade.h:9
 msgid "Technical contact"
@@ -1185,7 +1188,7 @@ msgstr "Telefono"
 
 #: bauble/plugins/garden/institution.glade.h:11
 msgid "brett@belizebotanic.org"
-msgstr ""
+msgstr "mario@anche.no"
 
 #: bauble/plugins/garden/prop_editor.glade.h:1
 msgid "# Germinated"
