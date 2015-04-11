@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-11 00:44+0200\n"
-"Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
+"PO-Revision-Date: 2015-04-11 15:25+0200\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Hungarian "
 "<https://hosted.weblate.org/projects/bauble/master/hu/>\n"
 "Language: hu\n"
@@ -292,7 +292,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:883
 msgid "Genus "
-msgstr ""
+msgstr "Nemzetség "
 
 #: bauble/plugins/plants/species_editor.py:884
 msgid "Species epithet"
@@ -471,7 +471,7 @@ msgstr ""
 #: bauble/plugins/plants/species_editor.glade.h:13
 #: bauble/plugins/plants/genus_editor.glade.h:7
 msgid "Genus"
-msgstr ""
+msgstr "Nemzetség"
 
 #: bauble/plugins/plants/__init__.py:78
 #: bauble/plugins/plants/species_editor.glade.h:21
@@ -1614,8 +1614,9 @@ msgid "<b>Provenance</b>"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:12
+#, fuzzy
 msgid "<b>Taxon</b>"
-msgstr ""
+msgstr "<b>Taxon</b>"
 
 #: bauble/plugins/garden/acc_editor.glade.h:13
 msgid "<b>Voucher of Accession</b>"
