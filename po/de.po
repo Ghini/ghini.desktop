@@ -8,14 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: German <de@li.org>\n"
+"PO-Revision-Date: 2015-04-10 14:08+0200\n"
+"Last-Translator: Michal Čihař <michal@cihar.com>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/bauble/master/de/>"
+"\n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2.3-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -1007,7 +1010,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:2
 msgid "<b>Collection ID:</b>"
-msgstr "<b>Sammlung ID:<b>"
+msgstr "<b>Sammlung ID:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:3
 #: bauble/plugins/garden/acc_editor.glade.h:6
@@ -1024,7 +1027,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:6
 msgid "<b>Date collected:</b>"
-msgstr "<b>Datum der Sammlung:<b>"
+msgstr "<b>Datum der Sammlung:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:7
 msgid "<b>Date received:</b>"
@@ -1032,7 +1035,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:8
 msgid "<b>Elevation:</b>"
-msgstr "<b>Höhenlage:<b>"
+msgstr "<b>Höhenlage:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:9
 msgid "<b>GPS Datum</b>"
@@ -1052,7 +1055,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:13
 msgid "<b>Latitude:</b>"
-msgstr "<b>Breitengrad:<b>"
+msgstr "<b>Breitengrad:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:14
 msgid "<b>Living Plants:</b>"
@@ -2429,7 +2432,7 @@ msgstr "<b>Als privat gekennzeichnete Informationen einbeziehen</b>"
 
 #: bauble/plugins/report/mako/gui.glade.h:2
 msgid "<b>Template</b>"
-msgstr "Vorlage"
+msgstr "<b>Vorlage</b>"
 
 #: bauble/plugins/report/__init__.py:101
 #, python-format
@@ -2699,7 +2702,7 @@ msgstr ""
 "eine Reihe in der Datenbank, wird die Datei nicht korrekt eingefügt.\n"
 "\n"
 "<i>Möchten Sie zuerst die Tabelle aus der Datenbank entfernen? Die Daten in "
-"Ihrer Datenbank gehen dabei verloren.<i>"
+"Ihrer Datenbank gehen dabei verloren.</i>"
 
 #: bauble/plugins/imex/csv_.py:522
 #, python-format
@@ -2730,7 +2733,7 @@ msgstr ""
 "Eingefügte Datei <b>%(filename)s</b> für Tabelle <b>%(table)s</b> existiert "
 "bereits.\n"
 "\n"
-"<i>Möchten Sie den Vorgang fortsetzen?<i>"
+"<i>Möchten Sie den Vorgang fortsetzen?</i>"
 
 #: bauble/plugins/imex/csv_.py:638
 #, python-format
