@@ -8,14 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-01-26 17:45+0000\n"
-"Last-Translator: rustyBSD <cypherique@ymail.com>\n"
-"Language-Team: French <fr@li.org>\n"
+"PO-Revision-Date: 2015-04-10 18:16+0200\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"Language-Team: French <https://hosted.weblate.org/projects/bauble/master/fr/>"
+"\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 2.3-dev\n"
 "X-Launchpad-Export-Date: 2012-01-27 05:40+0000\n"
-"X-Generator: Launchpad (build 14727)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -36,7 +39,7 @@ msgstr "<b>Préférences</b>"
 
 #: bauble/prefs.py:344
 msgid "<b>Plugins</b>"
-msgstr "<b> Plugins</b>"
+msgstr "<b>Plug-ins</b>"
 
 #: bauble/prefs.py:379
 msgid "Names"
@@ -74,7 +77,7 @@ msgstr "Rechercher sur le Système Mondial d'Information sur la Biodiversité"
 
 #: bauble/utils/web.py:84
 msgid "Search ITIS"
-msgstr "Recherche ITIS"
+msgstr "Recherche sur ITIS"
 
 #: bauble/utils/web.py:85
 msgid "Search the Intergrated Taxonomic Information System"
@@ -82,15 +85,15 @@ msgstr "Recherche sur le Système d'information taxonomique intégré"
 
 #: bauble/utils/web.py:97
 msgid "Search BGCI"
-msgstr "Recherche BGCI"
+msgstr "Recherche sur BGCI"
 
 #: bauble/utils/web.py:98
 msgid "Search Botanic Gardens Conservation International"
-msgstr "Recherche Botanic Gardens Conservation International"
+msgstr "Rechercher sur Botanic Gardens Conservation International"
 
 #: bauble/utils/web.py:111
 msgid "Search IPNI"
-msgstr "Recherche IPNI"
+msgstr "Rechercher sur IPNI"
 
 #: bauble/utils/web.py:112
 msgid "Search the International Plant Names Index"
@@ -98,11 +101,11 @@ msgstr "Rechercher dans l'Index international des noms de plantes"
 
 #: bauble/utils/web.py:121
 msgid "Search NPGS/GRIN"
-msgstr ""
+msgstr "Rechercher sur NPGS/GRIN"
 
 #: bauble/utils/web.py:122
 msgid "Search National Plant Germplasm System"
-msgstr ""
+msgstr "Rechercher sur le Systeme National du germoplasme des plantes"
 
 #: bauble/utils/desktop.py:272
 #, python-format
@@ -120,7 +123,7 @@ msgstr ""
 #: bauble/utils/__init__.py:116 bauble/utils/__init__.py:127
 #, python-format
 msgid "%(widget_name)s not in glade file"
-msgstr ""
+msgstr "%(widget_name)s n'est pas dans le dossier de glade"
 
 #: bauble/utils/__init__.py:466
 msgid "Details"
@@ -270,7 +273,7 @@ msgstr ""
 
 #: bauble/db.py:345
 msgid "The database you have connected to is empty."
-msgstr "La base de données à laquelle vous vous êtes connecté est vide"
+msgstr "La base de données à laquelle vous vous avez connecté est vide."
 
 #: bauble/db.py:349
 msgid ""
@@ -871,7 +874,7 @@ msgstr ""
 #: bauble/plugins/tag/__init__.py:42
 #, python-format
 msgid "Are you sure you want to remove %s?"
-msgstr "Êtes-vous sûr de vouloir retirer %s?"
+msgstr "Êtes-vous sûr(e) d'ôter/effacer «%s» ?"
 
 #: bauble/plugins/garden/source.py:131
 msgid "Expedition"
@@ -1334,7 +1337,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:162
 #, python-format
 msgid "Are you sure you want to remove accession <b>%s</b>?"
-msgstr "Êtes-vous sûr de vouloir supprimer l'adhésion <b>%s</b>?"
+msgstr "Êtes-vous sûr(e) de vouloir supprimer l'acquisition <b>%s</b>?"
 
 #: bauble/plugins/garden/accession.py:207
 msgid "The name of the record has not been checked by any authority."
@@ -2218,7 +2221,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:500
 msgid "The location of the plant in your collection."
-msgstr "La localisation de la plante dans votre collection"
+msgstr "La localisation de la plante dans votre collection."
 
 #: bauble/plugins/garden/plant.py:502
 #, python-format
@@ -2468,8 +2471,8 @@ msgstr "Aucun plugin de conversion défini"
 msgid ""
 "No formatters found. To create a new formatter click the \"New\" button."
 msgstr ""
-"Aucun formateur trouvé. Pour créer un nouveau formater cliquez le bouton "
-"\"Nouveau\""
+"Aucun formateur trouvé. Pour créer un nouveau formateur cliquez sur le "
+"bouton «Nouveau»."
 
 #: bauble/plugins/report/__init__.py:591
 msgid "Report"
@@ -2514,7 +2517,7 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:473
 msgid "Please select a stylesheet."
-msgstr "Veuillez sélectionner une feuille de style"
+msgstr "Veuillez sélectionner une feuille de style."
 
 #: bauble/plugins/report/xsl/__init__.py:475
 msgid "Please select a a renderer"
@@ -2562,7 +2565,7 @@ msgstr "<b>Contributeur</b>"
 
 #: bauble/plugins/report/xsl/gui.glade.h:3
 msgid "<b>Source type</b>"
-msgstr "Type de source"
+msgstr "<b>Type de source</b>"
 
 #: bauble/plugins/report/xsl/gui.glade.h:4
 msgid "<b>Stylesheet</b>"
@@ -2579,7 +2582,7 @@ msgstr "Entrez un nom de tag"
 #: bauble/plugins/tag/__init__.py:157
 #, python-format
 msgid "Are you sure you want to delete the tag \"%s\"?"
-msgstr "Êtes-vous sûr de vouloir supprimer ce tag \"%s\"?"
+msgstr "Êtes-vous sûr(e) de vouloir supprimer ce tag \"%s\"?"
 
 #: bauble/plugins/tag/__init__.py:445
 msgid "Nothing selected"
@@ -2874,7 +2877,7 @@ msgstr "** Erreur: Ne peut importer gtk et/ou gobject"
 
 #: bauble/__init__.py:175
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
-msgstr "Veuillez vous assurer que GTK_ROOT\\bin est dans votre variable PATH"
+msgstr "Veuillez vous assurer que GTK_ROOT\\bin est dans votre variable PATH."
 
 #: bauble/__init__.py:185
 msgid "**Error: Bauble must be run in a windowed environment."
@@ -2910,7 +2913,7 @@ msgstr "Détails de la connexion"
 
 #: bauble/connmgr.glade.h:3
 msgid "Type:"
-msgstr "Type"
+msgstr "Type:"
 
 #: bauble/connmgr.py:104
 msgid ""
@@ -2975,7 +2978,7 @@ msgstr ""
 
 #: bauble/connmgr.py:183
 msgid "Do you want to save your changes?"
-msgstr "Voulez-vous sauver vos modifications?"
+msgstr "Voulez-vous enregistrer les modifications?"
 
 #: bauble/connmgr.py:203
 msgid ""
@@ -2984,7 +2987,7 @@ msgid ""
 msgstr ""
 "Aucun connecteurs de base de données pour Python installé.\n"
 "Veuillez consulter la documentation à propos des pré-requis à l'installation "
-"de Bauble"
+"de Bauble."
 
 #: bauble/connmgr.py:217 bauble/ui.py:65
 #, python-format
@@ -3011,7 +3014,7 @@ msgstr "Entrez un nom de connexion"
 #: bauble/connmgr.py:391
 #, python-format
 msgid "Do you want to save %s?"
-msgstr "Voulez-vous sauver %s?"
+msgstr "Voulez-vous enregistrer %s?"
 
 #: bauble/connmgr.py:399
 #, python-format
@@ -3109,7 +3112,7 @@ msgstr ""
 #: bauble/view.py:639
 #, python-format
 msgid "Retrieving %s search results..."
-msgstr "Extraction de %s résultats de la recherche"
+msgstr "Récupération de %s résultats de la recherche..."
 
 #: bauble/view.py:662
 #, python-format
