@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-11 23:11+0200\n"
-"Last-Translator: Thiago Casotti <thiago.casotti@uol.com.br>\n"
+"PO-Revision-Date: 2015-04-12 00:36+0200\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) "
 "<https://hosted.weblate.org/projects/bauble/master/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -1071,16 +1071,17 @@ msgid "<b>GPS Datum</b>"
 msgstr "<b>Informação do GPS</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:10
+#, fuzzy
 msgid "<b>Habitat</b>"
-msgstr "<b>Habitate</b>"
+msgstr "<b>Habitat</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:11
 msgid "<b>Intended Location 2:</b>"
-msgstr "<b>Local pretendido 2:</b>"
+msgstr "<b>Localização proposta 2:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:12
 msgid "<b>Intended Location:</b>"
-msgstr "<b>Local pretendido:</b>"
+msgstr "<b>Localização proposta:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:13
 msgid "<b>Latitude:</b>"
