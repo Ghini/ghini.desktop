@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-11 15:47+0200\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Italian "
-"<https://hosted.weblate.org/projects/bauble/master/it/>\n"
+"PO-Revision-Date: 2015-04-11 17:58-0500\n"
+"Last-Translator: Mario Frasca <mario@anche.no>\n"
+"Language-Team: Italian <https://hosted.weblate.org/projects/bauble/master/it/"
+">\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.3-dev\n"
+"X-Generator: Poedit 1.5.4\n"
 "X-Launchpad-Export-Date: 2012-09-20 04:53+0000\n"
 
 #: bauble/prefs.py:280
@@ -1196,7 +1196,7 @@ msgstr "quantità germinata"
 
 #: bauble/plugins/garden/prop_editor.glade.h:2
 msgid "# of seeds"
-msgstr ""
+msgstr "# di semi"
 
 #: bauble/plugins/garden/prop_editor.glade.h:4
 #, no-c-format
@@ -1489,7 +1489,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:360
 msgid "Root"
-msgstr ""
+msgstr "Radice"
 
 #: bauble/plugins/garden/accession.py:361
 msgid "Scion"
@@ -1502,11 +1502,11 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:363
 #: bauble/plugins/garden/propagation.py:36
 msgid "Seed"
-msgstr ""
+msgstr "Seme"
 
 #: bauble/plugins/garden/accession.py:364
 msgid "Spore"
-msgstr ""
+msgstr "Spora"
 
 #: bauble/plugins/garden/accession.py:365
 msgid "Sporeling"
@@ -1514,7 +1514,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:366
 msgid "Tuber"
-msgstr ""
+msgstr "Tubero"
 
 #: bauble/plugins/garden/accession.py:368
 #: bauble/plugins/garden/propagation.py:37
@@ -1684,7 +1684,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_infobox.glade.h:6
 msgid "<b>Quantity:</b>"
-msgstr ""
+msgstr "<b>Quantità:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade.h:7
 msgid "general_window"
@@ -1703,7 +1703,7 @@ msgstr "+/-"
 
 #: bauble/plugins/garden/acc_editor.glade.h:5
 msgid "<b>Accession</b>"
-msgstr ""
+msgstr "<b>Accessione</b>"
 
 #: bauble/plugins/garden/acc_editor.glade.h:7
 msgid "<b>Flags</b>"
@@ -1739,7 +1739,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:15
 msgid "Accession ID"
-msgstr ""
+msgstr "ID dell'accessione"
 
 #: bauble/plugins/garden/acc_editor.glade.h:16
 msgid "Accuracy"
@@ -1747,7 +1747,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:18
 msgid "Altitude/Depth"
-msgstr ""
+msgstr "Altezza/profondità"
 
 #: bauble/plugins/garden/acc_editor.glade.h:19
 msgid "Collection ID"
@@ -1763,7 +1763,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:23
 msgid "Date Accessioned"
-msgstr ""
+msgstr "Data dell'accessione"
 
 #: bauble/plugins/garden/acc_editor.glade.h:24
 msgid "Date Received"
@@ -1775,11 +1775,11 @@ msgstr "Est"
 
 #: bauble/plugins/garden/acc_editor.glade.h:27
 msgid "GPS Datum"
-msgstr ""
+msgstr "Data secondo il GPS"
 
 #: bauble/plugins/garden/acc_editor.glade.h:29
 msgid "Habitat description"
-msgstr ""
+msgstr "descrizione dell'habitat"
 
 #: bauble/plugins/garden/acc_editor.glade.h:30
 msgid "ID Qualifier"
@@ -1787,11 +1787,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:31
 msgid "Latitude"
-msgstr ""
+msgstr "Latitudine"
 
 #: bauble/plugins/garden/acc_editor.glade.h:32
 msgid "Level"
-msgstr ""
+msgstr "Livello"
 
 #: bauble/plugins/garden/acc_editor.glade.h:33
 msgid "Locale"
@@ -1807,11 +1807,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:36
 msgid "Longitude"
-msgstr ""
+msgstr "Longitudine"
 
 #: bauble/plugins/garden/acc_editor.glade.h:38
 msgid "Name "
-msgstr ""
+msgstr "Nome"
 
 #: bauble/plugins/garden/acc_editor.glade.h:39
 msgid "New taxon"
@@ -1831,7 +1831,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:45
 msgid "Provenance"
-msgstr ""
+msgstr "Provenienza"
 
 #: bauble/plugins/garden/acc_editor.glade.h:46
 msgid "Qualifier Rank"
@@ -1840,7 +1840,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade.h:47
 #: bauble/plugins/garden/plant_editor.glade.h:15
 msgid "Quantity"
-msgstr ""
+msgstr "Quantità"
 
 #: bauble/plugins/garden/acc_editor.glade.h:48
 msgid "Reference"
@@ -1848,7 +1848,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade.h:49
 msgid "Region"
-msgstr ""
+msgstr "Regione"
 
 #: bauble/plugins/garden/acc_editor.glade.h:50
 msgid "Select a Region"
@@ -1872,11 +1872,11 @@ msgstr "Sud"
 
 #: bauble/plugins/garden/acc_editor.glade.h:56
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: bauble/plugins/garden/acc_editor.glade.h:57
 msgid "Type of material"
-msgstr ""
+msgstr "Tipo di materiale"
 
 #: bauble/plugins/garden/acc_editor.glade.h:59
 msgid "Verifier"
@@ -1975,7 +1975,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:151
 #, python-format
 msgid "# of seeds: %s"
-msgstr ""
+msgstr "# di semi: %s"
 
 #: bauble/plugins/garden/propagation.py:154
 #, python-format
@@ -2226,7 +2226,7 @@ msgstr "Maschile"
 
 #: bauble/plugins/garden/plant.py:340
 msgid "Seed/Spore"
-msgstr ""
+msgstr "Seme/Spora"
 
 #: bauble/plugins/garden/plant.py:341
 msgid "Vegetative Part"
@@ -2541,7 +2541,7 @@ msgstr "Pianta/Clone"
 
 #: bauble/plugins/report/xsl/__init__.py:330
 msgid "Select a file..."
-msgstr ""
+msgstr "Scegli un file..."
 
 #: bauble/plugins/report/xsl/__init__.py:338
 msgid "Select a stylesheet"
