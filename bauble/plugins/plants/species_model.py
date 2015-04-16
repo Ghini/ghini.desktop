@@ -171,6 +171,7 @@ class Species(db.Base):
     infrasp4_author = Column(Unicode(64))
 
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
+    ## the Species.genus property is defined as backref in Genus.species
 
     label_distribution = Column(UnicodeText)
     bc_distribution = Column(UnicodeText)

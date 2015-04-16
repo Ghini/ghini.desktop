@@ -1,7 +1,23 @@
 # -*- coding: utf-8 -*-
 #
-# test imex plugins
+# Copyright 2004-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
 #
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 import csv
 import logging
 import os
@@ -20,6 +36,7 @@ from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
 from bauble.plugins.imex.iojson import JSONImporter, JSONExporter
 from bauble.test import BaubleTestCase
 from bauble.utils.log import debug
+import json
 
 
 # TODO: test that when we export data we get what we expect
@@ -34,12 +51,12 @@ from bauble.utils.log import debug
 csv_test_data = ({})
 
 
-family_data = [{'id': 1, 'family': u'family1', 'qualifier': None},
-               {'id': 2, 'family': u'family2'}]
-genus_data = [{'id': 1, 'genus': u'genus1', 'family_id': 1,
-               'author': u'Galápagos'},
-              {'id': 2, 'genus': u'genus2', 'family_id': 1}]
-species_data = [{'id': 1, 'sp': u'sp', 'genus_id': 1}]
+family_data = [{'id': 1, 'family': u'Orchidaceae', 'qualifier': None},
+               {'id': 2, 'family': u'Myrtaceae'}]
+genus_data = [{'id': 1, 'genus': u'Calopogon', 'family_id': 1,
+               'author': u'R. Br.'},
+              {'id': 2, 'genus': u'Panisea', 'family_id': 1}]
+species_data = [{'id': 1, 'sp': u'tuberosus', 'genus_id': 1}]
 
 
 class ImexTestCase(BaubleTestCase):
@@ -391,7 +408,9 @@ class JsonImportExportTests(BaubleTestCase):
             for dic in dics:
                 obj = klass(**dic)
                 self.session.add(obj)
+        print self.session.new
         self.session.commit()
+        print self.session.new
 
     def tearDown(self):
         super(JsonImportExportTests, self).tearDown()
@@ -403,17 +422,43 @@ class JsonImportExportTests(BaubleTestCase):
         exporter = JSONExporter()
         exporter.start(self.temp_path)
         ## must still check content of generated file!
+        print open(self.temp_path).read()
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
         
         exporter = JSONExporter()
-        root = some_family
-        exporter.start(self.temp_path, [root])
+        selection = self.session.query(Family).filter(Family.family=='Orchidaceae').all()
+        exporter.start(self.temp_path, selection)
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0]['__class__'], 'Family')
+        self.assertEquals(result[0]['family'], 'Orchidaceae')
         
     def test_writes_partial_taxonomic_info(self):
         "exporting one genus: all species below genus"
 
         exporter = JSONExporter()
-        root = some_genus
-        exporter.start(self.temp_path, [root])
+        selection = self.session.query(Genus).filter(Genus.genus == 'Calopogon').all()
+        exporter.start(self.temp_path, selection)
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0]['__class__'], 'Genus')
+        self.assertEquals(result[0]['genus'], 'Calopogon')
+        self.assertEquals(result[0]['family'], 'Orchidaceae')
+        self.assertEquals(result[0]['author'], 'R. Br.')
+        
+    def test_writes_partial_taxonomic_info_species(self):
+        "exporting one genus: all species below species"
+
+        exporter = JSONExporter()
+        selection = self.session.query(
+            Species).filter(Species.sp == 'tuberosus').join(
+                Genus).filter(Genus.genus=="Calopogon").all()
+        exporter.start(self.temp_path, selection)
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0]['__class__'], 'Species')
+        self.assertEquals(result[0]['sp'], 'tuberosus')
+        self.assertEquals(result[0]['genus'], 'Calopogon')
+        self.assertEquals(result[0]['hybrid'], False)
