@@ -408,9 +408,7 @@ class JsonImportExportTests(BaubleTestCase):
             for dic in dics:
                 obj = klass(**dic)
                 self.session.add(obj)
-        print self.session.new
         self.session.commit()
-        print self.session.new
 
     def tearDown(self):
         super(JsonImportExportTests, self).tearDown()
@@ -422,7 +420,14 @@ class JsonImportExportTests(BaubleTestCase):
         exporter = JSONExporter()
         exporter.start(self.temp_path)
         ## must still check content of generated file!
-        print open(self.temp_path).read()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 5)
+        families = [i for i in result if i['__class__']=='Family']
+        self.assertEquals(len(families), 2)
+        genera = [i for i in result if i['__class__']=='Genus']
+        self.assertEquals(len(genera), 2)
+        species = [i for i in result if i['__class__']=='Species']
+        self.assertEquals(len(species), 1)
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
