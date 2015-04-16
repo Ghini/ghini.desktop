@@ -333,8 +333,6 @@ class ABCDExporter(object):
             utils.message_dialog(msg, gtk.MESSAGE_WARNING)
 
 
-
-
 class ABCDExportTool(pluginmgr.Tool):
     category = _("Export")
     label = _("ABCD")
@@ -347,6 +345,7 @@ class ABCDExportTool(pluginmgr.Tool):
 class ABCDImexPlugin(pluginmgr.Plugin):
     tools = [ABCDExportTool]
     depends = ["PlantsPlugin"]
+
 
 try:
     import lxml.etree as etree
