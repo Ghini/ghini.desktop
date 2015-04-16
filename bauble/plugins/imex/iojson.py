@@ -33,7 +33,9 @@ def serializedatetime(obj):
     """Default JSON serializer."""
     import calendar, datetime
 
-    if isinstance(obj, datetime.datetime):
+    if isinstance(obj, (Family, Genus, Species)):
+        return str(obj)
+    elif isinstance(obj, datetime.datetime):
         if obj.utcoffset() is not None:
             obj = obj - obj.utcoffset()
     millis = int(
@@ -44,9 +46,20 @@ def serializedatetime(obj):
 
 
 def saobj2dict(obj):
-    return dict((col, getattr(obj, col)) 
-                for col in obj.__table__.columns.keys()
-                if getattr(obj, col) is not None)
+    def process_field(i):
+        'remove trailing _id from field names'
+
+        if i.endswith('_id'):
+            return i[:-3]
+        return i
+
+    result = dict((col, getattr(obj, col)) 
+                  for col in [process_field(i) 
+                              for i in obj.__table__.columns.keys()
+                              if i != 'id' and i[0] != '_']
+                  if getattr(obj, col) is not None)
+    result['__class__'] = obj.__class__.__name__
+    return result
 
 
 class JSONImporter(object):
