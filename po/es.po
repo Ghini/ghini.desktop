@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-11 05:29+0200\n"
+"PO-Revision-Date: 2015-04-12 17:29+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/bauble/master/es/>\n"
@@ -866,7 +866,7 @@ msgstr "<b>N.º de taxones:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:7
 msgid "<b>Awards:</b>"
-msgstr ""
+msgstr "<b>Premios:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:8
 msgid "<b>Distribution for label:</b>"
@@ -1086,7 +1086,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade.h:12
 msgid "<b>Intended Location:</b>"
-msgstr ""
+msgstr "<b>Ubicación Prevista:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:13
 msgid "<b>Latitude:</b>"
@@ -1334,7 +1334,7 @@ msgstr "Editor de propagación"
 
 #: bauble/plugins/garden/prop_editor.glade.h:39
 msgid "Tip"
-msgstr ""
+msgstr "Punta"
 
 #: bauble/plugins/garden/prop_editor.glade.h:40
 msgid "Wounded"
@@ -1490,7 +1490,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:358
 msgid "Rhizome"
-msgstr ""
+msgstr "Rizoma"
 
 #: bauble/plugins/garden/accession.py:359
 msgid "Root cutting"
@@ -1498,7 +1498,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:360
 msgid "Root"
-msgstr ""
+msgstr "Raíz"
 
 #: bauble/plugins/garden/accession.py:361
 msgid "Scion"
@@ -1528,7 +1528,7 @@ msgstr "Tubérculo"
 #: bauble/plugins/garden/accession.py:368
 #: bauble/plugins/garden/propagation.py:37
 msgid "Unrooted cutting"
-msgstr ""
+msgstr "Corte sin raíces"
 
 #: bauble/plugins/garden/accession.py:369
 msgid "Bulbil"
@@ -1590,12 +1590,12 @@ msgstr "El tipo del material accessionado."
 
 #: bauble/plugins/garden/accession.py:648
 msgid "The amount of plant material at the time it was accessioned."
-msgstr ""
+msgstr "La cantidad de material vegetal al momento de la accessión."
 
 #: bauble/plugins/garden/accession.py:650
 #: bauble/plugins/garden/accession.py:652
 msgid "The intended location for plant material being accessioned."
-msgstr ""
+msgstr "La ubicación prevista para el material vegetal de la accesión."
 
 #: bauble/plugins/garden/accession.py:655
 #, python-format
@@ -1725,7 +1725,7 @@ msgstr "<b>Indicadores</b>"
 
 #: bauble/plugins/garden/acc_editor.glade.h:8
 msgid "<b>Intended Locations</b>"
-msgstr ""
+msgstr "<b>Ubicaciones Previstas</b>"
 
 #: bauble/plugins/garden/acc_editor.glade.h:9
 msgid "<b>Location Details</b>"
@@ -1854,7 +1854,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade.h:47
 #: bauble/plugins/garden/plant_editor.glade.h:15
 msgid "Quantity"
-msgstr ""
+msgstr "Cantidad"
 
 #: bauble/plugins/garden/acc_editor.glade.h:48
 msgid "Reference"
@@ -1916,7 +1916,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:109
 #, python-format
 msgid "Length: %(length)s%(unit)s"
-msgstr ""
+msgstr "Largo: %(length)s%(unit)s"
 
 #: bauble/plugins/garden/propagation.py:113
 #, python-format
@@ -1969,7 +1969,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:162
 #, python-format
 msgid "Location: %s"
-msgstr ""
+msgstr "Ubicación: %s"
 
 #: bauble/plugins/garden/propagation.py:139
 #, python-format
@@ -2004,7 +2004,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:165
 #, python-format
 msgid "Germination date: %s"
-msgstr ""
+msgstr "Fecha de germinación: %s"
 
 #: bauble/plugins/garden/propagation.py:167
 #, python-format
@@ -2014,7 +2014,7 @@ msgstr "N.º de plántulas: %s"
 #: bauble/plugins/garden/propagation.py:169
 #, python-format
 msgid "Germination rate: %s%%"
-msgstr ""
+msgstr "Tasa de germinación: %s%%"
 
 #: bauble/plugins/garden/propagation.py:172
 #, python-format
@@ -2053,11 +2053,11 @@ msgstr "No"
 
 #: bauble/plugins/garden/propagation.py:213
 msgid "Singled"
-msgstr ""
+msgstr "Síngola"
 
 #: bauble/plugins/garden/propagation.py:214
 msgid "Double"
-msgstr ""
+msgstr "Doble"
 
 #: bauble/plugins/garden/propagation.py:215
 msgid "Slice"
@@ -2065,7 +2065,7 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:218
 msgid "Liquid"
-msgstr ""
+msgstr "Líquido"
 
 #: bauble/plugins/garden/propagation.py:219
 msgid "Powder"
@@ -2089,7 +2089,7 @@ msgstr "cm"
 
 #: bauble/plugins/garden/propagation.py:228
 msgid "in"
-msgstr ""
+msgstr "púlgadas"
 
 #: bauble/plugins/garden/plant.py:59
 msgid ""
@@ -2124,7 +2124,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:212
 msgid "Lost, whereabouts unknown"
-msgstr ""
+msgstr "Perdida, ubicación desconocida"
 
 #: bauble/plugins/garden/plant.py:213
 msgid "Stolen"
@@ -2136,7 +2136,7 @@ msgstr "Víctima del invierno"
 
 #: bauble/plugins/garden/plant.py:215
 msgid "Error correction"
-msgstr ""
+msgstr "Corrección de error"
 
 #: bauble/plugins/garden/plant.py:216
 msgid "Distributed elsewhere"
@@ -2148,7 +2148,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:218
 msgid "Transferred to another acc.no."
-msgstr ""
+msgstr "Transferida a otro número de accesión"
 
 #: bauble/plugins/garden/plant.py:219
 msgid "Given to FOGs to sell"
@@ -2176,7 +2176,7 @@ msgstr "No ha germinado"
 
 #: bauble/plugins/garden/plant.py:225
 msgid "Discarded seedling in nursery"
-msgstr ""
+msgstr "Plántula discardada en vivero"
 
 #: bauble/plugins/garden/plant.py:226
 msgid "Given away (specify person)"
@@ -2212,7 +2212,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:285
 msgid "Immature"
-msgstr ""
+msgstr "Inmadura"
 
 #: bauble/plugins/garden/plant.py:286
 msgid "Flowering"
@@ -2232,11 +2232,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:299
 msgid "Female"
-msgstr ""
+msgstr "Feminina"
 
 #: bauble/plugins/garden/plant.py:300
 msgid "Male"
-msgstr ""
+msgstr "Masculina"
 
 #: bauble/plugins/garden/plant.py:340
 msgid "Seed/Spore"
@@ -2244,7 +2244,7 @@ msgstr "Semilla/Espora"
 
 #: bauble/plugins/garden/plant.py:341
 msgid "Vegetative Part"
-msgstr ""
+msgstr "Parte vegetativa"
 
 #: bauble/plugins/garden/plant.py:342
 msgid "Tissue Culture"
@@ -2278,7 +2278,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:505
 msgid "Create a new location."
-msgstr ""
+msgstr "Crea una nueva ubicación."
 
 #: bauble/plugins/garden/plant.py:506
 msgid "Edit the selected location."
@@ -2313,11 +2313,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:1084
 msgid "Alive"
-msgstr ""
+msgstr "Viva"
 
 #: bauble/plugins/garden/plant.py:1107
 msgid "Changes"
-msgstr ""
+msgstr "Cambios"
 
 #: bauble/plugins/garden/plant.py:1172
 #, python-format
@@ -2331,7 +2331,7 @@ msgstr "Propagaciones"
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:3
 msgid "<b>Description:</b>"
-msgstr ""
+msgstr "<b>Descripción:</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade.h:4 bauble/view.py:152
 msgid "<b>Type:</b>"
@@ -2347,7 +2347,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:5
 msgid "Accession type"
-msgstr ""
+msgstr "Tipo de accesión"
 
 #: bauble/plugins/garden/plant_editor.glade.h:6
 msgid "Add"
@@ -2367,7 +2367,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade.h:13
 msgid "Plant code"
-msgstr ""
+msgstr "Codigo de planta"
 
 #: bauble/plugins/garden/plant_editor.glade.h:16
 msgid "Reason"
@@ -2399,7 +2399,7 @@ msgstr "Cambia la contraseña"
 
 #: bauble/plugins/users/ui.glade.h:7
 msgid "Groups"
-msgstr ""
+msgstr "Grupos"
 
 #: bauble/plugins/users/ui.glade.h:8
 msgid "Read"
@@ -3157,7 +3157,7 @@ msgstr "%s resultados de la búsqueda"
 
 #: bauble/view.py:1154
 msgid "Timestamp"
-msgstr ""
+msgstr "Sello de tiempo"
 
 #: bauble/view.py:1154
 msgid "Operation"
