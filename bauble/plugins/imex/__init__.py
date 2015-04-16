@@ -26,7 +26,7 @@ from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
 
 # see http://www.postgresql.org/docs/current/static/sql-copy.html
 
-# NOTE: always beware when writing an imex plugin not to used the
+# NOTE: always beware when writing an imex plugin not to use the
 # table.insert().execute(*list) statement or it will fill in values for
 # missing columns so that all columns will have some value
 

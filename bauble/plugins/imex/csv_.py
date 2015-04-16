@@ -130,17 +130,22 @@ class Importer(object):
 
 class CSVImporter(Importer):
 
-    """
-    The CSVImporter imports comma seperated value files into a Bauble
-    database.
+    """imports comma separated value files into a Bauble database.
 
-    The CSVImporter imports the rows of the CSV file in
-    chunks rather than one row at a time.  The non-server side column
-    defaults are determined before the INSERT statement is generated
-    instead of getting new defaults for each row.  This shouldn't be a
-    problem but it also means that your column default should change
-    depending on the value of previously inserted rows.
+    It imports multiple files, each of them equally named as the bauble
+    database tables. The bauble tables dependency graph defines the correct
+    import order, each file being imported will completely replace any
+    existing data in the corresponding table.
+
+    The CSVImporter imports the rows of the CSV file in chunks rather than
+    one row at a time.  The non-server side column defaults are determined
+    before the INSERT statement is generated instead of getting new defaults
+    for each row.  This shouldn't be a problem but it also means that your
+    column default should change depending on the value of previously
+    inserted rows.
+
     """
+
     def __init__(self):
         super(CSVImporter, self).__init__()
         self.__error = False   # flag to indicate error on import
