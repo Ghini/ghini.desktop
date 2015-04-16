@@ -214,6 +214,9 @@ class Species(db.Base):
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
 
+    def __repr__(self):
+        return Species.str(self)
+
     def __str__(self):
         '''
         returns a string representation of this species,

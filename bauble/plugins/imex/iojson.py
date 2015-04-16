@@ -94,12 +94,13 @@ class JSONExporter(object):
         # if objects is None then export all objects under classes Family,
         # Genus, Species, Accession, Plant, Location.
         if objects == None:
-            objects = db.Session().query(Family).all()
-            objects.extend(db.Session().query(Genus).all())
-            objects.extend(db.Session().query(Species).all())
-            objects.extend(db.Session().query(Accession).all())
-            objects.extend(db.Session().query(Plant).all())
-            objects.extend(db.Session().query(Location).all())
+            s = db.Session()
+            objects = s.query(Family).all()
+            objects.extend(s.query(Genus).all())
+            objects.extend(s.query(Species).all())
+            objects.extend(s.query(Accession).all())
+            objects.extend(s.query(Plant).all())
+            objects.extend(s.query(Location).all())
 
         count = len(objects)
         if count > 3000:
