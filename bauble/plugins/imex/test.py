@@ -428,7 +428,43 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(genera), 2)
         species = [i for i in result if i['rank']=='species']
         self.assertEquals(len(species), 1)
-        1/0
+        self.assertEquals(open(self.temp_path).read(),
+                          """\
+[
+    {
+        "epithet": "Orchidaceae", 
+        "qualifier": "", 
+        "rank": "familia"
+    }, 
+    {
+        "epithet": "Myrtaceae", 
+        "qualifier": "", 
+        "rank": "familia"
+    }, 
+    {
+        "author": "R. Br.", 
+        "epithet": "Calopogon", 
+        "ht-epithet": "Orchidaceae", 
+        "ht-rank": "familia", 
+        "qualifier": "", 
+        "rank": "genus"
+    }, 
+    {
+        "author": "", 
+        "epithet": "Panisea", 
+        "ht-epithet": "Orchidaceae", 
+        "ht-rank": "familia", 
+        "qualifier": "", 
+        "rank": "genus"
+    }, 
+    {
+        "epithet": "tuberosus", 
+        "ht-epithet": "Calopogon", 
+        "ht-rank": "genus", 
+        "hybrid": false, 
+        "rank": "species"
+    }
+]""")
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
