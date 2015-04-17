@@ -200,8 +200,8 @@ class Genus(db.Base):
         from family import Family
         ## first try retrieving, just use family and genus fields
         is_in_session = session.query(cls).filter(
-            cls.genus==keys['genus']).join(Family).filter(
-                Family.family==keys['family']).all()
+            cls.genus==keys['epithet']).join(Family).filter(
+                Family.family==keys['ht-epithet']).all()
         
         if is_in_session:
             return is_in_session[0]
@@ -209,7 +209,13 @@ class Genus(db.Base):
         ## otherwise we need a new object
 
         ## retrieve family object and replace reference.
-        family = Family.retrieve_or_create(session, {'family': keys['family']})
+        family = Family.retrieve_or_create(session, {'epithet': keys['ht-epithet']})
+
+        ## correct field names
+        for internal, exchange in [('genus', 'epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
 
         ## remove unexpected keys, create new object, add it to the session
         ## and finally do return it.

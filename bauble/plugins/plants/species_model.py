@@ -389,24 +389,31 @@ class Species(db.Base):
         from genus import Genus
         ## first try retrieving, just use species and genus fields
         is_in_session = session.query(cls).filter(
-            cls.sp==keys['species']).join(Genus).filter(
-                Genus.genus==keys['genus']).all()
+            cls.sp==keys['epithet']).join(Genus).filter(
+                Genus.genus==keys['ht-epithet']).all()
+
+        ## correct field names
+        for internal, exchange in [('sp_author', 'author'),
+                                   ('sp', 'epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
         
         if is_in_session:
-            return is_in_session[0]
+            result =  is_in_session[0]
+
+            ## update object and return it.
+            for k in keys.keys():
+                if k == 'id' or k not in class_mapper(cls).mapped_table.c:
+                    continue
+                setattr(result, k, keys[k])
+            return result
 
         ## otherwise we need a new object
 
         ## retrieve genus object and replace reference.
-        genus = Genus.retrieve_or_create(session, {'genus': keys['genus'],
-                                                   'family': keys.get('family')})
-
-        ## correct field names
-        for internal, exchange in [('sp_author', 'author'),
-                                   ('sp', 'species')]:
-            if exchange in keys:
-                keys[internal] = keys[exchange]
-                del keys[exchange]
+        genus = Genus.retrieve_or_create(session, {'epithet': keys['ht-epithet'],
+                                                   'ht-epithet': keys.get('family')})
 
         ## remove unexpected keys, create new object, add it to the session
         ## and finally do return it.
@@ -421,6 +428,7 @@ class Species(db.Base):
         keys['genus'] = genus
 
         result = cls(**keys)
+        session.add(result)
 
         return result
 

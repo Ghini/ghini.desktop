@@ -175,10 +175,16 @@ class Family(db.Base):
 
         ## first try retrieving, just use genus and sp fields
         is_in_session = session.query(cls).filter(
-            cls.family==keys['family']).all()
+            cls.family==keys['epithet']).all()
         
         if is_in_session:
             return is_in_session[0]
+
+        ## correct field names
+        for internal, exchange in [('family', 'epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
 
         ## otherwise remove unexpected keys, create new object, add it to
         ## the session and finally do return it.
