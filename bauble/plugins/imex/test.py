@@ -566,19 +566,33 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_ignores_id_new(self):
         "importing taxon disregards id value if present (new taxon)."
+        self.assertRaises(KeyError, Genus.retrieve_or_create, 
+                          self.session, {'epithet': u"Neogyna"})
         json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
         importer.start([self.temp_path])
+        self.session.commit()
+        real_id = Genus.retrieve_or_create(self.session,
+                                           {'epithet': u"Neogyna"}).id
+        self.assertTrue(real_id != 1)
 
     def test_import_ignores_id_updating(self):
         "importing taxon disregards id value if present (updating taxon)."
+        previously = Species.retrieve_or_create(self.session,
+                                                {'ht-epithet': u"Calopogon",
+                                                 'epithet': u"tuberosus"}).id
         json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, "id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
         importer.start([self.temp_path])
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(self.session,
+                                                {'ht-epithet': u"Calopogon",
+                                                 'epithet': u"tuberosus"}).id
+        self.assertEquals(previously, afterwards)
 
     def test_import_species_to_new_genus_fails(self):
         "importing new species referring to non existing genus gives error (missing family)."
@@ -596,6 +610,14 @@ class JSONImportTests(BaubleTestCase):
             f.write(json_string)
         importer = JSONImporter()
         importer.start([self.temp_path])
+        self.session.commit()
+        sp = self.session.query(Species).filter(
+            Species.sp==u'lawrenceae').join(Genus).filter(
+                Genus.genus==u'Aerides').all()[0]
+        genus = self.session.query(Genus).filter(
+            Genus.genus==u'Aerides').all()[0]
+        family = self.session.query(Family).filter(
+            Family.family==u'Orchidaceae').all()[0]
 
         # Calopogon tuberosus
         # Spiranthes delitescens Sheviak
