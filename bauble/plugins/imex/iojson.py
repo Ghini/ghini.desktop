@@ -21,7 +21,7 @@ import os
 from json import load, dump
 import bauble.utils as utils
 import bauble.db as db
-from bauble.plugins.plants import Family, Genus, Species
+from bauble.plugins.plants import Familia, Genus, Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
 from bauble.plugins.garden.location import Location
@@ -33,7 +33,7 @@ def serializedatetime(obj):
     """Default JSON serializer."""
     import calendar, datetime
 
-    if isinstance(obj, (Family, Genus, Species)):
+    if isinstance(obj, (Familia, Genus, Species)):
         return str(obj)
     elif isinstance(obj, datetime.datetime):
         if obj.utcoffset() is not None:
@@ -43,23 +43,6 @@ def serializedatetime(obj):
         obj.microsecond / 1000
     )
     return {'__class__': 'datetime', 'millis': millis}
-
-
-def saobj2dict(obj):
-    def process_field(i):
-        'remove trailing _id from field names'
-
-        if i.endswith('_id'):
-            return i[:-3]
-        return i
-
-    result = dict((col, getattr(obj, col)) 
-                  for col in [process_field(i) 
-                              for i in obj.__table__.columns.keys()
-                              if i != 'id' and i[0] != '_']
-                  if getattr(obj, col) is not None)
-    result['__class__'] = obj.__class__.__name__
-    return result
 
 
 class JSONImporter(object):
@@ -122,11 +105,11 @@ class JSONExporter(object):
             raise ValueError("%s exists and is not a a regular file" \
                                  % filename)
 
-        # if objects is None then export all objects under classes Family,
+        # if objects is None then export all objects under classes Familia,
         # Genus, Species, Accession, Plant, Location.
         if objects == None:
             s = db.Session()
-            objects = s.query(Family).all()
+            objects = s.query(Familia).all()
             objects.extend(s.query(Genus).all())
             objects.extend(s.query(Species).all())
             objects.extend(s.query(Accession).all())
@@ -144,5 +127,5 @@ class JSONExporter(object):
 
         import codecs
         with codecs.open(filename, "wb", "utf-8") as output:
-            dump([saobj2dict(obj) for obj in objects], output, 
+            dump([obj.as_dict() for obj in objects], output, 
                  default=serializedatetime, sort_keys=True, indent=4)

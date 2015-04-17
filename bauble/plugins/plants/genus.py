@@ -146,6 +146,8 @@ class Genus(db.Base):
                       {})
     __mapper_args__ = {'order_by': ['genus', 'author']}
 
+    rank = 'genus'
+
     # columns
     genus = Column(String(64), nullable=False, index=True)
 
@@ -193,6 +195,19 @@ class Genus(db.Base):
         '''
 
         return False
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col)) 
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id', 'genus']
+                      and col[0] != '_' 
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['rank'] = 'genus'
+        result['epithet'] = self.genus
+        result['ht-rank'] = 'familia'
+        result['ht-epithet'] = self.family.family
+        return result
     
     @classmethod
     def retrieve_or_create(cls, session, keys):

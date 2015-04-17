@@ -65,7 +65,6 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
                        None: ''}
 
 
-
 # TODO: there is a trade_name column but there's no support yet for editing
 # the trade_name or for using the trade_name when building the string
 # for the species, for more information about trade_names see,
@@ -139,6 +138,7 @@ class Species(db.Base):
     __tablename__ = 'species'
     __mapper_args__ = {'order_by': ['sp', 'sp_author']}
 
+    rank = 'species'
 
     # columns
     sp = Column(Unicode(64), index=True)
@@ -382,7 +382,20 @@ class Species(db.Base):
         setattr(self, self.infrasp_attr[level]['rank'], rank)
         setattr(self, self.infrasp_attr[level]['epithet'], epithet)
         setattr(self, self.infrasp_attr[level]['author'], author)
-    
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col))
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id', 'sp']
+                      and col[0] != '_'
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['rank'] = 'species'
+        result['epithet'] = self.sp
+        result['ht-rank'] = 'genus'
+        result['ht-epithet'] = self.genus.genus
+        return result
+
     @classmethod
     def retrieve_or_create(cls, session, keys):
 
@@ -398,7 +411,7 @@ class Species(db.Base):
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]
-        
+
         if is_in_session:
             result =  is_in_session[0]
 
@@ -413,7 +426,7 @@ class Species(db.Base):
 
         ## retrieve genus object and replace reference.
         genus = Genus.retrieve_or_create(session, {'epithet': keys['ht-epithet'],
-                                                   'ht-epithet': keys.get('family')})
+                                                   'ht-epithet': keys.get('familia')})
 
         ## remove unexpected keys, create new object, add it to the session
         ## and finally do return it.
@@ -597,4 +610,3 @@ class Color(db.Base):
             return '%s (%s)' % (self.name, self.code)
         else:
             return str(self.code)
-
