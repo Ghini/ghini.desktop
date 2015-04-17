@@ -214,9 +214,8 @@ class Genus(db.Base):
 
         from family import Family
         ## first try retrieving, just use family and genus fields
-        is_in_session = session.query(cls).filter(
-            cls.genus==keys['epithet']).join(Family).filter(
-                Family.family==keys['ht-epithet']).all()
+        query = session.query(cls).filter(cls.genus==keys['epithet'])
+        is_in_session = query.all()
         
         if is_in_session:
             return is_in_session[0]

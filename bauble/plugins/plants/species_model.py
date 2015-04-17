@@ -424,7 +424,7 @@ class Species(db.Base):
 
         ## otherwise we need a new object
 
-        ## retrieve genus object and replace reference.
+        ## retrieve genus object
         genus = Genus.retrieve_or_create(session, {'epithet': keys['ht-epithet'],
                                                    'ht-epithet': keys.get('familia')})
 
