@@ -193,6 +193,40 @@ class Genus(db.Base):
         '''
 
         return False
+    
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+
+        from family import Family
+        ## first try retrieving, just use family and genus fields
+        is_in_session = session.query(cls).filter(
+            cls.genus==keys['genus']).join(Family).filter(
+                Family.family==keys['family']).all()
+        
+        if is_in_session:
+            return is_in_session[0]
+
+        ## otherwise we need a new object
+
+        ## retrieve family object and replace reference.
+        family = Family.retrieve_or_create(session, {'family': keys['family']})
+
+        ## remove unexpected keys, create new object, add it to the session
+        ## and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        ## reconstruct connection to higher taxon
+        keys['family'] = family
+
+        result = cls(**keys)
+        session.add(result)
+
+        return result
 
 
 class GenusNote(db.Base):
