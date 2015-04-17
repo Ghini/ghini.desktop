@@ -28,7 +28,7 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
-from bauble.plugins.plants import Family, Genus, Species, Geography
+from bauble.plugins.plants import Familia, Family, Genus, Species, Geography
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
@@ -422,11 +422,11 @@ class JSONExportTests(BaubleTestCase):
         ## must still check content of generated file!
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 5)
-        families = [i for i in result if i['__class__']=='Family']
+        families = [i for i in result if i['rank']=='familia']
         self.assertEquals(len(families), 2)
-        genera = [i for i in result if i['__class__']=='Genus']
+        genera = [i for i in result if i['rank']=='genus']
         self.assertEquals(len(genera), 2)
-        species = [i for i in result if i['__class__']=='Species']
+        species = [i for i in result if i['rank']=='species']
         self.assertEquals(len(species), 1)
 
     def test_writes_full_taxonomic_info(self):
@@ -437,8 +437,8 @@ class JSONExportTests(BaubleTestCase):
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
-        self.assertEquals(result[0]['__class__'], 'Family')
-        self.assertEquals(result[0]['family'], 'Orchidaceae')
+        self.assertEquals(result[0]['rank'], 'familia')
+        self.assertEquals(result[0]['epithet'], 'Orchidaceae')
 
     def test_writes_partial_taxonomic_info(self):
         "exporting one genus: all species below genus"
@@ -448,9 +448,10 @@ class JSONExportTests(BaubleTestCase):
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
-        self.assertEquals(result[0]['__class__'], 'Genus')
-        self.assertEquals(result[0]['genus'], 'Calopogon')
-        self.assertEquals(result[0]['family'], 'Orchidaceae')
+        self.assertEquals(result[0]['rank'], 'genus')
+        self.assertEquals(result[0]['epithet'], 'Calopogon')
+        self.assertEquals(result[0]['ht-rank'], 'familia')
+        self.assertEquals(result[0]['ht-epithet'], 'Orchidaceae')
         self.assertEquals(result[0]['author'], 'R. Br.')
 
     def test_writes_partial_taxonomic_info_species(self):
@@ -463,9 +464,10 @@ class JSONExportTests(BaubleTestCase):
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
-        self.assertEquals(result[0]['__class__'], 'Species')
-        self.assertEquals(result[0]['sp'], 'tuberosus')
-        self.assertEquals(result[0]['genus'], 'Calopogon')
+        self.assertEquals(result[0]['rank'], 'species')
+        self.assertEquals(result[0]['epithet'], 'tuberosus')
+        self.assertEquals(result[0]['ht-rank'], 'genus')
+        self.assertEquals(result[0]['ht-epithet'], 'Calopogon')
         self.assertEquals(result[0]['hybrid'], False)
 
 
@@ -476,7 +478,7 @@ class JSONImportTests(BaubleTestCase):
         from tempfile import mkstemp
         handle, self.temp_path = mkstemp()
 
-        data = ((Family, family_data),
+        data = ((Familia, family_data),
                 (Genus, genus_data),
                 (Species, species_data))
 
@@ -492,7 +494,7 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_new_inserts(self):
         "importing new taxon adds it to database."
-        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Family", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 0)
@@ -502,7 +504,7 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_new_inserts_lowercase(self):
         "importing new taxon adds it to database, rank name can be all lower case."
-        json_string = '[{"rank": "genus", "epithet": "Neogyna", "ht-rank": "family", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "genus", "epithet": "Neogyna", "ht-rank": "familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 0)
@@ -527,7 +529,7 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_ignores_id_new(self):
         "importing taxon disregards id value if present (new taxon)."
-        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Family", "ht-epithet": "Orchidaceae", "author": "Rchb. f.", "id": 1}]'
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
@@ -552,7 +554,7 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_species_to_new_genus_and_family(self):
         "importing new species referring to non existing genus works if family is specified."
-        json_string = '[{"rank": "Species", "epithet": "lawrenceae", "ht-rank": "Genus", "ht-epithet": "Aerides", "family": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", "ht-rank": "Genus", "ht-epithet": "Aerides", "familia": "Orchidaceae", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()

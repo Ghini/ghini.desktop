@@ -130,6 +130,8 @@ class Family(db.Base):
     __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
     __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
+    rank = 'familia'
+
     # columns
     family = Column(String(45), nullable=False, index=True)
 
@@ -169,6 +171,17 @@ class Family(db.Base):
         '''
 
         return False
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col)) 
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id', 'family']
+                      and col[0] != '_' 
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['rank'] = self.rank
+        result['epithet'] = self.family
+        return result
     
     @classmethod
     def retrieve_or_create(cls, session, keys):
@@ -199,6 +212,10 @@ class Family(db.Base):
         session.add(result)
 
         return result
+
+
+## defining the latin alias to the class.
+Familia = Family
 
 
 class FamilyNote(db.Base):
