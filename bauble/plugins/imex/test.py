@@ -428,6 +428,7 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(genera), 2)
         species = [i for i in result if i['rank']=='species']
         self.assertEquals(len(species), 1)
+        1/0
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
