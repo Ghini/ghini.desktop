@@ -400,7 +400,7 @@ class JSONExportTests(BaubleTestCase):
         from tempfile import mkstemp
         handle, self.temp_path = mkstemp()
 
-        data = ((Family, family_data), 
+        data = ((Family, family_data),
                 (Genus, genus_data),
                 (Species, species_data))
 
@@ -416,7 +416,7 @@ class JSONExportTests(BaubleTestCase):
 
     def test_writes_complete_database(self):
         "exporting without specifying what: export complete database"
-        
+
         exporter = JSONExporter()
         exporter.start(self.temp_path)
         ## must still check content of generated file!
@@ -431,7 +431,7 @@ class JSONExportTests(BaubleTestCase):
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
-        
+
         exporter = JSONExporter()
         selection = self.session.query(Family).filter(Family.family == u'Orchidaceae').all()
         exporter.start(self.temp_path, selection)
@@ -439,7 +439,7 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['__class__'], 'Family')
         self.assertEquals(result[0]['family'], 'Orchidaceae')
-        
+
     def test_writes_partial_taxonomic_info(self):
         "exporting one genus: all species below genus"
 
@@ -452,7 +452,7 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(result[0]['genus'], 'Calopogon')
         self.assertEquals(result[0]['family'], 'Orchidaceae')
         self.assertEquals(result[0]['author'], 'R. Br.')
-        
+
     def test_writes_partial_taxonomic_info_species(self):
         "exporting one genus: all species below species"
 
@@ -476,7 +476,7 @@ class JSONImportTests(BaubleTestCase):
         from tempfile import mkstemp
         handle, self.temp_path = mkstemp()
 
-        data = ((Family, family_data), 
+        data = ((Family, family_data),
                 (Genus, genus_data),
                 (Species, species_data))
 
@@ -492,53 +492,72 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_new_inserts(self):
         "importing new taxon adds it to database."
-        json_string = '[{"__class__": "Genus", "genus": "Neogyna", "family": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Family", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
+        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 0)
         importer = JSONImporter()
-        importer.start([self.temp_path], force=True)
+        importer.start([self.temp_path])
+        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 1)
+
+    def test_import_new_inserts_lowercase(self):
+        "importing new taxon adds it to database, rank name can be all lower case."
+        json_string = '[{"rank": "genus", "epithet": "Neogyna", "ht-rank": "family", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 0)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 1)
 
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
-        json_string = '[{"__class__": "Species", "genus": "Calopogon", "species": "tuberosus", "hybrid": false, "author": "Britton et al."}]'
+        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, "author": "Britton et al."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
+        previously = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon", 'epithet': u"tuberosus"})
+        self.assertEquals(previously.sp_author, None)
         importer = JSONImporter()
-        importer.start([self.temp_path], force=True)
+        importer.start([self.temp_path])
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon", 'epithet': u"tuberosus"})
+        self.assertEquals(afterwards.sp_author, u"Britton et al.")
 
     def test_import_ignores_id_new(self):
         "importing taxon disregards id value if present (new taxon)."
-        json_string = '[{"__class__": "Genus", "genus": "Neogyna", "family": "Orchidaceae", "author": "Rchb. f.", "id": 1}]'
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Family", "ht-epithet": "Orchidaceae", "author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
-        importer.start([self.temp_path], force=True)
+        importer.start([self.temp_path])
 
     def test_import_ignores_id_updating(self):
         "importing taxon disregards id value if present (updating taxon)."
-        json_string = '[{"__class__": "Species", "genus": "Calopogon", "species": "tuberosus", "hybrid": false, "id": 8}]'
+        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, "id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
-        importer.start([self.temp_path], force=True)
+        importer.start([self.temp_path])
 
     def test_import_species_to_new_genus_fails(self):
         "importing new species referring to non existing genus gives error (missing family)."
-        json_string = '[{"__class__": "Species", "species": "lawrenceae", "genus": "Aerides", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", "ht-rank": "Genus", "ht-epithet": "Aerides", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
         from sqlalchemy.exc import IntegrityError
-        self.assertRaises(IntegrityError, importer.start, [self.temp_path], force=True)
+        self.assertRaises(IntegrityError, importer.start, [self.temp_path])
 
     def test_import_species_to_new_genus_and_family(self):
         "importing new species referring to non existing genus works if family is specified."
-        json_string = '[{"__class__": "Species", "species": "lawrenceae", "genus": "Aerides", "family": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", "ht-rank": "Genus", "ht-epithet": "Aerides", "family": "Orchidaceae", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
-        importer.start([self.temp_path], force=True)
+        importer.start([self.temp_path])
 
         # Calopogon tuberosus
         # Spiranthes delitescens Sheviak
-        # Aerides lawrenceae Rchb. f. 
+        # Aerides lawrenceae Rchb. f.

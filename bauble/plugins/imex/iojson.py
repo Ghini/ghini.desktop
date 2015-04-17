@@ -75,7 +75,7 @@ class JSONImporter(object):
         self.__pause = False   # flag to pause importing
         self.__error_exc = False
 
-    def start(self, filenames, force=None):
+    def start(self, filenames):
         objects = [json.load(open(fn)) for fn in filenames]
         a = []
         for i in objects:
@@ -90,10 +90,9 @@ class JSONImporter(object):
         s = db.Session()
         for i in objects:
             ## get class and remove reference
-            klass = globals()[i['__class__']]
-            del i['__class__']
+            klass = globals()[i['rank'].capitalize()]
+            del i['rank']
             obj = klass.retrieve_or_create(s, i)
-            s.add(obj)
             yield
         s.commit()
 
