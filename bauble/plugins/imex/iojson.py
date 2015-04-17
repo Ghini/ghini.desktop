@@ -63,7 +63,20 @@ def saobj2dict(obj):
 
 
 class JSONImporter(object):
-    "Import taxonomy and plants in JSON format."
+    '''The import process will be queued as a bauble task. there is no callback
+    informing whether it is successfully completed or not.
+
+    '''
+
+    def __init__(self):
+        super(JSONImporter, self).__init__()
+        self.__error = False   # flag to indicate error on import
+        self.__cancel = False  # flag to cancel importing
+        self.__pause = False   # flag to pause importing
+        self.__error_exc = False
+
+    def start(self, filename):
+        pass
 
 
 class JSONExporter(object):
