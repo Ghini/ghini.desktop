@@ -500,7 +500,7 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
-        json_string = '[{"__class__": "Species", "genus": "Calopogon", "sp": "tuberosus", "hybrid": false, "author": "Britton et al."}]'
+        json_string = '[{"__class__": "Species", "genus": "Calopogon", "species": "tuberosus", "hybrid": false, "author": "Britton et al."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
@@ -524,15 +524,16 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_species_to_new_genus_fails(self):
         "importing new species referring to non existing genus gives error (missing family)."
-        json_string = '[{"__class__": "Species", "species": "lawrenceae", "Genus": "Aerides", "author": "Rchb. f."}]'
+        json_string = '[{"__class__": "Species", "species": "lawrenceae", "genus": "Aerides", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
-        importer.start([self.temp_path], force=True)
+        from sqlalchemy.exc import IntegrityError
+        self.assertRaises(IntegrityError, importer.start, [self.temp_path], force=True)
 
     def test_import_species_to_new_genus_and_family(self):
         "importing new species referring to non existing genus works if family is specified."
-        json_string = '[{"__class__": "Species", "species": "lawrenceae", "Genus": "Aerides", "family": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"__class__": "Species", "species": "lawrenceae", "genus": "Aerides", "family": "Orchidaceae", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()

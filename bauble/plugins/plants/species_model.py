@@ -382,6 +382,47 @@ class Species(db.Base):
         setattr(self, self.infrasp_attr[level]['rank'], rank)
         setattr(self, self.infrasp_attr[level]['epithet'], epithet)
         setattr(self, self.infrasp_attr[level]['author'], author)
+    
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+
+        from genus import Genus
+        ## first try retrieving, just use species and genus fields
+        is_in_session = session.query(cls).filter(
+            cls.sp==keys['species']).join(Genus).filter(
+                Genus.genus==keys['genus']).all()
+        
+        if is_in_session:
+            return is_in_session[0]
+
+        ## otherwise we need a new object
+
+        ## retrieve genus object and replace reference.
+        genus = Genus.retrieve_or_create(session, {'genus': keys['genus'],
+                                                   'family': keys.get('family')})
+
+        ## correct field names
+        for internal, exchange in [('sp_author', 'author'),
+                                   ('sp', 'species')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
+
+        ## remove unexpected keys, create new object, add it to the session
+        ## and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        ## reconstruct connection to higher taxon
+        keys['genus'] = genus
+
+        result = cls(**keys)
+
+        return result
 
 
 class SpeciesNote(db.Base):

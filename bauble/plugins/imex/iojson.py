@@ -25,7 +25,7 @@ from bauble.plugins.plants import Family, Genus, Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
 from bauble.plugins.garden.location import Location
-
+import bauble.task
 import json
 
 
@@ -75,8 +75,27 @@ class JSONImporter(object):
         self.__pause = False   # flag to pause importing
         self.__error_exc = False
 
-    def start(self, filename):
-        pass
+    def start(self, filenames, force=None):
+        objects = [json.load(open(fn)) for fn in filenames]
+        a = []
+        for i in objects:
+            if isinstance(i, list):
+                a.extend(i)
+            else:
+                a.append(i)
+        bauble.task.queue(self.run(a))
+
+    def run(self, objects):
+        ## generator function. will be run as a task.
+        s = db.Session()
+        for i in objects:
+            ## get class and remove reference
+            klass = globals()[i['__class__']]
+            del i['__class__']
+            obj = klass.retrieve_or_create(s, i)
+            s.add(obj)
+            yield
+        s.commit()
 
 
 class JSONExporter(object):

@@ -169,6 +169,30 @@ class Family(db.Base):
         '''
 
         return False
+    
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+
+        ## first try retrieving, just use genus and sp fields
+        is_in_session = session.query(cls).filter(
+            cls.family==keys['family']).all()
+        
+        if is_in_session:
+            return is_in_session[0]
+
+        ## otherwise remove unexpected keys, create new object, add it to
+        ## the session and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        result = cls(**keys)
+        session.add(result)
+
+        return result
 
 
 class FamilyNote(db.Base):
