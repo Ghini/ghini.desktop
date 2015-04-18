@@ -17,6 +17,7 @@ from bauble.utils.log import debug
 import Queue
 from bauble.plugins.imex.csv_ import CSVImportTool, CSVExportTool, \
      CSVExportCommandHandler, CSVImportCommandHandler
+from bauble.plugins.imex.iojson import JSONImportTool, JSONExportTool
 from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
 
 # TODO: it might be best to do something like the reporter plugin so
@@ -31,7 +32,8 @@ from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
 # missing columns so that all columns will have some value
 
 class ImexPlugin(pluginmgr.Plugin):
-    tools = [CSVImportTool, CSVExportTool, XMLExportTool]
+    tools = [CSVImportTool, CSVExportTool, 
+             JSONImportTool, JSONExportTool, XMLExportTool]
     commands = [CSVExportCommandHandler, CSVImportCommandHandler,
                 XMLExportCommandHandler]
 
