@@ -27,6 +27,7 @@ from bauble.plugins.garden.accession import Accession
 from bauble.plugins.garden.location import Location
 import bauble.task
 import json
+import bauble.pluginmgr as pluginmgr
 
 
 def serializedatetime(obj):
@@ -129,3 +130,31 @@ class JSONExporter(object):
         with codecs.open(filename, "wb", "utf-8") as output:
             dump([obj.as_dict() for obj in objects], output, 
                  default=serializedatetime, sort_keys=True, indent=4)
+
+
+#
+# plugin classes
+#
+
+class JSONImportTool(pluginmgr.Tool):
+    category = _('Import')
+    label = _('JSON')
+
+    @classmethod
+    def start(cls):
+        """
+        Start the JSON importer.  This tool will also reinitialize the
+        plugins after importing.
+        """
+        c = JSONImporter()
+        c.start()
+
+
+class JSONExportTool(pluginmgr.Tool):
+    category = _('Export')
+    label = _('JSON')
+
+    @classmethod
+    def start(cls):
+        c = JSONExporter()
+        c.start()
