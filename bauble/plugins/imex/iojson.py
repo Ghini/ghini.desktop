@@ -19,6 +19,7 @@
 
 import os
 from json import load, dump
+import gtk
 import bauble.utils as utils
 import bauble.db as db
 from bauble.plugins.plants import Familia, Genus, Species

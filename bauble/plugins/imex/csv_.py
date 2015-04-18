@@ -10,7 +10,6 @@ import csv
 import traceback
 
 import gtk
-import gobject
 
 from sqlalchemy import *
 
