@@ -527,7 +527,6 @@ class Accession(db.Base):
         super(Accession, self).__init__(*args, **kwargs)
         self.__cached_species_str = {}
 
-
     @reconstructor
     def init_on_load(self):
         """
@@ -536,14 +535,11 @@ class Accession(db.Base):
         """
         self.__cached_species_str = {}
 
-
     def invalidate_str_cache(self):
         self.__cached_species_str = {}
 
-
     def __str__(self):
         return self.code
-
 
     def species_str(self, authors=False, markup=False):
         """
@@ -609,9 +605,19 @@ class Accession(db.Base):
         self.__cached_species_str[(markup, authors)] = sp_str
         return sp_str
 
-
     def markup(self):
         return '%s (%s)' % (self.code, self.species.markup())
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col)) 
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id']
+                      and col[0] != '_' 
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'accession'
+        result['species'] = str(self.species)
+        return result
 
 
 from bauble.plugins.garden.plant import Plant, PlantEditor

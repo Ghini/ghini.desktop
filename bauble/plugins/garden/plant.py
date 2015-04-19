@@ -427,7 +427,6 @@ class Plant(db.Base):
         return Plant.get_delimiter()
     delimiter = property(lambda self: self._get_delimiter())
 
-
     def __str__(self):
         return "%s%s%s" % (self.accession, self.delimiter, self.code)
 
@@ -476,7 +475,6 @@ class Plant(db.Base):
             new_propagation.plant = plant
         return plant
 
-
     def markup(self):
         #return "%s.%s" % (self.accession, self.plant_id)
         # FIXME: this makes expanding accessions look ugly with too many
@@ -484,6 +482,17 @@ class Plant(db.Base):
         # or you don't know what plants you are looking at
         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
                                 self.accession.species_str(markup=True))
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col)) 
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id']
+                      and col[0] != '_' 
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'plant'
+        result['accession'] = self.accession.code
+        return result
 
 
 from bauble.plugins.garden.accession import Accession
