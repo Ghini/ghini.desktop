@@ -1,35 +1,55 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
 #
 # accessions module
 #
+
 import datetime
 from decimal import Decimal, ROUND_DOWN
 import os
-import re
 from random import random
 import sys
 import traceback
 import weakref
-import xml.sax.saxutils as saxutils
 
 import gtk
-import gobject
 
 import lxml.etree as etree
 import pango
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import _, and_, or_
+from sqlalchemy.orm import ForeignKey, Column, Unicode, Integer, Boolean
+from sqlalchemy.orm import UnicodeText, MapperExtension, EXT_CONTINUE
+from sqlalchemy.orm import Collection, Propagation
+from sqlalchemy.orm import relation, func, backref, reconstructor
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
 import bauble
 import bauble.db as db
 import bauble.editor as editor
-from bauble.error import check, CommitException
+from bauble.error import check
 import bauble.paths as paths
-from bauble.plugins.garden.propagation import *
-from bauble.plugins.garden.source import *
+from bauble.plugins.garden.propagation import SourceDetail, SourceDetailEditor, \
+     SourcePropagationPresenter, PropagationChooserPresenter
+from bauble.plugins.garden.source import Source, CollectionPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
@@ -43,8 +63,10 @@ import bauble.view as view
 # info about the genus so we know exactly what plant is being selected
 # e.g. Malvaceae (sensu lato), Hibiscus (senso stricto)
 
+
 def longitude_to_dms(decimal):
     return decimal_to_dms(Decimal(decimal), 'long')
+
 
 def latitude_to_dms(decimal):
     return decimal_to_dms(Decimal(decimal), 'lat')
@@ -75,7 +97,6 @@ def decimal_to_dms(decimal, long_or_lat):
     q = Decimal((0, (1,), -places))
     s = Decimal(abs((m2-m) * 60)).quantize(q)
     return direction, d, m, s
-
 
 
 def dms_to_decimal(dir, deg, min, sec, precision=6):
@@ -130,6 +151,7 @@ def get_next_code():
     finally:
         session.close()
     return next
+
 
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
@@ -195,7 +217,6 @@ def acc_markup_func(acc):
     return utils.xml_safe_utf8(unicode(acc)), acc.species_str(markup=True)
 
 
-
 # TODO: accession should have a one-to-many relationship on verifications
     #ver_level = StringCol(length=2, default=None) # verification level
     #ver_name = StringCol(length=50, default=None) # verifier's name
@@ -204,6 +225,7 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
+    
 ver_level_descriptions = \
     {0: _('The name of the record has not been checked by any authority.'),
      1: _('The name of the record determined by comparison with other '\

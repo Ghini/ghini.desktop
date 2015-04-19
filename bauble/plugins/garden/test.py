@@ -1021,7 +1021,6 @@ class AccessionTests(GardenTestCase):
         parent = session.query(Accession).filter_by(code=u'parent')[0]
         assert acc.source.plant_propagation_id == plant_prop_id
 
-
     def test_accession_editor(self):
         acc = Accession(code=u'code', species=self.species)
         self.editor = AccessionEditor(acc)
@@ -1048,7 +1047,6 @@ class AccessionTests(GardenTestCase):
         import gtk
         self.editor.handle_response(gtk.RESPONSE_OK)
         self.editor.session.close()
-
 
     def itest_editor(self):
         """
@@ -1094,7 +1092,6 @@ class AccessionTests(GardenTestCase):
         source.source_detail = source_detail
         acc.source = source
 
-
         self.session.commit()
 
         self.editor = AccessionEditor(model=acc)
@@ -1104,7 +1101,6 @@ class AccessionTests(GardenTestCase):
             import traceback
             debug(traceback.format_exc(0))
             debug(e)
-
 
 
 class VerificationTests(GardenTestCase):
@@ -1117,7 +1113,6 @@ class VerificationTests(GardenTestCase):
 
     def tearDown(self):
         super(VerificationTests, self).tearDown()
-
 
     def test_verifications(self):
         acc = self.create(Accession, species=self.species, code=u'1')
@@ -1140,7 +1135,6 @@ class VerificationTests(GardenTestCase):
         self.assert_(ver in self.session)
 
 
-
 class LocationTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -1149,10 +1143,8 @@ class LocationTests(GardenTestCase):
     def setUp(self):
         super(LocationTests, self).setUp()
 
-
     def tearDown(self):
         super(LocationTests, self).tearDown()
-
 
     def test_location_editor(self):
         loc = self.create(Location, name=u'some site', code=u'STE')
@@ -1207,7 +1199,6 @@ class LocationTests(GardenTestCase):
         assert utils.gc_objects_by_type('LocationEditorView') == [], \
             'LocationEditorView not deleted'
 
-
     def itest_editor(self):
         """
         Interactively test the PlantEditor
@@ -1222,7 +1213,6 @@ class LocationTests(GardenTestCase):
             'LocationEditorPresenter not deleted'
         assert utils.gc_objects_by_type('LocationEditorView') == [], \
             'LocationEditorView not deleted'
-
 
 
 # class CollectionTests(GardenTestCase):
@@ -1336,8 +1326,6 @@ class DMSConversionTests(unittest.TestCase):
             self.assertAlmostEqual(lat_dec, dec_data[0], ALLOWED_ERROR)
             self.assertAlmostEqual(lon_dec, dec_data[1], ALLOWED_ERROR)
 
-
-
     def test_decimal_to_dms(self):
         # test converting degrees decimal to dms, allow a certain
         # amount of error in the seconds
@@ -1356,7 +1344,6 @@ class DMSConversionTests(unittest.TestCase):
             self.assertEqual(lon_dms[0:2], dms_data[1][0:2])
             # test seconds with allowable error
             self.assertAlmostEqual(lon_dms[3], dms_data[1][3], ALLOWABLE_ERROR)
-
 
     def test_parse_lat_lon(self):
         parse = CollectionPresenter._parse_lat_lon
