@@ -199,10 +199,11 @@ class Genus(db.Base):
     def as_dict(self):
         result = dict((col, getattr(self, col)) 
                       for col in self.__table__.columns.keys()
-                      if col not in ['id', 'genus']
+                      if col not in ['id', 'genus', 'qualifier']
                       and col[0] != '_' 
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
+        result['object'] = 'taxon'
         result['rank'] = 'genus'
         result['epithet'] = self.genus
         result['ht-rank'] = 'familia'

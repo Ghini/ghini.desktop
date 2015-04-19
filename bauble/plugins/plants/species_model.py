@@ -390,6 +390,7 @@ class Species(db.Base):
                       and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
+        result['object'] = 'taxon'
         result['rank'] = 'species'
         result['epithet'] = self.sp
         result['ht-rank'] = 'genus'

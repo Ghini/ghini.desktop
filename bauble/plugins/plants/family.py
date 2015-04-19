@@ -175,10 +175,11 @@ class Family(db.Base):
     def as_dict(self):
         result = dict((col, getattr(self, col)) 
                       for col in self.__table__.columns.keys()
-                      if col not in ['id', 'family']
+                      if col not in ['id', 'family', 'qualifier']
                       and col[0] != '_' 
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
+        result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.family
         return result

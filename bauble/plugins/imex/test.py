@@ -433,12 +433,12 @@ class JSONExportTests(BaubleTestCase):
 [
     {
         "epithet": "Orchidaceae", 
-        "qualifier": "", 
+        "object": "taxon", 
         "rank": "familia"
     }, 
     {
         "epithet": "Myrtaceae", 
-        "qualifier": "", 
+        "object": "taxon", 
         "rank": "familia"
     }, 
     {
@@ -446,7 +446,7 @@ class JSONExportTests(BaubleTestCase):
         "epithet": "Calopogon", 
         "ht-epithet": "Orchidaceae", 
         "ht-rank": "familia", 
-        "qualifier": "", 
+        "object": "taxon", 
         "rank": "genus"
     }, 
     {
@@ -454,7 +454,7 @@ class JSONExportTests(BaubleTestCase):
         "epithet": "Panisea", 
         "ht-epithet": "Orchidaceae", 
         "ht-rank": "familia", 
-        "qualifier": "", 
+        "object": "taxon", 
         "rank": "genus"
     }, 
     {
@@ -462,6 +462,7 @@ class JSONExportTests(BaubleTestCase):
         "ht-epithet": "Calopogon", 
         "ht-rank": "genus", 
         "hybrid": false, 
+        "object": "taxon", 
         "rank": "species"
     }
 ]""")

@@ -111,6 +111,16 @@ class Location(db.Base):
 
         return False
 
+    def as_dict(self):
+        result = dict((col, getattr(self, col)) 
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id']
+                      and col[0] != '_' 
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'location'
+        return result
+
 
 class LocationEditorView(GenericEditorView):
 
