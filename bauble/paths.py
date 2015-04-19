@@ -83,7 +83,7 @@ def user_dir():
         else:
             raise Exception('Could not get path for user settings: no '
                             'APPDATA or USERPROFILE variable')
-    elif sys.platform == "linux2":
+    elif sys.platform in ('linux3', 'linux2', 'darwin'):
         # using os.expanduser is more reliable than os.environ['HOME']
         # because if the user runs bauble with sudo then it will
         # return the path of the user that used sudo instead of ~root
