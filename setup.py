@@ -211,7 +211,7 @@ class build(_build):
                 spawn.spawn(['msgfmt', po, '-o', mo])
 
         # copy .desktop and icons
-        if sys.platform == 'linux2':
+        if sys.platform in ('linux3', 'linux2'):
             app_dir = os.path.join(self.build_base, 'share', 'applications')
             dir_util.mkpath(app_dir)
             file_util.copy_file('data/bauble.desktop', app_dir)
@@ -253,7 +253,7 @@ class install(_install):
         _install.finalize_options(self)
 
     def run(self):
-        if sys.platform not in ('linux2', 'win32', 'darwin'):
+        if sys.platform not in ('linux3', 'linux2', 'win32', 'darwin'):
             msg = "**Error: Can't install on this platform: %s" % sys.platform
             print msg
             sys.exit(1)
@@ -264,7 +264,7 @@ class install(_install):
             _install.run(self)
 
         # install bauble.desktop and icons
-        if sys.platform == 'linux2':
+        if sys.platform in ('linux3', 'linux2'):
             # install everything in share
             dir_util.copy_tree(os.path.join(self.build_base, 'share'),
                                 os.path.join(self.install_data, 'share'))
