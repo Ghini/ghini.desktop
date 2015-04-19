@@ -59,7 +59,7 @@ def installation_dir():
     Returns the root path of the installation target
     """
 
-    if sys.platform in ('linux2', 'darwin'):
+    if sys.platform in ('linux3', 'linux2', 'darwin'):
         this_file_location = __file__.split(os.path.sep)
         d = os.path.sep.join(this_file_location[:-7])
     elif sys.platform == 'win32':
