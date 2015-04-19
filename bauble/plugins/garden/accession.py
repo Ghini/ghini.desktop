@@ -34,11 +34,11 @@ import gtk
 
 import lxml.etree as etree
 import pango
-from sqlalchemy import _, and_, or_
-from sqlalchemy.orm import ForeignKey, Column, Unicode, Integer, Boolean
-from sqlalchemy.orm import UnicodeText, MapperExtension, EXT_CONTINUE
-from sqlalchemy.orm import Collection, Propagation
-from sqlalchemy.orm import relation, func, backref, reconstructor
+from sqlalchemy import and_, or_, func
+from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
+     UnicodeText
+from sqlalchemy.orm import EXT_CONTINUE, relation, MapperExtension, \
+     backref, reconstructor
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -47,9 +47,10 @@ import bauble.db as db
 import bauble.editor as editor
 from bauble.error import check
 import bauble.paths as paths
-from bauble.plugins.garden.propagation import SourceDetail, SourceDetailEditor, \
-     SourcePropagationPresenter, PropagationChooserPresenter
-from bauble.plugins.garden.source import Source, CollectionPresenter
+from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
+     Propagation
+from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
+     Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
