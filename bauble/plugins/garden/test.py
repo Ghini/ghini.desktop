@@ -12,7 +12,6 @@ from sqlalchemy.orm import *
 
 import bauble
 import bauble.db as db
-from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase, update_gui, check_dupids
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -29,12 +28,12 @@ from bauble.plugins.garden.institution import *
 import bauble.prefs as prefs
 
 
-accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1},
-                       {'id':2 , 'code': u'2.2', 'species_id': 2,
+accession_test_data = ({'id': 1, 'code': u'1.1', 'species_id': 1},
+                       {'id': 2, 'code': u'2.2', 'species_id': 2,
                         'source_type': u'Collection'},
                        )
 
-plant_test_data = ({'id':1 , 'code': u'1', 'accession_id': 1,
+plant_test_data = ({'id': 1, 'code': u'1', 'accession_id': 1,
                     'location_id': 1, 'quantity': 1},
                    )
 
@@ -71,21 +70,21 @@ default_cutting_values = \
      'bottom_heat_unit': u'F',
      'rooted_pct': 90}
 
-default_seed_values = \
-            {'pretreatment': u'Soaked in peroxide solution',
-             'nseeds': 24,
-             'date_sown': datetime.date.today(),#utils.today_str(),
-             'container': u"tray",
-             'media': u'standard seed compost',
-             'location': u'mist tent',
-             'moved_from': u'mist tent',
-             'moved_to': u'hardening table',
-             'media': u'standard mix',
-             'germ_date': datetime.date.today(),#utils.today_str(),
-             'germ_pct': 99,
-             'nseedlings': 23,
-             'date_planted': datetime.date.today(),
-             }
+default_seed_values = {
+    'pretreatment': u'Soaked in peroxide solution',
+    'nseeds': 24,
+    'date_sown': datetime.date.today(),  # utils.today_str(),
+    'container': u"tray",
+    'media': u'standard seed compost',
+    'location': u'mist tent',
+    'moved_from': u'mist tent',
+    'moved_to': u'hardening table',
+    'media': u'standard mix',
+    'germ_date': datetime.date.today(),  # utils.today_str(),
+    'germ_pct': 99,
+    'nseedlings': 23,
+    'date_planted': datetime.date.today(),
+    }
 
 test_data_table_control = ((Accession, accession_test_data),
                            (Location, location_test_data),
@@ -93,11 +92,13 @@ test_data_table_control = ((Accession, accession_test_data),
                            (Geography, geography_test_data),
                            (Collection, collection_test_data))
 
+
 def setUp_data():
     """
     create_test_data()
-    #if this method is called again before tearDown_test_data is called you
-    #will get an error about the test data rows already existing in the database
+    # if this method is called again before tearDown_test_data is called you
+    # will get an error about the test data rows already existing in the
+    # database
     """
     for cls, data in test_data_table_control:
         table = cls.__table__
@@ -111,7 +112,6 @@ def setUp_data():
     i.email = u'contact@test.com'
     i.contact = u'TestContact Name'
     i.code = u'TestCode'
-
 
 
 # TODO: if we ever get a GUI tester then do the following
@@ -134,7 +134,6 @@ def test_duplicate_ids():
     files = glob.glob(os.path.join(head, '*.glade'))
     for f in files:
         assert(not check_dupids(f))
-
 
 
 class GardenTestCase(BaubleTestCase):
@@ -167,7 +166,6 @@ class GardenTestCase(BaubleTestCase):
             assert utils.gc_objects_by_type(view_name) == [], \
                 '%s not deleted' % view_name
 
-
     def create(self, class_, **kwargs):
         obj = class_(**kwargs)
         self.session.add(obj)
@@ -189,18 +187,21 @@ class ContactTests(GardenTestCase):
     #     self.session.commit()
     #     self.session.close()
 
-    #     # test that we can't delete a contact if it has corresponding donations
+    #     # test that we can't delete a contact if it has corresponding
+    #     # donations
     #     import bauble
     #     session = db.Session()
     #     contact = session.query(Contact).filter_by(name=u'name').one()
-    #     # shouldn't be allowed to delete contact if it has donations,
-    #     # what is happening here is that when deleting the contact the
-    #     # corresponding donations.contact_id's are being be set to null which
-    #     # isn't allowed by the scheme....is this the best we can do? or can we
-    #     # get some sort of error when creating a dangling reference
+
+    #     shouldn't be allowed to delete contact if it has donations, what
+    #     is happening here is that when deleting the contact the
+    #     corresponding donations.contact_id's are being be set to null
+    #     which isn't allowed by the scheme....is this the best we can do?
+    #     or can we get some sort of error when creating a dangling
+    #     reference
+
     #     session.delete(contact)
     #     self.assertRaises(DBAPIError, session.commit)
-
 
     def itest_contact_editor(self):
         """
@@ -218,7 +219,6 @@ class ContactTests(GardenTestCase):
             'ContactEditorView not deleted'
 
 
-
 class PlantTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -226,16 +226,15 @@ class PlantTests(GardenTestCase):
 
     def setUp(self):
         super(PlantTests, self).setUp()
-        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.accession = self.create(Accession,
+                                     species=self.species, code=u'1')
         self.location = self.create(Location, name=u'site', code=u'STE')
         self.plant = self.create(Plant, accession=self.accession,
                                  location=self.location, code=u'1', quantity=1)
         self.session.commit()
 
-
     def tearDown(self):
         super(PlantTests, self).tearDown()
-
 
     def test_constraints(self):
         """

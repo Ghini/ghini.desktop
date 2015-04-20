@@ -495,9 +495,9 @@ class Accession(db.Base):
                                   translations=prov_type_values),
                        default=None)
 
-    wild_prov_status =Column(types.Enum(values=wild_prov_status_values.keys(),
-                                        translations=wild_prov_status_values),
-                             default=None)
+    wild_prov_status = Column(types.Enum(values=wild_prov_status_values.keys(),
+                                         translations=wild_prov_status_values),
+                              default=None)
 
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
@@ -528,9 +528,9 @@ class Accession(db.Base):
                       backref=backref('accession', uselist=False))
 
     # relations
-    species = relation('Species', uselist=False, backref=backref('accessions',
-                                                cascade='all, delete-orphan'))
-
+    species = relation('Species', uselist=False,
+                       backref=backref('accessions',
+                                       cascade='all, delete-orphan'))
 
     # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
@@ -605,11 +605,11 @@ class Accession(db.Base):
 
         # copy the species so we don't affect the original
         session = db.Session()
-        species = session.merge(self.species)#, dont_load=True)
+        species = session.merge(self.species)  # , dont_load=True)
 
         # generate the string
         if self.id_qual in ('aff.', 'cf.'):
-            if self.id_qual_rank=='infrasp':
+            if self.id_qual_rank == 'infrasp':
                 species.sp = '%s %s' % (species.sp, self.id_qual)
             elif self.id_qual_rank:
                 setattr(species, self.id_qual_rank,
@@ -632,10 +632,10 @@ class Accession(db.Base):
         return '%s (%s)' % (self.code, self.species.markup())
 
     def as_dict(self):
-        result = dict((col, getattr(self, col)) 
+        result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
                       if col not in ['id']
-                      and col[0] != '_' 
+                      and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
         result['object'] = 'accession'
