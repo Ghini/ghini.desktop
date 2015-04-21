@@ -430,41 +430,41 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(species), 1)
         self.assertEquals(open(self.temp_path).read(),
                           """\
-[
-    {
-        "epithet": "Orchidaceae", \
-        "object": "taxon", \
-        "rank": "familia"
-    }, \
-    {
-        "epithet": "Myrtaceae", \
-        "object": "taxon", \
-        "rank": "familia"
-    }, \
-    {
-        "author": "R. Br.", \
-        "epithet": "Calopogon", \
-        "ht-epithet": "Orchidaceae", \
-        "ht-rank": "familia", \
-        "object": "taxon", \
-        "rank": "genus"
-    }, \
-    {
-        "author": "", \
-        "epithet": "Panisea", \
-        "ht-epithet": "Orchidaceae", \
-        "ht-rank": "familia", \
-        "object": "taxon", \
-        "rank": "genus"
-    }, \
-    {
-        "epithet": "tuberosus", \
-        "ht-epithet": "Calopogon", \
-        "ht-rank": "genus", \
-        "hybrid": false, \
-        "object": "taxon", \
-        "rank": "species"
-    }
+[\n\
+    {\n\
+        "epithet": "Orchidaceae", \n\
+        "object": "taxon", \n\
+        "rank": "familia"\n\
+    }, \n\
+    {\n\
+        "epithet": "Myrtaceae", \n\
+        "object": "taxon", \n\
+        "rank": "familia"\n\
+    }, \n\
+    {\n\
+        "author": "R. Br.", \n\
+        "epithet": "Calopogon", \n\
+        "ht-epithet": "Orchidaceae", \n\
+        "ht-rank": "familia", \n\
+        "object": "taxon", \n\
+        "rank": "genus"\n\
+    }, \n\
+    {\n\
+        "author": "", \n\
+        "epithet": "Panisea", \n\
+        "ht-epithet": "Orchidaceae", \n\
+        "ht-rank": "familia", \n\
+        "object": "taxon", \n\
+        "rank": "genus"\n\
+    }, \n\
+    {\n\
+        "epithet": "tuberosus", \n\
+        "ht-epithet": "Calopogon", \n\
+        "ht-rank": "genus", \n\
+        "hybrid": false, \n\
+        "object": "taxon", \n\
+        "rank": "species"\n\
+    }\n\
 ]""")
 
     def test_writes_full_taxonomic_info(self):
