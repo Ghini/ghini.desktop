@@ -8,7 +8,7 @@ echo source /usr/share/virtualenvwrapper/virtualenvwrapper.sh >> ~/.profile
 mkdir -p ~/Local/github/mfrasca
 cd ~/Local/github/mfrasca
 git clone https://github.com/mfrasca/bauble.classic
-mkvirtualenv bacl
+mkvirtualenv bacl --system-site-packages
 workon bacl
 python setup.py build
 python setup.py install
