@@ -1,6 +1,26 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # connmgr.py
 #
+
 """
 The connection manager provides a GUI for creating and opening
 connections. This is the first thing displayed when Bauble starts.
@@ -66,13 +86,16 @@ class ConnectionManager:
         try:
             try:
                 import pysqlite2
+                assert(pysqlite2)
             except Exception:
                 import sqlite3
+                assert(sqlite3)
             self._working_dbtypes.append('SQLite')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
         try:
             import psycopg2
+            assert(psycopg2)
             self._working_dbtypes.append('PostgreSQL')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
@@ -242,6 +265,7 @@ class ConnectionManager:
             sensitive = dbtype in self.working_dbtypes
             renderer.set_property('sensitive', sensitive)
             renderer.set_property('text', dbtype)
+
         utils.setup_text_combobox(self.type_combo, self._dbtypes,
                                   type_combo_cell_data_func)
         self.type_combo.connect("changed", self.on_changed_type_combo)
@@ -522,8 +546,12 @@ class ConnectionManager:
 
 
 class CMParamsBox(gtk.Table):
+    '''common parameters box, has placeholders for database url parts.
 
-    def __init__(self, conn_mgr, rows=4, columns=2):
+    dialect+driver://username:password@host:port/database
+    '''
+
+    def __init__(self, conn_mgr, rows=5, columns=2):
         gtk.Table.__init__(self, rows, columns)
         self.set_row_spacings(10)
         self.create_gui()
@@ -595,7 +623,7 @@ class CMParamsBox(gtk.Table):
 class SQLiteParamsBox(CMParamsBox):
 
     def __init__(self, conn_mgr):
-        CMParamsBox.__init__(self, conn_mgr, rows=1, columns=2)
+        CMParamsBox.__init__(self, conn_mgr, rows=2, columns=2)
 
     def create_gui(self):
         self.default_check = gtk.CheckButton(_('Use default filename'))
@@ -608,14 +636,32 @@ class SQLiteParamsBox(CMParamsBox):
         label = gtk.Label(_("Filename: "))
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 1, 2)
-
         self.file_box = gtk.HBox(False)
         self.file_entry = gtk.Entry()
         self.file_box.pack_start(self.file_entry)
         file_button = gtk.Button(_("Browse..."))
         file_button.connect("clicked", self.on_activate_browse_button)
+        ## set additional properties, used in on_activate_browse_button
+        file_button.action = gtk.FILE_CHOOSER_ACTION_SAVE
+        file_button.file_entry = self.file_entry
         self.file_box.pack_start(file_button)
         self.attach(self.file_box, 1, 2, 1, 2)
+
+        label_alignment = (0.0, 0.5)
+        label = gtk.Label(_("Pictures root: "))
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 2, 3)
+        self.pictureroot_box = gtk.HBox(False)
+        self.pictureroot_entry = gtk.Entry()
+        self.pictureroot_box.pack_start(self.pictureroot_entry)
+        pictureroot_button = gtk.Button(_("Browse..."))
+        pictureroot_button.connect("clicked", self.on_activate_browse_button)
+        ## set additional properties, used in on_activate_browse_button
+        pictureroot_button.action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER
+        pictureroot_button.file_entry = self.pictureroot_entry
+        pictureroot_button.wants_filetype = None
+        self.pictureroot_box.pack_start(pictureroot_button)
+        self.attach(self.pictureroot_box, 1, 2, 2, 3)
 
     def get_prefs(self):
         prefs = self.get_parameters()
@@ -633,12 +679,14 @@ class SQLiteParamsBox(CMParamsBox):
             d['file'] = os.path.join(paths.user_dir(), '%s.db' % fixed)
         else:
             d['file'] = self.file_entry.get_text()
+        d['pictures'] = self.pictureroot_entry.get_text()
         return d
 
     def refresh_view(self, prefs):
         try:
             self.default_check.set_active(prefs['default'])
             self.file_entry.set_text(prefs['file'])
+            self.pictureroot_entry.set_text(prefs.get('pictures', ''))
         except KeyError, e:
             pass
             #debug('KeyError: %s' % e)
@@ -647,13 +695,13 @@ class SQLiteParamsBox(CMParamsBox):
     def on_activate_browse_button(self, widget, data=None):
         d = gtk.FileChooserDialog(
             _("Choose a file..."), None,
-            action=gtk.FILE_CHOOSER_ACTION_SAVE,
+            action=widget.action,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        r = d.run()
+        d.run()
         filename = d.get_filename()
         if filename:
-            self.file_entry.set_text(filename)
+            widget.file_entry.set_text(filename)
         d.destroy()
 
 
@@ -661,8 +709,6 @@ class PGParamsBox(CMParamsBox):
 
     def __init__(self, conn_mgr):
         CMParamsBox.__init__(self, conn_mgr)
-        # for child in children:
-        #   if child
 
 
 class CMParamsBoxFactory:
