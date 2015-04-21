@@ -1,9 +1,11 @@
 #!/bin/bash
 
 sudo apt-get -y python-gtk2 git virtualenvwrapper
-echo export WORKON_HOME=$HOME/.virtualenvs >> ~/.profile
-echo export PROJECT_HOME=$HOME/Devel >> ~/.profile
-echo source /usr/share/virtualenvwrapper/virtualenvwrapper.sh >> ~/.profile
+cat <<EOF >> ~/.profile
+export WORKON_HOME=$HOME/.virtualenvs>> ~/.profile
+export PROJECT_HOME=$HOME/Devel
+source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+EOF
 . ~/.profile
 mkdir -p ~/Local/github/mfrasca
 cd ~/Local/github/mfrasca
