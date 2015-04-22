@@ -449,27 +449,27 @@ class GenericEditorPresenter(object):
     problem_color = gtk.gdk.color_parse('#FFDCDF')
 
     def __init__(self, model, view):
-        widget_model_map = {}
         self.model = model
         self.view = view
         self.problems = set()
+        self._dirty = False
 
     # whether the presenter should be commited or not
     def dirty(self):
+        """is the presenter dirty?
+
+        the presenter is dirty depending on whether it has changed anything
+        that needs to be committed.  This doesn't necessarily imply that the
+        session is not dirty nor is it required to change back to True if
+        the changes are committed.
         """
-        Returns True or False depending on whether the presenter has
-        changed anything that needs to be committed.  This doesn't
-        necessarily imply that the session is not dirty nor is it
-        required to change back to True if the changes are committed.
-        """
-        raise NotImplementedError
+        return self._dirty
 
     def has_problems(self, widget):
         """
         Return True/False depending on if widget has any problems
         attached to it.
         """
-        from operator import getitem
         for p, w in self.problems:
             if widget == w:
                 return True
@@ -549,12 +549,6 @@ class GenericEditorPresenter(object):
         #    values.remove(None)
         #    values.insert(0, '')
         utils.setup_text_combobox(combo, values)
-
-#     def bind_widget_to_model(self, widget_name, model_field):
-#         # TODO: this is just an idea stub, should we have a method like
-#         # this so to put the model values in the view we just
-#         # need a for loop over the keys of the widget_model_map
-#         pass
 
     def set_model_attr(self, attr, value, validator=None):
         """
@@ -877,7 +871,7 @@ class GenericModelViewPresenterEditor(object):
             self.session.close()
 
 
-# TODO: create a seperate class for browsing notes in a treeview
+# TODO: create a separate class for browsing notes in a treeview
 # structure
 
 # TODO: add an "editable" property to the NotesPresenter and if it is
@@ -924,8 +918,6 @@ class NotesPresenter(GenericEditorPresenter):
         self.widgets.remove_parent(editor_box)
         parent_container.add(editor_box)
 
-        self._dirty = False
-
         # the expander are added to self.box
         self.box = self.widgets.notes_expander_box
 
@@ -942,9 +934,6 @@ class NotesPresenter(GenericEditorPresenter):
                                               self.on_add_button_clicked)
         self.box.show_all()
 
-    def dirty(self):
-        return self._dirty
-
     def on_add_button_clicked(self, *args):
         box = self.add_note()
         box.set_expanded(True)
@@ -953,7 +942,7 @@ class NotesPresenter(GenericEditorPresenter):
         """
         Add a new note to the model.
         """
-        expander = NotesPresenter.NoteBox(self, note)
+        expander = self.NoteBox(self, note)
         self.box.pack_start(expander, expand=False, fill=False)  # padding=10
         self.box.reorder_child(expander, 0)
         expander.show_all()
@@ -1153,3 +1142,23 @@ class NotesPresenter(GenericEditorPresenter):
             self.update_label()
 
             self.presenter.parent_ref().refresh_sensitivity()
+
+
+class PicturesPresenter(NotesPresenter):
+    """pictures are associated to notes of category <picture>.
+
+    you add a picture and you see a picture but the database will just hold
+    the name of the corresponding file.
+
+    as for other presenters, you can expand/collapse each inserted
+    picture, you add or remove pictures, you see them on screen.
+
+    this class works just the same as the NotesPresenter, with the
+    note_textview replaced by a Button containing an Image.
+    """
+
+    def __init__(self, presenter, notes_property, parent_container):
+        super(PicturesPresenter, self).__init__(
+            presenter, notes_property, parent_container)
+
+    pass
