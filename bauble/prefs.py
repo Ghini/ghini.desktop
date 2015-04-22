@@ -232,7 +232,9 @@ class _prefs(dict):
             #return self.config.get(section, option)
 
     def iteritems(self):
-        return [('%s.%s' % (section, name), value) for section in sorted(prefs.config.sections()) for name, value in prefs.config.items(section)]
+        return [('%s.%s' % (section, name), value)
+                for section in sorted(prefs.config.sections())
+                for name, value in prefs.config.items(section)]
 
     def __setitem__(self, key, value):
         section, option = _prefs._parse_key(key)
