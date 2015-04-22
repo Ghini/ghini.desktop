@@ -32,13 +32,14 @@ import weakref
 
 import gtk
 
+from bauble.i18n import _
 import lxml.etree as etree
 import pango
 from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
-     UnicodeText
+    UnicodeText
 from sqlalchemy.orm import EXT_CONTINUE, relation, MapperExtension, \
-     backref, reconstructor
+    backref, reconstructor
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -48,15 +49,15 @@ import bauble.editor as editor
 from bauble.error import check
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
-     Propagation
+    Propagation
 from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
-     Source, Collection, CollectionPresenter, PropagationChooserPresenter
+    Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
 from bauble.utils.log import debug, warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results, Action
+    select_in_search_results, Action
 import bauble.view as view
 
 # TODO: underneath the species entry create a label that shows information
