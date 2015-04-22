@@ -192,6 +192,7 @@ class ConnectionManager:
                     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             if not self._error:
                 self.save_current_to_prefs()
+                prefs['picture_root'] = settings.get('pictures', '')
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_prefs_to_saved(self.current_name):
@@ -226,7 +227,7 @@ class ConnectionManager:
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.dialog.set_icon(pixbuf)
-        except Exception, e:
+        except Exception:
             warning(_('Could not load icon from %s' % bauble.default_icon))
             warning(traceback.format_exc())
             # utils.message_details_dialog(_('Could not load icon from %s' % \
@@ -345,7 +346,7 @@ class ConnectionManager:
         d.destroy()
         if name is not '':
             self.name_combo.prepend_text(name)
-            expander = self.widgets.expander.set_expanded(True)
+            self.widgets.expander.set_expanded(True)
             self.name_combo.set_active(0)
 
             # TODO:
@@ -396,6 +397,7 @@ class ConnectionManager:
 
         conn_list = prefs[bauble.conn_list_pref]
         if self.current_name is not None:
+            ## we are leaving some valid settings
             if self.current_name not in conn_list:
                 msg = _("Do you want to save %s?") % self.current_name
                 if utils.yes_no_dialog(msg):
@@ -411,6 +413,7 @@ class ConnectionManager:
                     self.save_current_to_prefs()
 
         if conn_list is not None and name in conn_list:
+            ## we are retrieving connection info from the global settings
             if conn_list[name]['type'] not in self._dbtypes:
                 # in case the connection type has changed or isn't supported
                 # on this computer
@@ -493,18 +496,13 @@ class ConnectionManager:
             filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
             return uri
-        if params['type'].lower() == "postgresql":
-            subs['type'] = 'postgresql'
-        else:
-            subs['type'] = params['type'].lower()
+        subs['type'] = params['type'].lower()
         if 'port' in params:
             template = "%(type)s://%(user)s@%(host)s:%(port)s/%(db)s"
         else:
             template = "%(type)s://%(user)s@%(host)s/%(db)s"
         if params["passwd"] is True:
             subs["passwd"] = self.get_passwd()
-            #template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
-            # insert password
             if subs["passwd"]:
                 template = template.replace('@', ':%(passwd)s@')
         uri = template % subs
@@ -551,6 +549,16 @@ class CMParamsBox(gtk.Table):
     dialect+driver://username:password@host:port/database
     '''
 
+    def text_valued(self):
+        return [('db', self.db_entry),
+                ('host', self.host),
+                ('user', self.user),
+                ('pictures', self.pictureroot_entry),
+                ]
+
+    def boolean_valued(self):
+        return [('passwd', self.passwd_check)]
+
     def __init__(self, conn_mgr, rows=5, columns=2):
         gtk.Table.__init__(self, rows, columns)
         self.set_row_spacings(10)
@@ -590,31 +598,31 @@ class CMParamsBox(gtk.Table):
         self.attach(self.passwd_check, 1, 2, 3, 4)
 
     def get_prefs(self):
-        """
-        see get_prefs
+        """return dictionary of all preferences.
         """
         return self.get_parameters()
 
     def get_parameters(self):
+        """return dictionary of text valued preferences.
+
+        text valued preferences are used to build the connection uri
         """
-        return only those preferences that are used to build the connection uri
-        """
-        d = {}
-        d["db"] = self.db_entry.get_text()
-        d["host"] = self.host_entry.get_text()
-        d["user"] = self.user_entry.get_text()
-        d["passwd"] = self.passwd_check.get_active()
-        return d
+        result = {}
+        for k, w in self.text_valued():
+            result[k] = w.get_text()
+        for k, w in self.boolean_valued():
+            result[k] = w.get_active()
+        return result
 
     def refresh_view(self, prefs):
         """
         refresh the widget values from prefs
         """
         try:
-            self.db_entry.set_text(prefs["db"])
-            self.host_entry.set_text(prefs["host"])
-            self.user_entry.set_text(prefs["user"])
-            self.passwd_check.set_active(prefs["passwd"])
+            for k, w in self.text_valued():
+                w.set_text(prefs[k])
+            for k, w in self.boolean_valued():
+                w.set_active(prefs[k])
         except KeyError, e:
             debug('KeyError: %s' % e)
             #debug(traceback.format_exc())
@@ -624,6 +632,15 @@ class SQLiteParamsBox(CMParamsBox):
 
     def __init__(self, conn_mgr):
         CMParamsBox.__init__(self, conn_mgr, rows=2, columns=2)
+
+    def text_valued(self):
+        return [('file', self.file_entry),
+                ('pictures', self.pictureroot_entry),
+                ]
+
+    def boolean_valued(self):
+        return [('default', self.default_check),
+                ]
 
     def create_gui(self):
         self.default_check = gtk.CheckButton(_('Use default filename'))
@@ -687,7 +704,7 @@ class SQLiteParamsBox(CMParamsBox):
             self.default_check.set_active(prefs['default'])
             self.file_entry.set_text(prefs['file'])
             self.pictureroot_entry.set_text(prefs.get('pictures', ''))
-        except KeyError, e:
+        except KeyError:
             pass
             #debug('KeyError: %s' % e)
             #debug(traceback.format_exc())
