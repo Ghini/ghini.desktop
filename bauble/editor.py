@@ -1096,16 +1096,22 @@ class PictureBox(NoteBox):
 
     def __init__(self, presenter, model=None):
         super(PictureBox, self).__init__(presenter, model)
+        utils.set_widget_value(self.widgets.category_comboentry,
+                               u'<picture>')
 
-    def set_content(self, text):
-        im = gtk.Image()
-        if text is not None:
+    def set_content(self, filename):
+        if filename is not None:
+            im = gtk.Image()
             pixbuf = gtk.gdk.pixbuf_new_from_file(
-                os.path.join(prefs.prefs[prefs.picture_root_pref], text))
-            scaled_buf = pixbuf.scale_simple(350, 350, gtk.gdk.INTERP_BILINEAR)
+                os.path.join(prefs.prefs[prefs.picture_root_pref], filename))
+            scaled_buf = pixbuf.scale_simple(400, 400, gtk.gdk.INTERP_BILINEAR)
             im.set_from_pixbuf(scaled_buf)
-            im.show()
-            self.widgets.picture_button.add(im)
+        else:
+            # make button hold some text
+            im = gtk.Label()
+            im.set_text(_('Choose a file...'))
+        im.show()
+        self.widgets.picture_button.add(im)
         self.widgets.picture_button.show()
 
     @classmethod

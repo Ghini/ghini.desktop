@@ -345,6 +345,7 @@
                         <child>
                           <object class="GtkComboBoxEntry" id="category_comboentry">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">False</property>
                             <child internal-child="entry">
                               <object class="GtkEntry" id="comboboxentry-entry2">
