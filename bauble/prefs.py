@@ -1,6 +1,23 @@
+# -*- coding: utf-8 -*-
 #
-# prefs.py
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
 #
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import gtk
 
@@ -35,7 +52,7 @@ default_prefs_file = os.path.join(paths.user_dir(), default_filename)
 The default file for the preference settings file.
 """
 
-# TODO: i don't think we use these icons anymore
+# TODO: i don't think we use these icons anymore - issue #58
 prefs_icon_dir = os.path.join(paths.lib_dir(), 'images')
 general_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_general.png')
 security_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_security.png')
@@ -48,6 +65,11 @@ The preferences key for the bauble version of the preferences file.
 config_version = bauble.version_tuple[0], bauble.version_tuple[1]
 
 date_format_pref = 'bauble.default_date_format'
+"""
+The preferences key for the default data format.
+"""
+
+picture_root_pref = 'bauble.picture_root'
 """
 The preferences key for the default data format.
 """
@@ -76,79 +98,6 @@ The preferences key for the default units for Bauble.
 
 Values: metric, imperial
 """
-
-## class PreferencesMgr(gtk.Dialog):
-
-##     def __init__(self):
-##         gtk.Dialog.__init__(self, "Preferences", None,
-##                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-##                    (gtk.STOCK_OK, gtk.RESPONSE_OK,
-##                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-##         self.current_frame = None
-##         self.create_gui()
-
-
-##     def create_gui(self):
-##         model = gtk.ListStore(str, gtk.gdk.Pixbuf)
-
-##         #pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_general.png")
-##         pixbuf = gtk.gdk.pixbuf_new_from_file(general_prefs_icon)
-##         model.append(["General", pixbuf])
-
-##         #pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_security.png")
-##         pixbuf = gtk.gdk.pixbuf_new_from_file(security_prefs_icon)
-##         model.append(["Security", pixbuf])
-
-##         self.icon_view = gtk.IconView(model)
-##         self.icon_view.set_text_column(0)
-##         self.icon_view.set_pixbuf_column(1)
-##         self.icon_view.set_orientation(gtk.ORIENTATION_VERTICAL)
-##         self.icon_view.set_selection_mode(gtk.SELECTION_SINGLE)
-##         self.icon_view.connect("selection-changed", self.on_select, model)
-##         self.icon_view.set_columns(1) # this isn't in the pygtk docs
-##         self.icon_view.set_item_width(-1)
-##         self.icon_view.set_size_request(72, -1)
-
-##         self.content_box = gtk.HBox(False)
-##         self.content_box.pack_start(self.icon_view, fill=True, expand=False)
-##         self.icon_view.select_path((0,)) # select a category, will create frame
-##         self.show_all()
-##         self.vbox.pack_start(self.content_box)
-##         self.resize(640, 480)
-##         self.show_all()
-
-
-##     def on_select(self, icon_view, model=None):
-##         selected = icon_view.get_selected_items()
-##         if len(selected) == 0: return
-##         i = selected[0][0]
-##         category = model[i][0]
-##         if self.current_frame is not None:
-##             self.content_box.remove(self.current_frame)
-##             self.current_frame.destroy()
-##             self.current_frame = None
-##         if category == "General":
-##             self.current_frame = self.create_general_frame()
-##         elif category == "Security":
-##             self.current_frame = self.create_security_frame()
-##         self.content_box.pack_end(self.current_frame, fill=True, expand=True)
-##         self.show_all()
-
-
-##     def create_general_frame(self):
-##         frame = gtk.Frame("General")
-##         box = gtk.VBox(False)
-##         box.pack_start(gtk.Label("Nothing to see here. Move on."))
-##         frame.add(box)
-##         return frame
-
-
-##     def create_security_frame(self):
-##         frame = gtk.Frame("Security")
-##         box = gtk.VBox(False)
-##         box.pack_start(gtk.Label("Nothing to see here. Move on."))
-##         frame.add(box)
-##         return frame
 
 
 from ConfigParser import RawConfigParser
@@ -183,6 +132,8 @@ class _prefs(dict):
             self[config_version_pref] = config_version
 
         # set some defaults if they don't exist
+        if picture_root_pref not in self:
+            self[picture_root_pref] = ''
         if date_format_pref not in self:
             self[date_format_pref] = '%d-%m-%Y'
         if parse_dayfirst_pref not in self:
@@ -224,7 +175,9 @@ class _prefs(dict):
         else:
             i = self.config.get(section, option)
             eval_chars = '{[('
-            if i[0] in eval_chars:  # then the value is a dict, list or tuple
+            if i == '':
+                return i
+            elif i[0] in eval_chars:  # then the value is a dict, list or tuple
                 return eval(i)
             elif i == 'True' or i == 'False':
                 return eval(i)
@@ -296,8 +249,8 @@ class PrefsView(pluginmgr.View):
         # not getting saved in the prefs
 
         def on_move_handle(paned, data=None):
-            print p.get_position()
-            prefs[self.pane_size_pref] = p.get_position()
+            print paned.get_position()
+            prefs[self.pane_size_pref] = paned.get_position()
         pane.connect('check-resize', on_move_handle)
 
         if prefs.get(self.pane_size_pref, None) is not None:

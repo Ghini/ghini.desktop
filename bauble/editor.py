@@ -1,4 +1,22 @@
-# editor.py
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: a collection of functions and abstract classes for creating
 # editors for Bauble data
@@ -15,9 +33,9 @@ import gobject
 import dateutil.parser as date_parser
 import lxml.etree as etree
 import pango
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy.orm import object_mapper, object_session
 
+from bauble.i18n import _
 import bauble
 import bauble.db as db
 from bauble.error import check
@@ -1081,12 +1099,13 @@ class PictureBox(NoteBox):
 
     def set_content(self, text):
         im = gtk.Image()
-        pixbuf = gtk.gdk.pixbuf_new_from_file(
-            os.path.join(prefs.prefs['picture_root'], text))
-        scaled_buf = pixbuf.scale_simple(350, 350, gtk.gdk.INTERP_BILINEAR)
-        im.set_from_pixbuf(scaled_buf)
-        im.show()
-        self.widgets.picture_button.add(im)
+        if text is not None:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(
+                os.path.join(prefs.prefs[prefs.picture_root_pref], text))
+            scaled_buf = pixbuf.scale_simple(350, 350, gtk.gdk.INTERP_BILINEAR)
+            im.set_from_pixbuf(scaled_buf)
+            im.show()
+            self.widgets.picture_button.add(im)
         self.widgets.picture_button.show()
 
     @classmethod

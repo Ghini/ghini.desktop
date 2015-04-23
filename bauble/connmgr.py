@@ -36,7 +36,7 @@ import bauble.utils as utils
 from bauble.error import check
 import bauble
 import bauble.paths as paths
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 from bauble.utils.log import debug, warning
 
 # TODO: make the border red for anything the user changes so
@@ -115,7 +115,7 @@ class ConnectionManager:
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None or len(conn_list.keys()) == 0:
             msg = _('You don\'t have any connections in your connection '
                     'list.\nClose this message and click on "Add" to create '
@@ -192,7 +192,8 @@ class ConnectionManager:
                     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             if not self._error:
                 self.save_current_to_prefs()
-                prefs['picture_root'] = settings.get('pictures', '')
+                prefs.prefs[prefs.picture_root_pref] = settings.get(
+                    'pictures', '')
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_prefs_to_saved(self.current_name):
@@ -287,7 +288,7 @@ class ConnectionManager:
         check(hasattr(self, "name_combo"))
         i = 0
         active = 0
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None:
             return
         for conn in conn_list:
@@ -302,10 +303,10 @@ class ConnectionManager:
         if we restrict the user to only removing the current connection
         then it saves us the trouble of having to iter through the model
         """
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if name in conn_list:  # conn_list.has_key(name):
             del conn_list[name]
-            prefs[bauble.conn_list_pref] = conn_list
+            prefs.prefs[bauble.conn_list_pref] = conn_list
 
         model = self.name_combo.get_model()
         for i in range(0, len(model)):
@@ -362,16 +363,16 @@ class ConnectionManager:
         """
         if self.current_name is None:
             return
-        if bauble.conn_list_pref not in prefs:
-            prefs[bauble.conn_list_pref] = {}
+        if bauble.conn_list_pref not in prefs.prefs:
+            prefs.prefs[bauble.conn_list_pref] = {}
         settings = copy.copy(self.params_box.get_prefs())
         settings["type"] = self.type_combo.get_active_text()
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None:
             conn_list = {}
         conn_list[self.current_name] = settings
-        prefs[bauble.conn_list_pref] = conn_list
-        prefs.save()
+        prefs.prefs[bauble.conn_list_pref] = conn_list
+        prefs.prefs.save()
 
     def compare_prefs_to_saved(self, name):
         """
@@ -379,7 +380,7 @@ class ConnectionManager:
         """
         if name is None:  # in case no name selected, can happen on first run
             return True
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None or name not in conn_list or not self.params_box:
             return False
         stored_params = conn_list[name]
@@ -395,7 +396,7 @@ class ConnectionManager:
         if name is None:
             return
 
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if self.current_name is not None:
             ## we are leaving some valid settings
             if self.current_name not in conn_list:
@@ -451,7 +452,7 @@ class ConnectionManager:
 
         # if the type changed but is the same type of the connection
         # in the name entry then set the prefs
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
             if name in conn_list:
