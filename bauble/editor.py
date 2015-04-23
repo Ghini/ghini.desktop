@@ -1128,6 +1128,9 @@ class PictureBox(NoteBox):
             self.set_content(basename)
         d.destroy()
 
+    def on_category_entry_changed(self, entry, *args):
+        pass
+
     @classmethod
     def is_valid_note(cls, note):
         return note.category == u'<picture>'
