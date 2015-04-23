@@ -1094,6 +1094,8 @@ class PictureBox(NoteBox):
             "clicked", self.on_activate_browse_button)
 
     def set_content(self, filename):
+        for w in list(self.widgets.picture_button.children()):
+            w.destroy()
         if filename is not None:
             im = gtk.Image()
             pixbuf = gtk.gdk.pixbuf_new_from_file(
@@ -1123,6 +1125,7 @@ class PictureBox(NoteBox):
             shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
             ## store basename in note field and fire callbacks.
             self.set_model_attr('note', basename)
+            self.set_content(basename)
         d.destroy()
 
     @classmethod
