@@ -1,41 +1,63 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
 #
 # accessions module
 #
+
 import datetime
 from decimal import Decimal, ROUND_DOWN
 import os
-import re
 from random import random
 import sys
 import traceback
 import weakref
-import xml.sax.saxutils as saxutils
 
 import gtk
-import gobject
 
+from bauble.i18n import _
 import lxml.etree as etree
 import pango
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import and_, or_, func
+from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
+    UnicodeText
+from sqlalchemy.orm import EXT_CONTINUE, relation, MapperExtension, \
+    backref, reconstructor
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
 import bauble
 import bauble.db as db
 import bauble.editor as editor
-from bauble.error import check, CommitException
+from bauble.error import check
 import bauble.paths as paths
-from bauble.plugins.garden.propagation import *
-from bauble.plugins.garden.source import *
+from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
+    Propagation
+from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
+    Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
 from bauble.utils.log import debug, warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results, Action
+    select_in_search_results, Action
 import bauble.view as view
 
 # TODO: underneath the species entry create a label that shows information
@@ -43,8 +65,10 @@ import bauble.view as view
 # info about the genus so we know exactly what plant is being selected
 # e.g. Malvaceae (sensu lato), Hibiscus (senso stricto)
 
+
 def longitude_to_dms(decimal):
     return decimal_to_dms(Decimal(decimal), 'long')
+
 
 def latitude_to_dms(decimal):
     return decimal_to_dms(Decimal(decimal), 'lat')
@@ -75,7 +99,6 @@ def decimal_to_dms(decimal, long_or_lat):
     q = Decimal((0, (1,), -places))
     s = Decimal(abs((m2-m) * 60)).quantize(q)
     return direction, d, m, s
-
 
 
 def dms_to_decimal(dir, deg, min, sec, precision=6):
@@ -130,6 +153,7 @@ def get_next_code():
     finally:
         session.close()
     return next
+
 
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
@@ -195,7 +219,6 @@ def acc_markup_func(acc):
     return utils.xml_safe_utf8(unicode(acc)), acc.species_str(markup=True)
 
 
-
 # TODO: accession should have a one-to-many relationship on verifications
     #ver_level = StringCol(length=2, default=None) # verification level
     #ver_name = StringCol(length=50, default=None) # verifier's name
@@ -204,6 +227,7 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
+    
 ver_level_descriptions = \
     {0: _('The name of the record has not been checked by any authority.'),
      1: _('The name of the record determined by comparison with other '\
@@ -472,9 +496,9 @@ class Accession(db.Base):
                                   translations=prov_type_values),
                        default=None)
 
-    wild_prov_status =Column(types.Enum(values=wild_prov_status_values.keys(),
-                                        translations=wild_prov_status_values),
-                             default=None)
+    wild_prov_status = Column(types.Enum(values=wild_prov_status_values.keys(),
+                                         translations=wild_prov_status_values),
+                              default=None)
 
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
@@ -505,9 +529,9 @@ class Accession(db.Base):
                       backref=backref('accession', uselist=False))
 
     # relations
-    species = relation('Species', uselist=False, backref=backref('accessions',
-                                                cascade='all, delete-orphan'))
-
+    species = relation('Species', uselist=False,
+                       backref=backref('accessions',
+                                       cascade='all, delete-orphan'))
 
     # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
@@ -582,11 +606,11 @@ class Accession(db.Base):
 
         # copy the species so we don't affect the original
         session = db.Session()
-        species = session.merge(self.species)#, dont_load=True)
+        species = session.merge(self.species)  # , dont_load=True)
 
         # generate the string
         if self.id_qual in ('aff.', 'cf.'):
-            if self.id_qual_rank=='infrasp':
+            if self.id_qual_rank == 'infrasp':
                 species.sp = '%s %s' % (species.sp, self.id_qual)
             elif self.id_qual_rank:
                 setattr(species, self.id_qual_rank,
@@ -609,10 +633,10 @@ class Accession(db.Base):
         return '%s (%s)' % (self.code, self.species.markup())
 
     def as_dict(self):
-        result = dict((col, getattr(self, col)) 
+        result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
                       if col not in ['id']
-                      and col[0] != '_' 
+                      and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
         result['object'] = 'accession'

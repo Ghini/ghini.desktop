@@ -555,7 +555,6 @@ class SpeciesTests(PlantTestCase):
         q = self.session.query(VernacularName).filter_by(species_id=sp.id)
         self.assertRaises(NoResultFound, q.one)
 
-
     def test_default_vernacular_name(self):
         """
         Test the Species.default_vernacular_name property
@@ -589,7 +588,6 @@ class SpeciesTests(PlantTestCase):
         self.session.commit()
         self.assert_(vn in sp.vernacular_names)
         self.assert_(sp.default_vernacular_name == default)
-
 
         # test that removing a vernacular name removes it from
         # default_vernacular_name, this test also effectively tests VNList
@@ -631,7 +629,6 @@ class SpeciesTests(PlantTestCase):
         sp.default_vernacular_name = vn2
         self.session.commit()
 
-
     def test_synonyms(self):
         """
         Test the Species.synonyms property
@@ -643,7 +640,7 @@ class SpeciesTests(PlantTestCase):
             sp2 = load_sp(id2)
             return '%s(%s).synonyms: %s' % \
                    (sp1, sp1.id,
-                    str(map(lambda s: '%s(%s)' % \
+                    str(map(lambda s: '%s(%s)' %
                             (s, s.id), sp1.synonyms)))
 
         def synonym_of(id1, id2):

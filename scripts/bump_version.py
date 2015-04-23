@@ -60,7 +60,8 @@ def bump_py_file(filename):
     """
     bump python files
     """
-    rx = "(^version\s*?=\s*?\'|\").*?\..*?\..*?(\'|\".*?%s.*?$)" % bump_tag
+
+    rx = "^(version\s*=\s*(?:\'|\")).*((?:\'|\").*%s.*)$" % bump_tag
     bump_file(filename, rx)
 
 
@@ -80,8 +81,7 @@ def bump_nsi_file(filename):
     bump_file(filename, rx)
 
 # bump and grind
-bump_py_file('setup.py')
-bump_py_file('bauble/__init__.py')
+bump_py_file('bauble/version.py')
 bump_desktop_file('data/bauble.desktop')
 bump_nsi_file('scripts/build.nsi')
 
