@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
+# The Bauble version.
 # major, minor, revision version tuple
-version = "1.0.12dev"
-"""The Bauble version.
-"""
+
+version = "1.0.13"  # :bump

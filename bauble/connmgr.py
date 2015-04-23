@@ -1,6 +1,26 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # connmgr.py
 #
+
 """
 The connection manager provides a GUI for creating and opening
 connections. This is the first thing displayed when Bauble starts.
@@ -16,7 +36,7 @@ import bauble.utils as utils
 from bauble.error import check
 import bauble
 import bauble.paths as paths
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 from bauble.utils.log import debug, warning
 
 # TODO: make the border red for anything the user changes so
@@ -66,13 +86,16 @@ class ConnectionManager:
         try:
             try:
                 import pysqlite2
+                assert(pysqlite2)
             except Exception:
                 import sqlite3
+                assert(sqlite3)
             self._working_dbtypes.append('SQLite')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
         try:
             import psycopg2
+            assert(psycopg2)
             self._working_dbtypes.append('PostgreSQL')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
@@ -92,7 +115,7 @@ class ConnectionManager:
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None or len(conn_list.keys()) == 0:
             msg = _('You don\'t have any connections in your connection '
                     'list.\nClose this message and click on "Add" to create '
@@ -169,6 +192,8 @@ class ConnectionManager:
                     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             if not self._error:
                 self.save_current_to_prefs()
+                prefs.prefs[prefs.picture_root_pref] = settings.get(
+                    'pictures', '')
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_prefs_to_saved(self.current_name):
@@ -203,7 +228,7 @@ class ConnectionManager:
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.dialog.set_icon(pixbuf)
-        except Exception, e:
+        except Exception:
             warning(_('Could not load icon from %s' % bauble.default_icon))
             warning(traceback.format_exc())
             # utils.message_details_dialog(_('Could not load icon from %s' % \
@@ -242,6 +267,7 @@ class ConnectionManager:
             sensitive = dbtype in self.working_dbtypes
             renderer.set_property('sensitive', sensitive)
             renderer.set_property('text', dbtype)
+
         utils.setup_text_combobox(self.type_combo, self._dbtypes,
                                   type_combo_cell_data_func)
         self.type_combo.connect("changed", self.on_changed_type_combo)
@@ -262,7 +288,7 @@ class ConnectionManager:
         check(hasattr(self, "name_combo"))
         i = 0
         active = 0
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None:
             return
         for conn in conn_list:
@@ -277,10 +303,10 @@ class ConnectionManager:
         if we restrict the user to only removing the current connection
         then it saves us the trouble of having to iter through the model
         """
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if name in conn_list:  # conn_list.has_key(name):
             del conn_list[name]
-            prefs[bauble.conn_list_pref] = conn_list
+            prefs.prefs[bauble.conn_list_pref] = conn_list
 
         model = self.name_combo.get_model()
         for i in range(0, len(model)):
@@ -321,7 +347,7 @@ class ConnectionManager:
         d.destroy()
         if name is not '':
             self.name_combo.prepend_text(name)
-            expander = self.widgets.expander.set_expanded(True)
+            self.widgets.expander.set_expanded(True)
             self.name_combo.set_active(0)
 
             # TODO:
@@ -337,16 +363,16 @@ class ConnectionManager:
         """
         if self.current_name is None:
             return
-        if bauble.conn_list_pref not in prefs:
-            prefs[bauble.conn_list_pref] = {}
+        if bauble.conn_list_pref not in prefs.prefs:
+            prefs.prefs[bauble.conn_list_pref] = {}
         settings = copy.copy(self.params_box.get_prefs())
         settings["type"] = self.type_combo.get_active_text()
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None:
             conn_list = {}
         conn_list[self.current_name] = settings
-        prefs[bauble.conn_list_pref] = conn_list
-        prefs.save()
+        prefs.prefs[bauble.conn_list_pref] = conn_list
+        prefs.prefs.save()
 
     def compare_prefs_to_saved(self, name):
         """
@@ -354,7 +380,7 @@ class ConnectionManager:
         """
         if name is None:  # in case no name selected, can happen on first run
             return True
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None or name not in conn_list or not self.params_box:
             return False
         stored_params = conn_list[name]
@@ -370,8 +396,9 @@ class ConnectionManager:
         if name is None:
             return
 
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if self.current_name is not None:
+            ## we are leaving some valid settings
             if self.current_name not in conn_list:
                 msg = _("Do you want to save %s?") % self.current_name
                 if utils.yes_no_dialog(msg):
@@ -387,6 +414,7 @@ class ConnectionManager:
                     self.save_current_to_prefs()
 
         if conn_list is not None and name in conn_list:
+            ## we are retrieving connection info from the global settings
             if conn_list[name]['type'] not in self._dbtypes:
                 # in case the connection type has changed or isn't supported
                 # on this computer
@@ -424,7 +452,7 @@ class ConnectionManager:
 
         # if the type changed but is the same type of the connection
         # in the name entry then set the prefs
-        conn_list = prefs[bauble.conn_list_pref]
+        conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
             if name in conn_list:
@@ -469,18 +497,13 @@ class ConnectionManager:
             filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
             return uri
-        if params['type'].lower() == "postgresql":
-            subs['type'] = 'postgresql'
-        else:
-            subs['type'] = params['type'].lower()
+        subs['type'] = params['type'].lower()
         if 'port' in params:
             template = "%(type)s://%(user)s@%(host)s:%(port)s/%(db)s"
         else:
             template = "%(type)s://%(user)s@%(host)s/%(db)s"
         if params["passwd"] is True:
             subs["passwd"] = self.get_passwd()
-            #template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
-            # insert password
             if subs["passwd"]:
                 template = template.replace('@', ':%(passwd)s@')
         uri = template % subs
@@ -522,8 +545,22 @@ class ConnectionManager:
 
 
 class CMParamsBox(gtk.Table):
+    '''common parameters box, has placeholders for database url parts.
 
-    def __init__(self, conn_mgr, rows=4, columns=2):
+    dialect+driver://username:password@host:port/database
+    '''
+
+    def text_valued(self):
+        return [('db', self.db_entry),
+                ('host', self.host),
+                ('user', self.user),
+                ('pictures', self.pictureroot_entry),
+                ]
+
+    def boolean_valued(self):
+        return [('passwd', self.passwd_check)]
+
+    def __init__(self, conn_mgr, rows=5, columns=2):
         gtk.Table.__init__(self, rows, columns)
         self.set_row_spacings(10)
         self.create_gui()
@@ -562,31 +599,31 @@ class CMParamsBox(gtk.Table):
         self.attach(self.passwd_check, 1, 2, 3, 4)
 
     def get_prefs(self):
-        """
-        see get_prefs
+        """return dictionary of all preferences.
         """
         return self.get_parameters()
 
     def get_parameters(self):
+        """return dictionary of text valued preferences.
+
+        text valued preferences are used to build the connection uri
         """
-        return only those preferences that are used to build the connection uri
-        """
-        d = {}
-        d["db"] = self.db_entry.get_text()
-        d["host"] = self.host_entry.get_text()
-        d["user"] = self.user_entry.get_text()
-        d["passwd"] = self.passwd_check.get_active()
-        return d
+        result = {}
+        for k, w in self.text_valued():
+            result[k] = w.get_text()
+        for k, w in self.boolean_valued():
+            result[k] = w.get_active()
+        return result
 
     def refresh_view(self, prefs):
         """
         refresh the widget values from prefs
         """
         try:
-            self.db_entry.set_text(prefs["db"])
-            self.host_entry.set_text(prefs["host"])
-            self.user_entry.set_text(prefs["user"])
-            self.passwd_check.set_active(prefs["passwd"])
+            for k, w in self.text_valued():
+                w.set_text(prefs[k])
+            for k, w in self.boolean_valued():
+                w.set_active(prefs[k])
         except KeyError, e:
             debug('KeyError: %s' % e)
             #debug(traceback.format_exc())
@@ -595,7 +632,16 @@ class CMParamsBox(gtk.Table):
 class SQLiteParamsBox(CMParamsBox):
 
     def __init__(self, conn_mgr):
-        CMParamsBox.__init__(self, conn_mgr, rows=1, columns=2)
+        CMParamsBox.__init__(self, conn_mgr, rows=2, columns=2)
+
+    def text_valued(self):
+        return [('file', self.file_entry),
+                ('pictures', self.pictureroot_entry),
+                ]
+
+    def boolean_valued(self):
+        return [('default', self.default_check),
+                ]
 
     def create_gui(self):
         self.default_check = gtk.CheckButton(_('Use default filename'))
@@ -608,14 +654,32 @@ class SQLiteParamsBox(CMParamsBox):
         label = gtk.Label(_("Filename: "))
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 1, 2)
-
         self.file_box = gtk.HBox(False)
         self.file_entry = gtk.Entry()
         self.file_box.pack_start(self.file_entry)
         file_button = gtk.Button(_("Browse..."))
         file_button.connect("clicked", self.on_activate_browse_button)
+        ## set additional properties, used in on_activate_browse_button
+        file_button.action = gtk.FILE_CHOOSER_ACTION_SAVE
+        file_button.file_entry = self.file_entry
         self.file_box.pack_start(file_button)
         self.attach(self.file_box, 1, 2, 1, 2)
+
+        label_alignment = (0.0, 0.5)
+        label = gtk.Label(_("Pictures root: "))
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 2, 3)
+        self.pictureroot_box = gtk.HBox(False)
+        self.pictureroot_entry = gtk.Entry()
+        self.pictureroot_box.pack_start(self.pictureroot_entry)
+        pictureroot_button = gtk.Button(_("Browse..."))
+        pictureroot_button.connect("clicked", self.on_activate_browse_button)
+        ## set additional properties, used in on_activate_browse_button
+        pictureroot_button.action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER
+        pictureroot_button.file_entry = self.pictureroot_entry
+        pictureroot_button.wants_filetype = None
+        self.pictureroot_box.pack_start(pictureroot_button)
+        self.attach(self.pictureroot_box, 1, 2, 2, 3)
 
     def get_prefs(self):
         prefs = self.get_parameters()
@@ -633,13 +697,15 @@ class SQLiteParamsBox(CMParamsBox):
             d['file'] = os.path.join(paths.user_dir(), '%s.db' % fixed)
         else:
             d['file'] = self.file_entry.get_text()
+        d['pictures'] = self.pictureroot_entry.get_text()
         return d
 
     def refresh_view(self, prefs):
         try:
             self.default_check.set_active(prefs['default'])
             self.file_entry.set_text(prefs['file'])
-        except KeyError, e:
+            self.pictureroot_entry.set_text(prefs.get('pictures', ''))
+        except KeyError:
             pass
             #debug('KeyError: %s' % e)
             #debug(traceback.format_exc())
@@ -647,13 +713,13 @@ class SQLiteParamsBox(CMParamsBox):
     def on_activate_browse_button(self, widget, data=None):
         d = gtk.FileChooserDialog(
             _("Choose a file..."), None,
-            action=gtk.FILE_CHOOSER_ACTION_SAVE,
+            action=widget.action,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        r = d.run()
+        d.run()
         filename = d.get_filename()
         if filename:
-            self.file_entry.set_text(filename)
+            widget.file_entry.set_text(filename)
         d.destroy()
 
 
@@ -661,8 +727,6 @@ class PGParamsBox(CMParamsBox):
 
     def __init__(self, conn_mgr):
         CMParamsBox.__init__(self, conn_mgr)
-        # for child in children:
-        #   if child
 
 
 class CMParamsBoxFactory:
