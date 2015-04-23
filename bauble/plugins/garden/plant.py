@@ -68,6 +68,11 @@ plant_delimiter_key = u'plant_delimiter'
 default_plant_delimiter = u'.'
 
 
+def show_pictures_callback(plants):
+    ## should activate a window that shows the pictures for this plant
+    return None
+
+
 def edit_callback(plants):
     e = PlantEditor(model=plants[0])
     return e.start() is not None
@@ -107,6 +112,11 @@ def remove_callback(plants):
     return True
 
 
+show_pictures_action = Action(
+    'plant_show_pictures', _('_Pictures'),
+    callback=show_pictures_callback,
+    accelerator='<ctrl>p', multiselect=False)
+
 edit_action = Action('plant_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e', multiselect=True)
 
@@ -116,7 +126,8 @@ branch_action = Action('plant_branch', _('_Branch'), callback=branch_callback,
 remove_action = Action('plant_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
-plant_context_menu = [edit_action, branch_action, remove_action]
+plant_context_menu = [
+    edit_action, branch_action, remove_action, show_pictures_action, ]
 
 
 def plant_markup_func(plant):
@@ -693,7 +704,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'edit')
 
     def dirty(self):
-        return self.notes_presenter.dirty() or \
+        return self.pictures_presenter.dirty() or \
+            self.notes_presenter.dirty() or \
             self.prop_presenter.dirty() or self.__dirty
 
     def on_date_entry_changed(self, entry, *args):

@@ -782,15 +782,6 @@ class GenericEditorPresenter(object):
         if isinstance(self.view, GenericEditorView):
             self.view.cleanup()
 
-    def refresh_sensitivity(self):
-        """
-        Refresh the sensitivity of the various widgets in the presenters view.
-
-        This is not a required method for classes that extend
-        GenericEditorPresenter.
-        """
-        pass
-
     def refresh_view(self):
         """
         Refresh the view with the model values.  This method should be
@@ -954,10 +945,10 @@ class NoteBox(gtk.HBox):
         self.set_content(self.model.note)
 
         # connect the signal handlers
-        self.widgets.date_entry.connect('changed',
-                                        self.on_date_entry_changed)
-        self.widgets.user_entry.connect('changed',
-                                        self.on_user_entry_changed)
+        self.widgets.date_entry.connect(
+            'changed', self.on_date_entry_changed)
+        self.widgets.user_entry.connect(
+            'changed', self.on_user_entry_changed)
         # connect category comboentry widget and child entry
         self.widgets.category_comboentry.connect(
             'changed', self.on_category_combo_changed)
@@ -979,7 +970,6 @@ class NoteBox(gtk.HBox):
             self.presenter.notes.remove(self.model)
         self.widgets.remove_parent(self.widgets.notes_box)
         self.presenter._dirty = True
-        self.presenter.parent_ref().refresh_sensitivity()
 
     def on_date_entry_changed(self, entry, *args):
         PROBLEM = 'BAD_DATE'
@@ -1098,6 +1088,10 @@ class PictureBox(NoteBox):
         super(PictureBox, self).__init__(presenter, model)
         utils.set_widget_value(self.widgets.category_comboentry,
                                u'<picture>')
+        self.presenter._dirty = False
+
+        self.widgets.picture_button.connect(
+            "clicked", self.on_activate_browse_button)
 
     def set_content(self, filename):
         if filename is not None:
@@ -1113,6 +1107,23 @@ class PictureBox(NoteBox):
         im.show()
         self.widgets.picture_button.add(im)
         self.widgets.picture_button.show()
+
+    def on_activate_browse_button(self, widget, data=None):
+        d = gtk.FileChooserDialog(
+            _("Choose a file..."), None,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        d.run()
+        filename = d.get_filename()
+        if filename:
+            import shutil
+            ## get the file's basename
+            basename = os.path.basename(filename)
+            ## copy file to picture_root_dir.
+            shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
+            ## store basename in note field and fire callbacks.
+            self.set_model_attr('note', basename)
+        d.destroy()
 
     @classmethod
     def is_valid_note(cls, note):
@@ -1181,8 +1192,8 @@ class NotesPresenter(GenericEditorPresenter):
 
         self.box.get_children()[0].set_expanded(True)  # expand first one
 
-        self.widgets.notes_add_button.connect('clicked',
-                                              self.on_add_button_clicked)
+        self.widgets.notes_add_button.connect(
+            'clicked', self.on_add_button_clicked)
         self.box.show_all()
 
     def on_add_button_clicked(self, *args):
@@ -1219,3 +1230,5 @@ class PicturesPresenter(NotesPresenter):
     def __init__(self, presenter, notes_property, parent_container):
         super(PicturesPresenter, self).__init__(
             presenter, notes_property, parent_container)
+
+        self.box.get_children()[0].set_expanded(False)  # expand none
