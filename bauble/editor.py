@@ -1100,7 +1100,12 @@ class PictureBox(NoteBox):
             im = gtk.Image()
             pixbuf = gtk.gdk.pixbuf_new_from_file(
                 os.path.join(prefs.prefs[prefs.picture_root_pref], filename))
-            scaled_buf = pixbuf.scale_simple(400, 400, gtk.gdk.INTERP_BILINEAR)
+            scale_x = pixbuf.get_width() / 400
+            scale_y = pixbuf.get_height() / 400
+            scale = max(scale_x, scale_y)
+            x = int(pixbuf.get_width() / scale)
+            y = int(pixbuf.get_height() / scale)
+            scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
             im.set_from_pixbuf(scaled_buf)
         else:
             # make button hold some text

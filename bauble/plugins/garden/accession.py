@@ -177,15 +177,15 @@ def remove_callback(accessions):
         safe = utils.xml_safe_utf8
         plants = [str(plant) for plant in acc.plants]
         values = dict(num_plants=len(acc.plants),
-                      plant_codes = safe(', '.join(plants)),
-                      acc_code = safe(acc))
-        msg = _('%(num_plants)s plants depend on this accession: ' \
-                '<b>%(plant_codes)s</b>\n\n'\
-                'Are you sure you want to remove accession ' \
+                      plant_codes=safe(', '.join(plants)),
+                      acc_code=safe(acc))
+        msg = _('%(num_plants)s plants depend on this accession: '
+                '<b>%(plant_codes)s</b>\n\n'
+                'Are you sure you want to remove accession '
                 '<b>%(acc_code)s</b>?' % values)
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
-                  utils.xml_safe_utf8(unicode(acc))
+            utils.xml_safe_utf8(unicode(acc))
     if not utils.yes_no_dialog(msg):
         return False
     try:
@@ -203,11 +203,11 @@ def remove_callback(accessions):
 
 
 edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
-                        accelerator='<ctrl>e')
+                     accelerator='<ctrl>e')
 add_plant_action = Action('acc_add', _('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
 remove_action = Action('acc_remove', _('_Delete'), callback=remove_callback,
-                       accelerator='<ctrl>Delete')#, multiselect=True)
+                       accelerator='<ctrl>Delete')
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
 
@@ -397,6 +397,7 @@ recvd_type_values = {
     None: ''
     }
 
+
 class AccessionNote(db.Base):
     """
     Notes for the accession table
@@ -409,8 +410,9 @@ class AccessionNote(db.Base):
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relation('Accession', uselist=False,
-                       backref=backref('notes', cascade='all, delete-orphan'))
+    accession = relation(
+        'Accession', uselist=False,
+        backref=backref('notes', cascade='all, delete-orphan'))
 
 
 class Accession(db.Base):
