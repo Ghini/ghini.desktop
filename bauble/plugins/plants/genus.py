@@ -826,7 +826,8 @@ class GeneralGenusExpander(InfoExpander):
 
         def on_family_clicked(*args):
             select_in_search_results(self.current_obj.family)
-        utils.make_label_clickable(self.widgets.gen_fam_data, on_family_clicked)
+        utils.make_label_clickable(
+            self.widgets.gen_fam_data, on_family_clicked)
 
         def on_nsp_clicked(*args):
             g = self.current_obj

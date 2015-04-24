@@ -881,6 +881,7 @@ class GenericModelViewPresenterEditor(object):
 
 
 class NoteBox(gtk.HBox):
+    glade_ui = 'notes.glade'
 
     def set_content(self, text):
         buff = gtk.TextBuffer()
@@ -894,7 +895,7 @@ class NoteBox(gtk.HBox):
 
         # open the glade file and extract the markup that the
         # expander will use
-        filename = os.path.join(paths.lib_dir(), presenter.glade_ui)
+        filename = os.path.join(paths.lib_dir(), self.glade_ui)
         xml = etree.parse(filename)
         el = xml.find("//object[@id='notes_box']")
         builder = gtk.Builder()
@@ -1083,6 +1084,7 @@ class NoteBox(gtk.HBox):
 
 
 class PictureBox(NoteBox):
+    glade_ui = 'pictures.glade'
 
     def __init__(self, presenter, model=None):
         super(PictureBox, self).__init__(presenter, model)
@@ -1159,14 +1161,18 @@ class NotesPresenter(GenericEditorPresenter):
     :param parent_container: the gtk.Container to add the notes editor box to
     """
 
-    glade_ui = 'notes.glade'
     ContentBox = NoteBox
 
     def __init__(self, presenter, notes_property, parent_container):
         super(NotesPresenter, self).__init__(presenter.model, None)
 
-        # open the glade file and extract the UI markup the presenter will use
-        filename = os.path.join(paths.lib_dir(), self.glade_ui)
+        # The glade file named in ContentBox is structured with two top
+        # GtkWindow next to each other. Here, by not doing any lookup, we
+        # get the first one, from which we extract the 'notes_editor_box'
+        # child. This is expected to contain a 'notes_expander_box' vertical
+        # box, which will host all expanders.  In the content box we
+        # extract, from the same file, the widget named 'notes_box'.
+        filename = os.path.join(paths.lib_dir(), self.ContentBox.glade_ui)
         xml = etree.parse(filename)
         builder = gtk.Builder()
         import sys
@@ -1190,7 +1196,7 @@ class NotesPresenter(GenericEditorPresenter):
         self.widgets.remove_parent(editor_box)
         parent_container.add(editor_box)
 
-        # the expander are added to self.box
+        # the `expander`s are added to self.box
         self.box = self.widgets.notes_expander_box
 
         for note in self.notes:
@@ -1235,7 +1241,6 @@ class PicturesPresenter(NotesPresenter):
     note_textview replaced by a Button containing an Image.
     """
 
-    glade_ui = 'pictures.glade'
     ContentBox = PictureBox
 
     def __init__(self, presenter, notes_property, parent_container):
