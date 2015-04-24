@@ -123,6 +123,8 @@ class GeographyMenu(gtk.Menu):
                 self.append(build_menu(geo_id, geo_name))
 
             self.show_all()
+
+        import gobject
         gobject.idle_add(populate)
 
 
