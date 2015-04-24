@@ -18,15 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
-import traceback
-import xml.sax.saxutils as sax
 from itertools import chain
-
-import gtk
 
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.orm.session import object_session
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
@@ -34,9 +29,6 @@ import bauble.db as db
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.btypes as types
-from bauble.plugins.plants.geography import Geography#, geography_table
-
-from sqlalchemy.orm.collections import collection
 
 
 class VNList(list):
@@ -142,7 +134,7 @@ class Species(db.Base):
 
     # columns
     sp = Column(Unicode(64), index=True)
-    sp2 = Column(Unicode(64), index=True) # in case hybrid=True
+    sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
     sp_author = Column(Unicode(128))
     hybrid = Column(Boolean, default=False)
     sp_qual = Column(types.Enum(values=['agg.', 's. lat.', 's. str.', None]),
@@ -187,16 +179,16 @@ class Species(db.Base):
     # correctly and to ensure that all synonyms related to this genus
     # get deleted if this genus gets deleted
     _syn = relation('SpeciesSynonym',
-                     primaryjoin='Species.id==SpeciesSynonym.synonym_id',
-                     cascade='all, delete-orphan', uselist=True)
+                    primaryjoin='Species.id==SpeciesSynonym.synonym_id',
+                    cascade='all, delete-orphan', uselist=True)
 
     vernacular_names = relation('VernacularName', cascade='all, delete-orphan',
-                                 collection_class=VNList,
+                                collection_class=VNList,
                                 backref=backref('species', uselist=False))
     _default_vernacular_name = relation('DefaultVernacularName', uselist=False,
-                                         cascade='all, delete-orphan',
-                                         backref=backref('species',
-                                                         uselist=False))
+                                        cascade='all, delete-orphan',
+                                        backref=backref('species',
+                                                        uselist=False))
     distribution = relation('SpeciesDistribution',
                             cascade='all, delete-orphan',
                             backref=backref('species', uselist=False))
@@ -238,6 +230,7 @@ class Species(db.Base):
         d = DefaultVernacularName()
         d.vernacular_name = vn
         self._default_vernacular_name = d
+
     def _del_default_vernacular_name(self):
         utils.delete_or_expunge(self._default_vernacular_name)
         del self._default_vernacular_name
@@ -262,7 +255,7 @@ class Species(db.Base):
         return Species.str(self, authors, True)
 
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = utils.utf8(u'\u2a09') # U+2A09
+    hybrid_char = utils.utf8(u'\u2a09')  # U+2A09
 
     @staticmethod
     def str(species, authors=False, markup=False):
@@ -312,8 +305,8 @@ class Species(db.Base):
             if rank == 'cv.' and epithet:
                 if species.cv_group and not group_added:
                     group_added = True
-                    infrasp_parts.append(_("(%(group)s Group)") % \
-                                             dict(group=species.cv_group))
+                    infrasp_parts.append(_("(%(group)s Group)") %
+                                         dict(group=species.cv_group))
                 infrasp_parts.append("'%s'" % escape(epithet))
             else:
                 if rank:
@@ -326,8 +319,8 @@ class Species(db.Base):
             if authors and iauthor:
                 infrasp_parts.append(escape(iauthor))
         if species.cv_group and not group_added:
-            infrasp_parts.append(_("%(group)s Group") % \
-                                     dict(group=species.cv_group))
+            infrasp_parts.append(_("%(group)s Group") %
+                                 dict(group=species.cv_group))
 
         # create the binomial part
         binomial = []
@@ -403,8 +396,8 @@ class Species(db.Base):
         from genus import Genus
         ## first try retrieving, just use species and genus fields
         is_in_session = session.query(cls).filter(
-            cls.sp==keys['epithet']).join(Genus).filter(
-                Genus.genus==keys['ht-epithet']).all()
+            cls.sp == keys['epithet']).join(Genus).filter(
+            Genus.genus == keys['ht-epithet']).all()
 
         ## correct field names
         for internal, exchange in [('sp_author', 'author'),
@@ -414,7 +407,7 @@ class Species(db.Base):
                 del keys[exchange]
 
         if is_in_session:
-            result =  is_in_session[0]
+            result = is_in_session[0]
 
             ## update object and return it.
             for k in keys.keys():
