@@ -572,6 +572,10 @@ class BuildingSQLStatements(BaubleTestCase):
         results = sp.parse_string('species where species.genus=genus1 OR species.sp=name AND species.genus.family.family=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((species.genus = 'genus1') OR ((species.sp = 'name') AND (species.genus.family.family = 'name')))")
 
+        sp = self.SearchParser()
+        results = sp.parse_string('species where species.genus=genus1 || species.sp=name && species.genus.family.family=name')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((species.genus = 'genus1') OR ((species.sp = 'name') AND (species.genus.family.family = 'name')))")
+
     def test_canfindfamilyfromgenus(self):
         'can find family from genus'
 
@@ -598,6 +602,8 @@ class BuildingSQLStatements(BaubleTestCase):
 
         sp = self.SearchParser()
         results = sp.parse_string('species where NOT species.genus.family.family=name')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE NOT (species.genus.family.family = 'name')")
+        results = sp.parse_string('species where ! species.genus.family.family=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE NOT (species.genus.family.family = 'name')")
         results = sp.parse_string('species where family=1 OR family=2 AND NOT genus.id=3')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((family = 1.0) OR ((family = 2.0) AND NOT (genus.id = 3.0)))")
