@@ -33,6 +33,7 @@ import bauble
 from bauble.error import check
 from bauble.utils.log import debug
 import bauble.utils as utils
+from bauble.i18n import _
 
 
 def search(text, session=None):
@@ -53,6 +54,17 @@ class NoneToken(object):
         return None
 
 
+class EmptyToken(object):
+    def __init__(self, t):
+        pass
+
+    def __repr__(self):
+        return '(Empty<Set>)'
+
+    def express(self):
+        return set()
+
+
 class ValueABC(object):
     ## abstract base class.
 
@@ -65,20 +77,19 @@ class ValueToken(object):
     def __init__(self, t):
         self.value = t[0]
 
-
     def __repr__(self):
         return repr(self.value)
 
     def express(self):
         return self.value.express()
-    
+
 
 class StringToken(ValueABC):
     def __init__(self, t):
         self.value = t[0]  # no need to parse the string
 
     def __repr__(self):
-        return "'%s'" % ( self.value )
+        return "'%s'" % (self.value)
 
 
 class NumericToken(ValueABC):
@@ -86,7 +97,7 @@ class NumericToken(ValueABC):
         self.value = float(t[0])  # store the float value
 
     def __repr__(self):
-        return "%s" % ( self.value )
+        return "%s" % (self.value)
 
 
 class IdentifierToken(object):
@@ -122,19 +133,19 @@ class IdentifierToken(object):
 class IdentExpressionToken(object):
     def __init__(self, t):
         self.op = t[0][1]
-        self.operation = {'>': lambda x,y: x>y,
-                          '<': lambda x,y: x<y,
-                          '>=': lambda x,y: x>=y,
-                          '<=': lambda x,y: x<=y,
-                          '=': lambda x,y: x==y,
-                          '!=': lambda x,y: x!=y,
-                          'is': lambda x,y: x is y,
-                          'like': lambda x,y: utils.ilike(x, '%s' % y)
-                      }[self.op]
+        self.operation = {'>': lambda x, y: x > y,
+                          '<': lambda x, y: x < y,
+                          '>=': lambda x, y: x >= y,
+                          '<=': lambda x, y: x <= y,
+                          '=': lambda x, y: x == y,
+                          '!=': lambda x, y: x != y,
+                          'is': lambda x, y: x is y,
+                          'like': lambda x, y: utils.ilike(x, '%s' % y)
+                          }[self.op]
         self.operands = t[0][0::2]  # every second object is an operand
 
     def __repr__(self):
-        return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
+        return "(%s %s %s)" % (self.operands[0], self.op, self.operands[1])
 
     def evaluate(self, env):
         q, a = self.operands[0].evaluate(env)
@@ -373,6 +384,7 @@ from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
                        stringEnd, Keyword, quotedString,
                        CaselessLiteral, infixNotation, opAssoc, Forward)
 
+
 class SearchParser(object):
     """The parser for bauble.search.MapperSearch
     """
@@ -381,8 +393,9 @@ class SearchParser(object):
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
     string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringToken)('string')
 
-    none_token = Literal('None').setParseAction(NoneToken)
-    value = (numeric_value | string_value | none_token).setParseAction(ValueToken)('value')
+    none_token = Literal('NULL').setParseAction(NoneToken)
+    empty_token = Literal('EMPTY').setParseAction(EmptyToken)
+    value = (numeric_value | none_token | empty_token | string_value).setParseAction(ValueToken)('value')
     value_list = Group(OneOrMore(string_value) ^ delimitedList(string_value)).setParseAction(ValueListAction)('value_list')
 
     domain = Word(alphas, alphanums)
@@ -394,9 +407,9 @@ class SearchParser(object):
     domain_expression = ((domain + equals + star_value + stringEnd)
                          | (domain + binop + domain_values + stringEnd)).setParseAction(DomainExpressionAction)('domain_expression')
 
-    AND_ = CaselessLiteral("and")
-    OR_  = CaselessLiteral("or")
-    NOT_ = CaselessLiteral("not") | Literal('!')
+    AND_ = Literal("AND")
+    OR_  = Literal("OR")
+    NOT_ = Literal("NOT") | Literal('!')
 
     query_expression = Forward()('filter')
     identifier = Group(delimitedList(Word(alphas, alphanums+'_'),
@@ -408,16 +421,16 @@ class SearchParser(object):
         ).setParseAction(ParenthesisedQuery))
     query_expression << infixNotation(
         ident_expression,
-        [ (NOT_, 1, opAssoc.RIGHT, SearchNotAction),
-          (AND_, 2, opAssoc.LEFT,  SearchAndAction),
-          (OR_,  2, opAssoc.LEFT,  SearchOrAction) ] )
+        [(NOT_, 1, opAssoc.RIGHT, SearchNotAction),
+         (AND_, 2, opAssoc.LEFT,  SearchAndAction),
+         (OR_,  2, opAssoc.LEFT,  SearchOrAction)])
     query = (domain + Keyword('where', caseless=True).suppress() +
              Group(query_expression) + stringEnd).setParseAction(QueryAction)
 
     statement = (query('query')
                  | domain_expression('domain')
                  | value_list('value_list')
-             ).setParseAction(StatementAction)('statement')
+                 ).setParseAction(StatementAction)('statement')
 
     def parse_string(self, text):
         '''request pyparsing object to parse text
