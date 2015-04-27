@@ -55,7 +55,7 @@ class NoneToken(object):
 
 
 class EmptyToken(object):
-    def __init__(self, t):
+    def __init__(self, t=None):
         pass
 
     def __repr__(self):
@@ -149,6 +149,11 @@ class IdentExpressionToken(object):
 
     def evaluate(self, env):
         q, a = self.operands[0].evaluate(env)
+        if self.operands[1].express() == set():
+            if self.op in ('is', '='):
+                return q.filter(~a.any())
+            elif self.op in ('!='):
+                return q.filter(a.any())
         clause = lambda x: self.operation(a, x)
         return q.filter(clause(self.operands[1].express()))
 
@@ -393,8 +398,8 @@ class SearchParser(object):
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
     string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringToken)('string')
 
-    none_token = Literal('NULL').setParseAction(NoneToken)
-    empty_token = Literal('EMPTY').setParseAction(EmptyToken)
+    none_token = Literal('None').setParseAction(NoneToken)
+    empty_token = Literal('Empty').setParseAction(EmptyToken)
     value = (numeric_value | none_token | empty_token | string_value).setParseAction(ValueToken)('value')
     value_list = Group(OneOrMore(string_value) ^ delimitedList(string_value)).setParseAction(ValueListAction)('value_list')
 
@@ -407,8 +412,8 @@ class SearchParser(object):
     domain_expression = ((domain + equals + star_value + stringEnd)
                          | (domain + binop + domain_values + stringEnd)).setParseAction(DomainExpressionAction)('domain_expression')
 
-    AND_ = Literal("AND")
-    OR_  = Literal("OR")
+    AND_ = Literal("AND") | Literal("&&")
+    OR_ = Literal("OR") | Literal("||")
     NOT_ = Literal("NOT") | Literal('!')
 
     query_expression = Forward()('filter')
