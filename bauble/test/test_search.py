@@ -41,7 +41,7 @@ class SearchParserTests(unittest.TestCase):
         s = 'domain where relation.relation.col=value'
         parseresult = parser.query.parseString(s)
 
-        s = 'domain where relation.relation.col=value and col2=value2'
+        s = 'domain where relation.relation.col=value AND col2=value2'
         parseresult = parser.query.parseString(s)
 
     def test_statement_token(self):
@@ -144,7 +144,7 @@ class SearchParserTests(unittest.TestCase):
         self.assertEquals(results.statement.content.filter.needs_join(env), [['accession', 'species']])
         results = parser.statement.parseString("plant where accession.id=44")
         self.assertEquals(results.statement.content.filter.needs_join(env), [['accession']])
-        results = parser.statement.parseString("plant where accession.id=4 or accession.species.id=3")
+        results = parser.statement.parseString("plant where accession.id=4 OR accession.species.id=3")
         self.assertEquals(results.statement.content.filter.needs_join(env), [['accession'], ['accession', 'species']])
 
 
@@ -315,7 +315,7 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search with or conditions
-        s = 'genus where genus=genus2 or genus=genus1'
+        s = 'genus where genus=genus2 OR genus=genus1'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 3)
         self.assert_(sorted([r.id for r in results]) \
@@ -338,13 +338,13 @@ class SearchTests(BaubleTestCase):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
-        s = 'genus where id>1 and id<3'
+        s = 'genus where id>1 AND id<3'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 1)
         result = results.pop()
         self.assertEqual(result.id, 2)
 
-        s = 'genus where id>0 and id<3'
+        s = 'genus where id>0 AND id<3'
         results = list(mapper_search.search(s, self.session))
         self.assertEqual(len(results), 2)
         self.assertEqual(set(i.id for i in results), set([1,2]))
@@ -396,23 +396,23 @@ class SearchTests(BaubleTestCase):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
-        s = 'genus where genus=genus2 and family.family=fam3'
+        s = 'genus where genus=genus2 AND family.family=fam3'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 0)
 
-        s = 'genus where genus=genus3 and family.family=fam3'
+        s = 'genus where genus=genus3 AND family.family=fam3'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 1)
         g0 = list(results)[0]
         self.assertTrue(isinstance(g0, Genus))
         self.assertEqual(g0.id, g3.id)
 
-        s = 'genus where family.family="Orchidaceae" and family.qualifier=""'
+        s = 'genus where family.family="Orchidaceae" AND family.qualifier=""'
         results = mapper_search.search(s, self.session)
         r = list(results)
         self.assertEqual(r, [])
 
-        s = 'genus where family.family=fam3 and family.qualifier=""'
+        s = 'genus where family.family=fam3 AND family.qualifier=""'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([]))
 
@@ -425,9 +425,37 @@ class SearchTests(BaubleTestCase):
         # the right one, in this case we want to make sure we get the
         # qualifier on the family and not the genus
         s = 'plant where accession.species.genus.family.family="Orchidaceae" '\
-            'and accession.species.genus.family.qualifier=""'
+            'AND accession.species.genus.family.qualifier=""'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([]))
+
+    def test_search_by_query22Symbolic(self):
+        "query with &&, ||, !"
+
+        # test does not depend on plugin functionality
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        g2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3', qualifier=u's. lat.')
+        g3 = Genus(family=f3, genus=u'genus3')
+        self.session.add_all([family2, g2, f3, g3])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where genus=genus2 && family.family=fam3'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(len(results), 0)
+
+        s = 'family where family=family1 || family=fam3'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(len(results), 2)
+
+        s = 'family where ! family=family1'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(len(results), 2)
 
     def test_search_by_query22None(self):
         """query with MapperSearch, joined tables, predicates using None
@@ -462,13 +490,13 @@ class SearchTests(BaubleTestCase):
 
         s = 'genus where author is not None'
         resultsNone = mapper_search.search(s, self.session)
-        s = 'genus where not author = ""'
+        s = 'genus where NOT author = ""'
         resultsEmptyString = mapper_search.search(s, self.session)
         self.assertEqual(resultsNone, resultsEmptyString)
 
         s = 'genus where author != None'
         resultsNone = mapper_search.search(s, self.session)
-        s = 'genus where not author = ""'
+        s = 'genus where NOT author = ""'
         resultsEmptyString = mapper_search.search(s, self.session)
         self.assertEqual(resultsNone, resultsEmptyString)
 
@@ -541,7 +569,7 @@ class BuildingSQLStatements(BaubleTestCase):
         'can use logical operators'
 
         sp = self.SearchParser()
-        results = sp.parse_string('species where species.genus=genus1 or species.sp=name and species.genus.family.family=name')
+        results = sp.parse_string('species where species.genus=genus1 OR species.sp=name AND species.genus.family.family=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((species.genus = 'genus1') OR ((species.sp = 'name') AND (species.genus.family.family = 'name')))")
 
     def test_canfindfamilyfromgenus(self):
@@ -569,7 +597,7 @@ class BuildingSQLStatements(BaubleTestCase):
         'can use the NOT operator'
 
         sp = self.SearchParser()
-        results = sp.parse_string('species where not species.genus.family.family=name')
+        results = sp.parse_string('species where NOT species.genus.family.family=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE NOT (species.genus.family.family = 'name')")
-        results = sp.parse_string('species where family=1 or family=2 and not genus.id=3')
+        results = sp.parse_string('species where family=1 OR family=2 AND NOT genus.id=3')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((family = 1.0) OR ((family = 2.0) AND NOT (genus.id = 3.0)))")
