@@ -85,16 +85,23 @@ class SearchParserTests(unittest.TestCase):
 
     def test_integer_token(self):
         "recognizes integers or floats as floats"
-        
+
         results = parser.value.parseString('123')
         self.assertEquals(results.getName(), 'value')
         self.assertEquals(results.value.express(), 123.0)
         results = parser.value.parseString('123.1')
         self.assertEquals(results.value.express(), 123.1)
 
+    def test_datetime_token(self):
+        "recognizes datetime syntax"
+
+        from datetime import datetime
+        results = parser.value.parseString('|datetime|1970,1,1|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), datetime(1970, 1, 1))
+
     def test_value_token(self):
-        """value: should only return the first string or raise a parse exception
-        """
+        "value should only return the first string or raise a parse exception"
 
         strings = ['test', '"test"', "'test'"]
         expected = 'test'
@@ -102,7 +109,6 @@ class SearchParserTests(unittest.TestCase):
             results = parser.value.parseString(s, parseAll=True)
             self.assertEquals(results.getName(), 'value')
             self.assertEquals(results.value.express(), expected)
-
 
         strings = ['123.000', '123.', "123.0"]
         expected = 123.0
@@ -126,14 +132,14 @@ class SearchParserTests(unittest.TestCase):
             self.assertEquals(results.value.express(), expected)
 
         # these should be invalid
-        strings = ['test test', '"test', "test'", '$',]
+        strings = ['test test', '"test', "test'", '$', ]
         for s in strings:
             try:
                 results = parser.value.parseString(s, parseAll=True)
-            except ParseException, e:
+            except ParseException:
                 pass
             else:
-                self.fail('ParseException not raised: "%s" - %s' \
+                self.fail('ParseException not raised: "%s" - %s'
                           % (s, results))
 
     def test_needs_join(self):
@@ -146,7 +152,6 @@ class SearchParserTests(unittest.TestCase):
         self.assertEquals(results.statement.content.filter.needs_join(env), [['accession']])
         results = parser.statement.parseString("plant where accession.id=4 OR accession.species.id=3")
         self.assertEquals(results.statement.content.filter.needs_join(env), [['accession'], ['accession', 'species']])
-
 
     def test_value_list_token(self):
         """value_list: should return all values
@@ -185,10 +190,10 @@ class SearchParserTests(unittest.TestCase):
         for s in strings:
             try:
                 results = parser.value_list.parseString(s, parseAll=True)
-            except ParseException, e:
+            except ParseException:
                 pass
             else:
-                self.fail('ParseException not raised: "%s" - %s' \
+                self.fail('ParseException not raised: "%s" - %s'
                           % (s, results))
 
 
@@ -318,7 +323,7 @@ class SearchTests(BaubleTestCase):
         s = 'genus where genus=genus2 OR genus=genus1'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 3)
-        self.assert_(sorted([r.id for r in results]) \
+        self.assert_(sorted([r.id for r in results])
                      == [g.id for g in (self.genus, genus2, g3)])
 
     def test_search_by_query13(self):
@@ -347,7 +352,7 @@ class SearchTests(BaubleTestCase):
         s = 'genus where id>0 AND id<3'
         results = list(mapper_search.search(s, self.session))
         self.assertEqual(len(results), 2)
-        self.assertEqual(set(i.id for i in results), set([1,2]))
+        self.assertEqual(set(i.id for i in results), set([1, 2]))
 
     def test_search_by_query21(self):
         "query with MapperSearch, joined tables, one predicate"
@@ -521,7 +526,7 @@ class SearchTests(BaubleTestCase):
         # as the fact that the query doesn't raise and exception
         s = 'plant where accession.species.id=1'
         results = mapper_search.search(s, self.session)
-        r = list(results)
+        list(results)
 
     def test_search_by_query22like(self):
         "query with MapperSearch, joined tables, LIKE"
@@ -554,7 +559,6 @@ class QueryBuilderTests(BaubleTestCase):
 
 
 class BuildingSQLStatements(BaubleTestCase):
-
     from bauble.search import SearchParser
 
     def test_canfindspeciesfromgenus(self):

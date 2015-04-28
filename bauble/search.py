@@ -100,6 +100,25 @@ class NumericToken(ValueABC):
         return "%s" % (self.value)
 
 
+class TypedValueToken(ValueABC):
+    ## |<name>|<paramlist>|
+    from datetime import datetime
+    constructor = {'datetime': (datetime, int),
+                   'now': (datetime.now, id),
+                   }
+
+    def __init__(self, t):
+        try:
+            constructor, converter = self.constructor[t[1]]
+        except KeyError:
+            return
+        params = tuple(converter(i) for i in t[3].express())
+        self.value = constructor(*params)
+
+    def __repr__(self):
+        return "%s" % (self.value)
+
+
 class IdentifierToken(object):
     def __init__(self, t):
         self.value = t[0]
@@ -387,21 +406,36 @@ class ValueListAction(object):
 from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
                        OneOrMore, oneOf, alphas, alphanums, Group, Literal,
                        stringEnd, Keyword, quotedString,
-                       CaselessLiteral, infixNotation, opAssoc, Forward)
+                       infixNotation, opAssoc, Forward)
 
 
 class SearchParser(object):
     """The parser for bauble.search.MapperSearch
     """
 
-    numeric_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?').setParseAction(NumericToken)('number')
+    numeric_value = Regex(
+        r'[-]?\d+(\.\d*)?([eE]\d+)?'
+        ).setParseAction(NumericToken)('number')
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
-    string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringToken)('string')
+    string_value = (
+        unquoted_string | quotedString.setParseAction(removeQuotes)
+        ).setParseAction(StringToken)('string')
 
     none_token = Literal('None').setParseAction(NoneToken)
     empty_token = Literal('Empty').setParseAction(EmptyToken)
-    value = (numeric_value | none_token | empty_token | string_value).setParseAction(ValueToken)('value')
-    value_list = Group(OneOrMore(string_value) ^ delimitedList(string_value)).setParseAction(ValueListAction)('value_list')
+
+    value_list = Forward()
+    typed_value = (
+        Literal("|") + unquoted_string + Literal("|") +
+        value_list + Literal("|")
+        ).setParseAction(TypedValueToken)
+
+    value = (
+        typed_value | numeric_value | none_token | empty_token | string_value
+        ).setParseAction(ValueToken)('value')
+    value_list << Group(
+        OneOrMore(value) ^ delimitedList(value)
+        ).setParseAction(ValueListAction)('value_list')
 
     domain = Word(alphas, alphanums)
     binop = oneOf('= == != <> < <= > >= not like contains has ilike '
@@ -409,8 +443,10 @@ class SearchParser(object):
     equals = Literal('=')
     star_value = Literal('*')
     domain_values = (value_list.copy())('domain_values')
-    domain_expression = ((domain + equals + star_value + stringEnd)
-                         | (domain + binop + domain_values + stringEnd)).setParseAction(DomainExpressionAction)('domain_expression')
+    domain_expression = (
+        (domain + equals + star_value + stringEnd)
+        | (domain + binop + domain_values + stringEnd)
+        ).setParseAction(DomainExpressionAction)('domain_expression')
 
     AND_ = Literal("AND") | Literal("&&")
     OR_ = Literal("OR") | Literal("||")
