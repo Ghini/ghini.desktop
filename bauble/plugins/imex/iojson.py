@@ -18,8 +18,8 @@
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from json import load, dump
 import gtk
+from bauble.i18n import _
 import bauble.utils as utils
 import bauble.db as db
 from bauble.plugins.plants import Familia, Genus, Species
@@ -27,13 +27,16 @@ from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
 from bauble.plugins.garden.location import Location
 import bauble.task
+import bauble.editor as editor
+import bauble.paths as paths
 import json
 import bauble.pluginmgr as pluginmgr
 
 
 def serializedatetime(obj):
     """Default JSON serializer."""
-    import calendar, datetime
+    import calendar
+    import datetime
 
     if isinstance(obj, (Familia, Genus, Species)):
         return str(obj)
@@ -45,6 +48,28 @@ def serializedatetime(obj):
         obj.microsecond / 1000
     )
     return {'__class__': 'datetime', 'millis': millis}
+
+
+class ExportToJson(editor.GenericEditorView):
+
+    _tooltips = {}
+
+    def __init__(self, parent=None):
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'imex',
+                                'select_export.glade')
+        super(ExportToJson, self).__init__(filename, parent=parent)
+
+    def get_window(self):
+        return self.widgets.select_export_dialog
+
+    def start(self):
+        return self.get_window().run() == gtk.RESPONSE_OK
+
+    def get_filename(self):
+        return self.widgets.filename.get_text()
+
+    def get_objects(self):
+        return []
 
 
 class JSONImporter(object):
@@ -75,9 +100,12 @@ class JSONImporter(object):
         s = db.Session()
         for i in objects:
             ## get class and remove reference
-            klass = globals()[i['rank'].capitalize()]
-            del i['rank']
-            obj = klass.retrieve_or_create(s, i)
+            try:
+                klass = globals()[i['object'].capitalize()]
+            except KeyError:
+                klass = globals()[i['rank'].capitalize()]
+                del i['rank']
+            klass.retrieve_or_create(s, i)  # adds, too
             yield
         s.commit()
 
@@ -86,30 +114,26 @@ class JSONExporter(object):
     "Export taxonomy and plants in JSON format."
 
     def start(self, filename=None, objects=None):
-        if filename is None: # no filename, ask the user
-            d = gtk.FileChooserDialog(_("Choose a file to export to..."), None,
-                                      gtk.FILE_CHOOSER_ACTION_SAVE,
-                                      (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                       gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-            response = d.run()
+        if filename is None or objects is None:  # need user intervention
+            d = ExportToJson()
+            response = d.start()
             filename = d.get_filename()
-            d.destroy()
-            if response != gtk.RESPONSE_ACCEPT or filename == None:
+            objects = d.get_objects()
+            if response != gtk.RESPONSE_OK or filename is None:
                 return
         self.run(filename, objects)
 
-
     def run(self, filename, objects=None):
-        if filename == None:
+        if filename is None:
             raise ValueError("filename can not be None")
 
         if os.path.exists(filename) and not os.path.isfile(filename):
-            raise ValueError("%s exists and is not a a regular file" \
-                                 % filename)
+            raise ValueError("%s exists and is not a a regular file"
+                             % filename)
 
         # if objects is None then export all objects under classes Familia,
         # Genus, Species, Accession, Plant, Location.
-        if objects == None:
+        if objects is None:
             s = db.Session()
             objects = s.query(Familia).all()
             objects.extend(s.query(Genus).all())
@@ -120,17 +144,17 @@ class JSONExporter(object):
 
         count = len(objects)
         if count > 3000:
-            msg = _('You are exporting %(nplants)s objects to JSON format.  ' \
-                    'Exporting this many objects may take several minutes.  '\
+            msg = _('You are exporting %(nplants)s objects to JSON format.  '
+                    'Exporting this many objects may take several minutes.  '
                     '\n\n<i>Would you like to continue?</i>') \
-                    % ({'nplants': count})
+                % ({'nplants': count})
             if not utils.yes_no_dialog(msg):
                 return
 
         import codecs
         with codecs.open(filename, "wb", "utf-8") as output:
-            dump([obj.as_dict() for obj in objects], output, 
-                 default=serializedatetime, sort_keys=True, indent=4)
+            json.dump([obj.as_dict() for obj in objects], output,
+                      default=serializedatetime, sort_keys=True, indent=4)
 
 
 #
