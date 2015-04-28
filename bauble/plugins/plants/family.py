@@ -173,24 +173,24 @@ class Family(db.Base):
         return False
 
     def as_dict(self):
-        result = dict((col, getattr(self, col)) 
+        result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
                       if col not in ['id', 'family', 'qualifier']
-                      and col[0] != '_' 
+                      and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
         result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.family
         return result
-    
+
     @classmethod
     def retrieve_or_create(cls, session, keys):
 
         ## first try retrieving, just use genus and sp fields
         is_in_session = session.query(cls).filter(
-            cls.family==keys['epithet']).all()
-        
+            cls.family == keys['epithet']).all()
+
         if is_in_session:
             return is_in_session[0]
 
