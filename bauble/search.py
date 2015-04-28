@@ -401,7 +401,7 @@ class ValueListAction(object):
             result.update(q.all())
 
         return result
-        
+
 
 from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
                        OneOrMore, oneOf, alphas, alphanums, Group, Literal,
@@ -453,7 +453,7 @@ class SearchParser(object):
     NOT_ = Literal("NOT") | Literal('!')
 
     query_expression = Forward()('filter')
-    identifier = Group(delimitedList(Word(alphas, alphanums+'_'),
+    identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),
                                      '.')).setParseAction(IdentifierToken)
     ident_expression = (
         Group(identifier + binop + value).setParseAction(IdentExpressionToken)

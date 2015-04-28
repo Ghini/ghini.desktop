@@ -574,11 +574,11 @@ class SearchTests(BaubleTestCase):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
-        s = 'plant where _last_updated < 0'
+        s = 'plant where _last_updated < |datetime|2000,1,1|'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set())
 
-        s = 'plant where _last_updated > 0'
+        s = 'plant where _last_updated > |datetime|2000,1,1|'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([pp]))
 
