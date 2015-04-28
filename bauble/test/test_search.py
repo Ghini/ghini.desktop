@@ -549,6 +549,39 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         self.assert_(set(results) == set([self.genus, genus2]))
 
+    def test_search_by_query22_underscore(self):
+        """can use fields starting with an underscore"""
+
+        import datetime
+        Family = self.Family
+        Genus = self.Genus
+        from bauble.plugins.plants.species_model import Species
+        from bauble.plugins.garden.accession import Accession
+        from bauble.plugins.garden.location import Location
+        from bauble.plugins.garden.plant import Plant
+        family2 = Family(family=u'family2')
+        g2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3', qualifier=u's. lat.')
+        g3 = Genus(family=f3, genus=u'Ixora')
+        sp = Species(sp=u"coccinea", genus=g3)
+        ac = Accession(species=sp, code=u'1979.0001')
+        lc = Location(name=u'loc1', code=u'loc1')
+        pp = Plant(accession=ac, code=u'01', location=lc, quantity=1)
+        pp._last_updated = datetime.datetime(2009, 2, 13)
+        self.session.add_all([family2, g2, f3, g3, sp, ac, lc, pp])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'plant where _last_updated < 0'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set())
+
+        s = 'plant where _last_updated > 0'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([pp]))
+
 
 class QueryBuilderTests(BaubleTestCase):
 
