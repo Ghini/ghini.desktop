@@ -1026,7 +1026,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 self._commited = sub_editor.start()
         if self.session.query(Location).count() == 0:
             msg = 'You must first add or import at least one Location into '\
-                  'the database before you can add species.\n\nWould you '\
+                  'the database before you can add plants.\n\nWould you '\
                   'like to open the Location editor?'
             if utils.yes_no_dialog(msg):
                 # cleanup in case we start a new PlantEditor
