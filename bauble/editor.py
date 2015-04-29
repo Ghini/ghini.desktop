@@ -202,7 +202,7 @@ class GenericEditorView(object):
     _tooltips = {}
 
     def __init__(self, filename, parent=None):
-        builder = utils.BuilderLoader.load(filename)
+        builder = self.builder = utils.BuilderLoader.load(filename)
         self.widgets = utils.BuilderWidgets(builder)
         if parent:
             self.get_window().set_transient_for(parent)
