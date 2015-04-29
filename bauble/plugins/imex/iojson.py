@@ -128,7 +128,7 @@ class JSONExporter(object):
     "Export taxonomy and plants in JSON format."
 
     def start(self, filename=None, objects=None):
-        if filename is None or objects is None:  # need user intervention
+        if filename is None:  # need user intervention
             d = ExportToJson()
             response = d.start()
             filename = d.get_filename()
