@@ -10,6 +10,7 @@ EOF
 mkdir -p ~/Local/github/mfrasca
 cd ~/Local/github/mfrasca
 git clone https://github.com/mfrasca/bauble.classic
+git checkout bauble-1.0
 mkvirtualenv bacl --system-site-packages
 workon bacl
 python setup.py build
