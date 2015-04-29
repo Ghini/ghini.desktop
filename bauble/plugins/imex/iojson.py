@@ -53,11 +53,25 @@ def serializedatetime(obj):
 class ExportToJson(editor.GenericEditorView):
 
     _tooltips = {}
+    _choices = {'based_on': 'selection',
+                'includes': 'referred',
+                }
+
+    def radio_button_pushed(self, widget, group):
+        name = gtk.Buildable.get_name(widget).split('_')[1]
+        self._choices[group] = name
+        print self._choices
 
     def __init__(self, parent=None):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'imex',
                                 'select_export.glade')
         super(ExportToJson, self).__init__(filename, parent=parent)
+        for wn in ['selection', 'taxa', 'accessions', 'plants']:
+            self.connect('sbo_' + wn, 'toggled',
+                         self.radio_button_pushed, "based_on")
+        for wn in ['referred', 'referring']:
+            self.connect('ei_' + wn, 'toggled',
+                         self.radio_button_pushed, "includes")
 
     def get_window(self):
         return self.widgets.select_export_dialog
