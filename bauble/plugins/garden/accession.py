@@ -956,18 +956,14 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             set_expanded(True)
         self._dirty = False
 
-
     def dirty(self):
         return self._dirty
-
 
     def refresh_view(self):
         pass
 
-
     def on_add_clicked(self, *args):
         self.add_verification_box()
-
 
     def add_verification_box(self, model=None):
         """
@@ -979,7 +975,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         self.view.widgets.verifications_parent_box.reorder_child(box, 0)
         box.show_all()
         return box
-
 
     class VerificationBox(gtk.HBox):
 
@@ -996,7 +991,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
             # copy UI definitions from the accession editor glade file
             filename = os.path.join(paths.lib_dir(), "plugins", "garden",
-                                "acc_editor.glade")
+                                    "acc_editor.glade")
             xml = etree.parse(filename)
             el = xml.find("//object[@id='ver_box']")
             builder = gtk.Builder()
@@ -2474,7 +2469,6 @@ class VouchersExpander(InfoExpander):
             label.show()
 
 
-
 class AccessionInfoBox(InfoBox):
     """
     - general info
@@ -2503,7 +2497,6 @@ class AccessionInfoBox(InfoBox):
 
         #self.show_all()
 
-
     def update(self, row):
         if isinstance(row, Collection):
             row = row.source.accession
@@ -2518,8 +2511,8 @@ class AccessionInfoBox(InfoBox):
 
         # self.vouchers.update(row)
 
-        urls = filter(lambda x: x!=[], \
-                          [utils.get_urls(note.note) for note in row.notes])
+        urls = filter(lambda x: x != [],
+                      [utils.get_urls(note.note) for note in row.notes])
         if not urls:
             self.links.props.visible = False
             self.links._sep.props.visible = False
@@ -2559,7 +2552,7 @@ datums = {"Adindan": "Adindan- Ethiopia, Mali, Senegal, Sudan",
           "Aus Geod '84": "Australian Geod '84- Australia, Tasmania Island",
           "Austria": "Austria",
           "Bellevue (IGN)": "Efate and Erromango Islands",
-          "Bermuda 1957" : "Bermuda 1957- Bermuda Islands",
+          "Bermuda 1957": "Bermuda 1957- Bermuda Islands",
           "Bogota Observ": "Bogata Obsrvatry- Colombia",
           "Campo Inchspe": "Campo Inchauspe- Argentina",
           "Canton Ast '66": "Canton Astro 1966- Phoenix Islands",
@@ -2567,15 +2560,15 @@ datums = {"Adindan": "Adindan- Ethiopia, Mali, Senegal, Sudan",
           "Cape Canavrl": "Cape Canaveral- Florida, Bahama Islands",
           "Carthage": "Carthage- Tunisia",
           "CH-1903": "CH 1903- Switzerland",
-          "Chatham 1971" : "Chatham 1971- Chatham Island (New Zealand)",
+          "Chatham 1971": "Chatham 1971- Chatham Island (New Zealand)",
           "Chua Astro": "Chua Astro- Paraguay",
-          "Corrego Alegr" : "Corrego Alegre- Brazil",
-          "Croatia" : "Croatia",
-          "Djakarta" : "Djakarta (Batavia)- Sumatra Island (Indonesia)",
-          "Dos 1968" : "Dos 1968- Gizo Island (New Georgia Islands)",
-          "Dutch" : "Dutch",
-          "Easter Isld 67" : "Easter Island 1967",
-          "European 1950" : "European 1950- Austria, Belgium, Denmark, Finland, France, Germany, Gibraltar, Greece, Italy, Luxembourg, Netherlands, Norway, Portugal, Spain, Sweden, Switzerland",
+          "Corrego Alegr": "Corrego Alegre- Brazil",
+          "Croatia": "Croatia",
+          "Djakarta": "Djakarta (Batavia)- Sumatra Island (Indonesia)",
+          "Dos 1968": "Dos 1968- Gizo Island (New Georgia Islands)",
+          "Dutch": "Dutch",
+          "Easter Isld 67": "Easter Island 1967",
+          "European 1950": "European 1950- Austria, Belgium, Denmark, Finland, France, Germany, Gibraltar, Greece, Italy, Luxembourg, Netherlands, Norway, Portugal, Spain, Sweden, Switzerland",
           "European 1979": "European 1979- Austria, Finland, Netherlands, Norway, Spain, Sweden, Switzerland",
           "Finland Hayfrd": "Finland Hayford- Finland",
           "Gandajika Base": "Gandajika Base- Republic of Maldives",
@@ -2586,12 +2579,12 @@ datums = {"Adindan": "Adindan- Ethiopia, Mali, Senegal, Sudan",
           "Hjorsey 1955": "Hjorsey 1955- Iceland",
           "Hong Kong '63": "Hong Kong",
           "Hu-Tzu-Shan": "Taiwan",
-          "Indian Bngldsh" : "Indian- Bangladesh, India, Nepal",
-          "Indian Thailand" : "Indian- Thailand, Vietnam",
-          "Indonesia 74" : "Indonesia 1974- Indonesia",
-          "Ireland 1965" : "Ireland 1965- Ireland",
+          "Indian Bngldsh": "Indian- Bangladesh, India, Nepal",
+          "Indian Thailand": "Indian- Thailand, Vietnam",
+          "Indonesia 74": "Indonesia 1974- Indonesia",
+          "Ireland 1965": "Ireland 1965- Ireland",
           "ISTS 073 Astro": "ISTS 073 ASTRO '69- Diego Garcia",
-          "Johnston Island" : "Johnston Island NAD27 Central",
+          "Johnston Island": "Johnston Island NAD27 Central",
           "Kandawala": "Kandawala- Sri Lanka",
           "Kergueln Islnd": "Kerguelen Island",
           "Kertau 1948": "West Malaysia, Singapore",
