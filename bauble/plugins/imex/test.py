@@ -24,15 +24,14 @@ import os
 import shutil
 import tempfile
 
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, Boolean
 
-import bauble
 import bauble.db as db
-from bauble.plugins.plants import Familia, Family, Genus, Species, Geography
+from bauble.plugins.plants import Familia, Family, Genus, Species
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
-    QUOTE_STYLE, UnicodeReader, UnicodeWriter
+    QUOTE_STYLE
 from bauble.plugins.imex.iojson import JSONImporter, JSONExporter
 from bauble.test import BaubleTestCase
 from bauble.utils.log import debug
@@ -154,13 +153,13 @@ class CSVTests(ImexTestCase):
         importer.start([filename], force=True)
 
         t = self.session.query(BoolTest).get(1)
-        self.assert_(t.col1==True)
+        self.assert_(t.col1 is True)
 
         t = self.session.query(BoolTest).get(2)
-        self.assert_(t.col1==False)
+        self.assert_(t.col1 is False)
 
         t = self.session.query(BoolTest).get(3)
-        self.assert_(t.col1==False)
+        self.assert_(t.col1 is False)
         table.drop(bind=db.engine)
 
     def test_with_open_connection(self):
@@ -259,8 +258,8 @@ class CSVTests(ImexTestCase):
         #debug(list(conn.execute("SELECT * FROM family").fetchall()))
         maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]
         assert nextval > highest_id, \
-               "bad sequence: highest_id(%s) > nexval(%s) -- %s" % \
-               (highest_id, nextval, maxid)
+            "bad sequence: highest_id(%s) > nexval(%s) -- %s" % \
+            (highest_id, nextval, maxid)
 
     def test_import_unicode(self):
         """
@@ -498,7 +497,7 @@ class JSONExportTests(BaubleTestCase):
         exporter = JSONExporter()
         selection = self.session.query(
             Species).filter(Species.sp == u'tuberosus').join(
-                Genus).filter(Genus.genus == u"Calopogon").all()
+            Genus).filter(Genus.genus == u"Calopogon").all()
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
