@@ -8,14 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-04-24 20:43+0000\n"
-"Last-Translator: Zbyněk Schwarz <Unknown>\n"
-"Language-Team: Czech <cs@li.org>\n"
+"PO-Revision-Date: 2015-04-10 14:12+0200\n"
+"Last-Translator: Michal Čihař <michal@cihar.com>\n"
+"Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/>"
+"\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+"X-Generator: Weblate 2.3-dev\n"
 "X-Launchpad-Export-Date: 2012-04-25 05:08+0000\n"
-"X-Generator: Launchpad (build 15139)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -611,12 +614,12 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:260 bauble/plugins/plants/family.py:242
 #: bauble/plugins/garden/accession.py:663 bauble/plugins/garden/plant.py:508
 msgid "Cancel your changes."
-msgstr "Zrušit Vaše změny"
+msgstr "Zrušit Vaše změny."
 
 #: bauble/plugins/plants/genus.py:261 bauble/plugins/plants/family.py:243
 #: bauble/plugins/garden/accession.py:664 bauble/plugins/garden/plant.py:509
 msgid "Save your changes."
-msgstr "Uložit Vaše změny"
+msgstr "Uložit Vaše změny."
 
 #: bauble/plugins/plants/genus.py:262
 msgid "Save your changes changes and add a species to this genus."
@@ -968,7 +971,7 @@ msgstr "Úplný název instituce."
 
 #: bauble/plugins/garden/institution.py:74
 msgid "The standard abbreviation of the institution."
-msgstr "Standardní zkratka instituce"
+msgstr "Standardní zkratka instituce."
 
 #: bauble/plugins/garden/institution.py:76
 msgid "The intitution code should be unique among all institions."
@@ -1019,7 +1022,7 @@ msgstr "Název, který použijete později pro odkaz na toto umístění."
 #: bauble/plugins/garden/location.py:116
 msgid ""
 "Any information that might be relevant to the location such as where it is "
-"or what's it's purpose"
+"or what's its purpose"
 msgstr ""
 "Jakékoli informace, které by se mohly týkat tohoto umístění, jako např.: kde "
 "je a jaký je jeho účel"
@@ -2559,7 +2562,7 @@ msgstr "XSL"
 
 #: bauble/plugins/report/xsl/__init__.py:473
 msgid "Please select a stylesheet."
-msgstr "Vyberte prosím stylopis"
+msgstr "Vyberte prosím stylopis."
 
 #: bauble/plugins/report/xsl/__init__.py:475
 msgid "Please select a a renderer"
@@ -3043,7 +3046,7 @@ msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
 "<i>Note: This only removes the connection to the database and does not "
-"affect the database or it's data</i>"
+"affect the database or its data</i>"
 msgstr ""
 "Jste si jisti, že chcete odstranit \"%s\"?\n"
 "\n"
@@ -3057,7 +3060,7 @@ msgstr "Zadejte název spojení"
 #: bauble/connmgr.py:391
 #, python-format
 msgid "Do you want to save %s?"
-msgstr "Chcete uložit %s"
+msgstr "Chcete uložit %s?"
 
 #: bauble/connmgr.py:399
 #, python-format

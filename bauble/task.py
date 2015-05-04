@@ -62,9 +62,14 @@ schedule.register_idle_func(_idle)
 
 
 def queue(task):
+    """Run a task.
+
+    task should be a generator with side effects. it does not matter what it
+    yields, it is important that it does stop from time to time yielding
+    whatever it wants to, and causing the side effect it has to cause.
+
     """
-    Run a task.
-    """
+
     # TODO: we might have to add a quit handler similar to what the
     # pre-fibra task manager had but raising StopIteration in the task
     # idle function might be enough...just needs more testing

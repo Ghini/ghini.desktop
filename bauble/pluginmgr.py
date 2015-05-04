@@ -430,8 +430,8 @@ class View(gtk.VBox):
 
     def __init__(self, *args, **kwargs):
         """
-        If a class extends this View and provides it's own __init__ it *must*
-        call it's parent (this) __init__
+        If a class extends this View and provides its own __init__ it *must*
+        call its parent (this) __init__
         """
         super(View, self).__init__(*args, **kwargs)
 
