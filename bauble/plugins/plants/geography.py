@@ -11,7 +11,7 @@ from sqlalchemy.orm import *
 import bauble.db as db
 
 
-def get_species_in_geography(geo):#, session=None):
+def get_species_in_geography(geo):
     """
     Return all the Species that have distribution in geo
     """
@@ -27,8 +27,9 @@ def get_species_in_geography(geo):#, session=None):
     master_ids = set([geo.id])
     # populate master_ids with all the geography ids that represent
     # the children of particular geography id
+
     def get_geography_children(parent_id):
-        stmt = select([geo_table.c.id], geo_table.c.parent_id==parent_id)
+        stmt = select([geo_table.c.id], geo_table.c.parent_id == parent_id)
         kids = [r[0] for r in db.engine.execute(stmt).fetchall()]
         for kid in kids:
             grand_kids = get_geography_children(kid)
@@ -59,7 +60,7 @@ class GeographyMenu(gtk.Menu):
                 geos_hash[parent_id] = [(geo_id, name)]
 
         for kids in geos_hash.values():
-            kids.sort(key=itemgetter(1)) # sort by name
+            kids.sort(key=itemgetter(1))  # sort by name
 
         def get_kids(pid):
             try:
@@ -89,7 +90,7 @@ class GeographyMenu(gtk.Menu):
             kids = get_kids(geo_id)
             if len(kids) > 0:
                 kids_added = True
-            for kid_id, kid_name in kids:#get_kids(geo_id):
+            for kid_id, kid_name in kids:  # get_kids(geo_id):
                 submenu.append(build_menu(kid_id, kid_name))
 
             if kids_added:
@@ -128,7 +129,6 @@ class GeographyMenu(gtk.Menu):
         gobject.idle_add(populate)
 
 
-
 class Geography(db.Base):
     """
     Represents a geography unit.
@@ -157,15 +157,15 @@ class Geography(db.Base):
     iso_code = Column(String(7))
     parent_id = Column(Integer, ForeignKey('geography.id'))
 
-
     def __str__(self):
         return self.name
 
 
 # late bindings
-Geography.children = relation(Geography,
-                              primaryjoin=Geography.parent_id==Geography.id,
-                              cascade='all',
-                              backref=backref("parent",
-                                    remote_side=[Geography.__table__.c.id]),
-                              order_by=[Geography.name])
+Geography.children = relation(
+    Geography,
+    primaryjoin=Geography.parent_id == Geography.id,
+    cascade='all',
+    backref=backref("parent",
+                    remote_side=[Geography.__table__.c.id]),
+    order_by=[Geography.name])
