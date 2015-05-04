@@ -5,8 +5,8 @@ from operator import itemgetter
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import select, Column, Unicode, String, Integer, ForeignKey
+from sqlalchemy.orm import object_session, relation, backref
 
 import bauble.db as db
 
