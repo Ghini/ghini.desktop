@@ -105,6 +105,21 @@ class Location(db.Base):
         else:
             return str(self.code)
 
+    def has_accessions(self):
+        '''true if location is linked to at least one accession
+        '''
+
+        return False
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col)) 
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id']
+                      and col[0] != '_' 
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'location'
+        return result
 
 
 class LocationEditorView(GenericEditorView):
@@ -115,7 +130,7 @@ class LocationEditorView(GenericEditorView):
                                 'later to refer to this location.'),
         'loc_desc_textview': _('Any information that might be relevant to '\
                                'the location such as where it is or what\'s '\
-                               'it\'s purpose')
+                               'its purpose')
         }
 
     def __init__(self, parent=None):

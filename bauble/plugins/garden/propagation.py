@@ -676,7 +676,6 @@ class SeedPresenter(editor.GenericEditorPresenter):
                            'seed_pctgerm_entry': 'germ_pct',
                            'seed_date_planted_entry': 'date_planted'}
 
-
     def __init__(self, parent, model, view, session):
         '''
         :param model: an instance of class Propagation
@@ -701,13 +700,14 @@ class SeedPresenter(editor.GenericEditorPresenter):
         utils.setup_text_combobox(self.view.widgets.seed_media_comboentry,
                                   distinct(PropSeed.media))
         utils.setup_text_combobox(self.view.widgets.seed_container_comboentry,
-                                 distinct(PropSeed.container))
+                                  distinct(PropSeed.container))
         utils.setup_text_combobox(self.view.widgets.seed_location_comboentry,
                                   distinct(PropSeed.location))
 
         self.refresh_view()
 
-        self.assign_simple_handler('seed_pretreatment_textview','pretreatment',
+        self.assign_simple_handler('seed_pretreatment_textview',
+                                   'pretreatment',
                                    editor.UnicodeOrNoneValidator())
         # TODO: this should validate to an integer
         self.assign_simple_handler('seed_nseeds_entry', 'nseeds',
@@ -737,17 +737,14 @@ class SeedPresenter(editor.GenericEditorPresenter):
         utils.setup_date_button(self.view, 'seed_date_planted_entry',
                                 'seed_date_planted_button')
 
-
     def dirty(self):
         return self.__dirty
-
 
     def set_model_attr(self, field, value, validator=None):
         #debug('%s = %s' % (field, value))
         super(SeedPresenter, self).set_model_attr(field, value, validator)
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
-
 
     def refresh_view(self):
         date_format = prefs.prefs[prefs.date_format_pref]
@@ -756,7 +753,6 @@ class SeedPresenter(editor.GenericEditorPresenter):
             if isinstance(value, datetime.date):
                 value = value.strftime(date_format)
             self.view.set_widget_value(widget, value)
-
 
 
 class PropagationPresenter(editor.ChildPresenter):
@@ -786,7 +782,7 @@ class PropagationPresenter(editor.ChildPresenter):
         self._cutting_presenter = CuttingPresenter(self, self.model, self.view,
                                                    self.session)
         self._seed_presenter = SeedPresenter(self, self.model, self.view,
-                                                   self.session)
+                                             self.session)
 
         if not self.model.prop_type:
             view.widgets.prop_details_box.props.visible = False
@@ -801,7 +797,6 @@ class PropagationPresenter(editor.ChildPresenter):
 
         self.view.set_widget_value(self.view.widgets.notes_textview,
                                    self.model.notes)
-
 
         self._dirty = False
         utils.setup_date_button(self.view, 'prop_date_entry',
@@ -818,7 +813,6 @@ class PropagationPresenter(editor.ChildPresenter):
                 # always stay expanded but it works
                 self.view.widgets.notes_expander.props.expanded = False
         self.view.connect('notes_expander', 'activate', on_expanded)
-
 
     def on_prop_type_changed(self, combo, *args):
         it = combo.get_active_iter()
@@ -845,7 +839,6 @@ class PropagationPresenter(editor.ChildPresenter):
         if not self.model.date:
             self.view.widgets.prop_date_entry.emit('changed')
 
-
     def dirty(self):
         if self.model.prop_type == u'UnrootedCutting':
             return self._cutting_presenter.dirty() or self._dirty
@@ -853,7 +846,6 @@ class PropagationPresenter(editor.ChildPresenter):
             return self._seed_presenter.dirty() or self._dirty
         else:
             return self._dirty
-
 
     def set_model_attr(self, field, value, validator=None):
         """
@@ -865,19 +857,15 @@ class PropagationPresenter(editor.ChildPresenter):
         self._dirty = True
         self.refresh_sensitivity()
 
-
     def cleanup(self):
         self._cutting_presenter.cleanup()
         self._seed_presenter.cleanup()
 
-
     def refresh_sensitivity(self):
         pass
 
-
     def refresh_view(self):
         pass
-
 
 
 class SourcePropagationPresenter(PropagationPresenter):

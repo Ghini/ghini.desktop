@@ -146,6 +146,8 @@ class Genus(db.Base):
                       {})
     __mapper_args__ = {'order_by': ['genus', 'author']}
 
+    rank = 'genus'
+
     # columns
     genus = Column(String(64), nullable=False, index=True)
 
@@ -187,6 +189,65 @@ class Genus(db.Base):
                 [s for s in [genus.genus, genus.qualifier,
                              xml.sax.saxutils.escape(genus.author)]
                  if s not in ('', None)])
+
+    def has_accessions(self):
+        '''true if genus is linked to at least one accession
+        '''
+
+        return False
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col)) 
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id', 'genus', 'qualifier']
+                      and col[0] != '_' 
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'taxon'
+        result['rank'] = 'genus'
+        result['epithet'] = self.genus
+        result['ht-rank'] = 'familia'
+        result['ht-epithet'] = self.family.family
+        return result
+    
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+
+        from family import Family
+        ## first try retrieving, just use family and genus fields
+        query = session.query(cls).filter(cls.genus==keys['epithet'])
+        is_in_session = query.all()
+        
+        if is_in_session:
+            return is_in_session[0]
+
+        ## otherwise we need a new object
+
+        ## retrieve family object and replace reference.
+        family = Family.retrieve_or_create(session, {'epithet': keys['ht-epithet']})
+
+        ## correct field names
+        for internal, exchange in [('genus', 'epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
+
+        ## remove unexpected keys, create new object, add it to the session
+        ## and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        ## reconstruct connection to higher taxon
+        keys['family'] = family
+
+        result = cls(**keys)
+        session.add(result)
+
+        return result
 
 
 class GenusNote(db.Base):
@@ -729,6 +790,9 @@ class LinksExpander(view.LinksExpander):
         self.bgci_button = web.BGCIButton()
         buttons.append(self.bgci_button)
 
+        self.tpl_button = web.TPLButton()
+        buttons.append(self.TPL_button)
+
         for b in buttons:
             b.set_alignment(0, -1)
             self.vbox.pack_start(b)
@@ -741,6 +805,7 @@ class LinksExpander(view.LinksExpander):
         self.ipni_button.set_keywords(genus=row.genus, species='')
         self.grin_button.set_string(row)
         self.bgci_button.set_keywords(genus=row.genus, species='')
+        self.tpl_button.set_keywords(genus=row.genus, species='')
 
 
 class GeneralGenusExpander(InfoExpander):
@@ -761,17 +826,15 @@ class GeneralGenusExpander(InfoExpander):
 
         def on_family_clicked(*args):
             select_in_search_results(self.current_obj.family)
-
-        utils.make_label_clickable(self.widgets.gen_fam_data,
-                                   on_family_clicked)
+        utils.make_label_clickable(
+            self.widgets.gen_fam_data, on_family_clicked)
 
         def on_nsp_clicked(*args):
             g = self.current_obj
             cmd = 'species where genus.genus="%s" and genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
-        utils.make_label_clickable(self.widgets.gen_nsp_data,
-                                   on_nsp_clicked)
+        utils.make_label_clickable(self.widgets.gen_nsp_data, on_nsp_clicked)
 
         def on_nacc_clicked(*args):
             g = self.current_obj
@@ -779,8 +842,7 @@ class GeneralGenusExpander(InfoExpander):
                 'and species.genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
-        utils.make_label_clickable(self.widgets.gen_nacc_data,
-                                   on_nacc_clicked)
+        utils.make_label_clickable(self.widgets.gen_nacc_data, on_nacc_clicked)
 
         def on_nplants_clicked(*args):
             g = self.current_obj
@@ -788,8 +850,7 @@ class GeneralGenusExpander(InfoExpander):
                 'accession.species.genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
-        utils.make_label_clickable(self.widgets.gen_nplants_data,
-                                   on_nplants_clicked)
+        utils.make_label_clickable(self.widgets.gen_nplants_data, on_nplants_clicked)
 
     def update(self, row):
         '''
