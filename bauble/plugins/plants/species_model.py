@@ -1,26 +1,35 @@
+# -*- coding: utf-8 -*-
 #
-# species_model.py
+# Copyright 2008-2010 Brett Adams
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
 #
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
-import traceback
-import xml.sax.saxutils as sax
 from itertools import chain
 
-import gtk
-
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from sqlalchemy.orm.session import object_session
 from sqlalchemy.ext.associationproxy import association_proxy
 
-import bauble
+from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
+    UnicodeText, func, UniqueConstraint
+from sqlalchemy.orm import relation, backref, class_mapper
 import bauble.db as db
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.btypes as types
-from bauble.plugins.plants.geography import Geography#, geography_table
-
-from sqlalchemy.orm.collections import collection
+from bauble.i18n import _
 
 
 class VNList(list):
@@ -47,7 +56,6 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
                        u'subf.': _('subf.'),
                        u'cv.': _('cv.'),
                        None: ''}
-
 
 
 # TODO: there is a trade_name column but there's no support yet for editing
@@ -123,10 +131,11 @@ class Species(db.Base):
     __tablename__ = 'species'
     __mapper_args__ = {'order_by': ['sp', 'sp_author']}
 
+    rank = 'species'
 
     # columns
     sp = Column(Unicode(64), index=True)
-    sp2 = Column(Unicode(64), index=True) # in case hybrid=True
+    sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
     sp_author = Column(Unicode(128))
     hybrid = Column(Boolean, default=False)
     sp_qual = Column(types.Enum(values=['agg.', 's. lat.', 's. str.', None]),
@@ -155,6 +164,7 @@ class Species(db.Base):
     infrasp4_author = Column(Unicode(64))
 
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
+    ## the Species.genus property is defined as backref in Genus.species
 
     label_distribution = Column(UnicodeText)
     bc_distribution = Column(UnicodeText)
@@ -170,16 +180,16 @@ class Species(db.Base):
     # correctly and to ensure that all synonyms related to this genus
     # get deleted if this genus gets deleted
     _syn = relation('SpeciesSynonym',
-                     primaryjoin='Species.id==SpeciesSynonym.synonym_id',
-                     cascade='all, delete-orphan', uselist=True)
+                    primaryjoin='Species.id==SpeciesSynonym.synonym_id',
+                    cascade='all, delete-orphan', uselist=True)
 
     vernacular_names = relation('VernacularName', cascade='all, delete-orphan',
-                                 collection_class=VNList,
+                                collection_class=VNList,
                                 backref=backref('species', uselist=False))
     _default_vernacular_name = relation('DefaultVernacularName', uselist=False,
-                                         cascade='all, delete-orphan',
-                                         backref=backref('species',
-                                                         uselist=False))
+                                        cascade='all, delete-orphan',
+                                        backref=backref('species',
+                                                        uselist=False))
     distribution = relation('SpeciesDistribution',
                             cascade='all, delete-orphan',
                             backref=backref('species', uselist=False))
@@ -197,6 +207,8 @@ class Species(db.Base):
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
 
+    def __repr__(self):
+        return Species.str(self)
 
     def __str__(self):
         '''
@@ -205,11 +217,11 @@ class Species(db.Base):
         '''
         return Species.str(self)
 
-
     def _get_default_vernacular_name(self):
         if self._default_vernacular_name is None:
             return None
         return self._default_vernacular_name.vernacular_name
+
     def _set_default_vernacular_name(self, vn):
         if vn is None:
             del self.default_vernacular_name
@@ -219,6 +231,7 @@ class Species(db.Base):
         d = DefaultVernacularName()
         d.vernacular_name = vn
         self._default_vernacular_name = d
+
     def _del_default_vernacular_name(self):
         utils.delete_or_expunge(self._default_vernacular_name)
         del self._default_vernacular_name
@@ -233,7 +246,6 @@ class Species(db.Base):
             dist = ['%s' % d for d in self.distribution]
             return unicode(', ').join(sorted(dist))
 
-
     def markup(self, authors=False):
         '''
         returns this object as a string with markup
@@ -243,9 +255,8 @@ class Species(db.Base):
         '''
         return Species.str(self, authors, True)
 
-
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = utils.utf8(u'\u2a09') # U+2A09
+    hybrid_char = utils.utf8(u'\u2a09')  # U+2A09
 
     @staticmethod
     def str(species, authors=False, markup=False):
@@ -295,8 +306,8 @@ class Species(db.Base):
             if rank == 'cv.' and epithet:
                 if species.cv_group and not group_added:
                     group_added = True
-                    infrasp_parts.append(_("(%(group)s Group)") % \
-                                             dict(group=species.cv_group))
+                    infrasp_parts.append(_("(%(group)s Group)") %
+                                         dict(group=species.cv_group))
                 infrasp_parts.append("'%s'" % escape(epithet))
             else:
                 if rank:
@@ -309,8 +320,8 @@ class Species(db.Base):
             if authors and iauthor:
                 infrasp_parts.append(escape(iauthor))
         if species.cv_group and not group_added:
-            infrasp_parts.append(_("%(group)s Group") % \
-                                     dict(group=species.cv_group))
+            infrasp_parts.append(_("%(group)s Group") %
+                                 dict(group=species.cv_group))
 
         # create the binomial part
         binomial = []
@@ -331,6 +342,11 @@ class Species(db.Base):
         s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
         return s
 
+    def has_accessions(self):
+        '''true if species is linked to at least one accession
+        '''
+
+        return False
 
     infrasp_attr = {1: {'rank': 'infrasp1_rank',
                         'epithet': 'infrasp1',
@@ -345,7 +361,6 @@ class Species(db.Base):
                         'epithet': 'infrasp4',
                         'author': 'infrasp4_author'}}
 
-
     def get_infrasp(self, level):
         """
         level should be 1-4
@@ -353,7 +368,6 @@ class Species(db.Base):
         return getattr(self, self.infrasp_attr[level]['rank']), \
             getattr(self, self.infrasp_attr[level]['epithet']), \
             getattr(self, self.infrasp_attr[level]['author'])
-
 
     def set_infrasp(self, level, rank, epithet, author=None):
         """
@@ -363,6 +377,69 @@ class Species(db.Base):
         setattr(self, self.infrasp_attr[level]['epithet'], epithet)
         setattr(self, self.infrasp_attr[level]['author'], author)
 
+    def as_dict(self):
+        result = dict((col, getattr(self, col))
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id', 'sp']
+                      and col[0] != '_'
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'taxon'
+        result['rank'] = 'species'
+        result['epithet'] = self.sp
+        result['ht-rank'] = 'genus'
+        result['ht-epithet'] = self.genus.genus
+        return result
+
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+
+        from genus import Genus
+        ## first try retrieving, just use species and genus fields
+        is_in_session = session.query(cls).filter(
+            cls.sp == keys['epithet']).join(Genus).filter(
+            Genus.genus == keys['ht-epithet']).all()
+
+        ## correct field names
+        for internal, exchange in [('sp_author', 'author'),
+                                   ('sp', 'epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
+
+        if is_in_session:
+            result = is_in_session[0]
+
+            ## update object and return it.
+            for k in keys.keys():
+                if k == 'id' or k not in class_mapper(cls).mapped_table.c:
+                    continue
+                setattr(result, k, keys[k])
+            return result
+
+        ## otherwise we need a new object
+
+        ## retrieve genus object
+        genus = Genus.retrieve_or_create(
+            session, {'epithet': keys['ht-epithet'],
+                      'ht-epithet': keys.get('familia')})
+
+        ## remove unexpected keys, create new object, add it to the session
+        ## and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        ## reconstruct connection to higher taxon
+        keys['genus'] = genus
+
+        result = cls(**keys)
+        session.add(result)
+
+        return result
 
 
 class SpeciesNote(db.Base):
@@ -379,7 +456,6 @@ class SpeciesNote(db.Base):
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
     species = relation('Species', uselist=False,
                        backref=backref('notes', cascade='all, delete-orphan'))
-
 
 
 class SpeciesSynonym(db.Base):
@@ -406,7 +482,6 @@ class SpeciesSynonym(db.Base):
 
     def __str__(self):
         return str(self.synonym)
-
 
 
 class VernacularName(db.Base):
@@ -440,7 +515,6 @@ class VernacularName(db.Base):
             return self.name
         else:
             return ''
-
 
 
 class DefaultVernacularName(db.Base):
@@ -501,9 +575,11 @@ class SpeciesDistribution(db.Base):
         return str(self.geography)
 
 # late bindings
-SpeciesDistribution.geography = relation('Geography',
-                primaryjoin='SpeciesDistribution.geography_id==Geography.id',
-                                         uselist=False)
+SpeciesDistribution.geography = relation(
+    'Geography',
+    primaryjoin='SpeciesDistribution.geography_id==Geography.id',
+    uselist=False)
+
 
 class Habit(db.Base):
     __tablename__ = 'habit'
@@ -529,4 +605,3 @@ class Color(db.Base):
             return '%s (%s)' % (self.name, self.code)
         else:
             return str(self.code)
-

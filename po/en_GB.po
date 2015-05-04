@@ -972,10 +972,10 @@ msgstr ""
 #: bauble/plugins/garden/location.py:116
 msgid ""
 "Any information that might be relevant to the location such as where it is "
-"or what's it's purpose"
+"or what's its purpose"
 msgstr ""
 "Any information that might be relevant to the location such as where it is "
-"or what's it's purpose"
+"or what's its purpose"
 
 #: bauble/plugins/garden/location.py:350
 #: bauble/plugins/garden/loc_editor.glade.h:4
@@ -2953,12 +2953,12 @@ msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
 "<i>Note: This only removes the connection to the database and does not "
-"affect the database or it's data</i>"
+"affect the database or its data</i>"
 msgstr ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
 "<i>Note: This only removes the connection to the database and does not "
-"affect the database or it's data</i>"
+"affect the database or its data</i>"
 
 #: bauble/connmgr.py:320
 msgid "Enter a connection name"

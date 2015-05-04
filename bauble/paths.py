@@ -59,7 +59,7 @@ def installation_dir():
     Returns the root path of the installation target
     """
 
-    if sys.platform in ('linux2', 'darwin'):
+    if sys.platform in ('linux3', 'linux2', 'darwin'):
         this_file_location = __file__.split(os.path.sep)
         d = os.path.sep.join(this_file_location[:-7])
     elif sys.platform == 'win32':
@@ -83,7 +83,7 @@ def user_dir():
         else:
             raise Exception('Could not get path for user settings: no '
                             'APPDATA or USERPROFILE variable')
-    elif sys.platform == "linux2":
+    elif sys.platform in ('linux3', 'linux2', 'darwin'):
         # using os.expanduser is more reliable than os.environ['HOME']
         # because if the user runs bauble with sudo then it will
         # return the path of the user that used sudo instead of ~root

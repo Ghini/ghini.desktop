@@ -1,24 +1,41 @@
 # -*- coding: utf-8 -*-
 #
-# test imex plugins
+# Copyright 2004-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
 #
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 import csv
 import logging
 import os
 import shutil
 import tempfile
 
-from sqlalchemy import *
+from sqlalchemy import Column, Integer, Boolean
 
-import bauble
 import bauble.db as db
-from bauble.plugins.plants import Family, Genus, Species, Geography
+from bauble.plugins.plants import Familia, Family, Genus, Species
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
-    QUOTE_STYLE, UnicodeReader, UnicodeWriter
+    QUOTE_STYLE
+from bauble.plugins.imex.iojson import JSONImporter, JSONExporter
 from bauble.test import BaubleTestCase
 from bauble.utils.log import debug
+import json
 
 
 # TODO: test that when we export data we get what we expect
@@ -33,12 +50,13 @@ from bauble.utils.log import debug
 csv_test_data = ({})
 
 
-family_data = [{'id': 1, 'family': u'family1', 'qualifier': None},
-               {'id': 2, 'family': u'family2'}]
-genus_data = [{'id': 1, 'genus': u'genus1', 'family_id': 1,
-               'author': u'Gal\xe1pagos'},
-              {'id': 2, 'genus': u'genus2', 'family_id': 1}]
-species_data = [{'id': 1, 'sp': u'sp', 'genus_id': 1}]
+family_data = [{'id': 1, 'family': u'Orchidaceae', 'qualifier': None},
+               {'id': 2, 'family': u'Myrtaceae'}]
+genus_data = [{'id': 1, 'genus': u'Calopogon', 'family_id': 1,
+               'author': u'R. Br.'},
+              {'id': 2, 'genus': u'Panisea', 'family_id': 1}]
+species_data = [{'id': 1, 'sp': u'tuberosus', 'genus_id': 1}]
+
 
 class ImexTestCase(BaubleTestCase):
 
@@ -51,7 +69,6 @@ class ImexTestCase(BaubleTestCase):
         garden_test.setUp_data()
 
 
-
 class TestImporter(CSVImporter):
 
     def on_error(self, exc):
@@ -60,7 +77,6 @@ class TestImporter(CSVImporter):
 
 
 class CSVTests(ImexTestCase):
-
 
     def setUp(self):
         self.path = tempfile.mkdtemp()
@@ -83,11 +99,9 @@ class CSVTests(ImexTestCase):
             importer = TestImporter()
             importer.start([filename], force=True)
 
-
     def tearDown(self):
         shutil.rmtree(self.path)
         super(CSVTests, self).tearDown()
-
 
     def test_import_self_referential_table(self):
         """
@@ -110,7 +124,6 @@ class CSVTests(ImexTestCase):
         f.close()
         importer = TestImporter()
         importer.start([filename], force=True)
-
 
     def test_import_bool_column(self):
         """
@@ -140,15 +153,14 @@ class CSVTests(ImexTestCase):
         importer.start([filename], force=True)
 
         t = self.session.query(BoolTest).get(1)
-        self.assert_(t.col1==True)
+        self.assert_(t.col1 is True)
 
         t = self.session.query(BoolTest).get(2)
-        self.assert_(t.col1==False)
+        self.assert_(t.col1 is False)
 
         t = self.session.query(BoolTest).get(3)
-        self.assert_(t.col1==False)
+        self.assert_(t.col1 is False)
         table.drop(bind=db.engine)
-
 
     def test_with_open_connection(self):
         """
@@ -170,7 +182,6 @@ class CSVTests(ImexTestCase):
         importer.start([filename], force=True)
         list(self.session.query(Family))
 
-
     def test_import_use_default(self):
         """
         Test that if we import from a csv file that doesn't include a
@@ -180,7 +191,6 @@ class CSVTests(ImexTestCase):
         self.session = db.Session()
         family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
-
 
     def test_import_use_default(self):
         """
@@ -196,7 +206,6 @@ class CSVTests(ImexTestCase):
         family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
 
-
     def test_import_no_default(self):
         """
         Test that if we import from a csv file that doesn't include a
@@ -205,7 +214,6 @@ class CSVTests(ImexTestCase):
         """
         species = self.session.query(Species).filter_by(id=1).one()
         self.assert_(species.cv_group is None)
-
 
     def test_import_empty_is_none(self):
         """
@@ -216,7 +224,6 @@ class CSVTests(ImexTestCase):
         species = self.session.query(Species).filter_by(id=1).one()
         self.assert_(species.cv_group is None)
 
-
     def test_import_empty_uses_default(self):
         """
         Test that if we import from a csv file that includes a column
@@ -225,7 +232,6 @@ class CSVTests(ImexTestCase):
         """
         family = self.session.query(Family).filter_by(id=2).one()
         self.assert_(family.qualifier == '')
-
 
     def test_sequences(self):
         """
@@ -252,9 +258,8 @@ class CSVTests(ImexTestCase):
         #debug(list(conn.execute("SELECT * FROM family").fetchall()))
         maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]
         assert nextval > highest_id, \
-               "bad sequence: highest_id(%s) > nexval(%s) -- %s" % \
-               (highest_id, nextval, maxid)
-
+            "bad sequence: highest_id(%s) > nexval(%s) -- %s" % \
+            (highest_id, nextval, maxid)
 
     def test_import_unicode(self):
         """
@@ -263,7 +268,6 @@ class CSVTests(ImexTestCase):
         genus = self.session.query(Genus).filter_by(id=1).one()
         self.assert_(genus.author == genus_data[0]['author'])
 
-
     def test_import_no_inherit(self):
         """
         Test importing a row with None doesn't inherit from previous row.
@@ -271,7 +275,6 @@ class CSVTests(ImexTestCase):
         query = self.session.query(Genus)
         self.assert_(query[1].author != query[0].author,
                      (query[1].author, query[0].author))
-
 
     def test_export_none_is_empty(self):
         """
@@ -289,7 +292,6 @@ class CSVTests(ImexTestCase):
 
 
 # class CSVTests(ImexTestCase):
-
 
 #     def test_sequences(self):
 #         """
@@ -390,5 +392,249 @@ class CSVTests(ImexTestCase):
 #         pass
 
 
+class JSONExportTests(BaubleTestCase):
+
+    def setUp(self):
+        super(JSONExportTests, self).setUp()
+        from tempfile import mkstemp
+        handle, self.temp_path = mkstemp()
+
+        data = ((Family, family_data),
+                (Genus, genus_data),
+                (Species, species_data))
+
+        for klass, dics in data:
+            for dic in dics:
+                obj = klass(**dic)
+                self.session.add(obj)
+        self.session.commit()
+
+    def tearDown(self):
+        super(JSONExportTests, self).tearDown()
+        os.remove(self.temp_path)
+
+    def test_writes_complete_database(self):
+        "exporting without specifying what: export complete database"
+
+        exporter = JSONExporter()
+        exporter.start(self.temp_path)
+        ## must still check content of generated file!
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 5)
+        families = [i for i in result if i['rank'] == 'familia']
+        self.assertEquals(len(families), 2)
+        genera = [i for i in result if i['rank'] == 'genus']
+        self.assertEquals(len(genera), 2)
+        species = [i for i in result if i['rank'] == 'species']
+        self.assertEquals(len(species), 1)
+        self.assertEquals(open(self.temp_path).read(),
+                          """\
+[\n\
+    {\n\
+        "epithet": "Orchidaceae", \n\
+        "object": "taxon", \n\
+        "rank": "familia"\n\
+    }, \n\
+    {\n\
+        "epithet": "Myrtaceae", \n\
+        "object": "taxon", \n\
+        "rank": "familia"\n\
+    }, \n\
+    {\n\
+        "author": "R. Br.", \n\
+        "epithet": "Calopogon", \n\
+        "ht-epithet": "Orchidaceae", \n\
+        "ht-rank": "familia", \n\
+        "object": "taxon", \n\
+        "rank": "genus"\n\
+    }, \n\
+    {\n\
+        "author": "", \n\
+        "epithet": "Panisea", \n\
+        "ht-epithet": "Orchidaceae", \n\
+        "ht-rank": "familia", \n\
+        "object": "taxon", \n\
+        "rank": "genus"\n\
+    }, \n\
+    {\n\
+        "epithet": "tuberosus", \n\
+        "ht-epithet": "Calopogon", \n\
+        "ht-rank": "genus", \n\
+        "hybrid": false, \n\
+        "object": "taxon", \n\
+        "rank": "species"\n\
+    }\n\
+]""")
+
+    def test_writes_full_taxonomic_info(self):
+        "exporting one family: export full taxonomic information below family"
+
+        exporter = JSONExporter()
+        selection = self.session.query(Family).filter(Family.family == u'Orchidaceae').all()
+        exporter.start(self.temp_path, selection)
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0]['rank'], 'familia')
+        self.assertEquals(result[0]['epithet'], 'Orchidaceae')
+
+    def test_writes_partial_taxonomic_info(self):
+        "exporting one genus: all species below genus"
+
+        exporter = JSONExporter()
+        selection = self.session.query(Genus).filter(Genus.genus == u'Calopogon').all()
+        exporter.start(self.temp_path, selection)
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0]['rank'], 'genus')
+        self.assertEquals(result[0]['epithet'], 'Calopogon')
+        self.assertEquals(result[0]['ht-rank'], 'familia')
+        self.assertEquals(result[0]['ht-epithet'], 'Orchidaceae')
+        self.assertEquals(result[0]['author'], 'R. Br.')
+
+    def test_writes_partial_taxonomic_info_species(self):
+        "exporting one genus: all species below species"
+
+        exporter = JSONExporter()
+        selection = self.session.query(
+            Species).filter(Species.sp == u'tuberosus').join(
+            Genus).filter(Genus.genus == u"Calopogon").all()
+        exporter.start(self.temp_path, selection)
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0]['rank'], 'species')
+        self.assertEquals(result[0]['epithet'], 'tuberosus')
+        self.assertEquals(result[0]['ht-rank'], 'genus')
+        self.assertEquals(result[0]['ht-epithet'], 'Calopogon')
+        self.assertEquals(result[0]['hybrid'], False)
 
 
+class JSONImportTests(BaubleTestCase):
+
+    def setUp(self):
+        super(JSONImportTests, self).setUp()
+        from tempfile import mkstemp
+        handle, self.temp_path = mkstemp()
+
+        data = ((Familia, family_data),
+                (Genus, genus_data),
+                (Species, species_data))
+
+        for klass, dics in data:
+            for dic in dics:
+                obj = klass(**dic)
+                self.session.add(obj)
+        self.session.commit()
+
+    def tearDown(self):
+        super(JSONImportTests, self).tearDown()
+        os.remove(self.temp_path)
+
+    def test_import_new_inserts(self):
+        "importing new taxon adds it to database."
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 0)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 1)
+
+    def test_import_new_inserts_lowercase(self):
+        "importing new taxon adds it to database, rank name can be\
+        all lower case."
+        json_string = '[{"rank": "genus", "epithet": "Neogyna", "ht-rank"\
+        : "familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        self.assertEquals(len(self.session.query(Genus).filter(
+            Genus.genus == u"Neogyna").all()), 0)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.assertEquals(len(self.session.query(Genus).filter(
+            Genus.genus == u"Neogyna").all()), 1)
+
+    def test_import_existing_updates(self):
+        "importing existing taxon updates it"
+        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank"\
+        : "Genus", "ht-epithet": "Calopogon", "hybrid": false, "author"\
+        : "Britton et al."}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        previously = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"tuberosus"})
+        self.assertEquals(previously.sp_author, None)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"tuberosus"})
+        self.assertEquals(afterwards.sp_author, u"Britton et al.")
+
+    def test_import_ignores_id_new(self):
+        "importing taxon disregards id value if present (new taxon)."
+        self.assertRaises(KeyError, Genus.retrieve_or_create,
+                          self.session, {'epithet': u"Neogyna"})
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank"\
+        : "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f.", \
+        "id": 1}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.session.commit()
+        real_id = Genus.retrieve_or_create(self.session,
+                                           {'epithet': u"Neogyna"}).id
+        self.assertTrue(real_id != 1)
+
+    def test_import_ignores_id_updating(self):
+        "importing taxon disregards id value if present (updating taxon)."
+        previously = Species.retrieve_or_create(self.session,
+                                                {'ht-epithet': u"Calopogon",
+                                                 'epithet': u"tuberosus"}).id
+        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, "id": 8}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(self.session,
+                                                {'ht-epithet': u"Calopogon",
+                                                 'epithet': u"tuberosus"}).id
+        self.assertEquals(previously, afterwards)
+
+    def test_import_species_to_new_genus_fails(self):
+        "importing new species referring to non existing genus gives error \
+        (missing family)."
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", \
+"ht-rank": "Genus", "ht-epithet": "Aerides", "author": "Rchb. f."}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter()
+        from sqlalchemy.exc import IntegrityError
+        self.assertRaises(IntegrityError, importer.start, [self.temp_path])
+
+    def test_import_species_to_new_genus_and_family(self):
+        "importing new species referring to non existing genus works if \
+        family is specified."
+
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", "ht-rank"\
+        : "Genus", "ht-epithet": "Aerides", "familia": "Orchidaceae", "author"\
+        : "Rchb. f."}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.session.commit()
+        sp = self.session.query(Species).filter(
+            Species.sp == u'lawrenceae').join(Genus).filter(
+            Genus.genus == u'Aerides').all()[0]
+        genus = self.session.query(Genus).filter(
+            Genus.genus == u'Aerides').all()[0]
+        family = self.session.query(Family).filter(
+            Family.family == u'Orchidaceae').all()[0]
+
+        # Calopogon tuberosus
+        # Spiranthes delitescens Sheviak
+        # Aerides lawrenceae Rchb. f.

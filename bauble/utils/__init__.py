@@ -5,17 +5,16 @@
 A common set of utility functions used throughout Bauble.
 """
 import datetime
-import imp
 import os
 import re
-import sys
 import textwrap
 import xml.sax.saxutils as saxutils
 
 import gtk
 
+from bauble.i18n import _
 import bauble
-from bauble.error import check, CheckConditionError
+from bauble.error import check
 import bauble.paths as paths
 from bauble.utils.log import debug, warning
 
@@ -41,6 +40,7 @@ def find_dependent_tables(table, metadata=None):
         import bauble.db as db
         metadata = db.metadata
     tables = []
+
     def _impl(t2):
         for tbl in metadata.sorted_tables:
             for fk in tbl.foreign_keys:
@@ -90,7 +90,6 @@ class BuilderLoader(object):
         return b
 
 
-
 class BuilderWidgets(dict):
     """
     Provides dictionary and attribute access for a
@@ -107,7 +106,6 @@ class BuilderWidgets(dict):
         else:
             self.builder = ui
 
-
     def __getitem__(self, name):
         '''
         :param name:
@@ -118,7 +116,6 @@ class BuilderWidgets(dict):
                            {'widget_name': name})
         return w
 
-
     def __getattr__(self, name):
         '''
         :param name:
@@ -126,9 +123,8 @@ class BuilderWidgets(dict):
         w = self.builder.get_object(name)
         if not w:
             raise AttributeError(_('%(widget_name)s not in glade file') %
-                           {'widget_name': name})
+                                 {'widget_name': name})
         return w
-
 
     def remove_parent(self, widget):
         """
@@ -190,6 +186,7 @@ def clear_model(obj_with_model):
         return
 
     ncols = model.get_n_columns()
+
     def del_cb(model, path, iter, data=None):
         for c in xrange(0, ncols):
             v =  model.get_value(iter, c)
@@ -221,7 +218,7 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
     model = combo.get_model()
     matches = search_tree_model(model, value, cmp)
     if len(matches) == 0:
-        raise ValueError('set_combo_from_value() - could not find value in '\
+        raise ValueError('set_combo_from_value() - could not find value in '
                          'combo: %s' % value)
     combo.set_active_iter(matches[0])
     combo.emit('changed')
@@ -306,11 +303,12 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
                 widget.set_active(-1)
         if isinstance(widget, gtk.ComboBoxEntry):
             widget.child.props.text = value or ''
-    elif isinstance(widget,(gtk.ToggleButton,gtk.CheckButton,gtk.RadioButton)):
+    elif isinstance(widget,
+                    (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
         if value is True:
             widget.set_inconsistent(False)
             widget.set_active(True)
-        elif value is False: # how come i have to unset inconsistent for False?
+        elif value is False:  # why do we need unset `inconsistent` for False?
             widget.set_inconsistent(False)
             widget.set_active(False)
         else:
@@ -323,9 +321,8 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
 
     else:
         raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
-                        'the widget type %s with name %s' % \
+                        'the widget type %s with name %s' %
                         (type(w), widget_name))
-
 
 
 def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
@@ -576,7 +573,6 @@ def setup_text_combobox(combo, values=None, cell_data_func=None):
     completion.connect('match-selected', on_match_select)
 
 
-
 def prettify_format(format):
     """
     Return the date format in a more human readable form.
@@ -599,7 +595,6 @@ def today_str(format=None):
     import datetime
     today = datetime.date.today()
     return today.strftime(format)
-
 
 
 def setup_date_button(view, entry, button, date_func=None):
@@ -636,7 +631,6 @@ def setup_date_button(view, entry, button, date_func=None):
         view.connect(button, 'clicked', on_clicked)
     else:
         button.connect('clicked', on_clicked)
-
 
 
 def to_unicode(obj, encoding='utf-8'):
@@ -682,6 +676,7 @@ def xml_safe_utf8(obj):
 
 __natsort_rx = re.compile('(\d+(?:\.\d+)?)')
 
+
 def natsort_key(obj):
     """
     a key getter for sort and sorted function
@@ -707,7 +702,6 @@ def natsort_key(obj):
     return (chunks, item)
 
 
-
 def delete_or_expunge(obj):
     """
     If the object is in object_session(obj).new then expunge it from the
@@ -718,11 +712,11 @@ def delete_or_expunge(obj):
     if session is None:
         return
     if obj in session.new:
-#        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
+        # debug('expunge obj: %s -- %s' % (obj, repr(obj)))
         session.expunge(obj)
         del obj
     else:
-#        debug('delete obj: %s -- %s' % (obj, repr(obj)))
+        # debug('delete obj: %s -- %s' % (obj, repr(obj)))
         session.delete(obj)
 
 
@@ -785,13 +779,15 @@ def reset_sequence(column):
 
 def make_label_clickable(label, on_clicked, *args):
     """
-    :param label: a gtk.Label that has a gtk.EventBox as it's parent
+    :param label: a gtk.Label that has a gtk.EventBox as its parent
     :param on_clicked: callback to be called when the label is clicked
       on_clicked(label, event, data)
     """
     eventbox = label.parent
-    check(eventbox != None and isinstance(eventbox, gtk.EventBox),
-          'label must have an gtk.EventBox as it\'s parent')
+
+    check(eventbox is not None, 'label must have a parent')
+    check(isinstance(eventbox, gtk.EventBox),
+          'label must have an gtk.EventBox as its parent')
     label.__pressed = False
     def on_enter_notify(*args):
         label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("blue"))

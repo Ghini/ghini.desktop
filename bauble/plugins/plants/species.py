@@ -356,6 +356,9 @@ class LinksExpander(view.LinksExpander):
         buttons = []
 
         import bauble.utils.web as web
+        self.wikipedia_button = web.WikipediaButton()
+        buttons.append(self.wikipedia_button)
+
         self.google_button = web.GoogleButton()
         buttons.append(self.google_button)
 
@@ -374,6 +377,9 @@ class LinksExpander(view.LinksExpander):
         self.bgci_button = web.BGCIButton()
         buttons.append(self.bgci_button)
 
+        self.tpl_button = web.TPLButton()
+        buttons.append(self.tpl_button)
+
         for b in buttons:
             b.set_alignment(0, -1)
             self.vbox.pack_start(b, expand=False, fill=False)
@@ -381,14 +387,14 @@ class LinksExpander(view.LinksExpander):
 
     def update(self, row):
         super(LinksExpander, self).update(row)
+        self.wikipedia_button.set_keywords(genus=row.genus, species=row.sp)
         self.google_button.set_string(row)
         self.gbif_button.set_string(row)
         self.itis_button.set_string(row)
         self.ipni_button.set_keywords(genus=row.genus, species=row.sp)
         self.grin_button.set_string(row)
         self.bgci_button.set_keywords(genus=row.genus, species=row.sp)
-
-
+        self.tpl_button.set_keywords(genus=row.genus, species=row.sp)
 
 
 class SpeciesInfoBox(InfoBox):
