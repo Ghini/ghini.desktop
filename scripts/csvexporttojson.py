@@ -110,6 +110,7 @@ def main(config_file, input_stream, output_stream, want_taxonomy=False):
             record[k] = record[k].capitalize()
 
         record['Especie'] = record['Especie'].lower()
+        ## end
 
         family = project(record, [('Familia', 'epithet')])
         family.update({'rank': 'familia'})
