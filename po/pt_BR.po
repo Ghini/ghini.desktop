@@ -8,14 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2012-07-04 19:19+0000\n"
-"Last-Translator: Hriostat <Unknown>\n"
-"Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
+"PO-Revision-Date: 2015-04-12 05:30+0200\n"
+"Last-Translator: Thiago Casotti <thiago.casotti@uol.com.br>\n"
+"Language-Team: Portuguese (Brazil) "
+"<https://hosted.weblate.org/projects/bauble/master/pt_BR/>\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2.3-dev\n"
 "X-Launchpad-Export-Date: 2012-07-05 05:03+0000\n"
-"X-Generator: Launchpad (build 15544)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -464,7 +467,7 @@ msgstr "subfamília"
 
 #: bauble/plugins/plants/species_model.py:47
 msgid "cv."
-msgstr ""
+msgstr "cv."
 
 #: bauble/plugins/plants/species_model.py:297
 #, python-format
@@ -1023,7 +1026,7 @@ msgstr "O nome que será usado posteriormente para referir-se a este local."
 #: bauble/plugins/garden/location.py:116
 msgid ""
 "Any information that might be relevant to the location such as where it is "
-"or what's it's purpose"
+"or what's its purpose"
 msgstr ""
 "Qualquer informação que possa ser relevante para o local, como sua "
 "localização ou propósito."
@@ -1057,7 +1060,7 @@ msgstr "<b>Data de coleta:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:7
 msgid "<b>Date received:</b>"
-msgstr "<br>Data de recebimento:</b>"
+msgstr "<b>Data de recebimento:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:8
 msgid "<b>Elevation:</b>"
@@ -1069,15 +1072,15 @@ msgstr "<b>Informação do GPS</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:10
 msgid "<b>Habitat</b>"
-msgstr "<b>Habitat</b>"
+msgstr "<b>Hábitat</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:11
 msgid "<b>Intended Location 2:</b>"
-msgstr "<b>Local pretendido 2:</b>"
+msgstr "<b>Localização proposta 2:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:12
 msgid "<b>Intended Location:</b>"
-msgstr "<b>Local pretendido:</b>"
+msgstr "<b>Localização proposta:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade.h:13
 msgid "<b>Latitude:</b>"
@@ -1454,7 +1457,7 @@ msgstr "Moita"
 
 #: bauble/plugins/garden/accession.py:351
 msgid "Corm"
-msgstr ""
+msgstr "Corm"
 
 #: bauble/plugins/garden/accession.py:352
 msgid "Division"
@@ -1692,7 +1695,7 @@ msgstr "<b>Quantidade:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade.h:7
 msgid "general_window"
-msgstr "general_window"
+msgstr "janela_geral"
 
 #: bauble/plugins/garden/__init__.py:87
 #: bauble/plugins/garden/plant_editor.glade.h:4
@@ -2155,7 +2158,7 @@ msgstr "Área transferida para operações com plantas"
 
 #: bauble/plugins/garden/plant.py:221
 msgid "Given to Back 40 (FOGs)"
-msgstr ""
+msgstr "Doado para Back 40 (FOGs)"
 
 #: bauble/plugins/garden/plant.py:222
 msgid "Transfered to Totem Field"
@@ -2442,7 +2445,7 @@ msgstr ""
 "Tem certeza de que deseja remover o usuário <b>%(name)s</b>?\n"
 "\n"
 "<i>É possível que este usuário tenha permissões em outros bancos de dados "
-"não relacionados ao Bauble.<//i>"
+"não relacionados ao Bauble.</i>"
 
 #: bauble/plugins/users/__init__.py:620
 #, python-format
@@ -2459,7 +2462,7 @@ msgstr ""
 
 #: bauble/plugins/report/mako/__init__.py:60
 msgid "Mako"
-msgstr ""
+msgstr "Mako"
 
 #: bauble/plugins/report/mako/__init__.py:83
 msgid "Please selecte a template."
@@ -3058,7 +3061,7 @@ msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
 "<i>Note: This only removes the connection to the database and does not "
-"affect the database or it's data</i>"
+"affect the database or its data</i>"
 msgstr ""
 "Tem certeza de que deseja remover \"%s\"?\n"
 "\n"
@@ -3326,6 +3329,8 @@ msgstr "O enum requer uma lista de valores"
 msgid ""
 "You have configured empty_to_none=True but None is not in the values lists"
 msgstr ""
+"Você configurou empty_to_none=Verdadeiro mas Nenhum não está nas listas de "
+"valores"
 
 #: bauble/types.py:63
 #, python-format

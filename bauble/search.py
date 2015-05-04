@@ -1,7 +1,7 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 #
 # Copyright 2008, 2009, 2010 Brett Adams
-# Copyright 2014 Mario Frasca <mario@anche.no>.
+# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
 #
 # This file is part of bauble.classic.
 #
@@ -33,6 +33,7 @@ import bauble
 from bauble.error import check
 from bauble.utils.log import debug
 import bauble.utils as utils
+from bauble.i18n import _
 
 
 def search(text, session=None):
@@ -53,6 +54,17 @@ class NoneToken(object):
         return None
 
 
+class EmptyToken(object):
+    def __init__(self, t=None):
+        pass
+
+    def __repr__(self):
+        return '(Empty<Set>)'
+
+    def express(self):
+        return set()
+
+
 class ValueABC(object):
     ## abstract base class.
 
@@ -65,20 +77,19 @@ class ValueToken(object):
     def __init__(self, t):
         self.value = t[0]
 
-
     def __repr__(self):
         return repr(self.value)
 
     def express(self):
         return self.value.express()
-    
+
 
 class StringToken(ValueABC):
     def __init__(self, t):
         self.value = t[0]  # no need to parse the string
 
     def __repr__(self):
-        return "'%s'" % ( self.value )
+        return "'%s'" % (self.value)
 
 
 class NumericToken(ValueABC):
@@ -86,7 +97,26 @@ class NumericToken(ValueABC):
         self.value = float(t[0])  # store the float value
 
     def __repr__(self):
-        return "%s" % ( self.value )
+        return "%s" % (self.value)
+
+
+class TypedValueToken(ValueABC):
+    ## |<name>|<paramlist>|
+    from datetime import datetime
+    constructor = {'datetime': (datetime, int),
+                   'now': (datetime.now, id),
+                   }
+
+    def __init__(self, t):
+        try:
+            constructor, converter = self.constructor[t[1]]
+        except KeyError:
+            return
+        params = tuple(converter(i) for i in t[3].express())
+        self.value = constructor(*params)
+
+    def __repr__(self):
+        return "%s" % (self.value)
 
 
 class IdentifierToken(object):
@@ -122,22 +152,27 @@ class IdentifierToken(object):
 class IdentExpressionToken(object):
     def __init__(self, t):
         self.op = t[0][1]
-        self.operation = {'>': lambda x,y: x>y,
-                          '<': lambda x,y: x<y,
-                          '>=': lambda x,y: x>=y,
-                          '<=': lambda x,y: x<=y,
-                          '=': lambda x,y: x==y,
-                          '!=': lambda x,y: x!=y,
-                          'is': lambda x,y: x is y,
-                          'like': lambda x,y: utils.ilike(x, '%s' % y)
-                      }[self.op]
+        self.operation = {'>': lambda x, y: x > y,
+                          '<': lambda x, y: x < y,
+                          '>=': lambda x, y: x >= y,
+                          '<=': lambda x, y: x <= y,
+                          '=': lambda x, y: x == y,
+                          '!=': lambda x, y: x != y,
+                          'is': lambda x, y: x is y,
+                          'like': lambda x, y: utils.ilike(x, '%s' % y)
+                          }[self.op]
         self.operands = t[0][0::2]  # every second object is an operand
 
     def __repr__(self):
-        return "(%s %s %s)" % ( self.operands[0], self.op, self.operands[1])
+        return "(%s %s %s)" % (self.operands[0], self.op, self.operands[1])
 
     def evaluate(self, env):
         q, a = self.operands[0].evaluate(env)
+        if self.operands[1].express() == set():
+            if self.op in ('is', '='):
+                return q.filter(~a.any())
+            elif self.op in ('!='):
+                return q.filter(a.any())
         clause = lambda x: self.operation(a, x)
         return q.filter(clause(self.operands[1].express()))
 
@@ -259,6 +294,14 @@ class StatementAction(object):
 
 
 class DomainExpressionAction(object):
+    """created when the parser hits a domain_expression token.
+
+    Searching using domain expressions is a little more magical than an
+    explicit query. you give a domain, a binary_operator and a value,
+    the domain expression will return all object with at least one
+    property (as passed to add_meta) matching (according to the binop)
+    the value.
+    """
 
     def __init__(self, t):
         self.domain = t[0]
@@ -269,16 +312,6 @@ class DomainExpressionAction(object):
         return "%s %s %s" % (self.domain, self.cond, self.values)
 
     def invoke(self, search_strategy):
-        """
-        Called when the parser hits a domain_expression token.
-
-        Searching using domain expressions is a little more magical
-        and queries mapper properties that were passed to add_meta()
-
-        To do a case sensitive search for a specific string use the
-        double equals, '=='
-        """
-
         try:
             if self.domain in search_strategy._shorthand:
                 self.domain = search_strategy._shorthand[self.domain]
@@ -288,10 +321,16 @@ class DomainExpressionAction(object):
 
         query = search_strategy._session.query(cls)
 
+        ## here is the place where to optionally filter out unrepresented
+        ## domain values. each domain class should define its own 'I have
+        ## accessions' filter. see issue #42
+
+        result = set()
+
         # select all objects from the domain
         if self.values == '*':
-            search_strategy._results.update(query.all())
-            return
+            result.update(query.all())
+            return result
 
         mapper = class_mapper(cls)
 
@@ -305,7 +344,6 @@ class DomainExpressionAction(object):
             condition = lambda col: \
                 lambda val: mapper.c[col].op(self.cond)(val)
 
-        result = set()
         for col in properties:
             ors = or_(*map(condition(col), self.values.express()))
             result.update(query.filter(ors).all())
@@ -363,24 +401,41 @@ class ValueListAction(object):
             result.update(q.all())
 
         return result
-        
+
 
 from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
                        OneOrMore, oneOf, alphas, alphanums, Group, Literal,
                        stringEnd, Keyword, quotedString,
-                       CaselessLiteral, infixNotation, opAssoc, Forward)
+                       infixNotation, opAssoc, Forward)
+
 
 class SearchParser(object):
     """The parser for bauble.search.MapperSearch
     """
 
-    numeric_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?').setParseAction(NumericToken)('number')
+    numeric_value = Regex(
+        r'[-]?\d+(\.\d*)?([eE]\d+)?'
+        ).setParseAction(NumericToken)('number')
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
-    string_value = (unquoted_string | quotedString.setParseAction(removeQuotes)).setParseAction(StringToken)('string')
+    string_value = (
+        unquoted_string | quotedString.setParseAction(removeQuotes)
+        ).setParseAction(StringToken)('string')
 
     none_token = Literal('None').setParseAction(NoneToken)
-    value = (numeric_value | string_value | none_token).setParseAction(ValueToken)('value')
-    value_list = Group(OneOrMore(string_value) ^ delimitedList(string_value)).setParseAction(ValueListAction)('value_list')
+    empty_token = Literal('Empty').setParseAction(EmptyToken)
+
+    value_list = Forward()
+    typed_value = (
+        Literal("|") + unquoted_string + Literal("|") +
+        value_list + Literal("|")
+        ).setParseAction(TypedValueToken)
+
+    value = (
+        typed_value | numeric_value | none_token | empty_token | string_value
+        ).setParseAction(ValueToken)('value')
+    value_list << Group(
+        OneOrMore(value) ^ delimitedList(value)
+        ).setParseAction(ValueListAction)('value_list')
 
     domain = Word(alphas, alphanums)
     binop = oneOf('= == != <> < <= > >= not like contains has ilike '
@@ -388,15 +443,17 @@ class SearchParser(object):
     equals = Literal('=')
     star_value = Literal('*')
     domain_values = (value_list.copy())('domain_values')
-    domain_expression = ((domain + equals + star_value + stringEnd)
-                         | (domain + binop + domain_values + stringEnd)).setParseAction(DomainExpressionAction)('domain_expression')
+    domain_expression = (
+        (domain + equals + star_value + stringEnd)
+        | (domain + binop + domain_values + stringEnd)
+        ).setParseAction(DomainExpressionAction)('domain_expression')
 
-    AND_ = CaselessLiteral("and")
-    OR_  = CaselessLiteral("or")
-    NOT_ = CaselessLiteral("not") | Literal('!')
+    AND_ = Literal("AND") | Literal("&&")
+    OR_ = Literal("OR") | Literal("||")
+    NOT_ = Literal("NOT") | Literal('!')
 
     query_expression = Forward()('filter')
-    identifier = Group(delimitedList(Word(alphas, alphanums+'_'),
+    identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),
                                      '.')).setParseAction(IdentifierToken)
     ident_expression = (
         Group(identifier + binop + value).setParseAction(IdentExpressionToken)
@@ -405,16 +462,16 @@ class SearchParser(object):
         ).setParseAction(ParenthesisedQuery))
     query_expression << infixNotation(
         ident_expression,
-        [ (NOT_, 1, opAssoc.RIGHT, SearchNotAction),
-          (AND_, 2, opAssoc.LEFT,  SearchAndAction),
-          (OR_,  2, opAssoc.LEFT,  SearchOrAction) ] )
+        [(NOT_, 1, opAssoc.RIGHT, SearchNotAction),
+         (AND_, 2, opAssoc.LEFT,  SearchAndAction),
+         (OR_,  2, opAssoc.LEFT,  SearchOrAction)])
     query = (domain + Keyword('where', caseless=True).suppress() +
              Group(query_expression) + stringEnd).setParseAction(QueryAction)
 
     statement = (query('query')
                  | domain_expression('domain')
                  | value_list('value_list')
-             ).setParseAction(StatementAction)('statement')
+                 ).setParseAction(StatementAction)('statement')
 
     def parse_string(self, text):
         '''request pyparsing object to parse text

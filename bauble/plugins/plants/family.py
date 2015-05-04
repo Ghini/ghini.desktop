@@ -7,8 +7,9 @@ import weakref
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
+    UnicodeText, func, and_, UniqueConstraint, String
+from sqlalchemy.orm import relation, backref, class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -22,6 +23,7 @@ import bauble.utils.web as web
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
+from bauble.i18n import _
 
 
 def edit_callback(families):
@@ -130,6 +132,8 @@ class Family(db.Base):
     __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
     __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
+    rank = 'familia'
+
     # columns
     family = Column(String(45), nullable=False, index=True)
 
@@ -163,6 +167,58 @@ class Family(db.Base):
         else:
             return ' '.join([s for s in [
                 family.family, family.qualifier] if s not in (None, '')])
+
+    def has_accessions(self):
+        '''true if family is linked to at least one accession
+        '''
+
+        return False
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col))
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id', 'family', 'qualifier']
+                      and col[0] != '_'
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'taxon'
+        result['rank'] = self.rank
+        result['epithet'] = self.family
+        return result
+
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+
+        ## first try retrieving, just use genus and sp fields
+        is_in_session = session.query(cls).filter(
+            cls.family == keys['epithet']).all()
+
+        if is_in_session:
+            return is_in_session[0]
+
+        ## correct field names
+        for internal, exchange in [('family', 'epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
+
+        ## otherwise remove unexpected keys, create new object, add it to
+        ## the session and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        result = cls(**keys)
+        session.add(result)
+
+        return result
+
+
+## defining the latin alias to the class.
+Familia = Family
 
 
 class FamilyNote(db.Base):
@@ -367,8 +423,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.fam_syn_entry.props.text = ''
         self.init_treeview()
 
-        # use completions_model as a dummy object for completions, we'll create
-        # seperate SpeciesSynonym models on add
+        # use completions_model as a dummy object for completions, we'll
+        # create separate SpeciesSynonym models on add
         completions_model = FamilySynonym()
 
         def fam_get_completions(text):

@@ -1,41 +1,63 @@
 # -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
 #
 # accessions module
 #
+
 import datetime
 from decimal import Decimal, ROUND_DOWN
 import os
-import re
 from random import random
 import sys
 import traceback
 import weakref
-import xml.sax.saxutils as saxutils
 
 import gtk
-import gobject
 
+from bauble.i18n import _
 import lxml.etree as etree
 import pango
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import and_, or_, func
+from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
+    UnicodeText
+from sqlalchemy.orm import EXT_CONTINUE, relation, MapperExtension, \
+    backref, reconstructor
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
 import bauble
 import bauble.db as db
 import bauble.editor as editor
-from bauble.error import check, CommitException
+from bauble.error import check
 import bauble.paths as paths
-from bauble.plugins.garden.propagation import *
-from bauble.plugins.garden.source import *
+from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
+    Propagation
+from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
+    Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
 from bauble.utils.log import debug, warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results, Action
+    select_in_search_results, Action
 import bauble.view as view
 
 # TODO: underneath the species entry create a label that shows information
@@ -43,8 +65,10 @@ import bauble.view as view
 # info about the genus so we know exactly what plant is being selected
 # e.g. Malvaceae (sensu lato), Hibiscus (senso stricto)
 
+
 def longitude_to_dms(decimal):
     return decimal_to_dms(Decimal(decimal), 'long')
+
 
 def latitude_to_dms(decimal):
     return decimal_to_dms(Decimal(decimal), 'lat')
@@ -75,7 +99,6 @@ def decimal_to_dms(decimal, long_or_lat):
     q = Decimal((0, (1,), -places))
     s = Decimal(abs((m2-m) * 60)).quantize(q)
     return direction, d, m, s
-
 
 
 def dms_to_decimal(dir, deg, min, sec, precision=6):
@@ -131,6 +154,7 @@ def get_next_code():
         session.close()
     return next
 
+
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
     return e.start()
@@ -153,15 +177,15 @@ def remove_callback(accessions):
         safe = utils.xml_safe_utf8
         plants = [str(plant) for plant in acc.plants]
         values = dict(num_plants=len(acc.plants),
-                      plant_codes = safe(', '.join(plants)),
-                      acc_code = safe(acc))
-        msg = _('%(num_plants)s plants depend on this accession: ' \
-                '<b>%(plant_codes)s</b>\n\n'\
-                'Are you sure you want to remove accession ' \
+                      plant_codes=safe(', '.join(plants)),
+                      acc_code=safe(acc))
+        msg = _('%(num_plants)s plants depend on this accession: '
+                '<b>%(plant_codes)s</b>\n\n'
+                'Are you sure you want to remove accession '
                 '<b>%(acc_code)s</b>?' % values)
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
-                  utils.xml_safe_utf8(unicode(acc))
+            utils.xml_safe_utf8(unicode(acc))
     if not utils.yes_no_dialog(msg):
         return False
     try:
@@ -179,11 +203,11 @@ def remove_callback(accessions):
 
 
 edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
-                        accelerator='<ctrl>e')
+                     accelerator='<ctrl>e')
 add_plant_action = Action('acc_add', _('_Add plants'),
                           callback=add_plants_callback, accelerator='<ctrl>k')
 remove_action = Action('acc_remove', _('_Delete'), callback=remove_callback,
-                       accelerator='<ctrl>Delete')#, multiselect=True)
+                       accelerator='<ctrl>Delete')
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
 
@@ -195,7 +219,6 @@ def acc_markup_func(acc):
     return utils.xml_safe_utf8(unicode(acc)), acc.species_str(markup=True)
 
 
-
 # TODO: accession should have a one-to-many relationship on verifications
     #ver_level = StringCol(length=2, default=None) # verification level
     #ver_name = StringCol(length=50, default=None) # verifier's name
@@ -204,6 +227,7 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
+    
 ver_level_descriptions = \
     {0: _('The name of the record has not been checked by any authority.'),
      1: _('The name of the record determined by comparison with other '\
@@ -373,6 +397,7 @@ recvd_type_values = {
     None: ''
     }
 
+
 class AccessionNote(db.Base):
     """
     Notes for the accession table
@@ -385,8 +410,9 @@ class AccessionNote(db.Base):
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relation('Accession', uselist=False,
-                       backref=backref('notes', cascade='all, delete-orphan'))
+    accession = relation(
+        'Accession', uselist=False,
+        backref=backref('notes', cascade='all, delete-orphan'))
 
 
 class Accession(db.Base):
@@ -472,9 +498,9 @@ class Accession(db.Base):
                                   translations=prov_type_values),
                        default=None)
 
-    wild_prov_status =Column(types.Enum(values=wild_prov_status_values.keys(),
-                                        translations=wild_prov_status_values),
-                             default=None)
+    wild_prov_status = Column(types.Enum(values=wild_prov_status_values.keys(),
+                                         translations=wild_prov_status_values),
+                              default=None)
 
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
@@ -505,9 +531,9 @@ class Accession(db.Base):
                       backref=backref('accession', uselist=False))
 
     # relations
-    species = relation('Species', uselist=False, backref=backref('accessions',
-                                                cascade='all, delete-orphan'))
-
+    species = relation('Species', uselist=False,
+                       backref=backref('accessions',
+                                       cascade='all, delete-orphan'))
 
     # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
@@ -527,7 +553,6 @@ class Accession(db.Base):
         super(Accession, self).__init__(*args, **kwargs)
         self.__cached_species_str = {}
 
-
     @reconstructor
     def init_on_load(self):
         """
@@ -536,14 +561,11 @@ class Accession(db.Base):
         """
         self.__cached_species_str = {}
 
-
     def invalidate_str_cache(self):
         self.__cached_species_str = {}
 
-
     def __str__(self):
         return self.code
-
 
     def species_str(self, authors=False, markup=False):
         """
@@ -586,11 +608,11 @@ class Accession(db.Base):
 
         # copy the species so we don't affect the original
         session = db.Session()
-        species = session.merge(self.species)#, dont_load=True)
+        species = session.merge(self.species)  # , dont_load=True)
 
         # generate the string
         if self.id_qual in ('aff.', 'cf.'):
-            if self.id_qual_rank=='infrasp':
+            if self.id_qual_rank == 'infrasp':
                 species.sp = '%s %s' % (species.sp, self.id_qual)
             elif self.id_qual_rank:
                 setattr(species, self.id_qual_rank,
@@ -609,9 +631,19 @@ class Accession(db.Base):
         self.__cached_species_str[(markup, authors)] = sp_str
         return sp_str
 
-
     def markup(self):
         return '%s (%s)' % (self.code, self.species.markup())
+
+    def as_dict(self):
+        result = dict((col, getattr(self, col))
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id']
+                      and col[0] != '_'
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = 'accession'
+        result['species'] = str(self.species)
+        return result
 
 
 from bauble.plugins.garden.plant import Plant, PlantEditor
@@ -924,18 +956,14 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             set_expanded(True)
         self._dirty = False
 
-
     def dirty(self):
         return self._dirty
-
 
     def refresh_view(self):
         pass
 
-
     def on_add_clicked(self, *args):
         self.add_verification_box()
-
 
     def add_verification_box(self, model=None):
         """
@@ -947,7 +975,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         self.view.widgets.verifications_parent_box.reorder_child(box, 0)
         box.show_all()
         return box
-
 
     class VerificationBox(gtk.HBox):
 
@@ -964,7 +991,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
             # copy UI definitions from the accession editor glade file
             filename = os.path.join(paths.lib_dir(), "plugins", "garden",
-                                "acc_editor.glade")
+                                    "acc_editor.glade")
             xml = etree.parse(filename)
             el = xml.find("//object[@id='ver_box']")
             builder = gtk.Builder()
@@ -2022,7 +2049,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         else:
             view.widgets.acc_code_entry.grab_focus()
 
-
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -2043,18 +2069,18 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe_utf8(unicode(e.orig))
+                    utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = _('Unknown error when committing changes. See the '\
+                msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
-                        % utils.xml_safe_utf8(e)
+                    % utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                 or not self.presenter.dirty():
+                or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
@@ -2078,12 +2104,11 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         return True
 
-
     def start(self):
         from bauble.plugins.plants.species_model import Species
         if self.session.query(Species).count() == 0:
-            msg = _('You must first add or import at least one species into '\
-                        'the database before you can add accessions.')
+            msg = _('You must first add or import at least one species into '
+                    'the database before you can add accessions.')
             utils.message_dialog(msg)
             return
 
@@ -2095,10 +2120,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             if self.handle_response(response):
                 break
 
-        self.session.close() # cleanup session
+        self.session.close()  # cleanup session
         self.presenter.cleanup()
         return self._committed
-
 
     @staticmethod
     def _cleanup_collection(model):
@@ -2110,14 +2134,14 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         # so we can give a meaningful response
         if model.latitude is not None or model.longitude is not None:
             if (model.latitude is not None and model.longitude is None) or \
-                (model.longitude is not None and model.latitude is None):
-                msg = _('model must have both latitude and longitude or '\
+                    (model.longitude is not None and model.latitude is None):
+                msg = _('model must have both latitude and longitude or '
                         'neither')
                 raise ValueError(msg)
             elif model.latitude is None and model.longitude is None:
-                model.geo_accy = None # don't save
+                model.geo_accy = None  # don't save
         else:
-            model.geo_accy = None # don't save
+            model.geo_accy = None  # don't save
 
         # reset the elevation accuracy if the elevation is None
         if model.elevation is None:
@@ -2442,7 +2466,6 @@ class VouchersExpander(InfoExpander):
             label.show()
 
 
-
 class AccessionInfoBox(InfoBox):
     """
     - general info
@@ -2471,7 +2494,6 @@ class AccessionInfoBox(InfoBox):
 
         #self.show_all()
 
-
     def update(self, row):
         if isinstance(row, Collection):
             row = row.source.accession
@@ -2486,8 +2508,8 @@ class AccessionInfoBox(InfoBox):
 
         # self.vouchers.update(row)
 
-        urls = filter(lambda x: x!=[], \
-                          [utils.get_urls(note.note) for note in row.notes])
+        urls = filter(lambda x: x != [],
+                      [utils.get_urls(note.note) for note in row.notes])
         if not urls:
             self.links.props.visible = False
             self.links._sep.props.visible = False
@@ -2527,7 +2549,7 @@ datums = {"Adindan": "Adindan- Ethiopia, Mali, Senegal, Sudan",
           "Aus Geod '84": "Australian Geod '84- Australia, Tasmania Island",
           "Austria": "Austria",
           "Bellevue (IGN)": "Efate and Erromango Islands",
-          "Bermuda 1957" : "Bermuda 1957- Bermuda Islands",
+          "Bermuda 1957": "Bermuda 1957- Bermuda Islands",
           "Bogota Observ": "Bogata Obsrvatry- Colombia",
           "Campo Inchspe": "Campo Inchauspe- Argentina",
           "Canton Ast '66": "Canton Astro 1966- Phoenix Islands",
@@ -2535,15 +2557,15 @@ datums = {"Adindan": "Adindan- Ethiopia, Mali, Senegal, Sudan",
           "Cape Canavrl": "Cape Canaveral- Florida, Bahama Islands",
           "Carthage": "Carthage- Tunisia",
           "CH-1903": "CH 1903- Switzerland",
-          "Chatham 1971" : "Chatham 1971- Chatham Island (New Zealand)",
+          "Chatham 1971": "Chatham 1971- Chatham Island (New Zealand)",
           "Chua Astro": "Chua Astro- Paraguay",
-          "Corrego Alegr" : "Corrego Alegre- Brazil",
-          "Croatia" : "Croatia",
-          "Djakarta" : "Djakarta (Batavia)- Sumatra Island (Indonesia)",
-          "Dos 1968" : "Dos 1968- Gizo Island (New Georgia Islands)",
-          "Dutch" : "Dutch",
-          "Easter Isld 67" : "Easter Island 1967",
-          "European 1950" : "European 1950- Austria, Belgium, Denmark, Finland, France, Germany, Gibraltar, Greece, Italy, Luxembourg, Netherlands, Norway, Portugal, Spain, Sweden, Switzerland",
+          "Corrego Alegr": "Corrego Alegre- Brazil",
+          "Croatia": "Croatia",
+          "Djakarta": "Djakarta (Batavia)- Sumatra Island (Indonesia)",
+          "Dos 1968": "Dos 1968- Gizo Island (New Georgia Islands)",
+          "Dutch": "Dutch",
+          "Easter Isld 67": "Easter Island 1967",
+          "European 1950": "European 1950- Austria, Belgium, Denmark, Finland, France, Germany, Gibraltar, Greece, Italy, Luxembourg, Netherlands, Norway, Portugal, Spain, Sweden, Switzerland",
           "European 1979": "European 1979- Austria, Finland, Netherlands, Norway, Spain, Sweden, Switzerland",
           "Finland Hayfrd": "Finland Hayford- Finland",
           "Gandajika Base": "Gandajika Base- Republic of Maldives",
@@ -2554,12 +2576,12 @@ datums = {"Adindan": "Adindan- Ethiopia, Mali, Senegal, Sudan",
           "Hjorsey 1955": "Hjorsey 1955- Iceland",
           "Hong Kong '63": "Hong Kong",
           "Hu-Tzu-Shan": "Taiwan",
-          "Indian Bngldsh" : "Indian- Bangladesh, India, Nepal",
-          "Indian Thailand" : "Indian- Thailand, Vietnam",
-          "Indonesia 74" : "Indonesia 1974- Indonesia",
-          "Ireland 1965" : "Ireland 1965- Ireland",
+          "Indian Bngldsh": "Indian- Bangladesh, India, Nepal",
+          "Indian Thailand": "Indian- Thailand, Vietnam",
+          "Indonesia 74": "Indonesia 1974- Indonesia",
+          "Ireland 1965": "Ireland 1965- Ireland",
           "ISTS 073 Astro": "ISTS 073 ASTRO '69- Diego Garcia",
-          "Johnston Island" : "Johnston Island NAD27 Central",
+          "Johnston Island": "Johnston Island NAD27 Central",
           "Kandawala": "Kandawala- Sri Lanka",
           "Kergueln Islnd": "Kerguelen Island",
           "Kertau 1948": "West Malaysia, Singapore",
