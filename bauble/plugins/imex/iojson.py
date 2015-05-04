@@ -99,7 +99,19 @@ class JSONImporter(object):
         self.__pause = False   # flag to pause importing
         self.__error_exc = False
 
-    def start(self, filenames):
+    def start(self, filenames=None):
+        if filenames is None:
+            d = gtk.FileChooserDialog(
+                _("Choose a file to import from..."), None,
+                gtk.FILE_CHOOSER_ACTION_SAVE,
+                (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                 gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            response = d.run()
+            filename = d.get_filename()
+            d.destroy()
+            if response != gtk.RESPONSE_ACCEPT or filename is None:
+                return
+            filenames = [filename]
         objects = [json.load(open(fn)) for fn in filenames]
         a = []
         for i in objects:
