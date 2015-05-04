@@ -7,8 +7,9 @@ import weakref
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
+    UnicodeText, func, and_, UniqueConstraint, String
+from sqlalchemy.orm import relation, backref, class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -22,6 +23,7 @@ import bauble.utils.web as web
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
+from bauble.i18n import _
 
 
 def edit_callback(families):
@@ -421,8 +423,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.fam_syn_entry.props.text = ''
         self.init_treeview()
 
-        # use completions_model as a dummy object for completions, we'll create
-        # seperate SpeciesSynonym models on add
+        # use completions_model as a dummy object for completions, we'll
+        # create separate SpeciesSynonym models on add
         completions_model = FamilySynonym()
 
         def fam_get_completions(text):
