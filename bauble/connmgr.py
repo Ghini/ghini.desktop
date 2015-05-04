@@ -552,8 +552,8 @@ class CMParamsBox(gtk.Table):
 
     def text_valued(self):
         return [('db', self.db_entry),
-                ('host', self.host),
-                ('user', self.user),
+                ('host', self.host_entry),
+                ('user', self.user_entry),
                 ('pictures', self.pictureroot_entry),
                 ]
 
@@ -598,6 +598,21 @@ class CMParamsBox(gtk.Table):
         self.passwd_check = gtk.CheckButton()
         self.attach(self.passwd_check, 1, 2, 3, 4)
 
+        label = gtk.Label(_("Pictures root: "))
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 4, 5)
+        self.pictureroot_box = gtk.HBox(False)
+        self.pictureroot_entry = gtk.Entry()
+        self.pictureroot_box.pack_start(self.pictureroot_entry)
+        pictureroot_button = gtk.Button(_("Browse..."))
+        pictureroot_button.connect("clicked", self.on_activate_browse_button)
+        ## set additional properties, used in on_activate_browse_button
+        pictureroot_button.action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER
+        pictureroot_button.file_entry = self.pictureroot_entry
+        pictureroot_button.wants_filetype = None
+        self.pictureroot_box.pack_start(pictureroot_button)
+        self.attach(self.pictureroot_box, 1, 2, 4, 5)
+
     def get_prefs(self):
         """return dictionary of all preferences.
         """
@@ -627,6 +642,18 @@ class CMParamsBox(gtk.Table):
         except KeyError, e:
             debug('KeyError: %s' % e)
             #debug(traceback.format_exc())
+
+    def on_activate_browse_button(self, widget, data=None):
+        d = gtk.FileChooserDialog(
+            _("Choose a file..."), None,
+            action=widget.action,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        d.run()
+        filename = d.get_filename()
+        if filename:
+            widget.file_entry.set_text(filename)
+        d.destroy()
 
 
 class SQLiteParamsBox(CMParamsBox):
@@ -709,18 +736,6 @@ class SQLiteParamsBox(CMParamsBox):
             pass
             #debug('KeyError: %s' % e)
             #debug(traceback.format_exc())
-
-    def on_activate_browse_button(self, widget, data=None):
-        d = gtk.FileChooserDialog(
-            _("Choose a file..."), None,
-            action=widget.action,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        d.run()
-        filename = d.get_filename()
-        if filename:
-            widget.file_entry.set_text(filename)
-        d.destroy()
 
 
 class PGParamsBox(CMParamsBox):
