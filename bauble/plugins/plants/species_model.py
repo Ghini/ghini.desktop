@@ -20,15 +20,16 @@
 
 from itertools import chain
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
 from sqlalchemy.ext.associationproxy import association_proxy
 
-import bauble
+from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
+    UnicodeText, func, UniqueConstraint
+from sqlalchemy.orm import relation, backref, class_mapper
 import bauble.db as db
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.btypes as types
+from bauble.i18n import _
 
 
 class VNList(list):
@@ -419,8 +420,9 @@ class Species(db.Base):
         ## otherwise we need a new object
 
         ## retrieve genus object
-        genus = Genus.retrieve_or_create(session, {'epithet': keys['ht-epithet'],
-                                                   'ht-epithet': keys.get('familia')})
+        genus = Genus.retrieve_or_create(
+            session, {'epithet': keys['ht-epithet'],
+                      'ht-epithet': keys.get('familia')})
 
         ## remove unexpected keys, create new object, add it to the session
         ## and finally do return it.
@@ -456,7 +458,6 @@ class SpeciesNote(db.Base):
                        backref=backref('notes', cascade='all, delete-orphan'))
 
 
-
 class SpeciesSynonym(db.Base):
     """
     :Table name: species_synonym
@@ -481,7 +482,6 @@ class SpeciesSynonym(db.Base):
 
     def __str__(self):
         return str(self.synonym)
-
 
 
 class VernacularName(db.Base):
@@ -515,7 +515,6 @@ class VernacularName(db.Base):
             return self.name
         else:
             return ''
-
 
 
 class DefaultVernacularName(db.Base):
@@ -576,9 +575,11 @@ class SpeciesDistribution(db.Base):
         return str(self.geography)
 
 # late bindings
-SpeciesDistribution.geography = relation('Geography',
-                primaryjoin='SpeciesDistribution.geography_id==Geography.id',
-                                         uselist=False)
+SpeciesDistribution.geography = relation(
+    'Geography',
+    primaryjoin='SpeciesDistribution.geography_id==Geography.id',
+    uselist=False)
+
 
 class Habit(db.Base):
     __tablename__ = 'habit'

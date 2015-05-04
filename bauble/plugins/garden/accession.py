@@ -2049,7 +2049,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         else:
             view.widgets.acc_code_entry.grab_focus()
 
-
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -2070,18 +2069,18 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe_utf8(unicode(e.orig))
+                    utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = _('Unknown error when committing changes. See the '\
+                msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
-                        % utils.xml_safe_utf8(e)
+                    % utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                 or not self.presenter.dirty():
+                or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
@@ -2105,12 +2104,11 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         return True
 
-
     def start(self):
         from bauble.plugins.plants.species_model import Species
         if self.session.query(Species).count() == 0:
-            msg = _('You must first add or import at least one species into '\
-                        'the database before you can add accessions.')
+            msg = _('You must first add or import at least one species into '
+                    'the database before you can add accessions.')
             utils.message_dialog(msg)
             return
 
@@ -2122,10 +2120,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             if self.handle_response(response):
                 break
 
-        self.session.close() # cleanup session
+        self.session.close()  # cleanup session
         self.presenter.cleanup()
         return self._committed
-
 
     @staticmethod
     def _cleanup_collection(model):
@@ -2137,14 +2134,14 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         # so we can give a meaningful response
         if model.latitude is not None or model.longitude is not None:
             if (model.latitude is not None and model.longitude is None) or \
-                (model.longitude is not None and model.latitude is None):
-                msg = _('model must have both latitude and longitude or '\
+                    (model.longitude is not None and model.latitude is None):
+                msg = _('model must have both latitude and longitude or '
                         'neither')
                 raise ValueError(msg)
             elif model.latitude is None and model.longitude is None:
-                model.geo_accy = None # don't save
+                model.geo_accy = None  # don't save
         else:
-            model.geo_accy = None # don't save
+            model.geo_accy = None  # don't save
 
         # reset the elevation accuracy if the elevation is None
         if model.elevation is None:
