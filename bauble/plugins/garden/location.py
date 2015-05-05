@@ -24,10 +24,8 @@ import os
 import traceback
 import gtk
 
-from sqlalchemy import Column, Unicode, UnicodeText, UnicodeOrNoneValidator
+from sqlalchemy import Column, Unicode, UnicodeText
 from sqlalchemy.orm import relation, backref
-#from sqlalchemy import *
-#from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -35,7 +33,8 @@ from bauble.i18n import _
 import bauble
 import bauble.db as db
 from bauble.editor import GenericEditorView, \
-    GenericEditorPresenter, GenericModelViewPresenterEditor
+    GenericEditorPresenter, GenericModelViewPresenterEditor, \
+    UnicodeOrNoneValidator
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.view import Action
