@@ -38,8 +38,9 @@ import pango
 from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText
-from sqlalchemy.orm import EXT_CONTINUE, relation, MapperExtension, \
-    backref, reconstructor
+from sqlalchemy.orm import EXT_CONTINUE, MapperExtension, \
+    backref, relation, reconstructor
+from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -643,6 +644,61 @@ class Accession(db.Base):
                       and not col.endswith('_id'))
         result['object'] = 'accession'
         result['species'] = str(self.species)
+        return result
+
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+        """return database object corresponding to keys
+        """
+
+        ## first try retrieving
+        is_in_session = session.query(cls).filter(
+            cls.code == keys['code']).all()
+
+        if is_in_session:
+            return is_in_session[0]
+
+        ## so it's not there yet. we can create it only if the accession
+        ## refers to a species. if it refers to genus or family we can't, so
+        ## we return None
+
+        if 'rank' not in keys:
+            return None
+
+        ## now we must connect the accession to the species it refers to
+        if keys['rank'] == 'species':
+            genus_name, epithet = keys['taxon'].split(' ', 1)
+            sp_dict = {'ht-epithet': genus_name,
+                       'epithet': epithet}
+            species = Species.retrieve_or_create(
+                session, sp_dict)
+        elif keys['rank'] == 'genus':
+            species = Species.retrieve_or_create(
+                session, {'ht-epithet': keys['taxon'],
+                          'epithet': 'sp'})
+        else:
+            return None
+
+        ## correct field names
+        for internal, exchange in [('species', 'taxon')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
+
+        ## otherwise remove unexpected keys, create new object, add it to
+        ## the session and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        keys['species'] = species
+
+        result = cls(**keys)
+        session.add(result)
+
         return result
 
 

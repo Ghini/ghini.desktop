@@ -143,6 +143,11 @@ class Location(db.Base):
         result['object'] = 'location'
         return result
 
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+        """return database object corresponding to keys
+        """
+
 
 class LocationEditorView(GenericEditorView):
 

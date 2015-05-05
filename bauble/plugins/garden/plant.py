@@ -34,6 +34,7 @@ from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
 from sqlalchemy.orm import relation, backref, object_mapper
+from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -521,6 +522,42 @@ class Plant(db.Base):
                       and not col.endswith('_id'))
         result['object'] = 'plant'
         result['accession'] = self.accession.code
+        return result
+
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+        """return database object corresponding to keys
+        """
+
+        from accession import Accession
+        ## first try retrieving, use accession.code
+        is_in_session = session.query(cls).filter(
+            cls.code == keys['code']).join(Accession).filter(
+            Accession.code == keys['accession']).all()
+
+        if is_in_session:
+            return is_in_session[0]
+
+        acc_keys = {}
+        acc_keys.update(keys)
+        acc_keys['code'] = keys['accession']
+        accession = Accession.retrieve_or_create(
+            session, acc_keys)
+
+        ## otherwise remove unexpected keys, create new object, add it to
+        ## the session and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        keys['accession'] = accession
+
+        result = cls(**keys)
+        session.add(result)
+
         return result
 
 
