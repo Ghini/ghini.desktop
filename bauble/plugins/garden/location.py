@@ -32,9 +32,8 @@ from sqlalchemy.exc import DBAPIError
 from bauble.i18n import _
 import bauble
 import bauble.db as db
-from bauble.editor import GenericEditorView, \
-    GenericEditorPresenter, GenericModelViewPresenterEditor, \
-    UnicodeOrNoneValidator
+from bauble.editor import GenericModelViewPresenterEditor, GenericEditorView, \
+    GenericEditorPresenter, UnicodeOrNoneValidator
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.view import Action
