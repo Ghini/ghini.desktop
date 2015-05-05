@@ -188,6 +188,8 @@ class Family(db.Base):
 
     @classmethod
     def retrieve_or_create(cls, session, keys):
+        """return database object corresponding to keys
+        """
 
         ## first try retrieving, just use genus and sp fields
         is_in_session = session.query(cls).filter(
