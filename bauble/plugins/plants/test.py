@@ -8,16 +8,19 @@
 import os
 import sys
 
-from sqlalchemy import *
-from sqlalchemy.exc import *
-from sqlalchemy.orm.exc import *
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 import bauble.utils as utils
-from bauble.utils.log import debug
-from bauble.plugins.plants.species import *
-from bauble.plugins.plants.family import *
-from bauble.plugins.plants.genus import *
-from bauble.plugins.plants.geography import *
+import bauble.db as db
+from bauble.plugins.plants.species import \
+    Species, VernacularName, SpeciesSynonym, SpeciesEditor, \
+    DefaultVernacularName, SpeciesDistribution
+from bauble.plugins.plants.family import \
+    Family, FamilySynonym, FamilyEditor
+from bauble.plugins.plants.genus import \
+    Genus, GenusSynonym, GenusEditor
+from bauble.plugins.plants.geography import Geography, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids
 
 #
@@ -82,9 +85,9 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                      {'id': 11, 'sp': u'generalis', 'genus_id': 1,
                       'sp_qual': u'agg.'},
                      {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
-                     {'id': 13, 'genus_id':1,
+                     {'id': 13, 'genus_id': 1,
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
-                     {'id': 14, 'genus_id':1,
+                     {'id': 14, 'genus_id': 1,
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red & Blue'},
                      {'id': 15, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'L.',
@@ -128,7 +131,8 @@ species_markup_map = {
     6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
     12: "<i>Maxillaria</i> SomeGroup Group",
     14: "<i>Maxillaria</i> 'Red &amp; Blue'",
-    15: "<i>Encyclia</i> <i>cochleata</i> subsp. <i>cochleata</i> var. <i>cochleata</i> 'Black'",
+    15: "<i>Encyclia</i> <i>cochleata</i> subsp. <i>"
+    "cochleata</i> var. <i>cochleata</i> 'Black'",
     }
 
 species_str_authors_map = {
@@ -140,7 +144,8 @@ species_str_authors_map = {
     6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
     7: 'Abrus precatorius L. SomethingRidiculous Group',
     8: "Abrus precatorius L. (SomethingRidiculous Group) 'Hot Rio Nights'",
-    15: "Encyclia cochleata L. subsp. cochleata L. var. cochleata L. 'Black' L.",
+    15: "Encyclia cochleata L. subsp. "
+    "cochleata L. var. cochleata L. 'Black' L.",
 }
 
 species_markup_authors_map = {
@@ -452,8 +457,8 @@ class SpeciesTests(PlantTestCase):
     def itest_editor(self):
         # import default geography data
         import bauble.paths as paths
-        default_path = os.path.join(paths.lib_dir(), "plugins", "plants",
-                                "default")
+        default_path = os.path.join(
+            paths.lib_dir(), "plugins", "plants", "default")
         filenames = [os.path.join(default_path, f) for f in 'geography.txt',
                      'habit.txt']
         from bauble.plugins.imex.csv_ import CSVImporter
@@ -486,6 +491,7 @@ class SpeciesTests(PlantTestCase):
 
         for sid, s in species_str_map.iteritems():
                 sp = self.session.query(Species).get(sid)
+                self.assertEquals(species_str_map[sid], "%s" % sp)
                 spstr = get_sp_str(sid)
                 self.assert_(spstr == s,
                              '"%s" != "%s" ** %s' % (spstr, s, unicode(spstr)))
@@ -504,7 +510,6 @@ class SpeciesTests(PlantTestCase):
             spstr = get_sp_str(sid, markup=True, authors=True)
             self.assert_(spstr == s,
                          '%s != %s ** %s' % (spstr, s, unicode(spstr)))
-
 
     # def test_dirty_string(self):
     #     """
@@ -629,6 +634,7 @@ class SpeciesTests(PlantTestCase):
         def syn_str(id1, id2, isit='not'):
             sp1 = load_sp(id1)
             sp2 = load_sp(id2)
+            print sp2
             return '%s(%s).synonyms: %s' % \
                    (sp1, sp1.id,
                     str(map(lambda s: '%s(%s)' %
@@ -800,6 +806,15 @@ class FromAndToDictTest(PlantTestCase):
                            'epithet': 'Polypodiaceae'})
         self.assertEquals(set(all_families), set([orc, pol, leg]))
 
+    def test_grabbing_same_params_same_output_existing(self):
+        orc1 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Orchidaceae'})
+        orc2 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Orchidaceae'})
+        self.assertTrue(orc1 is orc2)
+
     def test_can_create_family(self):
         all_families = self.session.query(Family).all()
         fab = Family.retrieve_or_create(
@@ -808,13 +823,27 @@ class FromAndToDictTest(PlantTestCase):
         ## it's in the session, it wasn't there before.
         self.assertTrue(fab in self.session)
         self.assertFalse(fab in all_families)
-        ## still not in database.
-        all_families = self.session.query(Family).all()
-        self.assertFalse(fab in all_families)
+        ## it's in the session, not in thedatabase.
+        ses_families = self.session.query(Family).all()
+        self.assertTrue(fab in ses_families)
+        db_families = db.Session().query(Family).all()
+        self.assertFalse(fab in db_families)
         ## after commit it's in database.
         self.session.commit()
         all_families = self.session.query(Family).all()
         self.assertTrue(fab in all_families)
+
+    def test_grabbing_same_params_same_output_new(self):
+        import logging
+        logging.basicConfig()
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+        fab1 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
+        fab2 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
+        self.assertTrue(fab1 is fab2)
 
     def test_can_grab_existing_genera(self):
         orc = Family.retrieve_or_create(

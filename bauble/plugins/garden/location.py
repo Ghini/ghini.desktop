@@ -147,6 +147,28 @@ class Location(db.Base):
     def retrieve_or_create(cls, session, keys):
         """return database object corresponding to keys
         """
+        ## first try retrieving, use name
+        is_in_session = session.query(cls).filter(
+            cls.code == keys['code']).all()
+
+        if is_in_session:
+            return is_in_session[0]
+
+        ## otherwise remove unexpected keys, create new object, add it to
+        ## the session and finally do return it.
+
+        from sqlalchemy.orm import class_mapper
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        result = cls(**keys)
+        session.add(result)
+        session.flush()
+
+        return result
 
 
 class LocationEditorView(GenericEditorView):

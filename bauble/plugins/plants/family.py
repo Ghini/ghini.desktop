@@ -129,7 +129,7 @@ class Family(db.Base):
         The family table has a unique constraint on family/qualifier.
     """
     __tablename__ = 'family'
-    __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
+    __table_args__ = (UniqueConstraint('family'), {})
     __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
     rank = 'familia'
@@ -196,7 +196,10 @@ class Family(db.Base):
             cls.family == keys['epithet']).all()
 
         if is_in_session:
-            return is_in_session[0]
+            result = is_in_session[0]
+            print 'family %s found in session' % result
+            print session.new
+            return result
 
         ## correct field names
         for internal, exchange in [('family', 'epithet')]:
@@ -215,6 +218,7 @@ class Family(db.Base):
 
         result = cls(**keys)
         session.add(result)
+        session.flush()
 
         return result
 

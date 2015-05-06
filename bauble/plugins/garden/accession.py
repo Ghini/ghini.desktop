@@ -698,6 +698,7 @@ class Accession(db.Base):
 
         result = cls(**keys)
         session.add(result)
+        session.flush()
 
         return result
 

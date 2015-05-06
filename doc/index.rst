@@ -13,7 +13,6 @@ the needs of the institution.
 It is `open <http://www.opensource.org>`_ and `free
 <http://www.fsf.org>`_ and is released under the `GNU Public License <http://www.fsf.org/licensing/licenses/gpl.html>`_
 
-
 Installing Bauble
 =================
 
@@ -48,6 +47,14 @@ Bauble Development
    building
    extending
    api
+
+Supporting Bauble
+=================
+
+.. image:: https://pledgie.com/campaigns/29188.png
+
+If you're using Bauble, or if you feel like helping its development anyway, 
+please consider `donating <https://pledgie.com/campaigns/29188>`_
 
 
 .. Indices and tables
