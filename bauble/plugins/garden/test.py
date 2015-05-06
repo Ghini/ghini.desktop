@@ -1393,8 +1393,9 @@ class FromAndToDictTest(GardenTestCase):
             self.session, {'code': '010203',
                            'rank': 'species',
                            'taxon': 'Encyclia cochleata'})
-        self.session.commit()  # why must we commit it here!?!?
         plt = Plant.retrieve_or_create(
             self.session, {'accession': '010203',
-                           'code': '1'})
+                           'code': '1',
+                           'location': 'wrong one',
+                           'quantity': 1})
         self.assertEquals(plt.accession, acc)

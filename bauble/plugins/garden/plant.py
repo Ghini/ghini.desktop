@@ -530,6 +530,7 @@ class Plant(db.Base):
         """
 
         from accession import Accession
+        from location import Location
         ## first try retrieving, use accession.code
         is_in_session = session.query(cls).filter(
             cls.code == keys['code']).join(Accession).filter(
@@ -544,6 +545,12 @@ class Plant(db.Base):
         accession = Accession.retrieve_or_create(
             session, acc_keys)
 
+        acc_keys = {}
+        acc_keys.update(keys)
+        acc_keys['name'] = keys['location']
+        location = Location.retrieve_or_create(
+            session, acc_keys)
+
         ## otherwise remove unexpected keys, create new object, add it to
         ## the session and finally do return it.
 
@@ -554,9 +561,11 @@ class Plant(db.Base):
             del keys['id']
 
         keys['accession'] = accession
+        keys['location'] = location
 
         result = cls(**keys)
         session.add(result)
+        session.flush()
 
         return result
 
