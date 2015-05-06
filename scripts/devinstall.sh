@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get -y python-gtk2 git virtualenvwrapper
+sudo apt-get install -y python-gtk2 git virtualenvwrapper
 cat <<EOF >> ~/.profile
 export WORKON_HOME=$HOME/.virtualenvs>> ~/.profile
 export PROJECT_HOME=$HOME/Devel
@@ -9,7 +9,13 @@ EOF
 . ~/.profile
 mkdir -p ~/Local/github/Bauble
 cd ~/Local/github/Bauble
-git clone https://github.com/Bauble/bauble.classic
+# git clone https://github.com/Bauble/bauble.classic
+cd bauble.classic
+if [ $# -ne 0 ]
+then
+  git checkout bauble-$1
+fi
+exit 1
 mkvirtualenv bacl --system-site-packages
 workon bacl
 python setup.py build
@@ -23,11 +29,17 @@ GITHOME=$HOME/Local/github/Bauble/bauble.classic/
 source /usr/local/bin/virtualenvwrapper.sh
 workon bacl
 
-while getopts u f
+while getopts us: f
 do
   case $f in
     u)  cd $GITHOME
 	git pull
+	python setup.py build
+	python setup.py install
+	exit 1;;
+    s)  cd $GITHOME
+	git checkout bauble-$OPTARG
+        git pull
 	python setup.py build
 	python setup.py install
 	exit 1;;
