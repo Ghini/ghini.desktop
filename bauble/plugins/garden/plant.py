@@ -546,7 +546,7 @@ class Plant(db.Base):
 
         acc_keys = {}
         acc_keys.update(keys)
-        acc_keys['name'] = keys['location']
+        acc_keys['code'] = keys['location']
         location = Location.retrieve_or_create(
             session, acc_keys)
 
