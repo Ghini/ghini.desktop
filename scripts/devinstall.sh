@@ -36,13 +36,13 @@ workon bacl
 
 while getopts us: f
 do
-  case $f in
-    u)  cd $GITHOME
+  case \$f in
+    u)  cd \$GITHOME
 	git pull
 	python setup.py build
 	python setup.py install
 	exit 1;;
-    s)  cd $GITHOME
+    s)  cd \$GITHOME
 	git checkout bauble-$OPTARG
         git pull
 	python setup.py build
