@@ -214,9 +214,9 @@ class Genus(db.Base):
     def retrieve_or_create(cls, session, keys):
 
         from family import Family
-        ## first try retrieving, just use family and genus fields
-        query = session.query(cls).filter(cls.genus == keys['epithet'])
-        is_in_session = query.all()
+        ## first try retrieving, just use genus field
+        is_in_session = session.query(cls).filter(
+            cls.genus == keys['epithet']).all()
 
         if is_in_session:
             return is_in_session[0]
@@ -247,6 +247,7 @@ class Genus(db.Base):
 
         result = cls(**keys)
         session.add(result)
+        session.flush()
 
         return result
 

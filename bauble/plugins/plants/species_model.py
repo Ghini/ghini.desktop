@@ -438,6 +438,7 @@ class Species(db.Base):
 
         result = cls(**keys)
         session.add(result)
+        session.flush()
 
         return result
 
