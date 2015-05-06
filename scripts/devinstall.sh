@@ -43,7 +43,7 @@ do
 	python setup.py install
 	exit 1;;
     s)  cd \$GITHOME
-	git checkout bauble-$OPTARG
+	git checkout bauble-\$OPTARG
         git pull
 	python setup.py build
 	python setup.py install
