@@ -10,7 +10,7 @@ sudo apt-get install -y python-gtk2 git virtualenvwrapper
 cat <<EOF >> ~/.profile
 export WORKON_HOME=$HOME/.virtualenvs
 export PROJECT_HOME=$HOME/Devel
-source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
+source $(which virtualenvwrapper.sh)
 EOF
 . ~/.profile
 mkdir -p ~/Local/github/Bauble
