@@ -7,13 +7,11 @@
 
 import os
 import sys
-import unittest
 
 from sqlalchemy import *
 from sqlalchemy.exc import *
 from sqlalchemy.orm.exc import *
 
-import bauble
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.plugins.plants.species import *
@@ -101,7 +99,7 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'cv_group': u'SomeGroup'},
                      )
 
-species_str_map = {\
+species_str_map = {
     1: 'Maxillaria variabilis',
     2: 'Encyclia cochleata',
     3: 'Abrus precatorius',
@@ -111,28 +109,29 @@ species_str_map = {\
     7: 'Abrus precatorius SomethingRidiculous Group',
     8: "Abrus precatorius (SomethingRidiculous Group) 'Hot Rio Nights'",
     9: "Maxillaria %s generalis 'Red'" % Species.hybrid_char,
-    10:"Maxillaria %s generalis (SomeGroup Group) 'Red'" % Species.hybrid_char,
-    11:"Maxillaria generalis agg.",
-    12:"Maxillaria SomeGroup Group",
-    13:"Maxillaria 'Red'",
-    14:"Maxillaria 'Red & Blue'",
-    15:"Encyclia cochleata subsp. cochleata var. cochleata 'Black'",
-    16:"Maxillaria test subsp. test SomeGroup Group"
+    10: "Maxillaria %s generalis (SomeGroup Group) 'Red'"
+    % Species.hybrid_char,
+    11: "Maxillaria generalis agg.",
+    12: "Maxillaria SomeGroup Group",
+    13: "Maxillaria 'Red'",
+    14: "Maxillaria 'Red & Blue'",
+    15: "Encyclia cochleata subsp. cochleata var. cochleata 'Black'",
+    16: "Maxillaria test subsp. test SomeGroup Group"
     }
 
-species_markup_map = {\
+species_markup_map = {
     1: '<i>Maxillaria</i> <i>variabilis</i>',
     2: '<i>Encyclia</i> <i>cochleata</i>',
     3: '<i>Abrus</i> <i>precatorius</i>',
     4: '<i>Campyloneurum</i> %s <i>alapense</i>' % Species.hybrid_char,
     5: '<i>Encyclia</i> <i>cochleata</i> var. <i>cochleata</i>',
     6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
-    12:"<i>Maxillaria</i> SomeGroup Group",
-    14:"<i>Maxillaria</i> 'Red &amp; Blue'",
-    15:"<i>Encyclia</i> <i>cochleata</i> subsp. <i>cochleata</i> var. <i>cochleata</i> 'Black'",
+    12: "<i>Maxillaria</i> SomeGroup Group",
+    14: "<i>Maxillaria</i> 'Red &amp; Blue'",
+    15: "<i>Encyclia</i> <i>cochleata</i> subsp. <i>cochleata</i> var. <i>cochleata</i> 'Black'",
     }
 
-species_str_authors_map = {\
+species_str_authors_map = {
     1: 'Maxillaria variabilis Bateman ex Lindl.',
     2: u'Encyclia cochleata (L.) Lem\xe9e',
     3: 'Abrus precatorius L.',
@@ -141,10 +140,10 @@ species_str_authors_map = {\
     6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
     7: 'Abrus precatorius L. SomethingRidiculous Group',
     8: "Abrus precatorius L. (SomethingRidiculous Group) 'Hot Rio Nights'",
-    15:"Encyclia cochleata L. subsp. cochleata L. var. cochleata L. 'Black' L.",
+    15: "Encyclia cochleata L. subsp. cochleata L. var. cochleata L. 'Black' L.",
 }
 
-species_markup_authors_map = {\
+species_markup_authors_map = {
     1: '<i>Maxillaria</i> <i>variabilis</i> Bateman ex Lindl.',
     2: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e',
     3: '<i>Abrus</i> <i>precatorius</i> L.',
@@ -167,6 +166,7 @@ test_data_table_control = ((Family, family_test_data),
                            (VernacularName, vn_test_data),
                            (SpeciesSynonym, sp_synonym_test_data))
 
+
 def setUp_data():
     """
     bauble.plugins.plants.test.setUp_test_data()
@@ -174,7 +174,7 @@ def setUp_data():
     if this method is called again before tearDown_test_data is called you
     will get an error about the test data rows already existing in the database
     """
-    import copy
+
     for mapper, data in test_data_table_control:
         table = mapper.__table__
         # insert row by row instead of doing an insert many since each
@@ -228,7 +228,6 @@ class FamilyTests(PlantTestCase):
         self.session.commit()
         query = self.session.query(Genus).filter_by(family_id=family.id)
         self.assertRaises(NoResultFound, query.one)
-
 
     def test_synonyms(self):
         """
@@ -289,7 +288,6 @@ class FamilyTests(PlantTestCase):
         self.session.commit()
         self.assert_(self.session.query(FamilySynonym).count() == 0)
 
-
     def test_constraints(self):
         """
         Test that the family constraints were created correctly
@@ -306,7 +304,6 @@ class FamilyTests(PlantTestCase):
         self.session.add(Family(family=None))
         self.assertRaises(IntegrityError, self.session.commit)
         self.session.rollback()
-
 
     def test_str(self):
         """
@@ -334,7 +331,6 @@ class FamilyTests(PlantTestCase):
             'FamilyEditorPresenter not deleted'
         assert utils.gc_objects_by_type('FamilyEditorView') == [], \
             'FamilyEditorView not deleted'
-
 
 
 class GenusTests(PlantTestCase):
@@ -396,7 +392,6 @@ class GenusTests(PlantTestCase):
         self.session.commit()
         self.assert_(self.session.query(GenusSynonym).count() == 0)
 
-
     def test_contraints(self):
         """
         Test that the genus constraints were created correctly
@@ -418,13 +413,11 @@ class GenusTests(PlantTestCase):
             self.assertRaises(IntegrityError, self.session.commit)
             self.session.rollback()
 
-
     def test_str(self):
         """
         Test that the Genus string functions works as expected
         """
         pass
-
 
     def itest_editor(self):
         """
@@ -455,7 +448,6 @@ class SpeciesTests(PlantTestCase):
 
     def tearDown(self):
         super(SpeciesTests, self).tearDown()
-
 
     def itest_editor(self):
         # import default geography data
@@ -531,7 +523,6 @@ class SpeciesTests(PlantTestCase):
     #     self.session.refresh(sp)
     #     sp = self.session.query(Species).get(sp.id)
     #     self.assert_(Species.str(sp) != str1)
-
 
     def test_vernacular_name(self):
         """
@@ -715,10 +706,8 @@ class GeographyTests(PlantTestCase):
         self.session.add_all([self.family, self.genus])
         self.session.commit()
 
-
     def tearDown(self):
         super(GeographyTests, self).tearDown()
-
 
     def test_get_species(self):
         # import default geography data
@@ -792,3 +781,55 @@ class GeographyTests(PlantTestCase):
 #
 #if __name__ == '__main__':
 #    main()
+
+
+class FromAndToDictTest(PlantTestCase):
+    """tests the retrieve_or_create and the as_dict methods
+    """
+
+    def test_can_grab_existing_families(self):
+        all_families = self.session.query(Family).all()
+        orc = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Orchidaceae'})
+        leg = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Leguminosae'})
+        pol = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Polypodiaceae'})
+        self.assertEquals(set(all_families), set([orc, pol, leg]))
+
+    def test_can_create_family(self):
+        all_families = self.session.query(Family).all()
+        fab = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
+        ## it's in the session, it wasn't there before.
+        self.assertTrue(fab in self.session)
+        self.assertFalse(fab in all_families)
+        ## still not in database.
+        all_families = self.session.query(Family).all()
+        self.assertFalse(fab in all_families)
+        ## after commit it's in database.
+        self.session.commit()
+        all_families = self.session.query(Family).all()
+        self.assertTrue(fab in all_families)
+
+    def test_can_grab_existing_genera(self):
+        orc = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Orchidaceae'})
+        all_genera_orc = self.session.query(Genus).filter(
+            Genus.family == orc).all()
+        mxl = Genus.retrieve_or_create(
+            self.session, {'ht-rank': 'family',
+                           'ht-epithet': 'Orchidaceae',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria'})
+        enc = Genus.retrieve_or_create(
+            self.session, {'ht-rank': 'family',
+                           'ht-epithet': 'Orchidaceae',
+                           'rank': 'genus',
+                           'epithet': 'Encyclia'})
+        self.assertEquals(set(all_genera_orc), set([mxl, enc]))
