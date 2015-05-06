@@ -149,7 +149,7 @@ class Location(db.Base):
         """
         ## first try retrieving, use name
         is_in_session = session.query(cls).filter(
-            cls.code == keys['name']).all()
+            cls.code == keys['code']).all()
 
         if is_in_session:
             return is_in_session[0]
