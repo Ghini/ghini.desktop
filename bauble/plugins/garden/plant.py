@@ -34,7 +34,6 @@ from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
 from sqlalchemy.orm import relation, backref, object_mapper
-from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -554,6 +553,7 @@ class Plant(db.Base):
         ## otherwise remove unexpected keys, create new object, add it to
         ## the session and finally do return it.
 
+        from sqlalchemy.orm import class_mapper
         for k in keys.keys():
             if k not in class_mapper(cls).mapped_table.c:
                 del keys[k]
