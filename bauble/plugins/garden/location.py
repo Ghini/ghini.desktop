@@ -1,17 +1,39 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # location.py
 #
 import os
 import traceback
+import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import Column, Unicode, UnicodeText
+from sqlalchemy.orm import relation, backref
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
+from bauble.i18n import _
 import bauble
 import bauble.db as db
-from bauble.editor import *
+from bauble.editor import GenericModelViewPresenterEditor, GenericEditorView, \
+    GenericEditorPresenter, UnicodeOrNoneValidator
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.view import Action
@@ -19,7 +41,7 @@ from bauble.view import Action
 
 def edit_callback(locations):
     e = LocationEditor(model=locations[0])
-    return e.start() != None
+    return e.start() is not None
 
 
 def add_plants_callback(locations):
@@ -30,19 +52,19 @@ def add_plants_callback(locations):
     from bauble.plugins.garden.plant import Plant, PlantEditor
     e = PlantEditor(model=Plant(location=loc))
     session.close()
-    return e.start() != None
+    return e.start() is not None
 
 
 def remove_callback(locations):
     loc = locations[0]
     s = '%s: %s' % (loc.__class__.__name__, str(loc))
     if len(loc.plants) > 0:
-        msg = _('Please remove the plants from <b>%(location)s</b> '\
-                    'before deleting it.') % {'location': loc}
+        msg = _('Please remove the plants from <b>%(location)s</b> '
+                'before deleting it.') % {'location': loc}
         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         return
     msg = _("Are you sure you want to remove %s?") % \
-          utils.xml_safe_utf8(s)
+        utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -112,24 +134,29 @@ class Location(db.Base):
         return False
 
     def as_dict(self):
-        result = dict((col, getattr(self, col)) 
+        result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
                       if col not in ['id']
-                      and col[0] != '_' 
+                      and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
         result['object'] = 'location'
         return result
+
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+        """return database object corresponding to keys
+        """
 
 
 class LocationEditorView(GenericEditorView):
 
     #source_expanded_pref = 'editor.accesssion.source.expanded'
     _tooltips = {
-        'loc_name_entry': _('The name that you will use '\
-                                'later to refer to this location.'),
-        'loc_desc_textview': _('Any information that might be relevant to '\
-                               'the location such as where it is or what\'s '\
+        'loc_name_entry': _('The name that you will use '
+                            'later to refer to this location.'),
+        'loc_desc_textview': _('Any information that might be relevant to '
+                               'the location such as where it is or what\'s '
                                'its purpose')
         }
 
@@ -147,21 +174,17 @@ class LocationEditorView(GenericEditorView):
         if bauble.gui and parent != bauble.gui.window:
             self.use_ok_and_add = False
 
-
     def get_window(self):
         return self.widgets.location_dialog
 
-
     def set_accept_buttons_sensitive(self, sensitive):
         self.widgets.loc_ok_button.set_sensitive(sensitive)
-        self.widgets.loc_ok_and_add_button.set_sensitive(self.use_ok_and_add \
+        self.widgets.loc_ok_and_add_button.set_sensitive(self.use_ok_and_add
                                                          and sensitive)
         self.widgets.loc_next_button.set_sensitive(sensitive)
 
-
     def start(self):
         return self.get_window().run()
-
 
 
 class LocationEditorPresenter(GenericEditorPresenter):
@@ -180,7 +203,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.__dirty = False
 
         # initialize widgets
-        self.refresh_view() # put model values in view
+        self.refresh_view()  # put model values in view
 
         # connect signals
         self.assign_simple_handler('loc_name_entry', 'name',
@@ -193,7 +216,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
         if self.model not in self.session.new:
             self.view.widgets.loc_ok_and_add_button.set_sensitive(True)
 
-
     def refresh_sensitivity(self):
         sensitive = False
         ignore = ('id')
@@ -202,28 +224,23 @@ class LocationEditorPresenter(GenericEditorPresenter):
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
-
     def set_model_attr(self, attr, value, validator=None):
         super(LocationEditorPresenter, self).\
             set_model_attr(attr, value, validator)
         self.__dirty = True
         self.refresh_sensitivity()
 
-
     def dirty(self):
         return self.__dirty
-
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
 
-
     def start(self):
         r = self.view.start()
         return r
-
 
 
 class LocationEditor(GenericModelViewPresenterEditor):
@@ -232,7 +249,6 @@ class LocationEditor(GenericModelViewPresenterEditor):
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
-
 
     def __init__(self, model=None, parent=None):
         '''
@@ -261,7 +277,6 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
                              gtk.gdk.CONTROL_MASK)
 
-
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -274,21 +289,21 @@ class LocationEditor(GenericModelViewPresenterEditor):
                 self._committed.append(self.model)
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe_utf8(e.orig)
+                    utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
             except Exception, e:
-                msg = _('Unknown error when committing changes. See the '\
+                msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') % \
-                        utils.xml_safe_utf8(e)
+                    utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
         elif self.presenter.dirty() \
-                 and utils.yes_no_dialog(not_ok_msg) \
-                 or not self.presenter.dirty():
+                and utils.yes_no_dialog(not_ok_msg) \
+                or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
@@ -311,7 +326,6 @@ class LocationEditor(GenericModelViewPresenterEditor):
                 self._committed.append(more_committed)
 
         return True
-
 
     def start(self):
         """
@@ -343,7 +357,6 @@ class GeneralLocationExpander(InfoExpander):
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
 
-
     def update(self, row):
         '''
         '''
@@ -366,7 +379,6 @@ class DescriptionExpander(InfoExpander):
         descr_box = self.widgets.loc_descr_box
         self.widgets.remove_parent(descr_box)
         self.vbox.pack_start(descr_box)
-
 
     def update(self, row):
         '''
@@ -399,11 +411,9 @@ class LocationInfoBox(InfoBox):
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
-
     def update(self, row):
         '''
         '''
         self.general.update(row)
         self.description.update(row)
         self.props.update(row)
-

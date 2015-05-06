@@ -38,8 +38,9 @@ import pango
 from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText
-from sqlalchemy.orm import EXT_CONTINUE, relation, MapperExtension, \
-    backref, reconstructor
+from sqlalchemy.orm import EXT_CONTINUE, MapperExtension, \
+    backref, relation, reconstructor
+from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -55,7 +56,7 @@ from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.utils.log import debug, warning
+from bauble.utils.log import warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
@@ -107,7 +108,7 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     return a decimal.Decimal
     '''
     nplaces = Decimal(10) ** -precision
-    if dir in ('E', 'W'): # longitude
+    if dir in ('E', 'W'):  # longitude
         check(abs(deg) <= 180)
     else:
         check(abs(deg) <= 90)
@@ -227,18 +228,18 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
-    
+
 ver_level_descriptions = \
     {0: _('The name of the record has not been checked by any authority.'),
-     1: _('The name of the record determined by comparison with other '\
-              'named plants.'),
-     2: _('The name of the record determined by a taxonomist or by other '\
-              'competent persons using herbarium and/or library and/or '\
-              ' documented living material.'),
-     3: _('The name of the plant determined by taxonomist engaged in ' \
-              'systematic revision of the group.'),
-     4: _('The record is part of type gathering or propagated from type '\
-              'material by asexual methods.')}
+     1: _('The name of the record determined by comparison with other '
+          'named plants.'),
+     2: _('The name of the record determined by a taxonomist or by other '
+          'competent persons using herbarium and/or library and/or '
+          ' documented living material.'),
+     3: _('The name of the plant determined by taxonomist engaged in '
+          'systematic revision of the group.'),
+     4: _('The record is part of type gathering or propagated from type '
+          'material by asexual methods.')}
 
 
 class Verification(db.Base):
@@ -298,19 +299,19 @@ class Verification(db.Base):
     # what it was verified from
     prev_species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
-    species = relation('Species',
-                       primaryjoin='Verification.species_id==Species.id')
-    prev_species = relation('Species',
-                        primaryjoin='Verification.prev_species_id==Species.id')
+    species = relation(
+        'Species', primaryjoin='Verification.species_id==Species.id')
+    prev_species = relation(
+        'Species', primaryjoin='Verification.prev_species_id==Species.id')
 
     notes = Column(UnicodeText)
-
 
 
 # TODO: auto add parent voucher if accession is a propagule of an
 # existing accession and that parent accession has vouchers...or at
 # least display them in the Voucher tab and Infobox
 herbarium_codes = {}
+
 
 class Voucher(db.Base):
     """
@@ -539,15 +540,15 @@ class Accession(db.Base):
     plants = relation('Plant', cascade='all, delete-orphan',
                       #order_by='plant.code',
                       backref=backref('accession', uselist=False))
-    verifications = relation('Verification', #order_by='date',
+    verifications = relation('Verification',  # order_by='date',
                              cascade='all, delete-orphan',
                              backref=backref('accession', uselist=False))
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
-    intended_location = relation('Location',
-                     primaryjoin='Accession.intended_location_id==Location.id')
-    intended2_location = relation('Location',
-                  primaryjoin='Accession.intended2_location_id==Location.id')
+    intended_location = relation(
+        'Location', primaryjoin='Accession.intended_location_id==Location.id')
+    intended2_location = relation(
+        'Location', primaryjoin='Accession.intended2_location_id==Location.id')
 
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
@@ -645,6 +646,61 @@ class Accession(db.Base):
         result['species'] = str(self.species)
         return result
 
+    @classmethod
+    def retrieve_or_create(cls, session, keys):
+        """return database object corresponding to keys
+        """
+
+        ## first try retrieving
+        is_in_session = session.query(cls).filter(
+            cls.code == keys['code']).all()
+
+        if is_in_session:
+            return is_in_session[0]
+
+        ## so it's not there yet. we can create it only if the accession
+        ## refers to a species. if it refers to genus or family we can't, so
+        ## we return None
+
+        if 'rank' not in keys:
+            return None
+
+        ## now we must connect the accession to the species it refers to
+        if keys['rank'] == 'species':
+            genus_name, epithet = keys['taxon'].split(' ', 1)
+            sp_dict = {'ht-epithet': genus_name,
+                       'epithet': epithet}
+            species = Species.retrieve_or_create(
+                session, sp_dict)
+        elif keys['rank'] == 'genus':
+            species = Species.retrieve_or_create(
+                session, {'ht-epithet': keys['taxon'],
+                          'epithet': 'sp'})
+        else:
+            return None
+
+        ## correct field names
+        for internal, exchange in [('species', 'taxon')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
+
+        ## otherwise remove unexpected keys, create new object, add it to
+        ## the session and finally do return it.
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        keys['species'] = species
+
+        result = cls(**keys)
+        session.add(result)
+
+        return result
+
 
 from bauble.plugins.garden.plant import Plant, PlantEditor
 
@@ -659,20 +715,19 @@ class AccessionEditorView(editor.GenericEditorView):
     interface that don't chage due to user interaction.  Although it
     also provides some utility methods for changing widget states.
     """
-    expanders_pref_map = {#'acc_notes_expander':
-                          #'editor.accession.notes.expanded',
-#                           'acc_source_expander':
-#                           'editor.accession.source.expanded'
-                          }
+    expanders_pref_map = {
+        # 'acc_notes_expander': 'editor.accession.notes.expanded',
+        # 'acc_source_expander': 'editor.accession.source.expanded'
+        }
 
     _tooltips = {
-        'acc_species_entry': _("The species must be selected from the list "\
-                               "of completions. To add a species use the "\
+        'acc_species_entry': _("The species must be selected from the list "
+                               "of completions. To add a species use the "
                                "Species editor."),
         'acc_code_entry': _("The accession ID must be a unique code"),
-        'acc_id_qual_combo': _("The ID Qualifier\n\n" \
-                               "Possible values: %s") \
-                               % utils.enum_values_str('accession.id_qual'),
+        'acc_id_qual_combo': (_("The ID Qualifier\n\n"
+                                "Possible values: %s")
+                              % utils.enum_values_str('accession.id_qual')),
         'acc_id_qual_rank_combo': _('The part of the taxon name that the id '
                                     'qualifier refers to.'),
         'acc_date_accd_entry': _('The date this species was accessioned.'),
@@ -681,26 +736,25 @@ class AccessionEditorView(editor.GenericEditorView):
         'acc_quantity_recvd_entry': _('The amount of plant material at the '
                                       'time it was accessioned.'),
         'intended_loc_comboentry': _('The intended location for plant '
-                                         'material being accessioned.'),
+                                     'material being accessioned.'),
         'intended2_loc_comboentry': _('The intended location for plant '
-                                          'material being accessioned.'),
+                                      'material being accessioned.'),
 
-        'acc_prov_combo': _('The origin or source of this accession.\n\n' \
-                            'Possible values: %s') % \
-                            ', '.join(prov_type_values.values()),
-        'acc_wild_prov_combo': _('The wild status is used to clarify the ' \
+        'acc_prov_combo': (_('The origin or source of this accession.\n\n'
+                             'Possible values: %s')
+                           % ', '.join(prov_type_values.values())),
+        'acc_wild_prov_combo': _('The wild status is used to clarify the '
                                  'provenance.\n\nPossible values: %s') % \
                                  ', '.join(wild_prov_status_values.values()),
-        'acc_private_check': _('Indicates whether this accession record ' \
+        'acc_private_check': _('Indicates whether this accession record '
                                'should be considered private.'),
         'acc_cancel_button': _('Cancel your changes.'),
         'acc_ok_button': _('Save your changes.'),
         'acc_ok_and_add_button': _('Save your changes changes and add a '
-                                  'plant to this accession.'),
+                                   'plant to this accession.'),
         'acc_next_button': _('Save your changes changes and add another '
                              'accession.')
         }
-
 
     def __init__(self, parent=None):
         """
@@ -742,10 +796,8 @@ class AccessionEditorView(editor.GenericEditorView):
         # set current page so we don't open the last one that was open
         self.widgets.acc_notebook.set_current_page(0)
 
-
     def get_window(self):
         return self.widgets.accession_dialog
-
 
     def set_accept_buttons_sensitive(self, sensitive):
         '''
@@ -755,14 +807,12 @@ class AccessionEditorView(editor.GenericEditorView):
         self.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
         self.widgets.acc_next_button.set_sensitive(sensitive)
 
-
     def save_state(self):
         '''
         save the current state of the gui to the preferences
         '''
         for expander, pref in self.expanders_pref_map.iteritems():
             prefs.prefs[pref] = self.widgets[expander].get_expanded()
-
 
     def restore_state(self):
         '''
@@ -772,10 +822,8 @@ class AccessionEditorView(editor.GenericEditorView):
             expanded = prefs.prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
-
     def start(self):
         return self.get_window().run()
-
 
     @staticmethod
     def datum_match(completion, key, treeiter, data=None):
@@ -790,7 +838,6 @@ class AccessionEditorView(editor.GenericEditorView):
                 return True
         return False
 
-
     @staticmethod
     def species_match_func(completion, key, treeiter, data=None):
         """
@@ -803,7 +850,6 @@ class AccessionEditorView(editor.GenericEditorView):
             return True
         return False
 
-
     @staticmethod
     def species_cell_data_func(column, renderer, model, treeiter, data=None):
         """
@@ -813,7 +859,6 @@ class AccessionEditorView(editor.GenericEditorView):
         v = model[treeiter][0]
         renderer.set_property('text', '%s (%s)' % (Species.str(v, authors=True),
                                                    v.genus.family))
-
 
 
 class VoucherPresenter(editor.GenericEditorPresenter):
@@ -839,7 +884,7 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         def setup_column(tree, column, cell, prop):
             column = self.view.widgets[column]
             cell = self.view.widgets[cell]
-            column.clear_attributes(cell) # get rid of some warnings
+            column.clear_attributes(cell)  # get rid of some warnings
             cell.props.editable = True
             self.view.connect(cell, 'edited', self.on_cell_edited, (tree,prop))
             column.set_cell_data_func(cell, _voucher_data_func, prop)
@@ -872,10 +917,8 @@ class VoucherPresenter(editor.GenericEditorPresenter):
                 model.append([voucher])
         treeview.set_model(model)
 
-
     def dirty(self):
         return self.__dirty
-
 
     def on_cell_edited(self, cell, path, new_text, data):
         treeview, prop = data
@@ -886,7 +929,6 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         setattr(voucher, prop, utils.utf8(new_text))
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
-
 
     def on_remove_clicked(self, button, parent=False):
         if parent:
@@ -899,7 +941,6 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         model.remove(treeiter)
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
-
 
     def on_add_clicked(self, button, parent=False):
         """
@@ -916,7 +957,6 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         path = model.get_path(treeiter)
         column = treeview.get_column(0)
         treeview.set_cursor(path, column, start_editing=True)
-
 
 
 class VerificationPresenter(editor.GenericEditorPresenter):
@@ -1016,7 +1056,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             if self.model.verifier:
                 entry.props.text = self.model.verifier
             self.presenter().view.connect(entry, 'changed',
-                                        self.on_entry_changed, 'verifier')
+                                          self.on_entry_changed, 'verifier')
 
             # date entry
             self.date_entry = self.widgets.ver_date_entry
@@ -1025,14 +1065,14 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             else:
                 self.date_entry.props.text = utils.today_str()
             self.presenter().view.connect(self.date_entry, 'changed',
-                                        self.on_date_entry_changed)
+                                          self.on_date_entry_changed)
 
             # reference entry
             ref_entry = self.widgets.ver_ref_entry
             if self.model.reference:
                 ref_entry.props.text = self.model.reference
             self.presenter().view.connect(ref_entry, 'changed',
-                                        self.on_entry_changed, 'reference')
+                                          self.on_entry_changed, 'reference')
 
             # species entries
             def sp_get_completions(text):
@@ -1040,13 +1080,15 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                     filter(utils.ilike(Genus.genus, '%s%%' % text)).\
                     filter(Species.id != self.model.id)
                 return query
+
             def sp_cell_data_func(col, cell, model, treeiter, data=None):
                 v = model[treeiter][0]
-                cell.set_property('text', '%s (%s)' % \
-                                      (Species.str(v, authors=True),
-                                       v.genus.family))
+                cell.set_property('text', '%s (%s)' %
+                                  (Species.str(v, authors=True),
+                                   v.genus.family))
 
             entry = self.widgets.ver_prev_taxon_entry
+
             def on_prevsp_select(value):
                 self.set_model_attr('prev_species', value)
             self.presenter().view.attach_completion(entry, sp_cell_data_func)
@@ -1057,6 +1099,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                            on_prevsp_select)
 
             entry = self.widgets.ver_new_taxon_entry
+
             def on_sp_select(value):
                 self.set_model_attr('species', value)
                 # only ask to change accession.species if the value
@@ -1078,7 +1121,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 #     if utils.yes_no_dialog(msg):
                 #         self.presenter().view.\
                 #             set_widget_value('acc_species_entry', str(value))
-
 
             self.presenter().view.attach_completion(entry, sp_cell_data_func)
             if self.model.species:
@@ -1121,11 +1163,10 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
             # remove button
             button = self.widgets.ver_remove_button
-            self._sid = self.presenter().view.connect(button, 'clicked',
-                                          self.on_remove_button_clicked)
+            self._sid = self.presenter().view.connect(
+                button, 'clicked', self.on_remove_button_clicked)
 
             self.update_label()
-
 
         def on_date_entry_changed(self, entry, data=None):
             from bauble.editor import ValidatorError
@@ -1138,7 +1179,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             else:
                 self.presenter().remove_problem(PROBLEM, entry)
             self.set_model_attr('date', value)
-
 
         def on_remove_button_clicked(self, button):
             parent = self.get_parent()
@@ -1157,7 +1197,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter()._dirty = True
             self.presenter().parent_ref().refresh_sensitivity()
 
-
         def on_entry_changed(self, entry, attr):
             text = entry.props.text
             if not text:
@@ -1165,12 +1204,10 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             else:
                 self.set_model_attr(attr, utils.utf8(text))
 
-
         def on_level_combo_changed(self, combo, *args):
             i = combo.get_active_iter()
             level = combo.get_model()[i][0]
             self.set_model_attr('level', level)
-
 
         def set_model_attr(self, attr, value):
             setattr(self.model, attr, value)
@@ -1451,8 +1488,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
             combo.set_active_iter(none_iter)
         combo._populate = False
 
-
-
     def init_source_comboentry(self, on_select):
         """
         A comboentry that allows the location to be entered requires
@@ -1465,6 +1500,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         :param on_select: called when an item is selected
         """
         PROBLEM = 'unknown_source'
+
         def cell_data_func(col, cell, model, treeiter, data=None):
             cell.props.text = utils.utf8(model[treeiter][0])
 

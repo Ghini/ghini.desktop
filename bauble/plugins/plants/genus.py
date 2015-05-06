@@ -9,20 +9,20 @@ import xml
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
+    UnicodeText, func, and_, UniqueConstraint, String
+from sqlalchemy.orm import relation, backref, class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
 
+from bauble.i18n import _
 import bauble
 import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
-import bauble.utils.desktop as desktop
 import bauble.btypes as types
-from bauble.utils.log import debug
 import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.view import (InfoBox, InfoExpander, PropertiesExpander,
@@ -197,10 +197,10 @@ class Genus(db.Base):
         return False
 
     def as_dict(self):
-        result = dict((col, getattr(self, col)) 
+        result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
                       if col not in ['id', 'genus', 'qualifier']
-                      and col[0] != '_' 
+                      and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
         result['object'] = 'taxon'
@@ -209,22 +209,23 @@ class Genus(db.Base):
         result['ht-rank'] = 'familia'
         result['ht-epithet'] = self.family.family
         return result
-    
+
     @classmethod
     def retrieve_or_create(cls, session, keys):
 
         from family import Family
         ## first try retrieving, just use family and genus fields
-        query = session.query(cls).filter(cls.genus==keys['epithet'])
+        query = session.query(cls).filter(cls.genus == keys['epithet'])
         is_in_session = query.all()
-        
+
         if is_in_session:
             return is_in_session[0]
 
         ## otherwise we need a new object
 
-        ## retrieve family object and replace reference.
-        family = Family.retrieve_or_create(session, {'epithet': keys['ht-epithet']})
+        ## retrieve family object we have to bind to
+        family = Family.retrieve_or_create(
+            session, {'epithet': keys['ht-epithet']})
 
         ## correct field names
         for internal, exchange in [('genus', 'epithet')]:
@@ -369,11 +370,6 @@ class GenusEditorView(editor.GenericEditorView):
         #     expanded = prefs.get(pref, True)
         #     self.widgets[expander].set_expanded(expanded)
         pass
-
-    def get_window(self):
-        '''
-        '''
-        return self.widgets.genus_dialog
 
     def set_accept_buttons_sensitive(self, sensitive):
         self.widgets.gen_ok_button.set_sensitive(sensitive)
@@ -850,7 +846,8 @@ class GeneralGenusExpander(InfoExpander):
                 'accession.species.genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
-        utils.make_label_clickable(self.widgets.gen_nplants_data, on_nplants_clicked)
+        utils.make_label_clickable(
+            self.widgets.gen_nplants_data, on_nplants_clicked)
 
     def update(self, row):
         '''

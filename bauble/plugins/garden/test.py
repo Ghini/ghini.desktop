@@ -1349,3 +1349,52 @@ class DMSConversionTests(unittest.TestCase):
         for data, dec in parse_lat_lon_data:
             result = parse(*data)
             self.assert_(result == dec, '%s: %s == %s' % (data, result, dec))
+
+
+class FromAndToDictTest(GardenTestCase):
+    """tests the retrieve_or_create and the as_dict methods
+    """
+
+    def test_add_accession(self):
+        from accession import Accession
+        encc = Species.retrieve_or_create(
+            self.session, {'ht-rank': 'genus',
+                           'ht-epithet': 'Encyclia',
+                           'rank': 'species',
+                           'epithet': 'cochleata'})
+        acc = Accession.retrieve_or_create(
+            self.session, {'code': '010203',
+                           'rank': 'species',
+                           'taxon': 'Encyclia cochleata'})
+        self.assertEquals(acc.species, encc)
+
+    def test_add_accession_at_genus_level(self):
+        from accession import Accession
+        enc = Genus.retrieve_or_create(
+            self.session, {'ht-rank': 'familia',
+                           'ht-epithet': 'Orchidaceae',
+                           'rank': 'genus',
+                           'epithet': 'Encyclia'})
+        acc = Accession.retrieve_or_create(
+            self.session, {'code': '010203',
+                           'rank': 'genus',
+                           'taxon': 'Encyclia'})
+        self.assertEquals(acc.species.genus, enc)
+
+    def test_add_plant(self):
+        from accession import Accession
+        from plant import Plant
+        Species.retrieve_or_create(
+            self.session, {'ht-rank': 'genus',
+                           'ht-epithet': 'Encyclia',
+                           'rank': 'species',
+                           'epithet': 'cochleata'})
+        acc = Accession.retrieve_or_create(
+            self.session, {'code': '010203',
+                           'rank': 'species',
+                           'taxon': 'Encyclia cochleata'})
+        self.session.commit()  # why must we commit it here!?!?
+        plt = Plant.retrieve_or_create(
+            self.session, {'accession': '010203',
+                           'code': '1'})
+        self.assertEquals(plt.accession, acc)
