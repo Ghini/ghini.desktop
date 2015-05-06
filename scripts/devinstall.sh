@@ -1,21 +1,26 @@
 #!/bin/bash
 
+if [ -d ~/Local/github/Bauble ]
+then
+  echo "bauble checkout already in place"
+  exit 1
+fi
+
 sudo apt-get install -y python-gtk2 git virtualenvwrapper
 cat <<EOF >> ~/.profile
-export WORKON_HOME=$HOME/.virtualenvs>> ~/.profile
+export WORKON_HOME=$HOME/.virtualenvs
 export PROJECT_HOME=$HOME/Devel
 source /usr/share/virtualenvwrapper/virtualenvwrapper.sh
 EOF
 . ~/.profile
 mkdir -p ~/Local/github/Bauble
 cd ~/Local/github/Bauble
-# git clone https://github.com/Bauble/bauble.classic
+git clone https://github.com/Bauble/bauble.classic
 cd bauble.classic
 if [ $# -ne 0 ]
 then
   git checkout bauble-$1
 fi
-exit 1
 mkvirtualenv bacl --system-site-packages
 workon bacl
 python setup.py build
