@@ -23,6 +23,10 @@ from bauble.plugins.plants.genus import \
 from bauble.plugins.plants.geography import Geography, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids
 
+import logging
+logging.basicConfig()
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
 #
 # TODO: things to create tests for
 #
@@ -823,20 +827,36 @@ class FromAndToDictTest(PlantTestCase):
         ## it's in the session, it wasn't there before.
         self.assertTrue(fab in self.session)
         self.assertFalse(fab in all_families)
-        ## it's in the session, not in thedatabase.
+        ## according to the session, it is in the database
         ses_families = self.session.query(Family).all()
         self.assertTrue(fab in ses_families)
-        db_families = db.Session().query(Family).all()
+
+    def xtest_where_can_object_be_found_before_commit(self):  # disabled
+        fab = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
+        # created in a session, it's not in other sessions
+        other_session = db.Session()
+        db_families = other_session.query(Family).all()
+        fab = Family.retrieve_or_create(
+            other_session, {'rank': 'family',
+                            'epithet': 'Fabaceae'})
         self.assertFalse(fab in db_families)
+
+    def test_where_can_object_be_found_after_commit(self):
+        fab = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
         ## after commit it's in database.
         self.session.commit()
-        all_families = self.session.query(Family).all()
+        other_session = db.Session()
+        all_families = other_session.query(Family).all()
+        fab = Family.retrieve_or_create(
+            other_session, {'rank': 'family',
+                            'epithet': 'Fabaceae'})
         self.assertTrue(fab in all_families)
 
     def test_grabbing_same_params_same_output_new(self):
-        import logging
-        logging.basicConfig()
-        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
         fab1 = Family.retrieve_or_create(
             self.session, {'rank': 'family',
                            'epithet': 'Fabaceae'})
