@@ -31,6 +31,7 @@ import bauble.editor as editor
 import bauble.paths as paths
 import json
 import bauble.pluginmgr as pluginmgr
+from bauble import pb_set_fraction
 
 
 def serializedatetime(obj):
@@ -124,14 +125,16 @@ class JSONImporter(object):
     def run(self, objects):
         ## generator function. will be run as a task.
         s = db.Session()
-        for i in objects:
+        n = len(objects)
+        for i, obj in enumerate(objects):
             ## get class and remove reference
             try:
-                klass = globals()[i['object'].capitalize()]
+                klass = globals()[obj['object'].capitalize()]
             except KeyError:
-                klass = globals()[i['rank'].capitalize()]
-                del i['rank']
-            klass.retrieve_or_create(s, i)  # adds, too
+                klass = globals()[obj['rank'].capitalize()]
+                del obj['rank']
+            klass.retrieve_or_create(s, obj)  # adds, too
+            pb_set_fraction(float(i) / n)
             yield
         s.commit()
 
