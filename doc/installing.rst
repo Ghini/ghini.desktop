@@ -132,8 +132,11 @@ the installation steps on Windows:
    the virtual environment.
 
 #. (optional) download and install a database connector other than
-   ``sqlite3``. TODO: still don't know how to do this for
-   ``psycopg2``. On Windows, pip does not manage install it.
+   ``sqlite3``. On Windows, it is NOT easy to install ``psycopg2`` from
+   sources, using pip, so "avoid the gory details" and use a pre-compiled 
+   pagkage from:
+   
+   http://initd.org/psycopg/docs/install.html
 
 #. download the bauble.classic sources (using git) from:
    http://www.github.com/mfrasca/bauble.classic/
