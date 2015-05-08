@@ -990,7 +990,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         # order by date of the existing verifications
         for ver in model.verifications:
             expander = self.add_verification_box(model=ver)
-            expander.set_expanded(False) # all are collapsed to start
+            expander.set_expanded(False)  # all are collapsed to start
 
         # if no verifications were added then add an empty VerificationBox
         if len(self.view.widgets.verifications_parent_box.get_children()) < 1:
@@ -1007,6 +1007,23 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def refresh_view(self):
         pass
 
+    def on_taxon_add_button_clicked(self, button, taxon_entry):
+        ## the `model` is an accession, it does refer to a species, but we
+        ## come here when we are adding a Verification, so we are not
+        ## interested in editing anything, we just want to add a taxon.
+
+        ## we really should check what happened in the SpeciesEditor,
+        ## because we do want to immediately use the object added by the
+        ## user!
+
+        from bauble.plugins.plants.species import SpeciesEditor
+        editor = SpeciesEditor(parent=self.view.get_window())
+        if editor.start():
+            self.session.add(editor.model)
+            taxon_entry.set_text("%s" % editor.model)
+            self.remove_problem(None, taxon_entry)
+            self.parent_ref().refresh_sensitivity()
+
     def on_add_clicked(self, *args):
         self.add_verification_box()
 
@@ -1015,8 +1032,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         :param model:
         """
         box = VerificationPresenter.VerificationBox(self, model)
-        self.view.widgets.\
-            verifications_parent_box.pack_start(box, expand=False, fill=False)
+        self.view.widgets.verifications_parent_box.pack_start(
+            box, expand=False, fill=False)
         self.view.widgets.verifications_parent_box.reorder_child(box, 0)
         box.show_all()
         return box
@@ -1060,8 +1077,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             entry = self.widgets.ver_verifier_entry
             if self.model.verifier:
                 entry.props.text = self.model.verifier
-            self.presenter().view.connect(entry, 'changed',
-                                          self.on_entry_changed, 'verifier')
+            self.presenter().view.connect(
+                entry, 'changed', self.on_entry_changed, 'verifier')
 
             # date entry
             self.date_entry = self.widgets.ver_date_entry
@@ -1069,21 +1086,22 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 utils.set_widget_value(self.date_entry, self.model.date)
             else:
                 self.date_entry.props.text = utils.today_str()
-            self.presenter().view.connect(self.date_entry, 'changed',
-                                          self.on_date_entry_changed)
+            self.presenter().view.connect(
+                self.date_entry, 'changed', self.on_date_entry_changed)
 
             # reference entry
             ref_entry = self.widgets.ver_ref_entry
             if self.model.reference:
                 ref_entry.props.text = self.model.reference
-            self.presenter().view.connect(ref_entry, 'changed',
-                                          self.on_entry_changed, 'reference')
+            self.presenter().view.connect(
+                ref_entry, 'changed', self.on_entry_changed, 'reference')
 
             # species entries
             def sp_get_completions(text):
                 query = self.presenter().session.query(Species).join('genus').\
                     filter(utils.ilike(Genus.genus, '%s%%' % text)).\
-                    filter(Species.id != self.model.id)
+                    filter(Species.id != self.model.id).\
+                    order_by(Species.sp)
                 return query
 
             def sp_cell_data_func(col, cell, model, treeiter, data=None):
@@ -1092,47 +1110,35 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                   (Species.str(v, authors=True),
                                    v.genus.family))
 
-            entry = self.widgets.ver_prev_taxon_entry
+            ver_prev_taxon_entry = self.widgets.ver_prev_taxon_entry
 
             def on_prevsp_select(value):
                 self.set_model_attr('prev_species', value)
-            self.presenter().view.attach_completion(entry, sp_cell_data_func)
-            if self.model.prev_species:
-                entry.props.text = self.model.prev_species
-            self.presenter().\
-                assign_completions_handler(entry, sp_get_completions,
-                                           on_prevsp_select)
 
-            entry = self.widgets.ver_new_taxon_entry
+            self.presenter().view.attach_completion(
+                ver_prev_taxon_entry, sp_cell_data_func)
+            if self.model.prev_species:
+                ver_prev_taxon_entry.props.text = self.model.prev_species
+            self.presenter().assign_completions_handler(
+                ver_prev_taxon_entry, sp_get_completions, on_prevsp_select)
+
+            ver_new_taxon_entry = self.widgets.ver_new_taxon_entry
 
             def on_sp_select(value):
                 self.set_model_attr('species', value)
-                # only ask to change accession.species if the value
-                # isn't already set and only if this is the last
-                # verification, meaning the the top most verification
-                # box in the editor
-                #
-                # TODO: the only thing left to make this work is
-                # setting the species string in the entry without
-                # having it add a problem
-                #
-                # if value and value != self.presenter().model.species and \
-                #         self.model == self.presenter().model.verifications[-1]:
-                #     msg = _("The species you have selected doesn't match the "\
-                #             "species for the accession.  Would you like to "\
-                #             "set the species for the accession to: "\
-                #             "\n\n<b>%s</b>") \
-                #             % Species.str(value, markup=True, authors=True)
-                #     if utils.yes_no_dialog(msg):
-                #         self.presenter().view.\
-                #             set_widget_value('acc_species_entry', str(value))
 
-            self.presenter().view.attach_completion(entry, sp_cell_data_func)
+            self.presenter().view.attach_completion(
+                ver_new_taxon_entry, sp_cell_data_func)
             if self.model.species:
-                entry.props.text = self.model.species
-            self.presenter().\
-                assign_completions_handler(entry, sp_get_completions,
-                                           on_sp_select)
+                ver_new_taxon_entry.props.text = self.model.species
+            self.presenter().assign_completions_handler(
+                ver_new_taxon_entry, sp_get_completions, on_sp_select)
+
+            ## add a taxon implies setting the ver_new_taxon_entry
+            self.presenter().view.connect(
+                self.widgets.ver_taxon_add_button, 'clicked',
+                self.presenter().on_taxon_add_button_clicked,
+                ver_new_taxon_entry)
 
             combo = self.widgets.ver_level_combo
             renderer = gtk.CellRendererText()
@@ -1141,11 +1147,12 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # on_size_allocation callback
             renderer.props.wrap_width = 400
             combo.pack_start(renderer, True)
+
             def cell_data_func(col, cell, model, treeiter):
                 level = model[treeiter][0]
                 descr = model[treeiter][1]
-                cell.set_property('markup', '<b>%s</b>  :  %s' \
-                                      % (level, descr))
+                cell.set_property('markup', '<b>%s</b>  :  %s'
+                                  % (level, descr))
             combo.set_cell_data_func(renderer, cell_data_func)
             model = gtk.ListStore(int, str)
             for level, descr in ver_level_descriptions.iteritems():
@@ -1985,7 +1992,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             and not self.ver_presenter.problems \
             and not self.voucher_presenter.problems
         self.view.set_accept_buttons_sensitive(sensitive)
-
 
     def refresh_view(self):
         '''
