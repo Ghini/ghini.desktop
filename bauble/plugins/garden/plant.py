@@ -589,7 +589,7 @@ class PlantEditorView(GenericEditorView):
                                   'Possible values: %s') % (
             ', '.join(acc_type_values.values())),
         'plant_loc_add_button': _('Create a new location.'),
-        'plant_loc_add_button': _('Edit the selected location.'),
+        'plant_loc_edit_button': _('Edit the selected location.'),
         'prop_add_button': _(
             'Create a new propagation record for this plant.'),
         'pad_cancel_button': _('Cancel your changes.'),
@@ -842,7 +842,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.view.set_widget_value(combo, location)
         else:
             # TODO: see if the location editor returns the new
-            # location and if so set it directly
+            # location and if so set it directly. also, issue #5.
             LocationEditor(parent=self.view.get_window()).start()
 
     def refresh_view(self):
