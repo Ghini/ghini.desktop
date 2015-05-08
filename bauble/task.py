@@ -1,3 +1,20 @@
+# Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # task.py
 """
@@ -9,6 +26,9 @@ import fibra
 import gtk
 import bauble
 
+import logging
+logger = logging.getLogger(__name__)
+
 # TODO: after some specified time the status bar should be cleared but not
 # too soon, maybe 30 seconds or so but only once the queue is empty, anytime
 # something is added to the queue we should set a 30 second timeout to
@@ -19,12 +39,14 @@ import bauble
 
 # TODO: check the fibra version here....has to be >0.17 or maybe
 # ==0.17 since fibra doesn't seem to ensure any sort of API
-# compatability
+# compatibility
 
 schedule = fibra.schedule()
 
 __running = False
 __kill = False
+_context_id = None
+__message_ids = None
 
 
 def running():
@@ -110,6 +132,7 @@ def set_message(msg):
     try:
         _context_id
     except NameError, e:  # context_id not defined
+        logger.warning(e)
         _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
     msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
     __message_ids.append(msg_id)
