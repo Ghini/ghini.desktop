@@ -4,8 +4,10 @@
 import os
 import sys
 import logging
+import gtk
 
 import bauble.utils
+from bauble.i18n import _
 
 
 def _main_is_frozen():
@@ -41,8 +43,9 @@ def _config_logger(name, level, format, propagate=False):
             msg = _('** Could not open the default log file.\n'
                     'Press OK key to continue.\n\n%s') % \
                 bauble.utils.xml_safe_utf8(e)
-            utils.message_details_dialog(msg, traceback.format_exc(),
-                                         gtk.MESSAGE_WARNING)
+            bauble.utils.message_details_dialog(
+                msg, traceback.format_exc(),
+                gtk.MESSAGE_WARNING)
             __yesyesiknow = True
         handler = logging.StreamHandler()
     handler.setLevel(level)
