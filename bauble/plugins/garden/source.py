@@ -2,27 +2,31 @@
 # source.py
 #
 import os
-import sys
 import traceback
 import weakref
 from random import random
 
+import logging
+logger = logging.getLogger(__name__)
+
 import gtk
 import gobject
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from sqlalchemy.orm.session import object_session
+from sqlalchemy import Column, Unicode, Integer, ForeignKey,\
+    Float, UnicodeText, select
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.orm import relation, backref
 
-import bauble
+from bauble.i18n import _
 import bauble.db as db
 import bauble.editor as editor
 from bauble.plugins.plants.geography import Geography, GeographyMenu
 import bauble.utils as utils
 import bauble.btypes as types
-from bauble.utils.log import debug
 import bauble.view as view
-from bauble.plugins.garden.propagation import *
+import bauble.paths as paths
+#from bauble.plugins.garden.propagation import *
+
 
 def coll_markup_func(coll):
     acc = coll.source.accession
@@ -64,7 +68,7 @@ collection_context_menu = [collection_edit_action, collection_add_plant_action,
 def source_detail_edit_callback(details):
     detail = details[0]
     e = SourceDetailEditor(model=detail)
-    return e.start() != None
+    return e.start() is not None
 
 
 def source_detail_remove_callback(details):
@@ -98,6 +102,7 @@ source_detail_remove_action = \
 source_detail_context_menu = [source_detail_edit_action,
                               source_detail_remove_action]
 
+
 class Source(db.Base):
     """
     """
@@ -126,8 +131,9 @@ class Source(db.Base):
     # relation to a Propagation that already exists and is attached
     # to a Plant
     plant_propagation_id = Column(Integer, ForeignKey('propagation.id'))
-    plant_propagation = relation('Propagation', uselist=False,
-                     primaryjoin='Source.plant_propagation_id==Propagation.id')
+    plant_propagation = relation(
+        'Propagation', uselist=False,
+        primaryjoin='Source.plant_propagation_id==Propagation.id')
 
 
 source_type_values = {u'Expedition': _('Expedition'),
@@ -136,14 +142,14 @@ source_type_values = {u'Expedition': _('Expedition'),
                       u'Research/FieldStation': _('Research/Field Station'),
                       u'Staff': _('Staff member'),
                       u'UniversityDepartment': _('University Department'),
-                      u'Club': \
-                          _('Horticultural Association/Garden Club'),
+                      u'Club': _('Horticultural Association/Garden Club'),
                       u'MunicipalDepartment': _('Municipal department'),
                       u'Commercial': _('Nursery/Commercial'),
                       u'Individual': _('Individual'),
                       u'Other': _('Other'),
                       u'Unknown': _('Unknown'),
-                     None: ''}
+                      None: ''}
+
 
 class SourceDetail(db.Base):
     __tablename__ = 'source_detail'
@@ -243,26 +249,13 @@ class SourceDetailEditorView(editor.GenericEditorView):
         super(SourceDetailEditorView, self).__init__(filename, parent=parent)
         self.set_accept_buttons_sensitive(False)
         self.init_translatable_combo('source_type_combo', source_type_values)
-        # if sys.platform == 'win32':
-        #     # TODO: is this character width fix still necessary
-        #     import pango
-        #     combo = self.widgets.don_type_combo
-        #     context = combo.get_pango_context()
-        #     font_metrics = context.get_metrics(context.get_font_description(),
-        #                                        context.get_language())
-        #     width = font_metrics.get_approximate_char_width()
-        #     new_width = pango.PIXELS(width) * 20
-        #     combo.set_size_request(new_width, -1)
-
 
     def get_window(self):
         return self.widgets.source_details_dialog
 
-
     def set_accept_buttons_sensitive(self, sensitive):
         self.widgets.sd_ok_button.set_sensitive(sensitive)
         #self.widgets.sd_next_button.set_sensitive(sensitive)
-
 
     def start(self):
         return self.get_window().run()
@@ -283,17 +276,14 @@ class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
             self.assign_simple_handler(widget, field, validator)
         self.__dirty = False
 
-
     def set_model_attr(self, field, value, validator=None):
         super(SourceDetailEditorPresenter, self).\
             set_model_attr(field, value, validator)
         self.__dirty = True
         self.refresh_sensitivity()
 
-
     def dirty(self):
         return self.__dirty
-
 
     def refresh_sensitivity(self):
         sensitive = False
@@ -301,17 +291,15 @@ class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
-
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-#            debug('contact refresh(%s, %s=%s)' % (widget, field,
-#                                                self.model[field]))
+            logger.debug('contact refresh(%s, %s=%s)' % (widget, field,
+                         self.model[field]))
             self.view.set_widget_value(widget, getattr(self.model, field))
 
         self.view.set_widget_value('source_type_combo',
                                    source_type_values[self.model.source_type],
                                    index=1)
-
 
     def start(self):
         r = self.view.start()
@@ -343,7 +331,6 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
         # self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
         #                      gtk.gdk.CONTROL_MASK)
 
-
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -355,19 +342,19 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except DBAPIError, e:
-                msg = _('Error committing changes.\n\n%s' \
+                msg = _('Error committing changes.\n\n%s'
                         % utils.xml_safe_utf8(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = _('Unknown error when committing changes. See the '\
-                       'details for more information.\n\n%s' \
-                       % utils.xml_safe_utf8(e))
+                msg = _('Unknown error when committing changes. See the '
+                        'details for more information.\n\n%s'
+                        % utils.xml_safe_utf8(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                 or not self.presenter.dirty():
+                or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
@@ -384,7 +371,6 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
 
         return True
 
-
     def start(self):
         while True:
             response = self.presenter.start()
@@ -392,7 +378,7 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
             if self.handle_response(response):
                 break
 
-        self.session.close() # cleanup session
+        self.session.close()  # cleanup session
         self.presenter.cleanup()
         return self._committed
 
@@ -461,6 +447,7 @@ class CollectionPresenter(editor.ChildPresenter):
         self.assign_simple_handler('coll_notes_textview', 'notes',
                                    editor.UnicodeOrNoneValidator())
         # the list of completions are added in AccessionEditorView.__init__
+
         def on_match(completion, model, iter, data=None):
             value = model[iter][0]
             validator = editor.UnicodeOrNoneValidator()
@@ -490,10 +477,12 @@ class CollectionPresenter(editor.ChildPresenter):
                               self.on_east_west_radio_toggled)
 
         self.view.widgets.add_region_button.set_sensitive(False)
+
         def on_add_button_pressed(button, event):
             self.geo_menu.popup(None, None, None, event.button, event.time)
         self.view.connect('add_region_button', 'button-press-event',
                           on_add_button_pressed)
+
         def _init_geo():
             add_button = self.view.widgets.add_region_button
             self.geo_menu = GeographyMenu(self.set_region)
@@ -503,19 +492,18 @@ class CollectionPresenter(editor.ChildPresenter):
 
         self.__dirty = False
 
-
     def set_region(self, menu_item, geo_id):
         geography = self.session.query(Geography).get(geo_id)
         self.set_model_attr('region', geography)
         self.set_model_attr('geography_id', geo_id)
         self.view.widgets.add_region_button.props.label = str(geography)
 
-
     def set_model_attr(self, field, value, validator=None):
         """
         Validates the fields when a field changes.
         """
-        super(CollectionPresenter, self).set_model_attr(field, value,validator)
+        super(CollectionPresenter, self).set_model_attr(
+            field, value, validator)
         self.__dirty = True
         if self.model.locale is None or self.model.locale in ('', u''):
             self.add_problem(self.PROBLEM_INVALID_LOCALE)
@@ -524,7 +512,7 @@ class CollectionPresenter(editor.ChildPresenter):
 
         if field in ('longitude', 'latitude'):
             sensitive = self.model.latitude is not None \
-                        and self.model.longitude is not None
+                and self.model.longitude is not None
             self.view.widgets.geoacc_entry.set_sensitive(sensitive)
             self.view.widgets.datum_entry.set_sensitive(sensitive)
 
@@ -534,21 +522,18 @@ class CollectionPresenter(editor.ChildPresenter):
 
         self.parent_ref().refresh_sensitivity()
 
-
     def start(self):
         raise Exception('CollectionPresenter cannot be started')
 
-
     def dirty(self):
         return self.__dirty
-
 
     def refresh_view(self):
         from bauble.plugins.garden.accession import latitude_to_dms, \
             longitude_to_dms
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
-##            debug('%s, %s, %s' % (widget, field, value))
+            logger.debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month,
                                       '%04d' % value.year)
@@ -578,13 +563,12 @@ class CollectionPresenter(editor.ChildPresenter):
             self.view.widgets.lon_dms_label.set_text('')
             self.view.widgets.east_radio.set_active(True)
 
-        if self.model.elevation == None:
+        if self.model.elevation is None:
             self.view.widgets.altacc_entry.set_sensitive(False)
 
         if self.model.latitude is None or self.model.longitude is None:
             self.view.widgets.geoacc_entry.set_sensitive(False)
             self.view.widgets.datum_entry.set_sensitive(False)
-
 
     def on_date_entry_changed(self, entry, data=None):
         from bauble.editor import ValidatorError
@@ -593,11 +577,11 @@ class CollectionPresenter(editor.ChildPresenter):
         try:
             value = editor.DateValidator().to_python(entry.props.text)
         except ValidatorError, e:
+            logger.debug(e)
             self.parent_ref().add_problem(PROBLEM, entry)
         else:
             self.parent_ref().remove_problem(PROBLEM, entry)
         self.set_model_attr('date', value)
-
 
     def on_east_west_radio_toggled(self, button, data=None):
         direction = self._get_lon_direction()
@@ -619,7 +603,6 @@ class CollectionPresenter(editor.ChildPresenter):
         elif direction == 'E' and lon_text[0] == '-':
             entry.set_text(lon_text[1:])
 
-
     def on_north_south_radio_toggled(self, button, data=None):
         direction = self._get_lat_direction()
         entry = self.view.widgets.lat_entry
@@ -632,6 +615,7 @@ class CollectionPresenter(editor.ChildPresenter):
             # integer before toggling
             int(lat_text.split(' ')[0])
         except Exception, e:
+            logger.debug(e)
             return
 
         if direction == 'S' and lat_text[0] != '-':
@@ -639,13 +623,14 @@ class CollectionPresenter(editor.ChildPresenter):
         elif direction == 'N' and lat_text[0] == '-':
             entry.set_text(lat_text[1:])
 
-
     @staticmethod
     def _parse_lat_lon(direction, text):
         """
         Parse a latitude or longitude in a variety of formats and
         return a degress decimal
         """
+
+        import re
         from decimal import Decimal
         from bauble.plugins.garden.accession import dms_to_decimal
         parts = re.split(':| ', text.strip())
@@ -659,10 +644,9 @@ class CollectionPresenter(editor.ChildPresenter):
         elif len(parts) == 3:
             dec = dms_to_decimal(direction, *map(Decimal, parts))
         else:
-            raise ValueError(_('_parse_lat_lon() -- incorrect format: %s') % \
+            raise ValueError(_('_parse_lat_lon() -- incorrect format: %s') %
                              text)
         return dec
-
 
     def _get_lat_direction(self):
         '''
@@ -674,7 +658,6 @@ class CollectionPresenter(editor.ChildPresenter):
             return 'S'
         raise ValueError(_('North/South radio buttons in a confused state'))
 
-
     def _get_lon_direction(self):
         '''
         return E or W from the radio
@@ -685,13 +668,11 @@ class CollectionPresenter(editor.ChildPresenter):
             return 'W'
         raise ValueError(_('East/West radio buttons in a confused state'))
 
-
     def on_lat_entry_changed(self, entry, date=None):
         '''
         set the latitude value from text
         '''
-        from bauble.plugins.garden.accession import latitude_to_dms, \
-            longitude_to_dms
+        from bauble.plugins.garden.accession import latitude_to_dms
         text = entry.get_text()
         latitude = None
         dms_string = ''
@@ -709,13 +690,13 @@ class CollectionPresenter(editor.ChildPresenter):
                 #u"\N{DEGREE SIGN}"
                 dms_string = u'%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
-            # debug(traceback.format_exc())
-            bg_color = gtk.gdk.color_parse("red")
+            logger.debug(traceback.format_exc())
+            #bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
         else:
             self.remove_problem(self.PROBLEM_BAD_LATITUDE,
-                             self.view.widgets.lat_entry)
+                                self.view.widgets.lat_entry)
 
         self.view.widgets.lat_dms_label.set_text(dms_string)
         if text is None or text.strip() == '':
@@ -723,11 +704,8 @@ class CollectionPresenter(editor.ChildPresenter):
         else:
             self.set_model_attr('latitude', utils.utf8(latitude))
 
-
-
     def on_lon_entry_changed(self, entry, data=None):
-        from bauble.plugins.garden.accession import latitude_to_dms, \
-            longitude_to_dms
+        from bauble.plugins.garden.accession import longitude_to_dms
         text = entry.get_text()
         longitude = None
         dms_string = ''
@@ -742,15 +720,16 @@ class CollectionPresenter(editor.ChildPresenter):
                 east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
-                dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(longitude)
+                dms_string = u'%s %s\u00B0%s\'%s"' % longitude_to_dms(
+                    longitude)
         except Exception:
-            # debug(traceback.format_exc())
-            bg_color = gtk.gdk.color_parse("red")
+            logger.debug(traceback.format_exc())
+            #bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LONGITUDE,
-                              self.view.widgets.lon_entry)
+                             self.view.widgets.lon_entry)
         else:
             self.remove_problem(self.PROBLEM_BAD_LONGITUDE,
-                              self.view.widgets.lon_entry)
+                                self.view.widgets.lon_entry)
 
         self.view.widgets.lon_dms_label.set_text(dms_string)
         # self.set_model_attr('longitude', utils.utf8(longitude))
@@ -758,7 +737,6 @@ class CollectionPresenter(editor.ChildPresenter):
             self.set_model_attr('longitude', None)
         else:
             self.set_model_attr('longitude', utils.utf8(longitude))
-
 
 
 class PropagationChooserPresenter(editor.ChildPresenter):
@@ -785,14 +763,16 @@ class PropagationChooserPresenter(editor.ChildPresenter):
         cell = self.view.widgets.prop_toggle_cell
         self.view.widgets.prop_toggle_column.\
             set_cell_data_func(cell, self.toggle_cell_data_func)
+
         def on_toggled(cell, path, data=None):
             prop = None
-            if not cell.get_active(): # its not active so we make it active
+            if not cell.get_active():  # its not active so we make it active
                 treeview = self.view.widgets.source_prop_treeview
                 prop = treeview.get_model()[path][0]
             self.model.plant_propagation = prop
             self.__dirty = True
             self.parent_ref().refresh_sensitivity()
+
         self.view.connect_after(cell, 'toggled', on_toggled)
 
         self.view.widgets.prop_summary_column.\
@@ -802,8 +782,8 @@ class PropagationChooserPresenter(editor.ChildPresenter):
         #assign_completions_handler
         def plant_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
-            renderer.set_property('text', '%s (%s)' % \
-                                      (str(v), str(v.accession.species)))
+            renderer.set_property('text', '%s (%s)' %
+                                  (str(v), str(v.accession.species)))
         self.view.attach_completion('source_prop_plant_entry',
                                     plant_cell_data_func, minimum_key_length=1)
 
@@ -812,10 +792,10 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             from bauble.plugins.garden.accession import Accession
             from bauble.plugins.garden.plant import Plant
             query = self.session.query(Plant).join('accession').\
-                    filter(utils.ilike(Accession.code, u'%s%%' % text)).\
-                    filter(Accession.id != self.model.accession.id)
+                filter(utils.ilike(Accession.code, u'%s%%' % text)).\
+                filter(Accession.id != self.model.accession.id).\
+                order_by(Accession.code, Plant.code)
             return query
-
 
         def on_select(value):
             # populate the propagation browser
@@ -834,7 +814,6 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                                         plant_get_completions,
                                         on_select=on_select)
 
-
     # def on_acc_entry_changed(entry, *args):
     #     # TODO: desensitize the propagation tree until on_select is called
     #     pass
@@ -849,7 +828,8 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
         parent_plant = self.model.plant_propagation.plant
         # set the parent accession
-        self.view.widgets.source_prop_plant_entry.props.text = str(parent_plant)
+        self.view.widgets.source_prop_plant_entry.props.text = str(
+            parent_plant)
 
         if not parent_plant.propagations:
             treeview.props.sensitive = False
@@ -861,7 +841,6 @@ class PropagationChooserPresenter(editor.ChildPresenter):
         treeview.set_model(model)
         treeview.props.sensitive = True
 
-
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
         active = False
@@ -869,18 +848,16 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             active = True
         cell.set_active(active)
 
-
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
         prop = model[treeiter][0]
         cell.props.text = prop.get_summary()
-
 
     def dirty(self):
         return self.__dirty
 
 
-
 from bauble.view import InfoBox, InfoExpander
+
 
 class GeneralSourceDetailExpander(InfoExpander):
     '''
@@ -888,15 +865,15 @@ class GeneralSourceDetailExpander(InfoExpander):
     type of contact
     '''
     def __init__(self, widgets):
-        super(GeneralSourceDetailExpander, self).__init__(_('General'), widgets)
+        super(GeneralSourceDetailExpander, self).__init__(
+            _('General'), widgets)
         gen_box = self.widgets.sd_gen_box
         self.widgets.remove_parent(gen_box)
         self.vbox.pack_start(gen_box)
 
-
     def update(self, row):
-        from textwrap import TextWrapper
-        wrapper = TextWrapper(width=50, subsequent_indent='  ')
+        #from textwrap import TextWrapper
+        #wrapper = TextWrapper(width=50, subsequent_indent='  ')
         self.set_widget_value('sd_name_data', '<big>%s</big>' %
                               utils.xml_safe_utf8(row.name), markup=True)
         source_type = ''
@@ -910,11 +887,9 @@ class GeneralSourceDetailExpander(InfoExpander):
         self.set_widget_value('sd_desc_data', description)
 
         source = Source.__table__
-        nacc = select([source.c.id], source.c.source_detail_id==row.id).\
+        nacc = select([source.c.id], source.c.source_detail_id == row.id).\
             count().execute().fetchone()[0]
         self.set_widget_value('sd_nacc_data', nacc)
-
-
 
 
 class SourceDetailInfoBox(InfoBox):
@@ -929,4 +904,3 @@ class SourceDetailInfoBox(InfoBox):
 
     def update(self, row):
         self.general.update(row)
-

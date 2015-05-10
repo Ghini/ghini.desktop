@@ -722,7 +722,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # been filled in
         def acc_get_completions(text):
             query = self.session.query(Accession)
-            return query.filter(Accession.code.like(unicode('%s%%' % text)))
+            return query.filter(Accession.code.like(unicode('%s%%' % text))).\
+                order_by(Accession.code)
 
         def on_select(value):
             self.set_model_attr('accession', value)
