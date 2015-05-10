@@ -1683,9 +1683,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             except Exception:
                 pass
             from utils import ilike
-            return query.filter(and_(Species.genus_id == Genus.id,
-                                     or_(ilike(Genus.genus, '%s%%' % text),
-                                         ilike(Genus.genus, '%s%%' % genus))))
+            return query.filter(
+                and_(Species.genus_id == Genus.id,
+                     or_(ilike(Genus.genus, '%s%%' % text),
+                         ilike(Genus.genus, '%s%%' % genus)))).\
+                order_by(Species.sp)
 
         def on_select(value):
             def set_model(v):
