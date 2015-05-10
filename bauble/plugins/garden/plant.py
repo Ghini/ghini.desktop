@@ -854,14 +854,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.session.refresh(location)
             self.view.set_widget_value(combo, location)
         else:
-            # TODO: see if the location editor returns the new
-            # location and if so set it directly. also, issue #5.
             editor = LocationEditor(parent=self.view.get_window())
             if editor.start():
                 location = self.model.location = editor.presenter.model
                 self.session.add(location)
-                self.remove_problem(
-                    None, self.view.widgets.plant_loc_comboentry)
+                self.remove_problem(None, combo)
                 self.view.set_widget_value(combo, location)
                 self.set_model_attr('location', location)
 
