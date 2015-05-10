@@ -841,7 +841,7 @@ class FromAndToDictTest(PlantTestCase):
         fab = Family.retrieve_or_create(
             other_session, {'rank': 'family',
                             'epithet': 'Fabaceae'})
-        self.assertFalse(fab in db_families)
+        self.assertFalse(fab in db_families)  # fails, why?
 
     def test_where_can_object_be_found_after_commit(self):
         fab = Family.retrieve_or_create(
