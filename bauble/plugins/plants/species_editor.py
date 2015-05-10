@@ -40,7 +40,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_label_dist_entry': 'label_distribution',
                            }
 
-
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
@@ -104,11 +103,12 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             if not syn:
                 self.set_model_attr('genus', value)
                 return
-            msg = _('The genus <b>%(synonym)s</b> is a synonym of '\
-                        '<b>%(genus)s</b>.\n\nWould you like to choose '\
-                        '<b>%(genus)s</b> instead?' \
-                        % {'synonym': syn.synonym, 'genus': syn.genus})
+            msg = _('The genus <b>%(synonym)s</b> is a synonym of '
+                    '<b>%(genus)s</b>.\n\nWould you like to choose '
+                    '<b>%(genus)s</b> instead?'
+                    % {'synonym': syn.synonym, 'genus': syn.genus})
             box = None
+
             def on_response(button, response):
                 self.view.widgets.remove_parent(box)
                 box.destroy()
@@ -148,7 +148,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         except Exception:
             pass
 
-
     def on_habit_comboentry_changed(self, combo, *args):
         """
         Changed handler for sp_habit_comboentry.
@@ -166,7 +165,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         combo.child.props.text = utils.utf8(value)
         combo.child.set_position(-1)
 
-
     def __del__(self):
         # we have to delete the views in the child presenters manually
         # to avoid the circular reference
@@ -176,12 +174,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         del self.notes_presenter.view
         del self.infrasp_presenter.view
 
-
     def dirty(self):
         return self.__dirty or self.vern_presenter.dirty() or \
             self.synonyms_presenter.dirty() or self.dist_presenter.dirty() \
             or self.infrasp_presenter.dirty() or self.notes_presenter.dirty()
-
 
     def set_model_attr(self, field, value, validator=None):
         '''
@@ -204,7 +200,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         #     sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
 
-
     def refresh_sensitivity(self):
         """
         :param self:
@@ -213,7 +208,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         if self.dirty():
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
-
 
     def init_fullname_widgets(self):
         '''
@@ -229,7 +223,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.view.connect_after(widget_name, 'changed', refresh)
         self.view.connect_after('sp_hybrid_check', 'toggled', refresh)
 
-
     def refresh_fullname_label(self):
         '''
         set the value of sp_fullname_label to either '--' if there
@@ -241,7 +234,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         sp_str = Species.str(self.model, markup=True, authors=True)
         self.view.widgets.sp_fullname_label.set_markup(sp_str)
 
-
     def cleanup(self):
         super(SpeciesEditorPresenter, self).cleanup()
         self.vern_presenter.cleanup()
@@ -249,11 +241,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.dist_presenter.cleanup()
         self.infrasp_presenter.cleanup()
 
-
     def start(self):
         r = self.view.start()
         return r
-
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
@@ -701,7 +691,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             return
 
 
-
 class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
@@ -741,10 +730,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                           self.on_remove_button_clicked)
         self.__dirty = False
 
-
     def dirty(self):
         return self.__dirty
-
 
     def init_treeview(self):
         '''
@@ -772,20 +759,17 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.connect(self.treeview, 'cursor-changed',
                           self.on_tree_cursor_changed)
 
-
     def on_tree_cursor_changed(self, tree, data=None):
         '''
         '''
         path, column = tree.get_cursor()
         self.view.widgets.sp_syn_remove_button.set_sensitive(True)
 
-
     def refresh_view(self):
         """
         doesn't do anything
         """
         return
-
 
     def on_add_button_clicked(self, button, data=None):
         """
@@ -803,8 +787,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
-
-
 
     def on_remove_button_clicked(self, button, data=None):
         '''
@@ -853,8 +835,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.parent_ref().refresh_sensitivity()
 
 
-
-
 class SpeciesEditorView(editor.GenericEditorView):
 
     expanders_pref_map = {}#'sp_infra_expander': 'editor.species.infra.expanded',
@@ -883,7 +863,6 @@ class SpeciesEditorView(editor.GenericEditorView):
                              'species ')
         }
 
-
     def __init__(self, parent=None):
         '''
         the constructor
@@ -901,13 +880,11 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.notebook.set_current_page(0)
         self.restore_state()
 
-
     def get_window(self):
         '''
         Returns the top level window or dialog.
         '''
         return self.widgets.species_dialog
-
 
     @staticmethod
     def genus_match_func(completion, key, iter, data=None):
@@ -922,7 +899,6 @@ class SpeciesEditorView(editor.GenericEditorView):
             return True
         return False
 
-
     def set_accept_buttons_sensitive(self, sensitive):
         '''
         set the sensitivity of all the accept/ok buttons for the editor dialog
@@ -935,7 +911,6 @@ class SpeciesEditorView(editor.GenericEditorView):
             pass
         self.widgets.sp_next_button.set_sensitive(sensitive)
 
-
     @staticmethod
     def genus_completion_cell_data_func(column, renderer, model, treeiter,
                                         data=None):
@@ -945,7 +920,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         renderer.set_property('text', '%s (%s)' % (Genus.str(v),
                                                    Family.str(v.family)))
 
-
     @staticmethod
     def syn_cell_data_func(column, renderer, model, treeiter, data=None):
         '''
@@ -953,14 +927,12 @@ class SpeciesEditorView(editor.GenericEditorView):
         v = model[treeiter][0]
         renderer.set_property('text', str(v))
 
-
     def save_state(self):
         '''
         save the current state of the gui to the preferences
         '''
         for expander, pref in self.expanders_pref_map.iteritems():
             prefs[pref] = self.widgets[expander].get_expanded()
-
 
     def restore_state(self):
         '''
@@ -970,13 +942,11 @@ class SpeciesEditorView(editor.GenericEditorView):
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
-
     def start(self):
         '''
         starts the views, essentially calls run() on the main dialog
         '''
         return self.get_window().run()
-
 
 
 class SpeciesEditor(editor.GenericModelViewPresenterEditor):

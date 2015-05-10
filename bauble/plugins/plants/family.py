@@ -197,8 +197,6 @@ class Family(db.Base):
 
         if is_in_session:
             result = is_in_session[0]
-            print 'family %s found in session' % result
-            print session.new
             return result
 
         ## correct field names
@@ -324,7 +322,7 @@ class FamilyEditorView(editor.GenericEditorView):
 
     def save_state(self):
         # prefs[self.syn_expanded_pref] = \
-        #                         self.widgets.fam_syn_expander.get_expanded()
+        # self.widgets.fam_syn_expander.get_expanded()
         pass
 
     def restore_state(self):

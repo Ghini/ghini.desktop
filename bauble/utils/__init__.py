@@ -11,12 +11,16 @@ import textwrap
 import xml.sax.saxutils as saxutils
 
 import gtk
+import gobject
 
 from bauble.i18n import _
 import bauble
 from bauble.error import check
 import bauble.paths as paths
 from bauble.utils.log import debug, warning
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def find_dependent_tables(table, metadata=None):
@@ -159,10 +163,11 @@ def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
      data, default is C{lambda row, data: row[0] == data}
     """
     if isinstance(parent, gtk.TreeModel):
-        if not parent.get_iter_root(): # model empty
+        if not parent.get_iter_root():  # model empty
             return []
         return search_tree_model(parent[parent.get_iter_root()], data, cmp)
     results = set()
+
     def func(model, path, iter, dummy=None):
         if cmp(model[iter], data):
             #debug('add: %s' % model[iter])
@@ -189,13 +194,12 @@ def clear_model(obj_with_model):
 
     def del_cb(model, path, iter, data=None):
         for c in xrange(0, ncols):
-            v =  model.get_value(iter, c)
+            v = model.get_value(iter, c)
             del v
         del iter
     model.foreach(del_cb)
     model.clear()
     del model
-    model = None
     obj_with_model.set_model(None)
 
 
@@ -258,7 +262,7 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
 
     if value is None:  # set the value from the default
         if isinstance(widget, (gtk.Label, gtk.TextView, gtk.Entry)) \
-               and default is None:
+                and default is None:
             value = ''
         else:
             value = default
@@ -291,12 +295,12 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
         # handles gtk.ComboBox and gtk.ComboBoxEntry
         treeiter = None
         if not widget.get_model():
-            pass
-            # warning('utils.set_widget_value(): ' \
-            #             'combo doesn\'t have a model: %s' % widget.get_name())
+            logger.warning(
+                'utils.set_widget_value(): '
+                'combo doesn\'t have a model: %s' % widget.get_name())
         else:
-            treeiter = combo_get_value_iter(widget, value,
-                                  cmp = lambda row, value: row[index] == value)
+            treeiter = combo_get_value_iter(
+                widget, value, cmp=lambda row, value: row[index] == value)
             if treeiter:
                 widget.set_active_iter(treeiter)
             else:
@@ -322,7 +326,7 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
     else:
         raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
                         'the widget type %s with name %s' %
-                        (type(w), widget_name))
+                        (type(widget), widget.name))
 
 
 def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
@@ -340,12 +344,12 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
     Returns a :class:`gtk.MessageDialog`
     '''
     if parent is None:
-        try: # this might get called before bauble has started
+        try:  # this might get called before bauble has started
             parent = bauble.gui.window
         except Exception:
             parent = None
-    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                         parent=parent, type=type, buttons=buttons)
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                          parent=parent, type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
 
@@ -395,13 +399,13 @@ def create_yes_no_dialog(msg, parent=None):
     Create a dialog with yes/no buttons.
     """
     if parent is None:
-        try: # this might get called before bauble has started
+        try:  # this might get called before bauble has started
             parent = bauble.gui.window
         except Exception:
             parent = None
-    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                         parent=parent, type=gtk.MESSAGE_QUESTION,
-                         buttons = gtk.BUTTONS_YES_NO)
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          parent=parent, type=gtk.MESSAGE_QUESTION,
+                          buttons=gtk.BUTTONS_YES_NO)
     d.set_title('Bauble')
     d.set_markup(msg)
     if d.get_icon() is None:
@@ -429,8 +433,9 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     d = create_yes_no_dialog(msg, parent)
     if yes_delay > 0:
         d.set_response_sensitive(gtk.RESPONSE_YES, False)
+
         def on_timeout():
-            if d.get_property('visible'): # conditional avoids GTK+ warning
+            if d.get_property('visible'):  # conditional avoids GTK+ warning
                 d.set_response_sensitive(gtk.RESPONSE_YES, True)
             return False
         import gobject
@@ -440,20 +445,19 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     return r == gtk.RESPONSE_YES
 
 
-
 def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_OK, parent=None):
     '''
     Create a message dialog with a details expander.
     '''
     if parent is None:
-        try: # this might get called before bauble has started
+        try:  # this might get called before bauble has started
             parent = bauble.gui.window
         except Exception:
             parent = None
 
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          parent=parent,type=type, buttons=buttons)
+                          parent=parent, type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
 
@@ -549,7 +553,7 @@ def setup_text_combobox(combo, values=None, cell_data_func=None):
         cell.props.text = utf8(model[treeiter][0])
     completion = gtk.EntryCompletion()
     completion.set_model(model)
-    cell = gtk.CellRendererText() # set up the completion renderer
+    cell = gtk.CellRendererText()  # set up the completion renderer
     completion.pack_start(cell)
     completion.set_cell_data_func(cell, compl_cell_data_func)
     completion.props.text_column = 0
@@ -620,6 +624,7 @@ def setup_date_button(view, entry, button, date_func=None):
     image.set_from_file(icon)
     button.set_tooltip_text(_("Today's date"))
     button.set_image(image)
+
     def on_clicked(b):
         s = ''
         if date_func:
@@ -711,13 +716,13 @@ def delete_or_expunge(obj):
     session = object_session(obj)
     if session is None:
         return
-    if obj in session.new:
-        # debug('expunge obj: %s -- %s' % (obj, repr(obj)))
+    if obj not in session.new:
+        logger.debug('delete obj: %s -- %s' % (obj, repr(obj)))
+        session.delete(obj)
+    else:
+        logger.debug('expunge obj: %s -- %s' % (obj, repr(obj)))
         session.expunge(obj)
         del obj
-    else:
-        # debug('delete obj: %s -- %s' % (obj, repr(obj)))
-        session.delete(obj)
 
 
 def reset_sequence(column):
@@ -732,7 +737,6 @@ def reset_sequence(column):
     This function only works for PostgreSQL database.  It does nothing
     for other database engines.
     """
-    import bauble
     import bauble.db as db
     from sqlalchemy.types import Integer
     from sqlalchemy import schema
@@ -740,28 +744,30 @@ def reset_sequence(column):
         return
 
     sequence_name = None
-    if hasattr(column,'default') and isinstance(column.default,schema.Sequence):
+    if hasattr(column, 'default') and \
+            isinstance(column.default, schema.Sequence):
         sequence_name = column.default.name
     elif (isinstance(column.type, Integer) and column.autoincrement) and \
-            (column.default is None or \
-                 (isinstance(column.default, schema.Sequence) and \
-                      column.default.optional)) and \
-                      len(column.foreign_keys)==0:
-        sequence_name = '%s_%s_seq' %(column.table.name, column.name)
+            (column.default is None or
+             (isinstance(column.default, schema.Sequence) and
+              column.default.optional)) and \
+            len(column.foreign_keys) == 0:
+        sequence_name = '%s_%s_seq' % (column.table.name, column.name)
     else:
         return
     conn = db.engine.connect()
     trans = conn.begin()
     try:
         # the FOR UPDATE locks the table for the transaction
-        stmt = "SELECT %s from %s FOR UPDATE;" %(column.name, column.table.name)
+        stmt = "SELECT %s from %s FOR UPDATE;" % (
+            column.name, column.table.name)
         result = conn.execute(stmt)
         maxid = None
         vals = list(result)
         if vals:
             maxid = max(vals, key=lambda x: x[0])[0]
         result.close()
-        if maxid == None:
+        if maxid is None:
             # set the sequence to nextval()
             stmt = "SELECT nextval('%s');" % (sequence_name)
         else:
@@ -789,13 +795,17 @@ def make_label_clickable(label, on_clicked, *args):
     check(isinstance(eventbox, gtk.EventBox),
           'label must have an gtk.EventBox as its parent')
     label.__pressed = False
+
     def on_enter_notify(*args):
         label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("blue"))
+
     def on_leave_notify(*args):
         label.modify_fg(gtk.STATE_NORMAL, None)
         label.__pressed = False
+
     def on_press(*args):
         label.__pressed = True
+
     def on_release(widget, event, *args):
         if label.__pressed:
             label.__pressed = False
@@ -848,7 +858,6 @@ def ilike(col, val, engine=None):
         return func.lower(col).like(func.lower(val))
 
 
-
 def range_builder(text):
     """Return a list of numbers from a string range of the form 1-3,4,5
     """
@@ -861,6 +870,7 @@ def range_builder(text):
     try:
         tokens = range_list.parseString(text)
     except (AttributeError, ParseException), e:
+        logger.debug(e)
         return []
     values = set()
     for rng in tokens:
@@ -868,7 +878,7 @@ def range_builder(text):
             # get here if the token is a range
             start = int(rng[0])
             end = int(rng[1]) + 1
-            check(start<end, 'start must be less than end')
+            check(start < end, 'start must be less than end')
             values.update(range(start, end))
         else:
             # get here if the token is an integer
@@ -893,8 +903,8 @@ def gc_objects_by_type(tipe):
 def mem(size="rss"):
     """Generalization; memory sizes: rss, rsz, vsz."""
     import os
-    return int(os.popen('ps -p %d -o %s | tail -1' % \
-                            (os.getpid(), size)).read())
+    return int(os.popen('ps -p %d -o %s | tail -1' %
+                        (os.getpid(), size)).read())
 
 
 #
@@ -916,8 +926,8 @@ def topological_sort(items, partial_order):
 
     def add_node(graph, node):
         """Add a node to the graph if not already exists."""
-        if not graph.has_key(node):
-            graph[node] = [0] # 0 = number of arcs coming into this node.
+        if node not in graph:
+            graph[node] = [0]  # 0 = number of arcs coming into this node.
 
     def add_arc(graph, fromnode, tonode):
         """
@@ -944,12 +954,12 @@ def topological_sort(items, partial_order):
     graph = {}
     for v in items:
         add_node(graph, v)
-    for a,b in partial_order:
+    for a, b in partial_order:
         add_arc(graph, a, b)
 
     # Step 2 - find all roots (nodes with zero incoming arcs).
 
-    roots = [node for (node,nodeinfo) in graph.items() if nodeinfo[0] == 0]
+    roots = [node for (node, nodeinfo) in graph.items() if nodeinfo[0] == 0]
 
     # step 3 - repeatedly emit a root and remove it from the graph. Removing
     # a node may convert some of the node's direct children into roots.
@@ -996,7 +1006,6 @@ class GenericMessageBox(gtk.EventBox):
         self.box.set_spacing(10)
         self.add(self.box)
 
-
     def set_color(self, attr, state, color):
         colormap = self.get_colormap()
         style = self.get_style().copy()
@@ -1007,16 +1016,13 @@ class GenericMessageBox(gtk.EventBox):
         self.set_style(style)
         return style
 
-
     def show_all(self):
         self.get_parent().show_all()
         width, height = self.size_request()
         self.set_size_request(width, height+10)
 
-
     def show(self):
         self.show_all()
-
 
     def animate(self):
         return
@@ -1025,6 +1031,7 @@ class GenericMessageBox(gtk.EventBox):
         self.set_size_request(width, 0)
         import time
         self.last_time = time.time()
+
         def _animate_cb(final_height):
             height = 0
             while height < final_height:
@@ -1038,7 +1045,6 @@ class GenericMessageBox(gtk.EventBox):
             return False
         #gobject.timeout_add(8, _animate_cb, height)
         gobject.idle_add(_animate_cb, height)
-
 
 
 class MessageBox(GenericMessageBox):
@@ -1098,15 +1104,14 @@ class MessageBox(GenericMessageBox):
         for color in colors:
             self.set_color(*color)
 
-
     def show_all(self):
         super(MessageBox, self).show_all()
         if not self.details_label.get_text():
             self.details_expander.hide()
 
-
     def _get_message(self, msg):
         return self.label.text
+
     def _set_message(self, msg):
         # TODO: we could probably do something smarter here that
         # involved check the font size and window width and adjust the
@@ -1118,9 +1123,9 @@ class MessageBox(GenericMessageBox):
             self.label.set_markup('')
     message = property(_get_message, _set_message)
 
-
     def _get_details(self, msg):
         return self.details_label.text
+
     def _set_details(self, msg):
         if msg:
             msg = '\n'.join(textwrap.wrap(msg, 100))
@@ -1168,7 +1173,6 @@ class YesNoMessageBox(GenericMessageBox):
         for color in colors:
             self.set_color(*color)
 
-
     def _set_on_response(self, func):
         self.yes_button.connect('clicked', func, True)
         self.no_button.connect('clicked', func, False)
@@ -1176,6 +1180,7 @@ class YesNoMessageBox(GenericMessageBox):
 
     def _get_message(self, msg):
         return self.label.text
+
     def _set_message(self, msg):
         if msg:
             self.label.set_markup(msg)
@@ -1188,6 +1193,7 @@ class YesNoMessageBox(GenericMessageBox):
 MESSAGE_BOX_INFO = 1
 MESSAGE_BOX_ERROR = 2
 MESSAGE_BOX_YESNO = 3
+
 
 def add_message_box(parent, type=MESSAGE_BOX_INFO):
     """

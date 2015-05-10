@@ -27,6 +27,10 @@ import os
 import sys
 import weakref
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 import gtk
 import gobject
 
@@ -297,7 +301,7 @@ class GenericEditorView(object):
         :param default: the default value to put in the widget if value is None
         :param index: the row index to use for those widgets who use a model
 
-        This method caled bauble.utils.set_widget_value()
+        This method called bauble.utils.set_widget_value()
         '''
         if isinstance(widget, gtk.Widget):
             utils.set_widget_value(widget, value, markup, default, index)
@@ -509,19 +513,20 @@ class GenericEditorPresenter(object):
         :param problem_id: the problem to remove, if None then remove
          any problem from the problem_widget(s)
 
-        :param problem_widgets: a gtk.Widget instance or list of list
-         of widgets to remove the problem from, if None then remove
-         all occurrences of problem_id regardless of the widget
+        :param problem_widgets: a gtk.Widget instance to remove the problem
+         from, if None then remove all occurrences of problem_id regardless
+         of the widget
         """
-        if problem_id is None and not problem_widgets:
+        if problem_id is None and problem_widgets is None:
+            logger.warning('invoke remove_problem with None, None')
             # if no problem id and not problem widgets then don't do anything
             return
 
         tmp = self.problems.copy()
         for p, w in tmp:
-            if (not problem_widgets and p == problem_id) or \
-                    (problem_id is None and w == problem_widgets) or \
-                    (p == problem_id and w == problem_widgets):
+            if (w == problem_widgets and p == problem_id) or \
+                    (problem_widgets is None and p == problem_id) or \
+                    (w == problem_widgets and problem_id is None):
                 if w:
                     w.modify_bg(gtk.STATE_NORMAL, None)
                     w.modify_base(gtk.STATE_NORMAL, None)
