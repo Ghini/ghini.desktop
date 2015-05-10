@@ -31,6 +31,16 @@ version_tuple = version.split('.')
 from bauble.i18n import _
 
 
+def pb_set_fraction(fraction):
+    """set progressbar fraction safely
+
+    provides a safe way to handle the progress bar if the gui isn't started,
+    we use this in the tests where there is no gui
+    """
+    if gui is not None and gui.progressbar is not None:
+        gui.progressbar.set_fraction(fraction)
+
+
 def main_is_frozen():
     """
     Return True if we are running in a py2exe environment, else

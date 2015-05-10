@@ -27,6 +27,10 @@ import os
 import traceback
 from random import random
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 import gtk
 
 from bauble.i18n import _
@@ -50,7 +54,6 @@ import bauble.prefs as prefs
 from bauble.search import SearchStrategy
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.utils.log import debug
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
@@ -162,6 +165,7 @@ def get_next_code(acc):
         try:
             next = max([int(code[0]) for code in codes])+1
         except Exception, e:
+            logger.debug(e)
             return None
     return utils.utf8(next)
 
@@ -214,7 +218,7 @@ class PlantSearch(SearchStrategy):
                 filter(and_(Accession.code == acc_code,
                             Plant.code == plant_code))
         except Exception, e:
-            debug(e)
+            logger.debug(e)
             return []
         return q.all()
 
@@ -589,7 +593,7 @@ class PlantEditorView(GenericEditorView):
                                   'Possible values: %s') % (
             ', '.join(acc_type_values.values())),
         'plant_loc_add_button': _('Create a new location.'),
-        'plant_loc_add_button': _('Edit the selected location.'),
+        'plant_loc_edit_button': _('Edit the selected location.'),
         'prop_add_button': _(
             'Create a new propagation record for this plant.'),
         'pad_cancel_button': _('Cancel your changes.'),
@@ -762,6 +766,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         try:
             value = abs(int(value))
         except ValueError, e:
+            logger.debug(e)
             value = None
         self.set_model_attr('quantity', value)
         if value is None:
@@ -808,12 +813,19 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
 
     def refresh_sensitivity(self):
-        #debug('refresh_sensitivity()')
+        logger.debug('refresh_sensitivity()')
+        logger.debug((self.model.accession is not None,
+                      self.model.code is not None,
+                      self.model.location is not None,
+                      self.model.quantity is not None,
+                      self.dirty(),
+                      len(self.problems) == 0))
+        logger.debug(self.problems)
 
-        # TODO: because we don't call refresh_sensitivity() every time
-        # a character is entered then the edit button doesn't
+        # TODO: because we don't call refresh_sensitivity() every time a
+        # character is entered then the edit button doesn't sensitize
+        # properly
         #
-        # sensitize properly
         # combo_entry = self.view.widgets.plant_loc_comboentry.child
         # self.view.widgets.plant_loc_edit_button.\
         #     set_sensitive(self.model.location is not None \
@@ -827,7 +839,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.widgets.pad_next_button.set_sensitive(sensitive)
 
     def set_model_attr(self, field, value, validator=None):
-        #debug('set_model_attr(%s, %s)' % (field, value))
+        logger.debug('set_model_attr(%s, %s)' % (field, value))
         super(PlantEditorPresenter, self)\
             .set_model_attr(field, value, validator)
         self.__dirty = True
@@ -835,15 +847,22 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def on_loc_button_clicked(self, button, cmd=None):
         location = self.model.location
+        combo = self.view.widgets.plant_loc_comboentry
         if cmd is 'edit' and location:
-            combo = self.view.widgets.plant_loc_comboentry
             LocationEditor(location, parent=self.view.get_window()).start()
             self.session.refresh(location)
             self.view.set_widget_value(combo, location)
         else:
             # TODO: see if the location editor returns the new
-            # location and if so set it directly
-            LocationEditor(parent=self.view.get_window()).start()
+            # location and if so set it directly. also, issue #5.
+            editor = LocationEditor(parent=self.view.get_window())
+            if editor.start():
+                location = self.model.location = editor.presenter.model
+                self.session.add(location)
+                self.remove_problem(
+                    None, self.view.widgets.plant_loc_comboentry)
+                self.view.set_widget_value(combo, location)
+                self.set_model_attr('location', location)
 
     def refresh_view(self):
         # TODO: is this really relevant since this editor only creates
@@ -851,7 +870,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
-            #debug('%s: %s = %s' % (widget, field, value))
+            logger.debug('%s: %s = %s' % (widget, field, value))
 
         self.view.set_widget_value('plant_acc_type_combo',
                                    acc_type_values[self.model.acc_type],
@@ -1028,7 +1047,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
                     % utils.xml_safe_utf8(e)
-                debug(traceback.format_exc())
+                logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
@@ -1185,7 +1204,6 @@ class ChangesExpander(InfoExpander):
         self.vbox.pack_start(self.table, expand=False, fill=False)
         self.table.props.row_spacing = 3
         self.table.props.column_spacing = 5
-
 
     def update(self, row):
         '''
