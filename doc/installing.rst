@@ -81,9 +81,9 @@ the dependencies and then install Bauble from the source package.
 Please report any trouble and help with packaging will be very
 welcome.
 
-.. note:: Bauble has been tested with and is known to work on
-   Windows XP and Windows-8. Although it should work fine on other
-   versions Windows it has not been thoroughly tested.
+.. note:: Bauble has been tested with and is known to work on W-XP, W-7 and
+   W-8. Although it should work fine on other versions Windows it has not
+   been thoroughly tested.
 
 the installation steps on Windows:
 
@@ -117,38 +117,49 @@ the installation steps on Windows:
 
 #. download and install ``git`` (comes with a unix-like ``sh``).
 
-#. install ``virtualenvwrapper-win`` (using ``pip``)
-
-#. create the virtual environment now.
-
-#. download ``gettext`` from:
-
-   http://www.boost.org/doc/libs/1_56_0/libs/locale/doc/html/gettext_for_windows.html
-
-   You will need manually unpack the statically linked binaries,
-   Windows will probably complain about the risks of unpacking a zip
-   archive that contains executable files, ignore this. A safe place
-   to put the executable files is into the ``Scripts`` directory of
-   the virtual environment.
+#. install ``virtualenv`` (using ``pip``)
 
 #. (optional) download and install a database connector other than
-   ``sqlite3``. On Windows, it is NOT easy to install ``psycopg2`` from
+   ``sqlite3``. 
+
+   On Windows, it is NOT easy to install ``psycopg2`` from
    sources, using pip, so "avoid the gory details" and use a pre-compiled 
    pagkage from:
    
    http://initd.org/psycopg/docs/install.html
 
+#. cd to where you want to get bauble.classic.
+
 #. download the bauble.classic sources (using git) from:
    http://www.github.com/mfrasca/bauble.classic/
 
-#. activate the virtual environment.
+#. cd into the newly created ``bauble.classic`` directory.
+
+#. create the virtual environment, call it ``bacl`` and activate it.
+
+#. choose the development line you plan to follow, for example ``1.0``.
+
+   ``git checkout bauble-1.0``
+
+#. ``python setup.py build``
+
+#. create a ``bauble.bat`` file in your HOME dir, with this content:
+   ``call .virtualenvs\bacl\Scripts\activate.bat``
+   ``pythonw .virtualenvs\bacl\Scripts\bauble``
+
+#. create a vbs file in your HOME dir, with this content.
+   ``CreateObject("Wscript.Shell").Run "bauble.bat", 0, True``
+
+#. create a shortcut to the vbs file, on your desktop.
+
+#. modify the icon of the shortcut.
+
+#. the following two, you will do regularly, to stay up-to-date with the
+   development line you chose to follow.
+
+#. ``git pull``
 
 #. ``python setup.py install``
-
-#. TODO: write a git-shell script that activates the virtual
-   environment, sets the language, invokes bauble.
-
-#. TODO: put the above git-shell script at a convenient place.
 
 If you would like to generate and print PDF reports using Bauble's
 default report generator then you will need to download and install
