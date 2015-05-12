@@ -128,27 +128,37 @@ the installation steps on Windows:
    
    http://initd.org/psycopg/docs/install.html
 
+#. cd to your HOME dir, create the virtual environment, call it ``bacl`` and activate it.
+
+::
+    mkvirtualenv --system-site-packages .virtualenvs\bacl
+    .virtualenvs\bacl\Scripts\activate.bat
+
 #. cd to where you want to get bauble.classic.
 
 #. download the bauble.classic sources (using git) from:
+
    http://www.github.com/mfrasca/bauble.classic/
 
 #. cd into the newly created ``bauble.classic`` directory.
 
-#. create the virtual environment, call it ``bacl`` and activate it.
+#. choose the development line you plan to follow, for example ``1.0``, build, install.
 
-#. choose the development line you plan to follow, for example ``1.0``.
-
-   ``git checkout bauble-1.0``
-
-#. ``python setup.py build``
+::
+   git checkout bauble-1.0
+   python setup.py build
+   python setup.py install
 
 #. create a ``bauble.bat`` file in your HOME dir, with this content:
-   ``call .virtualenvs\bacl\Scripts\activate.bat``
-   ``pythonw .virtualenvs\bacl\Scripts\bauble``
+
+::
+    call .virtualenvs\bacl\Scripts\activate.bat
+    pythonw .virtualenvs\bacl\Scripts\bauble
 
 #. create a vbs file in your HOME dir, with this content.
-   ``CreateObject("Wscript.Shell").Run "bauble.bat", 0, True``
+
+::
+    CreateObject("Wscript.Shell").Run "bauble.bat", 0, True
 
 #. create a shortcut to the vbs file, on your desktop.
 
@@ -157,9 +167,9 @@ the installation steps on Windows:
 #. the following two, you will do regularly, to stay up-to-date with the
    development line you chose to follow.
 
-#. ``git pull``
-
-#. ``python setup.py install``
+::
+    git pull
+    python setup.py install
 
 If you would like to generate and print PDF reports using Bauble's
 default report generator then you will need to download and install
