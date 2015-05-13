@@ -107,7 +107,9 @@ the installation steps on Windows:
    definitely `not` run on Python 3.x.  If you are interested in helping
    port to Python 3.x, please contact the Bauble maintainers.
 
-#. download and install ``pygtk`` (requires 32bit python) from:
+#. download ``pygtk`` from the following source. (this requires 32bit
+   python). be sure you download the "all in one" version. make a complete
+   install, selecting everything:
 
    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
@@ -115,9 +117,7 @@ the installation steps on Windows:
 
    http://bootstrap.pypa.io/get-pip.py
 
-#. download and install ``git`` (comes with a unix-like ``sh``).
-
-#. install ``virtualenv`` (using ``pip``)
+#. download and install ``git`` (comes with a unix-like ``sh`` and ``vi``).
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
@@ -128,9 +128,13 @@ the installation steps on Windows:
    
    http://initd.org/psycopg/docs/install.html
 
+#. include ``C:\Python27`` and ``C:\Python27\Scripts`` in your path.
+
+#. install ``virtualenv`` (using ``pip``)
+
 #. cd to your HOME dir, create the virtual environment, call it ``bacl`` and activate it::
 
-    mkvirtualenv --system-site-packages .virtualenvs\bacl
+    virtualenv --system-site-packages .virtualenvs\bacl
     .virtualenvs\bacl\Scripts\activate.bat
 
 #. cd to where you want to get bauble.classic.
@@ -143,9 +147,9 @@ the installation steps on Windows:
 
 #. choose the development line you plan to follow, for example ``1.0``, build, install::
 
-   git checkout bauble-1.0
-   python setup.py build
-   python setup.py install
+    git checkout bauble-1.0
+    python setup.py build
+    python setup.py install
 
 #. create a ``bauble.bat`` file in your HOME dir, with this content::
 
@@ -156,9 +160,11 @@ the installation steps on Windows:
 
     CreateObject("Wscript.Shell").Run "bauble.bat", 0, True
 
-#. create a shortcut to the vbs file, on your desktop.
+#. create a shortcut to the vbs file in the same HOME dir.
 
-#. modify the icon of the shortcut.
+#. modify the icon of the shortcut, rename it as of your tastes.
+
+#. drag and drop the shortcut into the Start Menu.
 
 #. the following two, you will do regularly, to stay up-to-date with the
    development line you chose to follow::
