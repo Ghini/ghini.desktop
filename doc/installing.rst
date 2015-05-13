@@ -128,9 +128,8 @@ the installation steps on Windows:
    
    http://initd.org/psycopg/docs/install.html
 
-#. cd to your HOME dir, create the virtual environment, call it ``bacl`` and activate it.
+#. cd to your HOME dir, create the virtual environment, call it ``bacl`` and activate it::
 
-::
     mkvirtualenv --system-site-packages .virtualenvs\bacl
     .virtualenvs\bacl\Scripts\activate.bat
 
@@ -142,22 +141,19 @@ the installation steps on Windows:
 
 #. cd into the newly created ``bauble.classic`` directory.
 
-#. choose the development line you plan to follow, for example ``1.0``, build, install.
+#. choose the development line you plan to follow, for example ``1.0``, build, install::
 
-::
    git checkout bauble-1.0
    python setup.py build
    python setup.py install
 
-#. create a ``bauble.bat`` file in your HOME dir, with this content:
+#. create a ``bauble.bat`` file in your HOME dir, with this content::
 
-::
     call .virtualenvs\bacl\Scripts\activate.bat
     pythonw .virtualenvs\bacl\Scripts\bauble
 
-#. create a vbs file in your HOME dir, with this content.
+#. create a vbs file in your HOME dir, with this content::
 
-::
     CreateObject("Wscript.Shell").Run "bauble.bat", 0, True
 
 #. create a shortcut to the vbs file, on your desktop.
@@ -165,9 +161,8 @@ the installation steps on Windows:
 #. modify the icon of the shortcut.
 
 #. the following two, you will do regularly, to stay up-to-date with the
-   development line you chose to follow.
+   development line you chose to follow::
 
-::
     git pull
     python setup.py install
 
