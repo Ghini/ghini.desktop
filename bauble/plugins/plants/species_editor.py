@@ -88,7 +88,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         # connect signals
         def gen_get_completions(text):
             clause = utils.ilike(Genus.genus, '%s%%' % unicode(text))
-            return self.session.query(Genus).filter(clause)
+            return self.session.query(Genus).filter(clause).\
+                order_by(Genus.genus)
 
         # called a genus is selected from the genus completions
         def on_select(value):
@@ -704,13 +705,12 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.session = parent.session
         self.view.widgets.sp_syn_entry.props.text = ''
         self.init_treeview()
-        # use completions_model as a dummy object for completions, we'll create
-        # seperate SpeciesSynonym models on add
-        completions_model = SpeciesSynonym()
+
         def sp_get_completions(text):
             query = self.session.query(Species).join('genus').\
                 filter(utils.ilike(Genus.genus, '%s%%' % text)).\
-                filter(Species.id != self.model.id)
+                filter(Species.id != self.model.id).\
+                order_by(Genus.genus, Species.sp)
             return query
 
         def on_select(value):

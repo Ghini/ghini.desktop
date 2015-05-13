@@ -402,7 +402,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         # connect signals
         def fam_get_completions(text):
             query = self.session.query(Family)
-            return query.filter(Family.family.like('%s%%' % text))
+            return query.filter(Family.family.like('%s%%' % text)).\
+                order_by(Family.family)
 
         def on_select(value):
             for kid in self.view.widgets.message_box_parent.get_children():
@@ -500,9 +501,6 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         return r
 
 
-#
-# TODO: you shouldn't be able to set a genus as a synonym of itself
-#
 class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
@@ -518,14 +516,11 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.gen_syn_entry.props.text = ''
         self.init_treeview()
 
-        # use completions_model as a dummy object for completions, we'll create
-        # seperate SpeciesSynonym models on add
-        completions_model = GenusSynonym()
-
         def gen_get_completions(text):
             query = self.session.query(Genus)
             return query.filter(and_(Genus.genus.like('%s%%' % text),
-                                     Genus.id != self.model.id))
+                                     Genus.id != self.model.id)).\
+                order_by(Genus.genus)
 
         self._selected = None
 

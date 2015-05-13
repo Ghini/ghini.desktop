@@ -1683,9 +1683,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             except Exception:
                 pass
             from utils import ilike
-            return query.filter(and_(Species.genus_id == Genus.id,
-                                     or_(ilike(Genus.genus, '%s%%' % text),
-                                         ilike(Genus.genus, '%s%%' % genus))))
+            return query.filter(
+                and_(Species.genus_id == Genus.id,
+                     or_(ilike(Genus.genus, '%s%%' % text),
+                         ilike(Genus.genus, '%s%%' % genus)))).\
+                order_by(Species.sp)
 
         def on_select(value):
             def set_model(v):
@@ -1757,7 +1759,22 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         utils.setup_date_button(self.view, 'acc_date_accd_entry',
                                 'acc_date_accd_button')
 
-        self.assign_simple_handler('acc_quantity_recvd_entry','quantity_recvd')
+        self.view.connect(
+            self.view.widgets.intended_loc_add_button,
+            'clicked',
+            self.on_loc_button_clicked,
+            self.view.widgets.intended_loc_comboentry,
+            'intended_location')
+
+        self.view.connect(
+            self.view.widgets.intended2_loc_add_button,
+            'clicked',
+            self.on_loc_button_clicked,
+            self.view.widgets.intended2_loc_comboentry,
+            'intended2_location')
+
+        self.assign_simple_handler(
+            'acc_quantity_recvd_entry', 'quantity_recvd')
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
@@ -1766,15 +1783,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         def on_loc1_select(value):
             self.set_model_attr('intended_location', value)
-        init_location_comboentry(self,
-                                 self.view.widgets.intended_loc_comboentry,
-                                 on_loc1_select, required=False)
+        init_location_comboentry(
+            self, self.view.widgets.intended_loc_comboentry,
+            on_loc1_select, required=False)
 
         def on_loc2_select(value):
             self.set_model_attr('intended2_location', value)
-        init_location_comboentry(self,
-                                 self.view.widgets.intended2_loc_comboentry,
-                                 on_loc2_select, required=False)
+        init_location_comboentry(
+            self, self.view.widgets.intended2_loc_comboentry,
+            on_loc2_select, required=False)
 
         self.refresh_sensitivity()
 
@@ -1822,6 +1839,18 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             active = it
         combo.set_model(model)
         combo.set_active_iter(active)
+
+    def on_loc_button_clicked(self, button, target_widget, target_field):
+        logger.debug('on_loc_button_clicked %s, %s, %s, %s' %
+                     (self, button, target_widget, target_field))
+        from bauble.plugins.garden.location import LocationEditor
+        editor = LocationEditor(parent=self.view.get_window())
+        if editor.start():
+            location = editor.presenter.model
+            self.session.add(location)
+            self.remove_problem(None, target_widget)
+            self.view.set_widget_value(target_widget, location)
+            self.set_model_attr(target_field, location)
 
     def dirty(self):
         presenters = [self.ver_presenter, self.voucher_presenter,
