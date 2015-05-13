@@ -41,10 +41,12 @@ from bauble.plugins.garden.source import \
     Source, SourceDetail, SourceDetailInfoBox, source_detail_context_menu, \
     Collection, collection_context_menu, coll_markup_func
 from bauble.plugins.garden.institution import \
-    InstitutionCommand, InstitutionTool
+    Institution, InstitutionCommand, InstitutionTool
 #from bauble.plugins.garden.propagation import *
 import bauble.search as search
 import re
+
+Institution  # fake usage to avoid 'Imported but unused' warning.
 
 # other ideas:
 # - cultivation table
