@@ -6,22 +6,15 @@
 import datetime
 import lxml.etree as etree
 import os
-import sys
 import tempfile
-import unittest
 
-from lxml.etree import Element, SubElement, ElementTree, dump
-from sqlalchemy import *
-from sqlalchemy.exc import *
+import logging
+logger = logging.getLogger(__name__)
 
-import bauble
-import bauble.db as db
 import bauble.paths as paths
 from bauble.test import BaubleTestCase
-from bauble.plugins.abcd import DataSets
 import bauble.plugins.abcd as abcd
-from bauble.plugins.garden import *
-from bauble.plugins.plants import *
+from bauble.plugins.garden import Plant, Accession, Source, Collection
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
 
@@ -33,18 +26,15 @@ class ABCDTestCase(BaubleTestCase):
     def __init__(self, *args):
         super(ABCDTestCase, self).__init__(*args)
 
-
     def setUp(self):
         super(ABCDTestCase, self).setUp()
         plants_test.setUp_data()
         garden_test.setUp_data()
 
-
-        schema_file = os.path.join(paths.lib_dir(), 'plugins',
-            'abcd','abcd_2.06.xsd')
+        schema_file = os.path.join(
+            paths.lib_dir(), 'plugins', 'abcd', 'abcd_2.06.xsd')
         xmlschema_doc = etree.parse(schema_file)
         self.abcd_schema = etree.XMLSchema(xmlschema_doc)
-
 
     def test_abcd(self):
         # TODO: this needs to be updated, we don't use the
@@ -75,7 +65,6 @@ class ABCDTestCase(BaubleTestCase):
 
 #         self.assert_(self.validate(datasets), self.abcd_schema.error_log)
 
-
     def test_export(self):
         """
         Test the ABCDExporter
@@ -101,7 +90,7 @@ class ABCDTestCase(BaubleTestCase):
         self.session.commit()
         dummy, filename = tempfile.mkstemp()
         xml = abcd.ABCDExporter().start(filename)
-
+        logger.debug(xml)
 
     def test_plants_to_abcd(self):
         plants = self.session.query(Plant)
@@ -111,7 +100,6 @@ class ABCDTestCase(BaubleTestCase):
 #        data = abcd.plants_to_abcd(plants)
         # assert validate abcd
 #        self.assert_(self.validate(data), self.abcd_schema.error_log)
-
 
     def validate(self, xml):
         return self.abcd_schema.validate(xml)
