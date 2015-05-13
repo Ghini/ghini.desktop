@@ -30,7 +30,7 @@ Installing on Linux
 
 #. Download and extract the Bauble source package from
 
-   https://github.com/mfrasca/bauble.classic.git
+   https://github.com/Bauble/bauble.classic.git
 
 #. Make and activate a virtual environment with
    ``--system-site-packages``.
@@ -141,7 +141,7 @@ the installation steps on Windows:
 
 #. download the bauble.classic sources (using git) from:
 
-   http://www.github.com/mfrasca/bauble.classic/
+   http://www.github.com/Bauble/bauble.classic/
 
 #. cd into the newly created ``bauble.classic`` directory.
 
