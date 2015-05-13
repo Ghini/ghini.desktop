@@ -114,7 +114,7 @@ class Location(db.Base):
 
     # columns
     # refers to beds by unique codes
-    code = Column(Unicode(10), unique=True, nullable=False)
+    code = Column(Unicode(12), unique=True, nullable=False)
     name = Column(Unicode(64))
     description = Column(UnicodeText)
 
