@@ -409,9 +409,6 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         return r
 
 
-#
-# TODO: you shouldn't be able to set a family as a synonym of itself
-#
 class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
@@ -427,14 +424,11 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.fam_syn_entry.props.text = ''
         self.init_treeview()
 
-        # use completions_model as a dummy object for completions, we'll
-        # create separate SpeciesSynonym models on add
-        completions_model = FamilySynonym()
-
         def fam_get_completions(text):
             query = self.session.query(Family)
             return query.filter(and_(Family.family.like('%s%%' % text),
-                                     Family.id != self.model.id))
+                                     Family.id != self.model.id)).\
+                order_by(Family.family)
 
         self._selected = None
 
