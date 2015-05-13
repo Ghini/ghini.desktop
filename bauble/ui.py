@@ -603,7 +603,7 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):
-        desktop.open('https://github.com/mfrasca/bauble.classic/issues/new',
+        desktop.open('https://github.com/Bauble/bauble.classic/issues/new',
                      dialog_on_error=True)
 
     def on_help_menu_web_webapp(self, widget, data=None):
