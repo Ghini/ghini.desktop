@@ -235,7 +235,6 @@ class Tag(db.Base):
     _objects = relation('TaggedObj', cascade='all, delete-orphan',
                         backref='tag')
 
-
     def __str__(self):
         return str(self.tag)
 
