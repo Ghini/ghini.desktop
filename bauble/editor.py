@@ -31,6 +31,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+import glib
 import gtk
 import gobject
 
@@ -1096,6 +1097,7 @@ class PictureBox(NoteBox):
         utils.set_widget_value(self.widgets.category_comboentry,
                                u'<picture>')
         self.presenter._dirty = False
+        self.last_folder = '.'
 
         self.widgets.picture_button.connect(
             "clicked", self.on_activate_browse_button)
@@ -1105,15 +1107,26 @@ class PictureBox(NoteBox):
             w.destroy()
         if filename is not None:
             im = gtk.Image()
-            pixbuf = gtk.gdk.pixbuf_new_from_file(
-                os.path.join(prefs.prefs[prefs.picture_root_pref], filename))
-            scale_x = pixbuf.get_width() / 400
-            scale_y = pixbuf.get_height() / 400
-            scale = max(scale_x, scale_y)
-            x = int(pixbuf.get_width() / scale)
-            y = int(pixbuf.get_height() / scale)
-            scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
-            im.set_from_pixbuf(scaled_buf)
+            try:
+                pixbuf = gtk.gdk.pixbuf_new_from_file(
+                    os.path.join(prefs.prefs[prefs.picture_root_pref],
+                                 filename))
+                scale_x = pixbuf.get_width() / 400
+                scale_y = pixbuf.get_height() / 400
+                scale = max(scale_x, scale_y, 1)
+                x = int(pixbuf.get_width() / scale)
+                y = int(pixbuf.get_height() / scale)
+                scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+                im.set_from_pixbuf(scaled_buf)
+            except glib.GError:
+                label = _('picture file %s not found.') % filename
+                logger.debug(label)
+                im = gtk.Label()
+                im.set_text(label)
+            except Exception, e:
+                logger.warning(e)
+                im = gtk.Label()
+                im.set_text(_("%s" % e))
         else:
             # make button hold some text
             im = gtk.Label()
@@ -1123,12 +1136,13 @@ class PictureBox(NoteBox):
         self.widgets.picture_button.show()
 
     def on_activate_browse_button(self, widget, data=None):
-        d = gtk.FileChooserDialog(
+        fileChooserDialog = gtk.FileChooserDialog(
             _("Choose a file..."), None,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        d.run()
-        filename = d.get_filename()
+        fileChooserDialog.set_current_folder(self.last_folder)
+        fileChooserDialog.run()
+        filename = fileChooserDialog.get_filename()
         if filename:
             import shutil
             ## get the file's basename
@@ -1138,7 +1152,8 @@ class PictureBox(NoteBox):
             ## store basename in note field and fire callbacks.
             self.set_model_attr('note', basename)
             self.set_content(basename)
-        d.destroy()
+            self.last_folder = os.path.dirname(filename)
+        fileChooserDialog.destroy()
 
     def on_category_entry_changed(self, entry, *args):
         pass
@@ -1204,14 +1219,18 @@ class NotesPresenter(GenericEditorPresenter):
         # the `expander`s are added to self.box
         self.box = self.widgets.notes_expander_box
 
+        valid_notes_count = 0
         for note in self.notes:
             if self.ContentBox.is_valid_note(note):
                 box = self.add_note(note)
                 box.set_expanded(False)
+                valid_notes_count += 1
 
-        if len(self.notes) < 1:
+        if valid_notes_count < 1:
             self.add_note()
 
+        logger.debug('notes: %s' % self.notes)
+        logger.debug('children: %s' % self.box.get_children())
         self.box.get_children()[0].set_expanded(True)  # expand first one
 
         self.widgets.notes_add_button.connect(
