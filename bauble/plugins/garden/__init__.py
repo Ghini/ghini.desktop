@@ -1,30 +1,60 @@
+# -*- coding: utf-8 -*-
 #
-# garden plugin
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+from sqlalchemy.orm import object_session, eagerload
+
 import bauble
+from bauble.i18n import _
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
-from bauble.plugins.garden.accession import *
-from bauble.plugins.garden.location import *
-from bauble.plugins.garden.plant import *
-from bauble.plugins.garden.source import *
-from bauble.plugins.garden.institution import *
-from bauble.plugins.garden.propagation import *
+from bauble.plugins.garden.accession import AccessionEditor, \
+    Accession, AccessionInfoBox, acc_context_menu, acc_markup_func
+from bauble.plugins.garden.location import LocationEditor, \
+    Location, LocationInfoBox, loc_context_menu, loc_markup_func
+from bauble.plugins.garden.plant import PlantEditor, \
+    Plant, PlantSearch, PlantInfoBox, plant_context_menu, plant_markup_func, \
+    plant_delimiter_key, default_plant_delimiter
+from bauble.plugins.garden.source import \
+    Source, SourceDetail, SourceDetailInfoBox, source_detail_context_menu, \
+    Collection, collection_context_menu, coll_markup_func
+from bauble.plugins.garden.institution import \
+    Institution, InstitutionCommand, InstitutionTool
+#from bauble.plugins.garden.propagation import *
 import bauble.search as search
 import re
+
+Institution  # fake usage to avoid 'Imported but unused' warning.
 
 # other ideas:
 # - cultivation table
 # - conservation table
 
+
 def natsort_kids(kids):
-    return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
+    return lambda(parent): sorted(getattr(parent, kids), key=utils.natsort_key)
 
 
 class GardenPlugin(pluginmgr.Plugin):
