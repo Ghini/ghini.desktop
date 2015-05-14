@@ -179,8 +179,10 @@ class PropertiesExpander(InfoExpander):
         """
         self.id_data.set_text(str(row.id))
         self.type_data.set_text(str(type(row).__name__))
-        self.created_data.set_text(str(row._created))
-        self.updated_data.set_text(str(row._last_updated))
+        self.created_data.set_text(
+            row._created.strftime('%Y-%m-%d %H:%m:%S'))
+        self.updated_data.set_text(
+            row._last_updated.strftime('%Y-%m-%d %H:%m:%S'))
 
 
 class InfoBoxPage(gtk.ScrolledWindow):
