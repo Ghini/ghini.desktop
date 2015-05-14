@@ -626,8 +626,8 @@ class SearchView(pluginmgr.View):
                 # don't bother with a task if the results are small,
                 # this keeps the screen from flickering when the main
                 # window is set to a busy state
-                #import time
-                #start = time.time()
+                import time
+                start = time.time()
                 if len(results) > 1000:
                     self.populate_results(results)
                 else:
