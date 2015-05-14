@@ -8,11 +8,14 @@ import os
 import sys
 import traceback
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 import gtk
 import gobject
-
 import pango
+
 from bauble.i18n import _
 from pyparsing import ParseException
 from sqlalchemy.orm import object_session
@@ -26,7 +29,6 @@ import bauble.pluginmgr as pluginmgr
 import bauble.prefs as prefs
 import bauble.search as search
 import bauble.utils as utils
-from bauble.utils.log import debug, warning
 
 # use different formatting template for the result view depending on the
 # platform
@@ -177,8 +179,10 @@ class PropertiesExpander(InfoExpander):
         """
         self.id_data.set_text(str(row.id))
         self.type_data.set_text(str(type(row).__name__))
-        self.created_data.set_text(str(row._created))
-        self.updated_data.set_text(str(row._last_updated))
+        self.created_data.set_text(
+            row._created.strftime('%Y-%m-%d %H:%m:%S'))
+        self.updated_data.set_text(
+            row._last_updated.strftime('%Y-%m-%d %H:%m:%S'))
 
 
 class InfoBoxPage(gtk.ScrolledWindow):
@@ -458,9 +462,9 @@ class SearchView(pluginmgr.View):
         try:
             self.set_infobox_from_row(values[0])
         except Exception, e:
-            debug('SearchView.update_infobox: %s' % e)
-            debug(traceback.format_exc())
-            debug(values)
+            logger.debug('SearchView.update_infobox: %s' % e)
+            logger.debug(traceback.format_exc())
+            logger.debug(values)
             self.set_infobox_from_row(None)
 
     def set_infobox_from_row(self, row):
@@ -471,7 +475,7 @@ class SearchView(pluginmgr.View):
         :param row: the row to use to update the infobox
         '''
         # remove the current infobox if there is one and stop
-#        debug('set_infobox_from_row: %s --  %s' % (row, repr(row)))
+        logger.debug('set_infobox_from_row: %s --  %s' % (row, repr(row)))
         if row is None:
             if self.infobox is not None and self.infobox.parent == self.pane:
                 self.pane.remove(self.infobox)
@@ -532,7 +536,7 @@ class SearchView(pluginmgr.View):
             # in instead of the original action.callback
             r = self.accel_group.disconnect_key(accel[0], accel[1])
             if not r:
-                warning('callback not removed: %s' % cb)
+                logger.warning('callback not removed: %s' % cb)
         self.installed_accels = []
 
         selected = self.get_selected_values()
@@ -563,7 +567,8 @@ class SearchView(pluginmgr.View):
                                                cb(action.callback))
                 self.installed_accels.append(((keyval, mod), action.callback))
             else:
-                warning('Could not parse accelerator: %s' % (action.accelerator))
+                logger.warning(
+                    'Could not parse accelerator: %s' % (action.accelerator))
 
     nresults_statusbar_context = 'searchview.nresults'
 
@@ -574,7 +579,7 @@ class SearchView(pluginmgr.View):
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match
-#        debug('SearchView.search(%s)' % text)
+        logger.debug('SearchView.search(%s)' % text)
         error_msg = None
         error_details_msg = None
         self.session.close()
@@ -588,7 +593,7 @@ class SearchView(pluginmgr.View):
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
-            #debug(traceback.format_exc())
+            logger.debug(traceback.format_exc())
             error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
             error_details_msg = utils.xml_safe_utf8(traceback.format_exc())
 
@@ -621,8 +626,8 @@ class SearchView(pluginmgr.View):
                 # don't bother with a task if the results are small,
                 # this keeps the screen from flickering when the main
                 # window is set to a busy state
-                #import time
-                #start = time.time()
+                import time
+                start = time.time()
                 if len(results) > 1000:
                     self.populate_results(results)
                 else:
@@ -632,7 +637,7 @@ class SearchView(pluginmgr.View):
                             task.next()
                         except StopIteration:
                             break
-                #debug(time.time() - start)
+                logger.debug(time.time() - start)
             except StopIteration:
                 return
             else:
@@ -669,14 +674,14 @@ class SearchView(pluginmgr.View):
             if len(kids) == 0:
                 return True
         except saexc.InvalidRequestError, e:
-            #debug(utils.utf8(e))
+            logger.debug(utils.utf8(e))
             model = self.results_view.get_model()
             for found in utils.search_tree_model(model, row):
                 model.remove(found)
             return True
         except Exception, e:
-            debug(utils.utf8(e))
-            debug(traceback.format_exc())
+            logger.debug(utils.utf8(e))
+            logger.debug(traceback.format_exc())
             return True
         else:
             self.append_children(model, treeiter, kids)
@@ -808,7 +813,8 @@ class SearchView(pluginmgr.View):
                                    _substr_tmpl % utils.utf8(substr)))
 
             except (saexc.InvalidRequestError, TypeError), e:
-                warning('bauble.view.SearchView.cell_data_func(): \n%s' % e)
+                logger.warning(
+                    'bauble.view.SearchView.cell_data_func(): \n%s' % e)
 
                 def remove():
                     model = self.results_view.get_model()
@@ -877,7 +883,7 @@ class SearchView(pluginmgr.View):
         except KeyError:
             menu = gtk.Menu()
             for action in self.view_meta[selected_type].actions:
-                #debug('path: %s' %  action.get_accel_path())
+                logger.debug('path: %s' %  action.get_accel_path())
                 item = action.create_menu_item()
 
                 def on_activate(item, cb):
@@ -893,8 +899,9 @@ class SearchView(pluginmgr.View):
                     except Exception, e:
                         msg = utils.xml_safe_utf8(str(e))
                         tb = utils.xml_safe_utf8(traceback.format_exc())
-                        utils.message_details_dialog(msg, tb, gtk.MESSAGE_ERROR)
-                        warning(traceback.format_exc())
+                        utils.message_details_dialog(
+                            msg, tb, gtk.MESSAGE_ERROR)
+                        logger.warning(traceback.format_exc())
                     if result:
                         self.reset_view()
 

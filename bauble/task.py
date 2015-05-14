@@ -45,7 +45,6 @@ schedule = fibra.schedule()
 
 __running = False
 __kill = False
-_context_id = None
 __message_ids = None
 
 
@@ -134,6 +133,7 @@ def set_message(msg):
     except NameError, e:  # context_id not defined
         logger.warning(e)
         _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
+        logger.warning("new context id: %s" % _context_id)
     msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
     __message_ids.append(msg_id)
     return msg_id
