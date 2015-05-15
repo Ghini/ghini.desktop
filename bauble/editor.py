@@ -1145,14 +1145,14 @@ class PictureBox(NoteBox):
         filename = fileChooserDialog.get_filename()
         if filename:
             import shutil
-            ## get the file's basename
-            basename = os.path.basename(filename)
-            ## copy file to picture_root_dir.
-            shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
+            ## copy file to picture_root_dir (if not yet there).
+            if not filename.startswith(prefs.prefs[prefs.picture_root_pref]):
+                shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
+            ## get dirname and basename from selected file, memorize dirname
+            self.last_folder, basename = os.path.split(filename)
             ## store basename in note field and fire callbacks.
             self.set_model_attr('note', basename)
             self.set_content(basename)
-            self.last_folder = os.path.dirname(filename)
         fileChooserDialog.destroy()
 
     def on_category_entry_changed(self, entry, *args):
