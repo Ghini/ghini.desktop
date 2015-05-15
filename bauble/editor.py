@@ -1140,19 +1140,25 @@ class PictureBox(NoteBox):
             _("Choose a file..."), None,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        fileChooserDialog.set_current_folder(self.last_folder)
-        fileChooserDialog.run()
-        filename = fileChooserDialog.get_filename()
-        if filename:
-            import shutil
-            ## copy file to picture_root_dir (if not yet there).
-            if not filename.startswith(prefs.prefs[prefs.picture_root_pref]):
-                shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
-            ## get dirname and basename from selected file, memorize dirname
-            self.last_folder, basename = os.path.split(filename)
-            ## store basename in note field and fire callbacks.
-            self.set_model_attr('note', basename)
-            self.set_content(basename)
+        try:
+            fileChooserDialog.set_current_folder(self.last_folder)
+            fileChooserDialog.run()
+            filename = fileChooserDialog.get_filename()
+            if filename:
+                import shutil
+                ## copy file to picture_root_dir (if not yet there).
+                if not filename.startswith(
+                        prefs.prefs[prefs.picture_root_pref]):
+                    shutil.copy(
+                        filename, prefs.prefs[prefs.picture_root_pref])
+                ## get dirname and basename from selected file, memorize
+                ## dirname
+                self.last_folder, basename = os.path.split(filename)
+                ## store basename in note field and fire callbacks.
+                self.set_model_attr('note', basename)
+                self.set_content(basename)
+        except Exception, e:
+            logger.warning("unhandled exception in editor.py: %s" % e)
         fileChooserDialog.destroy()
 
     def on_category_entry_changed(self, entry, *args):
