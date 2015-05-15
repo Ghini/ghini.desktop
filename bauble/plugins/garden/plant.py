@@ -29,7 +29,7 @@ from random import random
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
 
 import gtk
 
@@ -548,11 +548,11 @@ class Plant(db.Base):
         accession = Accession.retrieve_or_create(
             session, acc_keys)
 
-        acc_keys = {}
-        acc_keys.update(keys)
-        acc_keys['code'] = keys['location']
+        loc_keys = {}
+        loc_keys.update(keys)
+        loc_keys['code'] = keys['location']
         location = Location.retrieve_or_create(
-            session, acc_keys)
+            session, loc_keys)
 
         ## otherwise remove unexpected keys, create new object, add it to
         ## the session and finally do return it.

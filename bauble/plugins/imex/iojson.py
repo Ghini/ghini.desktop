@@ -19,6 +19,10 @@
 
 import os
 import gtk
+
+import logging
+logger = logging.getLogger(__name__)
+
 from bauble.i18n import _
 import bauble.utils as utils
 import bauble.db as db
@@ -128,10 +132,11 @@ class JSONImporter(object):
         n = len(objects)
         for i, obj in enumerate(objects):
             ## get class and remove reference
-            try:
-                klass = globals()[obj['object'].capitalize()]
-            except KeyError:
-                klass = globals()[obj['rank'].capitalize()]
+            klass = None
+            if 'object' in obj:
+                klass = globals().get(obj['object'].capitalize())
+            if klass is None and 'rank' in obj:
+                klass = globals().get(obj['rank'].capitalize())
                 del obj['rank']
             klass.retrieve_or_create(s, obj)  # adds, too
             pb_set_fraction(float(i) / n)

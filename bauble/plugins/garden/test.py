@@ -1399,3 +1399,27 @@ class FromAndToDictTest(GardenTestCase):
                            'location': 'wrong one',
                            'quantity': 1})
         self.assertEquals(plt.accession, acc)
+
+    def test_set_create_timestamp_european(self):
+        from location import Location
+        from datetime import datetime
+        ## insert an object with a timestamp
+        Location.retrieve_or_create(
+            self.session, {'code': '1',
+                           '_created': '10/12/2001'})
+        ## retrieve same object from other session
+        session = db.Session()
+        loc = Location.retrieve_or_create(session, {'code': '1', })
+        self.assertEquals(loc._created, datetime(2001, 12, 10))
+
+    def test_set_create_timestamp_iso8601(self):
+        from location import Location
+        from datetime import datetime
+        ## insert an object with a timestamp
+        Location.retrieve_or_create(
+            self.session, {'code': '1',
+                           '_created': '2001-12-10'})
+        ## retrieve same object from other session
+        session = db.Session()
+        loc = Location.retrieve_or_create(session, {'code': '1', })
+        self.assertEquals(loc._created, datetime(2001, 12, 10))
