@@ -6,25 +6,31 @@ import unittest
 import gtk
 
 from nose import SkipTest
-from sqlalchemy import *
-from sqlalchemy.exc import *
-from sqlalchemy.orm import *
+from sqlalchemy import and_
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import object_session
 
-import bauble
+#import bauble
 import bauble.db as db
 from bauble.test import BaubleTestCase, update_gui, check_dupids
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.plugins.garden.accession import *
-from bauble.plugins.garden.source import *
-from bauble.plugins.garden.plant import *
-from bauble.plugins.garden.location import *
-from bauble.plugins.garden.propagation import *
-from bauble.plugins.plants.family import *
-from bauble.plugins.plants.genus import *
-from bauble.plugins.plants.species_model import *
+from bauble.plugins.garden.accession import Accession, AccessionEditor, \
+    Voucher, SourcePresenter, Verification, dms_to_decimal, \
+    latitude_to_dms, longitude_to_dms
+from bauble.plugins.garden.source import Source, Collection, SourceDetail, \
+    SourceDetailEditor, CollectionPresenter
+from bauble.plugins.garden.plant import Plant, PlantNote, \
+    PlantChange, PlantEditor, is_code_unique, branch_callback
+from bauble.plugins.garden.location import Location, LocationEditor
+from bauble.plugins.garden.propagation import Propagation, PropRooted, \
+    PropCutting, PropSeed, PropagationEditor
+from bauble.plugins.plants.geography import Geography
+from bauble.plugins.plants.family import Family
+from bauble.plugins.plants.genus import Genus
+from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
-from bauble.plugins.garden.institution import *
+from bauble.plugins.garden.institution import Institution, InstitutionEditor
 import bauble.prefs as prefs
 
 
@@ -177,7 +183,6 @@ class ContactTests(GardenTestCase):
     def __init__(self, *args):
         super(ContactTests, self).__init__(*args)
 
-
     # def test_delete(self):
     #     acc = self.create(Accession, species=self.species, code=u'1')
     #     contact = Contact(name=u'name')
@@ -186,7 +191,6 @@ class ContactTests(GardenTestCase):
     #     acc.source = donation
     #     self.session.commit()
     #     self.session.close()
-
     #     # test that we can't delete a contact if it has corresponding
     #     # donations
     #     import bauble
@@ -203,20 +207,20 @@ class ContactTests(GardenTestCase):
     #     session.delete(contact)
     #     self.assertRaises(DBAPIError, session.commit)
 
-    def itest_contact_editor(self):
-        """
-        Interactively test the PlantEditor
-        """
-        loc = self.create(Contact, name=u'some contact')
-        editor = ContactEditor(model=loc)
-        editor.start()
-        del editor
-        assert utils.gc_objects_by_type('ContactEditor') == [], \
-            'ContactEditor not deleted'
-        assert utils.gc_objects_by_type('ContactEditorPresenter') == [], \
-            'ContactEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('ContactEditorView') == [], \
-            'ContactEditorView not deleted'
+    #def itest_contact_editor(self):
+    #    """
+    #    Interactively test the PlantEditor
+    #    """
+    #    loc = self.create(Contact, name=u'some contact')
+    #    editor = ContactEditor(model=loc)
+    #    editor.start()
+    #    del editor
+    #    assert utils.gc_objects_by_type('ContactEditor') == [], \
+    #        'ContactEditor not deleted'
+    #    assert utils.gc_objects_by_type('ContactEditorPresenter') == [], \
+    #        'ContactEditorPresenter not deleted'
+    #    assert utils.gc_objects_by_type('ContactEditorView') == [], \
+    #        'ContactEditorView not deleted'
 
 
 class PlantTests(GardenTestCase):
@@ -248,17 +252,14 @@ class PlantTests(GardenTestCase):
         # rollback the IntegrityError so tearDown() can do its job
         self.session.rollback()
 
-
     def test_delete(self):
         """
         TODO: Test that when a plant is deleted...
         """
         pass
 
-
     def test_editor_addnote(self):
         raise SkipTest('Not Implemented')
-
 
     def test_duplicate(self):
         """
@@ -278,7 +279,6 @@ class PlantTests(GardenTestCase):
         assert dup.notes is not []
         assert dup.changes is not []
         self.session.commit()
-
 
     def test_bulk_plant_editor(self):
         """
@@ -300,8 +300,8 @@ class PlantTests(GardenTestCase):
 
         for code in utils.range_builder(rng):
             q = self.session.query(Plant).join('accession').\
-                filter(and_(Accession.id==self.plant.accession.id,
-                            Plant.code==utils.utf8(code)))
+                filter(and_(Accession.id == self.plant.accession.id,
+                            Plant.code == utils.utf8(code)))
             self.assert_(not q.first(), 'code already exists')
 
         widgets = self.editor.presenter.view.widgets
@@ -322,11 +322,10 @@ class PlantTests(GardenTestCase):
 
         for code in utils.range_builder(rng):
             q = self.session.query(Plant).join('accession').\
-                filter(and_(Accession.id==self.plant.accession.id,
-                            Plant.code==utils.utf8(code)))
-            self.assert_(q.first(), 'plant %s.%s not created' % \
-                            (self.accession, code))
-
+                filter(and_(Accession.id == self.plant.accession.id,
+                            Plant.code == utils.utf8(code)))
+            self.assert_(q.first(), 'plant %s.%s not created' %
+                         (self.accession, code))
 
     def itest_editor(self):
         """
@@ -345,9 +344,8 @@ class PlantTests(GardenTestCase):
         self.session.add_all([loc, loc2, loc2a])
         self.session.commit()
         p = Plant(accession=self.accession, location=loc, quantity=1)
-        self.editor = PlantEditor(model=p)
+        editor = PlantEditor(model=p)
         editor.start()
-
 
     def test_branch_editor(self):
         try:
@@ -390,7 +388,8 @@ class PlantTests(GardenTestCase):
         self.session.refresh(self.plant)
         # test the quantity is updated on the original plant
         assert self.plant.quantity == quantity - new_plant.quantity, \
-            "%s == %s - %s" % (plant.quantity, quantity, new_plant.quantity)
+            "%s == %s - %s" % (self.plant.quantity, quantity,
+                               new_plant.quantity)
         # test the quantity for the change is the same as the quantity
         # for the plant
         assert new_plant.changes[0].quantity == new_plant.quantity, \
@@ -399,7 +398,6 @@ class PlantTests(GardenTestCase):
         # original plant
         assert new_plant.changes[0].parent_plant == self.plant, \
             'change.parent_plant != original plant'
-
 
     def itest_branch_callback(self):
         """
@@ -421,13 +419,13 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
         branch_callback([plant])
-        new_plant = self.session.query(Plant).filter(Plant.code!=u'1').first()
+        new_plant = self.session.query(Plant).filter(
+            Plant.code != u'1').first()
         self.session.refresh(plant)
         assert plant.quantity == quantity - new_plant.quantity, \
             "%s == %s - %s" % (plant.quantity, quantity, new_plant.quantity)
         assert new_plant.changes[0].quantity == new_plant.quantity, \
             "%s == %s" % (new_plant.changes[0].quantity, new_plant.quantity)
-
 
     def test_is_code_unique(self):
         """
@@ -439,23 +437,19 @@ class PlantTests(GardenTestCase):
         self.assertFalse(is_code_unique(self.plant, '01-2'))
 
 
-
-
 class PropagationTests(GardenTestCase):
-
 
     def __init__(self, *args):
         super(PropagationTests, self).__init__(*args)
 
-
     def setUp(self):
         super(PropagationTests, self).setUp()
-        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.accession = self.create(
+            Accession, species=self.species, code=u'1')
         # self.location = self.create(Location, name=u'name', code=u'code')
         # self.plant = self.create(Plant, accession=self.accession,
         #                          location=self.location, code=u'2')
         self.session.commit()
-
 
     def tearDown(self):
         #self.session.delete(self.location)
@@ -464,8 +458,8 @@ class PropagationTests(GardenTestCase):
         #self.session.begin()
         super(PropagationTests, self).tearDown()
 
-
-    def test_plant_prop(self):
+    def itest_accession_prop(self):
+        # 'Accession' object has no attribute 'propagations'
         """
         Test the Accession->AccessionPropagation->Propagation relation
         """
@@ -480,7 +474,6 @@ class PropagationTests(GardenTestCase):
         self.session.commit()
         self.assert_(prop in self.accession.propagations)
         self.assert_(prop.accession == self.accession)
-
 
     def test_plant_prop(self):
         """
@@ -497,7 +490,6 @@ class PropagationTests(GardenTestCase):
         self.session.commit()
         self.assert_(prop in plant.propagations)
         self.assert_(prop.plant == plant)
-
 
     def test_get_summary(self):
         loc = Location(name=u'name', code=u'code')
@@ -524,7 +516,6 @@ class PropagationTests(GardenTestCase):
         summary = prop.get_summary()
         #debug(summary)
         self.assert_(summary)
-
 
     def test_cutting_property(self):
         loc = Location(name=u'name', code=u'code')
@@ -554,7 +545,6 @@ class PropagationTests(GardenTestCase):
         self.assert_(not self.session.query(PropCutting).get(cutting_id))
         self.assert_(not self.session.query(PropRooted).get(rooted_id))
 
-
     def test_seed_property(self):
         loc = Location(name=u'name', code=u'code')
         plant = Plant(accession=self.accession, location=loc, code=u'1',
@@ -576,7 +566,6 @@ class PropagationTests(GardenTestCase):
         self.session.commit()
         self.assert_(not self.session.query(PropSeed).get(seed_id))
 
-
     def test_cutting_editor(self):
         loc = Location(name=u'name', code=u'code')
         plant = Plant(accession=self.accession, location=loc, code=u'1',
@@ -585,6 +574,7 @@ class PropagationTests(GardenTestCase):
         plant.propagations.append(propagation)
         self.editor = PropagationEditor(model=propagation)
         widgets = self.editor.presenter.view.widgets
+        self.assertTrue(widgets is not None)
         view = self.editor.presenter.view
         view.set_widget_value('prop_type_combo', u'UnrootedCutting')
         view.set_widget_value('prop_date_entry', utils.today_str())
@@ -601,9 +591,8 @@ class PropagationTests(GardenTestCase):
         self.assert_(model.prop_type == u'UnrootedCutting')
         for attr, value in default_cutting_values.iteritems():
             v = getattr(model._cutting, attr)
-            self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
+            self.assert_(v == value, '%s = %s(%s)' % (attr, value, v))
         self.editor.session.close()
-
 
     def test_seed_editor_commit(self):
         loc = Location(name=u'name', code=u'code')
@@ -648,14 +637,13 @@ class PropagationTests(GardenTestCase):
                 v = v.strftime(format)
                 if isinstance(expected, datetime.date):
                     expected = expected.strftime(format)
-            self.assert_(v==expected, '%s = %s(%s)' % (attr, expected, v))
+            self.assert_(v == expected, '%s = %s(%s)' % (attr, expected, v))
 
         for attr, expected in default_propagation_values.iteritems():
             v = getattr(propagation, attr)
-            self.assert_(v==expected, '%s = %s(%s)' % (attr, expected, v))
+            self.assert_(v == expected, '%s = %s(%s)' % (attr, expected, v))
 
         s.close()
-
 
     def test_seed_editor_load(self):
         loc = Location(name=u'name', code=u'code')
@@ -670,6 +658,7 @@ class PropagationTests(GardenTestCase):
         widgets = editor.presenter.view.widgets
         seed_presenter = editor.presenter._seed_presenter
         view = editor.presenter.view
+        self.assertTrue(view is not None)
 
         update_gui()
 
@@ -710,7 +699,6 @@ class PropagationTests(GardenTestCase):
             self.assert_(value == default,
                          '%s = %s (%s)' % (attr, value, default))
 
-
     def itest_editor(self):
         """
         Interactively test the PropagationEditor
@@ -725,7 +713,6 @@ class PropagationTests(GardenTestCase):
         self.assert_(propagation.accession)
 
 
-
 class VoucherTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -733,7 +720,8 @@ class VoucherTests(GardenTestCase):
 
     def setUp(self):
         super(VoucherTests, self).setUp()
-        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.accession = self.create(
+            Accession, species=self.species, code=u'1')
         self.session.commit()
 
     def tearDown(self):
@@ -771,11 +759,11 @@ class SourceTests(GardenTestCase):
 
     def setUp(self):
         super(SourceTests, self).setUp()
-        self.accession = self.create(Accession, species=self.species, code=u'1')
+        self.accession = self.create(
+            Accession, species=self.species, code=u'1')
 
     def tearDown(self):
         super(SourceTests, self).tearDown()
-
 
     def _make_prop(self, source):
         source.propagation = Propagation(prop_type=u'Seed')
@@ -791,7 +779,6 @@ class SourceTests(GardenTestCase):
         seed_id = source.propagation._seed.id
         cutting_id = source.propagation._cutting.id
         return prop_id, seed_id, cutting_id
-
 
     def test_propagation(self):
         """
@@ -812,7 +799,6 @@ class SourceTests(GardenTestCase):
         self.assert_(not self.session.query(PropCutting).get(cutting_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
 
-
     def test(self):
         """
         Test bauble.plugins.garden.Source and related properties
@@ -832,7 +818,7 @@ class SourceTests(GardenTestCase):
         source.collection = Collection(locale=u'locale')
         source.propagation = Propagation(prop_type=u'Seed')
         source.plant_propagation = plant.propagations[0]
-        source.accession = self.accession # test the source's accession property
+        source.accession = self.accession  # test source's accession property
         self.session.commit()
 
         # test that cascading works properly
@@ -840,7 +826,7 @@ class SourceTests(GardenTestCase):
         coll_id = source.collection.id
         prop_id = source.propagation.id
         plant_prop_id = source.plant_propagation.id
-        self.accession.source = None # tests the accessions source
+        self.accession.source = None  # tests the accessions source
         self.session.commit()
 
         # the Colection and Propagation should be
@@ -852,7 +838,6 @@ class SourceTests(GardenTestCase):
         # since they are independent of the source
         self.assert_(self.session.query(Propagation).get(plant_prop_id))
         self.assert_(self.session.query(SourceDetail).get(source_detail_id))
-
 
     def itest_details_editor(self):
         e = SourceDetailEditor()
@@ -869,7 +854,6 @@ class AccessionTests(GardenTestCase):
 
     def tearDown(self):
         super(AccessionTests, self).tearDown()
-
 
     def test_species_str(self):
         """
@@ -888,12 +872,12 @@ class AccessionTests(GardenTestCase):
         acc.id_qual_rank = 'sp'
         s = 'gen aff. sp'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         # here species.infrasp is None but we still allow the string
         acc.id_qual = 'cf.'
         acc.id_qual_rank = 'infrasp'
-        s = 'gen sp cf.'#' None'
+        s = 'gen sp cf.'  # ' None'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
@@ -903,21 +887,20 @@ class AccessionTests(GardenTestCase):
         acc.id_qual_rank = 'infrasp'
         s = 'gen sp(incorrect)'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.id_qual = 'forsan'
         acc.id_qual_rank = 'sp'
         s = 'gen sp(forsan)'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.species.set_infrasp(1, u'cv.', u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
         s = "gen sp cf. 'Cultivar'"
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
-
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         # test that the cached string is returned
 
@@ -934,7 +917,6 @@ class AccessionTests(GardenTestCase):
 #         acc.id_qual = 'aff.'
 #         acc.id_qual_rank = None
 #         self.assertRaises(CheckConditionError, acc.species_str)
-
 
     def test_delete(self):
         """
@@ -953,7 +935,6 @@ class AccessionTests(GardenTestCase):
         self.session.commit()
         self.assert_(not self.session.query(Plant).get(plant_id))
 
-
     def test_constraints(self):
         """
         Test the constraints on the accession table.
@@ -967,7 +948,6 @@ class AccessionTests(GardenTestCase):
         self.session.add(acc)
         self.assertRaises(IntegrityError, self.session.commit)
 
-
     def test_accession_source_editor(self, accession=None):
         acc = self.create(Accession, species=self.species, code=u'parent')
         plant = self.create(Plant, accession=acc, quantity=1,
@@ -978,7 +958,7 @@ class AccessionTests(GardenTestCase):
         plant.propagations.append(prop)
         self.session.commit()
         plant_prop_id = prop.id
-        assert plant_prop_id # assert we got a valid id after the commit
+        assert plant_prop_id  # assert we got a valid id after the commit
 
         acc = Accession(code=u'code', species=self.species)
         self.editor = AccessionEditor(acc)
@@ -1008,6 +988,7 @@ class AccessionTests(GardenTestCase):
 
         # select the first/only propagation in the treeview
         toggle_cell = widgets.prop_toggle_cell.emit('toggled', 0)
+        self.assertTrue(toggle_cell is None)
 
         # commit the changes and cleanup
         import gtk
@@ -1018,6 +999,7 @@ class AccessionTests(GardenTestCase):
         session = db.Session()
         acc = session.query(Accession).filter_by(code=u'code')[0]
         parent = session.query(Accession).filter_by(code=u'parent')[0]
+        self.assertTrue(parent is not None)
         assert acc.source.plant_propagation_id == plant_prop_id
 
     def test_accession_editor(self):
@@ -1036,10 +1018,11 @@ class AccessionTests(GardenTestCase):
 
         # fill in the completions
         widgets.acc_species_entry.set_text(str(self.species)[0:3])
-        update_gui() # ensures idle callback is called to add completions
+        update_gui()  # ensures idle callback is called to add completions
         # set the fill string which should match from completions
         widgets.acc_species_entry.set_text(str(self.species))
-        assert not self.editor.presenter.problems,self.editor.presenter.problems
+        assert not self.editor.presenter.problems, \
+            self.editor.presenter.problems
 
         # commit the changes and cleanup
         self.editor.model.name = u'asda'
@@ -1058,16 +1041,17 @@ class AccessionTests(GardenTestCase):
         self.session.commit()
         # import datetime again since sometimes i get an weird error
         import datetime
-        acc_code = '%s%s1' % (datetime.date.today().year, Plant.get_delimiter())
+        acc_code = '%s%s1' % (
+            datetime.date.today().year, Plant.get_delimiter())
         acc = self.create(Accession, species=self.species, code=acc_code)
         voucher = Voucher(herbarium=u'abcd', code=u'123')
         acc.vouchers.append(voucher)
-        prev = 0
+
         def mem(size="rss"):
             """Generalization; memory sizes: rss, rsz, vsz."""
             import os
-            return int(os.popen('ps -p %d -o %s | tail -1' % \
-                                    (os.getpid(), size)).read())
+            return int(os.popen('ps -p %d -o %s | tail -1' %
+                       (os.getpid(), size)).read())
 
         # add verificaiton
         ver = Verification()
@@ -1118,7 +1102,7 @@ class VerificationTests(GardenTestCase):
         self.session.add(acc)
         self.session.commit()
 
-        ver =  Verification()
+        ver = Verification()
         ver.verifier = u'me'
         ver.date = datetime.date.today()
         ver.level = 1
@@ -1258,10 +1242,10 @@ ALLOWED_DECIMAL_ERROR = 5
 THRESHOLD = .01
 
 # indexs into conversion_test_date
-DMS = 0 # DMS
-DEG_MIN_DEC = 1 # Deg with minutes decimal
-DEG_DEC = 2 # Degrees decimal
-UTM = 3 # Datum(wgs84/nad83 or nad27), UTM Zone, Easting, Northing
+DMS = 0  # DMS
+DEG_MIN_DEC = 1  # Deg with minutes decimal
+DEG_DEC = 2  # Degrees decimal
+UTM = 3  # Datum(wgs84/nad83 or nad27), UTM Zone, Easting, Northing
 
 # decimal points to accuracy in decimal degrees
 # 1 +/- 8000m
@@ -1273,20 +1257,20 @@ UTM = 3 # Datum(wgs84/nad83 or nad27), UTM Zone, Easting, Northing
 
 from decimal import Decimal
 dec = Decimal
-conversion_test_data = (((('N', 17, 21, dec(59)), # dms
+conversion_test_data = (((('N', 17, 21, dec(59)),  # dms
                           ('W', 89, 1, 41)),
-                         ((dec(17), dec('21.98333333')), # deg min_dec
+                         ((dec(17), dec('21.98333333')),  # deg min_dec
                           (dec(-89), dec('1.68333333'))),
-                         (dec('17.366389'), dec('-89.028056')), # dec deg
-                         (('wgs84', 16, 284513, 1921226))), # utm
+                         (dec('17.366389'), dec('-89.028056')),  # dec deg
+                         (('wgs84', 16, 284513, 1921226))),  # utm
                         \
-                        ((('S', 50, 19, dec('32.59')), # dms
+                        ((('S', 50, 19, dec('32.59')),  # dms
                           ('W', 74, 2, dec('11.6'))),
-                         ((dec(-50), dec('19.543166')), # deg min_dec
+                         ((dec(-50), dec('19.543166')),  # deg min_dec
                           (dec(-74), dec('2.193333'))),
-                         (dec('-50.325719'), dec('-74.036556')), # dec deg
-                          (('wgs84', 18, 568579, 568579)),
-                          (('nad27', 18, 568581, 4424928))),
+                         (dec('-50.325719'), dec('-74.036556')),  # dec deg
+                         (('wgs84', 18, 568579, 568579)),
+                         (('nad27', 18, 568581, 4424928))),
                         \
                         ((('N', 9, 0, dec('4.593384')),
                           ('W', 78, 3, dec('28.527984'))),
@@ -1299,7 +1283,7 @@ conversion_test_data = (((('N', 17, 21, dec(59)), # dms
                          ((49, dec('10.470')),
                           (-121, dec('40.650'))),
                          (dec('49.174444'), dec('-121.6775')))
-                         )
+                        )
 
 
 parse_lat_lon_data = ((('N', '17 21 59'), dec('17.366389')),
@@ -1399,3 +1383,27 @@ class FromAndToDictTest(GardenTestCase):
                            'location': 'wrong one',
                            'quantity': 1})
         self.assertEquals(plt.accession, acc)
+
+    def test_set_create_timestamp_european(self):
+        from location import Location
+        from datetime import datetime
+        ## insert an object with a timestamp
+        Location.retrieve_or_create(
+            self.session, {'code': '1',
+                           '_created': '10/12/2001'})
+        ## retrieve same object from other session
+        session = db.Session()
+        loc = Location.retrieve_or_create(session, {'code': '1', })
+        self.assertEquals(loc._created, datetime(2001, 12, 10))
+
+    def test_set_create_timestamp_iso8601(self):
+        from location import Location
+        from datetime import datetime
+        ## insert an object with a timestamp
+        Location.retrieve_or_create(
+            self.session, {'code': '1',
+                           '_created': '2001-12-10'})
+        ## retrieve same object from other session
+        session = db.Session()
+        loc = Location.retrieve_or_create(session, {'code': '1', })
+        self.assertEquals(loc._created, datetime(2001, 12, 10))
