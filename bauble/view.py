@@ -7,6 +7,7 @@ import itertools
 import os
 import sys
 import traceback
+import cgi
 
 import logging
 logger = logging.getLogger(__name__)
@@ -609,8 +610,8 @@ class SearchView(pluginmgr.View):
         statusbar.pop(sbcontext_id)
         if len(results) == 0:
             model = gtk.ListStore(str)
-            msg = bold % _('Couldn\'t find anything for search: "%s"') \
-                % text
+            msg = bold % cgi.escape(
+                _('Couldn\'t find anything for search: "%s"') % text)
             model.append([msg])
             self.results_view.set_model(model)
         else:
@@ -808,9 +809,10 @@ class SearchView(pluginmgr.View):
                 else:
                     main = utils.xml_safe(str(value))
                     substr = '(%s)' % type(value).__name__
-                cell.set_property('markup', '%s\n%s' %
-                                  (_mainstr_tmpl % utils.utf8(main),
-                                   _substr_tmpl % utils.utf8(substr)))
+                cell.set_property(
+                    'markup', '%s\n%s' %
+                    (_mainstr_tmpl % utils.utf8(main),
+                     _substr_tmpl % utils.utf8(substr)))
 
             except (saexc.InvalidRequestError, TypeError), e:
                 logger.warning(

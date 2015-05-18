@@ -1154,6 +1154,8 @@ class PictureBox(NoteBox):
                 ## get dirname and basename from selected file, memorize
                 ## dirname
                 self.last_folder, basename = os.path.split(filename)
+                ## make sure the category is <picture>
+                self.set_model_attr('category', u'<picture>')
                 ## store basename in note field and fire callbacks.
                 self.set_model_attr('note', basename)
                 self.set_content(basename)
