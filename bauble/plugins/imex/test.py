@@ -613,9 +613,20 @@ class JSONImportTests(BaubleTestCase):
         importer = JSONImporter()
         importer.start([self.temp_path])
         ## should check the logs
+        ## check the species is still not there
+        sp = self.session.query(Species).filter(
+            Species.sp == u'lawrenceae').join(Genus).filter(
+            Genus.genus == u'Aerides').all()
+        self.assertEquals(sp, [])
 
     def test_import_species_to_new_genus_and_family(self):
         "species referring to non existing genus (family is specified)"
+
+        ## precondition: the species is not there
+        sp = self.session.query(Species).filter(
+            Species.sp == u'lawrenceae').join(Genus).filter(
+            Genus.genus == u'Aerides').all()
+        self.assertEquals(sp, [])
 
         json_string = '[{"rank": "Species", "epithet": "lawrenceae", '\
             + '"ht-rank": "Genus", "ht-epithet": "Aerides", '\
@@ -625,13 +636,18 @@ class JSONImportTests(BaubleTestCase):
         importer = JSONImporter()
         importer.start([self.temp_path])
         self.session.commit()
+        ## postcondition: the species is there
         sp = self.session.query(Species).filter(
             Species.sp == u'lawrenceae').join(Genus).filter(
-            Genus.genus == u'Aerides').all()[0]
+            Genus.genus == u'Aerides').all()
+        self.assertEquals(len(sp), 1)
+        sp = sp[0]
         genus = self.session.query(Genus).filter(
             Genus.genus == u'Aerides').all()[0]
         family = self.session.query(Family).filter(
             Family.family == u'Orchidaceae').all()[0]
+        self.assertEquals(sp.genus, genus)
+        self.assertEquals(genus.family, family)
 
         # Calopogon tuberosus
         # Spiranthes delitescens Sheviak
