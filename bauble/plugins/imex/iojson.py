@@ -138,7 +138,11 @@ class JSONImporter(object):
             if klass is None and 'rank' in obj:
                 klass = globals().get(obj['rank'].capitalize())
                 del obj['rank']
-            klass.retrieve_or_create(s, obj)  # adds, too
+            try:
+                klass.retrieve_or_create(s, obj)  # adds, too
+            except Exception as e:
+                logger.warning("could not import %s (%s: %s)" %
+                               (obj, type(e).__name__, e.args))
             pb_set_fraction(float(i) / n)
             yield
         s.commit()

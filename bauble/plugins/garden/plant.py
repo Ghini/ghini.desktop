@@ -528,7 +528,8 @@ class Plant(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
         """return database object corresponding to keys
         """
 
@@ -539,8 +540,19 @@ class Plant(db.Base):
             cls.code == keys['code']).join(Accession).filter(
             Accession.code == keys['accession']).all()
 
+        from sqlalchemy.orm import class_mapper
         if is_in_session:
-            return is_in_session[0]
+            result = is_in_session[0]
+            if update:
+                if 'id' in keys:
+                    del keys['id']
+                for k, v in keys.items():
+                    if k in class_mapper(cls).mapped_table.c:
+                        setattr(result, k, v)
+            return result
+
+        if create is False:
+            return None
 
         acc_keys = {}
         acc_keys.update(keys)
@@ -557,7 +569,6 @@ class Plant(db.Base):
         ## otherwise remove unexpected keys, create new object, add it to
         ## the session and finally do return it.
 
-        from sqlalchemy.orm import class_mapper
         for k in keys.keys():
             if k not in class_mapper(cls).mapped_table.c:
                 del keys[k]

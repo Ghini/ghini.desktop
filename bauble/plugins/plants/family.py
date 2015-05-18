@@ -187,7 +187,8 @@ class Family(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
         """return database object corresponding to keys
         """
 
@@ -197,7 +198,12 @@ class Family(db.Base):
 
         if is_in_session:
             result = is_in_session[0]
+            if update:
+                pass
             return result
+
+        if create is False:
+            return None
 
         ## correct field names
         for internal, exchange in [('family', 'epithet')]:

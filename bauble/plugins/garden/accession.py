@@ -650,7 +650,8 @@ class Accession(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
         """return database object corresponding to keys
         """
 
@@ -659,13 +660,19 @@ class Accession(db.Base):
             cls.code == keys['code']).all()
 
         if is_in_session:
-            return is_in_session[0]
+            result = is_in_session[0]
+            if 'id' in keys:
+                del keys['id']
+            for k, v in keys.items():
+                if k in class_mapper(cls).mapped_table.c:
+                    setattr(result, k, v)
+            return result
 
         ## so it's not there yet. we can create it only if the accession
-        ## refers to a species. if it refers to genus or family we can't, so
-        ## we return None
+        ## refers to a taxon, which is a species, or a genus sp, or a
+        ## zzz-family sp.
 
-        if 'rank' not in keys:
+        if 'rank' not in keys or 'taxon' not in keys:
             return None
 
         ## now we must connect the accession to the species it refers to
@@ -678,6 +685,14 @@ class Accession(db.Base):
         elif keys['rank'] == 'genus':
             species = Species.retrieve_or_create(
                 session, {'ht-epithet': keys['taxon'],
+                          'epithet': 'sp'})
+        elif keys['rank'] == 'familia':
+            unknown_genus = 'Zzz-' + keys['taxon'][:-1]
+            Genus.retrieve_or_create(
+                session, {'ht-epithet': keys['taxon'],
+                          'epithet': unknown_genus})
+            species = Species.retrieve_or_create(
+                session, {'ht-epithet': unknown_genus,
                           'epithet': 'sp'})
         else:
             return None

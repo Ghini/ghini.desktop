@@ -144,7 +144,8 @@ class Location(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
         """return database object corresponding to keys
         """
         ## first try retrieving, use name

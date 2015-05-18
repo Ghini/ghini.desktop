@@ -20,6 +20,10 @@
 
 from itertools import chain
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
@@ -392,7 +396,8 @@ class Species(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
 
         from genus import Genus
         ## first try retrieving, just use species and genus fields
@@ -410,19 +415,31 @@ class Species(db.Base):
         if is_in_session:
             result = is_in_session[0]
 
-            ## update object and return it.
-            for k in keys.keys():
-                if k == 'id' or k not in class_mapper(cls).mapped_table.c:
-                    continue
-                setattr(result, k, keys[k])
+            if update:
+                ## update object and return it.
+                for k in keys.keys():
+                    if k == 'id' or k not in class_mapper(cls).mapped_table.c:
+                        continue
+                    setattr(result, k, keys[k])
             return result
+
+        if create is False:
+            return None
 
         ## otherwise we need a new object
 
         ## retrieve genus object
+        specifies_family = keys.get('familia')
         genus = Genus.retrieve_or_create(
             session, {'epithet': keys['ht-epithet'],
-                      'ht-epithet': keys.get('familia')})
+                      'ht-epithet': specifies_family},
+            create=(specifies_family is not None))
+
+        if genus is None:
+            logger.warning(
+                "cannot create Genus %s if you don't specify the family" %
+                keys['ht-epithet'])
+            return None
 
         ## remove unexpected keys, create new object, add it to the session
         ## and finally do return it.
