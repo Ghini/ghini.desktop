@@ -211,7 +211,8 @@ class Genus(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
 
         from family import Family
         ## first try retrieving, just use genus field
@@ -219,13 +220,19 @@ class Genus(db.Base):
             cls.genus == keys['epithet']).all()
 
         if is_in_session:
+            if update:
+                pass
             return is_in_session[0]
+
+        if create is False:
+            return None
 
         ## otherwise we need a new object
 
         ## retrieve family object we have to bind to
         family = Family.retrieve_or_create(
-            session, {'epithet': keys['ht-epithet']})
+            session, {'epithet': keys['ht-epithet']},
+            create=False)
 
         ## correct field names
         for internal, exchange in [('genus', 'epithet')]:

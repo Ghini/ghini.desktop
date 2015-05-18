@@ -605,23 +605,21 @@ class JSONImportTests(BaubleTestCase):
         self.assertEquals(previously, afterwards)
 
     def test_import_species_to_new_genus_fails(self):
-        "importing new species referring to non existing genus gives error \
-        (missing family)."
+        "importing new species referring to non existing genus logs a warning."
         json_string = '[{"rank": "Species", "epithet": "lawrenceae", \
 "ht-rank": "Genus", "ht-epithet": "Aerides", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
-        from sqlalchemy.exc import IntegrityError
-        self.assertRaises(IntegrityError, importer.start, [self.temp_path])
+        importer.start([self.temp_path])
+        ## should check the logs
 
     def test_import_species_to_new_genus_and_family(self):
-        "importing new species referring to non existing genus works if \
-        family is specified."
+        "species referring to non existing genus (family is specified)"
 
-        json_string = '[{"rank": "Species", "epithet": "lawrenceae", "ht-rank"\
-        : "Genus", "ht-epithet": "Aerides", "familia": "Orchidaceae", "author"\
-        : "Rchb. f."}]'
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", '\
+            + '"ht-rank": "Genus", "ht-epithet": "Aerides", '\
+            + '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
