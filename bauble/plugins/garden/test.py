@@ -1,3 +1,23 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
 import os
 import datetime
 import unittest
@@ -143,6 +163,7 @@ def test_duplicate_ids():
 
 
 class GardenTestCase(BaubleTestCase):
+    #{"ht-epithet": "Cactaceae", "author": "Link & Otto", "ht-rank": "familia", "object": "taxon", "epithet": "Echinocactus", "pub": "Verh. Vereins. Beförd. Gartenbaues Königl. Preuss. Staaten 3: 420.", "rank": "genus", "year": "1827"},
 
     def __init__(self, *args):
         super(GardenTestCase, self).__init__(*args)
@@ -151,10 +172,11 @@ class GardenTestCase(BaubleTestCase):
         super(GardenTestCase, self).setUp()
         plants_test.setUp_data()
         #setUp_test_data()
-        self.family = Family(family=u'fam')
-        self.genus = Genus(family=self.family, genus=u'gen')
-        self.species = Species(genus=self.genus, sp=u'sp')
-        self.session.add_all([self.family, self.genus, self.species])
+        self.family = Family(family=u'Cactaceae')
+        self.genus = Genus(family=self.family, genus=u'Echinocactus')
+        self.species = Species(genus=self.genus, sp=u'grusonii')
+        self.sp2 = Species(genus=self.genus, sp=u'texelensis')
+        self.session.add_all([self.family, self.genus, self.species, self.sp2])
         self.session.commit()
 
     def tearDown(self):
@@ -860,24 +882,24 @@ class AccessionTests(GardenTestCase):
         Test Accesion.species_str()
         """
         acc = self.create(Accession, species=self.species, code=u'1')
-        s = 'gen sp'
+        s = 'Echinocactus grusonii'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
         acc.id_qual = '?'
-        s = 'gen sp(?)'
+        s = 'Echinocactus grusonii(?)'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.id_qual = 'aff.'
         acc.id_qual_rank = 'sp'
-        s = 'gen aff. sp'
+        s = 'Echinocactus aff. grusonii'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         # here species.infrasp is None but we still allow the string
         acc.id_qual = 'cf.'
         acc.id_qual_rank = 'infrasp'
-        s = 'gen sp cf.'  # ' None'
+        s = 'Echinocactus grusonii cf.'  # ' None'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
@@ -885,20 +907,20 @@ class AccessionTests(GardenTestCase):
         # the end so it doesn't matter
         acc.id_qual = 'incorrect'
         acc.id_qual_rank = 'infrasp'
-        s = 'gen sp(incorrect)'
+        s = 'Echinocactus grusonii(incorrect)'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.id_qual = 'forsan'
         acc.id_qual_rank = 'sp'
-        s = 'gen sp(forsan)'
+        s = 'Echinocactus grusonii(forsan)'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.species.set_infrasp(1, u'cv.', u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
-        s = "gen sp cf. 'Cultivar'"
+        s = "Echinocactus grusonii cf. 'Cultivar'"
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
@@ -1407,3 +1429,100 @@ class FromAndToDictTest(GardenTestCase):
         session = db.Session()
         loc = Location.retrieve_or_create(session, {'code': '1', })
         self.assertEquals(loc._created, datetime(2001, 12, 10))
+
+
+class FromAndToDict_create_update_test(GardenTestCase):
+    "test the create and update fields in retrieve_or_create"
+
+    def setUp(self):
+        GardenTestCase.setUp(self)
+        acc = Accession(species=self.species, code=u'010203')
+        loc = Location(code=u'123')
+        loc2 = Location(code=u'213')
+        plt = Plant(accession=acc, code='1', quantity=1, location=loc)
+        self.session.add_all([acc, loc, loc2, plt])
+        self.session.commit()
+
+    def test_accession_nocreate_noupdate_noexisting(self):
+        # do not create if not existing
+        from accession import Accession
+        acc = Accession.retrieve_or_create(
+            self.session, {'code': '030201',
+                           'rank': 'species',
+                           'taxon': 'Echinocactus texelensis'},
+            create=False)
+        self.assertEquals(acc, None)
+
+    def test_accession_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        acc = Accession.retrieve_or_create(
+            self.session, {'code': '010203'},
+            create=False, update=False)
+        self.assertTrue(acc is not None)
+        self.assertEquals(acc.species, self.species)
+
+    def test_accession_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        acc = Accession.retrieve_or_create(
+            self.session, {'code': '010203',
+                           'rank': 'species',
+                           'taxon': 'Echinocactus texelensis'},
+            create=False, update=False)
+        self.assertEquals(acc.species, self.species)
+
+    def test_accession_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        acc = Accession.retrieve_or_create(
+            self.session, {'code': '010203',
+                           'rank': 'species',
+                           'taxon': 'Echinocactus texelensis'},
+            create=False, update=True)
+        self.assertEquals(acc.species, self.sp2)
+
+    def test_plant_nocreate_noupdate_noexisting(self):
+        # do not create if not existing
+        plt = Plant.retrieve_or_create(
+            self.session, {'accession': '010203',
+                           'code': '2',
+                           'quantity': 1,
+                           'location': '123'},
+            create=False)
+        self.assertEquals(plt, None)
+
+    def test_plant_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        plt = Plant.retrieve_or_create(
+            self.session, {'accession': '010203',
+                           'code': '1'},
+            create=False, update=False)
+        self.assertTrue(plt is not None)
+        self.assertEquals(plt.quantity, 1)
+
+    def test_plant_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        plt = Plant.retrieve_or_create(
+            self.session, {'accession': '010203',
+                           'code': '1',
+                           'quantity': 3},
+            create=False, update=False)
+        self.assertTrue(plt is not None)
+        self.assertEquals(plt.quantity, 1)
+
+    def test_plant_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        plt = Plant.retrieve_or_create(
+            self.session, {'accession': '010203',
+                           'code': '1',
+                           'quantity': 3},
+            create=False, update=True)
+        self.assertTrue(plt is not None)
+        self.assertEquals(plt.quantity, 3)
+        self.assertEquals(plt.location.code, '123')
+        plt = Plant.retrieve_or_create(
+            self.session, {'accession': '010203',
+                           'code': '1',
+                           'location': '213'},
+            create=False, update=True)
+        self.assertTrue(plt is not None)
+        self.assertTrue(plt.location is not None)
+        self.assertEquals(plt.location.code, '213')
