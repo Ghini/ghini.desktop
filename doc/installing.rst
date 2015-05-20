@@ -62,14 +62,14 @@ Installing on Linux
 Installing on MacOSX
 ====================
 
-Being MacOSX a unix environment, most things work the same as on Linux (sort
-of).  
+Being MacOSX a unix environment, most things will work the same as on Linux
+(sort of).
 
 One difficulty is that there are many more versions of MacOSX out
 there than one would want to support, and only the current and its
-immediately preceding release can be updated with the newest of the newest.
+immediately preceding release are kept up-to-date by Apple.
 
-We are testing 10.5 and 10.9.
+We are testing 10.9 (up-to-date) and 10.5 (obsolete).
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
@@ -78,11 +78,15 @@ environment, but which are missing in a off-the-shelf mac:
    supported on your mac.
 #. package manager: get homebrew (or tigerbrew).
 
-next, use the package manager to install::
+with the above installed, first make sure you have a recent Python, or
+update it::
+
+    brew install python
+
+then install the remaining dependencies::
 
     brew install git
     brew install pygtk
-    brew install python
     brew install virtualenv
 
 .. rubric:: Next...
