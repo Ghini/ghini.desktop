@@ -25,6 +25,11 @@ class CommitException(Exception):
         return str(self.exc)
 
 
+class NoResultException(BaubleError):
+    ## use this exception if the caller should return None
+    pass
+
+
 class DatabaseError(BaubleError):
     pass
 
