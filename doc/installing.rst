@@ -62,8 +62,28 @@ Installing on Linux
 Installing on MacOSX
 ====================
 
-Being MacOSX a unix environment, most stuff should work just like in
-Linux, but we've never tried. Feedback highly welcome.
+Being MacOSX a unix environment, most things work the same as on Linux (sort
+of).  
+
+One difficulty is that there are many more versions of MacOSX out
+there than one would want to support, and only the current and its
+immediately preceding release can be updated with the newest of the newest.
+
+We are testing 10.5 and 10.9.
+
+First of all, you need things which are an integral part of a unix
+environment, but which are missing in a off-the-shelf mac:
+
+#. developers tools: xcode. check the wikipedia page for the version
+   supported on your mac.
+#. package manager: get homebrew (or tigerbrew).
+
+next, use the package manager to install::
+
+    brew install git
+    brew install pygtk
+    brew install python
+    brew install virtualenv
 
 .. rubric:: Next...
 
