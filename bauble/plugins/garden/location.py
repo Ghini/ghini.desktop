@@ -96,7 +96,7 @@ def loc_markup_func(location):
         return utils.xml_safe(str(location))
 
 
-class Location(db.Base):
+class Location(db.Base, db.Serializable):
     """
     :Table name: location
 
@@ -133,43 +133,10 @@ class Location(db.Base):
 
         return False
 
-    def as_dict(self):
-        result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
-                      if col not in ['id']
-                      and col[0] != '_'
-                      and getattr(self, col) is not None
-                      and not col.endswith('_id'))
-        result['object'] = 'location'
-        return result
-
     @classmethod
-    def retrieve_or_create(cls, session, keys,
-                           create=True, update=True):
-        """return database object corresponding to keys
-        """
-        ## first try retrieving, use name
-        is_in_session = session.query(cls).filter(
+    def retrieve(cls, session, keys):
+        return session.query(cls).filter(
             cls.code == keys['code']).all()
-
-        if is_in_session:
-            return is_in_session[0]
-
-        ## otherwise remove unexpected keys, create new object, add it to
-        ## the session and finally do return it.
-
-        from sqlalchemy.orm import class_mapper
-        for k in keys.keys():
-            if k not in class_mapper(cls).mapped_table.c:
-                del keys[k]
-        if 'id' in keys:
-            del keys['id']
-
-        result = cls(**keys)
-        session.add(result)
-        session.flush()
-
-        return result
 
 
 class LocationEditorView(GenericEditorView):

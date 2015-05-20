@@ -1,5 +1,27 @@
-#  Copyright (c) 2005,2006,2007,2008  Brett Adams <brett@belizebotanic.org>
-#  This is free software, see GNU General Public License v2 for details.
+# -*- coding: utf-8 -*-
+#
+# Copyright 2005-2010 Brett Adams <brett@belizebotanic.org>
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
+import logging
+logger = logging.getLogger(__name__)
+
+from sqlalchemy.orm import class_mapper
 
 import datetime
 import os
@@ -400,3 +422,83 @@ def verify_connection(engine, show_error_dialogs=False):
 
     session.close()
     return True
+
+
+class Serializable:
+    def as_dict(self):
+        result = dict((col, getattr(self, col))
+                      for col in self.__table__.columns.keys()
+                      if col not in ['id']
+                      and col[0] != '_'
+                      and getattr(self, col) is not None
+                      and not col.endswith('_id'))
+        result['object'] = self.__class__.__name__.lower()
+        return result
+
+    @classmethod
+    def correct_field_names(cls, keys):
+        """correct keys dictionary according to class attributes
+
+        exchange format may use different keys than class attributes
+        """
+        pass
+
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        """create objects corresponding to keys (class dependent)
+        """
+        return {}
+
+    @classmethod
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
+        """return database object corresponding to keys
+        """
+
+        logger.debug('initial value of keys: %s' % keys)
+        ## first try retrieving
+        is_in_session = cls.retrieve(session, keys)
+
+        if not create and not is_in_session:
+            logger.debug('returning None (1)')
+            return None
+
+        if is_in_session and not update:
+            logger.debug("returning existing %s" % is_in_session)
+            return is_in_session[0]
+
+        try:
+            ## what fields are associated to objects
+            extradict = cls.compute_serializable_fields(
+                session, keys)
+
+            ## what fields must be corrected
+            cls.correct_field_names(keys)
+        except error.NoResultException:
+            return None
+
+        for k in keys.keys():
+            if k not in class_mapper(cls).mapped_table.c:
+                del keys[k]
+        if 'id' in keys:
+            del keys['id']
+
+        keys.update(extradict)
+
+        if is_in_session and update:
+            result = is_in_session[0]
+            logger.debug("going to update %s with %s" % (result, keys))
+            if 'id' in keys:
+                del keys['id']
+            for k, v in keys.items():
+                if v is not None:
+                    setattr(result, k, v)
+            logger.debug('returning existing %s' % result)
+            return result
+
+        result = cls(**keys)
+        session.add(result)
+        session.flush()
+
+        logger.debug('returning new %s' % result)
+        return result
