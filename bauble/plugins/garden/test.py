@@ -36,7 +36,7 @@ from bauble.test import BaubleTestCase, update_gui, check_dupids
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
-    Voucher, SourcePresenter, Verification, dms_to_decimal, \
+    AccessionNote, Voucher, SourcePresenter, Verification, dms_to_decimal, \
     latitude_to_dms, longitude_to_dms
 from bauble.plugins.garden.source import Source, Collection, SourceDetail, \
     SourceDetailEditor, CollectionPresenter
@@ -163,7 +163,6 @@ def test_duplicate_ids():
 
 
 class GardenTestCase(BaubleTestCase):
-    #{"ht-epithet": "Cactaceae", "author": "Link & Otto", "ht-rank": "familia", "object": "taxon", "epithet": "Echinocactus", "pub": "Verh. Vereins. Beförd. Gartenbaues Königl. Preuss. Staaten 3: 420.", "rank": "genus", "year": "1827"},
 
     def __init__(self, *args):
         super(GardenTestCase, self).__init__(*args)
@@ -1362,7 +1361,6 @@ class FromAndToDictTest(GardenTestCase):
     """
 
     def test_add_accession_at_species_rank(self):
-        from accession import Accession
         acc = Accession.retrieve_or_create(
             self.session, {'code': '010203',
                            'rank': 'species',
@@ -1370,7 +1368,6 @@ class FromAndToDictTest(GardenTestCase):
         self.assertEquals(acc.species, self.species)
 
     def test_add_accession_at_genus_rank(self):
-        from accession import Accession
         acc = Accession.retrieve_or_create(
             self.session, {'code': '010203',
                            'rank': 'genus',
@@ -1378,8 +1375,6 @@ class FromAndToDictTest(GardenTestCase):
         self.assertEquals(acc.species.genus, self.genus)
 
     def test_add_plant(self):
-        from accession import Accession
-        from plant import Plant
         acc = Accession.retrieve_or_create(
             self.session, {'code': '010203',
                            'rank': 'species',
@@ -1392,7 +1387,6 @@ class FromAndToDictTest(GardenTestCase):
         self.assertEquals(plt.accession, acc)
 
     def test_set_create_timestamp_european(self):
-        from location import Location
         from datetime import datetime
         ## insert an object with a timestamp
         Location.retrieve_or_create(
@@ -1404,7 +1398,6 @@ class FromAndToDictTest(GardenTestCase):
         self.assertEquals(loc._created, datetime(2001, 12, 10))
 
     def test_set_create_timestamp_iso8601(self):
-        from location import Location
         from datetime import datetime
         ## insert an object with a timestamp
         Location.retrieve_or_create(
@@ -1510,3 +1503,69 @@ class FromAndToDict_create_update_test(GardenTestCase):
         self.assertTrue(plt is not None)
         self.assertTrue(plt.location is not None)
         self.assertEquals(plt.location.code, '213')
+
+
+class AccessionNotesSerializeTest(GardenTestCase):
+    ## for the sake of retrieve_or_update, we consider as keys:
+    ## accession, category, and date.
+
+    def setUp(self):
+        GardenTestCase.setUp(self)
+        acc = Accession(species=self.species, code=u'010203')
+        self.session.add(acc)
+        self.session.flush()
+        note1 = AccessionNote(accession=acc, category=u'factura',
+                              date='2014-01-01', note=u'992288')
+        note2 = AccessionNote(accession=acc, category=u'foto',
+                              date='2014-01-01', note=u'file://')
+        self.session.add_all([note1, note2])
+        self.session.commit()
+
+    def test_accession_note_nocreate_noupdate_noexisting(self):
+        # do not create if not existing
+        obj = AccessionNote.retrieve_or_create(
+            self.session, {'object': 'accession_note',
+                           'accession': '010203',
+                           'category': 'newcat',
+                           'date': '2014-01-01',
+                           },
+            create=False)
+        self.assertTrue(obj is None)
+
+    def test_accession_note_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = AccessionNote.retrieve_or_create(
+            self.session, {'object': 'accession_note',
+                           'accession': '010203',
+                           'category': 'foto',
+                           'date': '2014-01-01',
+                           },
+            create=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.note, u"file://")
+
+    def test_accession_note_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = AccessionNote.retrieve_or_create(
+            self.session, {'object': 'accession_note',
+                           'accession': '010203',
+                           'category': 'foto',
+                           'date': '2014-01-01',
+                           'note': 'url://'
+                           },
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.note, u"file://")
+
+    def test_accession_note_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = AccessionNote.retrieve_or_create(
+            self.session, {'object': 'accession_note',
+                           'accession': '010203',
+                           'category': 'foto',
+                           'date': '2014-01-01',
+                           'note': 'url://'
+                           },
+            create=False, update=True)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.note, u"url://")
