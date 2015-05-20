@@ -475,7 +475,10 @@ class Serializable:
             ## what fields must be corrected
             cls.correct_field_names(keys)
         except error.NoResultException:
-            return None
+            if not is_in_session:
+                return None
+            else:
+                extradict = {}
 
         for k in keys.keys():
             if k not in class_mapper(cls).mapped_table.c:

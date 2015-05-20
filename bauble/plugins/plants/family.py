@@ -193,6 +193,7 @@ class Family(db.Base, db.Serializable):
     def as_dict(self):
         result = db.Serializable.as_dict(self)
         del result['family']
+        del result['qualifier']
         result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.family

@@ -1361,44 +1361,29 @@ class FromAndToDictTest(GardenTestCase):
     """tests the retrieve_or_create and the as_dict methods
     """
 
-    def test_add_accession(self):
+    def test_add_accession_at_species_rank(self):
         from accession import Accession
-        encc = Species.retrieve_or_create(
-            self.session, {'ht-rank': 'genus',
-                           'ht-epithet': 'Encyclia',
-                           'rank': 'species',
-                           'epithet': 'cochleata'})
         acc = Accession.retrieve_or_create(
             self.session, {'code': '010203',
                            'rank': 'species',
-                           'taxon': 'Encyclia cochleata'})
-        self.assertEquals(acc.species, encc)
+                           'taxon': 'Echinocactus grusonii'})
+        self.assertEquals(acc.species, self.species)
 
-    def test_add_accession_at_genus_level(self):
+    def test_add_accession_at_genus_rank(self):
         from accession import Accession
-        enc = Genus.retrieve_or_create(
-            self.session, {'ht-rank': 'familia',
-                           'ht-epithet': 'Orchidaceae',
-                           'rank': 'genus',
-                           'epithet': 'Encyclia'})
         acc = Accession.retrieve_or_create(
             self.session, {'code': '010203',
                            'rank': 'genus',
-                           'taxon': 'Encyclia'})
-        self.assertEquals(acc.species.genus, enc)
+                           'taxon': 'Echinocactus'})
+        self.assertEquals(acc.species.genus, self.genus)
 
     def test_add_plant(self):
         from accession import Accession
         from plant import Plant
-        Species.retrieve_or_create(
-            self.session, {'ht-rank': 'genus',
-                           'ht-epithet': 'Encyclia',
-                           'rank': 'species',
-                           'epithet': 'cochleata'})
         acc = Accession.retrieve_or_create(
             self.session, {'code': '010203',
                            'rank': 'species',
-                           'taxon': 'Encyclia cochleata'})
+                           'taxon': 'Echinocactus grusonii'})
         plt = Plant.retrieve_or_create(
             self.session, {'accession': '010203',
                            'code': '1',
@@ -1445,7 +1430,6 @@ class FromAndToDict_create_update_test(GardenTestCase):
 
     def test_accession_nocreate_noupdate_noexisting(self):
         # do not create if not existing
-        from accession import Accession
         acc = Accession.retrieve_or_create(
             self.session, {'code': '030201',
                            'rank': 'species',
