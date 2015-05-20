@@ -574,11 +574,12 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_ignores_id_new(self):
         "importing taxon disregards id value if present (new taxon)."
-        self.assertRaises(KeyError, Genus.retrieve_or_create,
-                          self.session, {'epithet': u"Neogyna"})
-        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank"\
-        : "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f.", \
-        "id": 1}]'
+        previously = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Neogyna"})
+        self.assertEquals(previously, None)
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", '\
+            '"ht-rank": "Familia", "ht-epithet": "Orchidaceae", '\
+            '"author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
@@ -593,7 +594,9 @@ class JSONImportTests(BaubleTestCase):
         previously = Species.retrieve_or_create(self.session,
                                                 {'ht-epithet': u"Calopogon",
                                                  'epithet': u"tuberosus"}).id
-        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, "id": 8}]'
+        json_string = '[{"rank": "Species", "epithet": "tuberosus", '\
+            '"ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, '\
+            '"id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()

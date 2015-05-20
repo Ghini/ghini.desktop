@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Genera table module
 #
@@ -11,7 +30,7 @@ import gtk
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
     UnicodeText, func, and_, UniqueConstraint, String
-from sqlalchemy.orm import relation, backref, class_mapper
+from sqlalchemy.orm import relation, backref
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -19,6 +38,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from bauble.i18n import _
 import bauble
 import bauble.db as db
+import bauble.error as error
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
@@ -31,9 +51,6 @@ import bauble.view as view
 
 # TODO: warn the user that a duplicate genus name is being entered
 # even if only the author or qualifier is different
-
-# TODO: should be a higher_taxon column that holds values into
-# subgen, subfam, tribes etc, maybe this should be included in Genus
 
 # TODO: since there can be more than one genus with the same name but
 # different authors we need to show the Genus author in the result
@@ -106,7 +123,7 @@ def genus_markup_func(genus):
     return utils.xml_safe(genus), utils.xml_safe(genus.family)
 
 
-class Genus(db.Base):
+class Genus(db.Base, db.Serializable):
     """
     :Table name: genus
 
@@ -197,12 +214,9 @@ class Genus(db.Base):
         return False
 
     def as_dict(self):
-        result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
-                      if col not in ['id', 'genus', 'qualifier']
-                      and col[0] != '_'
-                      and getattr(self, col) is not None
-                      and not col.endswith('_id'))
+        result = db.Serializable.as_dict(self)
+        del result['genus']
+        del result['qualifier']
         result['object'] = 'taxon'
         result['rank'] = 'genus'
         result['epithet'] = self.genus
@@ -211,51 +225,29 @@ class Genus(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys,
-                           create=True, update=True):
-
-        from family import Family
-        ## first try retrieving, just use genus field
-        is_in_session = session.query(cls).filter(
+    def retrieve(cls, session, keys):
+        return session.query(cls).filter(
             cls.genus == keys['epithet']).all()
 
-        if is_in_session:
-            if update:
-                pass
-            return is_in_session[0]
-
-        if create is False:
-            return None
-
-        ## otherwise we need a new object
-
-        ## retrieve family object we have to bind to
-        family = Family.retrieve_or_create(
-            session, {'epithet': keys['ht-epithet']},
-            create=False)
-
-        ## correct field names
-        for internal, exchange in [('genus', 'epithet')]:
+    @classmethod
+    def correct_field_names(cls, keys):
+        for internal, exchange in [('genus', 'epithet'),
+                                   ('family', 'ht-epithet')]:
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]
 
-        ## remove unexpected keys, create new object, add it to the session
-        ## and finally do return it.
-
-        for k in keys.keys():
-            if k not in class_mapper(cls).mapped_table.c:
-                del keys[k]
-        if 'id' in keys:
-            del keys['id']
-
-        ## reconstruct connection to higher taxon
-        keys['family'] = family
-
-        result = cls(**keys)
-        session.add(result)
-        session.flush()
-
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        from family import Family
+        result = {'family': None}
+        ## retrieve family object
+        if keys.get('ht-epithet'):
+            result['family'] = Family.retrieve_or_create(
+                session, {'epithet': keys['ht-epithet']},
+                create=True)
+        if result['family'] is None:
+            raise error.NoResultException()
         return result
 
 
