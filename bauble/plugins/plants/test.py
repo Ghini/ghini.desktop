@@ -941,3 +941,64 @@ class FromAndToDict_create_update_test(PlantTestCase):
                            'qualifier': 's. lat.'},
             create=False, update=True)
         self.assertEquals(obj.qualifier, 's. lat.')
+
+    def test_genus_nocreate_noupdate_noexisting_impossible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_genus_create_noupdate_noexisting_impossible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia'},
+            create=True)
+        self.assertEquals(obj, None)
+
+    def test_genus_nocreate_noupdate_noexisting_possible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia',
+                           'ht-rank': 'familia',
+                           'ht-epithet': 'Orchidaceae'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_genus_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, '')
+
+    def test_genus_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria',
+                           'author': 'Schltr.'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, '')
+
+    def test_genus_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria',
+                           'author': 'Schltr.'},
+            create=False, update=True)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, 'Schltr.')
