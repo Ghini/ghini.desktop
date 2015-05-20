@@ -401,7 +401,7 @@ recvd_type_values = {
     }
 
 
-class AccessionNote(db.Base):
+class AccessionNote(db.Base, db.Serializable):
     """
     Notes for the accession table
     """
@@ -416,6 +416,18 @@ class AccessionNote(db.Base):
     accession = relation(
         'Accession', uselist=False,
         backref=backref('notes', cascade='all, delete-orphan'))
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        q = session.query(cls)
+        if 'accession' in keys:
+            q = q.join(Accession).filter(
+                Accession.code == keys['accession'])
+        if 'date' in keys:
+            q = q.filter(cls.date == keys['date'])
+        if 'category' in keys:
+            q = q.filter(cls.category == keys['category'])
+        return q.all()
 
 
 class Accession(db.Base, db.Serializable):
