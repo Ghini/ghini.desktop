@@ -932,7 +932,7 @@ class FromAndToDict_create_update_test(PlantTestCase):
             create=False, update=False)
         self.assertEquals(obj.qualifier, 's. str.')
 
-    def itest_family_nocreate_updatediff_existing(self):
+    def test_family_nocreate_updatediff_existing(self):
         ## update object in self.session
         obj = Family.retrieve_or_create(
             self.session, {'object': 'taxon',
