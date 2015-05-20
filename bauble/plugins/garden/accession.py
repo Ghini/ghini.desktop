@@ -429,6 +429,21 @@ class AccessionNote(db.Base, db.Serializable):
             q = q.filter(cls.category == keys['category'])
         return q.all()
 
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        result = {'accession': None}
+
+        acc_keys = {}
+        acc_keys.update(keys)
+        acc_keys['code'] = keys['accession']
+        accession = Accession.retrieve_or_create(
+            session, acc_keys, create=(
+                'taxon' in acc_keys and 'rank' in acc_keys))
+
+        result['accession'] = accession
+
+        return result
+
 
 class Accession(db.Base, db.Serializable):
     """
