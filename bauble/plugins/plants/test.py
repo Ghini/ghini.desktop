@@ -1,6 +1,22 @@
 # -*- coding: utf-8 -*-
 #
-# test.py
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: test for the Plant plugin
 #
@@ -50,7 +66,7 @@ if sys.platform == 'win32':
 
 
 family_test_data = ({'id': 1, 'family': 'Orchidaceae'},
-                    {'id': 2, 'family': 'Leguminosae'},
+                    {'id': 2, 'family': 'Leguminosae', 'qualifier': 's. str.'},
                     {'id': 3, 'family': 'Polypodiaceae'})
 
 genus_test_data = ({'id': 1, 'genus': 'Maxillaria', 'family_id': 1},
@@ -882,3 +898,107 @@ class FromAndToDictTest(PlantTestCase):
                            'rank': 'genus',
                            'epithet': 'Encyclia'})
         self.assertEquals(set(all_genera_orc), set([mxl, enc]))
+
+
+class FromAndToDict_create_update_test(PlantTestCase):
+    "test the create and update fields in retrieve_or_create"
+
+    def test_family_nocreate_noupdate_noexisting(self):
+        # do not create if not existing
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Arecaceae'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_family_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Leguminosae'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.qualifier, 's. str.')
+
+    def test_family_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Leguminosae',
+                           'qualifier': 's. lat.'},
+            create=False, update=False)
+        self.assertEquals(obj.qualifier, 's. str.')
+
+    def test_family_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Leguminosae',
+                           'qualifier': 's. lat.'},
+            create=False, update=True)
+        self.assertEquals(obj.qualifier, 's. lat.')
+
+    def test_genus_nocreate_noupdate_noexisting_impossible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_genus_create_noupdate_noexisting_impossible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia'},
+            create=True)
+        self.assertEquals(obj, None)
+
+    def test_genus_nocreate_noupdate_noexisting_possible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia',
+                           'ht-rank': 'familia',
+                           'ht-epithet': 'Orchidaceae'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_genus_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, '')
+
+    def test_genus_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria',
+                           'author': 'Schltr.'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, '')
+
+    def test_genus_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria',
+                           'author': 'Schltr.'},
+            create=False, update=True)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, 'Schltr.')

@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Family table definition
 #
@@ -99,7 +118,7 @@ def family_markup_func(family):
 #
 # Family
 #
-class Family(db.Base):
+class Family(db.Base, db.Serializable):
     """
     :Table name: family
 
@@ -116,9 +135,6 @@ class Family(db.Base):
                 * s. str.: segregate family (senso stricto)
 
                 * '': the empty string
-
-        *notes*:
-            Free text notes about the family.
 
     :Properties:
         *synonyms*:
@@ -175,56 +191,25 @@ class Family(db.Base):
         return False
 
     def as_dict(self):
-        result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
-                      if col not in ['id', 'family', 'qualifier']
-                      and col[0] != '_'
-                      and getattr(self, col) is not None
-                      and not col.endswith('_id'))
+        result = db.Serializable.as_dict(self)
+        del result['family']
+        del result['qualifier']
         result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.family
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys,
-                           create=True, update=True):
-        """return database object corresponding to keys
-        """
-
-        ## first try retrieving, just use genus and sp fields
-        is_in_session = session.query(cls).filter(
+    def retrieve(cls, session, keys):
+        return session.query(cls).filter(
             cls.family == keys['epithet']).all()
 
-        if is_in_session:
-            result = is_in_session[0]
-            if update:
-                pass
-            return result
-
-        if create is False:
-            return None
-
-        ## correct field names
+    @classmethod
+    def correct_field_names(cls, keys):
         for internal, exchange in [('family', 'epithet')]:
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]
-
-        ## otherwise remove unexpected keys, create new object, add it to
-        ## the session and finally do return it.
-
-        for k in keys.keys():
-            if k not in class_mapper(cls).mapped_table.c:
-                del keys[k]
-        if 'id' in keys:
-            del keys['id']
-
-        result = cls(**keys)
-        session.add(result)
-        session.flush()
-
-        return result
 
 
 ## defining the latin alias to the class.

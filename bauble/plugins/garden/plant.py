@@ -380,7 +380,7 @@ acc_type_values = {u'Plant': _('Plant'),
                    None: ''}
 
 
-class Plant(db.Base):
+class Plant(db.Base, db.Serializable):
     """
     :Table name: plant
 
@@ -517,72 +517,42 @@ class Plant(db.Base):
                                 self.accession.species_str(markup=True))
 
     def as_dict(self):
-        result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
-                      if col not in ['id']
-                      and col[0] != '_'
-                      and getattr(self, col) is not None
-                      and not col.endswith('_id'))
-        result['object'] = 'plant'
+        result = db.Serializable.as_dict(self)
         result['accession'] = self.accession.code
+        result['location'] = self.location.code
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys,
-                           create=True, update=True):
-        """return database object corresponding to keys
-        """
-
-        from accession import Accession
-        from location import Location
-        ## first try retrieving, use accession.code
-        is_in_session = session.query(cls).filter(
-            cls.code == keys['code']).join(Accession).filter(
-            Accession.code == keys['accession']).all()
-
-        from sqlalchemy.orm import class_mapper
-        if is_in_session:
-            result = is_in_session[0]
-            if update:
-                if 'id' in keys:
-                    del keys['id']
-                for k, v in keys.items():
-                    if k in class_mapper(cls).mapped_table.c:
-                        setattr(result, k, v)
-            return result
-
-        if create is False:
-            return None
+    def compute_serializable_fields(cls, session, keys):
+        result = {'accession': None,
+                  'location': None}
 
         acc_keys = {}
         acc_keys.update(keys)
         acc_keys['code'] = keys['accession']
         accession = Accession.retrieve_or_create(
-            session, acc_keys)
+            session, acc_keys, create=(
+                'taxon' in acc_keys and 'rank' in acc_keys))
 
         loc_keys = {}
         loc_keys.update(keys)
-        loc_keys['code'] = keys['location']
-        location = Location.retrieve_or_create(
-            session, loc_keys)
+        if 'location' in keys:
+            loc_keys['code'] = keys['location']
+            location = Location.retrieve_or_create(
+                session, loc_keys)
+        else:
+            location = None
 
-        ## otherwise remove unexpected keys, create new object, add it to
-        ## the session and finally do return it.
-
-        for k in keys.keys():
-            if k not in class_mapper(cls).mapped_table.c:
-                del keys[k]
-        if 'id' in keys:
-            del keys['id']
-
-        keys['accession'] = accession
-        keys['location'] = location
-
-        result = cls(**keys)
-        session.add(result)
-        session.flush()
+        result['accession'] = accession
+        result['location'] = location
 
         return result
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        return session.query(cls).filter(
+            cls.code == keys['code']).join(Accession).filter(
+            Accession.code == keys['accession']).all()
 
 
 from bauble.plugins.garden.accession import Accession
