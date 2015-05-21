@@ -28,7 +28,7 @@ import bauble.utils as utils
 import bauble.db as db
 from bauble.plugins.plants import Familia, Genus, Species
 from bauble.plugins.garden.plant import Plant
-from bauble.plugins.garden.accession import Accession
+from bauble.plugins.garden.accession import Accession, AccessionNote
 from bauble.plugins.garden.location import Location
 import bauble.task
 import bauble.editor as editor
@@ -36,6 +36,21 @@ import bauble.paths as paths
 import json
 import bauble.pluginmgr as pluginmgr
 from bauble import pb_set_fraction
+
+
+def class_of_object(o):
+    """what class implements object o
+
+    >>> class_of_object("genus")
+    <class 'bauble.plugins.plants.genus.Genus'>
+    >>> class_of_object("accession_note")
+    <class 'bauble.plugins.garden.accession.AccessionNote'>
+    >>> class_of_object("not_existing")
+    >>>
+    """
+
+    name = ''.join(p.capitalize() for p in o.split('_'))
+    return globals().get(name)
 
 
 def serializedatetime(obj):
@@ -103,6 +118,7 @@ class JSONImporter(object):
         self.__cancel = False  # flag to cancel importing
         self.__pause = False   # flag to pause importing
         self.__error_exc = False
+        self.create = True     # should be an option
 
     def start(self, filenames=None):
         if filenames is None:
@@ -134,12 +150,12 @@ class JSONImporter(object):
             ## get class and remove reference
             klass = None
             if 'object' in obj:
-                klass = globals().get(obj['object'].capitalize())
+                klass = class_of_object(obj['object'])
             if klass is None and 'rank' in obj:
                 klass = globals().get(obj['rank'].capitalize())
                 del obj['rank']
             try:
-                klass.retrieve_or_create(s, obj)  # adds, too
+                klass.retrieve_or_create(s, obj, create=self.create)
             except Exception as e:
                 logger.warning("could not import %s (%s: %s)" %
                                (obj, type(e).__name__, e.args))

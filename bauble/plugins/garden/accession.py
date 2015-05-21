@@ -43,7 +43,6 @@ from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText
 from sqlalchemy.orm import EXT_CONTINUE, MapperExtension, \
     backref, relation, reconstructor
-from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -402,7 +401,7 @@ recvd_type_values = {
     }
 
 
-class AccessionNote(db.Base):
+class AccessionNote(db.Base, db.Serializable):
     """
     Notes for the accession table
     """
@@ -418,8 +417,35 @@ class AccessionNote(db.Base):
         'Accession', uselist=False,
         backref=backref('notes', cascade='all, delete-orphan'))
 
+    @classmethod
+    def retrieve(cls, session, keys):
+        q = session.query(cls)
+        if 'accession' in keys:
+            q = q.join(Accession).filter(
+                Accession.code == keys['accession'])
+        if 'date' in keys:
+            q = q.filter(cls.date == keys['date'])
+        if 'category' in keys:
+            q = q.filter(cls.category == keys['category'])
+        return q.all()
 
-class Accession(db.Base):
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        result = {'accession': None}
+
+        acc_keys = {}
+        acc_keys.update(keys)
+        acc_keys['code'] = keys['accession']
+        accession = Accession.retrieve_or_create(
+            session, acc_keys, create=(
+                'taxon' in acc_keys and 'rank' in acc_keys))
+
+        result['accession'] = accession
+
+        return result
+
+
+class Accession(db.Base, db.Serializable):
     """
     :Table name: accession
 
@@ -639,86 +665,47 @@ class Accession(db.Base):
         return '%s (%s)' % (self.code, self.species.markup())
 
     def as_dict(self):
-        result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
-                      if col not in ['id']
-                      and col[0] != '_'
-                      and getattr(self, col) is not None
-                      and not col.endswith('_id'))
-        result['object'] = 'accession'
+        result = db.Serializable.as_dict(self)
         result['species'] = str(self.species)
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys,
-                           create=True, update=True):
-        """return database object corresponding to keys
-        """
-
-        ## first try retrieving
-        is_in_session = session.query(cls).filter(
-            cls.code == keys['code']).all()
-
-        if is_in_session:
-            result = is_in_session[0]
-            if 'id' in keys:
-                del keys['id']
-            for k, v in keys.items():
-                if k in class_mapper(cls).mapped_table.c:
-                    setattr(result, k, v)
-            return result
-
-        ## so it's not there yet. we can create it only if the accession
-        ## refers to a taxon, which is a species, or a genus sp, or a
-        ## zzz-family sp.
-
-        if 'rank' not in keys or 'taxon' not in keys:
-            return None
-
-        ## now we must connect the accession to the species it refers to
-        if keys['rank'] == 'species':
-            genus_name, epithet = keys['taxon'].split(' ', 1)
-            sp_dict = {'ht-epithet': genus_name,
-                       'epithet': epithet}
-            species = Species.retrieve_or_create(
-                session, sp_dict)
-        elif keys['rank'] == 'genus':
-            species = Species.retrieve_or_create(
-                session, {'ht-epithet': keys['taxon'],
-                          'epithet': 'sp'})
-        elif keys['rank'] == 'familia':
-            unknown_genus = 'Zzz-' + keys['taxon'][:-1]
-            Genus.retrieve_or_create(
-                session, {'ht-epithet': keys['taxon'],
-                          'epithet': unknown_genus})
-            species = Species.retrieve_or_create(
-                session, {'ht-epithet': unknown_genus,
-                          'epithet': 'sp'})
-        else:
-            return None
-
-        ## correct field names
+    def correct_field_names(cls, keys):
         for internal, exchange in [('species', 'taxon')]:
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]
 
-        ## otherwise remove unexpected keys, create new object, add it to
-        ## the session and finally do return it.
-
-        for k in keys.keys():
-            if k not in class_mapper(cls).mapped_table.c:
-                del keys[k]
-        if 'id' in keys:
-            del keys['id']
-
-        keys['species'] = species
-
-        result = cls(**keys)
-        session.add(result)
-        session.flush()
-
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        logger.debug('compute_serializable_fields(session, %s)' % keys)
+        result = {'species': None}
+        if 'rank' in keys and 'taxon' in keys:
+            ## now we must connect the accession to the species it refers to
+            if keys['rank'] == 'species':
+                genus_name, epithet = keys['taxon'].split(' ', 1)
+                sp_dict = {'ht-epithet': genus_name,
+                           'epithet': epithet}
+                result['species'] = Species.retrieve_or_create(
+                    session, sp_dict, create=False)
+            elif keys['rank'] == 'genus':
+                result['species'] = Species.retrieve_or_create(
+                    session, {'ht-epithet': keys['taxon'],
+                              'epithet': 'sp'})
+            elif keys['rank'] == 'familia':
+                unknown_genus = 'Zzz-' + keys['taxon'][:-1]
+                Genus.retrieve_or_create(
+                    session, {'ht-epithet': keys['taxon'],
+                              'epithet': unknown_genus})
+                result['species'] = Species.retrieve_or_create(
+                    session, {'ht-epithet': unknown_genus,
+                              'epithet': 'sp'})
         return result
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        return session.query(cls).filter(
+            cls.code == keys['code']).all()
 
 
 from bauble.plugins.garden.plant import Plant, PlantEditor
@@ -2300,7 +2287,7 @@ class GeneralAccessionExpander(InfoExpander):
         '''
         '''
         self.current_obj = row
-        self.set_widget_value('acc_code_data', '<big>%s</big>' % \
+        self.set_widget_value('acc_code_data', '<big>%s</big>' %
                               utils.xml_safe(unicode(row.code)),
                               markup=True)
 
@@ -2328,8 +2315,8 @@ class GeneralAccessionExpander(InfoExpander):
         if plant_locations:
             strs = []
             for location, quantity in plant_locations.iteritems():
-                strs.append(_('%(quantity)s in %(location)s') \
-                              % dict(location=str(location), quantity=quantity))
+                strs.append(_('%(quantity)s in %(location)s')
+                            % dict(location=str(location), quantity=quantity))
             s = '\n'.join(strs)
         else:
             s = '0'
@@ -2352,7 +2339,7 @@ class GeneralAccessionExpander(InfoExpander):
         prov_str = prov_type_values[row.prov_type]
         if row.prov_type == u'Wild' and row.wild_prov_status:
             prov_str = '%s (%s)' % \
-                     (prov_str, wild_prov_status_values[row.wild_prov_status])
+                (prov_str, wild_prov_status_values[row.wild_prov_status])
         self.set_widget_value('prov_data', prov_str, False)
 
         image_size = gtk.ICON_SIZE_MENU
