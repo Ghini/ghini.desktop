@@ -29,7 +29,6 @@ import weakref
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 import glib
 import gtk
@@ -584,12 +583,13 @@ class GenericEditorPresenter(object):
         :param value: the value the attribute will be set to
         :param validator: validates the value before setting it
         """
-        #debug('editor.set_model_attr(%s, %s)' % (attr, value))
+        logger.debug('editor.set_model_attr(%s, %s)' % (attr, value))
         if validator:
             try:
                 value = validator.to_python(value)
                 self.remove_problem('BAD_VALUE_%s' % attr)
             except ValidatorError, e:
+                logger.debug("GenericEditorPresenter.set_model_attr %s" % e)
                 self.add_problem('BAD_VALUE_%s' % attr)
             else:
                 setattr(self.model, attr, value)
@@ -624,6 +624,8 @@ class GenericEditorPresenter(object):
                     self.presenter.remove_problem('BAD_VALUE_%s'
                                                   % model_attr, widget)
                 except Exception, e:
+                    logger.debug("GenericEditorPresenter.ProblemValidator"
+                                 ".to_python %s" % e)
                     self.presenter.add_problem('BAD_VALUE_%s'
                                                % model_attr, widget)
                     raise
@@ -977,6 +979,7 @@ class NoteBox(gtk.HBox):
             self.presenter.notes.remove(self.model)
         self.widgets.remove_parent(self.widgets.notes_box)
         self.presenter._dirty = True
+        self.presenter.parent_ref().refresh_sensitivity()
 
     def on_date_entry_changed(self, entry, *args):
         PROBLEM = 'BAD_DATE'
@@ -984,6 +987,7 @@ class NoteBox(gtk.HBox):
         try:
             text = DateValidator().to_python(text)
         except Exception, e:
+            logger.debug(e)
             self.presenter.add_problem(PROBLEM, entry)
         else:
             self.presenter.remove_problem(PROBLEM, entry)
