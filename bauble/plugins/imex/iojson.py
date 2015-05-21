@@ -118,6 +118,7 @@ class JSONImporter(object):
         self.__cancel = False  # flag to cancel importing
         self.__pause = False   # flag to pause importing
         self.__error_exc = False
+        self.create = True     # should be an option
 
     def start(self, filenames=None):
         if filenames is None:
@@ -154,7 +155,7 @@ class JSONImporter(object):
                 klass = globals().get(obj['rank'].capitalize())
                 del obj['rank']
             try:
-                klass.retrieve_or_create(s, obj)  # adds, too
+                klass.retrieve_or_create(s, obj, create=self.create)
             except Exception as e:
                 logger.warning("could not import %s (%s: %s)" %
                                (obj, type(e).__name__, e.args))
