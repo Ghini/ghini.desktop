@@ -29,7 +29,7 @@ import traceback
 import logging
 logger = logging.getLogger(__name__)
 
-from exceptions import NotImplementerError
+from exceptions import NotImplementedError
 
 import gtk
 import gobject
