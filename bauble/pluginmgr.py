@@ -281,7 +281,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     :type force: book
     """
 
-    logger.debug('pluginmgr.install(%s)' % plugins_to_install)
+    logger.debug('pluginmgr.install(%s)' % str(plugins_to_install))
     if plugins_to_install is 'all':
         to_install = plugins.values()
     else:
@@ -304,7 +304,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
 
     try:
         for p in to_install:
-            logger.debug('install: %s' % p.__name__)
+            logger.debug('install: %s' % p)
             p.install(import_defaults=import_defaults)
             # issue #28: here we make sure we don't add the plugin to the
             # registry twice but we should really update the version number
