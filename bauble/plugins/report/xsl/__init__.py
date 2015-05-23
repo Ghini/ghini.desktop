@@ -27,7 +27,7 @@ from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
 from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import get_all_plants, get_all_species, \
-     get_all_accessions, FormatterPlugin, SettingsBox
+    get_all_accessions, FormatterPlugin, SettingsBox
 import bauble.prefs as prefs
 from bauble.utils.log import debug
 import bauble.utils as utils
