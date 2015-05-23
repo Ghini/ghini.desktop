@@ -15,14 +15,11 @@
 # database is created there should be a way to recreate everything from scratch
 
 import os
-import traceback
 
 import bauble
 import bauble.db as db
-import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import debug, warning, error
 from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.species import *
@@ -64,10 +61,11 @@ class PlantsPlugin(pluginmgr.Plugin):
 
         mapper_search.add_meta(('vernacular', 'vern', 'common'),
                                VernacularName, ['name'])
-        SearchView.view_meta[VernacularName].set(children=vernname_get_kids,
-                                            infobox=VernacularNameInfoBox,
-                                            context_menu=vernname_context_menu,
-                                            markup_func=vernname_markup_func)
+        SearchView.view_meta[VernacularName].set(
+            children=vernname_get_kids,
+            infobox=VernacularNameInfoBox,
+            context_menu=vernname_context_menu,
+            markup_func=vernname_markup_func)
 
         mapper_search.add_meta(('geography', 'geo'), Geography, ['name'])
         SearchView.view_meta[Geography].set(children=get_species_in_geography)
@@ -81,7 +79,6 @@ class PlantsPlugin(pluginmgr.Plugin):
             # TODO: for some reason using the cross as the hybrid
             # character doesn't work on windows
             Species.hybrid_char = 'x'
-
 
     @classmethod
     def install(cls, import_defaults=True):
@@ -101,7 +98,6 @@ class PlantsPlugin(pluginmgr.Plugin):
         import_error = False
         import_exc = None
         csv.start(filenames, metadata=db.metadata, force=True)
-
 
 
 plugin = PlantsPlugin

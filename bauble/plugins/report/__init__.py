@@ -29,8 +29,6 @@ import traceback
 import logging
 logger = logging.getLogger(__name__)
 
-from exceptions import NotImplementedError
-
 import gtk
 import gobject
 
@@ -228,10 +226,10 @@ class SettingsBox(gtk.VBox):
         super(SettingsBox, self).__init__()
 
     def get_settings(self):
-        raise NotImplementerError
+        raise NotImplementedError
 
     def update(self, settings):
-        raise NotImplementerError
+        raise NotImplementedError
 
 
 class FormatterPlugin(pluginmgr.Plugin):
