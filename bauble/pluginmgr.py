@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # pluginmgr.py
 #
@@ -14,6 +33,10 @@ installed plugins in to the registry (happens in load())
 
 3. initialize the plugins (happens in init())
 """
+
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 import types
 import os
@@ -32,7 +55,6 @@ import bauble.db as db
 from bauble.error import BaubleError
 import bauble.paths as paths
 import bauble.utils as utils
-from bauble.utils.log import debug, warning, error
 
 plugins = {}
 commands = {}
@@ -75,7 +97,7 @@ def _create_dependency_pairs(plugs):
             try:
                 depends.append((plugins[dep], p))
             except KeyError:
-                debug('no dependency %s for %s' % (dep, p.__name__))
+                logger.debug('no dependency %s for %s' % (dep, p.__name__))
                 u = unmet.setdefault(p.__name__, [])
                 u.append(dep)
     return depends, unmet
@@ -115,7 +137,7 @@ def load(path=None):
                                      tb_str, type=gtk.MESSAGE_ERROR)
 
     if len(found) == 0:
-        debug('No plugins found at path: %s' % path)
+        logger.debug('No plugins found at path: %s' % path)
 
     for plugin in found:
         # issue #27: should we include the module name of the plugin to
@@ -136,7 +158,8 @@ def init(force=False):
     NOTE: This should be called after after Bauble has established a
     connection to a database with db.open()
     """
-    #debug('bauble.pluginmgr.init()')
+
+    logger.debug('bauble.pluginmgr.init()')
     # ******
     # NOTE: Be careful not to keep any references to
     # PluginRegistry open here as it will cause a deadlock if you try
@@ -146,11 +169,12 @@ def init(force=False):
 
     # search for plugins that are in the plugins dict but not in the registry
     registered = plugins.values()
+    logger.debug(registered)
     try:
         # try to access the plugin registry, if the table does not exist
         # then it might mean that we are opening a pre 0.9 database, in this
         # case we just assume all the plugins have been installed and
-        # registered, this might be the right thing to do but it least it
+        # registered, this might be the right thing to do but at least it
         # allows you to connect to a pre bauble 0.9 database and use it to
         # upgrade to a >=0.9 database
         registered_names = PluginRegistry.names()
@@ -165,11 +189,13 @@ def init(force=False):
                 install([p for p in not_installed])
 
         # sort plugins in the registry by their dependencies
+        logger.debug(plugins)
         not_registered = []
         for name in PluginRegistry.names():
             try:
                 registered.append(plugins[name])
             except KeyError, e:
+                logger.debug("could not find '%s' plugin" % e)
                 not_registered.append(utils.utf8(name))
 
         if not_registered:
@@ -179,6 +205,7 @@ def init(force=False):
             utils.message_dialog(utils.xml_safe(msg), type=gtk.MESSAGE_WARNING)
 
     except Exception, e:
+        logger.warning('unhandled exception %s' % e)
         raise
 
     if not registered:
@@ -194,7 +221,7 @@ def init(force=False):
 
     # call init() for each ofthe plugins
     for plugin in ordered:
-        #debug('init: %s' % plugin)
+        logger.debug('about to invoke init on: %s' % plugin)
         try:
             plugin.init()
         except KeyError, e:
@@ -205,11 +232,11 @@ def init(force=False):
             msg = (_("The %(plugin_name)s plugin is listed in the registry "
                      "but isn't wasn't found in the plugin directory")
                    % dict(plugin_name=plugin.__class__.__name__))
-            warning(msg)
+            logger.warning(msg)
         except Exception, e:
-            #error(e)
+            logger.error(e)
             ordered.remove(plugin)
-            error(traceback.print_exc())
+            logger.error(traceback.print_exc())
             safe = utils.xml_safe_utf8
             values = dict(entry_name=plugin.__class__.__name__,
                           exception=safe(e))
@@ -227,6 +254,8 @@ def init(force=False):
             try:
                 register_command(cmd)
             except Exception, e:
+                logger.debug("exception %s while registering command %s"
+                             % (e, cmd))
                 msg = 'Error: Could not register command handler.\n\n%s' % \
                       utils.xml_safe(str(e))
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
@@ -251,7 +280,8 @@ def install(plugins_to_install, import_defaults=True, force=False):
     :param force:  Force, don't ask questions.
     :type force: book
     """
-    #debug('pluginmgr.install(%s)' % plugins_to_install)
+
+    logger.debug('pluginmgr.install(%s)' % plugins_to_install)
     if plugins_to_install is 'all':
         to_install = plugins.values()
     else:
@@ -264,7 +294,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     # sort the plugins by their dependency
     depends, unmet = _create_dependency_pairs(to_install)
     if unmet != {}:
-        debug(unmet)
+        logger.debug(unmet)
         raise BaubleError('unmet dependencies')
     to_install = utils.topological_sort(to_install, depends)
     if not to_install:
@@ -274,7 +304,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
 
     try:
         for p in to_install:
-            #debug('install: %s' % p.__name__)
+            logger.debug('install: %s' % p.__name__)
             p.install(import_defaults=import_defaults)
             # issue #28: here we make sure we don't add the plugin to the
             # registry twice but we should really update the version number
@@ -282,7 +312,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             if not PluginRegistry.exists(p):
                 PluginRegistry.add(p)
     except Exception, e:
-        warning('bauble.pluginmgr.install(): %s' % utils.utf8(e))
+        logger.warning('bauble.pluginmgr.install(): %s' % utils.utf8(e))
         raise
 
 
@@ -305,7 +335,7 @@ class PluginRegistry(db.Base):
         Warning: Adding a plugin to the registry does not install it.  It
         should be installed before adding.
         """
-        
+
         p = PluginRegistry(name=utils.utf8(plugin.__class__.__name__),
                            version=utils.utf8(plugin.version))
         session = db.Session()
@@ -359,10 +389,12 @@ class PluginRegistry(db.Base):
             version = plugin.version
         session = db.Session()
         try:
+            logger.debug("not using value of version (%s)." % version)
             session.query(PluginRegistry).\
                 filter_by(name=utils.utf8(name)).one()
             return True
         except orm_exc.NoResultFound, e:
+            logger.debug(e)
             return False
         finally:
             session.close()
@@ -505,7 +537,7 @@ def _find_plugins(path):
             except Exception, e:
                 msg = _('Could not import the %(module)s module.\n\n'
                         '%(error)s' % {'module': name, 'error': e})
-                debug(msg)
+                logger.debug(msg)
                 errors[name] = sys.exc_info()
         if not hasattr(mod, "plugin"):
             continue
@@ -526,6 +558,6 @@ def _find_plugins(path):
         elif is_plugin(mod_plugin) or True:
             plugins.append(mod_plugin)
         else:
-            warning(_('%s.plugin is not an instance of pluginmgr.Plugin'
-                      % mod.__name__))
+            logger.warning(_('%s.plugin is not an instance of pluginmgr.Plugin'
+                           % mod.__name__))
     return plugins, errors
