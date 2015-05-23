@@ -432,10 +432,7 @@ class GenericEditorView(object):
         pass
 
     def start(self):
-        '''
-        Must be implemented.
-        '''
-        raise NotImplementedError
+        return self.get_window().run()
 
     def cleanup(self):
         """
