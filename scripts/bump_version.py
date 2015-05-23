@@ -124,10 +124,13 @@ def bump_nsi_file(filename):
     bump_file(filename, rx)
 
 # bump and grind
-bump_py_file('bauble/version.py')
-bump_desktop_file('data/bauble.desktop')
-bump_nsi_file('scripts/build.nsi')
+#bump_py_file('bauble/version.py')
+#bump_desktop_file('data/bauble.desktop')
+#bump_nsi_file('scripts/build.nsi')
 
 # TODO: the bauble UBC version is prefixed with ubc-
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
-bump_file('packages/builddeb.sh', rx)
+#bump_file('packages/builddeb.sh', rx)
+
+print 'git commit -m "bumping to %s" bauble/version.py data/bauble.desktop '\
+    'scripts/build.nsi packages/builddeb.sh' % version
