@@ -782,7 +782,7 @@ class LinksExpander(view.LinksExpander):
         buttons.append(self.bgci_button)
 
         self.tpl_button = web.TPLButton()
-        buttons.append(self.TPL_button)
+        buttons.append(self.tpl_button)
 
         for b in buttons:
             b.set_alignment(0, -1)
