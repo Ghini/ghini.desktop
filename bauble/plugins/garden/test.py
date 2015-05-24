@@ -22,8 +22,10 @@ import os
 import datetime
 import unittest
 
-
 import gtk
+
+import logging
+logger = logging.getLogger(__name__)
 
 from nose import SkipTest
 from sqlalchemy import and_
@@ -34,7 +36,6 @@ from sqlalchemy.orm import object_session
 import bauble.db as db
 from bauble.test import BaubleTestCase, update_gui, check_dupids
 import bauble.utils as utils
-from bauble.utils.log import debug
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     AccessionNote, Voucher, SourcePresenter, Verification, dms_to_decimal, \
     latitude_to_dms, longitude_to_dms
@@ -730,7 +731,7 @@ class PropagationTests(GardenTestCase):
         propagation.accession = self.accession
         editor = PropagationEditor(model=propagation)
         propagation = editor.start()
-        debug(propagation)
+        logger.debug(propagation)
         self.assert_(propagation.accession)
 
 
@@ -1103,8 +1104,8 @@ class AccessionTests(GardenTestCase):
             self.editor.start()
         except Exception, e:
             import traceback
-            debug(traceback.format_exc(0))
-            debug(e)
+            logger.debug(traceback.format_exc(0))
+            logger.debug(e)
 
 
 class VerificationTests(GardenTestCase):
@@ -1133,7 +1134,7 @@ class VerificationTests(GardenTestCase):
         try:
             self.session.commit()
         except Exception, e:
-            debug(e)
+            logger.debug(e)
             self.session.rollback()
         self.assert_(ver in acc.verifications)
         self.assert_(ver in self.session)

@@ -20,6 +20,8 @@
 
 import csv
 import logging
+logger = logging.getLogger(__name__)
+
 import os
 import shutil
 import tempfile
@@ -34,7 +36,6 @@ from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
     QUOTE_STYLE
 from bauble.plugins.imex.iojson import JSONImporter, JSONExporter
 from bauble.test import BaubleTestCase
-from bauble.utils.log import debug
 import json
 
 
@@ -72,7 +73,7 @@ class ImexTestCase(BaubleTestCase):
 class TestImporter(CSVImporter):
 
     def on_error(self, exc):
-        debug(exc)
+        logger.debug(exc)
         raise
 
 

@@ -10,6 +10,10 @@ import traceback
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, Unicode
 from sqlalchemy.orm import backref, relation
 from sqlalchemy.orm.session import object_session
@@ -20,7 +24,6 @@ import bauble.db as db
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
-from bauble.utils.log import debug
 import bauble.prefs as prefs
 import bauble.btypes as types
 from bauble.i18n import _
@@ -1078,7 +1081,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
                         % utils.xml_safe_utf8(e)
-                debug(traceback.format_exc())
+                logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()

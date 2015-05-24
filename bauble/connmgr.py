@@ -29,6 +29,10 @@ import os
 import copy
 import traceback
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 import gtk
 
 from bauble.i18n import _
@@ -37,7 +41,6 @@ from bauble.error import check
 import bauble
 import bauble.paths as paths
 import bauble.prefs as prefs
-from bauble.utils.log import debug, warning
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
@@ -92,13 +95,13 @@ class ConnectionManager:
                 assert(sqlite3)
             self._working_dbtypes.append('SQLite')
         except ImportError, e:
-            warning('ConnectionManager: %s' % e)
+            logger.warning('ConnectionManager: %s' % e)
         try:
             import psycopg2
             assert(psycopg2)
             self._working_dbtypes.append('PostgreSQL')
         except ImportError, e:
-            warning('ConnectionManager: %s' % e)
+            logger.warning('ConnectionManager: %s' % e)
 
         return self._working_dbtypes
 
@@ -155,7 +158,8 @@ class ConnectionManager:
         del self.params_box
         obj = utils.gc_objects_by_type(CMParamsBox)
         if obj:
-            warning('ConnectionManager.start(): param box leaked: %s' % obj)
+            logger.warning('ConnectionManager.start(): param box leaked: %s'
+                           % obj)
         return name, uri
 
     def on_dialog_response(self, dialog, response, data=None):
@@ -229,8 +233,8 @@ class ConnectionManager:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.dialog.set_icon(pixbuf)
         except Exception:
-            warning(_('Could not load icon from %s' % bauble.default_icon))
-            warning(traceback.format_exc())
+            logger.warning(_('Could not load icon from %s' % bauble.default_icon))
+            logger.warning(traceback.format_exc())
             # utils.message_details_dialog(_('Could not load icon from %s' % \
             #                              bauble.default_icon),
             #                              traceback.format_exc(),
@@ -640,8 +644,8 @@ class CMParamsBox(gtk.Table):
             for k, w in self.boolean_valued():
                 w.set_active(prefs[k])
         except KeyError, e:
-            debug('KeyError: %s' % e)
-            #debug(traceback.format_exc())
+            logger.debug('KeyError: %s' % e)
+            logger.debug(traceback.format_exc())
 
     def on_activate_browse_button(self, widget, data=None):
         d = gtk.FileChooserDialog(

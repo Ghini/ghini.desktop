@@ -12,7 +12,6 @@ import bauble
 import bauble.db as db
 from bauble.search import SearchParser, MapperSearch
 from bauble.view import SearchView
-from bauble.utils.log import debug, error
 from bauble.test import BaubleTestCase, uri
 import bauble.pluginmgr as pluginmgr
 from bauble.pluginmgr import PluginRegistry

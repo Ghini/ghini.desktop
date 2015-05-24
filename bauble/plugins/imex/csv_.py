@@ -23,7 +23,6 @@ from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
-from bauble.utils.log import error
 from bauble import pb_set_fraction
 
 # TODO: i've also had a problem with bad insert statements, e.g. importing a
@@ -495,8 +494,8 @@ class CSVImporter(Importer):
             transaction.rollback()
             raise
         except Exception, e:
-            error(e)
-            error(traceback.format_exc())
+            logger.error(e)
+            logger.error(traceback.format_exc())
             transaction.rollback()
             self.__error = True
             self.__error_exc = e

@@ -46,7 +46,6 @@ from bauble.error import check
 import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
-from bauble.utils.log import debug, warning
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
@@ -221,8 +220,8 @@ class GenericEditorView(object):
                 self.widgets[widget_name].set_tooltip_markup(markup)
             except Exception, e:
                 values = dict(widget_name=widget_name, exception=e)
-                debug(_('Couldn\'t set the tooltip on widget '
-                        '%(widget_name)s\n\n%(exception)s' % values))
+                logger.debug(_('Couldn\'t set the tooltip on widget '
+                               '%(widget_name)s\n\n%(exception)s' % values))
 
         window = self.get_window()
         self.connect(window, 'delete-event', self.on_window_delete)
@@ -873,7 +872,7 @@ class GenericModelViewPresenterEditor(object):
         try:
             self.session.commit()
         except Exception, e:
-            warning(e)
+            logger.warning(e)
             self.session.rollback()
             self.session.add_all(objs)
             raise

@@ -58,7 +58,6 @@ from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.utils.log import warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
@@ -637,7 +636,7 @@ class Accession(db.Base, db.Serializable):
                 and not self.__warned_about_id_qual:
             msg = _('If the id_qual is aff. or cf. '
                     'then id_qual_rank is required. %s ' % self.code)
-            warning(msg)
+            logger.warning(msg)
             self.__warned_about_id_qual = True
 
         # copy the species so we don't affect the original
@@ -1305,7 +1304,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 self.model.source = self.source
                 self.model.source.source_detail = None
             else:
-                warning('unknown source: %s' % source)
+                logger.warning('unknown source: %s' % source)
             #self.model.source = self.source
             #self.model.source.source_detail = source_detail
 
