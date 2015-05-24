@@ -31,7 +31,7 @@ cat <<EOF > ~/bin/bauble
 
 GITHOME=$HOME/Local/github/Bauble/bauble.classic/
 
-source /usr/local/bin/virtualenvwrapper.sh
+source $(which virtualenvwrapper.sh)
 workon bacl
 
 while getopts us: f
