@@ -17,7 +17,6 @@ import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble.utils import xml_safe
-from bauble.utils.log import info, debug
 
 # <tableset>
 # <table name="tablename">

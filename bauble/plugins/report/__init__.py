@@ -41,7 +41,6 @@ import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import debug
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.tag import Tag
@@ -436,7 +435,7 @@ class ReportToolDialogPresenter(object):
         except (KeyError, TypeError), e:
             # TODO: show a dialog saying that you can't find whatever
             # you're looking for in the settings
-            debug(e)
+            logger.debug(e)
             return
 
         try:
@@ -444,7 +443,7 @@ class ReportToolDialogPresenter(object):
         except Exception, e:
             # TODO: show a dialog saying that you can't find whatever
             # you're looking for in the settings
-            debug(e)
+            logger.debug(e)
             self.set_formatter_combo(-1)
         self.view.widgets.details_box.set_sensitive(True)
 
@@ -467,7 +466,7 @@ class ReportToolDialogPresenter(object):
 #            set_prefs_for(name, self.formatter_class_map[title])
 #            #prefs[config_list_pref][name] = title, settings
         except KeyError, e:
-            debug(e)
+            logger.debug(e)
             return
 
         expander = self.view.widgets.settings_expander
@@ -534,7 +533,7 @@ class ReportToolDialogPresenter(object):
             combo.set_model(model)
         except AttributeError, e:
             # no formatters
-            debug(e)
+            logger.debug(e)
             pass
 
     def init_names_combo(self):
@@ -617,8 +616,8 @@ class ReportTool(pluginmgr.Tool):
                 if ok:
                     break
         except AssertionError, e:
-            debug(e)
-            debug(traceback.format_exc())
+            logger.debug(e)
+            logger.debug(traceback.format_exc())
             parent = None
             if hasattr(self, 'view') and hasattr(self.view, 'dialog'):
                 parent = self.view.dialog
@@ -626,7 +625,7 @@ class ReportTool(pluginmgr.Tool):
             utils.message_details_dialog(str(e), traceback.format_exc(),
                                          gtk.MESSAGE_ERROR, parent=parent)
         except Exception, e:
-            debug(traceback.format_exc())
+            logger.debug(traceback.format_exc())
             utils.message_details_dialog(_('Formatting Error\n\n'
                                            '%(exception)s') %
                                          {"exception": utils.utf8(e)},

@@ -7,6 +7,10 @@ import traceback
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 import bauble
 import bauble.db as db
 from bauble.i18n import _
@@ -16,7 +20,6 @@ from bauble.prefs import prefs
 import bauble.search as search
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
-from bauble.utils.log import debug, warning, error
 from bauble.view import SearchView
 
 
@@ -58,8 +61,9 @@ class GUI(object):
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.window.set_icon(pixbuf)
         except Exception:
-            warning(_('Could not load icon from %s' % bauble.default_icon))
-            warning(traceback.format_exc())
+            logger.warning(_('Could not load icon from %s'
+                             % bauble.default_icon))
+            logger.warning(traceback.format_exc())
 
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
@@ -199,6 +203,7 @@ class GUI(object):
         try:
             arg = tokens['arg']
         except KeyError, e:
+            logger.debug(e)
             pass
 
         bauble.command_handler(cmd, arg)
@@ -427,6 +432,7 @@ class GUI(object):
                     try:
                         tools[tool.category].append(tool)
                     except KeyError, e:
+                        logger.debug(e)
                         tools[tool.category] = []
                         tools[tool.category].append(tool)
                 else:
@@ -469,7 +475,7 @@ class GUI(object):
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
-            debug(traceback.format_exc())
+            logger.debug(traceback.format_exc())
 
     def on_insert_menu_item_activate(self, widget, editor_cls):
         try:
@@ -485,8 +491,8 @@ class GUI(object):
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
-            error('bauble.gui.on_insert_menu_item_activate():\n %s'
-                  % traceback.format_exc())
+            logger.error('bauble.gui.on_insert_menu_item_activate():\n %s'
+                         % traceback.format_exc())
             return
 
         presenter_cls = view_cls = None
@@ -500,15 +506,15 @@ class GUI(object):
         # check for leaks
         obj = utils.gc_objects_by_type(editor_cls)
         if obj != []:
-            warning('%s leaked: %s' % (editor_cls.__name__, obj))
+            logger.warning('%s leaked: %s' % (editor_cls.__name__, obj))
 
         if presenter_cls:
             obj = utils.gc_objects_by_type(presenter_cls)
             if obj != []:
-                warning('%s leaked: %s' % (presenter_cls.__name__, obj))
+                logger.warning('%s leaked: %s' % (presenter_cls.__name__, obj))
             obj = utils.gc_objects_by_type(view_cls)
             if obj != []:
-                warning('%s leaked: %s' % (view_cls.__name__, obj))
+                logger.warning('%s leaked: %s' % (view_cls.__name__, obj))
 
     def on_edit_menu_cut(self, widget, data=None):
         self.widgets.main_comboentry.child.cut_clipboard()
@@ -562,7 +568,7 @@ class GUI(object):
             # db.open() should have shown an error dialog if there was
             # a problem opening the database as long as the
             # show_error_dialogs parameter is True
-            warning(e)
+            logger.warning(e)
 
         if engine is None:
             # the database wasn't open
@@ -618,7 +624,8 @@ class GUI(object):
         about = gtk.AboutDialog()
         about.set_name('Bauble')
         about.set_version(bauble.version)
-        gtk.about_dialog_set_url_hook(lambda d, l: desktop.open(l, dialog_on_error=True))
+        gtk.about_dialog_set_url_hook(lambda d, l:
+                                      desktop.open(l, dialog_on_error=True))
         about.set_website(_('http://bauble.wikidot.com'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
@@ -626,7 +633,8 @@ class GUI(object):
         about.set_copyright(_(u'Copyright \u00A9 by its contributors.'))
 
         import codecs
-        with codecs.open(os.path.join(paths.installation_dir(), 'share', 'LICENSE.bauble')) as f:
+        with codecs.open(os.path.join(paths.installation_dir(), 'share',
+                                      'LICENSE.bauble')) as f:
             license = f.read()
         about.set_license(license)  # not translated
         about.run()

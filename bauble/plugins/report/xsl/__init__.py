@@ -29,7 +29,6 @@ from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import get_all_plants, get_all_species, \
     get_all_accessions, FormatterPlugin, SettingsBox
 import bauble.prefs as prefs
-from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 from bauble.utils import xml_safe_utf8

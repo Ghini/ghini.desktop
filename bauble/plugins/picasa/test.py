@@ -7,7 +7,6 @@ import bauble.meta as meta
 import bauble.plugins.picasa as picasa
 from bauble.test import BaubleTestCase, check_dupids
 import bauble.utils as utils
-from bauble.utils.log import debug
 
 
 def test_duplicate_ids():

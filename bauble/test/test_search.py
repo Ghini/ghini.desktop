@@ -3,11 +3,14 @@
 #
 import unittest
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 from pyparsing import ParseException
 
 import bauble.db as db
 import bauble.search as search
-from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
 
@@ -588,7 +591,7 @@ class QueryBuilderTests(BaubleTestCase):
     def itest_gui(self):
         qb = search.QueryBuilder()
         qb.start()
-        debug(qb.get_query())
+        logger.debug(qb.get_query())
 
 
 class BuildingSQLStatements(BaubleTestCase):

@@ -12,7 +12,6 @@ desktop.open = lambda x: x
 
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
-from bauble.utils.log import debug
 #import bauble.plugins.report as report_plugin
 from bauble.plugins.report import get_all_species, get_all_accessions, \
      get_all_plants
