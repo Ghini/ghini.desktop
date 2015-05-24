@@ -208,6 +208,18 @@ def main(uri=None):
             print _('Please make sure that GTK_ROOT\\bin is in your PATH.')
         sys.exit(1)
 
+    # add console root handler, and file root handler, set it at the logging
+    # level specified by BAUBLE_LOGGING, or at INFO level.
+    filename = os.path.join(paths.user_dir(), 'bauble.log')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fileHandler = logging.FileHandler(filename, 'w+')
+    logging.getLogger().addHandler(fileHandler)
+    consoleHandler = logging.StreamHandler()
+    logging.getLogger().addHandler(consoleHandler)
+    fileHandler.setFormatter(formatter)
+    consoleHandler.setFormatter(formatter)
+
     import gtk.gdk
     import pygtk
     if not main_is_frozen():
