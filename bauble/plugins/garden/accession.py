@@ -579,6 +579,10 @@ class Accession(db.Base, db.Serializable):
     intended2_location = relation(
         'Location', primaryjoin='Accession.intended2_location_id==Location.id')
 
+    @property
+    def pictures(self):
+        return []
+
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
         self.__cached_species_str = {}
