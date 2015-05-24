@@ -58,6 +58,7 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
 
+from bauble import pictures_view
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work
@@ -69,11 +70,6 @@ import bauble.view as view
 
 plant_delimiter_key = u'plant_delimiter'
 default_plant_delimiter = u'.'
-
-
-def show_pictures_callback(plants):
-    ## should activate a window that shows the pictures for this plant
-    return None
 
 
 def edit_callback(plants):
@@ -117,7 +113,7 @@ def remove_callback(plants):
 
 show_pictures_action = Action(
     'plant_show_pictures', _('_Pictures'),
-    callback=show_pictures_callback,
+    callback=pictures_view.show_pictures_callback,
     accelerator='<ctrl>p', multiselect=False)
 
 edit_action = Action('plant_edit', _('_Edit'), callback=edit_callback,
@@ -443,6 +439,10 @@ class Plant(db.Base, db.Serializable):
 
     _delimiter = None
 
+    @property
+    def pictures(self):
+        return []
+
     @classmethod
     def get_delimiter(cls, refresh=False):
         """
@@ -609,9 +609,6 @@ class PlantEditorView(GenericEditorView):
 
     def restore_state(self):
         pass
-
-    def start(self):
-        return self.get_window().run()
 
 
 class PlantEditorPresenter(GenericEditorPresenter):
@@ -1018,6 +1015,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
             except DBAPIError, e:
                 exc = traceback.format_exc()
+                logger.debug(exc)
                 msg = _('Error committing changes.\n\n%s') % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 self.session.rollback()
