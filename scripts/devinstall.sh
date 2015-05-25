@@ -37,6 +37,7 @@ fi
 
 mkdir ~/.virtualenvs >/dev/null 2>&1
 virtualenv ~/.virtualenvs/bacl --system-site-packages
+mkdir /Users/mario/.virtualenvs/bacl/share >/dev/null 2>&1
 source ~/.virtualenvs/bacl/bin/activate
 
 python setup.py build
