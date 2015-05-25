@@ -1,28 +1,44 @@
 #!/bin/bash
 
-if [ -d ~/Local/github/Bauble ]
-then
-  echo "bauble checkout already in place"
-  exit 1
+PROBLEMS=''
+if ! python -c 'import gtk' >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS pygtk"
+fi
+if ! git help >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS git"
+fi
+if ! virtualenv --help >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS virtualenv"
 fi
 
-sudo apt-get install -y python-gtk2 git virtualenvwrapper
-cat <<EOF >> ~/.profile
-export WORKON_HOME=$HOME/.virtualenvs
-export PROJECT_HOME=$HOME/Devel
-source $(which virtualenvwrapper.sh)
-EOF
-. ~/.profile
-mkdir -p ~/Local/github/Bauble
-cd ~/Local/github/Bauble
-git clone https://github.com/Bauble/bauble.classic
-cd bauble.classic
+if [ "$PROBLEMS" != "" ]; then
+    echo please first solve dependencies.
+    echo $PROBLEMS
+    exit 1
+fi
+
+if [ -d ~/Local/github/Bauble/bauble.classic ]
+then
+    echo "bauble checkout already in place"
+    cd ~/Local/github/Bauble/bauble.classic
+else
+    mkdir -p ~/Local/github/Bauble >/dev/null 2>&1
+    cd ~/Local/github/Bauble
+    git clone https://github.com/Bauble/bauble.classic
+    cd bauble.classic
+fi
+
 if [ $# -ne 0 ]
 then
-  git checkout bauble-$1
+    git checkout bauble-$1
+else
+    git checkout bauble-1.0
 fi
-mkvirtualenv bacl --system-site-packages
-workon bacl
+
+mkdir ~/.virtualenvs >/dev/null 2>&1
+virtualenv ~/.virtualenvs/bacl --system-site-packages
+source ~/.virtualenvs/bacl/bin/activate
+
 python setup.py build
 python setup.py install
 mkdir ~/bin 2>/dev/null
@@ -31,8 +47,7 @@ cat <<EOF > ~/bin/bauble
 
 GITHOME=$HOME/Local/github/Bauble/bauble.classic/
 
-source $(which virtualenvwrapper.sh)
-workon bacl
+source ~/.virtualenvs/bacl/bin/activate
 
 while getopts us: f
 do
@@ -52,6 +67,5 @@ do
 done
 
 bauble
-deactivate
 EOF
 chmod +x ~/bin/bauble
