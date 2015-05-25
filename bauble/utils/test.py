@@ -13,7 +13,6 @@ import bauble
 import bauble.db as db
 from bauble.error import check, CheckConditionError
 import bauble.utils as utils
-from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
 

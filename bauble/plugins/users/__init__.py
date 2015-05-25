@@ -15,9 +15,7 @@ from bauble.error import check, CheckConditionError
 import bauble.db as db
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import debug, warning
 import bauble.utils as utils
-from bauble.utils.log import debug, warning, error
 
 # WARNING: "roles" are specific to PostgreSQL database from 8.1 and
 # greater, therefore this module won't work on earlier PostgreSQL

@@ -19,7 +19,6 @@ import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.search as search
 import bauble.utils as utils
-from bauble.utils.log import debug, warning, sa_echo, echo
 from bauble.view import SearchView, Action
 
 
@@ -234,7 +233,6 @@ class Tag(db.Base):
     # relations
     _objects = relation('TaggedObj', cascade='all, delete-orphan',
                         backref='tag')
-
 
     def __str__(self):
         return str(self.tag)

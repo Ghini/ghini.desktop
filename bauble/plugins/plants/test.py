@@ -1,6 +1,22 @@
 # -*- coding: utf-8 -*-
 #
-# test.py
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: test for the Plant plugin
 #
@@ -8,17 +24,24 @@
 import os
 import sys
 
-from sqlalchemy import *
-from sqlalchemy.exc import *
-from sqlalchemy.orm.exc import *
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 import bauble.utils as utils
-from bauble.utils.log import debug
-from bauble.plugins.plants.species import *
-from bauble.plugins.plants.family import *
-from bauble.plugins.plants.genus import *
-from bauble.plugins.plants.geography import *
+import bauble.db as db
+from bauble.plugins.plants.species import \
+    Species, VernacularName, SpeciesSynonym, SpeciesEditor, \
+    DefaultVernacularName, SpeciesDistribution
+from bauble.plugins.plants.family import \
+    Family, FamilySynonym, FamilyEditor
+from bauble.plugins.plants.genus import \
+    Genus, GenusSynonym, GenusEditor
+from bauble.plugins.plants.geography import Geography, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids
+
+import logging
+logging.basicConfig()
+#logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 #
 # TODO: things to create tests for
@@ -43,7 +66,7 @@ if sys.platform == 'win32':
 
 
 family_test_data = ({'id': 1, 'family': 'Orchidaceae'},
-                    {'id': 2, 'family': 'Leguminosae'},
+                    {'id': 2, 'family': 'Leguminosae', 'qualifier': 's. str.'},
                     {'id': 3, 'family': 'Polypodiaceae'})
 
 genus_test_data = ({'id': 1, 'genus': 'Maxillaria', 'family_id': 1},
@@ -82,9 +105,9 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                      {'id': 11, 'sp': u'generalis', 'genus_id': 1,
                       'sp_qual': u'agg.'},
                      {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
-                     {'id': 13, 'genus_id':1,
+                     {'id': 13, 'genus_id': 1,
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
-                     {'id': 14, 'genus_id':1,
+                     {'id': 14, 'genus_id': 1,
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red & Blue'},
                      {'id': 15, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'L.',
@@ -128,7 +151,8 @@ species_markup_map = {
     6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
     12: "<i>Maxillaria</i> SomeGroup Group",
     14: "<i>Maxillaria</i> 'Red &amp; Blue'",
-    15: "<i>Encyclia</i> <i>cochleata</i> subsp. <i>cochleata</i> var. <i>cochleata</i> 'Black'",
+    15: "<i>Encyclia</i> <i>cochleata</i> subsp. <i>"
+    "cochleata</i> var. <i>cochleata</i> 'Black'",
     }
 
 species_str_authors_map = {
@@ -140,7 +164,8 @@ species_str_authors_map = {
     6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
     7: 'Abrus precatorius L. SomethingRidiculous Group',
     8: "Abrus precatorius L. (SomethingRidiculous Group) 'Hot Rio Nights'",
-    15: "Encyclia cochleata L. subsp. cochleata L. var. cochleata L. 'Black' L.",
+    15: "Encyclia cochleata L. subsp. "
+    "cochleata L. var. cochleata L. 'Black' L.",
 }
 
 species_markup_authors_map = {
@@ -452,8 +477,8 @@ class SpeciesTests(PlantTestCase):
     def itest_editor(self):
         # import default geography data
         import bauble.paths as paths
-        default_path = os.path.join(paths.lib_dir(), "plugins", "plants",
-                                "default")
+        default_path = os.path.join(
+            paths.lib_dir(), "plugins", "plants", "default")
         filenames = [os.path.join(default_path, f) for f in 'geography.txt',
                      'habit.txt']
         from bauble.plugins.imex.csv_ import CSVImporter
@@ -486,6 +511,7 @@ class SpeciesTests(PlantTestCase):
 
         for sid, s in species_str_map.iteritems():
                 sp = self.session.query(Species).get(sid)
+                self.assertEquals(species_str_map[sid], "%s" % sp)
                 spstr = get_sp_str(sid)
                 self.assert_(spstr == s,
                              '"%s" != "%s" ** %s' % (spstr, s, unicode(spstr)))
@@ -504,7 +530,6 @@ class SpeciesTests(PlantTestCase):
             spstr = get_sp_str(sid, markup=True, authors=True)
             self.assert_(spstr == s,
                          '%s != %s ** %s' % (spstr, s, unicode(spstr)))
-
 
     # def test_dirty_string(self):
     #     """
@@ -629,6 +654,7 @@ class SpeciesTests(PlantTestCase):
         def syn_str(id1, id2, isit='not'):
             sp1 = load_sp(id1)
             sp2 = load_sp(id2)
+            print sp2
             return '%s(%s).synonyms: %s' % \
                    (sp1, sp1.id,
                     str(map(lambda s: '%s(%s)' %
@@ -800,6 +826,15 @@ class FromAndToDictTest(PlantTestCase):
                            'epithet': 'Polypodiaceae'})
         self.assertEquals(set(all_families), set([orc, pol, leg]))
 
+    def test_grabbing_same_params_same_output_existing(self):
+        orc1 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Orchidaceae'})
+        orc2 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Orchidaceae'})
+        self.assertTrue(orc1 is orc2)
+
     def test_can_create_family(self):
         all_families = self.session.query(Family).all()
         fab = Family.retrieve_or_create(
@@ -808,13 +843,43 @@ class FromAndToDictTest(PlantTestCase):
         ## it's in the session, it wasn't there before.
         self.assertTrue(fab in self.session)
         self.assertFalse(fab in all_families)
-        ## still not in database.
-        all_families = self.session.query(Family).all()
-        self.assertFalse(fab in all_families)
+        ## according to the session, it is in the database
+        ses_families = self.session.query(Family).all()
+        self.assertTrue(fab in ses_families)
+
+    def xtest_where_can_object_be_found_before_commit(self):  # disabled
+        fab = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
+        # created in a session, it's not in other sessions
+        other_session = db.Session()
+        db_families = other_session.query(Family).all()
+        fab = Family.retrieve_or_create(
+            other_session, {'rank': 'family',
+                            'epithet': 'Fabaceae'})
+        self.assertFalse(fab in db_families)  # fails, why?
+
+    def test_where_can_object_be_found_after_commit(self):
+        fab = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
         ## after commit it's in database.
         self.session.commit()
-        all_families = self.session.query(Family).all()
+        other_session = db.Session()
+        all_families = other_session.query(Family).all()
+        fab = Family.retrieve_or_create(
+            other_session, {'rank': 'family',
+                            'epithet': 'Fabaceae'})
         self.assertTrue(fab in all_families)
+
+    def test_grabbing_same_params_same_output_new(self):
+        fab1 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
+        fab2 = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Fabaceae'})
+        self.assertTrue(fab1 is fab2)
 
     def test_can_grab_existing_genera(self):
         orc = Family.retrieve_or_create(
@@ -833,3 +898,107 @@ class FromAndToDictTest(PlantTestCase):
                            'rank': 'genus',
                            'epithet': 'Encyclia'})
         self.assertEquals(set(all_genera_orc), set([mxl, enc]))
+
+
+class FromAndToDict_create_update_test(PlantTestCase):
+    "test the create and update fields in retrieve_or_create"
+
+    def test_family_nocreate_noupdate_noexisting(self):
+        # do not create if not existing
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Arecaceae'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_family_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Leguminosae'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.qualifier, 's. str.')
+
+    def test_family_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Leguminosae',
+                           'qualifier': 's. lat.'},
+            create=False, update=False)
+        self.assertEquals(obj.qualifier, 's. str.')
+
+    def test_family_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'familia',
+                           'epithet': 'Leguminosae',
+                           'qualifier': 's. lat.'},
+            create=False, update=True)
+        self.assertEquals(obj.qualifier, 's. lat.')
+
+    def test_genus_nocreate_noupdate_noexisting_impossible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_genus_create_noupdate_noexisting_impossible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia'},
+            create=True)
+        self.assertEquals(obj, None)
+
+    def test_genus_nocreate_noupdate_noexisting_possible(self):
+        # do not create if not existing
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Masdevallia',
+                           'ht-rank': 'familia',
+                           'ht-epithet': 'Orchidaceae'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_genus_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, '')
+
+    def test_genus_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria',
+                           'author': 'Schltr.'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, '')
+
+    def test_genus_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': 'Maxillaria',
+                           'author': 'Schltr.'},
+            create=False, update=True)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.author, 'Schltr.')

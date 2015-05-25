@@ -21,6 +21,10 @@
 import os
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 import bauble
 from bauble.i18n import _
 import bauble.db as db
@@ -126,9 +130,9 @@ class _prefs(dict):
             self.config.read(self._filename)
         version = self[config_version_pref]
         if version is None:
-            from bauble.utils.log import warning
-            warning('%s has no config version pref' % self._filename)
-            warning('setting the config version to %s.%s' % (config_version))
+            logger.warning('%s has no config version pref' % self._filename)
+            logger.warning('setting the config version to %s.%s'
+                           % (config_version))
             self[config_version_pref] = config_version
 
         # set some defaults if they don't exist

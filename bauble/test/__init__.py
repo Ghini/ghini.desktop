@@ -6,7 +6,6 @@ import bauble.db as db
 from bauble.error import BaubleError
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import debug
 
 ## for sake of testing, just use sqlite3.
 uri = 'sqlite:///:memory:'

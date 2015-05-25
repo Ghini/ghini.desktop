@@ -22,38 +22,39 @@ its dependencies by itself.
 Installing on Linux
 ===================
 
-#. Make sure your `Python <http://www.python.org>`_ version is 2.4
-   or greater, that you have the develompent environment for `GTK+
-   <http://www.gtk.org>`_ and that you have installed `PyGTK
-   <http://www.pygtk.org>`_ using your package manager (ubuntu,
-   debian: python-gtk2).
+#. Download the `devinstall.sh` script and run it.
 
-#. Download and extract the Bauble source package from
+   You can study the script to see what steps if runs for you. In short it
+   will install dependencies which can't be satisfied in a virtual
+   environment, then it will create a virtual environment named `bacl`,
+   download the sources and connect your git checkout to the `bauble-1.0`
+   branch (this you can consider a production line), it then builds bauble,
+   downloading all remaining dependencies, and finally it creates a startup
+   script in your `~/bin` folder that you can use to start bauble::
 
-   https://github.com/mfrasca/bauble.classic.git
+     bauble
 
-#. Make and activate a virtual environment with
-   ``--system-site-packages``.
+   or to update it to the latest released production patch::
 
-#. If you would like to use the default `SQLite
-   <http://sqlite.org/>`_ database or you don't know what this means
-   then you can skip this step.  If you would like to use a database
-   backend other than the default SQLite backend then you will also
-   need to install a database connector.
+     bauble -u
+
+   The same script you can use to switch to a different production line, but
+   at the moment there's only `bauble-1.0`.
+
+#. on Unity, open a terminal, start bauble, its icon will show up in the
+   launcher, you can now `lock to launcher` it.
+
+#. If you would like to use the default `SQLite <http://sqlite.org/>`_
+   database or you don't know what this means then you can skip this step.
+   If you would like to use a database backend other than the default SQLite
+   backend then you will also need to install a database connector.
 
    If you would like to use a `PostgreSQL <http://www.postgresql.org>`_
-   database then install psycopg2 with the following commands::
+   database then activate the virtual environment and install psycopg2 with
+   the following commands::
 
+     workon bacl
      pip install -U psycopg2
-
-#. In the installation directory execute the following command::
-
-     python setup.py install
-
-   If this doesn't complete successfully see :ref:`troubleshoot_install`.
-
-#. Any time you want to run Bauble, open a terminal window, activate
-   the virtual environment and execute the ``bauble`` command.
 
 .. rubric:: Next...
 
@@ -62,8 +63,43 @@ Installing on Linux
 Installing on MacOSX
 ====================
 
-Being MacOSX a unix environment, most stuff should work just like in
-Linux, but we've never tried. Feedback highly welcome.
+Being MacOSX a unix environment, most things will work the same as on Linux
+(sort of).
+
+One difficulty is that there are many more versions of MacOSX out
+there than one would want to support, and only the current and its
+immediately preceding release are kept up-to-date by Apple-the-firm.
+
+Last time we tested, some of the dependencies could not be installed on
+MacOSX 10.5 and we assume similar problems would present themselves on older
+OSX versions.  Bauble has been successfully tested with 10.7 and 10.9.
+
+First of all, you need things which are an integral part of a unix
+environment, but which are missing in a off-the-shelf mac:
+
+#. developers tools: xcode. check the wikipedia page for the version
+   supported on your mac.
+#. package manager: homebrew (tigerbrew for older OSX versions).
+
+with the above installed, run::
+
+    brew doctor
+
+make sure you understand the problems it reports, and correct them. pygtk
+will need xquartz and brew will not solve the dependency
+automatically. either install xquartz using brew or the way you prefer::
+
+    brew install Caskroom/cask/xquartz
+
+then install the remaining dependencies::
+
+    brew install git
+    brew install pygtk  # takes time and installs all dependencies
+    brew install psycopg2  # optional
+
+the rest is just as on a normal unix machine, and we have a
+`devinstall-mac.sh` script for it. Read the instructions for Linux,
+understand, download, run, enjoy.
 
 .. rubric:: Next...
 
@@ -81,23 +117,11 @@ the dependencies and then install Bauble from the source package.
 Please report any trouble and help with packaging will be very
 welcome.
 
-.. note:: Bauble has been tested with and is known to work on
-   Windows XP and Windows-8. Although it should work fine on other
-   versions Windows it has not been thoroughly tested.
+.. note:: Bauble has been tested with and is known to work on W-XP, W-7 and
+   W-8. Although it should work fine on other versions Windows it has not
+   been thoroughly tested.
 
 the installation steps on Windows:
-
-#. Install GTK+. The easiest way to install GTK+ is to download the
-   latest runtime packages from `gtk-win.sourceforge.net
-   <http://gtk-win.sourceforge.net/home/index.php/Downloads>`_.
-
-   .. note:: The gtk-win package currently doesn't support SVG which can
-      cause a problem with Bauble.
-
-   There is also a script in the Bauble source archive in
-   scripts/install_gtk.py which will download the GTK+ Win32
-   installer.  This will also download and install the SVG pixbuf
-   loader for GTK+.
 
 #. download and install Python 2.x (32bit) from:
 
@@ -107,7 +131,9 @@ the installation steps on Windows:
    definitely `not` run on Python 3.x.  If you are interested in helping
    port to Python 3.x, please contact the Bauble maintainers.
 
-#. download and install ``pygtk`` (requires 32bit python) from:
+#. download ``pygtk`` from the following source. (this requires 32bit
+   python). be sure you download the "all in one" version. make a complete
+   install, selecting everything:
 
    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
@@ -115,37 +141,60 @@ the installation steps on Windows:
 
    http://bootstrap.pypa.io/get-pip.py
 
-#. download and install ``git`` (comes with a unix-like ``sh``).
-
-#. install ``virtualenvwrapper-win`` (using ``pip``)
-
-#. create the virtual environment now.
-
-#. download ``gettext`` from:
-
-   http://www.boost.org/doc/libs/1_56_0/libs/locale/doc/html/gettext_for_windows.html
-
-   You will need manually unpack the statically linked binaries,
-   Windows will probably complain about the risks of unpacking a zip
-   archive that contains executable files, ignore this. A safe place
-   to put the executable files is into the ``Scripts`` directory of
-   the virtual environment.
+#. download and install ``git`` (comes with a unix-like ``sh`` and includes
+   ``vi``).
 
 #. (optional) download and install a database connector other than
-   ``sqlite3``. TODO: still don't know how to do this for
-   ``psycopg2``. On Windows, pip does not manage install it.
+   ``sqlite3``. 
+
+   On Windows, it is NOT easy to install ``psycopg2`` from sources, using
+   pip, so "avoid the gory details" and use a pre-compiled pagkage from:
+   
+   http://initd.org/psycopg/docs/install.html
+
+#. include ``C:\Python27`` and ``C:\Python27\Scripts`` in your path.
+
+#. install ``virtualenv`` (using ``pip``)
+
+#. cd to your HOME dir, create the virtual environment, call it ``bacl`` and activate it::
+
+    virtualenv --system-site-packages .virtualenvs\bacl
+    .virtualenvs\bacl\Scripts\activate.bat
+
+#. cd to where you want to get bauble.classic.
 
 #. download the bauble.classic sources (using git) from:
-   http://www.github.com/mfrasca/bauble.classic/
 
-#. activate the virtual environment.
+   http://www.github.com/Bauble/bauble.classic/
 
-#. ``python setup.py install``
+#. cd into the newly created ``bauble.classic`` directory.
 
-#. TODO: write a git-shell script that activates the virtual
-   environment, sets the language, invokes bauble.
+#. choose the development line you plan to follow, for example ``1.0``, build, install::
 
-#. TODO: put the above git-shell script at a convenient place.
+    git checkout bauble-1.0
+    python setup.py build
+    python setup.py install
+
+#. create a ``bauble.bat`` file in your HOME dir, with this content::
+
+    call .virtualenvs\bacl\Scripts\activate.bat
+    pythonw .virtualenvs\bacl\Scripts\bauble
+
+#. create a vbs file in your HOME dir, with this content::
+
+    CreateObject("Wscript.Shell").Run "bauble.bat", 0, True
+
+#. create a shortcut to the vbs file in the same HOME dir.
+
+#. modify the icon of the shortcut, rename it as of your tastes.
+
+#. drag and drop the shortcut into the Start Menu.
+
+#. the following two, you will do regularly, to stay up-to-date with the
+   development line you chose to follow::
+
+    git pull
+    python setup.py install
 
 If you would like to generate and print PDF reports using Bauble's
 default report generator then you will need to download and install

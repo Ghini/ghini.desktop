@@ -1,24 +1,41 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+#
+# report/mako/
+#
+
+import logging
+logger = logging.getLogger(__name__)
+
 import os
 import shutil
-import sys
 import tempfile
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
 from mako.template import Template
 
-import bauble
+from bauble.i18n import _
 import bauble.db as db
 import bauble.paths as paths
-from bauble.plugins.plants.species import Species
-from bauble.plugins.garden.plant import Plant
-from bauble.plugins.garden.accession import Accession
-from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
-from bauble.plugins.report import get_all_plants, get_all_species, \
-     get_all_accessions, FormatterPlugin, SettingsBox
-from bauble.utils.log import debug
+from bauble.plugins.report import FormatterPlugin, SettingsBox
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 
@@ -27,14 +44,14 @@ class MakoFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
         super(MakoFormatterSettingsBox, self).__init__(*args)
-        self.widgets = utils.load_widgets(os.path.join(paths.lib_dir(),
-                               "plugins", "report", 'mako', 'gui.glade'))
+        self.widgets = utils.load_widgets(
+            os.path.join(paths.lib_dir(),
+                         "plugins", "report", 'mako', 'gui.glade'))
         # keep a refefence to settings box so it doesn't get destroyed in
         # remove_parent()
         self.settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
         self.pack_start(self.settings_box)
-
 
     def get_settings(self):
         """
@@ -51,6 +68,7 @@ class MakoFormatterSettingsBox(SettingsBox):
 
 _settings_box = MakoFormatterSettingsBox()
 
+
 class MakoFormatterPlugin(FormatterPlugin):
     """
     The MakoFormatterPlugins passes the values in the search
@@ -62,6 +80,7 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
+        logger.warning("installing mako plugin")
         # copy default template files to user_dir
         templates = ['example.csv', 'example.csv']
         base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
@@ -70,11 +89,9 @@ class MakoFormatterPlugin(FormatterPlugin):
             if not os.path.exists(f):
                 shutil.copy(os.path.join(base_dir, template), f)
 
-
     @staticmethod
     def get_settings_box():
         return _settings_box
-
 
     @staticmethod
     def format(objs, **kwargs):
@@ -82,9 +99,10 @@ class MakoFormatterPlugin(FormatterPlugin):
         use_private = kwargs.get('private', True)
         if not template_filename:
             msg = _('Please selecte a template.')
-            utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
+            utils.message_dialog(msg, gtk.MESSAGE_WARNING)
             return False
-        template = Template(filename=template_filename, output_encoding='utf-8')
+        template = Template(
+            filename=template_filename, output_encoding='utf-8')
         session = db.Session()
         values = map(session.merge, objs)
         report = template.render(values=values)
@@ -97,11 +115,10 @@ class MakoFormatterPlugin(FormatterPlugin):
         try:
             desktop.open(filename)
         except OSError:
-            utils.message_dialog(_('Could not open the report with the '\
-                                   'default program. You can open the '\
+            utils.message_dialog(_('Could not open the report with the '
+                                   'default program. You can open the '
                                    'file manually at %s') % filename)
         return report
 
 
 formatter_plugin = MakoFormatterPlugin
-
