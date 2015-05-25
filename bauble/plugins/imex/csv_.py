@@ -9,19 +9,22 @@ import os
 import csv
 import traceback
 
+import logging
+logger = logging.getLogger(__name__)
+
 import gtk
 
-from sqlalchemy import *
+from sqlalchemy import ColumnDefault, Boolean
 
 import bauble
 import bauble.db as db
+from bauble.i18n import _
 from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
-from bauble.utils.log import debug, error
+from bauble import pb_set_fraction
 
-from sqlalchemy.sql.util import sort_tables
 # TODO: i've also had a problem with bad insert statements, e.g. importing a
 # geography table after creating a new database and it doesn't use the
 # 'name' column in the insert so there is an error, if  you then import the
@@ -48,15 +51,6 @@ from sqlalchemy.sql.util import sort_tables
 
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
-
-
-def pb_set_fraction(fraction):
-    """
-    provides a safe way to handle the progress bar if the gui isn't started,
-    we use this in the tests where there is not gui
-    """
-    if bauble.gui is not None and bauble.gui.progressbar is not None:
-        bauble.gui.progressbar.set_fraction(fraction)
 
 
 class UnicodeReader(object):
@@ -153,9 +147,9 @@ class CSVImporter(Importer):
         self.__error_exc = False
 
     def start(self, filenames=None, metadata=None, force=False):
-        '''start the import process. this is a non blocking method: we queue the
-        process as a bauble task. there is no callback informing whether it
-        is successfully completed or not.
+        '''start the import process. this is a non blocking method: we queue
+        the process as a bauble task. there is no callback informing whether
+        it is successfully completed or not.
 
         '''
         if metadata is None:
@@ -302,9 +296,10 @@ class CSVImporter(Importer):
         try:
             ## get all the dependencies
             for table, filename in sorted_tables:
-                #debug(table.name)
+                logger.debug(table.name)
                 d = utils.find_dependent_tables(table)
                 depends.update(list(d))
+                del d
 
             ## drop all of the dependencies together
             if len(depends) > 0:
@@ -319,8 +314,8 @@ class CSVImporter(Importer):
                     response = True
 
                 if response and len(depends) > 0:
-                    # debug('dropping: %s' \
-                    #           % ', '.join([d.name for d in depends]))
+                    logger.debug('dropping: %s'
+                                 % ', '.join([d.name for d in depends]))
                     metadata.drop_all(bind=connection, tables=depends)
                 else:
                     # user doesn't want to drop dependencies so we just quit
@@ -355,8 +350,8 @@ class CSVImporter(Importer):
                 # return true for a dropped table if the transaction
                 # hasn't been committed
                 if table in depends or not table.exists():
-                    #log.info('%s does not exist. creating.' % table.name)
-                    #debug('%s does not exist. creating.' % table.name)
+                    logger.info('%s does not exist. creating.' % table.name)
+                    logger.debug('%s does not exist. creating.' % table.name)
                     create_table(table)
                 elif table.name not in created_tables and table not in depends:
                     # we get here if the table wasn't previously
@@ -431,9 +426,8 @@ class CSVImporter(Importer):
                         connection.execute(insert, *values)
                     del values[:]
                     percent = float(steps_so_far)/float(total_lines)
-                    if 0 < percent < 1.0:  # avoid warning
-                        if bauble.gui is not None:
-                            pb_set_fraction(percent)
+                    if 0 < percent < 1.0:
+                        pb_set_fraction(percent)
 
                 isempty = lambda v: v in ('', None)
 
@@ -487,11 +481,12 @@ class CSVImporter(Importer):
                 # or Postgres will complain if two tables that are
                 # being imported have a foreign key relationship
                 transaction.commit()
-                ## debug('%s: %s' % (table.name,
-                ## table.select().alias().count().execute().fetchone()[0]))
+                logger.debug('%s: %s' % (
+                    table.name,
+                    table.select().alias().count().execute().fetchone()[0]))
                 transaction = connection.begin()
 
-            #debug('creating: %s' % ', '.join([d.name for d in depends]))
+            logger.debug('creating: %s' % ', '.join([d.name for d in depends]))
             # TODO: need to get those tables from depends that need to
             # be created but weren't created already
             metadata.create_all(connection, depends, checkfirst=True)
@@ -499,8 +494,8 @@ class CSVImporter(Importer):
             transaction.rollback()
             raise
         except Exception, e:
-            error(e)
-            error(traceback.format_exc())
+            logger.error(e)
+            logger.error(traceback.format_exc())
             transaction.rollback()
             self.__error = True
             self.__error_exc = e
@@ -568,8 +563,8 @@ class CSVImporter(Importer):
         return filenames
 
     def on_response(self, widget, response, data=None):
-        debug('on_response')
-        debug(response)
+        logger.debug('on_response')
+        logger.debug(response)
 
 
 # TODO: add support for exporting only specific tables
@@ -596,7 +591,7 @@ class CSVExporter(object):
             # besides db.metadata
             bauble.task.queue(self.__export_task(path))
         except Exception, e:
-            debug(e)
+            logger.debug(e)
 
     def __export_task(self, path):
 #        if not os.path.exists(path):
@@ -612,7 +607,7 @@ class CSVExporter(object):
                 msg = _('Export file <b>%(filename)s</b> for '
                         '<b>%(table)s</b> table already exists.\n\n<i>Would '
                         'you like to continue?</i>')\
-                        % {'filename': filename, 'table': table.name}
+                    % {'filename': filename, 'table': table.name}
                 if utils.yes_no_dialog(msg):
                     return
 
@@ -637,7 +632,7 @@ class CSVExporter(object):
             msg = _('exporting %(table)s table to %(filename)s')\
                 % {'table': table.name, 'filename': filename}
             bauble.task.set_message(msg)
-            #log.info("exporting %s" % table.name)
+            logger.info("exporting %s" % table.name)
 
             # get the data
             results = table.select().execute().fetchall()
@@ -646,8 +641,6 @@ class CSVExporter(object):
             if len(results) == 0:
                 write_csv(filename, [table.c.keys()])
                 yield
-                #yield timeout
-                #tasklet.get_event()
                 continue
 
             rows = []
@@ -658,8 +651,6 @@ class CSVExporter(object):
                 rows.append(values)
                 if ctr == update_every:
                     yield
-                    #yield timeout
-                    #tasklet.get_event()
                     ctr = 0
                 ctr += 1
             write_csv(filename, rows)

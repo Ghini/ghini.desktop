@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Family table definition
 #
@@ -99,7 +118,7 @@ def family_markup_func(family):
 #
 # Family
 #
-class Family(db.Base):
+class Family(db.Base, db.Serializable):
     """
     :Table name: family
 
@@ -117,9 +136,6 @@ class Family(db.Base):
 
                 * '': the empty string
 
-        *notes*:
-            Free text notes about the family.
-
     :Properties:
         *synonyms*:
             An association to _synonyms that will automatically
@@ -129,7 +145,7 @@ class Family(db.Base):
         The family table has a unique constraint on family/qualifier.
     """
     __tablename__ = 'family'
-    __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
+    __table_args__ = (UniqueConstraint('family'), {})
     __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
     rank = 'familia'
@@ -175,48 +191,25 @@ class Family(db.Base):
         return False
 
     def as_dict(self):
-        result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
-                      if col not in ['id', 'family', 'qualifier']
-                      and col[0] != '_'
-                      and getattr(self, col) is not None
-                      and not col.endswith('_id'))
+        result = db.Serializable.as_dict(self)
+        del result['family']
+        del result['qualifier']
         result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.family
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
-        """return database object corresponding to keys
-        """
-
-        ## first try retrieving, just use genus and sp fields
-        is_in_session = session.query(cls).filter(
+    def retrieve(cls, session, keys):
+        return session.query(cls).filter(
             cls.family == keys['epithet']).all()
 
-        if is_in_session:
-            return is_in_session[0]
-
-        ## correct field names
+    @classmethod
+    def correct_field_names(cls, keys):
         for internal, exchange in [('family', 'epithet')]:
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]
-
-        ## otherwise remove unexpected keys, create new object, add it to
-        ## the session and finally do return it.
-
-        for k in keys.keys():
-            if k not in class_mapper(cls).mapped_table.c:
-                del keys[k]
-        if 'id' in keys:
-            del keys['id']
-
-        result = cls(**keys)
-        session.add(result)
-
-        return result
 
 
 ## defining the latin alias to the class.
@@ -320,7 +313,7 @@ class FamilyEditorView(editor.GenericEditorView):
 
     def save_state(self):
         # prefs[self.syn_expanded_pref] = \
-        #                         self.widgets.fam_syn_expander.get_expanded()
+        # self.widgets.fam_syn_expander.get_expanded()
         pass
 
     def restore_state(self):
@@ -407,9 +400,6 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         return r
 
 
-#
-# TODO: you shouldn't be able to set a family as a synonym of itself
-#
 class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
@@ -425,14 +415,11 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.view.widgets.fam_syn_entry.props.text = ''
         self.init_treeview()
 
-        # use completions_model as a dummy object for completions, we'll
-        # create separate SpeciesSynonym models on add
-        completions_model = FamilySynonym()
-
         def fam_get_completions(text):
             query = self.session.query(Family)
             return query.filter(and_(Family.family.like('%s%%' % text),
-                                     Family.id != self.model.id))
+                                     Family.id != self.model.id)).\
+                order_by(Family.family)
 
         self._selected = None
 

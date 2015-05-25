@@ -5,38 +5,33 @@
 
 import datetime
 import os
-from random import random
-import re
-import sys
 import weakref
 import traceback
-import xml.sax.saxutils as saxutils
-
-import dateutil.parser as date_parser
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
+from sqlalchemy import Column, Integer, ForeignKey, UnicodeText, Unicode
+from sqlalchemy.orm import backref, relation
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
 import bauble
 import bauble.db as db
-from bauble.error import check
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
-from bauble.utils.log import debug
 import bauble.prefs as prefs
-from bauble.error import CommitException
 import bauble.btypes as types
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results, Action
+from bauble.i18n import _
 
 prop_type_values = {u'Seed': _("Seed"),
                     u'UnrootedCutting': _('Unrooted cutting'),
                     u'Other': _('Other')}
+
 
 class PlantPropagation(db.Base):
     """
@@ -52,7 +47,6 @@ class PlantPropagation(db.Base):
     plant = relation('Plant', uselist=False)
 
 
-
 class Propagation(db.Base):
     """
     Propagation
@@ -66,14 +60,16 @@ class Propagation(db.Base):
     notes = Column(UnicodeText)
     date = Column(types.Date)
 
-    _cutting = relation('PropCutting',
-                      primaryjoin='Propagation.id==PropCutting.propagation_id',
-                      cascade='all,delete-orphan', uselist=False,
-                      backref=backref('propagation', uselist=False))
-    _seed = relation('PropSeed',
-                     primaryjoin='Propagation.id==PropSeed.propagation_id',
-                     cascade='all,delete-orphan', uselist=False,
-                     backref=backref('propagation', uselist=False))
+    _cutting = relation(
+        'PropCutting',
+        primaryjoin='Propagation.id==PropCutting.propagation_id',
+        cascade='all,delete-orphan', uselist=False,
+        backref=backref('propagation', uselist=False))
+    _seed = relation(
+        'PropSeed',
+        primaryjoin='Propagation.id==PropSeed.propagation_id',
+        cascade='all,delete-orphan', uselist=False,
+        backref=backref('propagation', uselist=False))
 
     def _get_details(self):
         if self.prop_type == 'Seed':
@@ -94,6 +90,7 @@ class Propagation(db.Base):
         """
         """
         date_format = prefs.prefs[prefs.date_format_pref]
+
         def get_date(date):
             if isinstance(date, datetime.date):
                 return date.strftime(date_format)
@@ -104,8 +101,8 @@ class Propagation(db.Base):
             c = self._cutting
             values = []
             if c.cutting_type is not None:
-                values.append(_('Cutting type: %s') % \
-                                  cutting_type_values[c.cutting_type])
+                values.append(_('Cutting type: %s') %
+                              cutting_type_values[c.cutting_type])
             if c.length:
                 values.append(_('Length: %(length)s%(unit)s') %
                               dict(length=c.length,
@@ -118,8 +115,8 @@ class Propagation(db.Base):
                     s.append('(%s%%)' % c.leaves_reduced_pct)
                 values.append(s)
             if c.flower_buds:
-                values.append(_('Flower buds: %s') % \
-                                  flower_buds_values[c.flower_buds])
+                values.append(_('Flower buds: %s') %
+                              flower_buds_values[c.flower_buds])
             if c.wound is not None:
                 values.append(_('Wounded: %s' % wound_values[c.wound]))
             if c.fungicide:
@@ -128,8 +125,8 @@ class Propagation(db.Base):
                 values.append(_('Hormone treatment: %s' % c.hormone))
             if c.bottom_heat_temp:
                 values.append(_('Bottom heat: %(temp)s%(unit)s') %
-                               dict(temp=c.bottom_heat_temp,
-                                    unit=bottom_heat_unit_values[c.bottom_heat_unit]))
+                              dict(temp=c.bottom_heat_temp,
+                                   unit=bottom_heat_unit_values[c.bottom_heat_unit]))
             if c.container:
                 values.append(_('Container: %s' % c.container))
             if c.media:
@@ -178,7 +175,6 @@ class Propagation(db.Base):
         return s
 
 
-
 class PropRooted(db.Base):
     """
     Rooting dates for cutting
@@ -189,7 +185,6 @@ class PropRooted(db.Base):
     date = Column(types.Date)
     quantity = Column(Integer, autoincrement=False)
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
-
 
 
 cutting_type_values = {u'Nodal': _('Nodal'),
@@ -229,6 +224,7 @@ length_unit_values = {u'mm': _('mm'),
                       u'in': _('in'),
                       None: ''}
 
+
 class PropCutting(db.Base):
     """
     A cutting
@@ -254,15 +250,16 @@ class PropCutting(db.Base):
     flower_buds = Column(types.Enum(values=flower_buds_values.keys(),
                                     translations=flower_buds_values))
 
-    fungicide = Column(Unicode) # fungal soak
-    hormone = Column(Unicode) # powder/liquid/None....solution
+    fungicide = Column(Unicode)  # fungal soak
+    hormone = Column(Unicode)  # powder/liquid/None....solution
 
     media = Column(Unicode)
     container = Column(Unicode)
     location = Column(Unicode)
-    cover = Column(Unicode) # vispore, poly, plastic dome, poly bag
+    cover = Column(Unicode)  # vispore, poly, plastic dome, poly bag
 
-    bottom_heat_temp = Column(Integer, autoincrement=False) # temperature of bottom heat
+    # temperature of bottom heat
+    bottom_heat_temp = Column(Integer, autoincrement=False)
 
     # TODO: make the bottom heat unit required if bottom_heat_temp is
     # not null
@@ -278,7 +275,7 @@ class PropCutting(db.Base):
                             nullable=False)
 
     rooted = relation('PropRooted', cascade='all,delete-orphan',
-                        backref=backref('cutting', uselist=False))
+                      backref=backref('cutting', uselist=False))
 
 
 class PropSeed(db.Base):
@@ -288,8 +285,8 @@ class PropSeed(db.Base):
     pretreatment = Column(UnicodeText)
     nseeds = Column(Integer, nullable=False, autoincrement=False)
     date_sown = Column(types.Date, nullable=False)
-    container = Column(Unicode) # 4" pot plug tray, other
-    media = Column(Unicode) # seedling media, sphagnum, other
+    container = Column(Unicode)  # 4" pot plug tray, other
+    media = Column(Unicode)  # seedling media, sphagnum, other
 
     # covered with #2 granite grit: no, yes, lightly heavily
     covered = Column(Unicode)
@@ -305,8 +302,8 @@ class PropSeed(db.Base):
 
     germ_date = Column(types.Date)
 
-    nseedlings = Column(Integer, autoincrement=False) # number of seedling
-    germ_pct = Column(Integer, autoincrement=False) # % of germination
+    nseedlings = Column(Integer, autoincrement=False)  # number of seedling
+    germ_pct = Column(Integer, autoincrement=False)  # % of germination
     date_planted = Column(types.Date)
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
@@ -339,7 +336,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         tab_box = self.view.widgets.prop_tab_box
         for kid in tab_box:
             if isinstance(kid, gtk.Box):
-                tab_box.remove(kid) # remove old prop boxes
+                tab_box.remove(kid)  # remove old prop boxes
         for prop in self.model.propagations:
             box = self.create_propagation_box(prop)
             tab_box.pack_start(box, expand=False, fill=True)
@@ -997,14 +994,12 @@ class PropagationEditorPresenter(PropagationPresenter):
         self.view.widgets.prop_ok_button.props.sensitive = sensitive
 
 
-
 class PropagationEditor(editor.GenericModelViewPresenterEditor):
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
-
 
     def __init__(self, model, parent=None):
         '''
@@ -1064,7 +1059,6 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
             utils.delete_or_expunge(self.model._seed)
             utils.delete_or_expunge(self.model._cutting)
 
-
     def handle_response(self, response, commit=True):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -1079,28 +1073,27 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                     self.commit_changes()
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe_utf8(unicode(e.orig))
+                    utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
             except Exception, e:
-                msg = _('Unknown error when committing changes. See the '\
+                msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
                         % utils.xml_safe_utf8(e)
-                debug(traceback.format_exc())
+                logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                 or not self.presenter.dirty():
+                or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
             return False
 
         return True
-
 
     def __del__(self):
         # override the editor.GenericModelViewPresenterEditor since it
@@ -1110,7 +1103,6 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         # TODO: when should we close the session and not, what about
         # is self.commit is True
         pass
-
 
     def start(self, commit=True):
         while True:
@@ -1122,6 +1114,6 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         # don't close the session since the PropagationEditor depends
         # on an PlantEditor...?
         #
-        #self.session.close() # cleanup session
+        #self.session.close()  # cleanup session
         self.presenter.cleanup()
         return self._return

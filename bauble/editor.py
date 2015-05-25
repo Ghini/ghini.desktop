@@ -27,6 +27,10 @@ import os
 import sys
 import weakref
 
+import logging
+logger = logging.getLogger(__name__)
+
+import glib
 import gtk
 import gobject
 
@@ -42,7 +46,6 @@ from bauble.error import check
 import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
-from bauble.utils.log import debug, warning
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
@@ -217,8 +220,8 @@ class GenericEditorView(object):
                 self.widgets[widget_name].set_tooltip_markup(markup)
             except Exception, e:
                 values = dict(widget_name=widget_name, exception=e)
-                debug(_('Couldn\'t set the tooltip on widget '
-                        '%(widget_name)s\n\n%(exception)s' % values))
+                logger.debug(_('Couldn\'t set the tooltip on widget '
+                               '%(widget_name)s\n\n%(exception)s' % values))
 
         window = self.get_window()
         self.connect(window, 'delete-event', self.on_window_delete)
@@ -297,7 +300,7 @@ class GenericEditorView(object):
         :param default: the default value to put in the widget if value is None
         :param index: the row index to use for those widgets who use a model
 
-        This method caled bauble.utils.set_widget_value()
+        This method called bauble.utils.set_widget_value()
         '''
         if isinstance(widget, gtk.Widget):
             utils.set_widget_value(widget, value, markup, default, index)
@@ -428,10 +431,7 @@ class GenericEditorView(object):
         pass
 
     def start(self):
-        '''
-        Must be implemented.
-        '''
-        raise NotImplementedError
+        return self.get_window().run()
 
     def cleanup(self):
         """
@@ -509,19 +509,20 @@ class GenericEditorPresenter(object):
         :param problem_id: the problem to remove, if None then remove
          any problem from the problem_widget(s)
 
-        :param problem_widgets: a gtk.Widget instance or list of list
-         of widgets to remove the problem from, if None then remove
-         all occurrences of problem_id regardless of the widget
+        :param problem_widgets: a gtk.Widget instance to remove the problem
+         from, if None then remove all occurrences of problem_id regardless
+         of the widget
         """
-        if problem_id is None and not problem_widgets:
+        if problem_id is None and problem_widgets is None:
+            logger.warning('invoke remove_problem with None, None')
             # if no problem id and not problem widgets then don't do anything
             return
 
         tmp = self.problems.copy()
         for p, w in tmp:
-            if (not problem_widgets and p == problem_id) or \
-                    (problem_id is None and w == problem_widgets) or \
-                    (p == problem_id and w == problem_widgets):
+            if (w == problem_widgets and p == problem_id) or \
+                    (problem_widgets is None and p == problem_id) or \
+                    (w == problem_widgets and problem_id is None):
                 if w:
                     w.modify_bg(gtk.STATE_NORMAL, None)
                     w.modify_base(gtk.STATE_NORMAL, None)
@@ -578,12 +579,13 @@ class GenericEditorPresenter(object):
         :param value: the value the attribute will be set to
         :param validator: validates the value before setting it
         """
-        #debug('editor.set_model_attr(%s, %s)' % (attr, value))
+        logger.debug('editor.set_model_attr(%s, %s)' % (attr, value))
         if validator:
             try:
                 value = validator.to_python(value)
                 self.remove_problem('BAD_VALUE_%s' % attr)
             except ValidatorError, e:
+                logger.debug("GenericEditorPresenter.set_model_attr %s" % e)
                 self.add_problem('BAD_VALUE_%s' % attr)
             else:
                 setattr(self.model, attr, value)
@@ -618,6 +620,8 @@ class GenericEditorPresenter(object):
                     self.presenter.remove_problem('BAD_VALUE_%s'
                                                   % model_attr, widget)
                 except Exception, e:
+                    logger.debug("GenericEditorPresenter.ProblemValidator"
+                                 ".to_python %s" % e)
                     self.presenter.add_problem('BAD_VALUE_%s'
                                                % model_attr, widget)
                     raise
@@ -868,7 +872,7 @@ class GenericModelViewPresenterEditor(object):
         try:
             self.session.commit()
         except Exception, e:
-            warning(e)
+            logger.warning(e)
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -971,6 +975,7 @@ class NoteBox(gtk.HBox):
             self.presenter.notes.remove(self.model)
         self.widgets.remove_parent(self.widgets.notes_box)
         self.presenter._dirty = True
+        self.presenter.parent_ref().refresh_sensitivity()
 
     def on_date_entry_changed(self, entry, *args):
         PROBLEM = 'BAD_DATE'
@@ -978,6 +983,7 @@ class NoteBox(gtk.HBox):
         try:
             text = DateValidator().to_python(text)
         except Exception, e:
+            logger.debug(e)
             self.presenter.add_problem(PROBLEM, entry)
         else:
             self.presenter.remove_problem(PROBLEM, entry)
@@ -1091,6 +1097,7 @@ class PictureBox(NoteBox):
         utils.set_widget_value(self.widgets.category_comboentry,
                                u'<picture>')
         self.presenter._dirty = False
+        self.last_folder = '.'
 
         self.widgets.picture_button.connect(
             "clicked", self.on_activate_browse_button)
@@ -1100,15 +1107,26 @@ class PictureBox(NoteBox):
             w.destroy()
         if filename is not None:
             im = gtk.Image()
-            pixbuf = gtk.gdk.pixbuf_new_from_file(
-                os.path.join(prefs.prefs[prefs.picture_root_pref], filename))
-            scale_x = pixbuf.get_width() / 400
-            scale_y = pixbuf.get_height() / 400
-            scale = max(scale_x, scale_y)
-            x = int(pixbuf.get_width() / scale)
-            y = int(pixbuf.get_height() / scale)
-            scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
-            im.set_from_pixbuf(scaled_buf)
+            try:
+                pixbuf = gtk.gdk.pixbuf_new_from_file(
+                    os.path.join(prefs.prefs[prefs.picture_root_pref],
+                                 filename))
+                scale_x = pixbuf.get_width() / 400
+                scale_y = pixbuf.get_height() / 400
+                scale = max(scale_x, scale_y, 1)
+                x = int(pixbuf.get_width() / scale)
+                y = int(pixbuf.get_height() / scale)
+                scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+                im.set_from_pixbuf(scaled_buf)
+            except glib.GError:
+                label = _('picture file %s not found.') % filename
+                logger.debug(label)
+                im = gtk.Label()
+                im.set_text(label)
+            except Exception, e:
+                logger.warning(e)
+                im = gtk.Label()
+                im.set_text(_("%s" % e))
         else:
             # make button hold some text
             im = gtk.Label()
@@ -1118,22 +1136,32 @@ class PictureBox(NoteBox):
         self.widgets.picture_button.show()
 
     def on_activate_browse_button(self, widget, data=None):
-        d = gtk.FileChooserDialog(
+        fileChooserDialog = gtk.FileChooserDialog(
             _("Choose a file..."), None,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        d.run()
-        filename = d.get_filename()
-        if filename:
-            import shutil
-            ## get the file's basename
-            basename = os.path.basename(filename)
-            ## copy file to picture_root_dir.
-            shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
-            ## store basename in note field and fire callbacks.
-            self.set_model_attr('note', basename)
-            self.set_content(basename)
-        d.destroy()
+        try:
+            fileChooserDialog.set_current_folder(self.last_folder)
+            fileChooserDialog.run()
+            filename = fileChooserDialog.get_filename()
+            if filename:
+                import shutil
+                ## copy file to picture_root_dir (if not yet there).
+                if not filename.startswith(
+                        prefs.prefs[prefs.picture_root_pref]):
+                    shutil.copy(
+                        filename, prefs.prefs[prefs.picture_root_pref])
+                ## get dirname and basename from selected file, memorize
+                ## dirname
+                self.last_folder, basename = os.path.split(filename)
+                ## make sure the category is <picture>
+                self.set_model_attr('category', u'<picture>')
+                ## store basename in note field and fire callbacks.
+                self.set_model_attr('note', basename)
+                self.set_content(basename)
+        except Exception, e:
+            logger.warning("unhandled exception in editor.py: %s" % e)
+        fileChooserDialog.destroy()
 
     def on_category_entry_changed(self, entry, *args):
         pass
@@ -1199,14 +1227,18 @@ class NotesPresenter(GenericEditorPresenter):
         # the `expander`s are added to self.box
         self.box = self.widgets.notes_expander_box
 
+        valid_notes_count = 0
         for note in self.notes:
             if self.ContentBox.is_valid_note(note):
                 box = self.add_note(note)
                 box.set_expanded(False)
+                valid_notes_count += 1
 
-        if len(self.notes) < 1:
+        if valid_notes_count < 1:
             self.add_note()
 
+        logger.debug('notes: %s' % self.notes)
+        logger.debug('children: %s' % self.box.get_children())
         self.box.get_children()[0].set_expanded(True)  # expand first one
 
         self.widgets.notes_add_button.connect(

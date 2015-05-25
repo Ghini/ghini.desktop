@@ -27,7 +27,7 @@ import os
 import re
 import sys
 
-usage = """Usage: %s <version>
+usage = """Usage: %s [<version> | + | ++]
 """ % os.path.basename(sys.argv[0])
 
 
@@ -41,10 +41,34 @@ if len(sys.argv) != 2:
     usage_and_exit()
 version = sys.argv[1]
 
+bump_tag = ':bump'
+
+# should I just increment version as of bauble.version?
+if version in ['+', '++', '+++']:
+    inc_patch = version == '+'
+    inc_minor = version == '++'
+    inc_major = version == '+++'
+    rx = re.compile("^version\s*=\s*(?:\'|\")(.*)\.(.*)\.(.*)(?:\'|\").*%s.*$"
+                    % bump_tag)
+
+    matches = [rx.match(l).groups()
+               for l in open("bauble/version.py", 'r')
+               if rx.match(l)]
+    if matches:
+        major, minor, patch = [int(i) for i in matches[0]]
+        if inc_major:
+            major += 1
+            minor = 0
+            patch = 0
+        elif inc_minor:
+            minor += 1
+            patch = 0
+        elif inc_patch:
+            patch += 1
+        version = "%s.%s.%s" % (major, minor, patch)
+
 if not re.match('.*?\..*?\..*?', version):
     usage_and_exit('bad version string')
-
-bump_tag = ':bump'
 
 
 def bump_file(filename, rx):
@@ -107,3 +131,6 @@ bump_nsi_file('scripts/build.nsi')
 # TODO: the bauble UBC version is prefixed with ubc-
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file('packages/builddeb.sh', rx)
+
+print 'git commit -m "bumping to %s" bauble/version.py data/bauble.desktop '\
+    'scripts/build.nsi packages/builddeb.sh' % version

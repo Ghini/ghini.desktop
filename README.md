@@ -40,10 +40,10 @@ Requirements
 ------------
 bauble.classic requires the following packages to run.
 
-* a debug version of Python (>= 2.4, recently tested with 2.7.5)
-* SQLAlchemy (>= 0.6.0, recently tested with 0.9.1)
-* pygtk (>= 2.12)
-* PyGObject (>= 2.11.1)
+* Python (travis-ci checks Bauble against Python 2.6 and 2.7)
+* SQLAlchemy (>= 0.6.0, at least up to 1.0.3)
+* pygtk (>= 2.12, at least up to 2.24)
+* PyGObject (>= 2.11.1, at least up to 2.28.6)
 * lxml (>= 2.0)
 
 each of the following database connectors is optional, but at least one is needed:
@@ -64,4 +64,4 @@ http://bauble.readthedocs.org. It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 
-The site for bauble.webapp is http://bauble.io.
+For any kind of question, you can open an issue here on github https://github.com/Bauble/bauble.classic/issues/new, or if you feel more comfortable with it, you can start a thread on our google group https://groups.google.com/forum/#!forum/bauble

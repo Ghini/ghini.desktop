@@ -20,6 +20,8 @@
 
 import csv
 import logging
+logger = logging.getLogger(__name__)
+
 import os
 import shutil
 import tempfile
@@ -34,7 +36,6 @@ from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
     QUOTE_STYLE
 from bauble.plugins.imex.iojson import JSONImporter, JSONExporter
 from bauble.test import BaubleTestCase
-from bauble.utils.log import debug
 import json
 
 
@@ -72,7 +73,7 @@ class ImexTestCase(BaubleTestCase):
 class TestImporter(CSVImporter):
 
     def on_error(self, exc):
-        debug(exc)
+        logger.debug(exc)
         raise
 
 
@@ -182,7 +183,7 @@ class CSVTests(ImexTestCase):
         importer.start([filename], force=True)
         list(self.session.query(Family))
 
-    def test_import_use_default(self):
+    def test_import_use_defaultxxx(self):
         """
         Test that if we import from a csv file that doesn't include a
         column and that column has a default value then that default
@@ -200,6 +201,7 @@ class CSVTests(ImexTestCase):
         """
         q = self.session.query(Family)
         ids = [r.id for r in q]
+        self.assertEquals(ids, [1, 2])
         del q
         self.session.expunge_all()
         self.session = db.Session()
@@ -243,7 +245,6 @@ class CSVTests(ImexTestCase):
         # turn off logger
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
         highest_id = len(family_data)
-        currval = None
         conn = db.engine.connect()
         if db.engine.name == 'postgresql':
             stmt = "SELECT currval('family_id_seq');"
@@ -281,6 +282,7 @@ class CSVTests(ImexTestCase):
         Test exporting a None column exports a ''
         """
         species = Species(genus_id=1, sp='sp')
+        self.assertTrue(species is not None)
         from tempfile import mkdtemp
         temp_path = mkdtemp()
         exporter = CSVExporter()
@@ -291,105 +293,100 @@ class CSVTests(ImexTestCase):
         self.assert_(row['cv_group'] == '')
 
 
-# class CSVTests(ImexTestCase):
+class CSVTests2(ImexTestCase):
 
-#     def test_sequences(self):
-#         """
-#         Test that the sequences are set correctly after an import,
-#         bauble.util.test already has a method to test
-#         utils.reset_sequence but this test makes sure that its works
-#         correctly after an import
+    def test_sequences(self):
+        """
+        Test that the sequences are set correctly after an import,
+        bauble.util.test already has a method to test
+        utils.reset_sequence but this test makes sure that its works
+        correctly after an import
 
-#         This test requires the PlantPlugin
-#         """
-#         # turn off logger
-#         logging.getLogger('bauble.info').setLevel(logging.ERROR)
-#         # import the family data
-#         from bauble.plugins.plants.family import Family
-#         from bauble.plugins.plants import PlantsPlugin
-#         filename = os.path.join('bauble', 'plugins', 'plants', 'default',
-#                                 'family.txt')
-#         importer = CSVImporter()
-#         importer.start([filename], force=True)
-#         # the highest id number in the family file is assumed to be
-#         # num(lines)-1 since the id numbers are sequential and
-#         # subtract for the file header
-#         highest_id = len(open(filename).readlines())-1
-#         currval = None
-#         conn = db.engine.contextual_connect()
-#         if db.engine.name == 'postgres':
-#             stmt = "SELECT currval('family_id_seq');"
-#             currval = conn.execute(stmt).fetchone()[0]
-#         elif db.engine.name == 'sqlite':
-#             # max(id) isn't really safe in production use but is ok for a test
-#             stmt = "SELECT max(id) from family;"
-#             nextval = conn.execute(stmt).fetchone()[0] + 1
-#         else:
-#             raise "no test for engine type: %s" % db.engine.name
+        This test requires the PlantPlugin
+        """
+        # turn off logger
+        logging.getLogger('bauble.info').setLevel(logging.ERROR)
+        # import the family data
+        filename = os.path.join('bauble', 'plugins', 'plants', 'default',
+                                'family.txt')
+        importer = CSVImporter()
+        importer.start([filename], force=True)
+        # the highest id number in the family file is assumed to be
+        # num(lines)-1 since the id numbers are sequential and
+        # subtract for the file header
+        highest_id = len(open(filename).readlines())-1
+        currval = None
+        conn = db.engine.contextual_connect()
+        if db.engine.name == 'postgres':
+            stmt = "SELECT currval('family_id_seq');"
+            currval = conn.execute(stmt).fetchone()[0]
+            self.assertEquals(currval, 0)
+        elif db.engine.name == 'sqlite':
+            # max(id) isn't really safe in production use but is ok for a test
+            stmt = "SELECT max(id) from family;"
+            nextval = conn.execute(stmt).fetchone()[0] + 1
+        else:
+            raise "no test for engine type: %s" % db.engine.name
 
-#         #debug(list(conn.execute("SELECT * FROM family").fetchall()))
-#         maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]
-#         assert nextval > highest_id, \
-#                "bad sequence: highest_id(%s) > nexval(%s) -- %s" % \
-#                (highest_id, nextval, maxid)
+        #debug(list(conn.execute("SELECT * FROM family").fetchall()))
+        maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]
+        assert nextval > highest_id, \
+            "bad sequence: highest_id(%s) > nexval(%s) -- %s" % \
+            (highest_id, nextval, maxid)
 
+    def test_import(self):
+        # TODO: create a test to check that we aren't using an insert
+        # statement for import that assumes a column value from the previous
+        # insert values, could probably create an insert statement from a
+        # row in the test data and then create an insert statement from some
+        # other dummy data that has different columns from the test data and
+        # see if any of the columns from the second insert statement has values
+        # from the first statement
 
-#     def test_import(self):
-#         # TODO: create a test to check that we aren't using an insert
-#         # statement for import that assumes a column value from the previous
-#         # insert values, could probably create an insert statement from a
-#         # row in the test data and then create an insert statement from some
-#         # other dummy data that has different columns from the test data and
-#         # see if any of the columns from the second insert statement has values
-#         # from the first statement
+        # TODO: this test doesn't really test yet that any of the data was
+        # correctly imported or exported, only that export and importing
+        # run successfuly
 
-#         # TODO: this test doesn't really test yet that any of the data was
-#         # correctly imported or exported, only that export and importing
-#         # run successfuly
+        # 1. write the test data to a temporary file or files
+        # 2. import the data and make sure the objects match field for field
 
-#         # 1. write the test data to a temporary file or files
-#         # 2. import the data and make sure the objects match field for field
+        # the exporters and importers show logging information, turn it off
+        logging.getLogger('bauble.info').setLevel(logging.ERROR)
+        import tempfile
+        tempdir = tempfile.mkdtemp()
 
-#         # the exporters and importers show logging information, turn it off
-#         import bauble.utils as utils
-#         logging.getLogger('bauble.info').setLevel(logging.ERROR)
-#         import tempfile
-#         tempdir = tempfile.mkdtemp()
+        # export all the testdata
+        exporter = CSVExporter()
+        exporter.start(tempdir)
 
-#         # export all the testdata
-#         exporter = CSVExporter()
-#         exporter.start(tempdir)
+        # import all the files in the temp directory
+        filenames = os.listdir(tempdir)
+        importer = CSVImporter()
+        # import twice to check for regression Launchpad #???
+        importer.start([os.path.join(tempdir, name) for name in filenames],
+                       force=True)
+        importer.start([os.path.join(tempdir, name) for name in filenames],
+                       force=True)
+#        utils.log.echo(False)
 
-#         # import all the files in the temp directory
-#         filenames = os.listdir(tempdir)
-#         importer = CSVImporter()
-#         # import twice to check for regression Launchpad #???
-#         importer.start([os.path.join(tempdir, name) for name in filenames],
-#                        force=True)
-#         importer.start([os.path.join(tempdir, name) for name in filenames],
-#                        force=True)
-# #        utils.log.echo(False)
+    def test_unicode(self):
+        from bauble.plugins.plants.geography import Geography
+        geography_table = Geography.__table__
+        # u'Gal\xe1pagos' is the unencoded unicode object,
+        # calling u.encode('utf-8') will convert the \xe1 to the a
+        # with an accent
+        data = {'name': u'Gal\xe1pagos'}
+        geography_table.insert().execute(data)
+        query = self.session.query(Geography)
+        row_name = [r.name for r in query.all()
+                    if r.name.startswith("Gal")][0]
+        self.assertEquals(row_name, data['name'])
 
-#     def test_unicode(self):
-#         from bauble.plugins.plants.geography import Geography
-#         geography_table = Geography.__table__
-#         # u'Gal\xe1pagos' is the unencoded unicode object,
-#         # calling u.encode('utf-8') will convert the \xe1 to the a
-#         # with an accent
-#         data = {'name': u'Gal\xe1pagos'}
-#         geography_table.insert().execute(data)
-#         query = self.session.query(Geography)
-#         row = query[0]
-# ##        print str(row)
-# ##        print data['name']
-#         assert row.name == data['name']
-
-
-#     def test_export(self):
-#         # 1. export the test data
-#         # 2. read the exported data into memory and make sure its matches
-#         # the test export string
-#         pass
+    def test_export(self):
+        # 1. export the test data
+        # 2. read the exported data into memory and make sure its matches
+        # the test export string
+        pass
 
 
 class JSONExportTests(BaubleTestCase):
@@ -470,7 +467,8 @@ class JSONExportTests(BaubleTestCase):
         "exporting one family: export full taxonomic information below family"
 
         exporter = JSONExporter()
-        selection = self.session.query(Family).filter(Family.family == u'Orchidaceae').all()
+        selection = self.session.query(Family).filter(
+            Family.family == u'Orchidaceae').all()
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
@@ -481,7 +479,8 @@ class JSONExportTests(BaubleTestCase):
         "exporting one genus: all species below genus"
 
         exporter = JSONExporter()
-        selection = self.session.query(Genus).filter(Genus.genus == u'Calopogon').all()
+        selection = self.session.query(Genus).filter(
+            Genus.genus == u'Calopogon').all()
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
@@ -531,13 +530,17 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_new_inserts(self):
         "importing new taxon adds it to database."
-        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank": "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", '\
+            '"ht-rank": "Familia", "ht-epithet": "Orchidaceae", '\
+            '"author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 0)
+        self.assertEquals(len(self.session.query(Genus).filter(
+            Genus.genus == u"Neogyna").all()), 0)
         importer = JSONImporter()
         importer.start([self.temp_path])
-        self.assertEquals(len(self.session.query(Genus).filter(Genus.genus==u"Neogyna").all()), 1)
+        self.assertEquals(len(self.session.query(Genus).filter(
+            Genus.genus == u"Neogyna").all()), 1)
 
     def test_import_new_inserts_lowercase(self):
         "importing new taxon adds it to database, rank name can be\
@@ -574,11 +577,12 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_ignores_id_new(self):
         "importing taxon disregards id value if present (new taxon)."
-        self.assertRaises(KeyError, Genus.retrieve_or_create,
-                          self.session, {'epithet': u"Neogyna"})
-        json_string = '[{"rank": "Genus", "epithet": "Neogyna", "ht-rank"\
-        : "Familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f.", \
-        "id": 1}]'
+        previously = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Neogyna"})
+        self.assertEquals(previously, None)
+        json_string = '[{"rank": "Genus", "epithet": "Neogyna", '\
+            '"ht-rank": "Familia", "ht-epithet": "Orchidaceae", '\
+            '"author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
@@ -593,7 +597,9 @@ class JSONImportTests(BaubleTestCase):
         previously = Species.retrieve_or_create(self.session,
                                                 {'ht-epithet': u"Calopogon",
                                                  'epithet': u"tuberosus"}).id
-        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, "id": 8}]'
+        json_string = '[{"rank": "Species", "epithet": "tuberosus", '\
+            '"ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, '\
+            '"id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
@@ -605,35 +611,49 @@ class JSONImportTests(BaubleTestCase):
         self.assertEquals(previously, afterwards)
 
     def test_import_species_to_new_genus_fails(self):
-        "importing new species referring to non existing genus gives error \
-        (missing family)."
+        "importing new species referring to non existing genus logs a warning."
         json_string = '[{"rank": "Species", "epithet": "lawrenceae", \
 "ht-rank": "Genus", "ht-epithet": "Aerides", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
-        from sqlalchemy.exc import IntegrityError
-        self.assertRaises(IntegrityError, importer.start, [self.temp_path])
+        importer.start([self.temp_path])
+        ## should check the logs
+        ## check the species is still not there
+        sp = self.session.query(Species).filter(
+            Species.sp == u'lawrenceae').join(Genus).filter(
+            Genus.genus == u'Aerides').all()
+        self.assertEquals(sp, [])
 
     def test_import_species_to_new_genus_and_family(self):
-        "importing new species referring to non existing genus works if \
-        family is specified."
+        "species referring to non existing genus (family is specified)"
 
-        json_string = '[{"rank": "Species", "epithet": "lawrenceae", "ht-rank"\
-        : "Genus", "ht-epithet": "Aerides", "familia": "Orchidaceae", "author"\
-        : "Rchb. f."}]'
+        ## precondition: the species is not there
+        sp = self.session.query(Species).filter(
+            Species.sp == u'lawrenceae').join(Genus).filter(
+            Genus.genus == u'Aerides').all()
+        self.assertEquals(sp, [])
+
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", '\
+            + '"ht-rank": "Genus", "ht-epithet": "Aerides", '\
+            + '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
         importer.start([self.temp_path])
         self.session.commit()
+        ## postcondition: the species is there
         sp = self.session.query(Species).filter(
             Species.sp == u'lawrenceae').join(Genus).filter(
-            Genus.genus == u'Aerides').all()[0]
+            Genus.genus == u'Aerides').all()
+        self.assertEquals(len(sp), 1)
+        sp = sp[0]
         genus = self.session.query(Genus).filter(
             Genus.genus == u'Aerides').all()[0]
         family = self.session.query(Family).filter(
             Family.family == u'Orchidaceae').all()[0]
+        self.assertEquals(sp.genus, genus)
+        self.assertEquals(genus.family, family)
 
         # Calopogon tuberosus
         # Spiranthes delitescens Sheviak

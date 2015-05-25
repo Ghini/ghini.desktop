@@ -20,14 +20,18 @@
 
 from itertools import chain
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
     UnicodeText, func, UniqueConstraint
-from sqlalchemy.orm import relation, backref, class_mapper
+from sqlalchemy.orm import relation, backref
 import bauble.db as db
+import bauble.error as error
 import bauble.utils as utils
-from bauble.utils.log import debug
 import bauble.btypes as types
 from bauble.i18n import _
 
@@ -46,7 +50,7 @@ class VNList(list):
             if vn.species.default_vernacular_name == vn:
                 del vn.species.default_vernacular_name
         except Exception, e:
-            debug(e)
+            logger.debug(e)
 
 
 infrasp_rank_values = {u'subsp.': _('subsp.'),
@@ -67,7 +71,7 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
 # make sure that at least one of the specific epithet, cultivar name
 # or cultivar group is specificed
 
-class Species(db.Base):
+class Species(db.Base, db.Serializable):
     """
     :Table name: species
 
@@ -392,53 +396,32 @@ class Species(db.Base):
         return result
 
     @classmethod
-    def retrieve_or_create(cls, session, keys):
-
-        from genus import Genus
-        ## first try retrieving, just use species and genus fields
-        is_in_session = session.query(cls).filter(
-            cls.sp == keys['epithet']).join(Genus).filter(
-            Genus.genus == keys['ht-epithet']).all()
-
-        ## correct field names
+    def correct_field_names(cls, keys):
         for internal, exchange in [('sp_author', 'author'),
                                    ('sp', 'epithet')]:
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]
 
-        if is_in_session:
-            result = is_in_session[0]
+    @classmethod
+    def retrieve(cls, session, keys):
+        from genus import Genus
+        return session.query(cls).filter(
+            cls.sp == keys['epithet']).join(Genus).filter(
+            Genus.genus == keys['ht-epithet']).all()
 
-            ## update object and return it.
-            for k in keys.keys():
-                if k == 'id' or k not in class_mapper(cls).mapped_table.c:
-                    continue
-                setattr(result, k, keys[k])
-            return result
-
-        ## otherwise we need a new object
-
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        from genus import Genus
+        result = {'genus': None}
         ## retrieve genus object
-        genus = Genus.retrieve_or_create(
+        specifies_family = keys.get('familia')
+        result['genus'] = Genus.retrieve_or_create(
             session, {'epithet': keys['ht-epithet'],
-                      'ht-epithet': keys.get('familia')})
-
-        ## remove unexpected keys, create new object, add it to the session
-        ## and finally do return it.
-
-        for k in keys.keys():
-            if k not in class_mapper(cls).mapped_table.c:
-                del keys[k]
-        if 'id' in keys:
-            del keys['id']
-
-        ## reconstruct connection to higher taxon
-        keys['genus'] = genus
-
-        result = cls(**keys)
-        session.add(result)
-
+                      'ht-epithet': specifies_family},
+            create=(specifies_family is not None))
+        if result['genus'] is None:
+            raise error.NoResultException()
         return result
 
 

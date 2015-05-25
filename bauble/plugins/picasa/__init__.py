@@ -27,24 +27,33 @@
 # IDEA: we could probably make this module more generic and based on
 # mixins where we add the functionality for getting the photos by
 # mixing in different implentations for different services
+import gtk
+import gobject
+
 import os
 import sys
 import tempfile
 import urllib
 from Queue import Queue
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 import bauble.db as db
+from bauble.i18n import _
+
 
 # this little dummyfile hack fixes an annoying deprecation warning
 # when importing gdata 1.2.4
 class dummyfile(object):
-    def write(*x): pass
+    def write(*x):
+        pass
+
 tmp = sys.stderr
 sys.stderr = dummyfile()
 import gdata.photos.service
 sys.stderr = tmp
-
-import gtk
 
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
@@ -58,7 +67,6 @@ import bauble.utils as utils
 import bauble.utils.thread as thread
 import bauble.view as view
 from bauble.plugins.plants import Species
-from bauble.utils.log import debug
 
 PICASA_TOKEN_KEY = u'picasa_token'
 
@@ -69,7 +77,7 @@ PICASA_EMAIL_KEY = u'picasa_email'
 PICASA_ALBUM_KEY = u'picasa_album'
 
 # see http://code.google.com/apis/picasaweb/reference.html#Parameters
-picasa_imgmax = 'd' # "d" means download the original
+picasa_imgmax = 'd'  # "d" means download the original
 picasa_thumbsize = '144u'
 
 default_path = os.path.join(paths.user_dir(), 'photos')
@@ -98,7 +106,6 @@ def update_meta(email=None, album=None, token=None):
     __feed_cache.clear()
 
 
-
 def get_auth_token(email, password):
     """
     Update the Picasa Auth Token using the Google Data ClientClient uri
@@ -107,7 +114,6 @@ def get_auth_token(email, password):
     gd_client.ClientLogin(username=email, password=password)
     __feed_cache.clear()
     return gd_client.GetClientLoginToken()
-
 
 
 def get_photo_feed(gd_client, user=None, album=None, tag=None):
@@ -124,7 +130,6 @@ def get_photo_feed(gd_client, user=None, album=None, tag=None):
         feed += '?kind=photo'
     feed += '&thumbsize=%s&imgmax=%s' % (picasa_thumbsize, picasa_imgmax)
     return gd_client.GetFeed(str(feed))
-
 
 
 class PhotoCache(object):
@@ -158,7 +163,6 @@ class PhotoCache(object):
             self.metadata.drop_all(checkfirst=True)
             self.metadata.create_all()
 
-
     def __getitem__(self, id):
         """
         Get photos from the database by tag
@@ -169,10 +173,8 @@ class PhotoCache(object):
         session.close()
         return photo
 
-
     def get(self, id):
         return self[id]
-
 
     def add(self, id, path):
         """
@@ -183,7 +185,6 @@ class PhotoCache(object):
         session.add(photo)
         session.commit()
         session.close()
-
 
     def remove(self, id):
         """
@@ -196,8 +197,8 @@ class PhotoCache(object):
         session.close()
 
 
-
 Base = declarative_base()
+
 
 class Photo(Base):
     """
@@ -210,7 +211,6 @@ class Photo(Base):
     __tablename__ = 'photo'
     id = sa.Column(sa.Unicode(64), primary_key=True, nullable=False)
     path = sa.Column(sa.UnicodeText, nullable=False)
-
 
 
 class PicasaSettingsDialog(object):
@@ -240,10 +240,8 @@ class PicasaSettingsDialog(object):
 
         self._changed = False
 
-
     def on_changed(self, *args):
         self._changed = True
-
 
     def run(self):
         """
@@ -261,10 +259,10 @@ class PicasaSettingsDialog(object):
             try:
                 token = get_auth_token(email, passwd)
             except Exception, e:
-                debug(e)
+                logger.debug(e)
                 token = None
             if not token:
-                utils.message_dialog(_('Could not authorize Google '\
+                utils.message_dialog(_('Could not authorize Google '
                                        'account: %s' % email),
                                      gtk.MESSAGE_ERROR)
                 return False
@@ -275,9 +273,9 @@ class PicasaSettingsDialog(object):
         return response
 
 
-
 # the _exc_queue hold any exceptions that we get in _get_feed_worker
 _exc_queue = Queue()
+
 
 def _get_feed_worker(worker, gd_client, tag):
     """
@@ -310,6 +308,7 @@ def _get_feed_worker(worker, gd_client, tag):
         url = entry.media.thumbnail[0].url
         photo_id = 'picasa:%s' % entry.gphoto_id.text
         photo = cache[photo_id]
+
         def _get():
             extension = url[-4:]
             fd, filename = tempfile.mkstemp(suffix=extension, dir=path)
@@ -326,10 +325,10 @@ def _get_feed_worker(worker, gd_client, tag):
         worker.publishQueue.join()  # wait for publish tofinish
 
 
-
 # The iconview_worker represents the thread and is global so that we
 # can check if it is running and cancel it if necessary.
 iconview_worker = None
+
 
 def _on_get_feed_publish(worker, data, iconview):
     """
@@ -346,7 +345,6 @@ def _on_get_feed_publish(worker, data, iconview):
         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
         model.append([pixbuf])
     worker.publishQueue.task_done()
-
 
 
 def populate_iconview(gd_client, iconview, tag):
@@ -366,13 +364,12 @@ def populate_iconview(gd_client, iconview, tag):
     model = gtk.ListStore(gtk.gdk.Pixbuf)
     iconview.set_model(model)
 
-    cache = PhotoCache(create=True) # creates the cache if it doesn't exists
+    cache = PhotoCache(create=True)  # creates the cache if it doesn't exists
 
     iconview_worker = thread.GtkWorker(_get_feed_worker, gd_client, tag)
     iconview_worker.connect('published', _on_get_feed_publish, iconview)
     iconview_worker.execute()
     return iconview_worker
-
 
 
 class StatusBox(gtk.VBox):
@@ -395,14 +392,12 @@ class StatusBox(gtk.VBox):
         self.button.connect('clicked', button_callback)
         self.pack_start(self.button, False, False, padding=10)
 
-
     def set_text(self, text):
         """
         Set the label label text and show the label widget.
         """
         self.label.show()
         self.label.set_text(text)
-
 
     def set_busy(self, busy=True):
         """
@@ -416,7 +411,6 @@ class StatusBox(gtk.VBox):
         else:
             self.progress_image.hide()
 
-
     def on_error(self, message):
         """
         Hide the progress image and show the label and button.
@@ -425,7 +419,6 @@ class StatusBox(gtk.VBox):
         self.label.set_text(message)
         self.label.show()
         self.button.show_all()
-
 
 
 class PicasaInfoPage(view.InfoBoxPage):
@@ -448,6 +441,7 @@ class PicasaInfoPage(view.InfoBoxPage):
         self.vbox.pack_start(self.iconview)
 
         self._current_row = None
+
         def on_clicked(*args):
             d = PicasaSettingsDialog()
             if d.run():
@@ -456,7 +450,6 @@ class PicasaInfoPage(view.InfoBoxPage):
         self.status_box = StatusBox(on_clicked)
         self.vbox.pack_start(self.status_box)
         self.show_status_box()
-
 
     def show_status_box(self):
         """
@@ -469,7 +462,6 @@ class PicasaInfoPage(view.InfoBoxPage):
             self.vbox.pack_start(self.status_box, True, True)
         self.status_box.show()
 
-
     def hide_status_box(self):
         """
         Show the iconview and hide the status box.
@@ -481,22 +473,19 @@ class PicasaInfoPage(view.InfoBoxPage):
             self.vbox.pack_start(self.iconview)
         self.iconview.show()
 
-
     def set_busy(self, busy=True):
         """
         Toggle the throbber.
         """
-        if busy :
+        if busy:
             self.show_status_box()
             self.status_box.set_busy()
         else:
             self.status_box.set_busy(False)
 
-
     def on_error(self, message, species):
         self.show_status_box()
         self.status_box.on_error(message)
-
 
     def update(self, row):
         """
@@ -515,6 +504,7 @@ class PicasaInfoPage(view.InfoBoxPage):
         tag = Species.str(row, markup=False, authors=False)
         self.set_busy()
         worker = populate_iconview(self.gd_client, self.iconview, tag)
+
         def on_done(*args):
             if not _exc_queue.empty():
                 exc = _exc_queue.get()
@@ -582,7 +572,6 @@ class PicasaInfoPage(view.InfoBoxPage):
 #         pass
 
 
-
 # class PicasaUploadTool(pluginmgr.Tool):
 #     """
 #     Tool for uploading images to the Picasa Web Albums
@@ -595,7 +584,6 @@ class PicasaInfoPage(view.InfoBoxPage):
 #         d = PicasaUploader()
 #         d.start()
 
-
 class PicasaSettingsTool(pluginmgr.Tool):
     """
     Tool for changing the Picasa settings and updated the auth token
@@ -607,7 +595,6 @@ class PicasaSettingsTool(pluginmgr.Tool):
     def start(cls):
         d = PicasaSettingsDialog()
         d.run()
-
 
 
 # class PicasaView(pluginmgr.View):

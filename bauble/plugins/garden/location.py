@@ -96,7 +96,7 @@ def loc_markup_func(location):
         return utils.xml_safe(str(location))
 
 
-class Location(db.Base):
+class Location(db.Base, db.Serializable):
     """
     :Table name: location
 
@@ -114,7 +114,7 @@ class Location(db.Base):
 
     # columns
     # refers to beds by unique codes
-    code = Column(Unicode(10), unique=True, nullable=False)
+    code = Column(Unicode(12), unique=True, nullable=False)
     name = Column(Unicode(64))
     description = Column(UnicodeText)
 
@@ -133,20 +133,10 @@ class Location(db.Base):
 
         return False
 
-    def as_dict(self):
-        result = dict((col, getattr(self, col))
-                      for col in self.__table__.columns.keys()
-                      if col not in ['id']
-                      and col[0] != '_'
-                      and getattr(self, col) is not None
-                      and not col.endswith('_id'))
-        result['object'] = 'location'
-        return result
-
     @classmethod
-    def retrieve_or_create(cls, session, keys):
-        """return database object corresponding to keys
-        """
+    def retrieve(cls, session, keys):
+        return session.query(cls).filter(
+            cls.code == keys['code']).all()
 
 
 class LocationEditorView(GenericEditorView):

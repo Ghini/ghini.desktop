@@ -1,7 +1,7 @@
 Documentation for Bauble 1.0
 ############################
 
-.. image:: https://travis-ci.org/mfrasca/bauble.classic.svg?branch=master
+.. image:: https://travis-ci.org/Bauble/bauble.classic.svg?branch=master
 .. image:: https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg
 
 Bauble is an application for managing botanical specimen collections.
