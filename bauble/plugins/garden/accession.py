@@ -580,7 +580,8 @@ class Accession(db.Base, db.Serializable):
 
     @property
     def pictures(self):
-        return []
+        import operator
+        return reduce(operator.add, [p.pictures for p in self.plants], [])
 
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
