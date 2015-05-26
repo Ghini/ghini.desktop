@@ -32,7 +32,6 @@ from sqlalchemy.orm import relation, backref
 import bauble.db as db
 import bauble.error as error
 import bauble.utils as utils
-from bauble.utils.log import debug
 import bauble.btypes as types
 from bauble.i18n import _
 
@@ -51,7 +50,7 @@ class VNList(list):
             if vn.species.default_vernacular_name == vn:
                 del vn.species.default_vernacular_name
         except Exception, e:
-            debug(e)
+            logger.debug(e)
 
 
 infrasp_rank_values = {u'subsp.': _('subsp.'),

@@ -1,5 +1,22 @@
+# -*- coding: utf-8 -*-
 #
-# view.py
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: the default view
 #
@@ -11,7 +28,7 @@ import cgi
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
 
 import gtk
 import gobject
@@ -30,6 +47,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.prefs as prefs
 import bauble.search as search
 import bauble.utils as utils
+import bauble.pictures_view as pictures_view
 
 # use different formatting template for the result view depending on the
 # platform
@@ -135,7 +153,7 @@ class PropertiesExpander(InfoExpander):
         table.set_row_spacings(8)
 
         # database id
-        id_label = gtk.Label(_("<b>ID:</b>"))
+        id_label = gtk.Label("<b>"+_("ID:")+"</b>")
         id_label.set_use_markup(True)
         id_label.set_alignment(1, .5)
         self.id_data = gtk.Label('--')
@@ -144,7 +162,7 @@ class PropertiesExpander(InfoExpander):
         table.attach(self.id_data, 1, 2, 0, 1)
 
         # object type
-        type_label = gtk.Label(_("<b>Type:</b>"))
+        type_label = gtk.Label("<b>"+_("Type:")+"</b>")
         type_label.set_use_markup(True)
         type_label.set_alignment(1, .5)
         self.type_data = gtk.Label('--')
@@ -153,7 +171,7 @@ class PropertiesExpander(InfoExpander):
         table.attach(self.type_data, 1, 2, 1, 2)
 
         # date created
-        created_label = gtk.Label(_("<b>Date created:</b>"))
+        created_label = gtk.Label("<b>"+_("Date created:")+"</b>")
         created_label.set_use_markup(True)
         created_label.set_alignment(1, .5)
         self.created_data = gtk.Label('--')
@@ -162,7 +180,7 @@ class PropertiesExpander(InfoExpander):
         table.attach(self.created_data, 1, 2, 2, 3)
 
         # date last updated
-        updated_label = gtk.Label(_("<b>Last updated:</b>"))
+        updated_label = gtk.Label("<b>"+_("Last updated:")+"</b>")
         updated_label.set_use_markup(True)
         updated_label.set_alignment(1, .5)
         self.updated_data = gtk.Label('--')
@@ -245,7 +263,7 @@ class InfoBoxPage(gtk.ScrolledWindow):
           this is passed to each of the infoexpanders in turn
         """
         for expander in self.expanders.values():
-            expanders.update(row)
+            expander.update(row)
 
 
 class InfoBox(gtk.Notebook):
@@ -329,7 +347,8 @@ class LinksExpander(InfoExpander):
                     button = gtk.LinkButton(uri=url)
                     button.add(label)
                     button.set_alignment(0, -1)
-                    self.dynamic_box.pack_start(button, expand=False, fill=False)
+                    self.dynamic_box.pack_start(
+                        button, expand=False, fill=False)
             self.dynamic_box.show_all()
 
 
@@ -456,62 +475,66 @@ class SearchView(pluginmgr.View):
         Sets the infobox according to the currently selected row
         or remove the infobox is nothing is selected
         '''
-        self.set_infobox_from_row(None)
+
+        def set_infobox_from_row(row):
+            '''implement the logic for update_infobox'''
+
+            # remove the current infobox if there is one and stop
+            logger.debug('set_infobox_from_row: %s --  %s' % (row, repr(row)))
+            if row is None:
+                if self.infobox is not None and \
+                        self.infobox.parent == self.pane:
+                    self.pane.remove(self.infobox)
+                return
+
+            new_infobox = None
+            selected_type = type(row)
+
+            # check if we've already created an infobox of this type,
+            # if not create one and put it in self.infobox_cache
+            if selected_type in self.infobox_cache.keys():
+                new_infobox = self.infobox_cache[selected_type]
+            elif selected_type in self.view_meta and \
+                    self.view_meta[selected_type].infobox is not None:
+                # reuse an instance of an existing infobox if it's of the
+                # same type
+                for ib in self.infobox_cache.values():
+                    if isinstance(ib, self.view_meta[selected_type].infobox):
+                        new_infobox = ib
+                if not new_infobox:
+                    new_infobox = self.view_meta[selected_type].infobox()
+                self.infobox_cache[selected_type] = new_infobox
+                logger.debug('created %s %s'
+                             % (type(new_infobox), new_infobox))
+
+            # remove any old infoboxes connected to the pane
+            if self.infobox is not None and \
+                    type(self.infobox) != type(new_infobox):
+                if self.infobox.parent == self.pane:
+                    self.pane.remove(self.infobox)
+
+            # update the infobox and put it in the pane
+            self.infobox = new_infobox
+            if self.infobox is not None:
+                self.pane.pack2(self.infobox, resize=False, shrink=True)
+                self.pane.show_all()
+                self.infobox.update(row)
+
+        # start of update_infobox
+        logger.debug('update_infobox')
         values = self.get_selected_values()
-        if len(values) == 0:
+        if not values:
+            set_infobox_from_row(None)
             return
+
         try:
-            self.set_infobox_from_row(values[0])
+            set_infobox_from_row(values[0])
         except Exception, e:
+            # if an error occurrs, log it and empty infobox.
             logger.debug('SearchView.update_infobox: %s' % e)
             logger.debug(traceback.format_exc())
             logger.debug(values)
-            self.set_infobox_from_row(None)
-
-    def set_infobox_from_row(self, row):
-        '''
-        Get the infobox from the view meta for the type of row and
-        set the infobox values from row
-
-        :param row: the row to use to update the infobox
-        '''
-        # remove the current infobox if there is one and stop
-        logger.debug('set_infobox_from_row: %s --  %s' % (row, repr(row)))
-        if row is None:
-            if self.infobox is not None and self.infobox.parent == self.pane:
-                self.pane.remove(self.infobox)
-            return
-
-        new_infobox = None
-        selected_type = type(row)
-
-        # check if we've already created an infobox of this type,
-        # if not create one and put it in self.infobox_cache
-        if selected_type in self.infobox_cache.keys():
-            new_infobox = self.infobox_cache[selected_type]
-        elif selected_type in self.view_meta and \
-                self.view_meta[selected_type].infobox is not None:
-            # reuse an instance of an existing infobox if it's of the
-            # same type
-            for ib in self.infobox_cache.values():
-                if isinstance(ib, self.view_meta[selected_type].infobox):
-                    new_infobox = ib
-            if not new_infobox:
-                new_infobox = self.view_meta[selected_type].infobox()
-            self.infobox_cache[selected_type] = new_infobox
-
-        # remove any old infoboxes connected to the pane
-        if self.infobox is not None and \
-                type(self.infobox) != type(new_infobox):
-            if self.infobox.parent == self.pane:
-                self.pane.remove(self.infobox)
-
-        # update the infobox and put it in the pane
-        self.infobox = new_infobox
-        if self.infobox is not None:
-            self.pane.pack2(self.infobox, resize=False, shrink=True)
-            self.pane.show_all()
-            self.infobox.update(row)
+            set_infobox_from_row(None)
 
     def get_selected_values(self):
         '''
@@ -529,6 +552,7 @@ class SearchView(pluginmgr.View):
         '''
         self.update_infobox()
         self.update_notes()
+        pictures_view.floating_window.set_selection(self.get_selected_values())
 
         for accel, cb in self.installed_accels:
             # disconnect previously installed accelerators by the key
@@ -604,7 +628,7 @@ class SearchView(pluginmgr.View):
 
         # not error
         utils.clear_model(self.results_view)
-        self.set_infobox_from_row(None)
+        self.update_infobox()
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
         statusbar.pop(sbcontext_id)
@@ -960,6 +984,8 @@ class SearchView(pluginmgr.View):
         '''
         expand the row on activation
         '''
+        logger.debug("on_view_row_activated %s %s %s %s"
+                     % (view, path, column, data))
         view.expand_row(path, False)
 
     def create_gui(self):

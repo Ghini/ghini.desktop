@@ -10,7 +10,6 @@ from sqlalchemy.exc import *
 import bauble.db as db
 from bauble.test import BaubleTestCase, check_dupids
 import bauble.plugins.users as users
-from bauble.utils.log import debug
 from nose import SkipTest
 
 def test_duplicate_ids():

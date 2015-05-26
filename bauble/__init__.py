@@ -20,6 +20,9 @@
 The top level module for Bauble.
 """
 
+import logging
+logger = logging.getLogger(__name__)
+
 import imp
 import os
 import sys
@@ -114,11 +117,10 @@ def quit():
     """
     import gtk
     import bauble.utils as utils
-    from bauble.utils.log import error
     try:
         import bauble.task as task
     except Exception, e:
-        error('bauble.quit(): %s' % utils.utf8(e))
+        logger.error('bauble.quit(): %s' % utils.utf8(e))
     else:
         task.kill()
     try:
@@ -144,7 +146,6 @@ def command_handler(cmd, arg):
     :type arg: list
     """
     import gtk
-    from bauble.utils.log import error
     import bauble.utils as utils
     import bauble.pluginmgr as pluginmgr
     global last_handler
@@ -175,7 +176,7 @@ def command_handler(cmd, arg):
         last_handler(cmd, arg)
     except Exception, e:
         msg = utils.xml_safe_utf8(e)
-        error('bauble.command_handler(): %s' % msg)
+        logger.error('bauble.command_handler(): %s' % msg)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
 
@@ -207,6 +208,18 @@ def main(uri=None):
             print _('Please make sure that GTK_ROOT\\bin is in your PATH.')
         sys.exit(1)
 
+    # add console root handler, and file root handler, set it at the logging
+    # level specified by BAUBLE_LOGGING, or at INFO level.
+    filename = os.path.join(paths.user_dir(), 'bauble.log')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fileHandler = logging.FileHandler(filename, 'w+')
+    logging.getLogger().addHandler(fileHandler)
+    consoleHandler = logging.StreamHandler()
+    logging.getLogger().addHandler(consoleHandler)
+    fileHandler.setFormatter(formatter)
+    consoleHandler.setFormatter(formatter)
+
     import gtk.gdk
     import pygtk
     if not main_is_frozen():
@@ -220,7 +233,6 @@ def main(uri=None):
     import bauble.pluginmgr as pluginmgr
     from bauble.prefs import prefs
     import bauble.utils as utils
-    from bauble.utils.log import debug, warning, error
 
     # create the user directory
     if not os.path.exists(paths.user_dir()):
@@ -261,20 +273,20 @@ def main(uri=None):
                 else:
                     uri = conn_name = None
             except err.VersionError, e:
-                warning(e)
+                logger.warning(e)
                 db.open(uri, False)
                 break
             except (err.EmptyDatabaseError, err.MetaTableError,
                     err.VersionError, err.TimestampError,
                     err.RegistryError), e:
-                warning(e)
+                logger.warning(e)
                 open_exc = e
                 # reopen without verification so that db.Session and
                 # db.engine, db.metadata will be bound to an engine
                 db.open(uri, False)
                 break
             except err.DatabaseError, e:
-                debug(e)
+                logger.debug(e)
                 # traceback.format_exc()
                 open_exc = e
                 # break
@@ -325,12 +337,12 @@ def main(uri=None):
                         utils.message_details_dialog(utils.xml_safe_utf8(e),
                                                      traceback.format_exc(),
                                                      gtk.MESSAGE_ERROR)
-                        error(e)
+                        logger.error(e)
             else:
                 pluginmgr.init()
         except Exception, e:
-            warning(traceback.format_exc())
-            warning(e)
+            logger.warning(traceback.format_exc())
+            logger.warning(e)
             utils.message_dialog(utils.utf8(e), gtk.MESSAGE_WARNING)
         gtk.gdk.threads_leave()
 

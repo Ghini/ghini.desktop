@@ -64,4 +64,4 @@ http://bauble.readthedocs.org. It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 
-The site for bauble.webapp is http://bauble.io.
+For any kind of question, you can open an issue here on github https://github.com/Bauble/bauble.classic/issues/new, or if you feel more comfortable with it, you can start a thread on our google group https://groups.google.com/forum/#!forum/bauble
