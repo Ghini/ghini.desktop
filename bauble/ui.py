@@ -287,10 +287,8 @@ class GUI(object):
         :param view: default=None
         '''
         view_box = self.widgets.view_box
-        if view_box is None:
-            return  # viewbox should never be None, why is this here?
-        for kids in view_box.get_children():
-            view_box.remove(kids)
+        for kid in view_box.get_children():
+            view_box.remove(kid)
         view_box.pack_start(view, True, True, 0)
         view.show_all()
 
@@ -431,8 +429,8 @@ class GUI(object):
                 if tool.category is not None:
                     try:
                         tools[tool.category].append(tool)
-                    except KeyError, e:
-                        logger.debug(e)
+                    except KeyError:
+                        ## initialize tools dictionary
                         tools[tool.category] = []
                         tools[tool.category].append(tool)
                 else:

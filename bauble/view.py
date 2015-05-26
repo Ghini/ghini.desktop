@@ -447,7 +447,7 @@ class SearchView(pluginmgr.View):
         selected item.
         """
         values = self.get_selected_values()
-        if len(values) == 0 or len(values) > 1:
+        if len(values) != 1:
             self._notes_expanded = self.widgets.notes_expander.props.expanded
             self.widgets.notes_expander.hide()
             return
@@ -479,8 +479,8 @@ class SearchView(pluginmgr.View):
         def set_infobox_from_row(row):
             '''implement the logic for update_infobox'''
 
-            # remove the current infobox if there is one and stop
             logger.debug('set_infobox_from_row: %s --  %s' % (row, repr(row)))
+            # remove the current infobox if there is one and it is not needed
             if row is None:
                 if self.infobox is not None and \
                         self.infobox.parent == self.pane:
@@ -490,22 +490,27 @@ class SearchView(pluginmgr.View):
             new_infobox = None
             selected_type = type(row)
 
-            # check if we've already created an infobox of this type,
-            # if not create one and put it in self.infobox_cache
+            # if we have already created an infobox of this type:
             if selected_type in self.infobox_cache.keys():
                 new_infobox = self.infobox_cache[selected_type]
+            # if selected_type defines an infobox class:
             elif selected_type in self.view_meta and \
                     self.view_meta[selected_type].infobox is not None:
-                # reuse an instance of an existing infobox if it's of the
-                # same type
+                logger.debug('%s defines infobox class %s'
+                             % (selected_type,
+                                self.view_meta[selected_type].infobox))
+                # it might be in cache under different name
                 for ib in self.infobox_cache.values():
                     if isinstance(ib, self.view_meta[selected_type].infobox):
+                        logger.debug('found same infobox under different name')
                         new_infobox = ib
+                # otherwise create one and put in the infobox_cache
                 if not new_infobox:
+                    logger.debug('not found infobox, we make a new one')
                     new_infobox = self.view_meta[selected_type].infobox()
                 self.infobox_cache[selected_type] = new_infobox
-                logger.debug('created %s %s'
-                             % (type(new_infobox), new_infobox))
+            logger.debug('created or retrieved infobox %s %s'
+                         % (type(new_infobox), new_infobox))
 
             # remove any old infoboxes connected to the pane
             if self.infobox is not None and \
@@ -1045,6 +1050,7 @@ class SearchView(pluginmgr.View):
         self.installed_accels = []
 
         self.pane = self.widgets.search_hpane
+        self.picpane = self.widgets.search_h2pane
 
         # initialize the notes expander and tree view
         self._notes_expanded = False

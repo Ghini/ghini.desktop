@@ -143,6 +143,10 @@
       <object class="GtkVBox" id="search_vbox">
         <property name="visible">True</property>
         <child>
+          <object class="GtkHPaned" id="search_h2pane">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <child>
           <object class="GtkHPaned" id="search_hpane">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
@@ -257,6 +261,8 @@
           <packing>
             <property name="position">0</property>
           </packing>
+        </child>
+      </object>
         </child>
       </object>
     </child>
