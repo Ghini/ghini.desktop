@@ -10,6 +10,13 @@ fi
 if ! virtualenv --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS virtualenv"
 fi
+if ! xslt-config --help >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS libxslt1-dev"
+fi
+PYTHONHCOUNT=$(find /usr/include/python* /usr/local/include/python* -name Python.h 2>/dev/null | wc -l)
+if [ "$PYTHONHCOUNT" = "0" ]; then
+    PROBLEMS="$PROBLEMS python-all-dev"
+fi
 
 if [ "$PROBLEMS" != "" ]; then
     echo please first solve dependencies.
