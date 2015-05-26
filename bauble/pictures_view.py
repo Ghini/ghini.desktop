@@ -22,10 +22,11 @@
 from bauble.editor import GenericEditorView
 from bauble.i18n import _
 
+import gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 
 class PicturesView(GenericEditorView):
@@ -61,15 +62,38 @@ class PicturesView(GenericEditorView):
         return self.widgets.pictures_view_dialog
 
     def set_selection(self, selection):
+        logger.debug("PicturesView.set_selection(%s)" % selection)
         if self.fake:
             return
-        logger.debug("PicturesView.set_selection(%s)" % selection)
+        self.box = self.widgets.pictures_box
+        for k in self.box.children():
+            k.destroy()
+
         for o in selection:
             try:
-                for p in o.pictures:
-                    logger.debug('object %s has picture %s' % (o, p))
+                pics = o.pictures
             except AttributeError:
                 logger.debug('object %s does not know of pictures' % o)
+                pics = []
+            for p in pics:
+                logger.debug('object %s has picture %s' % (o, p))
+                expander = gtk.HBox()
+                expander.add(p)
+                self.box.pack_start(expander, expand=False, fill=False)
+                self.box.reorder_child(expander, 0)
+                expander.show_all()
+                p.show()
+
+        self.box.show_all()
+
+    def add_picture(self, picture=None):
+        """
+        Add a new picture to the model.
+        """
+        expander = self.ContentBox(self, picture)
+        self.box.pack_start(expander, expand=False, fill=False)
+        expander.show_all()
+        return expander
 
 floating_window = PicturesView(fake=True)
 

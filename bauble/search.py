@@ -25,7 +25,7 @@ import gtk
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 from sqlalchemy import or_
 from sqlalchemy import Unicode
@@ -146,6 +146,8 @@ class IdentifierToken(object):
             query = query.join(*self.value[:-1], aliased=True)
             cls = query._joinpoint['_joinpoint_entity']
         attr = getattr(cls, self.value[-1])
+        logger.debug('IdentifierToken for %s, %s evaluates to %s'
+                     % (cls, self.value[-1], attr))
         return query, attr
 
     def needs_join(self, env):
