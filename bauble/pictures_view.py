@@ -21,6 +21,7 @@
 
 from bauble.editor import GenericEditorView
 from bauble.i18n import _
+import bauble
 
 import gtk
 
@@ -113,7 +114,7 @@ def show_pictures_callback(selection):
     """
 
     global floating_window
-    floating_window = PicturesView()
+    floating_window = PicturesView(parent=bauble.gui.window)
     floating_window.set_selection(selection)
     floating_window.start()
     floating_window.get_window().set_keep_above(True)

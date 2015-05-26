@@ -22,6 +22,7 @@ The top level module for Bauble.
 
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 import imp
 import os
@@ -145,6 +146,7 @@ def command_handler(cmd, arg):
     :param arg: The arg to pass to the command handler
     :type arg: list
     """
+    logger.debug('entering ui.command_handler %s %s' % (cmd, arg))
     import gtk
     import bauble.utils as utils
     import bauble.pluginmgr as pluginmgr
@@ -168,7 +170,7 @@ def command_handler(cmd, arg):
         # had one
         if hasattr(old_view, 'accel_group'):
             gui.window.remove_accel_group(old_view.accel_group)
-        # add the new view and its accel_group if it has one
+        # add the new view, and its accel_group if it has one
         gui.set_view(handler_view)
         if hasattr(handler_view, 'accel_group'):
             gui.window.add_accel_group(handler_view.accel_group)
@@ -177,8 +179,8 @@ def command_handler(cmd, arg):
     except Exception, e:
         msg = utils.xml_safe_utf8(e)
         logger.error('bauble.command_handler(): %s' % msg)
-        utils.message_details_dialog(msg, traceback.format_exc(),
-                                     gtk.MESSAGE_ERROR)
+        utils.message_details_dialog(
+            msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
 
 
 conn_default_pref = "conn.default"
