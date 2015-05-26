@@ -19,7 +19,6 @@ import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.search as search
 import bauble.utils as utils
-from bauble.utils.log import debug, warning, sa_echo, echo
 from bauble.view import SearchView, Action
 
 

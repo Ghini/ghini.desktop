@@ -17,7 +17,6 @@ from bauble.i18n import _
 import bauble
 from bauble.error import check
 import bauble.paths as paths
-from bauble.utils.log import debug, warning
 
 import logging
 logger = logging.getLogger(__name__)
@@ -348,7 +347,8 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             parent = bauble.gui.window
         except Exception:
             parent = None
-    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL |
+                          gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
@@ -403,7 +403,8 @@ def create_yes_no_dialog(msg, parent=None):
             parent = bauble.gui.window
         except Exception:
             parent = None
-    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL |
+                          gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=gtk.MESSAGE_QUESTION,
                           buttons=gtk.BUTTONS_YES_NO)
     d.set_title('Bauble')
@@ -456,7 +457,8 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
         except Exception:
             parent = None
 
-    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL |
+                          gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
@@ -775,7 +777,7 @@ def reset_sequence(column):
                 % (sequence_name, column.name, column.table.name)
         conn.execute(stmt)
     except Exception, e:
-        warning('bauble.utils.reset_sequence(): %s' % utf8(e))
+        logger.warning('bauble.utils.reset_sequence(): %s' % utf8(e))
         trans.rollback()
     else:
         trans.commit()
@@ -1041,7 +1043,7 @@ class GenericMessageBox(gtk.EventBox):
                 self.queue_resize()
                 while gtk.events_pending():
                     gtk.main_iteration(False)
-            debug('return False')
+            logger.debug('return False')
             return False
         #gobject.timeout_add(8, _animate_cb, height)
         gobject.idle_add(_animate_cb, height)
@@ -1189,7 +1191,6 @@ class YesNoMessageBox(GenericMessageBox):
     message = property(_get_message, _set_message)
 
 
-
 MESSAGE_BOX_INFO = 1
 MESSAGE_BOX_ERROR = 2
 MESSAGE_BOX_YESNO = 3
@@ -1207,7 +1208,7 @@ def add_message_box(parent, type=MESSAGE_BOX_INFO):
     if type == MESSAGE_BOX_INFO:
         msg_box = MessageBox()
     elif type == MESSAGE_BOX_ERROR:
-        msg_box = ErrorMessageBox()
+        msg_box = MessageBox()  # check this
     elif type == MESSAGE_BOX_YESNO:
         msg_box = YesNoMessageBox()
     else:
@@ -1236,7 +1237,7 @@ def get_invalid_columns(obj, ignore_columns=['id']):
     # TODO: check for invalid enum types
     if not obj:
         return []
-    from sqlalchemy.orm import object_mapper
+
     table = obj.__table__
     invalid_columns = []
     for column in filter(lambda c: c.name not in ignore_columns, table.c):

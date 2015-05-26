@@ -53,7 +53,6 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.utils.log import warning
 
 
 if SQLALCHEMY_DEBUG:
@@ -300,11 +299,11 @@ def create(import_defaults=True):
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
         # switched the task system to use fibra...but it doesn't hurt
         # having it here until we can make sure
-        warning('bauble.db.create(): %s' % utils.utf8(e))
+        logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     except Exception, e:
-        warning('bauble.db.create(): %s' % utils.utf8(e))
+        logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     else:
@@ -322,11 +321,11 @@ def create(import_defaults=True):
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
         # switched the task system to use fibra...but it doesn't hurt
         # having it here until we can make sure
-        warning('bauble.db.create(): %s' % utils.utf8(e))
+        logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     except Exception, e:
-        warning('bauble.db.create(): %s' % utils.utf8(e))
+        logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     else:

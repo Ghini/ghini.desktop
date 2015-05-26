@@ -13,7 +13,6 @@ from sqlalchemy import *
 import bauble
 import bauble.db as db
 from bauble.btypes import Enum
-from bauble.utils.log import debug
 from bauble.search import SearchParser
 from bauble.test import BaubleTestCase, check_dupids
 import bauble.meta as meta

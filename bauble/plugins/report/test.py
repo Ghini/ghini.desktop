@@ -7,7 +7,6 @@ from sqlalchemy.exc import *
 
 from bauble.test import BaubleTestCase, check_dupids
 import bauble.utils as utils
-from bauble.utils.log import debug
 #import bauble.plugins.report as report_plugin
 from bauble.plugins.report import get_all_species, get_all_accessions, \
      get_all_plants

@@ -58,7 +58,6 @@ from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
 import bauble.prefs as prefs
 import bauble.btypes as types
 import bauble.utils as utils
-from bauble.utils.log import warning
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
@@ -579,6 +578,11 @@ class Accession(db.Base, db.Serializable):
     intended2_location = relation(
         'Location', primaryjoin='Accession.intended2_location_id==Location.id')
 
+    @property
+    def pictures(self):
+        import operator
+        return reduce(operator.add, [p.pictures for p in self.plants], [])
+
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
         self.__cached_species_str = {}
@@ -633,7 +637,7 @@ class Accession(db.Base, db.Serializable):
                 and not self.__warned_about_id_qual:
             msg = _('If the id_qual is aff. or cf. '
                     'then id_qual_rank is required. %s ' % self.code)
-            warning(msg)
+            logger.warning(msg)
             self.__warned_about_id_qual = True
 
         # copy the species so we don't affect the original
@@ -853,7 +857,7 @@ class AccessionEditorView(editor.GenericEditorView):
         """
         species = completion.get_model()[treeiter][0]
         if str(species).lower().startswith(key.lower()) \
-               or str(species.genus.genus).lower().startswith(key.lower()):
+                or str(species.genus.genus).lower().startswith(key.lower()):
             return True
         return False
 
@@ -864,8 +868,8 @@ class AccessionEditorView(editor.GenericEditorView):
         garbage collected.
         """
         v = model[treeiter][0]
-        renderer.set_property('text', '%s (%s)' % (Species.str(v, authors=True),
-                                                   v.genus.family))
+        renderer.set_property(
+            'text', '%s (%s)' % (Species.str(v, authors=True), v.genus.family))
 
 
 class VoucherPresenter(editor.GenericEditorPresenter):
@@ -893,7 +897,8 @@ class VoucherPresenter(editor.GenericEditorPresenter):
             cell = self.view.widgets[cell]
             column.clear_attributes(cell)  # get rid of some warnings
             cell.props.editable = True
-            self.view.connect(cell, 'edited', self.on_cell_edited, (tree,prop))
+            self.view.connect(
+                cell, 'edited', self.on_cell_edited, (tree, prop))
             column.set_cell_data_func(cell, _voucher_data_func, prop)
 
         setup_column('voucher_treeview', 'voucher_herb_column',
@@ -903,7 +908,7 @@ class VoucherPresenter(editor.GenericEditorPresenter):
 
         setup_column('parent_voucher_treeview', 'parent_voucher_herb_column',
                      'parent_voucher_herb_cell', 'herbarium')
-        setup_column('parent_voucher_treeview','parent_voucher_code_column',
+        setup_column('parent_voucher_treeview', 'parent_voucher_code_column',
                      'parent_voucher_code_cell', 'code')
 
         # intialize vouchers treeview
@@ -1300,7 +1305,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 self.model.source = self.source
                 self.model.source.source_detail = None
             else:
-                warning('unknown source: %s' % source)
+                logger.warning('unknown source: %s' % source)
             #self.model.source = self.source
             #self.model.source.source_detail = source_detail
 
@@ -1510,7 +1515,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         combo.set_cell_data_func(cell, cell_data_func)
 
         completion = gtk.EntryCompletion()
-        cell = gtk.CellRendererText() # set up the completion renderer
+        cell = gtk.CellRendererText()  # set up the completion renderer
         completion.pack_start(cell)
         completion.set_cell_data_func(cell, cell_data_func)
 
@@ -1519,8 +1524,8 @@ class SourcePresenter(editor.GenericEditorPresenter):
             value = model[treeiter][0]
             # allows completions of source details by their ID
             if utils.utf8(value).lower().startswith(key.lower()) or \
-                    (isinstance(value, SourceDetail) and \
-                         str(value.id).startswith(key)):
+                    (isinstance(value, SourceDetail) and
+                     str(value.id).startswith(key)):
                 return True
             return False
         completion.set_match_func(match_func)
@@ -1588,7 +1593,6 @@ class SourcePresenter(editor.GenericEditorPresenter):
         self.view.connect(entry, 'changed', on_entry_changed)
 
         def on_combo_changed(combo, *args):
-            model = combo.get_model()
             active = combo.get_active_iter()
             if active:
                 detail = combo.get_model()[active][0]
@@ -1705,10 +1709,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             if not syn:
                 set_model(value)
                 return
-            msg = _('The species <b>%(synonym)s</b> is a synonym of '\
-                        '<b>%(species)s</b>.\n\nWould you like to choose '\
-                        '<b>%(species)s</b> instead?' \
-                        % {'synonym': syn.synonym, 'species': syn.species})
+            msg = _('The species <b>%(synonym)s</b> is a synonym of '
+                    '<b>%(species)s</b>.\n\nWould you like to choose '
+                    '<b>%(species)s</b> instead?'
+                    % {'synonym': syn.synonym, 'species': syn.species})
             box = None
 
             def on_response(button, response):
@@ -1884,6 +1888,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('recvd_type', None)
             return
         model = entry.get_parent().get_model()
+
         def match_func(row, data):
             return str(row[0]).lower() == str(data).lower() or \
                 str(row[1]).lower() == str(data).lower()
@@ -1899,7 +1904,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         text = entry.get_text()
         query = self.session.query(Accession)
         if text != self._original_code \
-               and query.filter_by(code=unicode(text)).count()>0:
+                and query.filter_by(code=unicode(text)).count() > 0:
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
             self.set_model_attr('code', None)
@@ -1912,8 +1917,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('code', utils.utf8(text))
 
     def on_date_entry_changed(self, entry, prop):
-        """
-        Changed signal handdler for acc_date_recvd_entry and acc_date_accd_entry
+        """Changed signal handler for acc_date_recvd_entry and acc_date_accd_entry
 
         :param prop: the model property to change, should be
           date_recvd or date_accd
@@ -1924,6 +1928,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         try:
             value = editor.DateValidator().to_python(entry.props.text)
         except ValidatorError, e:
+            logger.debug(e)
             self.add_problem(PROBLEM, entry)
         else:
             self.remove_problem(PROBLEM, entry)
@@ -2222,25 +2227,33 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         if self.model.source:
 
             if not self.model.source.collection:
-                utils.delete_or_expunge(self.presenter.source_presenter.collection)
+                utils.delete_or_expunge(
+                    self.presenter.source_presenter.collection)
 
             if self.model.source.propagation:
                 if not self.model.source.propagation.prop_type:
                     # TODO: why do we have to manually delete the _cutting
                     # and _seed relations...shouldn't they be deleted
                     # automatically when source.propagation is set to None
-                    utils.delete_or_expunge(self.model.source.propagation._cutting)
-                    utils.delete_or_expunge(self.model.source.propagation._seed)
-                    utils.delete_or_expunge(self.model.source.propagation)
+                    utils.delete_or_expunge(
+                        self.model.source.propagation._cutting)
+                    utils.delete_or_expunge(
+                        self.model.source.propagation._seed)
+                    utils.delete_or_expunge(
+                        self.model.source.propagation)
                     self.model.source.propagation = None
                 else:
                     self._cleanup_propagation(self.model.source.propagation)
             else:
-                utils.delete_or_expunge(self.presenter.source_presenter.propagation)
+                utils.delete_or_expunge(
+                    self.presenter.source_presenter.propagation)
         else:
-            utils.delete_or_expunge(self.presenter.source_presenter.source)
-            utils.delete_or_expunge(self.presenter.source_presenter.collection)
-            utils.delete_or_expunge(self.presenter.source_presenter.propagation)
+            utils.delete_or_expunge(
+                self.presenter.source_presenter.source)
+            utils.delete_or_expunge(
+                self.presenter.source_presenter.collection)
+            utils.delete_or_expunge(
+                self.presenter.source_presenter.propagation)
 
         if self.model.id_qual is None:
             self.model.id_qual_rank = None
@@ -2250,6 +2263,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 # import at the bottom to avoid circular dependencies
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, SpeciesSynonym
+
 
 #
 # infobox for searchview
@@ -2460,7 +2474,8 @@ class VerificationsExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        super(VerificationsExpander, self).__init__(_("Verifications"), widgets)
+        super(VerificationsExpander, self).__init__(
+            _("Verifications"), widgets)
         # notes_box = self.widgets.notes_box
         # self.widgets.notes_window.remove(notes_box)
         # self.vbox.pack_start(notes_box)

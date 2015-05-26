@@ -23,6 +23,10 @@ import weakref
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 from sqlalchemy import or_
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
@@ -31,7 +35,6 @@ from sqlalchemy.orm.properties import ColumnProperty
 
 import bauble
 from bauble.error import check
-from bauble.utils.log import debug
 import bauble.utils as utils
 from bauble.i18n import _
 
@@ -143,6 +146,8 @@ class IdentifierToken(object):
             query = query.join(*self.value[:-1], aliased=True)
             cls = query._joinpoint['_joinpoint_entity']
         attr = getattr(cls, self.value[-1])
+        logger.debug('IdentifierToken for %s, %s evaluates to %s'
+                     % (cls, self.value[-1], attr))
         return query, attr
 
     def needs_join(self, env):
@@ -202,7 +207,8 @@ class BinaryLogical(object):
         return "(%s %s %s)" % (self.operands[0], self.name, self.operands[1])
 
     def needs_join(self, env):
-        return self.operands[0].needs_join(env) + self.operands[1].needs_join(env)
+        return self.operands[0].needs_join(env) + \
+            self.operands[1].needs_join(env)
 
 
 class SearchAndAction(BinaryLogical):
@@ -255,7 +261,7 @@ class QueryAction(object):
         self.filter = t[1][0]
 
     def __repr__(self):
-        return "SELECT * FROM %s WHERE %s" % ( self.domain, self.filter )
+        return "SELECT * FROM %s WHERE %s" % (self.domain, self.filter)
 
     def invoke(self, search_strategy):
         """
@@ -268,7 +274,8 @@ class QueryAction(object):
         """
 
         domain = self.domain
-        check(domain in search_strategy._domains or domain in search_strategy._shorthand,
+        check(domain in search_strategy._domains or
+              domain in search_strategy._shorthand,
               'Unknown search domain: %s' % domain)
         self.domain = search_strategy._shorthand.get(domain, domain)
         self.domain = search_strategy._domains[domain][0]
@@ -334,7 +341,8 @@ class DomainExpressionAction(object):
 
         mapper = class_mapper(cls)
 
-        if self.cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
+        if self.cond in ('like', 'ilike', 'contains', 'icontains', 'has',
+                         'ihas'):
             condition = lambda col: \
                 lambda val: utils.ilike(mapper.c[col], '%%%s%%' % val)
         elif self.cond == '=':
@@ -383,7 +391,8 @@ class ValueListAction(object):
         result = set()
         for cls, columns in search_strategy._properties.iteritems():
             q = search_strategy._session.query(cls)  # prepares SELECT
-            column_cross_value = [(c, v) for c in columns for v in self.express()]
+            column_cross_value = [(c, v) for c in columns
+                                  for v in self.express()]
             # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
             # object if the col is a Unicode or UnicodeText column in order
             # to avoid the "Unicode type received non-unicode bind param"
@@ -648,7 +657,7 @@ class SchemaBrowser(gtk.VBox):
         Called before the row is expanded and populates the children of the
         row.
         """
-        debug('on_row_expanded')
+        logger.debug('on_row_expanded')
         model = treeview.props.model
         parent = treeiter
         while model.iter_has_child(treeiter):
@@ -826,7 +835,8 @@ class ExpressionRow(object):
         top = self.table.child_get_property(self.value_widget, 'top-attach')
         bottom = self.table.child_get_property(self.value_widget,
                                                'bottom-attach')
-        right = self.table.child_get_property(self.value_widget, 'right-attach')
+        right = self.table.child_get_property(self.value_widget,
+                                              'right-attach')
         left = self.table.child_get_property(self.value_widget, 'left-attach')
         self.table.remove(self.value_widget)
 
@@ -1028,4 +1038,4 @@ if __name__ == '__main__':
     bauble.test.init_bauble(uri)
     qb = QueryBuilder()
     qb.start()
-    debug(qb.get_query())
+    logger.debug(qb.get_query())

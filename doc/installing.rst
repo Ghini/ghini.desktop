@@ -22,38 +22,49 @@ its dependencies by itself.
 Installing on Linux
 ===================
 
-#. Make sure your `Python <http://www.python.org>`_ version is 2.4
-   or greater, that you have the develompent environment for `GTK+
-   <http://www.gtk.org>`_ and that you have installed `PyGTK
-   <http://www.pygtk.org>`_ using your package manager (ubuntu,
-   debian: python-gtk2).
+#. Download the `devinstall.sh` script and run it::
 
-#. Download and extract the Bauble source package from
+     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.sh
 
-   https://github.com/Bauble/bauble.classic.git
+   Please not that the script will not help you install any extra database
+   connector. This you will do in a later step.
 
-#. Make and activate a virtual environment with
-   ``--system-site-packages``.
+   You can study the script to see what steps if runs for you. In short it
+   will install dependencies which can't be satisfied in a virtual
+   environment, then it will create a virtual environment named `bacl`,
+   download the sources and connect your git checkout to the `bauble-1.0`
+   branch (this you can consider a production line), it then builds bauble,
+   downloading all remaining dependencies, and finally it creates a startup
+   script in your `~/bin` folder.
 
-#. If you would like to use the default `SQLite
-   <http://sqlite.org/>`_ database or you don't know what this means
-   then you can skip this step.  If you would like to use a database
-   backend other than the default SQLite backend then you will also
-   need to install a database connector.
+   If the script ends without error, you can now start bauble::
+
+     ~/bin/bauble
+
+   or update bauble to the latest released production patch::
+
+     ~/bin/bauble -u
+
+   The same script you can use to switch to a different production line, but
+   at the moment there's only `bauble-1.0`.
+
+#. on Unity, open a terminal, start bauble, its icon will show up in the
+   launcher, you can now `lock to launcher` it.
+
+#. If you would like to use the default `SQLite <http://sqlite.org/>`_
+   database or you don't know what this means then you can skip this step.
+   If you would like to use a database backend other than the default SQLite
+   backend then you will also need to install a database connector.
 
    If you would like to use a `PostgreSQL <http://www.postgresql.org>`_
-   database then install psycopg2 with the following commands::
+   database then activate the virtual environment and install psycopg2 with
+   the following commands::
 
+     source ~/.virtualenvs/bacl/bin/activate
      pip install -U psycopg2
 
-#. In the installation directory execute the following command::
-
-     python setup.py install
-
-   If this doesn't complete successfully see :ref:`troubleshoot_install`.
-
-#. Any time you want to run Bauble, open a terminal window, activate
-   the virtual environment and execute the ``bauble`` command.
+   You might need solve dependencies. How to do so, depends on which Linux
+   flavour you are using. Check with your distribution documentation.
 
 .. rubric:: Next...
 
@@ -67,27 +78,38 @@ Being MacOSX a unix environment, most things will work the same as on Linux
 
 One difficulty is that there are many more versions of MacOSX out
 there than one would want to support, and only the current and its
-immediately preceding release are kept up-to-date by Apple.
+immediately preceding release are kept up-to-date by Apple-the-firm.
 
-We are testing 10.9 (up-to-date) and 10.5 (obsolete).
+Last time we tested, some of the dependencies could not be installed on
+MacOSX 10.5 and we assume similar problems would present themselves on older
+OSX versions.  Bauble has been successfully tested with 10.7 and 10.9.
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
 
 #. developers tools: xcode. check the wikipedia page for the version
    supported on your mac.
-#. package manager: get homebrew (or tigerbrew).
+#. package manager: homebrew (tigerbrew for older OSX versions).
 
-with the above installed, first make sure you have a recent Python, or
-update it::
+with the above installed, run::
 
-    brew install python
+    brew doctor
+
+make sure you understand the problems it reports, and correct them. pygtk
+will need xquartz and brew will not solve the dependency
+automatically. either install xquartz using brew or the way you prefer::
+
+    brew install Caskroom/cask/xquartz
 
 then install the remaining dependencies::
 
     brew install git
-    brew install pygtk
-    brew install virtualenv
+    brew install pygtk  # takes time and installs all dependencies
+
+follow all instructions on how to activate what you have installed.
+
+the rest is just as on a normal unix machine, and we have a `devinstall.sh`
+script for it. Read the above Linux instructions, follow them, enjoy.
 
 .. rubric:: Next...
 
@@ -111,18 +133,6 @@ welcome.
 
 the installation steps on Windows:
 
-#. Install GTK+. The easiest way to install GTK+ is to download the
-   latest runtime packages from `gtk-win.sourceforge.net
-   <http://gtk-win.sourceforge.net/home/index.php/Downloads>`_.
-
-   .. note:: The gtk-win package currently doesn't support SVG which can
-      cause a problem with Bauble.
-
-   There is also a script in the Bauble source archive in
-   scripts/install_gtk.py which will download the GTK+ Win32
-   installer.  This will also download and install the SVG pixbuf
-   loader for GTK+.
-
 #. download and install Python 2.x (32bit) from:
 
    http://www.python.org
@@ -141,14 +151,14 @@ the installation steps on Windows:
 
    http://bootstrap.pypa.io/get-pip.py
 
-#. download and install ``git`` (comes with a unix-like ``sh`` and ``vi``).
+#. download and install ``git`` (comes with a unix-like ``sh`` and includes
+   ``vi``).
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
 
-   On Windows, it is NOT easy to install ``psycopg2`` from
-   sources, using pip, so "avoid the gory details" and use a pre-compiled 
-   pagkage from:
+   On Windows, it is NOT easy to install ``psycopg2`` from sources, using
+   pip, so "avoid the gory details" and use a pre-compiled pagkage from:
    
    http://initd.org/psycopg/docs/install.html
 
