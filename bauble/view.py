@@ -428,6 +428,10 @@ class SearchView(pluginmgr.View):
 
         self.create_gui()
 
+        import pictures_view
+        pictures_view.floating_window = pictures_view.PicturesView(
+            parent=self.widgets.search_h2pane)
+
         # we only need this for the timeout version of populate_results
         self.populate_callback_id = None
 
