@@ -330,7 +330,7 @@ class PlantTests(GardenTestCase):
         # make sure the entry gets a Problem added to it if an
         # existing plant code is used in bulk mode
         widgets.plant_code_entry.set_text('1,' + rng)
-        widgets.plant_quantity_entry.set_text('2')
+        widgets.plant_quantity_entry.set_text(u'2')
         update_gui()
         problem = (self.editor.presenter.PROBLEM_DUPLICATE_PLANT_CODE,
                    self.editor.presenter.view.widgets.plant_code_entry)
@@ -453,7 +453,7 @@ class PlantTests(GardenTestCase):
         """
         Test bauble.plugins.garden.plant.is_code_unique()
         """
-        self.assertFalse(is_code_unique(self.plant, '1'))
+        self.assertFalse(is_code_unique(self.plant, u'1'))
         self.assert_(is_code_unique(self.plant, '01'))
         self.assertFalse(is_code_unique(self.plant, '1-2'))
         self.assertFalse(is_code_unique(self.plant, '01-2'))
@@ -882,24 +882,24 @@ class AccessionTests(GardenTestCase):
         Test Accesion.species_str()
         """
         acc = self.create(Accession, species=self.species, code=u'1')
-        s = 'Echinocactus grusonii'
+        s = u'Echinocactus grusonii'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
         acc.id_qual = '?'
-        s = 'Echinocactus grusonii(?)'
+        s = u'Echinocactus grusonii(?)'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.id_qual = 'aff.'
-        acc.id_qual_rank = 'sp'
-        s = 'Echinocactus aff. grusonii'
+        acc.id_qual_rank = u'sp'
+        s = u'Echinocactus aff. grusonii'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         # here species.infrasp is None but we still allow the string
         acc.id_qual = 'cf.'
         acc.id_qual_rank = 'infrasp'
-        s = 'Echinocactus grusonii cf.'  # ' None'
+        s = u'Echinocactus grusonii cf.'  # ' None'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
@@ -907,20 +907,20 @@ class AccessionTests(GardenTestCase):
         # the end so it doesn't matter
         acc.id_qual = 'incorrect'
         acc.id_qual_rank = 'infrasp'
-        s = 'Echinocactus grusonii(incorrect)'
+        s = u'Echinocactus grusonii(incorrect)'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.id_qual = 'forsan'
-        acc.id_qual_rank = 'sp'
-        s = 'Echinocactus grusonii(forsan)'
+        acc.id_qual_rank = u'sp'
+        s = u'Echinocactus grusonii(forsan)'
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         acc.species.set_infrasp(1, u'cv.', u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
-        s = "Echinocactus grusonii cf. 'Cultivar'"
+        s = u"Echinocactus grusonii cf. 'Cultivar'"
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
@@ -976,7 +976,7 @@ class AccessionTests(GardenTestCase):
                             location=Location(name=u'site', code=u'STE'),
                             code=u'1')
         # creating a dummy propagtion without a related seed/cutting
-        prop = self.create(Propagation, prop_type='Seed')
+        prop = self.create(Propagation, prop_type=u'Seed')
         plant.propagations.append(prop)
         self.session.commit()
         plant_prop_id = prop.id
@@ -1363,27 +1363,27 @@ class FromAndToDictTest(GardenTestCase):
 
     def test_add_accession_at_species_rank(self):
         acc = Accession.retrieve_or_create(
-            self.session, {'code': '010203',
+            self.session, {'code': u'010203',
                            'rank': 'species',
-                           'taxon': 'Echinocactus grusonii'})
+                           'taxon': u'Echinocactus grusonii'})
         self.assertEquals(acc.species, self.species)
 
     def test_add_accession_at_genus_rank(self):
         acc = Accession.retrieve_or_create(
-            self.session, {'code': '010203',
+            self.session, {'code': u'010203',
                            'rank': 'genus',
-                           'taxon': 'Echinocactus'})
+                           'taxon': u'Echinocactus'})
         self.assertEquals(acc.species.genus, self.genus)
 
     def test_add_plant(self):
         acc = Accession.retrieve_or_create(
-            self.session, {'code': '010203',
+            self.session, {'code': u'010203',
                            'rank': 'species',
-                           'taxon': 'Echinocactus grusonii'})
+                           'taxon': u'Echinocactus grusonii'})
         plt = Plant.retrieve_or_create(
-            self.session, {'accession': '010203',
-                           'code': '1',
-                           'location': 'wrong one',
+            self.session, {'accession': u'010203',
+                           'code': u'1',
+                           'location': u'wrong one',
                            'quantity': 1})
         self.assertEquals(plt.accession, acc)
 
@@ -1391,22 +1391,22 @@ class FromAndToDictTest(GardenTestCase):
         from datetime import datetime
         ## insert an object with a timestamp
         Location.retrieve_or_create(
-            self.session, {'code': '1',
+            self.session, {'code': u'1',
                            '_created': '10/12/2001'})
         ## retrieve same object from other session
         session = db.Session()
-        loc = Location.retrieve_or_create(session, {'code': '1', })
+        loc = Location.retrieve_or_create(session, {'code': u'1', })
         self.assertEquals(loc._created, datetime(2001, 12, 10))
 
     def test_set_create_timestamp_iso8601(self):
         from datetime import datetime
         ## insert an object with a timestamp
         Location.retrieve_or_create(
-            self.session, {'code': '1',
+            self.session, {'code': u'1',
                            '_created': '2001-12-10'})
         ## retrieve same object from other session
         session = db.Session()
-        loc = Location.retrieve_or_create(session, {'code': '1', })
+        loc = Location.retrieve_or_create(session, {'code': u'1', })
         self.assertEquals(loc._created, datetime(2001, 12, 10))
 
 
@@ -1418,23 +1418,23 @@ class FromAndToDict_create_update_test(GardenTestCase):
         acc = Accession(species=self.species, code=u'010203')
         loc = Location(code=u'123')
         loc2 = Location(code=u'213')
-        plt = Plant(accession=acc, code='1', quantity=1, location=loc)
+        plt = Plant(accession=acc, code=u'1', quantity=1, location=loc)
         self.session.add_all([acc, loc, loc2, plt])
         self.session.commit()
 
     def test_accession_nocreate_noupdate_noexisting(self):
         # do not create if not existing
         acc = Accession.retrieve_or_create(
-            self.session, {'code': '030201',
+            self.session, {'code': u'030201',
                            'rank': 'species',
-                           'taxon': 'Echinocactus texelensis'},
+                           'taxon': u'Echinocactus texelensis'},
             create=False)
         self.assertEquals(acc, None)
 
     def test_accession_nocreate_noupdateeq_existing(self):
         ## retrieve same object, we only give the keys
         acc = Accession.retrieve_or_create(
-            self.session, {'code': '010203'},
+            self.session, {'code': u'010203'},
             create=False, update=False)
         self.assertTrue(acc is not None)
         self.assertEquals(acc.species, self.species)
@@ -1442,36 +1442,36 @@ class FromAndToDict_create_update_test(GardenTestCase):
     def test_accession_nocreate_noupdatediff_existing(self):
         ## do not update object with new data
         acc = Accession.retrieve_or_create(
-            self.session, {'code': '010203',
+            self.session, {'code': u'010203',
                            'rank': 'species',
-                           'taxon': 'Echinocactus texelensis'},
+                           'taxon': u'Echinocactus texelensis'},
             create=False, update=False)
         self.assertEquals(acc.species, self.species)
 
     def test_accession_nocreate_updatediff_existing(self):
         ## update object in self.session
         acc = Accession.retrieve_or_create(
-            self.session, {'code': '010203',
+            self.session, {'code': u'010203',
                            'rank': 'species',
-                           'taxon': 'Echinocactus texelensis'},
+                           'taxon': u'Echinocactus texelensis'},
             create=False, update=True)
         self.assertEquals(acc.species, self.sp2)
 
     def test_plant_nocreate_noupdate_noexisting(self):
         # do not create if not existing
         plt = Plant.retrieve_or_create(
-            self.session, {'accession': '010203',
-                           'code': '2',
+            self.session, {'accession': u'010203',
+                           'code': u'2',
                            'quantity': 1,
-                           'location': '123'},
+                           'location': u'123'},
             create=False)
         self.assertEquals(plt, None)
 
     def test_plant_nocreate_noupdateeq_existing(self):
         ## retrieve same object, we only give the keys
         plt = Plant.retrieve_or_create(
-            self.session, {'accession': '010203',
-                           'code': '1'},
+            self.session, {'accession': u'010203',
+                           'code': u'1'},
             create=False, update=False)
         self.assertTrue(plt is not None)
         self.assertEquals(plt.quantity, 1)
@@ -1479,8 +1479,8 @@ class FromAndToDict_create_update_test(GardenTestCase):
     def test_plant_nocreate_noupdatediff_existing(self):
         ## do not update object with new data
         plt = Plant.retrieve_or_create(
-            self.session, {'accession': '010203',
-                           'code': '1',
+            self.session, {'accession': u'010203',
+                           'code': u'1',
                            'quantity': 3},
             create=False, update=False)
         self.assertTrue(plt is not None)
@@ -1489,21 +1489,21 @@ class FromAndToDict_create_update_test(GardenTestCase):
     def test_plant_nocreate_updatediff_existing(self):
         ## update object in self.session
         plt = Plant.retrieve_or_create(
-            self.session, {'accession': '010203',
-                           'code': '1',
+            self.session, {'accession': u'010203',
+                           'code': u'1',
                            'quantity': 3},
             create=False, update=True)
         self.assertTrue(plt is not None)
         self.assertEquals(plt.quantity, 3)
         self.assertEquals(plt.location.code, '123')
         plt = Plant.retrieve_or_create(
-            self.session, {'accession': '010203',
-                           'code': '1',
-                           'location': '213'},
+            self.session, {'accession': u'010203',
+                           'code': u'1',
+                           'location': u'213'},
             create=False, update=True)
         self.assertTrue(plt is not None)
         self.assertTrue(plt.location is not None)
-        self.assertEquals(plt.location.code, '213')
+        self.assertEquals(plt.location.code, u'213')
 
 
 class AccessionNotesSerializeTest(GardenTestCase):
@@ -1526,8 +1526,8 @@ class AccessionNotesSerializeTest(GardenTestCase):
         # do not create if not existing
         obj = AccessionNote.retrieve_or_create(
             self.session, {'object': 'accession_note',
-                           'accession': '010203',
-                           'category': 'newcat',
+                           'accession': u'010203',
+                           'category': u'newcat',
                            'date': '2014-01-01',
                            },
             create=False)
@@ -1537,8 +1537,8 @@ class AccessionNotesSerializeTest(GardenTestCase):
         ## retrieve same object, we only give the keys
         obj = AccessionNote.retrieve_or_create(
             self.session, {'object': 'accession_note',
-                           'accession': '010203',
-                           'category': 'foto',
+                           'accession': u'010203',
+                           'category': u'foto',
                            'date': '2014-01-01',
                            },
             create=False)
@@ -1549,8 +1549,8 @@ class AccessionNotesSerializeTest(GardenTestCase):
         ## do not update object with new data
         obj = AccessionNote.retrieve_or_create(
             self.session, {'object': 'accession_note',
-                           'accession': '010203',
-                           'category': 'foto',
+                           'accession': u'010203',
+                           'category': u'foto',
                            'date': '2014-01-01',
                            'note': 'url://'
                            },
@@ -1562,8 +1562,8 @@ class AccessionNotesSerializeTest(GardenTestCase):
         ## update object in self.session
         obj = AccessionNote.retrieve_or_create(
             self.session, {'object': 'accession_note',
-                           'accession': '010203',
-                           'category': 'foto',
+                           'accession': u'010203',
+                           'category': u'foto',
                            'date': '2014-01-01',
                            'note': 'url://'
                            },
