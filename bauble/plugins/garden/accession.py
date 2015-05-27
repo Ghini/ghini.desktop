@@ -695,7 +695,7 @@ class Accession(db.Base, db.Serializable):
             elif keys['rank'] == 'genus':
                 result['species'] = Species.retrieve_or_create(
                     session, {'ht-epithet': keys['taxon'],
-                              'epithet': 'sp'})
+                              'epithet': u'sp'})
             elif keys['rank'] == 'familia':
                 unknown_genus = 'Zzz-' + keys['taxon'][:-1]
                 Genus.retrieve_or_create(
@@ -703,7 +703,7 @@ class Accession(db.Base, db.Serializable):
                               'epithet': unknown_genus})
                 result['species'] = Species.retrieve_or_create(
                     session, {'ht-epithet': unknown_genus,
-                              'epithet': 'sp'})
+                              'epithet': u'sp'})
         return result
 
     @classmethod
@@ -1818,8 +1818,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         active = None
         if self.model.id_qual_rank == 'genus':
             active = it
-        it = model.append([str(species.sp), 'sp'])
-        if self.model.id_qual_rank == 'sp':
+        it = model.append([str(species.sp), u'sp'])
+        if self.model.id_qual_rank == u'sp':
             active = it
 
         infrasp_parts = []
@@ -1998,7 +1998,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             prop = self.model.source.propagation
             prop_ignore = ['id', 'propagation_id']
             prop_model = None
-            if prop and prop.prop_type == 'Seed':
+            if prop and prop.prop_type == u'Seed':
                 prop_model = prop._seed
             elif prop and prop.prop_type == 'UnrootedCutting':
                 prop_model = prop._cutting
