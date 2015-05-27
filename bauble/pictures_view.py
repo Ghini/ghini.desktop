@@ -18,19 +18,16 @@
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-from bauble.editor import GenericEditorView
-from bauble.i18n import _
-import bauble
-
 import gtk
 
 import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
+import bauble.utils as utils
 
-class PicturesView(GenericEditorView):
+
+class PicturesView(gtk.HBox):
     """shows pictures corresponding to selection.
 
     at any time, no more than one PicturesView object will exist.
@@ -47,20 +44,22 @@ class PicturesView(GenericEditorView):
     """
 
     def __init__(self, parent=None, fake=False):
+        logger.debug("entering PicturesView.__init__(parent=%s, fake=%s)"
+                     % (parent, fake))
+        super(PicturesView, self).__init__()
         if fake:
             self.fake = True
             return
         self.fake = False
-        logger.debug("entering PicturesView.__init__")
         import os
         from bauble import paths
         glade_file = os.path.join(
             paths.lib_dir(), 'pictures_view.glade')
-        super(PicturesView, self).__init__(glade_file, parent=parent)
-        pass
-
-    def get_window(self):
-        return self.widgets.pictures_view_dialog
+        self.widgets = utils.BuilderWidgets(glade_file)
+        self.widgets.remove_parent(self.widgets.scrolledwindow2)
+        parent.add(self.widgets.scrolledwindow2)
+        parent.show_all()
+        self.widgets.scrolledwindow2.show()
 
     def set_selection(self, selection):
         logger.debug("PicturesView.set_selection(%s)" % selection)
@@ -96,7 +95,7 @@ class PicturesView(GenericEditorView):
         expander.show_all()
         return expander
 
-floating_window = PicturesView(fake=True)
+floating_window = None
 
 
 def show_pictures_callback(selection):
@@ -113,10 +112,4 @@ def show_pictures_callback(selection):
     species: show the voucher.
     """
 
-    global floating_window
-    floating_window = PicturesView(parent=bauble.gui.window)
     floating_window.set_selection(selection)
-    floating_window.start()
-    floating_window.get_window().set_keep_above(True)
-
-    return floating_window

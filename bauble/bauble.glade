@@ -143,28 +143,110 @@
       <object class="GtkVBox" id="search_vbox">
         <property name="visible">True</property>
         <child>
-          <object class="GtkHPaned" id="search_h2pane">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <child>
           <object class="GtkHPaned" id="search_hpane">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <object class="GtkVPaned" id="search_vpane">
+              <object class="GtkHPaned" id="search_h2pane">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                  <object class="GtkVPaned" id="search_vpane">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">never</property>
-                    <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <object class="GtkTreeView" id="results_treeview">
+                      <object class="GtkScrolledWindow" id="scrolledwindow1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">never</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTreeView" id="results_treeview">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                          </object>
+                        </child>
                       </object>
+                      <packing>
+                        <property name="resize">True</property>
+                        <property name="shrink">False</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkExpander" id="notes_expander">
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">True</property>
+                        <child>
+                          <object class="GtkScrolledWindow" id="scrolledwindow2">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">automatic</property>
+                            <property name="vscrollbar_policy">automatic</property>
+                            <child>
+                              <object class="GtkTreeView" id="notes_treeview">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="headers_clickable">False</property>
+                                <property name="reorderable">True</property>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="date_column">
+                                    <property name="title">Date</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="date_cell">
+                                        <property name="xalign">0</property>
+                                        <property name="yalign">0</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="name_column">
+                                    <property name="title">Name</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="name_cell">
+                                        <property name="xalign">0</property>
+                                        <property name="yalign">0</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="category_column">
+                                    <property name="title">Category</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="category_cell">
+                                        <property name="xalign">0</property>
+                                        <property name="yalign">0</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="note_column">
+                                    <property name="title">Note</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="note_cell">
+                                        <property name="xalign">0</property>
+                                        <property name="yalign">0</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child type="label">
+                          <object class="GtkLabel" id="label1">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Notes</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="resize">False</property>
+                        <property name="shrink">False</property>
+                      </packing>
                     </child>
                   </object>
                   <packing>
@@ -173,80 +255,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkExpander" id="notes_expander">
-                    <property name="sensitive">False</property>
-                    <property name="can_focus">True</property>
-                    <child>
-                      <object class="GtkScrolledWindow" id="scrolledwindow2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="hscrollbar_policy">automatic</property>
-                        <property name="vscrollbar_policy">automatic</property>
-                        <child>
-                          <object class="GtkTreeView" id="notes_treeview">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="headers_clickable">False</property>
-                            <property name="reorderable">True</property>
-                            <child>
-                              <object class="GtkTreeViewColumn" id="date_column">
-                                <property name="title">Date</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="date_cell">
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn" id="name_column">
-                                <property name="title">Name</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="name_cell">
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn" id="category_column">
-                                <property name="title">Category</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="category_cell">
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkTreeViewColumn" id="note_column">
-                                <property name="title">Note</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="note_cell">
-                                    <property name="xalign">0</property>
-                                    <property name="yalign">0</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="label">
-                      <object class="GtkLabel" id="label1">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Notes</property>
-                      </object>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="resize">False</property>
-                    <property name="shrink">False</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
@@ -258,11 +267,6 @@
               <placeholder/>
             </child>
           </object>
-          <packing>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </object>
         </child>
       </object>
     </child>
