@@ -1,20 +1,58 @@
+# -*- coding: utf-8 -*-
 #
-# species.py
+# Copyright 2008-2010 Brett Adams
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
 #
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+#
+
+import gtk
+
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
+import os
+import traceback
+
+import bauble
+import bauble.paths as paths
 import bauble.db as db
+from bauble.i18n import _
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
-from bauble.plugins.plants.species_editor import *
-from bauble.plugins.plants.species_model import *
+import bauble.utils as utils
+from bauble.plugins.plants.species_editor import (
+    SpeciesDistribution, SpeciesEditorPresenter, SpeciesEditorView,
+    SpeciesEditor)
+from bauble.plugins.plants.species_model import (
+    Species, VernacularName, SpeciesSynonym, DefaultVernacularName)
 import bauble.search as search
-from bauble.view import SearchView, PropertiesExpander, Action
+from bauble.view import PropertiesExpander, Action
 import bauble.view as view
-import bauble.utils.desktop as desktop
+
+SpeciesDistribution  # will be imported by clients of this module
+SpeciesEditorPresenter, SpeciesEditorView, SpeciesEditor
+DefaultVernacularName
 
 # TODO: we need to make sure that this will still work if the
 # AccessionPlugin is not present, this means that we would have to
 # change the species context menu, getting the children from the
 # search view and what else
+
 
 def edit_callback(values):
     from bauble.plugins.plants.species_editor import SpeciesEditor
@@ -22,7 +60,7 @@ def edit_callback(values):
     if isinstance(sp, VernacularName):
         sp = sp.species
     e = SpeciesEditor(model=sp)
-    return e.start() != None
+    return e.start() is not None
 
 
 def remove_callback(values):
@@ -39,7 +77,7 @@ def remove_callback(values):
     if nacc > 0:
         msg = _('The species <i>%(species)s</i> has %(num_accessions)s '
                 'accessions.  Are you sure you want remove it?') \
-                % dict(species=safe_str, num_accessions=nacc)
+            % dict(species=safe_str, num_accessions=nacc)
     else:
         msg = _("Are you sure you want to remove the species <i>%s</i>?") \
             % safe_str
@@ -66,15 +104,17 @@ def add_accession_callback(values):
         species = species.species
     e = AccessionEditor(model=Accession(species=species))
     session.close()
-    return e.start() != None
+    return e.start() is not None
 
 
-edit_action = Action('species_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('species_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
 add_accession_action = Action('species_acc_add', _('_Add accession'),
                               callback=add_accession_callback,
                               accelerator='<ctrl>k')
-remove_action = Action('species_remove', _('_Delete'), callback=remove_callback,
+remove_action = Action('species_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 species_context_menu = [edit_action, remove_action]
@@ -88,7 +128,7 @@ def species_markup_func(species):
     # refer to the id of this plant
     if len(species.vernacular_names) > 0:
         substring = '%s -- %s' % \
-                    (species.genus.family, \
+                    (species.genus.family,
                      ', '.join([str(v) for v in species.vernacular_names]))
     else:
         substring = '%s' % species.genus.family
@@ -100,6 +140,7 @@ def species_get_kids(species):
         return sorted(species.accessions, key=utils.natsort_key)
     except Exception:
         return []
+
 
 def vernname_get_kids(vernname):
     '''
@@ -176,7 +217,6 @@ class VernacularExpander(InfoExpander):
         self.widgets.remove_parent(vernacular_box)
         self.vbox.pack_start(vernacular_box)
 
-
     def update(self, row):
         '''
         update the expander
@@ -190,17 +230,16 @@ class VernacularExpander(InfoExpander):
             names = []
             for vn in row.vernacular_names:
                 if row.default_vernacular_name is not None \
-                       and vn == row.default_vernacular_name:
-                    names.insert(0, '%s - %s (default)' % \
+                        and vn == row.default_vernacular_name:
+                    names.insert(0, '%s - %s (default)' %
                                  (vn.name, vn.language))
                 else:
-                    names.append('%s - %s' % \
+                    names.append('%s - %s' %
                                  (vn.name, vn.language))
             self.set_widget_value('sp_vernacular_data', '\n'.join(names))
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)
-
 
 
 class SynonymsExpander(InfoExpander):
@@ -211,14 +250,13 @@ class SynonymsExpander(InfoExpander):
         self.widgets.remove_parent(synonyms_box)
         self.vbox.pack_start(synonyms_box)
 
-
     def update(self, row):
         '''
         update the expander
 
         :param row: the row to get thevalues from
         '''
-        #debug(row.synonyms)
+        logger.debug(row.synonyms)
         if len(row.synonyms) == 0:
             self.set_sensitive(False)
             self.set_expanded(False)
@@ -245,7 +283,6 @@ class SynonymsExpander(InfoExpander):
             self.set_expanded(True)
 
 
-
 class GeneralSpeciesExpander(InfoExpander):
     '''
     expander to present general information about a species
@@ -267,9 +304,11 @@ class GeneralSpeciesExpander(InfoExpander):
             return True
 
         self.current_obj = None
+
         def on_nacc_clicked(*args):
             cmd = 'acc where species.id=%s' % self.current_obj.id
             bauble.gui.send_command(cmd)
+
         utils.make_label_clickable(self.widgets.sp_nacc_data,
                                    on_nacc_clicked)
 
@@ -278,7 +317,6 @@ class GeneralSpeciesExpander(InfoExpander):
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.sp_nplants_data,
                                    on_nplants_clicked)
-
 
     def update(self, row):
         '''
@@ -292,7 +330,7 @@ class GeneralSpeciesExpander(InfoExpander):
         # around and indent from the genus name instead of from the
         # species name
         session = db.Session()
-        self.set_widget_value('sp_name_data', '<big>%s</big>' % \
+        self.set_widget_value('sp_name_data', '<big>%s</big>' %
                               row.markup(True), markup=True)
 
         awards = ''
@@ -328,21 +366,20 @@ class GeneralSpeciesExpander(InfoExpander):
         from bauble.plugins.garden.plant import Plant
 
         nacc = session.query(Accession).join('species').\
-               filter_by(id=row.id).count()
+            filter_by(id=row.id).count()
         self.set_widget_value('sp_nacc_data', nacc)
 
         nplants = session.query(Plant).join('accession', 'species').\
-                    filter_by(id=row.id).count()
+            filter_by(id=row.id).count()
         if nplants == 0:
             self.set_widget_value('sp_nplants_data', nplants)
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
-                    join('accession', 'species').\
-                    filter_by(id=row.id).distinct().count()
-            self.set_widget_value('sp_nplants_data', '%s in %s accessions' \
+                join('accession', 'species').\
+                filter_by(id=row.id).distinct().count()
+            self.set_widget_value('sp_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
         session.close()
-
 
 
 class LinksExpander(view.LinksExpander):
@@ -384,7 +421,6 @@ class LinksExpander(view.LinksExpander):
             b.set_alignment(0, -1)
             self.vbox.pack_start(b, expand=False, fill=False)
 
-
     def update(self, row):
         super(LinksExpander, self).update(row)
         self.wikipedia_button.set_keywords(genus=row.genus, species=row.sp)
@@ -415,7 +451,6 @@ class SpeciesInfoBox(InfoBox):
         self.insert_page(page, label, 1)
 
 
-
 class SpeciesInfoPage(InfoBoxPage):
     '''
     general info, fullname, common name, num of accessions and clones,
@@ -430,7 +465,7 @@ class SpeciesInfoPage(InfoBoxPage):
         '''
         super(SpeciesInfoPage, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
-                                  'infoboxes.glade')
+                                'infoboxes.glade')
         # load the widgets directly instead of using load_widgets()
         # because the caching that load_widgets() does can mess up
         # displaying the SpeciesInfoBox sometimes if you try to show
@@ -455,7 +490,6 @@ class SpeciesInfoPage(InfoBoxPage):
             self.widgets.remove_parent('sp_nplants_label')
             self.widgets.remove_parent('sp_nplants_data')
 
-
     def update(self, row):
         '''
         update the expanders in this infobox
@@ -475,5 +509,3 @@ class VernacularNameInfoBox(SpeciesInfoBox):
     def update(self, row):
         super(VernacularNameInfoBox, self).update(row.species)
         #self.props.update(row)
-
-
