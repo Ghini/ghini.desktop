@@ -1,8 +1,9 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 2.12 -->
+  <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="main_window">
+    <property name="can_focus">True</property>
     <property name="title" translatable="yes">Bauble</property>
     <property name="role">bauble</property>
     <property name="default_width">800</property>
@@ -11,12 +12,15 @@
     <child>
       <object class="GtkVBox" id="top_box">
         <property name="visible">True</property>
+        <property name="can_focus">True</property>
         <child>
           <object class="GtkVBox" id="main_box">
             <property name="visible">True</property>
+            <property name="can_focus">True</property>
             <child>
               <object class="GtkVBox" id="menu_box">
                 <property name="visible">True</property>
+                <property name="can_focus">True</property>
                 <child>
                   <placeholder/>
                 </child>
@@ -30,14 +34,17 @@
             <child>
               <object class="GtkHBox" id="hbox1">
                 <property name="visible">True</property>
+                <property name="can_focus">True</property>
                 <child>
                   <object class="GtkButton" id="query_button">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image2">
                         <property name="visible">True</property>
+                        <property name="can_focus">True</property>
                         <property name="stock">gtk-properties</property>
                       </object>
                     </child>
@@ -51,14 +58,26 @@
                 <child>
                   <object class="GtkComboBoxEntry" id="main_comboentry">
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
                     <property name="text_column">0</property>
                     <child>
                       <object class="GtkCellRendererText" id="cellrenderertext1">
                         <property name="xalign">0</property>
                       </object>
                     </child>
+                    <child internal-child="entry">
+                      <object class="GtkEntry" id="comboboxentry-entry2">
+                        <property name="can_focus">True</property>
+                        <property name="primary_icon_activatable">False</property>
+                        <property name="secondary_icon_activatable">False</property>
+                        <property name="primary_icon_sensitive">True</property>
+                        <property name="secondary_icon_sensitive">True</property>
+                      </object>
+                    </child>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
@@ -67,9 +86,11 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image1">
                         <property name="visible">True</property>
+                        <property name="can_focus">True</property>
                         <property name="stock">gtk-find</property>
                       </object>
                     </child>
@@ -92,9 +113,11 @@
             <child>
               <object class="GtkVBox" id="vbox1">
                 <property name="visible">True</property>
+                <property name="can_focus">True</property>
                 <child>
                   <object class="GtkHBox" id="msg_box_parent">
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
                     <child>
                       <placeholder/>
                     </child>
@@ -108,30 +131,39 @@
                 <child>
                   <object class="GtkVBox" id="view_box">
                     <property name="visible">True</property>
+                    <property name="can_focus">True</property>
                     <child>
                       <placeholder/>
                     </child>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
           <object class="GtkStatusbar" id="statusbar">
             <property name="visible">True</property>
+            <property name="can_focus">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -139,9 +171,11 @@
     </child>
   </object>
   <object class="GtkWindow" id="search_window">
+    <property name="can_focus">True</property>
     <child>
       <object class="GtkVBox" id="search_vbox">
         <property name="visible">True</property>
+        <property name="can_focus">True</property>
         <child>
           <object class="GtkHPaned" id="search_hpane">
             <property name="visible">True</property>
@@ -152,6 +186,7 @@
                 <property name="can_focus">True</property>
                 <child>
                   <object class="GtkVPaned" id="search_vpane">
+                    <property name="width_request">400</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <child>
@@ -239,6 +274,7 @@
                         <child type="label">
                           <object class="GtkLabel" id="label1">
                             <property name="visible">True</property>
+                            <property name="can_focus">True</property>
                             <property name="label" translatable="yes">Notes</property>
                           </object>
                         </child>
@@ -267,6 +303,11 @@
               <placeholder/>
             </child>
           </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
         </child>
       </object>
     </child>
