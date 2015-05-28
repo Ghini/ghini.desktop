@@ -39,7 +39,8 @@ from bauble.plugins.plants.species_editor import (
     SpeciesDistribution, SpeciesEditorPresenter, SpeciesEditorView,
     SpeciesEditor)
 from bauble.plugins.plants.species_model import (
-    Species, VernacularName, SpeciesSynonym, DefaultVernacularName)
+    Species, SpeciesNote, VernacularName, SpeciesSynonym,
+    DefaultVernacularName)
 import bauble.search as search
 from bauble.view import PropertiesExpander, Action
 import bauble.view as view
@@ -47,6 +48,7 @@ import bauble.view as view
 SpeciesDistribution  # will be imported by clients of this module
 SpeciesEditorPresenter, SpeciesEditorView, SpeciesEditor
 DefaultVernacularName
+SpeciesNote
 
 # TODO: we need to make sure that this will still work if the
 # AccessionPlugin is not present, this means that we would have to
