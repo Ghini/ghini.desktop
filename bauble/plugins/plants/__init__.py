@@ -15,6 +15,7 @@
 # database is created there should be a way to recreate everything from scratch
 
 import os
+import sys
 
 import bauble
 import bauble.db as db
