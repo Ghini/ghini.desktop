@@ -22,7 +22,7 @@ The top level module for Bauble.
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 import imp
 import os

@@ -340,6 +340,12 @@ class GeneralSpeciesExpander(InfoExpander):
             awards = utils.utf8(row.awards)
         self.set_widget_value('sp_awards_data', awards)
 
+        logger.debug('setting cites data from row %s' % row)
+        cites = ''
+        if row.cites:
+            cites = utils.utf8(row.cites)
+        self.set_widget_value('sp_cites_data', cites)
+
         # zone = ''
         # if row.hardiness_zone:
         #     awards = utils.utf8(row.hardiness_zone)
