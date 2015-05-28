@@ -29,13 +29,13 @@ from sqlalchemy.exc import IntegrityError
 
 import bauble.utils as utils
 import bauble.db as db
-from bauble.plugins.plants.species import \
-    Species, VernacularName, SpeciesSynonym, SpeciesEditor, \
-    DefaultVernacularName, SpeciesDistribution
-from bauble.plugins.plants.family import \
-    Family, FamilySynonym, FamilyEditor
+from bauble.plugins.plants.species import (
+    Species, VernacularName, SpeciesSynonym, SpeciesEditor,
+    DefaultVernacularName, SpeciesDistribution, SpeciesNote)
+from bauble.plugins.plants.family import (
+    Family, FamilySynonym, FamilyEditor, FamilyNote)
 from bauble.plugins.plants.genus import \
-    Genus, GenusSynonym, GenusEditor
+    Genus, GenusSynonym, GenusEditor, GenusNote
 from bauble.plugins.plants.geography import Geography, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids
 
@@ -65,15 +65,27 @@ if sys.platform == 'win32':
     Species.hybrid_char = 'x'
 
 
-family_test_data = ({'id': 1, 'family': 'Orchidaceae'},
-                    {'id': 2, 'family': 'Leguminosae', 'qualifier': 's. str.'},
-                    {'id': 3, 'family': 'Polypodiaceae'})
+family_test_data = ({'id': 1, 'family': u'Orchidaceae'},
+                    {'id': 2, 'family': u'Leguminosae',
+                     'qualifier': u's. str.'},
+                    {'id': 3, 'family': u'Polypodiaceae'})
 
-genus_test_data = ({'id': 1, 'genus': 'Maxillaria', 'family_id': 1},
-                   {'id': 2, 'genus': 'Encyclia', 'family_id': 1},
-                   {'id': 3, 'genus': 'Abrus', 'family_id': 2},
-                   {'id': 4, 'genus': 'Campyloneurum', 'family_id': 3},
-                   )
+family_note_test_data = (
+    {'id': 1, 'family_id': 1, 'category': u'CITES', 'note': u'II'},
+    )
+
+genus_test_data = (
+    {'id': 1, 'genus': u'Maxillaria', 'family_id': 1},
+    {'id': 2, 'genus': u'Encyclia', 'family_id': 1},
+    {'id': 3, 'genus': u'Abrus', 'family_id': 2},
+    {'id': 4, 'genus': u'Campyloneurum', 'family_id': 3},
+    {'id': 5, 'genus': u'Paphiopedilum', 'family_id': 1},
+    {'id': 6, 'genus': u'Laelia', 'family_id': 1},
+    )
+
+genus_note_test_data = (
+    {'id': 1, 'genus_id': 5, 'category': u'CITES', 'note': u'I'},
+    )
 
 species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'sp_author': u'Bateman ex Lindl.'},
@@ -120,7 +132,17 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                      {'id': 16, 'genus_id': 1, 'sp': u'test',
                       'infrasp1_rank': u'subsp.', 'infrasp1': u'test',
                       'cv_group': u'SomeGroup'},
+                     {'id': 17, 'genus_id': 5, 'sp': u'adductum',
+                      'author': u'Asher'},
+                     {'id': 18, 'genus_id': 6, 'sp': u'lobata',
+                      'author': u'H.J. Veitch'},
+                     {'id': 19, 'genus_id': 6, 'sp': u'grandiflora',
+                      'author': u'Lindl.'},
                      )
+
+species_note_test_data = (
+    {'id': 1, 'species_id': 18, 'category': u'CITES', 'note': u'I'},
+    )
 
 species_str_map = {
     1: 'Maxillaria variabilis',
@@ -185,11 +207,16 @@ vn_test_data = ({'id': 1, 'name': u'SomeName', 'language': u'English',
                  'species_id': 1},
                 )
 
-test_data_table_control = ((Family, family_test_data),
-                           (Genus, genus_test_data),
-                           (Species, species_test_data),
-                           (VernacularName, vn_test_data),
-                           (SpeciesSynonym, sp_synonym_test_data))
+test_data_table_control = (
+    (Family, family_test_data),
+    (Genus, genus_test_data),
+    (Species, species_test_data),
+    (VernacularName, vn_test_data),
+    (SpeciesSynonym, sp_synonym_test_data),
+    (FamilyNote, family_note_test_data),
+    (GenusNote, genus_note_test_data),
+    (SpeciesNote, species_note_test_data),
+    )
 
 
 def setUp_data():
@@ -897,7 +924,8 @@ class FromAndToDictTest(PlantTestCase):
                            'ht-epithet': 'Orchidaceae',
                            'rank': 'genus',
                            'epithet': 'Encyclia'})
-        self.assertEquals(set(all_genera_orc), set([mxl, enc]))
+        self.assertTrue(mxl in set(all_genera_orc))
+        self.assertTrue(enc in set(all_genera_orc))
 
 
 class FromAndToDict_create_update_test(PlantTestCase):
@@ -1002,3 +1030,45 @@ class FromAndToDict_create_update_test(PlantTestCase):
             create=False, update=True)
         self.assertTrue(obj is not None)
         self.assertEquals(obj.author, 'Schltr.')
+
+
+class CitesStatus_test(PlantTestCase):
+    "we can retrieve the cites status as defined in family-genus-species"
+
+    def test(self):
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': u'Maxillaria'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'II')
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': u'Laelia'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'II')
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Paphiopedilum',
+                           'rank': 'species',
+                           'epithet': u'adductum'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'I')
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Laelia',
+                           'rank': 'species',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'I')
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Laelia',
+                           'rank': 'species',
+                           'epithet': u'grandiflora'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'II')
