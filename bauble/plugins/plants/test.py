@@ -29,13 +29,13 @@ from sqlalchemy.exc import IntegrityError
 
 import bauble.utils as utils
 import bauble.db as db
-from bauble.plugins.plants.species import \
-    Species, VernacularName, SpeciesSynonym, SpeciesEditor, \
-    DefaultVernacularName, SpeciesDistribution
-from bauble.plugins.plants.family import \
-    Family, FamilySynonym, FamilyEditor
+from bauble.plugins.plants.species import (
+    Species, VernacularName, SpeciesSynonym, SpeciesEditor,
+    DefaultVernacularName, SpeciesDistribution, SpeciesNote)
+from bauble.plugins.plants.family import (
+    Family, FamilySynonym, FamilyEditor, FamilyNote)
 from bauble.plugins.plants.genus import \
-    Genus, GenusSynonym, GenusEditor
+    Genus, GenusSynonym, GenusEditor, GenusNote
 from bauble.plugins.plants.geography import Geography, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids
 
@@ -66,50 +66,62 @@ if sys.platform == 'win32':
 
 
 family_test_data = ({'id': 1, 'family': u'Orchidaceae'},
-                    {'id': 2, 'family': u'Leguminosae', 'qualifier': u's. str.'},
+                    {'id': 2, 'family': u'Leguminosae',
+                     'qualifier': u's. str.'},
                     {'id': 3, 'family': u'Polypodiaceae'})
 
-genus_test_data = ({'id': 1, 'genus': u'Maxillaria', 'family_id': 1},
-                   {'id': 2, 'genus': u'Encyclia', 'family_id': 1},
-                   {'id': 3, 'genus': u'Abrus', 'family_id': 2},
-                   {'id': 4, 'genus': u'Campyloneurum', 'family_id': 3},
-                   )
+family_note_test_data = (
+    {'id': 1, 'family_id': 1, 'category': u'CITES', 'note': u'II'},
+    )
 
-species_test_data = ({'id': 1, u'sp': u'variabilis', 'genus_id': 1,
+genus_test_data = (
+    {'id': 1, 'genus': u'Maxillaria', 'family_id': 1},
+    {'id': 2, 'genus': u'Encyclia', 'family_id': 1},
+    {'id': 3, 'genus': u'Abrus', 'family_id': 2},
+    {'id': 4, 'genus': u'Campyloneurum', 'family_id': 3},
+    {'id': 5, 'genus': u'Paphiopedilum', 'family_id': 1},
+    {'id': 6, 'genus': u'Laelia', 'family_id': 1},
+    )
+
+genus_note_test_data = (
+    {'id': 1, 'genus_id': 5, 'category': u'CITES', 'note': u'I'},
+    )
+
+species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'sp_author': u'Bateman ex Lindl.'},
-                     {'id': 2, u'sp': u'cochleata', 'genus_id': 2,
+                     {'id': 2, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'(L.) Lem\xe9e'},
-                     {'id': 3, u'sp': u'precatorius', 'genus_id': 3,
+                     {'id': 3, 'sp': u'precatorius', 'genus_id': 3,
                       'sp_author': u'L.'},
-                     {'id': 4, u'sp': u'alapense', 'genus_id': 4,
+                     {'id': 4, 'sp': u'alapense', 'genus_id': 4,
                       'hybrid': True, 'sp_author': u'F\xe9e'},
-                     {'id': 5, u'sp': u'cochleata', 'genus_id': 2,
+                     {'id': 5, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'(L.) Lem\xe9e',
                       'infrasp1_rank': u'var.', 'infrasp1': u'cochleata'},
-                     {'id': 6, u'sp': u'cochleata', 'genus_id': 2,
+                     {'id': 6, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'(L.) Lem\xe9e',
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Black Night'},
-                     {'id': 7, u'sp': u'precatorius', 'genus_id': 3,
+                     {'id': 7, 'sp': u'precatorius', 'genus_id': 3,
                       'sp_author': u'L.', 'cv_group': u'SomethingRidiculous'},
-                     {'id': 8, u'sp': u'precatorius', 'genus_id': 3,
+                     {'id': 8, 'sp': u'precatorius', 'genus_id': 3,
                       'sp_author': u'L.',
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Hot Rio Nights',
                       'cv_group': u'SomethingRidiculous'},
-                     {'id': 9, u'sp': u'generalis', 'genus_id': 1,
+                     {'id': 9, 'sp': u'generalis', 'genus_id': 1,
                       'hybrid': True,
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
-                     {'id': 10, u'sp': u'generalis', 'genus_id': 1,
+                     {'id': 10, 'sp': u'generalis', 'genus_id': 1,
                       'hybrid': True, 'sp_author': u'L.',
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red',
                       'cv_group': u'SomeGroup'},
-                     {'id': 11, u'sp': u'generalis', 'genus_id': 1,
+                     {'id': 11, 'sp': u'generalis', 'genus_id': 1,
                       'sp_qual': u'agg.'},
                      {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
                      {'id': 13, 'genus_id': 1,
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
                      {'id': 14, 'genus_id': 1,
                       'infrasp1_rank': u'cv.', 'infrasp1': u'Red & Blue'},
-                     {'id': 15, u'sp': u'cochleata', 'genus_id': 2,
+                     {'id': 15, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'L.',
                       'infrasp1_rank': u'subsp.', 'infrasp1': u'cochleata',
                       'infrasp1_author': u'L.',
@@ -117,10 +129,20 @@ species_test_data = ({'id': 1, u'sp': u'variabilis', 'genus_id': 1,
                       'infrasp2_author': u'L.',
                       'infrasp3_rank': u'cv.', 'infrasp3': u'Black',
                       'infrasp3_author': u'L.'},
-                     {'id': 16, 'genus_id': 1, u'sp': u'test',
+                     {'id': 16, 'genus_id': 1, 'sp': u'test',
                       'infrasp1_rank': u'subsp.', 'infrasp1': u'test',
                       'cv_group': u'SomeGroup'},
+                     {'id': 17, 'genus_id': 5, 'sp': u'adductum',
+                      'author': u'Asher'},
+                     {'id': 18, 'genus_id': 6, 'sp': u'lobata',
+                      'author': u'H.J. Veitch'},
+                     {'id': 19, 'genus_id': 6, 'sp': u'grandiflora',
+                      'author': u'Lindl.'},
                      )
+
+species_note_test_data = (
+    {'id': 1, 'species_id': 18, 'category': u'CITES', 'note': u'I'},
+    )
 
 species_str_map = {
     1: 'Maxillaria variabilis',
@@ -185,11 +207,16 @@ vn_test_data = ({'id': 1, 'name': u'SomeName', 'language': u'English',
                  'species_id': 1},
                 )
 
-test_data_table_control = ((Family, family_test_data),
-                           (Genus, genus_test_data),
-                           (Species, species_test_data),
-                           (VernacularName, vn_test_data),
-                           (SpeciesSynonym, sp_synonym_test_data))
+test_data_table_control = (
+    (Family, family_test_data),
+    (Genus, genus_test_data),
+    (Species, species_test_data),
+    (VernacularName, vn_test_data),
+    (SpeciesSynonym, sp_synonym_test_data),
+    (FamilyNote, family_note_test_data),
+    (GenusNote, genus_note_test_data),
+    (SpeciesNote, species_note_test_data),
+    )
 
 
 def setUp_data():
@@ -897,7 +924,8 @@ class FromAndToDictTest(PlantTestCase):
                            'ht-epithet': 'Orchidaceae',
                            'rank': 'genus',
                            'epithet': 'Encyclia'})
-        self.assertEquals(set(all_genera_orc), set([mxl, enc]))
+        self.assertTrue(mxl in set(all_genera_orc))
+        self.assertTrue(enc in set(all_genera_orc))
 
 
 class FromAndToDict_create_update_test(PlantTestCase):
@@ -1002,3 +1030,45 @@ class FromAndToDict_create_update_test(PlantTestCase):
             create=False, update=True)
         self.assertTrue(obj is not None)
         self.assertEquals(obj.author, 'Schltr.')
+
+
+class CitesStatus_test(PlantTestCase):
+    "we can retrieve the cites status as defined in family-genus-species"
+
+    def test(self):
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': u'Maxillaria'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'II')
+        obj = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'genus',
+                           'epithet': u'Laelia'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'II')
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Paphiopedilum',
+                           'rank': 'species',
+                           'epithet': u'adductum'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'I')
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Laelia',
+                           'rank': 'species',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'I')
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Laelia',
+                           'rank': 'species',
+                           'epithet': u'grandiflora'},
+            create=False, update=False)
+        self.assertEquals(obj.cites, u'II')
