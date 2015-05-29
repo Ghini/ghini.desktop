@@ -499,8 +499,7 @@ class ReportToolDialogPresenter(object):
         import types
         plugins = []
         for p in pluginmgr.plugins.values():
-            if isinstance(p, types.ClassType) \
-                    and issubclass(p, FormatterPlugin):
+            if isinstance(p, FormatterPlugin):
                 logger.debug('recognized %s as a FormatterPlugin', p)
                 plugins.append(p)
             else:

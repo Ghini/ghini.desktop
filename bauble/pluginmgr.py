@@ -573,16 +573,16 @@ def _find_plugins(path):
         if isinstance(mod_plugin, (list, tuple)):
             for p in mod_plugin:
                 if is_plugin_class(p):
-                    logger.debug('appending plugin class %s:%s' % (name, p))
-                    plugins.append(p)
+                    logger.debug('append plugin class %s:%s' % (name, p))
+                    plugins.append(p())
                 elif is_plugin_instance(p):
-                    logger.debug('appending plugin instance %s:%s' % (name, p))
+                    logger.debug('append plugin instance %s:%s' % (name, p))
                     plugins.append(p)
         elif is_plugin_class(mod_plugin):
-            logger.debug('appending plugin class %s:%s' % (name, mod_plugin))
-            plugins.append(mod_plugin)
+            logger.debug('append plugin class %s:%s' % (name, mod_plugin))
+            plugins.append(mod_plugin())
         elif is_plugin_instance(mod_plugin):
-            logger.debug('appending plugin instance %s:%s' % (name, mod_plugin))
+            logger.debug('append plugin instance %s:%s' % (name, mod_plugin))
             plugins.append(mod_plugin)
         else:
             logger.warning(_('%s.plugin is not an instance of pluginmgr.Plugin'
