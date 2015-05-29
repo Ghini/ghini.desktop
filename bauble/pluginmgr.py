@@ -146,7 +146,14 @@ def load(path=None):
         # issue #27: should we include the module name of the plugin to
         # allow for plugin namespaces or just assume that the plugin class
         # name is unique?
-        plugins[plugin.__class__.__name__] = plugin
+        if isinstance(plugin, (type, types.ClassType)):
+            plugins[plugin.__name__] = plugin
+            logger.debug("registering plugin %s: %s"
+                         % (plugin.__name__, plugin))
+        else:
+            plugins[plugin.__class__.__name__] = plugin
+            logger.debug("registering plugin %s: %s"
+                         % (plugin.__class__.__name__, plugin))
 
 
 def init(force=False):
@@ -197,8 +204,10 @@ def init(force=False):
             try:
                 registered.append(plugins[name])
             except KeyError, e:
-                logger.debug("could not find '%s' plugin" % e)
+                logger.debug("could not find '%s' plugin. "
+                             "removing from database" % e)
                 not_registered.append(utils.utf8(name))
+                PluginRegistry.remove(name=name)
 
         if not_registered:
             msg = _('The following plugins are in the registry but '
@@ -347,14 +356,16 @@ class PluginRegistry(db.Base):
         session.close()
 
     @staticmethod
-    def remove(plugin):
+    def remove(plugin=None, name=None):
         """
         Remove a plugin from the registry by name.
         """
         #debug('PluginRegistry.remove()')
+        if name is None:
+            name = plugin.__class__.__name__
         session = db.Session()
         p = session.query(PluginRegistry).\
-            filter_by(name=utils.utf8(plugin.__class__.__name__)).one()
+            filter_by(name=utils.utf8(name)).one()
         session.delete(p)
         session.commit()
         session.close()
@@ -562,16 +573,16 @@ def _find_plugins(path):
         if isinstance(mod_plugin, (list, tuple)):
             for p in mod_plugin:
                 if is_plugin_class(p):
-                    logger.debug('appending pluging %s:%s' % (name, p))
-                    plugins.append(p())
+                    logger.debug('appending plugin class %s:%s' % (name, p))
+                    plugins.append(p)
                 elif is_plugin_instance(p):
-                    logger.debug('appending pluging %s:%s' % (name, p))
+                    logger.debug('appending plugin instance %s:%s' % (name, p))
                     plugins.append(p)
         elif is_plugin_class(mod_plugin):
-            logger.debug('appending pluging %s:%s' % (name, mod_plugin))
-            plugins.append(mod_plugin())
+            logger.debug('appending plugin class %s:%s' % (name, mod_plugin))
+            plugins.append(mod_plugin)
         elif is_plugin_instance(mod_plugin):
-            logger.debug('appending pluging %s:%s' % (name, mod_plugin))
+            logger.debug('appending plugin instance %s:%s' % (name, mod_plugin))
             plugins.append(mod_plugin)
         else:
             logger.warning(_('%s.plugin is not an instance of pluginmgr.Plugin'
