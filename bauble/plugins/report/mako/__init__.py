@@ -80,7 +80,7 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
-        logger.warning("installing mako plugin")
+        logger.debug("installing mako plugin")
         # copy default template files to user_dir
         templates = ['example.csv', 'example.csv']
         base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
