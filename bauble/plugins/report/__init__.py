@@ -496,14 +496,18 @@ class ReportToolDialogPresenter(object):
         self.view.widgets.ok_button.set_sensitive(True)
 
     def init_formatter_combo(self):
+        import types
         plugins = []
         for p in pluginmgr.plugins.values():
-            if issubclass(p, FormatterPlugin):
+            if isinstance(p, types.ClassType) \
+                    and issubclass(p, FormatterPlugin):
+                logger.debug('recognized %s as a FormatterPlugin', p)
                 plugins.append(p)
+            else:
+                logger.debug('discarded %s: not a FormatterPlugin', p)
 
         # we should always have at least the default formatter
         model = gtk.ListStore(str)
-        #assert len(plugins) is not 0, 'No formatter plugins defined.'
         if len(plugins) == 0:
             utils.message_dialog(_('No formatter plugins defined'),
                                  gtk.MESSAGE_WARNING)
