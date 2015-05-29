@@ -82,6 +82,9 @@ def _get_all_objects(cls, get_query_func, objs, session):
     :param objs:
     :param session:
     """
+    if session is None:
+        import bauble.db as db
+        session = db.Session()
     if not isinstance(objs, (tuple, list)):
         objs = [objs]
     queries = map(lambda o: get_query_func(o, session), objs)
@@ -122,7 +125,7 @@ def get_plant_query(obj, session):
         raise BaubleError(_("Can't get plants from a %s" % type(obj).__name__))
 
 
-def get_all_plants(objs, session):
+def get_all_plants(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
@@ -163,7 +166,7 @@ def get_accession_query(obj, session):
                             type(obj).__name__))
 
 
-def get_all_accessions(objs, session):
+def get_all_accessions(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
@@ -205,7 +208,7 @@ def get_species_query(obj, session):
                             type(obj).__name__))
 
 
-def get_all_species(objs, session):
+def get_all_species(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
@@ -656,3 +659,7 @@ else:
         from bauble.plugins.report.mako import MakoFormatterPlugin
         return [ReportToolPlugin, XSLFormatterPlugin,
                 MakoFormatterPlugin]
+
+filter_isplant = get_all_plants
+filter_isaccession = get_all_accessions
+filter_isspecies = get_all_species

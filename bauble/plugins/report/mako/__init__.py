@@ -102,7 +102,8 @@ class MakoFormatterPlugin(FormatterPlugin):
             utils.message_dialog(msg, gtk.MESSAGE_WARNING)
             return False
         template = Template(
-            filename=template_filename, output_encoding='utf-8')
+            filename=template_filename, input_encoding='utf-8',
+            output_encoding='utf-8')
         session = db.Session()
         values = map(session.merge, objs)
         report = template.render(values=values)
