@@ -12,7 +12,7 @@
 ; general
 Name "Bauble"
 
-!define version "1.0.27" ; :bump
+!define version "1.0.28" ; :bump
 !define src_dir "../dist"
 Outfile "bauble-${version}-setup.exe"
 
