@@ -80,7 +80,7 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
-        logger.warning("installing mako plugin")
+        logger.debug("installing mako plugin")
         # copy default template files to user_dir
         templates = ['example.csv', 'example.csv']
         base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
@@ -102,7 +102,8 @@ class MakoFormatterPlugin(FormatterPlugin):
             utils.message_dialog(msg, gtk.MESSAGE_WARNING)
             return False
         template = Template(
-            filename=template_filename, output_encoding='utf-8')
+            filename=template_filename, input_encoding='utf-8',
+            output_encoding='utf-8')
         session = db.Session()
         values = map(session.merge, objs)
         report = template.render(values=values)
