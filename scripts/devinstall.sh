@@ -49,11 +49,12 @@ fi
 mkdir $HOME/.virtualenvs >/dev/null 2>&1
 virtualenv $HOME/.virtualenvs/bacl --system-site-packages
 find $HOME/.virtualenvs/bacl -name "*.pyc" -execdir rm {} \;
+find $HOME/.virtualenvs/bacl -name "*.pth" -execdir rm {} \;
 mkdir $HOME/.virtualenvs/bacl/share >/dev/null 2>&1
 mkdir $HOME/.bauble >/dev/null 2>&1
 source $HOME/.virtualenvs/bacl/bin/activate
 
-pip install setuptools --upgrade
+pip install setuptools pip --upgrade
 
 python setup.py build
 python setup.py install
@@ -68,17 +69,18 @@ source \$HOME/.virtualenvs/bacl/bin/activate
 while getopts us: f
 do
   case \$f in
-    u)  cd \$GITHOME
-	git pull
-	python setup.py build
-	python setup.py install
-	exit 1;;
-    s)  cd \$GITHOME
-	git checkout bauble-\$OPTARG
+    u)  find \$HOME/.virtualenvs/bacl -name "*.pth" -execdir rm {} \;
+        cd \$GITHOME
         git pull
-	python setup.py build
-	python setup.py install
-	exit 1;;
+        python setup.py build
+        python setup.py install
+        exit 1;;
+    s)  cd \$GITHOME
+        git checkout bauble-\$OPTARG
+        git pull
+        python setup.py build
+        python setup.py install
+        exit 1;;
   esac
 done
 
