@@ -68,17 +68,18 @@ source \$HOME/.virtualenvs/bacl/bin/activate
 while getopts us: f
 do
   case \$f in
-    u)  cd \$GITHOME
-	git pull
-	python setup.py build
-	python setup.py install
-	exit 1;;
-    s)  cd \$GITHOME
-	git checkout bauble-\$OPTARG
+    u)  find \$HOME/.virtualenvs/bacl -name "*.pth" -execdir rm {} \;
+        cd \$GITHOME
         git pull
-	python setup.py build
-	python setup.py install
-	exit 1;;
+        python setup.py build
+        python setup.py install
+        exit 1;;
+    s)  cd \$GITHOME
+        git checkout bauble-\$OPTARG
+        git pull
+        python setup.py build
+        python setup.py install
+        exit 1;;
   esac
 done
 
