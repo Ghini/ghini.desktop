@@ -82,6 +82,9 @@ def _get_all_objects(cls, get_query_func, objs, session):
     :param objs:
     :param session:
     """
+    if session is None:
+        import bauble.db as db
+        session = db.Session()
     if not isinstance(objs, (tuple, list)):
         objs = [objs]
     queries = map(lambda o: get_query_func(o, session), objs)
@@ -122,7 +125,7 @@ def get_plant_query(obj, session):
         raise BaubleError(_("Can't get plants from a %s" % type(obj).__name__))
 
 
-def get_all_plants(objs, session):
+def get_all_plants(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
@@ -163,7 +166,7 @@ def get_accession_query(obj, session):
                             type(obj).__name__))
 
 
-def get_all_accessions(objs, session):
+def get_all_accessions(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
@@ -205,7 +208,7 @@ def get_species_query(obj, session):
                             type(obj).__name__))
 
 
-def get_all_species(objs, session):
+def get_all_species(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
@@ -496,14 +499,17 @@ class ReportToolDialogPresenter(object):
         self.view.widgets.ok_button.set_sensitive(True)
 
     def init_formatter_combo(self):
+        import types
         plugins = []
         for p in pluginmgr.plugins.values():
-            if issubclass(p, FormatterPlugin):
+            if isinstance(p, FormatterPlugin):
+                logger.debug('recognized %s as a FormatterPlugin', p)
                 plugins.append(p)
+            else:
+                logger.debug('discarded %s: not a FormatterPlugin', p)
 
         # we should always have at least the default formatter
         model = gtk.ListStore(str)
-        #assert len(plugins) is not 0, 'No formatter plugins defined.'
         if len(plugins) == 0:
             utils.message_dialog(_('No formatter plugins defined'),
                                  gtk.MESSAGE_WARNING)
@@ -653,3 +659,7 @@ else:
         from bauble.plugins.report.mako import MakoFormatterPlugin
         return [ReportToolPlugin, XSLFormatterPlugin,
                 MakoFormatterPlugin]
+
+filter_isplant = get_all_plants
+filter_isaccession = get_all_accessions
+filter_isspecies = get_all_species

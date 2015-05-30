@@ -115,13 +115,16 @@ def load(path=None):
     :param path: the path where to look for the plugins
     :type path: str
     """
+
     if path is None:
         if bauble.main_is_frozen():
             #path = os.path.join(paths.lib_dir(), 'library.zip')
             path = os.path.join(paths.main_dir(), 'library.zip')
         else:
             path = os.path.join(paths.lib_dir(), 'plugins')
+    logger.debug('pluginmgr.load(%s)' % path)
     found, errors = _find_plugins(path)
+    logger.debug('found=%s, errors=%s' % (found, errors))
 
     # show error dialog for plugins that couldn't be loaded...we only
     # give details for the first error and assume the others are the
@@ -142,8 +145,15 @@ def load(path=None):
     for plugin in found:
         # issue #27: should we include the module name of the plugin to
         # allow for plugin namespaces or just assume that the plugin class
-        # name is unique
-        plugins[plugin.__class__.__name__] = plugin
+        # name is unique?
+        if isinstance(plugin, (type, types.ClassType)):
+            plugins[plugin.__name__] = plugin
+            logger.debug("registering plugin %s: %s"
+                         % (plugin.__name__, plugin))
+        else:
+            plugins[plugin.__class__.__name__] = plugin
+            logger.debug("registering plugin %s: %s"
+                         % (plugin.__class__.__name__, plugin))
 
 
 def init(force=False):
@@ -169,7 +179,7 @@ def init(force=False):
 
     # search for plugins that are in the plugins dict but not in the registry
     registered = plugins.values()
-    logger.debug(registered)
+    logger.debug('registered plugins: %s' % plugins)
     try:
         # try to access the plugin registry, if the table does not exist
         # then it might mean that we are opening a pre 0.9 database, in this
@@ -189,14 +199,15 @@ def init(force=False):
                 install([p for p in not_installed])
 
         # sort plugins in the registry by their dependencies
-        logger.debug(plugins)
         not_registered = []
         for name in PluginRegistry.names():
             try:
                 registered.append(plugins[name])
             except KeyError, e:
-                logger.debug("could not find '%s' plugin" % e)
+                logger.debug("could not find '%s' plugin. "
+                             "removing from database" % e)
                 not_registered.append(utils.utf8(name))
+                PluginRegistry.remove(name=name)
 
         if not_registered:
             msg = _('The following plugins are in the registry but '
@@ -224,6 +235,7 @@ def init(force=False):
         logger.debug('about to invoke init on: %s' % plugin)
         try:
             plugin.init()
+            logger.debug('plugin %s initialized' % plugin)
         except KeyError, e:
             # don't remove the plugin from the registry because if we
             # find it again the user might decide to reinstall it
@@ -344,14 +356,16 @@ class PluginRegistry(db.Base):
         session.close()
 
     @staticmethod
-    def remove(plugin):
+    def remove(plugin=None, name=None):
         """
         Remove a plugin from the registry by name.
         """
         #debug('PluginRegistry.remove()')
+        if name is None:
+            name = plugin.__class__.__name__
         session = db.Session()
         p = session.query(PluginRegistry).\
-            filter_by(name=utils.utf8(plugin.__class__.__name__)).one()
+            filter_by(name=utils.utf8(name)).one()
         session.delete(p)
         session.commit()
         session.close()
@@ -546,16 +560,29 @@ def _find_plugins(path):
         # plugins
         try:
             mod_plugin = mod.plugin()
+            logger.debug('module %s contains callable plugin: %s'
+                         % (mod, mod_plugin))
         except:
             mod_plugin = mod.plugin
+            logger.debug('module %s contains non callable plugin: %s'
+                         % (mod, mod_plugin))
 
-        is_plugin = lambda p: (isinstance(p, (type, types.ClassType))
-                               and issubclass(p, Plugin))
+        is_plugin_class = lambda p: (isinstance(p, (type, types.ClassType))
+                                     and issubclass(p, Plugin))
+        is_plugin_instance = lambda p: (isinstance(p, Plugin))
         if isinstance(mod_plugin, (list, tuple)):
             for p in mod_plugin:
-                if is_plugin(p) or True:
+                if is_plugin_class(p):
+                    logger.debug('append plugin class %s:%s' % (name, p))
+                    plugins.append(p())
+                elif is_plugin_instance(p):
+                    logger.debug('append plugin instance %s:%s' % (name, p))
                     plugins.append(p)
-        elif is_plugin(mod_plugin) or True:
+        elif is_plugin_class(mod_plugin):
+            logger.debug('append plugin class %s:%s' % (name, mod_plugin))
+            plugins.append(mod_plugin())
+        elif is_plugin_instance(mod_plugin):
+            logger.debug('append plugin instance %s:%s' % (name, mod_plugin))
             plugins.append(mod_plugin)
         else:
             logger.warning(_('%s.plugin is not an instance of pluginmgr.Plugin'
