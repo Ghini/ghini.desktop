@@ -1,6 +1,9 @@
 #!/bin/bash
 
 PROBLEMS=''
+if ! gettext --version >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS gettext"
+fi
 if ! python -c 'import gtk' >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS pygtk"
 fi
@@ -19,18 +22,19 @@ if [ "$PYTHONHCOUNT" = "0" ]; then
 fi
 
 if [ "$PROBLEMS" != "" ]; then
-    echo please first solve dependencies.
+    echo please first solve the following dependencies:
+    echo '     (package names are ubuntu/debian, YMMV).'
     echo $PROBLEMS
     exit 1
 fi
 
-if [ -d ~/Local/github/Bauble/bauble.classic ]
+if [ -d $HOME/Local/github/Bauble/bauble.classic ]
 then
     echo "bauble checkout already in place"
-    cd ~/Local/github/Bauble/bauble.classic
+    cd $HOME/Local/github/Bauble/bauble.classic
 else
-    mkdir -p ~/Local/github/Bauble >/dev/null 2>&1
-    cd ~/Local/github/Bauble
+    mkdir -p $HOME/Local/github/Bauble >/dev/null 2>&1
+    cd $HOME/Local/github/Bauble
     git clone https://github.com/Bauble/bauble.classic
     cd bauble.classic
 fi
@@ -42,20 +46,24 @@ else
     git checkout bauble-1.0
 fi
 
-mkdir ~/.virtualenvs >/dev/null 2>&1
-virtualenv ~/.virtualenvs/bacl --system-site-packages
-mkdir /Users/mario/.virtualenvs/bacl/share >/dev/null 2>&1
-source ~/.virtualenvs/bacl/bin/activate
+mkdir $HOME/.virtualenvs >/dev/null 2>&1
+virtualenv $HOME/.virtualenvs/bacl --system-site-packages
+find $HOME/.virtualenvs/bacl -name "*.pyc" -execdir rm {} \;
+mkdir $HOME/.virtualenvs/bacl/share >/dev/null 2>&1
+mkdir $HOME/.bauble >/dev/null 2>&1
+source $HOME/.virtualenvs/bacl/bin/activate
+
+pip install setuptools --upgrade
 
 python setup.py build
 python setup.py install
-mkdir ~/bin 2>/dev/null
-cat <<EOF > ~/bin/bauble
+mkdir $HOME/bin 2>/dev/null
+cat <<EOF > $HOME/bin/bauble
 #!/bin/bash
 
 GITHOME=$HOME/Local/github/Bauble/bauble.classic/
 
-source ~/.virtualenvs/bacl/bin/activate
+source \$HOME/.virtualenvs/bacl/bin/activate
 
 while getopts us: f
 do
@@ -76,4 +84,4 @@ done
 
 bauble
 EOF
-chmod +x ~/bin/bauble
+chmod +x $HOME/bin/bauble
