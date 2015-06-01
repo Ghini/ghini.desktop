@@ -144,6 +144,17 @@ class ConnectionManager:
                 name = uri = None
                 break
 
+        ## now make sure the pictures dir contains a thumbs subdir
+        path = os.path.sep.join(
+            (prefs.prefs[prefs.picture_root_pref], 'thumbs'))
+        try:
+            logger.debug("checking presence of thumbs dir")
+            os.makedirs(path)
+        except OSError:
+            if not os.path.isdir(path):
+                logger.debug("something wrong in thumbs dir")
+                raise
+
         # have to remove the cell_data_func to avoid a cyclical
         # reference which would cause the ConnectionManager to not get
         # garbage collected

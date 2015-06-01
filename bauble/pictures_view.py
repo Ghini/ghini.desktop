@@ -18,17 +18,16 @@
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 
-
-from bauble.editor import GenericEditorView
-from bauble.i18n import _
-
+import gtk
 
 import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
+import bauble.utils as utils
 
-class PicturesView(GenericEditorView):
+
+class PicturesView(gtk.HBox):
     """shows pictures corresponding to selection.
 
     at any time, no more than one PicturesView object will exist.
@@ -45,33 +44,58 @@ class PicturesView(GenericEditorView):
     """
 
     def __init__(self, parent=None, fake=False):
+        logger.debug("entering PicturesView.__init__(parent=%s, fake=%s)"
+                     % (parent, fake))
+        super(PicturesView, self).__init__()
         if fake:
             self.fake = True
             return
         self.fake = False
-        logger.debug("entering PicturesView.__init__")
         import os
         from bauble import paths
         glade_file = os.path.join(
             paths.lib_dir(), 'pictures_view.glade')
-        super(PicturesView, self).__init__(glade_file, parent=parent)
-        pass
-
-    def get_window(self):
-        return self.widgets.pictures_view_dialog
+        self.widgets = utils.BuilderWidgets(glade_file)
+        self.widgets.remove_parent(self.widgets.scrolledwindow2)
+        parent.add(self.widgets.scrolledwindow2)
+        parent.show_all()
+        self.widgets.scrolledwindow2.show()
 
     def set_selection(self, selection):
+        logger.debug("PicturesView.set_selection(%s)" % selection)
         if self.fake:
             return
-        logger.debug("PicturesView.set_selection(%s)" % selection)
+        self.box = self.widgets.pictures_box
+        for k in self.box.children():
+            k.destroy()
+
         for o in selection:
             try:
-                for p in o.pictures:
-                    logger.debug('object %s has picture %s' % (o, p))
+                pics = o.pictures
             except AttributeError:
                 logger.debug('object %s does not know of pictures' % o)
+                pics = []
+            for p in pics:
+                logger.debug('object %s has picture %s' % (o, p))
+                expander = gtk.HBox()
+                expander.add(p)
+                self.box.pack_start(expander, expand=False, fill=False)
+                self.box.reorder_child(expander, 0)
+                expander.show_all()
+                p.show()
 
-floating_window = PicturesView(fake=True)
+        self.box.show_all()
+
+    def add_picture(self, picture=None):
+        """
+        Add a new picture to the model.
+        """
+        expander = self.ContentBox(self, picture)
+        self.box.pack_start(expander, expand=False, fill=False)
+        expander.show_all()
+        return expander
+
+floating_window = None
 
 
 def show_pictures_callback(selection):
@@ -88,10 +112,4 @@ def show_pictures_callback(selection):
     species: show the voucher.
     """
 
-    global floating_window
-    floating_window = PicturesView()
     floating_window.set_selection(selection)
-    floating_window.start()
-    floating_window.get_window().set_keep_above(True)
-
-    return floating_window

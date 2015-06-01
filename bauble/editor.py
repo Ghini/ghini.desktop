@@ -1108,16 +1108,22 @@ class PictureBox(NoteBox):
         if filename is not None:
             im = gtk.Image()
             try:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(prefs.prefs[prefs.picture_root_pref],
-                                 filename))
-                scale_x = pixbuf.get_width() / 400
-                scale_y = pixbuf.get_height() / 400
-                scale = max(scale_x, scale_y, 1)
-                x = int(pixbuf.get_width() / scale)
-                y = int(pixbuf.get_height() / scale)
-                scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
-                im.set_from_pixbuf(scaled_buf)
+                thumbname = os.path.join(
+                    prefs.prefs[prefs.picture_root_pref], 'thumbs', filename)
+                if os.path.isfile(thumbname):
+                    pixbuf = gtk.gdk.pixbuf_new_from_file(thumbname)
+                else:
+                    fullbuf = gtk.gdk.pixbuf_new_from_file(
+                        os.path.join(prefs.prefs[prefs.picture_root_pref],
+                                     'thumbs', filename))
+                    scale_x = fullbuf.get_width() / 400.0
+                    scale_y = fullbuf.get_height() / 400.0
+                    scale = max(scale_x, scale_y, 1)
+                    x = int(fullbuf.get_width() / scale)
+                    y = int(fullbuf.get_height() / scale)
+                    pixbuf = fullbuf.scale_simple(
+                        x, y, gtk.gdk.INTERP_BILINEAR)
+                im.set_from_pixbuf(pixbuf)
             except glib.GError:
                 label = _('picture file %s not found.') % filename
                 logger.debug(label)
@@ -1151,6 +1157,12 @@ class PictureBox(NoteBox):
                         prefs.prefs[prefs.picture_root_pref]):
                     shutil.copy(
                         filename, prefs.prefs[prefs.picture_root_pref])
+                ## make thumbnail in same directory
+                from PIL import Image
+                im = Image.open(filename)
+                im.thumbnail((400, 400))
+                im.save(os.path.join(
+                    prefs.prefs[prefs.picture_root_pref], 'thumbs', filename))
                 ## get dirname and basename from selected file, memorize
                 ## dirname
                 self.last_folder, basename = os.path.split(filename)

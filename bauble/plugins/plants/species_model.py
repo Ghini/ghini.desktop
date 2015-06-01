@@ -137,6 +137,17 @@ class Species(db.Base, db.Serializable):
 
     rank = 'species'
 
+    @property
+    def cites(self):
+        '''the cites status of this taxon, or None
+        '''
+
+        cites_notes = [i.note for i in self.notes
+                       if i.category == 'CITES']
+        if not cites_notes:
+            return self.genus.cites
+        return cites_notes[0]
+
     # columns
     sp = Column(Unicode(64), index=True)
     sp2 = Column(Unicode(64), index=True)  # in case hybrid=True

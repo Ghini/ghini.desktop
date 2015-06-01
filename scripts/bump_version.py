@@ -31,6 +31,12 @@ usage = """Usage: %s [<version> | + | ++]
 """ % os.path.basename(sys.argv[0])
 
 
+def root_of_clone():
+    this_script = os.path.realpath(__file__)
+    parts = this_script.split(os.path.sep)
+    return os.path.sep + os.path.join(*parts[:-2])
+
+
 def usage_and_exit(msg=None):
     print >>sys.stderr, usage
     if msg:
@@ -52,7 +58,9 @@ if version in ['+', '++', '+++']:
                     % bump_tag)
 
     matches = [rx.match(l).groups()
-               for l in open("bauble/version.py", 'r')
+               for l in open(
+                   os.path.join(root_of_clone(), "bauble/version.py"),
+                   'r')
                if rx.match(l)]
     if matches:
         major, minor, patch = [int(i) for i in matches[0]]
@@ -124,13 +132,14 @@ def bump_nsi_file(filename):
     bump_file(filename, rx)
 
 # bump and grind
-bump_py_file('bauble/version.py')
-bump_desktop_file('data/bauble.desktop')
-bump_nsi_file('scripts/build.nsi')
+bump_py_file(os.path.join(root_of_clone(), 'bauble/version.py'))
+bump_desktop_file(os.path.join(root_of_clone(), 'data/bauble.desktop'))
+bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build.nsi'))
 
 # TODO: the bauble UBC version is prefixed with ubc-
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
-bump_file('packages/builddeb.sh', rx)
+bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
 
+# TODO: commit the changes
 print 'git commit -m "bumping to %s" bauble/version.py data/bauble.desktop '\
     'scripts/build.nsi packages/builddeb.sh' % version
