@@ -133,6 +133,9 @@ welcome.
 
 the installation steps on Windows:
 
+#. download and install ``git`` (comes with a unix-like ``sh`` and includes
+   ``vi``).
+
 #. download and install Python 2.x (32bit) from:
 
    http://www.python.org
@@ -141,18 +144,13 @@ the installation steps on Windows:
    definitely `not` run on Python 3.x.  If you are interested in helping
    port to Python 3.x, please contact the Bauble maintainers.
 
+   when installing Python, do put Python in the PATH.
+
 #. download ``pygtk`` from the following source. (this requires 32bit
    python). be sure you download the "all in one" version. make a complete
    install, selecting everything:
 
    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
-
-#. download and install ``pip`` from:
-
-   http://bootstrap.pypa.io/get-pip.py
-
-#. download and install ``git`` (comes with a unix-like ``sh`` and includes
-   ``vi``).
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
@@ -162,8 +160,6 @@ the installation steps on Windows:
    
    http://initd.org/psycopg/docs/install.html
 
-#. include ``C:\Python27`` and ``C:\Python27\Scripts`` in your path.
-
 #. install ``virtualenv`` (using ``pip``)
 
 #. cd to your HOME dir, create the virtual environment, call it ``bacl`` and activate it::
@@ -171,7 +167,9 @@ the installation steps on Windows:
     virtualenv --system-site-packages .virtualenvs\bacl
     .virtualenvs\bacl\Scripts\activate.bat
 
-#. cd to where you want to get bauble.classic.
+#. cd to where you want to get bauble.classic. a good choice would be::
+
+    Local\github\Bauble\
 
 #. download the bauble.classic sources (using git) from:
 
