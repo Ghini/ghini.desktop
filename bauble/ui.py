@@ -1,3 +1,22 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # ui.py
 #
@@ -287,10 +306,8 @@ class GUI(object):
         :param view: default=None
         '''
         view_box = self.widgets.view_box
-        if view_box is None:
-            return  # viewbox should never be None, why is this here?
-        for kids in view_box.get_children():
-            view_box.remove(kids)
+        for kid in view_box.get_children():
+            view_box.remove(kid)
         view_box.pack_start(view, True, True, 0)
         view.show_all()
 
@@ -431,8 +448,8 @@ class GUI(object):
                 if tool.category is not None:
                     try:
                         tools[tool.category].append(tool)
-                    except KeyError, e:
-                        logger.debug(e)
+                    except KeyError:
+                        ## initialize tools dictionary
                         tools[tool.category] = []
                         tools[tool.category].append(tool)
                 else:
@@ -564,10 +581,10 @@ class GUI(object):
         try:
             engine = db.open(uri, True, True)
         except Exception, e:
-            # we don't do anything to handle the exception since
-            # db.open() should have shown an error dialog if there was
-            # a problem opening the database as long as the
-            # show_error_dialogs parameter is True
+            # we don't do anything to handle the exception since db.open()
+            # should have shown an error dialog if there was a problem
+            # opening the database as long as the show_error_dialogs
+            # parameter is True
             logger.warning(e)
 
         if engine is None:

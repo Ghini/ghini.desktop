@@ -146,6 +146,8 @@ class IdentifierToken(object):
             query = query.join(*self.value[:-1], aliased=True)
             cls = query._joinpoint['_joinpoint_entity']
         attr = getattr(cls, self.value[-1])
+        logger.debug('IdentifierToken for %s, %s evaluates to %s'
+                     % (cls, self.value[-1], attr))
         return query, attr
 
     def needs_join(self, env):

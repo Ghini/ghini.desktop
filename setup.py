@@ -40,12 +40,12 @@ locale_path = os.path.join('share', 'locale')
 gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo",
             "gio"]
 plugins = setuptools.find_packages(where='bauble/plugins',
-				   exclude=['test', 'bauble.*.test'])
+                                   exclude=['test', 'bauble.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test'])
 
 package_data = {'': ['README', 'CHANGES', 'LICENSE'],
-                'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png',
+                'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
                            'images/*.svg', 'images/*.gif', 'images/*.ico']}
 
 # ceate a list of the data patterns to look for in the packages
@@ -62,7 +62,6 @@ data_files = []
 
 # setup py2exe and nsis installer
 if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
-    import py2exe
     from distutils.command.py2exe import py2exe as _py2exe_cmd
     # setuptools.find packages doesn't dig deep enough so we search
     # for a list of all packages in the sqlalchemy namespace
@@ -70,11 +69,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                            'sqlalchemy.dialects.postgresql']
     py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata',
                        'fibra', 'psycopg2', 'encodings', 'mako',
-                       'mako.cache'] + gtk_pkgs + plugins_pkgs + \
-                       sqlalchemy_includes
-    py2exe_setup_args = {'console': ["scripts/bauble"],
-                         'windows': [{'script': 'scripts/bauble',
-                                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
+                       'mako.cache'] + \
+        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
+    py2exe_setup_args = {
+        'console': ["scripts/bauble"],
+        'windows': [{'script': 'scripts/bauble',
+                     'icon_resources': [(1, "bauble/images/icon.ico")]}]}
     py2exe_options = {
         "py2exe": {
             "compressed": 1,
@@ -140,7 +140,6 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             dest = '%s\\etc\\gtk-2.0' % dist_gtk
             file_util.copy_file(rc, dest)
 
-
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
         # 2. run the script to update the pixbuf paths
@@ -148,10 +147,13 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
         # 4. try to do everything silent if possible instead of using
         # the NSIS compiler GUI
         user_options = []
+
         def initialize_options(self):
             pass
+
         def finalize_options(self):
             pass
+
         def run(self):
             print "**Error: Can't run this command."
             print sys.exit(1)
@@ -160,20 +162,25 @@ else:
     py2exe_options = {}
     py2exe_setup_args = {}
     py2exe_includes = []
+
     class _empty_cmd(Command):
         user_options = []
+
         def initialize_options(self):
             pass
+
         def finalize_options(self):
             pass
+
         def run(self):
             print "**Error: Can't run this command."
             print sys.exit(1)
+
     class py2exe_cmd(_empty_cmd):
         pass
+
     class nsis_cmd(_empty_cmd):
         pass
-
 
 
 # build command
@@ -217,7 +224,8 @@ class build(_build):
             file_util.copy_file('data/bauble.desktop', app_dir)
 
             icon_sizes = [16, 22, 24, 32, 48, 64]
-            icon_root = os.path.join(self.build_base, 'share', 'icons', 'hicolor')
+            icon_root = os.path.join(
+                self.build_base, 'share', 'icons', 'hicolor')
 
             # copy scalable icon
             scalable_dir = os.path.join(icon_root, 'scalable', 'apps')
@@ -236,7 +244,6 @@ class build(_build):
                                     % dimension(size))
                 dir_util.mkpath(os.path.split(dest)[0])
                 file_util.copy_file(img, dest)
-
 
 
 # install command
@@ -267,7 +274,7 @@ class install(_install):
         if sys.platform in ('linux3', 'linux2'):
             # install everything in share
             dir_util.copy_tree(os.path.join(self.build_base, 'share'),
-                                os.path.join(self.install_data, 'share'))
+                               os.path.join(self.install_data, 'share'))
         elif sys.platform == 'win32':
             # install only i18n files
             locales = os.path.dirname(locale_path)
@@ -276,19 +283,24 @@ class install(_install):
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.install_data, locales))
 
-        file_util.copy_file("LICENSE",
-                            os.path.join(self.install_data, 'share', 'LICENSE.bauble'))
-
+        file_util.copy_file(
+            "LICENSE",
+            os.path.join(self.install_data, 'share', 'LICENSE.bauble'))
 
 
 # docs command
 DOC_BUILD_PATH = 'doc/.build/'
+
+
 class docs(Command):
     user_options = [('all', None, 'rebuild all the docs')]
+
     def initialize_options(self):
         self.all = False
+
     def finalize_options(self):
         pass
+
     def run(self):
         try:
             import sphinx
@@ -308,10 +320,13 @@ class docs(Command):
 # clean command
 class clean(Command):
     user_options = []
+
     def initialize_options(self):
         pass
+
     def finalize_options(self):
         pass
+
     def run(self):
         patterns = ['MANIFEST', '*~', '*flymake*', '*.pyc', '*.h']
         cwd = os.getcwd()
@@ -323,7 +338,7 @@ class clean(Command):
                     def delete(p):
                         print 'removing %s' % p
                         os.remove(p)
-                    map(delete ,[os.path.join(path, m) for m in matches])
+                    map(delete, [os.path.join(path, m) for m in matches])
         if os.path.exists('dist'):
             dir_util.remove_tree('dist')
         if os.path.exists('build'):
@@ -343,10 +358,13 @@ class clean(Command):
 
 class run(Command):
     user_options = []
+
     def initialize_options(self):
         pass
+
     def finalize_options(self):
         pass
+
     def run(self):
         cwd = os.getcwd()
         os.system(os.path.join(cwd, 'bauble.sh'))
@@ -367,25 +385,26 @@ setuptools.setup(name="bauble",
                            'docs': docs, 'clean': clean, 'run': run},
                  version=version,
                  scripts=["scripts/bauble", "scripts/bauble-admin"],
-                 packages = all_packages,
-                 package_dir = all_package_dirs,
-                 package_data = package_data,
-                 data_files = data_files,
+                 packages=all_packages,
+                 package_dir=all_package_dirs,
+                 package_data=package_data,
+                 data_files=data_files,
                  install_requires=["SQLAlchemy>=0.6",
-                                   "lxml",#==2.1.1",
+                                   "Pillow",
+                                   "lxml",
                                    "mako>=0.2.2",
                                    "gdata>=1.2.4",
                                    "fibra==0.0.17",
                                    "pyparsing>=1.5",
                                    'python-dateutil<2.0'] + needs_sqlite,
                  test_suite="nose.collector",
-                 author="Brett Adams",
-                 author_email="brett@belizebotanic.org",
-                 description="Bauble is a biodiversity collection manager " \
+                 author="Mario Frasca",
+                 author_email="mario@anche.no",
+                 description="Bauble is a biodiversity collection manager "
                  "software application",
                  license="GPLv2+",
                  keywords="database biodiversity botanic collection",
-                 url="http://bauble.belizebotanic.org",
+                 url="http://github.com/Bauble/bauble.classic/",
                  options=py2exe_options,
                  **py2exe_setup_args
-     )
+                 )

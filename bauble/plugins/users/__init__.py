@@ -460,8 +460,9 @@ class UsersEditor(editor.GenericEditorView):
     def __init__(self, ):
         """
         """
-        filename = os.path.join(paths.lib_dir(), 'plugins', 'users','ui.glade')
-        super(UsersEditor, self).__init__ (filename)
+        filename = os.path.join(
+            paths.lib_dir(), 'plugins', 'users', 'ui.glade')
+        super(UsersEditor, self).__init__(filename)
 
         if db.engine.name not in ('postgres', 'postgresql'):
             msg = _('The Users editor is only valid on a PostgreSQL database')

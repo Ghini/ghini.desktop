@@ -547,5 +547,3 @@ class TagPlugin(pluginmgr.Plugin):
 #        GenericModelViewPresenterEditor.__init__(self, model, parent)
 
 plugin = TagPlugin
-
-

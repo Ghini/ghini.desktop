@@ -22,7 +22,12 @@ its dependencies by itself.
 Installing on Linux
 ===================
 
-#. Download the `devinstall.sh` script and run it.
+#. Download the `devinstall.sh` script and run it::
+
+     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.sh
+
+   Please not that the script will not help you install any extra database
+   connector. This you will do in a later step.
 
    You can study the script to see what steps if runs for you. In short it
    will install dependencies which can't be satisfied in a virtual
@@ -30,13 +35,15 @@ Installing on Linux
    download the sources and connect your git checkout to the `bauble-1.0`
    branch (this you can consider a production line), it then builds bauble,
    downloading all remaining dependencies, and finally it creates a startup
-   script in your `~/bin` folder that you can use to start bauble::
+   script in your `~/bin` folder.
 
-     bauble
+   If the script ends without error, you can now start bauble::
 
-   or to update it to the latest released production patch::
+     ~/bin/bauble
 
-     bauble -u
+   or update bauble to the latest released production patch::
+
+     ~/bin/bauble -u
 
    The same script you can use to switch to a different production line, but
    at the moment there's only `bauble-1.0`.
@@ -53,8 +60,11 @@ Installing on Linux
    database then activate the virtual environment and install psycopg2 with
    the following commands::
 
-     workon bacl
+     source ~/.virtualenvs/bacl/bin/activate
      pip install -U psycopg2
+
+   You might need solve dependencies. How to do so, depends on which Linux
+   flavour you are using. Check with your distribution documentation.
 
 .. rubric:: Next...
 
@@ -95,11 +105,11 @@ then install the remaining dependencies::
 
     brew install git
     brew install pygtk  # takes time and installs all dependencies
-    brew install psycopg2  # optional
 
-the rest is just as on a normal unix machine, and we have a
-`devinstall-mac.sh` script for it. Read the instructions for Linux,
-understand, download, run, enjoy.
+follow all instructions on how to activate what you have installed.
+
+the rest is just as on a normal unix machine, and we have a `devinstall.sh`
+script for it. Read the above Linux instructions, follow them, enjoy.
 
 .. rubric:: Next...
 
