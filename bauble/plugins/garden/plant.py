@@ -112,11 +112,6 @@ def remove_callback(plants):
     return True
 
 
-show_pictures_action = Action(
-    'plant_show_pictures', _('_Pictures'),
-    callback=pictures_view.show_pictures_callback,
-    accelerator='<ctrl>p', multiselect=False)
-
 edit_action = Action('plant_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e', multiselect=True)
 
@@ -127,7 +122,7 @@ remove_action = Action('plant_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 plant_context_menu = [
-    edit_action, branch_action, remove_action, show_pictures_action, ]
+    edit_action, branch_action, remove_action, ]
 
 
 def plant_markup_func(plant):
