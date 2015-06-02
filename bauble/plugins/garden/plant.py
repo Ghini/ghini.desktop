@@ -458,13 +458,15 @@ class Plant(db.Base, db.Serializable):
                 y = int(pixbuf.get_height() / scale)
                 scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
                 im.set_from_pixbuf(scaled_buf)
-            except glib.GError:
+            except glib.GError, e:
+                logger.debug("picture %s caused glib.GError %s" %
+                             (filename, e))
                 label = _('picture file %s not found.') % filename
-                logger.debug(label)
                 im = gtk.Label()
                 im.set_text(label)
             except Exception, e:
-                logger.warning(e)
+                logger.warning("picture %s caused Exception %s" %
+                               (filename, e))
                 im = gtk.Label()
                 im.set_text(_("%s" % e))
             result.append(im)
