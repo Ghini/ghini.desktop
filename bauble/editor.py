@@ -1124,9 +1124,10 @@ class PictureBox(NoteBox):
                     pixbuf = fullbuf.scale_simple(
                         x, y, gtk.gdk.INTERP_BILINEAR)
                 im.set_from_pixbuf(pixbuf)
-            except glib.GError:
+            except glib.GError, e:
+                logger.debug("picture %s caused glib.GError %s" %
+                             (filename, e))
                 label = _('picture file %s not found.') % filename
-                logger.debug(label)
                 im = gtk.Label()
                 im.set_text(label)
             except Exception, e:
@@ -1161,11 +1162,13 @@ class PictureBox(NoteBox):
                 from PIL import Image
                 im = Image.open(filename)
                 im.thumbnail((400, 400))
-                im.save(os.path.join(
-                    prefs.prefs[prefs.picture_root_pref], 'thumbs', filename))
+                self.last_folder, basename = os.path.split(filename)
+                full_dest_path = os.path.join(
+                    prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
+                logger.debug('copying %s to %s' % (filename, full_dest_path))
+                im.save(full_dest_path)
                 ## get dirname and basename from selected file, memorize
                 ## dirname
-                self.last_folder, basename = os.path.split(filename)
                 ## make sure the category is <picture>
                 self.set_model_attr('category', u'<picture>')
                 ## store basename in note field and fire callbacks.
