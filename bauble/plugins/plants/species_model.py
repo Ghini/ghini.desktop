@@ -436,7 +436,7 @@ class Species(db.Base, db.Serializable):
         return result
 
 
-class SpeciesNote(db.Base):
+class SpeciesNote(db.Base, db.Serializable):
     """
     Notes for the species table
     """
@@ -450,6 +450,31 @@ class SpeciesNote(db.Base):
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
     species = relation('Species', uselist=False,
                        backref=backref('notes', cascade='all, delete-orphan'))
+
+    def as_dict(self):
+        result = db.Serializable.as_dict(self)
+        result['species'] = str(self.species)
+        return result
+
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        logger.debug('compute_serializable_fields(session, %s)' % keys)
+        result = {}
+        genus_name, epithet = keys['species'].split(' ', 1)
+        sp_dict = {'ht-epithet': genus_name,
+                   'epithet': epithet}
+        result['species'] = Species.retrieve_or_create(
+            session, sp_dict, create=False)
+        return result
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        from genus import Genus
+        genus, epithet = keys['species'].split(' ', 1)
+        return session.query(cls).filter(
+            cls.category == keys['category']).join(Species).filter(
+            Species.sp == epithet).join(Genus).filter(
+            Genus.genus == genus).all()
 
 
 class SpeciesSynonym(db.Base):

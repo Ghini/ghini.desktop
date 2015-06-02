@@ -64,7 +64,7 @@ The program was born in English and all its technical and user documentation
 is still only in that language, but the program itself has been translated
 and can be used in various other languages, including Spanish (86%),
 Portuguese (100%), French (42%), to name some Southern American languages,
-as well as Swedish (100%) and Tchech (100%).
+as well as Swedish (100%) and Czech (100%).
 
 Installing Bauble on Windows is an easy and linear process, it will not take
 longer than 10 minutes. Bauble was born on Linux and installing it on
