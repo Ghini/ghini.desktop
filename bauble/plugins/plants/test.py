@@ -138,10 +138,13 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'author': u'H.J. Veitch'},
                      {'id': 19, 'genus_id': 6, 'sp': u'grandiflora',
                       'author': u'Lindl.'},
+                     {'id': 20, 'genus_id': 2, 'sp': u'fragrans',
+                      'author': u'Dressler'},
                      )
 
 species_note_test_data = (
     {'id': 1, 'species_id': 18, 'category': u'CITES', 'note': u'I'},
+    {'id': 2, 'species_id': 20, 'category': u'conservation', 'note': u'LC'},
     )
 
 species_str_map = {
@@ -1072,3 +1075,46 @@ class CitesStatus_test(PlantTestCase):
                            'epithet': u'grandiflora'},
             create=False, update=False)
         self.assertEquals(obj.cites, u'II')
+
+
+class SpeciesProperties_test(PlantTestCase):
+    "we can retrieve species_note objects given species and category"
+
+    def test_species_note_nocreate_noupdate_noexisting(self):
+        # do not create if not existing
+        obj = SpeciesNote.retrieve_or_create(
+            self.session, {'object': u'species_note',
+                           'category': u'conservation',
+                           'species': u'Laelia grandiflora'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_species_note_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = SpeciesNote.retrieve_or_create(
+            self.session, {'object': u'species_note',
+                           'category': u'conservation',
+                           'species': u'Encyclia fragrans'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.note, u'LC')
+
+    def test_species_note_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = SpeciesNote.retrieve_or_create(
+            self.session, {'object': u'species_note',
+                           'category': u'conservation',
+                           'species': u'Encyclia fragrans',
+                           'note': u'EX'},
+            create=False, update=False)
+        self.assertEquals(obj.note, u'LC')
+
+    def test_species_note_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = SpeciesNote.retrieve_or_create(
+            self.session, {'object': u'species_note',
+                           'category': u'conservation',
+                           'species': u'Encyclia fragrans',
+                           'note': u'EX'},
+            create=False, update=True)
+        self.assertEquals(obj.note, u'EX')
