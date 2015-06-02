@@ -25,7 +25,7 @@ import traceback
 import gtk
 
 from sqlalchemy import Column, Unicode, UnicodeText
-from sqlalchemy.orm import relation, backref
+from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -120,6 +120,12 @@ class Location(db.Base, db.Serializable):
 
     # relations
     plants = relation('Plant', backref=backref('location', uselist=False))
+
+    @validates('code', 'name')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
 
     def __str__(self):
         if self.name:

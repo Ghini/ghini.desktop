@@ -28,7 +28,7 @@ import gtk
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
     UnicodeText, func, and_, UniqueConstraint, String
-from sqlalchemy.orm import relation, backref, class_mapper
+from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -149,6 +149,12 @@ class Family(db.Base, db.Serializable):
     __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
     rank = 'familia'
+
+    @validates('genus')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
 
     @property
     def cites(self):
