@@ -16,4 +16,4 @@
 # The Bauble version.
 # major, minor, revision version tuple
 
-version = "1.0.31"  # :bump
+version = "1.0.32"  # :bump
