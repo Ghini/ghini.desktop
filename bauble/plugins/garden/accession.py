@@ -351,20 +351,20 @@ class AccessionMapperExtension(MapperExtension):
         return EXT_CONTINUE
 
 
-prov_type_values = {u'Wild': _('Wild'),
-                    u'Cultivated': _('Propagule of cultivated wild plant'),
-                    u'NotWild': _("Not of wild source"),
-                    u'InsufficientData': _("Insufficient Data"),
-                    u'Unknown': _("Unknown"),
-                    None: ''}
+prov_type_values = [(u'Wild', _('Wild')),
+                    (u'Cultivated', _('Propagule of cultivated wild plant')),
+                    (u'NotWild', _("Not of wild source")),
+                    (u'InsufficientData', _("Insufficient Data")),
+                    (u'Unknown', _("Unknown")),
+                    (None, '')]
 
 
-wild_prov_status_values = {u'WildNative': _("Wild native"),
-                           u'WildNonNative': _("Wild non-native"),
-                           u'CultivatedNative': _("Cultivated native"),
-                           u'InsufficientData': _("Insufficient Data"),
-                           u'Unknown': _("Unknown"),
-                           None: ''}
+wild_prov_status_values = [(u'WildNative', _("Wild native")),
+                           (u'WildNonNative', _("Wild non-native")),
+                           (u'CultivatedNative', _("Cultivated native")),
+                           (u'InsufficientData', _("Insufficient Data")),
+                           (u'Unknown', _("Unknown")),
+                           (None, '')]
 
 
 recvd_type_values = {
@@ -529,13 +529,14 @@ class Accession(db.Base, db.Serializable):
             return None
         return value.strip()
 
-    prov_type = Column(types.Enum(values=prov_type_values.keys(),
-                                  translations=prov_type_values),
+    prov_type = Column(types.Enum(values=[i[0] for i in prov_type_values],
+                                  translations=dict(prov_type_values)),
                        default=None)
 
-    wild_prov_status = Column(types.Enum(values=wild_prov_status_values.keys(),
-                                         translations=wild_prov_status_values),
-                              default=None)
+    wild_prov_status = Column(
+        types.Enum(values=[i[0] for i in wild_prov_status_values],
+                   translations=dict(wild_prov_status_values)),
+        default=None)
 
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
@@ -759,10 +760,11 @@ class AccessionEditorView(editor.GenericEditorView):
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
-                           ', '.join(prov_type_values.values())),
+                           ', '.join(i[1] for i in prov_type_values)),
         'acc_wild_prov_combo': (_('The wild status is used to clarify the '
                                   'provenance.\n\nPossible values: %s') %
-                                ', '.join(wild_prov_status_values.values())),
+                                ', '.join(i[1]
+                                          for i in wild_prov_status_values)),
         'acc_private_check': _('Indicates whether this accession record '
                                'should be considered private.'),
         'acc_cancel_button': _('Cancel your changes.'),
@@ -2047,15 +2049,18 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
 
-        self.view.set_widget_value('acc_wild_prov_combo',
-                          wild_prov_status_values[self.model.wild_prov_status],
-                                   index=1)
-        self.view.set_widget_value('acc_prov_combo',
-                                   prov_type_values[self.model.prov_type],
-                                   index=1)
-        self.view.set_widget_value('acc_recvd_type_comboentry',
-                                   recvd_type_values[self.model.recvd_type],
-                                   index=1)
+        self.view.set_widget_value(
+            'acc_wild_prov_combo',
+            dict(wild_prov_status_values)[self.model.wild_prov_status],
+            index=1)
+        self.view.set_widget_value(
+            'acc_prov_combo',
+            dict(prov_type_values)[self.model.prov_type],
+            index=1)
+        self.view.set_widget_value(
+            'acc_recvd_type_comboentry',
+            recvd_type_values[self.model.recvd_type],
+            index=1)
 
         self.view.widgets.acc_private_check.set_inconsistent(False)
         self.view.widgets.acc_private_check.\
@@ -2356,10 +2361,10 @@ class GeneralAccessionExpander(InfoExpander):
             quantity_str = row.quantity_recvd
         self.set_widget_value('quantity_recvd_data', quantity_str)
 
-        prov_str = prov_type_values[row.prov_type]
+        prov_str = dict(prov_type_values)[row.prov_type]
         if row.prov_type == u'Wild' and row.wild_prov_status:
             prov_str = '%s (%s)' % \
-                (prov_str, wild_prov_status_values[row.wild_prov_status])
+                (prov_str, dict(wild_prov_status_values)[row.wild_prov_status])
         self.set_widget_value('prov_data', prov_str, False)
 
         image_size = gtk.ICON_SIZE_MENU
