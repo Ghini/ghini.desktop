@@ -8,14 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Indonesian <id@li.org>\n"
+"PO-Revision-Date: 2015-06-02 05:46+0200\n"
+"Last-Translator: Raja Ritonga <stupidenemy23@gmail.com>\n"
+"Language-Team: Indonesian "
+"<https://hosted.weblate.org/projects/bauble/master/id/>\n"
+"Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 2.3-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -25,36 +28,40 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
+"Bauble tidak dapat menyimpan preferensi anda.\n"
+"Tolong perika perizinan di berkas konfigurasi anda:\n"
+"…%s"
 
 #: bauble/prefs.py:335
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>Preferensi</b>"
 
 #: bauble/prefs.py:344
+#, fuzzy
 msgid "<b>Plugins</b>"
-msgstr ""
+msgstr "<b>Plugin</b>"
 
 #: bauble/prefs.py:379
 msgid "Names"
-msgstr ""
+msgstr "Nama"
 
 #: bauble/prefs.py:379 bauble/view.py:1155
 msgid "Values"
-msgstr ""
+msgstr "Nilai"
 
 #: bauble/prefs.py:388 bauble/notes.glade.h:3
 #: bauble/plugins/garden/loc_editor.glade.h:5
 #: bauble/plugins/garden/acc_editor.glade.h:37
 msgid "Name"
-msgstr ""
+msgstr "Nama"
 
 #: bauble/prefs.py:388
 msgid "Version"
-msgstr ""
+msgstr "Versi"
 
 #: bauble/utils/web.py:17 bauble/utils/web.py:36
 msgid "Search"
-msgstr ""
+msgstr "Cari"
 
 #: bauble/utils/web.py:59
 msgid "Search Google"
