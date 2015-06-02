@@ -38,7 +38,7 @@ from bauble.i18n import _
 from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
-from sqlalchemy.orm import relation, backref, object_mapper
+from sqlalchemy.orm import relation, backref, object_mapper, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -419,6 +419,13 @@ class Plant(db.Base, db.Serializable):
 
     # columns
     code = Column(Unicode(6), nullable=False)
+
+    @validates('code')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
+
     acc_type = Column(types.Enum(values=acc_type_values.keys(),
                                  translations=acc_type_values),
                       default=None)

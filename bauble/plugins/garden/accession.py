@@ -42,7 +42,7 @@ from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText
 from sqlalchemy.orm import EXT_CONTINUE, MapperExtension, \
-    backref, relation, reconstructor
+    backref, relation, reconstructor, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -522,6 +522,12 @@ class Accession(db.Base, db.Serializable):
     # columns
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
+
+    @validates('code')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
 
     prov_type = Column(types.Enum(values=prov_type_values.keys(),
                                   translations=prov_type_values),
