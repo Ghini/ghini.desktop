@@ -401,14 +401,17 @@ class GenericEditorView(object):
         self.assign_simple_handler()
 
         :param combo:
-        :param translations: a dictionary of values->translation
+        :param translations: a list of pairs, or a dictionary,
+            of values->translation.
         """
         if isinstance(combo, basestring):
             combo = self.widgets[combo]
         combo.clear()
         # using 'object' avoids SA unicode warning
         model = gtk.ListStore(object, str)
-        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
+        if isinstance(translations, dict):
+            translations = sorted(translations.iteritems(), key=lambda x: x[1])
+        for key, value in translations:
             model.append([key, value])
         combo.set_model(model)
         cell = gtk.CellRendererText()

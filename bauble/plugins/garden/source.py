@@ -136,19 +136,19 @@ class Source(db.Base):
         primaryjoin='Source.plant_propagation_id==Propagation.id')
 
 
-source_type_values = {u'Expedition': _('Expedition'),
-                      u'GeneBank': _('Gene Bank'),
-                      u'BG': _('Botanic Garden or Arboretum'),
-                      u'Research/FieldStation': _('Research/Field Station'),
-                      u'Staff': _('Staff member'),
-                      u'UniversityDepartment': _('University Department'),
-                      u'Club': _('Horticultural Association/Garden Club'),
-                      u'MunicipalDepartment': _('Municipal department'),
-                      u'Commercial': _('Nursery/Commercial'),
-                      u'Individual': _('Individual'),
-                      u'Other': _('Other'),
-                      u'Unknown': _('Unknown'),
-                      None: ''}
+source_type_values = [(u'Expedition', _('Expedition')),
+                      (u'GeneBank', _('Gene Bank')),
+                      (u'BG', _('Botanic Garden or Arboretum')),
+                      (u'Research/FieldStation', _('Research/Field Station')),
+                      (u'Staff', _('Staff member')),
+                      (u'UniversityDepartment', _('University Department')),
+                      (u'Club', _('Horticultural Association/Garden Club')),
+                      (u'MunicipalDepartment', _('Municipal department')),
+                      (u'Commercial', _('Nursery/Commercial')),
+                      (u'Individual', _('Individual')),
+                      (u'Other', _('Other')),
+                      (u'Unknown', _('Unknown')),
+                      (None, '')]
 
 
 class SourceDetail(db.Base):
@@ -157,8 +157,8 @@ class SourceDetail(db.Base):
 
     name = Column(Unicode(75), unique=True)
     description = Column(UnicodeText)
-    source_type = Column(types.Enum(values=source_type_values.keys(),
-                                    translations=source_type_values),
+    source_type = Column(types.Enum(values=[i[0] for i in source_type_values],
+                                    translations=dict(source_type_values)),
                          default=None)
 
     def __str__(self):
@@ -248,7 +248,8 @@ class SourceDetailEditorView(editor.GenericEditorView):
                                 'acc_editor.glade')
         super(SourceDetailEditorView, self).__init__(filename, parent=parent)
         self.set_accept_buttons_sensitive(False)
-        self.init_translatable_combo('source_type_combo', source_type_values)
+        self.init_translatable_combo(
+            'source_type_combo', source_type_values)
 
     def get_window(self):
         return self.widgets.source_details_dialog
@@ -297,9 +298,10 @@ class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
                          (widget, field, getattr(self.model, field)))
             self.view.set_widget_value(widget, getattr(self.model, field))
 
-        self.view.set_widget_value('source_type_combo',
-                                   source_type_values[self.model.source_type],
-                                   index=1)
+        self.view.set_widget_value(
+            'source_type_combo',
+            dict(source_type_values)[self.model.source_type],
+            index=1)
 
     def start(self):
         r = self.view.start()
