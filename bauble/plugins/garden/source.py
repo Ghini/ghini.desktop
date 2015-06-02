@@ -293,8 +293,8 @@ class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            logger.debug('contact refresh(%s, %s=%s)' % (widget, field,
-                         self.model[field]))
+            logger.debug('contact refresh(%s, %s=%s)' %
+                         (widget, field, getattr(self.model, field)))
             self.view.set_widget_value(widget, getattr(self.model, field))
 
         self.view.set_widget_value('source_type_combo',
