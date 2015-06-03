@@ -1,5 +1,23 @@
 # -*- coding: utf-8 -*-
 #
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+#
 # propagation module
 #
 
@@ -53,7 +71,7 @@ class Propagation(db.Base):
     """
     __tablename__ = 'propagation'
     #recvd_as = Column(Unicode(10)) # seed, urcu, other
-    #recvd_as_other = Column(UnicodeText) # ** maybe this should be in the notes
+    #recvd_as_other = Column(UnicodeText) # maybe this should be in the notes
     prop_type = Column(types.Enum(values=prop_type_values.keys(),
                                   translations=prop_type_values),
                        nullable=False)
@@ -124,9 +142,10 @@ class Propagation(db.Base):
             if c.hormone:
                 values.append(_('Hormone treatment: %s' % c.hormone))
             if c.bottom_heat_temp:
-                values.append(_('Bottom heat: %(temp)s%(unit)s') %
-                              dict(temp=c.bottom_heat_temp,
-                                   unit=bottom_heat_unit_values[c.bottom_heat_unit]))
+                values.append(
+                    _('Bottom heat: %(temp)s%(unit)s') %
+                    dict(temp=c.bottom_heat_temp,
+                         unit=bottom_heat_unit_values[c.bottom_heat_unit]))
             if c.container:
                 values.append(_('Container: %s' % c.container))
             if c.media:
@@ -309,12 +328,10 @@ class PropSeed(db.Base):
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
 
-
     def __str__(self):
         # what would the string be...???
         # cuttings of self.accession.species_str() and accession number
         return repr(self)
-
 
 
 class PropagationTabPresenter(editor.GenericEditorPresenter):
@@ -342,10 +359,8 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
             tab_box.pack_start(box, expand=False, fill=True)
         self.__dirty = False
 
-
     def dirty(self):
         return self.__dirty
-
 
     def add_propagation(self):
         """
@@ -366,7 +381,6 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
             self.__dirty = True
         else:
             propagation.plant = None
-
 
     def create_propagation_box(self, propagation):
         """
@@ -429,13 +443,11 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         hbox.show_all()
         return hbox
 
-
     def on_add_button_clicked(self, *args):
         """
         """
         self.add_propagation()
         self.parent_ref().refresh_sensitivity()
-
 
 
 class PropagationEditorView(editor.GenericEditorView):
@@ -453,16 +465,13 @@ class PropagationEditorView(editor.GenericEditorView):
                      parent=parent)
         self.init_translatable_combo('prop_type_combo', prop_type_values)
 
-
     def get_window(self):
         """
         """
         return self.widgets.prop_dialog
 
-
     def start(self):
         return self.get_window().run()
-
 
 # TODO: if you edit an existing cutting and the the OK is not set sensitive
 
@@ -599,18 +608,14 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.view.connect('rooted_remove_button', "clicked",
                           self.on_rooted_remove_clicked)
 
-
-
     def dirty(self):
         return self.__dirty
-
 
     def set_model_attr(self, field, value, validator=None):
         #debug('%s = %s' % (field, value))
         super(CuttingPresenter, self).set_model_attr(field, value, validator)
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
-
 
     def on_rooted_cell_edited(self, cell, path, new_text, prop):
         treemodel = self.view.widgets.rooted_treeview.get_model()
@@ -620,7 +625,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         setattr(rooted, prop, utils.utf8(new_text))
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
-
 
     def on_rooted_add_clicked(self, button, *args):
         """
@@ -635,7 +639,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         column = tree.get_column(0)
         tree.set_cursor(path, column, start_editing=True)
 
-
     def on_rooted_remove_clicked(self, button, *args):
         """
         """
@@ -649,13 +652,11 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.__dirty = True
         self.parent_ref().refresh_sensitivity()
 
-
     def refresh_view(self):
         for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
             #debug('%s: %s' % (widget, value))
             self.view.set_widget_value(widget, value)
-
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
@@ -885,7 +886,7 @@ class SourcePropagationPresenter(PropagationPresenter):
             # only add the propagation editor widgets to the view
             # widgets if the widgets haven't yet been added
             filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                'prop_editor.glade')
+                                    'prop_editor.glade')
             view.widgets.builder.add_from_file(filename)
         prop_main_box = view.widgets.prop_main_box
         view.widgets.remove_parent(prop_main_box)
@@ -910,7 +911,6 @@ class SourcePropagationPresenter(PropagationPresenter):
         self._dirty = False
         super(SourcePropagationPresenter, self).__init__(model, view)
 
-
     def on_prop_type_changed(self, combo, *args):
         """
         Override PropagationPresenter.on_type_changed() to handle the
@@ -922,11 +922,10 @@ class SourcePropagationPresenter(PropagationPresenter):
         prop_type = combo.get_model()[it][0]
         if not prop_type:
             self.set_model_attr('prop_type', None)
-            self.view.widgets.prop_details_box.props.visible=False
+            self.view.widgets.prop_details_box.props.visible = False
         else:
             super(SourcePropagationPresenter, self).\
                 on_prop_type_changed(combo, *args)
-
 
     def set_model_attr(self, attr, value, validator=None):
         #debug('set_model_attr(%s, %s)' % (attr, value))
@@ -934,18 +933,14 @@ class SourcePropagationPresenter(PropagationPresenter):
         self._dirty = True
         self.refresh_sensitivity()
 
-
     def refresh_sensitivity(self):
         self.parent_ref().refresh_sensitivity()
-
 
     def dirty(self):
         return super(SourcePropagationPresenter, self).dirty() or self._dirty
 
 
-
 class PropagationEditorPresenter(PropagationPresenter):
-
 
     def __init__(self, model, view):
         '''
@@ -962,11 +957,9 @@ class PropagationEditorPresenter(PropagationPresenter):
             self.view.widgets.prop_details_box.props.visible = False
         self.view.widgets.prop_ok_button.props.sensitive = False
 
-
     def start(self):
         r = self.view.start()
         return r
-
 
     def refresh_sensitivity(self):
         super(PropagationEditorPresenter, self).refresh_sensitivity()
@@ -982,7 +975,8 @@ class PropagationEditorPresenter(PropagationPresenter):
             model = self.model._seed
 
         if model:
-            invalid = utils.get_invalid_columns(model, ['id', 'propagation_id'])
+            invalid = utils.get_invalid_columns(
+                model, ['id', 'propagation_id'])
             # TODO: highlight the widget with are associated with the
             # columns that have bad values
             if invalid:
@@ -1079,8 +1073,8 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
-                        'details for more information.\n\n%s') \
-                        % utils.xml_safe_utf8(e)
+                        'details for more information.\n\n%s') %\
+                    utils.xml_safe_utf8(e)
                 logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
