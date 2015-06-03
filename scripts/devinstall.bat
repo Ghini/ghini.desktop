@@ -7,6 +7,8 @@ GOTO CONTINUE
 set CHECKOUT=bauble-1.0
 
 :CONTINUE
+
+ECHO going to install %CHECKOUT%
 cd "%HOMEDRIVE%%HOMEPATH%"
 
 ECHO installing dependencies
@@ -27,6 +29,8 @@ cd Local\github\Bauble
 git clone https://github.com/Bauble/bauble.classic.git
 cd bauble.classic
 git checkout %CHECKOUT%
+
+ECHO going to build and install
 python setup.py build
 python setup.py install
 mkdir "%APPDATA%\Bauble" 2>NUL
