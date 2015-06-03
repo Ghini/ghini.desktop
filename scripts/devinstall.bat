@@ -29,5 +29,5 @@ cd bauble.classic
 git checkout %CHECKOUT%
 python setup.py build
 python setup.py install
-mkdir "%APPDATA%\Bauble"
+mkdir "%APPDATA%\Bauble" 2>NUL
 cd "%HOMEPATH%"
