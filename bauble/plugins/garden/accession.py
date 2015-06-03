@@ -352,19 +352,33 @@ class AccessionMapperExtension(MapperExtension):
 
 
 prov_type_values = [(u'Wild', _('Wild')),
-                    (u'Cultivated', _('Propagule of cultivated wild plant')),
                     (u'NotWild', _("Not of wild source")),
+                    (u'Cultivated', _('Propagule of cultivated (wild) plant')),
+                    (u'Purchase', _('Purchase or gift')),
                     (u'InsufficientData', _("Insufficient Data")),
                     (u'Unknown', _("Unknown")),
                     (None, '')]
 
-
 wild_prov_status_values = [(u'WildNative', _("Wild native")),
                            (u'WildNonNative', _("Wild non-native")),
                            (u'CultivatedNative', _("Cultivated native")),
+                           (u'Impound', _("Impound")),
+                           (u'Collection', _("Collection")),
+                           (u'Rescue', _("Rescue")),
                            (u'InsufficientData', _("Insufficient Data")),
                            (u'Unknown', _("Unknown")),
                            (None, '')]
+
+purchase_prov_status_values = [(u'National', _("National")),
+                               (u'Imported', _("Imported")),
+                               (u'Unknown', _("Unknown")),
+                               (None, '')]
+
+cultivated_prov_status_values = [(u'InVitro', _("In vitro")),
+                                 (u'Division', _("Division")),
+                                 (u'Seed', _("Seed")),
+                                 (u'Unknown', _("Unknown")),
+                                 (None, '')]
 
 
 recvd_type_values = {
@@ -456,22 +470,17 @@ class Accession(db.Base, db.Serializable):
             the provenance type
 
             Possible values:
-                * Wild:
-                * Propagule of cultivated wild plant
-                * Not of wild source
-                * Insufficient Data
-                * Unknown
+                * first column of prov_type_values
 
         *wild_prov_status*:  :class:`bauble.types.Enum`
-            wild provenance status, if prov_type is
-            Wild then this column can be used to give more provenance
+            this column can be used to give more provenance
             information
 
             Possible values:
-                * Wild native
-                * Cultivated native
-                * Insufficient Data
-                * Unknown
+                * union of first columns of
+                wild_prov_status_values,
+                purchase_prov_status_values,
+                cultivated_prov_status_values
 
         *date*: :class:`bauble.types.Date`
             the date this accession was accessioned
