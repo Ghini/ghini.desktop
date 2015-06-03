@@ -63,26 +63,27 @@ cat <<EOF > $HOME/bin/bauble
 #!/bin/bash
 
 GITHOME=$HOME/Local/github/Bauble/bauble.classic/
-
 source \$HOME/.virtualenvs/bacl/bin/activate
 
+BUILDANDEND=0
 while getopts us: f
 do
   case \$f in
-    u)  find \$HOME/.virtualenvs/bacl -name "*.pth" -execdir rm {} \;
-        cd \$GITHOME
-        git pull
-        python setup.py build
-        python setup.py install
-        exit 1;;
+    u)  cd \$GITHOME
+        BUILDANDEND=1;;
     s)  cd \$GITHOME
-        git checkout bauble-\$OPTARG
-        git pull
-        python setup.py build
-        python setup.py install
-        exit 1;;
+        git checkout bauble-\$OPTARG || exit 1
+        BUILDANDEND=1;;
   esac
 done
+
+if [ "\$BUILDANDEND" == "1" ]
+then
+    git pull
+    python setup.py build
+    python setup.py install
+    exit 1
+fi
 
 bauble
 EOF
