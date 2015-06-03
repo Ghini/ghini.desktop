@@ -294,7 +294,7 @@ def main(uri=None):
                 # break
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % \
-                    utils.xml_safe_utf8(e)
+                    utils.xml_safe(repr(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 uri = None
