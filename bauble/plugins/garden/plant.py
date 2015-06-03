@@ -59,8 +59,6 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
 
-from bauble import pictures_view
-
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work
 # though sense the acc_id may not be set when setting the plant_id
