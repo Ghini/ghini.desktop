@@ -29,6 +29,7 @@ import weakref
 
 import logging
 logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
 
 import glib
 import gtk
@@ -516,6 +517,8 @@ class GenericEditorPresenter(object):
          from, if None then remove all occurrences of problem_id regardless
          of the widget
         """
+        logger.debug('remove_problem(%s, %s, %s)' %
+                     (self, problem_id, problem_widgets))
         if problem_id is None and problem_widgets is None:
             logger.warning('invoke remove_problem with None, None')
             # if no problem id and not problem widgets then don't do anything

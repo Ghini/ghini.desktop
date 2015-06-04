@@ -32,6 +32,7 @@ import weakref
 
 import logging
 logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
 
 import gtk
 
@@ -218,7 +219,7 @@ def acc_markup_func(acc):
     """
     Returns str(acc), acc.species_str()
     """
-    return utils.xml_safe_utf8(unicode(acc)), acc.species_str(markup=True)
+    return utils.xml_safe(unicode(acc)), acc.species_str(markup=True)
 
 
 # TODO: accession should have a one-to-many relationship on verifications
@@ -1031,23 +1032,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def refresh_view(self):
         pass
 
-    def on_taxon_add_button_clicked(self, button, taxon_entry):
-        ## the `model` is an accession, it does refer to a species, but we
-        ## come here when we are adding a Verification, so we are not
-        ## interested in editing anything, we just want to add a taxon.
-
-        ## we really should check what happened in the SpeciesEditor,
-        ## because we do want to immediately use the object added by the
-        ## user!
-
-        from bauble.plugins.plants.species import SpeciesEditor
-        editor = SpeciesEditor(parent=self.view.get_window())
-        if editor.start():
-            self.session.add(editor.model)
-            taxon_entry.set_text("%s" % editor.model)
-            self.remove_problem(None, taxon_entry)
-            self.parent_ref().refresh_sensitivity()
-
     def on_add_clicked(self, *args):
         self.add_verification_box()
 
@@ -1068,7 +1052,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             super(VerificationPresenter.VerificationBox, self).__init__(self)
             check(not model or isinstance(model, Verification))
 
-            self.dirty = False
             self.presenter = weakref.ref(parent)
             self.model = model
             if not self.model:
@@ -1161,7 +1144,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             ## add a taxon implies setting the ver_new_taxon_entry
             self.presenter().view.connect(
                 self.widgets.ver_taxon_add_button, 'clicked',
-                self.presenter().on_taxon_add_button_clicked,
+                self.on_taxon_add_button_clicked,
                 ver_new_taxon_entry)
 
             combo = self.widgets.ver_level_combo
@@ -1249,21 +1232,20 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         def set_model_attr(self, attr, value):
             setattr(self.model, attr, value)
             if attr != 'date' and not self.model.date:
-                # this is a little voodoo to set the date on the model
-                # since when we create a new verification box we add
-                # today's date to the entry but we don't set the model
-                # so the presenter doesn't appear dirty...we have to
-                # use a tmp variable since the changed signal won't
-                # fire if the new value is the same as the old
+                # When we create a new verification box we set today's date
+                # in the GtkEntry but not in the model so the presenter
+                # doesn't appear dirty.  Now that the user is setting
+                # something, we trigger the 'changed' signal on the 'date'
+                # entry as well, by first clearing the entry then setting it
+                # to its intended value.
                 tmp = self.date_entry.props.text
                 self.date_entry.props.text = ''
                 self.date_entry.props.text = tmp
-                # if the verification is new and isn't yet associated
-                # with an accession then set the accession when we
-                # start changing values, this way we can setup a dummy
-                # verification in the interface
-                if not self.model.accession:
-                    self.presenter().model.verifications.append(self.model)
+            # if the verification isn't yet associated with an accession
+            # then set the accession when we start changing values, this way
+            # we can setup a dummy verification in the interface
+            if not self.model.accession:
+                self.presenter().model.verifications.append(self.model)
             self.presenter()._dirty = True
             self.update_label()
             self.presenter().parent_ref().refresh_sensitivity()
@@ -1274,9 +1256,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             if self.model.date:
                 parts.append('<b>%(date)s</b> : ')
             if self.model.species:
-                parts.append('verified as %(species)s ')
+                parts.append(_('verified as %(species)s '))
             if self.model.verifier:
-                parts.append('by %(verifier)s')
+                parts.append(_('by %(verifier)s'))
             label = ' '.join(parts) % dict(date=self.model.date,
                                            species=self.model.species,
                                            verifier=self.model.verifier)
@@ -1285,6 +1267,23 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
         def set_expanded(self, expanded):
             self.widgets.ver_expander.props.expanded = expanded
+
+        def on_taxon_add_button_clicked(self, button, taxon_entry):
+            ## we come here when we are adding a Verification, and the
+            ## Verification wants to refer to a new taxon.
+
+            from bauble.plugins.plants.species import SpeciesEditor
+            editor = SpeciesEditor(parent=self.presenter().view.get_window())
+            if editor.start():
+                logger.debug('new taxon added from within VerificationBox')
+                # add the new taxon to the session and start using it
+                self.presenter().session.add(editor.model)
+                taxon_entry.set_text("%s" % editor.model)
+                self.presenter().remove_problem(
+                    hash(taxon_entry.get_name()), None)
+                self.set_model_attr('species', editor.model)
+                logger.debug('is VerificationPresenter dirty? %s' %
+                             self.presenter()._dirty)
 
 
 class SourcePresenter(editor.GenericEditorPresenter):
@@ -1431,6 +1430,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             self.collection_presenter.dirty()
 
     def refresh_sensitivity(self):
+        logger.warning('refresh_sensitivity: %s' % str(self.problems))
         self.parent_ref().refresh_sensitivity()
 
     def on_coll_add_button_clicked(self, *args):
