@@ -38,6 +38,7 @@ import bauble.paths as paths
 
 import logging
 logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
 
 
 def find_dependent_tables(table, metadata=None):
@@ -698,7 +699,8 @@ def xml_safe_utf8(obj):
     """
     This method is deprecated and just returns xml_safe(obj)
     """
-    logger.warning('invoking deprecated method')
+    logger.warning('invoking deprecated function')
+
     return xml_safe(obj)
 
 
