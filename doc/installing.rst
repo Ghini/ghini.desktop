@@ -160,49 +160,31 @@ the installation steps on Windows:
    
    http://initd.org/psycopg/docs/install.html
 
-#. install ``virtualenv`` (using ``pip``)
+#. download and run the batch file::
 
-#. cd to your HOME dir, create the virtual environment, call it ``bacl`` and activate it::
+    https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.bat
 
-    virtualenv --system-site-packages .virtualenvs\bacl
-    .virtualenvs\bacl\Scripts\activate.bat
+   this will pull the `bauble.classic` repository on github to your home
+   directory, under `Local\github\Bauble`, checkout the `bauble-1.0`
+   production line, create a virtual environment and install bauble into it.
 
-#. cd to where you want to get bauble.classic. a good choice would be::
+   you can also run `devinstall.bat` passing it as argument the numerical
+   part of the production line you want to follow.
 
-    Local\github\Bauble\
-
-#. download the bauble.classic sources (using git) from:
-
-   http://www.github.com/Bauble/bauble.classic/
-
-#. cd into the newly created ``bauble.classic`` directory.
-
-#. choose the development line you plan to follow, for example ``1.0``, build, install::
-
-    git checkout bauble-1.0
-    python setup.py build
-    python setup.py install
-
-#. create a ``bauble.bat`` file in your HOME dir, with this content::
-
-    call .virtualenvs\bacl\Scripts\activate.bat
-    pythonw .virtualenvs\bacl\Scripts\bauble
-
-#. create a vbs file in your HOME dir, with this content::
-
-    CreateObject("Wscript.Shell").Run "bauble.bat", 0, True
-
-#. create a shortcut to the vbs file in the same HOME dir.
-
-#. modify the icon of the shortcut, rename it as of your tastes.
-
-#. drag and drop the shortcut into the Start Menu.
-
-#. the following two, you will do regularly, to stay up-to-date with the
+#. the following, you will do regularly, to stay up-to-date with the
    development line you chose to follow::
 
+    cd %HOMEDRIVE%%HOMEPATH%
+    .virtualenv\bacl\Scripts\activate.bat
+    cd Local\github\Bauble\bauble.classic
     git pull
     python setup.py install
+
+#. you can now start bauble using the `bauble.lnk` shortcut that the
+   installation procedure copies to the `Scripts` directory of the virtual
+   environment::
+
+    %HOMEDRIVE%%HOMEPATH%\.virtualenv\bacl\Scripts\bauble.lnk
 
 If you would like to generate and print PDF reports using Bauble's
 default report generator then you will need to download and install
