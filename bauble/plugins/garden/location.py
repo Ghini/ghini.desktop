@@ -24,6 +24,10 @@ import os
 import traceback
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 from sqlalchemy import Column, Unicode, UnicodeText
 from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
@@ -211,6 +215,70 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
         if self.model not in self.session.new:
             self.view.widgets.loc_ok_and_add_button.set_sensitive(True)
+
+        # the merger danger zone
+        self.merger_candidate = None
+
+        def on_location_select(location):
+            logger.debug('merger candidate: %s' % location)
+            self.merger_candidate = location
+
+        from bauble.plugins.garden import init_location_comboentry
+        init_location_comboentry(self, self.view.widgets.loc_merge_comboentry,
+                                 on_location_select)
+        self.view.connect('loc_merge_button', 'clicked',
+                          self.on_loc_merge_button_clicked)
+
+    def on_loc_merge_button_clicked(self, entry, *args):
+        logger.debug('request to merge %s into %s' %
+                     (self.merger_candidate, self.model, ))
+
+        md = gtk.MessageDialog(
+            self.view.get_window(), gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
+            (_('please confirm merging %s into %s') %
+             (self.merger_candidate, self.model, )))
+        confirm = md.run()
+        md.destroy()
+
+        if not confirm:
+            return
+
+        # step 1: update tables plant and plant_changes, by altering all
+        # references to self.merger_candidate into references to self.model.
+        from bauble.plugins.garden.plant import Plant, PlantChange
+        plants = self.session.query(Plant).filter(
+            Plant.location == self.merger_candidate).all()
+        for p in plants:
+            p.location = self.model
+        plant_changes = self.session.query(PlantChange).filter(
+            PlantChange.from_location == self.merger_candidate).all()
+        for p in plant_changes:
+            p.from_location = self.model
+        plant_changes = self.session.query(PlantChange).filter(
+            PlantChange.to_location == self.merger_candidate).all()
+        for p in plant_changes:
+            p.to_location = self.model
+
+        # step 2: append the description of self.merger_candidate into the
+        # description TextView and mark there's a problem to solve there.
+        buf = self.view.widgets.loc_desc_textview.get_buffer()
+        value1 = buf.get_text(*buf.get_bounds())
+        value2 = getattr(self.merger_candidate, 'description')
+        if value1 and value2:
+            value = "%s\n---------\n%s" % (value1, value2)
+        else:
+            value = value1 or value2 or ''
+        self.view.set_widget_value('loc_desc_textview', value+'...')  # trigger
+        self.view.set_widget_value('loc_desc_textview', value)
+        #self.add_problem('MERGED', self.view.widgets.loc_desc_textview)
+
+        # step 3: delete self.merger_candidate and clean the entry
+        self.session.delete(self.merger_candidate)
+        self.view.set_widget_value('loc_merge_comboentry', '')
+
+        # step 4: collapse the expander
+        self.view.widgets.danger_zone.set_expanded(False)
 
     def refresh_sensitivity(self):
         sensitive = False
