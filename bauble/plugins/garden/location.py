@@ -255,7 +255,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
         def on_location_select(location):
             logger.debug('merger candidate: %s' % location)
             self.merger_candidate = location
-            self.view.widgets.loc_merge_button.set_sensitive(True)
 
         from bauble.plugins.garden import init_location_comboentry
         init_location_comboentry(self, self.view.widgets.loc_merge_comboentry,
@@ -264,6 +263,11 @@ class LocationEditorPresenter(GenericEditorPresenter):
                           self.on_loc_merge_button_clicked)
 
     def on_loc_merge_button_clicked(self, entry, *args):
+        entry_widget = self.view.widgets.loc_merge_entry
+        if self.has_problems(entry_widget):
+            logger.warning("'%s' does not identify a valid location" %
+                           entry_widget.get_text())
+            return
         logger.debug('request to merge %s into %s' %
                      (self.model, self.merger_candidate, ))
 
@@ -319,7 +323,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
         # step 4: collapse the expander
         self.view.widgets.danger_zone.set_expanded(False)
-        self.view.widgets.loc_merge_button.set_sensitive(False)
 
     def refresh_sensitivity(self):
         sensitive = False
