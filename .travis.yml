@@ -33,8 +33,10 @@ before_install:
     - make install > /dev/null
     - cd ..
     # build before install
-    - python setup.py -q build 
+    - python setup.py -q build
+    # and we need nose
+    - pip install nose
 
 install: python setup.py -q install
 
-script:  python setup.py test
+script:  NOSE_WITH_DOCTEST=1 nosetests
