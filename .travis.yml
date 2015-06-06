@@ -34,9 +34,7 @@ before_install:
     - cd ..
     # build before install
     - python setup.py -q build
-    # and we need nose
-    - pip install nose
 
 install: python setup.py -q install
 
-script:  NOSE_WITH_DOCTEST=1 nosetests
+script:  python setup.py test
