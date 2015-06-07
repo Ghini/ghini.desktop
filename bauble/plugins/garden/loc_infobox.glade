@@ -74,6 +74,7 @@
                 <property name="can_focus">False</property>
                 <property name="hscrollbar_policy">automatic</property>
                 <property name="vscrollbar_policy">automatic</property>
+                <property name="shadow_type">in</property>
                 <child>
                   <object class="GtkTextView" id="loc_descr_data">
                     <property name="visible">True</property>
