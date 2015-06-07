@@ -240,6 +240,8 @@ class ConnectionManager:
         self.widgets = utils.BuilderWidgets(glade_path)
 
         self.dialog = self.widgets.main_dialog
+        title = '%s %s' % ('Bauble', bauble.version)
+        self.dialog.set_title(title)
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.dialog.set_icon(pixbuf)
