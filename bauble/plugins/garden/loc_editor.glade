@@ -369,11 +369,22 @@
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkFrame" id="scrolledwindow1">
+                    <property name="height_request">90</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="border_width">2</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <property name="shadow_type">etched-in</property>
+                    <child>
                       <object class="GtkTextView" id="loc_desc_textview">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="border_width">2</property>
                         <property name="wrap_mode">word</property>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
