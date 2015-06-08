@@ -355,12 +355,15 @@ class GUI(object):
                                    self.on_help_menu_contents),
                                   ("help_bug", None, _("Report a bug"), None,
                                    None, self.on_help_menu_bug),
-                                  ("help_web.c", gtk.STOCK_HOME,
-                                   _("Bauble (classic) website"), None,
-                                   None, self.on_help_menu_web_classic),
-                                  ("help_web.w", gtk.STOCK_HOME,
-                                   _("Bauble (webapp) website"), None,
-                                   None, self.on_help_menu_web_webapp),
+                                  ("help_web.devel", gtk.STOCK_HOME,
+                                   _("Bauble development website"), None,
+                                   None, self.on_help_menu_web_devel),
+                                  ("help_web.wiki", gtk.STOCK_EDIT,
+                                   _("Bauble wiki"), None,
+                                   None, self.on_help_menu_web_wiki),
+                                  ("help_web.forum", gtk.STOCK_JUSTIFY_LEFT,
+                                   _("Bauble forum"), None,
+                                   None, self.on_help_menu_web_forum),
                                   ("help_about", gtk.STOCK_ABOUT, _("About"),
                                    None, None, self.on_help_menu_about),
                                   ])
@@ -629,12 +632,16 @@ class GUI(object):
         desktop.open('https://github.com/Bauble/bauble.classic/issues/new',
                      dialog_on_error=True)
 
-    def on_help_menu_web_webapp(self, widget, data=None):
-        desktop.open('http://bauble.io',
+    def on_help_menu_web_devel(self, widget, data=None):
+        desktop.open('http://github.com/Bauble/bauble.classic/',
                      dialog_on_error=True)
 
-    def on_help_menu_web_classic(self, widget, data=None):
-        desktop.open('http://bauble.wikidot.com',
+    def on_help_menu_web_wiki(self, widget, data=None):
+        desktop.open('http://github.com/Bauble/bauble.classic/wiki',
+                     dialog_on_error=True)
+
+    def on_help_menu_web_forum(self, widget, data=None):
+        desktop.open('https://groups.google.com/forum/#!forum/bauble',
                      dialog_on_error=True)
 
     def on_help_menu_about(self, widget, data=None):

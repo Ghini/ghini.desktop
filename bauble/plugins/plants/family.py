@@ -28,7 +28,7 @@ import gtk
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
     UnicodeText, func, and_, UniqueConstraint, String
-from sqlalchemy.orm import relation, backref, class_mapper
+from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -150,13 +150,19 @@ class Family(db.Base, db.Serializable):
 
     rank = 'familia'
 
+    @validates('genus')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
+
     @property
     def cites(self):
         '''the cites status of this taxon, or None
         '''
 
         cites_notes = [i.note for i in self.notes
-                       if i.category == 'CITES']
+                       if i.category.upper() == 'CITES']
         if not cites_notes:
             return None
         return cites_notes[0]

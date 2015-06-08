@@ -30,7 +30,7 @@ import gtk
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
     UnicodeText, func, and_, UniqueConstraint, String
-from sqlalchemy.orm import relation, backref
+from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -171,7 +171,7 @@ class Genus(db.Base, db.Serializable):
         '''
 
         cites_notes = [i.note for i in self.notes
-                       if i.category == 'CITES']
+                       if i.category.upper() == 'CITES']
         if not cites_notes:
             return self.family.cites
         return cites_notes[0]
@@ -181,6 +181,13 @@ class Genus(db.Base, db.Serializable):
 
     # use '' instead of None so that the constraints will work propertly
     author = Column(Unicode(255), default=u'')
+
+    @validates('genus', 'author')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
+
     qualifier = Column(types.Enum(values=['s. lat.', 's. str', u'']),
                        default=u'')
 

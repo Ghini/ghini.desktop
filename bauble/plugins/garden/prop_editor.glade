@@ -1100,10 +1100,17 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkTextView" id="seed_pretreatment_textview">
-                                        <property name="height_request">50</property>
+                                      <object class="GtkFrame" id="scrolledwindow2">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="shadow_type">in</property>
+                                        <child>
+                                          <object class="GtkTextView" id="seed_pretreatment_textview">
+                                            <property name="height_request">50</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                          </object>
+                                        </child>
                                       </object>
                                       <packing>
                                         <property name="left_attach">1</property>
@@ -1509,11 +1516,18 @@
                                 <property name="top_padding">5</property>
                                 <property name="left_padding">12</property>
                                 <child>
-                                  <object class="GtkTextView" id="notes_textview">
-                                    <property name="height_request">100</property>
+                                  <object class="GtkFrame" id="scrolledwindow1">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="wrap_mode">word</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="shadow_type">in</property>
+                                    <child>
+                                      <object class="GtkTextView" id="notes_textview">
+                                        <property name="height_request">100</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="wrap_mode">word</property>
+                                      </object>
+                                    </child>
                                   </object>
                                 </child>
                               </object>

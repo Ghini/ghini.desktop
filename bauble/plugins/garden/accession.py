@@ -32,6 +32,7 @@ import weakref
 
 import logging
 logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
 
 import gtk
 
@@ -42,7 +43,7 @@ from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText
 from sqlalchemy.orm import EXT_CONTINUE, MapperExtension, \
-    backref, relation, reconstructor
+    backref, relation, reconstructor, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -218,7 +219,7 @@ def acc_markup_func(acc):
     """
     Returns str(acc), acc.species_str()
     """
-    return utils.xml_safe_utf8(unicode(acc)), acc.species_str(markup=True)
+    return utils.xml_safe(unicode(acc)), acc.species_str(markup=True)
 
 
 # TODO: accession should have a one-to-many relationship on verifications
@@ -351,20 +352,34 @@ class AccessionMapperExtension(MapperExtension):
         return EXT_CONTINUE
 
 
-prov_type_values = {u'Wild': _('Wild'),
-                    u'Cultivated': _('Propagule of cultivated wild plant'),
-                    u'NotWild': _("Not of wild source"),
-                    u'InsufficientData': _("Insufficient Data"),
-                    u'Unknown': _("Unknown"),
-                    None: ''}
+prov_type_values = [(u'Wild', _('Wild')),
+                    (u'NotWild', _("Not of wild source")),
+                    (u'Cultivated', _('Propagule of cultivated (wild) plant')),
+                    (u'Purchase', _('Purchase or gift')),
+                    (u'InsufficientData', _("Insufficient Data")),
+                    (u'Unknown', _("Unknown")),
+                    (None, '')]
 
+wild_prov_status_values = [(u'WildNative', _("Wild native")),
+                           (u'WildNonNative', _("Wild non-native")),
+                           (u'CultivatedNative', _("Cultivated native")),
+                           (u'Impound', _("Impound")),
+                           (u'Collection', _("Collection")),
+                           (u'Rescue', _("Rescue")),
+                           (u'InsufficientData', _("Insufficient Data")),
+                           (u'Unknown', _("Unknown")),
+                           (None, '')]
 
-wild_prov_status_values = {u'WildNative': _("Wild native"),
-                           u'WildNonNative': _("Wild non-native"),
-                           u'CultivatedNative': _("Cultivated native"),
-                           u'InsufficientData': _("Insufficient Data"),
-                           u'Unknown': _("Unknown"),
-                           None: ''}
+purchase_prov_status_values = [(u'National', _("National")),
+                               (u'Imported', _("Imported")),
+                               (u'Unknown', _("Unknown")),
+                               (None, '')]
+
+cultivated_prov_status_values = [(u'InVitro', _("In vitro")),
+                                 (u'Division', _("Division")),
+                                 (u'Seed', _("Seed")),
+                                 (u'Unknown', _("Unknown")),
+                                 (None, '')]
 
 
 recvd_type_values = {
@@ -456,22 +471,17 @@ class Accession(db.Base, db.Serializable):
             the provenance type
 
             Possible values:
-                * Wild:
-                * Propagule of cultivated wild plant
-                * Not of wild source
-                * Insufficient Data
-                * Unknown
+                * first column of prov_type_values
 
         *wild_prov_status*:  :class:`bauble.types.Enum`
-            wild provenance status, if prov_type is
-            Wild then this column can be used to give more provenance
+            this column can be used to give more provenance
             information
 
             Possible values:
-                * Wild native
-                * Cultivated native
-                * Insufficient Data
-                * Unknown
+                * union of first columns of
+                wild_prov_status_values,
+                purchase_prov_status_values,
+                cultivated_prov_status_values
 
         *date*: :class:`bauble.types.Date`
             the date this accession was accessioned
@@ -523,13 +533,20 @@ class Accession(db.Base, db.Serializable):
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
 
-    prov_type = Column(types.Enum(values=prov_type_values.keys(),
-                                  translations=prov_type_values),
+    @validates('code')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
+
+    prov_type = Column(types.Enum(values=[i[0] for i in prov_type_values],
+                                  translations=dict(prov_type_values)),
                        default=None)
 
-    wild_prov_status = Column(types.Enum(values=wild_prov_status_values.keys(),
-                                         translations=wild_prov_status_values),
-                              default=None)
+    wild_prov_status = Column(
+        types.Enum(values=[i[0] for i in wild_prov_status_values],
+                   translations=dict(wild_prov_status_values)),
+        default=None)
 
     date_accd = Column(types.Date)
     date_recvd = Column(types.Date)
@@ -753,10 +770,11 @@ class AccessionEditorView(editor.GenericEditorView):
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
-                           ', '.join(prov_type_values.values())),
+                           ', '.join(i[1] for i in prov_type_values)),
         'acc_wild_prov_combo': (_('The wild status is used to clarify the '
                                   'provenance.\n\nPossible values: %s') %
-                                ', '.join(wild_prov_status_values.values())),
+                                ', '.join(i[1]
+                                          for i in wild_prov_status_values)),
         'acc_private_check': _('Indicates whether this accession record '
                                'should be considered private.'),
         'acc_cancel_button': _('Cancel your changes.'),
@@ -1014,23 +1032,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def refresh_view(self):
         pass
 
-    def on_taxon_add_button_clicked(self, button, taxon_entry):
-        ## the `model` is an accession, it does refer to a species, but we
-        ## come here when we are adding a Verification, so we are not
-        ## interested in editing anything, we just want to add a taxon.
-
-        ## we really should check what happened in the SpeciesEditor,
-        ## because we do want to immediately use the object added by the
-        ## user!
-
-        from bauble.plugins.plants.species import SpeciesEditor
-        editor = SpeciesEditor(parent=self.view.get_window())
-        if editor.start():
-            self.session.add(editor.model)
-            taxon_entry.set_text("%s" % editor.model)
-            self.remove_problem(None, taxon_entry)
-            self.parent_ref().refresh_sensitivity()
-
     def on_add_clicked(self, *args):
         self.add_verification_box()
 
@@ -1051,7 +1052,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             super(VerificationPresenter.VerificationBox, self).__init__(self)
             check(not model or isinstance(model, Verification))
 
-            self.dirty = False
             self.presenter = weakref.ref(parent)
             self.model = model
             if not self.model:
@@ -1144,7 +1144,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             ## add a taxon implies setting the ver_new_taxon_entry
             self.presenter().view.connect(
                 self.widgets.ver_taxon_add_button, 'clicked',
-                self.presenter().on_taxon_add_button_clicked,
+                self.on_taxon_add_button_clicked,
                 ver_new_taxon_entry)
 
             combo = self.widgets.ver_level_combo
@@ -1232,21 +1232,20 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         def set_model_attr(self, attr, value):
             setattr(self.model, attr, value)
             if attr != 'date' and not self.model.date:
-                # this is a little voodoo to set the date on the model
-                # since when we create a new verification box we add
-                # today's date to the entry but we don't set the model
-                # so the presenter doesn't appear dirty...we have to
-                # use a tmp variable since the changed signal won't
-                # fire if the new value is the same as the old
+                # When we create a new verification box we set today's date
+                # in the GtkEntry but not in the model so the presenter
+                # doesn't appear dirty.  Now that the user is setting
+                # something, we trigger the 'changed' signal on the 'date'
+                # entry as well, by first clearing the entry then setting it
+                # to its intended value.
                 tmp = self.date_entry.props.text
                 self.date_entry.props.text = ''
                 self.date_entry.props.text = tmp
-                # if the verification is new and isn't yet associated
-                # with an accession then set the accession when we
-                # start changing values, this way we can setup a dummy
-                # verification in the interface
-                if not self.model.accession:
-                    self.presenter().model.verifications.append(self.model)
+            # if the verification isn't yet associated with an accession
+            # then set the accession when we start changing values, this way
+            # we can setup a dummy verification in the interface
+            if not self.model.accession:
+                self.presenter().model.verifications.append(self.model)
             self.presenter()._dirty = True
             self.update_label()
             self.presenter().parent_ref().refresh_sensitivity()
@@ -1257,9 +1256,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             if self.model.date:
                 parts.append('<b>%(date)s</b> : ')
             if self.model.species:
-                parts.append('verified as %(species)s ')
+                parts.append(_('verified as %(species)s '))
             if self.model.verifier:
-                parts.append('by %(verifier)s')
+                parts.append(_('by %(verifier)s'))
             label = ' '.join(parts) % dict(date=self.model.date,
                                            species=self.model.species,
                                            verifier=self.model.verifier)
@@ -1268,6 +1267,23 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
         def set_expanded(self, expanded):
             self.widgets.ver_expander.props.expanded = expanded
+
+        def on_taxon_add_button_clicked(self, button, taxon_entry):
+            ## we come here when we are adding a Verification, and the
+            ## Verification wants to refer to a new taxon.
+
+            from bauble.plugins.plants.species import SpeciesEditor
+            editor = SpeciesEditor(parent=self.presenter().view.get_window())
+            if editor.start():
+                logger.debug('new taxon added from within VerificationBox')
+                # add the new taxon to the session and start using it
+                self.presenter().session.add(editor.model)
+                taxon_entry.set_text("%s" % editor.model)
+                self.presenter().remove_problem(
+                    hash(taxon_entry.get_name()), None)
+                self.set_model_attr('species', editor.model)
+                logger.debug('is VerificationPresenter dirty? %s' %
+                             self.presenter()._dirty)
 
 
 class SourcePresenter(editor.GenericEditorPresenter):
@@ -1414,6 +1430,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             self.collection_presenter.dirty()
 
     def refresh_sensitivity(self):
+        logger.warning('refresh_sensitivity: %s' % str(self.problems))
         self.parent_ref().refresh_sensitivity()
 
     def on_coll_add_button_clicked(self, *args):
@@ -2041,15 +2058,18 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
 
-        self.view.set_widget_value('acc_wild_prov_combo',
-                          wild_prov_status_values[self.model.wild_prov_status],
-                                   index=1)
-        self.view.set_widget_value('acc_prov_combo',
-                                   prov_type_values[self.model.prov_type],
-                                   index=1)
-        self.view.set_widget_value('acc_recvd_type_comboentry',
-                                   recvd_type_values[self.model.recvd_type],
-                                   index=1)
+        self.view.set_widget_value(
+            'acc_wild_prov_combo',
+            dict(wild_prov_status_values)[self.model.wild_prov_status],
+            index=1)
+        self.view.set_widget_value(
+            'acc_prov_combo',
+            dict(prov_type_values)[self.model.prov_type],
+            index=1)
+        self.view.set_widget_value(
+            'acc_recvd_type_comboentry',
+            recvd_type_values[self.model.recvd_type],
+            index=1)
 
         self.view.widgets.acc_private_check.set_inconsistent(False)
         self.view.widgets.acc_private_check.\
@@ -2350,10 +2370,10 @@ class GeneralAccessionExpander(InfoExpander):
             quantity_str = row.quantity_recvd
         self.set_widget_value('quantity_recvd_data', quantity_str)
 
-        prov_str = prov_type_values[row.prov_type]
+        prov_str = dict(prov_type_values)[row.prov_type]
         if row.prov_type == u'Wild' and row.wild_prov_status:
             prov_str = '%s (%s)' % \
-                (prov_str, wild_prov_status_values[row.wild_prov_status])
+                (prov_str, dict(wild_prov_status_values)[row.wild_prov_status])
         self.set_widget_value('prov_data', prov_str, False)
 
         image_size = gtk.ICON_SIZE_MENU

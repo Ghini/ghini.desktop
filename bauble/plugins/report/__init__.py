@@ -215,7 +215,9 @@ def get_all_species(objs, session=None):
 
     Return all the species found in objs.
     """
-    return _get_all_objects(Species, get_species_query, objs, session)
+    return sorted(
+        _get_all_objects(Species, get_species_query, objs, session),
+        key=str)
 
 
 class SettingsBox(gtk.VBox):
