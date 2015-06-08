@@ -197,11 +197,10 @@ subtribusd = {
     if species_epithet == 'sp':
         species_epithet = ''
     subtribus = subtribusd.get(genus, '')
-    cites = v.species.cites or ''
     doc_number = ([n.note for n in v.notes if n.category == 'factura'] + [''])[0]
     if doc_number != '':
         doc_type = 'factura'
     else:
         doc_type = ''
-%>${v}	${v.species.genus.family}	${subfamiliad[tribusd[subtribus]]}	${tribusd[subtribus]}	${subtribus}	${genus}	${species_epithet}	${v.species.sp_author or ''}	${v._created.isoformat()[:10]}	${cites}			${doc_type}	${doc_number}	${len(v.plants)}		${v.species.habit or ''}
+%>${v}	${v.species.genus.family}	${subfamiliad[tribusd[subtribus]]}	${tribusd[subtribus]}	${subtribus}	${genus}	${species_epithet}	${v.species.sp_author or ''}	${v._created.isoformat()[:10]}	${v.species.cites or ''}	${v.species.condition or ''}	${v.species.conservation or ''}	${doc_type}	${doc_number}	${len(v.plants)}		${v.species.habit or ''}
 % endfor
