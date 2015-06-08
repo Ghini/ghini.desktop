@@ -140,13 +140,51 @@ class Species(db.Base, db.Serializable):
     @property
     def cites(self):
         '''the cites status of this taxon, or None
+
+        cites appendix number, one of I, II, or III.
+        not enforced by the software in v1.0.x
         '''
 
         cites_notes = [i.note for i in self.notes
-                       if i.category == 'CITES']
+                       if i.category.upper() == 'CITES']
         if not cites_notes:
             return self.genus.cites
         return cites_notes[0]
+
+    @property
+    def conservation(self):
+        '''the IUCN conservation status of this taxon, or DD
+
+        one of: EX, RE, CR, EN, VU, NT, LC, DD
+        not enforced by the software in v1.0.x
+        '''
+
+        {'EX': _('Extinct (EX)'),
+         'RE': _('Regionally Extinct (RE)'),
+         'CR': _('Critically Endangered (CR)'),
+         'EN': _('Endangered (EN)'),
+         'VU': _('Vulnerable (VU)'),
+         'NT': _('Near Threatened (NT)'),
+         'LV': _('Least Concern (LC)'),
+         'DD': _('Data Deficient (DD)')}
+
+        notes = [i.note for i in self.notes
+                 if i.category.upper() == 'IUCN']
+        return (notes + ['DD'])[0]
+
+    @property
+    def condition(self):
+        '''the condition of this taxon, or None
+
+        this is referred to what the garden conservator considers the
+        area of interest. it is really an interpretation, not a fact.
+        '''
+        # one of, but not forcibly so:
+        [_('endemic'), _('indigenous'), _('native'), _('introduced')]
+
+        notes = [i.note for i in self.notes
+                 if i.category.lower() == 'condition']
+        return (notes + [None])[0]
 
     # columns
     sp = Column(Unicode(64), index=True)
