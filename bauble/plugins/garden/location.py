@@ -24,8 +24,12 @@ import os
 import traceback
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 from sqlalchemy import Column, Unicode, UnicodeText
-from sqlalchemy.orm import relation, backref
+from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -121,6 +125,12 @@ class Location(db.Base, db.Serializable):
     # relations
     plants = relation('Plant', backref=backref('location', uselist=False))
 
+    @validates('code', 'name')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
+
     def __str__(self):
         if self.name:
             return '(%s) %s' % (self.code, self.name)
@@ -137,6 +147,39 @@ class Location(db.Base, db.Serializable):
     def retrieve(cls, session, keys):
         return session.query(cls).filter(
             cls.code == keys['code']).all()
+
+
+def mergevalues(value1, value2, formatter):
+    """return the common value
+
+    if the values are equal, return it
+    >>> mergevalues('1', '1', '%s|%s')
+    '1'
+
+    if they conflict, return both
+    >>> mergevalues('2', '1', '%s|%s')
+    '2|1'
+
+    if one is empty, return the non empty one
+    >>> mergevalues('2', None, '%s|%s')
+    '2'
+    >>> mergevalues(None, '2', '%s|%s')
+    '2'
+    >>> mergevalues('2', '', '%s|%s')
+    '2'
+
+    if both are empty, return the empty string
+    >>> mergevalues(None, None, '%s|%s')
+    ''
+    """
+
+    if value1 == value2:
+        value = value1 or ''
+    elif value1 and value2:
+        value = formatter % (value1, value2)
+    else:
+        value = value1 or value2 or ''
+    return value
 
 
 class LocationEditorView(GenericEditorView):
@@ -205,6 +248,81 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
         if self.model not in self.session.new:
             self.view.widgets.loc_ok_and_add_button.set_sensitive(True)
+
+        # the merger danger zone
+        self.merger_candidate = None
+
+        def on_location_select(location):
+            logger.debug('merger candidate: %s' % location)
+            self.merger_candidate = location
+
+        from bauble.plugins.garden import init_location_comboentry
+        init_location_comboentry(self, self.view.widgets.loc_merge_comboentry,
+                                 on_location_select)
+        self.view.connect('loc_merge_button', 'clicked',
+                          self.on_loc_merge_button_clicked)
+
+    def on_loc_merge_button_clicked(self, entry, *args):
+        entry_widget = self.view.widgets.loc_merge_entry
+        if self.has_problems(entry_widget):
+            logger.warning("'%s' does not identify a valid location" %
+                           entry_widget.get_text())
+            return
+        logger.debug('request to merge %s into %s' %
+                     (self.model, self.merger_candidate, ))
+
+        md = gtk.MessageDialog(
+            self.view.get_window(), gtk.DIALOG_DESTROY_WITH_PARENT,
+            gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
+            (_('please confirm merging %(1)s into %(2)s') %
+             {'1': self.model, '2': self.merger_candidate, }))
+        confirm = md.run()
+        md.destroy()
+
+        if not confirm:
+            return
+
+        # step 0: swap `model` and `merger_candidate` objects: we are going
+        # to keep model and delete merger_candidate.
+        self.model, self.merger_candidate = self.merger_candidate, self.model
+
+        # step 1: update tables plant and plant_changes, by altering all
+        # references to self.merger_candidate into references to self.model.
+        from bauble.plugins.garden.plant import Plant, PlantChange
+        for p in self.session.query(Plant).filter(
+                Plant.location == self.merger_candidate).all():
+            p.location = self.model
+        for p in self.session.query(PlantChange).filter(
+                PlantChange.from_location == self.merger_candidate).all():
+            p.from_location = self.model
+        for p in self.session.query(PlantChange).filter(
+                PlantChange.to_location == self.merger_candidate).all():
+            p.to_location = self.model
+
+        # step 2: merge model and merger_candidate  `description` and `name`
+        # fields, mark there's a problem to solve there.
+        self.view.set_widget_value('loc_code_entry',
+                                   getattr(self.model, 'code'))
+
+        buf = self.view.widgets.loc_desc_textview.get_buffer()
+        self.view.set_widget_value(
+            'loc_desc_textview', mergevalues(
+                buf.get_text(*buf.get_bounds()),
+                getattr(self.merger_candidate, 'description'),
+                "%s\n---------\n%s"))
+        self.view.set_widget_value(
+            'loc_name_entry', mergevalues(
+                self.view.widgets.loc_name_entry.get_text(),
+                getattr(self.merger_candidate, 'name'),
+                "%s\n---------\n%s"))
+        #self.add_problem('MERGED', self.view.widgets.loc_desc_textview)
+
+        # step 3: delete self.merger_candidate and clean the entry
+        self.session.delete(self.merger_candidate)
+        self.view.set_widget_value('loc_merge_comboentry', '')
+
+        # step 4: collapse the expander
+        self.view.widgets.danger_zone.set_expanded(False)
 
     def refresh_sensitivity(self):
         sensitive = False

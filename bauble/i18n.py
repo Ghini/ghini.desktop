@@ -19,6 +19,11 @@ import gettext
 import bauble.paths as paths
 from bauble import version_tuple
 
+# the following has effect on Windows: to set the environment variables as
+# on an operating system. operating systems don't need it.
+import bauble.gettext_windows
+bauble.gettext_windows.setup_env()
+
 __all__ = ["_"]
 
 TEXT_DOMAIN = 'bauble-%s' % '.'.join(version_tuple[0:2])

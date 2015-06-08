@@ -38,7 +38,7 @@ from bauble.i18n import _
 from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
-from sqlalchemy.orm import relation, backref, object_mapper
+from sqlalchemy.orm import relation, backref, object_mapper, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -58,8 +58,6 @@ import bauble.utils as utils
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
-
-from bauble import pictures_view
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work
@@ -112,11 +110,6 @@ def remove_callback(plants):
     return True
 
 
-show_pictures_action = Action(
-    'plant_show_pictures', _('_Pictures'),
-    callback=pictures_view.show_pictures_callback,
-    accelerator='<ctrl>p', multiselect=False)
-
 edit_action = Action('plant_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e', multiselect=True)
 
@@ -127,7 +120,7 @@ remove_action = Action('plant_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 plant_context_menu = [
-    edit_action, branch_action, remove_action, show_pictures_action, ]
+    edit_action, branch_action, remove_action, ]
 
 
 def plant_markup_func(plant):
@@ -424,6 +417,13 @@ class Plant(db.Base, db.Serializable):
 
     # columns
     code = Column(Unicode(6), nullable=False)
+
+    @validates('code')
+    def validate_stripping(self, key, value):
+        if value is None:
+            return None
+        return value.strip()
+
     acc_type = Column(types.Enum(values=acc_type_values.keys(),
                                  translations=acc_type_values),
                       default=None)
@@ -463,13 +463,15 @@ class Plant(db.Base, db.Serializable):
                 y = int(pixbuf.get_height() / scale)
                 scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
                 im.set_from_pixbuf(scaled_buf)
-            except glib.GError:
+            except glib.GError, e:
+                logger.debug("picture %s caused glib.GError %s" %
+                             (filename, e))
                 label = _('picture file %s not found.') % filename
-                logger.debug(label)
                 im = gtk.Label()
                 im.set_text(label)
             except Exception, e:
-                logger.warning(e)
+                logger.warning("picture %s caused Exception %s" %
+                               (filename, e))
                 im = gtk.Label()
                 im.set_text(_("%s" % e))
             result.append(im)

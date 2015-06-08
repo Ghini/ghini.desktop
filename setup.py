@@ -373,18 +373,23 @@ class run(Command):
 needs_sqlite = []
 try:
     import sqlite3
+    sqlite3
 except ImportError:
-    needs_sqlite = "pysqlite>=2.3.2"
+    needs_sqlite = ["pysqlite>=2.3.2"]
+
+scripts = ["scripts/bauble", "scripts/bauble-admin"]
+if sys.platform == 'win32':
+    scripts = ["scripts/bauble", "scripts/bauble.bat", "scripts/bauble.vbs",
+               "scripts/bauble.lnk", "scripts/bauble-update.bat"]
 
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
-
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
                            'docs': docs, 'clean': clean, 'run': run},
                  version=version,
-                 scripts=["scripts/bauble", "scripts/bauble-admin"],
+                 scripts=scripts,
                  packages=all_packages,
                  package_dir=all_package_dirs,
                  package_data=package_data,

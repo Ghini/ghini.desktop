@@ -1,3 +1,23 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2008-2010 Brett Adams
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+#
 #
 # source.py
 #
@@ -25,7 +45,6 @@ import bauble.utils as utils
 import bauble.btypes as types
 import bauble.view as view
 import bauble.paths as paths
-#from bauble.plugins.garden.propagation import *
 
 
 def coll_markup_func(coll):
@@ -136,19 +155,19 @@ class Source(db.Base):
         primaryjoin='Source.plant_propagation_id==Propagation.id')
 
 
-source_type_values = {u'Expedition': _('Expedition'),
-                      u'GeneBank': _('Gene Bank'),
-                      u'BG': _('Botanic Garden or Arboretum'),
-                      u'Research/FieldStation': _('Research/Field Station'),
-                      u'Staff': _('Staff member'),
-                      u'UniversityDepartment': _('University Department'),
-                      u'Club': _('Horticultural Association/Garden Club'),
-                      u'MunicipalDepartment': _('Municipal department'),
-                      u'Commercial': _('Nursery/Commercial'),
-                      u'Individual': _('Individual'),
-                      u'Other': _('Other'),
-                      u'Unknown': _('Unknown'),
-                      None: ''}
+source_type_values = [(u'Expedition', _('Expedition')),
+                      (u'GeneBank', _('Gene Bank')),
+                      (u'BG', _('Botanic Garden or Arboretum')),
+                      (u'Research/FieldStation', _('Research/Field Station')),
+                      (u'Staff', _('Staff member')),
+                      (u'UniversityDepartment', _('University Department')),
+                      (u'Club', _('Horticultural Association/Garden Club')),
+                      (u'MunicipalDepartment', _('Municipal department')),
+                      (u'Commercial', _('Nursery/Commercial')),
+                      (u'Individual', _('Individual')),
+                      (u'Other', _('Other')),
+                      (u'Unknown', _('Unknown')),
+                      (None, '')]
 
 
 class SourceDetail(db.Base):
@@ -157,8 +176,8 @@ class SourceDetail(db.Base):
 
     name = Column(Unicode(75), unique=True)
     description = Column(UnicodeText)
-    source_type = Column(types.Enum(values=source_type_values.keys(),
-                                    translations=source_type_values),
+    source_type = Column(types.Enum(values=[i[0] for i in source_type_values],
+                                    translations=dict(source_type_values)),
                          default=None)
 
     def __str__(self):
@@ -248,7 +267,8 @@ class SourceDetailEditorView(editor.GenericEditorView):
                                 'acc_editor.glade')
         super(SourceDetailEditorView, self).__init__(filename, parent=parent)
         self.set_accept_buttons_sensitive(False)
-        self.init_translatable_combo('source_type_combo', source_type_values)
+        self.init_translatable_combo(
+            'source_type_combo', source_type_values)
 
     def get_window(self):
         return self.widgets.source_details_dialog
@@ -293,13 +313,14 @@ class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            logger.debug('contact refresh(%s, %s=%s)' % (widget, field,
-                         self.model[field]))
+            logger.debug('contact refresh(%s, %s=%s)' %
+                         (widget, field, getattr(self.model, field)))
             self.view.set_widget_value(widget, getattr(self.model, field))
 
-        self.view.set_widget_value('source_type_combo',
-                                   source_type_values[self.model.source_type],
-                                   index=1)
+        self.view.set_widget_value(
+            'source_type_combo',
+            dict(source_type_values)[self.model.source_type],
+            index=1)
 
     def start(self):
         r = self.view.start()
