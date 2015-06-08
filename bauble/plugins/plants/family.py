@@ -162,7 +162,7 @@ class Family(db.Base, db.Serializable):
         '''
 
         cites_notes = [i.note for i in self.notes
-                       if i.category == 'CITES']
+                       if i.category.upper() == 'CITES']
         if not cites_notes:
             return None
         return cites_notes[0]
