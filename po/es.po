@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
-"POT-Creation-Date: 2015-06-08 09:05-0500\n"
-"PO-Revision-Date: 2015-06-08 09:14-0500\n"
+"POT-Creation-Date: 2015-06-08 10:04-0500\n"
+"PO-Revision-Date: 2015-06-08 10:04-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
 ">\n"
@@ -561,7 +561,7 @@ msgstr "Propiedades"
 msgid "ID:"
 msgstr ""
 
-#: bauble/view.py:165
+#: bauble/view.py:165 bauble/connmgr.glade:99
 msgid "Type:"
 msgstr "Tipo:"
 
@@ -619,7 +619,7 @@ msgstr "Sello de tiempo"
 msgid "Operation"
 msgstr ""
 
-#: bauble/view.py:1162
+#: bauble/view.py:1162 bauble/pictures.glade:307 bauble/notes.glade:33
 msgid "User"
 msgstr "Usuario"
 
@@ -656,7 +656,9 @@ msgstr "<b>Complementos</b>"
 msgid "Names"
 msgstr "Nombres"
 
-#: bauble/prefs.py:320
+#: bauble/prefs.py:320 bauble/pictures.glade:76 bauble/notes.glade:323
+#: bauble/plugins/garden/loc_editor.glade:190
+#: bauble/plugins/garden/acc_editor.glade:242
 msgid "Name"
 msgstr "Nombre"
 
@@ -827,7 +829,7 @@ msgstr "Selección de etiqueta"
 msgid "Could not create the tags menus"
 msgstr "No se pudieron crear los menús de etiquetas"
 
-#: bauble/plugins/tag/__init__.py:502
+#: bauble/plugins/tag/__init__.py:502 bauble/plugins/tag/tag.glade:6
 msgid "Tags"
 msgstr "Etiquetas"
 
@@ -894,12 +896,14 @@ msgstr "Planta/Clon"
 #: bauble/plugins/report/xsl/__init__.py:65
 #: bauble/plugins/report/xsl/__init__.py:387
 #: bauble/plugins/garden/__init__.py:123
+#: bauble/plugins/garden/plant_editor.glade:475
 msgid "Accession"
 msgstr "Adquisición"
 
 #: bauble/plugins/report/xsl/__init__.py:66
 #: bauble/plugins/report/xsl/__init__.py:387
 #: bauble/plugins/plants/__init__.py:77
+#: bauble/plugins/plants/species_editor.glade:107
 msgid "Species"
 msgstr "Especie"
 
@@ -1234,10 +1238,15 @@ msgstr ""
 #: bauble/plugins/garden/source.py:890 bauble/plugins/plants/genus.py:829
 #: bauble/plugins/plants/family.py:660 bauble/plugins/plants/species.py:297
 #: bauble/plugins/plants/species.py:493
+#: bauble/plugins/garden/plant_editor.glade:841
+#: bauble/plugins/garden/acc_editor.glade:1046
+#: bauble/plugins/plants/genus_editor.glade:284
 msgid "General"
 msgstr "General"
 
 #: bauble/plugins/garden/location.py:486
+#: bauble/plugins/garden/loc_editor.glade:171
+#: bauble/plugins/garden/acc_editor.glade:2792
 msgid "Description"
 msgstr "Descripción"
 
@@ -1401,6 +1410,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:397 bauble/plugins/garden/plant.py:365
 #: bauble/plugins/garden/__init__.py:124
+#: bauble/plugins/garden/acc_editor.glade:2204
 msgid "Plant"
 msgstr "Planta"
 
@@ -1607,14 +1617,18 @@ msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s en %(location)s"
 
 #: bauble/plugins/garden/accession.py:2404
+#: bauble/plugins/garden/acc_editor.glade:1066
+#: bauble/plugins/garden/acc_editor.glade:2299
 msgid "Source"
 msgstr "Origen"
 
 #: bauble/plugins/garden/accession.py:2498
+#: bauble/plugins/garden/acc_editor.glade:2377
 msgid "Verifications"
 msgstr "Verificaciones"
 
 #: bauble/plugins/garden/accession.py:2514
+#: bauble/plugins/garden/acc_editor.glade:2655
 #, fuzzy
 msgid "Vouchers"
 msgstr "Vouchers"
@@ -1853,6 +1867,7 @@ msgid "<i>Branched from %(plant)s</i>"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:1307
+#: bauble/plugins/garden/plant_editor.glade:893
 msgid "Propagations"
 msgstr "Propagaciones"
 
@@ -1962,6 +1977,9 @@ msgid "East/West radio buttons in a confused state"
 msgstr "Botones de radio Este/Oeste en un estado confuso"
 
 #: bauble/plugins/garden/__init__.py:125
+#: bauble/plugins/garden/plant_editor.glade:258
+#: bauble/plugins/garden/prop_editor.glade:539
+#: bauble/plugins/garden/prop_editor.glade:1032
 msgid "Location"
 msgstr "Ubicación"
 
@@ -2159,6 +2177,7 @@ msgid "Cultivar group"
 msgstr "Grupo cultivar"
 
 #: bauble/plugins/plants/species_editor.py:870
+#: bauble/plugins/plants/species_editor.glade:229
 msgid "Species qualifier"
 msgstr "Diferenciador de especie"
 
@@ -2345,10 +2364,15 @@ msgid "Save your changes changes and add another family."
 msgstr "Guarde los cambios y agregue otra familia."
 
 #: bauble/plugins/plants/__init__.py:75
+#: bauble/plugins/plants/genus_editor.glade:112
+#: bauble/plugins/plants/family_editor.glade:89
+#: bauble/plugins/plants/family_editor.glade:230
 msgid "Family"
 msgstr "Familia"
 
 #: bauble/plugins/plants/__init__.py:76
+#: bauble/plugins/plants/genus_editor.glade:145
+#: bauble/plugins/plants/species_editor.glade:139
 msgid "Genus"
 msgstr "Género"
 
@@ -2506,6 +2530,1026 @@ msgstr "Buscar NPGS/GRIN"
 msgid "Search National Plant Germplasm System"
 msgstr "Buscar Planta del Sistema Nacional de Germoplasma"
 
+#: bauble/pictures.glade:88 bauble/pictures.glade:424 bauble/notes.glade:124
+#: bauble/notes.glade:334 bauble/plugins/garden/prop_editor.glade:71
+#: bauble/plugins/garden/acc_editor.glade:1362
+#: bauble/plugins/garden/acc_editor.glade:3035
+msgid "Date"
+msgstr "Fecha"
+
+#: bauble/pictures.glade:101 bauble/pictures.glade:336 bauble/notes.glade:57
+#: bauble/notes.glade:346
+msgid "Category"
+msgstr "Categoría"
+
+#: bauble/pictures.glade:354
+msgid "<picture>"
+msgstr ""
+
+#: bauble/bauble.glade:7 bauble/connmgr.glade:7
+#, fuzzy
+msgid "Bauble"
+msgstr "la wiki de Bauble"
+
+#: bauble/bauble.glade:278 bauble/plugins/garden/plant_editor.glade:916
+#: bauble/plugins/garden/acc_editor.glade:2688
+#: bauble/plugins/garden/acc_editor.glade:3071
+#: bauble/plugins/plants/genus_editor.glade:305
+#: bauble/plugins/plants/species_editor.glade:847
+#: bauble/plugins/plants/family_editor.glade:251
+msgid "Notes"
+msgstr "Notas"
+
+#: bauble/connmgr.glade:129
+msgid "Connection Details"
+msgstr "Detalles de la conexión"
+
+#: bauble/pictures_view.glade:10
+#, fuzzy
+msgid "Picture Viewer"
+msgstr "Carpeta base para las fotos"
+
+#: bauble/plugins/picasa/gui.glade:7
+msgid "Bauble - Picasa Settings"
+msgstr "Configuración Bauble-Picasa"
+
+#: bauble/plugins/picasa/gui.glade:29
+#: bauble/plugins/garden/institution.glade:180
+msgid "Email"
+msgstr "Correo electrónico"
+
+#: bauble/plugins/picasa/gui.glade:40
+msgid "Album"
+msgstr "Album"
+
+#: bauble/plugins/picasa/gui.glade:53
+msgid "Password"
+msgstr "Contraseña"
+
+#: bauble/plugins/users/ui.glade:101
+msgid "<b>Users</b>"
+msgstr "<b>Usuarios</b>"
+
+#: bauble/plugins/users/ui.glade:119
+msgid "Show only Bauble users"
+msgstr "Mostrar solo usuarios Bauble"
+
+#: bauble/plugins/users/ui.glade:163
+msgid "Read"
+msgstr ""
+
+#: bauble/plugins/users/ui.glade:175
+msgid "Write"
+msgstr "Escribir"
+
+#: bauble/plugins/users/ui.glade:187
+msgid "Administrator"
+msgstr "Administrador"
+
+#: bauble/plugins/users/ui.glade:204
+msgid "<b>Permissions</b>"
+msgstr "<b>Permisos</b>"
+
+#: bauble/plugins/users/ui.glade:217
+msgid "Change Password"
+msgstr "Cambia la contraseña"
+
+#: bauble/plugins/users/ui.glade:230
+msgid "Groups"
+msgstr "Grupos"
+
+#: bauble/plugins/users/ui.glade:325
+msgid "<b>New password</b>"
+msgstr "<b>Nueva contraseña</b>"
+
+#: bauble/plugins/users/ui.glade:359
+msgid "<b>Confirm new password</b>"
+msgstr "<b>Confirma la nueva constraseña</b>"
+
+#: bauble/plugins/tag/tag.glade:34 bauble/plugins/garden/loc_infobox.glade:18
+#: bauble/plugins/garden/loc_infobox.glade:47
+#: bauble/plugins/garden/plant_infobox.glade:32
+#: bauble/plugins/garden/plant_infobox.glade:49
+#: bauble/plugins/garden/plant_infobox.glade:74
+#: bauble/plugins/garden/plant_infobox.glade:103
+#: bauble/plugins/garden/plant_infobox.glade:118
+#: bauble/plugins/garden/plant_infobox.glade:178
+#: bauble/plugins/garden/plant_infobox.glade:233
+#: bauble/plugins/garden/acc_infobox.glade:59
+#: bauble/plugins/garden/acc_infobox.glade:104
+#: bauble/plugins/garden/acc_infobox.glade:135
+#: bauble/plugins/garden/acc_infobox.glade:178
+#: bauble/plugins/garden/acc_infobox.glade:193
+#: bauble/plugins/garden/acc_infobox.glade:236
+#: bauble/plugins/garden/acc_infobox.glade:251
+#: bauble/plugins/garden/acc_infobox.glade:320
+#: bauble/plugins/garden/acc_infobox.glade:349
+#: bauble/plugins/garden/acc_infobox.glade:391
+#: bauble/plugins/garden/acc_infobox.glade:487
+#: bauble/plugins/garden/acc_infobox.glade:500
+#: bauble/plugins/garden/acc_infobox.glade:532
+#: bauble/plugins/garden/acc_infobox.glade:565
+#: bauble/plugins/garden/acc_infobox.glade:615
+#: bauble/plugins/garden/acc_infobox.glade:644
+#: bauble/plugins/garden/acc_infobox.glade:673
+#: bauble/plugins/garden/acc_infobox.glade:702
+#: bauble/plugins/garden/acc_infobox.glade:731
+#: bauble/plugins/garden/acc_infobox.glade:799
+#: bauble/plugins/garden/acc_infobox.glade:812
+#: bauble/plugins/garden/acc_infobox.glade:827
+#: bauble/plugins/garden/source_detail_infobox.glade:15
+#: bauble/plugins/garden/source_detail_infobox.glade:33
+#: bauble/plugins/garden/source_detail_infobox.glade:47
+#: bauble/plugins/garden/source_detail_infobox.glade:100
+#: bauble/plugins/garden/acc_editor.glade:3337
+#: bauble/plugins/plants/infoboxes.glade:104
+#: bauble/plugins/plants/infoboxes.glade:124
+#: bauble/plugins/plants/infoboxes.glade:146
+#: bauble/plugins/plants/infoboxes.glade:168
+#: bauble/plugins/plants/infoboxes.glade:273
+#: bauble/plugins/plants/infoboxes.glade:351
+#: bauble/plugins/plants/infoboxes.glade:370
+#: bauble/plugins/plants/infoboxes.glade:391
+#: bauble/plugins/plants/infoboxes.glade:477
+#: bauble/plugins/plants/infoboxes.glade:503
+#: bauble/plugins/plants/infoboxes.glade:524
+#: bauble/plugins/plants/infoboxes.glade:540
+#: bauble/plugins/plants/infoboxes.glade:556
+#: bauble/plugins/plants/infoboxes.glade:572
+#: bauble/plugins/plants/infoboxes.glade:710
+#: bauble/plugins/plants/infoboxes.glade:742
+#: bauble/plugins/plants/infoboxes.glade:776
+#: bauble/plugins/plants/species_editor.glade:42
+#: bauble/plugins/plants/species_editor.glade:391
+msgid "--"
+msgstr "--"
+
+#: bauble/plugins/tag/tag.glade:44
+msgid "<b>Item(s)</b>"
+msgstr "<b>Elementos</b>"
+
+#: bauble/plugins/tag/tag.glade:90
+msgid "<b>Tags</b>"
+msgstr "<b>Etiquetas</b>"
+
+#: bauble/plugins/tag/tag.glade:138
+msgid "New Tag"
+msgstr "Etiqueta nueva"
+
+#: bauble/plugins/report/report.glade:103
+msgid "<b>Formatter</b>"
+msgstr "<b>Formateador</b>"
+
+#: bauble/plugins/report/report.glade:123
+msgid "<b>Settings</b>"
+msgstr "<b>Ajustes</b>"
+
+#: bauble/plugins/report/xsl/gui.glade:29
+msgid "<b>Stylesheet</b>"
+msgstr "<b>Hoja de estilo</b>"
+
+#: bauble/plugins/report/xsl/gui.glade:60
+msgid "<b>Renderer</b>"
+msgstr "<b>Motor de renderizado</b>"
+
+#: bauble/plugins/report/xsl/gui.glade:104
+msgid "<b>Source type</b>"
+msgstr "<b>Tipo de fuente</b>"
+
+#: bauble/plugins/report/xsl/gui.glade:122
+msgid "<b>Use author names</b>"
+msgstr "<b>Usar nombres de autores</b>"
+
+#: bauble/plugins/report/xsl/gui.glade:149
+#: bauble/plugins/report/mako/gui.glade:58
+msgid "<b>Include data marked as private</b>"
+msgstr "<b>Incluir datos marcados como privados</b>"
+
+#: bauble/plugins/report/mako/gui.glade:31
+msgid "<b>Template</b>"
+msgstr "<b>Plantilla</b>"
+
+#: bauble/plugins/garden/loc_infobox.glade:35
+#: bauble/plugins/plants/infoboxes.glade:317
+#: bauble/plugins/plants/infoboxes.glade:588
+msgid "<b># of Plants:</b>"
+msgstr "<b>N.º de plantas:</b>"
+
+#: bauble/plugins/garden/plant_editor.glade:158
+msgid "Accession type"
+msgstr "Tipo de accesión"
+
+#: bauble/plugins/garden/plant_editor.glade:195
+msgid "Memorial"
+msgstr "Patrimonial"
+
+#: bauble/plugins/garden/plant_editor.glade:271
+#: bauble/plugins/garden/plant_editor.glade:309
+#: bauble/plugins/garden/plant_editor.glade:488
+#: bauble/plugins/garden/plant_editor.glade:525
+#: bauble/plugins/garden/prop_editor.glade:83
+#: bauble/plugins/garden/loc_editor.glade:240
+#: bauble/plugins/garden/acc_editor.glade:255
+#: bauble/plugins/garden/acc_editor.glade:465
+#: bauble/plugins/garden/acc_editor.glade:1568
+#: bauble/plugins/garden/acc_editor.glade:2887
+#: bauble/plugins/garden/acc_editor.glade:3100
+#: bauble/plugins/garden/acc_editor.glade:3136
+#: bauble/plugins/garden/acc_editor.glade:3174
+#: bauble/plugins/garden/acc_editor.glade:3215
+#: bauble/plugins/plants/genus_editor.glade:124
+#: bauble/plugins/plants/genus_editor.glade:157
+#: bauble/plugins/plants/species_editor.glade:151
+#: bauble/plugins/plants/family_editor.glade:101
+msgid "*"
+msgstr "*"
+
+#: bauble/plugins/garden/plant_editor.glade:297
+#: bauble/plugins/garden/acc_editor.glade:366
+msgid "Quantity"
+msgstr "Cantidad"
+
+#: bauble/plugins/garden/plant_editor.glade:383
+#: bauble/plugins/garden/acc_editor.glade:734
+#: bauble/plugins/garden/acc_editor.glade:831
+#: bauble/plugins/garden/acc_editor.glade:3300
+msgid "Add"
+msgstr "Añadir"
+
+#: bauble/plugins/garden/plant_editor.glade:436
+msgid "Edit"
+msgstr "Modificar"
+
+#: bauble/plugins/garden/plant_editor.glade:512
+msgid "Plant code"
+msgstr "Codigo de planta"
+
+#: bauble/plugins/garden/plant_editor.glade:634
+msgid "Reason"
+msgstr ""
+
+#: bauble/plugins/garden/plant_editor.glade:645
+msgid "Date of Change"
+msgstr "Fecha del Cambio"
+
+#: bauble/plugins/garden/plant_editor.glade:718
+#, fuzzy
+msgid "<b>Current change</b>"
+msgstr "<b>Proveniencia</b>"
+
+#: bauble/plugins/garden/plant_editor.glade:824
+#, fuzzy
+msgid "<b>Change history</b>"
+msgstr "<b>Cantidad:</b>"
+
+#: bauble/plugins/garden/plant_editor.glade:939
+#, fuzzy
+msgid "Pictures"
+msgstr "Carpeta base para las fotos"
+
+#: bauble/plugins/garden/prop_editor.glade:8
+msgid "Propagation Editor"
+msgstr "Editor de propagación"
+
+#: bauble/plugins/garden/prop_editor.glade:38
+msgid "Progagation Type"
+msgstr "Tipo de Propagación"
+
+#: bauble/plugins/garden/prop_editor.glade:206
+msgid "Cutting length"
+msgstr "Longitud de corte"
+
+#: bauble/plugins/garden/prop_editor.glade:257
+msgid "Leaves"
+msgstr "Hojas"
+
+#: bauble/plugins/garden/prop_editor.glade:283
+msgid "Leaves reduced by"
+msgstr "Hojas reducida por"
+
+#: bauble/plugins/garden/prop_editor.glade:313
+#: bauble/plugins/garden/prop_editor.glade:921
+#, fuzzy
+msgid "%"
+msgstr "%s"
+
+#: bauble/plugins/garden/prop_editor.glade:335
+msgid "Cutting type"
+msgstr "Tipo de corte"
+
+#: bauble/plugins/garden/prop_editor.glade:358
+msgid "Tip"
+msgstr "Punta"
+
+#: bauble/plugins/garden/prop_editor.glade:370
+msgid "Flower buds"
+msgstr ""
+
+#: bauble/plugins/garden/prop_editor.glade:384
+msgid "Wounded"
+msgstr "Herido"
+
+#: bauble/plugins/garden/prop_editor.glade:440
+msgid "<b>Cutting treatment</b>"
+msgstr "<b>Tratamiento de corte </b>"
+
+#: bauble/plugins/garden/prop_editor.glade:475
+msgid "Media/Compost"
+msgstr ""
+
+#: bauble/plugins/garden/prop_editor.glade:513
+#: bauble/plugins/garden/prop_editor.glade:984
+msgid "Container"
+msgstr "Contenedor"
+
+#: bauble/plugins/garden/prop_editor.glade:573
+msgid "Bottom heat"
+msgstr ""
+
+#: bauble/plugins/garden/prop_editor.glade:619
+msgid "Cover"
+msgstr "Carátula"
+
+#: bauble/plugins/garden/prop_editor.glade:660
+msgid "<b>Rooting conditions</b>"
+msgstr "<b> Condiciones de enraizamiento </b>"
+
+#: bauble/plugins/garden/prop_editor.glade:692
+msgid "Fungal"
+msgstr "Hongos"
+
+#: bauble/plugins/garden/prop_editor.glade:704
+msgid "Hormone"
+msgstr "Hormona"
+
+#: bauble/plugins/garden/prop_editor.glade:743
+msgid "<b>Chemical treatment</b>"
+msgstr "<b> Tratamiento químico </b>"
+
+#: bauble/plugins/garden/prop_editor.glade:779
+msgid "Dates"
+msgstr "Fechas"
+
+#: bauble/plugins/garden/prop_editor.glade:894
+msgid "Percent rooted"
+msgstr "Porcentage de enraizamiento"
+
+#: bauble/plugins/garden/prop_editor.glade:944
+msgid "<b>Rooted plants</b>"
+msgstr "<b> Plantas enraizadas </b>"
+
+#: bauble/plugins/garden/prop_editor.glade:1008
+msgid "Germination media"
+msgstr "Medio de germinación"
+
+#: bauble/plugins/garden/prop_editor.glade:1095
+msgid "Pretreatment"
+msgstr "Pretratamiento"
+
+#: bauble/plugins/garden/prop_editor.glade:1152
+msgid "# of seeds"
+msgstr "N.º de semillas"
+
+#: bauble/plugins/garden/prop_editor.glade:1164
+#: bauble/plugins/garden/prop_editor.glade:1200
+#: bauble/plugins/garden/acc_editor.glade:1517
+msgid "*\t"
+msgstr "*\t"
+
+#: bauble/plugins/garden/prop_editor.glade:1188
+msgid "Date sown"
+msgstr "Fecha de siembra"
+
+#: bauble/plugins/garden/prop_editor.glade:1223
+msgid "<b>Sowing data</b>"
+msgstr "<b> Datos de siembra </b>"
+
+#: bauble/plugins/garden/prop_editor.glade:1253
+msgid "Date Germinated"
+msgstr "Fecha de germinación"
+
+#: bauble/plugins/garden/prop_editor.glade:1343
+msgid "# Germinated"
+msgstr "# Germinadas"
+
+#: bauble/plugins/garden/prop_editor.glade:1356
+msgid "Date planted"
+msgstr "Fecha plantado"
+
+#: bauble/plugins/garden/prop_editor.glade:1393
+msgid "% Germinated"
+msgstr "% Germinadas"
+
+#: bauble/plugins/garden/prop_editor.glade:1436
+msgid "<b>Germination data</b>"
+msgstr "<b> Datos de germinación </b>"
+
+#: bauble/plugins/garden/prop_editor.glade:1451
+msgid "Moved from"
+msgstr "Movido desde"
+
+#: bauble/plugins/garden/prop_editor.glade:1475
+msgid "to"
+msgstr "a"
+
+#: bauble/plugins/garden/prop_editor.glade:1538
+#: bauble/plugins/garden/acc_infobox.glade:914
+msgid "<b>Notes</b>"
+msgstr "<b>Notas</b>"
+
+#: bauble/plugins/garden/loc_editor.glade:55
+#: bauble/plugins/garden/acc_editor.glade:54
+msgid "Add plants"
+msgstr "Añadir plantas"
+
+#: bauble/plugins/garden/loc_editor.glade:105
+#: bauble/plugins/plants/genus_editor.glade:403
+#: bauble/plugins/plants/species_editor.glade:945
+#: bauble/plugins/plants/family_editor.glade:343
+msgid "Next"
+msgstr "Siguiente"
+
+#: bauble/plugins/garden/loc_editor.glade:228
+msgid "Code"
+msgstr "Código"
+
+#: bauble/plugins/garden/loc_editor.glade:290
+msgid "Merge into:"
+msgstr ""
+
+#: bauble/plugins/garden/loc_editor.glade:348
+#, fuzzy
+msgid "<b>danger zone</b>"
+msgstr "<b>Taxón</b>"
+
+#: bauble/plugins/garden/institution.glade:8
+msgid "Institution Editor"
+msgstr "Editor de intrucciones"
+
+#: bauble/plugins/garden/institution.glade:34
+msgid "Institution Name"
+msgstr "Nombre de la institución"
+
+#: bauble/plugins/garden/institution.glade:60
+msgid "Abbreviation"
+msgstr "Abreviación"
+
+#: bauble/plugins/garden/institution.glade:90
+msgid "Institutional code"
+msgstr "Código institucional"
+
+#: bauble/plugins/garden/institution.glade:120
+msgid "Contact name"
+msgstr "Nombre del contacto"
+
+#: bauble/plugins/garden/institution.glade:150
+msgid "Technical contact"
+msgstr "Contacto técnico"
+
+#: bauble/plugins/garden/institution.glade:197
+msgid "brett@belizebotanic.org"
+msgstr "brett@belizebotanic.org"
+
+#: bauble/plugins/garden/institution.glade:224
+msgid "Telephone"
+msgstr "Teléfono"
+
+#: bauble/plugins/garden/institution.glade:237
+msgid "Fax"
+msgstr "Fax"
+
+#: bauble/plugins/garden/institution.glade:282
+msgid "Address"
+msgstr "Dirección"
+
+#: bauble/plugins/garden/plant_infobox.glade:6
+msgid "general_window"
+msgstr "general_window"
+
+#: bauble/plugins/garden/plant_infobox.glade:133
+msgid "<b>Accession Type:</b>"
+msgstr "<b>Tipo de adquisición:</b>"
+
+#: bauble/plugins/garden/plant_infobox.glade:147
+msgid "<b>Accession Status:</b>"
+msgstr "<b>Estado de adquisición:</b>"
+
+#: bauble/plugins/garden/plant_infobox.glade:162
+#: bauble/plugins/garden/acc_infobox.glade:759
+msgid "<b>Location:</b>"
+msgstr "<b>Ubicación:</b>"
+
+#: bauble/plugins/garden/plant_infobox.glade:193
+msgid "<b>Memorial:</b>"
+msgstr "<b>Patrimonial:</b>"
+
+#: bauble/plugins/garden/plant_infobox.glade:219
+msgid "<b>Quantity:</b>"
+msgstr "<b>Cantidad:</b>"
+
+#: bauble/plugins/garden/plant_infobox.glade:263
+#, fuzzy
+msgid "window1"
+msgstr "genus_window"
+
+#: bauble/plugins/garden/acc_infobox.glade:24
+msgid "<i>--</i>"
+msgstr "<i>--</i>"
+
+#: bauble/plugins/garden/acc_infobox.glade:87
+msgid "<b>Plant Groups:</b>"
+msgstr "<b>Grupos de Plantas:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:121
+msgid "<b>Provenance:</b>"
+msgstr "<b>Proveniencia:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:150
+msgid "<b>Date accessioned:</b>"
+msgstr "<b>Data de accesión</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:164
+msgid "<b>Date received:</b>"
+msgstr "<b>Fecha recibida:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:208
+msgid "<b>Quantity received:</b>"
+msgstr "<b>Cantidad recibida</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:222
+msgid "<b>Type of material:</b>"
+msgstr "<b>Tipo de material:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:278
+msgid "<b>Private:</b>"
+msgstr "<b>Privado:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:335
+#, fuzzy
+msgid "<b>Intended Location 2:</b>"
+msgstr "<b>Ubicación Prevista:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:364
+msgid "<b>Intended Location:</b>"
+msgstr "<b>Ubicación Prevista:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:379
+msgid "<b>Living Plants:</b>"
+msgstr "<b> plantas vivas: </b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:461
+msgid "<b>Name:</b>"
+msgstr "<b>Nombre</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:473
+msgid "<b>Source's ID:</b>"
+msgstr "<b>Fuente de identificación:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:515
+msgid "<b>Parent Plant:</b>"
+msgstr "<b>Planta madre:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:550
+msgid "<b>Propagation:</b>"
+msgstr "<b>Propagagación:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:630
+msgid "<b>GPS Datum</b>"
+msgstr "<b>Dato GPS</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:659
+msgid "<b>Elevation:</b>"
+msgstr "<b>Elevación:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:688
+msgid "<b>Collector:</b>"
+msgstr "<b>Colector:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:717
+msgid "<b>Date collected:</b>"
+msgstr "<b>Fecha coleccionada:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:745
+msgid "<b>Collection ID:</b>"
+msgstr "<b>ID de Colección:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:771
+msgid "<b>Latitude:</b>"
+msgstr "<b>Latitud:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:785
+msgid "<b>Longitude:</b>"
+msgstr "<b>Longitud:</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:874
+msgid "<b>Habitat</b>"
+msgstr "<b>Hábitat</b>"
+
+#: bauble/plugins/garden/acc_infobox.glade:931
+#: bauble/plugins/garden/acc_editor.glade:2063
+msgid "<b>Collection</b>"
+msgstr "<b>Colección</b>"
+
+#: bauble/plugins/garden/source_detail_infobox.glade:59
+#: bauble/plugins/plants/infoboxes.glade:57
+#: bauble/plugins/plants/infoboxes.glade:332
+#: bauble/plugins/plants/infoboxes.glade:603
+msgid "<b># of Accessions:</b>"
+msgstr "<b>N.º de adquisiciones:</b>"
+
+#: bauble/plugins/garden/source_detail_infobox.glade:72
+msgid "<b>Type:</b>"
+msgstr "<b>Tipo:</b>"
+
+#: bauble/plugins/garden/source_detail_infobox.glade:87
+msgid "<b>Description:</b>"
+msgstr "<b>Descripción:</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:200
+msgid "ID Qualifier"
+msgstr "Calificador de ID"
+
+#: bauble/plugins/garden/acc_editor.glade:279
+#, fuzzy
+msgid "Qualifier Rank"
+msgstr "Calificador"
+
+#: bauble/plugins/garden/acc_editor.glade:312
+msgid "<b>Taxon</b>"
+msgstr "<b>Taxón</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:352
+msgid "Type of material"
+msgstr "Tipo del material"
+
+#: bauble/plugins/garden/acc_editor.glade:452
+msgid "Accession ID"
+msgstr "ID de la accessión"
+
+#: bauble/plugins/garden/acc_editor.glade:505
+msgid "Date Accessioned"
+msgstr "Fecha de accesión"
+
+#: bauble/plugins/garden/acc_editor.glade:518
+msgid "Date Received"
+msgstr "Fecha de recepción"
+
+#: bauble/plugins/garden/acc_editor.glade:629
+msgid "<b>Accession</b>"
+msgstr "<b>Accesión</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:666
+msgid "Location 1"
+msgstr "Ubicación 1"
+
+#: bauble/plugins/garden/acc_editor.glade:763
+msgid "Location 2"
+msgstr "Ubicación 2"
+
+#: bauble/plugins/garden/acc_editor.glade:859
+msgid "<b>Intended Locations</b>"
+msgstr "<b>Ubicaciones Previstas</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:893
+msgid "Private"
+msgstr "Privado"
+
+#: bauble/plugins/garden/acc_editor.glade:925
+msgid "<b>Flags</b>"
+msgstr "<b>Indicadores</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:960
+msgid "Provenance"
+msgstr "Procedencia"
+
+#: bauble/plugins/garden/acc_editor.glade:972
+#, fuzzy
+msgid "Wild status"
+msgstr "Salvaje nativo"
+
+#: bauble/plugins/garden/acc_editor.glade:1029
+msgid "<b>Provenance</b>"
+msgstr "<b>Proveniencia</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:1142
+#, fuzzy
+msgid "Select a source"
+msgstr "Seleccione un directorio"
+
+#: bauble/plugins/garden/acc_editor.glade:1176
+#, fuzzy
+msgid "Source's code"
+msgstr "Origen"
+
+#: bauble/plugins/garden/acc_editor.glade:1450
+msgid "Collector"
+msgstr "Colector"
+
+#: bauble/plugins/garden/acc_editor.glade:1466
+#, fuzzy
+msgid "Collection ID"
+msgstr "Colecta"
+
+#: bauble/plugins/garden/acc_editor.glade:1483
+msgid "Collection Notes"
+msgstr "Notas de la colección"
+
+#: bauble/plugins/garden/acc_editor.glade:1504
+msgid "Locale"
+msgstr ""
+
+#: bauble/plugins/garden/acc_editor.glade:1533
+msgid "Select a Region"
+msgstr "Seleccione una Región"
+
+#: bauble/plugins/garden/acc_editor.glade:1557
+msgid "Region"
+msgstr "Región"
+
+#: bauble/plugins/garden/acc_editor.glade:1698
+#: bauble/plugins/garden/acc_editor.glade:1875
+msgid "+/-"
+msgstr "+/-"
+
+#: bauble/plugins/garden/acc_editor.glade:1728
+#: bauble/plugins/garden/acc_editor.glade:1905
+msgid "m"
+msgstr "m"
+
+#: bauble/plugins/garden/acc_editor.glade:1750
+msgid "GPS Datum"
+msgstr "Fecha GPS"
+
+#: bauble/plugins/garden/acc_editor.glade:1766
+msgid "Altitude/Depth"
+msgstr "Altura/Profundidad"
+
+#: bauble/plugins/garden/acc_editor.glade:1784
+msgid "Habitat description"
+msgstr "Descripción del hábitat"
+
+#: bauble/plugins/garden/acc_editor.glade:1848
+msgid "Latitude"
+msgstr "Latitud"
+
+#: bauble/plugins/garden/acc_editor.glade:1858
+msgid "Longitude"
+msgstr "Longitud"
+
+#: bauble/plugins/garden/acc_editor.glade:1926
+msgid "Accuracy"
+msgstr ""
+
+#: bauble/plugins/garden/acc_editor.glade:1937
+msgid "South"
+msgstr "Sur"
+
+#: bauble/plugins/garden/acc_editor.glade:1954
+msgid "North"
+msgstr "Norte"
+
+#: bauble/plugins/garden/acc_editor.glade:1972
+msgid "West"
+msgstr "Oeste"
+
+#: bauble/plugins/garden/acc_editor.glade:1992
+msgid "East"
+msgstr "Este"
+
+#: bauble/plugins/garden/acc_editor.glade:2044
+msgid "<b>Location Details</b>"
+msgstr "<b>Detalles de ubicación</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:2157
+#, fuzzy
+msgid "<b>Propagation of Source Material</b>"
+msgstr "<b>Propagagación:</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:2453
+#, fuzzy
+msgid "<b>Voucher of Accession</b>"
+msgstr "<b>N.º de adquisiciones:</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:2585
+#, fuzzy
+msgid "<b>Voucher of parent material</b>"
+msgstr "<b>Tipo de material:</b>"
+
+#: bauble/plugins/garden/acc_editor.glade:2728
+#, fuzzy
+msgid "Source Details"
+msgstr "Mostrar detalles"
+
+#: bauble/plugins/garden/acc_editor.glade:2826
+msgid "Type"
+msgstr "Tipo"
+
+#: bauble/plugins/garden/acc_editor.glade:2874
+msgid "Name "
+msgstr "Nombre"
+
+#: bauble/plugins/garden/acc_editor.glade:3088
+msgid "Verifier"
+msgstr ""
+
+#: bauble/plugins/garden/acc_editor.glade:3124
+msgid "New taxon"
+msgstr "Nuevo taxón"
+
+#: bauble/plugins/garden/acc_editor.glade:3162
+msgid "Previous taxon"
+msgstr "Taxón anterior"
+
+#: bauble/plugins/garden/acc_editor.glade:3201
+msgid "Level"
+msgstr "Nivel"
+
+#: bauble/plugins/garden/acc_editor.glade:3237
+msgid "Reference"
+msgstr "Referencia"
+
+#: bauble/plugins/imex/select_export.glade:8
+#, fuzzy
+msgid "Export To JSON"
+msgstr "Exportar"
+
+#: bauble/plugins/imex/select_export.glade:82
+#, fuzzy
+msgid "selection"
+msgstr "Colecta"
+
+#: bauble/plugins/imex/select_export.glade:98
+msgid "taxa"
+msgstr ""
+
+#: bauble/plugins/imex/select_export.glade:115
+#, fuzzy
+msgid "accessions"
+msgstr "Adquisición"
+
+#: bauble/plugins/imex/select_export.glade:132
+#, fuzzy
+msgid "plants"
+msgstr "Añadir plantas"
+
+#: bauble/plugins/imex/select_export.glade:166
+msgid "export based on:"
+msgstr ""
+
+#: bauble/plugins/imex/select_export.glade:201
+msgid "all referred to objects"
+msgstr ""
+
+#: bauble/plugins/imex/select_export.glade:217
+msgid "also objects referring to selection"
+msgstr ""
+
+#: bauble/plugins/imex/select_export.glade:250
+msgid "export includes:"
+msgstr ""
+
+#: bauble/plugins/imex/select_export.glade:298
+msgid "..."
+msgstr ""
+
+#: bauble/plugins/imex/select_export.glade:318
+msgid "output:"
+msgstr ""
+
+#: bauble/plugins/plants/genus_editor.glade:6
+msgid "Genus Editor"
+msgstr "Editor de género"
+
+#: bauble/plugins/plants/genus_editor.glade:78
+#: bauble/plugins/plants/species_editor.glade:179
+#: bauble/plugins/plants/species_editor.glade:300
+msgid "Author"
+msgstr "Autor/a"
+
+#: bauble/plugins/plants/genus_editor.glade:270
+#: bauble/plugins/plants/species_editor.glade:804
+#: bauble/plugins/plants/family_editor.glade:216
+msgid "<b>Synonyms</b>"
+msgstr "<b>Sinonimos</b>"
+
+#: bauble/plugins/plants/genus_editor.glade:359
+msgid "Add Species"
+msgstr "Añadir especies"
+
+#: bauble/plugins/plants/infoboxes.glade:7
+msgid "family_window"
+msgstr "family_window"
+
+#: bauble/plugins/plants/infoboxes.glade:42
+msgid "<b># of Plants</b>"
+msgstr "<b>N.º de plantas</b>"
+
+#: bauble/plugins/plants/infoboxes.glade:72
+#: bauble/plugins/plants/infoboxes.glade:304
+msgid "<b># of Taxa:</b>"
+msgstr "<b>N.º de taxones:</b>"
+
+#: bauble/plugins/plants/infoboxes.glade:87
+msgid "<b># of Genera:</b>"
+msgstr "<b>N.º de géneros:</b>"
+
+#: bauble/plugins/plants/infoboxes.glade:237
+msgid "genus_window"
+msgstr "genus_window"
+
+#: bauble/plugins/plants/infoboxes.glade:459
+msgid "species_window"
+msgstr "species_window"
+
+#: bauble/plugins/plants/infoboxes.glade:616
+#, fuzzy
+msgid "<b>CITES:</b>"
+msgstr "<b>ID:</b>"
+
+#: bauble/plugins/plants/infoboxes.glade:631
+msgid "<b>Awards:</b>"
+msgstr "<b>Premios:</b>"
+
+#: bauble/plugins/plants/infoboxes.glade:646
+msgid "<b>Habit:</b>"
+msgstr "<b>Hábito:</b>"
+
+#: bauble/plugins/plants/infoboxes.glade:693
+msgid "<b>Distribution:</b>"
+msgstr "<b>Distribución:</b>"
+
+#: bauble/plugins/plants/infoboxes.glade:727
+msgid "<b>Distribution for label:</b>"
+msgstr "<b> Distribución de la etiqueta: </b>"
+
+#: bauble/plugins/plants/species_editor.glade:6
+msgid "Plant Species Editor"
+msgstr "Editor de especies de plantas"
+
+#: bauble/plugins/plants/species_editor.glade:78
+msgid "Hybrid"
+msgstr "Híbrido"
+
+#: bauble/plugins/plants/species_editor.glade:202
+msgid "Cultivar Group"
+msgstr "Cultivar Grupo"
+
+#: bauble/plugins/plants/species_editor.glade:284
+msgid "Rank"
+msgstr "Rango"
+
+#: bauble/plugins/plants/species_editor.glade:290
+msgid "Epithet"
+msgstr "Epíteto"
+
+#: bauble/plugins/plants/species_editor.glade:348
+msgid "<b>Infraspecific parts</b>"
+msgstr "<b>Partes infraespecíficas</b>"
+
+#: bauble/plugins/plants/species_editor.glade:363
+msgid "Species name"
+msgstr "Nombre de la especie"
+
+#: bauble/plugins/plants/species_editor.glade:415
+msgid "<b>Distribution</b>"
+msgstr "<b>Distribución</b>"
+
+#: bauble/plugins/plants/species_editor.glade:475
+msgid "Label distribution"
+msgstr "Distribución de etiquetas"
+
+#: bauble/plugins/plants/species_editor.glade:496
+msgid "Habit"
+msgstr "Hábito"
+
+#: bauble/plugins/plants/species_editor.glade:519
+msgid "Awards"
+msgstr "Premios"
+
+#: bauble/plugins/plants/species_editor.glade:633
+msgid "<b>Vernacular Names</b>"
+msgstr "<b> vernáculo </b>"
+
+#: bauble/plugins/plants/species_editor.glade:826
+msgid "Additional info"
+msgstr "Información adicional"
+
+#: bauble/plugins/plants/species_editor.glade:901
+msgid "Add Accessions"
+msgstr "Añadir adhesiones"
+
+#: bauble/plugins/plants/family_editor.glade:6
+msgid "Family Editor"
+msgstr "Editor de familia"
+
+#: bauble/plugins/plants/family_editor.glade:33
+msgid "Qualifier"
+msgstr "Calificador"
+
+#: bauble/plugins/plants/family_editor.glade:299
+msgid "Add Genera"
+msgstr "Añadir Genera"
+
 #~ msgid "Error: using sequences hasn't been tested on this database type: %s"
 #~ msgstr ""
 #~ "Error: esta usando secuencias que no han sido testeadas en este tipo de "
@@ -2521,549 +3565,6 @@ msgstr "Buscar Planta del Sistema Nacional de Germoplasma"
 #~ "Presione Aceptar para continuar\n"
 #~ "\n"
 #~ "%s"
-
-#~ msgid "Category"
-#~ msgstr "Categoría"
-
-#~ msgid "Date"
-#~ msgstr "Fecha"
-
-#~ msgid "*"
-#~ msgstr "*"
-
-#~ msgid "<b>Synonyms</b>"
-#~ msgstr "<b>Sinonimos</b>"
-
-#~ msgid "Add Genera"
-#~ msgstr "Añadir Genera"
-
-#~ msgid "Family Editor"
-#~ msgstr "Editor de familia"
-
-#~ msgid "Next"
-#~ msgstr "Siguiente"
-
-#~ msgid "Notes"
-#~ msgstr "Notas"
-
-#~ msgid "Qualifier"
-#~ msgstr "Calificador"
-
-#~ msgid "--"
-#~ msgstr "--"
-
-#~ msgid "<b>Distribution</b>"
-#~ msgstr "<b>Distribución</b>"
-
-#~ msgid "<b>Infraspecific parts</b>"
-#~ msgstr "<b>Partes infraespecíficas</b>"
-
-#~ msgid "<b>Vernacular Names</b>"
-#~ msgstr "<b> vernáculo </b>"
-
-#~ msgid "Add Accessions"
-#~ msgstr "Añadir adhesiones"
-
-#~ msgid "Additional info"
-#~ msgstr "Información adicional"
-
-#~ msgid "Author"
-#~ msgstr "Autor/a"
-
-#~ msgid "Awards"
-#~ msgstr "Premios"
-
-#~ msgid "Cultivar Group"
-#~ msgstr "Cultivar Grupo"
-
-#~ msgid "Epithet"
-#~ msgstr "Epíteto"
-
-#~ msgid "Habit"
-#~ msgstr "Hábito"
-
-#~ msgid "Hybrid"
-#~ msgstr "Híbrido"
-
-#~ msgid "Label distribution"
-#~ msgstr "Distribución de etiquetas"
-
-#~ msgid "Plant Species Editor"
-#~ msgstr "Editor de especies de plantas"
-
-#~ msgid "Rank"
-#~ msgstr "Rango"
-
-#~ msgid "Species name"
-#~ msgstr "Nombre de la especie"
-
-#~ msgid "Add Species"
-#~ msgstr "Añadir especies"
-
-#~ msgid "Genus Editor"
-#~ msgstr "Editor de género"
-
-#~ msgid "<b># of Accessions:</b>"
-#~ msgstr "<b>N.º de adquisiciones:</b>"
-
-#~ msgid "<b># of Genera:</b>"
-#~ msgstr "<b>N.º de géneros:</b>"
-
-#~ msgid "<b># of Plants:</b>"
-#~ msgstr "<b>N.º de plantas:</b>"
-
-#~ msgid "<b># of Plants</b>"
-#~ msgstr "<b>N.º de plantas</b>"
-
-#~ msgid "<b># of Taxa:</b>"
-#~ msgstr "<b>N.º de taxones:</b>"
-
-#~ msgid "<b>Awards:</b>"
-#~ msgstr "<b>Premios:</b>"
-
-#~ msgid "<b>Distribution for label:</b>"
-#~ msgstr "<b> Distribución de la etiqueta: </b>"
-
-#~ msgid "<b>Distribution:</b>"
-#~ msgstr "<b>Distribución:</b>"
-
-#~ msgid "<b>Habit:</b>"
-#~ msgstr "<b>Hábito:</b>"
-
-#~ msgid "family_window"
-#~ msgstr "family_window"
-
-#~ msgid "genus_window"
-#~ msgstr "genus_window"
-
-#~ msgid "species_window"
-#~ msgstr "species_window"
-
-#~ msgid "<b>Collection ID:</b>"
-#~ msgstr "<b>ID de Colección:</b>"
-
-#~ msgid "<b>Collection</b>"
-#~ msgstr "<b>Colección</b>"
-
-#~ msgid "<b>Collector:</b>"
-#~ msgstr "<b>Colector:</b>"
-
-#~ msgid "<b>Date accessioned:</b>"
-#~ msgstr "<b>Data de accesión</b>"
-
-#~ msgid "<b>Date collected:</b>"
-#~ msgstr "<b>Fecha coleccionada:</b>"
-
-#~ msgid "<b>Date received:</b>"
-#~ msgstr "<b>Fecha recibida:</b>"
-
-#~ msgid "<b>Elevation:</b>"
-#~ msgstr "<b>Elevación:</b>"
-
-#~ msgid "<b>GPS Datum</b>"
-#~ msgstr "<b>Dato GPS</b>"
-
-#~ msgid "<b>Habitat</b>"
-#~ msgstr "<b>Hábitat</b>"
-
-#~ msgid "<b>Intended Location:</b>"
-#~ msgstr "<b>Ubicación Prevista:</b>"
-
-#~ msgid "<b>Latitude:</b>"
-#~ msgstr "<b>Latitud:</b>"
-
-#~ msgid "<b>Living Plants:</b>"
-#~ msgstr "<b> plantas vivas: </b>"
-
-#~ msgid "<b>Location:</b>"
-#~ msgstr "<b>Ubicación:</b>"
-
-#~ msgid "<b>Longitude:</b>"
-#~ msgstr "<b>Longitud:</b>"
-
-#~ msgid "<b>Name:</b>"
-#~ msgstr "<b>Nombre</b>"
-
-#~ msgid "<b>Notes</b>"
-#~ msgstr "<b>Notas</b>"
-
-#~ msgid "<b>Parent Plant:</b>"
-#~ msgstr "<b>Planta madre:</b>"
-
-#~ msgid "<b>Plant Groups:</b>"
-#~ msgstr "<b>Grupos de Plantas:</b>"
-
-#~ msgid "<b>Private:</b>"
-#~ msgstr "<b>Privado:</b>"
-
-#~ msgid "<b>Propagation:</b>"
-#~ msgstr "<b>Propagagación:</b>"
-
-#~ msgid "<b>Provenance:</b>"
-#~ msgstr "<b>Proveniencia:</b>"
-
-#~ msgid "<b>Quantity received:</b>"
-#~ msgstr "<b>Cantidad recibida</b>"
-
-#~ msgid "<b>Source's ID:</b>"
-#~ msgstr "<b>Fuente de identificación:</b>"
-
-#~ msgid "<b>Type of material:</b>"
-#~ msgstr "<b>Tipo de material:</b>"
-
-#~ msgid "<i>--</i>"
-#~ msgstr "<i>--</i>"
-
-#~ msgid "Abbreviation"
-#~ msgstr "Abreviación"
-
-#~ msgid "Address"
-#~ msgstr "Dirección"
-
-#~ msgid "Contact name"
-#~ msgstr "Nombre del contacto"
-
-#~ msgid "Email"
-#~ msgstr "Correo electrónico"
-
-#~ msgid "Fax"
-#~ msgstr "Fax"
-
-#~ msgid "Institution Editor"
-#~ msgstr "Editor de intrucciones"
-
-#~ msgid "Institution Name"
-#~ msgstr "Nombre de la institución"
-
-#~ msgid "Institutional code"
-#~ msgstr "Código institucional"
-
-#~ msgid "Technical contact"
-#~ msgstr "Contacto técnico"
-
-#~ msgid "Telephone"
-#~ msgstr "Teléfono"
-
-#~ msgid "brett@belizebotanic.org"
-#~ msgstr "brett@belizebotanic.org"
-
-#~ msgid "# Germinated"
-#~ msgstr "# Germinadas"
-
-#~ msgid "# of seeds"
-#~ msgstr "N.º de semillas"
-
-#~ msgid "% Germinated"
-#~ msgstr "% Germinadas"
-
-#~ msgid "*\t"
-#~ msgstr "*\t"
-
-#~ msgid "<b>Chemical treatment</b>"
-#~ msgstr "<b> Tratamiento químico </b>"
-
-#~ msgid "<b>Cutting treatment</b>"
-#~ msgstr "<b>Tratamiento de corte </b>"
-
-#~ msgid "<b>Germination data</b>"
-#~ msgstr "<b> Datos de germinación </b>"
-
-#~ msgid "<b>Rooted plants</b>"
-#~ msgstr "<b> Plantas enraizadas </b>"
-
-#~ msgid "<b>Rooting conditions</b>"
-#~ msgstr "<b> Condiciones de enraizamiento </b>"
-
-#~ msgid "<b>Sowing data</b>"
-#~ msgstr "<b> Datos de siembra </b>"
-
-#~ msgid "Container"
-#~ msgstr "Contenedor"
-
-#~ msgid "Cover"
-#~ msgstr "Carátula"
-
-#~ msgid "Cutting length"
-#~ msgstr "Longitud de corte"
-
-#~ msgid "Cutting type"
-#~ msgstr "Tipo de corte"
-
-#~ msgid "Date Germinated"
-#~ msgstr "Fecha de germinación"
-
-#~ msgid "Date planted"
-#~ msgstr "Fecha plantado"
-
-#~ msgid "Date sown"
-#~ msgstr "Fecha de siembra"
-
-#~ msgid "Dates"
-#~ msgstr "Fechas"
-
-#~ msgid "Fungal"
-#~ msgstr "Hongos"
-
-#~ msgid "Germination media"
-#~ msgstr "Medio de germinación"
-
-#~ msgid "Hormone"
-#~ msgstr "Hormona"
-
-#~ msgid "Leaves"
-#~ msgstr "Hojas"
-
-#~ msgid "Leaves reduced by"
-#~ msgstr "Hojas reducida por"
-
-#~ msgid "Moved from"
-#~ msgstr "Movido desde"
-
-#~ msgid "Percent rooted"
-#~ msgstr "Porcentage de enraizamiento"
-
-#~ msgid "Pretreatment"
-#~ msgstr "Pretratamiento"
-
-#~ msgid "Progagation Type"
-#~ msgstr "Tipo de Propagación"
-
-#~ msgid "Propagation Editor"
-#~ msgstr "Editor de propagación"
-
-#~ msgid "Tip"
-#~ msgstr "Punta"
-
-#~ msgid "Wounded"
-#~ msgstr "Herido"
-
-#~ msgid "to"
-#~ msgstr "a"
-
-#~ msgid "Add plants"
-#~ msgstr "Añadir plantas"
-
-#~ msgid "Code"
-#~ msgstr "Código"
-
-#~ msgid "<b>Accession Status:</b>"
-#~ msgstr "<b>Estado de adquisición:</b>"
-
-#~ msgid "<b>Accession Type:</b>"
-#~ msgstr "<b>Tipo de adquisición:</b>"
-
-#~ msgid "<b>Memorial:</b>"
-#~ msgstr "<b>Patrimonial:</b>"
-
-#~ msgid "<b>Quantity:</b>"
-#~ msgstr "<b>Cantidad:</b>"
-
-#~ msgid "general_window"
-#~ msgstr "general_window"
-
-#~ msgid "+/-"
-#~ msgstr "+/-"
-
-#~ msgid "<b>Accession</b>"
-#~ msgstr "<b>Accesión</b>"
-
-#~ msgid "<b>Flags</b>"
-#~ msgstr "<b>Indicadores</b>"
-
-#~ msgid "<b>Intended Locations</b>"
-#~ msgstr "<b>Ubicaciones Previstas</b>"
-
-#~ msgid "<b>Location Details</b>"
-#~ msgstr "<b>Detalles de ubicación</b>"
-
-#~ msgid "<b>Provenance</b>"
-#~ msgstr "<b>Proveniencia</b>"
-
-#~ msgid "<b>Taxon</b>"
-#~ msgstr "<b>Taxón</b>"
-
-#~ msgid "Accession ID"
-#~ msgstr "ID de la accessión"
-
-#~ msgid "Altitude/Depth"
-#~ msgstr "Altura/Profundidad"
-
-#~ msgid "Collection Notes"
-#~ msgstr "Notas de la colección"
-
-#~ msgid "Collector"
-#~ msgstr "Colector"
-
-#~ msgid "Date Accessioned"
-#~ msgstr "Fecha de accesión"
-
-#~ msgid "Date Received"
-#~ msgstr "Fecha de recepción"
-
-#~ msgid "East"
-#~ msgstr "Este"
-
-#~ msgid "GPS Datum"
-#~ msgstr "Fecha GPS"
-
-#~ msgid "Habitat description"
-#~ msgstr "Descripción del hábitat"
-
-#~ msgid "ID Qualifier"
-#~ msgstr "Calificador de ID"
-
-#~ msgid "Latitude"
-#~ msgstr "Latitud"
-
-#~ msgid "Level"
-#~ msgstr "Nivel"
-
-#~ msgid "Location 1"
-#~ msgstr "Ubicación 1"
-
-#~ msgid "Location 2"
-#~ msgstr "Ubicación 2"
-
-#~ msgid "Longitude"
-#~ msgstr "Longitud"
-
-#~ msgid "Name "
-#~ msgstr "Nombre"
-
-#~ msgid "New taxon"
-#~ msgstr "Nuevo taxón"
-
-#~ msgid "North"
-#~ msgstr "Norte"
-
-#~ msgid "Previous taxon"
-#~ msgstr "Taxón anterior"
-
-#~ msgid "Private"
-#~ msgstr "Privado"
-
-#~ msgid "Provenance"
-#~ msgstr "Procedencia"
-
-#~ msgid "Quantity"
-#~ msgstr "Cantidad"
-
-#~ msgid "Reference"
-#~ msgstr "Referencia"
-
-#~ msgid "Region"
-#~ msgstr "Región"
-
-#~ msgid "Select a Region"
-#~ msgstr "Seleccione una Región"
-
-#~ msgid "South"
-#~ msgstr "Sur"
-
-#~ msgid "Type"
-#~ msgstr "Tipo"
-
-#~ msgid "Type of material"
-#~ msgstr "Tipo del material"
-
-#~ msgid "West"
-#~ msgstr "Oeste"
-
-#~ msgid "m"
-#~ msgstr "m"
-
-#~ msgid "<b>Description:</b>"
-#~ msgstr "<b>Descripción:</b>"
-
-#~ msgid "<b>Type:</b>"
-#~ msgstr "<b>Tipo:</b>"
-
-#~ msgid "Accession type"
-#~ msgstr "Tipo de accesión"
-
-#~ msgid "Add"
-#~ msgstr "Añadir"
-
-#~ msgid "Date of Change"
-#~ msgstr "Fecha del Cambio"
-
-#~ msgid "Edit"
-#~ msgstr "Modificar"
-
-#~ msgid "Memorial"
-#~ msgstr "Patrimonial"
-
-#~ msgid "Plant code"
-#~ msgstr "Codigo de planta"
-
-#~ msgid "<b>Confirm new password</b>"
-#~ msgstr "<b>Confirma la nueva constraseña</b>"
-
-#~ msgid "<b>New password</b>"
-#~ msgstr "<b>Nueva contraseña</b>"
-
-#~ msgid "<b>Permissions</b>"
-#~ msgstr "<b>Permisos</b>"
-
-#~ msgid "<b>Users</b>"
-#~ msgstr "<b>Usuarios</b>"
-
-#~ msgid "Administrator"
-#~ msgstr "Administrador"
-
-#~ msgid "Change Password"
-#~ msgstr "Cambia la contraseña"
-
-#~ msgid "Groups"
-#~ msgstr "Grupos"
-
-#~ msgid "Show only Bauble users"
-#~ msgstr "Mostrar solo usuarios Bauble"
-
-#~ msgid "Write"
-#~ msgstr "Escribir"
-
-#~ msgid "<b>Include data marked as private</b>"
-#~ msgstr "<b>Incluir datos marcados como privados</b>"
-
-#~ msgid "<b>Template</b>"
-#~ msgstr "<b>Plantilla</b>"
-
-#~ msgid "<b>Formatter</b>"
-#~ msgstr "<b>Formateador</b>"
-
-#~ msgid "<b>Settings</b>"
-#~ msgstr "<b>Ajustes</b>"
-
-#~ msgid "<b>Renderer</b>"
-#~ msgstr "<b>Motor de renderizado</b>"
-
-#~ msgid "<b>Source type</b>"
-#~ msgstr "<b>Tipo de fuente</b>"
-
-#~ msgid "<b>Stylesheet</b>"
-#~ msgstr "<b>Hoja de estilo</b>"
-
-#~ msgid "<b>Use author names</b>"
-#~ msgstr "<b>Usar nombres de autores</b>"
-
-#~ msgid "<b>Item(s)</b>"
-#~ msgstr "<b>Elementos</b>"
-
-#~ msgid "<b>Tags</b>"
-#~ msgstr "<b>Etiquetas</b>"
-
-#~ msgid "New Tag"
-#~ msgstr "Etiqueta nueva"
-
-#~ msgid "Album"
-#~ msgstr "Album"
-
-#~ msgid "Bauble - Picasa Settings"
-#~ msgstr "Configuración Bauble-Picasa"
-
-#~ msgid "Password"
-#~ msgstr "Contraseña"
 
 #~ msgid ""
 #~ "Could not get path for user settings: no APPDATA or USERPROFILE variable"
@@ -3082,12 +3583,6 @@ msgstr "Buscar Planta del Sistema Nacional de Germoplasma"
 #~ msgstr ""
 #~ "No se pudo obtener la ruta de acceso para configuración del usuario: la "
 #~ "plataforma no está soportada"
-
-#~ msgid "Connection Details"
-#~ msgstr "Detalles de la conexión"
-
-#~ msgid "<b>ID:</b>"
-#~ msgstr "<b>ID:</b>"
 
 #~ msgid "Copyright © Belize Botanic Gardens"
 #~ msgstr "Copyright © Belize Botanic Gardens"
