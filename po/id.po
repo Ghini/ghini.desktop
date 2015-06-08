@@ -562,6 +562,9 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
+"Bauble tidak dapat menyimpan preferensi anda.\n"
+"Tolong perika perizinan di berkas konfigurasi anda:\n"
+"…%s"
 
 #: bauble/prefs.py:270
 msgid "<b>Preferences</b>"
@@ -584,7 +587,7 @@ msgstr "Nama"
 
 #: bauble/prefs.py:320
 msgid "Version"
-msgstr "Cari"
+msgstr "Versi"
 
 #: bauble/plugins/picasa/__init__.py:265
 #, python-format
