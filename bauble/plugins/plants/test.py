@@ -144,7 +144,7 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
 
 species_note_test_data = (
     {'id': 1, 'species_id': 18, 'category': u'CITES', 'note': u'I'},
-    {'id': 2, 'species_id': 20, 'category': u'conservation', 'note': u'LC'},
+    {'id': 2, 'species_id': 20, 'category': u'IUCN', 'note': u'LC'},
     )
 
 species_str_map = {
@@ -1084,7 +1084,7 @@ class SpeciesProperties_test(PlantTestCase):
         # do not create if not existing
         obj = SpeciesNote.retrieve_or_create(
             self.session, {'object': u'species_note',
-                           'category': u'conservation',
+                           'category': u'IUCN',
                            'species': u'Laelia grandiflora'},
             create=False)
         self.assertEquals(obj, None)
@@ -1093,7 +1093,7 @@ class SpeciesProperties_test(PlantTestCase):
         ## retrieve same object, we only give the keys
         obj = SpeciesNote.retrieve_or_create(
             self.session, {'object': u'species_note',
-                           'category': u'conservation',
+                           'category': u'IUCN',
                            'species': u'Encyclia fragrans'},
             create=False, update=False)
         self.assertTrue(obj is not None)
@@ -1103,7 +1103,7 @@ class SpeciesProperties_test(PlantTestCase):
         ## do not update object with new data
         obj = SpeciesNote.retrieve_or_create(
             self.session, {'object': u'species_note',
-                           'category': u'conservation',
+                           'category': u'IUCN',
                            'species': u'Encyclia fragrans',
                            'note': u'EX'},
             create=False, update=False)
@@ -1113,8 +1113,22 @@ class SpeciesProperties_test(PlantTestCase):
         ## update object in self.session
         obj = SpeciesNote.retrieve_or_create(
             self.session, {'object': u'species_note',
-                           'category': u'conservation',
+                           'category': u'IUCN',
                            'species': u'Encyclia fragrans',
                            'note': u'EX'},
             create=False, update=True)
         self.assertEquals(obj.note, u'EX')
+
+
+class ConservationStatus_test(PlantTestCase):
+    "can retrieve the IUCN conservation status as defined in species"
+
+    def test(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Encyclia',
+                           'rank': 'species',
+                           'epithet': u'fragrans'},
+            create=False, update=False)
+        self.assertEquals(obj.conservation, u'LC')

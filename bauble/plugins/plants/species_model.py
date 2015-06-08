@@ -146,7 +146,7 @@ class Species(db.Base, db.Serializable):
         '''
 
         cites_notes = [i.note for i in self.notes
-                       if i.category.upper() == 'CITES']
+                       if i.category.upper() == u'CITES']
         if not cites_notes:
             return self.genus.cites
         return cites_notes[0]
@@ -169,7 +169,7 @@ class Species(db.Base, db.Serializable):
          'DD': _('Data Deficient (DD)')}
 
         notes = [i.note for i in self.notes
-                 if i.category.upper() == 'IUCN']
+                 if i.category.upper() == u'IUCN']
         return (notes + ['DD'])[0]
 
     @property
@@ -183,7 +183,7 @@ class Species(db.Base, db.Serializable):
         [_('endemic'), _('indigenous'), _('native'), _('introduced')]
 
         notes = [i.note for i in self.notes
-                 if i.category.lower() == 'condition']
+                 if i.category.lower() == u'condition']
         return (notes + [None])[0]
 
     # columns
