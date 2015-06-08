@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
-"POT-Creation-Date: 2015-06-08 10:04-0500\n"
-"PO-Revision-Date: 2015-06-08 10:04-0500\n"
+"POT-Creation-Date: 2015-06-08 14:34-0500\n"
+"PO-Revision-Date: 2015-06-08 14:34-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
 ">\n"
@@ -848,39 +848,39 @@ msgstr "No se pueden obtener adquisiciones de %s"
 msgid "Can't get species from a %s"
 msgstr "No se pueden obtener especies de %s"
 
-#: bauble/plugins/report/__init__.py:383
+#: bauble/plugins/report/__init__.py:385
 msgid "Formatter Name"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:389
+#: bauble/plugins/report/__init__.py:391
 msgid "Enter a name for the new formatter"
 msgstr "Introduzca un nombre para el nuevo formateador"
 
-#: bauble/plugins/report/__init__.py:406
+#: bauble/plugins/report/__init__.py:408
 #, python-format
 msgid "%s already exists"
 msgstr "%s ya existe"
 
-#: bauble/plugins/report/__init__.py:514
+#: bauble/plugins/report/__init__.py:516
 msgid "No formatter plugins defined"
 msgstr "Dispositivos de formateo no definidos"
 
-#: bauble/plugins/report/__init__.py:548
+#: bauble/plugins/report/__init__.py:550
 msgid ""
 "No formatters found. To create a new formatter click the \"New\" button."
 msgstr ""
 "Formateadores no encontrados. Para crear un nuevo formateador haga clic en "
 "el botón \"Nuevo\"."
 
-#: bauble/plugins/report/__init__.py:595
+#: bauble/plugins/report/__init__.py:597
 msgid "Report"
 msgstr "Informe"
 
-#: bauble/plugins/report/__init__.py:605 bauble/plugins/report/__init__.py:610
+#: bauble/plugins/report/__init__.py:607 bauble/plugins/report/__init__.py:612
 msgid "Search for something first."
 msgstr "Realice primero una busqueda."
 
-#: bauble/plugins/report/__init__.py:635
+#: bauble/plugins/report/__init__.py:637
 #, python-format
 msgid ""
 "Formatting Error\n"
@@ -2401,12 +2401,61 @@ msgstr "subfamilia"
 msgid "cv."
 msgstr "cv."
 
-#: bauble/plugins/plants/species_model.py:324
+#: bauble/plugins/plants/species_model.py:162
+msgid "Extinct (EX)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:163
+msgid "Regionally Extinct (RE)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:164
+msgid "Critically Endangered (CR)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:165
+msgid "Endangered (EN)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:166
+msgid "Vulnerable (VU)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:167
+msgid "Near Threatened (NT)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:168
+msgid "Least Concern (LC)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:169
+msgid "Data Deficient (DD)"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:183
+msgid "endemic"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:183
+msgid "indigenous"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:183
+#, fuzzy
+msgid "native"
+msgstr "Salvaje nativo"
+
+#: bauble/plugins/plants/species_model.py:183
+msgid "introduced"
+msgstr ""
+
+#: bauble/plugins/plants/species_model.py:362
 #, python-format
 msgid "(%(group)s Group)"
 msgstr "(Grupo %(group)s)"
 
-#: bauble/plugins/plants/species_model.py:338
+#: bauble/plugins/plants/species_model.py:376
 #, python-format
 msgid "%(group)s Group"
 msgstr "%(group)s Grupo"
