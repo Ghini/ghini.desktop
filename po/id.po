@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
 "POT-Creation-Date: 2015-06-08 14:34-0500\n"
 "PO-Revision-Date: 2015-06-08 14:34-0500\n"
-"Last-Translator: Mario Frasca <mario@anche.no>\n"
+"Last-Translator: Raja Ritonga <stupidenemy23@gmail.com>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
@@ -547,7 +547,7 @@ msgstr ""
 
 #: bauble/view.py:1162 bauble/prefs.py:312
 msgid "Values"
-msgstr ""
+msgstr "Nilai"
 
 #: bauble/prefs.py:215
 #, python-format
@@ -557,28 +557,32 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
+"Bauble tidak dapat menyimpan preferensi anda.\n"
+"Tolong perika perizinan di berkas konfigurasi anda:\n"
+"…%s"
 
 #: bauble/prefs.py:270
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>Preferensi</b>"
 
 #: bauble/prefs.py:279
+#, fuzzy
 msgid "<b>Plugins</b>"
-msgstr ""
+msgstr "<b>Plugin</b>"
 
 #: bauble/prefs.py:312
 msgid "Names"
-msgstr ""
+msgstr "Nama"
 
 #: bauble/prefs.py:320 bauble/pictures.glade:76 bauble/notes.glade:323
 #: bauble/plugins/garden/loc_editor.glade:190
 #: bauble/plugins/garden/acc_editor.glade:242
 msgid "Name"
-msgstr ""
+msgstr "Nama"
 
 #: bauble/prefs.py:320
 msgid "Version"
-msgstr ""
+msgstr "Versi"
 
 #: bauble/plugins/picasa/__init__.py:265
 #, python-format
@@ -2330,7 +2334,7 @@ msgstr ""
 
 #: bauble/utils/web.py:33 bauble/utils/web.py:50
 msgid "Search"
-msgstr ""
+msgstr "Cari"
 
 #: bauble/utils/web.py:72
 msgid "Search Google"
