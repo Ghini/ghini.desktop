@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2011-03-23 19:50+0000\n"
+"PO-Revision-Date: 2015-06-08 08:55-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Indonesian <id@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
-"X-Generator: Launchpad (build 14277)\n"
+"X-Generator: Poedit 1.5.4\n"
 
 #: bauble/prefs.py:280
 #, python-format
@@ -225,8 +225,8 @@ msgstr ""
 
 #: bauble/db.py:21
 msgid ""
-"SQLAlchemy not installed. Please install SQLAlchemy from "
-"http://www.sqlalchemy.org"
+"SQLAlchemy not installed. Please install SQLAlchemy from http://www."
+"sqlalchemy.org"
 msgstr ""
 
 #: bauble/db.py:345
@@ -2445,13 +2445,11 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:499
-msgid ""
-"There are no plants in the search results.  Please try another search."
+msgid "There are no plants in the search results.  Please try another search."
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:511
-msgid ""
-"There are no species in the search results.  Please try another search."
+msgid "There are no species in the search results.  Please try another search."
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:520
@@ -2984,8 +2982,7 @@ msgstr ""
 
 #: bauble/search.py:180
 #, python-format
-msgid ""
-"The %(tablename)s table does not have a column named \"%(columname)s\""
+msgid "The %(tablename)s table does not have a column named \"%(columname)s\""
 msgstr ""
 
 #: bauble/search.py:234

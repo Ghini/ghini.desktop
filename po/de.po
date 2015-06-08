@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-10 14:08+0200\n"
+"PO-Revision-Date: 2015-06-08 08:55-0500\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
-"Language-Team: German <https://hosted.weblate.org/projects/bauble/master/de/>"
-"\n"
+"Language-Team: German <https://hosted.weblate.org/projects/bauble/master/de/"
+">\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.3-dev\n"
+"X-Generator: Poedit 1.5.4\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
 
 #: bauble/prefs.py:280
@@ -261,8 +261,8 @@ msgstr ""
 
 #: bauble/db.py:21
 msgid ""
-"SQLAlchemy not installed. Please install SQLAlchemy from "
-"http://www.sqlalchemy.org"
+"SQLAlchemy not installed. Please install SQLAlchemy from http://www."
+"sqlalchemy.org"
 msgstr ""
 "SQLAlchemy ist nicht installiert. Bitte installieren Sie SQLAlchemy von "
 "http://www.sqlalchemy.org"
@@ -1325,11 +1325,11 @@ msgid ""
 "\n"
 "Are you sure you want to remove accession <b>%(acc_code)s</b>?"
 msgstr ""
-"Die Pflanzen %(num_plants)s hängen von diesem Eintrag ab: "
-"<b>%(plant_codes)s</b>\n"
+"Die Pflanzen %(num_plants)s hängen von diesem Eintrag ab: <b>"
+"%(plant_codes)s</b>\n"
 "\n"
-"Sind Sie sicher, dass Sie folgenden Eintrag entfernen wollen: "
-"<b>%(acc_code)s</b>?"
+"Sind Sie sicher, dass Sie folgenden Eintrag entfernen wollen: <b>"
+"%(acc_code)s</b>?"
 
 #: bauble/plugins/garden/accession.py:162
 #, python-format
@@ -2530,16 +2530,13 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:499
-msgid ""
-"There are no plants in the search results.  Please try another search."
+msgid "There are no plants in the search results.  Please try another search."
 msgstr ""
 "Es sind keine Pflanzen in den Suchergebnissen. Bitte suchen Sie erneut."
 
 #: bauble/plugins/report/xsl/__init__.py:511
-msgid ""
-"There are no species in the search results.  Please try another search."
-msgstr ""
-"Es sind keine Spezies in den Suchergebnissen. Bitte suchen Sie erneut."
+msgid "There are no species in the search results.  Please try another search."
+msgstr "Es sind keine Spezies in den Suchergebnissen. Bitte suchen Sie erneut."
 
 #: bauble/plugins/report/xsl/__init__.py:520
 msgid ""
@@ -3143,8 +3140,7 @@ msgstr ""
 
 #: bauble/search.py:180
 #, python-format
-msgid ""
-"The %(tablename)s table does not have a column named \"%(columname)s\""
+msgid "The %(tablename)s table does not have a column named \"%(columname)s\""
 msgstr ""
 
 #: bauble/search.py:234
