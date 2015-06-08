@@ -275,7 +275,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
             self.view.get_window(), gtk.DIALOG_DESTROY_WITH_PARENT,
             gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
             (_('please confirm merging %(1)s into %(2)s') %
-             {1: self.model, 2: self.merger_candidate, }))
+             {'1': self.model, '2': self.merger_candidate, }))
         confirm = md.run()
         md.destroy()
 
