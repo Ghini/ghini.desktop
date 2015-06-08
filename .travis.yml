@@ -8,6 +8,7 @@ before_install:
     # Environment setup
     - export VIRT_ROOT=/home/travis/virtualenv/python$TRAVIS_PYTHON_VERSION
     - export PKG_CONFIG_PATH=$VIRT_ROOT/lib/pkgconfig
+    - pip install pip --upgrade
     # PyCairo
     - wget http://www.cairographics.org/releases/py2cairo-1.10.0.tar.bz2
     - tar xf py2cairo-1.10.0.tar.bz2
@@ -33,7 +34,7 @@ before_install:
     - make install > /dev/null
     - cd ..
     # build before install
-    - python setup.py -q build 
+    - python setup.py -q build
 
 install: python setup.py -q install
 

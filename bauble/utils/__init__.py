@@ -1,6 +1,24 @@
+# Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+# Copyright (c) 2015 Mario Frasca <mario@anche.no>
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # utils module
 #
+
 """
 A common set of utility functions used throughout Bauble.
 """
@@ -20,6 +38,7 @@ import bauble.paths as paths
 
 import logging
 logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
 
 
 def find_dependent_tables(table, metadata=None):
@@ -646,6 +665,8 @@ def to_unicode(obj, encoding='utf-8'):
     object it will not try to decode it to converted it to <encoding>
     but will just return the original obj
     """
+    logger.debug('utils.to_unicode((%s)%s, "%s")' %
+                 (type(obj), obj, encoding))
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
             obj = unicode(obj, encoding)
@@ -678,6 +699,8 @@ def xml_safe_utf8(obj):
     """
     This method is deprecated and just returns xml_safe(obj)
     """
+    logger.warning('invoking deprecated function')
+
     return xml_safe(obj)
 
 
