@@ -8,17 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-04-11 02:02+0200\n"
+"PO-Revision-Date: 2015-06-08 08:55-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/>"
-"\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/"
+">\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2.3-dev\n"
+"X-Generator: Poedit 1.5.4\n"
 "X-Launchpad-Export-Date: 2012-11-14 04:52+0000\n"
 
 #: bauble/prefs.py:280
@@ -264,13 +264,13 @@ msgid ""
 "contact your system administrator."
 msgstr ""
 "Ta wersja programu Bauble wymaga SQLAlchemy w wersji 0.5.0 lub wyższej. "
-"Proszę pobrać i zainstalować nowszą wersję SQLAlchemy ze strony "
-"http://www.sqlalchemy.org lub skontaktować się z administratorem systemu."
+"Proszę pobrać i zainstalować nowszą wersję SQLAlchemy ze strony http://www."
+"sqlalchemy.org lub skontaktować się z administratorem systemu."
 
 #: bauble/db.py:21
 msgid ""
-"SQLAlchemy not installed. Please install SQLAlchemy from "
-"http://www.sqlalchemy.org"
+"SQLAlchemy not installed. Please install SQLAlchemy from http://www."
+"sqlalchemy.org"
 msgstr ""
 "Nie zainstalowano SQLAlchemy. Proszę zainstalować SQLAlchemy ze strony "
 "http://www.sqlalchemy.org"
@@ -2519,14 +2519,12 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:499
-msgid ""
-"There are no plants in the search results.  Please try another search."
+msgid "There are no plants in the search results.  Please try another search."
 msgstr ""
 "Nie ma roślin w wynikach wyszukiwania. Proszę spróbować inne zapytanie."
 
 #: bauble/plugins/report/xsl/__init__.py:511
-msgid ""
-"There are no species in the search results.  Please try another search."
+msgid "There are no species in the search results.  Please try another search."
 msgstr ""
 "Nie ma gatunków w wynikach wyszukiwania. Proszę spróbować inne zapytanie."
 
@@ -2637,8 +2635,8 @@ msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
 msgstr ""
-"Wskazano więcej niż jeden plik do zaimportowania do tabeli "
-"<b>%(table_name)s</b>: %(file_name)s, (file_name2)s"
+"Wskazano więcej niż jeden plik do zaimportowania do tabeli <b>"
+"%(table_name)s</b>: %(file_name)s, (file_name2)s"
 
 #: bauble/plugins/imex/csv_.py:281
 #, python-format
@@ -3095,8 +3093,7 @@ msgstr ""
 
 #: bauble/search.py:180
 #, python-format
-msgid ""
-"The %(tablename)s table does not have a column named \"%(columname)s\""
+msgid "The %(tablename)s table does not have a column named \"%(columname)s\""
 msgstr ""
 
 #: bauble/search.py:234
@@ -3134,8 +3131,7 @@ msgstr ""
 
 #: bauble/ui.py:237
 msgid "history size must be greater than zero and less than the history size"
-msgstr ""
-"rozmiar historii musi być większy niż zero i mniejszy rozmiar historii"
+msgstr "rozmiar historii musi być większy niż zero i mniejszy rozmiar historii"
 
 #: bauble/ui.py:339
 msgid "_File"
