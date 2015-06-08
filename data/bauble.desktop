@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Bauble
-Version=1.0.36  # :bump
+Version=1.0.37  # :bump
 Comment=An application for managing botanical collections
 Terminal=False
 Icon=bauble
