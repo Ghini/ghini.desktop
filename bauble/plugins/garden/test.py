@@ -1013,7 +1013,6 @@ class AccessionTests(GardenTestCase):
         self.assertTrue(toggle_cell is None)
 
         # commit the changes and cleanup
-        import gtk
         self.editor.handle_response(gtk.RESPONSE_OK)
         self.editor.session.close()
 
@@ -1160,35 +1159,34 @@ class LocationTests(GardenTestCase):
 
         # test that the accept buttons are NOT sensitive since nothing
         # has changed and that the text entries and model are the same
-        assert widgets.loc_name_entry.get_text() == loc.name
-        assert widgets.loc_code_entry.get_text() == loc.code
-        assert not widgets.loc_ok_button.props.sensitive
-        assert not widgets.loc_next_button.props.sensitive
+        self.assertEquals(widgets.loc_name_entry.get_text(), loc.name)
+        self.assertEquals(widgets.loc_code_entry.get_text(), loc.code)
+        self.assertFalse(widgets.loc_ok_button.props.sensitive)
+        self.assertFalse(widgets.loc_next_button.props.sensitive)
 
         # test the accept buttons become sensitive when the name entry
         # is changed
         widgets.loc_name_entry.set_text('something')
         update_gui()
-        assert widgets.loc_ok_button.props.sensitive
-        assert widgets.loc_ok_and_add_button.props.sensitive
-        assert widgets.loc_next_button.props.sensitive
+        self.assertTrue(widgets.loc_ok_button.props.sensitive)
+        self.assertTrue(widgets.loc_ok_and_add_button.props.sensitive)
+        self.assertTrue(widgets.loc_next_button.props.sensitive)
 
         # test the accept buttons become NOT sensitive when the code
         # entry is empty since this is a required field
         widgets.loc_code_entry.set_text('')
         update_gui()
-        assert not widgets.loc_ok_button.props.sensitive
-        assert not widgets.loc_ok_and_add_button.props.sensitive
-        assert not widgets.loc_next_button.props.sensitive
+        self.assertFalse(widgets.loc_ok_button.props.sensitive)
+        self.assertFalse(widgets.loc_ok_and_add_button.props.sensitive)
+        self.assertFalse(widgets.loc_next_button.props.sensitive)
 
         # test the accept buttons aren't sensitive from setting the textview
-        import gtk
         buff = gtk.TextBuffer()
         buff.set_text('saasodmadomad')
         widgets.loc_desc_textview.set_buffer(buff)
-        assert not widgets.loc_ok_button.props.sensitive
-        assert not widgets.loc_ok_and_add_button.props.sensitive
-        assert not widgets.loc_next_button.props.sensitive
+        self.assertFalse(widgets.loc_ok_button.props.sensitive)
+        self.assertFalse(widgets.loc_ok_and_add_button.props.sensitive)
+        self.assertFalse(widgets.loc_next_button.props.sensitive)
 
         # commit the changes and cleanup
         editor.model.name = editor.model.code = u'asda'
@@ -1197,12 +1195,13 @@ class LocationTests(GardenTestCase):
         editor.presenter.cleanup()
         del editor
 
-        assert utils.gc_objects_by_type('LocationEditor') == [], \
-            'LocationEditor not deleted'
-        assert utils.gc_objects_by_type('LocationEditorPresenter') == [], \
-            'LocationEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('LocationEditorView') == [], \
-            'LocationEditorView not deleted'
+        self.assertEquals(utils.gc_objects_by_type('LocationEditor'), [],
+                          'LocationEditor not deleted')
+        self.assertEquals(
+            utils.gc_objects_by_type('LocationEditorPresenter'), [],
+            'LocationEditorPresenter not deleted')
+        self.assertEquals(utils.gc_objects_by_type('LocationEditorView'), [],
+                          'LocationEditorView not deleted')
 
     def itest_editor(self):
         """

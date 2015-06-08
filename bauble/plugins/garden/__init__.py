@@ -141,7 +141,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
 
     :param presenter:
     :param combo:
-    :param on_select:
+    :param on_select: a one-parameter function
     """
     PROBLEM = 'UNKNOWN_LOCATION'
     re_code_name_splitter = re.compile('\(([^)]+)\) ?(.*)')

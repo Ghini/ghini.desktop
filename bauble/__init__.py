@@ -30,7 +30,7 @@ import sys
 import bauble.paths as paths
 
 from bauble.version import version
-version_tuple = version.split('.')
+version_tuple = tuple(version.split('.'))
 
 from bauble.i18n import _
 
@@ -187,6 +187,48 @@ conn_default_pref = "conn.default"
 conn_list_pref = "conn.list"
 
 
+def newer_version_on_github(input_stream):
+    """is there a new patch on github for this production line
+
+    >>> import StringIO
+    >>> stream = StringIO.StringIO('version = "1.0.0"  # comment')
+    >>> newer_version_on_github(stream)
+    False
+    >>> stream = StringIO.StringIO('version = "1.0.99999"  # comment')
+    >>> newer_version_on_github(stream)
+    True
+    >>> stream = StringIO.StringIO('version = "1.099999"  # comment')
+    >>> newer_version_on_github(stream)
+    False
+    >>> stream = StringIO.StringIO('version = "1.0.99999-dev"  # comment')
+    >>> newer_version_on_github(stream)
+    False
+    """
+
+    try:
+        version_lines = input_stream.read().split('\n')
+        valid_lines = [i for i in version_lines
+                       if not i.startswith('#') and i.strip()]
+        if len(valid_lines) == 1:
+            try:
+                github_version = eval('"' + valid_lines[0].split('"')[1] + '"')
+            except:
+                logger.warning("can't parse github version.")
+                return False
+            github_patch = github_version.split('.')[2]
+            if int(github_patch) > int(version_tuple[2]):
+                return True
+            if int(github_patch) < int(version_tuple[2]):
+                logger.warning("running unreleased version")
+    except TypeError:
+        logger.warning('TypeError while reading github stream')
+    except IndexError:
+        logger.warning('incorrect format for github version')
+    except ValueError:
+        logger.warning('incorrect format for github version')
+    return False
+
+
 def main(uri=None):
     """
     Run the main Bauble application.
@@ -257,6 +299,31 @@ def main(uri=None):
     # intialize the user preferences
     prefs.init()
 
+    ## check whether there's a newer version on github.
+    version_on_github = (
+        'https://raw.githubusercontent.com/Bauble/bauble' +
+        '.classic/bauble-%s.%s/bauble/version.py') % version_tuple[:2]
+    try:
+        import urllib2
+        github_version_stream = urllib2.urlopen(
+            version_on_github, timeout=1)
+        if newer_version_on_github(github_version_stream):
+            md = gtk.MessageDialog(
+                None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
+                gtk.BUTTONS_OK_CANCEL,
+                _("new remote version available.\n"
+                  "Cancel to stop and upgrade; OK to continue."))
+            response = md.run()
+            md.destroy()
+            if response != gtk.RESPONSE_OK:
+                exit(0)
+    except urllib2.URLError:
+        logger.warning('connection is slow or down')
+        pass
+    except urllib2.HTTPError:
+        logger.warning('HTTPError while checking for newer version')
+        pass
+
     open_exc = None
     # open default database
     if uri is None:
@@ -294,7 +361,7 @@ def main(uri=None):
                 # break
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % \
-                    utils.xml_safe_utf8(e)
+                    utils.xml_safe(repr(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 uri = None

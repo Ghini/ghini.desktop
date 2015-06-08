@@ -20,6 +20,7 @@
 
 import logging
 logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
 
 from sqlalchemy.orm import class_mapper
 
@@ -223,7 +224,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     """
 
     # ** WARNING: this can print your passwd
-##    debug('db.open(%s)' % uri)
+    logger.debug('db.open(%s)' % uri)
     from sqlalchemy.orm import sessionmaker
     global engine
     new_engine = None
@@ -235,7 +236,14 @@ def open(uri, verify=True, show_error_dialogs=False):
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
                                   implicit_returning=False,
                                   poolclass=pool.SingletonThreadPool)
-    new_engine.connect().close()  # make sure we can connect
+    # TODO: there is a problem here: the code may cause an exception, but we
+    # immediately loose the 'new_engine', which should know about the
+    # encoding used in the exception string.
+    try:
+        new_engine.connect().close()  # make sure we can connect
+    except Exception:
+        logger.warning('about to forget about encoding of exception text.')
+        raise
 
     def _bind():
         """bind metadata to engine and create sessionmaker """

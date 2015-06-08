@@ -19,8 +19,9 @@
     <menu name="help_menu" action="help">
       <menuitem action="help_contents"/>
       <menuitem action="help_bug"/>
-      <menuitem action="help_web.c"/>
-      <menuitem action="help_web.w"/>
+      <menuitem action="help_web.devel"/>
+      <menuitem action="help_web.wiki"/>
+      <menuitem action="help_web.forum"/>
       <menuitem action="help_about"/>
     </menu>
   </menubar>
