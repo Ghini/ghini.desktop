@@ -218,13 +218,14 @@ def newer_version_on_github(input_stream):
             github_patch = github_version.split('.')[2]
             if int(github_patch) > int(version_tuple[2]):
                 return True
+            if int(github_patch) < int(version_tuple[2]):
+                logger.warning("running unreleased version")
     except TypeError:
         logger.warning('TypeError while reading github stream')
     except IndexError:
         logger.warning('incorrect format for github version')
     except ValueError:
         logger.warning('incorrect format for github version')
-    logger.warning("can't do it")
     return False
 
 
