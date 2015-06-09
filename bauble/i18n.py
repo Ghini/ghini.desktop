@@ -12,7 +12,6 @@ this module more than once in an application.  It is usually imported
 in :mod:`bauble`
 """
 
-import sys
 import os
 import locale
 import gettext
@@ -61,10 +60,8 @@ lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
                            fallback=True)
 # install the language, map _() (which we marked our strings to
 # translate with) to self.lang.gettext() which will translate them.
-_ = lang.gettext
+_ = gettext.gettext
 
 # register the gettext function for the whole interpreter as "_"
 import __builtin__
 __builtin__._ = gettext.gettext
-
-import bauble
