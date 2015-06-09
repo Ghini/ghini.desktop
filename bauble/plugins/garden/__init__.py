@@ -99,7 +99,7 @@ class GardenPlugin(pluginmgr.Plugin):
                 join(SourceDetail).options(eagerload('species')).\
                 filter(SourceDetail.id == detail.id).all()
             return results
-        sd_markup_func = lambda c: utils.xml_safe_utf8(c)
+        sd_markup_func = lambda c: utils.xml_safe(c)
         SearchView.view_meta[SourceDetail].set(
             children=sd_kids,
             infobox=SourceDetailInfoBox,

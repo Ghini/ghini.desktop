@@ -22,7 +22,8 @@ The top level module for Bauble.
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
+consoleLevel = logging.INFO
 
 import imp
 import os
@@ -177,7 +178,7 @@ def command_handler(cmd, arg):
     try:
         last_handler(cmd, arg)
     except Exception, e:
-        msg = utils.xml_safe_utf8(e)
+        msg = utils.xml_safe(e)
         logger.error('bauble.command_handler(): %s' % msg)
         utils.message_details_dialog(
             msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
@@ -263,6 +264,8 @@ def main(uri=None):
     logging.getLogger().addHandler(consoleHandler)
     fileHandler.setFormatter(formatter)
     consoleHandler.setFormatter(formatter)
+    fileHandler.setLevel(logging.DEBUG)
+    consoleHandler.setLevel(consoleLevel)
 
     import gtk.gdk
     import pygtk
@@ -288,7 +291,7 @@ def main(uri=None):
     try:
         import bauble.db as db
     except Exception, e:
-        utils.message_dialog(utils.xml_safe_utf8(e), gtk.MESSAGE_ERROR)
+        utils.message_dialog(utils.xml_safe(e), gtk.MESSAGE_ERROR)
         sys.exit(1)
 
     # declare module level variables
@@ -403,7 +406,7 @@ def main(uri=None):
                         # set the default connection
                         prefs[conn_default_pref] = conn_name
                     except Exception, e:
-                        utils.message_details_dialog(utils.xml_safe_utf8(e),
+                        utils.message_details_dialog(utils.xml_safe(e),
                                                      traceback.format_exc(),
                                                      gtk.MESSAGE_ERROR)
                         logger.error(e)

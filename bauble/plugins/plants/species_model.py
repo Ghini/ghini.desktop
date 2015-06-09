@@ -329,7 +329,7 @@ class Species(db.Base, db.Serializable):
         sp = species.sp
         sp2 = species.sp2
         if markup:
-            escape = utils.xml_safe_utf8
+            escape = utils.xml_safe
             italicize = lambda s: u'<i>%s</i>' % escape(s)
             genus = italicize(genus)
             if sp is not None:

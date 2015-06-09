@@ -38,7 +38,7 @@ def remove_callback(tags):
     :param tags: a list of :class:`Tag` objects.
     """
     tag = tags[0]
-    s = '%s: %s' % (tag.__class__.__name__, utils.xml_safe_utf8(tag))
+    s = '%s: %s' % (tag.__class__.__name__, utils.xml_safe(tag))
     msg = _("Are you sure you want to remove %s?") % s
     if not utils.yes_no_dialog(msg):
         return
@@ -48,7 +48,7 @@ def remove_callback(tags):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     finally:

@@ -238,7 +238,7 @@ class CSVImporter(Importer):
             transaction = connection.begin()
         except Exception, e:
             msg = _('Error connecting to database.\n\n%s') % \
-                utils.xml_safe_utf8(e)
+                utils.xml_safe(e)
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
@@ -248,7 +248,7 @@ class CSVImporter(Importer):
             path, base = os.path.split(f)
             table_name, ext = os.path.splitext(base)
             if table_name in filename_dict:
-                safe = utils.xml_safe_utf8
+                safe = utils.xml_safe
                 values = dict(table_name=safe(table_name),
                               file_name=safe(filename_dict[table_name]),
                               file_name2=safe(f))
@@ -519,7 +519,7 @@ class CSVImporter(Importer):
                 pass
             msg = _('Error: Could not set the sequence for column: %s') \
                 % col_name
-            utils.message_details_dialog(_(utils.xml_safe_utf8(msg)),
+            utils.message_details_dialog(_(utils.xml_safe(msg)),
                                          traceback.format_exc(),
                                          type=gtk.MESSAGE_ERROR)
 

@@ -75,7 +75,7 @@ def remove_callback(values):
     if isinstance(species, VernacularName):
         species = species.species
     nacc = session.query(Accession).filter_by(species_id=species.id).count()
-    safe_str = utils.xml_safe_utf8(str(species))
+    safe_str = utils.xml_safe(str(species))
     if nacc > 0:
         msg = _('The species <i>%(species)s</i> has %(num_accessions)s '
                 'accessions.  Are you sure you want remove it?') \
@@ -90,7 +90,7 @@ def remove_callback(values):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     finally:

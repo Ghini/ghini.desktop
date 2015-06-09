@@ -1067,14 +1067,14 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                     self.commit_changes()
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                    utils.xml_safe_utf8(unicode(e.orig))
+                    utils.xml_safe(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') %\
-                    utils.xml_safe_utf8(e)
+                    utils.xml_safe(e)
                 logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)

@@ -579,7 +579,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         vn = treemodel[path][0]
 
         msg = _('Are you sure you want to remove the vernacular ' \
-                    'name <b>%s</b>?') % utils.xml_safe_utf8(vn.name)
+                    'name <b>%s</b>?') % utils.xml_safe(vn.name)
         if vn.name and not vn in self.session.new and not \
                 utils.yes_no_dialog(msg, parent=self.view.get_window()):
             return
@@ -1026,13 +1026,13 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
             except DBAPIError, e:
                 exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe_utf8(e.orig)
+                      utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
                         'details for more information.\n\n%s') % \
-                        utils.xml_safe_utf8(e)
+                        utils.xml_safe(e)
                 debug(traceback.format_exc())
                 #warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),

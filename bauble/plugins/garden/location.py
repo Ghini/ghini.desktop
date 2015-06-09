@@ -68,7 +68,7 @@ def remove_callback(locations):
         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         return
     msg = _("Are you sure you want to remove %s?") % \
-        utils.xml_safe_utf8(s)
+        utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -77,7 +77,7 @@ def remove_callback(locations):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -397,14 +397,14 @@ class LocationEditor(GenericModelViewPresenterEditor):
                 self._committed.append(self.model)
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                    utils.xml_safe_utf8(e.orig)
+                    utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') % \
-                    utils.xml_safe_utf8(e)
+                    utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()

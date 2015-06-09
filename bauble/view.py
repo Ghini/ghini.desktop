@@ -628,8 +628,8 @@ class SearchView(pluginmgr.View):
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
             logger.debug(traceback.format_exc())
-            error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
-            error_details_msg = utils.xml_safe_utf8(traceback.format_exc())
+            error_msg = _('** Error: %s') % utils.xml_safe(e)
+            error_details_msg = utils.xml_safe(traceback.format_exc())
 
         if error_msg:
             bauble.gui.show_error_box(error_msg, error_details_msg)
@@ -932,8 +932,8 @@ class SearchView(pluginmgr.View):
                         values = self.get_selected_values()
                         result = cb(values)
                     except Exception, e:
-                        msg = utils.xml_safe_utf8(str(e))
-                        tb = utils.xml_safe_utf8(traceback.format_exc())
+                        msg = utils.xml_safe(str(e))
+                        tb = utils.xml_safe(traceback.format_exc())
                         utils.message_details_dialog(
                             msg, tb, gtk.MESSAGE_ERROR)
                         logger.warning(traceback.format_exc())
