@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
 "POT-Creation-Date: 2015-06-09 09:29-0500\n"
-"PO-Revision-Date: 2015-06-09 09:29-0500\n"
-"Last-Translator: Mario Frasca <mario@anche.no>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
-">\n"
+"PO-Revision-Date: 2015-06-09 18:09+0200\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/bauble/master/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Weblate 2.4-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -42,7 +42,7 @@ msgstr ""
 
 #: bauble/search.py:610 bauble/search.py:989
 msgid "Search Domain"
-msgstr ""
+msgstr "Busqueda por Dominio"
 
 #: bauble/search.py:622
 msgid "Property"
@@ -50,7 +50,7 @@ msgstr "Propiedad"
 
 #: bauble/search.py:628
 msgid "Domain Properties"
-msgstr ""
+msgstr "Propiedades del Dominio"
 
 #: bauble/search.py:785
 msgid "Choose a property..."
@@ -62,7 +62,7 @@ msgstr ""
 
 #: bauble/search.py:995
 msgid "Choose a search domain..."
-msgstr ""
+msgstr "Escoja un dominio de busqueda..."
 
 #: bauble/search.py:1000
 msgid "Expressions"
@@ -386,9 +386,8 @@ msgstr ""
 "%s"
 
 #: bauble/ui.py:653
-#, fuzzy
 msgid "http://bauble.wikidot.com"
-msgstr "http://bauble.belizebotanic.org"
+msgstr "http://github.com/Bauble/bauble.classic/wiki"
 
 #: bauble/ui.py:657
 msgid "Copyright © by its contributors."
@@ -496,7 +495,7 @@ msgstr "%(user)s el %(date)s"
 #: bauble/editor.py:1136 bauble/plugins/garden/plant.py:469
 #, python-format
 msgid "picture file %s not found."
-msgstr ""
+msgstr "archivo de la foto %s no se encuentra."
 
 #: bauble/editor.py:1142 bauble/plugins/garden/plant.py:476
 #, python-format
@@ -529,6 +528,8 @@ msgid ""
 "new remote version available.\n"
 "Cancel to stop and upgrade; OK to continue."
 msgstr ""
+"hay una nueva versión en github.\n"
+"Cancelar para parar y actualizar; o Continuar."
 
 #: bauble/__init__.py:363
 #, python-format
@@ -559,7 +560,7 @@ msgstr "Propiedades"
 
 #: bauble/view.py:156
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 #: bauble/view.py:165 bauble/connmgr.glade:99
 msgid "Type:"
@@ -590,7 +591,7 @@ msgstr "** Error: %s"
 #: bauble/view.py:647
 #, python-format
 msgid "Couldn't find anything for search: \"%s\""
-msgstr ""
+msgstr "No se pudo encontrar nada en la búsqueda \"%s\""
 
 #: bauble/view.py:652
 #, python-format
@@ -617,7 +618,7 @@ msgstr "Sello de tiempo"
 
 #: bauble/view.py:1161
 msgid "Operation"
-msgstr ""
+msgstr "Operación"
 
 #: bauble/view.py:1162 bauble/pictures.glade:307 bauble/notes.glade:33
 msgid "User"
@@ -719,7 +720,7 @@ msgstr ""
 msgid ""
 "The ABCD file was created but failed to validate correctly against the ABCD "
 "standard."
-msgstr ""
+msgstr "El archivo ABCD fue creato pero no respecta el estándar ABCD."
 
 #: bauble/plugins/abcd/__init__.py:336 bauble/plugins/imex/xml.py:141
 #: bauble/plugins/imex/csv_.py:700 bauble/plugins/imex/iojson.py:233
@@ -750,7 +751,7 @@ msgstr "Usuarios"
 
 #: bauble/plugins/users/__init__.py:542
 msgid "Enter a user name"
-msgstr ""
+msgstr "Inserte el nombre de un usuario"
 
 #: bauble/plugins/users/__init__.py:558
 #, python-format
@@ -968,7 +969,7 @@ msgstr ""
 
 #: bauble/plugins/report/mako/__init__.py:79
 msgid "Mako"
-msgstr ""
+msgstr "Mako"
 
 #: bauble/plugins/report/mako/__init__.py:101
 msgid "Please selecte a template."
@@ -1040,7 +1041,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:173
 #, python-format
 msgid "Container: %s"
-msgstr ""
+msgstr "Contenidor: %s"
 
 #: bauble/plugins/garden/propagation.py:152
 #: bauble/plugins/garden/propagation.py:175
@@ -1127,7 +1128,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:220
 #: bauble/plugins/garden/propagation.py:224
 msgid "None"
-msgstr ""
+msgstr "Ninguno"
 
 #: bauble/plugins/garden/propagation.py:227
 #: bauble/plugins/garden/propagation.py:235
@@ -1152,7 +1153,7 @@ msgstr "Líquido"
 
 #: bauble/plugins/garden/propagation.py:234
 msgid "Powder"
-msgstr ""
+msgstr "Polvo"
 
 #: bauble/plugins/garden/propagation.py:237
 msgid "°F"
@@ -1573,12 +1574,12 @@ msgstr "¿Está seguro que desea eliminar esta verificación?"
 #: bauble/plugins/garden/accession.py:1259
 #, python-format
 msgid "verified as %(species)s "
-msgstr ""
+msgstr "verificado como %(species)s "
 
 #: bauble/plugins/garden/accession.py:1261
 #, python-format
 msgid "by %(verifier)s"
-msgstr ""
+msgstr "por %(verifier)s"
 
 #: bauble/plugins/garden/accession.py:1298
 msgid "Garden Propagation"
@@ -1647,6 +1648,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Es cierto que se quieren eleminar las siguientes plantas?\n"
+"\n"
+"%s"
 
 #: bauble/plugins/garden/plant.py:116
 msgid "_Branch"
@@ -1804,6 +1808,8 @@ msgid ""
 "The accession must be selected from the list of completions.  To add an "
 "accession use the Accession editor."
 msgstr ""
+"La accesión hay que escogerla en la lista da competamiento automático. para "
+"añadir una accesión utilice el editor de accesiones."
 
 #: bauble/plugins/garden/plant.py:606
 msgid "The location of the plant in your collection."
@@ -2612,9 +2618,8 @@ msgid "Connection Details"
 msgstr "Detalles de la conexión"
 
 #: bauble/pictures_view.glade:10
-#, fuzzy
 msgid "Picture Viewer"
-msgstr "Carpeta base para las fotos"
+msgstr "Visualizador de imágenes"
 
 #: bauble/plugins/picasa/gui.glade:7
 msgid "Bauble - Picasa Settings"
@@ -2840,14 +2845,12 @@ msgid "Date of Change"
 msgstr "Fecha del Cambio"
 
 #: bauble/plugins/garden/plant_editor.glade:718
-#, fuzzy
 msgid "<b>Current change</b>"
-msgstr "<b>Proveniencia</b>"
+msgstr "<b>Modifica corriente</b>"
 
 #: bauble/plugins/garden/plant_editor.glade:824
-#, fuzzy
 msgid "<b>Change history</b>"
-msgstr "<b>Cantidad:</b>"
+msgstr "<b>historia de las modificas</b>"
 
 #: bauble/plugins/garden/plant_editor.glade:939
 #, fuzzy
@@ -3025,9 +3028,8 @@ msgid "Merge into:"
 msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:348
-#, fuzzy
 msgid "<b>danger zone</b>"
-msgstr "<b>Taxón</b>"
+msgstr "<b>zona de alto riesgo</b>"
 
 #: bauble/plugins/garden/institution.glade:8
 msgid "Institution Editor"
@@ -3132,9 +3134,8 @@ msgid "<b>Private:</b>"
 msgstr "<b>Privado:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:335
-#, fuzzy
 msgid "<b>Intended Location 2:</b>"
-msgstr "<b>Ubicación Prevista:</b>"
+msgstr "<b>Ubicación Prevista 2:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:364
 msgid "<b>Intended Location:</b>"
@@ -3217,9 +3218,8 @@ msgid "ID Qualifier"
 msgstr "Calificador de ID"
 
 #: bauble/plugins/garden/acc_editor.glade:279
-#, fuzzy
 msgid "Qualifier Rank"
-msgstr "Calificador"
+msgstr "Calificador de rango"
 
 #: bauble/plugins/garden/acc_editor.glade:312
 msgid "<b>Taxon</b>"
@@ -3284,18 +3284,16 @@ msgid "Select a source"
 msgstr "Seleccione un directorio"
 
 #: bauble/plugins/garden/acc_editor.glade:1176
-#, fuzzy
 msgid "Source's code"
-msgstr "Origen"
+msgstr "Código del origen"
 
 #: bauble/plugins/garden/acc_editor.glade:1450
 msgid "Collector"
 msgstr "Colector"
 
 #: bauble/plugins/garden/acc_editor.glade:1466
-#, fuzzy
 msgid "Collection ID"
-msgstr "Colecta"
+msgstr "ID de la Colecta"
 
 #: bauble/plugins/garden/acc_editor.glade:1483
 msgid "Collection Notes"
@@ -3373,9 +3371,8 @@ msgid "<b>Propagation of Source Material</b>"
 msgstr "<b>Propagagación:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2453
-#, fuzzy
 msgid "<b>Voucher of Accession</b>"
-msgstr "<b>N.º de adquisiciones:</b>"
+msgstr "<b>Voucher dela accesión:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2585
 #, fuzzy
@@ -3412,23 +3409,20 @@ msgid "Reference"
 msgstr "Referencia"
 
 #: bauble/plugins/imex/select_export.glade:8
-#, fuzzy
 msgid "Export To JSON"
-msgstr "Exportar"
+msgstr "Exportar a JSON"
 
 #: bauble/plugins/imex/select_export.glade:82
-#, fuzzy
 msgid "selection"
-msgstr "Colecta"
+msgstr "selección"
 
 #: bauble/plugins/imex/select_export.glade:98
 msgid "taxa"
-msgstr ""
+msgstr "taxones"
 
 #: bauble/plugins/imex/select_export.glade:115
-#, fuzzy
 msgid "accessions"
-msgstr "Adquisición"
+msgstr "accesiones"
 
 #: bauble/plugins/imex/select_export.glade:132
 #, fuzzy
@@ -3505,9 +3499,8 @@ msgid "species_window"
 msgstr "species_window"
 
 #: bauble/plugins/plants/infoboxes.glade:616
-#, fuzzy
 msgid "<b>CITES:</b>"
-msgstr "<b>ID:</b>"
+msgstr "<b>CITES:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:631
 msgid "<b>Awards:</b>"
