@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
-"POT-Creation-Date: 2015-06-08 14:35-0500\n"
-"PO-Revision-Date: 2015-06-08 14:35-0500\n"
+"POT-Creation-Date: 2015-06-09 09:31-0500\n"
+"PO-Revision-Date: 2015-06-09 09:31-0500\n"
 "Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "Language: sv\n"
@@ -661,6 +661,7 @@ msgstr "Namn"
 #: bauble/prefs.py:320 bauble/pictures.glade:76 bauble/notes.glade:323
 #: bauble/plugins/garden/loc_editor.glade:190
 #: bauble/plugins/garden/acc_editor.glade:242
+#: bauble/plugins/garden/acc_editor.glade:2874
 msgid "Name"
 msgstr "Namn"
 
@@ -2205,8 +2206,11 @@ msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
 msgstr "Är du säker på att du vill ta bort trivialnamnet <b>%s</b>?"
 
 #: bauble/plugins/plants/species_editor.py:865
-msgid "Genus "
-msgstr "Släkte "
+#: bauble/plugins/plants/__init__.py:76
+#: bauble/plugins/plants/genus_editor.glade:145
+#: bauble/plugins/plants/species_editor.glade:139
+msgid "Genus"
+msgstr "Släkte"
 
 #: bauble/plugins/plants/species_editor.py:866
 msgid "Species epithet"
@@ -2419,12 +2423,6 @@ msgstr "Spara dina ändringar och lägg till ytterligare en familj."
 #: bauble/plugins/plants/family_editor.glade:230
 msgid "Family"
 msgstr "Familj"
-
-#: bauble/plugins/plants/__init__.py:76
-#: bauble/plugins/plants/genus_editor.glade:145
-#: bauble/plugins/plants/species_editor.glade:139
-msgid "Genus"
-msgstr "Släkte"
 
 #: bauble/plugins/plants/species_model.py:56
 msgid "subsp."
@@ -3424,10 +3422,6 @@ msgstr "Källinformation"
 msgid "Type"
 msgstr "Typ"
 
-#: bauble/plugins/garden/acc_editor.glade:2874
-msgid "Name "
-msgstr "Namn "
-
 #: bauble/plugins/garden/acc_editor.glade:3088
 msgid "Verifier"
 msgstr "Kontrollant"
@@ -3629,6 +3623,12 @@ msgstr "Attribut"
 #: bauble/plugins/plants/family_editor.glade:299
 msgid "Add Genera"
 msgstr "Lägg till släkten"
+
+#~ msgid "Genus "
+#~ msgstr "Släkte "
+
+#~ msgid "Name "
+#~ msgstr "Namn "
 
 #~ msgid "Error: using sequences hasn't been tested on this database type: %s"
 #~ msgstr "Fel: Användningssekvenser har inte testats på denna databastyp: %s"

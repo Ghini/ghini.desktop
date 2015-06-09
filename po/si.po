@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
-"POT-Creation-Date: 2015-06-08 14:35-0500\n"
-"PO-Revision-Date: 2015-06-08 14:35-0500\n"
+"POT-Creation-Date: 2015-06-09 09:31-0500\n"
+"PO-Revision-Date: 2015-06-09 09:31-0500\n"
 "Last-Translator: M.W.L Dinithikara <lasanidinithi75@gmail.com>\n"
 "Language-Team: Sinhalese <si@li.org>\n"
 "Language: si\n"
@@ -572,6 +572,7 @@ msgstr ""
 #: bauble/prefs.py:320 bauble/pictures.glade:76 bauble/notes.glade:323
 #: bauble/plugins/garden/loc_editor.glade:190
 #: bauble/plugins/garden/acc_editor.glade:242
+#: bauble/plugins/garden/acc_editor.glade:2874
 msgid "Name"
 msgstr "නම"
 
@@ -1980,7 +1981,10 @@ msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:865
-msgid "Genus "
+#: bauble/plugins/plants/__init__.py:76
+#: bauble/plugins/plants/genus_editor.glade:145
+#: bauble/plugins/plants/species_editor.glade:139
+msgid "Genus"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:866
@@ -2165,12 +2169,6 @@ msgstr ""
 #: bauble/plugins/plants/family_editor.glade:89
 #: bauble/plugins/plants/family_editor.glade:230
 msgid "Family"
-msgstr ""
-
-#: bauble/plugins/plants/__init__.py:76
-#: bauble/plugins/plants/genus_editor.glade:145
-#: bauble/plugins/plants/species_editor.glade:139
-msgid "Genus"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:56
@@ -3160,10 +3158,6 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2826
 msgid "Type"
-msgstr ""
-
-#: bauble/plugins/garden/acc_editor.glade:2874
-msgid "Name "
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:3088

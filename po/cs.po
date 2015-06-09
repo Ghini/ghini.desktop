@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
-"POT-Creation-Date: 2015-06-08 14:34-0500\n"
-"PO-Revision-Date: 2015-06-08 14:34-0500\n"
+"POT-Creation-Date: 2015-06-09 09:29-0500\n"
+"PO-Revision-Date: 2015-06-09 09:29-0500\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
 ">\n"
@@ -658,6 +658,7 @@ msgstr "Názvy"
 #: bauble/prefs.py:320 bauble/pictures.glade:76 bauble/notes.glade:323
 #: bauble/plugins/garden/loc_editor.glade:190
 #: bauble/plugins/garden/acc_editor.glade:242
+#: bauble/plugins/garden/acc_editor.glade:2874
 msgid "Name"
 msgstr "Název"
 
@@ -2182,8 +2183,11 @@ msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
 msgstr "Jste si jisti, že chcete odstranit místní jméno <b>%s</b>?"
 
 #: bauble/plugins/plants/species_editor.py:865
-msgid "Genus "
-msgstr "Rod "
+#: bauble/plugins/plants/__init__.py:76
+#: bauble/plugins/plants/genus_editor.glade:145
+#: bauble/plugins/plants/species_editor.glade:139
+msgid "Genus"
+msgstr "Rod"
 
 #: bauble/plugins/plants/species_editor.py:866
 msgid "Species epithet"
@@ -2393,12 +2397,6 @@ msgstr "Uložit Vaše změny a přidat další rodinu."
 #: bauble/plugins/plants/family_editor.glade:230
 msgid "Family"
 msgstr "Rodina"
-
-#: bauble/plugins/plants/__init__.py:76
-#: bauble/plugins/plants/genus_editor.glade:145
-#: bauble/plugins/plants/species_editor.glade:139
-msgid "Genus"
-msgstr "Rod"
 
 #: bauble/plugins/plants/species_model.py:56
 msgid "subsp."
@@ -3398,10 +3396,6 @@ msgstr "Podrobnosti zdroje"
 msgid "Type"
 msgstr "Typ"
 
-#: bauble/plugins/garden/acc_editor.glade:2874
-msgid "Name "
-msgstr "Název "
-
 #: bauble/plugins/garden/acc_editor.glade:3088
 msgid "Verifier"
 msgstr "Ověřovatel"
@@ -3603,6 +3597,12 @@ msgstr "Kvalifikátor"
 #: bauble/plugins/plants/family_editor.glade:299
 msgid "Add Genera"
 msgstr "Přidat rody"
+
+#~ msgid "Genus "
+#~ msgstr "Rod "
+
+#~ msgid "Name "
+#~ msgstr "Název "
 
 #~ msgid "Error: using sequences hasn't been tested on this database type: %s"
 #~ msgstr "Chyba: použití sekvencí nebylo zkoušeno na tomto typu databáze: %s"
