@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
 "POT-Creation-Date: 2015-06-09 09:29-0500\n"
-"PO-Revision-Date: 2015-06-09 18:09+0200\n"
+"PO-Revision-Date: 2015-06-10 00:33+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/bauble/master/es/>\n"
@@ -626,7 +626,7 @@ msgstr "Usuario"
 
 #: bauble/view.py:1162
 msgid "Table"
-msgstr ""
+msgstr "Tabela"
 
 #: bauble/view.py:1162 bauble/prefs.py:312
 msgid "Values"
@@ -761,6 +761,10 @@ msgid ""
 "<i>It is possible that this user could have permissions on other databases "
 "not related to Bauble.</i>"
 msgstr ""
+"Es cierto que quiere eliminar el usuario <b>%(name)s</b>?\n"
+"\n"
+"<i>hay la posibilidad que este usuario tenga derechos sobre otras base de "
+"datos no relacionadas con Bauble.</i>"
 
 #: bauble/plugins/users/__init__.py:620
 #, python-format
@@ -822,6 +826,8 @@ msgid ""
 "In order to tag an item you must first search for something and select one "
 "of the results."
 msgstr ""
+"para poner una etiqueta a un objecto, primero es necesario hacer una "
+"búsqueda y seleccionar algo entre los resultados."
 
 #: bauble/plugins/tag/__init__.py:474
 msgid "Tag Selection"
@@ -889,6 +895,9 @@ msgid ""
 "\n"
 "%(exception)s"
 msgstr ""
+"Error de formato\n"
+"\n"
+"%(exception)s"
 
 #: bauble/plugins/report/xsl/__init__.py:64
 #: bauble/plugins/report/xsl/__init__.py:387
@@ -1233,7 +1242,7 @@ msgstr ""
 #: bauble/plugins/garden/location.py:277
 #, python-format
 msgid "please confirm merging %(1)s into %(2)s"
-msgstr ""
+msgstr "confirme el juntar la locación %(1)s en la %(2)s"
 
 #: bauble/plugins/garden/location.py:463
 #: bauble/plugins/garden/accession.py:2303 bauble/plugins/garden/plant.py:1150
@@ -1831,7 +1840,7 @@ msgstr "Crea una nueva ubicación."
 
 #: bauble/plugins/garden/plant.py:611
 msgid "Edit the selected location."
-msgstr ""
+msgstr "Editar la ubicación seleccionada."
 
 #: bauble/plugins/garden/plant.py:613
 msgid "Create a new propagation record for this plant."
@@ -1839,7 +1848,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:617
 msgid "Save your changes changes and add another plant."
-msgstr ""
+msgstr "Guardar los cambios y añadir otra planta."
 
 #: bauble/plugins/garden/plant.py:919
 msgid "branch_mode requires a model"
@@ -2145,7 +2154,7 @@ msgstr ""
 
 #: bauble/plugins/imex/iojson.py:220 bauble/plugins/imex/iojson.py:234
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: bauble/plugins/plants/species_editor.py:128
 #, python-format
@@ -2439,20 +2448,19 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:183
 msgid "endemic"
-msgstr ""
+msgstr "endémica"
 
 #: bauble/plugins/plants/species_model.py:183
 msgid "indigenous"
-msgstr ""
+msgstr "indígena"
 
 #: bauble/plugins/plants/species_model.py:183
-#, fuzzy
 msgid "native"
-msgstr "Salvaje nativo"
+msgstr "nativa"
 
 #: bauble/plugins/plants/species_model.py:183
 msgid "introduced"
-msgstr ""
+msgstr "introducida"
 
 #: bauble/plugins/plants/species_model.py:362
 #, python-format
@@ -2600,7 +2608,6 @@ msgid "<picture>"
 msgstr ""
 
 #: bauble/bauble.glade:7 bauble/connmgr.glade:7
-#, fuzzy
 msgid "Bauble"
 msgstr "la wiki de Bauble"
 
@@ -2853,9 +2860,8 @@ msgid "<b>Change history</b>"
 msgstr "<b>historia de las modificas</b>"
 
 #: bauble/plugins/garden/plant_editor.glade:939
-#, fuzzy
 msgid "Pictures"
-msgstr "Carpeta base para las fotos"
+msgstr "Fotos"
 
 #: bauble/plugins/garden/prop_editor.glade:8
 msgid "Propagation Editor"
@@ -3025,7 +3031,7 @@ msgstr "Código"
 
 #: bauble/plugins/garden/loc_editor.glade:290
 msgid "Merge into:"
-msgstr ""
+msgstr "Combinar con:"
 
 #: bauble/plugins/garden/loc_editor.glade:348
 msgid "<b>danger zone</b>"
@@ -3279,9 +3285,8 @@ msgid "<b>Provenance</b>"
 msgstr "<b>Proveniencia</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:1142
-#, fuzzy
 msgid "Select a source"
-msgstr "Seleccione un directorio"
+msgstr "Seleccione una fuente"
 
 #: bauble/plugins/garden/acc_editor.glade:1176
 msgid "Source's code"
@@ -3366,23 +3371,20 @@ msgid "<b>Location Details</b>"
 msgstr "<b>Detalles de ubicación</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2157
-#, fuzzy
 msgid "<b>Propagation of Source Material</b>"
-msgstr "<b>Propagagación:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2453
 msgid "<b>Voucher of Accession</b>"
 msgstr "<b>Voucher dela accesión:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2585
-#, fuzzy
 msgid "<b>Voucher of parent material</b>"
-msgstr "<b>Tipo de material:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2728
-#, fuzzy
 msgid "Source Details"
-msgstr "Mostrar detalles"
+msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2826
 msgid "Type"
@@ -3425,9 +3427,8 @@ msgid "accessions"
 msgstr "accesiones"
 
 #: bauble/plugins/imex/select_export.glade:132
-#, fuzzy
 msgid "plants"
-msgstr "Añadir plantas"
+msgstr "plantas"
 
 #: bauble/plugins/imex/select_export.glade:166
 msgid "export based on:"
@@ -3435,7 +3436,7 @@ msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:201
 msgid "all referred to objects"
-msgstr ""
+msgstr "todos los objectos referidos"
 
 #: bauble/plugins/imex/select_export.glade:217
 msgid "also objects referring to selection"
