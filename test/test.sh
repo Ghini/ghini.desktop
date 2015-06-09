@@ -1,1 +1,0 @@
-PYTHONPATH=. python test/test.py $@
