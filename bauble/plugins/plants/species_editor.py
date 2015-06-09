@@ -862,7 +862,7 @@ class SpeciesEditorView(editor.GenericEditorView):
                           #}#'sp_meta_expander': 'editor.species.meta.expanded'}
 
     _tooltips = {
-        'sp_genus_entry': _('Genus '),
+        'sp_genus_entry': _('Genus'),
         'sp_species_entry': _('Species epithet'),
         'sp_author_entry': _('Species author'),
         'sp_hybrid_check': _('Species hybrid flag'),
