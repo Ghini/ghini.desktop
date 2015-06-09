@@ -7,18 +7,24 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
-"POT-Creation-Date: 2015-06-08 14:34-0500\n"
-"PO-Revision-Date: 2015-06-08 15:37+0200\n"
+"POT-Creation-Date: 2015-06-09 09:29-0500\n"
+"PO-Revision-Date: 2015-06-09 09:29-0500\n"
 "Last-Translator: pCsOrI <pcsori@gmail.com>\n"
-"Language-Team: Korean <https://hosted.weblate.org/projects/bauble/master/ko/>"
-"\n"
+"Language-Team: Korean <https://hosted.weblate.org/projects/bauble/master/ko/"
+">\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 2.4-dev\n"
+"X-Generator: Poedit 1.5.4\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: bauble\n"
+"X-Poedit-SearchPath-1: bauble/utils\n"
+"X-Poedit-SearchPath-2: bauble/plugins\n"
+"X-Poedit-SearchPath-3: bauble/plugins/plants\n"
+"X-Poedit-SearchPath-4: bauble/plugins/garden\n"
 
 #: bauble/search.py:327
 #, python-format
@@ -29,43 +35,47 @@ msgstr ""
 "구성 파일의 사용 권한을 확인하십시오:\n"
 "%s"
 
-#: bauble/prefs.py:335
-msgid "<b>Preferences</b>"
-msgstr "<b>환경 설정</b>"
+#: bauble/search.py:550
+msgid "MapperSearch.add_meta(): default_columns argument must be list"
+msgstr ""
 
-#: bauble/prefs.py:344
-msgid "<b>Plugins</b>"
-msgstr "<b>플러그인</b>"
+#: bauble/search.py:553
+msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
+msgstr ""
 
-#: bauble/prefs.py:379
-msgid "Names"
-msgstr "이름"
-
-#: bauble/prefs.py:379 bauble/view.py:1155
-msgid "Values"
-msgstr "값"
-
-#: bauble/prefs.py:388 bauble/notes.glade.h:3
-#: bauble/plugins/garden/loc_editor.glade.h:5
-#: bauble/plugins/garden/acc_editor.glade.h:37
-msgid "Name"
-msgstr "이름"
-
-#: bauble/prefs.py:388
-msgid "Version"
-msgstr "버전"
-
-#: bauble/utils/web.py:17 bauble/utils/web.py:36
-msgid "Search"
+#: bauble/search.py:610 bauble/search.py:989
+#, fuzzy
+msgid "Search Domain"
 msgstr "검색"
 
-#: bauble/utils/web.py:59
-msgid "Search Google"
-msgstr "구글 검색"
+#: bauble/search.py:622
+msgid "Property"
+msgstr ""
 
-#: bauble/utils/web.py:68
-msgid "Search GBIF"
-msgstr "GBIF 검색"
+#: bauble/search.py:628
+msgid "Domain Properties"
+msgstr ""
+
+#: bauble/search.py:785
+msgid "Choose a property..."
+msgstr ""
+
+#: bauble/search.py:916
+msgid "Query Builder"
+msgstr ""
+
+#: bauble/search.py:995
+#, fuzzy
+msgid "Choose a search domain..."
+msgstr ""
+"Bauble이 사용자 환경 설정을 저장할 수 없습니다.\n"
+"\n"
+"구성 파일의 사용 권한을 확인하십시오:\n"
+"%s"
+
+#: bauble/search.py:1000
+msgid "Expressions"
+msgstr ""
 
 #: bauble/connmgr.py:123
 msgid ""
@@ -548,7 +558,7 @@ msgstr ""
 
 #: bauble/view.py:1162 bauble/prefs.py:312
 msgid "Values"
-msgstr ""
+msgstr "값"
 
 #: bauble/prefs.py:215
 #, python-format
@@ -561,25 +571,26 @@ msgstr ""
 
 #: bauble/prefs.py:270
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>환경 설정</b>"
 
 #: bauble/prefs.py:279
 msgid "<b>Plugins</b>"
-msgstr ""
+msgstr "<b>플러그인</b>"
 
 #: bauble/prefs.py:312
 msgid "Names"
-msgstr ""
+msgstr "이름"
 
 #: bauble/prefs.py:320 bauble/pictures.glade:76 bauble/notes.glade:323
 #: bauble/plugins/garden/loc_editor.glade:190
 #: bauble/plugins/garden/acc_editor.glade:242
+#: bauble/plugins/garden/acc_editor.glade:2874
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: bauble/prefs.py:320
 msgid "Version"
-msgstr ""
+msgstr "버전"
 
 #: bauble/plugins/picasa/__init__.py:265
 #, python-format
@@ -1985,7 +1996,10 @@ msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:865
-msgid "Genus "
+#: bauble/plugins/plants/__init__.py:76
+#: bauble/plugins/plants/genus_editor.glade:145
+#: bauble/plugins/plants/species_editor.glade:139
+msgid "Genus"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:866
@@ -2172,12 +2186,6 @@ msgstr ""
 msgid "Family"
 msgstr ""
 
-#: bauble/plugins/plants/__init__.py:76
-#: bauble/plugins/plants/genus_editor.glade:145
-#: bauble/plugins/plants/species_editor.glade:139
-msgid "Genus"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:56
 msgid "subsp."
 msgstr ""
@@ -2308,15 +2316,15 @@ msgstr ""
 
 #: bauble/utils/web.py:33 bauble/utils/web.py:50
 msgid "Search"
-msgstr ""
+msgstr "검색"
 
 #: bauble/utils/web.py:72
 msgid "Search Google"
-msgstr ""
+msgstr "구글 검색"
 
 #: bauble/utils/web.py:81
 msgid "Search GBIF"
-msgstr ""
+msgstr "GBIF 검색"
 
 #: bauble/utils/web.py:82
 msgid "Search the Global Biodiversity Information Facility"
@@ -3164,10 +3172,6 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2826
 msgid "Type"
-msgstr ""
-
-#: bauble/plugins/garden/acc_editor.glade:2874
-msgid "Name "
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:3088
