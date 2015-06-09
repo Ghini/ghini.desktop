@@ -82,7 +82,7 @@ def remove_callback(genera):
     from bauble.plugins.plants.species_model import Species
     session = db.Session()
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
-    safe_str = utils.xml_safe_utf8(str(genus))
+    safe_str = utils.xml_safe(str(genus))
     if nsp > 0:
         msg = (_('The genus <i>%(genus)s</i> has %(num_species)s species.  '
                  'Are you sure you want to remove it?')
@@ -97,7 +97,7 @@ def remove_callback(genera):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     finally:
@@ -706,13 +706,13 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except DBAPIError, e:
                 msg = (_('Error committing changes.\n\n%s') %
-                       utils.xml_safe_utf8(e.orig))
+                       utils.xml_safe(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = (_('Unknown error when committing changes. See the '
                          'details for more information.\n\n%s') %
-                       utils.xml_safe_utf8(e))
+                       utils.xml_safe(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False

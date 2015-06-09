@@ -49,7 +49,7 @@ import bauble.paths as paths
 
 def coll_markup_func(coll):
     acc = coll.source.accession
-    safe = utils.xml_safe_utf8
+    safe = utils.xml_safe
     return '%s - <small>%s</small>' %  \
         (safe(acc), safe(acc.species_str())), safe(coll)
 
@@ -93,7 +93,7 @@ def source_detail_edit_callback(details):
 def source_detail_remove_callback(details):
     detail = details[0]
     s = '%s: %s' % (detail.__class__.__name__, str(detail))
-    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -102,7 +102,7 @@ def source_detail_remove_callback(details):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     finally:
@@ -364,13 +364,13 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s'
-                        % utils.xml_safe_utf8(e.orig))
+                        % utils.xml_safe(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s'
-                        % utils.xml_safe_utf8(e))
+                        % utils.xml_safe(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
@@ -896,15 +896,15 @@ class GeneralSourceDetailExpander(InfoExpander):
         #from textwrap import TextWrapper
         #wrapper = TextWrapper(width=50, subsequent_indent='  ')
         self.set_widget_value('sd_name_data', '<big>%s</big>' %
-                              utils.xml_safe_utf8(row.name), markup=True)
+                              utils.xml_safe(row.name), markup=True)
         source_type = ''
         if row.source_type:
-            source_type = utils.xml_safe_utf8(row.source_type)
+            source_type = utils.xml_safe(row.source_type)
         self.set_widget_value('sd_type_data', source_type)
 
         description = ''
         if row.description:
-            description = utils.xml_safe_utf8(row.description)
+            description = utils.xml_safe(row.description)
         self.set_widget_value('sd_desc_data', description)
 
         source = Source.__table__

@@ -90,7 +90,7 @@ def branch_callback(plants):
 def remove_callback(plants):
     s = ', '.join([str(p) for p in plants])
     msg = _("Are you sure you want to remove the following plants?\n\n%s") \
-        % utils.xml_safe_utf8(s)
+        % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
 
@@ -101,7 +101,7 @@ def remove_callback(plants):
     try:
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
 
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
@@ -131,10 +131,10 @@ def plant_markup_func(plant):
     dead_color = "#9900ff"
     if plant.quantity <= 0:
         dead_markup = '<span foreground="%s">%s</span>' % \
-            (dead_color, utils.xml_safe_utf8(plant))
+            (dead_color, utils.xml_safe(plant))
         return dead_markup, sp_str
     else:
-        return utils.xml_safe_utf8(plant), sp_str
+        return utils.xml_safe(plant), sp_str
 
 
 def get_next_code(acc):
@@ -1057,7 +1057,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
-                    % utils.xml_safe_utf8(e)
+                    % utils.xml_safe(e)
                 logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
@@ -1277,7 +1277,7 @@ class ChangesExpander(InfoExpander):
             current_row += 1
             if change.parent_plant:
                 s = _('<i>Branched from %(plant)s</i>') % \
-                    dict(plant=utils.xml_safe_utf8(change.parent_plant))
+                    dict(plant=utils.xml_safe(change.parent_plant))
                 label = gtk.Label()
                 label.set_alignment(0, .5)
                 label.set_markup(s)

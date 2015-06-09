@@ -132,7 +132,7 @@ def load(path=None):
     if errors:
         name = ', '.join(sorted(errors.keys()))
         exc_info = errors.values()[0]
-        exc_str = utils.xml_safe_utf8(exc_info[1])
+        exc_str = utils.xml_safe(exc_info[1])
         tb_str = ''.join(traceback.format_tb(exc_info[2]))
         utils.message_details_dialog('Could not load plugin: '
                                      '\n\n<i>%s</i>\n\n%s'
@@ -249,7 +249,7 @@ def init(force=False):
             logger.error(e)
             ordered.remove(plugin)
             logger.error(traceback.print_exc())
-            safe = utils.xml_safe_utf8
+            safe = utils.xml_safe
             values = dict(entry_name=plugin.__class__.__name__,
                           exception=safe(e))
             utils.message_details_dialog(_("Error: Couldn't initialize "

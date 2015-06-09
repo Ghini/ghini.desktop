@@ -1034,27 +1034,27 @@ class NoteBox(gtk.HBox):
         date_str = None
         if self.model.date and isinstance(self.model.date, datetime.date):
             format = prefs.prefs[prefs.date_format_pref]
-            date_str = utils.xml_safe_utf8(
+            date_str = utils.xml_safe(
                 self.model.date.strftime(format))
         elif self.model.date:
-            date_str = utils.xml_safe_utf8(self.model.date)
+            date_str = utils.xml_safe(self.model.date)
         else:
             date_str = self.widgets.date_entry.props.text
 
         if self.model.user and date_str:  # and self.model.date:
             label.append(_('%(user)s on %(date)s') %
-                         dict(user=utils.xml_safe_utf8(self.model.user),
+                         dict(user=utils.xml_safe(self.model.user),
                               date=date_str))
         elif date_str:
             label.append('%s' % date_str)
         elif self.model.user:
-            label.append('%s' % utils.xml_safe_utf8(self.model.user))
+            label.append('%s' % utils.xml_safe(self.model.user))
 
         if self.model.category:
-            label.append('(%s)' % utils.xml_safe_utf8(self.model.category))
+            label.append('(%s)' % utils.xml_safe(self.model.category))
 
         if self.model.note:
-            note_str = ' : %s' % utils.xml_safe_utf8(self.model.note).\
+            note_str = ' : %s' % utils.xml_safe(self.model.note).\
                 replace('\n', '  ')
             max_length = 25
             # label.props.ellipsize doesn't work properly on a

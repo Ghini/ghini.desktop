@@ -72,7 +72,7 @@ def remove_callback(families):
     from bauble.plugins.plants.genus import Genus
     session = db.Session()
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
-    safe_str = utils.xml_safe_utf8(str(family))
+    safe_str = utils.xml_safe(str(family))
     if ngen > 0:
         msg = _('The family <i>%(family)s</i> has %(num_genera)s genera.  Are '
                 'you sure you want to remove it?') % dict(family=safe_str,
@@ -87,7 +87,7 @@ def remove_callback(families):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     finally:
@@ -589,13 +589,13 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                    utils.xml_safe_utf8(e.orig)
+                    utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') % \
-                    utils.xml_safe_utf8(e)
+                    utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False

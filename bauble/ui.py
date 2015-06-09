@@ -563,8 +563,8 @@ class GUI(object):
             pluginmgr.init()
         except Exception, e:
             msg = _('Could not create a new database.\n\n%s' %
-                    utils.xml_safe_utf8(e))
-            tb = utils.xml_safe_utf8(traceback.format_exc())
+                    utils.xml_safe(e))
+            tb = utils.xml_safe(traceback.format_exc())
             utils.message_details_dialog(msg, tb, gtk.MESSAGE_ERROR)
             return
         self.set_default_view()

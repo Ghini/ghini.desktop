@@ -106,7 +106,7 @@ class XMLExporter:
                         ElementFactory(row_el, 'column', attrib={'name': col},
                                        text=row[col])
             except ValueError, e:
-                utils.message_details_dialog(utils.xml_safe_utf8(e),
+                utils.message_details_dialog(utils.xml_safe(e),
                                              traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return

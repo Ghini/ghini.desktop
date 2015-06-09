@@ -177,7 +177,7 @@ def remove_callback(accessions):
     # TODO: allow this method to remove multiple accessions
     acc = accessions[0]
     if len(acc.plants) > 0:
-        safe = utils.xml_safe_utf8
+        safe = utils.xml_safe
         plants = [str(plant) for plant in acc.plants]
         values = dict(num_plants=len(acc.plants),
                       plant_codes=safe(', '.join(plants)),
@@ -188,7 +188,7 @@ def remove_callback(accessions):
                 '<b>%(acc_code)s</b>?' % values)
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
-            utils.xml_safe_utf8(unicode(acc))
+            utils.xml_safe(unicode(acc))
     if not utils.yes_no_dialog(msg):
         return False
     try:
@@ -197,7 +197,7 @@ def remove_callback(accessions):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(unicode(e))
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(unicode(e))
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     finally:
@@ -2147,13 +2147,13 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                    utils.xml_safe_utf8(unicode(e.orig))
+                    utils.xml_safe(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
-                    % utils.xml_safe_utf8(e)
+                    % utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
