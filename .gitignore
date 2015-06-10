@@ -1,7 +1,6 @@
 issues.txt
 .bzr
 doc/.build
-po
 .tx
 *~
 *pyc
