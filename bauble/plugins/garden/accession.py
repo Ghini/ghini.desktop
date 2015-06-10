@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
-
 #
 # accessions module
 #
@@ -158,7 +157,8 @@ def get_next_code():
     return next
 
 
-def generic_taxon_add_action(model, view, presenter, button, taxon_entry):
+def generic_taxon_add_action(model, view, presenter, top_presenter,
+                             button, taxon_entry):
     """user hit click on taxon add button
 
     new taxon goes into model.species;
@@ -175,8 +175,8 @@ def generic_taxon_add_action(model, view, presenter, button, taxon_entry):
         presenter.remove_problem(
             hash(taxon_entry.get_name()), None)
         setattr(model, 'species', editor.model)
-        presenter.__dirty = True
-        presenter.refresh_view()
+        top_presenter.__dirty = True
+        top_presenter.refresh_sensitivity()
 
 
 def edit_callback(accessions):
@@ -1295,6 +1295,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
             generic_taxon_add_action(
                 self.model, self.presenter().view, self.presenter(),
+                self.presenter().parent_ref(),
                 button, taxon_entry)
 
 
@@ -1812,7 +1813,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect(
             self.view.widgets.acc_taxon_add_button, 'clicked',
             lambda b, w: generic_taxon_add_action(
-                self.model, self.view, self, b, w),
+                self.model, self.view, self, self, b, w),
             self.view.widgets.acc_species_entry)
 
         self.assign_simple_handler(
