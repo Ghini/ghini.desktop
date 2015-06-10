@@ -130,15 +130,15 @@ class InstitutionEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_view()
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field)
-        self.__dirty = False
+        self._dirty = False
 
     def set_model_attr(self, attr, value, validator):
         super(InstitutionEditorPresenter, self).set_model_attr(attr, value,
                                                                validator)
-        self.__dirty = True
+        self._dirty = True
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():

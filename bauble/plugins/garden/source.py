@@ -294,16 +294,16 @@ class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
         validator = editor.UnicodeOrNoneValidator()
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field, validator)
-        self.__dirty = False
+        self._dirty = False
 
     def set_model_attr(self, field, value, validator=None):
         super(SourceDetailEditorPresenter, self).\
             set_model_attr(field, value, validator)
-        self.__dirty = True
+        self._dirty = True
         self.refresh_sensitivity()
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
     def refresh_sensitivity(self):
         sensitive = False
@@ -511,7 +511,7 @@ class CollectionPresenter(editor.ChildPresenter):
             add_button.set_sensitive(True)
         gobject.idle_add(_init_geo)
 
-        self.__dirty = False
+        self._dirty = False
 
     def set_region(self, menu_item, geo_id):
         geography = self.session.query(Geography).get(geo_id)
@@ -525,7 +525,7 @@ class CollectionPresenter(editor.ChildPresenter):
         """
         super(CollectionPresenter, self).set_model_attr(
             field, value, validator)
-        self.__dirty = True
+        self._dirty = True
         if self.model.locale is None or self.model.locale in ('', u''):
             self.add_problem(self.PROBLEM_INVALID_LOCALE)
         else:
@@ -547,7 +547,7 @@ class CollectionPresenter(editor.ChildPresenter):
         raise Exception('CollectionPresenter cannot be started')
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
     def refresh_view(self):
         from bauble.plugins.garden.accession import latitude_to_dms, \
@@ -777,7 +777,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
         super(PropagationChooserPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
-        self.__dirty = False
+        self._dirty = False
 
         self.refresh_view()
 
@@ -791,7 +791,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                 treeview = self.view.widgets.source_prop_treeview
                 prop = treeview.get_model()[path][0]
             self.model.plant_propagation = prop
-            self.__dirty = True
+            self._dirty = True
             self.parent_ref().refresh_sensitivity()
 
         self.view.connect_after(cell, 'toggled', on_toggled)
@@ -874,7 +874,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
         cell.props.text = prop.get_summary()
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
 
 from bauble.view import InfoBox, InfoExpander

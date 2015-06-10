@@ -672,7 +672,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self._original_quantity = None
         if model not in self.session.new:
             self._original_quantity = self.model.quantity
-        self.__dirty = False
+        self._dirty = False
 
         # set default values for acc_type
         if self.model.id is None and self.model.acc_type is None:
@@ -769,7 +769,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def dirty(self):
         return self.pictures_presenter.dirty() or \
             self.notes_presenter.dirty() or \
-            self.prop_presenter.dirty() or self.__dirty
+            self.prop_presenter.dirty() or self._dirty
 
     def on_date_entry_changed(self, entry, *args):
         self.change.date = entry.props.text
@@ -855,7 +855,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         logger.debug('set_model_attr(%s, %s)' % (field, value))
         super(PlantEditorPresenter, self)\
             .set_model_attr(field, value, validator)
-        self.__dirty = True
+        self._dirty = True
         self.refresh_sensitivity()
 
     def on_loc_button_clicked(self, button, cmd=None):

@@ -233,7 +233,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         '''
         GenericEditorPresenter.__init__(self, model, view)
         self.session = object_session(model)
-        self.__dirty = False
+        self._dirty = False
 
         # initialize widgets
         self.refresh_view()  # put model values in view
@@ -335,11 +335,11 @@ class LocationEditorPresenter(GenericEditorPresenter):
     def set_model_attr(self, attr, value, validator=None):
         super(LocationEditorPresenter, self).\
             set_model_attr(attr, value, validator)
-        self.__dirty = True
+        self._dirty = True
         self.refresh_sensitivity()
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():

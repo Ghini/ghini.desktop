@@ -64,7 +64,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
-        self.__dirty = False
+        self._dirty = False
         self.init_fullname_widgets()
         self.vern_presenter = VernacularNamePresenter(self)
         self.synonyms_presenter = SynonymsPresenter(self)
@@ -197,7 +197,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         del self.infrasp_presenter.view
 
     def dirty(self):
-        return self.__dirty or self.vern_presenter.dirty() or \
+        return self._dirty or self.vern_presenter.dirty() or \
             self.synonyms_presenter.dirty() or self.dist_presenter.dirty() \
             or self.infrasp_presenter.dirty() or self.notes_presenter.dirty()
 
@@ -208,7 +208,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         '''
         super(SpeciesEditorPresenter, self).set_model_attr(field, value,
                                                            validator)
-        self.__dirty = True
+        self._dirty = True
         sensitive = True
         if len(self.problems) != 0 \
            or len(self.vern_presenter.problems) != 0 \
@@ -296,7 +296,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         '''
         super(InfraspPresenter, self).__init__(parent.model, parent.view)
         self.parent_ref = weakref.ref(parent)
-        self.__dirty = False
+        self._dirty = False
         self.view.connect('add_infrasp_button', "clicked", self.append_infrasp)
 
         # will table.resize() remove the children??
@@ -313,7 +313,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
 
     def append_infrasp(self, *args):
@@ -402,7 +402,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
                 rank, epithet, author = self.species.get_infrasp(i)
                 self.species.set_infrasp(i-1, rank, epithet, author)
 
-            self.presenter.__dirty = False
+            self.presenter._dirty = False
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
             self.presenter.view.widgets.add_infrasp_button.props.\
@@ -412,7 +412,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         def set_model_attr(self, attr, value):
             infrasp_attr = Species.infrasp_attr[self.level][attr]
             setattr(self.species, infrasp_attr, value)
-            self.presenter.__dirty = True
+            self.presenter._dirty = True
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
 
@@ -453,7 +453,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         super(DistributionPresenter, self).__init__(parent.model, parent.view)
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
-        self.__dirty = False
+        self._dirty = False
         self.remove_menu = gtk.Menu()
         self.remove_menu.attach_to_widget(self.view.widgets.sp_dist_remove_button,
                                           None)
@@ -504,7 +504,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         dist = SpeciesDistribution(geography=geo)
         self.model.distribution.append(dist)
 #        debug([str(d) for d in self.model.distribution])
-        self.__dirty = True
+        self._dirty = True
         self.refresh_view()
         self.parent_ref().refresh_sensitivity()
 
@@ -513,12 +513,12 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.model.distribution.remove(dist)
         utils.delete_or_expunge(dist)
         self.refresh_view()
-        self.__dirty = True
+        self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
 
 
@@ -538,7 +538,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         super(VernacularNamePresenter, self).__init__(parent.model,parent.view)
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
-        self.__dirty = False
+        self._dirty = False
         self.init_treeview(self.model.vernacular_names)
         self.view.connect('sp_vern_add_button', 'clicked',
                           self.on_add_button_clicked)
@@ -550,7 +550,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         """
         @return True or False if the vernacular names have changed.
         """
-        return self.__dirty
+        return self._dirty
 
 
     def on_add_button_clicked(self, button, data=None):
@@ -596,7 +596,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
 #                                     tree_model[first][0])
                 self.model.default_vernacular_name = treemodel[first][0]
         self.parent_ref().refresh_sensitivity()
-        self.__dirty = True
+        self._dirty = True
 
 
     def on_default_toggled(self, cell, path, data=None):
@@ -607,7 +607,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         if not active: # then it's becoming active
             vn = self.treeview.get_model()[path][0]
             self.set_model_attr('default_vernacular_name', vn)
-        self.__dirty = True
+        self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
 
@@ -617,7 +617,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         if getattr(vn, prop) == new_text:
             return  # didn't change
         setattr(vn, prop, utils.utf8(new_text))
-        self.__dirty = True
+        self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
 
@@ -707,7 +707,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             path = tree_model.get_path(first)
             #self.set_model_attr('default_vernacular_name', value)
             self.model.default_vernacular_name = value
-            self.__dirty = True
+            self._dirty = True
             self.parent_ref().refresh_sensitivity()
         elif default_vernacular_name is None:
             return
@@ -749,10 +749,10 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                           self.on_add_button_clicked)
         self.view.connect('sp_syn_remove_button', 'clicked',
                           self.on_remove_button_clicked)
-        self.__dirty = False
+        self._dirty = False
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
     def init_treeview(self):
         '''
@@ -806,7 +806,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
-        self.__dirty = True
+        self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
     def on_remove_button_clicked(self, button, data=None):
@@ -852,7 +852,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         # tmp.session.close()
         # self.session.refresh(value)
         #self.session.flush([value])
-        self.__dirty = True
+        self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
 
