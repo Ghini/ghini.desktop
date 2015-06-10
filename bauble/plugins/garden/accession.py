@@ -175,7 +175,7 @@ def generic_taxon_add_action(model, view, presenter, top_presenter,
         presenter.remove_problem(
             hash(taxon_entry.get_name()), None)
         setattr(model, 'species', editor.model)
-        top_presenter.__dirty = True
+        presenter.__dirty = True
         top_presenter.refresh_sensitivity()
 
 
