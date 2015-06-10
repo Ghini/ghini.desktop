@@ -16,6 +16,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: bauble\n"
+"X-Poedit-SearchPath-1: bauble/utils\n"
+"X-Poedit-SearchPath-2: bauble/plugins\n"
+"X-Poedit-SearchPath-3: bauble/plugins/plants\n"
+"X-Poedit-SearchPath-4: bauble/plugins/garden\n"
 
 #: bauble/prefs.py:280
 #, python-format
