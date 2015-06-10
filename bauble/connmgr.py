@@ -126,7 +126,7 @@ class ConnectionManager:
             utils.message_dialog(msg)
         else:
             self.set_active_connection_by_name(self.default_name)
-            self._dirty = False
+            self.__dirty = False
 
         self._error = True
         name = None

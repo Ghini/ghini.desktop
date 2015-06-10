@@ -796,7 +796,7 @@ class PropagationPresenter(editor.ChildPresenter):
         self.view.set_widget_value(self.view.widgets.notes_textview,
                                    self.model.notes)
 
-        self._dirty = False
+        self.__dirty = False
         utils.setup_date_button(self.view, 'prop_date_entry',
                                 'prop_date_button')
         self.assign_simple_handler('prop_date_entry', 'date',
@@ -839,11 +839,11 @@ class PropagationPresenter(editor.ChildPresenter):
 
     def dirty(self):
         if self.model.prop_type == u'UnrootedCutting':
-            return self._cutting_presenter.dirty() or self._dirty
+            return self._cutting_presenter.dirty() or self.__dirty
         elif self.model.prop_type == u'Seed':
-            return self._seed_presenter.dirty() or self._dirty
+            return self._seed_presenter.dirty() or self.__dirty
         else:
-            return self._dirty
+            return self.__dirty
 
     def set_model_attr(self, field, value, validator=None):
         """
@@ -852,7 +852,7 @@ class PropagationPresenter(editor.ChildPresenter):
         #debug('%s = %s' % (field, value))
         super(PropagationPresenter, self).\
             set_model_attr(field, value, validator)
-        self._dirty = True
+        self.__dirty = True
         self.refresh_sensitivity()
 
     def cleanup(self):
@@ -908,7 +908,7 @@ class SourcePropagationPresenter(PropagationPresenter):
         # if not self.source.propagation:
         #     self.source.propagation = Propagation()
         #     view.widgets.prop_details_box.props.visible=False
-        self._dirty = False
+        self.__dirty = False
         super(SourcePropagationPresenter, self).__init__(model, view)
 
     def on_prop_type_changed(self, combo, *args):
@@ -930,14 +930,14 @@ class SourcePropagationPresenter(PropagationPresenter):
     def set_model_attr(self, attr, value, validator=None):
         #debug('set_model_attr(%s, %s)' % (attr, value))
         super(SourcePropagationPresenter, self).set_model_attr(attr, value)
-        self._dirty = True
+        self.__dirty = True
         self.refresh_sensitivity()
 
     def refresh_sensitivity(self):
         self.parent_ref().refresh_sensitivity()
 
     def dirty(self):
-        return super(SourcePropagationPresenter, self).dirty() or self._dirty
+        return super(SourcePropagationPresenter, self).dirty() or self.__dirty
 
 
 class PropagationEditorPresenter(PropagationPresenter):
