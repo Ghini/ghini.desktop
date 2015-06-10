@@ -355,6 +355,9 @@ class GUI(object):
                                    self.on_help_menu_contents),
                                   ("help_bug", None, _("Report a bug"), None,
                                    None, self.on_help_menu_bug),
+                                  ("help_logfile", gtk.STOCK_PROPERTIES,
+                                   _("Open the log-file"), None,
+                                   None, self.on_help_menu_logfile),
                                   ("help_web.devel", gtk.STOCK_HOME,
                                    _("Bauble development website"), None,
                                    None, self.on_help_menu_web_devel),
@@ -631,6 +634,10 @@ class GUI(object):
     def on_help_menu_bug(self, widget, data=None):
         desktop.open('https://github.com/Bauble/bauble.classic/issues/new',
                      dialog_on_error=True)
+
+    def on_help_menu_logfile(self, widget, data=None):
+        filename = os.path.join(paths.user_dir(), 'bauble.log')
+        desktop.open(filename, dialog_on_error=True)
 
     def on_help_menu_web_devel(self, widget, data=None):
         desktop.open('http://github.com/Bauble/bauble.classic/',

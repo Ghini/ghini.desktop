@@ -18,10 +18,13 @@
     <menu name="tools_menu" action="tools"/>
     <menu name="help_menu" action="help">
       <menuitem action="help_contents"/>
+      <separator/>
       <menuitem action="help_bug"/>
+      <menuitem action="help_logfile"/>
       <menuitem action="help_web.devel"/>
       <menuitem action="help_web.wiki"/>
       <menuitem action="help_web.forum"/>
+      <separator/>
       <menuitem action="help_about"/>
     </menu>
   </menubar>
