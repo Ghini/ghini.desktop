@@ -1024,10 +1024,10 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         # expand the first verification expander
         self.view.widgets.verifications_parent_box.get_children()[0].\
             set_expanded(True)
-        self._dirty = False
+        self.__dirty = False
 
     def dirty(self):
-        return self._dirty
+        return self.__dirty
 
     def refresh_view(self):
         pass
@@ -1214,7 +1214,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # remove verification from accession
             if self.model.accession:
                 self.model.accession.verifications.remove(self.model)
-            self.presenter()._dirty = True
+            self.presenter().__dirty = True
             self.presenter().parent_ref().refresh_sensitivity()
 
         def on_entry_changed(self, entry, attr):
@@ -1246,7 +1246,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # we can setup a dummy verification in the interface
             if not self.model.accession:
                 self.presenter().model.verifications.append(self.model)
-            self.presenter()._dirty = True
+            self.presenter().__dirty = True
             self.update_label()
             self.presenter().parent_ref().refresh_sensitivity()
 
@@ -1283,7 +1283,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                     hash(taxon_entry.get_name()), None)
                 self.set_model_attr('species', editor.model)
                 logger.debug('is VerificationPresenter dirty? %s' %
-                             self.presenter()._dirty)
+                             self.presenter().__dirty)
 
 
 class SourcePresenter(editor.GenericEditorPresenter):
