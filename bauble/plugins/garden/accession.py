@@ -158,6 +158,27 @@ def get_next_code():
     return next
 
 
+def generic_taxon_add_action(model, view, presenter, button, taxon_entry):
+    """user hit click on taxon add button
+
+    new taxon goes into model.species;
+    its string representation into taxon_entry.
+    """
+
+    from bauble.plugins.plants.species import SpeciesEditor
+    editor = SpeciesEditor(parent=view.get_window())
+    if editor.start():
+        logger.debug('new taxon added from within VerificationBox')
+        # add the new taxon to the session and start using it
+        presenter.session.add(editor.model)
+        taxon_entry.set_text("%s" % editor.model)
+        presenter.remove_problem(
+            hash(taxon_entry.get_name()), None)
+        setattr(model, 'species', editor.model)
+        presenter.__dirty = True
+        presenter.refresh_view()
+
+
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
     return e.start()
@@ -1272,18 +1293,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             ## we come here when we are adding a Verification, and the
             ## Verification wants to refer to a new taxon.
 
-            from bauble.plugins.plants.species import SpeciesEditor
-            editor = SpeciesEditor(parent=self.presenter().view.get_window())
-            if editor.start():
-                logger.debug('new taxon added from within VerificationBox')
-                # add the new taxon to the session and start using it
-                self.presenter().session.add(editor.model)
-                taxon_entry.set_text("%s" % editor.model)
-                self.presenter().remove_problem(
-                    hash(taxon_entry.get_name()), None)
-                self.set_model_attr('species', editor.model)
-                logger.debug('is VerificationPresenter dirty? %s' %
-                             self.presenter().__dirty)
+            generic_taxon_add_action(
+                self.model, self.presenter().view, self.presenter(),
+                button, taxon_entry)
 
 
 class SourcePresenter(editor.GenericEditorPresenter):
@@ -1795,6 +1807,13 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.on_loc_button_clicked,
             self.view.widgets.intended2_loc_comboentry,
             'intended2_location')
+
+        ## add a taxon implies setting the acc_species_entry
+        self.view.connect(
+            self.view.widgets.acc_taxon_add_button, 'clicked',
+            lambda b, w: generic_taxon_add_action(
+                self.model, self.view, self, b, w),
+            self.view.widgets.acc_species_entry)
 
         self.assign_simple_handler(
             'acc_quantity_recvd_entry', 'quantity_recvd')
