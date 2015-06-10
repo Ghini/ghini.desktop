@@ -3,7 +3,7 @@
 # Requires bzr, devscripts, debhelper packages
 
 TOPLEVEL=`pwd`
-VERSION="1.0.40" # :bump
+VERSION="1.0.41" # :bump
 TARBALL="bauble-$VERSION.tar.gz"
 ORIG_TARBALL="bauble_$VERSION.orig.tar.gz"
 
