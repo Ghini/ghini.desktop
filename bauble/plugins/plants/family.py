@@ -382,7 +382,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
-        self.__dirty = False
+        self._dirty = False
 
     def refresh_sensitivity(self):
         # TODO: check widgets for problems
@@ -395,11 +395,11 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         # debug('set_model_attr(%s, %s)' % (field, value))
         super(FamilyEditorPresenter, self).set_model_attr(field, value,
                                                           validator)
-        self.__dirty = True
+        self._dirty = True
         self.refresh_sensitivity()
 
     def dirty(self):
-        return self.__dirty or self.synonyms_presenter.dirty() \
+        return self._dirty or self.synonyms_presenter.dirty() \
             or self.notes_presenter.dirty()
 
     def refresh_view(self):
@@ -453,10 +453,10 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                           self.on_add_button_clicked)
         self.view.connect('fam_syn_remove_button', 'clicked',
                           self.on_remove_button_clicked)
-        self.__dirty = False
+        self._dirty = False
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
     def init_treeview(self):
         '''
@@ -516,7 +516,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
-        self.__dirty = True
+        self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
     def on_remove_button_clicked(self, button, data=None):
@@ -540,7 +540,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             self.session.flush([value])
-            self.__dirty = True
+            self._dirty = True
             self.refresh_sensitivity()
 
 

@@ -481,7 +481,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         if self.model not in self.session.new:
             self.view.widgets.gen_ok_and_add_button.set_sensitive(True)
 
-        self.__dirty = False
+        self._dirty = False
 
     def cleanup(self):
         super(GenusEditorPresenter, self).cleanup()
@@ -498,11 +498,11 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
     def set_model_attr(self, field, value, validator=None):
         super(GenusEditorPresenter, self).set_model_attr(field, value,
                                                          validator)
-        self.__dirty = True
+        self._dirty = True
         self.refresh_sensitivity()
 
     def dirty(self):
-        return (self.__dirty or self.synonyms_presenter.dirty() or
+        return (self._dirty or self.synonyms_presenter.dirty() or
                 self.notes_presenter.dirty())
 
     def refresh_view(self):
@@ -556,13 +556,13 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                           self.on_add_button_clicked)
         self.view.connect('gen_syn_remove_button', 'clicked',
                           self.on_remove_button_clicked)
-        self.__dirty = False
+        self._dirty = False
 
     def start(self):
         raise Exception('genus.SynonymsPresenter cannot be started')
 
     def dirty(self):
-        return self.__dirty
+        return self._dirty
 
     def init_treeview(self):
         '''
@@ -626,7 +626,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
-        self.__dirty = True
+        self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
     def on_remove_button_clicked(self, button, data=None):
@@ -649,7 +649,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             self.session.flush([value])
-            self.__dirty = True
+            self._dirty = True
             self.refresh_sensitivity()
 
 
