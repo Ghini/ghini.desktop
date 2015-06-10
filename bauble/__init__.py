@@ -322,14 +322,16 @@ def main(uri=None):
             if response != gtk.RESPONSE_OK:
                 exit(0)
     except urllib2.URLError:
-        logger.warning('connection is slow or down')
+        logger.info('connection is slow or down')
         pass
     except ssl.SSLError, e:
-        logger.warning('SSLError %s while checking for newer version' %
-                       e)
+        logger.info('SSLError %s while checking for newer version' % e)
         pass
     except urllib2.HTTPError:
-        logger.warning('HTTPError while checking for newer version')
+        logger.info('HTTPError while checking for newer version')
+        pass
+    except:
+        logger.warning('unhandled exception while checking for newer version')
         pass
 
     open_exc = None
