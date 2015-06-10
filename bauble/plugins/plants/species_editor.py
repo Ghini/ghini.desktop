@@ -296,7 +296,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         '''
         super(InfraspPresenter, self).__init__(parent.model, parent.view)
         self.parent_ref = weakref.ref(parent)
-        self._dirty = False
+        self.__dirty = False
         self.view.connect('add_infrasp_button', "clicked", self.append_infrasp)
 
         # will table.resize() remove the children??
@@ -313,7 +313,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self._dirty
+        return self.__dirty
 
 
     def append_infrasp(self, *args):
@@ -402,7 +402,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
                 rank, epithet, author = self.species.get_infrasp(i)
                 self.species.set_infrasp(i-1, rank, epithet, author)
 
-            self.presenter._dirty = False
+            self.presenter.__dirty = False
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
             self.presenter.view.widgets.add_infrasp_button.props.\
@@ -412,7 +412,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         def set_model_attr(self, attr, value):
             infrasp_attr = Species.infrasp_attr[self.level][attr]
             setattr(self.species, infrasp_attr, value)
-            self.presenter._dirty = True
+            self.presenter.__dirty = True
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
 

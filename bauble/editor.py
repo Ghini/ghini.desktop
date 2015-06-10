@@ -474,7 +474,7 @@ class GenericEditorPresenter(object):
         self.model = model
         self.view = view
         self.problems = set()
-        self._dirty = False
+        self.__dirty = False
 
     # whether the presenter should be commited or not
     def dirty(self):
@@ -485,7 +485,7 @@ class GenericEditorPresenter(object):
         session is not dirty nor is it required to change back to True if
         the changes are committed.
         """
-        return self._dirty
+        return self.__dirty
 
     def has_problems(self, widget):
         """
@@ -980,7 +980,7 @@ class NoteBox(gtk.HBox):
         if self.model in self.presenter.notes:
             self.presenter.notes.remove(self.model)
         self.widgets.remove_parent(self.widgets.notes_box)
-        self.presenter._dirty = True
+        self.presenter.__dirty = True
         self.presenter.parent_ref().refresh_sensitivity()
 
     def on_date_entry_changed(self, entry, *args):
@@ -1068,7 +1068,7 @@ class NoteBox(gtk.HBox):
 
     def set_model_attr(self, attr, value):
         setattr(self.model, attr, value)
-        self.presenter._dirty = True
+        self.presenter.__dirty = True
         if attr != 'date' and not self.model.date:
             # this is a little voodoo to set the date on the model
             # since when we create a new note box we add today's
@@ -1102,7 +1102,7 @@ class PictureBox(NoteBox):
         super(PictureBox, self).__init__(presenter, model)
         utils.set_widget_value(self.widgets.category_comboentry,
                                u'<picture>')
-        self.presenter._dirty = False
+        self.presenter.__dirty = False
         self.last_folder = '.'
 
         self.widgets.picture_button.connect(
