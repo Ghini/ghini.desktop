@@ -41,3 +41,35 @@ This tool will ask you to select a directory to export the CSV data.
 All of the tables in Bauble will be exported to files in the format
 tablename.txt where tablename is the name of the table where the data
 was exported from.
+
+Importing from JSON
+-------------------
+
+This is *the* way to import data into an existing database, without
+destroying previous content. A typical example of this functionality would
+be importing your digital collection into a fresh, just initialized Bauble
+database. Converting a database into bauble json interchange format is
+beyond the scope of this manual, please contact one of the authors if you
+need any further help.
+
+Using the Bauble json interchange format, you can import data which you have
+exported from a different Bauble installation.
+
+Exporting to JSON
+-----------------
+
+This feature is still under development.
+
+.. image:: ../web/images/screenshots/export-to-json.png
+
+when you activate this export tool, you are given the choice to specify what
+to export. You can use the current selection to limit the span of the
+export, or you can start at the complete content of a domain, to be chosen
+among Species, Accession, Plant.  
+
+Exporting *Species* will only export the complete taxonomic information in
+your database. *Accession* will export all your accessions plus all the
+taxonomic information it refers to: unreferred to taxa will not be
+exported. *Plant* will export all living plants (some accession might not be
+included), all referred to locations and taxa.
+
