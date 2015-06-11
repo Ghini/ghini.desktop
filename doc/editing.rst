@@ -165,10 +165,42 @@ blue to indicate that you are now creating multiple plants.  Any
 fields that are set while in this mode will be copied to all the
 plants that are created.
 
+Pictures
+^^^^^^^^
+
+Just as almost all objects in the Bauble database can have *Notes*
+associated to them, Plants can have *Pictures*: next to the tab for Notes,
+the Plants editor contains an extra tab called "Pictures". You can associate
+as many pictures as you might need to a plant.
+
+When you associate a picture to a plant, the file is copied in the
+*pictures* folder, and a miniature (500x500) is generated and copied in the
+`thumbnails` folder inside of the pictures folder.
+
+As of Bauble-1.0.41, Pictures are not kept in the database. To ensure
+pictures are available on all terminals where you have installed and
+configured Bauble, you can use a file sharing service like Copy or
+Dropbox. The personal choice of the writer of this document is to use Copy,
+because it offers much more space and because of its "Fair Storage" policy.
+
+Remember that you have configured the pictures root folder when you
+specified the details of your database connection. Again, you should make
+sure that the pictures root folder is shared with your file sharing service
+of choice.
+
+When a Plant in the current selection is highlighted, its pictures are
+displayed in the pictures pane, the pane left of the information pane. When
+an accession in the selection is highlighted, any picture associated to the
+plants in the highlighted accession are displayed in the pictures pane.
 
 Locations
 ---------
 The Location editor
 
+danger zone
+^^^^^^^^^^^
 
-
+The location editor contains an initially hidden section named *danger
+zone*. The widgets contained in this section allow the user to merge the
+current location into a different location, letting the user correct
+spelling mistakes or implement policy changes.
