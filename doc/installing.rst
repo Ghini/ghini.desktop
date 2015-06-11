@@ -165,7 +165,7 @@ the installation steps on Windows:
     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.bat
 
    this will pull the `bauble.classic` repository on github to your home
-   directory, under `Local\github\Bauble`, checkout the `bauble-1.0`
+   directory, under `Local\\github\\Bauble`, checkout the `bauble-1.0`
    production line, create a virtual environment and install bauble into it.
 
    you can also run `devinstall.bat` passing it as argument the numerical
