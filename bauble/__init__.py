@@ -220,7 +220,7 @@ def newer_version_on_github(input_stream):
             if int(github_patch) > int(version_tuple[2]):
                 return True
             if int(github_patch) < int(version_tuple[2]):
-                logger.warning("running unreleased version")
+                logger.info("running unreleased version")
     except TypeError:
         logger.warning('TypeError while reading github stream')
     except IndexError:
@@ -266,6 +266,19 @@ def main(uri=None):
     consoleHandler.setFormatter(formatter)
     fileHandler.setLevel(logging.DEBUG)
     consoleHandler.setLevel(consoleLevel)
+
+    try:
+        # no raven.conf.setup_logging: just standard Python logging
+        from raven import Client
+        from raven.handlers.logging import SentryHandler
+        sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
+                               '00268114ed47460b94ce2b1b0b2a4a20@'
+                               'app.getsentry.com/45704')
+        handler = SentryHandler(sentry_client)
+        logging.getLogger().addHandler(handler)
+        handler.setLevel(logging.WARNING)
+    except:
+        logger.warning("can't configure sentry client")
 
     import gtk.gdk
     import pygtk
@@ -330,8 +343,9 @@ def main(uri=None):
     except urllib2.HTTPError:
         logger.info('HTTPError while checking for newer version')
         pass
-    except:
-        logger.warning('unhandled exception while checking for newer version')
+    except Exception, e:
+        logger.warning('unhandled %s(%s) while checking for newer version'
+                       % type(e), e)
         pass
 
     open_exc = None
@@ -352,20 +366,20 @@ def main(uri=None):
                 else:
                     uri = conn_name = None
             except err.VersionError, e:
-                logger.warning(e)
+                logger.warning("%s(%s)" % (type(e), e))
                 db.open(uri, False)
                 break
             except (err.EmptyDatabaseError, err.MetaTableError,
                     err.VersionError, err.TimestampError,
                     err.RegistryError), e:
-                logger.warning(e)
+                logger.warning("%s(%s)" % (type(e), e))
                 open_exc = e
                 # reopen without verification so that db.Session and
                 # db.engine, db.metadata will be bound to an engine
                 db.open(uri, False)
                 break
             except err.DatabaseError, e:
-                logger.debug(e)
+                logger.debug("%s(%s)" % (type(e), e))
                 # traceback.format_exc()
                 open_exc = e
                 # break
@@ -416,12 +430,12 @@ def main(uri=None):
                         utils.message_details_dialog(utils.xml_safe(e),
                                                      traceback.format_exc(),
                                                      gtk.MESSAGE_ERROR)
-                        logger.error(e)
+                        logger.error("%s(%s)" % (type(e), e))
             else:
                 pluginmgr.init()
         except Exception, e:
-            logger.warning(traceback.format_exc())
-            logger.warning(e)
+            logger.warning("%s\n%s(%s)"
+                           % (traceback.format_exc(), type(e), e))
             utils.message_dialog(utils.utf8(e), gtk.MESSAGE_WARNING)
         gtk.gdk.threads_leave()
 
