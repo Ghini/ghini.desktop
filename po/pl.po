@@ -8,17 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
 "POT-Creation-Date: 2015-06-09 09:30-0500\n"
-"PO-Revision-Date: 2015-06-09 09:30-0500\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/"
-">\n"
+"PO-Revision-Date: 2015-06-19 09:09+0200\n"
+"Last-Translator: Adrian Budasz <adrianbudasz@gmail.com>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/>"
+"\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Weblate 2.4-dev\n"
 "X-Launchpad-Export-Date: 2012-11-14 04:52+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -250,7 +250,7 @@ msgid ""
 "directly or indirectly rely on each other"
 msgstr ""
 "Wtyczka zawiera pętlę zależności. Ma to miejsce, gdy dwie wtyczki pośrednio "
-"lub bezpośrednio są zależne od siebie."
+"lub bezpośrednio są zależne od siebie"
 
 #: bauble/pluginmgr.py:244
 #, python-format
@@ -259,7 +259,7 @@ msgid ""
 "in the plugin directory"
 msgstr ""
 "Wtyczka %(plugin_name)s znajduje się w rejestrze, lecz nie została "
-"znaleziona w katalogu wtyczek."
+"znaleziona w katalogu wtyczek"
 
 #: bauble/pluginmgr.py:255
 #, python-format
@@ -363,9 +363,8 @@ msgid "Bauble wiki"
 msgstr "Strona domowa Bauble"
 
 #: bauble/ui.py:365
-#, fuzzy
 msgid "Bauble forum"
-msgstr "Bauble"
+msgstr "Forum Bauble"
 
 #: bauble/ui.py:367
 msgid "About"
@@ -3258,7 +3257,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1926
 msgid "Accuracy"
-msgstr ""
+msgstr "Trafność"
 
 #: bauble/plugins/garden/acc_editor.glade:1937
 msgid "South"
@@ -3298,7 +3297,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2826
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: bauble/plugins/garden/acc_editor.glade:3088
 msgid "Verifier"
@@ -3314,16 +3313,15 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:3201
 msgid "Level"
-msgstr ""
+msgstr "Poziom"
 
 #: bauble/plugins/garden/acc_editor.glade:3237
 msgid "Reference"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:8
-#, fuzzy
 msgid "Export To JSON"
-msgstr "Eksportuj"
+msgstr "Eksportuj do JSON"
 
 #: bauble/plugins/imex/select_export.glade:82
 msgid "selection"
@@ -3339,9 +3337,8 @@ msgid "accessions"
 msgstr "Wpis"
 
 #: bauble/plugins/imex/select_export.glade:132
-#, fuzzy
 msgid "plants"
-msgstr "Roślina"
+msgstr "rośliny"
 
 #: bauble/plugins/imex/select_export.glade:166
 msgid "export based on:"
@@ -3361,7 +3358,7 @@ msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:298
 msgid "..."
-msgstr ""
+msgstr "..."
 
 #: bauble/plugins/imex/select_export.glade:318
 msgid "output:"
@@ -3439,7 +3436,7 @@ msgstr "Edytor gatunku rośliny"
 
 #: bauble/plugins/plants/species_editor.glade:78
 msgid "Hybrid"
-msgstr ""
+msgstr "Hybryda"
 
 #: bauble/plugins/plants/species_editor.glade:202
 msgid "Cultivar Group"
@@ -3447,7 +3444,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:284
 msgid "Rank"
-msgstr ""
+msgstr "Ranga"
 
 #: bauble/plugins/plants/species_editor.glade:290
 msgid "Epithet"
@@ -3475,7 +3472,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:519
 msgid "Awards"
-msgstr ""
+msgstr "Nagrody"
 
 #: bauble/plugins/plants/species_editor.glade:633
 msgid "<b>Vernacular Names</b>"
