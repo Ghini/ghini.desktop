@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
 "POT-Creation-Date: 2015-06-09 09:29-0500\n"
-"PO-Revision-Date: 2015-06-09 09:29-0500\n"
+"PO-Revision-Date: 2015-06-22 01:59+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Italian <https://hosted.weblate.org/projects/bauble/master/it/"
-">\n"
+"Language-Team: Italian "
+"<https://hosted.weblate.org/projects/bauble/master/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Weblate 2.4-dev\n"
 "X-Launchpad-Export-Date: 2012-09-20 04:53+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -43,7 +43,7 @@ msgstr ""
 
 #: bauble/search.py:610 bauble/search.py:989
 msgid "Search Domain"
-msgstr ""
+msgstr "Dominio di ricerca"
 
 #: bauble/search.py:622
 msgid "Property"
@@ -51,7 +51,7 @@ msgstr "Proprietà"
 
 #: bauble/search.py:628
 msgid "Domain Properties"
-msgstr ""
+msgstr "Proprietà del dominio"
 
 #: bauble/search.py:785
 msgid "Choose a property..."
@@ -139,7 +139,7 @@ msgid ""
 "No Python database connectors installed.\n"
 "Please consult the documentation for the prerequesites for installing Bauble."
 msgstr ""
-"Nessun connettore a database Python installato.\n"
+"Non è disponibile alcun modulo Python per la connessione a database.\n"
 "Per piacere consulta la documentazione per i prerequisiti per "
 "l'installazione di Bauble."
 
@@ -205,7 +205,7 @@ msgstr "Password: "
 
 #: bauble/connmgr.py:618 bauble/connmgr.py:713
 msgid "Pictures root: "
-msgstr ""
+msgstr "Cartella base per le immagini: "
 
 #: bauble/connmgr.py:624 bauble/connmgr.py:704 bauble/connmgr.py:719
 msgid "Browse..."
@@ -360,23 +360,20 @@ msgid "Report a bug"
 msgstr "Segnala un bug"
 
 #: bauble/ui.py:359
-#, fuzzy
 msgid "Bauble development website"
-msgstr "Sito web di Bauble"
+msgstr "Sito web per lo sviluppo di Bauble"
 
 #: bauble/ui.py:362
-#, fuzzy
 msgid "Bauble wiki"
-msgstr "Sito web di Bauble"
+msgstr "Sito wiki di Bauble"
 
 #: bauble/ui.py:365
-#, fuzzy
 msgid "Bauble forum"
-msgstr "Bauble"
+msgstr "Forum Bauble"
 
 #: bauble/ui.py:367
 msgid "About"
-msgstr "Riguardo A"
+msgstr "Riguardo a"
 
 #: bauble/ui.py:565
 #, python-format
@@ -403,15 +400,16 @@ msgid "Would you like the cancel the current tasks?"
 msgstr "Vorresti cancellare i compiti correnti?"
 
 #: bauble/db.py:38
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "This version of Bauble requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
-"Questa versione di Bauble richiede SQLAlchemy 0.5.0 o superiore. Per favore "
-"scarica e installa una nuova versione di SQLAlchemy da http://www.sqlalchemy."
-"org o contatta l'amministratore di sistema."
+"Questa versione di Bauble richiede SQLAlchemy 0.6 o superiore. Stai "
+"utilizzando la %s. Per favore scarica e installa una nuova versione di "
+"SQLAlchemy da http://www.sqlalchemy.org o contatta l'amministratore di "
+"sistema."
 
 #: bauble/db.py:45
 msgid ""
