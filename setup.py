@@ -1,27 +1,40 @@
 #!/usr/bin/env python
 #
-#  Copyright (c) 2005,2006,2007,2008 Brett Adams
-#  <brett@belizebotanic.org> This is free software, see GNU General
-#  Public License v2 for details.
+# Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+# Copyright (c) 2015 Mario Frasca <mario@anche.no>
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+#
+
 try:
     import setuptools
 except ImportError:
     from ez_setup import use_setuptools
     use_setuptools()
-import setuptools
+    import setuptools
 import os
 import sys
 import glob
-import distutils.core
 from distutils.command.build import build as _build
-import distutils.util as util
 import distutils.spawn as spawn
 import distutils.dep_util as dep_util
 import distutils.dir_util as dir_util
 import distutils.file_util as file_util
 from setuptools import Command
 from setuptools.command.install import install as _install
-from setuptools.command.sdist import sdist as _sdist
 from bauble import version
 
 # TODO: external dependencies not in the PyPI: PyGTK>=2.14
@@ -80,7 +93,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             "compressed": 1,
             "optimize": 2,
             "includes": py2exe_includes,
-            "dll_excludes": ["iconv.dll", "intl.dll",
+            "dll_excludes": [
+                "iconv.dll", "intl.dll",
                 "libatk-1.0-0.dll", "libgdk_pixbuf-2.0-0.dll",
                 "libgdk-win32-2.0-0.dll", "libglib-2.0-0.dll",
                 "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
@@ -124,7 +138,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             import shutil
             if not os.path.exists(dist_gtk):
                 ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
-                                                'man','demo', 'aclocal',
+                                                'man', 'demo', 'aclocal',
                                                 'doc', 'include')
                 shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
@@ -304,6 +318,7 @@ class docs(Command):
     def run(self):
         try:
             import sphinx
+            sphinx
         except ImportError:
             print 'Building the docs requires the '\
                   'Sphinx(http://sphinx.pocoo.org) package'
