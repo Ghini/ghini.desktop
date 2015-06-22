@@ -27,7 +27,7 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 from sqlalchemy.orm import class_mapper
@@ -194,9 +194,10 @@ class BetweenExpressionAction(object):
 
     def evaluate(self, env):
         q, a = self.operands[0].evaluate(env)
-        clause = lambda low, high: low <= a <= high
-        return q.filter(clause(self.operands[1].express(),
-                               self.operands[2].express()))
+        clause_low = lambda low: low <= a
+        clause_high = lambda high: a <= high
+        return q.filter(and_(clause_low(self.operands[1].express()),
+                             clause_high(self.operands[2].express())))
 
     def needs_join(self, env):
         return [self.operands[0].needs_join(env)]
