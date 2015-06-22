@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-03-23 15:55-0400\n"
-"PO-Revision-Date: 2015-06-11 01:46+0200\n"
+"PO-Revision-Date: 2015-06-22 02:28+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Vietnamese "
 "<https://hosted.weblate.org/projects/bauble/master/vi/>\n"
@@ -293,7 +293,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:883
 msgid "Genus "
-msgstr ""
+msgstr "Chi "
 
 #: bauble/plugins/plants/species_editor.py:884
 msgid "Species epithet"
@@ -443,7 +443,7 @@ msgstr ""
 #: bauble/plugins/plants/__init__.py:76
 #: bauble/plugins/plants/genus_editor.glade.h:5
 msgid "Family"
-msgstr ""
+msgstr "Họ"
 
 #: bauble/plugins/plants/family_editor.glade.h:5
 msgid "Family Editor"
@@ -472,14 +472,14 @@ msgstr ""
 #: bauble/plugins/plants/species_editor.glade.h:13
 #: bauble/plugins/plants/genus_editor.glade.h:7
 msgid "Genus"
-msgstr ""
+msgstr "Chi"
 
 #: bauble/plugins/plants/__init__.py:78
 #: bauble/plugins/plants/species_editor.glade.h:21
 #: bauble/plugins/report/xsl/__init__.py:68
 #: bauble/plugins/report/xsl/__init__.py:384
 msgid "Species"
-msgstr ""
+msgstr "Loại"
 
 #: bauble/plugins/plants/genus.py:68
 #, python-format
