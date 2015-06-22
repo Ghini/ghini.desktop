@@ -30,22 +30,27 @@ parse_results = Results()
 
 parser = search.SearchParser()
 
+
 class SearchParserTests(unittest.TestCase):
     error_msg = lambda me, s, v, e:  '%s: %s == %s' % (s, v, e)
 
-    def test_query_expression_token(self):
+    def test_query_expression_token_UPPER(self):
         s = 'domain where col=value'
         #debug(s)
-        parseresult = parser.query.parseString(s)
+        parser.query.parseString(s)
 
         s = 'domain where relation.col=value'
-        parseresult = parser.query.parseString(s)
+        parser.query.parseString(s)
 
         s = 'domain where relation.relation.col=value'
-        parseresult = parser.query.parseString(s)
+        parser.query.parseString(s)
 
         s = 'domain where relation.relation.col=value AND col2=value2'
-        parseresult = parser.query.parseString(s)
+        parser.query.parseString(s)
+
+    def test_query_expression_token_LOWER(self):
+        s = 'domain where relation.relation.col=value and col2=value2'
+        parser.query.parseString(s)
 
     def test_statement_token(self):
         pass
@@ -647,3 +652,21 @@ class BuildingSQLStatements(BaubleTestCase):
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE NOT (species.genus.family.family = 'name')")
         results = sp.parse_string('species where family=1 OR family=2 AND NOT genus.id=3')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((family = 1.0) OR ((family = 2.0) AND NOT (genus.id = 3.0)))")
+
+    def test_canuse_lowercase_operators(self):
+        'can use the operators in lower case'
+
+        sp = self.SearchParser()
+        results = sp.parse_string('species where not species.genus.family.family=name')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE NOT (species.genus.family.family = 'name')")
+        results = sp.parse_string('species where ! species.genus.family.family=name')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE NOT (species.genus.family.family = 'name')")
+        results = sp.parse_string('species where family=1 or family=2 and not genus.id=3')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE ((family = 1.0) OR ((family = 2.0) AND NOT (genus.id = 3.0)))")
+
+    def test_notes_is_not_not_es(self):
+        'acknowledges word boundaries'
+
+        sp = self.SearchParser()
+        results = sp.parse_string('species where notes.id!=0')
+        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE (notes.id != 0.0)")
