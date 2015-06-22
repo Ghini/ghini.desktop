@@ -669,4 +669,12 @@ class BuildingSQLStatements(BaubleTestCase):
 
         sp = self.SearchParser()
         results = sp.parse_string('species where notes.id!=0')
-        self.assertEqual(str(results.statement), "SELECT * FROM species WHERE (notes.id != 0.0)")
+        self.assertEqual(str(results.statement),
+                         "SELECT * FROM species WHERE (notes.id != 0.0)")
+
+    def test_between(self):
+        'use BETWEEN value and value'
+        sp = self.SearchParser()
+        results = sp.parse_string('species where id between 0 and 1')
+        self.assertEqual(str(results.statement),
+                         "SELECT * FROM species WHERE (BETWEEN id 0.0 1.0)")
