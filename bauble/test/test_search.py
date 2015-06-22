@@ -590,6 +590,33 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([pp]))
 
+    def test_between_evaluate(self):
+        'use BETWEEN value and value'
+        Family = self.Family
+        Genus = self.Genus
+        from bauble.plugins.plants.species_model import Species
+        from bauble.plugins.garden.accession import Accession
+        from bauble.plugins.garden.location import Location
+        from bauble.plugins.garden.plant import Plant
+        family2 = Family(family=u'family2')
+        g2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3', qualifier=u's. lat.')
+        g3 = Genus(family=f3, genus=u'Ixora')
+        sp = Species(sp=u"coccinea", genus=g3)
+        ac = Accession(species=sp, code=u'1979.0001')
+        self.session.add_all([family2, g2, f3, g3, sp, ac])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'accession where code between "1978" and "1980"'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([ac]))
+        s = 'accession where code between "1980" and "1980"'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set())
+
 
 class QueryBuilderTests(BaubleTestCase):
 
@@ -672,7 +699,7 @@ class BuildingSQLStatements(BaubleTestCase):
         self.assertEqual(str(results.statement),
                          "SELECT * FROM species WHERE (notes.id != 0.0)")
 
-    def test_between(self):
+    def test_between_just_parse(self):
         'use BETWEEN value and value'
         sp = self.SearchParser()
         results = sp.parse_string('species where id between 0 and 1')
