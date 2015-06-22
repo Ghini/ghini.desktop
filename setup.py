@@ -8,20 +8,17 @@ try:
 except ImportError:
     from ez_setup import use_setuptools
     use_setuptools()
-import setuptools
+    import setuptools
 import os
 import sys
 import glob
-import distutils.core
 from distutils.command.build import build as _build
-import distutils.util as util
 import distutils.spawn as spawn
 import distutils.dep_util as dep_util
 import distutils.dir_util as dir_util
 import distutils.file_util as file_util
 from setuptools import Command
 from setuptools.command.install import install as _install
-from setuptools.command.sdist import sdist as _sdist
 from bauble import version
 
 # TODO: external dependencies not in the PyPI: PyGTK>=2.14
@@ -80,7 +77,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             "compressed": 1,
             "optimize": 2,
             "includes": py2exe_includes,
-            "dll_excludes": ["iconv.dll", "intl.dll",
+            "dll_excludes": [
+                "iconv.dll", "intl.dll",
                 "libatk-1.0-0.dll", "libgdk_pixbuf-2.0-0.dll",
                 "libgdk-win32-2.0-0.dll", "libglib-2.0-0.dll",
                 "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
@@ -124,7 +122,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             import shutil
             if not os.path.exists(dist_gtk):
                 ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
-                                                'man','demo', 'aclocal',
+                                                'man', 'demo', 'aclocal',
                                                 'doc', 'include')
                 shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
@@ -304,6 +302,7 @@ class docs(Command):
     def run(self):
         try:
             import sphinx
+            sphinx
         except ImportError:
             print 'Building the docs requires the '\
                   'Sphinx(http://sphinx.pocoo.org) package'
