@@ -412,10 +412,12 @@ class ValueListAction(object):
         return result
 
 
-from pyparsing import (Word, alphas8bit, removeQuotes, delimitedList, Regex,
-                       OneOrMore, oneOf, alphas, alphanums, Group, Literal,
-                       stringEnd, Keyword, quotedString,
-                       infixNotation, opAssoc, Forward)
+from pyparsing import (
+    Word, alphas8bit, removeQuotes, delimitedList, Regex,
+    OneOrMore, oneOf, alphas, alphanums, Group, Literal,
+    CaselessLiteral, WordStart, WordEnd,
+    stringEnd, Keyword, quotedString,
+    infixNotation, opAssoc, Forward)
 
 
 class SearchParser(object):
@@ -457,9 +459,9 @@ class SearchParser(object):
         | (domain + binop + domain_values + stringEnd)
         ).setParseAction(DomainExpressionAction)('domain_expression')
 
-    AND_ = Literal("AND") | Literal("&&")
-    OR_ = Literal("OR") | Literal("||")
-    NOT_ = Literal("NOT") | Literal('!')
+    AND_ = WordStart() + (CaselessLiteral("AND") | Literal("&&")) + WordEnd()
+    OR_ = WordStart() + (CaselessLiteral("OR") | Literal("||")) + WordEnd()
+    NOT_ = WordStart() + (CaselessLiteral("NOT") | Literal('!')) + WordEnd()
 
     query_expression = Forward()('filter')
     identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),
