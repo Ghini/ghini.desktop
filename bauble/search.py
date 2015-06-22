@@ -185,6 +185,23 @@ class IdentExpressionToken(object):
         return [self.operands[0].needs_join(env)]
 
 
+class BetweenExpressionAction(object):
+    def __init__(self, t):
+        self.operands = t[0][0::2]  # every second object is an operand
+
+    def __repr__(self):
+        return "(BETWEEN %s %s %s)" % tuple(self.operands)
+
+    def evaluate(self, env):
+        q, a = self.operands[0].evaluate(env)
+        clause = lambda low, high: low <= a <= high
+        return q.filter(clause(self.operands[1].express(),
+                               self.operands[2].express()))
+
+    def needs_join(self, env):
+        return [self.operands[0].needs_join(env)]
+
+
 class UnaryLogical(object):
     ## abstract base class. `name` is defined in derived classes
     def __init__(self, t):
@@ -462,6 +479,7 @@ class SearchParser(object):
     AND_ = WordStart() + (CaselessLiteral("AND") | Literal("&&")) + WordEnd()
     OR_ = WordStart() + (CaselessLiteral("OR") | Literal("||")) + WordEnd()
     NOT_ = WordStart() + (CaselessLiteral("NOT") | Literal('!')) + WordEnd()
+    BETWEEN_ = WordStart() + CaselessLiteral("BETWEEN") + WordEnd()
 
     query_expression = Forward()('filter')
     identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),
@@ -471,8 +489,11 @@ class SearchParser(object):
         | (
             Literal('(') + query_expression + Literal(')')
         ).setParseAction(ParenthesisedQuery))
+    between_expression = Group(
+        identifier + BETWEEN_ + value + AND_ + value
+        ).setParseAction(BetweenExpressionAction)
     query_expression << infixNotation(
-        ident_expression,
+        (ident_expression | between_expression),
         [(NOT_, 1, opAssoc.RIGHT, SearchNotAction),
          (AND_, 2, opAssoc.LEFT,  SearchAndAction),
          (OR_,  2, opAssoc.LEFT,  SearchOrAction)])
