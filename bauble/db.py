@@ -242,7 +242,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     try:
         new_engine.connect().close()  # make sure we can connect
     except Exception:
-        logger.warning('about to forget about encoding of exception text.')
+        logger.info('about to forget about encoding of exception text.')
         raise
 
     def _bind():

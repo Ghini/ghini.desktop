@@ -74,6 +74,7 @@ class ConnectionManager:
         # box changes but we want to keep the values, e.g. when the type
         # changes
         self.old_params = {}
+        self._dbtypes = ['SQLite']
 
     def _get_working_dbtypes(self, retry=False):
         """
@@ -96,16 +97,21 @@ class ConnectionManager:
             self._working_dbtypes.append('SQLite')
         except ImportError, e:
             logger.warning('ConnectionManager: %s' % e)
-        try:
-            import psycopg2
-            assert(psycopg2)
-            self._working_dbtypes.append('PostgreSQL')
-        except ImportError, e:
-            logger.warning('ConnectionManager: %s' % e)
+        for (module, name) in (
+                ('psycopg2', 'PostgreSQL'),
+                ('MySQLdb', 'MySQL'),
+                ('pyodbc', 'MS SQL Server'),
+                ('cx_Oracle', 'Oracle'),
+                ):
+            try:
+                self._dbtypes.append(name)
+                __import__(module)
+                self._working_dbtypes.append(name)
+            except ImportError, e:
+                logger.info('ConnectionManager: %s' % e)
 
         return self._working_dbtypes
 
-    _dbtypes = ['SQLite', 'PostgreSQL']
     # a list of dbtypes that are importable
     working_dbtypes = property(_get_working_dbtypes)
     _working_dbtypes = []
@@ -169,8 +175,8 @@ class ConnectionManager:
         del self.params_box
         obj = utils.gc_objects_by_type(CMParamsBox)
         if obj:
-            logger.warning('ConnectionManager.start(): param box leaked: %s'
-                           % obj)
+            logger.info('ConnectionManager.start(): param box leaked: %s'
+                        % obj)
         return name, uri
 
     def on_dialog_response(self, dialog, response, data=None):
