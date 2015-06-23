@@ -160,13 +160,15 @@ class Species(db.Base, db.Serializable):
         '''
 
         {'EX': _('Extinct (EX)'),
+         'EW': _('Extinct Wild (EW)'),
          'RE': _('Regionally Extinct (RE)'),
          'CR': _('Critically Endangered (CR)'),
          'EN': _('Endangered (EN)'),
          'VU': _('Vulnerable (VU)'),
          'NT': _('Near Threatened (NT)'),
          'LV': _('Least Concern (LC)'),
-         'DD': _('Data Deficient (DD)')}
+         'DD': _('Data Deficient (DD)'),
+         'NE': _('Not Evaluated (NE)')}
 
         notes = [i.note for i in self.notes
                  if i.category.upper() == u'IUCN']
