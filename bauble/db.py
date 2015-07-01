@@ -432,6 +432,9 @@ def verify_connection(engine, show_error_dialogs=False):
 
 
 class Serializable:
+    import re
+    single_cap_re = re.compile('([A-Z])')
+
     def as_dict(self):
         result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
@@ -439,7 +442,8 @@ class Serializable:
                       and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
-        result['object'] = self.__class__.__name__.lower()
+        result['object'] = self.single_cap_re.sub(
+            r'_\1', self.__class__.__name__).lower()[1:]
         return result
 
     @classmethod

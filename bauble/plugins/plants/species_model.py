@@ -543,7 +543,7 @@ class SpeciesSynonym(db.Base):
         return str(self.synonym)
 
 
-class VernacularName(db.Base):
+class VernacularName(db.Base, db.Serializable):
     """
     :Table name: vernacular_name
 
@@ -574,6 +574,22 @@ class VernacularName(db.Base):
             return self.name
         else:
             return ''
+
+    def as_dict(self):
+        result = db.Serializable.as_dict(self)
+        result['species'] = str(self.species)
+        return result
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        from genus import Genus
+        g_epithet, s_epithet = keys['species'].split(' ', 1)
+        sp = session.query(Species).filter(
+            Species.sp == s_epithet).join(Genus).filter(
+            Genus.genus == g_epithet).all()[0]
+        return session.query(cls).filter(
+            cls.species == sp,
+            cls.language == keys['language']).all()
 
 
 class DefaultVernacularName(db.Base):
