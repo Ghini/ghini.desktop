@@ -314,8 +314,8 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
         treeiter = None
         if not widget.get_model():
             logger.warning(
-                'utils.set_widget_value(): '
-                'combo doesn\'t have a model: %s' % widget.get_name())
+                "utils.set_widget_value(): combo doesn't have a model: %s" %
+                gtk.Buildable.get_name(widget))
         else:
             treeiter = combo_get_value_iter(
                 widget, value, cmp=lambda row, value: row[index] == value)

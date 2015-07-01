@@ -173,7 +173,7 @@ def generic_taxon_add_action(model, view, presenter, top_presenter,
         presenter.session.add(editor.model)
         taxon_entry.set_text("%s" % editor.model)
         presenter.remove_problem(
-            hash(taxon_entry.get_name()), None)
+            hash(gtk.Buildable.get_name(taxon_entry)), None)
         setattr(model, 'species', editor.model)
         presenter._dirty = True
         top_presenter.refresh_sensitivity()

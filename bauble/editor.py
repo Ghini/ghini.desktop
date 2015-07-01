@@ -694,7 +694,7 @@ class GenericEditorPresenter(object):
         """
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
-        PROBLEM = hash(widget.get_name())
+        PROBLEM = hash(gtk.Buildable.get_name(widget))
 
         def add_completions(text):
             if get_completions is None:
