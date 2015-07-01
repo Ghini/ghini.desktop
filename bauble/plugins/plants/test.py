@@ -65,10 +65,12 @@ if sys.platform == 'win32':
     Species.hybrid_char = 'x'
 
 
-family_test_data = ({'id': 1, 'family': u'Orchidaceae'},
-                    {'id': 2, 'family': u'Leguminosae',
-                     'qualifier': u's. str.'},
-                    {'id': 3, 'family': u'Polypodiaceae'})
+family_test_data = (
+    {'id': 1, 'family': u'Orchidaceae'},
+    {'id': 2, 'family': u'Leguminosae', 'qualifier': u's. str.'},
+    {'id': 3, 'family': u'Polypodiaceae'},
+    {'id': 4, 'family': u'Solanaceae'},
+    )
 
 family_note_test_data = (
     {'id': 1, 'family_id': 1, 'category': u'CITES', 'note': u'II'},
@@ -81,66 +83,65 @@ genus_test_data = (
     {'id': 4, 'genus': u'Campyloneurum', 'family_id': 3},
     {'id': 5, 'genus': u'Paphiopedilum', 'family_id': 1},
     {'id': 6, 'genus': u'Laelia', 'family_id': 1},
+    {'id': 7, 'genus': u'Brugmansia', 'family_id': 4},
     )
 
 genus_note_test_data = (
     {'id': 1, 'genus_id': 5, 'category': u'CITES', 'note': u'I'},
     )
 
-species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
-                      'sp_author': u'Bateman ex Lindl.'},
-                     {'id': 2, 'sp': u'cochleata', 'genus_id': 2,
-                      'sp_author': u'(L.) Lem\xe9e'},
-                     {'id': 3, 'sp': u'precatorius', 'genus_id': 3,
-                      'sp_author': u'L.'},
-                     {'id': 4, 'sp': u'alapense', 'genus_id': 4,
-                      'hybrid': True, 'sp_author': u'F\xe9e'},
-                     {'id': 5, 'sp': u'cochleata', 'genus_id': 2,
-                      'sp_author': u'(L.) Lem\xe9e',
-                      'infrasp1_rank': u'var.', 'infrasp1': u'cochleata'},
-                     {'id': 6, 'sp': u'cochleata', 'genus_id': 2,
-                      'sp_author': u'(L.) Lem\xe9e',
-                      'infrasp1_rank': u'cv.', 'infrasp1': u'Black Night'},
-                     {'id': 7, 'sp': u'precatorius', 'genus_id': 3,
-                      'sp_author': u'L.', 'cv_group': u'SomethingRidiculous'},
-                     {'id': 8, 'sp': u'precatorius', 'genus_id': 3,
-                      'sp_author': u'L.',
-                      'infrasp1_rank': u'cv.', 'infrasp1': u'Hot Rio Nights',
-                      'cv_group': u'SomethingRidiculous'},
-                     {'id': 9, 'sp': u'generalis', 'genus_id': 1,
-                      'hybrid': True,
-                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
-                     {'id': 10, 'sp': u'generalis', 'genus_id': 1,
-                      'hybrid': True, 'sp_author': u'L.',
-                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red',
-                      'cv_group': u'SomeGroup'},
-                     {'id': 11, 'sp': u'generalis', 'genus_id': 1,
-                      'sp_qual': u'agg.'},
-                     {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
-                     {'id': 13, 'genus_id': 1,
-                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
-                     {'id': 14, 'genus_id': 1,
-                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red & Blue'},
-                     {'id': 15, 'sp': u'cochleata', 'genus_id': 2,
-                      'sp_author': u'L.',
-                      'infrasp1_rank': u'subsp.', 'infrasp1': u'cochleata',
-                      'infrasp1_author': u'L.',
-                      'infrasp2_rank': u'var.', 'infrasp2': u'cochleata',
-                      'infrasp2_author': u'L.',
-                      'infrasp3_rank': u'cv.', 'infrasp3': u'Black',
-                      'infrasp3_author': u'L.'},
-                     {'id': 16, 'genus_id': 1, 'sp': u'test',
-                      'infrasp1_rank': u'subsp.', 'infrasp1': u'test',
-                      'cv_group': u'SomeGroup'},
-                     {'id': 17, 'genus_id': 5, 'sp': u'adductum',
-                      'author': u'Asher'},
-                     {'id': 18, 'genus_id': 6, 'sp': u'lobata',
-                      'author': u'H.J. Veitch'},
-                     {'id': 19, 'genus_id': 6, 'sp': u'grandiflora',
-                      'author': u'Lindl.'},
-                     {'id': 20, 'genus_id': 2, 'sp': u'fragrans',
-                      'author': u'Dressler'},
-                     )
+species_test_data = (
+    {'id': 1, 'sp': u'variabilis', 'genus_id': 1,
+     'sp_author': u'Bateman ex Lindl.'},
+    {'id': 2, 'sp': u'cochleata', 'genus_id': 2,
+     'sp_author': u'(L.) Lem\xe9e'},
+    {'id': 3, 'sp': u'precatorius', 'genus_id': 3,
+     'sp_author': u'L.'},
+    {'id': 4, 'sp': u'alapense', 'genus_id': 4,
+     'hybrid': True, 'sp_author': u'F\xe9e'},
+    {'id': 5, 'sp': u'cochleata', 'genus_id': 2,
+     'sp_author': u'(L.) Lem\xe9e',
+     'infrasp1_rank': u'var.', 'infrasp1': u'cochleata'},
+    {'id': 6, 'sp': u'cochleata', 'genus_id': 2,
+     'sp_author': u'(L.) Lem\xe9e',
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Black Night'},
+    {'id': 7, 'sp': u'precatorius', 'genus_id': 3,
+     'sp_author': u'L.', 'cv_group': u'SomethingRidiculous'},
+    {'id': 8, 'sp': u'precatorius', 'genus_id': 3,
+     'sp_author': u'L.',
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Hot Rio Nights',
+     'cv_group': u'SomethingRidiculous'},
+    {'id': 9, 'sp': u'generalis', 'genus_id': 1,
+     'hybrid': True,
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
+    {'id': 10, 'sp': u'generalis', 'genus_id': 1,
+     'hybrid': True, 'sp_author': u'L.',
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Red',
+     'cv_group': u'SomeGroup'},
+    {'id': 11, 'sp': u'generalis', 'genus_id': 1,
+     'sp_qual': u'agg.'},
+    {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
+    {'id': 13, 'genus_id': 1,
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
+    {'id': 14, 'genus_id': 1,
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Red & Blue'},
+    {'id': 15, 'sp': u'cochleata', 'genus_id': 2,
+     'sp_author': u'L.',
+     'infrasp1_rank': u'subsp.', 'infrasp1': u'cochleata',
+     'infrasp1_author': u'L.',
+     'infrasp2_rank': u'var.', 'infrasp2': u'cochleata',
+     'infrasp2_author': u'L.',
+     'infrasp3_rank': u'cv.', 'infrasp3': u'Black',
+     'infrasp3_author': u'L.'},
+    {'id': 16, 'genus_id': 1, 'sp': u'test',
+     'infrasp1_rank': u'subsp.', 'infrasp1': u'test',
+     'cv_group': u'SomeGroup'},
+    {'id': 17, 'genus_id': 5, 'sp': u'adductum', 'author': u'Asher'},
+    {'id': 18, 'genus_id': 6, 'sp': u'lobata', 'author': u'H.J. Veitch'},
+    {'id': 19, 'genus_id': 6, 'sp': u'grandiflora', 'author': u'Lindl.'},
+    {'id': 20, 'genus_id': 2, 'sp': u'fragrans', 'author': u'Dressler'},
+    {'id': 21, 'genus_id': 7, 'sp': u'arborea', 'author': u'Lagerh.'},
+    )
 
 species_note_test_data = (
     {'id': 1, 'species_id': 18, 'category': u'CITES', 'note': u'I'},
@@ -204,11 +205,12 @@ species_markup_authors_map = {
 sp_synonym_test_data = ({'id': 1, 'synonym_id': 1, 'species_id': 2},
                         )
 
-vn_test_data = ({'id': 1, 'name': u'SomeName', 'language': u'English',
-                 'species_id': 1},
-                {'id': 2, 'name': u'SomeName 2', 'language': u'English',
-                 'species_id': 1},
-                )
+vn_test_data = (
+    {'id': 1, 'name': u'SomeName', 'language': u'English', 'species_id': 1},
+    {'id': 2, 'name': u'SomeName 2', 'language': u'English', 'species_id': 1},
+    {'id': 3, 'name': u'Floripondio', 'language': u'es', 'species_id': 21},
+    {'id': 4, 'name': u'Toé', 'language': u'agr', 'species_id': 21},
+    )
 
 test_data_table_control = (
     (Family, family_test_data),
@@ -854,7 +856,10 @@ class FromAndToDictTest(PlantTestCase):
         pol = Family.retrieve_or_create(
             self.session, {'rank': 'family',
                            'epithet': 'Polypodiaceae'})
-        self.assertEquals(set(all_families), set([orc, pol, leg]))
+        sol = Family.retrieve_or_create(
+            self.session, {'rank': 'family',
+                           'epithet': 'Solanaceae'})
+        self.assertEquals(set(all_families), set([orc, pol, leg, sol]))
 
     def test_grabbing_same_params_same_output_existing(self):
         orc1 = Family.retrieve_or_create(
@@ -1033,6 +1038,64 @@ class FromAndToDict_create_update_test(PlantTestCase):
             create=False, update=True)
         self.assertTrue(obj is not None)
         self.assertEquals(obj.author, 'Schltr.')
+
+    def test_vernacular_name_as_dict(self):
+        bra = self.session.query(Species).filter(Species.id == 21).all()[0]
+        vn_bra = self.session.query(VernacularName).filter(
+            VernacularName.language == u'agr',
+            VernacularName.species == bra).all()
+        self.assertEquals(vn_bra[0].as_dict(),
+                          {'object': 'vernacular_name',
+                           'name': u'Toé',
+                           'language': u'agr',
+                           'species': 'Brugmansia arborea'})
+        vn_bra = self.session.query(VernacularName).filter(
+            VernacularName.language == u'es',
+            VernacularName.species == bra).all()
+        self.assertEquals(vn_bra[0].as_dict(),
+                          {'object': 'vernacular_name',
+                           'name': u'Floripondio',
+                           'language': u'es',
+                           'species': 'Brugmansia arborea'})
+
+    def test_vernacular_name_nocreate_noupdate_noexisting(self):
+        # do not create if not existing
+        obj = VernacularName.retrieve_or_create(
+            self.session, {'object': u'vernacular_name',
+                           'language': u'nap',
+                           'species': u'Brugmansia arborea'},
+            create=False)
+        self.assertEquals(obj, None)
+
+    def test_vernacular_name_nocreate_noupdateeq_existing(self):
+        ## retrieve same object, we only give the keys
+        obj = VernacularName.retrieve_or_create(
+            self.session, {'object': u'vernacular_name',
+                           'language': u'agr',
+                           'species': u'Brugmansia arborea'},
+            create=False, update=False)
+        self.assertTrue(obj is not None)
+        self.assertEquals(obj.name, 'Toé')
+
+    def test_vernacular_name_nocreate_noupdatediff_existing(self):
+        ## do not update object with new data
+        obj = VernacularName.retrieve_or_create(
+            self.session, {'object': 'vernacular_name',
+                           'language': u'agr',
+                           'name': u'wronge',
+                           'species': u'Brugmansia arborea'},
+            create=False, update=False)
+        self.assertEquals(obj.name, 'Toé')
+
+    def test_vernacular_name_nocreate_updatediff_existing(self):
+        ## update object in self.session
+        obj = VernacularName.retrieve_or_create(
+            self.session, {'object': 'vernacular_name',
+                           'language': u'agr',
+                           'name': u'wronge',
+                           'species': u'Brugmansia arborea'},
+            create=False, update=True)
+        self.assertEquals(obj.name, 'wronge')
 
 
 class CitesStatus_test(PlantTestCase):
