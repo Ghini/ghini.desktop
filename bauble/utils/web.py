@@ -17,6 +17,7 @@
 import gtk
 
 import bauble.utils.desktop as desktop
+from bauble.i18n import _
 
 
 def _open_link(func, data=None):
@@ -85,12 +86,24 @@ class GBIFButton(StringLinkButton):
 
 class TPLButton(KeywordsLinkButton):
 
-    _base_uri = "http://www.theplantlist.org/tpl1.1/search?q=%(genus)s+%(species)s"
+    _base_uri = "http://www.theplantlist.org/tpl1.1/search?" + \
+        "q=%(genus)s+%(species)s"
     _space = '+'
 
     def __init__(self, title=_("Search TPL"), tooltip=_(
             "Search The Plant List online database")):
         super(TPLButton, self).__init__(title, tooltip)
+
+
+class TropicosButton(KeywordsLinkButton):
+
+    _base_uri = "http://tropicos.org/NameSearch.aspx?" + \
+        "name=%(genus)s+%(species)s"
+    _space = '+'
+
+    def __init__(self, title=_("Search Tropicos"), tooltip=_(
+            "Search Tropicos (MissouriBG) online database")):
+        super(TropicosButton, self).__init__(title, tooltip)
 
 
 class WikipediaButton(KeywordsLinkButton):

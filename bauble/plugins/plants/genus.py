@@ -802,6 +802,9 @@ class LinksExpander(view.LinksExpander):
         self.tpl_button = web.TPLButton()
         buttons.append(self.tpl_button)
 
+        self.tropicos_button = web.TropicosButton()
+        buttons.append(self.tropicos_button)
+
         for b in buttons:
             b.set_alignment(0, -1)
             self.vbox.pack_start(b)
@@ -815,6 +818,7 @@ class LinksExpander(view.LinksExpander):
         self.grin_button.set_string(row)
         self.bgci_button.set_keywords(genus=row.genus, species='')
         self.tpl_button.set_keywords(genus=row.genus, species='')
+        self.tropicos_button.set_keywords(genus=row.genus, species='')
 
 
 class GeneralGenusExpander(InfoExpander):
