@@ -581,6 +581,19 @@ class VernacularName(db.Base, db.Serializable):
         return result
 
     @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        logger.debug('compute_serializable_fields(session, %s)' % keys)
+        result = {'species': None}
+        if 'species' in keys:
+            ## now we must connect the name to the species it refers to
+            genus_name, epithet = keys['species'].split(' ', 1)
+            sp_dict = {'ht-epithet': genus_name,
+                       'epithet': epithet}
+            result['species'] = Species.retrieve_or_create(
+                session, sp_dict, create=False)
+        return result
+
+    @classmethod
     def retrieve(cls, session, keys):
         from genus import Genus
         g_epithet, s_epithet = keys['species'].split(' ', 1)
