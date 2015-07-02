@@ -519,5 +519,5 @@ class SpeciesInfoPage(InfoBoxPage):
 class VernacularNameInfoBox(SpeciesInfoBox):
 
     def update(self, row):
-        super(VernacularNameInfoBox, self).update(row.species)
+        super(VernacularNameInfoBox, self).update(row.sp)
         #self.props.update(row)
