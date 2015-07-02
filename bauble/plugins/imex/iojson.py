@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 from bauble.i18n import _
 import bauble.utils as utils
 import bauble.db as db
-from bauble.plugins.plants import Familia, Genus, Species
+from bauble.plugins.plants import Familia, Genus, Species, VernacularName
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession, AccessionNote
 from bauble.plugins.garden.location import Location
@@ -192,6 +192,7 @@ class JSONExporter(object):
             objects = s.query(Familia).all()
             objects.extend(s.query(Genus).all())
             objects.extend(s.query(Species).all())
+            objects.extend(s.query(VernacularName).all())
             objects.extend(s.query(Accession).all())
             objects.extend(s.query(Plant).all())
             objects.extend(s.query(Location).all())
