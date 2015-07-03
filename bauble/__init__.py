@@ -191,18 +191,25 @@ conn_list_pref = "conn.list"
 def newer_version_on_github(input_stream):
     """is there a new patch on github for this production line
 
+    if the remote version is higher than the running one, return
+    something evaluating to True (possibly the remote version string).
+    otherwise, return something evaluating to False
+
     >>> import StringIO
     >>> stream = StringIO.StringIO('version = "1.0.0"  # comment')
-    >>> newer_version_on_github(stream)
+    >>> newer_version_on_github(stream) and True or False
     False
     >>> stream = StringIO.StringIO('version = "1.0.99999"  # comment')
-    >>> newer_version_on_github(stream)
+    >>> newer_version_on_github(stream) and True or False
     True
-    >>> stream = StringIO.StringIO('version = "1.099999"  # comment')
+    >>> stream = StringIO.StringIO('version = "1.0.99999"  # comment')
     >>> newer_version_on_github(stream)
+    '1.0.99999'
+    >>> stream = StringIO.StringIO('version = "1.099999"  # comment')
+    >>> newer_version_on_github(stream) and True or False
     False
     >>> stream = StringIO.StringIO('version = "1.0.99999-dev"  # comment')
-    >>> newer_version_on_github(stream)
+    >>> newer_version_on_github(stream) and True or False
     False
     """
 
@@ -218,7 +225,7 @@ def newer_version_on_github(input_stream):
                 return False
             github_patch = github_version.split('.')[2]
             if int(github_patch) > int(version_tuple[2]):
-                return True
+                return github_version
             if int(github_patch) < int(version_tuple[2]):
                 logger.info("running unreleased version")
     except TypeError:
@@ -324,12 +331,18 @@ def main(uri=None):
         import ssl
         github_version_stream = urllib2.urlopen(
             version_on_github, timeout=1)
-        if newer_version_on_github(github_version_stream):
+        remote = newer_version_on_github(github_version_stream)
+        if remote:
             md = gtk.MessageDialog(
                 None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
                 gtk.BUTTONS_OK_CANCEL,
-                _("new remote version available.\n"
-                  "Cancel to stop and upgrade; OK to continue."))
+                _("new remote version available.\n\n"
+                  "remote version: %(1)s,\n"
+                  "running version: %(2)s.\n\n"
+                  "Cancel to stop and upgrade;\n"
+                  "OK to continue.") %
+                {'1': remote,
+                 '2': version})
             response = md.run()
             md.destroy()
             if response != gtk.RESPONSE_OK:
