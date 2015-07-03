@@ -71,7 +71,7 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
 # make sure that at least one of the specific epithet, cultivar name
 # or cultivar group is specificed
 
-class Species(db.Base, db.Serializable):
+class Species(db.Base, db.Serializable, db.DefiningPictures):
     """
     :Table name: species
 
