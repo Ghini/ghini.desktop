@@ -31,7 +31,9 @@ from sqlalchemy import or_, and_
 from sqlalchemy import Unicode
 from sqlalchemy import UnicodeText
 from sqlalchemy.orm import class_mapper
-from sqlalchemy.orm.properties import ColumnProperty
+from sqlalchemy.orm.properties import (
+    ColumnProperty, RelationshipProperty)
+RelationProperty = RelationshipProperty
 
 import bauble
 from bauble.error import check
