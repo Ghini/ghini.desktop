@@ -334,10 +334,10 @@ class GUI(object):
         # create and addaction group for menu actions
         menu_actions = gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, _("_File")),
-                                  ("file_new", gtk.STOCK_NEW, _("_New"),
-                                   None, None, self.on_file_menu_new),
-                                  # ("file_open", gtk.STOCK_OPEN, _("_Open"),
-                                  #  '<ctrl>o', None, self.on_file_menu_open),
+                                  #("file_new", gtk.STOCK_NEW, _("_New"),
+                                  # None, None, self.on_file_menu_new),
+                                  ("file_open", gtk.STOCK_OPEN, _("_Open"),
+                                   '<ctrl>o', None, self.on_file_menu_open),
                                   ("file_quit", gtk.STOCK_QUIT, _("_Quit"),
                                    None, None, self.on_quit),
                                   ("edit", None, _("_Edit")),
