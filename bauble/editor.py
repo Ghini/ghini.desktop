@@ -1108,20 +1108,20 @@ class PictureBox(NoteBox):
         self.widgets.picture_button.connect(
             "clicked", self.on_activate_browse_button)
 
-    def set_content(self, filename):
+    def set_content(self, basename):
         for w in list(self.widgets.picture_button.children()):
             w.destroy()
-        if filename is not None:
+        if basename is not None:
             im = gtk.Image()
             try:
                 thumbname = os.path.join(
-                    prefs.prefs[prefs.picture_root_pref], 'thumbs', filename)
+                    prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
+                filename = os.path.join(
+                    prefs.prefs[prefs.picture_root_pref], basename)
                 if os.path.isfile(thumbname):
                     pixbuf = gtk.gdk.pixbuf_new_from_file(thumbname)
                 else:
-                    fullbuf = gtk.gdk.pixbuf_new_from_file(
-                        os.path.join(prefs.prefs[prefs.picture_root_pref],
-                                     'thumbs', filename))
+                    fullbuf = gtk.gdk.pixbuf_new_from_file(filename)
                     scale_x = fullbuf.get_width() / 400.0
                     scale_y = fullbuf.get_height() / 400.0
                     scale = max(scale_x, scale_y, 1)
@@ -1132,8 +1132,8 @@ class PictureBox(NoteBox):
                 im.set_from_pixbuf(pixbuf)
             except glib.GError, e:
                 logger.debug("picture %s caused glib.GError %s" %
-                             (filename, e))
-                label = _('picture file %s not found.') % filename
+                             (basename, e))
+                label = _('picture file %s not found.') % basename
                 im = gtk.Label()
                 im.set_text(label)
             except Exception, e:

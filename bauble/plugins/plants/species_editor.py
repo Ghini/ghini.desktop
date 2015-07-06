@@ -73,8 +73,13 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
-        self.notes_presenter = \
-            editor.NotesPresenter(self, 'notes', notes_parent)
+        self.notes_presenter = editor.NotesPresenter(
+            self, 'notes', notes_parent)
+
+        pictures_parent = self.view.widgets.pictures_parent_box
+        pictures_parent.foreach(pictures_parent.remove)
+        self.pictures_presenter = editor.PicturesPresenter(
+            self, 'notes', pictures_parent)
 
         self.init_enum_combo('sp_spqual_combo', 'sp_qual')
 
@@ -197,9 +202,13 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         del self.infrasp_presenter.view
 
     def dirty(self):
-        return self._dirty or self.vern_presenter.dirty() or \
-            self.synonyms_presenter.dirty() or self.dist_presenter.dirty() \
-            or self.infrasp_presenter.dirty() or self.notes_presenter.dirty()
+        return (self._dirty or
+                self.pictures_presenter.dirty() or
+                self.vern_presenter.dirty() or
+                self.synonyms_presenter.dirty() or
+                self.dist_presenter.dirty() or
+                self.infrasp_presenter.dirty() or
+                self.notes_presenter.dirty())
 
     def set_model_attr(self, field, value, validator=None):
         '''
