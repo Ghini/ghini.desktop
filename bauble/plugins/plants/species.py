@@ -519,5 +519,7 @@ class SpeciesInfoPage(InfoBoxPage):
 class VernacularNameInfoBox(SpeciesInfoBox):
 
     def update(self, row):
-        super(VernacularNameInfoBox, self).update(row.sp)
-        #self.props.update(row)
+        logger.info("VernacularNameInfoBox.update %s(%s)" % (
+            row.__class__.__name__, row))
+        if isinstance(row, VernacularName):
+            super(VernacularNameInfoBox, self).update(row.species)
