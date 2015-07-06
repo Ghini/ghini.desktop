@@ -729,9 +729,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'edit')
 
     def dirty(self):
-        return self.pictures_presenter.dirty() or \
-            self.notes_presenter.dirty() or \
-            self.prop_presenter.dirty() or self._dirty
+        return (self.pictures_presenter.dirty() or
+                self.notes_presenter.dirty() or
+                self.prop_presenter.dirty() or
+                self._dirty)
 
     def on_date_entry_changed(self, entry, *args):
         self.change.date = entry.props.text
