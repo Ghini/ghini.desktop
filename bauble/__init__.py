@@ -323,6 +323,9 @@ def main(uri=None):
     prefs.init()
 
     ## check whether there's a newer version on github.
+    ## do this in a different thread...
+    # GObject.threads_init()
+    # Gdk.threads_init()
     version_on_github = (
         'https://raw.githubusercontent.com/Bauble/bauble' +
         '.classic/bauble-%s.%s/bauble/version.py') % version_tuple[:2]
