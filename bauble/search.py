@@ -938,17 +938,45 @@ class QueryBuilder(gtk.Dialog):
     def __init__(self, parent=None):
         """
         """
-        super(QueryBuilder, self).\
-            __init__(title=_("Query Builder"), parent=parent,
-                     flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                     buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                              gtk.STOCK_OK, gtk.RESPONSE_OK))
+        super(QueryBuilder, self).__init__(
+            title=_("Query Builder"), parent=parent,
+            flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                     gtk.STOCK_OK, gtk.RESPONSE_OK))
 
         self.vbox.props.spacing = 15
         self.expression_rows = []
         self.mapper = None
         self._first_choice = True
         self.set_response_sensitive(gtk.RESPONSE_OK, False)
+        self.domain_map = MapperSearch.get_domain_classes().copy()
+
+        frame = gtk.Frame(_("Search Domain"))
+        self.vbox.pack_start(frame, expand=False, fill=False)
+        self.domain_combo = gtk.combo_box_new_text()
+        frame.add(self.domain_combo)
+        for key in sorted(self.domain_map.keys()):
+            self.domain_combo.append_text(key)
+        self.domain_combo.insert_text(0, _("Choose a search domain..."))
+        self.domain_combo.set_active(0)
+
+        self.domain_combo.connect('changed', self.on_domain_combo_changed)
+
+        frame = gtk.Frame(_("Expressions"))
+        self.expressions_table = gtk.Table()
+        self.expressions_table.props.column_spacing = 10
+        frame.add(self.expressions_table)
+        self.vbox.pack_start(frame, expand=False, fill=False)
+
+        # add button to add additional expression rows
+        self.add_button = gtk.Button()
+        self.add_button.props.sensitive = False
+        img = gtk.image_new_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_BUTTON)
+        self.add_button.props.image = img
+        self.add_button.connect("clicked", lambda w: self.add_expression_row())
+        align = gtk.Alignment(0, 0, 0, 0)
+        align.add(self.add_button)
+        self.vbox.pack_end(align, fill=False, expand=False)
 
     def on_domain_combo_changed(self, *args):
         """
@@ -973,7 +1001,6 @@ class QueryBuilder(gtk.Dialog):
         """
         valid = False
         for row in self.expression_rows:
-            sensitive = False
             value = None
             if isinstance(row.value_widget, gtk.Entry):
                 value = row.value_widget.props.text
@@ -1010,35 +1037,6 @@ class QueryBuilder(gtk.Dialog):
         self.expressions_table.show_all()
 
     def start(self):
-        self.domain_map = MapperSearch.get_domain_classes().copy()
-
-        frame = gtk.Frame(_("Search Domain"))
-        self.vbox.pack_start(frame, expand=False, fill=False)
-        self.domain_combo = gtk.combo_box_new_text()
-        frame.add(self.domain_combo)
-        for key in sorted(self.domain_map.keys()):
-            self.domain_combo.append_text(key)
-        self.domain_combo.insert_text(0, _("Choose a search domain..."))
-        self.domain_combo.set_active(0)
-
-        self.domain_combo.connect('changed', self.on_domain_combo_changed)
-
-        frame = gtk.Frame(_("Expressions"))
-        self.expressions_table = gtk.Table()
-        self.expressions_table.props.column_spacing = 10
-        frame.add(self.expressions_table)
-        self.vbox.pack_start(frame, expand=False, fill=False)
-
-        # add button to add additional expression rows
-        self.add_button = gtk.Button()
-        self.add_button.props.sensitive = False
-        img = gtk.image_new_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_BUTTON)
-        self.add_button.props.image = img
-        self.add_button.connect("clicked", lambda w: self.add_expression_row())
-        align = gtk.Alignment(0, 0, 0, 0)
-        align.add(self.add_button)
-        self.vbox.pack_end(align, fill=False, expand=False)
-
         self.vbox.show_all()
         response = self.run()
         self.hide()
@@ -1056,12 +1054,3 @@ class QueryBuilder(gtk.Dialog):
             if expr:
                 query.append(expr)
         return ' '.join(query)
-
-
-if __name__ == '__main__':
-    import bauble.test
-    uri = 'sqlite:///:memory:'
-    bauble.test.init_bauble(uri)
-    qb = QueryBuilder()
-    qb.start()
-    logger.debug(qb.get_query())

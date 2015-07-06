@@ -620,10 +620,12 @@ class SearchTests(BaubleTestCase):
 
 class QueryBuilderTests(BaubleTestCase):
 
-    def itest_gui(self):
+    def test_cancreatequerybuilder(self):
+        search.QueryBuilder()
+
+    def test_emptyisinvalid(self):
         qb = search.QueryBuilder()
-        qb.start()
-        logger.debug(qb.get_query())
+        self.assertFalse(qb.validate())
 
 
 class BuildingSQLStatements(BaubleTestCase):
