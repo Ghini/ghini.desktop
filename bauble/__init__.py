@@ -237,6 +237,49 @@ def newer_version_on_github(input_stream):
     return False
 
 
+def check_and_notify_new_version():
+    ## check whether there's a newer version on github.  this is executed in
+    ## a different thread, which does nothing or terminates the program.
+    version_on_github = (
+        'https://raw.githubusercontent.com/Bauble/bauble' +
+        '.classic/bauble-%s.%s/bauble/version.py') % version_tuple[:2]
+    try:
+        import urllib2
+        import ssl
+        import gtk
+        github_version_stream = urllib2.urlopen(
+            version_on_github, timeout=5)
+        remote = newer_version_on_github(github_version_stream)
+        if remote:
+            md = gtk.MessageDialog(
+                None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
+                gtk.BUTTONS_OK_CANCEL,
+                _("new remote version available.\n\n"
+                  "remote version: %(1)s,\n"
+                  "running version: %(2)s.\n\n"
+                  "Cancel to stop and upgrade;\n"
+                  "OK to continue.") %
+                {'1': remote,
+                 '2': version})
+            response = md.run()
+            md.destroy()
+            if response != gtk.RESPONSE_OK:
+                exit(0)
+    except urllib2.URLError:
+        logger.info('connection is slow or down')
+        pass
+    except ssl.SSLError, e:
+        logger.info('SSLError %s while checking for newer version' % e)
+        pass
+    except urllib2.HTTPError:
+        logger.info('HTTPError while checking for newer version')
+        pass
+    except Exception, e:
+        logger.warning('unhandled %s(%s) while checking for newer version'
+                       % type(e), e)
+        pass
+
+
 def main(uri=None):
     """
     Run the main Bauble application.
@@ -322,47 +365,7 @@ def main(uri=None):
     # intialize the user preferences
     prefs.init()
 
-    ## check whether there's a newer version on github.
-    ## do this in a different thread...
-    # GObject.threads_init()
-    # Gdk.threads_init()
-    version_on_github = (
-        'https://raw.githubusercontent.com/Bauble/bauble' +
-        '.classic/bauble-%s.%s/bauble/version.py') % version_tuple[:2]
-    try:
-        import urllib2
-        import ssl
-        github_version_stream = urllib2.urlopen(
-            version_on_github, timeout=1)
-        remote = newer_version_on_github(github_version_stream)
-        if remote:
-            md = gtk.MessageDialog(
-                None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
-                gtk.BUTTONS_OK_CANCEL,
-                _("new remote version available.\n\n"
-                  "remote version: %(1)s,\n"
-                  "running version: %(2)s.\n\n"
-                  "Cancel to stop and upgrade;\n"
-                  "OK to continue.") %
-                {'1': remote,
-                 '2': version})
-            response = md.run()
-            md.destroy()
-            if response != gtk.RESPONSE_OK:
-                exit(0)
-    except urllib2.URLError:
-        logger.info('connection is slow or down')
-        pass
-    except ssl.SSLError, e:
-        logger.info('SSLError %s while checking for newer version' % e)
-        pass
-    except urllib2.HTTPError:
-        logger.info('HTTPError while checking for newer version')
-        pass
-    except Exception, e:
-        logger.warning('unhandled %s(%s) while checking for newer version'
-                       % type(e), e)
-        pass
+    gobject.idle_add(check_and_notify_new_version)
 
     open_exc = None
     # open default database
