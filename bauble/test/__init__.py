@@ -59,6 +59,7 @@ class BaubleTestCase(unittest.TestCase):
         self.session = db.Session()
 
     def set_logging_level(self, level, logger='sqlalchemy'):
+        import logging
         logging.getLogger('sqlalchemy').setLevel(level)
 
     def tearDown(self):
@@ -72,4 +73,3 @@ class BaubleTestCase(unittest.TestCase):
     if sys.version_info[:2] < (2, 7):
         def assertIsNone(self, item):
             self.assertTrue(item is None)
-
