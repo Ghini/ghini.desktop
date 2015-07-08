@@ -86,7 +86,8 @@ class PicasaTests(BaubleTestCase):
         d = picasa.PicasaSettingsDialog()
         return d.run()
 
-    def itest_infopage(self):
+    def test_infopage(self):
+        raise SkipTest('Not Implemented')
         from bauble.plugins.plants import Family, Genus, Species
         email = ''
         passwd = ''
@@ -107,10 +108,11 @@ class PicasaTests(BaubleTestCase):
         self.dialog.show_all()
         self.dialog.run()
 
-    def itest_get_photo_feed(self):
+    def test_get_photo_feed(self):
         """
         Interactively test picasa.get_photo_feed()
         """
+        raise SkipTest('Not Implemented')
         if self._get_settings() != gtk.RESPONSE_OK:
             return
 

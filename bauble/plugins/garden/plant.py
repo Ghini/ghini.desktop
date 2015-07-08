@@ -198,8 +198,10 @@ class PlantSearch(SearchStrategy):
 
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
+            logger.debug("delimiter not found, can't split the code")
             return []
         acc_code, plant_code = text.rsplit(delimiter, 1)
+        logger.debug("ac: %s, pl: %s" % acc_code, plant_code)
 
         try:
             from bauble.plugins.garden import Accession
