@@ -191,25 +191,25 @@ class PlantSearch(SearchStrategy):
         super(PlantSearch, self).__init__()
 
     def search(self, text, session):
-        # TODO: this doesn't support search like plant=2009.0039.1 or
-        # plant where accession.code=2009.0039
+        """returns a result if the text looks like a plant code"""
+        # TODO: this doesn't support search like plant=2009.0039.1
 
         # TODO: searches like 2009.0039.% or * would be handy
-        r1 = super(PlantSearch, self).search(text, session)
+
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
             return []
         acc_code, plant_code = text.rsplit(delimiter, 1)
-        query = session.query(Plant)
-        from bauble.plugins.garden import Accession
+
         try:
-            q = query.join('accession').\
-                filter(and_(Accession.code == acc_code,
-                            Plant.code == plant_code))
+            from bauble.plugins.garden import Accession
+            query = session.query(Plant).filter(
+                Plant.code == plant_code).join(Accession).filter(
+                Accession.code == acc_code)
+            return query.all()
         except Exception, e:
-            logger.debug(e)
+            logger.debug("%s %s" % (e.__class__.name, e))
             return []
-        return q.all()
 
 
 # TODO: what would happen if the PlantRemove.plant_id and PlantNote.plant_id
