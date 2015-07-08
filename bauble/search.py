@@ -532,6 +532,7 @@ class SearchStrategy(object):
         Return an iterator that iterates over mapped classes retrieved
         from the search.
         '''
+        logger.info('SearchStrategy "%s" %s)' % (text, session))
         pass
 
 

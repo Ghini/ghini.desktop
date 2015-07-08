@@ -61,6 +61,7 @@ import bauble.utils as utils
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
+from bauble.search import SearchStrategy
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -434,6 +435,23 @@ recvd_type_values = {
     u'SCKR': _('Root sucker'),
     None: ''
     }
+
+
+class AccessionSearch(SearchStrategy):
+
+    def __init__(self):
+        super(AccessionSearch, self).__init__()
+
+    def search(self, acc_code, session):
+        """returns a result if the text looks like an accession code"""
+
+        try:
+            query = session.query(Accession).filter(
+                Accession.code == acc_code)
+            return query.all()
+        except Exception, e:
+            logger.debug("%s %s" % (e.__class__.name, e))
+            return []
 
 
 class AccessionNote(db.Base, db.Serializable):
@@ -1954,7 +1972,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('code', utils.utf8(text))
 
     def on_date_entry_changed(self, entry, prop):
-        """Changed signal handler for acc_date_recvd_entry and acc_date_accd_entry
+        """handle changed signal.
+
+        used by acc_date_recvd_entry and acc_date_accd_entry
 
         :param prop: the model property to change, should be
           date_recvd or date_accd
