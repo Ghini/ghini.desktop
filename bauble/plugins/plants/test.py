@@ -26,6 +26,7 @@ import sys
 
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
+from nose import SkipTest
 
 import bauble.utils as utils
 import bauble.db as db
@@ -373,10 +374,11 @@ class FamilyTests(PlantTestCase):
         f.qualifier = 's. lat.'
         self.assert_(str(f) == 'fam s. lat.')
 
-    def itest_editor(self):
+    def test_editor(self):
         """
         Interactively test the PlantEditor
         """
+        raise SkipTest('Not Implemented')
         #loc = self.create(Family, name=u'some site')
         fam = Family(family='some family')
         editor = FamilyEditor(model=fam)
@@ -476,10 +478,11 @@ class GenusTests(PlantTestCase):
         """
         pass
 
-    def itest_editor(self):
+    def test_editor(self):
         """
         Interactively test the PlantEditor
         """
+        raise SkipTest('Not Implemented')
         #loc = self.create(Genus, name=u'some site')
         fam = Family(family=u'family')
         fam2 = Family(family=u'family2')
@@ -506,7 +509,8 @@ class SpeciesTests(PlantTestCase):
     def tearDown(self):
         super(SpeciesTests, self).tearDown()
 
-    def itest_editor(self):
+    def test_editor(self):
+        raise SkipTest('Not Implemented')
         # import default geography data
         import bauble.paths as paths
         default_path = os.path.join(

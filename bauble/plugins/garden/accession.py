@@ -448,6 +448,7 @@ class AccessionSearch(SearchStrategy):
         try:
             query = session.query(Accession).filter(
                 Accession.code == acc_code)
+            logger.debug("matched the %s as Accession search" % acc_code)
             return query.all()
         except Exception, e:
             logger.debug("%s %s" % (e.__class__.name, e))

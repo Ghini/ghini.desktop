@@ -12,6 +12,7 @@ from bauble.test import BaubleTestCase, check_dupids
 import bauble.plugins.users as users
 from nose import SkipTest
 
+
 def test_duplicate_ids():
     """
     Test for duplicate ids for all .glade files in the users plugin.
@@ -35,7 +36,6 @@ class UsersTests(BaubleTestCase):
         self.user = '_test_user'
         self.group = '_test_group'
         super(UsersTests, self).__init__(*args)
-
 
     def setUp(self):
         super(UsersTests, self).setUp()
@@ -61,7 +61,6 @@ class UsersTests(BaubleTestCase):
         # user
         self.table.create(checkfirst=True)
 
-
     def tearDown(self):
         if self.conn:
             self.conn.close()
@@ -69,7 +68,6 @@ class UsersTests(BaubleTestCase):
         users.delete(self.user, revoke=True)
         self.table.drop(checkfirst=True)
         super(UsersTests, self).tearDown()
-
 
     def test_group_members(self):
         if db.engine.name != 'postgresql':
@@ -84,7 +82,6 @@ class UsersTests(BaubleTestCase):
         users.remove_member(self.user, [self.group])
         members = users.get_members(self.group)
         self.assert_(self.user not in members, members)
-
 
     def test_has_privileges(self):
 
@@ -122,8 +119,6 @@ class UsersTests(BaubleTestCase):
         self.assert_(not users.has_privileges(self.user, 'read'),
                      "%s has read privileges" % self.user)
 
-
-
-    def itest_tool(self):
+    def test_tool(self):
+        raise SkipTest('Not Implemented')
         users.UsersEditor().start()
-

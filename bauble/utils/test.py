@@ -8,6 +8,7 @@ import unittest
 
 from pyparsing import *
 from sqlalchemy import *
+from nose import SkipTest
 
 import bauble
 import bauble.db as db
@@ -18,10 +19,11 @@ from bauble.test import BaubleTestCase
 
 class UtilsGTKTests(unittest.TestCase):
 
-    def itest_create_message_details_dialog(self):
+    def test_create_message_details_dialog(self):
         """
         Interactive test for bauble.utils.create_message_details_dialog()
         """
+        raise SkipTest('Not Implemented')
         details = """these are the lines that i want to test
 asdasdadasddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
 dasd
@@ -31,15 +33,15 @@ addasdadadad"""
         d = utils.create_message_details_dialog(msg, details)
         d.run()
 
-    def itest_create_message_dialog(self):
+    def test_create_message_dialog(self):
         """
         Interactive test for bauble.utils.create_message_details_dialog()
         """
+        raise SkipTest('Not Implemented')
         msg = 'msg'
         #msg = ' this is a longer message to test that the dialog width is correct.....but what if it keeps going'
         d = utils.create_message_dialog(msg)
         d.run()
-
 
     def test_search_tree_model(self):
         """

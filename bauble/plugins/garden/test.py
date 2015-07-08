@@ -62,6 +62,10 @@ accession_test_data = ({'id': 1, 'code': u'1.1', 'species_id': 1},
 
 plant_test_data = ({'id': 1, 'code': u'1', 'accession_id': 1,
                     'location_id': 1, 'quantity': 1},
+                   {'id': 2, 'code': u'1', 'accession_id': 2,
+                    'location_id': 1, 'quantity': 1},
+                   {'id': 3, 'code': u'2', 'accession_id': 2,
+                    'location_id': 1, 'quantity': 1},
                    )
 
 location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
@@ -171,7 +175,6 @@ class GardenTestCase(BaubleTestCase):
     def setUp(self):
         super(GardenTestCase, self).setUp()
         plants_test.setUp_data()
-        #setUp_test_data()
         self.family = Family(family=u'Cactaceae')
         self.genus = Genus(family=self.family, genus=u'Echinocactus')
         self.species = Species(genus=self.genus, sp=u'grusonii')
@@ -349,10 +352,11 @@ class PlantTests(GardenTestCase):
             self.assert_(q.first(), 'plant %s.%s not created' %
                          (self.accession, code))
 
-    def itest_editor(self):
+    def test_editor(self):
         """
         Interactively test the PlantEditor
         """
+        raise SkipTest('Not Implemented')
         for plant in self.session.query(Plant):
             self.session.delete(plant)
         for location in self.session.query(Location):
@@ -421,10 +425,11 @@ class PlantTests(GardenTestCase):
         assert new_plant.changes[0].parent_plant == self.plant, \
             'change.parent_plant != original plant'
 
-    def itest_branch_callback(self):
+    def test_branch_callback(self):
         """
         Test bauble.plugins.garden.plant.branch_callback()
         """
+        raise SkipTest('Not Implemented')
         for plant in self.session.query(Plant):
             self.session.delete(plant)
         for location in self.session.query(Location):
@@ -480,11 +485,12 @@ class PropagationTests(GardenTestCase):
         #self.session.begin()
         super(PropagationTests, self).tearDown()
 
-    def itest_accession_prop(self):
+    def test_accession_prop(self):
         # 'Accession' object has no attribute 'propagations'
         """
         Test the Accession->AccessionPropagation->Propagation relation
         """
+        raise SkipTest('Not Implemented')
         loc = Location(name=u'name', code=u'code')
         plant = Plant(accession=self.accession, location=loc, code=u'1',
                       quantity=1)
@@ -721,10 +727,11 @@ class PropagationTests(GardenTestCase):
             self.assert_(value == default,
                          '%s = %s (%s)' % (attr, value, default))
 
-    def itest_editor(self):
+    def test_editor(self):
         """
         Interactively test the PropagationEditor
         """
+        raise SkipTest('Not Implemented')
         from bauble.plugins.garden.propagation import PropagationEditor
         propagation = Propagation()
         #propagation.prop_type = u'UnrootedCutting'
@@ -861,7 +868,8 @@ class SourceTests(GardenTestCase):
         self.assert_(self.session.query(Propagation).get(plant_prop_id))
         self.assert_(self.session.query(SourceDetail).get(source_detail_id))
 
-    def itest_details_editor(self):
+    def test_details_editor(self):
+        raise SkipTest('Not Implemented')
         e = SourceDetailEditor()
         e.start()
 
@@ -1051,10 +1059,11 @@ class AccessionTests(GardenTestCase):
         self.editor.handle_response(gtk.RESPONSE_OK)
         self.editor.session.close()
 
-    def itest_editor(self):
+    def test_editor(self):
         """
         Interactively test the AccessionEditor
         """
+        raise SkipTest('Not Implemented')
         #donor = self.create(Donor, name=u'test')
         sp2 = Species(genus=self.genus, sp=u'species')
         sp2.synonyms.append(self.species)
@@ -1203,10 +1212,11 @@ class LocationTests(GardenTestCase):
         self.assertEquals(utils.gc_objects_by_type('LocationEditorView'), [],
                           'LocationEditorView not deleted')
 
-    def itest_editor(self):
+    def test_editor(self):
         """
         Interactively test the PlantEditor
         """
+        raise SkipTest('Not Implemented')
         loc = self.create(Location, name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
         editor.start()
@@ -1251,7 +1261,8 @@ class InstitutionTests(GardenTestCase):
     # TODO: create a non interactive tests that starts the
     # InstututionEditor and checks that it doesn't leak memory
 
-    def itest_editor(self):
+    def test_editor(self):
+        raise SkipTest('Not Implemented')
         e = InstitutionEditor()
         e.start()
 
@@ -1569,3 +1580,53 @@ class AccessionNotesSerializeTest(GardenTestCase):
             create=False, update=True)
         self.assertTrue(obj is not None)
         self.assertEquals(obj.note, u"url://")
+
+import bauble.search as search
+
+
+class PlantSearchTest(GardenTestCase):
+    def __init__(self, *args):
+        super(PlantSearchTest, self).__init__(*args)
+
+    def setUp(self):
+        super(PlantSearchTest, self).setUp()
+        setUp_data()
+
+    def test_searchbyplantcode(self):
+        raise SkipTest('should really work, please inspect')
+        mapper_search = search.get_strategy('MapperSearch')
+
+        results = mapper_search.search('1.1.1', self.session)
+        self.assertEquals(len(results), 1)
+        p = results.pop()
+        ex = self.session.query(Plant).filter(Plant.id == 1).all()[0]
+        self.assertEqual(p, ex)
+        results = mapper_search.search('2.2.1', self.session)
+        logger.debug(results)
+        self.assertEquals(len(results), 1)
+        p = results.pop()
+        ex = self.session.query(Plant).filter(Plant.id == 2).all()[0]
+        self.assertEqual(p, ex)
+        results = mapper_search.search('2.2.2', self.session)
+        self.assertEquals(len(results), 1)
+        p = results.pop()
+        ex = self.session.query(Plant).filter(Plant.id == 3).all()[0]
+        self.assertEqual(p, ex)
+
+    def test_searchbyaccessioncode(self):
+        mapper_search = search.get_strategy('MapperSearch')
+
+        results = mapper_search.search('1.1', self.session)
+        self.assertEquals(len(results), 1)
+        a = results.pop()
+        expect = self.session.query(Accession).filter(
+            Accession.id == 1).all()[0]
+        logger.debug("%s, %s" % (a, expect))
+        self.assertEqual(a, expect)
+        results = mapper_search.search('2.2', self.session)
+        self.assertEquals(len(results), 1)
+        a = results.pop()
+        expect = self.session.query(Accession).filter(
+            Accession.id == 2).all()[0]
+        logger.debug("%s, %s" % (a, expect))
+        self.assertEqual(a, expect)
