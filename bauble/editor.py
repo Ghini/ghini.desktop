@@ -1097,13 +1097,13 @@ class NoteBox(gtk.HBox):
 
 class PictureBox(NoteBox):
     glade_ui = 'pictures.glade'
+    last_folder = '.'
 
     def __init__(self, presenter, model=None):
         super(PictureBox, self).__init__(presenter, model)
         utils.set_widget_value(self.widgets.category_comboentry,
                                u'<picture>')
         self.presenter._dirty = False
-        self.last_folder = '.'
 
         self.widgets.picture_button.connect(
             "clicked", self.on_activate_browse_button)
@@ -1154,6 +1154,7 @@ class PictureBox(NoteBox):
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         try:
+            print 'about to set current folder', self.last_folder
             fileChooserDialog.set_current_folder(self.last_folder)
             fileChooserDialog.run()
             filename = fileChooserDialog.get_filename()
@@ -1168,7 +1169,8 @@ class PictureBox(NoteBox):
                 from PIL import Image
                 im = Image.open(filename)
                 im.thumbnail((400, 400))
-                self.last_folder, basename = os.path.split(filename)
+                PictureBox.last_folder, basename = os.path.split(filename)
+                print 'new current folder is: ', self.last_folder
                 full_dest_path = os.path.join(
                     prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
                 logger.debug('copying %s to %s' % (filename, full_dest_path))
