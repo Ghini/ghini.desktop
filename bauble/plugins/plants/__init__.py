@@ -39,12 +39,29 @@ import bauble
 import bauble.db as db
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.plugins.plants.family import *
-from bauble.plugins.plants.genus import *
-from bauble.plugins.plants.species import *
-from bauble.plugins.plants.geography import *
+from bauble.plugins.plants.family import (
+    Familia, Family, FamilyInfoBox, FamilyEditor,
+    family_context_menu, family_markup_func)
+from bauble.plugins.plants.genus import (
+    Genus, GenusEditor, GenusInfoBox,
+    genus_context_menu, genus_markup_func,
+    )
+from bauble.plugins.plants.species import (
+    Species, SpeciesEditor, SpeciesInfoBox,
+    species_get_kids, species_markup_func,
+    species_context_menu, add_accession_action,
+    SynonymSearch, SpeciesDistribution,
+    VernacularName, VernacularNameInfoBox, vernname_get_kids,
+    vernname_context_menu, vernname_markup_func,
+    )
+from bauble.plugins.plants.geography import (
+    Geography, get_species_in_geography)
 import bauble.search as search
 from bauble.view import SearchView
+from bauble.i18n import _
+
+## naming locally unused objects. will be imported by clients of the module
+Familia, SpeciesDistribution,
 
 
 class PlantsPlugin(pluginmgr.Plugin):
@@ -114,8 +131,8 @@ class PlantsPlugin(pluginmgr.Plugin):
 
         from bauble.plugins.imex.csv_ import CSVImporter
         csv = CSVImporter()
-        import_error = False
-        import_exc = None
+        #import_error = False
+        #import_exc = None
         csv.start(filenames, metadata=db.metadata, force=True)
 
 
