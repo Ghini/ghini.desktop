@@ -1044,7 +1044,7 @@ class FromAndToDict_create_update_test(PlantTestCase):
         self.assertEquals(obj.author, 'Schltr.')
 
     def test_vernacular_name_as_dict(self):
-        bra = self.session.query(Species).filter(Species.id == 21).all()[0]
+        bra = self.session.query(Species).filter(Species.id == 21).first()
         vn_bra = self.session.query(VernacularName).filter(
             VernacularName.language == u'agr',
             VernacularName.species == bra).all()

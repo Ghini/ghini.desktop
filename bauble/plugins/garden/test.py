@@ -1599,18 +1599,18 @@ class PlantSearchTest(GardenTestCase):
         results = mapper_search.search('1.1.1', self.session)
         self.assertEquals(len(results), 1)
         p = results.pop()
-        ex = self.session.query(Plant).filter(Plant.id == 1).all()[0]
+        ex = self.session.query(Plant).filter(Plant.id == 1).first()
         self.assertEqual(p, ex)
         results = mapper_search.search('2.2.1', self.session)
         logger.debug(results)
         self.assertEquals(len(results), 1)
         p = results.pop()
-        ex = self.session.query(Plant).filter(Plant.id == 2).all()[0]
+        ex = self.session.query(Plant).filter(Plant.id == 2).first()
         self.assertEqual(p, ex)
         results = mapper_search.search('2.2.2', self.session)
         self.assertEquals(len(results), 1)
         p = results.pop()
-        ex = self.session.query(Plant).filter(Plant.id == 3).all()[0]
+        ex = self.session.query(Plant).filter(Plant.id == 3).first()
         self.assertEqual(p, ex)
 
     def test_searchbyaccessioncode(self):
@@ -1620,13 +1620,13 @@ class PlantSearchTest(GardenTestCase):
         self.assertEquals(len(results), 1)
         a = results.pop()
         expect = self.session.query(Accession).filter(
-            Accession.id == 1).all()[0]
+            Accession.id == 1).first()
         logger.debug("%s, %s" % (a, expect))
         self.assertEqual(a, expect)
         results = mapper_search.search('2.2', self.session)
         self.assertEquals(len(results), 1)
         a = results.pop()
         expect = self.session.query(Accession).filter(
-            Accession.id == 2).all()[0]
+            Accession.id == 2).first()
         logger.debug("%s, %s" % (a, expect))
         self.assertEqual(a, expect)
