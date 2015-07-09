@@ -28,6 +28,9 @@ import xml
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
     UnicodeText, func, and_, UniqueConstraint, String
 from sqlalchemy.orm import relation, backref, validates
