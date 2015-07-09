@@ -191,23 +191,28 @@ class PlantSearch(SearchStrategy):
         super(PlantSearch, self).__init__()
 
     def search(self, text, session):
-        """returns a result if the text looks like a plant code"""
-        # TODO: this doesn't support search like plant=2009.0039.1
+        """returns a result if the text looks like a quoted plant code
 
-        # TODO: searches like 2009.0039.% or * would be handy
+        special search strategy, can't be obtained in MapperSearch
+        """
 
+        if text[0] == text[-1] and text[0] in ['"', "'"]:
+            text = text[1:-1]
+        else:
+            logger.debug("text is not quoted, so strategy does not apply")
+            return []
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
             logger.debug("delimiter not found, can't split the code")
             return []
         acc_code, plant_code = text.rsplit(delimiter, 1)
-        logger.debug("ac: %s, pl: %s" % acc_code, plant_code)
+        logger.debug("ac: %s, pl: %s" % (acc_code, plant_code))
 
         try:
             from bauble.plugins.garden import Accession
             query = session.query(Plant).filter(
-                Plant.code == plant_code).join(Accession).filter(
-                Accession.code == acc_code)
+                Plant.code == unicode(plant_code)).join(Accession).filter(
+                Accession.code == unicode(acc_code))
             return query.all()
         except Exception, e:
             logger.debug("%s %s" % (e.__class__.name, e))
