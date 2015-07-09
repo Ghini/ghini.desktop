@@ -649,9 +649,9 @@ class JSONImportTests(BaubleTestCase):
         self.assertEquals(len(sp), 1)
         sp = sp[0]
         genus = self.session.query(Genus).filter(
-            Genus.genus == u'Aerides').all()[0]
+            Genus.genus == u'Aerides').first()
         family = self.session.query(Family).filter(
-            Family.family == u'Orchidaceae').all()[0]
+            Family.family == u'Orchidaceae').first()
         self.assertEquals(sp.genus, genus)
         self.assertEquals(genus.family, family)
 

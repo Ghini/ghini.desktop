@@ -599,7 +599,7 @@ class VernacularName(db.Base, db.Serializable):
         g_epithet, s_epithet = keys['species'].split(' ', 1)
         sp = session.query(Species).filter(
             Species.sp == s_epithet).join(Genus).filter(
-            Genus.genus == g_epithet).all()[0]
+            Genus.genus == g_epithet).first()
         return session.query(cls).filter(
             cls.species == sp,
             cls.language == keys['language']).all()
