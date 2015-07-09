@@ -437,24 +437,6 @@ recvd_type_values = {
     }
 
 
-class AccessionSearch(SearchStrategy):
-
-    def __init__(self):
-        super(AccessionSearch, self).__init__()
-
-    def search(self, acc_code, session):
-        """returns a result if the text looks like an accession code"""
-
-        try:
-            query = session.query(Accession).filter(
-                Accession.code == acc_code)
-            logger.debug("matched the %s as Accession search" % acc_code)
-            return query.all()
-        except Exception, e:
-            logger.debug("%s %s" % (e.__class__.name, e))
-            return []
-
-
 class AccessionNote(db.Base, db.Serializable):
     """
     Notes for the accession table

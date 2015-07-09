@@ -398,10 +398,6 @@ class ValueListAction(object):
         searches all the mapper and the properties configured with
         add_meta()
         """
-        # debug('values: %s' % tokens)
-        # debug('  s: %s' % s)
-        # debug('  loc: %s' % loc)
-        # debug('  toks: %s' % tokens)
 
         # make searches case-insensitive, in postgres use ilike,
         # in other use upper()
@@ -532,7 +528,7 @@ class SearchStrategy(object):
         Return an iterator that iterates over mapped classes retrieved
         from the search.
         '''
-        logger.info('SearchStrategy "%s" %s)' % (text, session))
+        logger.debug('SearchStrategy "%s" %s)' % (text, session))
         pass
 
 
