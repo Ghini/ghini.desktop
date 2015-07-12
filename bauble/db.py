@@ -194,11 +194,11 @@ class History(history_base):
     """
     __tablename__ = 'history'
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-    table_name = sa.Column(sa.String, nullable=False)
+    table_name = sa.Column(sa.UnicodeText, nullable=False)
     table_id = sa.Column(sa.Integer, nullable=False, autoincrement=False)
-    values = sa.Column(sa.String, nullable=False)
-    operation = sa.Column(sa.String, nullable=False)
-    user = sa.Column(sa.String)
+    values = sa.Column(sa.UnicodeText, nullable=False)
+    operation = sa.Column(sa.UnicodeText, nullable=False)
+    user = sa.Column(sa.UnicodeText)
     timestamp = sa.Column(types.DateTime, nullable=False)
 
 
