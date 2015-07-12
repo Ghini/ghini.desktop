@@ -125,8 +125,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('genus', value)
             if not value:
                 return
-            syn = self.session.query(GenusSynonym).\
-                filter(GenusSynonym.synonym_id == value.id).first()
+            syn = self.session.query(GenusSynonym).filter(
+                GenusSynonym.synonym_id == value.id).first()
             if not syn:
                 self.set_model_attr('genus', value)
                 return
