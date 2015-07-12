@@ -258,14 +258,36 @@ class SynonymsExpander(InfoExpander):
 
         :param row: the row to get thevalues from
         '''
+        syn_box = self.widgets.sp_synonyms_box
+        # remove old labels
+        syn_box.foreach(syn_box.remove)
         logger.debug(row.synonyms)
-        if len(row.synonyms) == 0:
+        from sqlalchemy.orm.session import object_session
+        self.session = object_session(row)
+        syn = self.session.query(SpeciesSynonym).filter(
+            SpeciesSynonym.synonym_id == row.id).first()
+        accepted = syn and syn.species
+        logger.debug("genus %s is synonym of %s and has synonyms %s" %
+                     (row, accepted, row.synonyms))
+        self.set_label(_("Synonyms"))  # reset default value
+        on_label_clicked = lambda l, e, syn: select_in_search_results(syn)
+        if accepted is not None:
+            self.set_label(_("Accepted name"))
+            # create clickable label that will select the synonym
+            # in the search results
+            box = gtk.EventBox()
+            label = gtk.Label()
+            label.set_alignment(0, .5)
+            label.set_markup(Species.str(accepted, markup=True, authors=True))
+            box.add(label)
+            utils.make_label_clickable(label, on_label_clicked, accepted)
+            syn_box.pack_start(box, expand=False, fill=False)
+            self.show_all()
+            self.set_sensitive(True)
+        elif len(row.synonyms) == 0:
             self.set_sensitive(False)
             self.set_expanded(False)
         else:
-            def on_label_clicked(label, event, syn):
-                select_in_search_results(syn)
-            syn_box = self.widgets.sp_synonyms_box
             # remove all the children
             syn_box.foreach(syn_box.remove)
             for syn in row.synonyms:
@@ -279,7 +301,6 @@ class SynonymsExpander(InfoExpander):
                 utils.make_label_clickable(label, on_label_clicked, syn)
                 syn_box.pack_start(box, expand=False, fill=False)
             self.show_all()
-
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)
