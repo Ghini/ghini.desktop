@@ -393,7 +393,7 @@ def main(uri=None):
             except (err.EmptyDatabaseError, err.MetaTableError,
                     err.VersionError, err.TimestampError,
                     err.RegistryError), e:
-                logger.warning("%s(%s)" % (type(e), e))
+                logger.info("%s(%s)" % (type(e), e))
                 open_exc = e
                 # reopen without verification so that db.Session and
                 # db.engine, db.metadata will be bound to an engine
