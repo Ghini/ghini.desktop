@@ -431,8 +431,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('family', value)
             if not value:
                 return
-            syn = self.session.query(FamilySynonym).\
-                filter(FamilySynonym.synonym_id == value.id).first()
+            syn = self.session.query(FamilySynonym).filter(
+                FamilySynonym.synonym_id == value.id).first()
             if not syn:
                 self.set_model_attr('family', value)
                 return
@@ -945,7 +945,28 @@ class SynonymsExpander(InfoExpander):
         syn_box.foreach(syn_box.remove)
         # use True comparison in case the preference isn't set
         self.set_expanded(prefs[self.expanded_pref] is True)
-        if len(row.synonyms) == 0:
+        self.session = object_session(row)
+        syn = self.session.query(GenusSynonym).filter(
+            GenusSynonym.synonym_id == row.id).first()
+        accepted = syn and syn.genus
+        logger.debug("genus %s is synonym of %s and has synonyms %s" %
+                     (row, accepted, row.synonyms))
+        self.set_label(_("Synonyms"))  # reset default value
+        if accepted is not None:
+            self.set_label(_("Accepted name"))
+            on_clicked = lambda l, e, syn: select_in_search_results(syn)
+            # create clickable label that will select the synonym
+            # in the search results
+            box = gtk.EventBox()
+            label = gtk.Label()
+            label.set_alignment(0, .5)
+            label.set_markup(Genus.str(accepted, author=True))
+            box.add(label)
+            utils.make_label_clickable(label, on_clicked, accepted)
+            syn_box.pack_start(box, expand=False, fill=False)
+            self.show_all()
+            self.set_sensitive(True)
+        elif len(row.synonyms) == 0:
             self.set_sensitive(False)
         else:
             on_clicked = lambda l, e, syn: select_in_search_results(syn)
