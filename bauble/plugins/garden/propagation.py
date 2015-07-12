@@ -269,13 +269,13 @@ class PropCutting(db.Base):
     flower_buds = Column(types.Enum(values=flower_buds_values.keys(),
                                     translations=flower_buds_values))
 
-    fungicide = Column(Unicode)  # fungal soak
-    hormone = Column(Unicode)  # powder/liquid/None....solution
+    fungicide = Column(UnicodeText)  # fungal soak
+    hormone = Column(UnicodeText)  # powder/liquid/None....solution
 
-    media = Column(Unicode)
-    container = Column(Unicode)
-    location = Column(Unicode)
-    cover = Column(Unicode)  # vispore, poly, plastic dome, poly bag
+    media = Column(UnicodeText)
+    container = Column(UnicodeText)
+    location = Column(UnicodeText)
+    cover = Column(UnicodeText)  # vispore, poly, plastic dome, poly bag
 
     # temperature of bottom heat
     bottom_heat_temp = Column(Integer, autoincrement=False)
@@ -304,19 +304,19 @@ class PropSeed(db.Base):
     pretreatment = Column(UnicodeText)
     nseeds = Column(Integer, nullable=False, autoincrement=False)
     date_sown = Column(types.Date, nullable=False)
-    container = Column(Unicode)  # 4" pot plug tray, other
-    media = Column(Unicode)  # seedling media, sphagnum, other
+    container = Column(UnicodeText)  # 4" pot plug tray, other
+    media = Column(UnicodeText)  # seedling media, sphagnum, other
 
     # covered with #2 granite grit: no, yes, lightly heavily
-    covered = Column(Unicode)
+    covered = Column(UnicodeText)
 
     # not same as location table, glasshouse(bottom heat, no bottom
     # heat), polyhouse, polyshade house, fridge in polybag
-    location = Column(Unicode)
+    location = Column(UnicodeText)
 
     # TODO: do we need multiple moved to->moved from and date fields
-    moved_from = Column(Unicode)
-    moved_to = Column(Unicode)
+    moved_from = Column(UnicodeText)
+    moved_to = Column(UnicodeText)
     moved_date = Column(types.Date)
 
     germ_date = Column(types.Date)

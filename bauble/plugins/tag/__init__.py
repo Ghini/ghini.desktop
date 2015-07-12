@@ -225,12 +225,11 @@ class TagItemGUI(editor.GenericEditorView):
 
         response = self.get_window().run()
         while response != gtk.RESPONSE_OK \
-          and response != gtk.RESPONSE_DELETE_EVENT:
+                and response != gtk.RESPONSE_DELETE_EVENT:
             response = self.get_window().run()
 
         self.get_window().hide()
         self.disconnect_all()
-
 
 
 class Tag(db.Base):
@@ -247,7 +246,7 @@ class Tag(db.Base):
 
     # columns
     tag = Column(Unicode(64), unique=True, nullable=False)
-    description = Column(Unicode)
+    description = Column(UnicodeText)
 
     # relations
     _objects = relation('TaggedObj', cascade='all, delete-orphan',
