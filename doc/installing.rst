@@ -146,7 +146,7 @@ the installation steps on Windows:
    http://www.python.org
 
    Bauble has been developed and tested using Python 2.x.  It will
-   definitely `not` run on Python 3.x.  If you are interested in helping
+   definitely **not** run on Python 3.x.  If you are interested in helping
    port to Python 3.x, please contact the Bauble maintainers.
 
    when installing Python, do put Python in the PATH:
@@ -178,11 +178,11 @@ the installation steps on Windows:
 
     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.bat
 
-   this will pull the `bauble.classic` repository on github to your home
-   directory, under `Local\\github\\Bauble`, checkout the `bauble-1.0`
+   this will pull the ``bauble.classic`` repository on github to your home
+   directory, under ``Local\\github\\Bauble``, checkout the ``bauble-1.0``
    production line, create a virtual environment and install bauble into it.
 
-   you can also run `devinstall.bat` passing it as argument the numerical
+   you can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
 
 #. the following, you will do regularly, to stay up-to-date with the
@@ -194,8 +194,8 @@ the installation steps on Windows:
     git pull
     python setup.py install
 
-#. you can now start bauble using the `bauble.lnk` shortcut that the
-   installation procedure copies to the `Scripts` directory of the virtual
+#. you can now start bauble using the ``bauble.lnk`` shortcut that the
+   installation procedure copies to the ``Scripts`` directory of the virtual
    environment::
 
     %HOMEDRIVE%%HOMEPATH%\.virtualenv\bacl\Scripts\bauble.lnk
