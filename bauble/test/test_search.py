@@ -21,6 +21,7 @@
 # test_search.py
 #
 import unittest
+from nose import SkipTest
 
 import logging
 logger = logging.getLogger(__name__)
@@ -635,6 +636,28 @@ class SearchTests(BaubleTestCase):
         s = 'accession where code between "1980" and "1980"'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set())
+
+    def test_search_by_query_binomial(self):
+        """can use genus_species binomial identification"""
+
+        raise SkipTest
+        Family = self.Family
+        Genus = self.Genus
+        from bauble.plugins.plants.species_model import Species
+        family2 = Family(family=u'family2')
+        g2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3', qualifier=u's. lat.')
+        g3 = Genus(family=f3, genus=u'Ixora')
+        sp = Species(sp=u"coccinea", genus=g3)
+        self.session.add_all([family2, g2, f3, g3, sp])
+        self.session.commit()
+
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = '"Ixora coccinea"'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([sp]))
 
 
 class QueryBuilderTests(BaubleTestCase):
