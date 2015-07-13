@@ -139,7 +139,7 @@ the installation steps on Windows:
    all default options are fine, except we need git to be executable from
    the command prompt::
 
-.. image:: git3.png
+   .. image:: git3.png
 
 #. download and install Python 2.x (32bit) from:
 
@@ -151,7 +151,7 @@ the installation steps on Windows:
 
    when installing Python, do put Python in the PATH::
 
-.. image:: python3.png
+   .. image:: python3.png
 
 #. download ``pygtk`` from the following source. (this requires 32bit
    python). be sure you download the "all in one" version::
@@ -160,7 +160,7 @@ the installation steps on Windows:
 
    make a complete install, selecting everything::
 
-.. image:: pygtk1.png
+   .. image:: pygtk1.png
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
