@@ -604,6 +604,10 @@ class VernacularName(db.Base, db.Serializable):
             cls.species == sp,
             cls.language == keys['language']).all()
 
+    @property
+    def pictures(self):
+        return self.species.pictures
+
 
 class DefaultVernacularName(db.Base):
     """
