@@ -236,7 +236,7 @@
                                       <object class="GtkLabel" id="label30">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">*</property>
+                                        <property name="label" translatable="no">*</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -526,7 +526,7 @@
                                           <object class="GtkLabel" id="label32">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="label" translatable="yes">*</property>
+                                            <property name="label" translatable="no">*</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1579,7 +1579,7 @@
                                                             <object class="GtkLabel" id="label45">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="label" translatable="yes">*	</property>
+                                                            <property name="label" translatable="no">*	</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1630,7 +1630,7 @@
                                                             <child>
                                                             <object class="GtkLabel" id="label55">
                                                             <property name="can_focus">False</property>
-                                                            <property name="label" translatable="yes">*</property>
+                                                            <property name="label" translatable="no">*</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1760,7 +1760,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="xpad">2</property>
-                                                            <property name="label" translatable="yes">+/-</property>
+                                                            <property name="label" translatable="no">+/-</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1790,7 +1790,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="xpad">2</property>
-                                                            <property name="label" translatable="yes">m</property>
+                                                            <property name="label" translatable="no">m</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1938,7 +1938,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="xpad">2</property>
-                                                            <property name="label" translatable="yes">+/-</property>
+                                                            <property name="label" translatable="no">+/-</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -1968,7 +1968,7 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="xpad">2</property>
-                                                            <property name="label" translatable="yes">m</property>
+                                                            <property name="label" translatable="no">m</property>
                                                             </object>
                                                             <packing>
                                                             <property name="expand">False</property>
@@ -2951,7 +2951,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">*</property>
+                    <property name="label" translatable="no">*</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -3165,7 +3165,7 @@
                           <object class="GtkLabel" id="label49">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">*</property>
+                            <property name="label" translatable="no">*</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -3201,7 +3201,7 @@
                           <object class="GtkLabel" id="label50">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">*</property>
+                            <property name="label" translatable="no">*</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -3239,7 +3239,7 @@
                           <object class="GtkLabel" id="label51">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">*</property>
+                            <property name="label" translatable="no">*</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -3280,7 +3280,7 @@
                             <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="yalign">0</property>
-                            <property name="label" translatable="yes">*</property>
+                            <property name="label" translatable="no">*</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -3402,7 +3402,7 @@
                   <object class="GtkLabel" id="ver_expander_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                   </object>
                 </child>
               </object>

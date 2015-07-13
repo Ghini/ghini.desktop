@@ -295,7 +295,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="button3">
-                            <property name="label" translatable="yes">...</property>
+                            <property name="label" translatable="no">...</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
