@@ -1,19 +1,34 @@
 #!/bin/bash
 
-# Extract all the translatable strings and generate the message template
+# make sure we are in the project root dir
+cd $(dirname $0)/..
+# and that the pot dir exists
+mkdir -p pot 
 
-# Extract all the translatable strings from the glade files
-find ./bauble -name "*.glade" -exec intltool-extract --type=gettext/glade {} \;
+#------------------------------------------------------------------------
+# Extract all the translatable strings and generate the message templates
+#------------------------------------------------------------------------
 
-# Create the message.pot file from the python and .glade.h files
-xgettext -k_ -kN_ -o po/messages.pot `find ./bauble -name "*.py" -o -name *.h`
+# glade
+xgettext --language=glade -o pot/glade.pot --from-code=utf-8 $(find bauble -name "*.glade")
 
-#
-# Use the following command to create the .mo files for each
-# locale. This is done when the project is built.
-#
-# msgfmt po/en.po -o build/share/locale/en/LC_MESSAGES/bauble.mo
+# python
+xgettext --language=Python -o pot/python.pot --from-code=utf-8 -k_ $(find bauble -name "*.py")
 
-# Update the translations after a new message template is created
-#find ./po -name \*.po -exec msgmerge -U {} messages.pot \;
+# documentation
+sphinx-build -b gettext doc pot/
 
+#------------------------------------------------------------------------
+# merge all message templates into one
+#------------------------------------------------------------------------
+touch pot/messages.pot
+rm pot/messages.pot
+msgcat pot/*.pot > pot/messages.pot
+
+#------------------------------------------------------------------------
+# finally update all internationalization files
+#------------------------------------------------------------------------
+for po in $(find po -name \*.po)
+do
+    msgmerge -UNqs $po pot/messages.pot
+done
