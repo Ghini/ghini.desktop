@@ -1139,7 +1139,7 @@ class PictureBox(NoteBox):
             except Exception, e:
                 logger.warning(e)
                 im = gtk.Label()
-                im.set_text(_("%s" % e))
+                im.set_text(e)
         else:
             # make button hold some text
             im = gtk.Label()
