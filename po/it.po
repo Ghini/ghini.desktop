@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: Mario Frasca <mario@anche.no>\n"
-"POT-Creation-Date: 2015-06-22 20:09-0500\n"
-"PO-Revision-Date: 2015-06-22 20:17-0500\n"
+"POT-Creation-Date: 2015-07-12 18:48-0500\n"
+"PO-Revision-Date: 2015-07-12 18:48-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/bauble/master/it/"
 ">\n"
@@ -26,7 +26,7 @@ msgstr ""
 "X-Poedit-SearchPath-3: bauble/plugins/plants\n"
 "X-Poedit-SearchPath-4: bauble/plugins/garden\n"
 
-#: bauble/search.py:345
+#: bauble/search.py:348
 #, python-format
 msgid "Unknown search domain: %s"
 msgstr "Dominio di ricerca sconosciuto: %s"
@@ -41,7 +41,7 @@ msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
 msgstr ""
 "MapperSearch.add_meta(): default_columns l'argomento non può essere vuoto"
 
-#: bauble/search.py:634 bauble/search.py:1013
+#: bauble/search.py:634 bauble/search.py:952
 msgid "Search Domain"
 msgstr "Dominio di ricerca"
 
@@ -61,15 +61,15 @@ msgstr "Scegli una proprietà..."
 msgid "Query Builder"
 msgstr "Costruttore di interrogazioni"
 
-#: bauble/search.py:1019
+#: bauble/search.py:958
 msgid "Choose a search domain..."
 msgstr "Scegli un dominio di ricerca..."
 
-#: bauble/search.py:1024
+#: bauble/search.py:963
 msgid "Expressions"
 msgstr "Espressioni"
 
-#: bauble/connmgr.py:123
+#: bauble/connmgr.py:129
 msgid ""
 "You don't have any connections in your connection list.\n"
 "Close this message and click on \"Add\" to create a new connection."
@@ -78,7 +78,7 @@ msgstr ""
 "Chiudi questo messaggio e clicca su \"Aggiungi\" per creare una nuova "
 "connessione."
 
-#: bauble/connmgr.py:140
+#: bauble/connmgr.py:146
 msgid ""
 "You have to choose or create a new connection before you can connect to the "
 "database."
@@ -86,7 +86,7 @@ msgstr ""
 "È necessario scegliere o creare una nuova connessione prima di connettersi "
 "al database."
 
-#: bauble/connmgr.py:190
+#: bauble/connmgr.py:196
 #, python-format
 msgid ""
 "Bauble does not have permission to read the directory:\n"
@@ -97,7 +97,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:195
+#: bauble/connmgr.py:201
 #, python-format
 msgid ""
 "Bauble does not have permission to write to the directory:\n"
@@ -108,7 +108,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:200
+#: bauble/connmgr.py:206
 #, python-format
 msgid ""
 "Bauble does not have permission to read the database file:\n"
@@ -119,7 +119,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:205
+#: bauble/connmgr.py:211
 #, python-format
 msgid ""
 "Bauble does not have permission to write to the database file:\n"
@@ -130,11 +130,11 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:215
+#: bauble/connmgr.py:221
 msgid "Do you want to save your changes?"
 msgstr "Vuoi salvare le modifiche?"
 
-#: bauble/connmgr.py:233
+#: bauble/connmgr.py:239
 msgid ""
 "No Python database connectors installed.\n"
 "Please consult the documentation for the prerequesites for installing Bauble."
@@ -143,12 +143,12 @@ msgstr ""
 "Per piacere consulta la documentazione per i prerequisiti per "
 "l'installazione di Bauble."
 
-#: bauble/connmgr.py:249 bauble/ui.py:83
+#: bauble/connmgr.py:255 bauble/ui.py:83
 #, python-format
 msgid "Could not load icon from %s"
 msgstr "Non è stato possibile caricare l'icona da %s"
 
-#: bauble/connmgr.py:340
+#: bauble/connmgr.py:346
 #, python-format
 msgid ""
 "Are you sure you want to remove \"%s\"?\n"
@@ -161,65 +161,65 @@ msgstr ""
 "<i>Attenzione: Ciò rimuove solamente la connessione al database e non "
 "riguarda il database o i suoi dati</i>"
 
-#: bauble/connmgr.py:352
+#: bauble/connmgr.py:358
 msgid "Enter a connection name"
 msgstr "inserisci un nome di connessione"
 
-#: bauble/connmgr.py:420
+#: bauble/connmgr.py:426
 #, python-format
 msgid "Do you want to save %s?"
 msgstr "Vuoi salvare %s?"
 
-#: bauble/connmgr.py:428
+#: bauble/connmgr.py:434
 #, python-format
 msgid "Do you want to save your changes to %s ?"
 msgstr "Vuoi salvare le modifiche a %s?"
 
-#: bauble/connmgr.py:483
+#: bauble/connmgr.py:489
 msgid "Enter your password"
 msgstr "Inserisci la tua password"
 
-#: bauble/connmgr.py:558
+#: bauble/connmgr.py:564
 msgid "Please choose a name for this connection"
 msgstr "Per piacere scegli un nome per questa connessione"
 
-#: bauble/connmgr.py:561
+#: bauble/connmgr.py:567
 msgid "Please choose a user name for this connection"
 msgstr "Per piacere scegli un nome utente per questa connessione"
 
-#: bauble/connmgr.py:593
+#: bauble/connmgr.py:599
 msgid "Database: "
 msgstr "Database: "
 
-#: bauble/connmgr.py:599
+#: bauble/connmgr.py:605
 msgid "Host: "
 msgstr "Host: "
 
-#: bauble/connmgr.py:606
+#: bauble/connmgr.py:612
 msgid "User: "
 msgstr "Utente: "
 
-#: bauble/connmgr.py:612
+#: bauble/connmgr.py:618
 msgid "Password: "
 msgstr "Password: "
 
-#: bauble/connmgr.py:618 bauble/connmgr.py:713
+#: bauble/connmgr.py:624 bauble/connmgr.py:719
 msgid "Pictures root: "
 msgstr "Cartella base per le immagini: "
 
-#: bauble/connmgr.py:624 bauble/connmgr.py:704 bauble/connmgr.py:719
+#: bauble/connmgr.py:630 bauble/connmgr.py:710 bauble/connmgr.py:725
 msgid "Browse..."
 msgstr "Esplora..."
 
-#: bauble/connmgr.py:665 bauble/editor.py:1146 bauble/editor.py:1153
+#: bauble/connmgr.py:671 bauble/editor.py:1146 bauble/editor.py:1153
 msgid "Choose a file..."
 msgstr "Scegli un file..."
 
-#: bauble/connmgr.py:691
+#: bauble/connmgr.py:697
 msgid "Use default filename"
 msgstr "Usa il nome file predefinito"
 
-#: bauble/connmgr.py:698
+#: bauble/connmgr.py:704
 msgid "Filename: "
 msgstr "Nome file: "
 
@@ -311,18 +311,18 @@ msgstr ""
 msgid "_File"
 msgstr "_File"
 
-#: bauble/ui.py:337
-msgid "_New"
-msgstr "_Nuovo"
+#: bauble/ui.py:339
+msgid "_Open"
+msgstr ""
 
 #: bauble/ui.py:341
 msgid "_Quit"
 msgstr "_Esci"
 
 #: bauble/ui.py:343 bauble/plugins/garden/location.py:85
-#: bauble/plugins/garden/accession.py:229 bauble/plugins/garden/plant.py:113
+#: bauble/plugins/garden/accession.py:230 bauble/plugins/garden/plant.py:112
 #: bauble/plugins/garden/source.py:72 bauble/plugins/garden/source.py:113
-#: bauble/plugins/plants/genus.py:108 bauble/plugins/plants/family.py:98
+#: bauble/plugins/plants/genus.py:111 bauble/plugins/plants/family.py:98
 #: bauble/plugins/plants/species.py:112
 msgid "_Edit"
 msgstr "_Modifica"
@@ -462,6 +462,11 @@ msgstr ""
 "Alcune cose potrebbero non funzionare correttamente oppure una parte dei "
 "dati potrebbe inaspettatamente risultare corrotta."
 
+#: bauble/db.py:464 bauble/editor.py:1136
+#, python-format
+msgid "picture file %s not found."
+msgstr "non trovo il file della foto %s"
+
 #: bauble/btypes.py:54
 msgid "Enum requires a list of values"
 msgstr "Enum richiede una lista di valori"
@@ -498,46 +503,42 @@ msgstr "nessun widget con nome %s"
 msgid "%(user)s on %(date)s"
 msgstr "%(user)s in data %(date)s"
 
-#: bauble/editor.py:1136 bauble/plugins/garden/plant.py:469
-#, python-format
-msgid "picture file %s not found."
-msgstr "non trovo il file della foto %s"
-
-#: bauble/editor.py:1142 bauble/plugins/garden/plant.py:476
-#, fuzzy, python-format
-msgid "%s"
-msgstr "%"
-
-#: bauble/__init__.py:160
+#: bauble/__init__.py:162
 msgid "No default handler registered"
 msgstr "Nessun gestore predefinito registrato"
 
-#: bauble/__init__.py:162
+#: bauble/__init__.py:164
 #, python-format
 msgid "No command handler for %s"
 msgstr "Nessun gestore di comandi per %s"
 
-#: bauble/__init__.py:250
-msgid "** Error: could not import gtk and/or gobject"
-msgstr "** Errore: non è stato possibile importare gtk e/o gobject"
-
-#: bauble/__init__.py:253
-msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
-msgstr "Per piacere assicurati che GTK_ROOT\\bin sia nel tuo PERCORSO."
-
-#: bauble/__init__.py:290
-msgid "**Error: Bauble must be run in a windowed environment."
-msgstr "**Errore: Bauble deve essere eseguito in un ambiente grafico."
-
-#: bauble/__init__.py:331
+#: bauble/__init__.py:259
+#, fuzzy, python-format
 msgid ""
 "new remote version available.\n"
-"Cancel to stop and upgrade; OK to continue."
+"\n"
+"remote version: %(1)s,\n"
+"running version: %(2)s.\n"
+"\n"
+"Cancel to stop and upgrade;\n"
+"OK to continue."
 msgstr ""
 "è disponibile una nuova versione.Annulla: chiude Bauble e puoi aggiornare."
 "OK: continua con questa versione."
 
-#: bauble/__init__.py:387
+#: bauble/__init__.py:302
+msgid "** Error: could not import gtk and/or gobject"
+msgstr "** Errore: non è stato possibile importare gtk e/o gobject"
+
+#: bauble/__init__.py:305
+msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
+msgstr "Per piacere assicurati che GTK_ROOT\\bin sia nel tuo PERCORSO."
+
+#: bauble/__init__.py:342
+msgid "**Error: Bauble must be run in a windowed environment."
+msgstr "**Errore: Bauble deve essere eseguito in un ambiente grafico."
+
+#: bauble/__init__.py:408
 #, python-format
 msgid ""
 "Could not open connection.\n"
@@ -548,7 +549,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/__init__.py:415
+#: bauble/__init__.py:436
 msgid ""
 "Would you like to create a new Bauble database at the current connection?\n"
 "\n"
@@ -676,32 +677,32 @@ msgstr "Nome"
 msgid "Version"
 msgstr "Versione"
 
-#: bauble/plugins/picasa/__init__.py:265
+#: bauble/plugins/picasa/__init__.py:284
 #, python-format
 msgid "Could not authorize Google account: %s"
 msgstr "Impossibile effettuare l'accesso all'account Google: %s"
 
-#: bauble/plugins/picasa/__init__.py:391 bauble/plugins/picasa/__init__.py:592
+#: bauble/plugins/picasa/__init__.py:410 bauble/plugins/picasa/__init__.py:611
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: bauble/plugins/picasa/__init__.py:428
+#: bauble/plugins/picasa/__init__.py:447
 msgid "Images"
 msgstr "Immagini"
 
-#: bauble/plugins/picasa/__init__.py:499
+#: bauble/plugins/picasa/__init__.py:518
 msgid "Could not login to PicasaWeb account."
 msgstr "Impossibile effettuare l'accesso all'account Picasaweb."
 
-#: bauble/plugins/picasa/__init__.py:521
+#: bauble/plugins/picasa/__init__.py:540
 msgid "No images"
 msgstr "Nessuna immagine"
 
-#: bauble/plugins/picasa/__init__.py:591
+#: bauble/plugins/picasa/__init__.py:610
 msgid "Picasa"
 msgstr "Picasa"
 
-#: bauble/plugins/abcd/__init__.py:169
+#: bauble/plugins/abcd/__init__.py:190
 msgid ""
 "Some or all of the information about your institution or business is not "
 "complete. Please make sure that the Name, Technical Contact, Email, Contact "
@@ -711,11 +712,11 @@ msgstr ""
 "complete. Per piacere assicurati che i campi di Nome, Contatto Tecnico, "
 "Email, Contatto e Codice Ente siano riempiti."
 
-#: bauble/plugins/abcd/__init__.py:280
+#: bauble/plugins/abcd/__init__.py:301
 msgid "Choose a file to export to..."
 msgstr "Seleziona un file nel quale esportare i dati..."
 
-#: bauble/plugins/abcd/__init__.py:296
+#: bauble/plugins/abcd/__init__.py:317
 #, python-format
 msgid ""
 "You are exporting %(nplants)s plants to ABCD format.  Exporting this many "
@@ -728,45 +729,45 @@ msgstr ""
 "\n"
 "<i>Sei sicuro di voler continuare?</i>"
 
-#: bauble/plugins/abcd/__init__.py:330
+#: bauble/plugins/abcd/__init__.py:351
 msgid ""
 "The ABCD file was created but failed to validate correctly against the ABCD "
 "standard."
 msgstr ""
 "Il file ABCD è stato creato ma non risulta conforme allo standard ABCD.."
 
-#: bauble/plugins/abcd/__init__.py:336 bauble/plugins/imex/xml.py:141
-#: bauble/plugins/imex/csv_.py:700 bauble/plugins/imex/iojson.py:233
+#: bauble/plugins/abcd/__init__.py:357 bauble/plugins/imex/xml.py:160
+#: bauble/plugins/imex/csv_.py:719 bauble/plugins/imex/iojson.py:234
 msgid "Export"
 msgstr "Esporta"
 
-#: bauble/plugins/abcd/__init__.py:337
+#: bauble/plugins/abcd/__init__.py:358
 msgid "ABCD"
 msgstr "ABCD"
 
-#: bauble/plugins/abcd/__init__.py:354
+#: bauble/plugins/abcd/__init__.py:375
 msgid "The <i>lxml</i> package is required for the ABCD plugin"
 msgstr ""
 "Il pacchetto <i>lxml</i> è un requisito obbligatorio per il plugin ABCD"
 
-#: bauble/plugins/users/__init__.py:468
+#: bauble/plugins/users/__init__.py:487
 msgid "The Users editor is only valid on a PostgreSQL database"
 msgstr "L'editore utenti può essere utilizzato solo su un database PostgreSQL"
 
-#: bauble/plugins/users/__init__.py:476
+#: bauble/plugins/users/__init__.py:495
 msgid "You do not have privileges to change other user privileges"
 msgstr ""
 "Non hai i diritti di accesso necessari per cambiare diritti di altri utenti."
 
-#: bauble/plugins/users/__init__.py:491 bauble/plugins/users/__init__.py:712
+#: bauble/plugins/users/__init__.py:510 bauble/plugins/users/__init__.py:731
 msgid "Users"
 msgstr "Utenti"
 
-#: bauble/plugins/users/__init__.py:542
+#: bauble/plugins/users/__init__.py:561
 msgid "Enter a user name"
 msgstr "Inserisci un nome utente"
 
-#: bauble/plugins/users/__init__.py:558
+#: bauble/plugins/users/__init__.py:577
 #, python-format
 msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
@@ -779,27 +780,27 @@ msgstr ""
 "<i>L'utente potrebbe essere associato ad altri database oltre che a Bauble.</"
 "i>"
 
-#: bauble/plugins/users/__init__.py:620
+#: bauble/plugins/users/__init__.py:639
 #, python-format
 msgid "The password for user <b>%s</b> has not been changed."
 msgstr "La password per l'utente <b>%s</b> non è stata modificata."
 
-#: bauble/plugins/users/__init__.py:626
+#: bauble/plugins/users/__init__.py:645
 #, python-format
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:42 bauble/plugins/garden/location.py:70
+#: bauble/plugins/tag/__init__.py:61 bauble/plugins/garden/location.py:70
 #: bauble/plugins/garden/source.py:96
 #, python-format
 msgid "Are you sure you want to remove %s?"
 msgstr "Si è certi di voler rimuovere %s?"
 
-#: bauble/plugins/tag/__init__.py:51 bauble/plugins/garden/location.py:80
-#: bauble/plugins/garden/accession.py:221 bauble/plugins/garden/plant.py:104
-#: bauble/plugins/garden/source.py:105 bauble/plugins/plants/genus.py:100
+#: bauble/plugins/tag/__init__.py:70 bauble/plugins/garden/location.py:80
+#: bauble/plugins/garden/accession.py:222 bauble/plugins/garden/plant.py:103
+#: bauble/plugins/garden/source.py:105 bauble/plugins/plants/genus.py:103
 #: bauble/plugins/plants/family.py:90 bauble/plugins/plants/species.py:93
 #, python-format
 msgid ""
@@ -811,42 +812,42 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/tag/__init__.py:61 bauble/plugins/garden/location.py:89
-#: bauble/plugins/garden/accession.py:233 bauble/plugins/garden/plant.py:119
+#: bauble/plugins/tag/__init__.py:80 bauble/plugins/garden/location.py:89
+#: bauble/plugins/garden/accession.py:234 bauble/plugins/garden/plant.py:118
 #: bauble/plugins/garden/source.py:79 bauble/plugins/garden/source.py:117
-#: bauble/plugins/plants/genus.py:113 bauble/plugins/plants/family.py:103
+#: bauble/plugins/plants/genus.py:116 bauble/plugins/plants/family.py:103
 #: bauble/plugins/plants/species.py:118
 msgid "_Delete"
 msgstr "_Elimina"
 
-#: bauble/plugins/tag/__init__.py:90
+#: bauble/plugins/tag/__init__.py:109
 msgid "Enter a tag name"
 msgstr "Inserisci un nome etichetta"
 
-#: bauble/plugins/tag/__init__.py:157
+#: bauble/plugins/tag/__init__.py:176
 #, python-format
 msgid "Are you sure you want to delete the tag \"%s\"?"
 msgstr "Sei sicuro di voler cancellare l'etichetta \"%s\"?"
 
-#: bauble/plugins/tag/__init__.py:444
+#: bauble/plugins/tag/__init__.py:462
 msgid "Nothing selected"
 msgstr "Nessuna selezione"
 
-#: bauble/plugins/tag/__init__.py:456
+#: bauble/plugins/tag/__init__.py:474
 msgid ""
 "In order to tag an item you must first search for something and select one "
 "of the results."
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:474
+#: bauble/plugins/tag/__init__.py:492
 msgid "Tag Selection"
 msgstr "Selezione Etichetta"
 
-#: bauble/plugins/tag/__init__.py:494
+#: bauble/plugins/tag/__init__.py:512
 msgid "Could not create the tags menus"
 msgstr "Non è stato possibile creare i menu delle etichette"
 
-#: bauble/plugins/tag/__init__.py:502 bauble/plugins/tag/tag.glade:6
+#: bauble/plugins/tag/__init__.py:520 bauble/plugins/tag/tag.glade:6
 msgid "Tags"
 msgstr "Etichette"
 
@@ -905,72 +906,72 @@ msgid ""
 "%(exception)s"
 msgstr ""
 
-#: bauble/plugins/report/xsl/__init__.py:64
-#: bauble/plugins/report/xsl/__init__.py:387
+#: bauble/plugins/report/xsl/__init__.py:83
+#: bauble/plugins/report/xsl/__init__.py:406
 msgid "Plant/Clone"
 msgstr "Pianta/Clone"
 
-#: bauble/plugins/report/xsl/__init__.py:65
-#: bauble/plugins/report/xsl/__init__.py:387
-#: bauble/plugins/garden/__init__.py:123
+#: bauble/plugins/report/xsl/__init__.py:84
+#: bauble/plugins/report/xsl/__init__.py:406
+#: bauble/plugins/garden/__init__.py:125
 #: bauble/plugins/garden/plant_editor.glade:475
 msgid "Accession"
 msgstr "Accessione"
 
-#: bauble/plugins/report/xsl/__init__.py:66
-#: bauble/plugins/report/xsl/__init__.py:387
-#: bauble/plugins/plants/__init__.py:77
+#: bauble/plugins/report/xsl/__init__.py:85
+#: bauble/plugins/report/xsl/__init__.py:406
+#: bauble/plugins/plants/__init__.py:112
 #: bauble/plugins/plants/species_editor.glade:107
 msgid "Species"
 msgstr "Specie"
 
-#: bauble/plugins/report/xsl/__init__.py:333
+#: bauble/plugins/report/xsl/__init__.py:352
 msgid "Select a file..."
 msgstr "Scegli un file..."
 
-#: bauble/plugins/report/xsl/__init__.py:341
+#: bauble/plugins/report/xsl/__init__.py:360
 msgid "Select a stylesheet"
 msgstr ""
 
-#: bauble/plugins/report/xsl/__init__.py:447
+#: bauble/plugins/report/xsl/__init__.py:466
 msgid "XSL"
 msgstr ""
 
-#: bauble/plugins/report/xsl/__init__.py:476
+#: bauble/plugins/report/xsl/__init__.py:495
 msgid "Please select a stylesheet."
 msgstr "Per piacere seleziona un foglio di stile"
 
-#: bauble/plugins/report/xsl/__init__.py:478
+#: bauble/plugins/report/xsl/__init__.py:497
 msgid "Please select a a renderer"
 msgstr "Per piacere seleziona un tributario"
 
-#: bauble/plugins/report/xsl/__init__.py:486
+#: bauble/plugins/report/xsl/__init__.py:505
 #, python-format
 msgid ""
 "Could not find the command \"%(exe)s\" to start the %(renderer_name)s "
 "renderer."
 msgstr ""
 
-#: bauble/plugins/report/xsl/__init__.py:502
+#: bauble/plugins/report/xsl/__init__.py:521
 msgid "There are no plants in the search results.  Please try another search."
 msgstr ""
 "Non ci sono piante nei risultati della ricerca. Per piacere prova un'altra "
 "ricerca."
 
-#: bauble/plugins/report/xsl/__init__.py:514
+#: bauble/plugins/report/xsl/__init__.py:533
 msgid "There are no species in the search results.  Please try another search."
 msgstr ""
 "Non ci sono specie nei risultati della ricerca. Per piacere prova un'altra "
 "ricerca."
 
-#: bauble/plugins/report/xsl/__init__.py:523
+#: bauble/plugins/report/xsl/__init__.py:542
 msgid ""
 "There are no accessions in the search results.  Please try another search."
 msgstr ""
 "Non ci sono accessioni nei risultati della ricerca. Per piacere prova "
 "un'altra ricerca."
 
-#: bauble/plugins/report/xsl/__init__.py:571
+#: bauble/plugins/report/xsl/__init__.py:590
 msgid ""
 "Error creating the PDF file. Please ensure that your PDF formatter is "
 "properly installed."
@@ -978,7 +979,7 @@ msgstr ""
 "Errore creando il file PDF. Per piacere assicurati che il tuo formattatore "
 "PDF è installato correttamente."
 
-#: bauble/plugins/report/xsl/__init__.py:579
+#: bauble/plugins/report/xsl/__init__.py:598
 #: bauble/plugins/report/mako/__init__.py:119
 #, python-format
 msgid ""
@@ -997,19 +998,19 @@ msgid "Please selecte a template."
 msgstr "Scegli un modello."
 
 #: bauble/plugins/garden/propagation.py:49
-#: bauble/plugins/garden/accession.py:401
-#: bauble/plugins/garden/accession.py:426
+#: bauble/plugins/garden/accession.py:402
+#: bauble/plugins/garden/accession.py:427
 msgid "Seed"
 msgstr "Seme"
 
 #: bauble/plugins/garden/propagation.py:50
-#: bauble/plugins/garden/accession.py:431
+#: bauble/plugins/garden/accession.py:432
 msgid "Unrooted cutting"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:51
-#: bauble/plugins/garden/propagation.py:211 bauble/plugins/garden/plant.py:251
-#: bauble/plugins/garden/plant.py:369 bauble/plugins/garden/source.py:168
+#: bauble/plugins/garden/propagation.py:211 bauble/plugins/garden/plant.py:257
+#: bauble/plugins/garden/plant.py:375 bauble/plugins/garden/source.py:168
 msgid "Other"
 msgstr "Altro"
 
@@ -1198,10 +1199,10 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:1069
 #: bauble/plugins/garden/location.py:399
-#: bauble/plugins/garden/accession.py:2169 bauble/plugins/garden/plant.py:1053
+#: bauble/plugins/garden/accession.py:2172 bauble/plugins/garden/plant.py:1023
 #: bauble/plugins/garden/source.py:366
-#: bauble/plugins/plants/species_editor.py:1028
-#: bauble/plugins/plants/genus.py:708 bauble/plugins/plants/family.py:591
+#: bauble/plugins/plants/species_editor.py:1037
+#: bauble/plugins/plants/genus.py:711 bauble/plugins/plants/family.py:591
 #, python-format
 msgid ""
 "Error committing changes.\n"
@@ -1214,10 +1215,10 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:1075
 #: bauble/plugins/garden/location.py:405
-#: bauble/plugins/garden/accession.py:2174 bauble/plugins/garden/plant.py:1058
+#: bauble/plugins/garden/accession.py:2177 bauble/plugins/garden/plant.py:1028
 #: bauble/plugins/garden/source.py:371
-#: bauble/plugins/plants/species_editor.py:1033
-#: bauble/plugins/plants/genus.py:713 bauble/plugins/plants/family.py:596
+#: bauble/plugins/plants/species_editor.py:1042
+#: bauble/plugins/plants/genus.py:716 bauble/plugins/plants/family.py:596
 #, python-format
 msgid ""
 "Unknown error when committing changes. See the details for more "
@@ -1237,7 +1238,7 @@ msgstr ""
 "Prima di poter rimuovere <b>%(location)s</b> devi far sì che nessuna pianta "
 "la riferisca."
 
-#: bauble/plugins/garden/location.py:87 bauble/plugins/garden/accession.py:231
+#: bauble/plugins/garden/location.py:87 bauble/plugins/garden/accession.py:232
 #: bauble/plugins/garden/source.py:76
 msgid "_Add plants"
 msgstr "_Aggiungi piante"
@@ -1260,10 +1261,10 @@ msgid "please confirm merging %(1)s into %(2)s"
 msgstr ""
 
 #: bauble/plugins/garden/location.py:463
-#: bauble/plugins/garden/accession.py:2323 bauble/plugins/garden/plant.py:1150
-#: bauble/plugins/garden/source.py:890 bauble/plugins/plants/genus.py:829
-#: bauble/plugins/plants/family.py:660 bauble/plugins/plants/species.py:297
-#: bauble/plugins/plants/species.py:493
+#: bauble/plugins/garden/accession.py:2326 bauble/plugins/garden/plant.py:1120
+#: bauble/plugins/garden/source.py:890 bauble/plugins/plants/genus.py:836
+#: bauble/plugins/plants/family.py:660 bauble/plugins/plants/species.py:318
+#: bauble/plugins/plants/species.py:518
 #: bauble/plugins/garden/plant_editor.glade:841
 #: bauble/plugins/garden/acc_editor.glade:1110
 #: bauble/plugins/plants/genus_editor.glade:284
@@ -1276,7 +1277,7 @@ msgstr "Generale"
 msgid "Description"
 msgstr "Descrizione"
 
-#: bauble/plugins/garden/accession.py:206
+#: bauble/plugins/garden/accession.py:207
 #, python-format
 msgid ""
 "%(num_plants)s plants depend on this accession: <b>%(plant_codes)s</b>\n"
@@ -1288,23 +1289,23 @@ msgstr ""
 "\n"
 "Sei sicuro di voler rimuovere l'accessione <b>%(acc_code)s</b>?"
 
-#: bauble/plugins/garden/accession.py:211
+#: bauble/plugins/garden/accession.py:212
 #, python-format
 msgid "Are you sure you want to remove accession <b>%s</b>?"
 msgstr "Sei sicuro di voler rimuovere l'accessione <b>%s</b>?"
 
-#: bauble/plugins/garden/accession.py:256
+#: bauble/plugins/garden/accession.py:257
 msgid "The name of the record has not been checked by any authority."
 msgstr "Il nome del registro non è stato verificato da nessuna autorità."
 
-#: bauble/plugins/garden/accession.py:257
+#: bauble/plugins/garden/accession.py:258
 msgid ""
 "The name of the record determined by comparison with other named plants."
 msgstr ""
 "Il nome del registro è stato determinato per confronto con altre piante "
 "identificate."
 
-#: bauble/plugins/garden/accession.py:259
+#: bauble/plugins/garden/accession.py:260
 msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or  documented living material."
@@ -1313,196 +1314,196 @@ msgstr ""
 "persona competente, utilizzando un erbario, e/o una biblioteca, e/o altro "
 "materiale vivo ben documentato."
 
-#: bauble/plugins/garden/accession.py:262
+#: bauble/plugins/garden/accession.py:263
 msgid ""
 "The name of the plant determined by taxonomist engaged in systematic "
 "revision of the group."
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:264
+#: bauble/plugins/garden/accession.py:265
 msgid ""
 "The record is part of type gathering or propagated from type material by "
 "asexual methods."
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:376
+#: bauble/plugins/garden/accession.py:377
 msgid "Wild"
 msgstr "Selvatico"
 
-#: bauble/plugins/garden/accession.py:377
+#: bauble/plugins/garden/accession.py:378
 msgid "Not of wild source"
 msgstr "Non di origine selvatica"
 
-#: bauble/plugins/garden/accession.py:378
+#: bauble/plugins/garden/accession.py:379
 msgid "Propagule of cultivated (wild) plant"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:379
+#: bauble/plugins/garden/accession.py:380
 msgid "Purchase or gift"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:380
-#: bauble/plugins/garden/accession.py:390
+#: bauble/plugins/garden/accession.py:381
+#: bauble/plugins/garden/accession.py:391
 msgid "Insufficient Data"
 msgstr "Dati insufficienti"
 
-#: bauble/plugins/garden/accession.py:381
-#: bauble/plugins/garden/accession.py:391
-#: bauble/plugins/garden/accession.py:396
-#: bauble/plugins/garden/accession.py:402
-#: bauble/plugins/garden/accession.py:430 bauble/plugins/garden/source.py:169
+#: bauble/plugins/garden/accession.py:382
+#: bauble/plugins/garden/accession.py:392
+#: bauble/plugins/garden/accession.py:397
+#: bauble/plugins/garden/accession.py:403
+#: bauble/plugins/garden/accession.py:431 bauble/plugins/garden/source.py:169
 msgid "Unknown"
 msgstr "Sconosciuto"
 
-#: bauble/plugins/garden/accession.py:384
+#: bauble/plugins/garden/accession.py:385
 msgid "Wild native"
 msgstr "Selvatica nativa"
 
-#: bauble/plugins/garden/accession.py:385
+#: bauble/plugins/garden/accession.py:386
 msgid "Wild non-native"
 msgstr "Selvatica non nativa"
 
-#: bauble/plugins/garden/accession.py:386
+#: bauble/plugins/garden/accession.py:387
 msgid "Cultivated native"
 msgstr "Coltivata nativa"
 
-#: bauble/plugins/garden/accession.py:387
+#: bauble/plugins/garden/accession.py:388
 #, fuzzy
 msgid "Impound"
 msgstr "Importa"
 
-#: bauble/plugins/garden/accession.py:388
+#: bauble/plugins/garden/accession.py:389
 #, fuzzy
 msgid "Collection"
 msgstr "Collezione a %s"
 
-#: bauble/plugins/garden/accession.py:389
+#: bauble/plugins/garden/accession.py:390
 msgid "Rescue"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:394
+#: bauble/plugins/garden/accession.py:395
 #, fuzzy
 msgid "National"
 msgstr "Ubicazione"
 
-#: bauble/plugins/garden/accession.py:395
+#: bauble/plugins/garden/accession.py:396
 #, fuzzy
 msgid "Imported"
 msgstr "Importa"
 
-#: bauble/plugins/garden/accession.py:399
+#: bauble/plugins/garden/accession.py:400
 msgid "In vitro"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:400
-#: bauble/plugins/garden/accession.py:415
+#: bauble/plugins/garden/accession.py:401
+#: bauble/plugins/garden/accession.py:416
 msgid "Division"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:407
+#: bauble/plugins/garden/accession.py:408
 msgid "Air layer"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:408
+#: bauble/plugins/garden/accession.py:409
 msgid "Balled & burlapped plant"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:409
+#: bauble/plugins/garden/accession.py:410
 msgid "Bare root plant"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:410
+#: bauble/plugins/garden/accession.py:411
 msgid "Bud cutting"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:411
+#: bauble/plugins/garden/accession.py:412
 msgid "Budded"
 msgstr "Con boccioli"
 
-#: bauble/plugins/garden/accession.py:412
+#: bauble/plugins/garden/accession.py:413
 msgid "Bulb"
 msgstr "Bulbo"
 
-#: bauble/plugins/garden/accession.py:413
+#: bauble/plugins/garden/accession.py:414
 msgid "Clump"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:414
+#: bauble/plugins/garden/accession.py:415
 msgid "Corm"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:416
+#: bauble/plugins/garden/accession.py:417
 msgid "Graft"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:417
+#: bauble/plugins/garden/accession.py:418
 msgid "Layer"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:418 bauble/plugins/garden/plant.py:365
-#: bauble/plugins/garden/__init__.py:124
+#: bauble/plugins/garden/accession.py:419 bauble/plugins/garden/plant.py:371
+#: bauble/plugins/garden/__init__.py:126
 #: bauble/plugins/garden/acc_editor.glade:2270
 msgid "Plant"
 msgstr "Pianta"
 
-#: bauble/plugins/garden/accession.py:419
+#: bauble/plugins/garden/accession.py:420
 msgid "Pseudobulb"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:420
+#: bauble/plugins/garden/accession.py:421
 msgid "Rooted cutting"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:421
+#: bauble/plugins/garden/accession.py:422
 msgid "Rhizome"
 msgstr "Rizoma"
 
-#: bauble/plugins/garden/accession.py:422
+#: bauble/plugins/garden/accession.py:423
 msgid "Root cutting"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:423
+#: bauble/plugins/garden/accession.py:424
 msgid "Root"
 msgstr "Radice"
 
-#: bauble/plugins/garden/accession.py:424
+#: bauble/plugins/garden/accession.py:425
 msgid "Scion"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:425
+#: bauble/plugins/garden/accession.py:426
 msgid "Seedling"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:427
+#: bauble/plugins/garden/accession.py:428
 msgid "Spore"
 msgstr "Spora"
 
-#: bauble/plugins/garden/accession.py:428
+#: bauble/plugins/garden/accession.py:429
 msgid "Sporeling"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:429
+#: bauble/plugins/garden/accession.py:430
 msgid "Tuber"
 msgstr "Tubero"
 
-#: bauble/plugins/garden/accession.py:432
+#: bauble/plugins/garden/accession.py:433
 msgid "Bulbil"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:433
+#: bauble/plugins/garden/accession.py:434
 msgid "Vegetative spreading"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:434
+#: bauble/plugins/garden/accession.py:435
 msgid "Root sucker"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:676
+#: bauble/plugins/garden/accession.py:677
 #, python-format
 msgid "If the id_qual is aff. or cf. then id_qual_rank is required. %s "
 msgstr "Se l'id_qual è aff. o cf. allora l'id_qual_rank è obbligatorio. %s "
 
-#: bauble/plugins/garden/accession.py:773
+#: bauble/plugins/garden/accession.py:774
 msgid ""
 "The species must be selected from the list of completions. To add a species "
 "use the Species editor."
@@ -1510,11 +1511,11 @@ msgstr ""
 "Le specie devono essere selezionate dalla lista dei compimenti. Per "
 "aggiungere una specie usare l'Editor delle specie"
 
-#: bauble/plugins/garden/accession.py:775
+#: bauble/plugins/garden/accession.py:776
 msgid "The accession ID must be a unique code"
 msgstr "L'ID dell'accessione deve essere un codice univoco"
 
-#: bauble/plugins/garden/accession.py:776
+#: bauble/plugins/garden/accession.py:777
 #, python-format
 msgid ""
 "The ID Qualifier\n"
@@ -1525,32 +1526,32 @@ msgstr ""
 "\n"
 "Possibili valori: %s"
 
-#: bauble/plugins/garden/accession.py:779
+#: bauble/plugins/garden/accession.py:780
 msgid "The part of the taxon name that the id qualifier refers to."
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:781
+#: bauble/plugins/garden/accession.py:782
 msgid "The date this species was accessioned."
 msgstr "La data in cui queste specie sono state inserite."
 
-#: bauble/plugins/garden/accession.py:782
+#: bauble/plugins/garden/accession.py:783
 msgid "The date this species was received."
 msgstr "La data in cui questa specie è stata ricevuta."
 
-#: bauble/plugins/garden/accession.py:784
+#: bauble/plugins/garden/accession.py:785
 msgid "The type of the accessioned material."
 msgstr "Il tipo di materiale accessionato."
 
-#: bauble/plugins/garden/accession.py:785
+#: bauble/plugins/garden/accession.py:786
 msgid "The amount of plant material at the time it was accessioned."
 msgstr "La quantità di materiale vegetale al momento della sua accessione."
 
-#: bauble/plugins/garden/accession.py:787
-#: bauble/plugins/garden/accession.py:789
+#: bauble/plugins/garden/accession.py:788
+#: bauble/plugins/garden/accession.py:790
 msgid "The intended location for plant material being accessioned."
 msgstr "La posizione prevista per il materiale vegetale accessionato."
 
-#: bauble/plugins/garden/accession.py:792
+#: bauble/plugins/garden/accession.py:793
 #, python-format
 msgid ""
 "The origin or source of this accession.\n"
@@ -1561,7 +1562,7 @@ msgstr ""
 "\n"
 "Possibili valori: %s"
 
-#: bauble/plugins/garden/accession.py:795
+#: bauble/plugins/garden/accession.py:796
 #, python-format
 msgid ""
 "The wild status is used to clarify the provenance.\n"
@@ -1569,48 +1570,48 @@ msgid ""
 "Possible values: %s"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:799
+#: bauble/plugins/garden/accession.py:800
 msgid "Indicates whether this accession record should be considered private."
 msgstr ""
 "indica se questo record di accessione dovrebbe essere considerato privato."
 
-#: bauble/plugins/garden/accession.py:801 bauble/plugins/garden/plant.py:614
-#: bauble/plugins/plants/genus.py:340 bauble/plugins/plants/family.py:311
+#: bauble/plugins/garden/accession.py:802 bauble/plugins/garden/plant.py:583
+#: bauble/plugins/plants/genus.py:343 bauble/plugins/plants/family.py:311
 msgid "Cancel your changes."
 msgstr "Annulla le modifiche."
 
-#: bauble/plugins/garden/accession.py:802 bauble/plugins/garden/plant.py:615
-#: bauble/plugins/plants/genus.py:341 bauble/plugins/plants/family.py:312
+#: bauble/plugins/garden/accession.py:803 bauble/plugins/garden/plant.py:584
+#: bauble/plugins/plants/genus.py:344 bauble/plugins/plants/family.py:312
 msgid "Save your changes."
 msgstr "Salva le modifiche."
 
-#: bauble/plugins/garden/accession.py:803
+#: bauble/plugins/garden/accession.py:804
 msgid "Save your changes changes and add a plant to this accession."
 msgstr "Salva le modifiche ed aggiungi una pianta a quest'accessione."
 
-#: bauble/plugins/garden/accession.py:805
+#: bauble/plugins/garden/accession.py:806
 msgid "Save your changes changes and add another accession."
 msgstr "Salva le modifiche ed aggiungi un'altra accessione."
 
-#: bauble/plugins/garden/accession.py:1226
+#: bauble/plugins/garden/accession.py:1227
 msgid "Are you sure you want to remove this verification?"
 msgstr "Sei sicuro/a di voler rimuovere questa verifica?"
 
-#: bauble/plugins/garden/accession.py:1280
+#: bauble/plugins/garden/accession.py:1281
 #, python-format
 msgid "verified as %(species)s "
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:1282
+#: bauble/plugins/garden/accession.py:1283
 #, python-format
 msgid "by %(verifier)s"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:1311
+#: bauble/plugins/garden/accession.py:1312
 msgid "Garden Propagation"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:1742
+#: bauble/plugins/garden/accession.py:1743
 #, python-format
 msgid ""
 "The species <b>%(synonym)s</b> is a synonym of <b>%(species)s</b>.\n"
@@ -1621,12 +1622,12 @@ msgstr ""
 "\n"
 "Preferisci utilizzare <b>%(species)s</b>?"
 
-#: bauble/plugins/garden/accession.py:2154 bauble/plugins/garden/plant.py:1043
-#: bauble/plugins/garden/source.py:359 bauble/plugins/plants/genus.py:701
+#: bauble/plugins/garden/accession.py:2157 bauble/plugins/garden/plant.py:1013
+#: bauble/plugins/garden/source.py:359 bauble/plugins/plants/genus.py:704
 msgid "Are you sure you want to lose your changes?"
 msgstr "Sei sicuro di voler perdere le modifiche da te effettuate?"
 
-#: bauble/plugins/garden/accession.py:2208
+#: bauble/plugins/garden/accession.py:2211
 msgid ""
 "You must first add or import at least one species into the database before "
 "you can add accessions."
@@ -1634,39 +1635,39 @@ msgstr ""
 "Devi aggiungere o importare almeno una specie nel database prima che tu "
 "possa aggiungere delle accessioni."
 
-#: bauble/plugins/garden/accession.py:2236
+#: bauble/plugins/garden/accession.py:2239
 msgid "model must have both latitude and longitude or neither"
 msgstr ""
 "il modello deve avere sia latitudine che longitudine oppure nessuna delle due"
 
-#: bauble/plugins/garden/accession.py:2372
+#: bauble/plugins/garden/accession.py:2375
 #, python-format
 msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s in %(location)s"
 
-#: bauble/plugins/garden/accession.py:2424
+#: bauble/plugins/garden/accession.py:2427
 #: bauble/plugins/garden/acc_editor.glade:1130
 #: bauble/plugins/garden/acc_editor.glade:2365
 msgid "Source"
 msgstr "Fonte"
 
-#: bauble/plugins/garden/accession.py:2518
+#: bauble/plugins/garden/accession.py:2521
 #: bauble/plugins/garden/acc_editor.glade:2443
 msgid "Verifications"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:2534
+#: bauble/plugins/garden/accession.py:2537
 #: bauble/plugins/garden/acc_editor.glade:2721
 msgid "Vouchers"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:81
+#: bauble/plugins/garden/plant.py:80
 msgid ""
 "Not enough plants to branch.  A plant should have at least a quantity of 2 "
 "before it can be branched"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:92
+#: bauble/plugins/garden/plant.py:91
 #, python-format
 msgid ""
 "Are you sure you want to remove the following plants?\n"
@@ -1674,152 +1675,152 @@ msgid ""
 "%s"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:116
+#: bauble/plugins/garden/plant.py:115
 msgid "_Branch"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:233 bauble/plugins/garden/plant.py:306
-#: bauble/plugins/garden/plant.py:1194
+#: bauble/plugins/garden/plant.py:239 bauble/plugins/garden/plant.py:312
+#: bauble/plugins/garden/plant.py:1164
 msgid "Dead"
 msgstr "Morta"
 
-#: bauble/plugins/garden/plant.py:234
+#: bauble/plugins/garden/plant.py:240
 msgid "Discarded"
 msgstr "Scartata"
 
-#: bauble/plugins/garden/plant.py:235
+#: bauble/plugins/garden/plant.py:241
 msgid "Discarded, weedy"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:236
+#: bauble/plugins/garden/plant.py:242
 msgid "Lost, whereabouts unknown"
 msgstr "Persa, non si sa dove sia"
 
-#: bauble/plugins/garden/plant.py:237
+#: bauble/plugins/garden/plant.py:243
 msgid "Stolen"
 msgstr "Rubata"
 
-#: bauble/plugins/garden/plant.py:238
+#: bauble/plugins/garden/plant.py:244
 msgid "Winter kill"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:239
+#: bauble/plugins/garden/plant.py:245
 msgid "Error correction"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:240
+#: bauble/plugins/garden/plant.py:246
 msgid "Distributed elsewhere"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:241
+#: bauble/plugins/garden/plant.py:247
 msgid "Deleted, yr. dead. unknown"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:242
+#: bauble/plugins/garden/plant.py:248
 msgid "Transferred to another acc.no."
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:243
+#: bauble/plugins/garden/plant.py:249
 msgid "Given to FOGs to sell"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:244
+#: bauble/plugins/garden/plant.py:250
 msgid "Area transf. to Plant Ops."
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:245
+#: bauble/plugins/garden/plant.py:251
 msgid "Given to Back 40 (FOGs)"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:246
+#: bauble/plugins/garden/plant.py:252
 msgid "Transfered to Totem Field"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:247
+#: bauble/plugins/garden/plant.py:253
 msgid "Summer Kill"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:248
+#: bauble/plugins/garden/plant.py:254
 msgid "Did not germinate"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:249
+#: bauble/plugins/garden/plant.py:255
 msgid "Discarded seedling in nursery"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:250
+#: bauble/plugins/garden/plant.py:256
 msgid "Given away (specify person)"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:299
+#: bauble/plugins/garden/plant.py:305
 msgid "Excellent"
 msgstr "Eccellente"
 
-#: bauble/plugins/garden/plant.py:300
+#: bauble/plugins/garden/plant.py:306
 msgid "Good"
 msgstr "Buono"
 
-#: bauble/plugins/garden/plant.py:301
+#: bauble/plugins/garden/plant.py:307
 msgid "Fair"
 msgstr "Discreto"
 
-#: bauble/plugins/garden/plant.py:302
+#: bauble/plugins/garden/plant.py:308
 msgid "Poor"
 msgstr "Scarso"
 
-#: bauble/plugins/garden/plant.py:303
+#: bauble/plugins/garden/plant.py:309
 msgid "Questionable"
 msgstr "Dubbio"
 
-#: bauble/plugins/garden/plant.py:304
+#: bauble/plugins/garden/plant.py:310
 msgid "Indistinguishable Mass"
 msgstr "Massa indistinta"
 
-#: bauble/plugins/garden/plant.py:305
+#: bauble/plugins/garden/plant.py:311
 msgid "Unable to Locate"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:310
+#: bauble/plugins/garden/plant.py:316
 msgid "Immature"
 msgstr "Immaturo"
 
-#: bauble/plugins/garden/plant.py:311
+#: bauble/plugins/garden/plant.py:317
 msgid "Flowering"
 msgstr "Fiorito"
 
-#: bauble/plugins/garden/plant.py:312
+#: bauble/plugins/garden/plant.py:318
 msgid "Old Flowers"
 msgstr "Fiori appassiti"
 
-#: bauble/plugins/garden/plant.py:316
+#: bauble/plugins/garden/plant.py:322
 msgid "Unripe"
 msgstr "Acerbo"
 
-#: bauble/plugins/garden/plant.py:317
+#: bauble/plugins/garden/plant.py:323
 msgid "Ripe"
 msgstr "Maturo"
 
-#: bauble/plugins/garden/plant.py:324
+#: bauble/plugins/garden/plant.py:330
 msgid "Female"
 msgstr "Femminile"
 
-#: bauble/plugins/garden/plant.py:325
+#: bauble/plugins/garden/plant.py:331
 msgid "Male"
 msgstr "Maschile"
 
-#: bauble/plugins/garden/plant.py:366
+#: bauble/plugins/garden/plant.py:372
 msgid "Seed/Spore"
 msgstr "Seme/Spora"
 
-#: bauble/plugins/garden/plant.py:367
+#: bauble/plugins/garden/plant.py:373
 msgid "Vegetative Part"
 msgstr "Parte vegetativa"
 
-#: bauble/plugins/garden/plant.py:368
+#: bauble/plugins/garden/plant.py:374
 msgid "Tissue Culture"
 msgstr "Coltura di tessuti"
 
-#: bauble/plugins/garden/plant.py:598
+#: bauble/plugins/garden/plant.py:567
 msgid ""
 "The plant code must be a unique code for the accession.  You may also use "
 "ranges like 1,2,7 or 1-3 to create multiple plants."
@@ -1827,17 +1828,17 @@ msgstr ""
 "Il codice di pianta dev'essere unico per questa accessione. Puoi utilizzare "
 "intervalli tipo 1,2,7 or 1-3 per inserire più piante."
 
-#: bauble/plugins/garden/plant.py:602
+#: bauble/plugins/garden/plant.py:571
 msgid ""
 "The accession must be selected from the list of completions.  To add an "
 "accession use the Accession editor."
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:606
+#: bauble/plugins/garden/plant.py:575
 msgid "The location of the plant in your collection."
 msgstr "La posizione della pianta nella tua collezione."
 
-#: bauble/plugins/garden/plant.py:607
+#: bauble/plugins/garden/plant.py:576
 #, python-format
 msgid ""
 "The type of the plant material.\n"
@@ -1848,55 +1849,55 @@ msgstr ""
 "\n"
 "Possibili valori: %s"
 
-#: bauble/plugins/garden/plant.py:610
+#: bauble/plugins/garden/plant.py:579
 msgid "Create a new location."
 msgstr "Crea una nuova locazione."
 
-#: bauble/plugins/garden/plant.py:611
+#: bauble/plugins/garden/plant.py:580
 msgid "Edit the selected location."
 msgstr "Modifica la locazione scelta."
 
-#: bauble/plugins/garden/plant.py:613
+#: bauble/plugins/garden/plant.py:582
 msgid "Create a new propagation record for this plant."
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:617
+#: bauble/plugins/garden/plant.py:586
 msgid "Save your changes changes and add another plant."
 msgstr "Salva le modifiche ed aggiungi una nuova pianta."
 
-#: bauble/plugins/garden/plant.py:919
+#: bauble/plugins/garden/plant.py:889
 msgid "branch_mode requires a model"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:921
+#: bauble/plugins/garden/plant.py:891
 msgid "cannot branch a new plant"
 msgstr "non è possibile clonare una nuova pianta"
 
-#: bauble/plugins/garden/plant.py:1116
+#: bauble/plugins/garden/plant.py:1086
 msgid "Branch Mode"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1119
+#: bauble/plugins/garden/plant.py:1089
 #, python-format
 msgid ""
 "Branching from %(plant_code)s.  The quantity will be subtracted from "
 "%(plant_code)s"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1192
+#: bauble/plugins/garden/plant.py:1162
 msgid "Alive"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1215
+#: bauble/plugins/garden/plant.py:1185
 msgid "Changes"
 msgstr "Modifiche"
 
-#: bauble/plugins/garden/plant.py:1279
+#: bauble/plugins/garden/plant.py:1249
 #, python-format
 msgid "<i>Branched from %(plant)s</i>"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1307
+#: bauble/plugins/garden/plant.py:1277
 #: bauble/plugins/garden/plant_editor.glade:893
 msgid "Propagations"
 msgstr ""
@@ -2005,30 +2006,30 @@ msgstr "Bottoni radio Nord/Sud in uno stato confuso"
 msgid "East/West radio buttons in a confused state"
 msgstr "Bottoni radio Est/Ovest in uno stato confuso"
 
-#: bauble/plugins/garden/__init__.py:125
+#: bauble/plugins/garden/__init__.py:127
 #: bauble/plugins/garden/plant_editor.glade:258
 #: bauble/plugins/garden/prop_editor.glade:539
 #: bauble/plugins/garden/prop_editor.glade:1032
 msgid "Location"
 msgstr "Ubicazione"
 
-#: bauble/plugins/imex/xml.py:66 bauble/plugins/imex/csv_.py:576
+#: bauble/plugins/imex/xml.py:85 bauble/plugins/imex/csv_.py:595
 msgid "Select a directory"
 msgstr "Seleziona una directory"
 
-#: bauble/plugins/imex/xml.py:70
+#: bauble/plugins/imex/xml.py:89
 msgid "Save all data in one file"
 msgstr "Salva tutti i dati in un file"
 
-#: bauble/plugins/imex/xml.py:142
+#: bauble/plugins/imex/xml.py:161
 msgid "XML"
 msgstr ""
 
-#: bauble/plugins/imex/csv_.py:231
+#: bauble/plugins/imex/csv_.py:250
 msgid "Unknown Error."
 msgstr "Errore Sconosciuto."
 
-#: bauble/plugins/imex/csv_.py:240
+#: bauble/plugins/imex/csv_.py:259
 #, python-format
 msgid ""
 "Error connecting to database.\n"
@@ -2039,7 +2040,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/imex/csv_.py:255
+#: bauble/plugins/imex/csv_.py:274
 #, python-format
 msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
@@ -2048,7 +2049,7 @@ msgstr ""
 "Più di un file dato da importare nella tabella <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
 
-#: bauble/plugins/imex/csv_.py:272
+#: bauble/plugins/imex/csv_.py:291
 #, python-format
 msgid ""
 "Could not match all filenames to table names.\n"
@@ -2060,7 +2061,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/imex/csv_.py:307
+#: bauble/plugins/imex/csv_.py:326
 #, python-format
 msgid ""
 "In order to import the files the following tables will need to be dropped:\n"
@@ -2076,12 +2077,12 @@ msgstr ""
 "\n"
 "Vuoi continuare?"
 
-#: bauble/plugins/imex/csv_.py:337
+#: bauble/plugins/imex/csv_.py:356
 #, python-format
 msgid "importing %(table)s table from %(filename)s"
 msgstr "importando %(table)s tabella da %(filename)s"
 
-#: bauble/plugins/imex/csv_.py:361
+#: bauble/plugins/imex/csv_.py:380
 #, python-format
 msgid ""
 "The <b>%s</b> table already exists in the database and may contain some "
@@ -2098,16 +2099,16 @@ msgstr ""
 "<i>Puoi cancellare la tabella nel database per prima cosa. Saranno persi "
 "tutti i dati del proprio database se effettuato.</i>"
 
-#: bauble/plugins/imex/csv_.py:520
+#: bauble/plugins/imex/csv_.py:539
 #, python-format
 msgid "Error: Could not set the sequence for column: %s"
 msgstr "Errore: Non è stato possibile impostare la sequenza per la colonna: %s"
 
-#: bauble/plugins/imex/csv_.py:550
+#: bauble/plugins/imex/csv_.py:569
 msgid "Choose file(s) to import..."
 msgstr "Seleziona file da importare..."
 
-#: bauble/plugins/imex/csv_.py:587
+#: bauble/plugins/imex/csv_.py:606
 #, python-format
 msgid ""
 "CSVExporter: path does not exist.\n"
@@ -2116,7 +2117,7 @@ msgstr ""
 "CSVExporter: il percorso non esiste.\n"
 "%s"
 
-#: bauble/plugins/imex/csv_.py:607
+#: bauble/plugins/imex/csv_.py:626
 #, python-format
 msgid ""
 "Export file <b>%(filename)s</b> for <b>%(table)s</b> table already exists.\n"
@@ -2128,20 +2129,20 @@ msgstr ""
 "\n"
 "<i>Vuoi continuare?</i>"
 
-#: bauble/plugins/imex/csv_.py:632
+#: bauble/plugins/imex/csv_.py:651
 #, python-format
 msgid "exporting %(table)s table to %(filename)s"
 msgstr "esportando %(table)s tabella a %(filename)s"
 
-#: bauble/plugins/imex/csv_.py:682 bauble/plugins/imex/iojson.py:219
+#: bauble/plugins/imex/csv_.py:701 bauble/plugins/imex/iojson.py:220
 msgid "Import"
 msgstr "Importa"
 
-#: bauble/plugins/imex/csv_.py:683 bauble/plugins/imex/csv_.py:701
+#: bauble/plugins/imex/csv_.py:702 bauble/plugins/imex/csv_.py:720
 msgid "Comma Separated Value"
 msgstr "Valore Separato Da Virgola"
 
-#: bauble/plugins/imex/csv_.py:691
+#: bauble/plugins/imex/csv_.py:710
 msgid ""
 "It is possible that importing data into this database could destroy or "
 "corrupt your existing data.\n"
@@ -2158,7 +2159,7 @@ msgstr ""
 msgid "Choose a file to import from..."
 msgstr "Seleziona un file nel quale esportare i dati..."
 
-#: bauble/plugins/imex/iojson.py:201
+#: bauble/plugins/imex/iojson.py:202
 #, fuzzy, python-format
 msgid ""
 "You are exporting %(nplants)s objects to JSON format.  Exporting this many "
@@ -2171,11 +2172,11 @@ msgstr ""
 "\n"
 "<i>Sei sicuro di voler continuare?</i>"
 
-#: bauble/plugins/imex/iojson.py:220 bauble/plugins/imex/iojson.py:234
+#: bauble/plugins/imex/iojson.py:221 bauble/plugins/imex/iojson.py:235
 msgid "JSON"
 msgstr ""
 
-#: bauble/plugins/plants/species_editor.py:128
+#: bauble/plugins/plants/species_editor.py:133
 #, python-format
 msgid ""
 "The genus <b>%(synonym)s</b> is a synonym of <b>%(genus)s</b>.\n"
@@ -2186,52 +2187,52 @@ msgstr ""
 "\n"
 "Scegliere <b>%(genus)s</b> invece?"
 
-#: bauble/plugins/plants/species_editor.py:581
+#: bauble/plugins/plants/species_editor.py:590
 #, python-format
 msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
 msgstr "Si è sicuri di voler rimuovere il nome volgare <b>%s</b>?"
 
-#: bauble/plugins/plants/species_editor.py:865
-#: bauble/plugins/plants/__init__.py:76
+#: bauble/plugins/plants/species_editor.py:874
+#: bauble/plugins/plants/__init__.py:111
 #: bauble/plugins/plants/genus_editor.glade:145
 #: bauble/plugins/plants/species_editor.glade:139
 msgid "Genus"
 msgstr "Genere"
 
-#: bauble/plugins/plants/species_editor.py:866
+#: bauble/plugins/plants/species_editor.py:875
 msgid "Species epithet"
 msgstr "Epiteto della specie"
 
-#: bauble/plugins/plants/species_editor.py:867
+#: bauble/plugins/plants/species_editor.py:876
 msgid "Species author"
 msgstr "Autore della specie"
 
-#: bauble/plugins/plants/species_editor.py:868
+#: bauble/plugins/plants/species_editor.py:877
 msgid "Species hybrid flag"
 msgstr "Flag specie ibrida"
 
-#: bauble/plugins/plants/species_editor.py:869
+#: bauble/plugins/plants/species_editor.py:878
 msgid "Cultivar group"
 msgstr "Gruppo cultivar"
 
-#: bauble/plugins/plants/species_editor.py:870
+#: bauble/plugins/plants/species_editor.py:879
 #: bauble/plugins/plants/species_editor.glade:229
 msgid "Species qualifier"
 msgstr "Qualificatore della specie"
 
-#: bauble/plugins/plants/species_editor.py:871
+#: bauble/plugins/plants/species_editor.py:880
 msgid "Species distribution"
 msgstr "Distribuzione della specie"
 
-#: bauble/plugins/plants/species_editor.py:872
+#: bauble/plugins/plants/species_editor.py:881
 msgid "Vernacular names"
 msgstr "Nomi in lingua corrente"
 
-#: bauble/plugins/plants/species_editor.py:873
+#: bauble/plugins/plants/species_editor.py:882
 msgid "Species synonyms"
 msgstr "Sinonimi della specie"
 
-#: bauble/plugins/plants/species_editor.py:874
+#: bauble/plugins/plants/species_editor.py:883
 msgid ""
 "The distribution string that will be used on the label.  If this entry is "
 "blank then the species distribution will be used"
@@ -2239,31 +2240,31 @@ msgstr ""
 "La stringa di distribuzione che verrà utilizzata sull'etichetta.  Se questa "
 "voce è vuota si utilizza la distribuzione della specie"
 
-#: bauble/plugins/plants/species_editor.py:877
+#: bauble/plugins/plants/species_editor.py:886
 msgid "The habit of this species"
 msgstr "Il portamento di questa specie"
 
-#: bauble/plugins/plants/species_editor.py:878
+#: bauble/plugins/plants/species_editor.py:887
 msgid "The awards this species have been given"
 msgstr "I riconoscimenti dati a questa specie"
 
-#: bauble/plugins/plants/species_editor.py:879
+#: bauble/plugins/plants/species_editor.py:888
 msgid "Cancel your changes"
 msgstr "Annulla le modifiche"
 
-#: bauble/plugins/plants/species_editor.py:880
+#: bauble/plugins/plants/species_editor.py:889
 msgid "Save your changes"
 msgstr "Salva i cambiamenti"
 
-#: bauble/plugins/plants/species_editor.py:881
+#: bauble/plugins/plants/species_editor.py:890
 msgid "Save your changes changes and add an accession to this species"
 msgstr "Salvare le modifiche e aggiungere un'accessione a questa specie"
 
-#: bauble/plugins/plants/species_editor.py:883
+#: bauble/plugins/plants/species_editor.py:892
 msgid "Save your changes changes and add another species "
 msgstr "Salva le tue modifiche e aggiungi altre specie "
 
-#: bauble/plugins/plants/genus.py:87
+#: bauble/plugins/plants/genus.py:90
 #, python-format
 msgid ""
 "The genus <i>%(genus)s</i> has %(num_species)s species.  Are you sure you "
@@ -2272,28 +2273,28 @@ msgstr ""
 "Il genere <i>%(genus)s</i> ha %(num_species)s speci. Sei sicuro di volerlo "
 "rimuovere?"
 
-#: bauble/plugins/plants/genus.py:91
+#: bauble/plugins/plants/genus.py:94
 #, python-format
 msgid "Are you sure you want to remove the genus <i>%s</i>?"
 msgstr "Sei sicuro di voler rimuovere il genere <i>%s</i>?"
 
-#: bauble/plugins/plants/genus.py:110
+#: bauble/plugins/plants/genus.py:113
 msgid "_Add species"
 msgstr "_Aggiungi specie"
 
-#: bauble/plugins/plants/genus.py:332
+#: bauble/plugins/plants/genus.py:335
 msgid "The family name"
 msgstr "Il nome della famiglia"
 
-#: bauble/plugins/plants/genus.py:333
+#: bauble/plugins/plants/genus.py:336
 msgid "The genus name"
 msgstr "Il nome del genere"
 
-#: bauble/plugins/plants/genus.py:334
+#: bauble/plugins/plants/genus.py:337
 msgid "The name or abbreviation of the author that published this genus"
 msgstr "Il nome o abbreviazione dell'autore che ha pubblicato questo gene"
 
-#: bauble/plugins/plants/genus.py:336
+#: bauble/plugins/plants/genus.py:339
 msgid ""
 "A list of synonyms for this genus.\n"
 "\n"
@@ -2306,15 +2307,15 @@ msgstr ""
 "corretto dalla lista dei completamenti. Poi premere Aggiungi per aggiungerlo "
 "alla lista dei sinonimi."
 
-#: bauble/plugins/plants/genus.py:342
+#: bauble/plugins/plants/genus.py:345
 msgid "Save your changes changes and add a species to this genus."
 msgstr "Salva le modifiche e aggiungi una specie a questo genere."
 
-#: bauble/plugins/plants/genus.py:344
+#: bauble/plugins/plants/genus.py:347
 msgid "Save your changes changes and add another genus."
 msgstr "Salva le modifiche e aggiungi un altro genere."
 
-#: bauble/plugins/plants/genus.py:436
+#: bauble/plugins/plants/genus.py:439
 #, python-format
 msgid ""
 "The family <b>%(synonym)s</b> is a synonym of <b>%(family)s</b>.\n"
@@ -2325,7 +2326,7 @@ msgstr ""
 "\n"
 "Preferisci scegliere <b>%(family)s</b>?"
 
-#: bauble/plugins/plants/genus.py:644
+#: bauble/plugins/plants/genus.py:647
 #, python-format
 msgid ""
 "Are you sure you want to remove %(genus)s as a synonym to the current "
@@ -2337,7 +2338,7 @@ msgstr ""
 "\n"
 "<i>Nota: Questo non rimuoverà il genere dal database.</i>"
 
-#: bauble/plugins/plants/genus.py:751
+#: bauble/plugins/plants/genus.py:754
 msgid ""
 "You must first add or import at least one Family into the database before "
 "you can add plants."
@@ -2345,10 +2346,15 @@ msgstr ""
 "Devi aggiungere o importare almeno una Famiglia nel database prima che tu "
 "possa aggiungere piante."
 
-#: bauble/plugins/plants/genus.py:925 bauble/plugins/plants/family.py:765
-#: bauble/plugins/plants/species.py:250
+#: bauble/plugins/plants/genus.py:932 bauble/plugins/plants/genus.py:954
+#: bauble/plugins/plants/family.py:765 bauble/plugins/plants/species.py:250
+#: bauble/plugins/plants/species.py:272
 msgid "Synonyms"
 msgstr "Sinonimi"
+
+#: bauble/plugins/plants/genus.py:956 bauble/plugins/plants/species.py:275
+msgid "Accepted name"
+msgstr ""
 
 #: bauble/plugins/plants/family.py:77
 #, python-format
@@ -2401,7 +2407,7 @@ msgstr "Salva le modifiche e aggiungi un genere a questa famiglia."
 msgid "Save your changes changes and add another family."
 msgstr "Salva le modifiche e aggiungi un altra famiglia."
 
-#: bauble/plugins/plants/__init__.py:75
+#: bauble/plugins/plants/__init__.py:110
 #: bauble/plugins/plants/genus_editor.glade:112
 #: bauble/plugins/plants/family_editor.glade:89
 #: bauble/plugins/plants/family_editor.glade:230
@@ -2535,85 +2541,94 @@ msgstr ""
 "Ambiente desktop sconoscuto: %(desktop)s\n"
 "\n"
 
-#: bauble/utils/__init__.py:137 bauble/utils/__init__.py:147
+#: bauble/utils/__init__.py:139 bauble/utils/__init__.py:149
 #, python-format
 msgid "%(widget_name)s not in glade file"
 msgstr "%(widget_name)s non è nel file glade"
 
-#: bauble/utils/__init__.py:496
+#: bauble/utils/__init__.py:498
 msgid "Details"
 msgstr "Dettagli"
 
-#: bauble/utils/__init__.py:646
+#: bauble/utils/__init__.py:648
 msgid "Today's date"
 msgstr "Data di oggi"
 
-#: bauble/utils/__init__.py:1099
+#: bauble/utils/__init__.py:1101
 msgid "Show details"
 msgstr "Visualizza dettagli"
 
-#: bauble/utils/web.py:33 bauble/utils/web.py:50
+#: bauble/utils/web.py:36 bauble/utils/web.py:53
 msgid "Search"
 msgstr "Cerca"
 
-#: bauble/utils/web.py:72
+#: bauble/utils/web.py:75
 msgid "Search Google"
 msgstr "Cerca con Google"
 
-#: bauble/utils/web.py:81
+#: bauble/utils/web.py:84
 msgid "Search GBIF"
 msgstr "Cerca in GBIF"
 
-#: bauble/utils/web.py:82
+#: bauble/utils/web.py:85
 msgid "Search the Global Biodiversity Information Facility"
 msgstr "Cerca nel Global Biodiversity Information Facility"
 
-#: bauble/utils/web.py:91
+#: bauble/utils/web.py:95
 #, fuzzy
 msgid "Search TPL"
 msgstr "Cerca in ITIS"
 
-#: bauble/utils/web.py:92
+#: bauble/utils/web.py:96
 msgid "Search The Plant List online database"
 msgstr ""
 
-#: bauble/utils/web.py:101
+#: bauble/utils/web.py:106
+#, fuzzy
+msgid "Search Tropicos"
+msgstr "Dominio di ricerca"
+
+#: bauble/utils/web.py:107
+msgid "Search Tropicos (MissouriBG) online database"
+msgstr ""
+
+#: bauble/utils/web.py:116
 msgid "Search the Wikipedia"
 msgstr ""
 
-#: bauble/utils/web.py:102
+#: bauble/utils/web.py:117
 msgid "open the wikipedia page about this species"
 msgstr ""
 
-#: bauble/utils/web.py:117
+#: bauble/utils/web.py:132
 msgid "Search ITIS"
 msgstr "Cerca in ITIS"
 
-#: bauble/utils/web.py:118
+#: bauble/utils/web.py:133
 msgid "Search the Intergrated Taxonomic Information System"
 msgstr "Cerca nel Sistema Integrato di Informazione Tassonomica (ITIS)"
 
-#: bauble/utils/web.py:130
+#: bauble/utils/web.py:145
 msgid "Search BGCI"
 msgstr "Cerca in BGCI"
 
-#: bauble/utils/web.py:131
+#: bauble/utils/web.py:146
 msgid "Search Botanic Gardens Conservation International"
 msgstr "Cerca nel Botanic Gardens Conservation International"
 
-#: bauble/utils/web.py:144
+#: bauble/utils/web.py:159
 msgid "Search IPNI"
 msgstr "Cerca in IPNI"
 
-#: bauble/utils/web.py:145
+#: bauble/utils/web.py:160
 msgid "Search the International Plant Names Index"
 msgstr "Cerca nell'Indice Internazionale dei Nomi delle Piante (IPNI)"
 
-#: bauble/utils/web.py:155
+#: bauble/utils/web.py:170
 msgid "Search NPGS/GRIN"
 msgstr "Cerca NPGS/GRIN"
 
-#: bauble/utils/web.py:156
+#: bauble/utils/web.py:171
 msgid "Search National Plant Germplasm System"
 msgstr "Cerca nel sistema nazionale di germoplasma vegetale (NPGS)"
 
@@ -2887,6 +2902,7 @@ msgid "<b>Change history</b>"
 msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:939
+#: bauble/plugins/plants/species_editor.glade:870
 msgid "Pictures"
 msgstr ""
 
@@ -3046,7 +3062,7 @@ msgstr "Aggiungi piante"
 
 #: bauble/plugins/garden/loc_editor.glade:105
 #: bauble/plugins/plants/genus_editor.glade:403
-#: bauble/plugins/plants/species_editor.glade:945
+#: bauble/plugins/plants/species_editor.glade:968
 #: bauble/plugins/plants/family_editor.glade:343
 msgid "Next"
 msgstr "Successivo"
@@ -3602,7 +3618,7 @@ msgstr "<b>Nomi in lingua corrente</b>"
 msgid "Additional info"
 msgstr "Informazioni aggiuntive"
 
-#: bauble/plugins/plants/species_editor.glade:901
+#: bauble/plugins/plants/species_editor.glade:924
 msgid "Add Accessions"
 msgstr "Aggiungi Accessioni"
 
@@ -3617,6 +3633,13 @@ msgstr "Qualificatore"
 #: bauble/plugins/plants/family_editor.glade:299
 msgid "Add Genera"
 msgstr "Aggiungi Generi"
+
+#, fuzzy
+#~ msgid "%s"
+#~ msgstr "%"
+
+#~ msgid "_New"
+#~ msgstr "_Nuovo"
 
 #~ msgid "Genus "
 #~ msgstr "Genere "
