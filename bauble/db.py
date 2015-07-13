@@ -468,7 +468,7 @@ class DefiningPictures:
                 logger.warning("picture %s caused Exception %s" %
                                (filename, e))
                 im = gtk.Label()
-                im.set_text(_("%s" % e))
+                im.set_text(e)
             result.append(im)
         return result
 
