@@ -137,9 +137,9 @@ the installation steps on Windows:
    ``vi``).
 
    all default options are fine, except we need git to be executable from
-   the command prompt::
+   the command prompt:
 
-   .. image:: git3.png
+  .. image:: git3.png
 
 #. download and install Python 2.x (32bit) from:
 
@@ -149,18 +149,18 @@ the installation steps on Windows:
    definitely `not` run on Python 3.x.  If you are interested in helping
    port to Python 3.x, please contact the Bauble maintainers.
 
-   when installing Python, do put Python in the PATH::
+   when installing Python, do put Python in the PATH:
 
-   .. image:: python3.png
+  .. image:: python3.png
 
 #. download ``pygtk`` from the following source. (this requires 32bit
    python). be sure you download the "all in one" version::
 
    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
-   make a complete install, selecting everything::
+   make a complete install, selecting everything:
 
-   .. image:: pygtk1.png
+  .. image:: pygtk1.png
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
