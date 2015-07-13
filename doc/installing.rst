@@ -136,6 +136,11 @@ the installation steps on Windows:
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
    ``vi``).
 
+   all default options are fine, except we need git to be executable from
+   the command prompt::
+
+.. image:: git3.png
+
 #. download and install Python 2.x (32bit) from:
 
    http://www.python.org
@@ -144,13 +149,18 @@ the installation steps on Windows:
    definitely `not` run on Python 3.x.  If you are interested in helping
    port to Python 3.x, please contact the Bauble maintainers.
 
-   when installing Python, do put Python in the PATH.
+   when installing Python, do put Python in the PATH::
+
+.. image:: python3.png
 
 #. download ``pygtk`` from the following source. (this requires 32bit
-   python). be sure you download the "all in one" version. make a complete
-   install, selecting everything:
+   python). be sure you download the "all in one" version::
 
    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
+
+   make a complete install, selecting everything::
+
+.. image:: pygtk1.png
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
@@ -159,6 +169,10 @@ the installation steps on Windows:
    pip, so "avoid the gory details" and use a pre-compiled pagkage from:
    
    http://initd.org/psycopg/docs/install.html
+
+#. reboot
+
+   hey, this is windows, you need to reboot for changes to take effect!
 
 #. download and run the batch file::
 
