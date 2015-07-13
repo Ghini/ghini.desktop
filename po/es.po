@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-12 20:21-0500\n"
-"PO-Revision-Date: 2015-07-12 18:48-0500\n"
-"Last-Translator: Mario Frasca <mario@anche.no>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
-">\n"
+"PO-Revision-Date: 2015-07-13 04:34+0200\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/bauble/master/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Weblate 2.4-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -114,6 +114,8 @@ msgstr "(Grupo %(group)s)"
 msgid ""
 "(optional) download and install a database connector other than ``sqlite3``."
 msgstr ""
+"(opcional) descargar e instalar un conector de base de datos además que "
+"``sqlite3``."
 
 #: bauble/plugins/garden/plant_editor.glade:271
 #: bauble/plugins/garden/plant_editor.glade:309
@@ -152,6 +154,11 @@ msgid ""
 "synonym to the list.  To remove a synonym select the synonym from the list "
 "and click on the Remove button."
 msgstr ""
+"*Sinónimos\" permite añadir familias que sean sinónimo de la familia que "
+"estás editando. Para añadir un nuevo sinónimo, escribe el nombre de la "
+"familia en el campo. Es necesario seleccionar un nombre de la lista. Cuando "
+"se haya seleccionado el nombre de la familia que es un sinónimo, presionar "
+"*añadir*."
 
 # 2535173d08a24d2ca0c0bc764a0f851d
 #: ../doc/editing.rst:81
@@ -696,12 +703,12 @@ msgstr ""
 # 2a75d4b2ac1545a79c64a5c1f47e94ea
 #: ../doc/editing.rst:142
 msgid "A Collection."
-msgstr ""
+msgstr "Una colección."
 
 # 6aebf4f93b2942bdb3e32cc2e291f495
 #: ../doc/editing.rst:147
 msgid "A Donation."
-msgstr ""
+msgstr "Una donación."
 
 # 9e63551b92bf45488438e5d46f119661
 #: ../bauble/utils/__init__.py:docstring of
@@ -718,7 +725,7 @@ msgstr ""
 # f6c42d7e54524f7ab499a31960b2158a
 #: ../bauble/utils/__init__.py:docstring of bauble.utils.MessageBox:1
 msgid "A MessageBox that can display a message label at the top of an editor."
-msgstr ""
+msgstr "Un MessageBox que muestra un mensaje en la cabecera del editor."
 
 # 2157030fdf434ab3a6ac2dab9e6335b7
 #: ../bauble/utils/__init__.py:docstring of bauble.utils:1
@@ -767,7 +774,7 @@ msgstr "ABCD"
 # 8069262b8b2c4668816b958a3aa766c7
 #: ../doc/api.rst:2
 msgid "API Documentation"
-msgstr ""
+msgstr "Documentación de la API"
 
 #: bauble/plugins/garden/institution.glade:60
 msgid "Abbreviation"
@@ -784,7 +791,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:956 bauble/plugins/plants/species.py:275
 msgid "Accepted name"
-msgstr ""
+msgstr "Nombre aceptado"
 
 # 9f99c003b66d4f69b26dde0ccee90f1d
 #: ../bauble/paths.py:docstring of bauble.paths:1
@@ -814,7 +821,7 @@ msgstr "Tipo de accesión"
 # 986e153e8d0144d58ea801de52a621d5
 #: ../doc/editing.rst:125
 msgid "Accessions"
-msgstr ""
+msgstr "Accesiones"
 
 #: bauble/plugins/garden/acc_editor.glade:1992
 msgid "Accuracy"
@@ -902,6 +909,8 @@ msgid ""
 "All searches are case insensitive so searching for Maxillaria and maxillaria "
 "will return the same results."
 msgstr ""
+"Todas búsquedas son sin contar mayúsculas o minúsculas, así que se busque "
+"Maxillaria o maxillaria, se habrán los mismos resultados."
 
 # bf8dbf11271c4b9f93e4d48b4823ea22
 #: ../doc/api.rst:24
@@ -940,12 +949,12 @@ msgstr "Altura/Profundidad"
 # f2deee98510d49788836b0e444223c10
 #: ../doc/searching.rst:107
 msgid "An example of a query would be:"
-msgstr ""
+msgstr "Un ejemplo de búsqueda puede ser:"
 
 # 9a242760d3274c4d9e47c3cde26c03fb
 #: ../doc/api.rst:28
 msgid "An instance of :class:`sqlalchemy.ext.declarative.Base`"
-msgstr ""
+msgstr "Un objeto de la clase :class:`sqlalchemy.ext.declarative.Base`"
 
 # 23a51fc7e74345779e939b50de56cda1
 #: ../doc/api.rst:35
@@ -1068,6 +1077,12 @@ msgid ""
 "The personal choice of the writer of this document is to use Copy, because "
 "it offers much more space and because of its \"Fair Storage\" policy."
 msgstr ""
+"Al momento (Bauble 1.0.41), las imagenes no son guardadas en la base de "
+"datos. para que las fotos sean disponibles en todos los terminales en que se "
+"quiera utilizar Bauble, será necesario instalar un servicio de condivisión "
+"de archivos, como pueden ser Copy o Dropbox. Quien escribe esta "
+"documentación sugiere utilizar Copy porque ofrece más espacio y por su "
+"política \"Fair Storage\"."
 
 # 355c74e993d84c909703e5dabd09a432
 #: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_date_button:1
@@ -1251,6 +1266,8 @@ msgid ""
 "Bauble is an application for managing botanical specimen collections. With "
 "it you can create a searchable database of plant records."
 msgstr ""
+"Bauble es un programa para manejar una base de datos que represente una "
+"colección botánica: inserción, búsquedas, informes, et cetera."
 
 # 9a0691e6585747a291d27ff9093ed7e5
 #: ../doc/peptalk.rst:79
@@ -1318,6 +1335,8 @@ msgid ""
 "Be careful because if you have entered the wrong connection parameters it is "
 "possible to overwrite an existing database at this connection."
 msgstr ""
+"Tenga cuidado porque si ha insertado valores incorrectos de conexión, podría "
+"dañar una base de datos identificada con los parámetros insertados."
 
 # e9731998c1d5413e906497d9f71fcf2a
 #: ../doc/installing.rst:76
