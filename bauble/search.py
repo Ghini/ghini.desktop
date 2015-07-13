@@ -44,6 +44,7 @@ from bauble.i18n import _
 def search(text, session=None):
     results = set()
     for strategy in _search_strategies.values():
+        logger.debug("applying search strategy %s" % strategy)
         results.update(strategy.search(text, session))
     return list(results)
 
@@ -414,14 +415,14 @@ class ValueListAction(object):
             # to avoid the "Unicode type received non-unicode bind param"
 
             def unicol(col, v):
-                mapper = class_mapper(cls)
-                if isinstance(mapper.c[col].type, (Unicode, UnicodeText)):
+                table = class_mapper(cls)
+                if isinstance(table.c[col].type, (Unicode, UnicodeText)):
                     return unicode(v)
                 else:
                     return v
 
-            mapper = class_mapper(cls)
-            q = q.filter(or_(*[like(mapper, c, unicol(c, v))
+            table = class_mapper(cls)
+            q = q.filter(or_(*[like(table, c, unicol(c, v))
                                for c, v in column_cross_value]))
             result.update(q.all())
 
