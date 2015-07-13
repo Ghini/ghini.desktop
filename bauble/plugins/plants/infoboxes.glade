@@ -4,7 +4,7 @@
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="family_window">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">family_window</property>
+    <property name="title" translatable="yes">Family Window</property>
     <child>
       <object class="GtkVBox" id="vbox5">
         <property name="visible">True</property>
@@ -101,7 +101,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -121,7 +121,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -143,7 +143,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -165,7 +165,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -234,7 +234,7 @@
   </object>
   <object class="GtkWindow" id="genus_window">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">genus_window</property>
+    <property name="title" translatable="yes">Genus Window</property>
     <child>
       <object class="GtkVBox" id="vbox2">
         <property name="visible">True</property>
@@ -270,7 +270,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -348,7 +348,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -367,7 +367,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -388,7 +388,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -456,7 +456,7 @@
   </object>
   <object class="GtkWindow" id="species_window">
     <property name="can_focus">False</property>
-    <property name="title" translatable="yes">species_window</property>
+    <property name="title" translatable="yes">Species Window</property>
     <property name="default_width">440</property>
     <property name="default_height">250</property>
     <child>
@@ -474,7 +474,7 @@
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                 <property name="xalign">0</property>
                 <property name="ypad">5</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
                 <property name="use_markup">True</property>
                 <property name="selectable">True</property>
               </object>
@@ -500,7 +500,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -521,7 +521,7 @@
                       <object class="GtkLabel" id="sp_nacc_data">
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                       </object>
                     </child>
                   </object>
@@ -537,7 +537,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -553,7 +553,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -569,7 +569,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -707,7 +707,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes">--</property>
+                        <property name="label" translatable="no">--</property>
                         <property name="wrap">True</property>
                       </object>
                     </child>
@@ -739,7 +739,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -773,7 +773,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="expand">False</property>

@@ -4,7 +4,7 @@
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkDialog" id="main_dialog">
     <property name="visible">True</property>
-    <property name="title" translatable="yes">Bauble</property>
+    <property name="title" translatable="no">Bauble</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">center</property>

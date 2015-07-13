@@ -12,7 +12,7 @@
             <property name="visible">True</property>
             <property name="xalign">0</property>
             <property name="ypad">8</property>
-            <property name="label" translatable="yes">--</property>
+            <property name="label" translatable="no">--</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -30,7 +30,7 @@
               <object class="GtkLabel" id="sd_type_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -44,7 +44,7 @@
               <object class="GtkLabel" id="sd_nacc_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -97,7 +97,7 @@
               <object class="GtkLabel" id="sd_desc_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>

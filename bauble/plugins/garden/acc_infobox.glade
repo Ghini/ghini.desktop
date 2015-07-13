@@ -21,7 +21,7 @@
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="xalign">0</property>
                     <property name="ypad">5</property>
-                    <property name="label" translatable="yes">&lt;i&gt;--&lt;/i&gt;</property>
+                    <property name="label" translatable="no">&lt;i&gt;--&lt;/i&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
@@ -56,7 +56,7 @@
                     <property name="visible">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
@@ -101,7 +101,7 @@
                   <object class="GtkLabel" id="nplants_data">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                   </object>
                 </child>
               </object>
@@ -132,7 +132,7 @@
               <object class="GtkLabel" id="prov_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -175,7 +175,7 @@
               <object class="GtkLabel" id="date_recvd_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -190,7 +190,7 @@
               <object class="GtkLabel" id="date_accd_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -233,7 +233,7 @@
               <object class="GtkLabel" id="recvd_type_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -248,7 +248,7 @@
               <object class="GtkLabel" id="quantity_recvd_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -317,7 +317,7 @@
               <object class="GtkLabel" id="intended2_loc_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -346,7 +346,7 @@
               <object class="GtkLabel" id="intended_loc_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -388,7 +388,7 @@
               <object class="GtkLabel" id="living_plants_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -484,7 +484,7 @@
               <object class="GtkLabel" id="source_name_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -497,7 +497,7 @@
               <object class="GtkLabel" id="sources_code_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -529,7 +529,7 @@
                   <object class="GtkLabel" id="parent_plant_data">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
-                    <property name="label" translatable="yes">--</property>
+                    <property name="label" translatable="no">--</property>
                   </object>
                 </child>
               </object>
@@ -562,7 +562,7 @@
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="yalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="label" translatable="no">--</property>
                 <property name="wrap">True</property>
               </object>
               <packing>
@@ -612,7 +612,7 @@
                           <object class="GtkLabel" id="datum_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -641,7 +641,7 @@
                           <object class="GtkLabel" id="elev_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -670,7 +670,7 @@
                           <object class="GtkLabel" id="coll_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -699,7 +699,7 @@
                           <object class="GtkLabel" id="date_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -728,7 +728,7 @@
                           <object class="GtkLabel" id="collid_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -796,7 +796,7 @@
                           <object class="GtkLabel" id="loc_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -809,7 +809,7 @@
                           <object class="GtkLabel" id="lat_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>
@@ -824,7 +824,7 @@
                           <object class="GtkLabel" id="lon_data">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                           </object>
                           <packing>
                             <property name="left_attach">1</property>

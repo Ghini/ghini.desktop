@@ -121,7 +121,7 @@
                             <child>
                               <object class="GtkLabel" id="label3">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">*</property>
+                                <property name="label" translatable="no">*</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -154,7 +154,7 @@
                             <child>
                               <object class="GtkLabel" id="label5">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">*</property>
+                                <property name="label" translatable="no">*</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
