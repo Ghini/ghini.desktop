@@ -170,9 +170,9 @@ the installation steps on Windows:
    
    http://initd.org/psycopg/docs/install.html
 
-#. reboot
+#. **REBOOT**
 
-   hey, this is windows, you need to reboot for changes to take effect!
+   hey, this is Windows, you need to reboot for changes to take effect!
 
 #. download and run the batch file::
 
