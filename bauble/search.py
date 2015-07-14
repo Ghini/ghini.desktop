@@ -408,7 +408,6 @@ class ValueListAction(object):
 
         result = set()
         for cls, columns in search_strategy._properties.iteritems():
-            q = search_strategy._session.query(cls)  # prepares SELECT
             column_cross_value = [(c, v) for c in columns
                                   for v in self.express()]
             # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
@@ -423,9 +422,9 @@ class ValueListAction(object):
                     return v
 
             table = class_mapper(cls)
+            q = search_strategy._session.query(cls)  # prepares SELECT
             q = q.filter(or_(*[like(table, c, unicol(c, v))
-                               for c, v in column_cross_value
-                               if not isinstance(c, tuple)]))
+                               for c, v in column_cross_value]))
             result.update(q.all())
 
         return result
