@@ -505,7 +505,7 @@ class Accession(db.Base, db.Serializable):
                 purchase_prov_status_values,
                 cultivated_prov_status_values
 
-        *date*: :class:`bauble.types.Date`
+        *date_accd*: :class:`bauble.types.Date`
             the date this accession was accessioned
 
 
