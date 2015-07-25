@@ -3,15 +3,18 @@
 # Bauble documentation build configuration file, created by
 # sphinx-quickstart on Sun Oct 19 13:24:19 2008.
 #
-# This file is execfile()d with the current directory set to its containing dir.
+# This file is execfile()d with the current directory set to its containing
+# dir.
 #
-# The contents of this file are pickled, so don't put values in the namespace
-# that aren't pickleable (module imports are okay, they're removed automatically).
+# The contents of this file are pickled, so don't put values in the
+# namespace that aren't pickleable (module imports are okay, they're removed
+# automatically).
 #
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys, os
+import sys
+import os
 
 # If your extensions are in another directory, add it here. If the directory
 # is relative to the documentation root, use os.path.abspath to make it
@@ -25,8 +28,8 @@ os.environ['PYTHONPATH'] = p
 # General configuration
 # ---------------------
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -40,7 +43,7 @@ master_doc = 'index'
 
 # General substitutions.
 project = u'Bauble'
-copyright = u'2008,2009'
+copyright = u'2008-2015'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
@@ -59,11 +62,12 @@ today_fmt = '%B %d, %Y'
 # List of documents that shouldn't be included in the build.
 #unused_docs = []
 
-# List of directories, relative to source directories, that shouldn't be searched
-# for source files.
+# List of directories, relative to source directories, that shouldn't be
+# searched for source files.
 exclude_trees = ['.build']
 
-# The reST default role (used for this markup: `text`) to use for all documents.
+# The reST default role (used for this markup: `text`) to use for all
+# documents.
 #default_role = None
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
@@ -105,7 +109,7 @@ html_style = 'default.css'
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-#html_favicon = None
+html_favicon = '../data/bauble-32.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -118,7 +122,7 @@ html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
-#html_use_smartypants = True
+html_use_smartypants = True
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
@@ -155,16 +159,16 @@ htmlhelp_basename = 'Baubledoc'
 # ------------------------
 
 # The paper size ('letter' or 'a4').
-#latex_paper_size = 'letter'
+latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
-#latex_font_size = '10pt'
+latex_font_size = '12pt'
 
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, document class [howto/manual]).
+# Grouping the document tree into LaTeX files. List of tuples (source start
+# file, target name, title, author, document class [howto/manual]).
 latex_documents = [
-  ('index', 'Bauble.tex', u'Bauble Documentation',
-   u' ', 'manual'),
+    ('index', 'Bauble.tex', u'Bauble Documentation',
+     u'', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -184,6 +188,5 @@ latex_documents = [
 # If false, no module index is generated.
 #latex_use_modindex = True
 
-
 intersphinx_mapping = {'sqlalchemy':
-                       ('http://www.sqlalchemy.org/docs/05/', None)}
+                       ('http://www.sqlalchemy.org/docs/10/', None)}
