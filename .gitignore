@@ -24,3 +24,5 @@ bauble/multiple.py
 piccolo_test.py
 po/.doctrees/
 issues/
+coverage.xml
+.coverage
