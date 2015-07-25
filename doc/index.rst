@@ -40,6 +40,15 @@ Using Bauble
    users
 
 
+Administration
+==============
+
+.. toctree::
+   :maxdepth: 2
+
+   data_administration          
+
+
 Bauble Development
 ==================
 
