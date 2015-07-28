@@ -1,2 +1,3 @@
 include Makefile
-SPHINXLANGOPTS = -D locale=../build/share/locale/ -D language=it
+SPHINXLANGOPTS = -D locale_dirs=../build/share/locale/ -D language=it
+LANGUAGE_DIR = it/
