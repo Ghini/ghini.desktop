@@ -26,3 +26,4 @@ po/.doctrees/
 issues/
 coverage.xml
 .coverage
+doc/_build/
