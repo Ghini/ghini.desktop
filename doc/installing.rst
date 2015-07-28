@@ -156,7 +156,7 @@ the installation steps on Windows:
 #. download ``pygtk`` from the following source. (this requires 32bit
    python). be sure you download the "all in one" version::
 
-   http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
+    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
    make a complete install, selecting everything:
 
@@ -246,7 +246,7 @@ Troubleshooting the Install
 
     http://code.google.com/p/gdata-python-client/downloads/list
 
-    Unzip it and run ``python setup.py installw` in the folder you unzip it to.
+    Unzip it and run ``python setup.py installw`` in the folder you unzip it to.
 
 .. rubric:: Next...
 
