@@ -46,7 +46,7 @@ Administration
 .. toctree::
    :maxdepth: 2
 
-   data_administration          
+   administration
 
 
 Bauble Development

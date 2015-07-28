@@ -111,11 +111,6 @@ API Documentation
 .. autofunction:: bauble.pluginmgr.load
 .. autofunction:: bauble.pluginmgr.init
 .. autofunction:: bauble.pluginmgr.install
-.. autoclass:: bauble.pluginmgr.RegistryEmptyError
-.. autoclass:: bauble.pluginmgr.Registry
-..   :members:
-.. autoclass:: bauble.pluginmgr.RegistryEntry
-..   :members:
 .. autoclass:: bauble.pluginmgr.Plugin
    :members:
 .. autoclass:: bauble.pluginmgr.Tool
@@ -138,20 +133,19 @@ API Documentation
 =======================
 .. automodule:: bauble.task
 .. autofunction:: bauble.task.queue
-.. autofunction:: bauble.task.flush
 .. autofunction:: bauble.task.set_message
 .. autofunction:: bauble.task.clear_messages
 
 
 :mod:`bauble.types`
 =======================
-.. automodule:: bauble.types
+.. automodule:: bauble.btypes
 
-.. autoclass:: bauble.types.Enum
+.. autoclass:: bauble.btypes.Enum
    :show-inheritance:
-.. autoclass:: bauble.types.Date
+.. autoclass:: bauble.btypes.Date
    :show-inheritance:
-.. autoclass:: bauble.types.DateTime
+.. autoclass:: bauble.btypes.DateTime
    :show-inheritance:
 
 
@@ -160,8 +154,6 @@ API Documentation
 =======================
 .. automodule:: bauble.utils
 .. autofunction:: bauble.utils.find_dependent_tables
-.. autoclass:: bauble.utils.GladeWidgets
-..   :members: remove_parent, signal_autoconnect
 .. autofunction:: bauble.utils.tree_model_has
 .. autofunction:: bauble.utils.search_tree_model
 .. autofunction:: bauble.utils.clear_model
@@ -254,25 +246,25 @@ API Documentation
 .. autoclass:: bauble.plugins.plants.Family
    :show-inheritance: 
 
-.. autoclass:: bauble.plugins.plants.FamilySynonym
+.. autoclass:: bauble.plugins.plants.family.FamilySynonym
    :show-inheritance: 
 
 .. autoclass:: bauble.plugins.plants.Genus
    :show-inheritance: 
 
-.. autoclass:: bauble.plugins.plants.GenusSynonym
+.. autoclass:: bauble.plugins.plants.genus.GenusSynonym
    :show-inheritance: 
 
 .. autoclass:: bauble.plugins.plants.Species
    :show-inheritance: 
 
-.. autoclass:: bauble.plugins.plants.SpeciesSynonym
+.. autoclass:: bauble.plugins.plants.species.SpeciesSynonym
    :show-inheritance: 
 
-.. autoclass:: bauble.plugins.plants.VernacularName
+.. autoclass:: bauble.plugins.plants.species.VernacularName
    :show-inheritance: 
 
-.. autoclass:: bauble.plugins.plants.DefaultVernacularName
+.. autoclass:: bauble.plugins.plants.species.DefaultVernacularName
    :show-inheritance: 
 
 .. autoclass:: bauble.plugins.plants.SpeciesDistribution
@@ -287,36 +279,36 @@ API Documentation
 .. automodule:: bauble.plugins.garden
 .. autoclass:: bauble.plugins.garden.Accession
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.AccessionNote
+.. autoclass:: bauble.plugins.garden.accession.AccessionNote
    :show-inheritance: 
 .. autoclass:: bauble.plugins.garden.Plant
    :show-inheritance: 
    :members: get_delimiter
-.. autoclass:: bauble.plugins.garden.PlantNote
+.. autoclass:: bauble.plugins.garden.plant.PlantNote
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.PlantChange
+.. autoclass:: bauble.plugins.garden.plant.PlantChange
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.PlantStatus
+.. autoclass:: bauble.plugins.garden.plant.PlantStatus
    :show-inheritance: 
 .. autoclass:: bauble.plugins.garden.Location
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Propagation
+.. autoclass:: bauble.plugins.garden.propagation.Propagation
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.PropRooted
+.. autoclass:: bauble.plugins.garden.propagation.PropRooted
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.PropCutting
+.. autoclass:: bauble.plugins.garden.propagation.PropCutting
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.PropSeed
+.. autoclass:: bauble.plugins.garden.propagation.PropSeed
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Source
+.. autoclass:: bauble.plugins.garden.source.Source
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.SourceDetail
+.. autoclass:: bauble.plugins.garden.source.SourceDetail
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Collection
+.. autoclass:: bauble.plugins.garden.source.Collection
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Verification
+.. autoclass:: bauble.plugins.garden.accession.Verification
    :show-inheritance: 
-.. autoclass:: bauble.plugins.garden.Voucher
+.. autoclass:: bauble.plugins.garden.accession.Voucher
    :show-inheritance: 
 
 
