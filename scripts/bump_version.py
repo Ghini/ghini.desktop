@@ -133,6 +133,7 @@ def bump_nsi_file(filename):
 
 # bump and grind
 bump_py_file(os.path.join(root_of_clone(), 'bauble/version.py'))
+bump_py_file(os.path.join(root_of_clone(), 'doc/conf.py'))
 bump_desktop_file(os.path.join(root_of_clone(), 'data/bauble.desktop'))
 bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build.nsi'))
 
