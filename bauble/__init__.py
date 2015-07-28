@@ -287,8 +287,7 @@ def main(uri=None):
     Run the main Bauble application.
 
     :param uri:  the URI of the database to connect to.  For more information
-    about database URIs see `<http://www.sqlalchemy.org/docs/05/dbengine.html\
-    #create-engine-url-arguments>`_
+                 about database URIs see `<http://www.sqlalchemy.org/docs/05/dbengine.html#create-engine-url-arguments>`_
 
     :type uri: str
     """
