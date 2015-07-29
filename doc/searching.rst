@@ -7,47 +7,15 @@ main search entry or by using the Query Builder to create the queries
 for you. The results of Bauble searches are listed in the main window.
 
 
-The Query Builder
+Search Strategies
 =================
 
-The Query Builder can help you build complex search queries through a
-point and click interface.  To open the Query Builder click the to the
-left of the search entry or select :menuselection:`Tools-->Query
-Builder` from the menu.
+Three are three types of search strategies available in Bauble. Considering
+the search stragety types available in Bauble, sorted in increasing
+complexity: you can search by value, expression or query.
 
-After opening the Query Builder you must select a search domain.  The
-search domain will determine the type of data that is returned and the
-properties that you can search.  
-
-.. image:: qb-choose_domain.png
-
-The search domain is similar to a table in the database and the properties
-would be the columns on the table.  Often the table/domain and
-properties/columns are the same but not always.
-
-Once a search domain is selected you can then select a property of the
-domain to compare values to.  The search operator can then be changed
-for how you want to make the search comparison.  Finally you must
-enter a value to compare to the search property.  
-
-.. image:: qb-choose_property.png
-
-If the search property you have selected can only have specific values then
-a list of possible values will be provided for you to choose from.
-
-If multiple search properties are necessary then clicking on the plus
-sign will add more search properties.  Select And/Or next to the
-property name choose how the properties will be combined in the search
-query.
-
-When you are done building your query click OK to perform the search.
-
-
-The Query Language
-==================
-
-Three are three types of search queries available in Bauble. You can
-search by value, expression or query.
+Searching by query, the most complex and powerful, is assisted by the Query
+Builder, described below.
 
 All searches are case insensitive so searching for Maxillaria and
 maxillaria will return the same results.
@@ -109,8 +77,9 @@ Queries allow the most control over searching. With queries you can
 search across relations, specific columns and join search using
 boolean operators like AND and OR.
 
-An example of a query would be: 
-   ``plant where accession.species.genus.family=Fabaceae and location.site="Block 10"``
+An example of a query would be::
+
+    plant where accession.species.genus.family=Fabaceae and location.site="Block 10"
 
 This query would return all the plants whose family are Fabaceae and
 are located in Block 10.
@@ -120,11 +89,13 @@ internals and database table layouts.
 
 A couple of useful examples:
 
-Which locations are in use:
-``location where plants.id!=0``
+* Which locations are in use::
 
-Which genera are associated to at least one accession:
-``genus where species.accession.id!=0``
+    location where plants.id!=0
+
+* Which genera are associated to at least one accession::
+
+    genus where species.accession.id!=0
 
 .. _search-domains:
 
@@ -150,3 +121,43 @@ expression. The queries do not use the default columns.
     plant: Search :class:`bauble.plugins.garden.Plant`
 
     location, loc: Search :class:`bauble.plugins.garden.Location`
+
+The Query Builder
+=================
+
+The Query Builder helps you build complex search queries through a
+point and click interface.  To open the Query Builder click the to the
+left of the search entry or select :menuselection:`Tools-->Query
+Builder` from the menu.
+
+The Query Builder composes a query that will be understood by the Query
+Search Strategy described above. You can use the Query Builder to get a
+feeling of correct queries before you start typing them by hand, something
+that you might prefer if you are a fast typer.
+
+After opening the Query Builder you must select a search domain.  The
+search domain will determine the type of data that is returned and the
+properties that you can search.  
+
+.. image:: qb-choose_domain.png
+
+The search domain is similar to a table in the database and the properties
+would be the columns on the table.  Often the table/domain and
+properties/columns are the same but not always.
+
+Once a search domain is selected you can then select a property of the
+domain to compare values to.  The search operator can then be changed
+for how you want to make the search comparison.  Finally you must
+enter a value to compare to the search property.  
+
+.. image:: qb-choose_property.png
+
+If the search property you have selected can only have specific values then
+a list of possible values will be provided for you to choose from.
+
+If multiple search properties are necessary then clicking on the plus
+sign will add more search properties.  Select And/Or next to the
+property name choose how the properties will be combined in the search
+query.
+
+When you are done building your query click OK to perform the search.
