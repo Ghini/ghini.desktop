@@ -10,9 +10,9 @@ SQLite
 
 SQLite is not what one would consider a real DBMS: each SQLite database is
 just in one file. Make safety copies and you will be fine. If you don't know
-where to look for them, consider that, per default, bauble puts its data in
-the ``~/.bauble/`` directory (in Windows it is somewhere in your ``AppData``
-directory).
+where to look for your database files, consider that, per default, bauble
+puts its data in the ``~/.bauble/`` directory (in Windows it is somewhere in
+your ``AppData`` directory).
 
 MySQL
 =====
@@ -23,6 +23,6 @@ PostgreSQL
 ==========
 
 Please refer to the official documentation. A very thorough discussion of
-your backup options starts at chapter 24::
+your backup options starts at `chapter_24`_.
 
-    http://www.postgresql.org/docs/9.1/static/backup.html
+.. _chapter_24: http://www.postgresql.org/docs/9.1/static/backup.html
