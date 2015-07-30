@@ -97,13 +97,22 @@ class ExportToJson(editor.GenericEditorView):
         return self.widgets.select_export_dialog
 
     def start(self):
-        return self.get_window().run() == gtk.RESPONSE_OK
+        return self.get_window().run()
 
     def get_filename(self):
         return self.widgets.filename.get_text()
 
     def get_objects(self):
-        return []
+        from bauble.view import SearchView
+        view = bauble.gui.get_view()
+        if not isinstance(view, SearchView):
+            utils.message_dialog(_('Search for something first.'))
+            return
+        model = view.results_view.get_model()
+        if model is None:
+            utils.message_dialog(_('Search for something first.'))
+            return
+        return [row[0] for row in model]
 
 
 class JSONImporter(object):
@@ -174,7 +183,11 @@ class JSONExporter(object):
             filename = d.get_filename()
             objects = d.get_objects()
             if response != gtk.RESPONSE_OK or filename is None:
+                logger.info("bad response or no filename %s (%s) %s" %
+                            (response, gtk.RESPONSE_OK, filename))
                 return
+        logger.info("will run with filename and objects: %s %s" %
+                    (filename, objects))
         self.run(filename, objects)
 
     def run(self, filename, objects=None):
