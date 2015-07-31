@@ -32,6 +32,7 @@ from bauble.plugins.garden.accession import Accession, AccessionNote
 from bauble.plugins.garden.location import Location
 import bauble.task
 import bauble.editor as editor
+from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 import json
 import bauble.pluginmgr as pluginmgr
@@ -96,7 +97,7 @@ class ExportToJson(editor.GenericEditorView):
     def radio_button_pushed(self, widget, group):
         name = gtk.Buildable.get_name(widget).split('_')[1]
         self._choices[group] = name
-        print self._choices
+        logger.debug("selected %s for group %s" % (name, group))
 
     def __init__(self, parent=None):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'imex',
@@ -119,19 +120,46 @@ class ExportToJson(editor.GenericEditorView):
         return self.widgets.filename.get_text()
 
     def get_objects(self):
-        from bauble.view import SearchView
-        view = bauble.gui.get_view()
-        if not isinstance(view, SearchView):
-            utils.message_dialog(_('Search for something first.'))
-            return
-        model = view.results_view.get_model()
-        if model is None:
-            utils.message_dialog(_('Search for something first.'))
-            return
+        if self._choices['based_on'] == 'selection':
+            class EmptySelectionException(Exception):
+                pass
+            from bauble.view import SearchView
+            view = bauble.gui.get_view()
+            try:
+                check(isinstance(view, SearchView))
+                model = view.results_view.get_model()
+                check(model is not None)
+            except CheckConditionError:
+                utils.message_dialog(_('Search for something first.'))
+                return
 
-        logger.info(tree_store_flatten(model))
+            logger.info(tree_store_flatten(model))
+            return [row[0] for row in model]
 
-        return [row[0] for row in model]
+        s = db.Session()
+        plants = []
+        locations = []
+        accessions = []
+        if self._choices['based_on'] == 'plants':
+            plants = s.query(Plant).all()
+            locations = s.query(Location).filter(
+                Location.id.in_([j.location_id for j in plants])).all()
+            accessions = s.query(Accession).filter(
+                Accession.id.in_([j.accession_id for j in plants])).all()
+        elif self._choices['based_on'] == 'accessions':
+            accessions = s.query(Accession).all()
+        if self._choices['based_on'] == 'taxa':
+            species = s.query(Species).all()
+        else:
+            species = s.query(Species).filter(
+                Species.id.in_([j.species_id for j in accessions])).all()
+        genera = s.query(Genus).filter(
+            Genus.id.in_([j.genus_id for j in species])).all()
+        families = s.query(Familia).filter(
+            Familia.id.in_([j.family_id for j in genera])).all()
+
+        result = locations + plants + accessions + species + genera + families
+        return result
 
 
 class JSONImporter(object):
