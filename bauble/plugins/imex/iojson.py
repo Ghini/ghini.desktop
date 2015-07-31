@@ -70,6 +70,22 @@ def serializedatetime(obj):
     return {'__class__': 'datetime', 'millis': millis}
 
 
+class TreeStoreFlattener(object):
+
+    def __call__(self, model):
+        self.result = []
+        return self.flatten(model, model.iter_children(None))
+
+    def flatten(self, model, iter):
+        while iter:
+            self.result.append(model.get_value(iter, 0))
+            self.flatten(model, model.iter_children(iter))
+            iter = model.iter_next(iter)
+        return self.result
+
+tree_store_flatten = TreeStoreFlattener()
+
+
 class ExportToJson(editor.GenericEditorView):
 
     _tooltips = {}
@@ -112,6 +128,9 @@ class ExportToJson(editor.GenericEditorView):
         if model is None:
             utils.message_dialog(_('Search for something first.'))
             return
+
+        logger.info(tree_store_flatten(model))
+
         return [row[0] for row in model]
 
 
@@ -186,8 +205,8 @@ class JSONExporter(object):
                 logger.info("bad response or no filename %s (%s) %s" %
                             (response, gtk.RESPONSE_OK, filename))
                 return
-        logger.info("will run with filename and objects: %s %s" %
-                    (filename, objects))
+        logger.debug("will run with filename and objects: %s %s" %
+                     (filename, objects))
         self.run(filename, objects)
 
     def run(self, filename, objects=None):
