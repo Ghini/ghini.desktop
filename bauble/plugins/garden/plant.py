@@ -221,7 +221,7 @@ class PlantSearch(SearchStrategy):
 
 # TODO: what would happen if the PlantRemove.plant_id and PlantNote.plant_id
 # were out of synch.... how could we avoid these sort of cycles
-class PlantNote(db.Base):
+class PlantNote(db.Base, db.Serializable):
     __tablename__ = 'plant_note'
     __mapper_args__ = {'order_by': 'plant_note.date'}
 
@@ -232,6 +232,42 @@ class PlantNote(db.Base):
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
     plant = relation('Plant', uselist=False,
                      backref=backref('notes', cascade='all, delete-orphan'))
+
+    def as_dict(self):
+        result = db.Serializable.as_dict(self)
+        result['plant'] = (self.plant.accession.code +
+                           Plant.get_delimiter() + self.plant.code)
+        return result
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        q = session.query(cls)
+        if 'plant' in keys:
+            acc_code, plant_code = keys['plant'].rsplit(
+                Plant.get_delimiter(), 1)
+            q = q.join(
+                Plant).filter(Plant.code == unicode(plant_code)).join(
+                Accession).filter(Accession.code == unicode(acc_code))
+        if 'date' in keys:
+            q = q.filter(cls.date == keys['date'])
+        if 'category' in keys:
+            q = q.filter(cls.category == keys['category'])
+        return q.all()
+
+    @classmethod
+    def compute_serializable_fields(cls, session, keys):
+        result = {'accession': None}
+
+        acc_keys = {}
+        acc_keys.update(keys)
+        acc_keys['code'] = keys['accession']
+        accession = Accession.retrieve_or_create(
+            session, acc_keys, create=(
+                'taxon' in acc_keys and 'rank' in acc_keys))
+
+        result['accession'] = accession
+
+        return result
 
 
 # TODO: some of these reasons are specific to UBC and could probably be culled.

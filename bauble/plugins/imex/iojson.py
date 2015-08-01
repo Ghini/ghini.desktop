@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 from bauble.i18n import _
 import bauble.utils as utils
 import bauble.db as db
-from bauble.plugins.plants import Familia, Genus, Species, VernacularName
-from bauble.plugins.garden.plant import Plant
-from bauble.plugins.garden.accession import Accession, AccessionNote
-from bauble.plugins.garden.location import Location
+from bauble.plugins.plants import (Familia, Genus, Species, VernacularName)
+from bauble.plugins.garden.plant import (Plant, PlantNote)
+from bauble.plugins.garden.accession import (Accession, AccessionNote)
+from bauble.plugins.garden.location import (Location)
 import bauble.task
 import bauble.editor as editor
 from bauble.error import check, CheckConditionError
@@ -64,10 +64,11 @@ def serializedatetime(obj):
     elif isinstance(obj, datetime.datetime):
         if obj.utcoffset() is not None:
             obj = obj - obj.utcoffset()
-    millis = int(
-        calendar.timegm(obj.timetuple()) * 1000 +
-        obj.microsecond / 1000
-    )
+    millis = calendar.timegm(obj.timetuple()) * 1000
+    try:
+        millis += int(obj.microsecond / 1000)
+    except AttributeError:
+        pass
     return {'__class__': 'datetime', 'millis': millis}
 
 
@@ -136,29 +137,62 @@ class ExportToJson(editor.GenericEditorView):
             logger.info(tree_store_flatten(model))
             return [row[0] for row in model]
 
+        ## export disregarding selection
         s = db.Session()
         plants = []
         locations = []
         accessions = []
+        result = []
         if self._choices['based_on'] == 'plants':
-            plants = s.query(Plant).all()
+            plants = s.query(Plant).order_by(Plant.code).join(
+                Accession).order_by(Accession.code).all()
+            plantnotes = s.query(PlantNote).all()  # all notes, too
+            ## only used locations and accessions
             locations = s.query(Location).filter(
                 Location.id.in_([j.location_id for j in plants])).all()
             accessions = s.query(Accession).filter(
-                Accession.id.in_([j.accession_id for j in plants])).all()
+                Accession.id.in_([j.accession_id for j in plants])).order_by(
+                Accession.code).all()
+            ## notes are linked in opposite direction
+            accessionnotes = s.query(AccessionNote).filter(
+                AccessionNote.accession_id.in_(
+                    [j.id for j in accessions])).all()
+            # extend results with things not further used
+            result.extend(plants)
+            result.extend(plantnotes)
+            result.extend(locations)
         elif self._choices['based_on'] == 'accessions':
-            accessions = s.query(Accession).all()
+            accessions = s.query(Accession).order_by(
+                Accession.code).all()
+            accessionnotes = s.query(AccessionNote).all()  # all notes, too
+
+        # extend results with accession data
+        result.extend(accessions)
+        result.extend(accessionnotes)
+
+        ## now the taxonomy, based either on all species or on the ones used
         if self._choices['based_on'] == 'taxa':
-            species = s.query(Species).all()
+            species = s.query(Species).order_by(
+                Species.sp).all()
         else:
             species = s.query(Species).filter(
-                Species.id.in_([j.species_id for j in accessions])).all()
-        genera = s.query(Genus).filter(
-            Genus.id.in_([j.genus_id for j in species])).all()
-        families = s.query(Familia).filter(
-            Familia.id.in_([j.family_id for j in genera])).all()
+                Species.id.in_([j.species_id for j in accessions])).order_by(
+                Species.sp).all()
 
-        result = locations + plants + accessions + species + genera + families
+        ## and all used genera and families
+        genera = s.query(Genus).filter(
+            Genus.id.in_([j.genus_id for j in species])).order_by(
+            Genus.genus).all()
+        families = s.query(Familia).filter(
+            Familia.id.in_([j.family_id for j in genera])).order_by(
+            Familia.family).all()
+
+        ## extend the result with the taxonomic information
+        result.extend(species)
+        result.extend(genera)
+        result.extend(families)
+
+        ## done, return the result
         return result
 
 
