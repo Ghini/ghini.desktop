@@ -139,9 +139,6 @@ class ExportToJson(editor.GenericEditorView):
 
         ## export disregarding selection
         s = db.Session()
-        plants = []
-        locations = []
-        accessions = []
         result = []
         if self._choices['based_on'] == 'plants':
             plants = s.query(Plant).order_by(Plant.code).join(
@@ -158,23 +155,22 @@ class ExportToJson(editor.GenericEditorView):
                 AccessionNote.accession_id.in_(
                     [j.id for j in accessions])).all()
             # extend results with things not further used
+            result.extend(locations)
             result.extend(plants)
             result.extend(plantnotes)
-            result.extend(locations)
         elif self._choices['based_on'] == 'accessions':
             accessions = s.query(Accession).order_by(
                 Accession.code).all()
             accessionnotes = s.query(AccessionNote).all()  # all notes, too
-
-        # extend results with accession data
-        result.extend(accessions)
-        result.extend(accessionnotes)
 
         ## now the taxonomy, based either on all species or on the ones used
         if self._choices['based_on'] == 'taxa':
             species = s.query(Species).order_by(
                 Species.sp).all()
         else:
+            # prepend results with accession data
+            result = accessions + accessionnotes + result
+
             species = s.query(Species).filter(
                 Species.id.in_([j.species_id for j in accessions])).order_by(
                 Species.sp).all()
@@ -187,10 +183,8 @@ class ExportToJson(editor.GenericEditorView):
             Familia.id.in_([j.family_id for j in genera])).order_by(
             Familia.family).all()
 
-        ## extend the result with the taxonomic information
-        result.extend(species)
-        result.extend(genera)
-        result.extend(families)
+        ## prepend the result with the taxonomic information
+        result = families + genera + species + result
 
         ## done, return the result
         return result
