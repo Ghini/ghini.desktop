@@ -3269,7 +3269,7 @@ msgid "Please select a stylesheet."
 msgstr "Vyberte prosím stylopis."
 
 #: bauble/plugins/report/mako/__init__.py:101
-msgid "Please selecte a template."
+msgid "Please select a template."
 msgstr "Prosím vyberte šablonu."
 
 #: bauble/plugins/garden/plant.py:308

@@ -98,7 +98,7 @@ class MakoFormatterPlugin(FormatterPlugin):
         template_filename = kwargs['template']
         use_private = kwargs.get('private', True)
         if not template_filename:
-            msg = _('Please selecte a template.')
+            msg = _('Please select a template.')
             utils.message_dialog(msg, gtk.MESSAGE_WARNING)
             return False
         template = Template(
