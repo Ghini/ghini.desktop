@@ -3258,7 +3258,7 @@ msgid "Please select a stylesheet."
 msgstr "Bitte wählen Sie ein stylesheet."
 
 #: bauble/plugins/report/mako/__init__.py:101
-msgid "Please selecte a template."
+msgid "Please select a template."
 msgstr "Bitte wählen Sie eine Vorlage."
 
 #: bauble/plugins/garden/plant.py:308

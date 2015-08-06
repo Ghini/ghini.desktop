@@ -3208,7 +3208,7 @@ msgid "Please select a stylesheet."
 msgstr "Vælg et typografiark."
 
 #: bauble/plugins/report/mako/__init__.py:101
-msgid "Please selecte a template."
+msgid "Please select a template."
 msgstr "Vælg en skabelon."
 
 #: bauble/plugins/garden/plant.py:308
