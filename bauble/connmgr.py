@@ -244,6 +244,7 @@ class ConnectionManager:
 
         glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")
         self.widgets = utils.BuilderWidgets(glade_path)
+        self.builder = self.widgets._builder_
 
         self.dialog = self.widgets.main_dialog
         title = '%s %s' % ('Bauble', bauble.version)
@@ -261,7 +262,7 @@ class ConnectionManager:
                 self.dialog.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
                 self.dialog.set_property('skip-taskbar-hint', False)
 
-        self.widgets.builder.connect_signals(self)
+        self.builder.connect_signals(self)
 
         # set the logo image manually, it's hard to depend on glade to
         # get this right since the image paths may change
