@@ -254,10 +254,6 @@ class ConnectionManager:
         except Exception:
             logger.warning(_('Could not load icon from %s' % bauble.default_icon))
             logger.warning(traceback.format_exc())
-            # utils.message_details_dialog(_('Could not load icon from %s' % \
-            #                              bauble.default_icon),
-            #                              traceback.format_exc(),
-            #                              gtk.MESSAGE_ERROR)
 
         if bauble.gui is not None and bauble.gui.window is not None:
             self.dialog.set_transient_for(bauble.gui.window)
@@ -267,7 +263,7 @@ class ConnectionManager:
 
         self.widgets.builder.connect_signals(self)
 
-        # set the logo image manually, its hard to depend on glade to
+        # set the logo image manually, it's hard to depend on glade to
         # get this right since the image paths may change
         logo = self.widgets.logo_image
         logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
