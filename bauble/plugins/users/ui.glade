@@ -58,6 +58,7 @@
                                 <property name="visible">True</property>
                                 <child>
                                   <object class="GtkButton" id="add_button">
+                                    <signal name="clicked" handler="on_add_button_clicked" swapped="no"/>
                                     <property name="label">gtk-add</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -72,6 +73,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="remove_button">
+                                    <signal name="clicked" handler="on_remove_button_clicked" swapped="no"/>
                                     <property name="label">gtk-remove</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -214,6 +216,7 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="pwd_button">
+                    <signal name="clicked" handler="on_pwd_button_clicked" swapped="no"/>
                     <property name="label" translatable="yes">Change Password</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
