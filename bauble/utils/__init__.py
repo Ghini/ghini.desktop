@@ -144,6 +144,8 @@ class BuilderWidgets(dict):
         '''
         :param name:
         '''
+        if name == 'builder':
+            return self.builder
         w = self.builder.get_object(name)
         if not w:
             raise AttributeError(_('%(widget_name)s not in glade file') %
