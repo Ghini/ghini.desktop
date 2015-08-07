@@ -269,6 +269,7 @@ class ReportToolDialogView(object):
             os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade'))
         self.dialog = self.widgets.report_dialog
         self.dialog.set_transient_for(bauble.gui.window)
+        self.builder = self.widgets.builder
         utils.setup_text_combobox(self.widgets.names_combo)
         utils.setup_text_combobox(self.widgets.formatter_combo)
 
@@ -304,6 +305,12 @@ class ReportToolDialogView(object):
     def start(self):
         return self.dialog.run()
 
+    def set_sensitive(self, name, sensitivity):
+        try:
+            self.builder.get_object(name).set_sensitive(sensitivity)
+        except:
+            logger.debug("can't set sensitivity of %s" % name)
+
 
 class ReportToolDialogPresenter(object):
 
@@ -314,15 +321,9 @@ class ReportToolDialogPresenter(object):
         self.init_names_combo()
         self.init_formatter_combo()
 
-        self.view.widgets.new_button.connect(
-            'clicked', self.on_new_button_clicked)
-        self.view.widgets.remove_button.connect(
-            'clicked', self.on_remove_button_clicked)
-        self.view.widgets.names_combo.connect(
-            'changed', self.on_names_combo_changed)
-        self.view.widgets.formatter_combo.connect(
-            'changed', self.on_formatter_combo_changed)
-        self.view.widgets.ok_button.set_sensitive(False)
+        self.view.builder.connect_signals(self)
+
+        self.view.set_sensitive('ok_button', False)
 
         # set the names combo to the default, on_names_combo_changes should
         # do the rest of the work
@@ -344,7 +345,7 @@ class ReportToolDialogPresenter(object):
         """
         combo = self.view.widgets.names_combo
         if combo.get_model() is None:
-            self.view.widgets.details_box.set_sensitive(False)
+            self.view.set_sensitive('details_box', False)
             return
         if val is None:
             combo.set_active(-1)
@@ -428,12 +429,12 @@ class ReportToolDialogPresenter(object):
 
     def on_names_combo_changed(self, combo, *args):
         if combo.get_model() is None:
-            self.view.widgets.details_box.set_sensitive(False)
+            self.view.set_sensitive('details_box', False)
             return
 
         name = combo.get_active_text()
         formatters = prefs[config_list_pref]
-        self.view.widgets.details_box.set_sensitive(name is not None)
+        self.view.set_sensitive('details_box', name is not None)
         prefs[default_config_pref] = name  # set the default to the new name
         try:
             title, settings = formatters[name]
@@ -450,26 +451,20 @@ class ReportToolDialogPresenter(object):
             # you're looking for in the settings
             logger.debug(e)
             self.set_formatter_combo(-1)
-        self.view.widgets.details_box.set_sensitive(True)
+        self.view.set_sensitive('details_box', True)
 
     def on_formatter_combo_changed(self, combo, *args):
         '''
         formatter_combo changed signal handler
         '''
-        self.view.widgets.ok_button.set_sensitive(False)
+        self.view.set_sensitive('ok_button', False)
         gobject.idle_add(self._formatter_combo_changed_idle, combo)
 
     def _formatter_combo_changed_idle(self, combo):
         formatter = combo.get_active_text()
         name = self.view.widgets.names_combo.get_active_text()
         try:
-            # TODO: settings seems to always be {} here
             saved_name, settings = prefs[config_list_pref][name]
-            if saved_name != formatter:
-                settings = {}
-#            # set the new formatter value in the preferences
-#            set_prefs_for(name, self.formatter_class_map[title])
-#            #prefs[config_list_pref][name] = title, settings
         except KeyError, e:
             logger.debug(e)
             return
@@ -480,7 +475,7 @@ class ReportToolDialogPresenter(object):
             expander.remove(child)
 
         #self.widgets.ok_button.set_sensitive(title is not None)
-        self.view.widgets.ok_button.set_sensitive(formatter is not None)
+        self.view.set_sensitive('ok_button', formatter is not None)
         if not formatter:
             return
         try:
@@ -498,7 +493,7 @@ class ReportToolDialogPresenter(object):
         expander.set_expanded(box is not None)
         #formatter = combo.get_active_text()
         self.set_prefs_for(name, formatter, settings)
-        self.view.widgets.ok_button.set_sensitive(True)
+        self.view.set_sensitive('ok_button', True)
 
     def init_formatter_combo(self):
         import types
@@ -531,7 +526,7 @@ class ReportToolDialogPresenter(object):
         configs = prefs[config_list_pref]
         combo = self.view.widgets.names_combo
         if configs is None:
-            self.view.widgets.details_box.set_sensitive(False)
+            self.view.set_sensitive('details_box', False)
             utils.clear_model(combo)
             return
         try:
