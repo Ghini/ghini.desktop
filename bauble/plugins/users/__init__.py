@@ -543,11 +543,7 @@ class UsersEditor(editor.GenericEditorView):
         else:
             self.widgets.admin_button.props.sensitive = False
 
-
-        self.connect('pwd_button', 'clicked', self.on_pwd_button_clicked)
-        self.connect('add_button', 'clicked', self.on_add_button_clicked)
-        self.connect('remove_button', 'clicked', self.on_remove_button_clicked)
-
+        self.builder.connect_signals(self)
 
     def get_selected_user(self):
         """
@@ -556,7 +552,6 @@ class UsersEditor(editor.GenericEditorView):
         tree = self.widgets.users_tree
         path, column = tree.get_cursor()
         return tree.get_model()[path][0]
-
 
     new_user_message = _('Enter a user name')
 

@@ -265,9 +265,7 @@ class ConnectionManager:
                 self.dialog.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
                 self.dialog.set_property('skip-taskbar-hint', False)
 
-        self.widgets.add_button.connect('clicked', self.on_add_button_clicked)
-        self.widgets.remove_button.connect('clicked',
-                                           self.on_remove_button_clicked)
+        self.builder.connect_signals(self)
 
         # set the logo image manually, its hard to depend on glade to
         # get this right since the image paths may change
