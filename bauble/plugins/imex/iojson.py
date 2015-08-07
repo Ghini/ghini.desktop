@@ -88,6 +88,12 @@ class TreeStoreFlattener(object):
 tree_store_flatten = TreeStoreFlattener()
 
 
+class Handler:
+    def on_btnbrowse_clicked(self, button):
+        print "callback hit"
+        pass
+
+
 class ExportToJson(editor.GenericEditorView):
 
     _tooltips = {}
@@ -104,6 +110,7 @@ class ExportToJson(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'imex',
                                 'select_export.glade')
         super(ExportToJson, self).__init__(filename, parent=parent)
+        self.builder.connect_signals(Handler())
         for wn in ['selection', 'taxa', 'accessions', 'plants']:
             self.connect('sbo_' + wn, 'toggled',
                          self.radio_button_pushed, "based_on")
