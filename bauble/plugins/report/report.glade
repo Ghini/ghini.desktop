@@ -25,7 +25,7 @@
                 <child>
                   <object class="GtkComboBox" id="names_combo">
                     <property name="visible">True</property>
-                    <signal name="changed" handler="on_opt_formatters_combo_changed"/>
+                    <signal name="changed" handler="on_names_combo_changed"/>
                   </object>
                   <packing>
                     <property name="position">0</property>
