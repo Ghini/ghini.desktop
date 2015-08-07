@@ -1154,7 +1154,7 @@ class PictureBox(NoteBox):
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         try:
-            print 'about to set current folder', self.last_folder
+            logger.debug('about to set current folder - %s' % self.last_folder)
             fileChooserDialog.set_current_folder(self.last_folder)
             fileChooserDialog.run()
             filename = fileChooserDialog.get_filename()
@@ -1170,7 +1170,7 @@ class PictureBox(NoteBox):
                 im = Image.open(filename)
                 im.thumbnail((400, 400))
                 PictureBox.last_folder, basename = os.path.split(filename)
-                print 'new current folder is: ', self.last_folder
+                logger.debug('new current folder is: %s' % self.last_folder)
                 full_dest_path = os.path.join(
                     prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
                 logger.debug('copying %s to %s' % (filename, full_dest_path))
