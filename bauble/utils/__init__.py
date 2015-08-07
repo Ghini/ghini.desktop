@@ -144,7 +144,7 @@ class BuilderWidgets(dict):
         '''
         :param name:
         '''
-        if name == 'builder':
+        if name == '_builder_':
             return self.builder
         w = self.builder.get_object(name)
         if not w:
