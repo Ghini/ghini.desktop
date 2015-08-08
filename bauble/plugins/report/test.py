@@ -21,15 +21,14 @@
 import os
 import unittest
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
-from sqlalchemy.exc import *
+#from sqlalchemy import *
+#from sqlalchemy.orm import *
+#from sqlalchemy.exc import *
 
 from bauble.test import BaubleTestCase, check_dupids
-import bauble.utils as utils
 #import bauble.plugins.report as report_plugin
-from bauble.plugins.report import get_all_species, get_all_accessions, \
-     get_all_plants
+from bauble.plugins.report import (
+    get_all_species, get_all_accessions, get_all_plants)
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.tag import tag_objects, Tag
@@ -37,6 +36,7 @@ from bauble.plugins.tag import tag_objects, Tag
 
 def setUp_test_data():
     pass
+
 
 def tearDown_test_data():
     pass
@@ -57,7 +57,6 @@ def test_duplicate_ids():
         assert(not check_dupids(f))
 
 
-
 class ReportTestCase(BaubleTestCase):
 
     def __init__(self, *args):
@@ -72,30 +71,29 @@ class ReportTestCase(BaubleTestCase):
 
 class ReportTests(ReportTestCase):
 
-
     def setUp(self):
         super(ReportTests, self).setUp()
         fctr = gctr = sctr = actr = pctr = 0
         for f in xrange(2):
-            fctr+=1
+            fctr += 1
             family = Family(id=fctr, family=u'fam%s' % fctr)
             self.session.add(family)
             for g in range(2):
-                gctr+=1
+                gctr += 1
                 genus = Genus(id=gctr, family=family, genus=u'gen%s' % gctr)
                 self.session.add(genus)
                 for s in range(2):
-                    sctr+=1
+                    sctr += 1
                     sp = Species(id=sctr, genus=genus, sp=u'sp%s' % sctr)
                     vn = VernacularName(id=sctr, species=sp,
                                         name=u'name%s' % sctr)
                     self.session.add_all([sp, vn])
                     for a in range(2):
-                        actr+=1
+                        actr += 1
                         acc = Accession(id=actr, species=sp, code=u'%s' % actr)
                         self.session.add(acc)
                         for p in range(2):
-                            pctr+=1
+                            pctr += 1
                             loc = Location(id=pctr, code=u'%s' % pctr,
                                            name=u'site%s' % pctr)
                             plant = Plant(id=pctr, accession=acc, location=loc,
@@ -105,10 +103,8 @@ class ReportTests(ReportTestCase):
                             self.session.add_all([loc, plant])
         self.session.commit()
 
-
     def tearDown(self):
         super(ReportTests, self).tearDown()
-
 
     def test_get_all_species(self):
         """
@@ -152,14 +148,13 @@ class ReportTests(ReportTestCase):
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
         ids = get_ids(get_all_species([tag], self.session))
-        self.assert_(ids == range(1,5), ids)
+        self.assert_(ids == range(1, 5), ids)
 
         # now test all the objects
         ids = get_ids(get_all_species([family, genus, species,
-                                        accession, plant, location],
+                                       accession, plant, location],
                                       self.session))
-        self.assert_(ids == range(1,5), ids)
-
+        self.assert_(ids == range(1, 5), ids)
 
     def test_get_all_accessions(self):
         """
@@ -178,11 +173,11 @@ class ReportTests(ReportTestCase):
 
         genus = self.session.query(Genus).get(1)
         ids = get_ids(get_all_accessions(genus, self.session))
-        self.assert_(ids == range(1,5), ids)
+        self.assert_(ids == range(1, 5), ids)
 
         species = self.session.query(Species).get(1)
         ids = get_ids(get_all_accessions(species, self.session))
-        self.assert_(ids == [1,2], ids)
+        self.assert_(ids == [1, 2], ids)
 
         accession = self.session.query(Accession).get(1)
         ids = get_ids(get_all_accessions([accession], self.session))
@@ -203,14 +198,13 @@ class ReportTests(ReportTestCase):
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
         ids = get_ids(get_all_accessions([tag], self.session))
-        self.assert_(ids == range(1,9), ids)
+        self.assert_(ids == range(1, 9), ids)
 
         # now test all the objects
         ids = get_ids(get_all_accessions([family, genus, species,
-                                             accession, plant, location],
+                                          accession, plant, location],
                                          self.session))
-        self.assert_(ids == range(1,9), ids)
-
+        self.assert_(ids == range(1, 9), ids)
 
     def test_get_all_plants(self):
         """
@@ -276,7 +270,3 @@ class ReportTestSuite(unittest.TestSuite):
 
 
 testsuite = ReportTestSuite
-
-
-
-
