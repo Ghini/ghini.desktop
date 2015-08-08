@@ -89,6 +89,7 @@ tree_store_flatten = TreeStoreFlattener()
 
 
 class ExportToJson(editor.GenericEditorView):
+    "the View (MVP)"
 
     _tooltips = {}
     _choices = {'based_on': 'selection',
@@ -143,6 +144,13 @@ class ExportToJson(editor.GenericEditorView):
         return self.widgets.filename.get_text()
 
     def get_objects(self):
+        '''return the list of objects to be exported
+
+        if "based_on" is "selection", return the top level selection only.
+
+        if "based_on" is something else, return all that is needed to create
+        a complete export.
+        '''
         if self._choices['based_on'] == 'selection':
             class EmptySelectionException(Exception):
                 pass
@@ -156,7 +164,6 @@ class ExportToJson(editor.GenericEditorView):
                 utils.message_dialog(_('Search for something first.'))
                 return
 
-            logger.info(tree_store_flatten(model))
             return [row[0] for row in model]
 
         ## export disregarding selection
@@ -216,6 +223,7 @@ class JSONImporter(object):
     '''The import process will be queued as a bauble task. there is no callback
     informing whether it is successfully completed or not.
 
+    the Presenter (MVP)
     '''
 
     def __init__(self):
@@ -271,18 +279,20 @@ class JSONImporter(object):
 
 
 class JSONExporter(object):
-    "Export taxonomy and plants in JSON format."
+    '''Export taxonomy and plants in JSON format.
+
+    the Presenter (MVP)'''
 
     def start(self, filename=None, objects=None):
         if filename is None:  # need user intervention
             d = ExportToJson()
             response = d.start()
             filename = d.get_filename()
-            objects = d.get_objects()
             if response != gtk.RESPONSE_OK or filename is None:
                 logger.info("bad response or no filename %s (%s) %s" %
                             (response, gtk.RESPONSE_OK, filename))
                 return
+            objects = d.get_objects()
         logger.debug("will run with filename and objects: %s %s" %
                      (filename, objects))
         self.run(filename, objects)
@@ -318,8 +328,12 @@ class JSONExporter(object):
 
         import codecs
         with codecs.open(filename, "wb", "utf-8") as output:
-            json.dump([obj.as_dict() for obj in objects], output,
-                      default=serializedatetime, sort_keys=True, indent=4)
+            output.write('[')
+            output.write(',\n '.join(
+                [json.dumps(obj.as_dict(),
+                            default=serializedatetime, sort_keys=True)
+                 for obj in objects]))
+            output.write(']')
 
 
 #
@@ -346,5 +360,9 @@ class JSONExportTool(pluginmgr.Tool):
 
     @classmethod
     def start(cls):
+        # to follow MVP and be able to unit-testing, we must pass model and
+        # view objects to the constructor for the presenter. currently we
+        # create them in the constructor for the presenter, which makes
+        # unit testing a lot more complex.
         c = JSONExporter()
         c.start()
