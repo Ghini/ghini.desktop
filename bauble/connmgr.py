@@ -121,9 +121,6 @@ class ConnectionManager:
         Show the connection manager.
         """
         self.create_gui()
-        self.dialog.connect('response', self.on_dialog_response)
-        self.dialog.connect('close', self.on_dialog_close_or_delete)
-        self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
         conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None or len(conn_list.keys()) == 0:
             msg = _('You don\'t have any connections in your connection '
