@@ -88,18 +88,14 @@ class TreeStoreFlattener(object):
 tree_store_flatten = TreeStoreFlattener()
 
 
-class Handler:
-    def on_btnbrowse_clicked(self, button):
-        print "callback hit"
-        pass
-
-
 class ExportToJson(editor.GenericEditorView):
 
     _tooltips = {}
     _choices = {'based_on': 'selection',
                 'includes': 'referred',
                 }
+
+    last_folder = ''
 
     def radio_button_pushed(self, widget, group):
         name = gtk.Buildable.get_name(widget).split('_')[1]
@@ -110,13 +106,32 @@ class ExportToJson(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'imex',
                                 'select_export.glade')
         super(ExportToJson, self).__init__(filename, parent=parent)
-        self.builder.connect_signals(Handler())
+        self.builder.connect_signals(self)
         for wn in ['selection', 'taxa', 'accessions', 'plants']:
             self.connect('sbo_' + wn, 'toggled',
                          self.radio_button_pushed, "based_on")
         for wn in ['referred', 'referring']:
             self.connect('ei_' + wn, 'toggled',
                          self.radio_button_pushed, "includes")
+
+    def on_btnbrowse_clicked(self, button):
+        chooser = gtk.FileChooserDialog(
+            _("Choose a file..."), None,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        #chooser.set_do_overwrite_confirmation(True)
+        #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
+        try:
+            if self.last_folder:
+                chooser.set_current_folder(self.last_folder)
+            if chooser.run() == gtk.RESPONSE_ACCEPT:
+                filename = chooser.get_filename()
+                if filename:
+                    ExportToJson.last_folder, bn = os.path.split(filename)
+                    self.widgets.filename.set_text(filename)
+        except Exception, e:
+            logger.warning("unhandled exception in iojson.py: %s" % e)
+        chooser.destroy()
 
     def get_window(self):
         return self.widgets.select_export_dialog
