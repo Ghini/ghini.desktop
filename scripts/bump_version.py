@@ -99,7 +99,7 @@ def bump_file(filename, rx):
         if match:
             s = rx.sub(r'\1%s\2', line)
             line = s % version
-            print '%s: %s' % (filename, line)
+            print ('%s: %s' % (filename, line)).strip()
         buf.write(line)
 
     f = open(filename, 'w')
@@ -107,12 +107,12 @@ def bump_file(filename, rx):
     buf.close()
 
 
-def bump_py_file(filename):
+def bump_py_file(filename, varname='version'):
     """
     bump python files
     """
 
-    rx = "^(version\s*=\s*(?:\'|\")).*((?:\'|\").*%s.*)$" % bump_tag
+    rx = "^(%s\s*=\s*(?:\'|\")).*((?:\'|\").*%s.*)$" % (varname, bump_tag)
     bump_file(filename, rx)
 
 
@@ -133,7 +133,7 @@ def bump_nsi_file(filename):
 
 # bump and grind
 bump_py_file(os.path.join(root_of_clone(), 'bauble/version.py'))
-bump_py_file(os.path.join(root_of_clone(), 'doc/conf.py'))
+bump_py_file(os.path.join(root_of_clone(), 'doc/conf.py'), 'release')
 bump_desktop_file(os.path.join(root_of_clone(), 'data/bauble.desktop'))
 bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build.nsi'))
 
@@ -142,5 +142,6 @@ rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
 
 # TODO: commit the changes
-print 'git commit -m "bumping to %s" bauble/version.py data/bauble.desktop '\
-    'scripts/build.nsi packages/builddeb.sh' % version
+print
+print 'git commit -m "bumping to %s" bauble/version.py doc/conf.py'\
+    ' data/bauble.desktop scripts/build.nsi packages/builddeb.sh' % version
