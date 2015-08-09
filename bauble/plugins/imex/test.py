@@ -389,6 +389,16 @@ class CSVTests2(ImexTestCase):
         pass
 
 
+class MockView:
+    def set_selection(self, a):
+        self.__selection = a
+
+    def get_selection(self):
+        return self.__selection
+
+mock_view = MockView()
+
+
 class JSONExportTests(BaubleTestCase):
 
     def setUp(self):
@@ -413,7 +423,8 @@ class JSONExportTests(BaubleTestCase):
     def test_writes_complete_database(self):
         "exporting without specifying what: export complete database"
 
-        exporter = JSONExporter()
+        mock_view.set_selection([])
+        exporter = JSONExporter(mock_view)
         exporter.start(self.temp_path)
         ## must still check content of generated file!
         result = json.load(open(self.temp_path))
@@ -438,9 +449,10 @@ class JSONExportTests(BaubleTestCase):
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
 
-        exporter = JSONExporter()
         selection = self.session.query(Family).filter(
             Family.family == u'Orchidaceae').all()
+        mock_view.set_selection(selection)
+        exporter = JSONExporter(mock_view)
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
@@ -450,9 +462,10 @@ class JSONExportTests(BaubleTestCase):
     def test_writes_partial_taxonomic_info(self):
         "exporting one genus: all species below genus"
 
-        exporter = JSONExporter()
         selection = self.session.query(Genus).filter(
             Genus.genus == u'Calopogon').all()
+        mock_view.set_selection(selection)
+        exporter = JSONExporter(mock_view)
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
@@ -465,10 +478,11 @@ class JSONExportTests(BaubleTestCase):
     def test_writes_partial_taxonomic_info_species(self):
         "exporting one genus: all species below species"
 
-        exporter = JSONExporter()
         selection = self.session.query(
             Species).filter(Species.sp == u'tuberosus').join(
             Genus).filter(Genus.genus == u"Calopogon").all()
+        mock_view.set_selection(selection)
+        exporter = JSONExporter(mock_view)
         exporter.start(self.temp_path, selection)
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
