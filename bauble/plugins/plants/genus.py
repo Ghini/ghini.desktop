@@ -586,7 +586,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                               % (Genus.str(syn),
                                  utils.xml_safe(unicode(syn.author)),
                                  Family.str(syn.family)))
-            # set background color to indicate its new
+            # set background color to indicate it's new
             if v.id is None:
                 cell.set_property('foreground', 'blue')
             else:

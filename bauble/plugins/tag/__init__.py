@@ -393,7 +393,7 @@ def tag_objects(name, objs):
     """
     Tag a list of objects.
 
-    :param name: The tag name, if its a str object then it will be
+    :param name: The tag name, if it's a str object then it will be
       converted to unicode() using the default encoding. If a tag with
       this name doesn't exist it will be created
     :type name: str

@@ -925,7 +925,7 @@ class ExpressionRow(object):
             if active_iter:
                 value = model[active_iter][0]
         else:
-            # assume its a gtk.Entry or other widget with a text property
+            # assume it's a gtk.Entry or other widget with a text property
             value = self.value_widget.props.text.strip()
         and_or = ''
         if self.and_or_combo:

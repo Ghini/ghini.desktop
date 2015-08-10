@@ -85,7 +85,7 @@ import bauble.utils as utils
 #     needed or deadlocks may occur.
 #     """
 #     conn = db.engine.connect()
-#     # detach connection so when its closed it doesn't go back to the
+#     # detach connection so when it's closed it doesn't go back to the
 #     # pool where there could be the possibility of it being reused and
 #     # having future sql commands run as the user afer this connection
 #     # has been closed

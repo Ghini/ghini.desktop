@@ -191,7 +191,7 @@ integer_value = Regex(r'[-]?\d+').setParseAction(NumericIntegerAction)
 float_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?').setParseAction(NumericFloatAction)
 value_chars = Word(alphas + alphas8bit, alphanums + alphas8bit + '%.-_*;:')
 string_value = (value_chars | quotedString.setParseAction(removeQuotes)).setParseAction(StringAction)
-# value can contain any string once its quoted
+# value can contain any string once it's quoted
 
 value = string_value | integer_value | float_value
 value_list = (string_value ^ delimitedList(string_value) ^ OneOrMore(string_value))

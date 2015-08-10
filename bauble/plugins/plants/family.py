@@ -473,7 +473,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         def _syn_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             cell.set_property('text', str(v))
-            # just added so change the background color to indicate its new
+            # just added so change the background color to indicate it's new
             if v.id is None:
                 cell.set_property('foreground', 'blue')
             else:

@@ -301,8 +301,8 @@ def _get_feed_worker(worker, gd_client, tag):
     Get the feed and then start new threads to get each one of the
     images.
     """
-    # TODO: we should have to get the feed if its already been fetched
-    # this session, maybe we need some sort of in memory database of
+    # TODO: we should have to get the feed if it's already been fetched
+    # in this session, maybe we need some sort of in memory database of
     # feeds that have been fetched
     email = meta.get_default(PICASA_EMAIL_KEY).value
     album = meta.get_default(PICASA_ALBUM_KEY).value
