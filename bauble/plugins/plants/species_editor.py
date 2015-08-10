@@ -963,7 +963,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
 
-class SpeciesEditor(editor.GenericModelViewPresenterEditor):
+class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -977,7 +977,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         '''
         if model is None:
             model = Species()
-        super(SpeciesEditor, self).__init__(model, parent)
+        super(SpeciesEditorMenuItem, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
@@ -1040,7 +1040,8 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = SpeciesEditor(Species(genus=self.model.genus), self.parent)
+            e = SpeciesEditorMenuItem(
+                Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden.accession import (
@@ -1073,7 +1074,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
                 self.model.vernacular_names.remove(vn)
                 utils.delete_or_expunge(vn)
                 del vn
-        super(SpeciesEditor, self).commit_changes()
+        super(SpeciesEditorMenuItem, self).commit_changes()
 
     def start(self):
         if self.session.query(Genus).count() == 0:
@@ -1091,3 +1092,11 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         self.presenter.cleanup()
         self.session.close()  # cleanup session
         return self._committed
+
+
+def edit_species(model=None, parent_view=None):
+    kkk = SpeciesEditorMenuItem(model, parent_view)
+    kkk.start()
+    result = kkk._committed
+    del kkk
+    return result

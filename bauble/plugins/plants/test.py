@@ -31,7 +31,7 @@ from nose import SkipTest
 import bauble.utils as utils
 import bauble.db as db
 from bauble.plugins.plants.species import (
-    Species, VernacularName, SpeciesSynonym, SpeciesEditor,
+    Species, VernacularName, SpeciesSynonym, edit_species,
     DefaultVernacularName, SpeciesDistribution, SpeciesNote)
 from bauble.plugins.plants.family import (
     Family, FamilySynonym, FamilyEditor, FamilyNote)
@@ -528,10 +528,8 @@ class SpeciesTests(PlantTestCase):
         self.session.add(f)
         self.session.commit()
         sp = Species(genus=g, sp=u'sp')
-        e = SpeciesEditor(model=sp)
-        e.start()
-        del e
-        assert utils.gc_objects_by_type('SpeciesEditor') == [], \
+        edit_species(model=sp)
+        assert utils.gc_objects_by_type('SpeciesEditorMenuItem') == [], \
             'SpeciesEditor not deleted'
         assert utils.gc_objects_by_type('SpeciesEditorPresenter') == [], \
             'SpeciesEditorPresenter not deleted'

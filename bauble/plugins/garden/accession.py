@@ -166,9 +166,8 @@ def generic_taxon_add_action(model, view, presenter, top_presenter,
     its string representation into taxon_entry.
     """
 
-    from bauble.plugins.plants.species import SpeciesEditor
-    editor = SpeciesEditor(parent=view.get_window())
-    if editor.start():
+    from bauble.plugins.plants.species import edit_species
+    if edit_species(parent=view.get_window()):
         logger.debug('new taxon added from within VerificationBox')
         # add the new taxon to the session and start using it
         presenter.session.add(editor.model)
