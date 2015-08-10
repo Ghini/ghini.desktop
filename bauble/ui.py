@@ -618,7 +618,7 @@ class GUI(object):
         """
         Call gtk.Statusbar.pop() for each context_id that had previously
         been pushed() onto the the statusbar stack.  This might not clear
-        all the messages in the statusbar but its the best we can do
+        all the messages in the statusbar but it's the best we can do
         without knowing how many messages are in the stack.
         """
         # TODO: to clear everything in the statusbar we would probably

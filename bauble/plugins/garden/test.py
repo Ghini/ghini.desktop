@@ -798,7 +798,7 @@ class SourceTests(GardenTestCase):
         source.propagation = Propagation(prop_type=u'Seed')
 
         # a propagation doesn't normally have _seed and _cutting but
-        # its ok here for the test
+        # it's ok here for the test
         seed = PropSeed(**default_seed_values)
         seed.propagation = source.propagation
         cutting = PropCutting(**default_cutting_values)

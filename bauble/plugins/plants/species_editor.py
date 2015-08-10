@@ -625,7 +625,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         def _name_data_func(column, cell, model, treeiter, data=None):
             v = model[treeiter][0]
             cell.set_property('text', v.name)
-            # just added so change the background color to indicate its new
+            # just added so change the background color to indicate it's new
 #            if not v.isinstance:
             if v.id is None:  # hasn't been committed
                 cell.set_property('foreground', 'blue')
@@ -641,7 +641,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         def _lang_data_func(column, cell, model, treeiter, data=None):
             v = model[treeiter][0]
             cell.set_property('text', v.language)
-            # just added so change the background color to indicate its new
+            # just added so change the background color to indicate it's new
             #if not v.isinstance:`
             if v.id is None:  # hasn't been committed
                 cell.set_property('foreground', 'blue')
@@ -754,7 +754,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         def _syn_data_func(column, cell, model, treeiter, data=None):
             v = model[treeiter][0]
             cell.set_property('text', str(v))
-            # just added so change the background color to indicate its new
+            # just added so change the background color to indicate it's new
             if not hasattr(v, 'id') or v.id is None:
                 cell.set_property('foreground', 'blue')
             else:

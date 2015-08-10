@@ -61,7 +61,7 @@ def kill():
     """
     Kill the current task.
 
-    This will kill the task when it goes idle and not while its
+    This will kill the task when it goes idle and not while it's
     running.  A task is idle after it yields.
     """
     global __kill

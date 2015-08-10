@@ -787,7 +787,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
         def on_toggled(cell, path, data=None):
             prop = None
-            if not cell.get_active():  # its not active so we make it active
+            if not cell.get_active():  # it's not active so we make it active
                 treeview = self.view.widgets.source_prop_treeview
                 prop = treeview.get_model()[path][0]
             self.model.plant_propagation = prop

@@ -813,7 +813,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.refresh_sensitivity()
             return
 
-        # add a problem if the code is not unique but not if its the
+        # add a problem if the code is not unique but not if it's the
         # same accession and plant code that we started with when the
         # editor was opened
         if self.model.code is not None and not \
@@ -1008,7 +1008,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             return
 
         # this method will create new plants from self.model even if
-        # the plant code is not a range....its a small price to pay
+        # the plant code is not a range....it's a small price to pay
         plants = []
         mapper = object_mapper(self.model)
         # TODO: precompute the _created and _last_updated attributes

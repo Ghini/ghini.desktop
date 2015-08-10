@@ -239,7 +239,7 @@ class CSVTests(ImexTestCase):
         """
         Test that the sequences are set correctly after an import,
         bauble.util.test already has a method to test
-        utils.reset_sequence but this test makes sure that its works
+        utils.reset_sequence but this test makes sure that it works
         correctly after an import
         """
         # turn off logger
@@ -299,7 +299,7 @@ class CSVTests2(ImexTestCase):
         """
         Test that the sequences are set correctly after an import,
         bauble.util.test already has a method to test
-        utils.reset_sequence but this test makes sure that its works
+        utils.reset_sequence but this test makes sure that it works
         correctly after an import
 
         This test requires the PlantPlugin
@@ -384,7 +384,7 @@ class CSVTests2(ImexTestCase):
 
     def test_export(self):
         # 1. export the test data
-        # 2. read the exported data into memory and make sure its matches
+        # 2. read the exported data into memory and make sure it matches
         # the test export string
         pass
 

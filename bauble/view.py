@@ -827,7 +827,7 @@ class SearchView(pluginmgr.View):
             # properties...this usually happens when one of the
             # ViewMeta's get_children() functions return a list of
             # object who's session was closed...we add it here for
-            # performance reasons so we only add it onces its visible
+            # performance reasons so we only add it once it's visible
             if not object_session(value):
                 if value in self.session:
                     # expire the object in the session with the same key
@@ -932,7 +932,7 @@ class SearchView(pluginmgr.View):
                         # because for some unknown reason using the
                         # "selected" variable from the parent scope
                         # will give us the objects but they won't be
-                        # in an session...maybe its a thread thing
+                        # in an session...maybe it's a thread thing
                         values = self.get_selected_values()
                         result = cb(values)
                     except Exception, e:
@@ -974,7 +974,7 @@ class SearchView(pluginmgr.View):
         self.session.expire_all()
 
         # the invalidate_str_cache() method are specific to Species
-        # and Accession right now....its a bit of a hack since there's
+        # and Accession right now....it's a bit of a hack since there's
         # no real interface that the method complies to...but it does
         # fix our string caching issues
         def invalidate_cache(model, path, treeiter, data=None):
