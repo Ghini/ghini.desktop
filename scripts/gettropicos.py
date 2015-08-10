@@ -31,7 +31,7 @@ def getTropicos(epithet):
                "FullNameNoAuthors\n%s" % epithet})
     header, row = [i.split('\t') for i in r.text.strip().split("\n")]
     return dict((k[6:].strip(), v.strip())
-                for (k, v) in zip(header, row)
+                for (k, v) in zip(header + ['OutputQuery'], row + [epithet])
                 if k.startswith('Output') and not k == 'OutputHowMatched')
 
 
