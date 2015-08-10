@@ -383,7 +383,7 @@ class DomainExpressionAction(object):
 class ValueListAction(object):
 
     def __init__(self, t):
-        logger.debug(t)
+        logger.debug("ValueListAction::__init__(%s)" % t)
         self.values = t[0]
 
     def __repr__(self):
@@ -394,7 +394,7 @@ class ValueListAction(object):
 
     def invoke(self, search_strategy):
         """
-        Called when the parser hits a value_list token
+        Called when the whole search string is a value list.
 
         Search with a list of values is the broadest search and
         searches all the mapper and the properties configured with
@@ -427,6 +427,15 @@ class ValueListAction(object):
                                for c, v in column_cross_value]))
             result.update(q.all())
 
+        logger.debug("result is now %s" % result)
+
+        def replace(i):
+            try:
+                return i.replacement()
+            except:
+                return i
+        result = set([replace(i) for i in result])
+        logger.debug("result is now %s" % result)
         return result
 
 
