@@ -27,10 +27,17 @@ import traceback
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
+from sqlalchemy import (
+    Column, Unicode, UnicodeText, Integer, String, ForeignKey)
+from sqlalchemy.orm import relation
+from sqlalchemy import and_
 from sqlalchemy.exc import DBAPIError, InvalidRequestError
 
+from bauble.i18n import _
 import bauble
 import bauble.db as db
 import bauble.editor as editor
@@ -97,10 +104,8 @@ class TagItemGUI(editor.GenericEditorView):
         button = self.widgets.new_button
         button.connect('clicked', self.on_new_button_clicked)
 
-
     def get_window(self):
         return self.widgets.tag_item_dialog
-
 
     def on_new_button_clicked(self, *args):
         '''
@@ -110,7 +115,7 @@ class TagItemGUI(editor.GenericEditorView):
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_default_response(gtk.RESPONSE_ACCEPT)
-        d.set_default_size(250,-1)
+        d.set_default_size(250, -1)
         entry = gtk.Entry()
         entry.connect("activate",
                       lambda entry: d.response(gtk.RESPONSE_ACCEPT))
@@ -131,7 +136,6 @@ class TagItemGUI(editor.GenericEditorView):
             _reset_tags_menu()
         session.close()
 
-
     def on_toggled(self, renderer, path, data=None):
         '''
         tag or untag the objs in self.values
@@ -145,7 +149,6 @@ class TagItemGUI(editor.GenericEditorView):
             tag_objects(name, self.values)
         else:
             untag_objects(name, self.values)
-
 
     def build_tag_tree_columns(self):
         """
@@ -161,7 +164,6 @@ class TagItemGUI(editor.GenericEditorView):
         tag_column = gtk.TreeViewColumn(None, renderer, text=1)
 
         return [toggle_column, tag_column]
-
 
     def on_key_released(self, widget, event):
         '''
@@ -193,7 +195,6 @@ class TagItemGUI(editor.GenericEditorView):
                                          gtk.MESSAGE_ERROR)
         finally:
             session.close()
-
 
     def start(self):
         # we keep restarting the dialog here since the gui was created with
@@ -283,7 +284,6 @@ class TaggedObj(db.Base):
     # # TODO: can class names be unicode, i.e. should obj_class be unicode
     tag_id = Column(Integer, ForeignKey('tag.id'))
 
-
     def __str__(self):
         return '%s: %s' % (self.obj_class, self.obj_id)
 
@@ -301,7 +301,7 @@ def _get_tagged_object_pairs(tag):
     """
     :param tag: a Tag instance
     """
-    from bauble.view import SearchView
+
     kids = []
     for obj in tag._objects:
         try:
@@ -312,16 +312,18 @@ def _get_tagged_object_pairs(tag):
             cls = getattr(module, cls_name)
             kids.append((cls, obj.obj_id))
         except KeyError, e:
-            warning('KeyError -- tag.get_tagged_objects(%s): %s' % (tag, e))
+            logger.warning('KeyError -- tag.get_tagged_objects(%s): %s'
+                           % (tag, e))
             continue
         except DBAPIError, e:
-            warning('DBAPIError -- tag.get_tagged_objects(%s): %s' % (tag, e))
+            logger.warning('DBAPIError -- tag.get_tagged_objects(%s): %s'
+                           % (tag, e))
             continue
         except AttributeError, e:
-            warning('AttributeError -- tag.get_tagged_objects(%s): %s' \
-                    % (tag, e))
-            warning('Could not get the object for %s.%s(%s)' % \
-                    (module_name, cls_name, obj.obj_id))
+            logger.warning('AttributeError -- tag.get_tagged_objects(%s): %s'
+                           % (tag, e))
+            logger.warning('Could not get the object for %s.%s(%s)'
+                           % (module_name, cls_name, obj.obj_id))
             continue
 
     return kids
@@ -340,6 +342,7 @@ def get_tagged_objects(tag, session=None):
             session = db.Session()
         tag = session.query(Tag).filter_by(tag=utils.utf8(tag)).first()
     elif not session:
+        from sqlalchemy.orm.session import object_session
         session = object_session(tag)
 
     # filter out any None values from the query which can happen if
@@ -347,9 +350,9 @@ def get_tagged_objects(tag, session=None):
 
     # TODO: the missing tagged objects should probably be removed from
     # the database
-    r = [session.query(mapper).filter_by(id=obj_id).first() \
-            for mapper, obj_id in _get_tagged_object_pairs(tag)]
-    r = filter(lambda x: x != None, r)
+    r = [session.query(mapper).filter_by(id=obj_id).first()
+         for mapper, obj_id in _get_tagged_object_pairs(tag)]
+    r = filter(lambda x: x is not None, r)
     if close_session:
         session.close()
     return r
@@ -371,9 +374,10 @@ def untag_objects(name, objs):
     try:
         tag = session.query(Tag).filter_by(tag=utils.utf8(name)).one()
     except Exception, e:
-        debug(traceback.format_exc())
+        logger.info("%s - %s" % (type(e), e))
+        logger.debug(traceback.format_exc())
         return
-    same = lambda x, y: x.obj_class==_classname(y) and x.obj_id==y.id
+    same = lambda x, y: x.obj_class == _classname(y) and x.obj_id == y.id
     for obj in objs:
         for kid in tag._objects:
             # x = kid
@@ -387,7 +391,9 @@ def untag_objects(name, objs):
 
 
 # create the classname stored in the tagged_obj table
-_classname = lambda x: unicode('%s.%s', 'utf-8') % (type(x).__module__, type(x).__name__)
+_classname = lambda x: unicode('%s.%s', 'utf-8') % (
+    type(x).__module__, type(x).__name__)
+
 
 def tag_objects(name, objs):
     """
@@ -405,12 +411,13 @@ def tag_objects(name, objs):
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:
+        logger.debug("%s - %s" % (type(e), e))
         tag = Tag(tag=name)
         session.add(tag)
     for obj in objs:
-        cls = and_(TaggedObj.obj_class==_classname(obj),
-                   TaggedObj.obj_id==obj.id,
-                   TaggedObj.tag_id==tag.id)
+        cls = and_(TaggedObj.obj_class == _classname(obj),
+                   TaggedObj.obj_id == obj.id,
+                   TaggedObj.tag_id == tag.id)
         ntagged = session.query(TaggedObj).filter(cls).count()
         if ntagged == 0:
             tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
@@ -438,8 +445,8 @@ def get_tag_ids(objs):
     s = set()
     tag_id_query = session.query(Tag.id).join('_objects')
     for obj in objs:
-        clause = and_(TaggedObj.obj_class==_classname(obj),
-                      TaggedObj.obj_id==obj.id)
+        clause = and_(TaggedObj.obj_class == _classname(obj),
+                      TaggedObj.obj_id == obj.id)
         tags = [r[0] for r in tag_id_query.filter(clause)]
         if len(s) == 0:
             s.update(tags)
@@ -471,8 +478,8 @@ def _on_add_tag_activated(*args):
         tagitem = TagItemGUI(values)
         tagitem.start()
     else:
-        msg = _('In order to tag an item you must first search for ' \
-                    'something and select one of the results.')
+        msg = _('In order to tag an item you must first search for '
+                'something and select one of the results.')
         bauble.gui.show_message_box(msg)
 
 
@@ -483,9 +490,8 @@ def _tag_menu_item_activated(widget, tag_name):
     if isinstance(view, SearchView):
         view.results_view.expand_to_path('0')
 
-
-
 _tags_menu_item = None
+
 
 def _reset_tags_menu():
     tags_menu = gtk.Menu()
@@ -508,7 +514,7 @@ def _reset_tags_menu():
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)
     except Exception:
-        debug(traceback.format_exc())
+        logger.debug(traceback.format_exc())
         msg = _('Could not create the tags menus')
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
@@ -528,8 +534,7 @@ def _reset_tags_menu():
 def natsort_kids(kids):
     """
     """
-    return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
-
+    return lambda(parent): sorted(getattr(parent, kids), key=utils.natsort_key)
 
 
 class TagPlugin(pluginmgr.Plugin):
@@ -543,7 +548,6 @@ class TagPlugin(pluginmgr.Plugin):
                                       context_menu=tag_context_menu)
         if bauble.gui is not None:
             _reset_tags_menu()
-
 
 #class TagEditorView(GenericEditorView):
 #    pass
