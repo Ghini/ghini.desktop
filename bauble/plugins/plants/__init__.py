@@ -47,7 +47,7 @@ from bauble.plugins.plants.genus import (
     genus_context_menu, genus_markup_func,
     )
 from bauble.plugins.plants.species import (
-    Species, SpeciesEditor, SpeciesInfoBox,
+    Species, SpeciesEditorMenuItem, SpeciesInfoBox,
     species_get_kids, species_markup_func,
     species_context_menu, add_accession_action,
     SynonymSearch, SpeciesDistribution,
@@ -109,7 +109,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))
             bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
-            bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
+            bauble.gui.add_to_insert_menu(SpeciesEditorMenuItem, _('Species'))
 
         if sys.platform == 'win32':
             # TODO: for some reason using the cross as the hybrid

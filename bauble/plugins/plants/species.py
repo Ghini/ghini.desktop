@@ -37,7 +37,7 @@ from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.plugins.plants.species_editor import (
     SpeciesDistribution, SpeciesEditorPresenter, SpeciesEditorView,
-    SpeciesEditor)
+    SpeciesEditorMenuItem, edit_species)
 from bauble.plugins.plants.species_model import (
     Species, SpeciesNote, VernacularName, SpeciesSynonym,
     DefaultVernacularName)
@@ -46,7 +46,7 @@ from bauble.view import PropertiesExpander, Action
 import bauble.view as view
 
 SpeciesDistribution  # will be imported by clients of this module
-SpeciesEditorPresenter, SpeciesEditorView, SpeciesEditor
+SpeciesEditorPresenter, SpeciesEditorView, SpeciesEditorMenuItem, edit_species,
 DefaultVernacularName
 SpeciesNote
 
@@ -57,12 +57,11 @@ SpeciesNote
 
 
 def edit_callback(values):
-    from bauble.plugins.plants.species_editor import SpeciesEditor
+    from bauble.plugins.plants.species_editor import edit_species
     sp = values[0]
     if isinstance(sp, VernacularName):
         sp = sp.species
-    e = SpeciesEditor(model=sp)
-    return e.start() is not None
+    return edit_species(model=sp) is not None
 
 
 def remove_callback(values):

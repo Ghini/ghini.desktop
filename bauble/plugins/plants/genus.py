@@ -71,10 +71,10 @@ def edit_callback(genera):
 def add_species_callback(genera):
     session = db.Session()
     genus = session.merge(genera[0])
-    from bauble.plugins.plants.species_editor import SpeciesEditor
-    e = SpeciesEditor(model=Species(genus=genus))
+    from bauble.plugins.plants.species_editor import edit_species
+    result = edit_species(model=Species(genus=genus)) is not None
     session.close()
-    return e.start() is not None
+    return result
 
 
 def remove_callback(genera):
@@ -318,7 +318,7 @@ class GenusSynonym(db.Base):
 # late bindings
 from bauble.plugins.plants.family import Family, FamilySynonym
 from bauble.plugins.plants.species_model import Species
-from bauble.plugins.plants.species_editor import SpeciesEditor
+from bauble.plugins.plants.species_editor import edit_species
 
 # only now that we have `Species` can we define the sorted `species` in
 # the `Genus` class.
@@ -738,8 +738,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             sp = Species(genus=self.model)
-            e = SpeciesEditor(model=sp, parent=self.parent)
-            more_committed = e.start()
+            more_committed = edit_species(model=sp, parent=self.parent)
 
         if more_committed is not None:
             if isinstance(more_committed, list):
