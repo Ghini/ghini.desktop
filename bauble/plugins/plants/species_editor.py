@@ -120,19 +120,21 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             return self.session.query(Genus).filter(clause).\
                 order_by(Genus.genus)
 
-        # called a genus is selected from the genus completions
+        # called when a genus is selected from the genus completions
         def on_select(value):
             #debug('on select: %s' % value)
             for kid in self.view.widgets.message_box_parent.get_children():
                 self.view.widgets.remove_parent(kid)
             self.set_model_attr('genus', value)
-            if not value:
+            if value:
+                ## is value considered a synonym?
+                syn = self.session.query(GenusSynonym).filter(
+                    GenusSynonym.synonym_id == value.id).first()
+            if not value or not syn:
+                ## no value or value is not a synonym: fine
                 return
-            syn = self.session.query(GenusSynonym).filter(
-                GenusSynonym.synonym_id == value.id).first()
-            if not syn:
-                self.set_model_attr('genus', value)
-                return
+
+            ## value is a synonym: user alert needed
             msg = _('The genus <b>%(synonym)s</b> is a synonym of '
                     '<b>%(genus)s</b>.\n\nWould you like to choose '
                     '<b>%(genus)s</b> instead?'
@@ -140,6 +142,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             box = None
 
             def on_response(button, response):
+                self.view.remove_box(box)
                 self.view.widgets.remove_parent(box)
                 box.destroy()
                 if response:
@@ -153,6 +156,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             box.message = msg
             box.on_response = on_response
             box.show()
+            self.view.add_box(box)
 
         self.assign_completions_handler('sp_genus_entry',  # 'genus',
                                         gen_get_completions,
@@ -892,6 +896,26 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.set_accept_buttons_sensitive(False)
         self.widgets.notebook.set_current_page(0)
         self.restore_state()
+        self.boxes = set()
+        self.builder.connect_signals(self)
+
+    def close_boxes(self):
+        while self.boxes:
+            logger.info('box is being forcibly removed')
+            box = self.boxes.pop()
+            self.widgets.remove_parent(box)
+            box.destroy()
+
+    def add_box(self, box):
+        logger.info('box is being added')
+        self.boxes.add(box)
+
+    def remove_box(self, box):
+        logger.info('box is being removed')
+        if box in self.boxes:
+            self.boxes.remove(box)
+        else:
+            logger.debug('box to be removed is not there')
 
     def get_window(self):
         '''
@@ -986,6 +1010,11 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         view = SpeciesEditorView(parent=self.parent)
         self.presenter = SpeciesEditorPresenter(self.model, view)
 
+        ## I do not follow this: we have a MVP model, but also an extra
+        ## 'Editor' thing and is it stealing functionality from either the
+        ## view or the presenter?
+        self.view = view
+
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
                              gtk.gdk.CONTROL_MASK)
@@ -1002,7 +1031,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
 
     def handle_response(self, response):
         """
-        @return: return True if the editor is realdy to be closes, False if
+        @return: return True if the editor is ready to be closed, False if
         we want to keep editing, if any changes are committed they are stored
         in self._committed
         """
@@ -1016,9 +1045,9 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except DBAPIError, e:
-                exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s') % \
                     utils.xml_safe(e.orig)
+                logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
@@ -1026,13 +1055,13 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
                         'details for more information.\n\n%s') % \
                     utils.xml_safe(e)
                 logger.debug(traceback.format_exc())
-                #warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                 or not self.presenter.dirty():
             self.session.rollback()
+            self.view.close_boxes()
             return True
         else:
             return False
@@ -1056,6 +1085,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
             else:
                 self._committed.append(more_committed)
 
+        self.view.close_boxes()
         return True
 
     def commit_changes(self):
