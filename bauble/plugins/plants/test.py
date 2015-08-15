@@ -753,6 +753,21 @@ class SpeciesTests(PlantTestCase):
 
         self.session.expunge_all()
 
+    def test_cantinsertsametwice(self):
+        'while binomial name in view matches database item, warn user'
+
+        raise SkipTest('Not Implemented')
+        from species_editor import SpeciesEditorPresenter
+        model = Species()
+        presenter = SpeciesEditorPresenter(model, mock_view)
+        presenter.start()
+
+
+class MockView:
+    pass
+
+mock_view = MockView()
+
 
 class GeographyTests(PlantTestCase):
 
