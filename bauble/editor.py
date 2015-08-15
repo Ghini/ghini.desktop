@@ -476,8 +476,12 @@ class GenericEditorPresenter(object):
         self.problems = set()
         self._dirty = False
 
-    # whether the presenter should be commited or not
     def dirty(self):
+        logger.info('calling deprecated "dirty". use "is_dirty".')
+        return self.is_dirty()
+
+    # whether the presenter should be commited or not
+    def is_dirty(self):
         """is the presenter dirty?
 
         the presenter is dirty depending on whether it has changed anything
