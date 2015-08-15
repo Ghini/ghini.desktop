@@ -46,6 +46,8 @@ import bauble.paths as paths
 import bauble.search as search
 import bauble.utils as utils
 from bauble.view import SearchView, Action
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
 
 
 # TODO: is it  possible to add to a context menu for any object that shows a
@@ -549,12 +551,15 @@ class TagPlugin(pluginmgr.Plugin):
         if bauble.gui is not None:
             _reset_tags_menu()
 
-#class TagEditorView(GenericEditorView):
-#    pass
-#
-#class TagEditorPresenter(GenericEditorPresenter):
-#    pass
-#
+
+class TagEditorView(GenericEditorView):
+    pass
+
+
+class TagEditorPresenter(GenericEditorPresenter):
+    pass
+
+
 #class TagEditor(GenericModelViewPresenterEditor):
 #
 #    # TODO: the tag editor allows tags to be added or removed from

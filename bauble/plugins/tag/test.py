@@ -20,8 +20,8 @@
 
 import os
 
-from sqlalchemy import *
-from sqlalchemy.exc import *
+from sqlalchemy import or_
+#from sqlalchemy.exc import *
 
 import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
@@ -43,7 +43,6 @@ def test_duplicate_ids():
 
 class TagTests(BaubleTestCase):
 
-
     family_ids = [1, 2]
 
     def setUp(self):
@@ -56,11 +55,9 @@ class TagTests(BaubleTestCase):
         #for col in family_table.c:
         #    utils.reset_sequence(col)
 
-
     def tearDown(self):
         super(TagTests, self).tearDown()
         #self.session.bind.execute(family_table.delete())
-
 
 ##     def test_get_tagged_objects(self):
 ##         pass
@@ -73,7 +70,6 @@ class TagTests(BaubleTestCase):
         tag = Tag(tag=name)
         self.assert_(str(tag) == name)
 
-
     def test_tag_objects(self):
         family2 = Family(family=u'family2')
         self.session.add(family2)
@@ -83,17 +79,19 @@ class TagTests(BaubleTestCase):
         tag_plugin.tag_objects('test', [self.family, family2])
         # get object by string
         tagged_objs = tag_plugin.get_tagged_objects('test')
-        sorted_pairs= sorted([(type(o), o.id) for o in tagged_objs],
-                             cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family,family1_id), (Family,family2_id)],
+        sorted_pairs = sorted([(type(o), o.id) for o in tagged_objs],
+                              cmp=lambda x, y: cmp(x[0], y[0]))
+        self.assert_(sorted_pairs == [(Family, family1_id),
+                                      (Family, family2_id)],
                      sorted_pairs)
 
         # get object by tag
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
         tagged_objs = tag_plugin.get_tagged_objects(tag)
-        sorted_pairs= sorted([(type(o), o.id) for o in tagged_objs],
-                             cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family,family1_id), (Family,family2_id)],
+        sorted_pairs = sorted([(type(o), o.id) for o in tagged_objs],
+                              cmp=lambda x, y: cmp(x[0], y[0]))
+        self.assert_(sorted_pairs == [(Family, family1_id),
+                                      (Family, family2_id)],
                      sorted_pairs)
 
         tag_plugin.tag_objects('test', [self.family, family2])
@@ -111,7 +109,6 @@ class TagTests(BaubleTestCase):
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
         tagged_objs = tag_plugin.get_tagged_objects(tag)
 
-
     def test_get_tag_ids(self):
         family2 = Family(family=u'family2')
         self.session.add(family2)
@@ -125,16 +122,62 @@ class TagTests(BaubleTestCase):
         test_id = [r[0] for r in results]
         # should only return id for "test"
         ids = tag_plugin.get_tag_ids([self.family, family2])
-        self.assert_(ids==test_id, '%s==%s' % (ids, test_id))
+        self.assert_(ids == test_id, '%s==%s' % (ids, test_id))
 
         # test that we return multiple tag ids if the objs share tags
         tag_plugin.tag_objects('test2', [family2])
         #sel = select([tag_table.c.id], or_(tag_table.c.tag==u'test',
         #                                   tag_table.c.tag==u'test2'))
-        results = self.session.query(Tag.id).filter(or_(Tag.tag==u'test',
-                                                        Tag.tag==u'test2'))
+        results = self.session.query(Tag.id).filter(or_(Tag.tag == u'test',
+                                                        Tag.tag == u'test2'))
         test_id = sorted([r[0] for r in results])
         # should return ids for both test and test2
         ids = sorted(tag_plugin.get_tag_ids([self.family, family2]))
-        self.assert_(ids==test_id, '%s == %s' % (ids, test_id))
+        self.assert_(ids == test_id, '%s == %s' % (ids, test_id))
 
+import bauble.db as db
+
+
+class MockTagView:
+    pass
+
+
+class TagPresenterTests(BaubleTestCase):
+    'Presenter manages view and model, implements view callbacks.'
+
+    def test_when_user_edits_name_name_is_memorized(self):
+        model = Tag()
+        view = MockTagView()
+        presenter = tag_plugin.TagPresenter(model, view)
+        view.tag_name_value = u'1234'
+        presenter.on_tag_name_entry_changed()
+        self.assertEquals(model.tag, view.tag_name_value)
+
+    def test_when_user_inserts_existing_name_warning_ok_deactivated(self):
+        session = db.Session()
+
+        # prepare data in database
+        obj = Tag(tag=u'1234')
+        session.add(obj)
+        session.commit()
+        ## ok. thing is already there now.
+
+        view = MockTagView()
+        presenter = tag_plugin.TagPresenter(obj, view)
+        view.tag_name_value = u'1234'
+        presenter.on_tag_name_entry_changed()
+        view.is_dirty()
+        view.has_problems()
+        self.assertEquals(obj.tag, view.tag_name_value)
+        pass
+
+    def test_when_user_edits_fields_ok_active(self):
+        model = Tag()
+        view = MockTagView()
+        presenter = tag_plugin.TagPresenter(model, view)
+        view.tag_name_value = u'1234'
+        presenter.on_tag_name_entry_changed()
+        self.assertEquals(model.tag, view.tag_name_value)
+
+    def test_when_user_edits_description_description_is_memorized(self):
+        pass
