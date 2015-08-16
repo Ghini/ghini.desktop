@@ -21,6 +21,10 @@
 import sys
 import unittest
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 import bauble
 import bauble.db as db
 from bauble.error import BaubleError
@@ -68,6 +72,7 @@ def check_dupids(filename):
             ids.add(elid)
         elif elid and elid not in duplicates:
             duplicates.add(elid)
+    logger.warn(duplicates)
     return list(duplicates)
 
 
