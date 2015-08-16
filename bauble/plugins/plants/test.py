@@ -753,21 +753,6 @@ class SpeciesTests(PlantTestCase):
 
         self.session.expunge_all()
 
-    def test_cantinsertsametwice(self):
-        'while binomial name in view matches database item, warn user'
-
-        raise SkipTest('Not Implemented')
-        from species_editor import SpeciesEditorPresenter
-        model = Species()
-        presenter = SpeciesEditorPresenter(model, mock_view)
-        presenter.start()
-
-
-class MockView:
-    pass
-
-mock_view = MockView()
-
 
 class GeographyTests(PlantTestCase):
 
@@ -1212,3 +1197,48 @@ class ConservationStatus_test(PlantTestCase):
                            'epithet': u'fragrans'},
             create=False, update=False)
         self.assertEquals(obj.conservation, u'LC')
+
+
+class PresenterTest(PlantTestCase):
+    def test_canreeditobject(self):
+        raise SkipTest('Not Implemented')
+        from species_editor import SpeciesEditorPresenter
+        model = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Paphiopedilum',
+                           'rank': 'species',
+                           'epithet': u'adductum'},
+            create=False, update=False)
+        presenter = SpeciesEditorPresenter(model, mock_view)
+        presenter.on_text_entry_changed('sp_author_entry', 'L.')
+
+    def test_cantinsertsametwice(self):
+        'while binomial name in view matches database item, warn user'
+
+        raise SkipTest('Not Implemented')
+        from species_editor import SpeciesEditorPresenter
+        model = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Laelia',
+                           'rank': 'species',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        presenter = SpeciesEditorPresenter(model, mock_view)
+        presenter.on_text_entry_changed('sp_species_entry', 'grandiflora')
+        self.assertTrue(mock_view)
+
+
+class MockView:
+    def connect_signals(self, *args):
+        pass
+
+    def set_label(self, *args):
+        pass
+
+    def connect_after(self, *args):
+        pass
+
+
+mock_view = MockView()
