@@ -557,20 +557,12 @@ class TagEditorView(GenericEditorView):
 
 
 class TagEditorPresenter(GenericEditorPresenter):
+
+    widget_to_field_map = {
+        'tag_name_entry': 'tag',
+        'tag_desc_textview': 'description'}
+
     pass
 
-
-#class TagEditor(GenericModelViewPresenterEditor):
-#
-#    # TODO: the tag editor allows tags to be added or removed from
-#    # a single object
-#    def __init__(self, model=None, parent=None):
-#        '''
-#        :param model: Accession instance or None
-#        :param parent: the parent widget
-#        '''
-#        if model is None:
-#            model = Tag()
-#        GenericModelViewPresenterEditor.__init__(self, model, parent)
 
 plugin = TagPlugin

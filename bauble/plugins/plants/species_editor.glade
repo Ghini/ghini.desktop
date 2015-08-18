@@ -194,6 +194,7 @@
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
+                                <signal name="changed" handler="on_relation_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -224,6 +225,7 @@
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="draw_indicator">True</property>
+                                <signal name="toggled" handler="on_check_toggled" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -257,6 +259,7 @@
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
+                                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -339,6 +342,7 @@
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
+                                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -369,6 +373,7 @@
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
+                                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
