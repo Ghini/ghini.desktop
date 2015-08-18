@@ -23,9 +23,11 @@ import os
 from sqlalchemy import or_
 #from sqlalchemy.exc import *
 
+from nose import SkipTest
+
 import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
-from bauble.plugins.tag import Tag
+from bauble.plugins.tag import Tag, TagEditorPresenter
 from bauble.test import BaubleTestCase, check_dupids
 
 
@@ -139,7 +141,21 @@ import bauble.db as db
 
 
 class MockTagView:
-    pass
+    def __init__(self):
+        self._dirty = False
+        self.sensitive = False
+
+    def is_dirty(self):
+        return self._dirty
+
+    def connect_signals(self, *args):
+        pass
+
+    def set_accept_buttons_sensitive(self, value):
+        self.sensitive = value
+
+    def has_problems(self):
+        pass
 
 
 class TagPresenterTests(BaubleTestCase):
@@ -148,10 +164,9 @@ class TagPresenterTests(BaubleTestCase):
     def test_when_user_edits_name_name_is_memorized(self):
         model = Tag()
         view = MockTagView()
-        presenter = tag_plugin.TagPresenter(model, view)
-        view.tag_name_value = u'1234'
-        presenter.on_tag_name_entry_changed()
-        self.assertEquals(model.tag, view.tag_name_value)
+        presenter = TagEditorPresenter(model, view)
+        presenter.on_text_entry_changed('tag_name_entry', u'1234')
+        self.assertEquals(model.tag, u'1234')
 
     def test_when_user_inserts_existing_name_warning_ok_deactivated(self):
         session = db.Session()
@@ -163,21 +178,24 @@ class TagPresenterTests(BaubleTestCase):
         ## ok. thing is already there now.
 
         view = MockTagView()
-        presenter = tag_plugin.TagPresenter(obj, view)
-        view.tag_name_value = u'1234'
-        presenter.on_tag_name_entry_changed()
-        view.is_dirty()
-        view.has_problems()
-        self.assertEquals(obj.tag, view.tag_name_value)
-        pass
+        obj = Tag()  # new scratch object
+        presenter = TagEditorPresenter(obj, view)
+        self.assertTrue(not view.sensitive)  # not changed
+        presenter.on_text_entry_changed('tag_name_entry', u'1234')
+        self.assertEquals(obj.tag, u'1234')
+        self.assertTrue(view.is_dirty())
+        raise SkipTest('Not Implemented')
+        self.assertTrue(not view.sensitive)  # unacceptable change
+        self.assertTrue(view.has_problems())
 
     def test_when_user_edits_fields_ok_active(self):
         model = Tag()
         view = MockTagView()
-        presenter = tag_plugin.TagPresenter(model, view)
-        view.tag_name_value = u'1234'
-        presenter.on_tag_name_entry_changed()
-        self.assertEquals(model.tag, view.tag_name_value)
+        presenter = TagEditorPresenter(model, view)
+        self.assertTrue(not view.sensitive)  # not changed
+        presenter.on_text_entry_changed('tag_name_entry', u'1234')
+        self.assertEquals(model.tag, u'1234')
+        self.assertTrue(view.sensitive)  # changed
 
     def test_when_user_edits_description_description_is_memorized(self):
         pass

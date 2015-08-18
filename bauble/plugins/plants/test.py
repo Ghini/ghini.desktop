@@ -1201,17 +1201,19 @@ class ConservationStatus_test(PlantTestCase):
 
 class PresenterTest(PlantTestCase):
     def test_canreeditobject(self):
-        raise SkipTest('Not Implemented')
-        from species_editor import SpeciesEditorPresenter
-        model = Species.retrieve_or_create(
+        from editor import GenericModelViewPresenterEditor
+        species = Species.retrieve_or_create(
             self.session, {'object': 'taxon',
                            'ht-rank': 'genus',
                            'ht-epithet': u'Paphiopedilum',
                            'rank': 'species',
                            'epithet': u'adductum'},
             create=False, update=False)
-        presenter = SpeciesEditorPresenter(model, mock_view)
-        presenter.on_text_entry_changed('sp_author_entry', 'L.')
+        presenter = GenericModelViewPresenterEditor(species, mock_view)
+        species.author = u'wrong'
+        presenter.commit_changes()
+        species.author = u'Asher'
+        presenter.commit_changes()
 
     def test_cantinsertsametwice(self):
         'while binomial name in view matches database item, warn user'

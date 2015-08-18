@@ -161,14 +161,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_completions_handler('sp_genus_entry',  # 'genus',
                                         gen_get_completions,
                                         on_select=on_select)
-        self.assign_simple_handler('sp_species_entry', 'sp',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_hybrid_check', 'hybrid')
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
                                    editor.UnicodeOrNoneValidator())
@@ -211,12 +206,12 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         return (self._dirty or
-                self.pictures_presenter.dirty() or
-                self.vern_presenter.dirty() or
-                self.synonyms_presenter.dirty() or
-                self.dist_presenter.dirty() or
-                self.infrasp_presenter.dirty() or
-                self.notes_presenter.dirty())
+                self.pictures_presenter.is_dirty() or
+                self.vern_presenter.is_dirty() or
+                self.synonyms_presenter.is_dirty() or
+                self.dist_presenter.is_dirty() or
+                self.infrasp_presenter.is_dirty() or
+                self.notes_presenter.is_dirty())
 
     def set_model_attr(self, field, value, validator=None):
         '''
@@ -243,10 +238,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         """
         :param self:
         """
-        sensitive = False
-        if self.dirty():
-            sensitive = True
-        self.view.set_accept_buttons_sensitive(sensitive)
+        self.view.set_accept_buttons_sensitive(self.is_dirty())
 
     def init_fullname_widgets(self):
         '''
@@ -258,7 +250,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         widgets = ['sp_genus_entry', 'sp_species_entry', 'sp_author_entry',
                    'sp_cvgroup_entry', 'sp_spqual_combo']
         for widget_name in widgets:
-            w = self.view.widgets[widget_name]
             self.view.connect_after(widget_name, 'changed', refresh)
         self.view.connect_after('sp_hybrid_check', 'toggled', refresh)
 
@@ -271,7 +262,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.view.widgets.sp_fullname_label.set_markup('--')
             return
         sp_str = Species.str(self.model, markup=True, authors=True)
-        self.view.widgets.sp_fullname_label.set_markup(sp_str)
+        self.view.set_label('sp_fullname_label', sp_str)
 
     def cleanup(self):
         super(SpeciesEditorPresenter, self).cleanup()
@@ -327,7 +318,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             if infrasp != (None, None, None):
                 self.append_infrasp()
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def append_infrasp(self, *args):
@@ -428,6 +419,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             self.presenter.parent_ref().refresh_sensitivity()
 
         def on_rank_combo_changed(self, combo, *args):
+            logger.info("on_entry_changed(%s, %s)" % (combo, args))
             model = combo.get_model()
             it = combo.get_active_iter()
             value = model[it][0]
@@ -437,12 +429,14 @@ class InfraspPresenter(editor.GenericEditorPresenter):
                 self.set_model_attr('rank', None)
 
         def on_epithet_entry_changed(self, entry, *args):
+            logger.info("on_entry_changed(%s, %s)" % (entry, args))
             value = utils.utf8(entry.props.text)
             if not value:  # if None or ''
                 value = None
             self.set_model_attr('epithet', value)
 
         def on_author_entry_changed(self, entry, *args):
+            logger.info("on_entry_changed(%s, %s)" % (entry, args))
             value = utils.utf8(entry.props.text)
             if not value:  # if None or ''
                 value = None
@@ -519,7 +513,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
 
@@ -547,7 +541,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         self.view.connect('sp_vern_remove_button', 'clicked',
                           self.on_remove_button_clicked)
 
-    def dirty(self):
+    def is_dirty(self):
         """
         @return True or False if the vernacular names have changed.
         """
@@ -746,7 +740,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                           self.on_remove_button_clicked)
         self._dirty = False
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def init_treeview(self):
@@ -897,7 +891,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.notebook.set_current_page(0)
         self.restore_state()
         self.boxes = set()
-        self.builder.connect_signals(self)
 
     def close_boxes(self):
         while self.boxes:
@@ -1041,7 +1034,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                if self.presenter.dirty():
+                if self.presenter.is_dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
             except DBAPIError, e:
@@ -1058,8 +1051,8 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                or not self.presenter.dirty():
+        elif self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg) \
+                or not self.presenter.is_dirty():
             self.session.rollback()
             self.view.close_boxes()
             return True

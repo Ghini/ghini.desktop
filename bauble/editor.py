@@ -230,6 +230,12 @@ class GenericEditorView(object):
             self.connect(window, 'close', self.on_dialog_close)
             self.connect(window, 'response', self.on_dialog_response)
 
+    def set_label(self, widget_name, value):
+        getattr(self.widgets, widget_name).set_markup(value)
+
+    def connect_signals(self, target):
+        self.builder.connect_signals(target)
+
     def connect(self, obj, signal, callback, *args):
         """
         Attach a signal handler for signal on obj.  For more
@@ -469,12 +475,72 @@ class GenericEditorPresenter(object):
     3. connect the signal handlers
     """
     problem_color = gtk.gdk.color_parse('#FFDCDF')
+    widget_to_field_map = {}
 
     def __init__(self, model, view):
         self.model = model
         self.view = view
         self.problems = set()
         self._dirty = False
+        self.session = object_session(model)
+        logger.info("session, model, view = %s, %s, %s"
+                    % (self.session, model, view))
+        if view:
+            view.connect_signals(self)
+
+    def refresh_view(self):
+        for widget, attr in self.widget_to_field_map.items():
+            value = getattr(self.model, attr)
+            self.view.set_widget_value(widget, value)
+
+    def __set_model_attr(self, attr, value):
+        if getattr(self.model, attr) != value:
+            setattr(self.model, attr, value)
+            self._dirty = True
+            self.view._dirty = True
+            self.view.set_accept_buttons_sensitive(True)
+
+    def __get_widget_attr(self, widget):
+        from types import StringTypes
+        widgetname = (isinstance(widget, StringTypes)
+                      and widget
+                      or gtk.Buildable.get_name(widget))
+        return self.widget_to_field_map.get(widgetname)
+
+    def on_text_entry_changed(self, widget, value=None):
+        "handle 'changed' signal on generic text entry widgets."
+
+        attr = self.__get_widget_attr(widget)
+        if attr is None:
+            return
+        if value is None:
+            value = widget.props.text
+            value = value and utils.utf8(value) or None
+        logger.info("on_entry_changed(%s, %s) - %s → %s"
+                    % (widget, attr, getattr(self.model, attr), value))
+        self.__set_model_attr(attr, value)
+
+    def on_datetime_entry_changed(self, widget, value=None):
+        "handle 'changed' signal on datetime entry widgets."
+
+        attr = self.__get_widget_attr(widget)
+        logger.info("on_entry_changed(%s, %s)" % (widget, attr))
+        if value is None:
+            value = widget.props.text
+            value = value and utils.utf8(value) or None
+        self.__set_model_attr(attr, value)
+
+    def on_check_toggled(self, widget, value=None):
+        "handle toggled signal on check buttons"
+        attr = self.__get_widget_attr(widget)
+        if value is None:
+            value = widget.get_active()
+            widget.set_inconsistent(False)
+        self.__set_model_attr(attr, value)
+
+    def on_relation_entry_changed(self, widget, value=None):
+        attr = self.__get_widget_attr(widget)
+        logger.info(attr)
 
     def dirty(self):
         logger.info('calling deprecated "dirty". use "is_dirty".')
@@ -491,14 +557,18 @@ class GenericEditorPresenter(object):
         """
         return self._dirty
 
-    def has_problems(self, widget):
+    def has_problems(self, widget=None):
         """
         Return True/False depending on if widget has any problems
-        attached to it.
+        attached to it. if no widget is specified, result is True if
+        there is any problem at all.
         """
+        if widget is None:
+            return self.problems and True or False
         for p, w in self.problems:
             if widget == w:
                 return True
+        return False
 
     def clear_problems(self):
         """
@@ -880,7 +950,7 @@ class GenericModelViewPresenterEditor(object):
         '''
         objs = list(self.session)
         try:
-            self.session.commit()
+            self.session.flush()
         except Exception, e:
             logger.warning(e)
             self.session.rollback()
@@ -891,6 +961,7 @@ class GenericModelViewPresenterEditor(object):
     def __del__(self):
         if hasattr(self, 'session'):
             # in case one of the check()'s fail in __init__
+            self.session.commit()
             self.session.close()
 
 
