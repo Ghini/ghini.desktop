@@ -35,6 +35,7 @@ import glib
 import gtk
 import gobject
 
+from random import random
 import dateutil.parser as date_parser
 import lxml.etree as etree
 import pango
@@ -477,6 +478,8 @@ class GenericEditorPresenter(object):
     problem_color = gtk.gdk.color_parse('#FFDCDF')
     widget_to_field_map = {}
 
+    PROBLEM_DUPLICATE = random()
+
     def __init__(self, model, view):
         self.model = model
         self.view = view
@@ -498,7 +501,7 @@ class GenericEditorPresenter(object):
             setattr(self.model, attr, value)
             self._dirty = True
             self.view._dirty = True
-            self.view.set_accept_buttons_sensitive(True)
+            self.view.set_accept_buttons_sensitive(not self.has_problems())
 
     def __get_widget_attr(self, widget):
         from types import StringTypes
@@ -518,6 +521,28 @@ class GenericEditorPresenter(object):
             value = value and utils.utf8(value) or None
         logger.info("on_entry_changed(%s, %s) - %s → %s"
                     % (widget, attr, getattr(self.model, attr), value))
+        self.__set_model_attr(attr, value)
+
+    def on_unique_text_entry_changed(self, widget, value=None):
+        "handle 'changed' signal on text entry widgets with an uniqueness "
+        "constraint."
+
+        attr = self.__get_widget_attr(widget)
+        if attr is None:
+            return
+        if value is None:
+            value = widget.props.text
+            value = value and utils.utf8(value) or None
+        logger.info("on_entry_changed(%s, %s) - %s → %s"
+                    % (widget, attr, getattr(self.model, attr), value))
+        ## check uniqueness
+        klass = self.model.__class__
+        k_attr = getattr(klass, attr)
+        q = self.session.query(klass)
+        q = q.filter(k_attr == value)
+        if q.first() is not None:
+            self.add_problem(self.PROBLEM_DUPLICATE, attr)
+        ## ok
         self.__set_model_attr(attr, value)
 
     def on_datetime_entry_changed(self, widget, value=None):
@@ -623,11 +648,15 @@ class GenericEditorPresenter(object):
         if isinstance(problem_widgets, (tuple, list)):
             map(lambda w: self.add_problem(problem_id, w), problem_widgets)
 
-        self.problems.add((problem_id, problem_widgets))
-        if problem_widgets:
-            problem_widgets.modify_bg(gtk.STATE_NORMAL, self.problem_color)
-            problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
-            problem_widgets.queue_draw()
+        widget = problem_widgets
+        self.problems.add((problem_id, widget))
+        from types import StringTypes
+        if isinstance(widget, StringTypes):
+            self.view.mark_problem(widget)
+        elif widget is not None:
+            widget.modify_bg(gtk.STATE_NORMAL, self.problem_color)
+            widget.modify_base(gtk.STATE_NORMAL, self.problem_color)
+            widget.queue_draw()
 
     def init_enum_combo(self, widget_name, field):
         """
