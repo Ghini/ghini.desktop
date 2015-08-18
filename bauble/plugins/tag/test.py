@@ -154,7 +154,7 @@ class MockTagView:
     def set_accept_buttons_sensitive(self, value):
         self.sensitive = value
 
-    def has_problems(self):
+    def mark_problem(self, widget_name):
         pass
 
 
@@ -175,18 +175,20 @@ class TagPresenterTests(BaubleTestCase):
         obj = Tag(tag=u'1234')
         session.add(obj)
         session.commit()
+        session.close()
         ## ok. thing is already there now.
 
+        session = db.Session()
         view = MockTagView()
         obj = Tag()  # new scratch object
+        session.add(obj)  # is in session
         presenter = TagEditorPresenter(obj, view)
         self.assertTrue(not view.sensitive)  # not changed
-        presenter.on_text_entry_changed('tag_name_entry', u'1234')
+        presenter.on_unique_text_entry_changed('tag_name_entry', u'1234')
         self.assertEquals(obj.tag, u'1234')
         self.assertTrue(view.is_dirty())
-        raise SkipTest('Not Implemented')
         self.assertTrue(not view.sensitive)  # unacceptable change
-        self.assertTrue(view.has_problems())
+        self.assertTrue(presenter.has_problems())
 
     def test_when_user_edits_fields_ok_active(self):
         model = Tag()
