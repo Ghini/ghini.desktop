@@ -29,6 +29,7 @@ import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
 from bauble.plugins.tag import Tag, TagEditorPresenter
 from bauble.test import BaubleTestCase, check_dupids
+from bauble.editor import GenericEditorView
 
 
 def test_duplicate_ids():
@@ -140,10 +141,12 @@ class TagTests(BaubleTestCase):
 import bauble.db as db
 
 
-class MockTagView:
+class MockTagView(GenericEditorView):
     def __init__(self):
         self._dirty = False
         self.sensitive = False
+        self.dict = {}
+        self.widgets = None
 
     def is_dirty(self):
         return self._dirty
@@ -156,6 +159,13 @@ class MockTagView:
 
     def mark_problem(self, widget_name):
         pass
+
+    def set_widget_value(self, widget, value, markup=False, default=None,
+                         index=0):
+        self.dict[widget] = value
+
+    def get_widget_value(self, widget, index=0):
+        return self.dict.get(widget)
 
 
 class TagPresenterTests(BaubleTestCase):
@@ -190,6 +200,14 @@ class TagPresenterTests(BaubleTestCase):
         self.assertTrue(not view.sensitive)  # unacceptable change
         self.assertTrue(presenter.has_problems())
 
+    def test_widget_names_and_field_names(self):
+        model = Tag()
+        view = MockTagView()
+        presenter = TagEditorPresenter(model, view)
+        for widget, field in presenter.widget_to_field_map.items():
+            self.assertTrue(hasattr(model, field), field)
+            presenter.view.get_widget_value(widget)
+
     def test_when_user_edits_fields_ok_active(self):
         model = Tag()
         view = MockTagView()
@@ -201,3 +219,25 @@ class TagPresenterTests(BaubleTestCase):
 
     def test_when_user_edits_description_description_is_memorized(self):
         pass
+
+    def test_presenter_does_not_initialize_view(self):
+        session = db.Session()
+
+        # prepare data in database
+        obj = Tag(tag=u'1234')
+        session.add(obj)
+        view = MockTagView()
+        presenter = TagEditorPresenter(obj, view)
+        self.assertFalse(view.get_widget_value("tag_name_entry"))
+        presenter.refresh_view()
+        self.assertEquals(view.get_widget_value("tag_name_entry"), u'1234')
+
+    def test_if_asked_presenter_initializes_view(self):
+        session = db.Session()
+
+        # prepare data in database
+        obj = Tag(tag=u'1234')
+        session.add(obj)
+        view = MockTagView()
+        TagEditorPresenter(obj, view, refresh_view=True)
+        self.assertEquals(view.get_widget_value("tag_name_entry"), u'1234')

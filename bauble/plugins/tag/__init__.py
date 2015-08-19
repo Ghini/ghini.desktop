@@ -55,10 +55,26 @@ from bauble.editor import (
 
 # TODO: the unicode usage here needs to be reviewed
 
-# def edit_callback(value):
-#     session = db.Session()
-#     e = TagEditor(model_or_defaults=session.merge(value))
-#     return e.start() != None
+def edit_callback(tags):
+    tag = tags[0]
+    if tag is None:
+        tag = Tag()
+    session = db.Session()
+    session.merge(tag)
+    view = GenericEditorView(
+        os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade'),
+        parent=None,
+        root_widget_name='tag_dialog')
+    presenter = TagEditorPresenter(tag, view)
+    presenter.refresh_view()
+    result = presenter.start()
+    presenter.commit_changes()
+    if result:
+        pass
+    else:
+        presenter.session.rollback()
+    presenter.session.close()
+    return result
 
 
 def remove_callback(tags):
@@ -86,10 +102,13 @@ def remove_callback(tags):
     _reset_tags_menu()
     return True
 
+
+edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
+                     accelerator='<ctrl>e')
 remove_action = Action('tag_remove', _('_Delete'), callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
-tag_context_menu = [remove_action]
+tag_context_menu = [edit_action, remove_action]
 
 
 class TagItemGUI(editor.GenericEditorView):
@@ -552,17 +571,17 @@ class TagPlugin(pluginmgr.Plugin):
             _reset_tags_menu()
 
 
-class TagEditorView(GenericEditorView):
-    pass
-
-
 class TagEditorPresenter(GenericEditorPresenter):
 
     widget_to_field_map = {
         'tag_name_entry': 'tag',
-        'tag_desc_textview': 'description'}
+        'tag_desc_textbuffer': 'description'}
 
-    pass
+    view_accept_buttons = ['tag_ok_button', 'tag_cancel_button', ]
+
+    def on_tag_desc_textbuffer_changed(self, widget, value=None):
+        return GenericEditorPresenter.on_textbuffer_changed(
+            self, widget, value, attr='description')
 
 
 plugin = TagPlugin
