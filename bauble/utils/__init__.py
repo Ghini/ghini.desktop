@@ -270,6 +270,35 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     return matches[0]
 
 
+def get_widget_value(widget, index=0):
+    '''
+    :param widget: an instance of gtk.Widget
+    :param index: the row index to use for those widgets who use a model
+
+    .. note:: any values passed in for widgets that expect a string will call
+      the values __str__ method
+    '''
+
+    if isinstance(widget, gtk.Label):
+        return widget.get_text()
+    elif isinstance(widget, gtk.TextView):
+        return widget.get_buffer().get_text()
+    elif isinstance(widget, gtk.Entry):
+        return widget.get_text()
+    elif isinstance(widget, gtk.ComboBox):
+        if isinstance(widget, gtk.ComboBoxEntry):
+            return widget.child.props.text
+    elif isinstance(widget,
+                    (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
+        return widget.get_active()
+    elif isinstance(widget, gtk.Button):
+        return widget.props.label
+
+    else:
+        raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
+                        'the widget type %s with name %s' %
+                        (type(widget), widget.name))
+
 def set_widget_value(widget, value, markup=False, default=None, index=0):
     '''
     :param widget: an instance of gtk.Widget
@@ -311,6 +340,8 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
             widget.set_text(utf8(value))
     elif isinstance(widget, gtk.TextView):
         widget.get_buffer().set_text(str(value))
+    elif isinstance(widget, gtk.TextBuffer):
+        widget.set_text(str(value))
     elif isinstance(widget, gtk.Entry):
         widget.set_text(utf8(value))
     elif isinstance(widget, gtk.ComboBox):

@@ -206,7 +206,8 @@ class GenericEditorView(object):
     """
     _tooltips = {}
 
-    def __init__(self, filename, parent=None):
+    def __init__(self, filename, parent=None, root_widget_name=None):
+        self.root_widget_name = root_widget_name
         builder = self.builder = utils.BuilderLoader.load(filename)
         self.widgets = utils.BuilderWidgets(builder)
         if parent:
@@ -236,6 +237,13 @@ class GenericEditorView(object):
 
     def connect_signals(self, target):
         self.builder.connect_signals(target)
+
+    def set_accept_buttons_sensitive(self, sensitive):
+        '''
+        set the sensitivity of all the accept/ok buttons
+        '''
+        for wname in self.accept_buttons:
+            getattr(self.widgets, wname).set_sensitive(sensitive)
 
     def connect(self, obj, signal, callback, *args):
         """
@@ -297,7 +305,16 @@ class GenericEditorView(object):
         """
         Return the top level window for view
         """
-        raise NotImplementedError
+        if self.root_widget_name is not None:
+            return getattr(self.widgets, self.root_widget_name)
+        else:
+            raise NotImplementedError
+
+    def get_widget_value(self, widget, index=0):
+        widget = (isinstance(widget, gtk.Widget)
+                  and widget
+                  or self.widgets[widget])
+        utils.set_widget_value(widget, index)
 
     def set_widget_value(self, widget, value, markup=False, default=None,
                          index=0):
@@ -308,7 +325,7 @@ class GenericEditorView(object):
         :param default: the default value to put in the widget if value is None
         :param index: the row index to use for those widgets who use a model
 
-        This method called bauble.utils.set_widget_value()
+        This method calls bauble.utils.set_widget_value()
         '''
         if isinstance(widget, gtk.Widget):
             utils.set_widget_value(widget, value, markup, default, index)
@@ -453,6 +470,9 @@ class GenericEditorView(object):
         """
         self.disconnect_all()
 
+    def mark_problem(self, widget):
+        pass
+
 
 class DontCommitException(Exception):
     """
@@ -477,10 +497,11 @@ class GenericEditorPresenter(object):
     """
     problem_color = gtk.gdk.color_parse('#FFDCDF')
     widget_to_field_map = {}
+    view_accept_buttons = []
 
     PROBLEM_DUPLICATE = random()
 
-    def __init__(self, model, view):
+    def __init__(self, model, view, refresh_view=False):
         self.model = model
         self.view = view
         self.problems = set()
@@ -489,12 +510,29 @@ class GenericEditorPresenter(object):
         logger.debug("session, model, view = %s, %s, %s"
                      % (self.session, model, view))
         if view:
+            view.accept_buttons = self.view_accept_buttons
+            if model and refresh_view:
+                self.refresh_view()
             view.connect_signals(self)
 
     def refresh_view(self):
         for widget, attr in self.widget_to_field_map.items():
             value = getattr(self.model, attr)
             self.view.set_widget_value(widget, value)
+
+    def commit_changes(self):
+        '''
+        Commit the changes to self.session()
+        '''
+        objs = list(self.session)
+        try:
+            self.session.flush()
+        except Exception, e:
+            logger.warning(e)
+            self.session.rollback()
+            self.session.add_all(objs)
+            raise
+        return True
 
     def __set_model_attr(self, attr, value):
         if getattr(self.model, attr) != value:
@@ -509,6 +547,20 @@ class GenericEditorPresenter(object):
                       and widget
                       or gtk.Buildable.get_name(widget))
         return self.widget_to_field_map.get(widgetname)
+
+    def on_textbuffer_changed(self, widget, value=None, attr=None):
+        "handle 'changed' signal on textbuffer widgets."
+
+        if attr is None:
+            attr = self.__get_widget_attr(widget)
+        if attr is None:
+            return
+        if value is None:
+            value = widget.props.text
+            value = value and utils.utf8(value) or None
+        logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
+                     % (widget, attr, getattr(self.model, attr), value))
+        self.__set_model_attr(attr, value)
 
     def on_text_entry_changed(self, widget, value=None):
         "handle 'changed' signal on generic text entry widgets."
@@ -533,6 +585,8 @@ class GenericEditorPresenter(object):
         if value is None:
             value = widget.props.text
             value = value and utils.utf8(value) or None
+        if getattr(self.model, attr) == value:
+            return
         logger.debug("on_unique_text_entry_changed(%s, %s) - %s → %s"
                      % (widget, attr, getattr(self.model, attr), value))
         ## check uniqueness
@@ -540,8 +594,9 @@ class GenericEditorPresenter(object):
         k_attr = getattr(klass, attr)
         q = self.session.query(klass)
         q = q.filter(k_attr == value)
-        if q.first() is not None:
-            self.add_problem(self.PROBLEM_DUPLICATE, attr)
+        omonym = q.first()
+        if omonym is not None and omonym is not self.model:
+            self.add_problem(self.PROBLEM_DUPLICATE, widget)
         ## ok
         self.__set_model_attr(attr, value)
 
@@ -645,11 +700,18 @@ class GenericEditorPresenter(object):
           whose background color should change to indicate a problem
           (default=None)
         """
+        ## map case list of widget to list of cases single widget.
         if isinstance(problem_widgets, (tuple, list)):
             map(lambda w: self.add_problem(problem_id, w), problem_widgets)
 
+        ## here single widget.
         widget = problem_widgets
         self.problems.add((problem_id, widget))
+        if not isinstance(widget, gtk.Widget):
+            try:
+                widget = getattr(self.view.widgets, widget)
+            except:
+                logger.info("can't get widget %s" % widget)
         from types import StringTypes
         if isinstance(widget, StringTypes):
             self.view.mark_problem(widget)
@@ -881,7 +943,7 @@ class GenericEditorPresenter(object):
         Start the presenter.  This must be implemented by all classes
         that subclass :class:`GenericEditorPresenter`
         """
-        raise NotImplementedError
+        return self.view.get_window().run()
 
     def cleanup(self):
         """
@@ -894,19 +956,6 @@ class GenericEditorPresenter(object):
         self.clear_problems()
         if isinstance(self.view, GenericEditorView):
             self.view.cleanup()
-
-    def refresh_view(self):
-        """
-        Refresh the view with the model values.  This method should be
-        called before any signal handlers are configured on the view
-        so that the model isn't changed when the widget values are set.
-
-        Any classes that extend GenericEditorPresenter are required to
-        implement this method.
-        """
-        # TODO: should i provide a generic implementation of this method
-        # as long as widget_to_field_map exist
-        raise NotImplementedError
 
 
 class ChildPresenter(GenericEditorPresenter):

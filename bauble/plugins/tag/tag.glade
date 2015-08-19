@@ -2,6 +2,9 @@
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkTextBuffer" id="tag_desc_textbuffer">
+    <signal name="changed" handler="on_tag_desc_textbuffer_changed" swapped="no"/>
+  </object>
   <object class="GtkDialog" id="tag_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -17,7 +20,7 @@
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button1">
+              <object class="GtkButton" id="tag_cancel_button">
                 <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -32,7 +35,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button2">
+              <object class="GtkButton" id="tag_ok_button">
                 <property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -116,6 +119,8 @@
                     <property name="can_focus">True</property>
                     <property name="border_width">2</property>
                     <property name="wrap_mode">word</property>
+                    <property name="buffer">tag_desc_textbuffer</property>
+                    <property name="accepts_tab">False</property>
                   </object>
                 </child>
               </object>
@@ -136,8 +141,8 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-4">button1</action-widget>
-      <action-widget response="0">button2</action-widget>
+      <action-widget response="-4">tag_cancel_button</action-widget>
+      <action-widget response="0">tag_ok_button</action-widget>
     </action-widgets>
   </object>
   <object class="GtkDialog" id="tag_item_dialog">
