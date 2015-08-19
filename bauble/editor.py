@@ -486,8 +486,8 @@ class GenericEditorPresenter(object):
         self.problems = set()
         self._dirty = False
         self.session = object_session(model)
-        logger.info("session, model, view = %s, %s, %s"
-                    % (self.session, model, view))
+        logger.debug("session, model, view = %s, %s, %s"
+                     % (self.session, model, view))
         if view:
             view.connect_signals(self)
 
@@ -519,8 +519,8 @@ class GenericEditorPresenter(object):
         if value is None:
             value = widget.props.text
             value = value and utils.utf8(value) or None
-        logger.info("on_entry_changed(%s, %s) - %s → %s"
-                    % (widget, attr, getattr(self.model, attr), value))
+        logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
+                     % (widget, attr, getattr(self.model, attr), value))
         self.__set_model_attr(attr, value)
 
     def on_unique_text_entry_changed(self, widget, value=None):
@@ -533,8 +533,8 @@ class GenericEditorPresenter(object):
         if value is None:
             value = widget.props.text
             value = value and utils.utf8(value) or None
-        logger.info("on_entry_changed(%s, %s) - %s → %s"
-                    % (widget, attr, getattr(self.model, attr), value))
+        logger.debug("on_unique_text_entry_changed(%s, %s) - %s → %s"
+                     % (widget, attr, getattr(self.model, attr), value))
         ## check uniqueness
         klass = self.model.__class__
         k_attr = getattr(klass, attr)
@@ -549,7 +549,7 @@ class GenericEditorPresenter(object):
         "handle 'changed' signal on datetime entry widgets."
 
         attr = self.__get_widget_attr(widget)
-        logger.info("on_entry_changed(%s, %s)" % (widget, attr))
+        logger.debug("on_datetime_entry_changed(%s, %s)" % (widget, attr))
         if value is None:
             value = widget.props.text
             value = value and utils.utf8(value) or None
