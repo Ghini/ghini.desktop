@@ -122,8 +122,8 @@ class TagItemGUI(editor.GenericEditorView):
         self.item_data_label = self.widgets.items_data
         self.values = values
         self.item_data_label.set_text(', '.join([str(s) for s in self.values]))
-        button = self.widgets.new_button
-        button.connect('clicked', self.on_new_button_clicked)
+        self.connect(self.widgets.new_button,
+                     'clicked', self.on_new_button_clicked)
 
     def get_window(self):
         return self.widgets.tag_item_dialog
@@ -146,7 +146,7 @@ class TagItemGUI(editor.GenericEditorView):
         name = unicode(entry.get_text(), encoding='utf-8')
         d.destroy()
 
-        if error_code:
+        if error_code != -3:
             return
         #stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
         session = db.Session()
