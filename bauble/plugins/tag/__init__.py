@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy import (
     Column, Unicode, UnicodeText, Integer, String, ForeignKey)
 from sqlalchemy.orm import relation
+from sqlalchemy.orm.exc import DetachedInstanceError
 from sqlalchemy import and_
 from sqlalchemy.exc import DBAPIError, InvalidRequestError
 
@@ -274,7 +275,10 @@ class Tag(db.Base):
                         backref='tag')
 
     def __str__(self):
-        return str(self.tag)
+        try:
+            return str(self.tag)
+        except DetachedInstanceError:
+            return db.Base.__str__(self)
 
     def markup(self):
         return '%s Tag' % self.tag
