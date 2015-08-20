@@ -940,8 +940,7 @@ class GenericEditorPresenter(object):
 
     def start(self):
         """
-        Start the presenter.  This must be implemented by all classes
-        that subclass :class:`GenericEditorPresenter`
+        run the dialog associated to the view
         """
         return self.view.get_window().run()
 

@@ -65,16 +65,14 @@ def edit_callback(tags):
         os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade'),
         parent=None,
         root_widget_name='tag_dialog')
-    presenter = TagEditorPresenter(tag, view)
-    presenter.refresh_view()
-    result = presenter.start()
-    presenter.commit_changes()
-    if result:
-        pass
-    else:
+    presenter = TagEditorPresenter(tag, view, refresh_view=True)
+    error_state = presenter.start()
+    if error_state:
         presenter.session.rollback()
+    else:
+        presenter.commit_changes()
     presenter.session.close()
-    return result
+    return error_state
 
 
 def remove_callback(tags):
