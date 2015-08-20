@@ -29,7 +29,7 @@ import weakref
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 import glib
 import gtk
@@ -209,6 +209,7 @@ class GenericEditorView(object):
     def __init__(self, filename, parent=None, root_widget_name=None):
         self.root_widget_name = root_widget_name
         builder = self.builder = utils.BuilderLoader.load(filename)
+        self.filename = filename
         self.widgets = utils.BuilderWidgets(builder)
         if parent:
             self.get_window().set_transient_for(parent)
@@ -226,17 +227,31 @@ class GenericEditorView(object):
                 logger.debug(_('Couldn\'t set the tooltip on widget '
                                '%(widget_name)s\n\n%(exception)s' % values))
 
-        window = self.get_window()
-        self.connect(window, 'delete-event', self.on_window_delete)
-        if isinstance(window, gtk.Dialog):
-            self.connect(window, 'close', self.on_dialog_close)
-            self.connect(window, 'response', self.on_dialog_response)
+        try:
+            window = self.get_window()
+        except:
+            window = None
+        if window is not None:
+            self.connect(window, 'delete-event', self.on_window_delete)
+            if isinstance(window, gtk.Dialog):
+                self.connect(window, 'close', self.on_dialog_close)
+                self.connect(window, 'response', self.on_dialog_response)
 
     def set_label(self, widget_name, value):
         getattr(self.widgets, widget_name).set_markup(value)
 
     def connect_signals(self, target):
-        self.builder.connect_signals(target)
+        'connect all signals declared in the glade file'
+        if not hasattr(self, 'signals'):
+            import libxml2
+            doc = libxml2.parseFile(self.filename)
+            ctxt = doc.xpathNewContext()
+            self.signals = ctxt.xpathEval('//signal')
+        for s in self.signals:
+            handler = getattr(target, s.prop('handler'))
+            signaller = getattr(self.widgets, s.parent.prop('id'))
+            handler_id = signaller.connect(s.prop('name'), handler)
+            self.__attached_signals.append((signaller, handler_id))
 
     def set_accept_buttons_sensitive(self, sensitive):
         '''
@@ -297,6 +312,7 @@ class GenericEditorView(object):
         :meth:`GenericEditorView.connect` or
         :meth:`GenericEditorView.connect_after`
         """
+        logger.debug('GenericEditorView:disconnect_all')
         for obj, sid in self.__attached_signals:
             obj.disconnect(sid)
         del self.__attached_signals[:]
@@ -338,6 +354,7 @@ class GenericEditorView(object):
         Called if self.get_window() is a gtk.Dialog and it receives
         the response signal.
         '''
+        logger.debug('on_dialog_response')
         dialog.hide()
         self.response = response
         return response
@@ -347,6 +364,7 @@ class GenericEditorView(object):
         Called if self.get_window() is a gtk.Dialog and it receives
         the close signal.
         """
+        logger.debug('on_dialog_close')
         dialog.hide()
         return False
 
@@ -355,6 +373,7 @@ class GenericEditorView(object):
         Called when the window return by get_window() receives the
         delete event.
         """
+        logger.debug('on_window_delete')
         window.hide()
         return False
 
@@ -463,8 +482,7 @@ class GenericEditorView(object):
 
     def cleanup(self):
         """
-        Should be caled when after self.start() returns to cleanup
-        undo any changes on the view.
+        Should be called when after self.start() returns.
 
         By default all it does is call self.disconnect_all()
         """
@@ -517,7 +535,7 @@ class GenericEditorPresenter(object):
 
     def refresh_view(self):
         for widget, attr in self.widget_to_field_map.items():
-            value = getattr(self.model, attr)
+            value = getattr(self.model, attr) or ''
             self.view.set_widget_value(widget, value)
 
     def commit_changes(self):

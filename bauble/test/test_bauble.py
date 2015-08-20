@@ -24,6 +24,10 @@ import datetime
 import os
 import time
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
 from sqlalchemy import (
     Column, Integer)
 
@@ -198,3 +202,33 @@ class HistoryTests(BaubleTestCase):
         history = self.session.query(db.History).\
             order_by(db.History.timestamp.desc()).first()
         assert history.table_name == 'family' and history.operation == 'delete'
+
+
+class MVPTests(BaubleTestCase):
+
+    def test_can_programmatically_connect_signals(self):
+        from bauble.editor import (
+            GenericEditorPresenter, GenericEditorView)
+
+        class HandlerDefiningPresenter(GenericEditorPresenter):
+            def on_tag_desc_textbuffer_changed(self, *args):
+                pass
+
+        model = db.History()
+        import tempfile
+        ntf = tempfile.NamedTemporaryFile()
+        ntf.write('''\
+<interface>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkTextBuffer" id="tag_desc_textbuffer">
+    <signal name="changed" handler="on_tag_desc_textbuffer_changed" swapped="no"/>
+  </object>
+</interface>
+''')
+        ntf.flush()
+        fn = ntf.name
+        view = GenericEditorView(fn)
+        presenter = HandlerDefiningPresenter(model, view)
+        self.assertEquals(
+            len(presenter.view._GenericEditorView__attached_signals), 1)

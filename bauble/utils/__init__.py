@@ -136,8 +136,9 @@ class BuilderWidgets(dict):
         '''
         w = self.builder.get_object(name)
         if not w:
-            raise KeyError(_('%(widget_name)s not in glade file') %
-                           {'widget_name': name})
+            raise KeyError(
+                _('no widget named "%(widget_name)s" in glade file') %
+                {'widget_name': name})
         return w
 
     def __getattr__(self, name):
@@ -148,8 +149,9 @@ class BuilderWidgets(dict):
             return self.builder
         w = self.builder.get_object(name)
         if not w:
-            raise AttributeError(_('%(widget_name)s not in glade file') %
-                                 {'widget_name': name})
+            raise KeyError(
+                _('no widget named "%(widget_name)s" in glade file') %
+                {'widget_name': name})
         return w
 
     def remove_parent(self, widget):
