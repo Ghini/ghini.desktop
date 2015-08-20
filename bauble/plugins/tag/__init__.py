@@ -142,10 +142,12 @@ class TagItemGUI(editor.GenericEditorView):
                       lambda entry: d.response(gtk.RESPONSE_ACCEPT))
         d.vbox.pack_start(entry)
         d.show_all()
-        d.run()
+        error_code = d.run()
         name = unicode(entry.get_text(), encoding='utf-8')
         d.destroy()
 
+        if error_code:
+            return
         #stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
         session = db.Session()
         ntags = session.query(Tag).filter_by(tag=name).count()
