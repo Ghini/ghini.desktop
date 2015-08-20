@@ -243,14 +243,13 @@ class GenericEditorView(object):
     def connect_signals(self, target):
         'connect all signals declared in the glade file'
         if not hasattr(self, 'signals'):
-            import libxml2
-            doc = libxml2.parseFile(self.filename)
-            ctxt = doc.xpathNewContext()
-            self.signals = ctxt.xpathEval('//signal')
+            from lxml import etree
+            doc = etree.parse(self.filename)
+            self.signals = doc.xpath('//signal')
         for s in self.signals:
-            handler = getattr(target, s.prop('handler'))
-            signaller = getattr(self.widgets, s.parent.prop('id'))
-            handler_id = signaller.connect(s.prop('name'), handler)
+            handler = getattr(target, s.get('handler'))
+            signaller = getattr(self.widgets, s.getparent().get('id'))
+            handler_id = signaller.connect(s.get('name'), handler)
             self.__attached_signals.append((signaller, handler_id))
 
     def set_accept_buttons_sensitive(self, sensitive):
