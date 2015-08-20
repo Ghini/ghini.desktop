@@ -72,6 +72,7 @@ def edit_callback(tags):
     else:
         presenter.commit_changes()
     presenter.session.close()
+    presenter.cleanup()
     return error_state
 
 
