@@ -246,23 +246,37 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         building the fullname string in the sp_fullname_label widget
         '''
         self.refresh_fullname_label()
-        refresh = lambda *args: self.refresh_fullname_label()
+        refresh = lambda *args: self.refresh_fullname_label(*args)
         widgets = ['sp_genus_entry', 'sp_species_entry', 'sp_author_entry',
                    'sp_cvgroup_entry', 'sp_spqual_combo']
         for widget_name in widgets:
             self.view.connect_after(widget_name, 'changed', refresh)
         self.view.connect_after('sp_hybrid_check', 'toggled', refresh)
 
-    def refresh_fullname_label(self):
+    def refresh_fullname_label(self, widget=None):
         '''
         set the value of sp_fullname_label to either '--' if there
         is a problem or to the name of the string returned by Species.str
         '''
+        logger.debug("SpeciesEditorPresenter:refresh_fullname_label %s"
+                     % widget)
         if len(self.problems) > 0 or self.model.genus is None:
             self.view.widgets.sp_fullname_label.set_markup('--')
             return
         sp_str = Species.str(self.model, markup=True, authors=True)
         self.view.set_label('sp_fullname_label', sp_str)
+        if self.model.genus is not None:
+            genus = self.model.genus
+            epithet = self.view.get_widget_value('sp_species_entry')
+            omonym = self.session.query(
+                Species).filter(
+                Species.genus == genus,
+                Species.sp == epithet
+                ).first()
+            logger.info("looking for %s %s, found %s" % (genus, epithet, omonym))
+            if omonym not in [None, self.model]:
+                logger.warning(_("this binomial name is already in your "
+                                 "collection."))
 
     def cleanup(self):
         super(SpeciesEditorPresenter, self).cleanup()
@@ -419,7 +433,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             self.presenter.parent_ref().refresh_sensitivity()
 
         def on_rank_combo_changed(self, combo, *args):
-            logger.info("on_entry_changed(%s, %s)" % (combo, args))
+            logger.info("on_rank_combo_changed(%s, %s)" % (combo, args))
             model = combo.get_model()
             it = combo.get_active_iter()
             value = model[it][0]
@@ -429,14 +443,15 @@ class InfraspPresenter(editor.GenericEditorPresenter):
                 self.set_model_attr('rank', None)
 
         def on_epithet_entry_changed(self, entry, *args):
-            logger.info("on_entry_changed(%s, %s)" % (entry, args))
+            logger.info("on_epithet_entry_changed(%s, %s)" % (entry, args))
             value = utils.utf8(entry.props.text)
             if not value:  # if None or ''
                 value = None
             self.set_model_attr('epithet', value)
+            ## now warn if same binomial is already in database
 
         def on_author_entry_changed(self, entry, *args):
-            logger.info("on_entry_changed(%s, %s)" % (entry, args))
+            logger.info("on_author_entry_changed(%s, %s)" % (entry, args))
             value = utils.utf8(entry.props.text)
             if not value:  # if None or ''
                 value = None

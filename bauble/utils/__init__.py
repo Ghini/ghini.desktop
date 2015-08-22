@@ -282,19 +282,19 @@ def get_widget_value(widget, index=0):
     '''
 
     if isinstance(widget, gtk.Label):
-        return widget.get_text()
+        return utf8(widget.get_text())
     elif isinstance(widget, gtk.TextView):
-        return widget.get_buffer().get_text()
+        return utf8(widget.get_buffer().get_text())
     elif isinstance(widget, gtk.Entry):
-        return widget.get_text()
+        return utf8(widget.get_text())
     elif isinstance(widget, gtk.ComboBox):
         if isinstance(widget, gtk.ComboBoxEntry):
-            return widget.child.props.text
+            return utf8(widget.child.props.text)
     elif isinstance(widget,
                     (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
         return widget.get_active()
     elif isinstance(widget, gtk.Button):
-        return widget.props.label
+        return utf8(widget.props.label)
 
     else:
         raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
