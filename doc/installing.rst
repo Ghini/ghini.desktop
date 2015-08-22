@@ -134,7 +134,9 @@ welcome.
 the installation steps on Windows:
 
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
-   ``vi``).
+   ``vi``) from:
+
+   https://git-scm.com/download/win
 
    all default options are fine, except we need git to be executable from
    the command prompt:
