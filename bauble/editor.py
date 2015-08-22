@@ -329,7 +329,7 @@ class GenericEditorView(object):
         widget = (isinstance(widget, gtk.Widget)
                   and widget
                   or self.widgets[widget])
-        utils.set_widget_value(widget, index)
+        return utils.get_widget_value(widget, index)
 
     def set_widget_value(self, widget, value, markup=False, default=None,
                          index=0):
@@ -524,8 +524,8 @@ class GenericEditorPresenter(object):
         self.problems = set()
         self._dirty = False
         self.session = object_session(model)
-        logger.debug("session, model, view = %s, %s, %s"
-                     % (self.session, model, view))
+        #logger.debug("session, model, view = %s, %s, %s"
+        #             % (self.session, model, view))
         if view:
             view.accept_buttons = self.view_accept_buttons
             if model and refresh_view:
