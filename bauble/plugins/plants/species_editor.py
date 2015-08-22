@@ -67,6 +67,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
         self._dirty = False
+        self.omonym_box = None
         self.init_fullname_widgets()
         self.vern_presenter = VernacularNamePresenter(self)
         self.synonyms_presenter = SynonymsPresenter(self)
@@ -273,10 +274,36 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 Species.genus == genus,
                 Species.sp == epithet
                 ).first()
-            logger.info("looking for %s %s, found %s" % (genus, epithet, omonym))
-            if omonym not in [None, self.model]:
-                logger.warning(_("this binomial name is already in your "
-                                 "collection."))
+            logger.debug("looking for %s %s, found %s"
+                         % (genus, epithet, omonym))
+            if omonym in [None, self.model]:
+                if self.omonym_box is not None:
+                    self.view.remove_box(self.omonym_box)
+                    self.view.widgets.remove_parent(self.omonym_box)
+                    self.omonym_box.destroy()
+                    self.omonym_box = None
+            else:
+                msg = _("This binomial name is already in your collection"
+                        ", as %s.\n\n"
+                        "Are you sure you want to insert it again?" %
+                        Species.str(omonym, authors=True))
+
+                def on_response(button, response):
+                    self.view.remove_box(self.omonym_box)
+                    self.view.widgets.remove_parent(self.omonym_box)
+                    self.omonym_box.destroy()
+                    if response:
+                        logger.warning('yes')
+                    else:
+                        self.view.set_widget_value('sp_species_entry', '')
+
+                box = self.omonym_box = utils.add_message_box(
+                    self.view.widgets.message_box_parent,
+                    utils.MESSAGE_BOX_YESNO)
+                box.message = msg
+                box.on_response = on_response
+                box.show()
+                self.view.add_box(box)
 
     def cleanup(self):
         super(SpeciesEditorPresenter, self).cleanup()
@@ -702,9 +729,9 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         vernacular_names = self.model.vernacular_names
         default_vernacular_name = self.model.default_vernacular_name
         if len(vernacular_names) > 0 and default_vernacular_name is None:
-            msg = 'This species has vernacular names but none of them are '\
-                  'selected as the default. The first vernacular name in the '\
-                  'list has been automatically selected.'
+            msg = _('This species has vernacular names but none of them are '
+                    'selected as the default. The first vernacular name in '
+                    'the list has been automatically selected.')
             utils.message_dialog(msg)
             first = tree_model.get_iter_first()
             value = tree_model[first][0]
@@ -909,17 +936,17 @@ class SpeciesEditorView(editor.GenericEditorView):
 
     def close_boxes(self):
         while self.boxes:
-            logger.info('box is being forcibly removed')
+            logger.debug('box is being forcibly removed')
             box = self.boxes.pop()
             self.widgets.remove_parent(box)
             box.destroy()
 
     def add_box(self, box):
-        logger.info('box is being added')
+        logger.debug('box is being added')
         self.boxes.add(box)
 
     def remove_box(self, box):
-        logger.info('box is being removed')
+        logger.debug('box is being removed')
         if box in self.boxes:
             self.boxes.remove(box)
         else:
@@ -1116,8 +1143,8 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
 
     def start(self):
         if self.session.query(Genus).count() == 0:
-            msg = 'You must first add or import at least one genus into the '\
-                  'database before you can add species.'
+            msg = _('You must first add or import at least one genus into the '
+                    'database before you can add species.')
             utils.message_dialog(msg)
             return
 
