@@ -637,7 +637,8 @@ class GenericEditorPresenter(object):
 
     def on_relation_entry_changed(self, widget, value=None):
         attr = self.__get_widget_attr(widget)
-        logger.info(attr)
+        logger.debug('calling unimplemented on_relation_entry_changed(%s, %s)'
+                     % (widget, attr))
 
     def dirty(self):
         logger.info('calling deprecated "dirty". use "is_dirty".')
