@@ -1125,8 +1125,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             msg = _('Branching from %(plant_code)s.  The quantity will '
                     'be subtracted from %(plant_code)s') \
                 % {'plant_code': str(self.branched_plant)}
-            box = utils.add_message_box(message_box_parent,
-                                        utils.MESSAGE_BOX_INFO)
+            box = self.presenter.view.add_message_box(utils.MESSAGE_BOX_INFO)
             box.message = msg
             box.show_all()
 
