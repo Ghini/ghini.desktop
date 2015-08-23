@@ -1757,8 +1757,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                     self.view.widgets.acc_species_entry.\
                         set_text(utils.utf8(syn.species))
                     set_model(syn.species)
-            box = utils.add_message_box(self.view.widgets.message_box_parent,
-                                        utils.MESSAGE_BOX_YESNO)
+            box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
             box.message = msg
             box.on_response = on_response
             box.show()

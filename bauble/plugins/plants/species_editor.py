@@ -144,16 +144,13 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
             def on_response(button, response):
                 self.view.remove_box(box)
-                self.view.widgets.remove_parent(box)
-                box.destroy()
                 if response:
                     self.view.widgets.sp_genus_entry.\
                         set_text(utils.utf8(syn.genus))
                     self.set_model_attr('genus', syn.genus)
                 else:
                     self.set_model_attr('genus', value)
-            box = utils.add_message_box(self.view.widgets.message_box_parent,
-                                        utils.MESSAGE_BOX_YESNO)
+            box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
             box.message = msg
             box.on_response = on_response
             box.show()
@@ -262,7 +259,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         logger.debug("SpeciesEditorPresenter:refresh_fullname_label %s"
                      % widget)
         if len(self.problems) > 0 or self.model.genus is None:
-            self.view.widgets.sp_fullname_label.set_markup('--')
+            self.view.set_label('sp_fullname_label', '--')
             return
         sp_str = Species.str(self.model, markup=True, authors=True)
         self.view.set_label('sp_fullname_label', sp_str)
@@ -279,8 +276,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             if omonym in [None, self.model]:
                 if self.omonym_box is not None:
                     self.view.remove_box(self.omonym_box)
-                    self.view.widgets.remove_parent(self.omonym_box)
-                    self.omonym_box.destroy()
                     self.omonym_box = None
             else:
                 msg = _("This binomial name is already in your collection"
@@ -290,16 +285,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
                 def on_response(button, response):
                     self.view.remove_box(self.omonym_box)
-                    self.view.widgets.remove_parent(self.omonym_box)
-                    self.omonym_box.destroy()
+                    self.omonym_box = None
                     if response:
                         logger.warning('yes')
                     else:
                         self.view.set_widget_value('sp_species_entry', '')
 
-                box = self.omonym_box = utils.add_message_box(
-                    self.view.widgets.message_box_parent,
-                    utils.MESSAGE_BOX_YESNO)
+                box = self.omonym_box = (
+                    self.view.add_message_box(utils.MESSAGE_BOX_YESNO))
                 box.message = msg
                 box.on_response = on_response
                 box.show()
@@ -661,6 +654,8 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         so we just need to customize them a bit.
         """
         self.treeview = self.view.widgets.vern_treeview
+        if not isinstance(self.treeview, gtk.TreeView):
+            return
 
         def _name_data_func(column, cell, model, treeiter, data=None):
             v = model[treeiter][0]
@@ -933,24 +928,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.notebook.set_current_page(0)
         self.restore_state()
         self.boxes = set()
-
-    def close_boxes(self):
-        while self.boxes:
-            logger.debug('box is being forcibly removed')
-            box = self.boxes.pop()
-            self.widgets.remove_parent(box)
-            box.destroy()
-
-    def add_box(self, box):
-        logger.debug('box is being added')
-        self.boxes.add(box)
-
-    def remove_box(self, box):
-        logger.debug('box is being removed')
-        if box in self.boxes:
-            self.boxes.remove(box)
-        else:
-            logger.debug('box to be removed is not there')
 
     def get_window(self):
         '''

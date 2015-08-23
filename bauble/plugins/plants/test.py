@@ -1218,7 +1218,7 @@ class PresenterTest(PlantTestCase):
     def test_cantinsertsametwice(self):
         'while binomial name in view matches database item, warn user'
 
-        raise SkipTest('Not Implemented')
+        raise SkipTest('Not Implemented')  # presenter uses view internals
         from species_editor import SpeciesEditorPresenter
         model = Species.retrieve_or_create(
             self.session, {'object': 'taxon',
@@ -1229,10 +1229,12 @@ class PresenterTest(PlantTestCase):
             create=False, update=False)
         presenter = SpeciesEditorPresenter(model, mock_view)
         presenter.on_text_entry_changed('sp_species_entry', 'grandiflora')
-        self.assertTrue(mock_view)
 
 
 class MockView:
+    def __init__(self):
+        self.widgets = type('MockWidgets', (object, ), {})
+
     def connect_signals(self, *args):
         pass
 
@@ -1240,6 +1242,12 @@ class MockView:
         pass
 
     def connect_after(self, *args):
+        pass
+
+    def get_widget_value(self, *args):
+        pass
+
+    def connect(self, *args):
         pass
 
 

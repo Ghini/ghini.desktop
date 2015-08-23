@@ -462,8 +462,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                     # duplicate it here
                     self.set_model_attr('family', syn.family)
 
-            box = utils.add_message_box(self.view.widgets.message_box_parent,
-                                        utils.MESSAGE_BOX_YESNO)
+            box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
             box.message = msg
             box.on_response = on_response
             box.show()
