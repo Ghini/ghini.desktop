@@ -501,6 +501,53 @@ class GenusTests(PlantTestCase):
             'GenusEditorView not deleted'
 
 
+class GenusSynonymyTests(PlantTestCase):
+
+    def setUp(self):
+        super(GenusSynonymyTests, self).setUp()
+        f = self.session.query(Family).filter(Family.family == u'Orchidaceae'
+                                              ).one()
+        bu = Genus(family=f, genus=u'Bulbophyllum')  # accepted
+        zy = Genus(family=f, genus=u'Zygoglossum')  # synonym
+        bu.synonyms.append(zy)
+        self.session.add_all([f, bu, zy])
+        self.session.commit()
+
+    def test_forward_synonyms(self):
+        "a taxon has a list of synonyms"
+        bu = self.session.query(
+            Genus).filter(
+            Genus.genus == u'Bulbophyllum').one()
+        zy = self.session.query(
+            Genus).filter(
+            Genus.genus == u'Zygoglossum').one()
+        self.assertEquals(bu.synonyms, [zy])
+        self.assertEquals(zy.synonyms, [])
+
+    def test_backward_synonyms(self):
+        "synonymy is used to get the accepted taxon"
+        bu = self.session.query(
+            Genus).filter(
+            Genus.genus == u'Bulbophyllum').one()
+        zy = self.session.query(
+            Genus).filter(
+            Genus.genus == u'Zygoglossum').one()
+        self.assertEquals(zy.accepted, bu)
+        self.assertEquals(bu.accepted, None)
+
+    def test_synonymy_included_in_as_dict(self):
+        bu = self.session.query(
+            Genus).filter(
+            Genus.genus == u'Bulbophyllum').one()
+        zy = self.session.query(
+            Genus).filter(
+            Genus.genus == u'Zygoglossum').one()
+        self.assertTrue('accepted' not in bu.as_dict())
+        self.assertTrue('accepted' in zy.as_dict())
+        self.assertEquals(zy.as_dict()['accepted'],
+                          bu.as_dict(recurse=False))
+
+
 class SpeciesTests(PlantTestCase):
 
     def setUp(self):
@@ -884,7 +931,8 @@ class FromAndToDictTest(PlantTestCase):
         ses_families = self.session.query(Family).all()
         self.assertTrue(fab in ses_families)
 
-    def xtest_where_can_object_be_found_before_commit(self):  # disabled
+    def test_where_can_object_be_found_before_commit(self):  # disabled
+        raise SkipTest('Not Implemented')
         fab = Family.retrieve_or_create(
             self.session, {'rank': 'family',
                            'epithet': 'Fabaceae'})

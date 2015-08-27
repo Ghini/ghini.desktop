@@ -395,6 +395,16 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
         return s
 
+    @property
+    def accepted(self):
+        'Name that should be used if name of self should be rejected'
+        from sqlalchemy.orm.session import object_session
+        session = object_session(self)
+        syn = session.query(SpeciesSynonym).filter(
+            SpeciesSynonym.synonym_id == self.id).first()
+        accepted = syn and syn.family
+        return accepted
+
     def has_accessions(self):
         '''true if species is linked to at least one accession
         '''
@@ -430,7 +440,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         setattr(self, self.infrasp_attr[level]['epithet'], epithet)
         setattr(self, self.infrasp_attr[level]['author'], author)
 
-    def as_dict(self):
+    def as_dict(self, recurse=True):
         result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
                       if col not in ['id', 'sp']
@@ -442,6 +452,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         result['epithet'] = self.sp
         result['ht-rank'] = 'genus'
         result['ht-epithet'] = self.genus.genus
+        if recurse and self.accepted is not None:
+            result['accepted'] = self.accepted.as_dict(recurse=False)
         return result
 
     @classmethod
