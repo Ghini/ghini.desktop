@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-12 20:21-0500\n"
-"PO-Revision-Date: 2015-07-13 04:34+0200\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"PO-Revision-Date: 2015-08-27 18:02+0200\n"
+"Last-Translator: Luis García Sevillano <floss.dev@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/bauble/master/es/>\n"
 "Language: es\n"
@@ -52,7 +52,7 @@ msgstr "N.º de semillas: %s"
 #: bauble/plugins/garden/prop_editor.glade:313
 #: bauble/plugins/garden/prop_editor.glade:921
 msgid "%"
-msgstr ""
+msgstr "%"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
@@ -171,6 +171,13 @@ msgid ""
 "the list.  To remove a synonym select the synonym from the list and click on "
 "the Remove button."
 msgstr ""
+"*Sinónimos* le permite añadir otros géneros que son sinónimos con el género "
+"que esté editand. Para agregar un nuevo sinónimo escriba un nombre de "
+"género. Debe seleccionar un género de la lista. Una vez haya seleccionado el "
+"nombre del género que desee agregar, pulse sobre el botón Añadir que se "
+"encuentra junto a la lista de sinónimos y se agregará a la lista el sinónimo "
+"seleccionado. Para quitar un sinónimo, selecciónelo de la lista y pulse el "
+"botón Borrar."
 
 #: bauble/plugins/garden/acc_editor.glade:1763
 #: bauble/plugins/garden/acc_editor.glade:1941
@@ -237,122 +244,140 @@ msgstr "--"
 
 #: bauble/plugins/imex/select_export.glade:298
 msgid "..."
-msgstr ""
+msgstr "..."
 
 # 2cf563d38ea24222b215dd1db31879d9
 #: ../doc/api.rst:49
 msgid ":mod:`bauble.connmgr`"
-msgstr ""
+msgstr ":mod:`bauble.connmgr`"
 
 # f349195042d243819cfec5ac2d145384
 #: ../doc/api.rst:17
 msgid ":mod:`bauble.db`"
-msgstr ""
+msgstr ":mod:`bauble.db`"
 
 # 0210fc00a2c64ae481ab317ec2eedbda
 #: ../doc/api.rst:57
 msgid ":mod:`bauble.editor`"
-msgstr ""
+msgstr ":mod:`bauble.editor`"
 
 # 784728f6c7344ad28ad5f98ef725f467
 #: ../doc/api.rst:78
 msgid ":mod:`bauble.i18n`"
-msgstr ""
+msgstr ":mod:`bauble.i18n`"
 
 # d6421c02ed6b4bf5a0542b76ad9b5ffe
 #: ../doc/api.rst:91
 msgid ":mod:`bauble.meta`"
-msgstr ""
+msgstr ":mod:`bauble.meta`"
 
 # 552b15d688844c9a918063d779b4903d
 #: ../doc/api.rst:99
+#, fuzzy
 msgid ":mod:`bauble.paths`"
-msgstr ""
+msgstr ":mod:`bauble.paths`"
 
 # da958d47042e4c5cb61aa58018f2d1fb
 #: ../doc/api.rst:108
+#, fuzzy
 msgid ":mod:`bauble.pluginmgr`"
-msgstr ""
+msgstr ":mod:`bauble.pluginmgr`"
 
 # 4558aa3c13364a63863e13c5910ea393
 #: ../doc/api.rst:324
+#, fuzzy
 msgid ":mod:`bauble.plugins.abcd`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.abcd`"
 
 # 218235df8fa145549cd1099893b0b54b
 #: ../doc/api.rst:286
+#, fuzzy
 msgid ":mod:`bauble.plugins.garden`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.garden`"
 
 # afe8638be6ce4aa7918cfb707d6ef3c5
 #: ../doc/api.rst:333
+#, fuzzy
 msgid ":mod:`bauble.plugins.imex`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.imex`"
 
 # 28e3e041bbf2461fac45d0e5bdcedc3b
 #: ../doc/api.rst:251
+#, fuzzy
 msgid ":mod:`bauble.plugins.plants`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.plants`"
 
 # 36621ac1c3df4686a6e76946b089ca57
 #: ../doc/api.rst:345
+#, fuzzy
 msgid ":mod:`bauble.plugins.report.mako`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.report.mako`"
 
 # 3389d61a1a2f41409fde0bdd478d0bd3
 #: ../doc/api.rst:341
+#, fuzzy
 msgid ":mod:`bauble.plugins.report.xsl`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.report.xsl`"
 
 # d4bec512244a490f8541abd20493ea1d
 #: ../doc/api.rst:337
+#, fuzzy
 msgid ":mod:`bauble.plugins.report`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.report`"
 
 # 6e992a98968a41b58402330478140d46
 #: ../doc/api.rst:349
+#, fuzzy
 msgid ":mod:`bauble.plugins.tag`"
-msgstr ""
+msgstr ":mod:`bauble.plugins.tag`"
 
 # 37d5ec438a464c35b7bfa4e76e9a47d2
 #: ../doc/api.rst:127
+#, fuzzy
 msgid ":mod:`bauble.prefs`"
-msgstr ""
+msgstr ":mod:`bauble.prefs`"
 
 # 47ad5904eec24ff0ad70058737bdb8f8
 #: ../doc/api.rst:238
+#, fuzzy
 msgid ":mod:`bauble.search`"
-msgstr ""
+msgstr ":mod:`bauble.search`"
 
 # 110bc4bedad04490b426dc96e91af046
 #: ../doc/api.rst:138
+#, fuzzy
 msgid ":mod:`bauble.task`"
-msgstr ""
+msgstr ":mod:`bauble.task`"
 
 # 76e3da95f2bf42458c8b0c5b71dd46bc
 #: ../doc/api.rst:147
+#, fuzzy
 msgid ":mod:`bauble.types`"
-msgstr ""
+msgstr ":mod:`bauble.types`"
 
 # 6df84a964e77437c8955517ab0005678
 #: ../doc/api.rst:83
+#, fuzzy
 msgid ":mod:`bauble.ui`"
-msgstr ""
+msgstr ":mod:`bauble.ui`"
 
 # cf8b1386f77b4528a2df994ccfe4ab89
 #: ../doc/api.rst:160
+#, fuzzy
 msgid ":mod:`bauble.utils`"
-msgstr ""
+msgstr ":mod:`bauble.utils`"
 
 # 9eca5661fa5e4978a514e2fac4dbab88
 #: ../doc/api.rst:212
+#, fuzzy
 msgid ":mod:`bauble.view`"
-msgstr ""
+msgstr ":mod:`bauble.view`"
 
 # 69c055a1b22b4d3dbe894f243f9de54b
 #: ../doc/api.rst:5
+#, fuzzy
 msgid ":mod:`bauble`"
-msgstr ""
+msgstr ":mod:`bauble`"
 
 # 468a3a32ab744f5d98f5d0c3e7005185
 # 494774f7b6304f72a7424f4162c3b31f
@@ -361,7 +386,7 @@ msgstr ""
 #: ../doc/installing.rst:71 ../doc/installing.rst:116
 #: ../doc/installing.rst:197 ../doc/installing.rst:239
 msgid ":ref:`connecting`."
-msgstr ""
+msgstr ":ref:`conectando`."
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -586,8 +611,9 @@ msgid "<b>Private:</b>"
 msgstr "<b>Privado:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2223
+#, fuzzy
 msgid "<b>Propagation of Source Material</b>"
-msgstr ""
+msgstr "<b>Propagación de material origen</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:550
 msgid "<b>Propagation:</b>"
@@ -698,7 +724,7 @@ msgstr "<i>--</i>"
 #: bauble/plugins/garden/plant.py:1249
 #, python-format
 msgid "<i>Branched from %(plant)s</i>"
-msgstr ""
+msgstr "<i>Derivado de %(plant)s</i>"
 
 # 2a75d4b2ac1545a79c64a5c1f47e94ea
 #: ../doc/editing.rst:142
@@ -715,12 +741,15 @@ msgstr "Una donación."
 #: bauble.utils.create_message_dialog:6
 msgid "A GTK buttons type constant.  The default is gtk.BUTTONS_OK."
 msgstr ""
+"Una constante GTK de tipo botón . El valor por defecto es gtk.BUTTONS_OK."
 
 # 810e5e842d0b4e39a0e4b8981c0a60d9
 #: ../bauble/utils/__init__.py:docstring of
 #: bauble.utils.create_message_dialog:5
 msgid "A GTK message type constant.  The default is gtk.MESSAGE_INFO."
 msgstr ""
+"Una constante GTK de tipo de mensaje. El valor por defecto es "
+"gtk.MESSAGE_INFO."
 
 # f6c42d7e54524f7ab499a31960b2158a
 #: ../bauble/utils/__init__.py:docstring of bauble.utils.MessageBox:1
@@ -730,12 +759,12 @@ msgstr "Un MessageBox que muestra un mensaje en la cabecera del editor."
 # 2157030fdf434ab3a6ac2dab9e6335b7
 #: ../bauble/utils/__init__.py:docstring of bauble.utils:1
 msgid "A common set of utility functions used throughout Bauble."
-msgstr ""
+msgstr "Conjunto común de funciones de utilidad empleada en Bauble."
 
 # f87f5dce978a44a5bdf208bcf69220f4
 #: ../doc/searching.rst:115
 msgid "A couple of useful examples:"
-msgstr ""
+msgstr "Un par de ejemplos útiles:"
 
 #: bauble/plugins/plants/family.py:307
 msgid ""
@@ -746,8 +775,8 @@ msgid ""
 msgstr ""
 "Lista de sinónimos para esta familia.\n"
 "\n"
-"Para agregar un sinónimo ingrese el nombre de la familia y elija una de la "
-"lista . Luego pulse Agregar para agregar uno a la lista de sinónimos"
+"Para agregar un sinónimo introduzca el nombre de la familia y elija una de "
+"la lista. Luego, pulse Agregar para añadirla a la lista de sinónimos."
 
 #: bauble/plugins/plants/genus.py:339
 msgid ""
@@ -766,6 +795,7 @@ msgstr ""
 #: ../bauble/utils/__init__.py:docstring of bauble.utils.YesNoMessageBox:1
 msgid "A message box that can present a Yes or No question to the user"
 msgstr ""
+"Un cuadro de mensaje que puede mostrar una pregunta de Sí o No al usuario"
 
 #: bauble/plugins/abcd/__init__.py:358
 msgid "ABCD"
@@ -788,6 +818,8 @@ msgstr "Acerca de"
 #: ../bauble/utils/__init__.py:docstring of bauble.utils.GenericMessageBox:1
 msgid "Abstract class for showing a message box at the top of an editor."
 msgstr ""
+"Clase abstracta para mostrar un cuadro de mensaje en la parte superior de un "
+"editor."
 
 #: bauble/plugins/plants/genus.py:956 bauble/plugins/plants/species.py:275
 msgid "Accepted name"
@@ -796,7 +828,7 @@ msgstr "Nombre aceptado"
 # 9f99c003b66d4f69b26dde0ccee90f1d
 #: ../bauble/paths.py:docstring of bauble.paths:1
 msgid "Access to standard paths used by Bauble."
-msgstr ""
+msgstr "Accesos a las rutas estándard empleadas por Bauble."
 
 #: bauble/plugins/garden/plant_editor.glade:475
 #: bauble/plugins/report/xsl/__init__.py:84
@@ -812,7 +844,7 @@ msgstr "ID de la accessión"
 # b110bb7dda004ba09cfe4f4db85ba92e
 #: ../doc/editing.rst:134
 msgid "Accession Source"
-msgstr ""
+msgstr "Fuente de adherencia"
 
 #: bauble/plugins/garden/plant_editor.glade:158
 msgid "Accession type"
@@ -825,7 +857,7 @@ msgstr "Accesiones"
 
 #: bauble/plugins/garden/acc_editor.glade:1992
 msgid "Accuracy"
-msgstr ""
+msgstr "Precisión"
 
 #: bauble/plugins/garden/plant_editor.glade:383
 #: bauble/plugins/garden/acc_editor.glade:342
@@ -871,6 +903,9 @@ msgid ""
 "you're doing a file chooser will open.  In the file chooser select the files "
 "you want to import."
 msgstr ""
+"Tras pulsar OK en el diálogo que solicita confirmación de la acción, se "
+"abrirá un selector de fichero. Seleccione los ficheros que desee importar en "
+"el selector de ficheros."
 
 # 3186f157deb34e2d83d339ef9d20f7e8
 #: ../doc/searching.rst:18
@@ -881,6 +916,12 @@ msgid ""
 "database and the properties would be the columns on the table.  Often the "
 "table/domain and properties/columns are the same but not always."
 msgstr ""
+"Tras abrir el Constructor de Consulta debe seleccionar un dominio de "
+"búsqueda. El dominio de búsqueda determinará el tipo de datos que se "
+"retornará y las propiedades que podrá buscar. El dominio de búsqueda es "
+"similar a una tabla en la base de datos, y las propiedades vendrían a ser "
+"las columnas. Con frecuencia, tabla/dominio y propiedades/columnas son lo "
+"mismo, aunque no siempre."
 
 #: bauble/plugins/garden/accession.py:408
 msgid "Air layer"
@@ -902,6 +943,10 @@ msgid ""
 "list of all changes in the last working day or week, or in any specific "
 "period in the past."
 msgstr ""
+"Todos los cambios en la base de datos se almacenan en un log. Todos los "
+"cambios son 'firmados' y sellados temporalmente. Bauble hace fácil la "
+"recuperación de todos los cambio en el último día o semana, o en un período "
+"especifico del pasado."
 
 # 1e6b63de5d2848c78d6cee59f2a9d453
 #: ../doc/searching.rst:46
@@ -918,6 +963,8 @@ msgid ""
 "All tables/mappers in Bauble which use the SQLAlchemy declarative plugin for "
 "declaring tables and mappers should derive from this class."
 msgstr ""
+"Todas las tablas/mappers de Bauble, que hacen uso del plugin declarativo "
+"SQLAlchemy para declarar tablas y mappers, deben derivar de esta clase."
 
 # 9c76641f15fe4b3e8e72c7599aee6791
 #: ../doc/editing.rst:25
@@ -925,6 +972,8 @@ msgid ""
 "Almost all of the editors in Bauble have a *Notes* tab which should work the "
 "same regardless of which editor you are using."
 msgstr ""
+"Aproximadamente todos los editores en Bauble tienen una pestaña *Notas*, que "
+"debería funcionar del mismo modo, independientemente del editor empleado."
 
 # c13ed605f8a44457b81c80b7ce618050
 #: ../doc/report.rst:58
@@ -933,6 +982,9 @@ msgid ""
 "xmlgraphics/fop/binaries/>`_.  After extracting the archive you must add the "
 "directory you extracted the archive to to your PATH environment variable."
 msgstr ""
+"Alternativamente, puede descargar el  `fichero "
+"<http://www.apache.org/dist/xmlgraphics/fop/binaries/>`_. Tras descomprimir "
+"el fichero debe añadir el directorio extraído a su variable de entorno PATH."
 
 # 06220cdbadd6474ebb42cd7bc329b57d
 #: ../doc/imex.rst:4
@@ -941,6 +993,9 @@ msgid ""
 "and export formats, by default it can only import and export comma seperated "
 "values files or CSV."
 msgstr ""
+"Aunque puede extenderse Bauble mediante plugins para que admita formatos "
+"alternativos de importación y exportación, por defecto solo importa/exporta "
+"ficheros con datos separados por coma o CSV."
 
 #: bauble/plugins/garden/acc_editor.glade:1831
 msgid "Altitude/Depth"
@@ -959,7 +1014,7 @@ msgstr "Un objeto de la clase :class:`sqlalchemy.ext.declarative.Base`"
 # 23a51fc7e74345779e939b50de56cda1
 #: ../doc/api.rst:35
 msgid "An instance of :class:`sqlalchemy.schema.MetaData`"
-msgstr ""
+msgstr "Una instancia de :class:`sqlalchemy.schema.MetaData`"
 
 #: bauble/plugins/garden/location.py:191
 msgid ""
@@ -1066,7 +1121,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:250
 msgid "Area transf. to Plant Ops."
-msgstr ""
+msgstr "Area transf. a Ops. de planta"
 
 # 693ce5177c4142b996c132f6692ad365
 #: ../doc/editing.rst:180
@@ -1090,11 +1145,13 @@ msgid ""
 "Associate a button with entry so that when the button is clicked a date is "
 "inserted into the entry."
 msgstr ""
+"Asociar un botón con un registro de modo que cuando se pulsa el botón se "
+"inserta una fecha en el registro."
 
 # 41a5850528264f5baaaf7055c1a85aa8
 #: ../doc/building.rst:26
 msgid "At this point you can run Bauble.  To run the compiled executable run::"
-msgstr ""
+msgstr "En este momento puede ejecutar Bauble. Para ejecutar el compilado::"
 
 #: bauble/plugins/plants/genus_editor.glade:78
 #: bauble/plugins/plants/species_editor.glade:179
@@ -1628,7 +1685,7 @@ msgstr "No se pudo cargar el icono de %s"
 
 #: bauble/plugins/picasa/__init__.py:518
 msgid "Could not login to PicasaWeb account."
-msgstr "No se pudo ingresar a la cuenta de PicasaWeb"
+msgstr "No se pudo identificar en la cuenta de PicasaWeb."
 
 #: bauble/plugins/imex/csv_.py:291
 #, python-format
@@ -3218,7 +3275,7 @@ msgstr "Fotos"
 
 #: bauble/connmgr.py:624 bauble/connmgr.py:719
 msgid "Pictures root: "
-msgstr "Carpeta base para las fotos"
+msgstr "Carpeta base para las fotos: "
 
 #: ../doc/editing.rst:151 bauble/plugins/garden/acc_editor.glade:2270
 #: bauble/plugins/garden/accession.py:419 bauble/plugins/garden/plant.py:371
@@ -3261,7 +3318,8 @@ msgstr ""
 #: bauble/plugins/garden/location.py:66
 #, python-format
 msgid "Please remove the plants from <b>%(location)s</b> before deleting it."
-msgstr "Por favor, saque las plantas <b>%(location)s</b>  antes de eliminarlos"
+msgstr ""
+"Por favor, quite las plantas de <b>%(location)s</b>  antes de borrarlas."
 
 # 30bac894038647fda46b474f78427e3e
 #: ../doc/installing.rst:127
@@ -3278,7 +3336,7 @@ msgstr "Seleccione una hoja de estilo."
 
 #: bauble/plugins/report/mako/__init__.py:101
 msgid "Please select a template."
-msgstr "Por favor, seleccione una plantilla"
+msgstr "Por favor, seleccione una plantilla."
 
 #: bauble/plugins/garden/plant.py:308
 msgid "Poor"
@@ -4281,7 +4339,7 @@ msgid ""
 msgstr ""
 "Se ha conectado a una base de datos que no tiene la metatabla de Bauble. "
 "Esto suele deberse a que la base de datos está dañada o a que se creó con "
-"una versión antigua de Bauble."
+"una versión antigua de Bauble"
 
 #: bauble/db.py:363
 msgid "The database you have connected to is empty."
@@ -4358,7 +4416,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:99
 msgid "The fax number of the institution."
-msgstr "Número de fax de la institución"
+msgstr "Número de fax de la institución."
 
 # 0066749d1b2246c4b5e3166e09178214
 #: ../doc/searching.rst:128
@@ -4473,7 +4531,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:575
 msgid "The location of the plant in your collection."
-msgstr "Lugar de la planta en tu colección"
+msgstr "Lugar de la planta en su colección."
 
 # d4c729145cc54aaebcac0152269bf6f0
 #: ../doc/installing.rst:219
@@ -4549,7 +4607,7 @@ msgstr "El nombre o la abreviatura del autor que publicó este género"
 
 #: bauble/plugins/garden/location.py:189
 msgid "The name that you will use later to refer to this location."
-msgstr "Nombre que utilizará más tarde para referirse a este lugar"
+msgstr "Nombre que utilizará más tarde para referirse a este lugar."
 
 #: bauble/plugins/garden/accession.py:793
 #, python-format
@@ -4603,7 +4661,7 @@ msgid ""
 "directly or indirectly rely on each other"
 msgstr ""
 "El complemento contiene un bucle de dependencias. Esto puede pasar si dos "
-"complementos dependen directa o indirectamente uno de otro."
+"complementos dependen directa o indirectamente uno de otro"
 
 #: bauble/pluginmgr.py:313
 msgid ""
@@ -5754,7 +5812,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_infobox.glade:6
 msgid "general_window"
-msgstr "general_window"
+msgstr "ventana_general"
 
 # c18144f2289f411d9d5276e801bb92a4
 #: ../doc/searching.rst:136
@@ -5992,7 +6050,7 @@ msgstr "subfamilia"
 
 #: bauble/plugins/plants/species_model.py:56
 msgid "subsp."
-msgstr "subespecie"
+msgstr "subsp."
 
 #: bauble/plugins/plants/species_model.py:58
 msgid "subvar"
@@ -6188,6 +6246,8 @@ msgid ""
 "installation procedure copies to the `Scripts` directory of the virtual "
 "environment::"
 msgstr ""
+"puede inciar bauble haciendo uso del acceso directo `bauble.lnk` que copia "
+"el proceso de instalación en el directorio `Scripts` del entorno virtual::"
 
 #: bauble/plugins/garden/propagation.py:238
 msgid "°C"
