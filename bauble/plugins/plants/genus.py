@@ -221,6 +221,14 @@ class Genus(db.Base, db.Serializable):
         accepted = syn and syn.genus
         return accepted
 
+    @accepted.setter
+    def accepted(self, value):
+        'Name that should be used if name of self should be rejected'
+        assert isinstance(value, self.__class__)
+        if self in value.synonyms:
+            return
+        value.synonyms.append(self)
+
     def __repr__(self):
         return Genus.str(self)
 

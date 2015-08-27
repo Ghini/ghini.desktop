@@ -547,6 +547,22 @@ class GenusSynonymyTests(PlantTestCase):
         self.assertEquals(zy.as_dict()['accepted'],
                           bu.as_dict(recurse=False))
 
+    def test_define_accepted(self):
+        # notice that same test should be also in Species and Family
+        bu = self.session.query(
+            Genus).filter(
+            Genus.genus == u'Bulbophyllum').one()
+        f = self.session.query(Family).filter(Family.family == u'Orchidaceae'
+                                              ).one()
+        he = Genus(family=f, genus=u'Henosis')  # one more synonym
+        self.session.add(he)
+        self.session.commit()
+        self.assertEquals(len(bu.synonyms), 1)
+        self.assertFalse(he in bu.synonyms)
+        he.accepted = bu
+        self.assertEquals(len(bu.synonyms), 2)
+        self.assertTrue(he in bu.synonyms)
+
 
 class SpeciesTests(PlantTestCase):
 
