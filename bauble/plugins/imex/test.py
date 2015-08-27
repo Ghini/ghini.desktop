@@ -476,7 +476,7 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(result[0]['author'], 'R. Br.')
 
     def test_writes_partial_taxonomic_info_species(self):
-        "exporting one genus: all species below species"
+        "exporting one species: all species below species"
 
         selection = self.session.query(
             Species).filter(Species.sp == u'tuberosus').join(
@@ -491,6 +491,36 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(result[0]['ht-rank'], 'genus')
         self.assertEquals(result[0]['ht-epithet'], 'Calopogon')
         self.assertEquals(result[0]['hybrid'], False)
+
+    def test_partial_taxonomic_with_synonymy(self):
+        "exporting one genus which is not an accepted name."
+
+        f = self.session.query(
+            Family).filter(
+            Family.family == u'Orchidaceae').one()
+        bu = Genus(family=f, genus=u'Bulbophyllum')  # accepted
+        zy = Genus(family=f, genus=u'Zygoglossum')  # synonym
+        bu.synonyms.append(zy)
+        self.session.add_all([f, bu, zy])
+        self.session.commit()
+
+        selection = self.session.query(Genus).filter(
+            Genus.genus == u'Zygoglossum').all()
+        mock_view.set_selection(selection)
+        exporter = JSONExporter(mock_view)
+        exporter.start(self.temp_path, selection)
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 1)
+        self.assertEquals(result[0]['rank'], 'genus')
+        self.assertEquals(result[0]['epithet'], 'Zygoglossum')
+        self.assertEquals(result[0]['ht-rank'], 'familia')
+        self.assertEquals(result[0]['ht-epithet'], 'Orchidaceae')
+        accepted = result[0].get('accepted')
+        self.assertTrue(isinstance(accepted, dict))
+        self.assertEquals(accepted['rank'], 'genus')
+        self.assertEquals(accepted['epithet'], 'Bulbophyllum')
+        self.assertEquals(accepted['ht-rank'], 'familia')
+        self.assertEquals(accepted['ht-epithet'], 'Orchidaceae')
 
 
 class JSONImportTests(BaubleTestCase):

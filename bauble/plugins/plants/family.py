@@ -201,19 +201,30 @@ class Family(db.Base, db.Serializable):
             return ' '.join([s for s in [
                 family.family, family.qualifier] if s not in (None, '')])
 
+    @property
+    def accepted(self):
+        'Name that should be used if name of self should be rejected'
+        session = object_session(self)
+        syn = session.query(FamilySynonym).filter(
+            FamilySynonym.synonym_id == self.id).first()
+        accepted = syn and syn.family
+        return accepted
+
     def has_accessions(self):
         '''true if family is linked to at least one accession
         '''
 
         return False
 
-    def as_dict(self):
+    def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
         del result['family']
         del result['qualifier']
         result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.family
+        if recurse and self.accepted is not None:
+            result['accepted'] = self.accepted.as_dict(recurse=False)
         return result
 
     @classmethod
