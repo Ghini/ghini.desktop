@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-07-12 20:21-0500\n"
-"PO-Revision-Date: 2015-08-27 18:02+0200\n"
+"PO-Revision-Date: 2015-08-27 18:12+0200\n"
 "Last-Translator: Luis García Sevillano <floss.dev@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/bauble/master/es/>\n"
@@ -1164,8 +1164,9 @@ msgid "Awards"
 msgstr "Premios"
 
 #: bauble/plugins/garden/accession.py:409
+#, fuzzy
 msgid "Balled & burlapped plant"
-msgstr ""
+msgstr "Planta con forma de bola y arpillera"
 
 #: bauble/plugins/garden/accession.py:410
 msgid "Bare root plant"
@@ -1174,13 +1175,15 @@ msgstr ""
 # b8087e5aa61643949a78edd4ec80e3b6
 # 22cadd942bbc4e3ab5f63e24cdf19797
 #: ../<autodoc>:1
+#, fuzzy
 msgid "Bases: :class:`bauble.utils.GenericMessageBox`"
-msgstr ""
+msgstr "Bases: :class:`bauble.utils.GenericMessageBox`"
 
 # d58f2f26caa04874a37a5f0cd7ca1da4
 #: ../<autodoc>:1
+#, fuzzy
 msgid "Bases: :class:`gtk.EventBox`"
-msgstr ""
+msgstr "Bases: :class:`gtk.EventBox`"
 
 #: bauble/bauble.glade:7 bauble/connmgr.glade:7
 msgid "Bauble"
@@ -1193,12 +1196,12 @@ msgstr "Configuración Bauble-Picasa"
 # 650246b13a8644e1a266aa7b184e43c6
 #: ../doc/index.rst:44
 msgid "Bauble Development"
-msgstr ""
+msgstr "Desarrollo de Bauble"
 
 # 8ed0cc85d51f40bda9cd82b44bbd58d2
 #: ../doc/users.rst:17
 msgid "Bauble allows read, write and execute permissions."
-msgstr ""
+msgstr "Bauble permite la lectura, escritura y ejecución."
 
 # a9bdf5cf5d764a599b4db0aeeefa540a
 #: ../doc/peptalk.rst:29
@@ -1207,6 +1210,9 @@ msgid ""
 "recognize the plant in case a sticker is lost, or help taxonomic "
 "identification if a taxonomist is not available at all times."
 msgstr ""
+"Bauble le permite asociar fotos a plantas físicas, esto puede ayudarle a "
+"reconocer la planta en caso de que se pierda la nota, o ayudar a la "
+"identificación taxonómica si no está disponible un taxónomo."
 
 # e67cf82363dc4eaaaf72a21e87d3622e
 #: ../doc/peptalk.rst:48
@@ -1216,6 +1222,10 @@ msgid ""
 "which do not reach the complexity of SQL but allow you a decent level of "
 "detail localizing your data."
 msgstr ""
+"Bauble le permite consultar la base de datos empleando palabras clave "
+"sencillas, p.e.: el nombre del lugar o un nombre de género, o puede escribir "
+"consultas más complejas, que no llegarán a la complejidad de SQL paro que le "
+"permitirán localizar sus datos con un nivel de detalle aceptable."
 
 # 74300fa4def841d38456224fb78f14d7
 #: ../doc/started.rst:27
