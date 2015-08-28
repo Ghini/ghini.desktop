@@ -238,8 +238,11 @@ class Family(db.Base, db.Serializable):
 
     @classmethod
     def retrieve(cls, session, keys):
-        return session.query(cls).filter(
-            cls.family == keys['epithet']).all()
+        try:
+            return session.query(cls).filter(
+                cls.family == keys['epithet']).one()
+        except:
+            return None
 
     @classmethod
     def correct_field_names(cls, keys):

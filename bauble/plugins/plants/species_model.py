@@ -476,9 +476,12 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
     @classmethod
     def retrieve(cls, session, keys):
         from genus import Genus
-        return session.query(cls).filter(
-            cls.sp == keys['epithet']).join(Genus).filter(
-            Genus.genus == keys['ht-epithet']).all()
+        try:
+            return session.query(cls).filter(
+                cls.sp == keys['epithet']).join(Genus).filter(
+                Genus.genus == keys['ht-epithet']).one()
+        except:
+            return None
 
     @classmethod
     def compute_serializable_fields(cls, session, keys):
@@ -530,10 +533,13 @@ class SpeciesNote(db.Base, db.Serializable):
     def retrieve(cls, session, keys):
         from genus import Genus
         genus, epithet = keys['species'].split(' ', 1)
-        return session.query(cls).filter(
-            cls.category == keys['category']).join(Species).filter(
-            Species.sp == epithet).join(Genus).filter(
-            Genus.genus == genus).all()
+        try:
+            return session.query(cls).filter(
+                cls.category == keys['category']).join(Species).filter(
+                Species.sp == epithet).join(Genus).filter(
+                Genus.genus == genus).one()
+        except:
+            return None
 
 
 class SpeciesSynonym(db.Base):
@@ -623,9 +629,12 @@ class VernacularName(db.Base, db.Serializable):
         sp = session.query(Species).filter(
             Species.sp == s_epithet).join(Genus).filter(
             Genus.genus == g_epithet).first()
-        return session.query(cls).filter(
-            cls.species == sp,
-            cls.language == keys['language']).all()
+        try:
+            return session.query(cls).filter(
+                cls.species == sp,
+                cls.language == keys['language']).one()
+        except:
+            return None
 
     @property
     def pictures(self):

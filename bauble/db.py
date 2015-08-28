@@ -520,7 +520,7 @@ class Serializable:
 
         if is_in_session and not update:
             logger.debug("returning not updated existing %s" % is_in_session)
-            return is_in_session[0]
+            return is_in_session
 
         try:
             ## some fields are given as text but actually correspond to
@@ -568,7 +568,7 @@ class Serializable:
             keys[key] = obj
 
         if is_in_session and update:
-            result = is_in_session[0]
+            result = is_in_session
             logger.debug("going to update %s with %s" % (result, keys))
             if 'id' in keys:
                 del keys['id']

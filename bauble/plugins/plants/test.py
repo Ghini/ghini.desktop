@@ -552,8 +552,9 @@ class GenusSynonymyTests(PlantTestCase):
         bu = self.session.query(
             Genus).filter(
             Genus.genus == u'Bulbophyllum').one()
-        f = self.session.query(Family).filter(Family.family == u'Orchidaceae'
-                                              ).one()
+        f = self.session.query(
+            Family).filter(
+            Family.family == u'Orchidaceae').one()
         he = Genus(family=f, genus=u'Henosis')  # one more synonym
         self.session.add(he)
         self.session.commit()
@@ -562,6 +563,22 @@ class GenusSynonymyTests(PlantTestCase):
         he.accepted = bu
         self.assertEquals(len(bu.synonyms), 2)
         self.assertTrue(he in bu.synonyms)
+
+    def test_can_redefine_accepted(self):
+        # Altamiranoa Rose used to refer to Villadia Rose for its accepted
+        # name, it is now updated to Sedum L.
+
+        ## T_0
+        claceae = Family(family=u'Crassulaceae')  # J. St.-Hil.
+        villa = Genus(family=claceae, genus=u'Villadia', author=u'Rose')
+        alta = Genus(family=claceae, genus=u'Altamiranoa', author=u'Rose')
+        alta.accepted = villa
+        self.session.add_all([claceae, alta, villa])
+        self.session.commit()
+
+        sedum = Genus(family=claceae, genus=u'Sedum', author=u'L.')
+        alta.accepted = sedum
+        self.session.commit()
 
 
 class SpeciesTests(PlantTestCase):

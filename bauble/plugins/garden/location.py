@@ -145,8 +145,11 @@ class Location(db.Base, db.Serializable):
 
     @classmethod
     def retrieve(cls, session, keys):
-        return session.query(cls).filter(
-            cls.code == keys['code']).all()
+        try:
+            return session.query(cls).filter(
+                cls.code == keys['code']).one()
+        except:
+            return None
 
 
 def mergevalues(value1, value2, formatter):
