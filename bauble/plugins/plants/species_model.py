@@ -136,6 +136,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
     __mapper_args__ = {'order_by': ['sp', 'sp_author']}
 
     rank = 'species'
+    link_keys = ['accepted']
 
     @property
     def cites(self):
@@ -719,3 +720,8 @@ class Color(db.Base):
             return '%s (%s)' % (self.name, self.code)
         else:
             return str(self.code)
+
+
+db.Species = Species
+db.SpeciesNote = SpeciesNote
+db.VernacularName = VernacularName

@@ -31,11 +31,11 @@ import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
 from bauble.plugins.garden.accession import AccessionEditor, \
-    Accession, AccessionInfoBox, \
+    Accession, AccessionInfoBox, AccessionNote, \
     acc_context_menu, acc_markup_func
 from bauble.plugins.garden.location import LocationEditor, \
     Location, LocationInfoBox, loc_context_menu, loc_markup_func
-from bauble.plugins.garden.plant import PlantEditor, \
+from bauble.plugins.garden.plant import PlantEditor, PlantNote, \
     Plant, PlantSearch, PlantInfoBox, plant_context_menu, plant_markup_func, \
     plant_delimiter_key, default_plant_delimiter
 from bauble.plugins.garden.source import \
@@ -249,4 +249,13 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     presenter.view.connect(combo, 'changed', on_combo_changed)
 
 
+import bauble.db as db
+
 plugin = GardenPlugin
+
+## make names visible to db module
+db.Accession = Accession
+db.AccessionNote = AccessionNote
+db.Plant = Plant
+db.PlantNote = PlantNote
+db.Location = Location
