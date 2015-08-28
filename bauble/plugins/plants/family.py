@@ -149,6 +149,7 @@ class Family(db.Base, db.Serializable):
     __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
     rank = 'familia'
+    link_keys = ['accepted']
 
     @validates('genus')
     def validate_stripping(self, key, value):
@@ -891,3 +892,5 @@ class FamilyInfoBox(InfoBox):
         self.synonyms.update(row)
         self.links.update(row)
         self.props.update(row)
+
+db.Family = Family
