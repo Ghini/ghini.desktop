@@ -168,6 +168,7 @@ class Genus(db.Base, db.Serializable):
     __mapper_args__ = {'order_by': ['genus', 'author']}
 
     rank = 'genus'
+    link_keys = ['accepted']
 
     @property
     def cites(self):
@@ -1027,3 +1028,6 @@ class GenusInfoBox(InfoBox):
         self.synonyms.update(row)
         self.links.update(row)
         self.props.update(row)
+
+
+db.Genus = Genus

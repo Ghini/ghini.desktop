@@ -561,8 +561,8 @@ class JSONImportTests(BaubleTestCase):
     def test_import_new_inserts_lowercase(self):
         "importing new taxon adds it to database, rank name can be\
         all lower case."
-        json_string = '[{"rank": "genus", "epithet": "Neogyna", "ht-rank"\
-        : "familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "genus", "epithet": "Neogyna", "ht-rank"'\
+            ': "familia", "ht-epithet": "Orchidaceae", "author": "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -574,9 +574,9 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
-        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank"\
-        : "Genus", "ht-epithet": "Calopogon", "hybrid": false, "author"\
-        : "Britton et al."}]'
+        json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank"'\
+            ': "Genus", "ht-epithet": "Calopogon", "hybrid": false, "author"'\
+            ': "Britton et al."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         previously = Species.retrieve_or_create(
@@ -628,8 +628,9 @@ class JSONImportTests(BaubleTestCase):
 
     def test_import_species_to_new_genus_fails(self):
         "importing new species referring to non existing genus logs a warning."
-        json_string = '[{"rank": "Species", "epithet": "lawrenceae", \
-"ht-rank": "Genus", "ht-epithet": "Aerides", "author": "Rchb. f."}]'
+        json_string = '[{"rank": "Species", "epithet": "lawrenceae", '\
+            '"ht-rank": "Genus", "ht-epithet": "Aerides", "author": '\
+            '"Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
@@ -651,8 +652,8 @@ class JSONImportTests(BaubleTestCase):
         self.assertEquals(sp, [])
 
         json_string = '[{"rank": "Species", "epithet": "lawrenceae", '\
-            + '"ht-rank": "Genus", "ht-epithet": "Aerides", '\
-            + '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
+            '"ht-rank": "Genus", "ht-epithet": "Aerides", '\
+            '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter()
@@ -670,6 +671,25 @@ class JSONImportTests(BaubleTestCase):
             Family.family == u'Orchidaceae').first()
         self.assertEquals(sp.genus, genus)
         self.assertEquals(genus.family, family)
+
+    def test_import_with_synonym(self):
+        "importing taxon with `accepted` field imports both taxa"
+        json_string = '[{"rank": "Genus", "epithet": "Zygoglossum", '\
+            '"ht-rank": "Familia", "ht-epithet": "Orchidaceae", '\
+            '"author": "Reinw.", "accepted": {"rank": "Genus", '\
+            '"epithet": "Bulbophyllum", "ht-rank": "Familia", '\
+            '"ht-epithet": "Orchidaceae", "author": "Thouars"}}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.session.commit()
+        synonym = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Zygoglossum"})
+        self.assertEquals(synonym.accepted.__class__, Genus)
+        accepted = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Bulbophyllum"})
+        self.assertEquals(synonym.accepted, accepted)
 
         # Calopogon tuberosus
         # Spiranthes delitescens Sheviak

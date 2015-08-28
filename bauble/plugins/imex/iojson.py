@@ -39,20 +39,6 @@ import bauble.pluginmgr as pluginmgr
 from bauble import pb_set_fraction
 
 
-def class_of_object(o):
-    """what class implements object o
-
-    >>> class_of_object("genus")
-    <class 'bauble.plugins.plants.genus.Genus'>
-    >>> class_of_object("accession_note")
-    <class 'bauble.plugins.garden.accession.AccessionNote'>
-    >>> class_of_object("not_existing")
-    >>>
-    """
-
-    name = ''.join(p.capitalize() for p in o.split('_'))
-    return globals().get(name)
-
 
 def serializedatetime(obj):
     """Default JSON serializer."""
@@ -262,24 +248,17 @@ class JSONImporter(object):
 
     def run(self, objects):
         ## generator function. will be run as a task.
-        s = db.Session()
+        session = db.Session()
         n = len(objects)
         for i, obj in enumerate(objects):
-            ## get class and remove reference
-            klass = None
-            if 'object' in obj:
-                klass = class_of_object(obj['object'])
-            if klass is None and 'rank' in obj:
-                klass = globals().get(obj['rank'].capitalize())
-                del obj['rank']
             try:
-                klass.retrieve_or_create(s, obj, create=self.create)
+                db.construct_from_dict(session, obj, self.create)
             except Exception as e:
                 logger.warning("could not import %s (%s: %s)" %
                                (obj, type(e).__name__, e.args))
             pb_set_fraction(float(i) / n)
             yield
-        s.commit()
+        session.commit()
 
 
 class JSONExporter(object):
