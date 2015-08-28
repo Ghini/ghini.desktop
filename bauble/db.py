@@ -476,6 +476,7 @@ class DefiningPictures:
 class Serializable:
     import re
     single_cap_re = re.compile('([A-Z])')
+    link_keys = []
 
     def as_dict(self):
         result = dict((col, getattr(self, col))
@@ -511,17 +512,19 @@ class Serializable:
         logger.debug('initial value of keys: %s' % keys)
         ## first try retrieving
         is_in_session = cls.retrieve(session, keys)
+        logger.debug('2 value of keys: %s' % keys)
 
         if not create and not is_in_session:
             logger.debug('returning None (1)')
             return None
 
         if is_in_session and not update:
-            logger.debug("returning existing %s" % is_in_session)
+            logger.debug("returning not updated existing %s" % is_in_session)
             return is_in_session[0]
 
         try:
-            ## what fields are associated to objects
+            ## some fields are given as text but actually correspond to
+            ## different fields and should be associated to objects
             extradict = cls.compute_serializable_fields(
                 session, keys)
 
@@ -529,9 +532,22 @@ class Serializable:
             cls.correct_field_names(keys)
         except error.NoResultException:
             if not is_in_session:
+                logger.debug("returning None (2)")
                 return None
             else:
                 extradict = {}
+        logger.debug('3 value of keys: %s' % keys)
+
+        ## at this point, resulting object is either in database or not. in
+        ## either case, the database is going to be updated.
+
+        ## link_keys are python-side properties, not database associations
+        ## and have as value objects that are possibly in the database, or
+        ## not, but they cannot be used to construct the `self` object.
+        link_values = {}
+        for k in cls.link_keys:
+            if keys.get(k):
+                link_values[k] = keys[k]
 
         for k in keys.keys():
             if k not in class_mapper(cls).mapped_table.c:
@@ -541,6 +557,16 @@ class Serializable:
 
         keys.update(extradict)
 
+        ## completing the task of building the links
+        logger.debug("links? %s, %s" % (cls.link_keys, keys.keys()))
+        for key in cls.link_keys:
+            d = link_values.get(key)
+            if d is None:
+                continue
+            logger.debug('recursive call to construct_from_dict %s' % d)
+            obj = construct_from_dict(session, d)
+            keys[key] = obj
+
         if is_in_session and update:
             result = is_in_session[0]
             logger.debug("going to update %s with %s" % (result, keys))
@@ -549,7 +575,7 @@ class Serializable:
             for k, v in keys.items():
                 if v is not None:
                     setattr(result, k, v)
-            logger.debug('returning existing %s' % result)
+            logger.debug('returning updated existing %s' % result)
             return result
 
         result = cls(**keys)
@@ -558,3 +584,30 @@ class Serializable:
 
         logger.debug('returning new %s' % result)
         return result
+
+
+def construct_from_dict(session, obj, create=True):
+    ## get class and remove reference
+    logger.debug("construct_from_dict %s" % obj)
+    klass = None
+    if 'object' in obj:
+        klass = class_of_object(obj['object'])
+    if klass is None and 'rank' in obj:
+        klass = globals().get(obj['rank'].capitalize())
+        del obj['rank']
+    return klass.retrieve_or_create(session, obj, create=create)
+
+
+def class_of_object(o):
+    """what class implements object o
+
+    >>> class_of_object("genus")
+    <class 'bauble.plugins.plants.genus.Genus'>
+    >>> class_of_object("accession_note")
+    <class 'bauble.plugins.garden.accession.AccessionNote'>
+    >>> class_of_object("not_existing")
+    >>>
+    """
+
+    name = ''.join(p.capitalize() for p in o.split('_'))
+    return globals().get(name)
