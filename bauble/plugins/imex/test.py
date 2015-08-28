@@ -691,6 +691,38 @@ class JSONImportTests(BaubleTestCase):
             self.session, {'epithet': u"Bulbophyllum"})
         self.assertEquals(synonym.accepted, accepted)
 
+    def test_use_author_to_break_ties(self):
+        "importing homonym taxon is possible if authorship breaks ties"
+        # Anacampseros was used twice, by Linnaeus, and by Miller
+        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, genus=u'Anacampseros', author=u'L.')
+        claceae = Family(family=u'Crassulaceae')  # J. St.-Hil.
+        miller = Genus(family=claceae, genus=u'Anacampseros', author=u'Mill.')
+        self.session.add_all([claceae, ataceae, linnaeus, miller])
+        self.session.commit()
+        ## T_0
+        accepted = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Sedum"}, create=False)
+        self.assertEquals(accepted, None)
+        self.assertEquals(miller.accepted, None)
+        # what if we update Anacampseros Mill., with `accepted` information?
+        json_string = ' {"author": "Mill.", "epithet": "Anacampseros", '\
+            '"ht-epithet": "Crassulaceae", "ht-rank": "familia", '\
+            '"object": "taxon", "rank": "genus", "accepted": {'\
+            '"author": "L.", "epithet": "Sedum", "ht-epithet": '\
+            '"Crassulaceae", "ht-rank": "familia", "object": "taxon", '\
+            '"rank": "genus"}}'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter()
+        importer.start([self.temp_path])
+        self.session.commit()
+        ## T_1
+        accepted = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Sedum"}, create=False)
+        self.assertEquals(accepted.__class__, Genus)
+        self.assertEquals(miller.accepted, accepted)
+
         # Calopogon tuberosus
         # Spiranthes delitescens Sheviak
         # Aerides lawrenceae Rchb. f.

@@ -252,7 +252,10 @@ class PlantNote(db.Base, db.Serializable):
             q = q.filter(cls.date == keys['date'])
         if 'category' in keys:
             q = q.filter(cls.category == keys['category'])
-        return q.all()
+        try:
+            return q.one()
+        except:
+            return None
 
     @classmethod
     def compute_serializable_fields(cls, session, keys):
@@ -589,9 +592,12 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures):
 
     @classmethod
     def retrieve(cls, session, keys):
-        return session.query(cls).filter(
-            cls.code == keys['code']).join(Accession).filter(
-            Accession.code == keys['accession']).all()
+        try:
+            return session.query(cls).filter(
+                cls.code == keys['code']).join(Accession).filter(
+                Accession.code == keys['accession']).one()
+        except:
+            return None
 
 
 from bauble.plugins.garden.accession import Accession

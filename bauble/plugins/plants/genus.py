@@ -228,6 +228,11 @@ class Genus(db.Base, db.Serializable):
         assert isinstance(value, self.__class__)
         if self in value.synonyms:
             return
+        # remove any previous `accepted` link
+        session = db.Session()
+        session.query(GenusSynonym).filter(
+            GenusSynonym.synonym_id == self.id).delete()
+        session.commit()
         value.synonyms.append(self)
 
     def __repr__(self):
@@ -268,8 +273,18 @@ class Genus(db.Base, db.Serializable):
 
     @classmethod
     def retrieve(cls, session, keys):
-        return session.query(cls).filter(
-            cls.genus == keys['epithet']).all()
+        try:
+            return session.query(cls).filter(
+                cls.genus == keys['epithet']).one()
+        except:
+            if 'author' not in keys:
+                return None
+        try:
+            return session.query(cls).filter(
+                cls.genus == keys['epithet'],
+                cls.author == keys['author']).one()
+        except:
+            return None
 
     @classmethod
     def correct_field_names(cls, keys):
