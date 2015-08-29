@@ -94,7 +94,6 @@ class ExportToJson(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'imex',
                                 'select_export.glade')
         super(ExportToJson, self).__init__(filename, parent=parent)
-        self.builder.connect_signals(self)
         for wn in ['selection', 'taxa', 'accessions', 'plants']:
             self.connect('sbo_' + wn, 'toggled',
                          self.radio_button_pushed, "based_on")
@@ -209,42 +208,59 @@ class ExportToJson(editor.GenericEditorView):
         return result
 
 
-class JSONImporter(object):
+class JSONImporter(editor.GenericEditorPresenter):
     '''The import process will be queued as a bauble task. there is no callback
     informing whether it is successfully completed or not.
 
     the Presenter ((M)VP)
+    Model (attributes container) is the Presenter itself.
     '''
 
-    def __init__(self):
-        super(JSONImporter, self).__init__()
+    widget_to_field_map = {'chk_create': 'create',
+                           'chk_update': 'update',
+                           'input_filename': 'filename',
+                           }
+    last_folder = ''
+
+    view_accept_buttons = ['sid-button-ok', 'sid-button-cancel', ]
+
+    def __init__(self, view):
+        self.filename = ''
+        self.update = False
+        self.create = True
+        super(JSONImporter, self).__init__(
+            model=self, view=view, refresh_view=True)
         self.__error = False   # flag to indicate error on import
         self.__cancel = False  # flag to cancel importing
         self.__pause = False   # flag to pause importing
         self.__error_exc = False
-        self.create = True     # should be an option
 
-    def start(self, filenames=None):
-        if filenames is None:
-            d = gtk.FileChooserDialog(
-                _("Choose a file to import from..."), None,
-                gtk.FILE_CHOOSER_ACTION_SAVE,
-                (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                 gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-            response = d.run()
-            filename = d.get_filename()
-            d.destroy()
-            if response != gtk.RESPONSE_ACCEPT or filename is None:
-                return
-            filenames = [filename]
-        objects = [json.load(open(fn)) for fn in filenames]
-        a = []
-        for i in objects:
-            if isinstance(i, list):
-                a.extend(i)
-            else:
-                a.append(i)
+    def on_btnbrowse_clicked(self, button):
+        chooser = gtk.FileChooserDialog(
+            _("Choose a file..."), None,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        #chooser.set_do_overwrite_confirmation(True)
+        #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
+        try:
+            if self.last_folder:
+                chooser.set_current_folder(self.last_folder)
+            if chooser.run() == gtk.RESPONSE_ACCEPT:
+                filename = chooser.get_filename()
+                if filename:
+                    JSONImporter.last_folder, bn = os.path.split(filename)
+                    self.view.set_widget_value('input_filename', filename)
+        except Exception, e:
+            logger.warning("unhandled exception in iojson.py: %s" % e)
+        chooser.destroy()
+
+    def on_btnok_clicked(self, widget):
+        obj = json.load(open(self.filename))
+        a = isinstance(obj, list) and obj or [obj]
         bauble.task.queue(self.run(a))
+
+    def on_btncancel_clicked(self, widget):
+        pass
 
     def run(self, objects):
         ## generator function. will be run as a task.
@@ -340,8 +356,13 @@ class JSONImportTool(pluginmgr.Tool):
         Start the JSON importer.  This tool will also reinitialize the
         plugins after importing.
         """
-        c = JSONImporter()
-        c.start()
+        s = db.Session()
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'imex',
+                                'select_export.glade')
+        presenter = JSONImporter(view=editor.GenericEditorView(
+            filename, root_widget_name='select_import_dialog'))
+        presenter.start()  # interact && run
+        s.close()
 
 
 class JSONExportTool(pluginmgr.Tool):
