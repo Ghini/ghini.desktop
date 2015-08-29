@@ -523,6 +523,19 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(accepted['ht-epithet'], 'Orchidaceae')
 
 
+class MockView:
+    def set_widget_value(self, *args):
+        pass
+
+    def get_widget_value(self, *args):
+        pass
+
+    def connect_signals(self, *args):
+        pass
+
+    pass
+
+
 class JSONImportTests(BaubleTestCase):
 
     def setUp(self):
@@ -553,8 +566,9 @@ class JSONImportTests(BaubleTestCase):
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 0)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 1)
 
@@ -567,8 +581,9 @@ class JSONImportTests(BaubleTestCase):
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 0)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 1)
 
@@ -583,8 +598,9 @@ class JSONImportTests(BaubleTestCase):
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
         self.assertEquals(previously.sp_author, None)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
         self.session.commit()
         afterwards = Species.retrieve_or_create(
             self.session, {'ht-epithet': u"Calopogon",
@@ -601,8 +617,10 @@ class JSONImportTests(BaubleTestCase):
             '"author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+
         self.session.commit()
         real_id = Genus.retrieve_or_create(self.session,
                                            {'epithet': u"Neogyna"}).id
@@ -618,8 +636,10 @@ class JSONImportTests(BaubleTestCase):
             '"id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+
         self.session.commit()
         afterwards = Species.retrieve_or_create(self.session,
                                                 {'ht-epithet': u"Calopogon",
@@ -633,8 +653,10 @@ class JSONImportTests(BaubleTestCase):
             '"Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+
         ## should check the logs
         ## check the species is still not there
         sp = self.session.query(Species).filter(
@@ -656,8 +678,10 @@ class JSONImportTests(BaubleTestCase):
             '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+
         self.session.commit()
         ## postcondition: the species is there
         sp = self.session.query(Species).filter(
@@ -681,8 +705,10 @@ class JSONImportTests(BaubleTestCase):
             '"ht-epithet": "Orchidaceae", "author": "Thouars"}}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+
         self.session.commit()
         synonym = Genus.retrieve_or_create(
             self.session, {'epithet': u"Zygoglossum"})
@@ -714,8 +740,10 @@ class JSONImportTests(BaubleTestCase):
             '"rank": "genus"}}'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter()
-        importer.start([self.temp_path])
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+
         self.session.commit()
         ## T_1
         accepted = Genus.retrieve_or_create(

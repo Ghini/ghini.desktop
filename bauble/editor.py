@@ -40,6 +40,7 @@ import dateutil.parser as date_parser
 import lxml.etree as etree
 import pango
 from sqlalchemy.orm import object_mapper, object_session
+from sqlalchemy.orm.exc import UnmappedInstanceError
 
 from bauble.i18n import _
 import bauble
@@ -513,6 +514,8 @@ class GenericEditorView(object):
         pass
 
     def start(self):
+        ## while being ran, the view will invoke callbacks in the presenter
+        ## which, in turn, will alter the attributes in the model.
         return self.get_window().run()
 
     def cleanup(self):
@@ -559,7 +562,10 @@ class GenericEditorPresenter(object):
         self.view = view
         self.problems = set()
         self._dirty = False
-        self.session = object_session(model)
+        try:
+            self.session = object_session(model)
+        except UnmappedInstanceError:
+            self.session = db.Session()
         #logger.debug("session, model, view = %s, %s, %s"
         #             % (self.session, model, view))
         if view:
@@ -570,7 +576,8 @@ class GenericEditorPresenter(object):
 
     def refresh_view(self):
         for widget, attr in self.widget_to_field_map.items():
-            value = getattr(self.model, attr) or ''
+            value = getattr(self.model, attr)
+            value = value is None and '' or value
             self.view.set_widget_value(widget, value)
 
     def commit_changes(self):
