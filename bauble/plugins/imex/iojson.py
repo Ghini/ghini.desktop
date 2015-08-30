@@ -226,7 +226,7 @@ class JSONImporter(editor.GenericEditorPresenter):
 
     def __init__(self, view):
         self.filename = ''
-        self.update = False
+        self.update = True
         self.create = True
         super(JSONImporter, self).__init__(
             model=self, view=view, refresh_view=True)
@@ -268,7 +268,7 @@ class JSONImporter(editor.GenericEditorPresenter):
         n = len(objects)
         for i, obj in enumerate(objects):
             try:
-                db.construct_from_dict(session, obj, self.create)
+                db.construct_from_dict(session, obj, self.create, self.update)
             except Exception as e:
                 logger.warning("could not import %s (%s: %s)" %
                                (obj, type(e).__name__, e.args))

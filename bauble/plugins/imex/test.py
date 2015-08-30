@@ -49,7 +49,9 @@ import json
 # they do a non-dict unicode reader/writer
 
 csv_test_data = ({})
-
+# Calopogon tuberosus Britton, Sterns & Poggenb.
+# Spiranthes delitescens Sheviak
+# Aerides lawrenceae Rchb. f.
 
 family_data = [{'id': 1, 'family': u'Orchidaceae', 'qualifier': None},
                {'id': 2, 'family': u'Myrtaceae'}]
@@ -726,12 +728,14 @@ class JSONImportTests(BaubleTestCase):
         miller = Genus(family=claceae, genus=u'Anacampseros', author=u'Mill.')
         self.session.add_all([claceae, ataceae, linnaeus, miller])
         self.session.commit()
+
         ## T_0
         accepted = Genus.retrieve_or_create(
             self.session, {'epithet': u"Sedum"}, create=False)
         self.assertEquals(accepted, None)
         self.assertEquals(miller.accepted, None)
-        # what if we update Anacampseros Mill., with `accepted` information?
+
+        ## what if we update Anacampseros Mill., with `accepted` information?
         json_string = ' {"author": "Mill.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Crassulaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus", "accepted": {'\
@@ -743,14 +747,114 @@ class JSONImportTests(BaubleTestCase):
         importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
-
         self.session.commit()
+
         ## T_1
         accepted = Genus.retrieve_or_create(
             self.session, {'epithet': u"Sedum"}, create=False)
         self.assertEquals(accepted.__class__, Genus)
         self.assertEquals(miller.accepted, accepted)
 
-        # Calopogon tuberosus
-        # Spiranthes delitescens Sheviak
-        # Aerides lawrenceae Rchb. f.
+    def test_import_create_update(self):
+        'existing gets updated, not existing is created'
+
+        ## T_0
+        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, genus=u'Anacampseros')  # L.
+        self.session.add_all([ataceae, linnaeus])
+        self.session.commit()
+
+        ## offer two objects for import
+        importer = JSONImporter(MockView())
+        json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
+            '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
+            '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
+            '"epithet": "Sedum", "ht-epithet": "Crassulaceae", '\
+            '"ht-rank": "familia", "object": "taxon", '\
+            '"rank": "genus"}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer.filename = self.temp_path
+        importer.create = True
+        importer.update = True
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+
+        ## T_1
+        sedum = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Sedum"}, create=False)
+        self.assertEquals(sedum.__class__, Genus)
+        self.assertEquals(sedum.author, u'L.')
+        anacampseros = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Anacampseros"}, create=False)
+        self.assertEquals(anacampseros.__class__, Genus)
+        self.assertEquals(anacampseros.author, u'L.')
+
+    def test_import_no_create_update(self):
+        'existing gets updated, not existing is not created'
+
+        ## T_0
+        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, genus=u'Anacampseros')  # L.
+        self.session.add_all([ataceae, linnaeus])
+        self.session.commit()
+
+        ## offer two objects for import
+        importer = JSONImporter(MockView())
+        json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
+            '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
+            '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
+            '"epithet": "Sedum", "ht-epithet": "Crassulaceae", '\
+            '"ht-rank": "familia", "object": "taxon", '\
+            '"rank": "genus"}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer.filename = self.temp_path
+        importer.create = False
+        importer.update = True
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+
+        ## T_1
+        sedum = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Sedum"}, create=False)
+        self.assertEquals(sedum, None)
+        anacampseros = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Anacampseros"}, create=False)
+        self.assertEquals(anacampseros.__class__, Genus)
+        self.assertEquals(anacampseros.author, u'L.')
+
+    def test_import_create_no_update(self):
+        'existing remains untouched, not existing is created'
+
+        ## T_0
+        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, genus=u'Anacampseros')  # L.
+        self.session.add_all([ataceae, linnaeus])
+        self.session.commit()
+
+        ## offer two objects for import
+        importer = JSONImporter(MockView())
+        json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
+            '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
+            '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
+            '"epithet": "Sedum", "ht-epithet": "Crassulaceae", '\
+            '"ht-rank": "familia", "object": "taxon", '\
+            '"rank": "genus"}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer.filename = self.temp_path
+        importer.create = True
+        importer.update = False
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+
+        ## T_1
+        sedum = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Sedum"}, create=False)
+        self.assertEquals(sedum.__class__, Genus)
+        self.assertEquals(sedum.author, u'L.')
+        anacampseros = Genus.retrieve_or_create(
+            self.session, {'epithet': u"Anacampseros"}, create=False)
+        self.assertEquals(anacampseros.__class__, Genus)
+        self.assertEquals(anacampseros.author, u'')
