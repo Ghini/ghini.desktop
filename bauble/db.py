@@ -586,7 +586,7 @@ class Serializable:
         return result
 
 
-def construct_from_dict(session, obj, create=True):
+def construct_from_dict(session, obj, create=True, update=True):
     ## get class and remove reference
     logger.debug("construct_from_dict %s" % obj)
     klass = None
@@ -595,7 +595,7 @@ def construct_from_dict(session, obj, create=True):
     if klass is None and 'rank' in obj:
         klass = globals().get(obj['rank'].capitalize())
         del obj['rank']
-    return klass.retrieve_or_create(session, obj, create=create)
+    return klass.retrieve_or_create(session, obj, create=create, update=update)
 
 
 def class_of_object(o):
