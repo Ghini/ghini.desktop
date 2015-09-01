@@ -49,6 +49,7 @@ from bauble.error import check
 import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
+from bauble.error import CheckConditionError
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
@@ -244,6 +245,22 @@ class GenericEditorView(object):
                 self.connect(window, 'close', self.on_dialog_close)
                 self.connect(window, 'response', self.on_dialog_response)
         self.box = set()  # the top level, meant for warnings.
+
+    def get_selection(self):
+        '''return the selection in the graphic interface'''
+        class EmptySelectionException(Exception):
+            pass
+        from bauble.view import SearchView
+        view = bauble.gui.get_view()
+        try:
+            check(isinstance(view, SearchView))
+            tree_view = view.results_view.get_model()
+            check(tree_view is not None)
+        except CheckConditionError:
+            utils.message_dialog(_('Search for something first.'))
+            return
+
+        return [row[0] for row in tree_view]
 
     def set_label(self, widget_name, value):
         getattr(self.widgets, widget_name).set_markup(value)
@@ -575,6 +592,12 @@ class GenericEditorPresenter(object):
             view.connect_signals(self)
 
     def refresh_view(self):
+        '''fill the values in the widgets as the field values in the model
+
+        for radio button groups, we have several widgets all referring
+        to the same model attribute.
+
+         '''
         for widget, attr in self.widget_to_field_map.items():
             value = getattr(self.model, attr)
             value = value is None and '' or value
@@ -601,12 +624,14 @@ class GenericEditorPresenter(object):
             self.view._dirty = True
             self.view.set_accept_buttons_sensitive(not self.has_problems())
 
-    def __get_widget_attr(self, widget):
+    def __get_widget_name(self, widget):
         from types import StringTypes
-        widgetname = (isinstance(widget, StringTypes)
-                      and widget
-                      or gtk.Buildable.get_name(widget))
-        return self.widget_to_field_map.get(widgetname)
+        return (isinstance(widget, StringTypes)
+                and widget
+                or gtk.Buildable.get_name(widget))
+
+    def __get_widget_attr(self, widget):
+        return self.widget_to_field_map.get(self.__get_widget_name(widget))
 
     def on_textbuffer_changed(self, widget, value=None, attr=None):
         "handle 'changed' signal on textbuffer widgets."
@@ -682,6 +707,15 @@ class GenericEditorPresenter(object):
         attr = self.__get_widget_attr(widget)
         logger.debug('calling unimplemented on_relation_entry_changed(%s, %s)'
                      % (widget, attr))
+
+    def on_group_changed(self, widget, *args):
+        "handle group-changed signal on radio-button"
+        if args:
+            logger.warning("on_group_changed received extra arguments" +
+                           str(args))
+        attr = self.__get_widget_attr(widget)
+        value = self.__get_widget_name(widget)
+        self.__set_model_attr(attr, value)
 
     def dirty(self):
         logger.info('calling deprecated "dirty". use "is_dirty".')
@@ -897,7 +931,7 @@ class GenericEditorPresenter(object):
                                  gtk.RadioButton)):
             def toggled(button, data=None):
                 active = button.get_active()
-#                debug('toggled %s: %s' % (widget_name, active))
+                logger.debug('toggled %s: %s' % (widget_name, active))
                 button.set_inconsistent(False)
                 self.set_model_attr(model_attr, active, validator)
             self.view.connect(widget, 'toggled', toggled)
