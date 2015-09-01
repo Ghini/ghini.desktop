@@ -301,6 +301,7 @@ def get_widget_value(widget, index=0):
                         'the widget type %s with name %s' %
                         (type(widget), widget.name))
 
+
 def set_widget_value(widget, value, markup=False, default=None, index=0):
     '''
     :param widget: an instance of gtk.Widget
@@ -364,6 +365,10 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
             widget.child.props.text = value or ''
     elif isinstance(widget,
                     (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
+        from types import StringTypes
+        if (isinstance(widget, gtk.CheckButton)
+                and isinstance(value, StringTypes)):
+            value = (value == gtk.Buildable.get_name(widget))
         if value is True:
             widget.set_inconsistent(False)
             widget.set_active(True)

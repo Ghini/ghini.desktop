@@ -30,6 +30,7 @@ from sqlalchemy import Column, Integer, Boolean
 
 import bauble.db as db
 from bauble.plugins.plants import Familia, Family, Genus, Species
+from bauble.plugins.garden import Accession
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
@@ -59,6 +60,10 @@ genus_data = [{'id': 1, 'genus': u'Calopogon', 'family_id': 1,
                'author': u'R. Br.'},
               {'id': 2, 'genus': u'Panisea', 'family_id': 1}]
 species_data = [{'id': 1, 'sp': u'tuberosus', 'genus_id': 1}]
+accession_data = [
+    {'id': 1, 'species_id': 1, 'code': u'2015.0001'},
+    {'id': 2, 'species_id': 1, 'code': u'2015.0002'},
+    {'id': 3, 'species_id': 1, 'code': u'2015.0003', 'private': True}, ]
 
 
 class ImexTestCase(BaubleTestCase):
@@ -391,14 +396,24 @@ class CSVTests2(ImexTestCase):
         pass
 
 
-class MockView:
+class MockExportView:
+    def set_widget_value(self, *args):
+        pass
+
+    def get_widget_value(self, *args):
+        pass
+
+    def connect_signals(self, *args):
+        pass
+
+    def connect(self, *args):
+        pass
+
     def set_selection(self, a):
         self.__selection = a
 
     def get_selection(self):
         return self.__selection
-
-mock_view = MockView()
 
 
 class JSONExportTests(BaubleTestCase):
@@ -410,12 +425,16 @@ class JSONExportTests(BaubleTestCase):
 
         data = ((Family, family_data),
                 (Genus, genus_data),
-                (Species, species_data))
+                (Species, species_data),
+                (Accession, accession_data))
 
+        self.objects = []
         for klass, dics in data:
             for dic in dics:
                 obj = klass(**dic)
                 self.session.add(obj)
+                self.objects.append(obj)
+
         self.session.commit()
 
     def tearDown(self):
@@ -425,37 +444,48 @@ class JSONExportTests(BaubleTestCase):
     def test_writes_complete_database(self):
         "exporting without specifying what: export complete database"
 
-        mock_view.set_selection([])
-        exporter = JSONExporter(mock_view)
-        exporter.start(self.temp_path)
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(self.objects)
+        exporter.filename = self.temp_path
+        exporter.run()
         ## must still check content of generated file!
         result = json.load(open(self.temp_path))
-        self.assertEquals(len(result), 5)
-        families = [i for i in result if i['rank'] == 'familia']
+        self.assertEquals(len(result), 8)
+        families = [i for i in result
+                    if i['object'] == 'taxon' and i['rank'] == 'familia']
         self.assertEquals(len(families), 2)
-        genera = [i for i in result if i['rank'] == 'genus']
+        genera = [i for i in result
+                  if i['object'] == 'taxon' and i['rank'] == 'genus']
         self.assertEquals(len(genera), 2)
-        species = [i for i in result if i['rank'] == 'species']
+        species = [i for i in result
+                   if i['object'] == 'taxon' and i['rank'] == 'species']
         self.assertEquals(len(species), 1)
-        self.assertEquals(open(self.temp_path).read(),
-                          """\
-[{"epithet": "Orchidaceae", "object": "taxon", "rank": "familia"},
- {"epithet": "Myrtaceae", "object": "taxon", "rank": "familia"},
- {"author": "R. Br.", "epithet": "Calopogon", "ht-epithet": "Orchidaceae", \
-"ht-rank": "familia", "object": "taxon", "rank": "genus"},
- {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae", \
-"ht-rank": "familia", "object": "taxon", "rank": "genus"},
- {"epithet": "tuberosus", "ht-epithet": "Calopogon", "ht-rank": "genus", \
-"hybrid": false, "object": "taxon", "rank": "species"}]""")
+        self.assertEquals(
+            open(self.temp_path).read(),
+            '[{"epithet": "Orchidaceae", "object": "taxon", "rank": "familia' +
+            '"},\n {"epithet": "Myrtaceae", "object": "taxon", "rank": "fami' +
+            'lia"},\n {"author": "R. Br.", "epithet": "Calopogon", "ht-epith' +
+            'et": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "r' +
+            'ank": "genus"},\n {"author": "", "epithet": "Panisea", "ht-epit' +
+            'het": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "' +
+            'rank": "genus"},\n {"epithet": "tuberosus", "ht-epithet": "Calo' +
+            'pogon", "ht-rank": "genus", "hybrid": false, "object": "taxon",' +
+            ' "rank": "species"},\n {"code": "2015.0001", "object": "accessi' +
+            'on", "private": false, "species": "Calopogon tuberosus"},\n {"c' +
+            'ode": "2015.0002", "object": "accession", "private": false, "sp' +
+            'ecies": "Calopogon tuberosus"},\n {"code": "2015.0003", "object' +
+            '": "accession", "private": true, "species": "Calopogon tuberosu' +
+            's"}]')
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
 
         selection = self.session.query(Family).filter(
             Family.family == u'Orchidaceae').all()
-        mock_view.set_selection(selection)
-        exporter = JSONExporter(mock_view)
-        exporter.start(self.temp_path, selection)
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(selection)
+        exporter.filename = self.temp_path
+        exporter.run()
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'familia')
@@ -466,9 +496,10 @@ class JSONExportTests(BaubleTestCase):
 
         selection = self.session.query(Genus).filter(
             Genus.genus == u'Calopogon').all()
-        mock_view.set_selection(selection)
-        exporter = JSONExporter(mock_view)
-        exporter.start(self.temp_path, selection)
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(selection)
+        exporter.filename = self.temp_path
+        exporter.run()
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'genus')
@@ -483,9 +514,10 @@ class JSONExportTests(BaubleTestCase):
         selection = self.session.query(
             Species).filter(Species.sp == u'tuberosus').join(
             Genus).filter(Genus.genus == u"Calopogon").all()
-        mock_view.set_selection(selection)
-        exporter = JSONExporter(mock_view)
-        exporter.start(self.temp_path, selection)
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(selection)
+        exporter.filename = self.temp_path
+        exporter.run()
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'species')
@@ -508,9 +540,10 @@ class JSONExportTests(BaubleTestCase):
 
         selection = self.session.query(Genus).filter(
             Genus.genus == u'Zygoglossum').all()
-        mock_view.set_selection(selection)
-        exporter = JSONExporter(mock_view)
-        exporter.start(self.temp_path, selection)
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(selection)
+        exporter.filename = self.temp_path
+        exporter.run()
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 1)
         self.assertEquals(result[0]['rank'], 'genus')
@@ -524,8 +557,15 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(accepted['ht-rank'], 'familia')
         self.assertEquals(accepted['ht-epithet'], 'Orchidaceae')
 
+    def test_export_private(self):
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection([])
+        exporter.private = False
+        exporter.filename = self.temp_path
+        exporter.run()
 
-class MockView:
+
+class MockImportView:
     def set_widget_value(self, *args):
         pass
 
@@ -568,7 +608,7 @@ class JSONImportTests(BaubleTestCase):
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 0)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -583,7 +623,7 @@ class JSONImportTests(BaubleTestCase):
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 0)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -600,7 +640,7 @@ class JSONImportTests(BaubleTestCase):
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
         self.assertEquals(previously.sp_author, None)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.session.commit()
@@ -619,7 +659,7 @@ class JSONImportTests(BaubleTestCase):
             '"author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -638,7 +678,7 @@ class JSONImportTests(BaubleTestCase):
             '"id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -655,7 +695,7 @@ class JSONImportTests(BaubleTestCase):
             '"Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -680,7 +720,7 @@ class JSONImportTests(BaubleTestCase):
             '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -707,7 +747,7 @@ class JSONImportTests(BaubleTestCase):
             '"ht-epithet": "Orchidaceae", "author": "Thouars"}}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -744,7 +784,7 @@ class JSONImportTests(BaubleTestCase):
             '"rank": "genus"}}'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.session.commit()
@@ -765,7 +805,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
@@ -800,7 +840,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
@@ -834,7 +874,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockView())
+        importer = JSONImporter(MockImportView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
