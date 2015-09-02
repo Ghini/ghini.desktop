@@ -455,7 +455,9 @@ class JSONExportTests(BaubleTestCase):
         "exporting without specifying what: export complete database"
 
         exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(self.objects)
+        exporter.view.set_selection(None)
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
         ## must still check content of generated file!
@@ -470,9 +472,32 @@ class JSONExportTests(BaubleTestCase):
         species = [i for i in result
                    if i['object'] == 'taxon' and i['rank'] == 'species']
         self.assertEquals(len(species), 1)
-        self.assertEquals(
-            open(self.temp_path).read(),
-            '[{"epithet": "Orchidaceae", "object": "taxon", "rank": "familia"},\n {"epithet": "Myrtaceae", "object": "taxon", "rank": "familia"},\n {"author": "R. Br.", "epithet": "Calopogon", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},\n {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},\n {"epithet": "tuberosus", "ht-epithet": "Calopogon", "ht-rank": "genus", "hybrid": false, "object": "taxon", "rank": "species"},\n {"code": "2015.0001", "object": "accession", "private": false, "species": "Calopogon tuberosus"},\n {"code": "2015.0002", "object": "accession", "private": false, "species": "Calopogon tuberosus"},\n {"code": "2015.0003", "object": "accession", "private": true, "species": "Calopogon tuberosus"},\n {"code": "1", "object": "location"},\n {"accession": "2015.0001", "code": "1", "location": "1", "memorial": false, "object": "plant", "quantity": 1},\n {"accession": "2015.0003", "code": "1", "location": "1", "memorial": false, "object": "plant", "quantity": 1}]')
+        target = [
+            {"epithet": "Orchidaceae", "object": "taxon", "rank": "familia"},
+            {"epithet": "Myrtaceae", "object": "taxon", "rank": "familia"},
+            {"author": "R. Br.", "epithet": "Calopogon",
+             "ht-epithet": "Orchidaceae", "ht-rank": "familia",
+             "object": "taxon", "rank": "genus"},
+            {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae",
+             "ht-rank": "familia", "object": "taxon", "rank": "genus"},
+            {"epithet": "tuberosus", "ht-epithet": "Calopogon",
+             "ht-rank": "genus", "hybrid": False, "object": "taxon",
+             "rank": "species"},
+            {"code": "2015.0001", "object": "accession", "private": False,
+             "species": "Calopogon tuberosus"},
+            {"code": "2015.0002", "object": "accession", "private": False,
+             "species": "Calopogon tuberosus"},
+            {"code": "2015.0003", "object": "accession", "private": True,
+             "species": "Calopogon tuberosus"},
+            {"code": "1", "object": "location"},
+            {"accession": "2015.0001", "code": "1", "location": "1",
+             "memorial": False, "object": "plant", "quantity": 1},
+            {"accession": "2015.0003", "code": "1", "location": "1",
+             "memorial": False, "object": "plant", "quantity": 1}]
+        for o1 in result:
+            self.assertTrue(o1 in target)
+        for o2 in target:
+            self.assertTrue(o1 in result)
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
@@ -480,6 +505,8 @@ class JSONExportTests(BaubleTestCase):
         selection = self.session.query(Family).filter(
             Family.family == u'Orchidaceae').all()
         exporter = JSONExporter(MockExportView())
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
         exporter.view.set_selection(selection)
         exporter.filename = self.temp_path
         exporter.run()
@@ -495,6 +522,8 @@ class JSONExportTests(BaubleTestCase):
             Genus.genus == u'Calopogon').all()
         exporter = JSONExporter(MockExportView())
         exporter.view.set_selection(selection)
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
         result = json.load(open(self.temp_path))
@@ -513,6 +542,8 @@ class JSONExportTests(BaubleTestCase):
             Genus).filter(Genus.genus == u"Calopogon").all()
         exporter = JSONExporter(MockExportView())
         exporter.view.set_selection(selection)
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
         result = json.load(open(self.temp_path))
@@ -539,6 +570,8 @@ class JSONExportTests(BaubleTestCase):
             Genus.genus == u'Zygoglossum').all()
         exporter = JSONExporter(MockExportView())
         exporter.view.set_selection(selection)
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = True
         exporter.filename = self.temp_path
         exporter.run()
         result = json.load(open(self.temp_path))
