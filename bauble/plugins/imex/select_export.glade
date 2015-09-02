@@ -25,6 +25,7 @@
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_btnok_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -40,6 +41,7 @@
                 <property name="receives_default">False</property>
                 <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_btncancel_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -302,6 +304,7 @@
                             <property name="secondary_icon_activatable">False</property>
                             <property name="primary_icon_sensitive">True</property>
                             <property name="secondary_icon_sensitive">True</property>
+                            <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">True</property>
