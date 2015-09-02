@@ -56,22 +56,6 @@ def serializedatetime(obj):
     return {'__class__': 'datetime', 'millis': millis}
 
 
-class TreeStoreFlattener(object):
-
-    def __call__(self, model):
-        self.result = []
-        return self.flatten(model, model.iter_children(None))
-
-    def flatten(self, model, iter):
-        while iter:
-            self.result.append(model.get_value(iter, 0))
-            self.flatten(model, model.iter_children(iter))
-            iter = model.iter_next(iter)
-        return self.result
-
-tree_store_flatten = TreeStoreFlattener()
-
-
 class JSONExporter(editor.GenericEditorPresenter):
     '''Export taxonomy and plants in JSON format.
 
