@@ -232,3 +232,4 @@ class MVPTests(BaubleTestCase):
         presenter = HandlerDefiningPresenter(model, view)
         self.assertEquals(
             len(presenter.view._GenericEditorView__attached_signals), 1)
+        presenter.on_tag_desc_textbuffer_changed()  # avoid uncounted line!
