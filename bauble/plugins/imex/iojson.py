@@ -85,7 +85,8 @@ class JSONExporter(editor.GenericEditorPresenter):
         'sbo_plants': 'selection_based_on',
         'ei_referred': 'export_includes',
         'ei_referring': 'export_includes',
-        'chkincludeprivate': 'include_private'
+        'chkincludeprivate': 'include_private',
+        'filename': 'filename',
         }
 
     view_accept_buttons = ['sed-button-ok', 'sed-button-cancel', ]
@@ -93,7 +94,8 @@ class JSONExporter(editor.GenericEditorPresenter):
     def __init__(self, view):
         self.selection_based_on = 'sbo_selection'
         self.export_includes = 'ei_referred'
-        self.include_private = False
+        self.include_private = True
+        self.filename = ''
         super(JSONExporter, self).__init__(
             model=self, view=view, refresh_view=True)
 
@@ -185,15 +187,13 @@ class JSONExporter(editor.GenericEditorPresenter):
                 filename = chooser.get_filename()
                 if filename:
                     JSONExporter.last_folder, bn = os.path.split(filename)
-                    self.widgets.filename.set_text(filename)
+                    self.view.set_widget_value('filename', filename)
         except Exception, e:
             logger.warning("unhandled exception in iojson.py: %s" % e)
         chooser.destroy()
 
     def on_btnok_clicked(self, widget):
-        obj = json.load(open(self.filename))
-        a = isinstance(obj, list) and obj or [obj]
-        bauble.task.queue(self.run(a))
+        self.run()  # should go in the background really
 
     def on_btncancel_clicked(self, widget):
         pass
