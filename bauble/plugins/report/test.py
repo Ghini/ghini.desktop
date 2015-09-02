@@ -258,15 +258,3 @@ class ReportTests(ReportTestCase):
                                  location], self.session)
         ids = get_ids(plants)
         self.assert_(ids == range(1, 17), ids)
-
-
-class ReportTestSuite(unittest.TestSuite):
-
-    def __init__(self):
-        super(ReportTestSuite, self).__init__()
-        self.addTests(map(ReportTests, ('test_get_all_species',
-                                        'test_get_all_accessions',
-                                        'test_get_all_plants')))
-
-
-testsuite = ReportTestSuite
