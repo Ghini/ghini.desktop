@@ -27,3 +27,4 @@ issues/
 coverage.xml
 .coverage
 doc/_build/
+htmlcov
