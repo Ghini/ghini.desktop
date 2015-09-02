@@ -36,6 +36,12 @@ before_install:
     # build before install
     - python setup.py -q build
 
-install: python setup.py -q install
+install:
+    - pip install coveralls
+    - python setup.py -q install
 
-script:  python setup.py test
+script:
+    - coverage run --source=bauble setup.py test
+
+after_success:
+    - coveralls
