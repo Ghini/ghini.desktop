@@ -30,7 +30,7 @@ from sqlalchemy import Column, Integer, Boolean
 
 import bauble.db as db
 from bauble.plugins.plants import Familia, Family, Genus, Species
-from bauble.plugins.garden import Accession
+from bauble.plugins.garden import Accession, Location, Plant
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
@@ -64,6 +64,13 @@ accession_data = [
     {'id': 1, 'species_id': 1, 'code': u'2015.0001'},
     {'id': 2, 'species_id': 1, 'code': u'2015.0002'},
     {'id': 3, 'species_id': 1, 'code': u'2015.0003', 'private': True}, ]
+location_data = [
+    {'id': 1, 'code': u'1'}, ]
+plant_data = [
+    {'id': 1, 'accession_id': 1, 'location_id': 1, 'code': u'1',
+     'quantity': 1},
+    {'id': 2, 'accession_id': 3, 'location_id': 1, 'code': u'1',
+     'quantity': 1}, ]
 
 
 class ImexTestCase(BaubleTestCase):
@@ -426,7 +433,9 @@ class JSONExportTests(BaubleTestCase):
         data = ((Family, family_data),
                 (Genus, genus_data),
                 (Species, species_data),
-                (Accession, accession_data))
+                (Accession, accession_data),
+                (Location, location_data),
+                (Plant, plant_data))
 
         self.objects = []
         for klass, dics in data:
@@ -450,7 +459,7 @@ class JSONExportTests(BaubleTestCase):
         exporter.run()
         ## must still check content of generated file!
         result = json.load(open(self.temp_path))
-        self.assertEquals(len(result), 8)
+        self.assertEquals(len(result), 11)
         families = [i for i in result
                     if i['object'] == 'taxon' and i['rank'] == 'familia']
         self.assertEquals(len(families), 2)
@@ -462,20 +471,7 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(species), 1)
         self.assertEquals(
             open(self.temp_path).read(),
-            '[{"epithet": "Orchidaceae", "object": "taxon", "rank": "familia' +
-            '"},\n {"epithet": "Myrtaceae", "object": "taxon", "rank": "fami' +
-            'lia"},\n {"author": "R. Br.", "epithet": "Calopogon", "ht-epith' +
-            'et": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "r' +
-            'ank": "genus"},\n {"author": "", "epithet": "Panisea", "ht-epit' +
-            'het": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "' +
-            'rank": "genus"},\n {"epithet": "tuberosus", "ht-epithet": "Calo' +
-            'pogon", "ht-rank": "genus", "hybrid": false, "object": "taxon",' +
-            ' "rank": "species"},\n {"code": "2015.0001", "object": "accessi' +
-            'on", "private": false, "species": "Calopogon tuberosus"},\n {"c' +
-            'ode": "2015.0002", "object": "accession", "private": false, "sp' +
-            'ecies": "Calopogon tuberosus"},\n {"code": "2015.0003", "object' +
-            '": "accession", "private": true, "species": "Calopogon tuberosu' +
-            's"}]')
+            '[{"epithet": "Orchidaceae", "object": "taxon", "rank": "familia"},\n {"epithet": "Myrtaceae", "object": "taxon", "rank": "familia"},\n {"author": "R. Br.", "epithet": "Calopogon", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},\n {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},\n {"epithet": "tuberosus", "ht-epithet": "Calopogon", "ht-rank": "genus", "hybrid": false, "object": "taxon", "rank": "species"},\n {"code": "2015.0001", "object": "accession", "private": false, "species": "Calopogon tuberosus"},\n {"code": "2015.0002", "object": "accession", "private": false, "species": "Calopogon tuberosus"},\n {"code": "2015.0003", "object": "accession", "private": true, "species": "Calopogon tuberosus"},\n {"code": "1", "object": "location"},\n {"accession": "2015.0001", "code": "1", "location": "1", "memorial": false, "object": "plant", "quantity": 1},\n {"accession": "2015.0003", "code": "1", "location": "1", "memorial": false, "object": "plant", "quantity": 1}]')
 
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
@@ -557,12 +553,60 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(accepted['ht-rank'], 'familia')
         self.assertEquals(accepted['ht-epithet'], 'Orchidaceae')
 
-    def test_export_private(self):
+    def test_export_ignores_private_if_sbo_selection(self):
         exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection([])
-        exporter.private = False
+        selection = [o for o in self.objects if isinstance(o, Accession)]
+        non_private = [a for a in selection if a.private is False]
+        self.assertEquals(len(selection), 3)
+        self.assertEquals(len(non_private), 2)
+        exporter.view.set_selection(selection)
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
         exporter.filename = self.temp_path
         exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 3)
+
+    def test_export_non_private_if_sbo_accessions(self):
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(None)
+        exporter.selection_based_on = 'sbo_accessions'
+        exporter.include_private = False
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 5)
+
+    def test_export_private_if_sbo_accessions(self):
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(None)
+        exporter.selection_based_on = 'sbo_accessions'
+        exporter.include_private = True
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        print result
+        self.assertEquals(len(result), 6)
+
+    def test_export_non_private_if_sbo_plants(self):
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(None)
+        exporter.selection_based_on = 'sbo_plants'
+        exporter.include_private = False
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 6)
+
+    def test_export_private_if_sbo_plants(self):
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(None)
+        exporter.selection_based_on = 'sbo_plants'
+        exporter.include_private = True
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 8)
 
 
 class MockImportView:
