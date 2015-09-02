@@ -3,6 +3,7 @@ Documentation for Bauble 1.0
 
 .. image:: https://travis-ci.org/Bauble/bauble.classic.svg?branch=bauble-1.0
 .. image:: https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg
+.. image:: https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github :target: https://coveralls.io/github/Bauble/bauble.classic?branch=master 
 
 Bauble is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
