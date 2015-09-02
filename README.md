@@ -1,6 +1,10 @@
 Bauble
 ======
 
+![Test Status](https://travis-ci.org/Bauble/bauble.classic.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg)
+![Coverage Status](https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github)
+
 what is Bauble (classic)
 ------------------------
 
