@@ -159,6 +159,9 @@ class JSONExporter(editor.GenericEditorPresenter):
                 Species.id.in_([j.species_id for j in accessions])).order_by(
                 Species.sp).all()
 
+        vernacular = self.session.query(VernacularName).filter(
+            VernacularName.species_id.in_([j.id for j in species])).all()
+
         ## and all used genera and families
         genera = self.session.query(Genus).filter(
             Genus.id.in_([j.genus_id for j in species])).order_by(
@@ -168,7 +171,7 @@ class JSONExporter(editor.GenericEditorPresenter):
             Familia.family).all()
 
         ## prepend the result with the taxonomic information
-        result = families + genera + species + result
+        result = families + genera + species + vernacular + result
 
         ## done, return the result
         return result

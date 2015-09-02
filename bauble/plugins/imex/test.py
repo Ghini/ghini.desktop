@@ -29,7 +29,8 @@ import tempfile
 from sqlalchemy import Column, Integer, Boolean
 
 import bauble.db as db
-from bauble.plugins.plants import Familia, Family, Genus, Species
+from bauble.plugins.plants import (
+    Familia, Family, Genus, Species, VernacularName)
 from bauble.plugins.garden import Accession, Location, Plant
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
@@ -607,6 +608,33 @@ class JSONExportTests(BaubleTestCase):
         exporter.run()
         result = json.load(open(self.temp_path))
         self.assertEquals(len(result), 8)
+
+    def test_export_with_vernacular(self):
+        "exporting one genus which is not an accepted name."
+
+        ## precondition
+        sola = Family(family='Solanaceae')
+        brug = Genus(family=sola, genus=u'Brugmansia')
+        arbo = Species(genus=brug, sp=u'arborea')
+        vern = VernacularName(species=arbo,
+                              language=u"es", name=u"Floripondio")
+        self.session.add_all([sola, brug, arbo, vern])
+        self.session.commit()
+
+        ## action
+        exporter = JSONExporter(MockExportView())
+        exporter.view.set_selection(None)
+        exporter.selection_based_on = 'sbo_taxa'
+        exporter.include_private = False
+        exporter.filename = self.temp_path
+        exporter.run()
+
+        ## check
+        result = json.load(open(self.temp_path))
+        vern_from_json = [i for i in result
+                          if i['object'] == 'vernacular_name']
+        self.assertEquals(len(vern_from_json), 1)
+        self.assertEquals(vern_from_json[0]['language'], 'es')
 
 
 class MockImportView:
