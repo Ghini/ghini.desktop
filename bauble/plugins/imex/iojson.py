@@ -85,15 +85,15 @@ class JSONExporter(editor.GenericEditorPresenter):
         'sbo_plants': 'selection_based_on',
         'ei_referred': 'export_includes',
         'ei_referring': 'export_includes',
-        'chkincludeprivate': 'private'
+        'chkincludeprivate': 'include_private'
         }
-    selection_based_on = 'sbo_selection'
-    export_includes = 'ei_referred'
-    private = False
 
     view_accept_buttons = ['sed-button-ok', 'sed-button-cancel', ]
 
     def __init__(self, view):
+        self.selection_based_on = 'sbo_selection'
+        self.export_includes = 'ei_referred'
+        self.include_private = False
         super(JSONExporter, self).__init__(
             model=self, view=view, refresh_view=True)
 
@@ -106,14 +106,22 @@ class JSONExporter(editor.GenericEditorPresenter):
         a complete export.
         '''
         if self.selection_based_on == 'sbo_selection':
+            if self.include_private:
+                logger.info('exporting selection overrides `include_private`')
             return self.view.get_selection()
 
         ## export disregarding selection
         result = []
         if self.selection_based_on == 'sbo_plants':
-            plants = self.session.query(Plant).order_by(Plant.code).join(
-                Accession).order_by(Accession.code).all()
-            plantnotes = self.session.query(PlantNote).all()
+            plant_query = self.session.query(
+                Plant).order_by(Plant.code).join(
+                Accession).order_by(Accession.code)
+            if self.include_private is False:
+                plant_query = plant_query.filter(
+                    Accession.private == False)  # `is` does not work
+            plants = plant_query.all()
+            plantnotes = self.session.query(PlantNote).filter(
+                PlantNote.plant_id.in_([j.id for j in plants])).all()
             ## only used locations and accessions
             locations = self.session.query(Location).filter(
                 Location.id.in_([j.location_id for j in plants])).all()
@@ -131,7 +139,11 @@ class JSONExporter(editor.GenericEditorPresenter):
         elif self.selection_based_on == 'sbo_accessions':
             accessions = self.session.query(Accession).order_by(
                 Accession.code).all()
-            accessionnotes = self.session.query(AccessionNote).all()
+            if self.include_private is False:
+                accessions = [j for j in accessions if j.private is False]
+            accessionnotes = self.session.query(AccessionNote).filter(
+                AccessionNote.accession_id.in_(
+                    [j.id for j in accessions])).all()
 
         ## now the taxonomy, based either on all species or on the ones used
         if self.selection_based_on == 'sbo_taxa':
