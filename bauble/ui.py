@@ -80,8 +80,8 @@ class GUI(object):
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.window.set_icon(pixbuf)
         except Exception:
-            logger.warning(_('Could not load icon from %s'
-                             % bauble.default_icon))
+            logger.warning(_('Could not load icon from %s')
+                           % bauble.default_icon)
             logger.warning(traceback.format_exc())
 
         menubar = self.create_main_menu()
@@ -565,8 +565,8 @@ class GUI(object):
             db.create()
             pluginmgr.init()
         except Exception, e:
-            msg = _('Could not create a new database.\n\n%s' %
-                    utils.xml_safe(e))
+            msg = _('Could not create a new database.\n\n%s') % \
+                utils.xml_safe(e)
             tb = utils.xml_safe(traceback.format_exc())
             utils.message_details_dialog(msg, tb, gtk.MESSAGE_ERROR)
             return

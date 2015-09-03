@@ -250,7 +250,8 @@ class ConnectionManager:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.dialog.set_icon(pixbuf)
         except Exception:
-            logger.warning(_('Could not load icon from %s' % bauble.default_icon))
+            logger.warning(_('Could not load icon from %s') %
+                           bauble.default_icon)
             logger.warning(traceback.format_exc())
 
         if bauble.gui is not None and bauble.gui.window is not None:

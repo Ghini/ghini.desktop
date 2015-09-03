@@ -233,7 +233,7 @@ class GenericEditorView(object):
             except Exception, e:
                 values = dict(widget_name=widget_name, exception=e)
                 logger.debug(_('Couldn\'t set the tooltip on widget '
-                               '%(widget_name)s\n\n%(exception)s' % values))
+                               '%(widget_name)s\n\n%(exception)s') % values)
 
         try:
             window = self.get_window()

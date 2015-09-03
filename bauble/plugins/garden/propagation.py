@@ -136,24 +136,24 @@ class Propagation(db.Base):
                 values.append(_('Flower buds: %s') %
                               flower_buds_values[c.flower_buds])
             if c.wound is not None:
-                values.append(_('Wounded: %s' % wound_values[c.wound]))
+                values.append(_('Wounded: %s') % wound_values[c.wound])
             if c.fungicide:
-                values.append(_('Fungal soak: %s' % c.fungicide))
+                values.append(_('Fungal soak: %s') % c.fungicide)
             if c.hormone:
-                values.append(_('Hormone treatment: %s' % c.hormone))
+                values.append(_('Hormone treatment: %s') % c.hormone)
             if c.bottom_heat_temp:
                 values.append(
                     _('Bottom heat: %(temp)s%(unit)s') %
                     dict(temp=c.bottom_heat_temp,
                          unit=bottom_heat_unit_values[c.bottom_heat_unit]))
             if c.container:
-                values.append(_('Container: %s' % c.container))
+                values.append(_('Container: %s') % c.container)
             if c.media:
-                values.append(_('Media: %s' % c.media))
+                values.append(_('Media: %s') % c.media)
             if c.location:
-                values.append(_('Location: %s' % c.location))
+                values.append(_('Location: %s') % c.location)
             if c.cover:
-                values.append(_('Cover: %s' % c.cover))
+                values.append(_('Cover: %s') % c.cover)
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)

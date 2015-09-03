@@ -345,7 +345,7 @@ class DomainExpressionAction(object):
                 self.domain = search_strategy._shorthand[self.domain]
             cls, properties = search_strategy._domains[self.domain]
         except KeyError:
-            raise KeyError(_('Unknown search domain: %s' % self.domain))
+            raise KeyError(_('Unknown search domain: %s') % self.domain)
 
         query = search_strategy._session.query(cls)
 

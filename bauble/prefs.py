@@ -213,8 +213,8 @@ class _prefs(dict):
             f.close()
         except Exception:
             msg = _("Bauble can't save your user preferences. \n\nPlease "
-                    "check the file permissions of your config file:\n %s"
-                    % self._filename)
+                    "check the file permissions of your config file:\n %s") \
+                % self._filename
             if bauble.gui is not None and bauble.gui.window is not None:
                 import bauble.utils as utils
                 utils.message_dialog(msg, type=gtk.MESSAGE_ERROR,

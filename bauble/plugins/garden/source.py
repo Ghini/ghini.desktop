@@ -363,14 +363,14 @@ class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except DBAPIError, e:
-                msg = _('Error committing changes.\n\n%s'
-                        % utils.xml_safe(e.orig))
+                msg = _('Error committing changes.\n\n%s') % \
+                    utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
-                        'details for more information.\n\n%s'
-                        % utils.xml_safe(e))
+                        'details for more information.\n\n%s') % \
+                    utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False

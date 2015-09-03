@@ -206,7 +206,7 @@ def remove_callback(accessions):
         msg = _('%(num_plants)s plants depend on this accession: '
                 '<b>%(plant_codes)s</b>\n\n'
                 'Are you sure you want to remove accession '
-                '<b>%(acc_code)s</b>?' % values)
+                '<b>%(acc_code)s</b>?') % values
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
             utils.xml_safe(unicode(acc))
@@ -676,7 +676,7 @@ class Accession(db.Base, db.Serializable):
         if self.id_qual in ('aff.', 'cf.') and not self.id_qual_rank \
                 and not self.__warned_about_id_qual:
             msg = _('If the id_qual is aff. or cf. '
-                    'then id_qual_rank is required. %s ' % self.code)
+                    'then id_qual_rank is required. %s ') % self.code
             logger.warning(msg)
             self.__warned_about_id_qual = True
 
@@ -1746,8 +1746,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 return
             msg = _('The species <b>%(synonym)s</b> is a synonym of '
                     '<b>%(species)s</b>.\n\nWould you like to choose '
-                    '<b>%(species)s</b> instead?'
-                    % {'synonym': syn.synonym, 'species': syn.species})
+                    '<b>%(species)s</b> instead?') % \
+                {'synonym': syn.synonym, 'species': syn.species}
             box = None
 
             def on_response(button, response):
