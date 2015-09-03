@@ -661,7 +661,7 @@ class GUI(object):
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
         about.set_logo(pixbuf)
-        about.set_copyright(_(u'Copyright \u00A9 by its contributors.'))
+        about.set_copyright(_(u'Copyright © by its contributors.'))
 
         import codecs
         with codecs.open(os.path.join(paths.installation_dir(), 'share',
