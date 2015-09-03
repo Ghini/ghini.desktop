@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-02 10:27-0500\n"
+"POT-Creation-Date: 2015-09-03 08:00-0500\n"
 "PO-Revision-Date: 2015-07-12 18:48-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Occitan (post 1500) <oc@li.org>\n"
@@ -24,12 +24,7 @@ msgstr ""
 "X-Poedit-SearchPath-3: bauble/plugins/plants\n"
 "X-Poedit-SearchPath-4: bauble/plugins/garden\n"
 
-#: ../bauble/view.py:docstring of bauble.view.PropertiesExpander.update:1
-msgid "\" Update the widget in the expander."
-msgstr ""
-
 #: bauble/btypes.py:73
-#, python-format
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
 msgstr ""
 
@@ -38,7 +33,6 @@ msgid "# Germinated"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:184
-#, python-format
 msgid "# of seedlings: %s"
 msgstr ""
 
@@ -47,7 +41,6 @@ msgid "# of seeds"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:168
-#, python-format
 msgid "# of seeds: %s"
 msgstr ""
 
@@ -56,12 +49,10 @@ msgid "% Germinated"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:377
-#, python-format
 msgid "%(group)s Group"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:206
-#, python-format
 msgid ""
 "%(num_plants)s plants depend on this accession: <b>%(plant_codes)s</b>\n"
 "\n"
@@ -69,37 +60,26 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:2378
-#, python-format
 msgid "%(quantity)s in %(location)s"
 msgstr ""
 
 #: bauble/editor.py:1292
-#, python-format
 msgid "%(user)s on %(date)s"
 msgstr ""
 
 #: bauble/plugins/report/__init__.py:409
-#, python-format
 msgid "%s already exists"
 msgstr ""
 
 #: bauble/view.py:684
-#, python-format
 msgid "%s search results"
 msgstr ""
 
-#: bauble/pluginmgr.py:588
-#, python-format
+#: bauble/pluginmgr.py:589
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
 msgstr ""
 
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:15
-msgid "'': the empty string"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:363
-#, python-format
 msgid "(%(group)s Group)"
 msgstr ""
 
@@ -109,7 +89,6 @@ msgid ""
 msgstr ""
 
 #: bauble/view.py:635
-#, python-format
 msgid "** Error: %s"
 msgstr "** Error : %s"
 
@@ -147,493 +126,9 @@ msgid ""
 "the Remove button."
 msgstr ""
 
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:21
-msgid "*acc_type*: :class:`bauble.types.Enum`"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:30
-msgid "*accession*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:24 ../bauble/plugins/garden/source.py:docstring
-#: bauble.plugins.garden.source.Collection:30
-msgid "*accession_id*: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:46
-msgid "*accessions*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:34
-msgid "*agg.*: An aggregate species"
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:17
-msgid "*author*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/geography.py:docstring of
-#: bauble.plugins.plants.Geography:15
-msgid "*children*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:5
-#: ../bauble/plugins/garden/plant.py:docstring bauble.plugins.garden.Plant:5
-msgid "*code*: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:4
-msgid "*collector*: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:6
-msgid "*collectors_code*: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:27
-msgid "*cv_group*: *trade_name*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:8
-msgid "*date*: :class:`sqlalchemy.types.Date`"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:24
-msgid "*date_accd*: :class:`bauble.types.Date`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:50
-msgid "*default_vernacular_name*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/location.py:docstring of
-#: bauble.plugins.garden.Location:6
-msgid "*description*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:54
-msgid "*distribution*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:20
-msgid "*elevation*: :class:`sqlalchemy.types.Float`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:22
-msgid "*elevation_accy*: :class:`sqlalchemy.types.Float`"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:5
-#: bauble.plugins.plants.family.FamilySynonym:11
-#: ../bauble/plugins/plants/genus.py:docstring bauble.plugins.plants.Genus:21
-msgid "*family*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.family.FamilySynonym:4
-msgid "*family_id*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:6
-msgid "*genus*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:18
-msgid "*geo_accy*: :class:`sqlalchemy.types.Float`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:26
-msgid "*geography_id*: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:16
-msgid "*gps_datum*: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:24
-msgid "*habitat*: :class:`sqlalchemy.types.UnicodeText`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:9
-msgid "*hybrid*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.DefaultVernacularName:10
-msgid "*id*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:36
-msgid "*id_qual*: :class:`bauble.types.Enum`"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:39
-msgid "*id_qual_rank*: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:11
-msgid "*infrasp1*: *infrasp1_rank*: *infrasp1_author*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:15
-msgid "*infrasp2*: *infrasp2_rank*: *infrasp2_author*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:19
-msgid "*infrasp3*: *infrasp3_rank*: *infrasp3_author*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:23
-msgid "*infrasp4*: *infrasp4_rank*: *infrasp4_author*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/geography.py:docstring of
-#: bauble.plugins.plants.Geography:10
-msgid "*iso_code*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:43
-msgid "*label_distribution*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.VernacularName:9
-msgid "*language*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:12
-msgid "*latitude*: :class:`sqlalchemy.types.Float`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:10
-msgid "*locale*: :class:`sqlalchemy.types.UnicodeText`"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:32
-msgid "*location*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:27
-msgid "*location_id*: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:14
-msgid "*longitude*: :class:`sqlalchemy.types.Float`"
-msgstr ""
-
-#: ../bauble/meta.py:docstring of bauble.meta.BaubleMeta:8
-#: ../bauble/plugins/plants/species_model.py:docstring
-#: bauble.plugins.plants.species.VernacularName:5
-#: ../bauble/plugins/plants/geography.py:docstring
-#: bauble.plugins.plants.Geography:6
-#: ../bauble/plugins/garden/location.py:docstring
-#: bauble.plugins.garden.Location:4
-msgid "*name*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:35
-msgid "*notes*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:28
-msgid "*notes*: :class:`sqlalchemy.types.UnicodeText`"
-msgstr ""
-
-#: ../bauble/plugins/plants/geography.py:docstring of
-#: bauble.plugins.plants.Geography:12
-msgid "*parent_id*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:56
-#: ../bauble/plugins/garden/location.py:docstring
-#: bauble.plugins.garden.Location:9
-msgid "*plants*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:43
-msgid "*private*: :class:`sqlalchemy.types.Boolean`"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:11
-msgid "*prov_type*: :class:`bauble.types.Enum`"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:15 ../bauble/plugins/plants/genus.py:docstring
-#: bauble.plugins.plants.Genus:14
-msgid "*qualifier*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:36
-msgid "*s. lat.*: aggregrate species (sensu lato)"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:38
-msgid "*s. str.*: segregate species (sensu stricto)"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:53
-msgid "*source*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:4
-msgid "*sp*: *sp2*: *sp_author*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:38
-msgid "*sp_qual*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:50
-msgid "*species*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.VernacularName:12
-#: bauble.plugins.plants.species.DefaultVernacularName:13
-msgid "*species_id*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:46
-msgid "*species_id*: :class:`sqlalchemy.types.Integer()`"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:20
-#: bauble.plugins.plants.family.FamilySynonym:9
-#: ../bauble/plugins/plants/genus.py:docstring bauble.plugins.plants.Genus:27
-#: ../bauble/plugins/plants/species_model.py:docstring
-#: bauble.plugins.plants.Species:52
-msgid "*synonyms*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.family.FamilySynonym:6
-msgid "*synonyms_id*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/geography.py:docstring of
-#: bauble.plugins.plants.Geography:8
-msgid "*tdwg_code*:"
-msgstr ""
-
-#: ../bauble/meta.py:docstring of bauble.meta.BaubleMeta:10
-msgid "*value*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:59
-msgid "*verifications*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.DefaultVernacularName:15
-msgid "*vernacular_name_id*:"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:48
-msgid "*vernacular_names*:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:20
-msgid "*wild_prov_status*:  :class:`bauble.types.Enum`"
-msgstr ""
-
 #: bauble/plugins/tag/tag.glade:265
 msgid "--"
 msgstr "--"
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:16
-msgid "0: The name of the record has not been checked by any authority."
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.init:3
-msgid ""
-"1. Check for and install any plugins in the plugins dict that aren't in the "
-"registry. 2. Call each init() for each plugin the registry in order of "
-"dependency 3. Register the command handlers in the plugin's commands[]"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr:4
-msgid ""
-"1. load the plugins: search the plugin directory for plugins, populates the "
-"plugins dict (happens in load())"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:17
-msgid ""
-"1: The name of the record determined by comparison with other named plants."
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr:7
-msgid ""
-"2. install the plugins if not in the registry, add properly installed "
-"plugins in to the registry (happens in load())"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:19
-msgid ""
-"2: The name of the record determined by a taxonomist or by other competent "
-"persons using herbarium and/or library and/or documented living material."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:22
-msgid ""
-"3: The name of the plant determined by taxonomist engaged in systematic "
-"revision of the group."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:24
-msgid ""
-"4: The record is part of type gathering or propagated from type material by "
-"asexual methods"
-msgstr ""
-
-#: ../doc/api.rst:49
-msgid ":mod:`bauble.connmgr`"
-msgstr ""
-
-#: ../doc/api.rst:17
-msgid ":mod:`bauble.db`"
-msgstr ""
-
-#: ../doc/api.rst:57
-msgid ":mod:`bauble.editor`"
-msgstr ""
-
-#: ../doc/api.rst:78
-msgid ":mod:`bauble.i18n`"
-msgstr ""
-
-#: ../doc/api.rst:91
-msgid ":mod:`bauble.meta`"
-msgstr ""
-
-#: ../doc/api.rst:99
-msgid ":mod:`bauble.paths`"
-msgstr ""
-
-#: ../doc/api.rst:108
-msgid ":mod:`bauble.pluginmgr`"
-msgstr ""
-
-#: ../doc/api.rst:316
-msgid ":mod:`bauble.plugins.abcd`"
-msgstr ""
-
-#: ../doc/api.rst:278
-msgid ":mod:`bauble.plugins.garden`"
-msgstr ""
-
-#: ../doc/api.rst:325
-msgid ":mod:`bauble.plugins.imex`"
-msgstr ""
-
-#: ../doc/api.rst:243
-msgid ":mod:`bauble.plugins.plants`"
-msgstr ""
-
-#: ../doc/api.rst:337
-msgid ":mod:`bauble.plugins.report.mako`"
-msgstr ""
-
-#: ../doc/api.rst:333
-msgid ":mod:`bauble.plugins.report.xsl`"
-msgstr ""
-
-#: ../doc/api.rst:329
-msgid ":mod:`bauble.plugins.report`"
-msgstr ""
-
-#: ../doc/api.rst:341
-msgid ":mod:`bauble.plugins.tag`"
-msgstr ""
-
-#: ../doc/api.rst:122
-msgid ":mod:`bauble.prefs`"
-msgstr ""
-
-#: ../doc/api.rst:230
-msgid ":mod:`bauble.search`"
-msgstr ""
-
-#: ../doc/api.rst:133
-msgid ":mod:`bauble.task`"
-msgstr ""
-
-#: ../doc/api.rst:141
-msgid ":mod:`bauble.types`"
-msgstr ""
-
-#: ../doc/api.rst:83
-msgid ":mod:`bauble.ui`"
-msgstr ""
-
-#: ../doc/api.rst:154
-msgid ":mod:`bauble.utils`"
-msgstr ""
-
-#: ../doc/api.rst:204
-msgid ":mod:`bauble.view`"
-msgstr ""
-
-#: ../doc/api.rst:5
-msgid ":mod:`bauble`"
-msgstr ""
 
 #: ../doc/installing.rst:71 ../doc/installing.rst:116
 #: ../doc/installing.rst:213 ../doc/installing.rst:255
@@ -975,137 +470,19 @@ msgid "<b>options</b>"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:1290
-#, python-format
 msgid "<i>Branched from %(plant)s</i>"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:35
-msgid "? - questionable"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage:1
-msgid ""
-"A :class:`gtk.ScrolledWindow` that contains :class:`bauble.view."
-"InfoExpander` objects."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.engine:1
-msgid ""
-"A :class:`sqlalchemy.engine.base.Engine` used as the default connection to "
-"the database."
 msgstr ""
 
 #: ../doc/editing.rst:142
 msgid "A Collection."
 msgstr ""
 
-#: ../bauble/btypes.py:docstring of bauble.btypes.Date:1
-msgid "A Date type that allows Date strings"
-msgstr ""
-
-#: ../bauble/btypes.py:docstring of bauble.btypes.DateTime:1
-msgid "A DateTime type that allows strings"
-msgstr ""
-
 #: ../doc/editing.rst:147
 msgid "A Donation."
 msgstr ""
 
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TaggedObj:8
-msgid "A ForeignKey to :class:`Tag`."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_message_dialog:6
-msgid "A GTK buttons type constant.  The default is gtk.BUTTONS_OK."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_message_dialog:5
-msgid "A GTK message type constant.  The default is gtk.MESSAGE_INFO."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.MessageBox:1
-msgid "A MessageBox that can display a message label at the top of an editor."
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.register_command:4
-msgid "A class which extends pluginmgr.CommandHandler"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils:1
-msgid "A common set of utility functions used throughout Bauble."
-msgstr ""
-
-#: ../bauble/task.py:docstring of bauble.task.set_message:1
-msgid ""
-"A convenience function for setting a message on the statusbar. Returns the "
-"message id"
-msgstr ""
-
 #: ../doc/searching.rst:90
 msgid "A couple of useful examples:"
-msgstr ""
-
-#: ../bauble/plugins/garden/propagation.py:docstring of
-#: bauble.plugins.garden.propagation.PropCutting:1
-msgid "A cutting"
-msgstr ""
-
-#: ../bauble/btypes.py:docstring of bauble.btypes.Enum:1
-msgid ""
-"A database independent Enum type. The value is stored in the database as a "
-"Unicode string."
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of bauble.plugins.tag.Tag:6
-msgid "A description of this tag."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.create:3
-msgid ""
-"A flag that is passed to each plugins install() method to indicate where it "
-"should import its default data.  This is mainly used for testing.  The "
-"default value is True"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.open:15
-msgid ""
-"A flag to indicate whether the error dialogs should be displayed.  This is "
-"used mostly for testing."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:13
-msgid "A foreign key to :class:`Accession`"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView:1
-msgid ""
-"A generic class meant (not) to be subclassed, to provide the view for the "
-"Bauble Model-View-Presenter pattern. The idea is that you subclass the "
-"Presenter alone, and that the View remains as 'stupid' as it is conceivable."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.init_translatable_combo:6
-msgid ""
-"A gtk.ComboBox initialized with this method should work with self."
-"assign_simple_handler()"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.tag_objects:7
-msgid "A list of mapped objects to tag."
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.install:1
-msgid ""
-"A list of plugins to install. If the string \"all\" is passed then install "
-"all plugins listed in the bauble.pluginmgr.plugins dict that aren't already "
-"listed in the plugin registry."
 msgstr ""
 
 #: bauble/plugins/plants/family.py:330
@@ -1124,30 +501,8 @@ msgid ""
 "completions.  Then click Add to add it to the list of synonyms."
 msgstr ""
 
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.YesNoMessageBox:1
-msgid "A message box that can present a Yes or No question to the user"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.get_tagged_objects:3
-msgid "A string or :class:`Tag`"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.add_problem:4
-msgid "A unique id for the problem."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:8
-msgid "A unique identifier."
-msgstr ""
-
 #: bauble/plugins/abcd/__init__.py:358
 msgid "ABCD"
-msgstr ""
-
-#: ../doc/api.rst:2
-msgid "API Documentation"
 msgstr ""
 
 #: bauble/plugins/garden/institution.glade:60
@@ -1158,22 +513,14 @@ msgstr ""
 msgid "About"
 msgstr "A prepaus"
 
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.GenericMessageBox:1
-msgid "Abstract class for showing a message box at the top of an editor."
-msgstr ""
-
 #: bauble/plugins/plants/genus.py:987 bauble/plugins/plants/species.py:274
 msgid "Accepted name"
 msgstr ""
 
-#: ../bauble/paths.py:docstring of bauble.paths:1
-msgid "Access to standard paths used by Bauble."
-msgstr ""
-
 #: bauble/plugins/garden/plant_editor.glade:475
+#: bauble/plugins/garden/__init__.py:125
 #: bauble/plugins/report/xsl/__init__.py:84
 #: bauble/plugins/report/xsl/__init__.py:406
-#: bauble/plugins/garden/__init__.py:125
 msgid "Accession"
 msgstr ""
 
@@ -1217,33 +564,9 @@ msgstr ""
 msgid "Add Species"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of bauble.editor.NotesPresenter.add_note:1
-msgid "Add a new note to the model."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBox.add_expander:1
-msgid "Add an expander to a page."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.add_expander:1
-msgid "Add an expander to the list of exanders in this infobox"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.extra_elements:1
-msgid "Add extra non required elements"
-msgstr ""
-
 #: bauble/plugins/garden/loc_editor.glade:55
 #: bauble/plugins/garden/acc_editor.glade:54
 msgid "Add plants"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.add_problem:1
-msgid ""
-"Add problem_id to self.problems and change the background of widget(s) in "
-"problem_widgets."
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:1084
@@ -1254,7 +577,7 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: ../doc/administration.rst:2 ../doc/index.rst:44
+#: ../doc/administration.rst:2 ../doc/index.rst:45
 msgid "Administration"
 msgstr ""
 
@@ -1302,24 +625,10 @@ msgid ""
 "will return the same results."
 msgstr ""
 
-#: ../doc/api.rst:24
-msgid ""
-"All tables/mappers in Bauble which use the SQLAlchemy declarative plugin for "
-"declaring tables and mappers should derive from this class."
-msgstr ""
-
 #: ../doc/editing.rst:25
 msgid ""
 "Almost all of the editors in Bauble have a *Notes* tab which should work the "
 "same regardless of which editor you are using."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBox:8
-msgid ""
-"Also, it's not recommended to create a subclass of a subclass of InfoBox "
-"since if they both use bauble.utils.BuilderWidgets then the widgets will be "
-"parented to the infobox that is created first and the expanders of the "
-"second infobox will appear empty."
 msgstr ""
 
 #: ../doc/report.rst:58
@@ -1340,39 +649,8 @@ msgstr ""
 msgid "Altitude/Depth"
 msgstr ""
 
-#: ../bauble/view.py:docstring of bauble.view.Action:1
-msgid ""
-"An Action allows a label, tooltip, callback and accelerator to be called "
-"when specific items are selected in the SearchView"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter:1
-msgid "An abstract base class for creating ABCD adapters."
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:19
-msgid ""
-"An association to _synonyms that will automatically convert a Family object "
-"and create the synonym."
-msgstr ""
-
 #: ../doc/searching.rst:80
 msgid "An example of a query would be::"
-msgstr ""
-
-#: ../doc/api.rst:28
-msgid "An instance of :class:`sqlalchemy.ext.declarative.Base`"
-msgstr ""
-
-#: ../doc/api.rst:35
-msgid "An instance of :class:`sqlalchemy.schema.MetaData`"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView.connect:4
-#: bauble.editor.GenericEditorView.connect_after:4
-msgid "An instance of a subclass of gobject that will receive the signal"
 msgstr ""
 
 #: bauble/plugins/garden/location.py:194
@@ -1382,7 +660,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/tag/__init__.py:201
-#, python-format
 msgid "Are you sure you want to delete the tag \"%s\"?"
 msgstr ""
 
@@ -1391,8 +668,7 @@ msgstr ""
 msgid "Are you sure you want to lose your changes?"
 msgstr ""
 
-#: bauble/connmgr.py:338
-#, python-format
+#: bauble/connmgr.py:339
 msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
@@ -1401,7 +677,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/plants/genus.py:682
-#, python-format
 msgid ""
 "Are you sure you want to remove %(genus)s as a synonym to the current "
 "genus?\n"
@@ -1409,24 +684,20 @@ msgid ""
 "<i>Note: This will not remove the genus from the database.</i>"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:86 bauble/plugins/garden/location.py:70
-#: bauble/plugins/garden/source.py:96
-#, python-format
+#: bauble/plugins/garden/location.py:70 bauble/plugins/garden/source.py:96
+#: bauble/plugins/tag/__init__.py:86
 msgid "Are you sure you want to remove %s?"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:211
-#, python-format
 msgid "Are you sure you want to remove accession <b>%s</b>?"
 msgstr ""
 
 #: bauble/plugins/plants/family.py:81
-#, python-format
 msgid "Are you sure you want to remove the family <i>%s</i>?"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:91
-#, python-format
 msgid ""
 "Are you sure you want to remove the following plants?\n"
 "\n"
@@ -1434,17 +705,14 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/plants/genus.py:95
-#, python-format
 msgid "Are you sure you want to remove the genus <i>%s</i>?"
 msgstr ""
 
 #: bauble/plugins/plants/species.py:83
-#, python-format
 msgid "Are you sure you want to remove the species <i>%s</i>?"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:609
-#, python-format
 msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
 msgstr ""
 
@@ -1453,7 +721,6 @@ msgid "Are you sure you want to remove this verification?"
 msgstr ""
 
 #: bauble/plugins/users/__init__.py:570
-#, python-format
 msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
 "\n"
@@ -1474,39 +741,8 @@ msgid ""
 "it offers much more space and because of its \"Fair Storage\" policy."
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.assign_simple_handler:1
-msgid "Assign handlers to widgets to change fields in the model."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_date_button:1
-msgid ""
-"Associate a button with entry so that when the button is clicked a date is "
-"inserted into the entry."
-msgstr ""
-
 #: ../doc/building.rst:127
 msgid "At this point you can run Bauble.  To run the compiled executable run::"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericModelViewPresenterEditor.attach_response:1
-msgid "Attach a response to dialog when keyname and mask are pressed"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView.connect:1
-#: bauble.editor.GenericEditorView.connect_after:1
-msgid ""
-"Attach a signal handler for signal on obj.  For more information see :meth:"
-"`gobject.connect_after`"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:1
-msgid ""
-"Attach an entry completion to a gtk.Entry.  The defaults values for this "
-"attach_completion assumes the completion popup only shows text and that the "
-"text is in the first column of the model."
 msgstr ""
 
 #: bauble/plugins/plants/genus_editor.glade:78
@@ -1527,121 +763,11 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
-#: ../bauble/view.py:docstring of bauble.view.SearchView:1
-msgid "Bases: :class:`bauble.pluginmgr.View`"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.MapperSearch:1
-msgid "Bases: :class:`bauble.search.SearchStrategy`"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.MessageBox:1
-#: bauble.utils.YesNoMessageBox:1
-msgid "Bases: :class:`bauble.utils.GenericMessageBox`"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.PropertiesExpander:1
-#: bauble.view.LinksExpander:1
-msgid "Bases: :class:`bauble.view.InfoExpander`"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.Action:1
-msgid "Bases: :class:`gtk.Action`"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.QueryBuilder:1
-msgid "Bases: :class:`gtk.Dialog`"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.GenericMessageBox:1
-msgid "Bases: :class:`gtk.EventBox`"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoExpander:1
-msgid "Bases: :class:`gtk.Expander`"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBox:1
-msgid "Bases: :class:`gtk.Notebook`"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage:1
-msgid "Bases: :class:`gtk.ScrolledWindow`"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI:1
-msgid "Bases: :class:`object`"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:1
-#: ../bauble/meta.py:docstring bauble.meta.BaubleMeta:1
-#: ../bauble/plugins/plants/family.py:docstring
-#: bauble.plugins.plants.family.FamilySynonym:1
-#: ../bauble/plugins/plants/genus.py:docstring
-#: bauble.plugins.plants.genus.GenusSynonym:1
-#: ../bauble/plugins/plants/species_model.py:docstring
-#: bauble.plugins.plants.species.SpeciesSynonym:1
-#: bauble.plugins.plants.species.DefaultVernacularName:1
-#: bauble.plugins.plants.SpeciesDistribution:1
-#: ../bauble/plugins/plants/geography.py:docstring
-#: bauble.plugins.plants.Geography:1
-#: ../bauble/plugins/garden/plant.py:docstring
-#: bauble.plugins.garden.plant.PlantChange:1
-#: bauble.plugins.garden.plant.PlantStatus:1
-#: ../bauble/plugins/garden/propagation.py:docstring
-#: bauble.plugins.garden.propagation.Propagation:1
-#: bauble.plugins.garden.propagation.PropRooted:1
-#: bauble.plugins.garden.propagation.PropCutting:1
-#: bauble.plugins.garden.propagation.PropSeed:1
-#: ../bauble/plugins/garden/source.py:docstring
-#: bauble.plugins.garden.source.Source:1
-#: bauble.plugins.garden.source.SourceDetail:1
-#: bauble.plugins.garden.source.Collection:1
-#: ../bauble/plugins/garden/accession.py:docstring
-#: bauble.plugins.garden.accession.Verification:1
-#: bauble.plugins.garden.accession.Voucher:1
-msgid "Bases: :class:`sqlalchemy.ext.declarative.api.Base`"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:1 ../bauble/plugins/plants/genus.py:docstring
-#: bauble.plugins.plants.Genus:1
-#: ../bauble/plugins/plants/species_model.py:docstring
-#: bauble.plugins.plants.species.VernacularName:1
-#: ../bauble/plugins/garden/accession.py:docstring
-#: bauble.plugins.garden.Accession:1
-#: bauble.plugins.garden.accession.AccessionNote:1
-#: ../bauble/plugins/garden/plant.py:docstring
-#: bauble.plugins.garden.plant.PlantNote:1
-#: ../bauble/plugins/garden/location.py:docstring
-#: bauble.plugins.garden.Location:1
-msgid ""
-"Bases: :class:`sqlalchemy.ext.declarative.api.Base`, :class:`bauble.db."
-"Serializable`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:1 ../bauble/plugins/garden/plant.py:docstring
-#: bauble.plugins.garden.Plant:1
-msgid ""
-"Bases: :class:`sqlalchemy.ext.declarative.api.Base`, :class:`bauble.db."
-"Serializable`, :class:`bauble.db.DefiningPictures`"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.HistoryExtension:1
-msgid "Bases: :class:`sqlalchemy.orm.deprecated_interfaces.MapperExtension`"
-msgstr ""
-
-#: ../bauble/btypes.py:docstring of bauble.btypes.Enum:1 bauble.btypes.Date:1
-#: bauble.btypes.DateTime:1
-msgid "Bases: :class:`sqlalchemy.sql.type_api.TypeDecorator`"
-msgstr ""
-
 #: bauble/plugins/picasa/gui.glade:7
 msgid "Bauble - Picasa Settings"
 msgstr ""
 
-#: ../doc/index.rst:53
+#: ../doc/index.rst:54
 msgid "Bauble Development"
 msgstr ""
 
@@ -1672,7 +798,6 @@ msgid ""
 msgstr ""
 
 #: bauble/prefs.py:215
-#, python-format
 msgid ""
 "Bauble can't save your user preferences. \n"
 "\n"
@@ -1686,7 +811,6 @@ msgid "Bauble development website"
 msgstr "Site web de Bauble"
 
 #: bauble/connmgr.py:203
-#, python-format
 msgid ""
 "Bauble does not have permission to read the database file:\n"
 "\n"
@@ -1694,7 +818,6 @@ msgid ""
 msgstr ""
 
 #: bauble/connmgr.py:193
-#, python-format
 msgid ""
 "Bauble does not have permission to read the directory:\n"
 "\n"
@@ -1702,7 +825,6 @@ msgid ""
 msgstr ""
 
 #: bauble/connmgr.py:208
-#, python-format
 msgid ""
 "Bauble does not have permission to write to the database file:\n"
 "\n"
@@ -1710,7 +832,6 @@ msgid ""
 msgstr ""
 
 #: bauble/connmgr.py:198
-#, python-format
 msgid ""
 "Bauble does not have permission to write to the directory:\n"
 "\n"
@@ -1746,7 +867,7 @@ msgid ""
 "timestamp and signature."
 msgstr ""
 
-#: ../doc/index.rst:7
+#: ../doc/index.rst:8
 msgid ""
 "Bauble is an application for managing botanical specimen collections. With "
 "it you can create a searchable database of plant records."
@@ -1828,7 +949,6 @@ msgid "Bottom heat"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:146
-#, python-format
 msgid "Bottom heat: %(temp)s%(unit)s"
 msgstr ""
 
@@ -1837,13 +957,12 @@ msgid "Branch Mode"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:1131
-#, python-format
 msgid ""
 "Branching from %(plant_code)s.  The quantity will be subtracted from "
 "%(plant_code)s"
 msgstr ""
 
-#: bauble/connmgr.py:622 bauble/connmgr.py:702 bauble/connmgr.py:717
+#: bauble/connmgr.py:623 bauble/connmgr.py:703 bauble/connmgr.py:718
 msgid "Browse..."
 msgstr ""
 
@@ -1853,10 +972,6 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:411
 msgid "Budded"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.build_tools_menu:1
-msgid "Build the tools menu from the tools provided by the plugins."
 msgstr ""
 
 #: ../doc/building.rst:112
@@ -1885,69 +1000,21 @@ msgid ""
 "\\Bauble`` on Windows."
 msgstr ""
 
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView.cleanup:3
-msgid "By default all it does is call self.disconnect_all()"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.cleanup:5
-msgid "By default it only calls self.view.cleanup()"
-msgstr ""
-
 #: bauble/plugins/imex/csv_.py:606
-#, python-format
 msgid ""
 "CSVExporter: path does not exist.\n"
 "%s"
 msgstr ""
 
-#: ../bauble/__init__.py:docstring of bauble.command_handler:1
-msgid "Call a command handler."
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.statusbar_clear:1
-msgid ""
-"Call gtk.Statusbar.pop() for each context_id that had previously been "
-"pushed() onto the the statusbar stack.  This might not clear all the "
-"messages in the statusbar but it's the best we can do without knowing how "
-"many messages are in the stack."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.on_dialog_close:1
-msgid ""
-"Called if self.get_window() is a gtk.Dialog and it receives the close signal."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.on_dialog_response:1
-msgid ""
-"Called if self.get_window() is a gtk.Dialog and it receives the response "
-"signal."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBox.on_switch_page:1
-msgid "Called when a page is switched"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.on_window_delete:1
-msgid ""
-"Called when the window return by get_window() receives the delete event."
-msgstr ""
-
 #: bauble/plugins/report/__init__.py:165
-#, python-format
 msgid "Can't get accessions from a %s"
 msgstr ""
 
 #: bauble/plugins/report/__init__.py:125
-#, python-format
 msgid "Can't get plants from a %s"
 msgstr ""
 
 #: bauble/plugins/report/__init__.py:207
-#, python-format
 msgid "Can't get species from a %s"
 msgstr ""
 
@@ -1956,7 +1023,7 @@ msgid "Cancel your changes"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:806 bauble/plugins/garden/plant.py:625
-#: bauble/plugins/plants/genus.py:379 bauble/plugins/plants/family.py:334
+#: bauble/plugins/plants/family.py:334 bauble/plugins/plants/genus.py:379
 msgid "Cancel your changes."
 msgstr ""
 
@@ -1977,9 +1044,8 @@ msgstr ""
 msgid "Choose a file to export to..."
 msgstr ""
 
-#: bauble/connmgr.py:663 bauble/plugins/imex/iojson.py:178
-#: bauble/plugins/imex/iojson.py:270 bauble/editor.py:1393
-#: bauble/editor.py:1400
+#: bauble/connmgr.py:664 bauble/editor.py:1393 bauble/editor.py:1400
+#: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:257
 msgid "Choose a file..."
 msgstr ""
 
@@ -1993,17 +1059,6 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:569
 msgid "Choose file(s) to import..."
-msgstr ""
-
-#: ../bauble/task.py:docstring of bauble.task.clear_messages:1
-msgid ""
-"Clear all the messages from the statusbar that were set with :func:`bauble."
-"task.set_message`"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.clear_problems:1
-msgid "Clear all the problems from all widgets associated with the presenter"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:413
@@ -2027,7 +1082,6 @@ msgid "Collection Notes"
 msgstr ""
 
 #: bauble/plugins/garden/source.py:256
-#, python-format
 msgid "Collection at %s"
 msgstr ""
 
@@ -2037,16 +1091,6 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:702 bauble/plugins/imex/csv_.py:720
 msgid "Comma Separated Value"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.commit_changes:1
-#: bauble.editor.GenericModelViewPresenterEditor.commit_changes:1
-msgid "Commit the changes to self.session()"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_text_combobox:1
-msgid "Configure a gtk.ComboBox as a text combobox"
 msgstr ""
 
 #: ../doc/started.rst:7
@@ -2068,7 +1112,6 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:150
 #: bauble/plugins/garden/propagation.py:173
-#, python-format
 msgid "Container: %s"
 msgstr ""
 
@@ -2085,12 +1128,10 @@ msgid "Corm"
 msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:284
-#, python-format
 msgid "Could not authorize Google account: %s"
 msgstr ""
 
 #: bauble/ui.py:568
-#, python-format
 msgid ""
 "Could not create a new database.\n"
 "\n"
@@ -2101,11 +1142,10 @@ msgstr ""
 msgid "Could not create the tags menus"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:95 bauble/plugins/garden/location.py:80
-#: bauble/plugins/garden/accession.py:221 bauble/plugins/garden/plant.py:103
-#: bauble/plugins/garden/source.py:105 bauble/plugins/plants/genus.py:104
-#: bauble/plugins/plants/family.py:90 bauble/plugins/plants/species.py:92
-#, python-format
+#: bauble/plugins/garden/accession.py:221 bauble/plugins/garden/location.py:80
+#: bauble/plugins/garden/plant.py:103 bauble/plugins/garden/source.py:105
+#: bauble/plugins/plants/family.py:90 bauble/plugins/plants/genus.py:104
+#: bauble/plugins/plants/species.py:92 bauble/plugins/tag/__init__.py:95
 msgid ""
 "Could not delete.\n"
 "\n"
@@ -2113,14 +1153,12 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:505
-#, python-format
 msgid ""
 "Could not find the command \"%(exe)s\" to start the %(renderer_name)s "
 "renderer."
 msgstr ""
 
 #: bauble/pluginmgr.py:552
-#, python-format
 msgid ""
 "Could not import the %(module)s module.\n"
 "\n"
@@ -2128,7 +1166,6 @@ msgid ""
 msgstr ""
 
 #: bauble/connmgr.py:253 bauble/ui.py:83
-#, python-format
 msgid "Could not load icon from %s"
 msgstr ""
 
@@ -2137,7 +1174,6 @@ msgid "Could not login to PicasaWeb account."
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:291
-#, python-format
 msgid ""
 "Could not match all filenames to table names.\n"
 "\n"
@@ -2145,7 +1181,6 @@ msgid ""
 msgstr ""
 
 #: bauble/utils/desktop.py:287
-#, python-format
 msgid ""
 "Could not open %(url)s\n"
 "\n"
@@ -2154,23 +1189,20 @@ msgid ""
 msgstr ""
 
 #: bauble/__init__.py:407
-#, python-format
 msgid ""
 "Could not open connection.\n"
 "\n"
 "%s"
 msgstr ""
 
-#: bauble/plugins/report/xsl/__init__.py:598
 #: bauble/plugins/report/mako/__init__.py:119
-#, python-format
+#: bauble/plugins/report/xsl/__init__.py:598
 msgid ""
 "Could not open the report with the default program. You can open the file "
 "manually at %s"
 msgstr ""
 
 #: bauble/view.py:651
-#, python-format
 msgid "Couldn't find anything for search: \"%s\""
 msgstr ""
 
@@ -2183,7 +1215,6 @@ msgid "Couldn't install lxml."
 msgstr ""
 
 #: bauble/editor.py:235
-#, python-format
 msgid ""
 "Couldn't set the tooltip on widget %(widget_name)s\n"
 "\n"
@@ -2195,55 +1226,19 @@ msgid "Cover"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:156
-#, python-format
 msgid "Cover: %s"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:177
-#, python-format
 msgid "Covered: %s"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_yes_no_dialog:1
-msgid "Create a dialog with yes/no buttons."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.message_dialog:1
-msgid ""
-"Create a message dialog with :func:`bauble.utils.create_message_dialog` and "
-"run and destroy it."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_message_details_dialog:1
-msgid "Create a message dialog with a details expander."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_message_dialog:1
-msgid "Create a message dialog."
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:621
 msgid "Create a new location."
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:624
+#: bauble/plugins/garden/plant.py:623
 msgid "Create a new propagation record for this plant."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.message_details_dialog:1
-msgid "Create and run a message dialog with a details expander."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.yes_no_dialog:1
-msgid "Create and run a yes/no dialog."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.create:1
-msgid "Create new Bauble database at the current connection"
 msgstr ""
 
 #: ../doc/users.rst:11
@@ -2291,7 +1286,6 @@ msgid "Cutting type"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:122
-#, python-format
 msgid "Cutting type: %s"
 msgstr ""
 
@@ -2299,7 +1293,7 @@ msgstr ""
 msgid "Data Deficient (DD)"
 msgstr ""
 
-#: bauble/connmgr.py:591
+#: bauble/connmgr.py:592
 msgid "Database: "
 msgstr ""
 
@@ -2337,7 +1331,6 @@ msgid "Date planted"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:189
-#, python-format
 msgid "Date planted: %s"
 msgstr ""
 
@@ -2346,7 +1339,6 @@ msgid "Date sown"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:171
-#, python-format
 msgid "Date sown: %s"
 msgstr ""
 
@@ -2359,14 +1351,6 @@ msgstr ""
 msgid "Dead"
 msgstr ""
 
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.DefaultVernacularName:3
-msgid ""
-"DefaultVernacularName is not meant to be instantiated directly. Usually the "
-"default vernacular name is set on a species by setting the "
-"default_vernacular_name property on Species to a VernacularName instance"
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:286
 msgid "Deleted, yr. dead. unknown"
 msgstr ""
@@ -2377,21 +1361,8 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:9
-msgid "Designates the botanical status of the genus."
-msgstr ""
-
 #: bauble/utils/__init__.py:538
 msgid "Details"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:11
-msgid ""
-"Determines the level or authority of the verifier. If it is not known "
-"whether the name of the record has been verified by an authority, then this "
-"field should be None."
 msgstr ""
 
 #: ../doc/building.rst:2
@@ -2414,13 +1385,6 @@ msgstr ""
 msgid "Discarded, weedy"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.disconnect_all:1
-msgid ""
-"Disconnects all the signal handlers attached with :meth:`GenericEditorView."
-"connect` or :meth:`GenericEditorView.connect_after`"
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:285
 msgid "Distributed elsewhere"
 msgstr ""
@@ -2430,13 +1394,11 @@ msgstr ""
 msgid "Division"
 msgstr ""
 
-#: bauble/connmgr.py:418
-#, python-format
+#: bauble/connmgr.py:419
 msgid "Do you want to save %s?"
 msgstr ""
 
-#: bauble/connmgr.py:426
-#, python-format
+#: bauble/connmgr.py:427
 msgid "Do you want to save your changes to %s ?"
 msgstr ""
 
@@ -2472,11 +1434,6 @@ msgstr ""
 msgid "Downloading the source"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.assign_completions_handler:1
-msgid "Dynamically handle completions on a gtk.Entry."
-msgstr ""
-
 #: bauble/plugins/garden/acc_editor.glade:2058
 msgid "East"
 msgstr ""
@@ -2506,7 +1463,7 @@ msgstr ""
 msgid "Endangered (EN)"
 msgstr ""
 
-#: bauble/connmgr.py:350
+#: bauble/connmgr.py:351
 msgid "Enter a connection name"
 msgstr ""
 
@@ -2522,7 +1479,7 @@ msgstr ""
 msgid "Enter a user name"
 msgstr ""
 
-#: bauble/connmgr.py:481
+#: bauble/connmgr.py:482
 msgid "Enter your password"
 msgstr ""
 
@@ -2534,13 +1491,12 @@ msgstr ""
 msgid "Epithet"
 msgstr ""
 
+#: bauble/plugins/garden/accession.py:2175
+#: bauble/plugins/garden/location.py:402 bauble/plugins/garden/plant.py:1065
 #: bauble/plugins/garden/propagation.py:1069
-#: bauble/plugins/garden/location.py:402
-#: bauble/plugins/garden/accession.py:2175 bauble/plugins/garden/plant.py:1065
-#: bauble/plugins/garden/source.py:366
+#: bauble/plugins/garden/source.py:366 bauble/plugins/plants/family.py:614
+#: bauble/plugins/plants/genus.py:746
 #: bauble/plugins/plants/species_editor.py:1060
-#: bauble/plugins/plants/genus.py:746 bauble/plugins/plants/family.py:614
-#, python-format
 msgid ""
 "Error committing changes.\n"
 "\n"
@@ -2548,7 +1504,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:259
-#, python-format
 msgid ""
 "Error connecting to database.\n"
 "\n"
@@ -2566,17 +1521,14 @@ msgid ""
 msgstr ""
 
 #: bauble/view.py:632
-#, python-format
 msgid "Error in search string at column %s"
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:539
-#, python-format
 msgid "Error: Could not set the sequence for column: %s"
 msgstr ""
 
-#: bauble/pluginmgr.py:255
-#, python-format
+#: bauble/pluginmgr.py:256
 msgid ""
 "Error: Couldn't initialize %(entry_name)s\n"
 "\n"
@@ -2597,14 +1549,9 @@ msgstr ""
 msgid "Expedition"
 msgstr ""
 
-#: bauble/plugins/abcd/__init__.py:357 bauble/plugins/imex/xml.py:160
-#: bauble/plugins/imex/csv_.py:719 bauble/plugins/imex/iojson.py:335
+#: bauble/plugins/abcd/__init__.py:357 bauble/plugins/imex/csv_.py:719
+#: bauble/plugins/imex/iojson.py:322 bauble/plugins/imex/xml.py:160
 msgid "Export"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDExporter:1
-msgid "Export Plants to an ABCD file."
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:8
@@ -2612,7 +1559,6 @@ msgid "Export To JSON"
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:626
-#, python-format
 msgid ""
 "Export file <b>%(filename)s</b> for <b>%(table)s</b> table already exists.\n"
 "\n"
@@ -2683,15 +1629,8 @@ msgstr ""
 msgid "Female"
 msgstr ""
 
-#: bauble/connmgr.py:696
+#: bauble/connmgr.py:697
 msgid "Filename: "
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.set_combo_from_value:1
-msgid ""
-"Find value in combo model and set it as active, else raise ValueError "
-"cmp(row, value) is the a function to use for comparison"
 msgstr ""
 
 #: ../doc/installing.rst:87
@@ -2700,25 +1639,11 @@ msgid ""
 "environment, but which are missing in a off-the-shelf mac:"
 msgstr ""
 
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.install:6
-msgid ""
-"Flag passed to the plugin's install() method to indicate whether it should "
-"import its default data."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:42
-msgid ""
-"Flag to indicate where this information is sensitive and should be kept "
-"private"
-msgstr ""
-
 #: bauble/plugins/garden/prop_editor.glade:370
 msgid "Flower buds"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:136
-#, python-format
 msgid "Flower buds: %s"
 msgstr ""
 
@@ -2766,33 +1691,11 @@ msgid ""
 "can download the latest gdata package from:"
 msgstr ""
 
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.install:10
-msgid "Force, don't ask questions."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:30
-msgid "Foreign Key to the :class:`Accession` table."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:32
-msgid "Foreign Key to the :class:`~bauble.plugins.plants.Species` table."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:34
-msgid ""
-"Foreign key to the :class:`~bauble.plugins.plants.Species` table. What it "
-"was verified from."
-msgstr ""
-
 #: bauble/plugins/report/__init__.py:386
 msgid "Formatter Name"
 msgstr ""
 
 #: bauble/plugins/report/__init__.py:632
-#, python-format
 msgid ""
 "Formatting Error\n"
 "\n"
@@ -2808,7 +1711,6 @@ msgid "Fungal"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:141
-#, python-format
 msgid "Fungal soak: %s"
 msgstr ""
 
@@ -2827,10 +1729,10 @@ msgstr ""
 #: bauble/plugins/garden/plant_editor.glade:841
 #: bauble/plugins/garden/acc_editor.glade:1110
 #: bauble/plugins/plants/genus_editor.glade:284
-#: bauble/plugins/garden/location.py:466
-#: bauble/plugins/garden/accession.py:2329 bauble/plugins/garden/plant.py:1161
-#: bauble/plugins/garden/source.py:890 bauble/plugins/plants/genus.py:870
-#: bauble/plugins/plants/family.py:683 bauble/plugins/plants/species.py:317
+#: bauble/plugins/garden/accession.py:2329
+#: bauble/plugins/garden/location.py:466 bauble/plugins/garden/plant.py:1161
+#: bauble/plugins/garden/source.py:890 bauble/plugins/plants/family.py:683
+#: bauble/plugins/plants/genus.py:870 bauble/plugins/plants/species.py:317
 #: bauble/plugins/plants/species.py:517
 msgid "General"
 msgstr "General"
@@ -2839,17 +1741,10 @@ msgstr "General"
 msgid "Generating reports"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericModelViewPresenterEditor:1
-msgid ""
-"GenericModelViewPresenterEditor assume that model is an instance of object "
-"mapped to a SQLAlchemy table"
-msgstr ""
-
 #: ../doc/editing.rst:67 bauble/plugins/plants/genus_editor.glade:145
 #: bauble/plugins/plants/species_editor.glade:282
-#: bauble/plugins/plants/species_editor.py:892
 #: bauble/plugins/plants/__init__.py:111
+#: bauble/plugins/plants/species_editor.py:892
 msgid "Genus"
 msgstr ""
 
@@ -2862,7 +1757,6 @@ msgid "Genus Window"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:182
-#, python-format
 msgid "Germination date: %s"
 msgstr ""
 
@@ -2871,54 +1765,7 @@ msgid "Germination media"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:186
-#, python-format
 msgid "Germination rate: %s%%"
-msgstr ""
-
-#: ../bauble/meta.py:docstring of bauble.meta.get_default:1
-msgid ""
-"Get a BaubleMeta object with name.  If the default value is not None then a "
-"BaubleMeta object is returned with name and the default value given."
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.get_UnitID:1
-msgid "Get a value for the UnitID"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.get_family:1
-msgid "Get a value for the family."
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.get_AuthorTeam:1
-msgid "Get the Author string."
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.get_GenusOrMonomial:1
-msgid "Get the Genus string."
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.get_InformalNameString:1
-msgid "Get the common name string."
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.get_FirstEpithet:1
-msgid "Get the first epithet."
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.ABCDAdapter.get_FullScientificNameString:1
-msgid "Get the full scientific name string."
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant.get_delimiter:1
-msgid "Get the plant delimiter from the BaubleMeta table."
 msgstr ""
 
 #: ../doc/started.rst:2
@@ -2957,24 +1804,11 @@ msgstr ""
 msgid "Habitat description"
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.HistoryExtension:1
-msgid ""
-"HistoryExtension is a :class:`~sqlalchemy.orm.interfaces.MapperExtension` "
-"that is added to all clases that inherit from bauble.db.Base so that all "
-"inserts, updates, and deletes made to the mapped objects are recorded in the "
-"`history` table."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBox:1
-msgid "Holds list of expanders with an optional tabbed layout."
-msgstr ""
-
 #: bauble/plugins/garden/prop_editor.glade:704
 msgid "Hormone"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:143
-#, python-format
 msgid "Hormone treatment: %s"
 msgstr ""
 
@@ -2982,17 +1816,12 @@ msgstr ""
 msgid "Horticultural Association/Garden Club"
 msgstr ""
 
-#: bauble/connmgr.py:597
+#: bauble/connmgr.py:598
 msgid "Host: "
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:211
 msgid "Hybrid"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:9
-msgid "Hybrid flag"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:184
@@ -3001,20 +1830,6 @@ msgstr ""
 
 #: bauble/view.py:156
 msgid "ID:"
-msgstr ""
-
-#: ../bauble/meta.py:docstring of bauble.meta.get_default:5
-msgid ""
-"If a session instance is passed (session != None) then we don't commit the "
-"session."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.reset_sequence:1
-msgid ""
-"If column.sequence is not None or the column is an Integer and column."
-"autoincrement is true then reset the sequence for the next available value "
-"for the column...if the column doesn't have a sequence then do nothing and "
-"return"
 msgstr ""
 
 #: ../doc/searching.rst:67
@@ -3032,22 +1847,8 @@ msgid ""
 "choose how the properties will be combined in the search query."
 msgstr ""
 
-#: ../bauble/search.py:docstring of bauble.search.MapperSearch.search:3
-msgid ""
-"If session=None then the session should be closed after the results have "
-"been processed or it is possible that some database backends could cause "
-"deadlocks."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:678
-#, python-format
 msgid "If the id_qual is aff. or cf. then id_qual_rank is required. %s "
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.delete_or_expunge:1
-msgid ""
-"If the object is in object_session(obj).new then expunge it from the "
-"session.  If not then session.delete it."
 msgstr ""
 
 #: ../doc/report.rst:33
@@ -3064,30 +1865,6 @@ msgstr ""
 msgid ""
 "If the search property you have selected can only have specific values then "
 "a list of possible values will be provided for you to choose from."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.StringOrNoneValidator:1
-msgid ""
-"If the value is an empty string then return None, else return the str() of "
-"the value."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.UnicodeOrNoneValidator:1
-msgid ""
-"If the value is an empty unicode string then return None, else return the "
-"unicode() of the value. The default encoding is 'utf-8'."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.IntOrNoneStringValidator:1
-msgid ""
-"If the value is an int, long or can be cast to int then return the number, "
-"else return None"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.FloatOrNoneStringValidator:1
-msgid ""
-"If the value is an int, long, float or can be cast to float then return the "
-"number, else return None"
 msgstr ""
 
 #: ../doc/started.rst:15
@@ -3207,7 +1984,7 @@ msgid ""
 "you will also need to install a database connector."
 msgstr ""
 
-#: ../doc/index.rst:68
+#: ../doc/index.rst:69
 msgid ""
 "If you're using Bauble, or if you feel like helping its development anyway, "
 "please consider `donating <https://pledgie.com/campaigns/29188>`_"
@@ -3221,7 +1998,7 @@ msgstr ""
 msgid "Immature"
 msgstr ""
 
-#: bauble/plugins/imex/csv_.py:701 bauble/plugins/imex/iojson.py:315
+#: bauble/plugins/imex/csv_.py:701 bauble/plugins/imex/iojson.py:302
 msgid "Import"
 msgstr ""
 
@@ -3258,14 +2035,7 @@ msgid ""
 "that is more advanced that this doc will cover."
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.MapperBase:4
-msgid ""
-"In general there is no reason to use this class directly other than to "
-"extend it to add more default columns to all the bauble tables."
-msgstr ""
-
 #: bauble/plugins/imex/csv_.py:326
-#, python-format
 msgid ""
 "In order to import the files the following tables will need to be dropped:\n"
 "\n"
@@ -3296,25 +2066,6 @@ msgstr ""
 msgid "Individual"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.init_enum_combo:1
-msgid ""
-"Initialize a gtk.ComboBox widget with name widget_name from enum values in "
-"self.model.field"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.init_translatable_combo:1
-msgid ""
-"Initialize a gtk.ComboBox with translations values where model[row][0] is "
-"the value that will be stored in the database and model[row][1] is the value "
-"that will be visible in the gtk.ComboBox."
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.init:1
-msgid "Initialize the plugin manager."
-msgstr ""
-
 #: ../doc/installing.rst:2
 msgid "Installation"
 msgstr ""
@@ -3323,7 +2074,7 @@ msgstr ""
 msgid "Installing Apache FOP on Windows"
 msgstr ""
 
-#: ../doc/index.rst:20
+#: ../doc/index.rst:21
 msgid "Installing Bauble"
 msgstr ""
 
@@ -3380,50 +2131,15 @@ msgstr ""
 msgid "Intact"
 msgstr ""
 
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.DefaultVernacularName:10
-msgid "Integer, primary_key"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.SearchStrategy:1
-msgid "Interface for adding search strategies to a view."
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TagItemGUI:1
-msgid "Interface for tagging individual items in the results of the SearchView"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:210
 msgid "Internodal"
 msgstr ""
 
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.get_invalid_columns:4
-msgid ""
-"Invalid columns meet the following criteria: - nullable columns with null "
-"values - ...what else?"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:9
-msgid ""
-"Is this voucher the parent material of the accession.  E.g did the seed for "
-"the accession from come the plant used to make this voucher."
-msgstr ""
-
-#: ../doc/index.rst:10
+#: ../doc/index.rst:11
 msgid ""
 "It is `open <http://www.opensource.org>`_ and `free <http://www.fsf.org>`_ "
 "and is released under the `GNU Public License <http://www.fsf.org/licensing/"
 "licenses/gpl.html>`_"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.set_model_attr:1
-msgid ""
-"It is best to use this method to set values on the model rather than setting "
-"them directly.  Derived classes can override this method to take action when "
-"the model changes."
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:710
@@ -3434,7 +2150,7 @@ msgid ""
 "<i>Would you like to continue?</i>"
 msgstr ""
 
-#: bauble/plugins/imex/iojson.py:316 bauble/plugins/imex/iojson.py:336
+#: bauble/plugins/imex/iojson.py:303 bauble/plugins/imex/iojson.py:323
 msgid "JSON"
 msgstr ""
 
@@ -3482,12 +2198,10 @@ msgid "Leaves reduced by"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:131
-#, python-format
 msgid "Leaves: %s"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:125
-#, python-format
 msgid "Length: %(length)s%(unit)s"
 msgstr ""
 
@@ -3524,7 +2238,6 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:154
 #: bauble/plugins/garden/propagation.py:179
-#, python-format
 msgid "Location: %s"
 msgstr ""
 
@@ -3552,33 +2265,12 @@ msgstr ""
 msgid "Male"
 msgstr ""
 
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr:1
-msgid ""
-"Manage plugin registry, loading, initialization and installation.  The "
-"plugin manager should be started in the following order:"
-msgstr ""
-
 #: ../doc/peptalk.rst:65
 msgid "Management of plant locations."
 msgstr ""
 
 #: ../doc/users.rst:2
 msgid "Managing Users"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.MapperSearch:1
-msgid ""
-"Mapper Search support three types of search expression: 1. value searches: "
-"search that are just list of values, e.g. value1, value2, value3, searches "
-"all domains and registered columns for values 2. expression searches: "
-"searched of the form domain=value, resolves the domain and searches specific "
-"columns from the mapping 3. query searchs: searches of the form domain where "
-"ident.ident = value, resolve the domain and identifiers and search for value"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.MapperBase:1
-msgid ""
-"MapperBase adds the id, _created and _last_updated columns to all tables."
 msgstr ""
 
 #: bauble/search.py:590
@@ -3595,7 +2287,6 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:152
 #: bauble/plugins/garden/propagation.py:175
-#, python-format
 msgid "Media: %s"
 msgstr ""
 
@@ -3612,7 +2303,6 @@ msgid "Model and Presenter can be unit tested, not the View."
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:274
-#, python-format
 msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
@@ -3642,36 +2332,6 @@ msgstr ""
 
 #: ../doc/administration.rst:18
 msgid "MySQL"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:8
-msgid ""
-"NOTE: If you are selecting completions from strings in your model you must "
-"set the text_column parameter to the column in the model that holds the "
-"strings or else when you select the string from the completions it won't get "
-"set properly in the entry even though you call entry.set_text()."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_text_combobox:3
-msgid ""
-"NOTE: If you pass a cell_data_func that is a method of an object that holds "
-"a reference to combo then the object will not be properly garbage "
-"collected.  To avoid this problem either don't pass a method of object or "
-"make the method static"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.init:8
-msgid ""
-"NOTE: This should be called after after Bauble has established a connection "
-"to a database with db.open()"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.check_parameters_valid:4
-msgid ""
-"NOTE: this was meant to be used to implement an eclipse style information "
-"box at the top of the dialog but it's not really used right now"
 msgstr ""
 
 #: bauble/pictures.glade:76 bauble/plugins/tag/tag.glade:72
@@ -3733,7 +2393,6 @@ msgid ""
 msgstr ""
 
 #: bauble/__init__.py:164
-#, python-format
 msgid "No command handler for %s"
 msgstr ""
 
@@ -3764,11 +2423,6 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:21
-msgid "None: no information, unknown"
-msgstr ""
-
 #: bauble/plugins/garden/acc_editor.glade:2020
 msgid "North"
 msgstr ""
@@ -3791,13 +2445,6 @@ msgstr ""
 msgid "Not of wild source"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.assign_simple_handler:9
-msgid ""
-"Note: Where widget is a gtk.ComboBox or gtk.ComboBoxEntry then the value is "
-"assumed to be stored in model[row][0]"
-msgstr ""
-
 #: ../doc/editing.rst:24 bauble/bauble.glade:278
 #: bauble/plugins/garden/plant_editor.glade:916
 #: bauble/plugins/garden/acc_editor.glade:2754
@@ -3807,16 +2454,6 @@ msgstr ""
 #: bauble/plugins/plants/family_editor.glade:251
 msgid "Notes"
 msgstr "Nòtas"
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:28
-msgid "Notes about this verification."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.AccessionNote:1
-msgid "Notes for the accession table"
-msgstr ""
 
 #: bauble/plugins/tag/__init__.py:495
 msgid "Nothing selected"
@@ -3863,16 +2500,6 @@ msgid ""
 "preceding release are kept up-to-date by Apple-the-firm."
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.open:1
-msgid ""
-"Open a database connection.  This function sets bauble.db.engine to the "
-"opened engined."
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.on_file_menu_open:1
-msgid "Open the connection manager."
-msgstr ""
-
 #: bauble/ui.py:359
 msgid "Open the log-file"
 msgstr ""
@@ -3881,31 +2508,23 @@ msgstr ""
 msgid "Operation"
 msgstr ""
 
+#: bauble/plugins/garden/plant.py:296 bauble/plugins/garden/plant.py:414
 #: bauble/plugins/garden/propagation.py:51
-#: bauble/plugins/garden/propagation.py:211 bauble/plugins/garden/plant.py:296
-#: bauble/plugins/garden/plant.py:414 bauble/plugins/garden/source.py:168
+#: bauble/plugins/garden/propagation.py:211
+#: bauble/plugins/garden/source.py:168
 msgid "Other"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:19
-msgid "Other: Other, probably see notes for more information"
 msgstr ""
 
 #: bauble/plugins/picasa/gui.glade:53
 msgid "Password"
 msgstr ""
 
-#: bauble/connmgr.py:610
+#: bauble/connmgr.py:611
 msgid "Password: "
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.topological_sort:1
-msgid "Perform topological sort."
 msgstr ""
 
 #: ../doc/users.rst:16
@@ -3925,13 +2544,13 @@ msgstr ""
 msgid "Pictures"
 msgstr ""
 
-#: bauble/connmgr.py:616 bauble/connmgr.py:711
+#: bauble/connmgr.py:617 bauble/connmgr.py:712
 msgid "Pictures root: "
 msgstr ""
 
 #: ../doc/editing.rst:151 bauble/plugins/garden/acc_editor.glade:2270
-#: bauble/plugins/garden/accession.py:418 bauble/plugins/garden/plant.py:410
 #: bauble/plugins/garden/__init__.py:126
+#: bauble/plugins/garden/accession.py:418 bauble/plugins/garden/plant.py:410
 msgid "Plant"
 msgstr ""
 
@@ -3948,16 +2567,11 @@ msgstr ""
 msgid "Plant/Clone"
 msgstr ""
 
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:11
-msgid "Plant: Whole plant"
-msgstr ""
-
-#: bauble/connmgr.py:556
+#: bauble/connmgr.py:557
 msgid "Please choose a name for this connection"
 msgstr ""
 
-#: bauble/connmgr.py:559
+#: bauble/connmgr.py:560
 msgid "Please choose a user name for this connection"
 msgstr ""
 
@@ -3982,7 +2596,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/garden/location.py:66
-#, python-format
 msgid "Please remove the plants from <b>%(location)s</b> before deleting it."
 msgstr ""
 
@@ -4006,19 +2619,6 @@ msgstr ""
 msgid "Poor"
 msgstr ""
 
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:15 ../bauble/plugins/plants/genus.py:docstring
-#: bauble.plugins.plants.Genus:14
-#: ../bauble/plugins/plants/species_model.py:docstring
-#: bauble.plugins.plants.Species:38
-#: ../bauble/plugins/garden/accession.py:docstring
-#: bauble.plugins.garden.Accession:11 bauble.plugins.garden.Accession:20
-#: bauble.plugins.garden.Accession:36
-#: ../bauble/plugins/garden/plant.py:docstring bauble.plugins.garden.Plant:21
-#: bauble.plugins.garden.accession.Verification:25
-msgid "Possible values:"
-msgstr ""
-
 #: ../doc/administration.rst:23
 msgid "PostgreSQL"
 msgstr ""
@@ -4032,7 +2632,6 @@ msgid "Pretreatment"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:166
-#, python-format
 msgid "Pretreatment: %s"
 msgstr ""
 
@@ -4133,41 +2732,12 @@ msgstr ""
 msgid "Regionally Extinct (RE)"
 msgstr ""
 
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.register_command:1
-msgid ""
-"Register command handlers.  If a command is a duplicate then it will "
-"overwrite the old command of the same name."
-msgstr ""
-
 #: ../doc/editing.rst:186
 msgid ""
 "Remember that you have configured the pictures root folder when you "
 "specified the details of your database connection. Again, you should make "
 "sure that the pictures root folder is shared with your file sharing service "
 "of choice."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.remove_expander:1
-msgid "Remove expander from the infobox by the expander's label bel"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.remove_problem:1
-msgid ""
-"Remove problem_id from self.problems and reset the background color of the "
-"widget(s) in problem_widgets.  If problem_id is None and problem_widgets is "
-"None then method won't do anything."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.clear_model:4
-msgid ""
-"Remove the model from the object, deletes all the items in the model, clear "
-"the model and then delete the model and set the model on the object to None"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.untag_objects:1
-msgid "Remove the tag name from objs."
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:214
@@ -4184,16 +2754,6 @@ msgstr ""
 msgid "Report a bug"
 msgstr "Senhalar un bug"
 
-#: ../bauble/plugins/plants/geography.py:docstring of
-#: bauble.plugins.plants.Geography:1
-msgid "Represents a geography unit."
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:24 bauble.plugins.garden.Plant:27
-msgid "Required."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:389
 msgid "Rescue"
 msgstr ""
@@ -4202,183 +2762,8 @@ msgstr ""
 msgid "Research/Field Station"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.restore_state:1
-msgid ""
-"Restore the state of the view, this is usually done by getting a value by "
-"the preferences and setting the equivalent in the interface"
-msgstr ""
-
 #: bauble/view.py:661
-#, python-format
 msgid "Retrieving %s search results..."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.yes_no_dialog:3
-msgid "Return True if the dialog response equals gtk.RESPONSE_YES"
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.main_is_frozen:1
-msgid ""
-"Return True if we are running in a py2exe environment, else return False"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.tree_model_has:1
-msgid "Return True or False if value is in the tree."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.has_problems:1
-msgid ""
-"Return True/False depending on if widget has any problems attached to it. if "
-"no widget is specified, result is True if there is any problem at all."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.ilike:1
-msgid "Return a cross platform ilike function."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.search_tree_model:1
-msgid ""
-"Return a iterable of gtk.TreeIter instances to all occurences of data in "
-"model"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.get_distinct_values:1
-msgid "Return a list of all the distinct values in a table column"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.range_builder:1
-msgid "Return a list of numbers from a string range of the form 1-3,4,5"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.get_tag_ids:3
-msgid ""
-"Return a list of tag id's for tags associated with obj, only returns those "
-"tag ids that are common between all the objs"
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.version:3
-msgid ""
-"Return a nice string representation of the object. If the argument is a "
-"string, the return value is the same object."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.xml_safe:1
-msgid ""
-"Return a string with character entities escaped safe for xml, if the str "
-"parameter is a string a string is returned, if str is a unicode object then "
-"a unicode object is returned"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.get_tagged_objects:1
-msgid "Return all object tagged with tag."
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.SearchStrategy.search:4
-msgid ""
-"Return an iterator that iterates over mapped classes retrieved from the "
-"search."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.find_dependent_tables:1
-msgid ""
-"Return an iterator with all tables that depend on table.  The tables are "
-"returned in the order that they depend on each other. For example you know "
-"that table[0] does not depend on tables[1]."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.open:4
-msgid ""
-"Return bauble.db.engine if successful else returns None and bauble.db.engine "
-"remains unchanged."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.get_invalid_columns:1
-msgid ""
-"Return column names on a mapped object that have values which aren't valid "
-"for the model."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.which:1
-msgid "Return first occurence of file on the path."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.to_unicode:1
-msgid ""
-"Return obj converted to unicode.  If obj is already a unicode object it will "
-"not try to decode it to converted it to <encoding> but will just return the "
-"original obj"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:6
-msgid "Return the completion attached to the entry."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.remove_expander:5
-msgid "Return the expander that was removed from the infobox."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.get_window:1
-msgid "Return the top level window for view"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.get_urls:1
-msgid ""
-"Return tuples of http/https links and labels for the links.  To label a link "
-"prefix it with [label text], e.g. [BBG]http://belizebotanic.org"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_message_dialog:10
-msgid "Returns a :class:`gtk.MessageDialog`"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.combo_get_value_iter:1
-msgid ""
-"Returns a gtk.TreeIter that points to first matching value in the combo's "
-"model."
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.MapperSearch.search:1
-msgid "Returns a set() of database hits for the text search string."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.get_expander:1
-msgid "Returns an expander by the expander's label name"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.message_dialog:4
-msgid "Returns the dialog's response."
-msgstr ""
-
-#: ../bauble/paths.py:docstring of bauble.paths.main_dir:1
-msgid "Returns the path of the bauble executable."
-msgstr ""
-
-#: ../bauble/paths.py:docstring of bauble.paths.lib_dir:1
-msgid "Returns the path of the bauble module."
-msgstr ""
-
-#: ../bauble/paths.py:docstring of bauble.paths.user_dir:1
-msgid "Returns the path to where Bauble settings should be saved."
-msgstr ""
-
-#: ../bauble/paths.py:docstring of bauble.paths.locale_dir:1
-msgid "Returns the root path of the locale files"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.cleanup:1
-msgid ""
-"Revert any changes the presenter might have done to the widgets so that next "
-"time the same widgets are open everything will be normal."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:421
@@ -4406,21 +2791,7 @@ msgid "Rooted cutting"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:159
-#, python-format
 msgid "Rooted: %s%%"
-msgstr ""
-
-#: ../bauble/plugins/garden/propagation.py:docstring of
-#: bauble.plugins.garden.propagation.PropRooted:1
-msgid "Rooting dates for cutting"
-msgstr ""
-
-#: ../bauble/task.py:docstring of bauble.task.queue:1
-msgid "Run a task."
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.main:1
-msgid "Run the main Bauble application."
 msgstr ""
 
 #: ../doc/installing.rst:224
@@ -4448,17 +2819,6 @@ msgstr ""
 
 #: bauble/plugins/imex/xml.py:89
 msgid "Save all data in one file"
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.save_state:1
-msgid "Save the gui state and preferences."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.save_state:1
-msgid ""
-"Save the state of the view by setting a value in the preferences that will "
-"be called restored in restore_state e.g. prefs[pref_string] = pref_value"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:907
@@ -4493,7 +2853,7 @@ msgstr ""
 msgid "Save your changes changes and add another genus."
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:628
+#: bauble/plugins/garden/plant.py:627
 msgid "Save your changes changes and add another plant."
 msgstr ""
 
@@ -4502,7 +2862,7 @@ msgid "Save your changes changes and add another species "
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:807 bauble/plugins/garden/plant.py:626
-#: bauble/plugins/plants/genus.py:380 bauble/plugins/plants/family.py:335
+#: bauble/plugins/plants/family.py:335 bauble/plugins/plants/genus.py:380
 msgid "Save your changes."
 msgstr ""
 
@@ -4518,7 +2878,7 @@ msgstr ""
 msgid "Search BGCI"
 msgstr ""
 
-#: bauble/utils/web.py:146
+#: bauble/utils/web.py:145
 msgid "Search Botanic Gardens Conservation International"
 msgstr ""
 
@@ -4559,7 +2919,7 @@ msgstr ""
 msgid "Search TPL"
 msgstr "Recercar sus Google"
 
-#: bauble/utils/web.py:96
+#: bauble/utils/web.py:95
 msgid "Search The Plant List online database"
 msgstr ""
 
@@ -4568,7 +2928,7 @@ msgstr ""
 msgid "Search Tropicos"
 msgstr "Recercar sus Google"
 
-#: bauble/utils/web.py:107
+#: bauble/utils/web.py:106
 msgid "Search Tropicos (MissouriBG) online database"
 msgstr ""
 
@@ -4595,8 +2955,8 @@ msgid ""
 "is not the search you're looking for."
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:602 bauble/plugins/report/__init__.py:607
-#: bauble/editor.py:260
+#: bauble/editor.py:260 bauble/plugins/report/__init__.py:602
+#: bauble/plugins/report/__init__.py:607
 msgid "Search for something first."
 msgstr ""
 
@@ -4609,27 +2969,20 @@ msgid ""
 "``\"Block 10\"``."
 msgstr ""
 
-#: bauble/utils/web.py:85
+#: bauble/utils/web.py:84
 msgid "Search the Global Biodiversity Information Facility"
 msgstr ""
 
-#: bauble/utils/web.py:133
+#: bauble/utils/web.py:132
 msgid "Search the Intergrated Taxonomic Information System"
 msgstr ""
 
-#: bauble/utils/web.py:160
+#: bauble/utils/web.py:159
 msgid "Search the International Plant Names Index"
 msgstr ""
 
 #: bauble/utils/web.py:116
 msgid "Search the Wikipedia"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.load:1
-msgid ""
-"Search the plugin path for modules that provide a plugin. If path is a "
-"directory then search the directory for plugins. If path is None then use "
-"the default plugins path, bauble.plugins."
 msgstr ""
 
 #: ../doc/searching.rst:4
@@ -4666,19 +3019,14 @@ msgid ""
 "internals and database table layouts."
 msgstr ""
 
-#: bauble/plugins/garden/propagation.py:49
 #: bauble/plugins/garden/accession.py:401
 #: bauble/plugins/garden/accession.py:426
+#: bauble/plugins/garden/propagation.py:49
 msgid "Seed"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:411
 msgid "Seed/Spore"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:13
-msgid "Seed/Spore: Seed or Spore"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:425
@@ -4689,7 +3037,7 @@ msgstr ""
 msgid "Select a Region"
 msgstr ""
 
-#: bauble/plugins/imex/xml.py:85 bauble/plugins/imex/csv_.py:595
+#: bauble/plugins/imex/csv_.py:595 bauble/plugins/imex/xml.py:85
 msgid "Select a directory"
 msgstr ""
 
@@ -4709,29 +3057,12 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView.cleanup:1
-msgid "Should be called when after self.start() returns."
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.get_passwd:1
-msgid "Show a dialog with and entry and return the value entered."
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.show_message_box:1
-msgid "Show an info message in the message drop down box"
-msgstr ""
-
 #: bauble/utils/__init__.py:1141
 msgid "Show details"
 msgstr "Afichar los detalhs"
 
 #: bauble/plugins/users/ui.glade:121
 msgid "Show only Bauble users"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of bauble.connmgr.ConnectionManager.start:1
-msgid "Show the connection manager."
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:228
@@ -4768,9 +3099,9 @@ msgid "South"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:243
+#: bauble/plugins/plants/__init__.py:112
 #: bauble/plugins/report/xsl/__init__.py:85
 #: bauble/plugins/report/xsl/__init__.py:406
-#: bauble/plugins/plants/__init__.py:112
 msgid "Species"
 msgstr ""
 
@@ -4798,8 +3129,6 @@ msgstr ""
 msgid "Species name"
 msgstr ""
 
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:31
 #: bauble/plugins/plants/species_editor.glade:390
 #: bauble/plugins/plants/species_editor.py:897
 msgid "Species qualifier"
@@ -4825,28 +3154,20 @@ msgstr ""
 msgid "Staff member"
 msgstr ""
 
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.on_tools_menu_item_activate:1
-msgid "Start a tool on the Tool menu."
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:282
 msgid "Stolen"
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.quit:1
-msgid "Stop all tasks and quit Bauble."
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:292
 msgid "Summer Kill"
 msgstr ""
 
-#: ../doc/index.rst:64
+#: ../doc/index.rst:65
 msgid "Supporting Bauble"
 msgstr ""
 
-#: bauble/plugins/plants/genus.py:966 bauble/plugins/plants/genus.py:985
-#: bauble/plugins/plants/family.py:788 bauble/plugins/plants/species.py:249
+#: bauble/plugins/plants/family.py:788 bauble/plugins/plants/genus.py:966
+#: bauble/plugins/plants/genus.py:985 bauble/plugins/plants/species.py:249
 #: bauble/plugins/plants/species.py:271
 msgid "Synonyms"
 msgstr "Sinonims"
@@ -4857,11 +3178,6 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:524
 msgid "Tag Selection"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.tag_objects:1
-msgid "Tag a list of objects."
 msgstr ""
 
 #: ../doc/tagging.rst:2
@@ -4898,14 +3214,7 @@ msgstr ""
 msgid "Telephone"
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.verify_connection:1
-msgid ""
-"Test whether a connection to an engine is a valid Bauble database. This "
-"method will raise an error for the first problem it finds with the database."
-msgstr ""
-
 #: bauble/pluginmgr.py:244
-#, python-format
 msgid ""
 "The %(plugin_name)s plugin is listed in the registry but isn't wasn't found "
 "in the plugin directory"
@@ -4947,15 +3256,7 @@ msgid ""
 "either be *sensu lato*, *sensu stricto* or nothing."
 msgstr ""
 
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.find_dependent_tables:8
-msgid ""
-"The :class:`sqlalchemy.engine.MetaData` object that holds the tables to "
-"search through.  If None then use bauble.db.metadata"
-msgstr ""
-
 #: bauble/plugins/imex/csv_.py:380
-#, python-format
 msgid ""
 "The <b>%s</b> table already exists in the database and may contain some "
 "data. If a row the import file has the same id as a row in the database then "
@@ -5001,12 +3302,6 @@ msgid ""
 "The Bauble users plugin is only available on PostgreSQL based databases."
 msgstr ""
 
-#: ../bauble/meta.py:docstring of bauble.meta.BaubleMeta:1
-msgid ""
-"The BaubleMeta class is used to set and retrieve meta information based on "
-"key/name values from the bauble meta table."
-msgstr ""
-
 #: ../doc/editing.rst:38
 msgid "The Family editor allows you to add or change a botanical family."
 msgstr ""
@@ -5016,7 +3311,6 @@ msgid "The Genus editor allows you to add or change a botanical genus."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:781
-#, python-format
 msgid ""
 "The ID Qualifier\n"
 "\n"
@@ -5040,18 +3334,6 @@ msgid ""
 "Bauble is installed."
 msgstr ""
 
-#: ../bauble/editor.py:docstring of bauble.editor.NotesPresenter:1
-msgid ""
-"The NotesPresenter provides a generic presenter for editor notes on an item "
-"in the database.  This presenter requires that the notes property provide a "
-"specific interface."
-msgstr ""
-
-#: ../bauble/plugins/report/xsl/__init__.py:docstring of
-#: bauble.plugins.report.xsl:1
-msgid "The PDF report generator module."
-msgstr ""
-
 #: ../doc/editing.rst:152
 msgid "The Plant editor."
 msgstr ""
@@ -5073,20 +3355,6 @@ msgid ""
 "The Query Builder helps you build complex search queries through a point and "
 "click interface.  To open the Query Builder click the to the left of the "
 "search entry or select :menuselection:`Tools-->Query Builder` from the menu."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.reset_sequence:6
-msgid "The SQL statements are executed directly from db.engine"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.SearchView:1
-msgid ""
-"The SearchView is the main view for Bauble.  It manages the search results "
-"returned when search strings are entered into the main text entry."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.open:7
-msgid "The URI of the database to open."
 msgstr ""
 
 #: bauble/plugins/users/__init__.py:487
@@ -5119,71 +3387,18 @@ msgstr ""
 msgid "The accession ID must be a unique code"
 msgstr ""
 
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:31
-msgid "The accession for this plant."
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:613
 msgid ""
 "The accession must be selected from the list of completions.  To add an "
 "accession use the Accession editor."
 msgstr ""
 
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:8
-msgid "The accession type"
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:790
 msgid "The amount of plant material at the time it was accessioned."
 msgstr ""
 
-#: ../bauble/__init__.py:docstring of bauble.command_handler:6
-msgid "The arg to pass to the command handler"
-msgstr ""
-
 #: bauble/plugins/plants/species_editor.py:905
 msgid "The awards this species have been given"
-msgstr ""
-
-#: ../bauble/task.py:docstring of bauble.task:1
-msgid ""
-"The bauble.task module allows you to queue up long running tasks. The "
-"running tasks still block but allows the GUI to update."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:14
-msgid "The changed values."
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TaggedObj:6
-msgid "The class name of the tagged object."
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:38
-msgid "The combination of code and accession_id must be unique."
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:30
-msgid ""
-"The combination of genus, author, qualifier and family_id must be unique."
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:57
-msgid ""
-"The combination of sp, sp_author, hybrid, sp_qual, cv_group, trade_name, "
-"genus_id"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of bauble.connmgr:1
-msgid ""
-"The connection manager provides a GUI for creating and opening connections. "
-"This is the first thing displayed when Bauble starts."
 msgstr ""
 
 #: bauble/db.py:374
@@ -5204,11 +3419,6 @@ msgstr ""
 msgid "The database you have connected to is empty."
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:7
-msgid "The date of the verification"
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:786
 msgid "The date this species was accessioned."
 msgstr ""
@@ -5217,46 +3427,10 @@ msgstr ""
 msgid "The date this species was received."
 msgstr ""
 
-#: ../bauble/prefs.py:docstring of bauble.prefs.default_prefs_file:1
-msgid "The default file for the preference settings file."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBox:3
-msgid ""
-"The default is to not use tabs. To create the InfoBox with tabs use "
-"InfoBox(tabbed=True).  When using tabs then you can either add expanders "
-"directly to the InfoBoxPage or using InfoBox.add_expander with the page_num "
-"argument."
-msgstr ""
-
-#: ../doc/api.rst:33
-msgid "The default metadata for all Bauble tables."
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant.get_delimiter:3
-msgid ""
-"The delimiter is cached the first time it is retrieved.  To refresh the "
-"delimiter from the database call with refresh=True."
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.on_dialog_response:1
-msgid "The dialog's response signal handler."
-msgstr ""
-
 #: bauble/plugins/plants/species_editor.py:901
 msgid ""
 "The distribution string that will be used on the label.  If this entry is "
 "blank then the species distribution will be used"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericModelViewPresenterEditor:4
-msgid ""
-"The editor creates its own session and merges the model into it.  If the "
-"model is already in another session that original session will not be "
-"effected."
 msgstr ""
 
 #: bauble/plugins/garden/institution.py:97
@@ -5269,12 +3443,7 @@ msgid ""
 "information related to the institution."
 msgstr ""
 
-#: ../bauble/view.py:docstring of bauble.view.InfoBox.add_expander:3
-msgid "The expander to add."
-msgstr ""
-
 #: bauble/plugins/plants/genus.py:475
-#, python-format
 msgid ""
 "The family <b>%(synonym)s</b> is a synonym of <b>%(family)s</b>.\n"
 "\n"
@@ -5282,7 +3451,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/plants/family.py:77
-#, python-format
 msgid ""
 "The family <i>%(family)s</i> has %(num_genera)s genera.  Are you sure you "
 "want to remove it?"
@@ -5296,25 +3464,10 @@ msgstr ""
 msgid "The family name."
 msgstr ""
 
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:21
-msgid "The family of the genus."
-msgstr ""
-
 #: bauble/plugins/plants/family.py:327
 msgid ""
 "The family qualifier helps to remove ambiguities that might be associated "
 "with this family name."
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:8
-msgid "The family qualifier."
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:23
-msgid "The family table has a unique constraint on family/qualifier."
 msgstr ""
 
 #: bauble/plugins/garden/institution.py:99
@@ -5337,7 +3490,6 @@ msgid "The following packages are required by Bauble"
 msgstr ""
 
 #: bauble/pluginmgr.py:213
-#, python-format
 msgid ""
 "The following plugins are in the registry but could not be loaded:\n"
 "\n"
@@ -5345,7 +3497,6 @@ msgid ""
 msgstr ""
 
 #: bauble/pluginmgr.py:194
-#, python-format
 msgid ""
 "The following plugins were not found in the plugin registry:\n"
 "\n"
@@ -5359,7 +3510,6 @@ msgid "The full name of the institution."
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:139
-#, python-format
 msgid ""
 "The genus <b>%(synonym)s</b> is a synonym of <b>%(genus)s</b>.\n"
 "\n"
@@ -5367,7 +3517,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/plants/genus.py:91
-#, python-format
 msgid ""
 "The genus <i>%(genus)s</i> has %(num_species)s species.  Are you sure you "
 "want to remove it?"
@@ -5379,38 +3528,6 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:904
 msgid "The habit of this species"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:7
-msgid "The herbarium code."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:1
-msgid ""
-"The history table records ever changed made to every table that inherits "
-"from :ref:`Base`"
-msgstr ""
-
-#: ../bauble/i18n.py:docstring of bauble.i18n:1
-msgid ""
-"The i18n module defines the _() function for creating translatable strings."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:12
-msgid "The id in the table of the row that was changed."
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TaggedObj:4
-msgid "The id of the tagged object."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:27
-msgid ""
-"The id qualifier is used to indicate uncertainty in the identification of "
-"this accession"
 msgstr ""
 
 #: ../doc/peptalk.rst:116
@@ -5426,25 +3543,8 @@ msgstr ""
 msgid "The intended location for plant material being accessioned."
 msgstr ""
 
-#: ../bauble/editor.py:docstring of bauble.editor.Validator:1
-msgid "The interface that other validators should implement."
-msgstr ""
-
 #: bauble/plugins/garden/institution.py:90
 msgid "The intitution code should be unique among all institions."
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:24
-msgid ""
-"The list of genera who are synonymous with this genus.  If a genus is listed "
-"as a synonym of this genus then this genus should be considered the current "
-"and valid name for the synonym."
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.untag_objects:5
-msgid "The list of objects to untag."
 msgstr ""
 
 #: ../doc/editing.rst:203
@@ -5455,12 +3555,7 @@ msgid ""
 "spelling mistakes or implement policy changes."
 msgstr ""
 
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:33
-msgid "The location for this plant."
-msgstr ""
-
-#: bauble/plugins/garden/plant.py:617
+#: bauble/plugins/garden/plant.py:616
 msgid "The location of the plant in your collection."
 msgstr ""
 
@@ -5477,52 +3572,11 @@ msgstr ""
 msgid "The mailing address of the institition."
 msgstr ""
 
-#: ../bauble/connmgr.py:docstring of bauble.connmgr.ConnectionManager:1
-msgid "The main class that starts the connection manager GUI."
-msgstr ""
-
 #: ../doc/editing.rst:4
 msgid ""
 "The main way that we add or change information in Bauble is by using the "
 "editors.  Each basic type of data has its own editor.  For example there is "
 "a Family editor, a Genus editor, an Accession editor, etc."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_message_dialog:3
-msgid ""
-"The markup to use for the message. The value should be escaped in case it "
-"contains any HTML entities."
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.command_handler:3
-msgid "The name of the command to call"
-msgstr ""
-
-#: ../bauble/meta.py:docstring of bauble.meta.BaubleMeta:8
-msgid "The name of the data."
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:5
-msgid "The name of the family. Required."
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:5
-msgid ""
-"The name of the genus.  In addition to standard generic names any additional "
-"hybrid flags or genera should included here."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:5
-msgid "The name of the herbarium."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:5
-msgid "The name of the person that made the verification."
 msgstr ""
 
 #: bauble/plugins/garden/institution.py:92
@@ -5551,56 +3605,19 @@ msgstr ""
 msgid "The name of the record has not been checked by any authority."
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.History:10
-msgid "The name of the table the change was made on."
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.untag_objects:3
-msgid "The name of the tag"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:18
-msgid "The name of the user who made the change."
-msgstr ""
-
 #: bauble/plugins/plants/genus.py:373
 msgid "The name or abbreviation of the author that published this genus"
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:17
-msgid "The name or abbreviation of the author who published this genus."
 msgstr ""
 
 #: bauble/plugins/garden/location.py:192
 msgid "The name that you will use later to refer to this location."
 msgstr ""
 
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:35
-msgid "The notes for this plant."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:797
-#, python-format
 msgid ""
 "The origin or source of this accession.\n"
 "\n"
 "Possible values: %s"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBox.add_expander:4
-msgid "The page number in the InfoBox to add the expander."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.create_message_dialog:8
-msgid "The parent window for the dialog"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.SearchParser:1
-msgid "The parser for bauble.search.MapperSearch"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:784
@@ -5608,20 +3625,13 @@ msgid "The part of the taxon name that the id qualifier refers to."
 msgstr ""
 
 #: bauble/plugins/users/__init__.py:632
-#, python-format
 msgid "The password for user <b>%s</b> has not been changed."
 msgstr ""
 
 #: bauble/plugins/users/__init__.py:638
-#, python-format
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:5
-msgid "The plant code"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:609
@@ -5642,50 +3652,12 @@ msgid ""
 "directly or indirectly rely on each other"
 msgstr ""
 
-#: ../bauble/prefs.py:docstring of bauble.prefs.config_version_pref:1
-msgid "The preferences key for the bauble version of the preferences file."
-msgstr ""
-
-#: ../bauble/prefs.py:docstring of bauble.prefs.date_format_pref:1
-msgid "The preferences key for the default data format."
-msgstr ""
-
-#: ../bauble/prefs.py:docstring of bauble.prefs.units_pref:1
-msgid "The preferences key for the default units for Bauble."
-msgstr ""
-
-#: ../bauble/prefs.py:docstring of bauble.prefs.parse_dayfirst_pref:1
-#: bauble.prefs.parse_yearfirst_pref:1
-msgid ""
-"The preferences key for to determine whether the date should come first when "
-"parsing date string.  For more information see the :meth:`dateutil.parser."
-"parse` method."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorPresenter:1
-msgid "The presenter of the Model View Presenter Pattern"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView:6
-msgid ""
-"The presenter should interact with the view by the sole interface, please "
-"consider all members of the view as private, this is particularly true for "
-"the ones having anything to do with GTK."
-msgstr ""
-
 #: ../doc/building.rst:94
 msgid ""
 "The presenter should not know of the internal structure of the view, "
 "instead, it should use the view api to set and query the values inserted by "
 "the user. The base class for the presenter, ``GenericEditorPresenter`` "
 "defined in ``bauble.editor``, implements many generic callbacks."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorPresenter:6
-msgid ""
-"The presenter should usually be initialized in the following order: 1. "
-"initialize the widgets 2. refresh the view, put values from the model into "
-"the widgets 3. connect the signal handlers"
 msgstr ""
 
 #: ../doc/peptalk.rst:99
@@ -5697,20 +3669,10 @@ msgid ""
 "as well as Swedish (100%) and Czech (100%)."
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:39
-msgid "The rank of the species that the id_qaul refers to."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:264
 msgid ""
 "The record is part of type gathering or propagated from type material by "
 "asexual methods."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:9
-msgid "The reference material used to make this verification"
 msgstr ""
 
 #: ../doc/installing.rst:48
@@ -5745,7 +3707,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:1747
-#, python-format
 msgid ""
 "The species <b>%(synonym)s</b> is a synonym of <b>%(species)s</b>.\n"
 "\n"
@@ -5753,13 +3714,12 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/plants/species.py:79
-#, python-format
 msgid ""
 "The species <i>%(species)s</i> has %(num_accessions)s accessions.  Are you "
 "sure you want remove it?"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:778
+#: bauble/plugins/garden/accession.py:777
 msgid ""
 "The species must be selected from the list of completions. To add a species "
 "use the Species editor."
@@ -5767,23 +3727,6 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:88
 msgid "The standard abbreviation of the institution."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.find_dependent_tables:6
-msgid "The tables who dependencies we want to find"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.tag_objects:3
-msgid ""
-"The tag name, if it's a str object then it will be converted to unicode() "
-"using the default encoding. If a tag with this name doesn't exist it will be "
-"created"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of bauble.plugins.tag.Tag:4
-msgid "The tag name."
 msgstr ""
 
 #: bauble/plugins/garden/institution.py:98
@@ -5805,14 +3748,6 @@ msgid ""
 "list of values in the current search."
 msgstr ""
 
-#: ../bauble/__init__.py:docstring of bauble:1
-msgid "The top level module for Bauble."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:16
-msgid "The type of change.  This is usually one of insert, update or delete."
-msgstr ""
-
 #: ../doc/report.rst:29
 msgid ""
 "The type of each value in `values` will be the same as the search domain "
@@ -5820,24 +3755,18 @@ msgid ""
 "`search-domains`."
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:789
+#: bauble/plugins/garden/accession.py:788
 msgid "The type of the accessioned material."
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:618
-#, python-format
 msgid ""
 "The type of the plant material.\n"
 "\n"
 "Possible values: %s"
 msgstr ""
 
-#: ../bauble/meta.py:docstring of bauble.meta.BaubleMeta:11
-msgid "The value."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:800
-#, python-format
 msgid ""
 "The wild status is used to clarify the provenance.\n"
 "\n"
@@ -5870,7 +3799,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:281
-#, python-format
 msgid ""
 "This binomial name is already in your collection, as %s.\n"
 "\n"
@@ -5879,16 +3807,6 @@ msgstr ""
 
 #: ../doc/imex.rst:61
 msgid "This feature is still under development."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.utf8:1
-msgid "This function is an alias for to_unicode(obj, 'utf-8')"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.reset_sequence:8
-msgid ""
-"This function only works for PostgreSQL database.  It does nothing for other "
-"database engines."
 msgstr ""
 
 #: ../doc/imex.rst:48
@@ -5901,40 +3819,7 @@ msgid ""
 "need any further help."
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.set_widget_value:7
-msgid "This method calls bauble.utils.set_widget_value()"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.xml_safe_utf8:1
-msgid "This method is deprecated and just returns xml_safe(obj)"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.build_tools_menu:3
-msgid "This method is generally called after plugin initialization"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.load:5
-msgid ""
-"This method populates the pluginmgr.plugins dict and imports the plugins but "
-"doesn't do any plugin initialization."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoExpander.update:1
-msgid "This method should be implemented by classes that extend InfoExpander"
-msgstr ""
-
-#: ../bauble/plugins/report/xsl/__init__.py:docstring of
-#: bauble.plugins.report.xsl:3
-msgid ""
-"This module takes a list of objects, get all the plants from the objects, "
-"converts them to the ABCD XML format, transforms the ABCD data to an XSL "
-"formatting stylesheet and uses a XSL-PDF renderer to convert the stylesheet "
-"to PDF."
-msgstr ""
-
 #: bauble/view.py:656
-#, python-format
 msgid ""
 "This query returned %s results.  It may take a long time to get all the "
 "data. Are you sure you want to continue?"
@@ -5961,7 +3846,6 @@ msgid ""
 msgstr ""
 
 #: bauble/db.py:38
-#, python-format
 msgid ""
 "This version of Bauble requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
@@ -5984,17 +3868,11 @@ msgid "Tip"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:129
-#, python-format
 msgid "Tip: %s"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:413
 msgid "Tissue Culture"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:17
-msgid "Tissue Culture: Tissue culture"
 msgstr ""
 
 #: ../doc/editing.rst:61
@@ -6136,11 +4014,6 @@ msgstr ""
 msgid "Troubleshooting the Install"
 msgstr ""
 
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.validate_xml:4
-msgid "True or False depending if root validates correctly"
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:429
 msgid "Tuber"
 msgstr ""
@@ -6161,13 +4034,6 @@ msgstr ""
 msgid "Unable to Locate"
 msgstr ""
 
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:41
-msgid ""
-"UnicodeText This field is optional and can be used for the label in case "
-"str(self.distribution) is too long to fit on the label."
-msgstr ""
-
 #: bauble/plugins/garden/source.py:163
 msgid "University Department"
 msgstr ""
@@ -6184,13 +4050,12 @@ msgstr ""
 msgid "Unknown Error."
 msgstr ""
 
+#: bauble/plugins/garden/accession.py:2180
+#: bauble/plugins/garden/location.py:408 bauble/plugins/garden/plant.py:1070
 #: bauble/plugins/garden/propagation.py:1075
-#: bauble/plugins/garden/location.py:408
-#: bauble/plugins/garden/accession.py:2180 bauble/plugins/garden/plant.py:1070
-#: bauble/plugins/garden/source.py:371
+#: bauble/plugins/garden/source.py:371 bauble/plugins/plants/family.py:619
+#: bauble/plugins/plants/genus.py:751
 #: bauble/plugins/plants/species_editor.py:1066
-#: bauble/plugins/plants/genus.py:751 bauble/plugins/plants/family.py:619
-#, python-format
 msgid ""
 "Unknown error when committing changes. See the details for more "
 "information.\n"
@@ -6199,7 +4064,6 @@ msgid ""
 msgstr ""
 
 #: bauble/search.py:348
-#, python-format
 msgid "Unknown search domain: %s"
 msgstr ""
 
@@ -6207,8 +4071,8 @@ msgstr ""
 msgid "Unripe"
 msgstr ""
 
-#: bauble/plugins/garden/propagation.py:50
 #: bauble/plugins/garden/accession.py:431
+#: bauble/plugins/garden/propagation.py:50
 msgid "Unrooted cutting"
 msgstr ""
 
@@ -6217,15 +4081,7 @@ msgid ""
 "Unzip it and run ``python setup.py installw`` in the folder you unzip it to."
 msgstr ""
 
-#: ../bauble/view.py:docstring of bauble.view.InfoBox.update:1
-msgid "Update the current page with row."
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.update:1
-msgid "Updates the infobox with values from row"
-msgstr ""
-
-#: bauble/connmgr.py:689
+#: bauble/connmgr.py:690
 msgid "Use default filename"
 msgstr ""
 
@@ -6233,7 +4089,7 @@ msgstr ""
 msgid "User"
 msgstr ""
 
-#: bauble/connmgr.py:604
+#: bauble/connmgr.py:605
 msgid "User: "
 msgstr ""
 
@@ -6241,7 +4097,7 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
-#: ../doc/index.rst:29
+#: ../doc/index.rst:30
 msgid "Using Bauble"
 msgstr ""
 
@@ -6259,31 +4115,12 @@ msgstr ""
 msgid "Using the XSL Report Formatter"
 msgstr ""
 
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.validate_xml:1
-msgid "Validate root against ABCD 2.06 schema"
-msgstr ""
-
-#: bauble/view.py:1166 bauble/prefs.py:312
+#: bauble/prefs.py:312 bauble/view.py:1166
 msgid "Values"
-msgstr ""
-
-#: ../bauble/prefs.py:docstring of bauble.prefs.parse_dayfirst_pref:5
-#: bauble.prefs.parse_yearfirst_pref:5
-msgid "Values: True, False"
-msgstr ""
-
-#: ../bauble/prefs.py:docstring of bauble.prefs.units_pref:3
-msgid "Values: metric, imperial"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:412
 msgid "Vegetative Part"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:15
-msgid "Vegetative Part: Vegetative Part"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:433
@@ -6343,26 +4180,8 @@ msgid ""
 "plants in the highlighted accession are displayed in the pictures pane."
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericModelViewPresenterEditor:8
-msgid ""
-"When creating a subclass of this editor then you should explicitly close the "
-"session when you are finished with it."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:20
-msgid "When the change was made."
-msgstr ""
-
 #: ../doc/searching.rst:163
 msgid "When you are done building your query click OK to perform the search."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.Session:8
-msgid ""
-"When you are finished with the session be sure to close the session with :"
-"func:`session.close()`. Failure to close sessions can lead to database "
-"deadlocks, particularly when using PostgreSQL based databases."
 msgstr ""
 
 #: ../doc/editing.rst:176
@@ -6394,12 +4213,6 @@ msgstr ""
 #: ../doc/started.rst:9
 msgid ""
 "When you start Bauble the first thing that comes up is the connection dialog."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.open:10
-msgid ""
-"Where the database we connect to should be verified as one created by "
-"Bauble.  This flag is used mostly for testing."
 msgstr ""
 
 #: ../doc/searching.rst:96
@@ -6447,7 +4260,6 @@ msgid "Wounded"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:139
-#, python-format
 msgid "Wounded: %s"
 msgstr ""
 
@@ -6463,8 +4275,7 @@ msgstr ""
 msgid "XSL"
 msgstr ""
 
-#: bauble/plugins/imex/iojson.py:224
-#, python-format
+#: bauble/plugins/imex/iojson.py:211
 msgid ""
 "You are exporting %(nplants)s objects to JSON format.  Exporting this many "
 "objects may take several minutes.  \n"
@@ -6473,7 +4284,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:317
-#, python-format
 msgid ""
 "You are exporting %(nplants)s plants to ABCD format.  Exporting this many "
 "plants may take several minutes.  \n"
@@ -6482,7 +4292,6 @@ msgid ""
 msgstr ""
 
 #: bauble/db.py:382
-#, python-format
 msgid ""
 "You are using Bauble version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
@@ -6578,13 +4387,6 @@ msgstr ""
 msgid "You will subclass the **presenter** in order to:"
 msgstr ""
 
-#: ../bauble/i18n.py:docstring of bauble.i18n:3
-msgid ""
-"_() is added to the Python builtins so there is no reason to import this "
-"module more than once in an application.  It is usually imported in :mod:"
-"`bauble`"
-msgstr ""
-
 #: bauble/plugins/plants/species.py:114
 msgid "_Add accession"
 msgstr ""
@@ -6593,7 +4395,7 @@ msgstr ""
 msgid "_Add genus"
 msgstr ""
 
-#: bauble/plugins/garden/location.py:87 bauble/plugins/garden/accession.py:231
+#: bauble/plugins/garden/accession.py:231 bauble/plugins/garden/location.py:87
 #: bauble/plugins/garden/source.py:76
 msgid "_Add plants"
 msgstr ""
@@ -6614,19 +4416,19 @@ msgstr "_Copiar"
 msgid "_Cut"
 msgstr "_Copar"
 
-#: bauble/plugins/tag/__init__.py:108 bauble/plugins/garden/location.py:89
-#: bauble/plugins/garden/accession.py:233 bauble/plugins/garden/plant.py:118
-#: bauble/plugins/garden/source.py:79 bauble/plugins/garden/source.py:117
-#: bauble/plugins/plants/genus.py:117 bauble/plugins/plants/family.py:103
-#: bauble/plugins/plants/species.py:117
+#: bauble/plugins/garden/accession.py:233 bauble/plugins/garden/location.py:89
+#: bauble/plugins/garden/plant.py:118 bauble/plugins/garden/source.py:79
+#: bauble/plugins/garden/source.py:117 bauble/plugins/plants/family.py:103
+#: bauble/plugins/plants/genus.py:117 bauble/plugins/plants/species.py:117
+#: bauble/plugins/tag/__init__.py:108
 msgid "_Delete"
 msgstr ""
 
-#: bauble/plugins/tag/__init__.py:106 bauble/plugins/garden/location.py:85
-#: bauble/plugins/garden/accession.py:229 bauble/plugins/garden/plant.py:112
-#: bauble/plugins/garden/source.py:72 bauble/plugins/garden/source.py:113
-#: bauble/plugins/plants/genus.py:112 bauble/plugins/plants/family.py:98
-#: bauble/plugins/plants/species.py:111 bauble/ui.py:343
+#: bauble/plugins/garden/accession.py:229 bauble/plugins/garden/location.py:85
+#: bauble/plugins/garden/plant.py:112 bauble/plugins/garden/source.py:72
+#: bauble/plugins/garden/source.py:113 bauble/plugins/plants/family.py:98
+#: bauble/plugins/plants/genus.py:112 bauble/plugins/plants/species.py:111
+#: bauble/plugins/tag/__init__.py:106 bauble/ui.py:343
 msgid "_Edit"
 msgstr "_Edicion"
 
@@ -6659,191 +4461,15 @@ msgid "_Tools"
 msgstr "_Espleches"
 
 #: bauble/plugins/garden/source.py:668
-#, python-format
 msgid "_parse_lat_lon() -- incorrect format: %s"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.SearchParser.parse_string:3
-msgid ""
-"`text` can be either a query, or a domain expression, or a list of values. "
-"the `self.statement` pyparsing object parses the input text and return a "
-"pyparsing.ParseResults object that represents the input"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_date_button:4
-msgid "a bauble.editor.GenericEditorView"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:19
-msgid ""
-"a function that returns True/False if the value from the model should be "
-"shown in the completions"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.clear_model:1
-msgid ""
-"a gtk Widget that has a gtk.TreeModel that can be retrieved with "
-"obj_with_mode.get_model"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView:10
-msgid "a gtk.Builder UI definition"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.assign_completions_handler:3
-msgid "a gtk.Entry instance or widget name"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.make_label_clickable:1
-msgid "a gtk.Label that has a gtk.EventBox as its parent"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.search_tree_model:4
-msgid "a gtk.TreeModel or a gtk.TreeModelRow instance"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.remove_problem:8
-msgid ""
-"a gtk.Widget instance to remove the problem from, if None then remove all "
-"occurrences of problem_id regardless of the widget"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView:12
-msgid ""
-"a gtk.Window or subclass to use as the parent window, if parent=None then "
-"bauble.gui.window is used"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.natsort_key:1
-msgid "a key getter for sort and sorted function"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.remove_callback:1
-msgid "a list of :class:`Tag` objects."
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:2
-msgid ""
-"a list of BaubleTool classes that this plugin provides, the tools' category "
-"and label will be used in Bauble's \"Tool\" menu"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.topological_sort:3
-msgid "a list of items to be sorted."
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:5
-msgid ""
-"a list of names classes that inherit from BaublePlugin that this plugin "
-"depends on"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.init_translatable_combo:10
-msgid "a list of pairs, or a dictionary, of values->translation."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.topological_sort:5
-msgid ""
-"a list of pairs. If pair (a,b) is in it, it means that item a should appear "
-"before item b. Returns a list of the items in one of the possible orders, or "
-"None if partial_order contains a loop."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:56
-msgid "a list of plants related to this accession"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:59
-msgid "a list of verifications on the identification of this accession"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.get_tag_ids:1
-msgid "a list or tuple of objects"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.create_abcd:1
-msgid "a list/tuple of objects that implement the ABCDDecorator interface"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:8
-msgid ""
-"a map of commands this plugin handled with callbacks, e.g dict('cmd', lambda "
-"x: handler)"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:11
-msgid "a short description of the plugin"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoExpander.set_widget_value:1
-msgid "a shorthand for L{bauble.utils.set_widget_value()}"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.enum_values_str:1
-msgid "a string if table.col where col is an enum type"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.create_abcd:6
-msgid "a valid ABCD ElementTree"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.set_widget_value:1
-msgid "a widget or name of a widget in self.widgets"
 msgstr ""
 
 #: ../doc/searching.rst:119
 msgid "acc: Search :class:`bauble.plugins.garden.Accession`"
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:1
-msgid "accession"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:29
-#: bauble.plugins.garden.accession.Voucher:12
-msgid "accession_id: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
 #: bauble/plugins/imex/select_export.glade:119
 msgid "accessions"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.add_menu:1
-msgid "add a menu to the menubar"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.add_message_box:1
-msgid "add a message box to the message_box_parent container"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.add_to_insert_menu:1
-msgid "add an editor to the insert menu"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.add_to_history:1
-msgid ""
-"add text to history, if text is already in the history then set its index to "
-"index parameter"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:31
-msgid "aff. - affinity with"
 msgstr ""
 
 #: ../doc/installing.rst:141
@@ -6860,36 +4486,8 @@ msgstr ""
 msgid "also objects referring to selection"
 msgstr ""
 
-#: ../bauble/view.py:docstring of bauble.view.InfoExpander:1
-msgid ""
-"an abstract class that is really just a generic expander with a vbox to "
-"extend this you just have to implement the update() method"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericModelViewPresenterEditor:11
-msgid ""
-"an instance of an object mapped to a SQLAlchemy Table, the model will be "
-"copied and merged into self.session so that the original model will not be "
-"changed"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.set_widget_value:1
-msgid "an instance of gtk.Widget"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorPresenter:3
-msgid "an object instance mapped to an SQLAlchemy table"
-msgstr ""
-
 #: ../doc/peptalk.rst:57
 msgid "annotate your info"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.set_widget_value:7
-msgid ""
-"any values passed in for widgets that expect a string will call the values "
-"__str__ method"
 msgstr ""
 
 #: ../doc/building.rst:37
@@ -6898,26 +4496,10 @@ msgid ""
 "have the intention to work at it. someone might react with hints."
 msgstr ""
 
-#: ../bauble/meta.py:docstring of bauble.meta.BaubleMeta:4
-msgid "bauble"
-msgstr ""
-
 #: ../doc/installing.rst:4
 msgid ""
 "bauble.classic is a cross-platform program and it will run on unix machines "
 "like Linux and MacOSX, as well as on Windows."
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.Session:1
-msgid ""
-"bauble.db.Session is created after the database has been opened with :func:"
-"`bauble.db.open()`. bauble.db.Session should be used when you need to do ORM "
-"based activities on a bauble database.  To create a new Session use::"
-"Uncategorized"
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.gui:1
-msgid "bauble.gui is the instance :class:`bauble.ui.GUI`"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:931
@@ -6933,36 +4515,11 @@ msgid "building (on Windows)"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:1287
-#, python-format
 msgid "by %(verifier)s"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.assign_completions_handler:8
-msgid "callback for when a value is selected from the list of completions"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.make_label_clickable:2
-msgid ""
-"callback to be called when the label is clicked on_clicked(label, event, "
-"data)"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:933
 msgid "cannot branch a new plant"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:32
-msgid "cf. - compare with"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.check_parameters_valid:1
-msgid ""
-"check that all of the information in the current connection is valid and "
-"return true or false"
 msgstr ""
 
 #: ../doc/building.rst:71
@@ -6973,27 +4530,8 @@ msgstr ""
 msgid "cm"
 msgstr ""
 
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:8
-msgid "cmds:"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:6
-msgid "code: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/garden/source.py:docstring of
-#: bauble.plugins.garden.source.Collection:1
-msgid "collection"
-msgstr ""
-
 #: ../doc/building.rst:54
 msgid "commit your changes."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.connect_signals:1
-msgid "connect all signals declared in the glade file"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:442
@@ -7003,11 +4541,6 @@ msgstr ""
 #: ../doc/building.rst:65
 msgid ""
 "create the new pull request, call it as “publish to the production line”."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:20
-msgid "cultivated_prov_status_values"
 msgstr ""
 
 #: ../doc/peptalk.rst:134
@@ -7030,32 +4563,6 @@ msgstr ""
 msgid "database history"
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:6
-msgid "date: :class:`sqlalchemy.types.Date`"
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.plant.PlantStatus:1
-msgid ""
-"date: date checked status: status of plant comment: comments on check up "
-"checked_by: person who did the check"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:22
-msgid "default=2"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.set_view:3
-msgid "default=None"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.DefaultVernacularName:1
-msgid "default_vernacular_name"
-msgstr ""
-
 #: ../doc/building.rst:88
 msgid ""
 "define ``widget_to_field_map``, the association from name of view object to "
@@ -7066,29 +4573,10 @@ msgstr ""
 msgid "define all needed callbacks,"
 msgstr ""
 
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:5
-msgid "depends:"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:12
-msgid "description:"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of bauble.plugins.tag.Tag:5
-msgid "description: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
 #: ../doc/installing.rst:90
 msgid ""
 "developers tools: xcode. check the wikipedia page for the version supported "
 "on your mac."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.combo_set_active_text:1
-msgid ""
-"does the same thing as set_combo_from_value but this looks more like a GTK+ "
-"method"
 msgstr ""
 
 #: ../doc/installing.rst:158
@@ -7115,13 +4603,6 @@ msgstr ""
 msgid "easily updated"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.add_problem:6
-msgid ""
-"either a widget or list of widgets whose background color should change to "
-"indicate a problem (default=None)"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:186
 msgid "endemic"
 msgstr ""
@@ -7135,7 +4616,6 @@ msgid "export includes:"
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:651
-#, python-format
 msgid "exporting %(table)s table to %(filename)s"
 msgstr ""
 
@@ -7143,80 +4623,22 @@ msgstr ""
 msgid "exports and reports"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView.connect:12
-#: bauble.editor.GenericEditorView.connect_after:12
-msgid "extra args to pass the the callback"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:59
 msgid "f."
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:1
-msgid "family"
 msgstr ""
 
 #: ../doc/searching.rst:111
 msgid "family, fam: Search :class:`bauble.plugins.plants.Family`"
 msgstr ""
 
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.family.FamilySynonym:1
-msgid "family_synonyms"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.refresh_view:1
-msgid "fill the values in the widgets as the field values in the model"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:11
-msgid "first column of prov_type_values"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.verify_connection:7
-msgid ""
-"flag for whether or not to show message dialogs detailing the error, "
-"default=False"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.create_abcd:3
-msgid "flag to control whether to include the authors in the species name"
-msgstr ""
-
 #: ../doc/installing.rst:109
 msgid "follow all instructions on how to activate what you have installed."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.refresh_view:3
-msgid ""
-"for radio button groups, we have several widgets all referring to the same "
-"model attribute."
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.DefaultVernacularName:13
-msgid "foreign key to species.id, nullable=False"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:46
-msgid "foreign key to the species table"
 msgstr ""
 
 #: ../doc/building.rst:23
 msgid ""
 "fork the respository, choose an issue, solve it, open a pull request. see "
 "the `bug solving workflow`_ below."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:33
-msgid "forsan - perhaps"
 msgstr ""
 
 #: ../doc/peptalk.rst:63
@@ -7231,72 +4653,12 @@ msgstr ""
 msgid "general_window"
 msgstr ""
 
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:1
-msgid "genus"
-msgstr ""
-
 #: ../doc/searching.rst:113
 msgid "genus, gen: Search :class:`bauble.plugins.plants.Genus`"
 msgstr ""
 
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.genus.GenusSynonym:1
-msgid "genus_synonym"
-msgstr ""
-
-#: ../bauble/plugins/plants/geography.py:docstring of
-#: bauble.plugins.plants.Geography:3
-msgid "geography"
-msgstr ""
-
 #: ../doc/searching.rst:117
 msgid "geography: Search :class:`bauble.plugins.plants.Geography`"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.working_dbtypes:1
-msgid "get for self.working_dbtypes property"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.create_main_menu:1
-msgid ""
-"get the main menu from the UIManager XML description, add its actions and "
-"return the menubar"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_text_combobox:8
-msgid "gtk.ComboBox"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.on_datetime_entry_changed:1
-msgid "handle 'changed' signal on datetime entry widgets."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.on_text_entry_changed:1
-msgid "handle 'changed' signal on generic text entry widgets."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.on_unique_text_entry_changed:1
-msgid "handle 'changed' signal on text entry widgets with an uniqueness"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.on_textbuffer_changed:1
-msgid "handle 'changed' signal on textbuffer widgets."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.on_group_changed:1
-msgid "handle group-changed signal on radio-button"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.on_check_toggled:1
-msgid "handle toggled signal on check buttons"
 msgstr ""
 
 #: ../doc/building.rst:5
@@ -7307,17 +4669,8 @@ msgstr ""
 msgid "helps off-line identification"
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:4
-msgid "herbarium: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
 #: ../doc/installing.rst:177
 msgid "hey, this is Windows, you need to reboot for changes to take effect!"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:4
-msgid "history"
 msgstr ""
 
 #: bauble/ui.py:243
@@ -7345,31 +4698,6 @@ msgstr ""
 msgid "https://git-scm.com/download/win"
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.History:7
-msgid "id: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.combo_get_value_iter:9
-msgid ""
-"if more than one value is found in the combo then the first one in the list "
-"is returned"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.set_combo_from_value:4
-msgid ""
-"if more than one value is found in the combo then the first one in the list "
-"is set"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.remove_connection:1
-msgid ""
-"if we restrict the user to only removing the current connection then it "
-"saves us the trouble of having to iter through the model"
-msgstr ""
-
 #: ../doc/building.rst:15
 msgid ""
 "if you have an idea of what you miss in the software but can't quite "
@@ -7386,7 +4714,6 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:356
-#, python-format
 msgid "importing %(table)s table from %(filename)s"
 msgstr ""
 
@@ -7398,31 +4725,12 @@ msgstr ""
 msgid "in"
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:36
-msgid "incorrect"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:186
 msgid "indigenous"
 msgstr ""
 
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin.init:1
-msgid "init() is run when Bauble is first started"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr:10
-msgid "initialize the plugins (happens in init())"
-msgstr ""
-
 #: bauble/plugins/imex/select_export.glade:559
 msgid "input:"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin.install:1
-msgid ""
-"install() is run when a new plugin is installed, it is usually only run once "
-"for the lifetime of the plugin"
 msgstr ""
 
 #: ../doc/building.rst:121
@@ -7436,53 +4744,12 @@ msgstr ""
 msgid "introduced"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.is_dirty:1
-msgid "is the presenter dirty?"
-msgstr ""
-
 #: ../doc/building.rst:64
 msgid "it should be possible to automatically merge the branches."
 msgstr ""
 
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.VernacularName:12
-msgid "key to the species this vernacular name refers to"
-msgstr ""
-
 #: ../doc/peptalk.rst:97
 msgid "language agnostic"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.VernacularName:8
-msgid ""
-"language is free text and could include something like UK or US to identify "
-"the origin of the name"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:11
-msgid "lat.: aggregrate family (senso lato)"
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:12
-msgid "lat.: aggregrate genus (sensu lato)"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:25
-msgid "level: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_text_combobox:9
-msgid "list vales or gtk.ListStore"
-msgstr ""
-
-#: ../bauble/plugins/garden/location.py:docstring of
-#: bauble.plugins.garden.Location:1
-msgid "location"
 msgstr ""
 
 #: ../doc/searching.rst:123
@@ -7533,22 +4800,11 @@ msgstr ""
 msgid "model must have both latitude and longitude or neither"
 msgstr ""
 
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.compare_prefs_to_saved:1
-msgid "name is the name of the connection in the prefs"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:186
 msgid "native"
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:34
-msgid "near - close to"
-msgstr ""
-
 #: bauble/__init__.py:259
-#, python-format
 msgid ""
 "new remote version available.\n"
 "\n"
@@ -7560,12 +4816,10 @@ msgid ""
 msgstr ""
 
 #: bauble/utils/__init__.py:140 bauble/utils/__init__.py:153
-#, python-format
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
 #: bauble/editor.py:875
-#, python-format
 msgid "no widget with name %s"
 msgstr ""
 
@@ -7577,31 +4831,10 @@ msgstr ""
 msgid "not-so-brief list of highlights, meant to whet your appetite."
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:27
-msgid "notes: :class:`sqlalchemy.types.UnicodeText`"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TaggedObj:5
-msgid "obj_class: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TaggedObj:3
-msgid "obj_id: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
 #: ../doc/installing.rst:51
 msgid ""
 "on Unity, open a terminal, start bauble, its icon will show up in the "
 "launcher, you can now `lock to launcher` it."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.add_message_box:3
-#: ../bauble/utils/__init__.py:docstring bauble.utils.add_message_box:3
-msgid "one of MESSAGE_BOX_INFO, MESSAGE_BOX_ERROR or MESSAGE_BOX_YESNO"
 msgstr ""
 
 #: ../doc/building.rst:56
@@ -7614,12 +4847,8 @@ msgid ""
 "``master``."
 msgstr ""
 
-#: bauble/utils/web.py:117
+#: bauble/utils/web.py:116
 msgid "open the wikipedia page about this species"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:15
-msgid "operation: :class:`sqlalchemy.types.String`"
 msgstr ""
 
 #: ../doc/building.rst:39
@@ -7650,19 +4879,8 @@ msgstr ""
 msgid "package manager: homebrew (tigerbrew for older OSX versions)."
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:10
-msgid "parent_material: :class:`sqlalchemy.types.Boolean`"
-msgstr ""
-
 #: bauble/db.py:464 bauble/editor.py:1383
-#, python-format
 msgid "picture file %s not found."
-msgstr ""
-
-#: ../bauble/plugins/garden/plant.py:docstring of
-#: bauble.plugins.garden.Plant:1
-msgid "plant"
 msgstr ""
 
 #: ../doc/searching.rst:121
@@ -7678,13 +4896,7 @@ msgid "platform agnostic"
 msgstr ""
 
 #: bauble/plugins/garden/location.py:280
-#, python-format
 msgid "please confirm merging %(1)s into %(2)s"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:34
-msgid "prev_species_id: :class:`~sqlalchemy.types.Integer`"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:246
@@ -7695,72 +4907,14 @@ msgstr ""
 msgid "publishing to production"
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:19
-msgid "purchase_prov_status_values,"
-msgstr ""
-
 #: ../doc/building.rst:55
 msgid "push to github."
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:8
-msgid "reference: :class:`sqlalchemy.types.UnicodeText`"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.clear_menu:1
-msgid "remove all the menus items from a menu"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.on_remove_button_clicked:1
-msgid ""
-"remove the connection from connection list, this does not affect the "
-"database or its data"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.SearchParser.parse_string:1
-msgid "request pyparsing object to parse text"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.enum_values_str:3
-msgid "return a string with of the values on an enum type join by a comma"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.parameters_to_uri:1
-msgid "return connections paramaters as a uri"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.get_view:1
-msgid "return the current view in the view box"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.get_selection:1
-msgid "return the selection in the graphic interface"
 msgstr ""
 
 #: ../doc/building.rst:73
 msgid ""
 "review this workflow. consider this as a guideline, to yourself and to your "
 "colleagues. please help make it better and matching the practice."
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.validate_xml:3
-msgid "root of an XML tree to validate against"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.start:1
-msgid "run the dialog associated to the view"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.save_current_to_prefs:1
-msgid "save connection parameters from the widgets in the prefs"
 msgstr ""
 
 #: ../doc/peptalk.rst:32
@@ -7771,76 +4925,12 @@ msgstr ""
 msgid "selection"
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.Session:6
-msgid "session = bauble.db.Session()"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.set_accept_buttons_sensitive:1
-msgid "set the sensitivity of all the accept/ok buttons"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.set_view:1
-msgid "set the view, if view is None then remove any views currently set"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.set_active_connection_by_name:1
-msgid ""
-"sets the name of the connection in the name combo, this causes "
-"on_changed_name_combo to be fired which changes the param box type and set "
-"the connection parameters"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorPresenter:4
-msgid "should be an instance of GenericEditorView"
-msgstr ""
-
 #: ../doc/peptalk.rst:76
 msgid "simple and powerful search"
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:53
-msgid "source is a relation to a Source instance"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.Species:1
-msgid "species"
-msgstr ""
-
 #: ../doc/searching.rst:115
 msgid "species, sp: Search :class:`bauble.plugins.plants.Species`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.SpeciesDistribution:1
-msgid "species_distribution"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:31
-msgid "species_id: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.SpeciesSynonym:1
-msgid "species_synonym"
-msgstr ""
-
-#: ../bauble/__init__.py:docstring of bauble.version:1
-msgid "str(object='') -> string"
-msgstr ""
-
-#: ../bauble/plugins/plants/family.py:docstring of
-#: bauble.plugins.plants.Family:13
-msgid "str.: segregate family (senso stricto)"
-msgstr ""
-
-#: ../bauble/plugins/plants/genus.py:docstring of
-#: bauble.plugins.plants.Genus:14
-msgid "str.: segregate genus (sensu stricto)"
 msgstr ""
 
 #: ../doc/building.rst:77
@@ -7863,39 +4953,6 @@ msgstr ""
 msgid "synonyms"
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.History:11
-msgid "table_id: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:9
-msgid "table_name: :class:`sqlalchemy.types.String`"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of bauble.plugins.tag.Tag:1
-msgid "tag"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of bauble.plugins.tag.Tag:3
-msgid "tag: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TaggedObj:7
-msgid "tag_id: :class:`sqlalchemy.types.Integer`"
-msgstr ""
-
-#: ../bauble/plugins/tag/__init__.py:docstring of
-#: bauble.plugins.tag.TaggedObj:1
-msgid "tagged_obj"
-msgstr ""
-
-#: ../bauble/task.py:docstring of bauble.task.queue:3
-msgid ""
-"task should be a generator with side effects. it does not matter what it "
-"yields, it is important that it does stop from time to time yielding "
-"whatever it wants to, and causing the side effect it has to cause."
-msgstr ""
-
 #: bauble/plugins/imex/select_export.glade:101
 msgid "taxa"
 msgstr ""
@@ -7908,254 +4965,20 @@ msgstr ""
 msgid "tell the world about it: on facebook, the google group, linkedin, ..."
 msgstr ""
 
-#: ../bauble/__init__.py:docstring of bauble.main:3
-msgid ""
-"the URI of the database to connect to.  For more information about database "
-"URIs see `<http://www.sqlalchemy.org/docs/05/dbengine.html#create-engine-url-"
-"arguments>`_"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:5
-msgid "the accession code"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.set_model_attr:5
-msgid "the attribute on self.model to set"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.add_expander:3
-msgid "the bauble.view.InfoExpander to add to this infobox"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_date_button:8
-msgid "the button that enters the data in entry"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.combo_get_value_iter:4
-msgid "the combo where we should search"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.search_tree_model:5
-msgid "the data to look for"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:23
-msgid "the date this accession was accessioned"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.default_completion_cell_data_func:1
-msgid ""
-"the default completion cell data function for GenericEditorView."
-"attach_completions"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.default_completion_match_func:1
-msgid ""
-"the default completion match function for GenericEditorView."
-"attach_completions, does a case-insensitive string comparison of the the "
-"completions model[iter][0]"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.set_widget_value:4
-msgid "the default value to put in the widget if the value is None"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.set_widget_value:4
-msgid "the default value to put in the widget if value is None"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.yes_no_dialog:6
-msgid "the dialog's parent"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.add_to_insert_menu:3
-msgid "the editor to add to the menu"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.verify_connection:5
-msgid "the engine to test"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_date_button:6
-msgid "the entry that the data goes into"
-msgstr ""
-
 #: ../doc/installing.rst:190
 msgid ""
 "the following, you will do regularly, to stay up-to-date with the "
 "development line you chose to follow::"
 msgstr ""
 
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView.connect:9
-#: bauble.editor.GenericEditorView.connect_after:9
-msgid "the function or method to call the object receives the signal"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.setup_date_button:10
-msgid "the function that returns a string represention of the date"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.search_tree_model:6
-msgid ""
-"the function to call on each row to check if it matches data, default is "
-"C{lambda row, data: row[0] == data}"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:16
-msgid "the function to use to display the rows in the completion popup"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.NotesPresenter:8
-msgid "the gtk.Container to add the notes editor box to"
-msgstr ""
-
 #: ../doc/installing.rst:134
 msgid "the installation steps on Windows:"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.add_to_insert_menu:4
-msgid "the label for the menu item"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.update:3
-msgid ""
-"the mapper instance to use to update this infobox, this is passed to each of "
-"the infoexpanders in turn"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.yes_no_dialog:5
-msgid "the message to display in the dialog"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.assign_completions_handler:5
-msgid ""
-"the method to call when a list of completions is requested, returns a list "
-"of completions"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.combo_get_value_iter:6
-msgid ""
-"the method to use to compare rows in the combo model and value, the default "
-"is C{lambda row, value: row[0] == value}"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.on_changed_name_combo:1
-msgid "the name changed so fill in everything else"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.remove_expander:3
-msgid "the name of th expander to remove"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of bauble.connmgr.ConnectionManager:3
-msgid "the name of the connection to select from the list of connection names"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:14
-msgid "the name of the entry to attach the completion"
-msgstr ""
-
-#: ../bauble/view.py:docstring of bauble.view.InfoBoxPage.get_expander:3
-msgid "the name of the expander to return"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.GenericEditorView.connect:7
-#: bauble.editor.GenericEditorView.connect_after:7
-msgid "the name of the signal the object will receive"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.yes_no_dialog:7
-msgid "the number of seconds before the yes button should become sensitive"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.add_message_box:1
-msgid "the parent :class:`gtk.Box` width to add the message box to"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.NotesPresenter:5
-msgid "the parent presenter of this presenter"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericModelViewPresenterEditor:15
-msgid "the parent windows for the view or None"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.load:8
-msgid "the path where to look for the plugins"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.is_dirty:3
-msgid ""
-"the presenter is dirty depending on whether it has changed anything that "
-"needs to be committed.  This doesn't necessarily imply that the session is "
-"not dirty nor is it required to change back to True if the changes are "
-"committed."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.remove_problem:5
-msgid ""
-"the problem to remove, if None then remove any problem from the "
-"problem_widget(s)"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:8
-msgid "the provenance type"
 msgstr ""
 
 #: ../doc/installing.rst:111
 msgid ""
 "the rest is just as on a normal unix machine, and we have a `devinstall.sh` "
 "script for it. Read the above Linux instructions, follow them, enjoy."
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.set_widget_value:5
-#: ../bauble/utils/__init__.py:docstring bauble.utils.set_widget_value:5
-msgid "the row index to use for those widgets who use a model"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.SearchStrategy.search:1
-msgid "the search string"
-msgstr ""
-
-#: ../bauble/search.py:docstring of bauble.search.SearchStrategy.search:2
-msgid "the session to use for the search"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.natsort_key:3
-msgid ""
-"the sorting is done on return value of obj.__str__() so we can sort objects "
-"as well, i don't know if this will cause problems with unicode"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:50
-msgid "the species this accession refers to"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of bauble.editor.NotesPresenter:6
-msgid "the string name of the notes property of the presenter.model"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.on_changed_type_combo:1
-msgid "the type changed so change the params_box"
 msgstr ""
 
 #: ../doc/building.rst:79
@@ -8168,58 +4991,12 @@ msgid ""
 "practices."
 msgstr ""
 
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.attach_completion:24
-msgid "the value of the text-column property on the entry, default is -1"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.set_model_attr:6
-msgid "the value the attribute will be set to"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.set_widget_value:2
-msgid "the value to put in the widget"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.set_widget_value:2
-msgid "the value to put in the widgets"
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of
-#: bauble.utils.combo_get_value_iter:5
-msgid "the value to search for"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.VernacularName:5
-msgid "the vernacular name"
-msgstr ""
-
 #: ../doc/building.rst:14
 msgid "them. a developer will react."
 msgstr ""
 
 #: ../doc/installing.rst:104
 msgid "then install the remaining dependencies::"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:14
-msgid "this column can be used to give more provenance information"
-msgstr ""
-
-#: ../bauble/ui.py:docstring of bauble.ui.GUI.save_state:1
-msgid "this is usually called from bauble.py when it shuts down"
-msgstr ""
-
-#: ../bauble/connmgr.py:docstring of
-#: bauble.connmgr.ConnectionManager.working_dbtypes:3
-msgid ""
-"this sets self._working_dbtypes to a dictionary where the keys are the "
-"database names and the values are the index in the connectiona manager's "
-"database types"
 msgstr ""
 
 #: ../doc/installing.rst:183
@@ -8229,16 +5006,8 @@ msgid ""
 "production line, create a virtual environment and install bauble into it."
 msgstr ""
 
-#: ../bauble/db.py:docstring of bauble.db.History:19
-msgid "timestamp: :class:`sqlalchemy.types.DateTime`"
-msgstr ""
-
 #: bauble/plugins/garden/prop_editor.glade:1475
 msgid "to"
-msgstr ""
-
-#: ../bauble/pluginmgr.py:docstring of bauble.pluginmgr.Plugin:2
-msgid "tools:"
 msgstr ""
 
 #: ../doc/building.rst:20
@@ -8246,11 +5015,6 @@ msgid ""
 "translate! any help with translations will be welcome, so please do! you can "
 "do this without installing anything on your computer, just using the on-line "
 "translation service offered by http://hosted.weblate.org/"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.Accession:18
-msgid "union of first columns of wild_prov_status_values,"
 msgstr ""
 
 #: ../doc/peptalk.rst:122
@@ -8265,50 +5029,12 @@ msgstr ""
 msgid "update the i18n files (run ``./scripts/i18n.sh``)."
 msgstr ""
 
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.natsort_key:6
-msgid "use like: sorted(some_list, key=utils.natsort_key)"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:17
-msgid "user: :class:`sqlalchemy.types.String`"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorPresenter.set_model_attr:7
-msgid "validates the value before setting it"
-msgstr ""
-
-#: ../bauble/db.py:docstring of bauble.db.History:13
-msgid "values: :class:`sqlalchemy.types.String`"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:57
 msgid "var."
 msgstr ""
 
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:1
-msgid "verification"
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:1285
-#, python-format
 msgid "verified as %(species)s "
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Verification:4
-msgid "verifier: :class:`sqlalchemy.types.Unicode`"
-msgstr ""
-
-#: ../bauble/plugins/plants/species_model.py:docstring of
-#: bauble.plugins.plants.species.VernacularName:1
-msgid "vernacular_name"
-msgstr ""
-
-#: ../bauble/plugins/garden/accession.py:docstring of
-#: bauble.plugins.garden.accession.Voucher:1
-msgid "voucher"
 msgstr ""
 
 #: ../doc/installing.rst:154
@@ -8326,20 +5052,6 @@ msgstr ""
 #: ../doc/building.rst:52
 msgid ""
 "whenever possible, translate the new strings you put in code or glade files."
-msgstr ""
-
-#: ../bauble/utils/__init__.py:docstring of bauble.utils.set_widget_value:3
-msgid "whether or not value is markup"
-msgstr ""
-
-#: ../bauble/editor.py:docstring of
-#: bauble.editor.GenericEditorView.set_widget_value:3
-msgid "whether the data in value uses pango markup"
-msgstr ""
-
-#: ../bauble/plugins/abcd/__init__.py:docstring of
-#: bauble.plugins.abcd.create_abcd:5
-msgid "whether we should validate the data before returning"
 msgstr ""
 
 #: ../doc/building.rst:32
