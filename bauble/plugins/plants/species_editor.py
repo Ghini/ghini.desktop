@@ -138,8 +138,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             ## value is a synonym: user alert needed
             msg = _('The genus <b>%(synonym)s</b> is a synonym of '
                     '<b>%(genus)s</b>.\n\nWould you like to choose '
-                    '<b>%(genus)s</b> instead?'
-                    % {'synonym': syn.synonym, 'genus': syn.genus})
+                    '<b>%(genus)s</b> instead?') % \
+                {'synonym': syn.synonym, 'genus': syn.genus}
             box = None
 
             def on_response(button, response):
@@ -280,8 +280,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             else:
                 msg = _("This binomial name is already in your collection"
                         ", as %s.\n\n"
-                        "Are you sure you want to insert it again?" %
-                        Species.str(omonym, authors=True))
+                        "Are you sure you want to insert it again?") % \
+                    Species.str(omonym, authors=True)
 
                 def on_response(button, response):
                     self.view.remove_box(self.omonym_box)

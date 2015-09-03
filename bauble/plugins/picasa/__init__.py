@@ -282,7 +282,7 @@ class PicasaSettingsDialog(object):
                 token = None
             if not token:
                 utils.message_dialog(_('Could not authorize Google '
-                                       'account: %s' % email),
+                                       'account: %s') % email,
                                      gtk.MESSAGE_ERROR)
                 return False
             update_meta(utils.utf8(email), utils.utf8(album),

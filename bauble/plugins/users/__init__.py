@@ -629,14 +629,14 @@ class UsersEditor(editor.GenericEditorView):
             pwd2 = self.widgets.pwd_entry2.get_text()
             user = self.get_selected_user()
             if pwd1 == '' or pwd2 == '':
-                msg = _('The password for user <b>%s</b> has not been ' \
-                        'changed.' % user)
+                msg = _('The password for user <b>%s</b> has not been '
+                        'changed.') % user
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING,
                                      parent=self.get_window())
                 return
             elif pwd1 != pwd2:
-                msg = _('The passwords do not match.  The password for '\
-                            'user <b>%s</b> has not been changed.' % user)
+                msg = _('The passwords do not match.  The password for '
+                        'user <b>%s</b> has not been changed.') % user
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING,
                                      parent=self.get_window())
                 return

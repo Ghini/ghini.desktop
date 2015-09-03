@@ -474,8 +474,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                 return
             msg = _('The family <b>%(synonym)s</b> is a synonym of '
                     '<b>%(family)s</b>.\n\nWould you like to choose '
-                    '<b>%(family)s</b> instead?'
-                    % {'synonym': syn.synonym, 'family': syn.family})
+                    '<b>%(family)s</b> instead?') % \
+                {'synonym': syn.synonym, 'family': syn.family}
             box = None
 
             def on_response(button, response):

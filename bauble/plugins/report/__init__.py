@@ -122,7 +122,7 @@ def get_plant_query(obj, session):
         plants = get_all_plants(obj.objects, session)
         return q.filter(Plant.id.in_([p.id for p in plants]))
     else:
-        raise BaubleError(_("Can't get plants from a %s" % type(obj).__name__))
+        raise BaubleError(_("Can't get plants from a %s") % type(obj).__name__)
 
 
 def get_all_plants(objs, session=None):
@@ -162,8 +162,8 @@ def get_accession_query(obj, session):
         acc = get_all_accessions(obj.objects, session)
         return q.filter(Accession.id.in_([a.id for a in acc]))
     else:
-        raise BaubleError(_("Can't get accessions from a %s" %
-                            type(obj).__name__))
+        raise BaubleError(_("Can't get accessions from a %s") %
+                          type(obj).__name__)
 
 
 def get_all_accessions(objs, session=None):
@@ -204,8 +204,8 @@ def get_species_query(obj, session):
         acc = get_all_species(obj.objects, session)
         return q.filter(Species.id.in_([a.id for a in acc]))
     else:
-        raise BaubleError(_("Can't get species from a %s" %
-                            type(obj).__name__))
+        raise BaubleError(_("Can't get species from a %s") %
+                          type(obj).__name__)
 
 
 def get_all_species(objs, session=None):

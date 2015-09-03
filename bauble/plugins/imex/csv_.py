@@ -326,8 +326,8 @@ class CSVImporter(Importer):
                     msg = _('In order to import the files the following '
                             'tables will need to be dropped:'
                             '\n\n<b>%s</b>\n\n'
-                            'Would you like to continue?'
-                            % ', '.join(sorted([d.name for d in depends])))
+                            'Would you like to continue?') % \
+                        ', '.join(sorted([d.name for d in depends]))
                     response = utils.yes_no_dialog(msg)
                 else:
                     response = True
@@ -538,7 +538,7 @@ class CSVImporter(Importer):
                 pass
             msg = _('Error: Could not set the sequence for column: %s') \
                 % col_name
-            utils.message_details_dialog(_(utils.xml_safe(msg)),
+            utils.message_details_dialog(utils.xml_safe(msg),
                                          traceback.format_exc(),
                                          type=gtk.MESSAGE_ERROR)
 
@@ -603,7 +603,7 @@ class CSVExporter(object):
                 return
 
         if not os.path.exists(path):
-            raise ValueError(_("CSVExporter: path does not exist.\n%s" % path))
+            raise ValueError(_("CSVExporter: path does not exist.\n%s") % path)
 
         try:
             # TODO: should we support exporting other metadata
