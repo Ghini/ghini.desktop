@@ -2,8 +2,16 @@ Bauble
 ======
 
 ![Test Status](https://travis-ci.org/Bauble/bauble.classic.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg)
 ![Coverage Status](https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github)
+
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/fr/svg-badge.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/de/svg-badge.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/nl/svg-badge.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/it/svg-badge.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/cs/svg-badge.svg)
+![Translation Percentage](https://hosted.weblate.org/widgets/bauble/sv/svg-badge.svg)
 
 what is Bauble (classic)
 ------------------------
