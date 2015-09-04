@@ -8,7 +8,7 @@ Connecting to a database
 
 When you start Bauble the first thing that comes up is the connection dialog. 
 
-.. image:: ../web/images/screenshots/0.7/bauble-closed-conn-dialog-0.7.0.png
+.. image:: images/screenshots/bauble-closed-conn-dialog.png
 
 From this dialog you can select the different connection parameters.
 
@@ -51,7 +51,7 @@ sick at your stomach I recommend you just stick with SQLite.
 If you have connected to a database that has not yet been initialized
 by Bauble then you will get the following dialog\: 
 
-.. image:: ../web/images/screenshots/bauble-create-new-0.7.png
+.. image:: images/screenshots/bauble-create-new.png
 
 Be careful because if you have entered the wrong connection parameters
 it is possible to overwrite an existing database at this connection.

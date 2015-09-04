@@ -60,7 +60,7 @@ Exporting to JSON
 
 This feature is still under development.
 
-.. image:: ../web/images/screenshots/export-to-json.png
+.. image:: images/screenshots/export-to-json.png
 
 when you activate this export tool, you are given the choice to specify what
 to export. You can use the current selection to limit the span of the
