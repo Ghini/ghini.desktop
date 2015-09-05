@@ -187,14 +187,17 @@ the installation steps on Windows:
    you can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
 
-#. the following, you will do regularly, to stay up-to-date with the
-   development line you chose to follow::
+#. download the batch file you will use to stay up-to-date with the
+   production line you chose to follow::
 
-    cd %HOMEDRIVE%%HOMEPATH%
-    .virtualenv\bacl\Scripts\activate.bat
-    cd Local\github\Bauble\bauble.classic
-    git pull
-    python setup.py install
+    https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/bauble-update.bat
+
+   if you are on a recent Bauble installation, each time you start the
+   program, Bauble will check on the development site and alert you of any
+   newer bauble release within your chosen production line.
+
+   any time you want to update your installation, just start the command
+   prompt and run ``bauble-update.bat``
 
 #. you can now start bauble using the ``bauble.lnk`` shortcut that the
    installation procedure copies to the ``Scripts`` directory of the virtual

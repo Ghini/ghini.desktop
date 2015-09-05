@@ -687,11 +687,12 @@ class SQLiteParamsBox(CMParamsBox):
                 ]
 
     def create_gui(self):
-        self.default_check = gtk.CheckButton(_('Use default filename'))
+        self.default_check = gtk.CheckButton(_('Use default locations'))
         self.attach(self.default_check, 0, 2, 0, 1)
         self.default_check.connect(
             'toggled', lambda button:
-            self.file_box.set_sensitive(not button.get_active()))
+            (self.file_box.set_sensitive(not button.get_active()),
+             self.pictureroot_box.set_sensitive(not button.get_active())))
 
         label_alignment = (0.0, 0.5)
         label = gtk.Label(_("Filename: "))
@@ -733,21 +734,23 @@ class SQLiteParamsBox(CMParamsBox):
         d = {}
         invalid_chars = ', "\'():;'
         if self.default_check.get_active():
-            name = self.conn_mgr_ref()._get_connection_name()
+            name = self.conn_mgr_ref()._get_connection_name() or ''
             from string import maketrans
             fixed = name.translate(maketrans(invalid_chars,
                                              '_'*len(invalid_chars)))
             d['file'] = os.path.join(paths.user_dir(), '%s.db' % fixed)
+            d['pictures'] = os.path.join(paths.user_dir(), fixed)
         else:
             d['file'] = self.file_entry.get_text()
-        d['pictures'] = self.pictureroot_entry.get_text()
+            d['pictures'] = self.pictureroot_entry.get_text()
         return d
 
     def refresh_view(self, prefs):
         try:
             self.default_check.set_active(prefs['default'])
             self.file_entry.set_text(prefs['file'])
-            self.pictureroot_entry.set_text(prefs.get('pictures', ''))
+            self.pictureroot_entry.set_text(
+                prefs.get('pictures', paths.user_dir()))
         except KeyError:
             pass
             #debug('KeyError: %s' % e)

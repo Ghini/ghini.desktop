@@ -12,12 +12,20 @@ When you start Bauble the first thing that comes up is the connection dialog.
 
 From this dialog you can select the different connection parameters.
 
-If this is the first time that you are starting Bauble then you will
-not having any connections to choose from.  Click on the add button to
+If this is the first time that you are starting Bauble then you will not
+having any connections to choose from.  Click on the **Add** button to
 create a new connection.
 
-If you plan to associate pictures to plants, specify also the *pictures
-root* folder. This is explained in further detail in the Plants section.
+.. image:: images/screenshots/enter-a-connection-name.png
+
+If you do not know what to do here, Bauble will help you stay safe. Just
+insert a name for your connection, something easy for you to associate with
+the collection represented in the database, click on **OK**. You will be
+back to the previous screen, but the Connection Details will have
+expanded. Activate the **Use default locations** check box and create your
+first connection by clicking on **Connect**. You may safely skip the
+remainder of this section for the time being and continue reading to the
+following section.
 
 By default Bauble uses the file-based SQLite database.  If you use the
 default filename then Bauble creates a database file with the same name as
@@ -30,6 +38,10 @@ inizialize it as a new database.
 
 If you are connecting to an existing database you can continue to Inserting
 or Searching, otherwise read on to the following section.
+
+If you plan to associate pictures to plants, specify also the *pictures
+root* folder. The meaning of this is explained in further detail in the
+Plants section. 
 
 Creating a new database
 =======================
