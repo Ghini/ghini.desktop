@@ -304,6 +304,10 @@ def main(uri=None):
             print _('Please make sure that GTK_ROOT\\bin is in your PATH.')
         sys.exit(1)
 
+    # create the user directory
+    if not os.path.exists(paths.user_dir()):
+        os.makedirs(paths.user_dir())
+
     # add console root handler, and file root handler, set it at the logging
     # level specified by BAUBLE_LOGGING, or at INFO level.
     filename = os.path.join(paths.user_dir(), 'bauble.log')
@@ -344,10 +348,6 @@ def main(uri=None):
     import bauble.pluginmgr as pluginmgr
     from bauble.prefs import prefs
     import bauble.utils as utils
-
-    # create the user directory
-    if not os.path.exists(paths.user_dir()):
-        os.makedirs(paths.user_dir())
 
     # initialize threading
     gobject.threads_init()
