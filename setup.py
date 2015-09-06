@@ -279,6 +279,9 @@ class install(_install):
             print msg
             sys.exit(1)
 
+        # create build/share directory
+        dir_util.mkpath(os.path.join(self.build_base, 'share'))
+
         if not self.single_version_externally_managed:
             self.do_egg_install()
         else:
