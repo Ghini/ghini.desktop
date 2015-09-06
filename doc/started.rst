@@ -1,6 +1,37 @@
 Getting Started
 ---------------
 
+.. _before-you-start:
+
+Before you start
+===================
+
+Is this the first time you use Bauble, are you going to work in a
+stand-alone setting, you have not the faintest idea how to manage a database
+management system? If you answered yes to any of the previous, you probably
+better stick with SQLite, easy, fast, zero-administration file-based
+database.
+
+With SQLite, you do not need any preparation and you can continue with
+`connecting`_.
+
+On the other hand, if you want to connect more than one bauble workstation
+to the same database, or if you want to make your data available for other
+clients, as could be a web server in a LAMP setting, you should consider
+keeping your database in a database management system like `PostgreSQL
+<http://www.postgresql.org>`_ or `MySQL/MariaDB <https://mariadb.org/>`_,
+both supported by Bauble.
+
+When connecting to a database server as one of the above, you have to
+manually create: at least one bauble user, the database you want bauble to
+use, and to give at lest one bauble user full permissions on its
+database. When this is done, Bauble will be able to proceed, creating the
+tables and importing the default data set.  The process is
+database-dependent and it falls beyond the scope of this manual.
+
+If you already got the chills or sick at your stomach, no need to worry,
+just stick with SQLite, you do not miss on features nor performance.
+
 .. _connecting:
 
 Connecting to a database
@@ -10,22 +41,35 @@ When you start Bauble the first thing that comes up is the connection dialog.
 
 .. image:: images/screenshots/bauble-closed-conn-dialog.png
 
-From this dialog you can select the different connection parameters.
+From this dialog you can select among the database connections and for each
+of them, you can specify the different connection parameters.
 
-If this is the first time that you are starting Bauble then you will not
-having any connections to choose from.  Click on the **Add** button to
-create a new connection.
+    If this is the first time that you are starting Bauble then you will not
+    having any connections to choose from.  Bauble will display a message
+    box warning you about it:
+
+    .. image:: images/screenshots/first-time-activation.png
+
+    As it says: close the message box, you will return to the connection
+    dialog, where you click on **Add** to create your first connection.
 
 .. image:: images/screenshots/enter-a-connection-name.png
 
+**specify the connection details**
+
 If you do not know what to do here, Bauble will help you stay safe. Just
 insert a name for your connection, something easy for you to associate with
-the collection represented in the database, click on **OK**. You will be
-back to the previous screen, but the Connection Details will have
+the collection to be represented in the database, and click on **OK**. You
+will be back to the previous screen, but the Connection Details will have
 expanded. Activate the **Use default locations** check box and create your
-first connection by clicking on **Connect**. You may safely skip the
-remainder of this section for the time being and continue reading to the
-following section.
+first connection by clicking on **Connect**.
+
+.. image:: images/screenshots/my-first-botanical-garden.png
+
+You may safely skip the remainder of this section for the time being and
+continue reading to the following section.
+
+**fine-tune the connection details**
 
 By default Bauble uses the file-based SQLite database.  If you use the
 default filename then Bauble creates a database file with the same name as
@@ -43,25 +87,17 @@ If you plan to associate pictures to plants, specify also the *pictures
 root* folder. The meaning of this is explained in further detail in the
 Plants section. 
 
-Creating a new database
+.. _creating-a-new-database:
+
+Initialize a database
 =======================
 
-To inizialize a database you have to first connect to a database. See
-:ref:`connecting`.
+First time you open a connection to a database which had never been seen by
+Bauble before, Bauble will first display an alert:
 
-If you are connecting using the default SQLite database backend then Bauble
-can handle everything that needs to be done to create a database that Bauble
-will then initialize.
+.. image:: images/screenshots/empty-database.png
 
-If you are connecting to a server based database like `PostgreSQL
-<http://www.postgresql.org>`_ will have to manually create the database,
-user and permissions for the database while Bauble will create the tables
-and import the default data set.  Creating a database on a server based
-database is beyond the scope of this manual. If you just got the chills or
-sick at your stomach I recommend you just stick with SQLite.
-
-If you have connected to a database that has not yet been initialized
-by Bauble then you will get the following dialog\: 
+immediately followed by a question:
 
 .. image:: images/screenshots/bauble-create-new.png
 
@@ -73,5 +109,6 @@ select "Yes". Bauble will then start creating the database tables and
 importing the default data. This can take a minute or two so while all
 of the default data is imported into the database so be patient.
 
-Once the default database has been created then you are ready to start
-inserting and subsequently searching...
+Once your database has been created, configured, initialized, you are ready
+to start :ref:`editing-and-inserting-data` and subsequently
+:ref:`searching-in-bauble`.
