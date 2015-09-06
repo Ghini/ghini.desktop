@@ -148,6 +148,7 @@ Donation
 """"""""
 A Donation.
 
+.. _editing-plant:
 
 Plant
 -----
@@ -166,6 +167,8 @@ When you enter the range in the plant code entry the entry will turn
 blue to indicate that you are now creating multiple plants.  Any
 fields that are set while in this mode will be copied to all the
 plants that are created.
+
+.. _plant-pictures:
 
 Pictures
 ^^^^^^^^
