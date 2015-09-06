@@ -211,10 +211,10 @@ class build(_build):
             print msg
             sys.exit(1)
 
-        _build.run(self)
-
         # create build/share directory
         dir_util.mkpath(os.path.join(self.build_base, 'share'))
+
+        _build.run(self)
 
         dest_tmpl = os.path.join(self.build_base, locale_path, '%s',
                                  'LC_MESSAGES')
