@@ -1,3 +1,5 @@
+.. _editing-and-inserting-data:
+
 Editing and Inserting Data
 ==========================
 

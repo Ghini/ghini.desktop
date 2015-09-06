@@ -1,3 +1,5 @@
+.. _searching-in-bauble:
+
 Searching in Bauble
 -------------------
 
@@ -139,7 +141,7 @@ After opening the Query Builder you must select a search domain.  The
 search domain will determine the type of data that is returned and the
 properties that you can search.  
 
-.. image:: qb-choose_domain.png
+.. image:: images/screenshots/qb-choose_domain.png
 
 The search domain is similar to a table in the database and the properties
 would be the columns on the table.  Often the table/domain and
@@ -150,7 +152,7 @@ domain to compare values to.  The search operator can then be changed
 for how you want to make the search comparison.  Finally you must
 enter a value to compare to the search property.  
 
-.. image:: qb-choose_property.png
+.. image:: images/screenshots/qb-choose_property.png
 
 If the search property you have selected can only have specific values then
 a list of possible values will be provided for you to choose from.
