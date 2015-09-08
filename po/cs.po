@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-03 08:00-0500\n"
-"PO-Revision-Date: 2015-07-12 18:47-0500\n"
+"PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
-"Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
-">\n"
+"Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/>"
+"\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Weblate 2.4-dev\n"
 "X-Launchpad-Export-Date: 2012-04-25 05:08+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -592,7 +592,7 @@ msgstr "Adresa"
 
 #: ../doc/administration.rst:2 ../doc/index.rst:45
 msgid "Administration"
-msgstr ""
+msgstr "Správa"
 
 #: bauble/plugins/users/ui.glade:189
 msgid "Administrator"
@@ -799,7 +799,7 @@ msgstr "Bauble - Nastavení Picasa"
 
 #: ../doc/index.rst:54
 msgid "Bauble Development"
-msgstr ""
+msgstr "Výboj Bauble"
 
 #: ../doc/users.rst:17
 msgid "Bauble allows read, write and execute permissions."
@@ -1481,7 +1481,7 @@ msgstr "Chcete uložit Vaše změny?"
 
 #: ../doc/index.rst:2
 msgid "Documentation for Bauble 1.0"
-msgstr ""
+msgstr "Dokumentace pro Bauble 1.0"
 
 #: bauble/search.py:665
 msgid "Domain Properties"
@@ -2081,6 +2081,8 @@ msgid ""
 "If you're using Bauble, or if you feel like helping its development anyway, "
 "please consider `donating <https://pledgie.com/campaigns/29188>`_"
 msgstr ""
+"Pokud pouřžíváte Bauble nebo chcete podpořit jeho vývoj, zvažte `finanční "
+"příspěvek <https://pledgie.com/campaigns/29188>`_"
 
 #: bauble/plugins/picasa/__init__.py:447
 msgid "Images"
@@ -2177,7 +2179,7 @@ msgstr ""
 
 #: ../doc/index.rst:21
 msgid "Installing Bauble"
-msgstr ""
+msgstr "Instalace Bauble"
 
 #: ../doc/building.rst:7
 msgid ""
@@ -3285,7 +3287,7 @@ msgstr "Spálena"
 
 #: ../doc/index.rst:65
 msgid "Supporting Bauble"
-msgstr ""
+msgstr "Podpořte Bauble"
 
 #: bauble/plugins/plants/family.py:788 bauble/plugins/plants/genus.py:966
 #: bauble/plugins/plants/genus.py:985 bauble/plugins/plants/species.py:249
@@ -4302,7 +4304,7 @@ msgstr "Uživatelé"
 
 #: ../doc/index.rst:30
 msgid "Using Bauble"
-msgstr ""
+msgstr "Používání Bauble"
 
 #: ../doc/imex.rst:55
 msgid ""
