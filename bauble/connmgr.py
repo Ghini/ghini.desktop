@@ -42,12 +42,6 @@ import bauble
 import bauble.paths as paths
 import bauble.prefs as prefs
 
-# TODO: make the border red for anything the user changes so
-# they know if something has changed and needs to be saved, or maybe
-# a red line should indicate that the value are valid, i.e. the name
-# is in the wrong format, or better just don't the allow the user to leave the
-# entry until whatever is there is an the correct format
-
 
 class ConnectionManager:
     """
