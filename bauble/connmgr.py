@@ -51,9 +51,6 @@ import bauble.prefs as prefs
 # TODO: when you start and there are no connections defined then make the user
 # create a connection or at least inform them
 
-# TODO: should redo this to use a model view presenter pattern like the new
-# editors, makes it easier to handle things like status on the entries
-
 # TODO: allow connecting to a database first to see if the database even,
 # exists will probably have to connected using python's dbapi first and
 # if the database doesn't exist then we can create it, set some permissions,
