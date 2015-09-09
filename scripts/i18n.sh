@@ -22,11 +22,11 @@ pygettext -X $pythonlist --escape -o pot/python.pot $(find bauble -name "*.py")
 sed -i -e 's/CHARSET/utf-8/' pot/python.pot  # I do not know how to specify it on command line
 echo 'ok'
 
-# documentation, but not the api.
-echo -n 'doing documentation files (excluding api.rst) ... '
-sphinx-build -b gettext doc pot/
-rm pot/api.pot
-echo 'ok'
+# documentation, but not the api. (this goes in a different project)
+#echo -n 'doing documentation files (excluding api.rst) ... '
+#sphinx-build -b gettext doc pot/
+#rm pot/api.pot
+#echo 'ok'
 
 #------------------------------------------------------------------------
 # merge all message templates into one

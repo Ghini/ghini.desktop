@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-09-03 08:00-0500\n"
+"POT-Creation-Date: 2015-09-09 08:10-0500\n"
 "PO-Revision-Date: 2015-07-12 18:48-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/bauble/master/nl/"
@@ -85,11 +85,6 @@ msgstr "%s.plugin is niet een instantie van pluginmgr.Plugin"
 msgid "(%(group)s Group)"
 msgstr ""
 
-#: ../doc/installing.rst:167
-msgid ""
-"(optional) download and install a database connector other than ``sqlite3``."
-msgstr ""
-
 #: bauble/view.py:635
 msgid "** Error: %s"
 msgstr "** Fout: %s"
@@ -98,44 +93,13 @@ msgstr "** Fout: %s"
 msgid "** Error: could not import gtk and/or gobject"
 msgstr ""
 
-#: bauble/__init__.py:341
+#: bauble/__init__.py:345
 msgid "**Error: Bauble must be run in a windowed environment."
-msgstr ""
-
-#: ../doc/installing.rst:175
-msgid "**REBOOT**"
-msgstr ""
-
-#: ../doc/editing.rst:46
-msgid ""
-"*Synonyms* allow you to add other families that are synonyms with the family "
-"you are currently editing.  To add a new synonyms type in a family name in "
-"the entry.  You must select a family name from the list of completions.  "
-"Once you have selcted a family name that you want to add as a synonym click "
-"on the Add button next to the synonym list and it will add the selected "
-"synonym to the list.  To remove a synonym select the synonym from the list "
-"and click on the Remove button."
-msgstr ""
-
-#: ../doc/editing.rst:81
-msgid ""
-"*Synonyms* allow you to add other genera that are synonyms with the genus "
-"you are currently editing.  To add a new synonyms type in a genus name in "
-"the entry.  You must select a genus name from the list of completions.  Once "
-"you have selcted a genus name that you want to add as a synonym click on the "
-"Add button next to the synonym list and it will add the selected synonym to "
-"the list.  To remove a synonym select the synonym from the list and click on "
-"the Remove button."
 msgstr ""
 
 #: bauble/plugins/tag/tag.glade:265
 msgid "--"
 msgstr "--"
-
-#: ../doc/installing.rst:71 ../doc/installing.rst:116
-#: ../doc/installing.rst:213 ../doc/installing.rst:255
-msgid ":ref:`connecting`."
-msgstr ""
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -475,18 +439,6 @@ msgstr ""
 msgid "<i>Branched from %(plant)s</i>"
 msgstr ""
 
-#: ../doc/editing.rst:142
-msgid "A Collection."
-msgstr ""
-
-#: ../doc/editing.rst:147
-msgid "A Donation."
-msgstr ""
-
-#: ../doc/searching.rst:90
-msgid "A couple of useful examples:"
-msgstr ""
-
 #: bauble/plugins/plants/family.py:330
 msgid ""
 "A list of synonyms for this family.\n"
@@ -530,16 +482,8 @@ msgstr "Toetreding"
 msgid "Accession ID"
 msgstr ""
 
-#: ../doc/editing.rst:134
-msgid "Accession Source"
-msgstr ""
-
 #: bauble/plugins/garden/plant_editor.glade:158
 msgid "Accession type"
-msgstr ""
-
-#: ../doc/editing.rst:125
-msgid "Accessions"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1992
@@ -579,26 +523,8 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: ../doc/administration.rst:2 ../doc/index.rst:45
-msgid "Administration"
-msgstr ""
-
 #: bauble/plugins/users/ui.glade:189
 msgid "Administrator"
-msgstr ""
-
-#: ../doc/imex.rst:29
-msgid ""
-"After clicking OK on the dialog that ask if you are sure you know what "
-"you're doing a file chooser will open.  In the file chooser select the files "
-"you want to import."
-msgstr ""
-
-#: ../doc/searching.rst:138
-msgid ""
-"After opening the Query Builder you must select a search domain.  The search "
-"domain will determine the type of data that is returned and the properties "
-"that you can search."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:407
@@ -613,46 +539,8 @@ msgstr ""
 msgid "Alive"
 msgstr ""
 
-#: ../doc/peptalk.rst:70
-msgid ""
-"All changes in the database is stored in the database, as history log. All "
-"changes are 'signed' and time-stamped.  Bauble makes it easy to retrieve the "
-"list of all changes in the last working day or week, or in any specific "
-"period in the past."
-msgstr ""
-
-#: ../doc/searching.rst:20
-msgid ""
-"All searches are case insensitive so searching for Maxillaria and maxillaria "
-"will return the same results."
-msgstr ""
-
-#: ../doc/editing.rst:25
-msgid ""
-"Almost all of the editors in Bauble have a *Notes* tab which should work the "
-"same regardless of which editor you are using."
-msgstr ""
-
-#: ../doc/report.rst:58
-msgid ""
-"Alternatively you can download the `archive <http://www.apache.org/dist/"
-"xmlgraphics/fop/binaries/>`_.  After extracting the archive you must add the "
-"directory you extracted the archive to to your PATH environment variable."
-msgstr ""
-
-#: ../doc/imex.rst:4
-msgid ""
-"Although Bauble can be extended through plugins to support alternate import "
-"and export formats, by default it can only import and export comma seperated "
-"values files or CSV."
-msgstr ""
-
 #: bauble/plugins/garden/acc_editor.glade:1831
 msgid "Altitude/Depth"
-msgstr ""
-
-#: ../doc/searching.rst:80
-msgid "An example of a query would be::"
 msgstr ""
 
 #: bauble/plugins/garden/location.py:194
@@ -736,19 +624,6 @@ msgstr ""
 msgid "Area transf. to Plant Ops."
 msgstr ""
 
-#: ../doc/editing.rst:180
-msgid ""
-"As of Bauble-1.0.41, Pictures are not kept in the database. To ensure "
-"pictures are available on all terminals where you have installed and "
-"configured Bauble, you can use a file sharing service like Copy or Dropbox. "
-"The personal choice of the writer of this document is to use Copy, because "
-"it offers much more space and because of its \"Fair Storage\" policy."
-msgstr ""
-
-#: ../doc/building.rst:127
-msgid "At this point you can run Bauble.  To run the compiled executable run::"
-msgstr ""
-
 #: bauble/plugins/plants/genus_editor.glade:78
 #: bauble/plugins/plants/species_editor.glade:328
 #: bauble/plugins/plants/species_editor.glade:471
@@ -769,36 +644,6 @@ msgstr ""
 
 #: bauble/plugins/picasa/gui.glade:7
 msgid "Bauble - Picasa Settings"
-msgstr ""
-
-#: ../doc/index.rst:54
-msgid "Bauble Development"
-msgstr ""
-
-#: ../doc/users.rst:17
-msgid "Bauble allows read, write and execute permissions."
-msgstr ""
-
-#: ../doc/peptalk.rst:44
-msgid ""
-"Bauble allows you associate pictures to physical plants, this can help "
-"recognize the plant in case a sticker is lost, or help taxonomic "
-"identification if a taxonomist is not available at all times."
-msgstr ""
-
-#: ../doc/peptalk.rst:78
-msgid ""
-"Bauble allows you search the database using simple keywords, e.g.: the name "
-"of the location or a genus name, or you can write more complex queries, "
-"which do not reach the complexity of SQL but allow you a decent level of "
-"detail localizing your data."
-msgstr ""
-
-#: ../doc/started.rst:27
-msgid ""
-"Bauble allows you to connect to any existing database. If you connect to an "
-"empty database a message will popup asking asking you if you would like to "
-"inizialize it as a new database."
 msgstr ""
 
 #: bauble/prefs.py:215
@@ -849,100 +694,8 @@ msgstr ""
 msgid "Bauble forum"
 msgstr ""
 
-#: ../doc/installing.rst:150
-msgid ""
-"Bauble has been developed and tested using Python 2.x.  It will definitely "
-"**not** run on Python 3.x.  If you are interested in helping port to Python "
-"3.x, please contact the Bauble maintainers."
-msgstr ""
-
-#: ../doc/installing.rst:130
-msgid ""
-"Bauble has been tested with and is known to work on W-XP, W-7 and W-8. "
-"Although it should work fine on other versions Windows it has not been "
-"thoroughly tested."
-msgstr ""
-
-#: ../doc/peptalk.rst:34
-msgid ""
-"Bauble implements the concept of 'accession', intermediate between physical "
-"plant (or a group thereof) and abstract taxon. Each accession can associate "
-"the same plants to different taxa, if two taxonomists do not agree on the "
-"identification: each taxonomist can have their say and do not need overwrite "
-"each other's work. All verifications can be found back in the database, with "
-"timestamp and signature."
-msgstr ""
-
-#: ../doc/index.rst:8
-msgid ""
-"Bauble is an application for managing botanical specimen collections. With "
-"it you can create a searchable database of plant records."
-msgstr ""
-
-#: ../doc/peptalk.rst:124
-msgid ""
-"Bauble is continuously and extensively unit tested, something that makes "
-"regression of functionality close to impossible. Every update is "
-"automatically quality checked, on the Travis Continuous Integration service. "
-"Integration of TravisCI with the github platform will make it difficult for "
-"us to release anything which has a single failing unit test."
-msgstr ""
-
-#: ../doc/peptalk.rst:136
-msgid ""
-"Bauble is extensible through plugins and can be customized to suit the needs "
-"of the institution."
-msgstr ""
-
-#: ../doc/peptalk.rst:86
-msgid ""
-"Bauble is not a database management system, so it does not reinvent the "
-"wheel. It works storing its data in a SQL database, and it will connect to "
-"any database management system which accepts a SQLAlchemy connector. This "
-"means any reasonably modern database system and includes MySQL, PostgreSQL, "
-"Oracle. It can also work with sqlite, which, for single user purposes is "
-"quite sufficient and efficient. If you connect Bauble to a real database "
-"system, you can consider making the database part of a LAMP system (Linux-"
-"Apache-MySQL-Php) and include your live data on your institution web site."
-msgstr ""
-
 #: bauble/ui.py:365
 msgid "Bauble wiki"
-msgstr ""
-
-#: ../doc/peptalk.rst:27
-msgid ""
-"Bauble will allow you define synonyms for species, genera, families. Also "
-"this information can be represented in its intermediate json format and be "
-"imported in an existing Bauble database."
-msgstr ""
-
-#: ../doc/peptalk.rst:51
-msgid ""
-"Bauble will let you export a report in whatever textual format you need. It "
-"uses a powerful templating engine named 'mako', which will allow you export "
-"the data in a selection to whatever format you need. Once installed, a "
-"couple of examples are available in the mako subdirectory."
-msgstr ""
-
-#: ../doc/peptalk.rst:19
-msgid ""
-"Bauble will let you import any data you put in an intermediate json format. "
-"What you import will complete what you already have in the database. If you "
-"need help, you can ask some Bauble professional to help you transform your "
-"data into Bauble's intermediate json format."
-msgstr ""
-
-#: ../doc/started.rst:56
-msgid ""
-"Be careful because if you have entered the wrong connection parameters it is "
-"possible to overwrite an existing database at this connection."
-msgstr ""
-
-#: ../doc/installing.rst:76
-msgid ""
-"Being MacOSX a unix environment, most things will work the same as on Linux "
-"(sort of)."
 msgstr ""
 
 #: bauble/plugins/garden/source.py:160
@@ -967,7 +720,7 @@ msgid ""
 "%(plant_code)s"
 msgstr ""
 
-#: bauble/connmgr.py:623 bauble/connmgr.py:703 bauble/connmgr.py:718
+#: bauble/connmgr.py:623 bauble/connmgr.py:704 bauble/connmgr.py:719
 msgid "Browse..."
 msgstr ""
 
@@ -979,30 +732,12 @@ msgstr ""
 msgid "Budded"
 msgstr ""
 
-#: ../doc/building.rst:112
-msgid ""
-"Building a python program is a bit of a contraddiction.  You don't normally "
-"*build* nor *compile* a python program, you run it in its (virtual) "
-"environment, and python will process the modules loaded and produce faster-"
-"loading *compiled* python files.  You can, however, produce a *Windows "
-"executable* from a python script, executable containing the whole python "
-"environment and dependencies."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:412
 msgid "Bulb"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:432
 msgid "Bulbil"
-msgstr ""
-
-#: ../doc/started.rst:22
-msgid ""
-"By default Bauble uses the file-based SQLite database.  If you use the "
-"default filename then Bauble creates a database file with the same name as "
-"the connection in ``~/.bauble`` on Linux/MacOSX or in ``AppData\\Roaming"
-"\\Bauble`` on Windows."
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:606
@@ -1074,7 +809,7 @@ msgstr ""
 msgid "Code"
 msgstr ""
 
-#: ../doc/editing.rst:141 bauble/plugins/garden/accession.py:388
+#: bauble/plugins/garden/accession.py:388
 msgid "Collection"
 msgstr ""
 
@@ -1096,10 +831,6 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:702 bauble/plugins/imex/csv_.py:720
 msgid "Comma Separated Value"
-msgstr ""
-
-#: ../doc/started.rst:7
-msgid "Connecting to a database"
 msgstr ""
 
 #: bauble/connmgr.glade:194
@@ -1224,14 +955,6 @@ msgstr ""
 msgid "Couldn't find anything for search: \"%s\""
 msgstr ""
 
-#: ../doc/installing.rst:242
-msgid "Couldn't install gdata."
-msgstr ""
-
-#: ../doc/installing.rst:233
-msgid "Couldn't install lxml."
-msgstr ""
-
 #: bauble/editor.py:235
 msgid ""
 "Couldn't set the tooltip on widget %(widget_name)s\n"
@@ -1260,26 +983,6 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:623
 msgid "Create a new propagation record for this plant."
-msgstr ""
-
-#: ../doc/users.rst:11
-msgid "Creating Users"
-msgstr ""
-
-#: ../doc/started.rst:35
-msgid "Creating a new database"
-msgstr ""
-
-#: ../doc/editing.rst:155
-msgid "Creating multiple plants"
-msgstr ""
-
-#: ../doc/report.rst:14
-msgid ""
-"Creating reports with Mako is similar in the way that you would create a web "
-"page from a template.  It is much simpler than the XSL Formatter(see below) "
-"and should be relatively easy to create template for anyone with a little "
-"but of programming experience."
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:166
@@ -1386,10 +1089,6 @@ msgstr ""
 msgid "Details"
 msgstr "Details"
 
-#: ../doc/building.rst:2
-msgid "Developer's Manual"
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:293
 msgid "Did not germinate"
 msgstr ""
@@ -1427,32 +1126,12 @@ msgstr ""
 msgid "Do you want to save your changes?"
 msgstr ""
 
-#: ../doc/index.rst:2
-msgid "Documentation for Bauble 1.0"
-msgstr ""
-
 #: bauble/search.py:665
 msgid "Domain Properties"
 msgstr ""
 
-#: ../doc/searching.rst:103
-msgid "Domains"
-msgstr ""
-
-#: ../doc/editing.rst:146
-msgid "Donation"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:229
 msgid "Double"
-msgstr ""
-
-#: ../doc/installing.rst:25
-msgid "Download the `devinstall.sh` script and run it::"
-msgstr ""
-
-#: ../doc/devdl.rst:2
-msgid "Downloading the source"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2058
@@ -1469,10 +1148,6 @@ msgstr "Bewerken"
 
 #: bauble/plugins/garden/plant.py:622
 msgid "Edit the selected location."
-msgstr ""
-
-#: ../doc/editing.rst:2
-msgid "Editing and Inserting Data"
 msgstr ""
 
 #: bauble/plugins/picasa/gui.glade:29
@@ -1562,12 +1237,6 @@ msgstr ""
 "\n"
 "%(exception)s."
 
-#: ../doc/searching.rst:36
-msgid ""
-"Examples of searching by value would be: Maxillaria, Acanth, 2008.1234, "
-"2003.2.1"
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:344
 msgid "Excellent"
 msgstr ""
@@ -1592,33 +1261,8 @@ msgid ""
 "<i>Would you like to continue?</i>"
 msgstr ""
 
-#: ../doc/imex.rst:70
-msgid ""
-"Exporting *Species* will only export the complete taxonomic information in "
-"your database. *Accession* will export all your accessions plus all the "
-"taxonomic information it refers to: unreferred to taxa will not be exported. "
-"*Plant* will export all living plants (some accession might not be "
-"included), all referred to locations and taxa."
-msgstr ""
-
-#: ../doc/imex.rst:14
-msgid "Exporting ABCD and XML will not be covered here."
-msgstr ""
-
-#: ../doc/imex.rst:35
-msgid "Exporting to CSV"
-msgstr ""
-
-#: ../doc/imex.rst:59
-msgid "Exporting to JSON"
-msgstr ""
-
 #: bauble/search.py:976
 msgid "Expressions"
-msgstr ""
-
-#: ../doc/extending.rst:2
-msgid "Extending Bauble with Plugins"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:163
@@ -1633,7 +1277,7 @@ msgstr ""
 msgid "Fair"
 msgstr ""
 
-#: ../doc/editing.rst:37 bauble/plugins/plants/genus_editor.glade:112
+#: bauble/plugins/plants/genus_editor.glade:112
 #: bauble/plugins/plants/family_editor.glade:89
 #: bauble/plugins/plants/family_editor.glade:230
 #: bauble/plugins/plants/__init__.py:110
@@ -1656,14 +1300,8 @@ msgstr ""
 msgid "Female"
 msgstr ""
 
-#: bauble/connmgr.py:697
+#: bauble/connmgr.py:698
 msgid "Filename: "
-msgstr ""
-
-#: ../doc/installing.rst:87
-msgid ""
-"First of all, you need things which are an integral part of a unix "
-"environment, but which are missing in a off-the-shelf mac:"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:370
@@ -1678,46 +1316,6 @@ msgstr ""
 msgid "Flowering"
 msgstr ""
 
-#: ../doc/building.rst:118
-msgid ""
-"Follow all steps needed to set up a working Bauble environment from :doc:"
-"`installing`, but skip the final ``install`` step."
-msgstr ""
-
-#: ../doc/editing.rst:160
-msgid ""
-"For example the range, 3-5 will create plant with code 3,4,5.  The range "
-"1,4-7,25 will create plants with codes 1,4,5,6,7,25."
-msgstr ""
-
-#: ../doc/editing.rst:104
-msgid ""
-"For historical reasons called a `species`, but by this we mean a `taxon` at "
-"rank `species` or lower.  It represents a unique name in the database.  The "
-"species editor will allow you to construct the name as well as associate "
-"metadata with the taxon such as its distribution, synonyms and other "
-"information."
-msgstr ""
-
-#: ../doc/devdl.rst:24
-msgid ""
-"For more information about other available code branches go to `bauble."
-"classic on github <http://www.github.com/Bauble/bauble.classic>`_."
-msgstr ""
-
-#: ../doc/searching.rst:64
-msgid ""
-"For more information about the different search domain and their short-hand "
-"aliases, see search-domains_ ."
-msgstr ""
-
-#: ../doc/installing.rst:244
-msgid ""
-"For some reason the Google's gdata package lists itself in the Python "
-"Package Index but doesn't work properly with the easy_install command.  You "
-"can download the latest gdata package from:"
-msgstr ""
-
 #: bauble/plugins/report/__init__.py:386
 msgid "Formatter Name"
 msgstr ""
@@ -1727,10 +1325,6 @@ msgid ""
 "Formatting Error\n"
 "\n"
 "%(exception)s"
-msgstr ""
-
-#: ../doc/started.rst:13
-msgid "From this dialog you can select the different connection parameters."
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:692
@@ -1764,11 +1358,7 @@ msgstr ""
 msgid "General"
 msgstr "Algemeen"
 
-#: ../doc/report.rst:2
-msgid "Generating reports"
-msgstr ""
-
-#: ../doc/editing.rst:67 bauble/plugins/plants/genus_editor.glade:145
+#: bauble/plugins/plants/genus_editor.glade:145
 #: bauble/plugins/plants/species_editor.glade:282
 #: bauble/plugins/plants/__init__.py:111
 #: bauble/plugins/plants/species_editor.py:892
@@ -1793,10 +1383,6 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:186
 msgid "Germination rate: %s%%"
-msgstr ""
-
-#: ../doc/started.rst:2
-msgid "Getting Started"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:295
@@ -1859,162 +1445,8 @@ msgstr ""
 msgid "ID:"
 msgstr ""
 
-#: ../doc/searching.rst:67
-msgid ""
-"If expression are invalid they are usually used as search by value searchs. "
-"For example the search string ``gen=`` will execute a search by value for "
-"the string gen and the search string ``gen like`` will search for the string "
-"gen and the string like."
-msgstr ""
-
-#: ../doc/searching.rst:158
-msgid ""
-"If multiple search properties are necessary then clicking on the plus sign "
-"will add more search properties.  Select And/Or next to the property name "
-"choose how the properties will be combined in the search query."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:678
 msgid "If the id_qual is aff. or cf. then id_qual_rank is required. %s "
-msgstr ""
-
-#: ../doc/report.rst:33
-msgid ""
-"If the query does not have a search domain then the values could all be of a "
-"different type and the Mako template should prepared to handle them."
-msgstr ""
-
-#: ../doc/installing.rst:40
-msgid "If the script ends without error, you can now start bauble::"
-msgstr ""
-
-#: ../doc/searching.rst:155
-msgid ""
-"If the search property you have selected can only have specific values then "
-"a list of possible values will be provided for you to choose from."
-msgstr ""
-
-#: ../doc/started.rst:15
-msgid ""
-"If this is the first time that you are starting Bauble then you will not "
-"having any connections to choose from.  Click on the add button to create a "
-"new connection."
-msgstr ""
-
-#: ../doc/report.rst:45
-msgid ""
-"If using Linux, Apache FOP should be installable using your package "
-"manager.  On Debian/Ubuntu it is installable as ``fop`` in Synaptic or using "
-"the following command::"
-msgstr ""
-
-#: ../doc/started.rst:44
-msgid ""
-"If you are connecting to a server based database like `PostgreSQL <http://"
-"www.postgresql.org>`_ will have to manually create the database, user and "
-"permissions for the database while Bauble will create the tables and import "
-"the default data set.  Creating a database on a server based database is "
-"beyond the scope of this manual. If you just got the chills or sick at your "
-"stomach I recommend you just stick with SQLite."
-msgstr ""
-
-#: ../doc/started.rst:31
-msgid ""
-"If you are connecting to an existing database you can continue to Inserting "
-"or Searching, otherwise read on to the following section."
-msgstr ""
-
-#: ../doc/started.rst:40
-msgid ""
-"If you are connecting using the default SQLite database backend then Bauble "
-"can handle everything that needs to be done to create a database that Bauble "
-"will then initialize."
-msgstr ""
-
-#: ../doc/started.rst:59
-msgid ""
-"If you are sure you want to create a database at this connection then select "
-"\"Yes\". Bauble will then start creating the database tables and importing "
-"the default data. This can take a minute or two so while all of the default "
-"data is imported into the database so be patient."
-msgstr ""
-
-#: ../doc/administration.rst:4
-msgid ""
-"If you are using a real DBMS to hold your botanic data, then you need do "
-"something about database administration. While database adnimistration is "
-"far beyond the scope of this document, we make our users aware of it."
-msgstr ""
-
-#: ../doc/editing.rst:28
-msgid ""
-"If you enter a web address in a note then the link will show up in the Links "
-"box when the item your are editing is selected in the search results."
-msgstr ""
-
-#: ../doc/installing.rst:13
-msgid ""
-"If you follow these installation steps, you will end with Bauble running "
-"within a Python virtual environment, all Python dependencies installed "
-"locally, non conflicting with any other Python program you may have on your "
-"system."
-msgstr ""
-
-#: ../doc/started.rst:51
-msgid ""
-"If you have connected to a database that has not yet been initialized by "
-"Bauble then you will get the following dialog\\:"
-msgstr ""
-
-#: ../doc/started.rst:19
-msgid ""
-"If you plan to associate pictures to plants, specify also the *pictures "
-"root* folder. This is explained in further detail in the Plants section."
-msgstr ""
-
-#: ../doc/devdl.rst:7
-msgid ""
-"If you want a particular version of Bauble, we release and maintain versions "
-"into branches. you should ``git checkout`` the branch corresponding to the "
-"version of your choice. Branch names for Bauble versions are of the form "
-"``bauble-x.y``, where x.y can be 1.0, for example. Our workflow is to commit "
-"to the `master` development branch or to a `patch` branch and to include the "
-"commits into a `release` branch when ready."
-msgstr ""
-
-#: ../doc/building.rst:11
-msgid ""
-"If you want to contribute to Bauble, you can do so in quite a few different "
-"ways::"
-msgstr ""
-
-#: ../doc/installing.rst:205
-msgid ""
-"If you would like to generate and print PDF reports using Bauble's default "
-"report generator then you will need to download and install `Apache FOP "
-"<http://xmlgraphics.apache.org/fop/>`_. After extracting the FOP archive you "
-"will need to include the directory you extracted to in your PATH."
-msgstr ""
-
-#: ../doc/installing.rst:59
-msgid ""
-"If you would like to use a `PostgreSQL <http://www.postgresql.org>`_ "
-"database then activate the virtual environment and install psycopg2 with the "
-"following commands::"
-msgstr ""
-
-#: ../doc/installing.rst:54
-msgid ""
-"If you would like to use the default `SQLite <http://sqlite.org/>`_ database "
-"or you don't know what this means then you can skip this step. If you would "
-"like to use a database backend other than the default SQLite backend then "
-"you will also need to install a database connector."
-msgstr ""
-
-#: ../doc/index.rst:69
-msgid ""
-"If you're using Bauble, or if you feel like helping its development anyway, "
-"please consider `donating <https://pledgie.com/campaigns/29188>`_"
 msgstr ""
 
 #: bauble/plugins/picasa/__init__.py:447
@@ -2033,33 +1465,8 @@ msgstr ""
 msgid "Imported"
 msgstr ""
 
-#: ../doc/imex.rst:2
-msgid "Importing and Exporting Data"
-msgstr ""
-
-#: ../doc/imex.rst:16
-msgid ""
-"Importing files will most likely destroy any data you have in the database "
-"so make sure you have backed up your data."
-msgstr ""
-
-#: ../doc/imex.rst:20
-msgid "Importing from CSV"
-msgstr ""
-
-#: ../doc/imex.rst:46
-msgid "Importing from JSON"
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:387
 msgid "Impound"
-msgstr ""
-
-#: ../doc/imex.rst:21
-msgid ""
-"In general it is best to only import CSV files into Bauble that were "
-"previously exported from Bauble. It is possible to import any CSV file but "
-"that is more advanced that this doc will cover."
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:326
@@ -2093,45 +1500,6 @@ msgstr ""
 msgid "Individual"
 msgstr ""
 
-#: ../doc/installing.rst:2
-msgid "Installation"
-msgstr ""
-
-#: ../doc/report.rst:53
-msgid "Installing Apache FOP on Windows"
-msgstr ""
-
-#: ../doc/index.rst:21
-msgid "Installing Bauble"
-msgstr ""
-
-#: ../doc/building.rst:7
-msgid ""
-"Installing Bauble always includes downloading the sources, connected to the "
-"github repository. This is so because in our eyes, every user is always "
-"potentially also a developer."
-msgstr ""
-
-#: ../doc/peptalk.rst:108
-msgid ""
-"Installing Bauble on Windows is an easy and linear process, it will not take "
-"longer than 10 minutes. Bauble was born on Linux and installing it on "
-"ubuntu, fedora or debian is also rather simple. It has been recently "
-"successfully tested on MacOSX 10.9."
-msgstr ""
-
-#: ../doc/installing.rst:23
-msgid "Installing on Linux"
-msgstr ""
-
-#: ../doc/installing.rst:74
-msgid "Installing on MacOSX"
-msgstr ""
-
-#: ../doc/installing.rst:119
-msgid "Installing on Windows"
-msgstr ""
-
 #: bauble/plugins/garden/institution.py:173
 msgid "Institution"
 msgstr ""
@@ -2162,13 +1530,6 @@ msgstr ""
 msgid "Internodal"
 msgstr ""
 
-#: ../doc/index.rst:11
-msgid ""
-"It is `open <http://www.opensource.org>`_ and `free <http://www.fsf.org>`_ "
-"and is released under the `GNU Public License <http://www.fsf.org/licensing/"
-"licenses/gpl.html>`_"
-msgstr ""
-
 #: bauble/plugins/imex/csv_.py:710
 msgid ""
 "It is possible that importing data into this database could destroy or "
@@ -2181,23 +1542,8 @@ msgstr ""
 msgid "JSON"
 msgstr ""
 
-#: ../doc/editing.rst:171
-msgid ""
-"Just as almost all objects in the Bauble database can have *Notes* "
-"associated to them, Plants can have *Pictures*: next to the tab for Notes, "
-"the Plants editor contains an extra tab called \"Pictures\". You can "
-"associate as many pictures as you might need to a plant."
-msgstr ""
-
 #: bauble/plugins/plants/species_editor.glade:675
 msgid "Label distribution"
-msgstr ""
-
-#: ../doc/installing.rst:83
-msgid ""
-"Last time we tested, some of the dependencies could not be installed on "
-"MacOSX 10.5 and we assume similar problems would present themselves on older "
-"OSX versions.  Bauble has been successfully tested with 10.7 and 10.9."
 msgstr ""
 
 #: bauble/view.py:183
@@ -2269,10 +1615,6 @@ msgstr ""
 msgid "Location: %s"
 msgstr ""
 
-#: ../doc/editing.rst:197
-msgid "Locations"
-msgstr ""
-
 #: bauble/plugins/garden/acc_editor.glade:1924
 msgid "Longitude"
 msgstr ""
@@ -2285,20 +1627,8 @@ msgstr ""
 msgid "Mako"
 msgstr ""
 
-#: ../doc/installing.rst:229
-msgid "Mako - required by the template based report generator"
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:370
 msgid "Male"
-msgstr ""
-
-#: ../doc/peptalk.rst:65
-msgid "Management of plant locations."
-msgstr ""
-
-#: ../doc/users.rst:2
-msgid "Managing Users"
 msgstr ""
 
 #: bauble/search.py:590
@@ -2326,28 +1656,10 @@ msgstr ""
 msgid "Merge into:"
 msgstr ""
 
-#: ../doc/building.rst:99
-msgid "Model and Presenter can be unit tested, not the View."
-msgstr ""
-
 #: bauble/plugins/imex/csv_.py:274
 msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
-msgstr ""
-
-#: ../doc/peptalk.rst:130
-msgid ""
-"Most changes and additions we make, come with some extra unit test, which "
-"defines the behaviour and will make any undesired change easily visible."
-msgstr ""
-
-#: ../doc/editing.rst:17
-msgid ""
-"Most types also have children which you can add by right clicking on the "
-"parent and selecting \"Add ???...\" on the context menu.  For example, a "
-"Family has Genus children: you can add a Genus to a Family by right clicking "
-"on a Family and selecting \"Add genus\"."
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1451
@@ -2356,10 +1668,6 @@ msgstr ""
 
 #: bauble/plugins/garden/source.py:165
 msgid "Municipal department"
-msgstr ""
-
-#: ../doc/administration.rst:18
-msgid "MySQL"
 msgstr ""
 
 #: bauble/pictures.glade:76 bauble/plugins/tag/tag.glade:72
@@ -2382,13 +1690,6 @@ msgstr ""
 msgid "Near Threatened (NT)"
 msgstr ""
 
-#: ../doc/extending.rst:4
-msgid ""
-"Nearly everything about Bauble is extensible through plugins. Plugins can "
-"create tables, define custom searchs, add menu items, create custom commands "
-"and more."
-msgstr ""
-
 #: bauble/plugins/tag/tag.glade:199
 msgid "New Tag"
 msgstr ""
@@ -2402,11 +1703,6 @@ msgstr ""
 #: bauble/plugins/plants/species_editor.glade:104
 #: bauble/plugins/plants/family_editor.glade:343
 msgid "Next"
-msgstr ""
-
-#: ../doc/installing.rst:70 ../doc/installing.rst:115
-#: ../doc/installing.rst:212 ../doc/installing.rst:254
-msgid "Next..."
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:227
@@ -2473,8 +1769,7 @@ msgstr ""
 msgid "Not of wild source"
 msgstr ""
 
-#: ../doc/editing.rst:24 bauble/bauble.glade:278
-#: bauble/plugins/garden/plant_editor.glade:916
+#: bauble/bauble.glade:278 bauble/plugins/garden/plant_editor.glade:916
 #: bauble/plugins/garden/acc_editor.glade:2754
 #: bauble/plugins/garden/acc_editor.glade:3139
 #: bauble/plugins/plants/genus_editor.glade:305
@@ -2493,39 +1788,6 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:357
 msgid "Old Flowers"
-msgstr ""
-
-#: ../doc/installing.rst:170
-msgid ""
-"On Windows, it is NOT easy to install ``psycopg2`` from sources, using pip, "
-"so \"avoid the gory details\" and use a pre-compiled pagkage from:"
-msgstr ""
-
-#: ../doc/searching.rst:148
-msgid ""
-"Once a search domain is selected you can then select a property of the "
-"domain to compare values to.  The search operator can then be changed for "
-"how you want to make the search comparison.  Finally you must enter a value "
-"to compare to the search property."
-msgstr ""
-
-#: ../doc/started.rst:64
-msgid ""
-"Once the default database has been created then you are ready to start "
-"inserting and subsequently searching..."
-msgstr ""
-
-#: ../doc/devdl.rst:19
-msgid ""
-"Once you have installed Git you can checkout the latest Bauble code with the "
-"following command::"
-msgstr ""
-
-#: ../doc/installing.rst:79
-msgid ""
-"One difficulty is that there are many more versions of MacOSX out there than "
-"one would want to support, and only the current and its immediately "
-"preceding release are kept up-to-date by Apple-the-firm."
 msgstr ""
 
 #: bauble/ui.py:359
@@ -2555,10 +1817,6 @@ msgstr ""
 msgid "Percent rooted"
 msgstr ""
 
-#: ../doc/users.rst:16
-msgid "Permissions"
-msgstr ""
-
 #: bauble/plugins/picasa/__init__.py:610
 msgid "Picasa"
 msgstr ""
@@ -2567,16 +1825,16 @@ msgstr ""
 msgid "Picture Viewer"
 msgstr ""
 
-#: ../doc/editing.rst:169 bauble/plugins/garden/plant_editor.glade:939
+#: bauble/plugins/garden/plant_editor.glade:939
 #: bauble/plugins/plants/species_editor.glade:1130
 msgid "Pictures"
 msgstr ""
 
-#: bauble/connmgr.py:617 bauble/connmgr.py:712
+#: bauble/connmgr.py:617 bauble/connmgr.py:713
 msgid "Pictures root: "
 msgstr ""
 
-#: ../doc/editing.rst:151 bauble/plugins/garden/acc_editor.glade:2270
+#: bauble/plugins/garden/acc_editor.glade:2270
 #: bauble/plugins/garden/__init__.py:126
 #: bauble/plugins/garden/accession.py:418 bauble/plugins/garden/plant.py:410
 msgid "Plant"
@@ -2607,28 +1865,8 @@ msgstr ""
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
 msgstr ""
 
-#: ../doc/installing.rst:29
-msgid ""
-"Please not that the script will not help you install any extra database "
-"connector. This you will do in a later step."
-msgstr ""
-
-#: ../doc/administration.rst:20
-msgid "Please refer to the official documentation."
-msgstr ""
-
-#: ../doc/administration.rst:25
-msgid ""
-"Please refer to the official documentation. A very thorough discussion of "
-"your backup options starts at `chapter_24`_."
-msgstr ""
-
 #: bauble/plugins/garden/location.py:66
 msgid "Please remove the plants from <b>%(location)s</b> before deleting it."
-msgstr ""
-
-#: ../doc/installing.rst:127
-msgid "Please report any trouble and help with packaging will be very welcome."
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:497
@@ -2645,10 +1883,6 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:347
 msgid "Poor"
-msgstr ""
-
-#: ../doc/administration.rst:23
-msgid "PostgreSQL"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:234
@@ -2721,13 +1955,6 @@ msgstr ""
 msgid "Quantity"
 msgstr ""
 
-#: ../doc/searching.rst:76
-msgid ""
-"Queries allow the most control over searching. With queries you can search "
-"across relations, specific columns and join search using boolean operators "
-"like AND and OR."
-msgstr ""
-
 #: bauble/search.py:953
 msgid "Query Builder"
 msgstr ""
@@ -2758,14 +1985,6 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:165
 msgid "Regionally Extinct (RE)"
-msgstr ""
-
-#: ../doc/editing.rst:186
-msgid ""
-"Remember that you have configured the pictures root folder when you "
-"specified the details of your database connection. Again, you should make "
-"sure that the pictures root folder is shared with your file sharing service "
-"of choice."
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:214
@@ -2822,10 +2041,6 @@ msgstr ""
 msgid "Rooted: %s%%"
 msgstr ""
 
-#: ../doc/installing.rst:224
-msgid "SQLAlchemy"
-msgstr ""
-
 #: bauble/db.py:45
 msgid ""
 "SQLAlchemy not installed. Please install SQLAlchemy from http://www."
@@ -2833,19 +2048,6 @@ msgid ""
 msgstr ""
 "SQLAlchemy niet geïnstalleerd. Installeer SQLAlchemy van http://www."
 "sqlalchemy.org"
-
-#: ../doc/administration.rst:9
-msgid "SQLite"
-msgstr ""
-
-#: ../doc/administration.rst:11
-msgid ""
-"SQLite is not what one would consider a real DBMS: each SQLite database is "
-"just in one file. Make safety copies and you will be fine. If you don't know "
-"where to look for your database files, consider that, per default, bauble "
-"puts its data in the ``~/.bauble/`` directory (in Windows it is somewhere in "
-"your ``AppData`` directory)."
-msgstr ""
 
 #: bauble/plugins/imex/xml.py:89
 msgid "Save all data in one file"
@@ -2940,10 +2142,6 @@ msgstr ""
 msgid "Search National Plant Germplasm System"
 msgstr ""
 
-#: ../doc/searching.rst:11
-msgid "Search Strategies"
-msgstr ""
-
 #: bauble/utils/web.py:95
 #, fuzzy
 msgid "Search TPL"
@@ -2962,41 +2160,9 @@ msgstr "Zoek met Google"
 msgid "Search Tropicos (MissouriBG) online database"
 msgstr ""
 
-#: ../doc/searching.rst:47
-msgid "Search by Expression"
-msgstr ""
-
-#: ../doc/searching.rst:74
-msgid "Search by Query"
-msgstr ""
-
-#: ../doc/searching.rst:25
-msgid "Search by Value"
-msgstr ""
-
-#: ../doc/searching.rst:27
-msgid ""
-"Search by value is the simplest way to search. You just type in a string and "
-"see what matches. Which fields/columns are search for your string depends on "
-"how the different plugins are configured. For example, by default the "
-"PlantPlugin search the family name, the genus name, the species and "
-"infraspecific species names, vernacular names and geography. So if you want "
-"to search in the notes field of any of these types then searching by value "
-"is not the search you're looking for."
-msgstr ""
-
 #: bauble/editor.py:260 bauble/plugins/report/__init__.py:602
 #: bauble/plugins/report/__init__.py:607
 msgid "Search for something first."
-msgstr ""
-
-#: ../doc/searching.rst:39
-msgid ""
-"Search string are separated by spaces. For example if you enter the search "
-"string ``Block 10`` then Bauble will search for the strings Block and 10 and "
-"return all the results that match either of these strings. If you want to "
-"search for Block 10 as a while string then you should quote the string like "
-"``\"Block 10\"``."
 msgstr ""
 
 #: bauble/utils/web.py:84
@@ -3013,40 +2179,6 @@ msgstr ""
 
 #: bauble/utils/web.py:116
 msgid "Search the Wikipedia"
-msgstr ""
-
-#: ../doc/searching.rst:4
-msgid ""
-"Searching allows you to view, browse and create reports from your data. You "
-"can perform searches by either entering the queries in the main search entry "
-"or by using the Query Builder to create the queries for you. The results of "
-"Bauble searches are listed in the main window."
-msgstr ""
-
-#: ../doc/searching.rst:17
-msgid ""
-"Searching by query, the most complex and powerful, is assisted by the Query "
-"Builder, described below."
-msgstr ""
-
-#: ../doc/searching.rst:2
-msgid "Searching in Bauble"
-msgstr ""
-
-#: ../doc/searching.rst:49
-msgid ""
-"Searching with expression gives you a little more control over what you are "
-"searching for. It can narrow the search down to a specific domain. "
-"Expression consist of a domain, an operator and a value. For example the "
-"search: ``gen=Maxillaria`` would return all the genera that match the name "
-"Maxillaria. In this case the domain is gen, the operator is = and the value "
-"is Maxillaria."
-msgstr ""
-
-#: ../doc/searching.rst:87
-msgid ""
-"Searching with queries usually requires some knowledge of the Bauble "
-"internals and database table layouts."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:401
@@ -3171,10 +2303,6 @@ msgstr ""
 msgid "Species synonyms"
 msgstr ""
 
-#: ../doc/editing.rst:102
-msgid "Species/Taxon"
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:427
 msgid "Spore"
 msgstr ""
@@ -3195,10 +2323,6 @@ msgstr ""
 msgid "Summer Kill"
 msgstr ""
 
-#: ../doc/index.rst:65
-msgid "Supporting Bauble"
-msgstr ""
-
 #: bauble/plugins/plants/family.py:788 bauble/plugins/plants/genus.py:966
 #: bauble/plugins/plants/genus.py:985 bauble/plugins/plants/species.py:249
 #: bauble/plugins/plants/species.py:271
@@ -3211,28 +2335,6 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:524
 msgid "Tag Selection"
-msgstr ""
-
-#: ../doc/tagging.rst:2
-msgid "Tagging"
-msgstr ""
-
-#: ../doc/tagging.rst:11
-msgid ""
-"Tagging can be done two ways. By selecting one or more items in the search "
-"results and pressing Ctrl-T or by selecting :menuselection:`Tag-->Tag "
-"Selection` from the menu. If you have selected multiple items then only that "
-"tags that are common to all the selected items will have a check next to it."
-msgstr ""
-
-#: ../doc/tagging.rst:4
-msgid ""
-"Tagging is an easy way to give context to an object or create a collection "
-"of object that you want to recall later. For example if you want to collect "
-"a bunch of plants that you later want to create a report from you can tag "
-"them with the string \"for that report i was thinking about\". You can then "
-"select \"for that report i was thinking about\" from the tags menu to show "
-"you all the objects you tagged."
 msgstr ""
 
 #: bauble/plugins/tag/tag.glade:150 bauble/plugins/tag/__init__.py:552
@@ -3255,42 +2357,6 @@ msgstr ""
 "De %(plugin_name)s plugin wordt in het register vermeld, maar kan niet in de "
 "plugin directory worden gevonden"
 
-#: ../doc/editing.rst:78
-msgid ""
-"The *Author* field allows you to set the name or abbreviation of the "
-"author(s) for the genus."
-msgstr ""
-
-#: ../doc/editing.rst:40
-msgid ""
-"The *Family* field on the editor will change the name of the family. The "
-"Family field is required."
-msgstr ""
-
-#: ../doc/editing.rst:71
-msgid ""
-"The *Family* field on the genus editor allows you to choose the family for "
-"the genus.  When you begin type a family name it will show a list of "
-"families to choose from.  The family name must already exist in the database "
-"before you can set it as the family for the genus."
-msgstr ""
-
-#: ../doc/editing.rst:76
-msgid "The *Genus* field allows you to set the genus for this entry."
-msgstr ""
-
-#: ../doc/editing.rst:110
-msgid ""
-"The *Infraspecific parts* in the species editor will allow you to specify "
-"the `taxon` further than at `species` rank."
-msgstr ""
-
-#: ../doc/editing.rst:43
-msgid ""
-"The *Qualifier* field will change the family qualifier.  The value can "
-"either be *sensu lato*, *sensu stricto* or nothing."
-msgstr ""
-
 #: bauble/plugins/imex/csv_.py:380
 msgid ""
 "The <b>%s</b> table already exists in the database and may contain some "
@@ -3311,40 +2377,6 @@ msgid ""
 "standard."
 msgstr ""
 
-#: ../doc/editing.rst:127
-msgid ""
-"The Accession editor allows us to add an accession to a species.  In Bauble "
-"an accession represents a group of plants or clones.  The accession would "
-"refer maybe a group of seed or cuttings from a species.  A plant would be an "
-"individual from that accesssion, i.e. a specific plant in a specific "
-"location."
-msgstr ""
-
-#: ../doc/users.rst:7
-msgid ""
-"The Bauble User's Plugin will allow you to create and manage the permissions "
-"of users for your Bauble database."
-msgstr ""
-
-#: ../doc/devdl.rst:4
-msgid ""
-"The Bauble source can be downloaded from our source repository on `github "
-"<http://github.com/Bauble/bauble.classic>`_."
-msgstr ""
-
-#: ../doc/users.rst:4
-msgid ""
-"The Bauble users plugin is only available on PostgreSQL based databases."
-msgstr ""
-
-#: ../doc/editing.rst:38
-msgid "The Family editor allows you to add or change a botanical family."
-msgstr ""
-
-#: ../doc/editing.rst:69
-msgid "The Genus editor allows you to add or change a botanical genus."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:781
 msgid ""
 "The ID Qualifier\n"
@@ -3352,70 +2384,8 @@ msgid ""
 "Possible values: %s"
 msgstr ""
 
-#: ../doc/editing.rst:198
-msgid "The Location editor"
-msgstr ""
-
-#: ../doc/report.rst:7
-msgid ""
-"The Mako report formatter uses the Mako template language for generating "
-"reports. More information about Mako and its language can be found at "
-"`makotemplates.org <http://www.makotemplates.org>`_."
-msgstr ""
-
-#: ../doc/report.rst:11
-msgid ""
-"The Mako templating system should already be installed on your computer if "
-"Bauble is installed."
-msgstr ""
-
-#: ../doc/editing.rst:152
-msgid "The Plant editor."
-msgstr ""
-
-#: ../doc/searching.rst:126
-msgid "The Query Builder"
-msgstr ""
-
-#: ../doc/searching.rst:133
-msgid ""
-"The Query Builder composes a query that will be understood by the Query "
-"Search Strategy described above. You can use the Query Builder to get a "
-"feeling of correct queries before you start typing them by hand, something "
-"that you might prefer if you are a fast typer."
-msgstr ""
-
-#: ../doc/searching.rst:128
-msgid ""
-"The Query Builder helps you build complex search queries through a point and "
-"click interface.  To open the Query Builder click the to the left of the "
-"search entry or select :menuselection:`Tools-->Query Builder` from the menu."
-msgstr ""
-
 #: bauble/plugins/users/__init__.py:487
 msgid "The Users editor is only valid on a PostgreSQL database"
-msgstr ""
-
-#: ../doc/installing.rst:121
-msgid ""
-"The Windows installer used to be a \"batteries-included\" installer, "
-"installing everything needed to run Bauble.  The current maintainer of "
-"bauble.classic cannot run Windows applications. If you want to run the "
-"latest version of bauble on Windows: download and install the dependencies "
-"and then install Bauble from the source package."
-msgstr ""
-
-#: ../doc/report.rst:41
-msgid ""
-"The XSL report formatter requires an XSL to PDF renderer to convert the data "
-"to a PDF file. Apache FOP is is a free and open-source XSL->PDF renderer and "
-"is recommended."
-msgstr ""
-
-#: ../doc/building.rst:101
-msgid ""
-"The ``Tag`` plugin is a good minimal example, even if the ``TagItemGUI`` "
-"falls outside this description. Other plugins do not respect the description."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:780
@@ -3512,21 +2482,6 @@ msgstr ""
 msgid "The fax number of the institution."
 msgstr ""
 
-#: ../doc/searching.rst:105
-msgid ""
-"The following are the common search domain and the columns they search by "
-"default. The default columns are used when searching by value and "
-"expression. The queries do not use the default columns."
-msgstr ""
-
-#: ../doc/installing.rst:227
-msgid "The following packages are optional:"
-msgstr ""
-
-#: ../doc/installing.rst:222
-msgid "The following packages are required by Bauble"
-msgstr ""
-
 #: bauble/pluginmgr.py:213
 msgid ""
 "The following plugins are in the registry but could not be loaded:\n"
@@ -3576,14 +2531,6 @@ msgstr ""
 msgid "The habit of this species"
 msgstr "De habitus van deze soort"
 
-#: ../doc/peptalk.rst:116
-msgid ""
-"The installation process will produce an updatable installation, where "
-"updating it will take less than one minute. Depending on the amount of "
-"feedback we receive, we will produce updates every few days or once in a "
-"while."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:792
 #: bauble/plugins/garden/accession.py:794
 msgid "The intended location for plant material being accessioned."
@@ -3593,36 +2540,12 @@ msgstr ""
 msgid "The intitution code should be unique among all institions."
 msgstr ""
 
-#: ../doc/editing.rst:203
-msgid ""
-"The location editor contains an initially hidden section named *danger "
-"zone*. The widgets contained in this section allow the user to merge the "
-"current location into a different location, letting the user correct "
-"spelling mistakes or implement policy changes."
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:616
 msgid "The location of the plant in your collection."
 msgstr "De locatie van de plant in uw collectie."
 
-#: ../doc/installing.rst:235
-msgid ""
-"The lxml packages have to be compile with a C compiler. If you don't have a "
-"Make sure the libxml and libxsl packages are installed.  Installing the "
-"Cython packages.  On Linux you will have to install the gcc package.  On "
-"Windows there should be a precompiled version available at http://pypi."
-"python.org/pypi/lxml/2.1.1"
-msgstr ""
-
 #: bauble/plugins/garden/institution.py:100
 msgid "The mailing address of the institition."
-msgstr ""
-
-#: ../doc/editing.rst:4
-msgid ""
-"The main way that we add or change information in Bauble is by using the "
-"editors.  Each basic type of data has its own editor.  For example there is "
-"a Family editor, a Genus editor, an Accession editor, etc."
 msgstr ""
 
 #: bauble/plugins/garden/institution.py:92
@@ -3702,58 +2625,10 @@ msgstr ""
 "De plugins bevatten een afhankelijkheidslus. Dit kan gebeuren als twee "
 "plugins rechtstreeks of indirect een beroep op elkaar doen"
 
-#: ../doc/building.rst:94
-msgid ""
-"The presenter should not know of the internal structure of the view, "
-"instead, it should use the view api to set and query the values inserted by "
-"the user. The base class for the presenter, ``GenericEditorPresenter`` "
-"defined in ``bauble.editor``, implements many generic callbacks."
-msgstr ""
-
-#: ../doc/peptalk.rst:99
-msgid ""
-"The program was born in English and all its technical and user documentation "
-"is still only in that language, but the program itself has been translated "
-"and can be used in various other languages, including Spanish (86%), "
-"Portuguese (100%), French (42%), to name some Southern American languages, "
-"as well as Swedish (100%) and Czech (100%)."
-msgstr ""
-
 #: bauble/plugins/garden/accession.py:264
 msgid ""
 "The record is part of type gathering or propagated from type material by "
 "asexual methods."
-msgstr ""
-
-#: ../doc/installing.rst:48
-msgid ""
-"The same script you can use to switch to a different production line, but at "
-"the moment there's only `bauble-1.0`."
-msgstr ""
-
-#: ../doc/searching.rst:144
-msgid ""
-"The search domain is similar to a table in the database and the properties "
-"would be the columns on the table.  Often the table/domain and properties/"
-"columns are the same but not always."
-msgstr ""
-
-#: ../doc/searching.rst:56
-msgid ""
-"The search string ``gen like max%`` would return all the genera whose names "
-"start with \"Max\". In this case the domain again is gen, the operator is "
-"like, which allows for \"fuzzy\" searching and the value is max%. The "
-"percent sign is used as a wild card so if you search for max% then it search "
-"for all value that start with max. If you search for %max it searches for "
-"all values that end in max. The string %max%a would search for all value "
-"that contain max and end in a."
-msgstr ""
-
-#: ../doc/editing.rst:135
-msgid ""
-"The source of the accessions lets you add more information about where this "
-"accession came from.  At the moment the type of the source can be either a "
-"Collection or a Donation."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:1747
@@ -3783,28 +2658,6 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:98
 msgid "The telephone number of the institution."
-msgstr ""
-
-#: ../doc/report.rst:19
-msgid ""
-"The template generator will use the same file extension as the template "
-"which should indicate the type of output the template with create.  For "
-"example, to generate an HTML page from your template you should name the "
-"template something like `report.html`.  If the template will generate a "
-"comma seperated value file you should name the template `report.csv`."
-msgstr ""
-
-#: ../doc/report.rst:26
-msgid ""
-"The template will receive a variable called `values` which will contain the "
-"list of values in the current search."
-msgstr ""
-
-#: ../doc/report.rst:29
-msgid ""
-"The type of each value in `values` will be the same as the search domain "
-"used in the search query.  For more information on search domains see :ref:"
-"`search-domains`."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:788
@@ -3841,37 +2694,11 @@ msgstr ""
 msgid "There are no species in the search results.  Please try another search."
 msgstr ""
 
-#: ../doc/imex.rst:11
-msgid ""
-"There is also limited support for exporting to an XML format that more or "
-"less reflects exactly the tables and row of the database."
-msgstr ""
-
-#: ../doc/imex.rst:8
-msgid ""
-"There is some support for exporting to the Access for Biological Collections "
-"Data it is limited."
-msgstr ""
-
 #: bauble/plugins/plants/species_editor.py:281
 msgid ""
 "This binomial name is already in your collection, as %s.\n"
 "\n"
 "Are you sure you want to insert it again?"
-msgstr ""
-
-#: ../doc/imex.rst:61
-msgid "This feature is still under development."
-msgstr ""
-
-#: ../doc/imex.rst:48
-msgid ""
-"This is *the* way to import data into an existing database, without "
-"destroying previous content. A typical example of this functionality would "
-"be importing your digital collection into a fresh, just initialized Bauble "
-"database. Converting a database into bauble json interchange format is "
-"beyond the scope of this manual, please contact one of the authors if you "
-"need any further help."
 msgstr ""
 
 #: bauble/view.py:656
@@ -3880,24 +2707,11 @@ msgid ""
 "data. Are you sure you want to continue?"
 msgstr ""
 
-#: ../doc/searching.rst:84
-msgid ""
-"This query would return all the plants whose family are Fabaceae and are "
-"located in Block 10."
-msgstr ""
-
 #: bauble/plugins/plants/species_editor.py:727
 msgid ""
 "This species has vernacular names but none of them are selected as the "
 "default. The first vernacular name in the list has been automatically "
 "selected."
-msgstr ""
-
-#: ../doc/imex.rst:40
-msgid ""
-"This tool will ask you to select a directory to export the CSV data. All of "
-"the tables in Bauble will be exported to files in the format tablename.txt "
-"where tablename is the name of the table where the data was exported from."
 msgstr ""
 
 #: bauble/db.py:38
@@ -3910,13 +2724,6 @@ msgstr ""
 "Deze versie van Bauble vereist SQLAlchemy 0.5.0 of hoger.Gelieve een "
 "nieuwere versie van SQLAlchemy te downloaden en installeren. Dit kan via "
 "http://www.sqlalchemy.org. Of neem contact op met uw systeembeheerder."
-
-#: ../doc/searching.rst:13
-msgid ""
-"Three are three types of search strategies available in Bauble. Considering "
-"the search stragety types available in Bauble, sorted in increasing "
-"complexity: you can search by value, expression or query."
-msgstr ""
 
 #: bauble/view.py:1165
 msgid "Timestamp"
@@ -3934,129 +2741,6 @@ msgstr ""
 msgid "Tissue Culture"
 msgstr ""
 
-#: ../doc/editing.rst:61
-msgid ""
-"To add another family when you are finished editing the current one click on "
-"the *Next* button on the bottom.  This will save the current family and open "
-"a new blank family editor."
-msgstr ""
-
-#: ../doc/editing.rst:96
-msgid ""
-"To add another genus when you are finished editing the current one click on "
-"the *Next* button on the bottom.  This will save the current genus and open "
-"a new blank genus editor."
-msgstr ""
-
-#: ../doc/editing.rst:120
-msgid ""
-"To add another species when you are finished editing the current one click "
-"on the *Next* button on the bottom.  This will save the current species and "
-"open a new blank species editor."
-msgstr ""
-
-#: ../doc/editing.rst:54 ../doc/editing.rst:89 ../doc/editing.rst:113
-msgid ""
-"To cancel your changes without saving then click on the *Cancel* button."
-msgstr ""
-
-#: ../doc/devdl.rst:14
-msgid ""
-"To check out the most recent code from the source repository you will need "
-"to install the `Git <http://www.git.org>`_ version control system. Git is "
-"incuded in all reasonable Linux distributions and can be installed on all "
-"current operating systems."
-msgstr ""
-
-#: ../doc/extending.rst:8
-msgid ""
-"To create a new plugin you must extend the ``bauble.pluginmgr.Plugin`` class."
-msgstr ""
-
-#: ../doc/editing.rst:8
-msgid ""
-"To create a new record click on the :menuselection:`Insert` menu on the "
-"menubar and then select the type of record your would like to create.  This "
-"will open a new blank editor for the type."
-msgstr ""
-
-#: ../doc/users.rst:12
-msgid "To create a new user..."
-msgstr ""
-
-#: ../doc/editing.rst:12
-msgid ""
-"To edit an existing record in the database right click on an item in the "
-"search results and select :menuselection:`Edit` from the popup menu.  This "
-"will open an editor that will allow you to change the values on the record "
-"that you selected."
-msgstr ""
-
-#: ../doc/imex.rst:37
-msgid ""
-"To export the Bauble data to CSV select :menuselection:`Tools-->Export--"
-">Comma Seperated Values` from the menu."
-msgstr ""
-
-#: ../doc/imex.rst:25
-msgid ""
-"To import CSV files into Bauble select :menuselection:`Tools-->Export--"
-">Comma Seperated Values` from the menu."
-msgstr ""
-
-#: ../doc/started.rst:37
-msgid ""
-"To inizialize a database you have to first connect to a database. See :ref:"
-"`connecting`."
-msgstr ""
-
-#: ../doc/installing.rst:7
-msgid ""
-"To install Bauble first requires that you install its dependencies that "
-"cannot be installed automatically.  These include virtualenvwrapper, PyGTK "
-"and pip. Python and GTK+, you probably already have. As long as you have "
-"these packages installed then Bauble should be able to install the rest of "
-"its dependencies by itself."
-msgstr ""
-
-#: ../doc/building.rst:133
-msgid ""
-"To optionally build an NSIS installer package you must install NSIS from "
-"`nsis.sourceforge.net <http://nsis.sourceforge.net/Download>`_.  After "
-"installing NSIS right click on ``.\\scripts\\build.nsi`` in Explorer and "
-"select *Compile NSIS Script*."
-msgstr ""
-
-#: ../doc/editing.rst:58
-msgid ""
-"To save the family you are working on and add a genus to it then click on "
-"the *Add Genera* button."
-msgstr ""
-
-#: ../doc/editing.rst:56
-msgid "To save the family you are working on then click *OK*."
-msgstr ""
-
-#: ../doc/editing.rst:93
-msgid ""
-"To save the genus you are working on and add a species to it then click on "
-"the *Add Species* button."
-msgstr ""
-
-#: ../doc/editing.rst:91
-msgid "To save the genus you are working on then click *OK*."
-msgstr ""
-
-#: ../doc/editing.rst:117
-msgid ""
-"To save the species you are working on and add an accession to it then click "
-"on the *Add Accession* button."
-msgstr ""
-
-#: ../doc/editing.rst:115
-msgid "To save the species you are working on then click *OK*."
-msgstr ""
-
 #: bauble/utils/__init__.py:688
 msgid "Today's date"
 msgstr "Huidige datum"
@@ -4067,10 +2751,6 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:287
 msgid "Transferred to another acc.no."
-msgstr ""
-
-#: ../doc/installing.rst:218
-msgid "Troubleshooting the Install"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:429
@@ -4139,13 +2819,8 @@ msgstr ""
 msgid "Unrooted cutting"
 msgstr ""
 
-#: ../doc/installing.rst:251
-msgid ""
-"Unzip it and run ``python setup.py installw`` in the folder you unzip it to."
-msgstr ""
-
 #: bauble/connmgr.py:690
-msgid "Use default filename"
+msgid "Use default locations"
 msgstr ""
 
 #: bauble/pictures.glade:307 bauble/notes.glade:33 bauble/view.py:1166
@@ -4158,24 +2833,6 @@ msgstr ""
 
 #: bauble/plugins/users/__init__.py:510 bauble/plugins/users/__init__.py:724
 msgid "Users"
-msgstr ""
-
-#: ../doc/index.rst:30
-msgid "Using Bauble"
-msgstr ""
-
-#: ../doc/imex.rst:55
-msgid ""
-"Using the Bauble json interchange format, you can import data which you have "
-"exported from a different Bauble installation."
-msgstr ""
-
-#: ../doc/report.rst:5
-msgid "Using the Mako Report Formatter"
-msgstr ""
-
-#: ../doc/report.rst:39
-msgid "Using the XSL Report Formatter"
 msgstr ""
 
 #: bauble/prefs.py:312 bauble/view.py:1166
@@ -4220,70 +2877,8 @@ msgstr ""
 msgid "Vulnerable (VU)"
 msgstr ""
 
-#: ../doc/building.rst:105
-msgid ""
-"We use the same architectural pattern for non-database interaction, by "
-"setting the presenter also as model. We do this, for example, for the JSON "
-"export dialog box."
-msgstr ""
-
 #: bauble/plugins/garden/acc_editor.glade:2038
 msgid "West"
-msgstr ""
-
-#: ../doc/installing.rst:220
-msgid "What are the packages that are installed by Bauble:"
-msgstr ""
-
-#: ../doc/editing.rst:191
-msgid ""
-"When a Plant in the current selection is highlighted, its pictures are "
-"displayed in the pictures pane, the pane left of the information pane. When "
-"an accession in the selection is highlighted, any picture associated to the "
-"plants in the highlighted accession are displayed in the pictures pane."
-msgstr ""
-
-#: ../doc/searching.rst:163
-msgid "When you are done building your query click OK to perform the search."
-msgstr ""
-
-#: ../doc/editing.rst:176
-msgid ""
-"When you associate a picture to a plant, the file is copied in the "
-"*pictures* folder, and a miniature (500x500) is generated and copied in the "
-"`thumbnails` folder inside of the pictures folder."
-msgstr ""
-
-#: ../doc/editing.rst:163
-msgid ""
-"When you enter the range in the plant code entry the entry will turn blue to "
-"indicate that you are now creating multiple plants.  Any fields that are set "
-"while in this mode will be copied to all the plants that are created."
-msgstr ""
-
-#: ../doc/peptalk.rst:7
-msgid ""
-"When you first start Bauble, and connect to a database, Bauble will "
-"initialize the database not only with all tables it needs to run, but it "
-"will also populate the taxon tables for ranks family and genus, using the "
-"data from the “RBG Kew's Family and Genera list from Vascular Plant Families "
-"and Genera compiled by R. K. Brummitt and published by the Royal Botanic "
-"Gardens, Kew in 1992”.  In 2015 we have reviewed the data regarding the "
-"Orchidaceae, using “Tropicos, botanical information system at the Missouri "
-"Botanical Garden - www.tropicos.org” as a source."
-msgstr ""
-
-#: ../doc/started.rst:9
-msgid ""
-"When you start Bauble the first thing that comes up is the connection dialog."
-msgstr ""
-
-#: ../doc/searching.rst:96
-msgid "Which genera are associated to at least one accession::"
-msgstr ""
-
-#: ../doc/searching.rst:92
-msgid "Which locations are in use::"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:376
@@ -4368,36 +2963,6 @@ msgstr ""
 "Het is mogelijk dat niet alles correct werkt en het is ook mogelijk dat een "
 "deel van uw gegevens beschadigd raakt."
 
-#: ../doc/peptalk.rst:59
-msgid ""
-"You can associate notes to plants, accessions, species, .... Notes can be "
-"categorized and used in searches or reports."
-msgstr ""
-
-#: ../doc/editing.rst:31
-msgid ""
-"You can browse the notes for an item in the database using the Notes box at "
-"the bottom of the screen.  The Notes box will be desensitized if the "
-"selected item does not have any notes."
-msgstr ""
-
-#: ../doc/editing.rst:156
-msgid ""
-"You can create multiple Plants by using ranges in the code entry. This is "
-"only allowed when creating new plants and it is not possible when editing "
-"existing Plants in the database."
-msgstr ""
-
-#: ../doc/installing.rst:32
-msgid ""
-"You can study the script to see what steps if runs for you. In short it will "
-"install dependencies which can't be satisfied in a virtual environment, then "
-"it will create a virtual environment named `bacl`, download the sources and "
-"connect your git checkout to the `bauble-1.0` branch (this you can consider "
-"a production line), it then builds bauble, downloading all remaining "
-"dependencies, and finally it creates a startup script in your `~/bin` folder."
-msgstr ""
-
 #: bauble/plugins/users/__init__.py:495
 msgid "You do not have privileges to change other user privileges"
 msgstr ""
@@ -4419,20 +2984,6 @@ msgid ""
 "database."
 msgstr ""
 
-#: ../doc/report.rst:55
-msgid ""
-"You have two options for installing FOP on Windows. The easiest way is to "
-"download the prebuilt `ApacheFOP-0.95-1-setup.exe <http://code.google.com/p/"
-"apache-fop-installer/downloads/detail?name=ApacheFOP-0.95-1-setup."
-"exe&can=2&q=#makechanges>`_ installer."
-msgstr ""
-
-#: ../doc/installing.rst:66
-msgid ""
-"You might need solve dependencies. How to do so, depends on which Linux "
-"flavour you are using. Check with your distribution documentation."
-msgstr ""
-
 #: bauble/plugins/plants/genus.py:788
 msgid ""
 "You must first add or import at least one Family into the database before "
@@ -4449,10 +3000,6 @@ msgstr ""
 msgid ""
 "You must first add or import at least one species into the database before "
 "you can add accessions."
-msgstr ""
-
-#: ../doc/building.rst:86
-msgid "You will subclass the **presenter** in order to:"
 msgstr ""
 
 #: bauble/plugins/plants/species.py:114
@@ -4532,20 +3079,10 @@ msgstr "_Gereedschappen"
 msgid "_parse_lat_lon() -- incorrect format: %s"
 msgstr ""
 
-#: ../doc/searching.rst:119
-msgid "acc: Search :class:`bauble.plugins.garden.Accession`"
-msgstr ""
-
 #: bauble/plugins/imex/select_export.glade:119
 #, fuzzy
 msgid "accessions"
 msgstr "Toetreding"
-
-#: ../doc/installing.rst:141
-msgid ""
-"all default options are fine, except we need git to be executable from the "
-"command prompt:"
-msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:204
 msgid "all referred to objects"
@@ -4555,32 +3092,8 @@ msgstr ""
 msgid "also objects referring to selection"
 msgstr ""
 
-#: ../doc/peptalk.rst:57
-msgid "annotate your info"
-msgstr ""
-
-#: ../doc/building.rst:37
-msgid ""
-"assign the issue to yourself, this way you are informing the world that you "
-"have the intention to work at it. someone might react with hints."
-msgstr ""
-
-#: ../doc/installing.rst:4
-msgid ""
-"bauble.classic is a cross-platform program and it will run on unix machines "
-"like Linux and MacOSX, as well as on Windows."
-msgstr ""
-
 #: bauble/plugins/garden/plant.py:931
 msgid "branch_mode requires a model"
-msgstr ""
-
-#: ../doc/building.rst:27
-msgid "bug solving workflow"
-msgstr ""
-
-#: ../doc/building.rst:110
-msgid "building (on Windows)"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:1287
@@ -4591,85 +3104,16 @@ msgstr ""
 msgid "cannot branch a new plant"
 msgstr ""
 
-#: ../doc/building.rst:71
-msgid "closing step"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:242
 msgid "cm"
-msgstr ""
-
-#: ../doc/building.rst:54
-msgid "commit your changes."
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:442
 msgid "create if not in database"
 msgstr ""
 
-#: ../doc/building.rst:65
-msgid ""
-"create the new pull request, call it as “publish to the production line”."
-msgstr ""
-
-#: ../doc/peptalk.rst:134
-msgid "customizable/extensible"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:61
 msgid "cv."
-msgstr ""
-
-#: ../doc/editing.rst:201
-msgid "danger zone"
-msgstr ""
-
-#: ../doc/peptalk.rst:84
-msgid "database agnostic"
-msgstr ""
-
-#: ../doc/peptalk.rst:68
-msgid "database history"
-msgstr ""
-
-#: ../doc/building.rst:88
-msgid ""
-"define ``widget_to_field_map``, the association from name of view object to "
-"name of model attribute,"
-msgstr ""
-
-#: ../doc/building.rst:92
-msgid "define all needed callbacks,"
-msgstr ""
-
-#: ../doc/installing.rst:90
-msgid ""
-"developers tools: xcode. check the wikipedia page for the version supported "
-"on your mac."
-msgstr ""
-
-#: ../doc/installing.rst:158
-msgid ""
-"download ``pygtk`` from the following source. (this requires 32bit python). "
-"be sure you download the \"all in one\" version::"
-msgstr ""
-
-#: ../doc/installing.rst:146
-msgid "download and install Python 2.x (32bit) from:"
-msgstr ""
-
-#: ../doc/installing.rst:136
-msgid ""
-"download and install ``git`` (comes with a unix-like ``sh`` and includes "
-"``vi``) from:"
-msgstr ""
-
-#: ../doc/installing.rst:179
-msgid "download and run the batch file::"
-msgstr ""
-
-#: ../doc/peptalk.rst:114
-msgid "easily updated"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:186
@@ -4688,58 +3132,12 @@ msgstr ""
 msgid "exporting %(table)s table to %(filename)s"
 msgstr ""
 
-#: ../doc/peptalk.rst:49
-msgid "exports and reports"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:59
 msgid "f."
 msgstr ""
 
-#: ../doc/searching.rst:111
-msgid "family, fam: Search :class:`bauble.plugins.plants.Family`"
-msgstr ""
-
-#: ../doc/installing.rst:109
-msgid "follow all instructions on how to activate what you have installed."
-msgstr ""
-
-#: ../doc/building.rst:23
-msgid ""
-"fork the respository, choose an issue, solve it, open a pull request. see "
-"the `bug solving workflow`_ below."
-msgstr ""
-
-#: ../doc/peptalk.rst:63
-msgid "garden or herbarium"
-msgstr ""
-
-#: ../doc/installing.rst:230
-msgid "gdata - required by the Picasa photos InfoBox"
-msgstr ""
-
 #: bauble/plugins/garden/plant_infobox.glade:6
 msgid "general_window"
-msgstr ""
-
-#: ../doc/searching.rst:113
-msgid "genus, gen: Search :class:`bauble.plugins.plants.Genus`"
-msgstr ""
-
-#: ../doc/searching.rst:117
-msgid "geography: Search :class:`bauble.plugins.plants.Geography`"
-msgstr ""
-
-#: ../doc/building.rst:5
-msgid "helping bauble development"
-msgstr ""
-
-#: ../doc/peptalk.rst:42
-msgid "helps off-line identification"
-msgstr ""
-
-#: ../doc/installing.rst:177
-msgid "hey, this is Windows, you need to reboot for changes to take effect!"
 msgstr ""
 
 #: bauble/ui.py:243
@@ -4751,43 +3149,8 @@ msgstr ""
 msgid "http://bauble.wikidot.com"
 msgstr "http://bauble.belizebotanic.org"
 
-#: ../doc/installing.rst:249
-msgid "http://code.google.com/p/gdata-python-client/downloads/list"
-msgstr ""
-
-#: ../doc/installing.rst:173
-msgid "http://initd.org/psycopg/docs/install.html"
-msgstr ""
-
-#: ../doc/installing.rst:148
-msgid "http://www.python.org"
-msgstr ""
-
-#: ../doc/installing.rst:139
-msgid "https://git-scm.com/download/win"
-msgstr ""
-
-#: ../doc/building.rst:15
-msgid ""
-"if you have an idea of what you miss in the software but can't quite "
-"formalize it into separate issues, you could consider hiring a professional. "
-"this is the best way to make sure that something happens quickly on Bauble. "
-"do make sure the developer opens issues and publishes their contribution on "
-"github."
-msgstr ""
-
-#: ../doc/installing.rst:18
-msgid ""
-"if you later choose to remove Bauble, you simply remove the virtual "
-"environment, which is a directory, with all of its content."
-msgstr ""
-
 #: bauble/plugins/imex/csv_.py:356
 msgid "importing %(table)s table from %(filename)s"
-msgstr ""
-
-#: ../doc/peptalk.rst:17
-msgid "importing data"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:243
@@ -4802,63 +3165,8 @@ msgstr ""
 msgid "input:"
 msgstr ""
 
-#: ../doc/building.rst:121
-msgid ""
-"instead of *installing* Bauble, you produce a Windows executable.  This is "
-"achieved with the ``py2exe`` target, which is only available on Windows "
-"systems::"
-msgstr ""
-
 #: bauble/plugins/plants/species_model.py:186
 msgid "introduced"
-msgstr ""
-
-#: ../doc/building.rst:64
-msgid "it should be possible to automatically merge the branches."
-msgstr ""
-
-#: ../doc/peptalk.rst:97
-msgid "language agnostic"
-msgstr ""
-
-#: ../doc/searching.rst:123
-msgid "location, loc: Search :class:`bauble.plugins.garden.Location`"
-msgstr ""
-
-#: ../doc/installing.rst:225
-msgid "lxml"
-msgstr ""
-
-#: ../doc/installing.rst:163
-msgid "make a complete install, selecting everything:"
-msgstr ""
-
-#: ../doc/building.rst:63
-msgid "make sure a ``bump`` commit is included in the differences."
-msgstr ""
-
-#: ../doc/building.rst:45
-msgid ""
-"make sure the feature you are adding or correcting is really completely "
-"described by the unit tests you wrote."
-msgstr ""
-
-#: ../doc/installing.rst:98
-msgid ""
-"make sure you understand the problems it reports, and correct them. pygtk "
-"will need xquartz and brew will not solve the dependency automatically. "
-"either install xquartz using brew or the way you prefer::"
-msgstr ""
-
-#: ../doc/building.rst:47
-msgid ""
-"make sure your unit tests are atomic, that is, that you test variations on "
-"changes along one single variable. do not give complex input to unit tests "
-"or tests that do not fit on one screen (25 lines of code)."
-msgstr ""
-
-#: ../doc/building.rst:67
-msgid "merge the changes."
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:241
@@ -4892,78 +3200,22 @@ msgstr ""
 msgid "no widget with name %s"
 msgstr "geen widget met naam %s"
 
-#: ../doc/building.rst:30
-msgid "normal development workflow"
-msgstr ""
-
-#: ../doc/peptalk.rst:2
-msgid "not-so-brief list of highlights, meant to whet your appetite."
-msgstr ""
-
-#: ../doc/installing.rst:51
-msgid ""
-"on Unity, open a terminal, start bauble, its icon will show up in the "
-"launcher, you can now `lock to launcher` it."
-msgstr ""
-
-#: ../doc/building.rst:56
-msgid "open a pull request."
-msgstr ""
-
-#: ../doc/building.rst:61
-msgid ""
-"open the pull request page using as base the production line, compared to "
-"``master``."
-msgstr ""
-
 #: bauble/utils/web.py:116
 msgid "open the wikipedia page about this species"
-msgstr ""
-
-#: ../doc/building.rst:39
-msgid ""
-"optionally fork the repository in your account and preferably create a "
-"branch, clearly associated to the issue."
-msgstr ""
-
-#: ../doc/building.rst:131
-msgid "or copy the executable to wherever you think appropriate."
-msgstr ""
-
-#: ../doc/installing.rst:44
-msgid "or update bauble to the latest released production patch::"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:338
 msgid "output:"
 msgstr ""
 
-#: ../doc/building.rst:90
-msgid ""
-"override ``view_accept_buttons``, the list of widget names which, if "
-"activated by the user, mean that the view should be closed,"
-msgstr ""
-
-#: ../doc/installing.rst:92
-msgid "package manager: homebrew (tigerbrew for older OSX versions)."
-msgstr ""
-
 #: bauble/db.py:464 bauble/editor.py:1383
 msgid "picture file %s not found."
-msgstr ""
-
-#: ../doc/searching.rst:121
-msgid "plant: Search :class:`bauble.plugins.garden.Plant`"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:137
 #, fuzzy
 msgid "plants"
 msgstr "Plant"
-
-#: ../doc/peptalk.rst:106
-msgid "platform agnostic"
-msgstr ""
 
 #: bauble/plugins/garden/location.py:280
 msgid "please confirm merging %(1)s into %(2)s"
@@ -4973,38 +3225,8 @@ msgstr ""
 msgid "private objects"
 msgstr ""
 
-#: ../doc/building.rst:59
-msgid "publishing to production"
-msgstr ""
-
-#: ../doc/building.rst:55
-msgid "push to github."
-msgstr ""
-
-#: ../doc/building.rst:73
-msgid ""
-"review this workflow. consider this as a guideline, to yourself and to your "
-"colleagues. please help make it better and matching the practice."
-msgstr ""
-
-#: ../doc/peptalk.rst:32
-msgid "scientific responsible"
-msgstr ""
-
 #: bauble/plugins/imex/select_export.glade:84
 msgid "selection"
-msgstr ""
-
-#: ../doc/peptalk.rst:76
-msgid "simple and powerful search"
-msgstr ""
-
-#: ../doc/searching.rst:115
-msgid "species, sp: Search :class:`bauble.plugins.plants.Species`"
-msgstr ""
-
-#: ../doc/building.rst:77
-msgid "structure of user interface"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:60
@@ -5019,84 +3241,16 @@ msgstr ""
 msgid "subvar"
 msgstr ""
 
-#: ../doc/peptalk.rst:25
-msgid "synonyms"
-msgstr ""
-
 #: bauble/plugins/imex/select_export.glade:101
 msgid "taxa"
-msgstr ""
-
-#: ../doc/peptalk.rst:5
-msgid "taxonomic information"
-msgstr ""
-
-#: ../doc/building.rst:68
-msgid "tell the world about it: on facebook, the google group, linkedin, ..."
-msgstr ""
-
-#: ../doc/installing.rst:190
-msgid ""
-"the following, you will do regularly, to stay up-to-date with the "
-"development line you chose to follow::"
-msgstr ""
-
-#: ../doc/installing.rst:134
-msgid "the installation steps on Windows:"
-msgstr ""
-
-#: ../doc/installing.rst:111
-msgid ""
-"the rest is just as on a normal unix machine, and we have a `devinstall.sh` "
-"script for it. Read the above Linux instructions, follow them, enjoy."
-msgstr ""
-
-#: ../doc/building.rst:79
-msgid ""
-"the user interface is built according to the Model-View-Presenter "
-"architectural pattern.  The **view** is described in a glade file and is "
-"totally dumb, you do not subclass it because it implements no behaviour and "
-"because its appearance is, as said, described elsewhere, including the "
-"association signal-callbacks. The **model** simply follows the sqlalchemy "
-"practices."
-msgstr ""
-
-#: ../doc/building.rst:14
-msgid "them. a developer will react."
-msgstr ""
-
-#: ../doc/installing.rst:104
-msgid "then install the remaining dependencies::"
-msgstr ""
-
-#: ../doc/installing.rst:183
-msgid ""
-"this will pull the ``bauble.classic`` repository on github to your home "
-"directory, under ``Local\\github\\Bauble``, checkout the ``bauble-1.0`` "
-"production line, create a virtual environment and install bauble into it."
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1475
 msgid "to"
 msgstr ""
 
-#: ../doc/building.rst:20
-msgid ""
-"translate! any help with translations will be welcome, so please do! you can "
-"do this without installing anything on your computer, just using the on-line "
-"translation service offered by http://hosted.weblate.org/"
-msgstr ""
-
-#: ../doc/peptalk.rst:122
-msgid "unit tested"
-msgstr ""
-
 #: bauble/plugins/imex/select_export.glade:459
 msgid "update existing objects"
-msgstr ""
-
-#: ../doc/building.rst:51
-msgid "update the i18n files (run ``./scripts/i18n.sh``)."
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:57
@@ -5105,72 +3259,6 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:1285
 msgid "verified as %(species)s "
-msgstr ""
-
-#: ../doc/installing.rst:154
-msgid "when installing Python, do put Python in the PATH:"
-msgstr ""
-
-#: ../doc/imex.rst:65
-msgid ""
-"when you activate this export tool, you are given the choice to specify what "
-"to export. You can use the current selection to limit the span of the "
-"export, or you can start at the complete content of a domain, to be chosen "
-"among Species, Accession, Plant."
-msgstr ""
-
-#: ../doc/building.rst:52
-msgid ""
-"whenever possible, translate the new strings you put in code or glade files."
-msgstr ""
-
-#: ../doc/building.rst:32
-msgid ""
-"while using the software, you notice a problem, or you get an idea of "
-"something that could be better, you think about it good enough in order to "
-"have a very clear idea of what it really is, that you noticed. you open an "
-"issue and describe the problem. someone might react with hints."
-msgstr ""
-
-#: ../doc/installing.rst:94
-msgid "with the above installed, run::"
-msgstr ""
-
-#: ../doc/building.rst:43
-msgid ""
-"write more unit tests (ideally, the tests form the complete description of "
-"the feature you are adding or correcting)."
-msgstr ""
-
-#: ../doc/building.rst:50
-msgid "write the code that makes your tests succeed."
-msgstr ""
-
-#: ../doc/building.rst:41
-msgid ""
-"write unit tests and commit them to your branch (do not commit failing unit "
-"tests to the ``master`` branch)."
-msgstr ""
-
-#: ../doc/installing.rst:187
-msgid ""
-"you can also run ``devinstall.bat`` passing it as argument the numerical "
-"part of the production line you want to follow."
-msgstr ""
-
-#: ../doc/installing.rst:199
-msgid ""
-"you can now start bauble using the ``bauble.lnk`` shortcut that the "
-"installation procedure copies to the ``Scripts`` directory of the virtual "
-"environment::"
-msgstr ""
-
-#: ../doc/building.rst:36
-msgid "you open the issues site and choose one you want to tackle."
-msgstr ""
-
-#: ../doc/building.rst:66
-msgid "you possibly need wait for travis-ci to perform the checks."
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:238
