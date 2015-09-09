@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-03 08:00-0500\n"
-"PO-Revision-Date: 2015-08-31 15:54+0200\n"
+"PO-Revision-Date: 2015-09-09 14:59+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
-">\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/bauble/master/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -159,7 +159,7 @@ msgstr "--"
 #: ../doc/installing.rst:71 ../doc/installing.rst:116
 #: ../doc/installing.rst:213 ../doc/installing.rst:255
 msgid ":ref:`connecting`."
-msgstr ":ref:`conectando`."
+msgstr ""
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -618,7 +618,7 @@ msgstr "Dirección"
 
 #: ../doc/administration.rst:2 ../doc/index.rst:45
 msgid "Administration"
-msgstr ""
+msgstr "Administración"
 
 #: bauble/plugins/users/ui.glade:189
 msgid "Administrator"
@@ -1598,7 +1598,7 @@ msgstr "Editar la ubicación seleccionada."
 
 #: ../doc/editing.rst:2
 msgid "Editing and Inserting Data"
-msgstr ""
+msgstr "Editar e Insertar información"
 
 #: bauble/plugins/picasa/gui.glade:29
 #: bauble/plugins/garden/institution.glade:180
@@ -2240,7 +2240,7 @@ msgstr "Individual"
 
 #: ../doc/installing.rst:2
 msgid "Installation"
-msgstr ""
+msgstr "Instalación"
 
 #: ../doc/report.rst:53
 msgid "Installing Apache FOP on Windows"
@@ -2248,7 +2248,7 @@ msgstr ""
 
 #: ../doc/index.rst:21
 msgid "Installing Bauble"
-msgstr ""
+msgstr "Como instalar Bauble"
 
 #: ../doc/building.rst:7
 msgid ""
@@ -2267,7 +2267,7 @@ msgstr ""
 
 #: ../doc/installing.rst:23
 msgid "Installing on Linux"
-msgstr ""
+msgstr "Instalación en Linux"
 
 #: ../doc/installing.rst:74
 msgid "Installing on MacOSX"
@@ -3356,7 +3356,7 @@ msgstr "Víctima del verano"
 
 #: ../doc/index.rst:65
 msgid "Supporting Bauble"
-msgstr ""
+msgstr "Apoyar el proyecto Bauble"
 
 #: bauble/plugins/plants/family.py:788 bauble/plugins/plants/genus.py:966
 #: bauble/plugins/plants/genus.py:985 bauble/plugins/plants/species.py:249
@@ -4380,7 +4380,7 @@ msgstr "Usuarios"
 
 #: ../doc/index.rst:30
 msgid "Using Bauble"
-msgstr ""
+msgstr "Como utilizar Bauble"
 
 #: ../doc/imex.rst:55
 msgid ""
@@ -4810,6 +4810,8 @@ msgid ""
 "bauble.classic is a cross-platform program and it will run on unix machines "
 "like Linux and MacOSX, as well as on Windows."
 msgstr ""
+"bauble.classic es un programa independiente de la plataforma software pues "
+"puede funcionar en sistemas unix como Linux y MacOSX así como en Windows."
 
 #: bauble/plugins/garden/plant.py:931
 msgid "branch_mode requires a model"
@@ -5023,6 +5025,9 @@ msgid ""
 "if you later choose to remove Bauble, you simply remove the virtual "
 "environment, which is a directory, with all of its content."
 msgstr ""
+"si por qualquier razón quisiera usted borrar Bauble, lo único que tiene que "
+"hacer es borrar el entorno virtual, que es una carpeta, con todo su "
+"contenido."
 
 #: bauble/plugins/imex/csv_.py:356
 msgid "importing %(table)s table from %(filename)s"
