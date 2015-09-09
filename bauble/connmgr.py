@@ -48,9 +48,6 @@ import bauble.prefs as prefs
 # is in the wrong format, or better just don't the allow the user to leave the
 # entry until whatever is there is an the correct format
 
-# TODO: when you start and there are no connections defined then make the user
-# create a connection or at least inform them
-
 # TODO: allow connecting to a database first to see if the database even,
 # exists will probably have to connected using python's dbapi first and
 # if the database doesn't exist then we can create it, set some permissions,
