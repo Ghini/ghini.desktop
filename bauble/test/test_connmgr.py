@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2015 Mario Frasca <mario@anche.no>
 #
 # This file is part of bauble.classic.
 #
@@ -23,7 +22,7 @@ import os
 from nose import SkipTest
 
 from bauble.test import BaubleTestCase, check_dupids
-#from bauble.connmgr import ConnMgrPresenter
+from bauble.connmgr import ConnMgrPresenter
 
 
 def test_duplicate_ids():
@@ -33,3 +32,42 @@ def test_duplicate_ids():
     import bauble.connmgr as mod
     head, tail = os.path.split(mod.__file__)
     assert(not check_dupids(os.path.join(head, 'connmgr.glade')))
+
+
+class TagTests(BaubleTestCase):
+
+    family_ids = [1, 2]
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+
+class MockView:
+    def __init__(self):
+        self.widgets = type('MockWidgets', (object, ), {})
+
+    def connect_signals(self, *args):
+        pass
+
+    def set_label(self, *args):
+        pass
+
+    def connect_after(self, *args):
+        pass
+
+    def get_widget_value(self, *args):
+        pass
+
+    def connect(self, *args):
+        pass
+
+
+class ConnMgrPresenterTests(BaubleTestCase):
+    'Presenter manages view and model, implements view callbacks.'
+
+    def test_can_create_presenter(self):
+        view = MockView()
+        ConnMgrPresenter(self, view)
