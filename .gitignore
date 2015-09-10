@@ -29,3 +29,5 @@ coverage.xml
 doc/_build/
 htmlcov
 doc/locale/
+bauble/plugins/plants/ipni.org/
+.build/
