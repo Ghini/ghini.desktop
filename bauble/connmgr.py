@@ -43,14 +43,14 @@ import bauble.paths as paths
 import bauble.prefs as prefs
 
 
-class ConnectionManager:
+class ConnMgrPresenter:
     """
     The main class that starts the connection manager GUI.
 
     :param default: the name of the connection to select from the list
       of connection names
     """
-    def __init__(self, default=None):
+    def __init__(self, model=None, view=None, default=None):
         self.default_name = default
         self.current_name = None
         # old_params is used to cache the parameter values for when the param
@@ -79,7 +79,7 @@ class ConnectionManager:
                 assert(sqlite3)
             self._working_dbtypes.append('SQLite')
         except ImportError, e:
-            logger.warning('ConnectionManager: %s' % e)
+            logger.warning('ConnMgrPresenter: %s' % e)
         for (module, name) in (
                 ('psycopg2', 'PostgreSQL'),
                 ('MySQLdb', 'MySQL'),
@@ -91,7 +91,7 @@ class ConnectionManager:
                 __import__(module)
                 self._working_dbtypes.append(name)
             except ImportError, e:
-                logger.info('ConnectionManager: %s' % e)
+                logger.info('ConnMgrPresenter: %s' % e)
 
         return self._working_dbtypes
 
@@ -142,7 +142,7 @@ class ConnectionManager:
                 raise
 
         # have to remove the cell_data_func to avoid a cyclical
-        # reference which would cause the ConnectionManager to not get
+        # reference which would cause the ConnMgrPresenter to not get
         # garbage collected
         cell = self.type_combo.get_cells()[0]
         self.type_combo.set_cell_data_func(cell, None)
@@ -155,7 +155,7 @@ class ConnectionManager:
         del self.params_box
         obj = utils.gc_objects_by_type(CMParamsBox)
         if obj:
-            logger.info('ConnectionManager.start(): param box leaked: %s'
+            logger.info('ConnMgrPresenter.start(): param box leaked: %s'
                         % obj)
         return name, uri
 
@@ -447,7 +447,7 @@ class ConnectionManager:
         self.widgets.connect_button.set_sensitive(sensitive)
 
         # get parameters box for the dbtype
-        self.params_box = CMParamsBoxFactory.createParamsBox(dbtype, self)
+        self.params_box = createParamsBox(dbtype, self)
 
         # if the type changed but is the same type of the connection
         # in the name entry then set the prefs
@@ -746,15 +746,9 @@ class PGParamsBox(CMParamsBox):
         CMParamsBox.__init__(self, conn_mgr)
 
 
-class CMParamsBoxFactory:
-
-    def __init__(self):
-        pass
-
-    def createParamsBox(db_type, conn_mgr):
-        if db_type.lower() == "sqlite":
-            return SQLiteParamsBox(conn_mgr)
-        elif db_type.lower().startswith('postgres'):
-            return PGParamsBox(conn_mgr)
-        return CMParamsBox(conn_mgr)
-    createParamsBox = staticmethod(createParamsBox)
+def createParamsBox(db_type, conn_mgr):
+    if db_type.lower() == "sqlite":
+        return SQLiteParamsBox(conn_mgr)
+    elif db_type.lower().startswith('postgres'):
+        return PGParamsBox(conn_mgr)
+    return CMParamsBox(conn_mgr)

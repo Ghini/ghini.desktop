@@ -576,9 +576,9 @@ class GUI(object):
         """
         Open the connection manager.
         """
-        from connmgr import ConnectionManager
+        from connmgr import ConnMgrPresenter
         default_conn = prefs[bauble.conn_default_pref]
-        cm = ConnectionManager(default_conn)
+        cm = ConnMgrPresenter(default=default_conn)
         name, uri = cm.start()
         if name is None:
             return
