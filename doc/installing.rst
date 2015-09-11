@@ -1,5 +1,5 @@
 Installation
-------------
+--------------
 
 bauble.classic is a cross-platform program and it will run on unix machines
 like Linux and MacOSX, as well as on Windows.
