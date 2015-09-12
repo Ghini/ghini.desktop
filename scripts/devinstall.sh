@@ -11,7 +11,7 @@ if ! git help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS git"
 fi
 if ! virtualenv --help >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS virtualenv"
+    PROBLEMS="$PROBLEMS python-virtualenv"
 fi
 if ! xslt-config --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS libxslt1-dev"
