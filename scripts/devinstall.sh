@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PROBLEMS=''
-if ! gettext --version >/dev/null 2>&1; then
+if ! msgfmt --version >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS gettext"
 fi
 if ! python -c 'import gtk' >/dev/null 2>&1; then
