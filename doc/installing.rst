@@ -136,6 +136,11 @@ welcome.
           time. If any of the direct download links stops working, please
           ring the bell, so we can update the information here.
 
+.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.5.2.windows.1/Git-2.5.2-32-bit.exe
+.. _Direct link to download Python: https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi
+.. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.6.msi
+.. _Direct link to download psycopg2: http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
+
 the installation steps on Windows:
 
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
@@ -144,7 +149,6 @@ the installation steps on Windows:
    https://git-scm.com/download/win
    
    `Direct link to download git`_
-.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.5.2.windows.1/Git-2.5.2-32-bit.exe
 
    all default options are fine, except we need git to be executable from
    the command prompt:
@@ -156,7 +160,6 @@ the installation steps on Windows:
    http://www.python.org
 
    `Direct link to download Python`_
-.. _Direct link to download Python: https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi
 
    Bauble has been developed and tested using Python 2.x.  It will
    definitely **not** run on Python 3.x.  If you are interested in helping
@@ -172,7 +175,6 @@ the installation steps on Windows:
     http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
    `Direct link to download PyGTK`_
-.. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.6.msi
 
    make a complete install, selecting everything:
 
@@ -187,7 +189,6 @@ the installation steps on Windows:
    http://initd.org/psycopg/docs/install.html
 
    `Direct link to download psycopg2`_
-.. _Direct link to download psycopg2: http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
 
 #. **REBOOT**
 
