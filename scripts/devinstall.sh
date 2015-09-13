@@ -5,7 +5,7 @@ if ! msgfmt --version >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS gettext"
 fi
 if ! python -c 'import gtk' >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS pygtk"
+    PROBLEMS="$PROBLEMS python-gtk2"
 fi
 if ! git help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS git"
@@ -20,6 +20,11 @@ PYTHONHCOUNT=$(find /usr/include/python* /usr/local/include/python* -name Python
 if [ "$PYTHONHCOUNT" = "0" ]; then
     PROBLEMS="$PROBLEMS python-all-dev"
 fi
+SETUPTOOLS=$(pip show setuptools | grep Version | cut -f2 -d:)
+if ( echo "$SETUPTOOLS <= 0.6" | bc ); then
+    true  # should do something about it here
+fi
+
 
 if [ "$PROBLEMS" != "" ]; then
     echo please first solve the following dependencies:

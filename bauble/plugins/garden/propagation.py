@@ -656,7 +656,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
             #debug('%s: %s' % (widget, value))
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
@@ -750,7 +750,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
             value = getattr(self.model, attr)
             if isinstance(value, datetime.date):
                 value = value.strftime(date_format)
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
 
 class PropagationPresenter(editor.ChildPresenter):
@@ -775,7 +775,7 @@ class PropagationPresenter(editor.ChildPresenter):
         self.view.connect('prop_type_combo', 'changed',
                           self.on_prop_type_changed)
         if self.model.prop_type:
-            self.view.set_widget_value('prop_type_combo', self.model.prop_type)
+            self.view.widget_set_value('prop_type_combo', self.model.prop_type)
 
         self._cutting_presenter = CuttingPresenter(self, self.model, self.view,
                                                    self.session)
@@ -788,12 +788,12 @@ class PropagationPresenter(editor.ChildPresenter):
         if self.model.date:
             format = prefs.prefs[prefs.date_format_pref]
             date = self.model.date.strftime(format)
-            self.view.set_widget_value(self.view.widgets.prop_date_entry, date)
+            self.view.widget_set_value(self.view.widgets.prop_date_entry, date)
         else:
-            self.view.set_widget_value(self.view.widgets.prop_date_entry,
+            self.view.widget_set_value(self.view.widgets.prop_date_entry,
                                        utils.today_str())
 
-        self.view.set_widget_value(self.view.widgets.notes_textview,
+        self.view.widget_set_value(self.view.widgets.notes_textview,
                                    self.model.notes)
 
         self._dirty = False

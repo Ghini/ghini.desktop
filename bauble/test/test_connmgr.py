@@ -46,8 +46,11 @@ class TagTests(BaubleTestCase):
 
 
 class MockView:
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.widgets = type('MockWidgets', (object, ), {})
+        self.visible = {}
+        for name, value in kwargs.items():
+            setattr(self, name, value)
 
     def connect_signals(self, *args):
         pass
@@ -58,16 +61,70 @@ class MockView:
     def connect_after(self, *args):
         pass
 
-    def get_widget_value(self, *args):
+    def widget_get_value(self, *args):
+        pass
+
+    def widget_set_value(self, *args):
         pass
 
     def connect(self, *args):
         pass
+
+    def get_widget_visible(self, name):
+        return self.visible.get(name)
+
+    def set_widget_visible(self, name, value=True):
+        self.visible[name] = value
+
+    def combobox_remove(self, name, item):
+        model = self.combos[name]
+        if isinstance(item, int):
+            del model[item]
+        else:
+            model.remove(item)
+
+    def combobox_append_text(self, name, value):
+        model = self.combos[name]
+        model.append(value)
 
 
 class ConnMgrPresenterTests(BaubleTestCase):
     'Presenter manages view and model, implements view callbacks.'
 
     def test_can_create_presenter(self):
-        view = MockView()
-        ConnMgrPresenter(self, view)
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.view, view)
+
+    def test_no_connections_then_message(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        import bauble
+        import bauble.prefs as prefs
+        prefs.prefs[bauble.conn_list_pref] = {}
+        presenter = ConnMgrPresenter(view)
+
+        self.assertFalse(presenter.view.get_widget_visible(
+            'sqlite_parambox'))
+        self.assertFalse(presenter.view.get_widget_visible(
+            'dbms_parambox'))
+        self.assertTrue(presenter.view.get_widget_visible(
+            'noconnectionlabel'))
+
+    def test_one_connection_shown_removed_message(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        import bauble
+        import bauble.prefs as prefs
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'}}
+        presenter = ConnMgrPresenter(view)
+        self.assertTrue(presenter.view.get_widget_visible(
+            'sqlite_parambox'))
+        presenter.remove_connection('nugkui')
+        self.assertTrue(presenter.view.get_widget_visible(
+            'noconnectionlabel'))

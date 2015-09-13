@@ -604,12 +604,12 @@ class PropagationTests(GardenTestCase):
         widgets = self.editor.presenter.view.widgets
         self.assertTrue(widgets is not None)
         view = self.editor.presenter.view
-        view.set_widget_value('prop_type_combo', u'UnrootedCutting')
-        view.set_widget_value('prop_date_entry', utils.today_str())
+        view.widget_set_value('prop_type_combo', u'UnrootedCutting')
+        view.widget_set_value('prop_date_entry', utils.today_str())
         cutting_presenter = self.editor.presenter._cutting_presenter
         for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
             #debug('%s=%s' % (widget, default_cutting_values[attr]))
-            view.set_widget_value(widget, default_cutting_values[attr])
+            view.widget_set_value(widget, default_cutting_values[attr])
         update_gui()
         self.editor.handle_response(gtk.RESPONSE_OK)
         self.editor.commit_changes()
@@ -634,16 +634,16 @@ class PropagationTests(GardenTestCase):
         view = editor.presenter.view
 
         # set default values in editor widgets
-        view.set_widget_value('prop_type_combo', u'Seed')
-        view.set_widget_value('prop_date_entry',
+        view.widget_set_value('prop_type_combo', u'Seed')
+        view.widget_set_value('prop_date_entry',
                               default_propagation_values['date'])
-        view.set_widget_value('notes_textview',
+        view.widget_set_value('notes_textview',
                               default_propagation_values['notes'])
         for widget, attr in seed_presenter.widget_to_field_map.iteritems():
             w = widgets[widget]
             if isinstance(w, gtk.ComboBoxEntry) and not w.get_model():
                 widgets[widget].child.props.text = default_seed_values[attr]
-            view.set_widget_value(widget, default_seed_values[attr])
+            view.widget_set_value(widget, default_seed_values[attr])
 
         # update the editor, send the RESPONSE_OK signal and commit the changes
         update_gui()

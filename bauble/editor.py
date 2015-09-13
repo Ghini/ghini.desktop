@@ -50,6 +50,7 @@ import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
 from bauble.error import CheckConditionError
+from types import StringTypes
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
@@ -379,13 +380,53 @@ class GenericEditorView(object):
         else:
             raise NotImplementedError
 
-    def get_widget_value(self, widget, index=0):
+    def combobox_remove(self, widget, item):
+        widget = (isinstance(widget, gtk.Widget)
+                  and widget
+                  or self.widgets[widget])
+        if isinstance(item, StringTypes):
+            # remove matching
+            model = widget.get_model()
+            for i, row in enumerate(model):
+                if item == row[0]:
+                    widget.remove_text(i)
+                    break
+        elif isinstance(item, int):
+            # remove at position
+            widget.remove_text(item)
+        else:
+            logger.warning('invoked combobox_remove with item=(%s)%s' %
+                           (type(item), item))
+
+    def combobox_append_text(self, widget, value):
+        pass
+
+    def combobox_get_active_text(self, widget, item):
+        pass
+
+    def combobox_get_model(self, widget):
+        'get the list of values in the combo'
+        pass
+
+    def widget_set_visible(self, widget, visible=True):
+        widget = (isinstance(widget, gtk.Widget)
+                  and widget
+                  or self.widgets[widget])
+        widget.set_visible(visible)
+
+    def widget_get_visible(self, widget):
+        widget = (isinstance(widget, gtk.Widget)
+                  and widget
+                  or self.widgets[widget])
+        widget.get_visible()
+
+    def widget_get_value(self, widget, index=0):
         widget = (isinstance(widget, gtk.Widget)
                   and widget
                   or self.widgets[widget])
         return utils.get_widget_value(widget, index)
 
-    def set_widget_value(self, widget, value, markup=False, default=None,
+    def widget_set_value(self, widget, value, markup=False, default=None,
                          index=0):
         '''
         :param widget: a widget or name of a widget in self.widgets
@@ -601,7 +642,7 @@ class GenericEditorPresenter(object):
         for widget, attr in self.widget_to_field_map.items():
             value = getattr(self.model, attr)
             value = value is None and '' or value
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
     def commit_changes(self):
         '''

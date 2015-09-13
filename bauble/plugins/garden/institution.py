@@ -142,7 +142,7 @@ class InstitutionEditorPresenter(editor.GenericEditorPresenter):
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            self.view.set_widget_value(widget, getattr(self.model, field))
+            self.view.widget_set_value(widget, getattr(self.model, field))
 
     def start(self, commit_transaction=True):
         return self.view.start()

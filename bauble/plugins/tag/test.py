@@ -160,11 +160,11 @@ class MockTagView(GenericEditorView):
     def mark_problem(self, widget_name):
         pass
 
-    def set_widget_value(self, widget, value, markup=False, default=None,
+    def widget_set_value(self, widget, value, markup=False, default=None,
                          index=0):
         self.dict[widget] = value
 
-    def get_widget_value(self, widget, index=0):
+    def widget_get_value(self, widget, index=0):
         return self.dict.get(widget)
 
 
@@ -206,7 +206,7 @@ class TagPresenterTests(BaubleTestCase):
         presenter = TagEditorPresenter(model, view)
         for widget, field in presenter.widget_to_field_map.items():
             self.assertTrue(hasattr(model, field), field)
-            presenter.view.get_widget_value(widget)
+            presenter.view.widget_get_value(widget)
 
     def test_when_user_edits_fields_ok_active(self):
         model = Tag()
@@ -228,9 +228,9 @@ class TagPresenterTests(BaubleTestCase):
         session.add(obj)
         view = MockTagView()
         presenter = TagEditorPresenter(obj, view)
-        self.assertFalse(view.get_widget_value("tag_name_entry"))
+        self.assertFalse(view.widget_get_value("tag_name_entry"))
         presenter.refresh_view()
-        self.assertEquals(view.get_widget_value("tag_name_entry"), u'1234')
+        self.assertEquals(view.widget_get_value("tag_name_entry"), u'1234')
 
     def test_if_asked_presenter_initializes_view(self):
         session = db.Session()
@@ -240,4 +240,4 @@ class TagPresenterTests(BaubleTestCase):
         session.add(obj)
         view = MockTagView()
         TagEditorPresenter(obj, view, refresh_view=True)
-        self.assertEquals(view.get_widget_value("tag_name_entry"), u'1234')
+        self.assertEquals(view.widget_get_value("tag_name_entry"), u'1234')

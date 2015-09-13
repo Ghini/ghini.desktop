@@ -237,7 +237,7 @@ class VernacularExpander(InfoExpander):
                 else:
                     names.append('%s - %s' %
                                  (vn.name, vn.language))
-            self.set_widget_value('sp_vernacular_data', '\n'.join(names))
+            self.widget_set_value('sp_vernacular_data', '\n'.join(names))
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)
@@ -352,39 +352,39 @@ class GeneralSpeciesExpander(InfoExpander):
         # around and indent from the genus name instead of from the
         # species name
         session = db.Session()
-        self.set_widget_value('sp_name_data', '<big>%s</big>' %
+        self.widget_set_value('sp_name_data', '<big>%s</big>' %
                               row.markup(True), markup=True)
 
         awards = ''
         if row.awards:
             awards = utils.utf8(row.awards)
-        self.set_widget_value('sp_awards_data', awards)
+        self.widget_set_value('sp_awards_data', awards)
 
         logger.debug('setting cites data from row %s' % row)
         cites = ''
         if row.cites:
             cites = utils.utf8(row.cites)
-        self.set_widget_value('sp_cites_data', cites)
+        self.widget_set_value('sp_cites_data', cites)
 
         # zone = ''
         # if row.hardiness_zone:
         #     awards = utils.utf8(row.hardiness_zone)
-        # self.set_widget_value('sp_hardiness_data', zone)
+        # self.widget_set_value('sp_hardiness_data', zone)
 
         habit = ''
         if row.habit:
             habit = utils.utf8(row.habit)
-        self.set_widget_value('sp_habit_data', habit)
+        self.widget_set_value('sp_habit_data', habit)
 
         dist = ''
         if row.distribution:
             dist = utils.utf8(row.distribution_str())
-        self.set_widget_value('sp_dist_data', dist)
+        self.widget_set_value('sp_dist_data', dist)
 
         dist = ''
         if row.label_distribution:
             dist = row.label_distribution
-        self.set_widget_value('sp_labeldist_data', dist)
+        self.widget_set_value('sp_labeldist_data', dist)
 
         # stop here if not GardenPluin
         if 'GardenPlugin' not in pluginmgr.plugins:
@@ -395,17 +395,17 @@ class GeneralSpeciesExpander(InfoExpander):
 
         nacc = session.query(Accession).join('species').\
             filter_by(id=row.id).count()
-        self.set_widget_value('sp_nacc_data', nacc)
+        self.widget_set_value('sp_nacc_data', nacc)
 
         nplants = session.query(Plant).join('accession', 'species').\
             filter_by(id=row.id).count()
         if nplants == 0:
-            self.set_widget_value('sp_nplants_data', nplants)
+            self.widget_set_value('sp_nplants_data', nplants)
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
                 join('accession', 'species').\
                 filter_by(id=row.id).distinct().count()
-            self.set_widget_value('sp_nplants_data', '%s in %s accessions'
+            self.widget_set_value('sp_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
         session.close()
 

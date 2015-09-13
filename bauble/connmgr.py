@@ -42,15 +42,35 @@ import bauble
 import bauble.paths as paths
 import bauble.prefs as prefs
 
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
 
-class ConnMgrPresenter:
+
+class ConnMgrPresenter(GenericEditorPresenter):
     """
     The main class that starts the connection manager GUI.
 
     :param default: the name of the connection to select from the list
       of connection names
     """
-    def __init__(self, model=None, view=None, default=None):
+
+    widget_to_field_map = {
+        'name_combo': 'connection_name',  # and self.connection_names
+        'usedefaults_chkbx': 'use_defaults',
+        'type_combo': 'dbtype',
+        'file_entry': 'filename',
+        'database_entry': 'database',
+        'host_entry': 'host',
+        'user_entry': 'user',
+        'pictureroot_entry1': 'pictureroot',
+        'pictureroot_entry': 'pictureroot',
+        }
+    alternative_panes = [
+        'sqlite_parambox', 'dbms_parambox', 'noconnectionlabel']
+
+    view_accept_buttons = ['cancel_button', 'connect_button']
+
+    def __init__(self, view=None, default=None):
         self.default_name = default
         self.current_name = None
         # old_params is used to cache the parameter values for when the param
@@ -58,6 +78,31 @@ class ConnMgrPresenter:
         # changes
         self.old_params = {}
         self._dbtypes = ['SQLite']
+        self.dbtype = 'SQLite'
+        self.filename = self.database = self.host = self.user = \
+            self.pictureroot = self.connection_name = ''
+        self.use_defaults = True
+        self.connection_names = []
+        self.connections = prefs.prefs[bauble.conn_list_pref] or {}
+        for ith_connection_name in self.connections:
+            view.combobox_append_text('name_combo', ith_connection_name)
+            self.connection_names.append(ith_connection_name)
+        GenericEditorPresenter.__init__(
+            self, model=self, view=view, refresh_view=True)
+
+    def refresh_view(self):
+        GenericEditorPresenter.refresh_view(self)
+        active_pane = 'dbms_parambox'
+        if self.dbtype == 'SQLite':
+            active_pane = 'sqlite_parambox'
+        conn_list = self.connections
+        if conn_list is None or len(conn_list.keys()) == 0:
+            active_pane = 'noconnectionlabel'
+        for pane in self.alternative_panes:
+            if pane != active_pane:
+                self.view.set_widget_visible(pane, False)
+            else:
+                self.view.set_widget_visible(pane, True)
 
     def _get_working_dbtypes(self, retry=False):
         """
@@ -103,7 +148,6 @@ class ConnMgrPresenter:
         """
         Show the connection manager.
         """
-        self.create_gui()
         conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None or len(conn_list.keys()) == 0:
             msg = _('You don\'t have any connections in your connection '
@@ -118,7 +162,7 @@ class ConnMgrPresenter:
         name = None
         uri = None
         while name is None or self._error:
-            response = self.dialog.run()
+            response = self.view.run()
             if response == gtk.RESPONSE_OK:
                 name = self._get_connection_name()
                 uri = self._get_connection_uri()
@@ -147,7 +191,6 @@ class ConnMgrPresenter:
         cell = self.type_combo.get_cells()[0]
         self.type_combo.set_cell_data_func(cell, None)
         self.type_combo.clear()
-        self.name_combo.clear()
 
         # just to be sure let's destroy the dialog upfront and delete
         # the params box
@@ -166,7 +209,7 @@ class ConnMgrPresenter:
         self._error = False
         if response == gtk.RESPONSE_OK:
             settings = self.params_box.get_prefs()
-            dbtype = self.widgets.type_combo.get_active_text()
+            dbtype = self.view.widgets.type_combo.get_active_text()
             if dbtype == 'SQLite':
                 filename = settings['file']
                 if not os.path.exists(filename):
@@ -223,10 +266,10 @@ class ConnMgrPresenter:
             raise Exception(msg)
 
         glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")
-        self.widgets = utils.BuilderWidgets(glade_path)
-        self.builder = self.widgets._builder_
+        self.view.widgets = utils.BuilderWidgets(glade_path)
+        self.builder = self.view.widgets._builder_
 
-        self.dialog = self.widgets.main_dialog
+        self.dialog = self.view.widgets.main_dialog
         title = '%s %s' % ('Bauble', bauble.version)
         self.dialog.set_title(title)
         try:
@@ -247,15 +290,14 @@ class ConnMgrPresenter:
 
         # set the logo image manually, it's hard to depend on glade to
         # get this right since the image paths may change
-        logo = self.widgets.logo_image
+        logo = self.view.widgets.logo_image
         logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
         logo.set_from_file(logo_path)
 
         self.params_box = None
-        self.expander_box = self.widgets.expander_box
+        self.expander_box = self.view.widgets.expander_box
 
         # setup the type combo
-        self.type_combo = self.widgets.type_combo
 
         def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
             """
@@ -267,52 +309,38 @@ class ConnMgrPresenter:
             renderer.set_property('sensitive', sensitive)
             renderer.set_property('text', dbtype)
 
+        self.type_combo = self.view.widgets.type_combo
         utils.setup_text_combobox(self.type_combo, self._dbtypes,
                                   type_combo_cell_data_func)
-        self.type_combo.connect("changed", self.on_changed_type_combo)
-
-        # setup the name combo
-        self.name_combo = self.widgets.name_combo
-        utils.setup_text_combobox(self.name_combo)
-        self.name_combo.connect("changed", self.on_changed_name_combo)
-
-        self.dialog.set_focus(self.widgets.connect_button)
+        self.type_combo.connect("changed", self.on_type_combo_changed)
 
     def set_active_connection_by_name(self, name):
-        """
+        """initialize name_combo, then set active
+
         sets the name of the connection in the name combo, this
-        causes on_changed_name_combo to be fired which changes the param
+        causes on_name_combo_changed to be fired which changes the param
         box type and set the connection parameters
         """
         check(hasattr(self, "name_combo"))
-        i = 0
         active = 0
         conn_list = prefs.prefs[bauble.conn_list_pref]
         if conn_list is None:
             return
-        for conn in conn_list:
+        for i, conn in enumerate(conn_list):
             self.name_combo.insert_text(i, conn)
             if conn == name:
                 active = i
-            i += 1
         self.name_combo.set_active(active)
 
     def remove_connection(self, name):
+        """remove named connection, from combobox and from self
         """
-        if we restrict the user to only removing the current connection
-        then it saves us the trouble of having to iter through the model
-        """
-        conn_list = prefs.prefs[bauble.conn_list_pref]
-        if name in conn_list:  # conn_list.has_key(name):
-            del conn_list[name]
-            prefs.prefs[bauble.conn_list_pref] = conn_list
-
-        model = self.name_combo.get_model()
-        for i in range(0, len(model)):
-            row = model[i][0]
-            if row == name:
-                self.name_combo.remove_text(i)
-                break
+        if name in self.connection_names:
+            position = self.connection_names.index(name)
+            self.connection_names.remove(name)
+            del self.connections[name]
+            self.view.combobox_remove('name_combo', position)
+            self.refresh_view()
 
     def on_remove_button_clicked(self, button, data=None):
         """
@@ -346,7 +374,7 @@ class ConnMgrPresenter:
         d.destroy()
         if name is not '':
             self.name_combo.prepend_text(name)
-            self.widgets.expander.set_expanded(True)
+            self.view.widgets.expander.set_expanded(True)
             self.name_combo.set_active(0)
 
             # TODO:
@@ -387,7 +415,7 @@ class ConnMgrPresenter:
         params["type"] = self.type_combo.get_active_text()
         return params == stored_params
 
-    def on_changed_name_combo(self, combo, data=None):
+    def on_name_combo_changed(self, combo, data=None):
         """
         the name changed so fill in everything else
         """
@@ -430,7 +458,7 @@ class ConnMgrPresenter:
         self.current_name = name
         self.old_params.clear()
 
-    def on_changed_type_combo(self, combo, data=None):
+    def on_type_combo_changed(self, combo, data=None):
         """
         the type changed so change the params_box
         """
@@ -444,7 +472,7 @@ class ConnMgrPresenter:
             return
 
         sensitive = dbtype in self._working_dbtypes
-        self.widgets.connect_button.set_sensitive(sensitive)
+        self.view.widgets.connect_button.set_sensitive(sensitive)
 
         # get parameters box for the dbtype
         self.params_box = createParamsBox(dbtype, self)
@@ -752,3 +780,18 @@ def createParamsBox(db_type, conn_mgr):
     elif db_type.lower().startswith('postgres'):
         return PGParamsBox(conn_mgr)
     return CMParamsBox(conn_mgr)
+
+
+def start_connection_manager(default_conn=None):
+    if default_conn is None:
+        default_conn = prefs[bauble.conn_default_pref]
+
+    glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")
+    view = GenericEditorView(
+        glade_path,
+        parent=None,
+        root_widget_name='main_dialog')
+
+    cm = ConnMgrPresenter(view, refresh_view=True)
+    cm.create_gui()
+    return cm.start()

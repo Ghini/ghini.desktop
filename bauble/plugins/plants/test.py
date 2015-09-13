@@ -1325,7 +1325,7 @@ class MockView:
     def connect_after(self, *args):
         pass
 
-    def get_widget_value(self, *args):
+    def widget_get_value(self, *args):
         pass
 
     def connect(self, *args):
