@@ -401,7 +401,7 @@ class GenericEditorView(object):
     def combobox_append_text(self, widget, value):
         pass
 
-    def combobox_get_active_text(self, widget, item):
+    def combobox_get_active_text(self, widget):
         pass
 
     def combobox_get_model(self, widget):
@@ -757,6 +757,18 @@ class GenericEditorPresenter(object):
         attr = self.__get_widget_attr(widget)
         value = self.__get_widget_name(widget)
         self.__set_model_attr(attr, value)
+
+    def on_combo_changed(self, widget, value=None):
+        """handle changed signal on combo box
+
+        value is only specified while testing"""
+        attr = self.__get_widget_attr(widget)
+        if value is None:
+            index = widget.get_active()
+            widget_model = widget.get_model()
+            value = widget_model[index][0]
+        self.__set_model_attr(attr, value)
+        self.refresh_view()
 
     def dirty(self):
         logger.info('calling deprecated "dirty". use "is_dirty".')
