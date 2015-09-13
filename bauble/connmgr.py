@@ -106,9 +106,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
             active_pane = 'noconnectionlabel'
         for pane in self.alternative_panes:
             if pane != active_pane:
-                self.view.set_widget_visible(pane, False)
+                self.view.widget_set_visible(pane, False)
             else:
-                self.view.set_widget_visible(pane, True)
+                self.view.widget_set_visible(pane, True)
 
     @property
     def working_dbtypes(self):
@@ -140,7 +140,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
         return self._working_dbtypes
 
-    def start(self):
+    def old_start(self):
         """
         Show the connection manager.
         """
@@ -769,7 +769,7 @@ def createParamsBox(db_type, conn_mgr):
 
 def start_connection_manager(default_conn=None):
     if default_conn is None:
-        default_conn = prefs[bauble.conn_default_pref]
+        default_conn = prefs.prefs[bauble.conn_default_pref]
 
     glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")
     view = GenericEditorView(
@@ -777,6 +777,6 @@ def start_connection_manager(default_conn=None):
         parent=None,
         root_widget_name='main_dialog')
 
-    cm = ConnMgrPresenter(view, refresh_view=True)
+    cm = ConnMgrPresenter(view)
     cm.create_gui()
     return cm.start()

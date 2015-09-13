@@ -371,12 +371,10 @@ def main(uri=None):
     open_exc = None
     # open default database
     if uri is None:
-        from bauble.connmgr import ConnMgrPresenter
-        default_conn = prefs[conn_default_pref]
+        from bauble.connmgr import start_connection_manager
         while True:
             if not uri or not conn_name:
-                cm = ConnMgrPresenter(default=default_conn)
-                conn_name, uri = cm.start()
+                conn_name, uri = start_connection_manager()
                 if conn_name is None:
                     quit()
             try:

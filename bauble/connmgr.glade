@@ -247,29 +247,65 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFileChooserButton" id="pictureroot_entry">
+                              <object class="GtkHBox" id="hbox2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="action">select-folder</property>
-                                <property name="show_hidden">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">2</property>
-                                <property name="bottom_attach">3</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkFileChooserButton" id="file_entry">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkEntry" id="file_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">•</property>
+                                    <property name="primary_icon_activatable">False</property>
+                                    <property name="secondary_icon_activatable">False</property>
+                                    <property name="primary_icon_sensitive">True</property>
+                                    <property name="secondary_icon_sensitive">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
                                 <property name="top_attach">1</property>
                                 <property name="bottom_attach">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox5">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkEntry" id="pictureroot_entry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">•</property>
+                                    <property name="primary_icon_activatable">False</property>
+                                    <property name="secondary_icon_activatable">False</property>
+                                    <property name="primary_icon_sensitive">True</property>
+                                    <property name="secondary_icon_sensitive">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">2</property>
+                                <property name="bottom_attach">3</property>
                               </packing>
                             </child>
                           </object>
@@ -341,20 +377,6 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFileChooserButton" id="pictureroot_entry1">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="action">select-folder</property>
-                                <property name="show_hidden">True</property>
-                              </object>
-                              <packing>
-                                <property name="left_attach">1</property>
-                                <property name="right_attach">2</property>
-                                <property name="top_attach">4</property>
-                                <property name="bottom_attach">5</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkEntry" id="database_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
@@ -363,7 +385,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
-                                <signal name="changed" handler="on_entry1_changed" swapped="no"/>
+                                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -380,7 +402,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
-                                <signal name="changed" handler="on_entry2_changed" swapped="no"/>
+                                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -399,7 +421,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
-                                <signal name="changed" handler="on_entry3_changed" swapped="no"/>
+                                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -415,13 +437,44 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="on_checkbutton2_toggled" swapped="no"/>
+                                <signal name="toggled" handler="on_check_toggled" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
                                 <property name="right_attach">2</property>
                                 <property name="top_attach">3</property>
                                 <property name="bottom_attach">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox6">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkEntry" id="pictureroot_entry1">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">•</property>
+                                    <property name="primary_icon_activatable">False</property>
+                                    <property name="secondary_icon_activatable">False</property>
+                                    <property name="primary_icon_sensitive">True</property>
+                                    <property name="secondary_icon_sensitive">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">4</property>
+                                <property name="bottom_attach">5</property>
                               </packing>
                             </child>
                           </object>
