@@ -70,15 +70,13 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
     view_accept_buttons = ['cancel_button', 'connect_button']
 
-    def __init__(self, view=None, default=None):
-        self.default_name = default
-        self.current_name = None
+    def __init__(self, view=None):
+        self._working_dbtypes = []
         # old_params is used to cache the parameter values for when the param
         # box changes but we want to keep the values, e.g. when the type
         # changes
         self.old_params = {}
         self._dbtypes = ['SQLite']
-        self.dbtype = 'SQLite'
         self.filename = self.database = self.host = self.user = \
             self.pictureroot = self.connection_name = ''
         self.use_defaults = True
@@ -87,6 +85,14 @@ class ConnMgrPresenter(GenericEditorPresenter):
         for ith_connection_name in self.connections:
             view.combobox_append_text('name_combo', ith_connection_name)
             self.connection_names.append(ith_connection_name)
+        if self.connection_names:
+            self.connection_name = prefs.prefs[bauble.conn_default_pref]
+            if self.connection_name not in self.connections:
+                self.connection_name = self.connection_names[0]
+            self.dbtype = self.connections[self.connection_name]['type']
+        else:
+            self.dbtype = ''
+            self.connection_name = None
         GenericEditorPresenter.__init__(
             self, model=self, view=view, refresh_view=True)
 
@@ -104,15 +110,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
             else:
                 self.view.set_widget_visible(pane, True)
 
-    def _get_working_dbtypes(self, retry=False):
-        """
-        get for self.working_dbtypes property
-
-        this sets self._working_dbtypes to a dictionary where the
-        keys are the database names and the values are the index in
-        the connectiona manager's database types
-        """
-        if self._working_dbtypes != [] and not retry:
+    @property
+    def working_dbtypes(self):
+        if self._working_dbtypes != []:
             return self._working_dbtypes
         self._working_dbtypes = []
         try:
@@ -140,23 +140,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
         return self._working_dbtypes
 
-    # a list of dbtypes that are importable
-    working_dbtypes = property(_get_working_dbtypes)
-    _working_dbtypes = []
-
     def start(self):
         """
         Show the connection manager.
         """
-        conn_list = prefs.prefs[bauble.conn_list_pref]
-        if conn_list is None or len(conn_list.keys()) == 0:
-            msg = _('You don\'t have any connections in your connection '
-                    'list.\nClose this message and click on "Add" to create '
-                    'a new connection.')
-            utils.message_dialog(msg)
-        else:
-            self.set_active_connection_by_name(self.default_name)
-            self._dirty = False
 
         self._error = True
         name = None
@@ -240,7 +227,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
                     'pictures', '')
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
-            if not self.compare_prefs_to_saved(self.current_name):
+            if not self.compare_prefs_to_saved(self.connection_name):
                 msg = _("Do you want to save your changes?")
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
@@ -323,7 +310,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         check(hasattr(self, "name_combo"))
         active = 0
-        conn_list = prefs.prefs[bauble.conn_list_pref]
+        conn_list = self.connections
         if conn_list is None:
             return
         for i, conn in enumerate(conn_list):
@@ -350,11 +337,11 @@ class ConnMgrPresenter(GenericEditorPresenter):
         msg = (_('Are you sure you want to remove "%s"?\n\n'
                  '<i>Note: This only removes the connection to the database '
                  'and does not affect the database or its data</i>')
-               % self.current_name)
+               % self.connection_name)
 
         if not utils.yes_no_dialog(msg):
             return
-        self.current_name = None
+        self.connection_name = None
         self.remove_connection(self.name_combo.get_active_text())
         self.name_combo.set_active(0)
 
@@ -388,16 +375,14 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         save connection parameters from the widgets in the prefs
         """
-        if self.current_name is None:
+        if self.connection_name is None:
             return
         if bauble.conn_list_pref not in prefs.prefs:
             prefs.prefs[bauble.conn_list_pref] = {}
         settings = copy.copy(self.params_box.get_prefs())
         settings["type"] = self.type_combo.get_active_text()
-        conn_list = prefs.prefs[bauble.conn_list_pref]
-        if conn_list is None:
-            conn_list = {}
-        conn_list[self.current_name] = settings
+        conn_list = self.connections
+        conn_list[self.connection_name] = settings
         prefs.prefs[bauble.conn_list_pref] = conn_list
         prefs.prefs.save()
 
@@ -419,24 +404,24 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         the name changed so fill in everything else
         """
-        name = combo.get_active_text()
+        name = self.view.combobox_get_active_text('name_combo')
         if name is None:
             return
 
-        conn_list = prefs.prefs[bauble.conn_list_pref]
-        if self.current_name is not None:
+        conn_list = self.connections
+        if self.connection_name is not None:
             ## we are leaving some valid settings
-            if self.current_name not in conn_list:
-                msg = _("Do you want to save %s?") % self.current_name
+            if self.connection_name not in conn_list:
+                msg = _("Do you want to save %s?") % self.connection_name
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
                 else:
-                    self.remove_connection(self.current_name)
+                    self.remove_connection(self.connection_name)
                     # combo.set_active_iter(active_iter)
-                    self.current_name = None
-            elif not self.compare_prefs_to_saved(self.current_name):
+                    self.connection_name = None
+            elif not self.compare_prefs_to_saved(self.connection_name):
                 msg = (_("Do you want to save your changes to %s ?")
-                       % self.current_name)
+                       % self.connection_name)
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
 
@@ -455,7 +440,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:  # this is for new connections
             self.type_combo.set_active(0)
             self.type_combo.emit("changed")  # in case 0 was already active
-        self.current_name = name
+        self.connection_name = name
         self.old_params.clear()
 
     def on_type_combo_changed(self, combo, data=None):
@@ -553,7 +538,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         return self.parameters_to_uri(params)
 
     def _get_connection_name(self):
-        return self.current_name
+        return self.connection_name
 
     def check_parameters_valid(self):
         """
