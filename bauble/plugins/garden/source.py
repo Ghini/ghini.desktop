@@ -315,9 +315,9 @@ class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             logger.debug('contact refresh(%s, %s=%s)' %
                          (widget, field, getattr(self.model, field)))
-            self.view.set_widget_value(widget, getattr(self.model, field))
+            self.view.widget_set_value(widget, getattr(self.model, field))
 
-        self.view.set_widget_value(
+        self.view.widget_set_value(
             'source_type_combo',
             dict(source_type_values)[self.model.source_type],
             index=1)
@@ -558,7 +558,7 @@ class CollectionPresenter(editor.ChildPresenter):
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month,
                                       '%04d' % value.year)
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
         latitude = self.model.latitude
         if latitude is not None:
@@ -895,22 +895,22 @@ class GeneralSourceDetailExpander(InfoExpander):
     def update(self, row):
         #from textwrap import TextWrapper
         #wrapper = TextWrapper(width=50, subsequent_indent='  ')
-        self.set_widget_value('sd_name_data', '<big>%s</big>' %
+        self.widget_set_value('sd_name_data', '<big>%s</big>' %
                               utils.xml_safe(row.name), markup=True)
         source_type = ''
         if row.source_type:
             source_type = utils.xml_safe(row.source_type)
-        self.set_widget_value('sd_type_data', source_type)
+        self.widget_set_value('sd_type_data', source_type)
 
         description = ''
         if row.description:
             description = utils.xml_safe(row.description)
-        self.set_widget_value('sd_desc_data', description)
+        self.widget_set_value('sd_desc_data', description)
 
         source = Source.__table__
         nacc = select([source.c.id], source.c.source_detail_id == row.id).\
             count().execute().fetchone()[0]
-        self.set_widget_value('sd_nacc_data', nacc)
+        self.widget_set_value('sd_nacc_data', nacc)
 
 
 class SourceDetailInfoBox(InfoBox):

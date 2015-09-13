@@ -876,14 +876,14 @@ class PlantEditorPresenter(GenericEditorPresenter):
         if cmd is 'edit' and location:
             LocationEditor(location, parent=self.view.get_window()).start()
             self.session.refresh(location)
-            self.view.set_widget_value(combo, location)
+            self.view.widget_set_value(combo, location)
         else:
             editor = LocationEditor(parent=self.view.get_window())
             if editor.start():
                 location = self.model.location = editor.presenter.model
                 self.session.add(location)
                 self.remove_problem(None, combo)
-                self.view.set_widget_value(combo, location)
+                self.view.widget_set_value(combo, location)
                 self.set_model_attr('location', location)
 
     def refresh_view(self):
@@ -891,10 +891,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # new plants
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
             logger.debug('%s: %s = %s' % (widget, field, value))
 
-        self.view.set_widget_value('plant_acc_type_combo',
+        self.view.widget_set_value('plant_acc_type_combo',
                                    acc_type_values[self.model.acc_type],
                                    index=1)
         self.view.widgets.plant_memorial_check.set_inconsistent(False)
@@ -1189,23 +1189,23 @@ class GeneralPlantExpander(InfoExpander):
         plant_code = str(row)
         head, tail = plant_code[:len(acc_code)], plant_code[len(acc_code):]
 
-        self.set_widget_value('acc_code_data', '<big>%s</big>' %
+        self.widget_set_value('acc_code_data', '<big>%s</big>' %
                               utils.xml_safe(unicode(head)),
                               markup=True)
-        self.set_widget_value('plant_code_data', '<big>%s</big>' %
+        self.widget_set_value('plant_code_data', '<big>%s</big>' %
                               utils.xml_safe(unicode(tail)), markup=True)
-        self.set_widget_value('name_data',
+        self.widget_set_value('name_data',
                               row.accession.species_str(markup=True),
                               markup=True)
-        self.set_widget_value('location_data', str(row.location))
-        self.set_widget_value('quantity_data', row.quantity)
+        self.widget_set_value('location_data', str(row.location))
+        self.widget_set_value('quantity_data', row.quantity)
 
         status_str = _('Alive')
         if row.quantity <= 0:
             status_str = _('Dead')
-        self.set_widget_value('status_data', status_str, False)
+        self.widget_set_value('status_data', status_str, False)
 
-        self.set_widget_value('type_data', acc_type_values[row.acc_type],
+        self.widget_set_value('type_data', acc_type_values[row.acc_type],
                               False)
 
         image_size = gtk.ICON_SIZE_MENU

@@ -174,7 +174,7 @@ class JSONExporter(editor.GenericEditorPresenter):
                 filename = chooser.get_filename()
                 if filename:
                     JSONExporter.last_folder, bn = os.path.split(filename)
-                    self.view.set_widget_value('filename', filename)
+                    self.view.widget_set_value('filename', filename)
         except Exception, e:
             logger.warning("unhandled exception in iojson.py: %s" % e)
         chooser.destroy()
@@ -266,7 +266,7 @@ class JSONImporter(editor.GenericEditorPresenter):
                 filename = chooser.get_filename()
                 if filename:
                     JSONImporter.last_folder, bn = os.path.split(filename)
-                    self.view.set_widget_value('input_filename', filename)
+                    self.view.widget_set_value('input_filename', filename)
         except Exception, e:
             logger.warning("unhandled exception in iojson.py: %s" % e)
         chooser.destroy()
