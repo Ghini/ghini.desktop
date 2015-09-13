@@ -623,7 +623,10 @@ class GenericEditorPresenter(object):
         try:
             self.session = object_session(model)
         except UnmappedInstanceError:
-            self.session = db.Session()
+            if db.Session is not None:
+                self.session = db.Session()
+            else:
+                self.session = None
         #logger.debug("session, model, view = %s, %s, %s"
         #             % (self.session, model, view))
         if view:
