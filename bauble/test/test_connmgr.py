@@ -70,10 +70,10 @@ class MockView:
     def connect(self, *args):
         pass
 
-    def get_widget_visible(self, name):
+    def widget_get_visible(self, name):
         return self.visible.get(name)
 
-    def set_widget_visible(self, name, value=True):
+    def widget_set_visible(self, name, value=True):
         self.visible[name] = value
 
     def combobox_remove(self, name, item):
@@ -108,11 +108,11 @@ class ConnMgrPresenterTests(BaubleTestCase):
         prefs.prefs[bauble.conn_list_pref] = {}
         presenter = ConnMgrPresenter(view)
 
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'sqlite_parambox'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'dbms_parambox'))
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
     def test_one_connection_shown_removed_message(self):
@@ -127,16 +127,16 @@ class ConnMgrPresenterTests(BaubleTestCase):
                        'file': 'nugkui.db'}}
         presenter = ConnMgrPresenter(view)
         # T_0
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'sqlite_parambox'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'noconnectionlabel'))
         # action
         presenter.remove_connection('nugkui')
         # T_1
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'noconnectionlabel'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'sqlite_parambox'))
 
     def test_one_connection_shown_and_selected_sqlite(self):
@@ -152,9 +152,9 @@ class ConnMgrPresenterTests(BaubleTestCase):
         prefs.prefs[bauble.conn_default_pref] = 'nugkui'
         presenter = ConnMgrPresenter(view)
         self.assertEquals(presenter.connection_name, 'nugkui')
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'sqlite_parambox'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
     def test_one_connection_shown_and_selected_postgresql(self):
@@ -172,11 +172,11 @@ class ConnMgrPresenterTests(BaubleTestCase):
         prefs.prefs[bauble.conn_default_pref] = 'quisquis'
         presenter = ConnMgrPresenter(view)
         self.assertEquals(presenter.connection_name, 'quisquis')
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'dbms_parambox'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'sqlite_parambox'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
     def test_one_connection_shown_and_selected_oracle(self):
@@ -194,11 +194,11 @@ class ConnMgrPresenterTests(BaubleTestCase):
         prefs.prefs[bauble.conn_default_pref] = 'quisquis'
         presenter = ConnMgrPresenter(view)
         self.assertEquals(presenter.connection_name, 'quisquis')
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'dbms_parambox'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'sqlite_parambox'))
-        self.assertFalse(presenter.view.get_widget_visible(
+        self.assertFalse(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
     def test_two_connections_wrong_default_use_first_one(self):
@@ -243,7 +243,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         # T_0
         self.assertEquals(presenter.connection_name, 'nugkui')
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'sqlite_parambox'))
         # action
         presenter.on_combo_changed('name_combo', 'quisquis')
@@ -251,5 +251,5 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter.on_combo_changed('type_combo', 'Oracle')
         # T_1
         self.assertEquals(presenter.connection_name, 'quisquis')
-        self.assertTrue(presenter.view.get_widget_visible(
+        self.assertTrue(presenter.view.widget_get_visible(
             'dbms_parambox'))
