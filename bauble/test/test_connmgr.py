@@ -52,6 +52,21 @@ class MockView:
         for name, value in kwargs.items():
             setattr(self, name, value)
 
+    def image_set_from_file(self, *args):
+        pass
+
+    def set_title(self, *args):
+        pass
+
+    def set_icon(self, *args):
+        pass
+
+    def image_set_from_file(self, *args):
+        pass
+
+    def combobox_init(self, *args):
+        pass
+
     def connect_signals(self, *args):
         pass
 
@@ -109,9 +124,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
 
         self.assertFalse(presenter.view.widget_get_visible(
-            'sqlite_parambox'))
-        self.assertFalse(presenter.view.widget_get_visible(
-            'dbms_parambox'))
+            'expander'))
         self.assertTrue(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
@@ -128,7 +141,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         # T_0
         self.assertTrue(presenter.view.widget_get_visible(
-            'sqlite_parambox'))
+            'expander'))
         self.assertFalse(presenter.view.widget_get_visible(
             'noconnectionlabel'))
         # action
@@ -137,7 +150,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         self.assertTrue(presenter.view.widget_get_visible(
             'noconnectionlabel'))
         self.assertFalse(presenter.view.widget_get_visible(
-            'sqlite_parambox'))
+            'expander'))
 
     def test_one_connection_shown_and_selected_sqlite(self):
         view = MockView(combos={'name_combo': [],
@@ -153,7 +166,7 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         self.assertEquals(presenter.connection_name, 'nugkui')
         self.assertTrue(presenter.view.widget_get_visible(
-            'sqlite_parambox'))
+            'expander'))
         self.assertFalse(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
@@ -172,6 +185,8 @@ class ConnMgrPresenterTests(BaubleTestCase):
         prefs.prefs[bauble.conn_default_pref] = 'quisquis'
         presenter = ConnMgrPresenter(view)
         self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
         self.assertTrue(presenter.view.widget_get_visible(
             'dbms_parambox'))
         self.assertFalse(presenter.view.widget_get_visible(
@@ -194,6 +209,8 @@ class ConnMgrPresenterTests(BaubleTestCase):
         prefs.prefs[bauble.conn_default_pref] = 'quisquis'
         presenter = ConnMgrPresenter(view)
         self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
         self.assertTrue(presenter.view.widget_get_visible(
             'dbms_parambox'))
         self.assertFalse(presenter.view.widget_get_visible(
