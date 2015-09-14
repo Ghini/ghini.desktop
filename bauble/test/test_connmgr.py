@@ -61,9 +61,6 @@ class MockView:
     def set_icon(self, *args):
         pass
 
-    def image_set_from_file(self, *args):
-        pass
-
     def combobox_init(self, *args):
         pass
 
@@ -102,8 +99,17 @@ class MockView:
         model = self.combos[name]
         model.append(value)
 
+    def combobox_set_active(self, widget, index):
+        pass
+
     def set_accept_buttons_sensitive(self, sensitive=True):
         pass
+
+
+def diteglisempredisi(*args):
+    return True
+import bauble.utils as utils
+utils.yes_no_dialog = diteglisempredisi
 
 
 class ConnMgrPresenterTests(BaubleTestCase):
@@ -256,16 +262,17 @@ class ConnMgrPresenterTests(BaubleTestCase):
                          'db': 'quisquis',
                          'host': 'localhost',
                          'user': 'pg',
-                         'type': 'Oracle'}}
+                         'type': 'PostgreSQL'}}
         presenter = ConnMgrPresenter(view)
         # T_0
         self.assertEquals(presenter.connection_name, 'nugkui')
         self.assertTrue(presenter.view.widget_get_visible(
             'sqlite_parambox'))
         # action
-        presenter.on_combo_changed('name_combo', 'quisquis')
-        ## in reality, this ist riggered by the view!
-        presenter.on_combo_changed('type_combo', 'Oracle')
+        presenter.on_name_combo_changed('name_combo', 'quisquis')
+        self.assertEquals(presenter.dbtype, 'PostgreSQL')
+        ## if the above succeeds, the following is riggered by the view!
+        presenter.on_combo_changed('type_combo', 'PostgreSQL')
         # T_1
         self.assertEquals(presenter.connection_name, 'quisquis')
         self.assertTrue(presenter.view.widget_get_visible(

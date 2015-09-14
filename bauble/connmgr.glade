@@ -56,6 +56,7 @@
                 <property name="label">gtk-connect</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="has_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
                 <property name="use_action_appearance">False</property>
@@ -101,8 +102,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="border_width">3</property>
-                    <property name="model">liststore2</property>
-                    <signal name="changed" handler="on_combo_changed" swapped="no"/>
+                    <signal name="changed" handler="on_name_combo_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">True</property>
@@ -199,7 +199,6 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                               <object class="GtkComboBox" id="type_combo">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="model">liststore1</property>
                                 <signal name="changed" handler="on_combo_changed" swapped="no"/>
                               </object>
                               <packing>

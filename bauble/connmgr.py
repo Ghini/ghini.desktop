@@ -46,6 +46,45 @@ from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
 
 
+working_dbtypes = []
+dbtypes = []
+
+try:
+    try:
+        import pysqlite2
+        assert(pysqlite2)
+    except Exception:
+        import sqlite3
+        assert(sqlite3)
+    dbtypes.append('SQLite')
+    working_dbtypes.append('SQLite')
+except ImportError, e:
+    logger.warning('ConnMgrPresenter: %s' % e)
+for (module, name) in (
+        ('psycopg2', 'PostgreSQL'),
+        ('MySQLdb', 'MySQL'),
+        ('pyodbc', 'MS SQL Server'),
+        ('cx_Oracle', 'Oracle'),
+        ):
+    try:
+        dbtypes.append(name)
+        __import__(module)
+        working_dbtypes.append(name)
+    except ImportError, e:
+        logger.info('ConnMgrPresenter: %s' % e)
+
+
+def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
+    """
+    if the database type is not in self.working_dbtypes then
+    make it not sensitive
+    """
+    dbtype = model[iter][0]
+    sensitive = dbtype in working_dbtypes
+    renderer.set_property('sensitive', sensitive)
+    renderer.set_property('text', dbtype)
+
+
 class ConnMgrPresenter(GenericEditorPresenter):
     """
     The main class that starts the connection manager GUI.
@@ -69,15 +108,12 @@ class ConnMgrPresenter(GenericEditorPresenter):
     view_accept_buttons = ['cancel_button', 'connect_button']
 
     def __init__(self, view=None):
-        self._working_dbtypes = []
-        # old_params is used to cache the parameter values for when the param
-        # box changes but we want to keep the values, e.g. when the type
-        # changes
-        self.old_params = {}
-        self._dbtypes = ['SQLite']
         self.filename = self.database = self.host = self.user = \
             self.pictureroot = self.connection_name = ''
         self.use_defaults = True
+        ## initialize comboboxes, so we can fill them in
+        view.combobox_init('name_combo')
+        view.combobox_init('type_combo', dbtypes, type_combo_cell_data_func)
         self.connection_names = []
         self.connections = prefs.prefs[bauble.conn_list_pref] or {}
         for ith_connection_name in self.connections:
@@ -91,8 +127,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:
             self.dbtype = ''
             self.connection_name = None
-        view.combobox_init('name_combo')
-        view.combobox_init('type_combo')
         GenericEditorPresenter.__init__(
             self, model=self, view=view, refresh_view=True)
         logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
@@ -119,44 +153,14 @@ class ConnMgrPresenter(GenericEditorPresenter):
                 self.view.widget_set_visible('dbms_parambox', True)
                 self.view.widget_set_visible('sqlite_parambox', False)
 
-    @property
-    def working_dbtypes(self):
-        if self._working_dbtypes != []:
-            return self._working_dbtypes
-        self._working_dbtypes = []
-        try:
-            try:
-                import pysqlite2
-                assert(pysqlite2)
-            except Exception:
-                import sqlite3
-                assert(sqlite3)
-            self._working_dbtypes.append('SQLite')
-        except ImportError, e:
-            logger.warning('ConnMgrPresenter: %s' % e)
-        for (module, name) in (
-                ('psycopg2', 'PostgreSQL'),
-                ('MySQLdb', 'MySQL'),
-                ('pyodbc', 'MS SQL Server'),
-                ('cx_Oracle', 'Oracle'),
-                ):
-            try:
-                self._dbtypes.append(name)
-                __import__(module)
-                self._working_dbtypes.append(name)
-            except ImportError, e:
-                logger.info('ConnMgrPresenter: %s' % e)
-
-        return self._working_dbtypes
-
     def on_dialog_response(self, dialog, response, data=None):
         """
         The dialog's response signal handler.
         """
         self._error = False
         if response == gtk.RESPONSE_OK:
-            settings = self.params_box.get_prefs()
-            dbtype = self.view.combobox_get_active_text('type_combo')
+            settings = self.get_params()
+            dbtype = self.dbtype
             if dbtype == 'SQLite':
                 filename = settings['file']
                 if not os.path.exists(filename):
@@ -244,9 +248,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
         if not utils.yes_no_dialog(msg):
             return
+        self.remove_connection(self.connection_name)
         self.connection_name = None
-        self.remove_connection(
-            self.view.combobox_get_active_text('name_combo'))
         self.view.combobox_set_active('name_combo', 0)
 
     def on_add_button_clicked(self, button, data=None):
@@ -276,8 +279,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
             return
         if bauble.conn_list_pref not in prefs.prefs:
             prefs.prefs[bauble.conn_list_pref] = {}
-        settings = copy.copy(self.params_box.get_prefs())
-        settings["type"] = self.view.combobox_get_active_text('type_combo')
+        settings = copy.copy(self.get_params())
+        settings["type"] = self.dbtype
         conn_list = self.connections
         conn_list[self.connection_name] = settings
         prefs.prefs[bauble.conn_list_pref] = conn_list
@@ -290,87 +293,49 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if name is None:  # in case no name selected, can happen on first run
             return True
         conn_list = prefs.prefs[bauble.conn_list_pref]
-        if conn_list is None or name not in conn_list or not self.params_box:
+        if conn_list is None or name not in conn_list:
             return False
         stored_params = conn_list[name]
-        params = copy.copy(self.params_box.get_prefs())
-        params["type"] = self.view.combobox_get_active_text('type_combo')
+        params = copy.copy(self.get_params())
+        params["type"] = self.dbtype
         return params == stored_params
 
     def on_name_combo_changed(self, combo, data=None):
         """
         the name changed so fill in everything else
         """
-        name = self.view.combobox_get_active_text('name_combo')
-        if name is None:
-            return
+        prev_connection_name = self.connection_name
+        self.on_combo_changed(combo, data)  # this updates self.connection_name
 
         conn_list = self.connections
-        if self.connection_name is not None:
+        if prev_connection_name is not None:
             ## we are leaving some valid settings
-            if self.connection_name not in conn_list:
-                msg = _("Do you want to save %s?") % self.connection_name
+            if prev_connection_name not in conn_list:
+                msg = _("Do you want to save %s?") % prev_connection_name
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
                 else:
-                    self.remove_connection(self.connection_name)
-                    # combo.set_active_iter(active_iter)
-                    self.connection_name = None
-            elif not self.compare_prefs_to_saved(self.connection_name):
+                    self.remove_connection(prev_connection_name)
+            elif not self.compare_prefs_to_saved(prev_connection_name):
                 msg = (_("Do you want to save your changes to %s ?")
-                       % self.connection_name)
+                       % prev_connection_name)
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
 
-        if conn_list is not None and name in conn_list:
+        if self.connection_name in conn_list:
             ## we are retrieving connection info from the global settings
-            if conn_list[name]['type'] not in self._dbtypes:
+            if conn_list[self.connection_name]['type'] not in dbtypes:
                 # in case the connection type has changed or isn't supported
                 # on this computer
                 self.view.combobox_set_active('type_combo', -1)
-                self.view.widget_emit('type_combo', "changed")
             else:
-                self.view.combobox_set_active('type_combo', 0)
-                self.view.combobox_set_active(
-                    'type_combo', self._dbtypes.index(conn_list[name]["type"]))
-                self.params_box.refresh_view(conn_list[name])
+                index = dbtypes.index(conn_list[self.connection_name]
+                                      ["type"])
+                self.view.combobox_set_active('type_combo', index)
+                self.set_params(conn_list[self.connection_name])
         else:  # this is for new connections
             self.view.combobox_set_active('type_combo', 0)
-            self.view.widget_emit("changed")  # in case 0 was already active
-        self.connection_name = name
-        self.old_params.clear()
-
-    def on_type_combo_changed(self, combo, data=None):
-        """
-        the type changed so change the params_box
-        """
-        if self.params_box is not None:
-            self.old_params.update(self.params_box.get_parameters())
-            self.expander_box.remove(self.params_box)
-
-        dbtype = self.view.combo_get_active_text(combo)
-        if dbtype is None:
-            self.params_box = None
-            return
-
-        sensitive = dbtype in self._working_dbtypes
-        self.view.widget_set_sensitive('connect_button', sensitive)
-
-        # get parameters box for the dbtype
-        self.params_box = createParamsBox(dbtype, self)
-
-        # if the type changed but is the same type of the connection
-        # in the name entry then set the prefs
-        conn_list = prefs.prefs[bauble.conn_list_pref]
-        if conn_list is not None:
-            name = self.name_combo.get_active_text()
-            if name in conn_list:
-                self.params_box.refresh_view(conn_list[name])
-            elif len(self.old_params.keys()) != 0:
-                self.params_box.refresh_view(self.old_params)
-
-        self.expander_box.pack_start(self.params_box, False, False)
-        self.view.get_window().show_all()
+        self.refresh_view()
 
     def get_passwd(self, title=_("Enter your password"), before_main=False):
         """
@@ -424,13 +389,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
         return uri
 
     def _get_connection_uri(self):
-        type = self.type_combo.get_active_text()
+        type = self.dbtype
 
-        # no db has been selected, this can happen on first run
-        if self.params_box is None:
-            return None
-
-        params = copy.copy(self.params_box.get_parameters())
+        params = copy.copy(self.get_params())
         params['type'] = type.lower()
         return self.parameters_to_uri(params)
 
@@ -451,6 +412,29 @@ class ConnMgrPresenter(GenericEditorPresenter):
         params = self.params_box
         if params["user"] == "":
             return False, _("Please choose a user name for this connection")
+
+    def get_params(self):
+        if self.dbtype == 'SQLite':
+            result = {'file': self.filename,
+                      'pictures': self.pictureroot}
+        else:
+            result = {'db': self.database,
+                      'host': self.host,
+                      'user': self.user,
+                      'pictures': self.pictureroot,
+                      }
+        return result
+
+    def set_params(self, params):
+        if self.dbtype == 'SQLite':
+            self.filename = params['file']
+            self.pictureroot = params['pictures']
+        else:
+            self.database = params['db']
+            self.host = params['host']
+            self.user = params['user']
+            self.pictureroot = params['pictures']
+        self.refresh_view()
 
 
 class CMParamsBox(gtk.Table):
@@ -521,11 +505,6 @@ class CMParamsBox(gtk.Table):
         pictureroot_button.wants_filetype = None
         self.pictureroot_box.pack_start(pictureroot_button)
         self.attach(self.pictureroot_box, 1, 2, 4, 5)
-
-    def get_prefs(self):
-        """return dictionary of all preferences.
-        """
-        return self.get_parameters()
 
     def get_parameters(self):
         """return dictionary of text valued preferences.
@@ -622,21 +601,6 @@ class SQLiteParamsBox(CMParamsBox):
         prefs = self.get_parameters()
         prefs['default'] = self.default_check.get_active()
         return prefs
-
-    def get_parameters(self):
-        d = {}
-        invalid_chars = ', "\'():;'
-        if self.default_check.get_active():
-            name = self.conn_mgr_ref()._get_connection_name() or ''
-            from string import maketrans
-            fixed = name.translate(maketrans(invalid_chars,
-                                             '_'*len(invalid_chars)))
-            d['file'] = os.path.join(paths.user_dir(), '%s.db' % fixed)
-            d['pictures'] = os.path.join(paths.user_dir(), fixed)
-        else:
-            d['file'] = self.file_entry.get_text()
-            d['pictures'] = self.pictureroot_entry.get_text()
-        return d
 
     def refresh_view(self, prefs):
         try:
