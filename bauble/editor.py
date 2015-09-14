@@ -392,7 +392,7 @@ class GenericEditorView(object):
         else:
             raise NotImplementedError
 
-    def combobox_init(self, widget):
+    def combobox_init(self, widget, values=None, cell_data_func=None):
         combo = (isinstance(widget, gtk.Widget)
                  and widget
                  or self.widgets[widget])
@@ -402,6 +402,12 @@ class GenericEditorView(object):
         renderer = gtk.CellRendererText()
         combo.pack_start(renderer, True)
         combo.add_attribute(renderer, 'text', 0)
+        self.combobox_setup(combo, values, cell_data_func)
+
+    def combobox_setup(self, combo, values, cell_data_func):
+        if values is None:
+            return
+        return utils.setup_text_combobox(combo, values, cell_data_func)
 
     def combobox_remove(self, widget, item):
         widget = (isinstance(widget, gtk.Widget)
