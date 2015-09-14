@@ -65,8 +65,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
         'pictureroot_entry1': 'pictureroot',
         'pictureroot_entry': 'pictureroot',
         }
-    alternative_panes = [
-        'sqlite_parambox', 'dbms_parambox', 'noconnectionlabel']
 
     view_accept_buttons = ['cancel_button', 'connect_button']
 
@@ -93,22 +91,33 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:
             self.dbtype = ''
             self.connection_name = None
+        view.combobox_init('name_combo')
+        view.combobox_init('type_combo')
         GenericEditorPresenter.__init__(
             self, model=self, view=view, refresh_view=True)
+        logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
+        view.image_set_from_file('logo_image', logo_path)
+        view.set_title('%s %s' % ('Bauble', bauble.version))
+        try:
+            view.set_icon(gtk.gdk.pixbuf_new_from_file(bauble.default_icon))
+        except:
+            pass
 
     def refresh_view(self):
         GenericEditorPresenter.refresh_view(self)
-        active_pane = 'dbms_parambox'
-        if self.dbtype == 'SQLite':
-            active_pane = 'sqlite_parambox'
         conn_list = self.connections
         if conn_list is None or len(conn_list.keys()) == 0:
-            active_pane = 'noconnectionlabel'
-        for pane in self.alternative_panes:
-            if pane != active_pane:
-                self.view.widget_set_visible(pane, False)
+            self.view.widget_set_visible('noconnectionlabel', True)
+            self.view.widget_set_visible('expander', False)
+        else:
+            self.view.widget_set_visible('expander', True)
+            self.view.widget_set_visible('noconnectionlabel', False)
+            if self.dbtype == 'SQLite':
+                self.view.widget_set_visible('sqlite_parambox', True)
+                self.view.widget_set_visible('dbms_parambox', False)
             else:
-                self.view.widget_set_visible(pane, True)
+                self.view.widget_set_visible('dbms_parambox', True)
+                self.view.widget_set_visible('sqlite_parambox', False)
 
     @property
     def working_dbtypes(self):
@@ -140,55 +149,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
         return self._working_dbtypes
 
-    def old_start(self):
-        """
-        Show the connection manager.
-        """
-
-        self._error = True
-        name = None
-        uri = None
-        while name is None or self._error:
-            response = self.view.run()
-            if response == gtk.RESPONSE_OK:
-                name = self._get_connection_name()
-                uri = self._get_connection_uri()
-                if name is None:
-                    msg = _('You have to choose or create a new connection '
-                            'before you can connect to the database.')
-                    utils.message_dialog(msg)
-            else:
-                name = uri = None
-                break
-
-        ## now make sure the pictures dir contains a thumbs subdir
-        path = os.path.sep.join(
-            (prefs.prefs[prefs.picture_root_pref], 'thumbs'))
-        try:
-            logger.debug("checking presence of thumbs dir")
-            os.makedirs(path)
-        except OSError:
-            if not os.path.isdir(path):
-                logger.debug("something wrong in thumbs dir")
-                raise
-
-        # have to remove the cell_data_func to avoid a cyclical
-        # reference which would cause the ConnMgrPresenter to not get
-        # garbage collected
-        cell = self.type_combo.get_cells()[0]
-        self.type_combo.set_cell_data_func(cell, None)
-        self.type_combo.clear()
-
-        # just to be sure let's destroy the dialog upfront and delete
-        # the params box
-        self.dialog.destroy()
-        del self.params_box
-        obj = utils.gc_objects_by_type(CMParamsBox)
-        if obj:
-            logger.info('ConnMgrPresenter.start(): param box leaked: %s'
-                        % obj)
-        return name, uri
-
     def on_dialog_response(self, dialog, response, data=None):
         """
         The dialog's response signal handler.
@@ -196,7 +156,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         self._error = False
         if response == gtk.RESPONSE_OK:
             settings = self.params_box.get_prefs()
-            dbtype = self.view.widgets.type_combo.get_active_text()
+            dbtype = self.view.combobox_get_active_text('type_combo')
             if dbtype == 'SQLite':
                 filename = settings['file']
                 if not os.path.exists(filename):
@@ -241,65 +201,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
         return response
 
     def on_dialog_close_or_delete(self, widget, event=None):
-        self.dialog.hide()
+        self.view.get_window().hide()
         return True
-
-    def create_gui(self):
-        if self.working_dbtypes is None or len(self.working_dbtypes) == 0:
-            msg = _("No Python database connectors installed.\n"
-                    "Please consult the documentation for the "
-                    "prerequesites for installing Bauble.")
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            raise Exception(msg)
-
-        glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")
-        self.view.widgets = utils.BuilderWidgets(glade_path)
-        self.builder = self.view.widgets._builder_
-
-        self.dialog = self.view.widgets.main_dialog
-        title = '%s %s' % ('Bauble', bauble.version)
-        self.dialog.set_title(title)
-        try:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
-            self.dialog.set_icon(pixbuf)
-        except Exception:
-            logger.warning(_('Could not load icon from %s') %
-                           bauble.default_icon)
-            logger.warning(traceback.format_exc())
-
-        if bauble.gui is not None and bauble.gui.window is not None:
-            self.dialog.set_transient_for(bauble.gui.window)
-            if not bauble.gui.window.get_property('visible'):
-                self.dialog.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
-                self.dialog.set_property('skip-taskbar-hint', False)
-
-        self.builder.connect_signals(self)
-
-        # set the logo image manually, it's hard to depend on glade to
-        # get this right since the image paths may change
-        logo = self.view.widgets.logo_image
-        logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
-        logo.set_from_file(logo_path)
-
-        self.params_box = None
-        self.expander_box = self.view.widgets.expander_box
-
-        # setup the type combo
-
-        def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
-            """
-            if the database type is not in self.working_dbtypes then
-            make it not sensitive
-            """
-            dbtype = model[iter][0]
-            sensitive = dbtype in self.working_dbtypes
-            renderer.set_property('sensitive', sensitive)
-            renderer.set_property('text', dbtype)
-
-        self.type_combo = self.view.widgets.type_combo
-        utils.setup_text_combobox(self.type_combo, self._dbtypes,
-                                  type_combo_cell_data_func)
-        self.type_combo.connect("changed", self.on_type_combo_changed)
 
     def set_active_connection_by_name(self, name):
         """initialize name_combo, then set active
@@ -317,7 +220,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.name_combo.insert_text(i, conn)
             if conn == name:
                 active = i
-        self.name_combo.set_active(active)
+        self.combobox_set_active('name_combo', active)
 
     def remove_connection(self, name):
         """remove named connection, from combobox and from self
@@ -342,11 +245,12 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if not utils.yes_no_dialog(msg):
             return
         self.connection_name = None
-        self.remove_connection(self.name_combo.get_active_text())
-        self.name_combo.set_active(0)
+        self.remove_connection(
+            self.view.combobox_get_active_text('name_combo'))
+        self.view.combobox_set_active('name_combo', 0)
 
     def on_add_button_clicked(self, button, data=None):
-        d = gtk.Dialog(_("Enter a connection name"), self.dialog,
+        d = gtk.Dialog(_("Enter a connection name"), self.view.get_window(),
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_default_response(gtk.RESPONSE_ACCEPT)
@@ -360,16 +264,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
         name = entry.get_text()
         d.destroy()
         if name is not '':
-            self.name_combo.prepend_text(name)
-            self.view.widgets.expander.set_expanded(True)
-            self.name_combo.set_active(0)
-
-            # TODO:
-            # if sqlite.is_supported then sqlite, else set_active(0)
-            #self.type_combo.set_active(0)
-
-##    def set_info_label(self, msg=_("Choose a connection")):
-##        self.info_label.set_text(msg)
+            self.view.combobox_prepend_text('name_combo', name)
+            self.view.expander_set_expanded('expander', True)
+            self.view.combobox_set_active('name_combo', 0)
 
     def save_current_to_prefs(self):
         """
@@ -380,7 +277,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if bauble.conn_list_pref not in prefs.prefs:
             prefs.prefs[bauble.conn_list_pref] = {}
         settings = copy.copy(self.params_box.get_prefs())
-        settings["type"] = self.type_combo.get_active_text()
+        settings["type"] = self.view.combobox_get_active_text('type_combo')
         conn_list = self.connections
         conn_list[self.connection_name] = settings
         prefs.prefs[bauble.conn_list_pref] = conn_list
@@ -397,7 +294,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             return False
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_prefs())
-        params["type"] = self.type_combo.get_active_text()
+        params["type"] = self.view.combobox_get_active_text('type_combo')
         return params == stored_params
 
     def on_name_combo_changed(self, combo, data=None):
@@ -430,16 +327,16 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if conn_list[name]['type'] not in self._dbtypes:
                 # in case the connection type has changed or isn't supported
                 # on this computer
-                self.type_combo.set_active(-1)
-                self.type_combo.emit("changed")  # in case 0 was already active
+                self.view.combobox_set_active('type_combo', -1)
+                self.view.widget_emit('type_combo', "changed")
             else:
-                self.type_combo.set_active(0)
-                self.type_combo.set_active(self._dbtypes.
-                                           index(conn_list[name]["type"]))
+                self.view.combobox_set_active('type_combo', 0)
+                self.view.combobox_set_active(
+                    'type_combo', self._dbtypes.index(conn_list[name]["type"]))
                 self.params_box.refresh_view(conn_list[name])
         else:  # this is for new connections
-            self.type_combo.set_active(0)
-            self.type_combo.emit("changed")  # in case 0 was already active
+            self.view.combobox_set_active('type_combo', 0)
+            self.view.widget_emit("changed")  # in case 0 was already active
         self.connection_name = name
         self.old_params.clear()
 
@@ -451,13 +348,13 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.old_params.update(self.params_box.get_parameters())
             self.expander_box.remove(self.params_box)
 
-        dbtype = combo.get_active_text()
+        dbtype = self.view.combo_get_active_text(combo)
         if dbtype is None:
             self.params_box = None
             return
 
         sensitive = dbtype in self._working_dbtypes
-        self.view.widgets.connect_button.set_sensitive(sensitive)
+        self.view.widget_set_sensitive('connect_button', sensitive)
 
         # get parameters box for the dbtype
         self.params_box = createParamsBox(dbtype, self)
@@ -473,7 +370,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
                 self.params_box.refresh_view(self.old_params)
 
         self.expander_box.pack_start(self.params_box, False, False)
-        self.dialog.show_all()
+        self.view.get_window().show_all()
 
     def get_passwd(self, title=_("Enter your password"), before_main=False):
         """
@@ -481,7 +378,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         # TODO: if self.dialog is None then ask from the command line
         # or just set dialog parent to None
-        d = gtk.Dialog(title, self.dialog,
+        d = gtk.Dialog(title, self.view.get_window(),
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_gravity(gtk.gdk.GRAVITY_CENTER)
@@ -778,5 +675,4 @@ def start_connection_manager(default_conn=None):
         root_widget_name='main_dialog')
 
     cm = ConnMgrPresenter(view)
-    cm.create_gui()
     return cm.start()
