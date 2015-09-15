@@ -49,6 +49,7 @@ from bauble.editor import (
 working_dbtypes = []
 dbtypes = []
 
+## prepare the above global variables
 try:
     try:
         import pysqlite2
@@ -75,9 +76,9 @@ for (module, name) in (
 
 
 def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
-    """
-    if the database type is not in self.working_dbtypes then
-    make it not sensitive
+    """passed to the gtk method set_cell_data_func
+
+    item is sensitive iff in working_dbtypes
     """
     dbtype = model[iter][0]
     sensitive = dbtype in working_dbtypes
@@ -101,7 +102,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         'database_entry': 'database',
         'host_entry': 'host',
         'user_entry': 'user',
-        'pictureroot_entry1': 'pictureroot',
+        'pictureroot2_entry': 'pictureroot',
         'pictureroot_entry': 'pictureroot',
         }
 
@@ -149,9 +150,21 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if self.dbtype == 'SQLite':
                 self.view.widget_set_visible('sqlite_parambox', True)
                 self.view.widget_set_visible('dbms_parambox', False)
+                self.refresh_entries_sensitive()
             else:
                 self.view.widget_set_visible('dbms_parambox', True)
                 self.view.widget_set_visible('sqlite_parambox', False)
+
+    def on_usedefaults_chkbx_toggled(self, widget, *args):
+        self.on_chkbx_toggled(widget, *args)
+        self.refresh_entries_sensitive()
+
+    def refresh_entries_sensitive(self):
+        x = not self.use_defaults
+        self.view.widget_set_sensitive('file_entry', x)
+        self.view.widget_set_sensitive('pictureroot_entry', x)
+        self.view.widget_set_sensitive('file_btnbrowse', x)
+        self.view.widget_set_sensitive('pictureroot_btnbrowse', x)
 
     def on_dialog_response(self, dialog, response, data=None):
         """
@@ -185,7 +198,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
                     msg = _("Bauble does not have permission to "
                             "write to the database file:\n\n%s") % filename
                     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            if not self._error:
+            if not self._error and not prefs.testing:
                 self.save_current_to_prefs()
                 prefs.prefs[prefs.picture_root_pref] = settings.get(
                     'pictures', '')
@@ -273,16 +286,16 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
     def save_current_to_prefs(self):
         """
-        save connection parameters from the widgets in the prefs
+        save connection parameters in the prefs
         """
-        if self.connection_name is None:
+        if self.connection_name is None or prefs.testing:
             return
         if bauble.conn_list_pref not in prefs.prefs:
             prefs.prefs[bauble.conn_list_pref] = {}
-        settings = copy.copy(self.get_params())
-        settings["type"] = self.dbtype
+        params = copy.copy(self.get_params())
+        params["type"] = self.dbtype
         conn_list = self.connections
-        conn_list[self.connection_name] = settings
+        conn_list[self.connection_name] = params
         prefs.prefs[bauble.conn_list_pref] = conn_list
         prefs.prefs.save()
 
@@ -305,7 +318,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
         the name changed so fill in everything else
         """
         prev_connection_name = self.connection_name
-        self.on_combo_changed(combo, data)  # this updates self.connection_name
 
         conn_list = self.connections
         if prev_connection_name is not None:
@@ -321,6 +333,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
                        % prev_connection_name)
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
+
+        self.on_combo_changed(combo, data)  # this updates self.connection_name
+        logger.debug("changing form >%s< to >%s<" %
+                     (prev_connection_name, self.connection_name))
 
         if self.connection_name in conn_list:
             ## we are retrieving connection info from the global settings
@@ -388,7 +404,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
             uri.append(options)
         return uri
 
-    def _get_connection_uri(self):
+    @property
+    def connection_uri(self):
         type = self.dbtype
 
         params = copy.copy(self.get_params())
@@ -415,7 +432,13 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
     def get_params(self):
         if self.dbtype == 'SQLite':
+            if self.use_defaults is True:
+                self.filename = os.path.join(paths.user_dir(),
+                                             self.connection_name + '.db')
+                self.pictureroot = os.path.join(paths.user_dir(),
+                                                self.connection_name)
             result = {'file': self.filename,
+                      'default': self.use_defaults,
                       'pictures': self.pictureroot}
         else:
             result = {'db': self.database,
@@ -427,7 +450,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
     def set_params(self, params):
         if self.dbtype == 'SQLite':
+            print params
             self.filename = params['file']
+            self.use_defaults = params['default']
             self.pictureroot = params['pictures']
         else:
             self.database = params['db']
@@ -437,198 +462,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
         self.refresh_view()
 
 
-class CMParamsBox(gtk.Table):
-    '''common parameters box, has placeholders for database url parts.
-
-    dialect+driver://username:password@host:port/database
-    '''
-
-    def text_valued(self):
-        return [('db', self.db_entry),
-                ('host', self.host_entry),
-                ('user', self.user_entry),
-                ('pictures', self.pictureroot_entry),
-                ]
-
-    def boolean_valued(self):
-        return [('passwd', self.passwd_check)]
-
-    def __init__(self, conn_mgr, rows=5, columns=2):
-        gtk.Table.__init__(self, rows, columns)
-        self.set_row_spacings(10)
-        self.create_gui()
-
-        # create a weak reference to the connection manager to avoid a
-        # cyclical reference which would prevent it from being garbage
-        # collected
-        import weakref
-        self.conn_mgr_ref = weakref.ref(conn_mgr)
-
-    def create_gui(self):
-        label_alignment = (0.0, 0.5)
-        label = gtk.Label(_("Database: "))
-        label.set_alignment(*label_alignment)
-        self.attach(label, 0, 1, 0, 1)
-        self.db_entry = gtk.Entry()
-        self.attach(self.db_entry, 1, 2, 0, 1)
-
-        label = gtk.Label(_("Host: "))
-        label.set_alignment(*label_alignment)
-        self.attach(label, 0, 1, 1, 2)
-        self.host_entry = gtk.Entry()
-        self.host_entry.set_text("localhost")
-        self.attach(self.host_entry, 1, 2, 1, 2)
-
-        label = gtk.Label(_("User: "))
-        label.set_alignment(*label_alignment)
-        self.attach(label, 0, 1, 2, 3)
-        self.user_entry = gtk.Entry()
-        self.attach(self.user_entry, 1, 2, 2, 3)
-
-        label = gtk.Label(_("Password: "))
-        label.set_alignment(*label_alignment)
-        self.attach(label, 0, 1, 3, 4)
-        self.passwd_check = gtk.CheckButton()
-        self.attach(self.passwd_check, 1, 2, 3, 4)
-
-        label = gtk.Label(_("Pictures root: "))
-        label.set_alignment(*label_alignment)
-        self.attach(label, 0, 1, 4, 5)
-        self.pictureroot_box = gtk.HBox(False)
-        self.pictureroot_entry = gtk.Entry()
-        self.pictureroot_box.pack_start(self.pictureroot_entry)
-        pictureroot_button = gtk.Button(_("Browse..."))
-        pictureroot_button.connect("clicked", self.on_activate_browse_button)
-        ## set additional properties, used in on_activate_browse_button
-        pictureroot_button.action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER
-        pictureroot_button.file_entry = self.pictureroot_entry
-        pictureroot_button.wants_filetype = None
-        self.pictureroot_box.pack_start(pictureroot_button)
-        self.attach(self.pictureroot_box, 1, 2, 4, 5)
-
-    def get_parameters(self):
-        """return dictionary of text valued preferences.
-
-        text valued preferences are used to build the connection uri
-        """
-        result = {}
-        for k, w in self.text_valued():
-            result[k] = w.get_text()
-        for k, w in self.boolean_valued():
-            result[k] = w.get_active()
-        return result
-
-    def refresh_view(self, prefs):
-        """
-        refresh the widget values from prefs
-        """
-        try:
-            for k, w in self.text_valued():
-                w.set_text(prefs[k])
-            for k, w in self.boolean_valued():
-                w.set_active(prefs[k])
-        except KeyError, e:
-            logger.debug('KeyError: %s' % e)
-            logger.debug(traceback.format_exc())
-
-    def on_activate_browse_button(self, widget, data=None):
-        d = gtk.FileChooserDialog(
-            _("Choose a file..."), None,
-            action=widget.action,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        d.run()
-        filename = d.get_filename()
-        if filename:
-            widget.file_entry.set_text(filename)
-        d.destroy()
-
-
-class SQLiteParamsBox(CMParamsBox):
-
-    def __init__(self, conn_mgr):
-        CMParamsBox.__init__(self, conn_mgr, rows=2, columns=2)
-
-    def text_valued(self):
-        return [('file', self.file_entry),
-                ('pictures', self.pictureroot_entry),
-                ]
-
-    def boolean_valued(self):
-        return [('default', self.default_check),
-                ]
-
-    def create_gui(self):
-        self.default_check = gtk.CheckButton(_('Use default locations'))
-        self.attach(self.default_check, 0, 2, 0, 1)
-        self.default_check.connect(
-            'toggled', lambda button:
-            (self.file_box.set_sensitive(not button.get_active()),
-             self.pictureroot_box.set_sensitive(not button.get_active())))
-
-        label_alignment = (0.0, 0.5)
-        label = gtk.Label(_("Filename: "))
-        label.set_alignment(*label_alignment)
-        self.attach(label, 0, 1, 1, 2)
-        self.file_box = gtk.HBox(False)
-        self.file_entry = gtk.Entry()
-        self.file_box.pack_start(self.file_entry)
-        file_button = gtk.Button(_("Browse..."))
-        file_button.connect("clicked", self.on_activate_browse_button)
-        ## set additional properties, used in on_activate_browse_button
-        file_button.action = gtk.FILE_CHOOSER_ACTION_SAVE
-        file_button.file_entry = self.file_entry
-        self.file_box.pack_start(file_button)
-        self.attach(self.file_box, 1, 2, 1, 2)
-
-        label_alignment = (0.0, 0.5)
-        label = gtk.Label(_("Pictures root: "))
-        label.set_alignment(*label_alignment)
-        self.attach(label, 0, 1, 2, 3)
-        self.pictureroot_box = gtk.HBox(False)
-        self.pictureroot_entry = gtk.Entry()
-        self.pictureroot_box.pack_start(self.pictureroot_entry)
-        pictureroot_button = gtk.Button(_("Browse..."))
-        pictureroot_button.connect("clicked", self.on_activate_browse_button)
-        ## set additional properties, used in on_activate_browse_button
-        pictureroot_button.action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER
-        pictureroot_button.file_entry = self.pictureroot_entry
-        pictureroot_button.wants_filetype = None
-        self.pictureroot_box.pack_start(pictureroot_button)
-        self.attach(self.pictureroot_box, 1, 2, 2, 3)
-
-    def get_prefs(self):
-        prefs = self.get_parameters()
-        prefs['default'] = self.default_check.get_active()
-        return prefs
-
-    def refresh_view(self, prefs):
-        try:
-            self.default_check.set_active(prefs['default'])
-            self.file_entry.set_text(prefs['file'])
-            self.pictureroot_entry.set_text(
-                prefs.get('pictures', paths.user_dir()))
-        except KeyError:
-            pass
-            #debug('KeyError: %s' % e)
-            #debug(traceback.format_exc())
-
-
-class PGParamsBox(CMParamsBox):
-
-    def __init__(self, conn_mgr):
-        CMParamsBox.__init__(self, conn_mgr)
-
-
-def createParamsBox(db_type, conn_mgr):
-    if db_type.lower() == "sqlite":
-        return SQLiteParamsBox(conn_mgr)
-    elif db_type.lower().startswith('postgres'):
-        return PGParamsBox(conn_mgr)
-    return CMParamsBox(conn_mgr)
-
-
 def start_connection_manager(default_conn=None):
+    '''activate connection manager and return connection name and uri
+    '''
     if default_conn is None:
         default_conn = prefs.prefs[bauble.conn_default_pref]
 
@@ -639,4 +475,5 @@ def start_connection_manager(default_conn=None):
         root_widget_name='main_dialog')
 
     cm = ConnMgrPresenter(view)
-    return cm.start()
+    cm.start()
+    return cm.connection_name, cm.connection_uri

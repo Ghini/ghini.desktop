@@ -23,6 +23,7 @@ from nose import SkipTest
 
 from bauble.test import BaubleTestCase, check_dupids
 from bauble.connmgr import ConnMgrPresenter
+from bauble.editor import MockView
 
 
 def test_duplicate_ids():
@@ -45,71 +46,13 @@ class TagTests(BaubleTestCase):
         pass
 
 
-class MockView:
-    def __init__(self, **kwargs):
-        self.widgets = type('MockWidgets', (object, ), {})
-        self.visible = {}
-        for name, value in kwargs.items():
-            setattr(self, name, value)
-
-    def image_set_from_file(self, *args):
-        pass
-
-    def set_title(self, *args):
-        pass
-
-    def set_icon(self, *args):
-        pass
-
-    def combobox_init(self, *args):
-        pass
-
-    def connect_signals(self, *args):
-        pass
-
-    def set_label(self, *args):
-        pass
-
-    def connect_after(self, *args):
-        pass
-
-    def widget_get_value(self, *args):
-        pass
-
-    def widget_set_value(self, *args):
-        pass
-
-    def connect(self, *args):
-        pass
-
-    def widget_get_visible(self, name):
-        return self.visible.get(name)
-
-    def widget_set_visible(self, name, value=True):
-        self.visible[name] = value
-
-    def combobox_remove(self, name, item):
-        model = self.combos[name]
-        if isinstance(item, int):
-            del model[item]
-        else:
-            model.remove(item)
-
-    def combobox_append_text(self, name, value):
-        model = self.combos[name]
-        model.append(value)
-
-    def combobox_set_active(self, widget, index):
-        pass
-
-    def set_accept_buttons_sensitive(self, sensitive=True):
-        pass
-
-
 def diteglisempredisi(*args):
     return True
+import bauble
 import bauble.utils as utils
 utils.yes_no_dialog = diteglisempredisi
+import bauble.prefs as prefs
+prefs.testing = True  # prevents overwriting
 
 
 class ConnMgrPresenterTests(BaubleTestCase):
@@ -124,8 +67,6 @@ class ConnMgrPresenterTests(BaubleTestCase):
     def test_no_connections_then_message(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        import bauble
-        import bauble.prefs as prefs
         prefs.prefs[bauble.conn_list_pref] = {}
         presenter = ConnMgrPresenter(view)
 
@@ -137,8 +78,6 @@ class ConnMgrPresenterTests(BaubleTestCase):
     def test_one_connection_shown_removed_message(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        import bauble
-        import bauble.prefs as prefs
         prefs.prefs[bauble.conn_list_pref] = {
             'nugkui': {'default': True,
                        'pictures': 'nugkui',
@@ -161,8 +100,6 @@ class ConnMgrPresenterTests(BaubleTestCase):
     def test_one_connection_shown_and_selected_sqlite(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        import bauble
-        import bauble.prefs as prefs
         prefs.prefs[bauble.conn_list_pref] = {
             'nugkui': {'default': True,
                        'pictures': 'nugkui',
@@ -179,8 +116,6 @@ class ConnMgrPresenterTests(BaubleTestCase):
     def test_one_connection_shown_and_selected_postgresql(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        import bauble
-        import bauble.prefs as prefs
         prefs.prefs[bauble.conn_list_pref] = {
             'quisquis': {'passwd': False,
                          'pictures': '',
@@ -203,8 +138,6 @@ class ConnMgrPresenterTests(BaubleTestCase):
     def test_one_connection_shown_and_selected_oracle(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        import bauble
-        import bauble.prefs as prefs
         prefs.prefs[bauble.conn_list_pref] = {
             'quisquis': {'passwd': False,
                          'pictures': '',
@@ -227,8 +160,6 @@ class ConnMgrPresenterTests(BaubleTestCase):
     def test_two_connections_wrong_default_use_first_one(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        import bauble
-        import bauble.prefs as prefs
         prefs.prefs[bauble.conn_default_pref] = 'nugkui'
         prefs.prefs[bauble.conn_list_pref] = {
             'nugkui': {'default': True,
@@ -249,31 +180,48 @@ class ConnMgrPresenterTests(BaubleTestCase):
     def test_when_user_selects_different_type(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        import bauble
-        import bauble.prefs as prefs
         prefs.prefs[bauble.conn_default_pref] = 'nugkui'
         prefs.prefs[bauble.conn_list_pref] = {
-            'nugkui': {'default': True,
+            'nugkui': {'type': 'SQLite',
+                       'default': True,
                        'pictures': 'nugkui',
-                       'type': 'SQLite',
                        'file': 'nugkui.db'},
-            'quisquis': {'passwd': False,
+            'quisquis': {'type': 'PostgreSQL',
+                         'passwd': False,
                          'pictures': '',
                          'db': 'quisquis',
                          'host': 'localhost',
-                         'user': 'pg',
-                         'type': 'PostgreSQL'}}
+                         'user': 'pg'}}
         presenter = ConnMgrPresenter(view)
         # T_0
         self.assertEquals(presenter.connection_name, 'nugkui')
         self.assertTrue(presenter.view.widget_get_visible(
             'sqlite_parambox'))
         # action
-        presenter.on_name_combo_changed('name_combo', 'quisquis')
+        view.widget_set_value('name_combo', 'quisquis')
+        presenter.dbtype = 'PostgreSQL'  # who to trigger this in tests?
+        presenter.on_name_combo_changed('name_combo')
+        # result
+        self.assertEquals(presenter.connection_name, 'quisquis')
+        presenter.refresh_view()  # in reality this is triggered by gtk view
         self.assertEquals(presenter.dbtype, 'PostgreSQL')
         ## if the above succeeds, the following is riggered by the view!
-        presenter.on_combo_changed('type_combo', 'PostgreSQL')
+        #presenter.on_combo_changed('type_combo', 'PostgreSQL')
         # T_1
-        self.assertEquals(presenter.connection_name, 'quisquis')
         self.assertTrue(presenter.view.widget_get_visible(
             'dbms_parambox'))
+
+    def test_set_default_toggles_sensitivity(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'type': 'SQLite',
+                       'default': True,
+                       'pictures': 'nugkui',
+                       'file': 'nugkui.db'},
+            }
+        presenter = ConnMgrPresenter(view)
+        view.widget_set_value('usedefaults_chkbx', True)
+        presenter.on_usedefaults_chkbx_toggled('usedefaults_chkbx')
+        self.assertFalse(view.widget_get_sensitive('file_entry'))

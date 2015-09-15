@@ -392,6 +392,12 @@ class GenericEditorView(object):
         else:
             raise NotImplementedError
 
+    def widget_get_active(widget):
+        return widget.get_active()
+
+    def widget_set_inconsistent(widget, value):
+        widget.set_inconsistent(value)
+
     def combobox_init(self, widget, values=None, cell_data_func=None):
         combo = (isinstance(widget, gtk.Widget)
                  and widget
@@ -445,6 +451,12 @@ class GenericEditorView(object):
                   or self.widgets[widget])
         return widget.get_active_text()
 
+    def combobox_get_active(self, widget):
+        widget = (isinstance(widget, gtk.Widget)
+                  and widget
+                  or self.widgets[widget])
+        return widget.get_active()
+
     def combobox_set_active(self, widget, index):
         widget = (isinstance(widget, gtk.Widget)
                   and widget
@@ -469,6 +481,12 @@ class GenericEditorView(object):
                   and widget
                   or self.widgets[widget])
         widget.set_expanded(value)
+
+    def widget_set_sensitive(self, widget, value=True):
+        widget = (isinstance(widget, gtk.Widget)
+                  and widget
+                  or self.widgets[widget])
+        widget.set_sensitive(value)
 
     def widget_set_visible(self, widget, visible=True):
         widget = (isinstance(widget, gtk.Widget)
@@ -650,6 +668,103 @@ class GenericEditorView(object):
         pass
 
 
+class MockView:
+    '''mocking the view, but so generic that we share it among clients
+    '''
+    def __init__(self, **kwargs):
+        self.widgets = type('MockWidgets', (object, ), {})
+        self.models = {}  # dictionary of list of tuples
+        self.visible = {}
+        self.sensitive = {}
+        self.values = {}
+        self.index = {}
+        for name, value in kwargs.items():
+            setattr(self, name, value)
+
+    def image_set_from_file(self, *args):
+        pass
+
+    def set_title(self, *args):
+        pass
+
+    def set_icon(self, *args):
+        pass
+
+    def combobox_init(self, name, values=None, *args):
+        self.models[name] = []
+        for i in values or []:
+            self.models[name].append((i, ))
+
+    def connect_signals(self, *args):
+        pass
+
+    def set_label(self, *args):
+        pass
+
+    def connect_after(self, *args):
+        pass
+
+    def widget_get_value(self, widget, *args):
+        return self.values[widget]
+
+    def widget_set_value(self, widget, value, *args):
+        print 'widget set value >%s< >%s<' % (widget, value)
+        self.values[widget] = value
+        if widget in self.models:
+            if (value, ) in self.models[widget]:
+                self.index[widget] = self.models[widget].index((value, ))
+            else:
+                self.index[widget] = -1
+
+    def connect(self, *args):
+        pass
+
+    def widget_get_visible(self, name):
+        return self.visible.get(name)
+
+    def widget_set_visible(self, name, value=True):
+        self.visible[name] = value
+
+    def widget_set_sensitive(self, name, value=True):
+        self.sensitive[name] = value
+
+    def widget_get_sensitive(self, name):
+        return self.sensitive[name]
+
+    def widget_set_inconsistent(self, *args):
+        pass
+
+    widget_get_active = widget_get_value
+
+    def combobox_remove(self, name, item):
+        model = self.models.setdefault(name, [])
+        if isinstance(item, int):
+            del model[item]
+        else:
+            model.remove((item, ))
+
+    def combobox_append_text(self, name, value):
+        model = self.models.setdefault(name, [])
+        model.append((value, ))
+
+    def combobox_set_active(self, widget, index):
+        print 'combobox set active', widget, index
+        self.index[widget] = index
+        self.values[widget] = self.models[widget][index][0]
+        print self.values[widget]
+
+    def combobox_get_active(self, widget):
+        print 'combobox get active', widget, self.values[widget]
+        return self.index.setdefault(widget, 0)
+
+    def combobox_get_model(self, widget):
+        print 'combobox get model', widget
+        return self.models[widget]
+
+    def set_accept_buttons_sensitive(self, sensitive=True):
+        pass
+
+
 class DontCommitException(Exception):
     """
     This is used for GenericModelViewPresenterEditor.commit_changes() to
@@ -805,9 +920,11 @@ class GenericEditorPresenter(object):
         "handle toggled signal on check buttons"
         attr = self.__get_widget_attr(widget)
         if value is None:
-            value = widget.get_active()
-            widget.set_inconsistent(False)
+            value = self.view.widget_get_active(widget)
+            self.view.widget_set_inconsistent(widget, False)
         self.__set_model_attr(attr, value)
+
+    on_chkbx_toggled = on_check_toggled
 
     def on_relation_entry_changed(self, widget, value=None):
         attr = self.__get_widget_attr(widget)
@@ -823,14 +940,14 @@ class GenericEditorPresenter(object):
         value = self.__get_widget_name(widget)
         self.__set_model_attr(attr, value)
 
-    def on_combo_changed(self, widget, value=None):
+    def on_combo_changed(self, widget, value=None, *args):
         """handle changed signal on combo box
 
         value is only specified while testing"""
         attr = self.__get_widget_attr(widget)
         if value is None:
-            index = widget.get_active()
-            widget_model = widget.get_model()
+            index = self.view.combobox_get_active(widget)
+            widget_model = self.view.combobox_get_model(widget)
             value = widget_model[index][0]
         self.__set_model_attr(attr, value)
         self.refresh_view()
