@@ -225,3 +225,83 @@ class ConnMgrPresenterTests(BaubleTestCase):
         view.widget_set_value('usedefaults_chkbx', True)
         presenter.on_usedefaults_chkbx_toggled('usedefaults_chkbx')
         self.assertFalse(view.widget_get_sensitive('file_entry'))
+
+
+class MockRenderer(dict):
+    def set_property(self, property, value):
+        self[property] = value
+
+
+class CellDataFuncTests(BaubleTestCase):
+    'Presenter manages view and model, implements view callbacks.'
+    def test_combo_cell_data_func(self):
+        import bauble.connmgr
+        wt, at = bauble.connmgr.working_dbtypes, bauble.connmgr.dbtypes
+        bauble.connmgr.working_dbtypes = ['a', 'd']
+        bauble.connmgr.dbtypes = ['a', 'b', 'c', 'd']
+
+        renderer = MockRenderer()
+        for iter, name in enumerate(bauble.connmgr.dbtypes):
+            bauble.connmgr.type_combo_cell_data_func(
+                None, renderer, bauble.connmgr.dbtypes, iter)
+            self.assertEquals(renderer['sensitive'],
+                              name in bauble.connmgr.working_dbtypes)
+            self.assertEquals(renderer['text'], name)
+
+        bauble.connmgr.working_dbtypes, bauble.connmgr.dbtypes = wt, at
+
+
+class ButtonBrowseButtons(BaubleTestCase):
+    def test_file_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = 'chosen'
+        presenter = ConnMgrPresenter(view)
+        presenter.on_file_btnbrowse_clicked()
+        presenter.on_text_entry_changed('file_entry')
+        self.assertEquals(presenter.filename, 'chosen')
+
+    def test_file_not_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = None
+        presenter = ConnMgrPresenter(view)
+        presenter.filename = 'previously'
+        presenter.on_file_btnbrowse_clicked()
+        self.assertEquals(presenter.filename, 'previously')
+
+    def test_pictureroot_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = 'chosen'
+        presenter = ConnMgrPresenter(view)
+        presenter.on_pictureroot_btnbrowse_clicked()
+        presenter.on_text_entry_changed('pictureroot_entry')
+        self.assertEquals(presenter.pictureroot, 'chosen')
+
+    def test_pictureroot_not_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = None
+        presenter = ConnMgrPresenter(view)
+        presenter.pictureroot = 'previously'
+        presenter.on_pictureroot_btnbrowse_clicked()
+        self.assertEquals(presenter.pictureroot, 'previously')
+
+    def test_pictureroot2_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = 'chosen'
+        presenter = ConnMgrPresenter(view)
+        presenter.on_pictureroot2_btnbrowse_clicked()
+        presenter.on_text_entry_changed('pictureroot2_entry')
+        self.assertEquals(presenter.pictureroot, 'chosen')
+
+    def test_pictureroot2_not_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = None
+        presenter = ConnMgrPresenter(view)
+        presenter.pictureroot = 'previously'
+        presenter.on_pictureroot2_btnbrowse_clicked()
+        self.assertEquals(presenter.pictureroot, 'previously')

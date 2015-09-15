@@ -700,6 +700,10 @@ class MockView:
     def image_set_from_file(self, *args):
         pass
 
+    def run_FileChooserDialog(
+            self, text, parent, action, buttons, last_folder, target):
+        self.widget_set_value(target, self.response_FileChooserDialog)
+
     def set_title(self, *args):
         pass
 
@@ -885,9 +889,7 @@ class GenericEditorPresenter(object):
         attr = self.__get_widget_attr(widget)
         if attr is None:
             return
-        if value is None:
-            value = widget.props.text
-            value = value and utils.utf8(value) or None
+        value = self.view.widget_get_value(widget)
         logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
                      % (widget, attr, getattr(self.model, attr), value))
         self.__set_model_attr(attr, value)

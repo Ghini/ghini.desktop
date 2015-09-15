@@ -444,9 +444,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
         params['type'] = type.lower()
         return self.parameters_to_uri(params)
 
-    def _get_connection_name(self):
-        return self.connection_name
-
     def check_parameters_valid(self):
         """
         check that all of the information in the current connection
