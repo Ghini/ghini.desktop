@@ -31,6 +31,8 @@ import bauble.db as db
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 
+testing = False  # set this to True when testing
+
 """
 The prefs module exposes an API for getting and setting user
 preferences in the Bauble config file.
@@ -207,6 +209,8 @@ class _prefs(dict):
         return False
 
     def save(self):
+        if testing:
+            return
         try:
             f = open(self._filename, "w+")
             self.config.write(f)
