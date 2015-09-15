@@ -291,6 +291,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_action_appearance">False</property>
+                                        <signal name="activate" handler="on_file_btnbrowse_clicked" swapped="no"/>
+                                        <signal name="clicked" handler="on_file_btnbrowse_clicked" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -334,6 +336,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_action_appearance">False</property>
+                                        <signal name="activate" handler="on_pictureroot_btnbrowse_clicked" swapped="no"/>
+                                        <signal name="clicked" handler="on_pictureroot_btnbrowse_clicked" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -516,6 +520,8 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
                                         <property name="use_action_appearance">False</property>
+                                        <signal name="activate" handler="on_pictureroot2_btnbrowse_clicked" swapped="no"/>
+                                        <signal name="clicked" handler="on_pictureroot2_btnbrowse_clicked" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
