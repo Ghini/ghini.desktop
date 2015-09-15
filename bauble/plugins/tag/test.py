@@ -175,7 +175,8 @@ class TagPresenterTests(BaubleTestCase):
         model = Tag()
         view = MockTagView()
         presenter = TagEditorPresenter(model, view)
-        presenter.on_text_entry_changed('tag_name_entry', u'1234')
+        view.widget_set_value('tag_name_entry', u'1234')
+        presenter.on_text_entry_changed('tag_name_entry')
         self.assertEquals(model.tag, u'1234')
 
     def test_when_user_inserts_existing_name_warning_ok_deactivated(self):
@@ -213,7 +214,8 @@ class TagPresenterTests(BaubleTestCase):
         view = MockTagView()
         presenter = TagEditorPresenter(model, view)
         self.assertTrue(not view.sensitive)  # not changed
-        presenter.on_text_entry_changed('tag_name_entry', u'1234')
+        view.widget_set_value('tag_name_entry', u'1234')
+        presenter.on_text_entry_changed('tag_name_entry')
         self.assertEquals(model.tag, u'1234')
         self.assertTrue(view.sensitive)  # changed
 

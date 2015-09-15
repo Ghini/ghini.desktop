@@ -277,6 +277,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                         <property name="secondary_icon_activatable">False</property>
                                         <property name="primary_icon_sensitive">True</property>
                                         <property name="secondary_icon_sensitive">True</property>
+                                        <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -322,6 +323,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                         <property name="secondary_icon_activatable">False</property>
                                         <property name="primary_icon_sensitive">True</property>
                                         <property name="secondary_icon_sensitive">True</property>
+                                        <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -506,6 +508,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                         <property name="secondary_icon_activatable">False</property>
                                         <property name="primary_icon_sensitive">True</property>
                                         <property name="secondary_icon_sensitive">True</property>
+                                        <signal name="changed" handler="on_pictureroot2_entry_changed" swapped="no"/>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
