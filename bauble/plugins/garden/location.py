@@ -304,16 +304,16 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
         # step 2: merge model and merger_candidate  `description` and `name`
         # fields, mark there's a problem to solve there.
-        self.view.set_widget_value('loc_code_entry',
+        self.view.widget_set_value('loc_code_entry',
                                    getattr(self.model, 'code'))
 
         buf = self.view.widgets.loc_desc_textview.get_buffer()
-        self.view.set_widget_value(
+        self.view.widget_set_value(
             'loc_desc_textview', mergevalues(
                 buf.get_text(*buf.get_bounds()),
                 getattr(self.merger_candidate, 'description'),
                 "%s\n---------\n%s"))
-        self.view.set_widget_value(
+        self.view.widget_set_value(
             'loc_name_entry', mergevalues(
                 self.view.widgets.loc_name_entry.get_text(),
                 getattr(self.merger_candidate, 'name'),
@@ -322,7 +322,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
         # step 3: delete self.merger_candidate and clean the entry
         self.session.delete(self.merger_candidate)
-        self.view.set_widget_value('loc_merge_comboentry', '')
+        self.view.widget_set_value('loc_merge_comboentry', '')
 
         # step 4: collapse the expander
         self.view.widgets.danger_zone.set_expanded(False)
@@ -347,7 +347,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
     def start(self):
         r = self.view.start()
@@ -472,12 +472,12 @@ class GeneralLocationExpander(InfoExpander):
         '''
         '''
         from bauble.plugins.garden.plant import Plant
-        self.set_widget_value('loc_name_data',
+        self.widget_set_value('loc_name_data',
                               '<big>%s</big>' % utils.xml_safe(str(row)),
                               markup=True)
         session = object_session(row)
         nplants = session.query(Plant).filter_by(location_id=row.id).count()
-        self.set_widget_value('loc_nplants_data', nplants)
+        self.widget_set_value('loc_nplants_data', nplants)
 
 
 class DescriptionExpander(InfoExpander):
@@ -500,7 +500,7 @@ class DescriptionExpander(InfoExpander):
         else:
             self.set_expanded(True)
             self.set_sensitive(True)
-            self.set_widget_value('loc_descr_data', str(row.description))
+            self.widget_set_value('loc_descr_data', str(row.description))
 
 
 class LocationInfoBox(InfoBox):

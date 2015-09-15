@@ -428,7 +428,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
     def cleanup(self):
         super(FamilyEditorPresenter, self).cleanup()
@@ -726,23 +726,23 @@ class GeneralFamilyExpander(InfoExpander):
         :param row: the row to get the values from
         '''
         self.current_obj = row
-        self.set_widget_value('fam_name_data', '<big>%s</big>' % row,
+        self.widget_set_value('fam_name_data', '<big>%s</big>' % row,
                               markup=True)
         session = db.Session()
         # get the number of genera
         ngen = session.query(Genus).filter_by(family_id=row.id).count()
-        self.set_widget_value('fam_ngen_data', ngen)
+        self.widget_set_value('fam_ngen_data', ngen)
 
         # get the number of species
         nsp = (session.query(Species).join('genus').
                filter_by(family_id=row.id).count())
         if nsp == 0:
-            self.set_widget_value('fam_nsp_data', 0)
+            self.widget_set_value('fam_nsp_data', 0)
         else:
             ngen_in_sp = (session.query(Species.genus_id).
                           join('genus', 'family').
                           filter_by(id=row.id).distinct().count())
-            self.set_widget_value('fam_nsp_data', '%s in %s genera'
+            self.widget_set_value('fam_nsp_data', '%s in %s genera'
                                   % (nsp, ngen_in_sp))
 
         # stop here if no GardenPlugin
@@ -757,12 +757,12 @@ class GeneralFamilyExpander(InfoExpander):
                 join('species', 'genus', 'family').
                 filter_by(id=row.id).count())
         if nacc == 0:
-            self.set_widget_value('fam_nacc_data', nacc)
+            self.widget_set_value('fam_nacc_data', nacc)
         else:
             nsp_in_acc = (session.query(Accession.species_id).
                           join('species', 'genus', 'family').
                           filter_by(id=row.id).distinct().count())
-            self.set_widget_value('fam_nacc_data', '%s in %s species'
+            self.widget_set_value('fam_nacc_data', '%s in %s species'
                                   % (nacc, nsp_in_acc))
 
         # get the number of plants in the family
@@ -770,12 +770,12 @@ class GeneralFamilyExpander(InfoExpander):
                    join('accession', 'species', 'genus', 'family').
                    filter_by(id=row.id).count())
         if nplants == 0:
-            self.set_widget_value('fam_nplants_data', nplants)
+            self.widget_set_value('fam_nplants_data', nplants)
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
                 join('accession', 'species', 'genus', 'family').\
                 filter_by(id=row.id).distinct().count()
-            self.set_widget_value('fam_nplants_data', '%s in %s accessions'
+            self.widget_set_value('fam_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
         session.close()
 

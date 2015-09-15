@@ -1896,7 +1896,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             location = editor.presenter.model
             self.session.add(location)
             self.remove_problem(None, target_widget)
-            self.view.set_widget_value(target_widget, location)
+            self.view.widget_set_value(target_widget, location)
             self.set_model_attr(target_field, location)
 
     def dirty(self):
@@ -2082,17 +2082,17 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = self.model.species
             else:
                 value = getattr(self.model, field)
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
-        self.view.set_widget_value(
+        self.view.widget_set_value(
             'acc_wild_prov_combo',
             dict(wild_prov_status_values)[self.model.wild_prov_status],
             index=1)
-        self.view.set_widget_value(
+        self.view.widget_set_value(
             'acc_prov_combo',
             dict(prov_type_values)[self.model.prov_type],
             index=1)
-        self.view.set_widget_value(
+        self.view.widget_set_value(
             'acc_recvd_type_comboentry',
             recvd_type_values[self.model.recvd_type],
             index=1)
@@ -2347,7 +2347,7 @@ class GeneralAccessionExpander(InfoExpander):
         '''
         '''
         self.current_obj = row
-        self.set_widget_value('acc_code_data', '<big>%s</big>' %
+        self.widget_set_value('acc_code_data', '<big>%s</big>' %
                               utils.xml_safe(unicode(row.code)),
                               markup=True)
 
@@ -2360,9 +2360,9 @@ class GeneralAccessionExpander(InfoExpander):
         else:
             self.widgets.remove_parent(acc_private)
 
-        #self.set_widget_value('name_data', '%s %s' % \
+        #self.widget_set_value('name_data', '%s %s' % \
         #                      (row.species.markup(True), row.id_qual or '',))
-        self.set_widget_value('name_data', row.species_str(markup=True),
+        self.widget_set_value('name_data', row.species_str(markup=True),
                               markup=True)
 
         session = object_session(row)
@@ -2380,27 +2380,27 @@ class GeneralAccessionExpander(InfoExpander):
             s = '\n'.join(strs)
         else:
             s = '0'
-        self.set_widget_value('living_plants_data', s)
+        self.widget_set_value('living_plants_data', s)
 
         nplants = session.query(Plant).filter_by(accession_id=row.id).count()
-        self.set_widget_value('nplants_data', nplants)
-        self.set_widget_value('date_recvd_data', row.date_recvd)
-        self.set_widget_value('date_accd_data', row.date_accd)
+        self.widget_set_value('nplants_data', nplants)
+        self.widget_set_value('date_recvd_data', row.date_recvd)
+        self.widget_set_value('date_accd_data', row.date_accd)
 
         type_str = ''
         if row.recvd_type:
             type_str = recvd_type_values[row.recvd_type]
-        self.set_widget_value('recvd_type_data', type_str)
+        self.widget_set_value('recvd_type_data', type_str)
         quantity_str = ''
         if row.quantity_recvd:
             quantity_str = row.quantity_recvd
-        self.set_widget_value('quantity_recvd_data', quantity_str)
+        self.widget_set_value('quantity_recvd_data', quantity_str)
 
         prov_str = dict(prov_type_values)[row.prov_type]
         if row.prov_type == u'Wild' and row.wild_prov_status:
             prov_str = '%s (%s)' % \
                 (prov_str, dict(wild_prov_status_values)[row.wild_prov_status])
-        self.set_widget_value('prov_data', prov_str, False)
+        self.widget_set_value('prov_data', prov_str, False)
 
         image_size = gtk.ICON_SIZE_MENU
         stock = gtk.STOCK_NO
@@ -2422,7 +2422,7 @@ class GeneralAccessionExpander(InfoExpander):
                     location_str = '%s' % location.name
                 elif not location.name and location.code:
                     location_str = '(%s)' % location.code
-            self.set_widget_value(label, location_str)
+            self.widget_set_value(label, location_str)
 
 
 class SourceExpander(InfoExpander):
@@ -2433,8 +2433,8 @@ class SourceExpander(InfoExpander):
         self.vbox.pack_start(source_box)
 
     def update_collection(self, collection):
-        self.set_widget_value('loc_data', collection.locale)
-        self.set_widget_value('datum_data', collection.gps_datum)
+        self.widget_set_value('loc_data', collection.locale)
+        self.widget_set_value('datum_data', collection.gps_datum)
 
         geo_accy = collection.geo_accy
         if not geo_accy:
@@ -2447,27 +2447,27 @@ class SourceExpander(InfoExpander):
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
             lat_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
-        self.set_widget_value('lat_data', lat_str)
+        self.widget_set_value('lat_data', lat_str)
 
         long_str = ''
         if collection.longitude is not None:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
             long_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
-        self.set_widget_value('lon_data', long_str)
+        self.widget_set_value('lon_data', long_str)
 
         elevation = ''
         if collection.elevation:
             elevation = '%sm' % collection.elevation
             if collection.elevation_accy:
                 elevation += ' (+/- %sm)' % collection.elevation_accy
-        self.set_widget_value('elev_data', elevation)
+        self.widget_set_value('elev_data', elevation)
 
-        self.set_widget_value('coll_data', collection.collector)
-        self.set_widget_value('date_data', collection.date)
-        self.set_widget_value('collid_data', collection.collectors_code)
-        self.set_widget_value('habitat_data', collection.habitat)
-        self.set_widget_value('collnotes_data', collection.notes)
+        self.widget_set_value('coll_data', collection.collector)
+        self.widget_set_value('date_data', collection.date)
+        self.widget_set_value('collid_data', collection.collectors_code)
+        self.widget_set_value('habitat_data', collection.habitat)
+        self.widget_set_value('collnotes_data', collection.notes)
 
     def update(self, row):
         if not row.source:
@@ -2478,7 +2478,7 @@ class SourceExpander(InfoExpander):
         if row.source.source_detail:
             self.widgets.source_name_label.props.visible = True
             self.widgets.source_name_data.props.visible = True
-            self.set_widget_value('source_name_data',
+            self.widget_set_value('source_name_data',
                                   utils.utf8(row.source.source_detail))
         else:
             self.widgets.source_name_label.props.visible = False
@@ -2487,14 +2487,14 @@ class SourceExpander(InfoExpander):
         sources_code = ''
         if row.source.sources_code:
             sources_code = row.source.sources_code
-        self.set_widget_value('sources_code_data', utils.utf8(sources_code))
+        self.widget_set_value('sources_code_data', utils.utf8(sources_code))
 
         if row.source.plant_propagation:
             self.widgets.parent_plant_label.props.visible = True
             self.widgets.parent_plant_eventbox.props.visible = True
-            self.set_widget_value('parent_plant_data',
+            self.widget_set_value('parent_plant_data',
                                   str(row.source.plant_propagation.plant))
-            self.set_widget_value('propagation_data',
+            self.widget_set_value('propagation_data',
                                   row.source.plant_propagation.get_summary())
         else:
             self.widgets.parent_plant_label.props.visible = False
@@ -2503,7 +2503,7 @@ class SourceExpander(InfoExpander):
         prop_str = ''
         if row.source.propagation:
             prop_str = row.source.propagation.get_summary()
-        self.set_widget_value('propagation_data', prop_str)
+        self.widget_set_value('propagation_data', prop_str)
 
         if row.source.collection:
             self.widgets.collection_expander.props.expanded = True
@@ -2528,7 +2528,7 @@ class VerificationsExpander(InfoExpander):
 
     def update(self, row):
         pass
-        #self.set_widget_value('notes_data', row.notes)
+        #self.widget_set_value('notes_data', row.notes)
 
 
 class VouchersExpander(InfoExpander):

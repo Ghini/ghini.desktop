@@ -161,23 +161,13 @@ class JSONExporter(editor.GenericEditorPresenter):
         return result
 
     def on_btnbrowse_clicked(self, button):
-        chooser = gtk.FileChooserDialog(
+        self.view.run_FileChooserDialog(
             _("Choose a file..."), None,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        #chooser.set_do_overwrite_confirmation(True)
-        #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
-        try:
-            if self.last_folder:
-                chooser.set_current_folder(self.last_folder)
-            if chooser.run() == gtk.RESPONSE_ACCEPT:
-                filename = chooser.get_filename()
-                if filename:
-                    JSONExporter.last_folder, bn = os.path.split(filename)
-                    self.view.set_widget_value('filename', filename)
-        except Exception, e:
-            logger.warning("unhandled exception in iojson.py: %s" % e)
-        chooser.destroy()
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            last_folder=self.last_folder, target='filename')
+        filename = self.view.widget_get_value('filename')
+        JSONExporter.last_folder, bn = os.path.split(filename)
 
     def on_btnok_clicked(self, widget):
         self.run()  # should go in the background really
@@ -266,7 +256,7 @@ class JSONImporter(editor.GenericEditorPresenter):
                 filename = chooser.get_filename()
                 if filename:
                     JSONImporter.last_folder, bn = os.path.split(filename)
-                    self.view.set_widget_value('input_filename', filename)
+                    self.view.widget_set_value('input_filename', filename)
         except Exception, e:
             logger.warning("unhandled exception in iojson.py: %s" % e)
         chooser.destroy()

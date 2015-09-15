@@ -549,7 +549,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                 value = getattr(self.model, 'family')
             else:
                 value = getattr(self.model, field)
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
     def start(self):
         r = self.view.start()
@@ -911,17 +911,17 @@ class GeneralGenusExpander(InfoExpander):
         '''
         session = db.Session()
         self.current_obj = row
-        self.set_widget_value('gen_name_data', '<big>%s</big> %s' %
+        self.widget_set_value('gen_name_data', '<big>%s</big> %s' %
                               (row, utils.xml_safe(unicode(row.author))),
                               markup=True)
-        self.set_widget_value('gen_fam_data',
+        self.widget_set_value('gen_fam_data',
                               (utils.xml_safe(unicode(row.family))))
 
         # get the number of species
         nsp = (session.query(Species).
                join('genus').
                filter_by(id=row.id).count())
-        self.set_widget_value('gen_nsp_data', nsp)
+        self.widget_set_value('gen_nsp_data', nsp)
 
         # stop here if no GardenPlugin
         if 'GardenPlugin' not in pluginmgr.plugins:
@@ -935,12 +935,12 @@ class GeneralGenusExpander(InfoExpander):
                 join('species', 'genus').
                 filter_by(id=row.id).count())
         if nacc == 0:
-            self.set_widget_value('gen_nacc_data', nacc)
+            self.widget_set_value('gen_nacc_data', nacc)
         else:
             nsp_in_acc = (session.query(Accession.species_id).
                           join('species', 'genus').
                           filter_by(id=row.id).distinct().count())
-            self.set_widget_value('gen_nacc_data', '%s in %s species'
+            self.widget_set_value('gen_nacc_data', '%s in %s species'
                                   % (nacc, nsp_in_acc))
 
         # get the number of plants in the genus
@@ -948,12 +948,12 @@ class GeneralGenusExpander(InfoExpander):
                    join('accession', 'species', 'genus').
                    filter_by(id=row.id).count())
         if nplants == 0:
-            self.set_widget_value('gen_nplants_data', nplants)
+            self.widget_set_value('gen_nplants_data', nplants)
         else:
             nacc_in_plants = (session.query(Plant.accession_id).
                               join('accession', 'species', 'genus').
                               filter_by(id=row.id).distinct().count())
-            self.set_widget_value('gen_nplants_data', '%s in %s accessions'
+            self.widget_set_value('gen_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
         session.close()
 

@@ -130,7 +130,7 @@ class InfoExpander(gtk.Expander):
             prefs.prefs[self.expanded_pref] = expander.get_expanded()
             prefs.prefs.save()
 
-    def set_widget_value(self, widget_name, value, markup=False, default=None):
+    def widget_set_value(self, widget_name, value, markup=False, default=None):
         '''
         a shorthand for L{bauble.utils.set_widget_value()}
         '''

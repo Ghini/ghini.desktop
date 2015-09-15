@@ -23,6 +23,7 @@ from nose import SkipTest
 
 from bauble.test import BaubleTestCase, check_dupids
 from bauble.connmgr import ConnMgrPresenter
+from bauble.editor import MockView
 
 
 def test_duplicate_ids():
@@ -45,29 +46,262 @@ class TagTests(BaubleTestCase):
         pass
 
 
-class MockView:
-    def __init__(self):
-        self.widgets = type('MockWidgets', (object, ), {})
-
-    def connect_signals(self, *args):
-        pass
-
-    def set_label(self, *args):
-        pass
-
-    def connect_after(self, *args):
-        pass
-
-    def get_widget_value(self, *args):
-        pass
-
-    def connect(self, *args):
-        pass
+def diteglisempredisi(*args):
+    return True
+import bauble
+import bauble.utils as utils
+utils.yes_no_dialog = diteglisempredisi
+import bauble.prefs as prefs
+prefs.testing = True  # prevents overwriting
 
 
 class ConnMgrPresenterTests(BaubleTestCase):
     'Presenter manages view and model, implements view callbacks.'
 
     def test_can_create_presenter(self):
-        view = MockView()
-        ConnMgrPresenter(self, view)
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.view, view)
+
+    def test_no_connections_then_message(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {}
+        presenter = ConnMgrPresenter(view)
+
+        self.assertFalse(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertTrue(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_one_connection_shown_removed_message(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'}}
+        presenter = ConnMgrPresenter(view)
+        # T_0
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+        # action
+        presenter.remove_connection('nugkui')
+        # T_1
+        self.assertTrue(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'expander'))
+
+    def test_one_connection_shown_and_selected_sqlite(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'}}
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.connection_name, 'nugkui')
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_one_connection_shown_and_selected_postgresql(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'quisquis': {'passwd': False,
+                         'pictures': '',
+                         'db': 'quisquis',
+                         'host': 'localhost',
+                         'user': 'pg',
+                         'type': 'PostgreSQL'}}
+        prefs.prefs[bauble.conn_default_pref] = 'quisquis'
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertTrue(presenter.view.widget_get_visible(
+            'dbms_parambox'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'sqlite_parambox'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_one_connection_shown_and_selected_oracle(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'quisquis': {'passwd': False,
+                         'pictures': '',
+                         'db': 'quisquis',
+                         'host': 'localhost',
+                         'user': 'pg',
+                         'type': 'Oracle'}}
+        prefs.prefs[bauble.conn_default_pref] = 'quisquis'
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertTrue(presenter.view.widget_get_visible(
+            'dbms_parambox'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'sqlite_parambox'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_two_connections_wrong_default_use_first_one(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'},
+            'quisquis': {'passwd': False,
+                         'pictures': '',
+                         'db': 'quisquis',
+                         'host': 'localhost',
+                         'user': 'pg',
+                         'type': 'Oracle'}}
+        prefs.prefs[bauble.conn_default_pref] = 'nonce'
+        presenter = ConnMgrPresenter(view)
+        as_list = presenter.connection_names
+        self.assertEquals(presenter.connection_name, as_list[0])
+
+    def test_when_user_selects_different_type(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'type': 'SQLite',
+                       'default': True,
+                       'pictures': 'nugkui',
+                       'file': 'nugkui.db'},
+            'quisquis': {'type': 'PostgreSQL',
+                         'passwd': False,
+                         'pictures': '',
+                         'db': 'quisquis',
+                         'host': 'localhost',
+                         'user': 'pg'}}
+        presenter = ConnMgrPresenter(view)
+        # T_0
+        self.assertEquals(presenter.connection_name, 'nugkui')
+        self.assertTrue(presenter.view.widget_get_visible(
+            'sqlite_parambox'))
+        # action
+        view.widget_set_value('name_combo', 'quisquis')
+        presenter.dbtype = 'PostgreSQL'  # who to trigger this in tests?
+        presenter.on_name_combo_changed('name_combo')
+        # result
+        self.assertEquals(presenter.connection_name, 'quisquis')
+        presenter.refresh_view()  # in reality this is triggered by gtk view
+        self.assertEquals(presenter.dbtype, 'PostgreSQL')
+        ## if the above succeeds, the following is riggered by the view!
+        #presenter.on_combo_changed('type_combo', 'PostgreSQL')
+        # T_1
+        self.assertTrue(presenter.view.widget_get_visible(
+            'dbms_parambox'))
+
+    def test_set_default_toggles_sensitivity(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'type': 'SQLite',
+                       'default': True,
+                       'pictures': 'nugkui',
+                       'file': 'nugkui.db'},
+            }
+        presenter = ConnMgrPresenter(view)
+        view.widget_set_value('usedefaults_chkbx', True)
+        presenter.on_usedefaults_chkbx_toggled('usedefaults_chkbx')
+        self.assertFalse(view.widget_get_sensitive('file_entry'))
+
+
+class MockRenderer(dict):
+    def set_property(self, property, value):
+        self[property] = value
+
+
+class CellDataFuncTests(BaubleTestCase):
+    'Presenter manages view and model, implements view callbacks.'
+    def test_combo_cell_data_func(self):
+        import bauble.connmgr
+        wt, at = bauble.connmgr.working_dbtypes, bauble.connmgr.dbtypes
+        bauble.connmgr.working_dbtypes = ['a', 'd']
+        bauble.connmgr.dbtypes = ['a', 'b', 'c', 'd']
+
+        renderer = MockRenderer()
+        for iter, name in enumerate(bauble.connmgr.dbtypes):
+            bauble.connmgr.type_combo_cell_data_func(
+                None, renderer, bauble.connmgr.dbtypes, iter)
+            self.assertEquals(renderer['sensitive'],
+                              name in bauble.connmgr.working_dbtypes)
+            self.assertEquals(renderer['text'], name)
+
+        bauble.connmgr.working_dbtypes, bauble.connmgr.dbtypes = wt, at
+
+
+class ButtonBrowseButtons(BaubleTestCase):
+    def test_file_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = 'chosen'
+        presenter = ConnMgrPresenter(view)
+        presenter.on_file_btnbrowse_clicked()
+        presenter.on_text_entry_changed('file_entry')
+        self.assertEquals(presenter.filename, 'chosen')
+
+    def test_file_not_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = None
+        presenter = ConnMgrPresenter(view)
+        presenter.filename = 'previously'
+        presenter.on_file_btnbrowse_clicked()
+        self.assertEquals(presenter.filename, 'previously')
+
+    def test_pictureroot_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = 'chosen'
+        presenter = ConnMgrPresenter(view)
+        presenter.on_pictureroot_btnbrowse_clicked()
+        presenter.on_text_entry_changed('pictureroot_entry')
+        self.assertEquals(presenter.pictureroot, 'chosen')
+
+    def test_pictureroot_not_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = None
+        presenter = ConnMgrPresenter(view)
+        presenter.pictureroot = 'previously'
+        presenter.on_pictureroot_btnbrowse_clicked()
+        self.assertEquals(presenter.pictureroot, 'previously')
+
+    def test_pictureroot2_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = 'chosen'
+        presenter = ConnMgrPresenter(view)
+        presenter.on_pictureroot2_btnbrowse_clicked()
+        presenter.on_text_entry_changed('pictureroot2_entry')
+        self.assertEquals(presenter.pictureroot, 'chosen')
+
+    def test_pictureroot2_not_chosen(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.response_FileChooserDialog = None
+        presenter = ConnMgrPresenter(view)
+        presenter.pictureroot = 'previously'
+        presenter.on_pictureroot2_btnbrowse_clicked()
+        self.assertEquals(presenter.pictureroot, 'previously')
