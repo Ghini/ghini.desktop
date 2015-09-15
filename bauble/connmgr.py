@@ -140,6 +140,36 @@ class ConnMgrPresenter(GenericEditorPresenter):
         except:
             pass
 
+    def on_file_btnbrowse_clicked(self, *args):
+        previously = self.view.widget_get_value('file_entry')
+        last_folder, bn = os.path.split(previously)
+        self.view.run_FileChooserDialog(
+            _("Choose a file..."), None,
+            action=gtk.FILE_CHOOSER_ACTION_SAVE,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            last_folder=last_folder, target='file_entry')
+
+    def on_pictureroot_btnbrowse_clicked(self, *args):
+        previously = self.view.widget_get_value('pictureroot_entry')
+        last_folder, bn = os.path.split(previously)
+        self.view.run_FileChooserDialog(
+            _("Choose a file..."), None,
+            action=gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            last_folder=last_folder, target='pictureroot_entry')
+
+    def on_pictureroot2_btnbrowse_clicked(self, *args):
+        previously = self.view.widget_get_value('pictureroot2_entry')
+        last_folder, bn = os.path.split(previously)
+        self.view.run_FileChooserDialog(
+            _("Choose a file..."), None,
+            action=gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            last_folder=last_folder, target='pictureroot2_entry')
+
     def refresh_view(self):
         GenericEditorPresenter.refresh_view(self)
         conn_list = self.connections

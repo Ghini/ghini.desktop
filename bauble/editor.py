@@ -247,6 +247,22 @@ class GenericEditorView(object):
                 self.connect(window, 'response', self.on_dialog_response)
         self.box = set()  # the top level, meant for warnings.
 
+    def run_FileChooserDialog(
+            self, text, parent, action, buttons, last_folder, target):
+        chooser = gtk.FileChooserDialog(text, parent, buttons=buttons)
+        #chooser.set_do_overwrite_confirmation(True)
+        #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
+        try:
+            if last_folder:
+                chooser.set_current_folder(last_folder)
+            if chooser.run() == gtk.RESPONSE_ACCEPT:
+                filename = chooser.get_filename()
+                if filename:
+                    self.widget_set_value(target, filename)
+        except Exception, e:
+            logger.warning("unhandled exception in iojson.py: %s" % e)
+        chooser.destroy()
+
     def get_selection(self):
         '''return the selection in the graphic interface'''
         class EmptySelectionException(Exception):
@@ -708,7 +724,6 @@ class MockView:
         return self.values[widget]
 
     def widget_set_value(self, widget, value, *args):
-        print 'widget set value >%s< >%s<' % (widget, value)
         self.values[widget] = value
         if widget in self.models:
             if (value, ) in self.models[widget]:
@@ -748,17 +763,13 @@ class MockView:
         model.append((value, ))
 
     def combobox_set_active(self, widget, index):
-        print 'combobox set active', widget, index
         self.index[widget] = index
         self.values[widget] = self.models[widget][index][0]
-        print self.values[widget]
 
     def combobox_get_active(self, widget):
-        print 'combobox get active', widget, self.values[widget]
         return self.index.setdefault(widget, 0)
 
     def combobox_get_model(self, widget):
-        print 'combobox get model', widget
         return self.models[widget]
 
     def set_accept_buttons_sensitive(self, sensitive=True):
