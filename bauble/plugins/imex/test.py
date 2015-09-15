@@ -405,10 +405,10 @@ class CSVTests2(ImexTestCase):
 
 
 class MockExportView:
-    def set_widget_value(self, *args):
+    def widget_set_value(self, *args):
         pass
 
-    def get_widget_value(self, *args):
+    def widget_get_value(self, *args):
         pass
 
     def connect_signals(self, *args):
@@ -671,10 +671,10 @@ class JSONExportTests(BaubleTestCase):
 
 
 class MockImportView:
-    def set_widget_value(self, *args):
+    def widget_set_value(self, *args):
         pass
 
-    def get_widget_value(self, *args):
+    def widget_get_value(self, *args):
         pass
 
     def connect_signals(self, *args):

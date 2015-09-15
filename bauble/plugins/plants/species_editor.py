@@ -265,7 +265,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.view.set_label('sp_fullname_label', sp_str)
         if self.model.genus is not None:
             genus = self.model.genus
-            epithet = self.view.get_widget_value('sp_species_entry')
+            epithet = self.view.widget_get_value('sp_species_entry')
             omonym = self.session.query(
                 Species).filter(
                 Species.genus == genus,
@@ -289,7 +289,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     if response:
                         logger.warning('yes')
                     else:
-                        self.view.set_widget_value('sp_species_entry', '')
+                        self.view.widget_set_value('sp_species_entry', '')
 
                 box = self.omonym_box = (
                     self.view.add_message_box(utils.MESSAGE_BOX_YESNO))
@@ -316,9 +316,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             else:
                 value = getattr(self.model, field)
 #            debug('%s, %s, %s' % (widget, field, value))
-#            self.view.set_widget_value(widget, value,
+#            self.view.widget_set_value(widget, value,
 #                                       default=self.defaults.get(field, None))
-            self.view.set_widget_value(widget, value)
+            self.view.widget_set_value(widget, value)
 
         utils.set_widget_value(self.view.widgets.sp_habit_comboentry,
                                self.model.habit or '')
