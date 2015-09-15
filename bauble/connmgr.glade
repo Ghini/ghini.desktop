@@ -473,7 +473,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="checkbutton2">
+                                  <object class="GtkCheckButton" id="passwd_chkbx">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>

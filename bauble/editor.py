@@ -392,10 +392,10 @@ class GenericEditorView(object):
         else:
             raise NotImplementedError
 
-    def widget_get_active(widget):
+    def widget_get_active(self, widget):
         return widget.get_active()
 
-    def widget_set_inconsistent(widget, value):
+    def widget_set_inconsistent(self, widget, value):
         widget.set_inconsistent(value)
 
     def combobox_init(self, widget, values=None, cell_data_func=None):

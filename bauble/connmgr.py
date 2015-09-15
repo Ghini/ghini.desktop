@@ -102,6 +102,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         'database_entry': 'database',
         'host_entry': 'host',
         'user_entry': 'user',
+        'passwd_chkbx': 'passwd',
         'pictureroot2_entry': 'pictureroot',
         'pictureroot_entry': 'pictureroot',
         }
@@ -112,6 +113,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         self.filename = self.database = self.host = self.user = \
             self.pictureroot = self.connection_name = ''
         self.use_defaults = True
+        self.passwd = False
         ## initialize comboboxes, so we can fill them in
         view.combobox_init('name_combo')
         view.combobox_init('type_combo', dbtypes, type_combo_cell_data_func)
@@ -433,10 +435,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
     def get_params(self):
         if self.dbtype == 'SQLite':
             if self.use_defaults is True:
-                self.filename = os.path.join(paths.user_dir(),
-                                             self.connection_name + '.db')
-                self.pictureroot = os.path.join(paths.user_dir(),
-                                                self.connection_name)
+                self.filename = os.path.join(
+                    paths.user_dir(), self.connection_name + '.db')
+                self.pictureroot = os.path.join(
+                    paths.user_dir(), self.connection_name)
             result = {'file': self.filename,
                       'default': self.use_defaults,
                       'pictures': self.pictureroot}
@@ -445,12 +447,12 @@ class ConnMgrPresenter(GenericEditorPresenter):
                       'host': self.host,
                       'user': self.user,
                       'pictures': self.pictureroot,
+                      'passwd': self.passwd,
                       }
         return result
 
     def set_params(self, params):
         if self.dbtype == 'SQLite':
-            print params
             self.filename = params['file']
             self.use_defaults = params['default']
             self.pictureroot = params['pictures']
@@ -459,15 +461,13 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.host = params['host']
             self.user = params['user']
             self.pictureroot = params['pictures']
+            self.passwd = params['passwd']
         self.refresh_view()
 
 
 def start_connection_manager(default_conn=None):
     '''activate connection manager and return connection name and uri
     '''
-    if default_conn is None:
-        default_conn = prefs.prefs[bauble.conn_default_pref]
-
     glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")
     view = GenericEditorView(
         glade_path,
@@ -475,5 +475,8 @@ def start_connection_manager(default_conn=None):
         root_widget_name='main_dialog')
 
     cm = ConnMgrPresenter(view)
-    cm.start()
-    return cm.connection_name, cm.connection_uri
+    result = cm.start()
+    if result == -5:
+        return cm.connection_name, cm.connection_uri
+    else:
+        return None, None
