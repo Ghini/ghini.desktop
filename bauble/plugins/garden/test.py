@@ -279,9 +279,9 @@ class PlantTests(GardenTestCase):
 
     def test_delete(self):
         """
-        TODO: Test that when a plant is deleted...
+        Test that when a plant is deleted...
         """
-        pass
+        raise SkipTest('Not Implemented')
 
     def test_editor_addnote(self):
         raise SkipTest('Not Implemented')
