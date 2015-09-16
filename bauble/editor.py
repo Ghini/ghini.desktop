@@ -247,7 +247,7 @@ class GenericEditorView(object):
                 self.connect(window, 'response', self.on_dialog_response)
         self.box = set()  # the top level, meant for warnings.
 
-    def run_FileChooserDialog(
+    def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
         chooser = gtk.FileChooserDialog(text, parent, buttons=buttons)
         #chooser.set_do_overwrite_confirmation(True)
@@ -260,8 +260,26 @@ class GenericEditorView(object):
                 if filename:
                     self.widget_set_value(target, filename)
         except Exception, e:
-            logger.warning("unhandled exception in iojson.py: %s" % e)
+            logger.warning("unhandled %s exception in editor.py: %s" %
+                           (type(e), e))
         chooser.destroy()
+
+    def run_entry_dialog(self, title, parent, flags, buttons):
+        d = gtk.Dialog(title, parent, flags, buttons)
+        d.set_default_response(gtk.RESPONSE_ACCEPT)
+        d.set_default_size(250, -1)
+        entry = gtk.Entry()
+        entry.connect("activate",
+                      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
+        d.vbox.pack_start(entry)
+        d.show_all()
+        d.run()
+        user_reply = entry.get_text()
+        d.destroy()
+        return user_reply
+
+    def run_yes_no_dialog(self, msg, parent=None, yes_delay=-1):
+        return utils.yes_no_dialog(msg, parent, yes_delay)
 
     def get_selection(self):
         '''return the selection in the graphic interface'''
@@ -694,17 +712,37 @@ class MockView:
         self.models = {}  # dictionary of list of tuples
         self.visible = {}
         self.sensitive = {}
+        self.expanded = {}
         self.values = {}
         self.index = {}
+        self.reply_entry_dialog = []
+        self.reply_yes_no_dialog = []
+        self.reply_file_chooser_dialog = []
         for name, value in kwargs.items():
             setattr(self, name, value)
 
     def image_set_from_file(self, *args):
         pass
 
-    def run_FileChooserDialog(
+    def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
-        self.widget_set_value(target, self.response_FileChooserDialog)
+        try:
+            reply = self.reply_file_chooser_dialog.pop()
+        except:
+            reply = ''
+        self.widget_set_value(target, reply)
+
+    def run_entry_dialog(self, title, parent, flags, buttons):
+        try:
+            return self.reply_entry_dialog.pop()
+        except:
+            return ''
+
+    def run_yes_no_dialog(self, msg, parent=None, yes_delay=-1):
+        try:
+            return self.reply_yes_no_dialog.pop()
+        except:
+            return True
 
     def set_title(self, *args):
         pass
@@ -746,6 +784,9 @@ class MockView:
     def widget_set_visible(self, name, value=True):
         self.visible[name] = value
 
+    def expander_set_expanded(self, widget, value):
+        self.expanded[widget] = value
+
     def widget_set_sensitive(self, name, value=True):
         self.sensitive[name] = value
 
@@ -754,6 +795,9 @@ class MockView:
 
     def widget_set_inconsistent(self, *args):
         pass
+
+    def get_window(self):
+        return None
 
     widget_get_active = widget_get_value
 
@@ -768,9 +812,16 @@ class MockView:
         model = self.models.setdefault(name, [])
         model.append((value, ))
 
+    def combobox_prepend_text(self, name, value):
+        model = self.models.setdefault(name, [])
+        model.insert(0, (value, ))
+
     def combobox_set_active(self, widget, index):
         self.index[widget] = index
         self.values[widget] = self.models[widget][index][0]
+
+    def combobox_get_active_text(self, widget):
+        return self.values[widget]
 
     def combobox_get_active(self, widget):
         return self.index.setdefault(widget, 0)

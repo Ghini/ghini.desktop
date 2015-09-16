@@ -45,33 +45,38 @@ from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
 
 
+def is_package_name(name):
+    '''True if name identifies a package and it can be imported
+    '''
+
+    try:
+        __import__(name)
+        return True
+    except ImportError:
+        return False
+
 working_dbtypes = []
 dbtypes = []
 
-## prepare the above global variables
-try:
-    try:
-        import pysqlite2
-        assert(pysqlite2)
-    except Exception:
-        import sqlite3
-        assert(sqlite3)
-    dbtypes.append('SQLite')
-    working_dbtypes.append('SQLite')
-except ImportError, e:
-    logger.warning('ConnMgrPresenter: %s' % e)
-for (module, name) in (
-        ('psycopg2', 'PostgreSQL'),
-        ('MySQLdb', 'MySQL'),
-        ('pyodbc', 'MS SQL Server'),
-        ('cx_Oracle', 'Oracle'),
-        ):
-    try:
-        dbtypes.append(name)
-        __import__(module)
-        working_dbtypes.append(name)
-    except ImportError, e:
-        logger.info('ConnMgrPresenter: %s' % e)
+
+def populate_dbtypes(package_list):
+    '''initialize dbtypes and working_dbtypes
+
+    package_list is a list of pairs, in each pair, first is the package
+    name, second the mnemonic name by which we identify the package
+    '''
+
+    global dbtypes, working_dbtypes
+    dbtypes = [second for first, second in package_list]
+    working_dbtypes = [second for first, second in package_list
+                       if is_package_name(first)]
+
+populate_dbtypes([('sqlite3', 'SQLite'),
+                  ('psycopg2', 'PostgreSQL'),
+                  ('MySQLdb', 'MySQL'),
+                  ('pyodbc', 'MS SQL Server'),
+                  ('cx_Oracle', 'Oracle'),
+                  ])
 
 
 def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
@@ -143,7 +148,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
     def on_file_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('file_entry')
         last_folder, bn = os.path.split(previously)
-        self.view.run_FileChooserDialog(
+        self.view.run_file_chooser_dialog(
             _("Choose a file..."), None,
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
@@ -153,7 +158,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
     def on_pictureroot_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('pictureroot_entry')
         last_folder, bn = os.path.split(previously)
-        self.view.run_FileChooserDialog(
+        self.view.run_file_chooser_dialog(
             _("Choose a file..."), None,
             action=gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
@@ -163,7 +168,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
     def on_pictureroot2_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('pictureroot2_entry')
         last_folder, bn = os.path.split(previously)
-        self.view.run_FileChooserDialog(
+        self.view.run_file_chooser_dialog(
             _("Choose a file..."), None,
             action=gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
@@ -202,43 +207,18 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         The dialog's response signal handler.
         """
-        self._error = False
         if response == gtk.RESPONSE_OK:
             settings = self.get_params()
-            dbtype = self.dbtype
-            if dbtype == 'SQLite':
-                filename = settings['file']
-                if not os.path.exists(filename):
-                    path, f = os.path.split(filename)
-                    if not os.access(path, os.R_OK):
-                        self._error = True
-                        msg = _("Bauble does not have permission to "
-                                "read the directory:\n\n%s") % path
-                        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                    elif not os.access(path, os.W_OK):
-                        self._error = True
-                        msg = _("Bauble does not have permission to "
-                                "write to the directory:\n\n%s") % path
-                        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                elif not os.access(filename, os.R_OK):
-                    self._error = True
-                    msg = _("Bauble does not have permission to read the "
-                            "database file:\n\n%s") % filename
-                    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                elif not os.access(filename, os.W_OK):
-                    self._error = True
-                    msg = _("Bauble does not have permission to "
-                            "write to the database file:\n\n%s") % filename
-                    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            if not self._error and not prefs.testing:
+            error, msg = self.check_parameters_valid(settings)
+            if error:
+                self.view.run_message_dialog(msg, gtk.MESSAGE_ERROR)
+            if not error and not prefs.testing:
                 self.save_current_to_prefs()
-                prefs.prefs[prefs.picture_root_pref] = settings.get(
-                    'pictures', '')
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_prefs_to_saved(self.connection_name):
                 msg = _("Do you want to save your changes?")
-                if utils.yes_no_dialog(msg):
+                if self.view.run_yes_no_dialog(msg):
                     self.save_current_to_prefs()
 
         # system-defined GtkDialog responses are always negative, in which
@@ -252,24 +232,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
     def on_dialog_close_or_delete(self, widget, event=None):
         self.view.get_window().hide()
         return True
-
-    def set_active_connection_by_name(self, name):
-        """initialize name_combo, then set active
-
-        sets the name of the connection in the name combo, this
-        causes on_name_combo_changed to be fired which changes the param
-        box type and set the connection parameters
-        """
-        check(hasattr(self, "name_combo"))
-        active = 0
-        conn_dict = self.connections
-        if conn_dict is None:
-            return
-        for i, conn in enumerate(conn_dict):
-            self.name_combo.insert_text(i, conn)
-            if conn == name:
-                active = i
-        self.combobox_set_active('name_combo', active)
 
     def remove_connection(self, name):
         """remove named connection, from combobox and from self
@@ -293,26 +255,18 @@ class ConnMgrPresenter(GenericEditorPresenter):
                  'and does not affect the database or its data</i>')
                % self.connection_name)
 
-        if not utils.yes_no_dialog(msg):
+        if not self.view.run_yes_no_dialog(msg):
             return
         self.remove_connection(self.connection_name)
         if self.connection_names:
             self.view.combobox_set_active('name_combo', 0)
 
     def on_add_button_clicked(self, button, data=None):
-        d = gtk.Dialog(_("Enter a connection name"), self.view.get_window(),
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        d.set_default_response(gtk.RESPONSE_ACCEPT)
-        d.set_default_size(250, -1)
-        entry = gtk.Entry()
-        entry.connect("activate",
-                      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
-        d.vbox.pack_start(entry)
-        d.show_all()
-        d.run()
-        name = entry.get_text()
-        d.destroy()
+        name = self.view.run_entry_dialog(
+            _("Enter a connection name"),
+            self.view.get_window(),
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         if name is not '':
             self.connection_names.insert(0, name)
             self.connections[name] = self.get_params(new=name)
@@ -321,15 +275,13 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.view.combobox_set_active('name_combo', 0)
 
     def save_current_to_prefs(self):
+        """add current named params to saved connections
         """
-        save connection parameters in the prefs
-        """
-        if self.connection_name is None or prefs.testing:
+        if self.connection_name is None:
             return
         if bauble.conn_list_pref not in prefs.prefs:
             prefs.prefs[bauble.conn_list_pref] = {}
         params = copy.copy(self.get_params())
-        params["type"] = self.dbtype
         conn_dict = self.connections
         conn_dict[self.connection_name] = params
         prefs.prefs[bauble.conn_list_pref] = conn_dict
@@ -346,7 +298,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
             return False
         stored_params = conn_dict[name]
         params = copy.copy(self.get_params())
-        params["type"] = self.dbtype
         return params == stored_params
 
     def on_name_combo_changed(self, combo, data=None):
@@ -361,14 +312,14 @@ class ConnMgrPresenter(GenericEditorPresenter):
             ## we are leaving some valid settings
             if prev_connection_name not in conn_dict:
                 msg = _("Do you want to save %s?") % prev_connection_name
-                if utils.yes_no_dialog(msg):
+                if self.view.run_yes_no_dialog(msg):
                     self.save_current_to_prefs()
                 else:
                     self.remove_connection(prev_connection_name)
             elif not self.compare_prefs_to_saved(prev_connection_name):
                 msg = (_("Do you want to save your changes to %s ?")
                        % prev_connection_name)
-                if utils.yes_no_dialog(msg):
+                if self.view.run_yes_no_dialog(msg):
                     self.save_current_to_prefs()
 
         if self.connection_names:
@@ -397,22 +348,11 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         # TODO: if self.dialog is None then ask from the command line
         # or just set dialog parent to None
-        d = gtk.Dialog(title, self.view.get_window(),
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        d.set_gravity(gtk.gdk.GRAVITY_CENTER)
-        d.set_position(gtk.WIN_POS_CENTER)
-        d.set_default_response(gtk.RESPONSE_ACCEPT)
-        d.set_default_size(250, -1)
-        entry = gtk.Entry()
-        entry.set_visibility(False)
-        entry.connect("activate",
-                      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
-        d.vbox.pack_start(entry)
-        d.show_all()
-        d.run()
-        passwd = entry.get_text()
-        d.destroy()
+        passwd = self.view.run_entry_dialog(
+            title,
+            self.view.get_window(),
+            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         return passwd
 
     def parameters_to_uri(self, params):
@@ -437,33 +377,63 @@ class ConnMgrPresenter(GenericEditorPresenter):
         uri = template % subs
         options = []
         if 'options' in params:
-            options = params['options'].join('&')
-            uri.append('?')
-            uri.append(options)
+            options = '&'.join(params['options'])
+            uri += '?'
+            uri += options
         return uri
 
     @property
     def connection_uri(self):
-        type = self.dbtype
-
         params = copy.copy(self.get_params())
-        params['type'] = type.lower()
         return self.parameters_to_uri(params)
 
-    def check_parameters_valid(self):
+    def check_parameters_valid(self, params):
         """
-        check that all of the information in the current connection
-        is valid and return true or false
-
-        NOTE: this was meant to be used to implement an eclipse style
-        information box at the top of the dialog but it's not really
-        used right now
+        check for errors in the connection params,
+        return a pair:
+        first is a boolean indicating validity;
+        second is the localized error message.
         """
-        if self.name_combo.get_active_text() == "":
+        if self.view.combobox_get_active_text('name_combo') == "":
             return False, _("Please choose a name for this connection")
-        params = self.params_box
-        if params["user"] == "":
-            return False, _("Please choose a user name for this connection")
+        valid = True
+        msg = None
+        if params['type'] == 'SQLite':
+            filename = params['file']
+            if not os.path.exists(filename):
+                path, f = os.path.split(filename)
+                if not os.access(path, os.R_OK):
+                    valid = False
+                    msg = _("Bauble does not have permission to "
+                            "read the directory:\n\n%s") % path
+                elif not os.access(path, os.W_OK):
+                    valid = False
+                    msg = _("Bauble does not have permission to "
+                            "write to the directory:\n\n%s") % path
+            elif not os.access(filename, os.R_OK):
+                valid = False
+                msg = _("Bauble does not have permission to read the "
+                        "database file:\n\n%s") % filename
+            elif not os.access(filename, os.W_OK):
+                valid = False
+                msg = _("Bauble does not have permission to "
+                        "write to the database file:\n\n%s") % filename
+        else:
+            fields = []
+            if params["user"] == "":
+                valid = False
+                fields.append(_("user name"))
+            if params["db"] == "":
+                valid = False
+                fields.append(_("database name"))
+            if params["host"] == "":
+                valid = False
+                fields.append(_("DBMS host name"))
+            if valid:
+                msg = _("Current connection does not specify the fields:\n"
+                        "%s\n"
+                        "Please specify and try again.") % "\n".join(fields)
+        return valid, msg
 
     def get_params(self, new=None):
         if new is not None:
@@ -479,8 +449,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
             result = {'file': self.filename,
                       'default': self.use_defaults,
                       'pictures': self.pictureroot}
-            if new is not None:
-                result['type'] = self.dbtype
         else:
             result = {'db': self.database,
                       'host': self.host,
@@ -488,6 +456,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
                       'pictures': self.pictureroot,
                       'passwd': self.passwd,
                       }
+        result['type'] = self.dbtype
         return result
 
     def set_params(self, params):
