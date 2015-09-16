@@ -21,10 +21,10 @@ if [ "$PYTHONHCOUNT" = "0" ]; then
     PROBLEMS="$PROBLEMS python-all-dev"
 fi
 SETUPTOOLS=$(pip show setuptools | grep Version | cut -f2 -d:)
-if ( echo "$SETUPTOOLS <= 0.6" | bc ); then
-    true  # should do something about it here
+EXPRESSION=$(echo "$SETUPTOOLS" | cut -d- -f1 | cut -d. -f1-2)" <= 0.6"
+if [ $(echo $EXPRESSION | bc) -eq 1 ]; then
+    echo "your setuptools are really old. expect trouble."
 fi
-
 
 if [ "$PROBLEMS" != "" ]; then
     echo please first solve the following dependencies:
@@ -84,7 +84,6 @@ done
 
 if [ "\$BUILDANDEND" == "1" ]
 then
-    cd \$GITHOME
     git pull
     python setup.py build
     python setup.py install
