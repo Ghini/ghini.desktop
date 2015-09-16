@@ -1314,7 +1314,8 @@ class PresenterTest(PlantTestCase):
 
 
 from bauble.plugins.plants.species import (
-    species_markup_func, vernname_markup_func, )
+    species_markup_func, vernname_markup_func,
+    species_get_kids, vernname_get_kids)
 
 
 class GlobalFunctionsTest(PlantTestCase):
@@ -1350,3 +1351,11 @@ class GlobalFunctionsTest(PlantTestCase):
         first, second = vernname_markup_func(vName)
         self.assertEquals(second, u'<i>Maxillaria</i> <i>variabilis</i>')
         self.assertEquals(first, u'SomeName')
+
+    def test_species_get_kids(self):
+        mVa = self.session.query(Species).filter_by(id=1).one()
+        self.assertEquals(species_get_kids(mVa), [])
+
+    def test_vernname_get_kids(self):
+        vName = self.session.query(VernacularName).filter_by(id=1).one()
+        self.assertEquals(vernname_get_kids(vName), [])
