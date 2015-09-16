@@ -383,6 +383,31 @@ class ConnMgrPresenterTests(BaubleTestCase):
                           'postgresql://pg@localhost/quisquis?'
                           'is_this_possible=no&why_do_we_test=because')
 
+    def test_connection_uri_property(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = 'quisquis'
+        prefs.prefs[bauble.conn_list_pref] = {
+            'quisquis': {'type': 'PostgreSQL',
+                         'passwd': False,
+                         'pictures': '/tmp/',
+                         'db': 'quisquis',
+                         'host': 'localhost',
+                         'user': 'pg'}}
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertEquals(presenter.dbtype, 'PostgreSQL')
+        ## we need trigger all signals that would go by gtk
+        p = presenter.connections[presenter.connection_name]
+        presenter.view.widget_set_value('database_entry', p['db'])
+        presenter.on_text_entry_changed('database_entry')
+        presenter.view.widget_set_value('user_entry', p['user'])
+        presenter.on_text_entry_changed('user_entry')
+        presenter.view.widget_set_value('host_entry', p['host'])
+        presenter.on_text_entry_changed('host_entry')
+        self.assertEquals(presenter.connection_uri,
+                          'postgresql://pg@localhost/quisquis')
+
 
 class MockRenderer(dict):
     def set_property(self, property, value):
