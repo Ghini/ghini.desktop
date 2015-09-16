@@ -7,6 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
+"PO-Revision-Date: 2015-09-17 00:14+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/bauble/master/es/>\n"
@@ -325,7 +326,6 @@ msgid "<b>Private:</b>"
 msgstr "<b>Privado:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2223
-#, fuzzy
 msgid "<b>Propagation of Source Material</b>"
 msgstr "<b>Propagación de material origen</b>"
 
