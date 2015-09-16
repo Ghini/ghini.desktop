@@ -184,6 +184,7 @@ class SynonymSearch(search.SearchStrategy):
             prefs.save()
 
     def search(self, text, session):
+        from genus import Genus, GenusSynonym
         super(SynonymSearch, self).search(text, session)
         if not prefs[self.return_synonyms_pref]:
             return
@@ -199,6 +200,10 @@ class SynonymSearch(search.SearchStrategy):
                 q = session.query(SpeciesSynonym).\
                     filter_by(synonym_id=result.id)
                 results.extend([syn.species for syn in q])
+            elif isinstance(result, Genus):
+                q = session.query(GenusSynonym).\
+                    filter_by(synonym_id=result.id)
+                results.extend([syn.genus for syn in q])
             elif isinstance(results, VernacularName):
                 q = session.query(SpeciesSynonym).\
                     filter_by(synonym_id=result.species.id)
