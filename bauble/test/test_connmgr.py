@@ -97,6 +97,67 @@ class ConnMgrPresenterTests(BaubleTestCase):
         self.assertFalse(presenter.view.widget_get_visible(
             'expander'))
 
+    def test_one_connection_on_remove_confirm_negative(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'}}
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_yes_no_dialog.append(False)
+        presenter.on_remove_button_clicked('button')
+        ## nothing changes
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_one_connection_on_remove_confirm_positive(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'}}
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_yes_no_dialog.append(True)
+        presenter.on_remove_button_clicked('button')
+        ## visibility swapped
+        self.assertFalse(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertTrue(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_no_connection_on_add_confirm_negative(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {}
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_entry_dialog.append('')
+        presenter.on_add_button_clicked('button')
+        ## nothing changes
+        self.assertFalse(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertTrue(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_no_connection_on_add_confirm_positive(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {}
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_entry_dialog.append('conn_name')
+        presenter.on_add_button_clicked('button')
+        presenter.refresh_view()  # this is done by gtk
+        ## visibility swapped
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
     def test_one_connection_shown_and_selected_sqlite(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
@@ -226,13 +287,134 @@ class ConnMgrPresenterTests(BaubleTestCase):
         presenter.on_usedefaults_chkbx_toggled('usedefaults_chkbx')
         self.assertFalse(view.widget_get_sensitive('file_entry'))
 
+    def test_check_parameters_valid(self):
+        import copy
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = 'quisquis'
+        prefs.prefs[bauble.conn_list_pref] = {
+            'quisquis': {'type': 'PostgreSQL',
+                         'passwd': False,
+                         'pictures': '/tmp/',
+                         'db': 'quisquis',
+                         'host': 'localhost',
+                         'user': 'pg'}}
+        presenter = ConnMgrPresenter(view)
+        params = presenter.connections['quisquis']
+        valid, message = presenter.check_parameters_valid(params)
+        self.assertTrue(valid)
+        params = copy.copy(presenter.connections['quisquis'])
+        params['user'] = ''
+        valid, message = presenter.check_parameters_valid(params)
+        self.assertFalse(valid)
+        params = copy.copy(presenter.connections['quisquis'])
+        params['host'] = ''
+        valid, message = presenter.check_parameters_valid(params)
+        self.assertFalse(valid)
+        sqlite_params = {'type': 'SQLite',
+                         'default': False,
+                         'file': '/tmp/test.db',
+                         'pictures': '/tmp/'}
+        params = copy.copy(sqlite_params)
+        valid, message = presenter.check_parameters_valid(params)
+        self.assertTrue(valid)
+        params = copy.copy(sqlite_params)
+        params['file'] = '/usr/bin/sh'
+        valid, message = presenter.check_parameters_valid(params)
+        self.assertFalse(valid)
+
+    def test_parameters_to_uri_sqlite(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = None
+        prefs.prefs[bauble.conn_list_pref] = {}
+        presenter = ConnMgrPresenter(view)
+        params = {'type': 'SQLite',
+                  'default': False,
+                  'file': '/tmp/test.db',
+                  'pictures': '/tmp/'}
+        self.assertEquals(presenter.parameters_to_uri(params),
+                          'sqlite:////tmp/test.db')
+        params = {'type': 'PostgreSQL',
+                  'passwd': False,
+                  'pictures': '/tmp/',
+                  'db': 'quisquis',
+                  'host': 'localhost',
+                  'user': 'pg'}
+        self.assertEquals(presenter.parameters_to_uri(params),
+                          'postgresql://pg@localhost/quisquis')
+        params = {'type': 'PostgreSQL',
+                  'passwd': True,
+                  'pictures': '/tmp/',
+                  'db': 'quisquis',
+                  'host': 'localhost',
+                  'user': 'pg'}
+        view.reply_entry_dialog.append('secret')
+        self.assertEquals(presenter.parameters_to_uri(params),
+                          'postgresql://pg:secret@localhost/quisquis')
+        params = {'type': 'PostgreSQL',
+                  'passwd': False,
+                  'pictures': '/tmp/',
+                  'port': '9876',
+                  'db': 'quisquis',
+                  'host': 'localhost',
+                  'user': 'pg'}
+        self.assertEquals(presenter.parameters_to_uri(params),
+                          'postgresql://pg@localhost:9876/quisquis')
+        params = {'type': 'PostgreSQL',
+                  'passwd': True,
+                  'pictures': '/tmp/',
+                  'port': '9876',
+                  'db': 'quisquis',
+                  'host': 'localhost',
+                  'user': 'pg'}
+        view.reply_entry_dialog.append('secret')
+        self.assertEquals(presenter.parameters_to_uri(params),
+                          'postgresql://pg:secret@localhost:9876/quisquis')
+        params = {'type': 'PostgreSQL',
+                  'passwd': False,
+                  'pictures': '/tmp/',
+                  'options': ['is_this_possible=no',
+                              'why_do_we_test=because'],
+                  'db': 'quisquis',
+                  'host': 'localhost',
+                  'user': 'pg'}
+        self.assertEquals(presenter.parameters_to_uri(params),
+                          'postgresql://pg@localhost/quisquis?'
+                          'is_this_possible=no&why_do_we_test=because')
+
+    def test_connection_uri_property(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_default_pref] = 'quisquis'
+        prefs.prefs[bauble.conn_list_pref] = {
+            'quisquis': {'type': 'PostgreSQL',
+                         'passwd': False,
+                         'pictures': '/tmp/',
+                         'db': 'quisquis',
+                         'host': 'localhost',
+                         'user': 'pg'}}
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.connection_name, 'quisquis')
+        self.assertEquals(presenter.dbtype, 'PostgreSQL')
+        ## we need trigger all signals that would go by gtk
+        p = presenter.connections[presenter.connection_name]
+        presenter.view.widget_set_value('database_entry', p['db'])
+        presenter.on_text_entry_changed('database_entry')
+        presenter.view.widget_set_value('user_entry', p['user'])
+        presenter.on_text_entry_changed('user_entry')
+        presenter.view.widget_set_value('host_entry', p['host'])
+        presenter.on_text_entry_changed('host_entry')
+        self.assertEquals(presenter.connection_uri,
+                          'postgresql://pg@localhost/quisquis')
+
 
 class MockRenderer(dict):
     def set_property(self, property, value):
         self[property] = value
 
 
-class CellDataFuncTests(BaubleTestCase):
+class GlobalFunctionsTests(BaubleTestCase):
     'Presenter manages view and model, implements view callbacks.'
     def test_combo_cell_data_func(self):
         import bauble.connmgr
@@ -250,12 +432,17 @@ class CellDataFuncTests(BaubleTestCase):
 
         bauble.connmgr.working_dbtypes, bauble.connmgr.dbtypes = wt, at
 
+    def test_is_package_name(self):
+        from bauble.connmgr import is_package_name
+        self.assertTrue(is_package_name("sqlite3"))
+        self.assertFalse(is_package_name("sqlheavy42"))
+
 
 class ButtonBrowseButtons(BaubleTestCase):
     def test_file_chosen(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        view.response_FileChooserDialog = 'chosen'
+        view.reply_file_chooser_dialog.append('chosen')
         presenter = ConnMgrPresenter(view)
         presenter.on_file_btnbrowse_clicked()
         presenter.on_text_entry_changed('file_entry')
@@ -264,7 +451,7 @@ class ButtonBrowseButtons(BaubleTestCase):
     def test_file_not_chosen(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        view.response_FileChooserDialog = None
+        view.reply_file_chooser_dialog = []
         presenter = ConnMgrPresenter(view)
         presenter.filename = 'previously'
         presenter.on_file_btnbrowse_clicked()
@@ -273,7 +460,7 @@ class ButtonBrowseButtons(BaubleTestCase):
     def test_pictureroot_chosen(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        view.response_FileChooserDialog = 'chosen'
+        view.reply_file_chooser_dialog.append('chosen')
         presenter = ConnMgrPresenter(view)
         presenter.on_pictureroot_btnbrowse_clicked()
         presenter.on_text_entry_changed('pictureroot_entry')
@@ -282,7 +469,7 @@ class ButtonBrowseButtons(BaubleTestCase):
     def test_pictureroot_not_chosen(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        view.response_FileChooserDialog = None
+        view.reply_file_chooser_dialog = []
         presenter = ConnMgrPresenter(view)
         presenter.pictureroot = 'previously'
         presenter.on_pictureroot_btnbrowse_clicked()
@@ -291,7 +478,7 @@ class ButtonBrowseButtons(BaubleTestCase):
     def test_pictureroot2_chosen(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        view.response_FileChooserDialog = 'chosen'
+        view.reply_file_chooser_dialog.append('chosen')
         presenter = ConnMgrPresenter(view)
         presenter.on_pictureroot2_btnbrowse_clicked()
         presenter.on_text_entry_changed('pictureroot2_entry')
@@ -300,7 +487,7 @@ class ButtonBrowseButtons(BaubleTestCase):
     def test_pictureroot2_not_chosen(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
-        view.response_FileChooserDialog = None
+        view.reply_file_chooser_dialog = []
         presenter = ConnMgrPresenter(view)
         presenter.pictureroot = 'previously'
         presenter.on_pictureroot2_btnbrowse_clicked()
