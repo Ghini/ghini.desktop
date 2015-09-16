@@ -127,13 +127,16 @@ def species_markup_func(species):
     '''
     # TODO: add (syn) after species name if there are species synonyms that
     # refer to the id of this plant
-    if len(species.vernacular_names) > 0:
-        substring = '%s -- %s' % \
-                    (species.genus.family,
-                     ', '.join([str(v) for v in species.vernacular_names]))
-    else:
-        substring = '%s' % species.genus.family
-    return species.markup(authors=False), substring
+    try:
+        if len(species.vernacular_names) > 0:
+            substring = '%s -- %s' % \
+                        (species.genus.family,
+                         ', '.join([str(v) for v in species.vernacular_names]))
+        else:
+            substring = '%s' % species.genus.family
+        return species.markup(authors=False), substring
+    except:
+        return u'...', u'...'
 
 
 def species_get_kids(species):

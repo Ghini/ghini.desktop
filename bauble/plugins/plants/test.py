@@ -768,7 +768,6 @@ class SpeciesTests(PlantTestCase):
         def syn_str(id1, id2, isit='not'):
             sp1 = load_sp(id1)
             sp2 = load_sp(id2)
-            print sp2
             return '%s(%s).synonyms: %s' % \
                    (sp1, sp1.id,
                     str(map(lambda s: '%s(%s)' %
@@ -1280,9 +1279,11 @@ class ConservationStatus_test(PlantTestCase):
         self.assertEquals(obj.conservation, u'LC')
 
 
+from editor import GenericModelViewPresenterEditor, MockView
+
+
 class PresenterTest(PlantTestCase):
     def test_canreeditobject(self):
-        from editor import GenericModelViewPresenterEditor
         species = Species.retrieve_or_create(
             self.session, {'object': 'taxon',
                            'ht-rank': 'genus',
@@ -1290,7 +1291,7 @@ class PresenterTest(PlantTestCase):
                            'rank': 'species',
                            'epithet': u'adductum'},
             create=False, update=False)
-        presenter = GenericModelViewPresenterEditor(species, mock_view)
+        presenter = GenericModelViewPresenterEditor(species, MockView())
         species.author = u'wrong'
         presenter.commit_changes()
         species.author = u'Asher'
@@ -1308,28 +1309,44 @@ class PresenterTest(PlantTestCase):
                            'rank': 'species',
                            'epithet': u'lobata'},
             create=False, update=False)
-        presenter = SpeciesEditorPresenter(model, mock_view)
+        presenter = SpeciesEditorPresenter(model, MockView())
         presenter.on_text_entry_changed('sp_species_entry', 'grandiflora')
 
 
-class MockView:
-    def __init__(self):
-        self.widgets = type('MockWidgets', (object, ), {})
-
-    def connect_signals(self, *args):
-        pass
-
-    def set_label(self, *args):
-        pass
-
-    def connect_after(self, *args):
-        pass
-
-    def widget_get_value(self, *args):
-        pass
-
-    def connect(self, *args):
-        pass
+from bauble.plugins.plants.species import (
+    species_markup_func, vernname_markup_func, )
 
 
-mock_view = MockView()
+class GlobalFunctionsTest(PlantTestCase):
+    def test_species_markup_func(self):
+        eCo = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Maxillaria',
+                           'rank': 'species',
+                           'epithet': u'variabilis'},
+            create=False, update=False)
+        model = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Laelia',
+                           'rank': 'species',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        first, second = species_markup_func(eCo)
+        self.assertEquals(first, u'<i>Maxillaria</i> <i>variabilis</i>')
+        self.assertEquals(second, u'Orchidaceae -- SomeName, SomeName 2')
+        first, second = species_markup_func(model)
+        self.assertEquals(first, u'<i>Laelia</i> <i>lobata</i>')
+        self.assertEquals(second, u'Orchidaceae')
+
+    def test_species_markup_func_none(self):
+        first, second = species_markup_func(None)
+        self.assertEquals(first, u'...')
+        self.assertEquals(second, u'...')
+
+    def test_vername_markup_func(self):
+        vName = self.session.query(VernacularName).filter_by(id=1).one()
+        first, second = vernname_markup_func(vName)
+        self.assertEquals(second, u'<i>Maxillaria</i> <i>variabilis</i>')
+        self.assertEquals(first, u'SomeName')
