@@ -84,6 +84,7 @@ done
 
 if [ "\$BUILDANDEND" == "1" ]
 then
+    cd \$GITHOME
     git pull
     python setup.py build
     python setup.py install
