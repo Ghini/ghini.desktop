@@ -146,7 +146,7 @@ class TagItemGUI(editor.GenericEditorView):
         name = unicode(entry.get_text(), encoding='utf-8')
         d.destroy()
 
-        if error_code != -3:
+        if error_code != gtk.RESPONSE_ACCEPT:
             return
         #stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
         session = db.Session()
