@@ -128,6 +128,28 @@ class ConnMgrPresenterTests(BaubleTestCase):
         self.assertTrue(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
+    def test_two_connection_on_remove_confirm_positive(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'},
+            'btuu': {'default': True,
+                     'pictures': 'btuu',
+                     'type': 'SQLite',
+                     'file': 'btuu.db'}}
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_yes_no_dialog.append(True)
+        presenter.on_remove_button_clicked('button')
+        ## visibility same
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+        self.assertTrue('combobox_set_active' in view.invoked)
+
     def test_no_connection_on_add_confirm_negative(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
