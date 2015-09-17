@@ -466,7 +466,6 @@ class GenericEditorView(object):
                     break
             logger.warning("combobox_remove - not found >%s<" % item)
         elif isinstance(item, int):
-            print "removing", item
             # remove at position
             widget.remove_text(item)
         else:

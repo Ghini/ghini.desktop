@@ -118,6 +118,11 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.pictureroot = self.connection_name = ''
         self.use_defaults = True
         self.passwd = False
+        ## following two look like overkill, since they will be initialized
+        ## in the parent class constructor. but we need these attributes in
+        ## place before we can invoke get_params
+        self.model = self
+        self.view = view
 
         ## initialize comboboxes, so we can fill them in
         view.combobox_init('name_combo')
@@ -131,7 +136,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.connection_name = prefs.prefs[bauble.conn_default_pref]
             if self.connection_name not in self.connections:
                 self.connection_name = self.connection_names[0]
-            self.dbtype = self.connections[self.connection_name]['type']
+            self.dbtype = None
+            self.set_params()
         else:
             self.dbtype = ''
             self.connection_name = None
@@ -460,7 +466,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
         result['type'] = self.dbtype
         return result
 
-    def set_params(self, params):
+    def set_params(self, params=None):
+        if params is None:
+            params = self.connections[self.connection_name]
+            self.dbtype = params['type']
         if self.dbtype == 'SQLite':
             self.filename = params['file']
             self.use_defaults = params['default']
