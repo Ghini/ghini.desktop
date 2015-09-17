@@ -278,6 +278,10 @@ class GenericEditorView(object):
         d.destroy()
         return user_reply
 
+    def run_message_dialog(self, msg, type=gtk.MESSAGE_INFO,
+                           buttons=gtk.BUTTONS_OK, parent=None):
+        utils.message_dialog(msg, type, buttons, parent)
+
     def run_yes_no_dialog(self, msg, parent=None, yes_delay=-1):
         return utils.yes_no_dialog(msg, parent, yes_delay)
 
@@ -292,7 +296,7 @@ class GenericEditorView(object):
             tree_view = view.results_view.get_model()
             check(tree_view is not None)
         except CheckConditionError:
-            utils.message_dialog(_('Search for something first.'))
+            self.run_message_dialog(_('Search for something first.'))
             return
 
         return [row[0] for row in tree_view]
@@ -710,6 +714,7 @@ class MockView:
     def __init__(self, **kwargs):
         self.widgets = type('MockWidgets', (object, ), {})
         self.models = {}  # dictionary of list of tuples
+        self.invoked = []
         self.visible = {}
         self.sensitive = {}
         self.expanded = {}
@@ -722,10 +727,12 @@ class MockView:
             setattr(self, name, value)
 
     def image_set_from_file(self, *args):
+        self.invoked.append('image_set_from_file')
         pass
 
     def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
+        self.invoked.append('run_file_chooser_dialog')
         try:
             reply = self.reply_file_chooser_dialog.pop()
         except:
@@ -733,41 +740,55 @@ class MockView:
         self.widget_set_value(target, reply)
 
     def run_entry_dialog(self, title, parent, flags, buttons):
+        self.invoked.append('run_entry_dialog')
         try:
             return self.reply_entry_dialog.pop()
         except:
             return ''
 
+    def run_message_dialog(self, msg, type=gtk.MESSAGE_INFO,
+                           buttons=gtk.BUTTONS_OK, parent=None):
+        self.invoked.append('run_message_dialog')
+
     def run_yes_no_dialog(self, msg, parent=None, yes_delay=-1):
+        self.invoked.append('run_yes_no_dialog')
         try:
             return self.reply_yes_no_dialog.pop()
         except:
             return True
 
     def set_title(self, *args):
+        self.invoked.append('set_title')
         pass
 
     def set_icon(self, *args):
+        self.invoked.append('set_icon')
         pass
 
     def combobox_init(self, name, values=None, *args):
+        self.invoked.append('combobox_init')
         self.models[name] = []
         for i in values or []:
             self.models[name].append((i, ))
 
     def connect_signals(self, *args):
+        self.invoked.append('connect_signals')
         pass
 
     def set_label(self, *args):
+        self.invoked.append('set_label')
         pass
 
     def connect_after(self, *args):
+        self.invoked.append('connect_after')
         pass
 
     def widget_get_value(self, widget, *args):
+        self.invoked.append('widget_get_value')
         return self.values[widget]
 
     def widget_set_value(self, widget, value, *args):
+        self.invoked.append('widget_set_value')
         self.values[widget] = value
         if widget in self.models:
             if (value, ) in self.models[widget]:
@@ -776,32 +797,41 @@ class MockView:
                 self.index[widget] = -1
 
     def connect(self, *args):
+        self.invoked.append('connect')
         pass
 
     def widget_get_visible(self, name):
+        self.invoked.append('widget_get_visible')
         return self.visible.get(name)
 
     def widget_set_visible(self, name, value=True):
+        self.invoked.append('widget_set_visible')
         self.visible[name] = value
 
     def expander_set_expanded(self, widget, value):
+        self.invoked.append('expander_set_expanded')
         self.expanded[widget] = value
 
     def widget_set_sensitive(self, name, value=True):
+        self.invoked.append('widget_set_sensitive')
         self.sensitive[name] = value
 
     def widget_get_sensitive(self, name):
+        self.invoked.append('widget_get_sensitive')
         return self.sensitive[name]
 
     def widget_set_inconsistent(self, *args):
+        self.invoked.append('widget_set_inconsistent')
         pass
 
     def get_window(self):
+        self.invoked.append('get_window')
         return None
 
     widget_get_active = widget_get_value
 
     def combobox_remove(self, name, item):
+        self.invoked.append('combobox_remove')
         model = self.models.setdefault(name, [])
         if isinstance(item, int):
             del model[item]
@@ -809,27 +839,34 @@ class MockView:
             model.remove((item, ))
 
     def combobox_append_text(self, name, value):
+        self.invoked.append('combobox_append_text')
         model = self.models.setdefault(name, [])
         model.append((value, ))
 
     def combobox_prepend_text(self, name, value):
+        self.invoked.append('combobox_prepend_text')
         model = self.models.setdefault(name, [])
         model.insert(0, (value, ))
 
     def combobox_set_active(self, widget, index):
+        self.invoked.append('combobox_set_active')
         self.index[widget] = index
         self.values[widget] = self.models[widget][index][0]
 
     def combobox_get_active_text(self, widget):
+        self.invoked.append('combobox_get_active_text')
         return self.values[widget]
 
     def combobox_get_active(self, widget):
+        self.invoked.append('combobox_get_active')
         return self.index.setdefault(widget, 0)
 
     def combobox_get_model(self, widget):
+        self.invoked.append('combobox_get_model')
         return self.models[widget]
 
     def set_accept_buttons_sensitive(self, sensitive=True):
+        self.invoked.append('set_accept_buttons_sensitive')
         pass
 
 
