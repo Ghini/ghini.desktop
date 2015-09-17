@@ -24,6 +24,7 @@ from nose import SkipTest
 from bauble.test import BaubleTestCase, check_dupids
 from bauble.connmgr import ConnMgrPresenter
 from bauble.editor import MockView
+from gtk import RESPONSE_OK, RESPONSE_CANCEL
 
 
 def test_duplicate_ids():
@@ -46,11 +47,7 @@ class TagTests(BaubleTestCase):
         pass
 
 
-def diteglisempredisi(*args):
-    return True
 import bauble
-import bauble.utils as utils
-utils.yes_no_dialog = diteglisempredisi
 import bauble.prefs as prefs
 prefs.testing = True  # prevents overwriting
 
@@ -492,3 +489,52 @@ class ButtonBrowseButtons(BaubleTestCase):
         presenter.pictureroot = 'previously'
         presenter.on_pictureroot2_btnbrowse_clicked()
         self.assertEquals(presenter.pictureroot, 'previously')
+
+
+class MockDialog:
+    def __init__(self):
+        self.hidden = False
+
+    def hide(self):
+        self.hidden = True
+
+
+class OnDialogResponseTests(BaubleTestCase):
+    def test_on_dialog_response_ok_invalid_params(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {}
+        view.reply_file_chooser_dialog = []
+        presenter = ConnMgrPresenter(view)
+        dialog = MockDialog()
+        presenter.on_dialog_response(dialog, RESPONSE_OK)
+        self.assertTrue('run_message_dialog' in view.invoked)
+        self.assertTrue(dialog.hidden)
+
+    def test_on_dialog_response_ok_valid_params(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': False,
+                       'pictures': '/tmp/nugkui',
+                       'type': 'SQLite',
+                       'file': '/tmp/nugkui.db'}}
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        view.reply_file_chooser_dialog = []
+        presenter = ConnMgrPresenter(view)
+        dialog = MockDialog()
+        view.invoked = []
+        presenter.on_dialog_response(dialog, RESPONSE_OK)
+        self.assertFalse('run_message_dialog' in view.invoked)
+        self.assertTrue(dialog.hidden)
+
+    def test_on_dialog_response_cancel(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        view.reply_file_chooser_dialog = []
+        presenter = ConnMgrPresenter(view)
+        dialog = MockDialog()
+        view.reply_yes_no_dialog = [False]
+        presenter.on_dialog_response(dialog, RESPONSE_CANCEL)
+        self.assertFalse('run_message_dialog' in view.invoked)
+        self.assertTrue(dialog.hidden)
