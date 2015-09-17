@@ -209,10 +209,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         if response == gtk.RESPONSE_OK:
             settings = self.get_params()
-            error, msg = self.check_parameters_valid(settings)
-            if error:
+            valid, msg = self.check_parameters_valid(settings)
+            if not valid:
                 self.view.run_message_dialog(msg, gtk.MESSAGE_ERROR)
-            if not error and not prefs.testing:
+            if valid:
                 self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
@@ -285,7 +285,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
         conn_dict = self.connections
         conn_dict[self.connection_name] = params
         prefs.prefs[bauble.conn_list_pref] = conn_dict
-        prefs.prefs.save()
+        if not prefs.testing:
+            prefs.prefs.save()
 
     def compare_prefs_to_saved(self, name):
         """
