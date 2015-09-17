@@ -55,8 +55,8 @@ from bauble.plugins.garden.institution import Institution, InstitutionEditor
 import bauble.prefs as prefs
 
 
-accession_test_data = ({'id': 1, 'code': u'1.1', 'species_id': 1},
-                       {'id': 2, 'code': u'2.2', 'species_id': 2,
+accession_test_data = ({'id': 1, 'code': u'2001.1', 'species_id': 1},
+                       {'id': 2, 'code': u'2001.2', 'species_id': 2,
                         'source_type': u'Collection'},
                        )
 
@@ -887,7 +887,7 @@ class AccessionTests(GardenTestCase):
 
     def test_species_str(self):
         """
-        Test Accesion.species_str()
+        Test Accession.species_str()
         """
         acc = self.create(Accession, species=self.species, code=u'1')
         s = u'Echinocactus grusonii'
@@ -1616,17 +1616,48 @@ class PlantSearchTest(GardenTestCase):
     def test_searchbyaccessioncode(self):
         mapper_search = search.get_strategy('MapperSearch')
 
-        results = mapper_search.search('1.1', self.session)
+        results = mapper_search.search('2001.1', self.session)
         self.assertEquals(len(results), 1)
         a = results.pop()
         expect = self.session.query(Accession).filter(
             Accession.id == 1).first()
         logger.debug("%s, %s" % (a, expect))
         self.assertEqual(a, expect)
-        results = mapper_search.search('2.2', self.session)
+        results = mapper_search.search('2001.2', self.session)
         self.assertEquals(len(results), 1)
         a = results.pop()
         expect = self.session.query(Accession).filter(
             Accession.id == 2).first()
         logger.debug("%s, %s" % (a, expect))
         self.assertEqual(a, expect)
+
+
+from bauble.plugins.garden.accession import get_next_code
+
+
+class GlobalFunctionsTests(GardenTestCase):
+    def test_get_next_code_first_this_year(self):
+        this_year = str(datetime.date.today().year)
+        self.assertEquals(get_next_code(), this_year + '.0001')
+
+    def test_get_next_code_second_this_year(self):
+        this_year = str(datetime.date.today().year)
+        this_code = get_next_code()
+        acc = Accession(species=self.species, code=this_code)
+        self.session.add(acc)
+        self.session.flush()
+        self.assertEquals(get_next_code(), this_year + '.0002')
+
+    def test_get_next_code_absolute_beginning(self):
+        this_year = str(datetime.date.today().year)
+        self.session.query(Accession).delete()
+        self.session.flush()
+        self.assertEquals(get_next_code(), this_year + '.0001')
+
+    def test_get_next_code_next_with_hole(self):
+        this_year = str(datetime.date.today().year)
+        this_code = this_year + u'.0050'
+        acc = Accession(species=self.species, code=this_code)
+        self.session.add(acc)
+        self.session.flush()
+        self.assertEquals(get_next_code(), this_year + '.0051')
