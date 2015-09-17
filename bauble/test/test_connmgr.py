@@ -128,6 +128,44 @@ class ConnMgrPresenterTests(BaubleTestCase):
         self.assertTrue(presenter.view.widget_get_visible(
             'noconnectionlabel'))
 
+    def test_two_connection_initialize_default_first(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'},
+            'btuu': {'default': False,
+                     'pictures': 'btuu',
+                     'type': 'SQLite',
+                     'file': 'btuu.db'}}
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.connection_name, 'nugkui')
+        params = presenter.connections[presenter.connection_name]
+        self.assertEquals(params['default'], True)
+        self.assertTrue(view.widget_get_value('usedefaults_chkbx'))
+
+    def test_two_connection_initialize_default_second(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'},
+            'btuu': {'default': False,
+                     'pictures': 'btuu',
+                     'type': 'SQLite',
+                     'file': 'btuu.db'}}
+        prefs.prefs[bauble.conn_default_pref] = 'bruu'
+        presenter = ConnMgrPresenter(view)
+        self.assertEquals(presenter.connection_name, 'btuu')
+        params = presenter.connections[presenter.connection_name]
+        self.assertEquals(params['default'], False)
+        self.assertFalse(view.widget_get_value('usedefaults_chkbx'))
+
     def test_two_connection_on_remove_confirm_positive(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
