@@ -249,7 +249,7 @@ class GenericEditorView(object):
 
     def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
-        chooser = gtk.FileChooserDialog(text, parent, buttons=buttons)
+        chooser = gtk.FileChooserDialog(text, parent, action, buttons)
         #chooser.set_do_overwrite_confirmation(True)
         #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
         try:
@@ -720,11 +720,16 @@ class MockView:
         self.expanded = {}
         self.values = {}
         self.index = {}
+        self.selection = []
         self.reply_entry_dialog = []
         self.reply_yes_no_dialog = []
         self.reply_file_chooser_dialog = []
         for name, value in kwargs.items():
             setattr(self, name, value)
+
+    def get_selection(self):
+        'fakes main UI search result - selection'
+        return self.selection
 
     def image_set_from_file(self, *args):
         self.invoked.append('image_set_from_file')

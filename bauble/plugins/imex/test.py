@@ -39,6 +39,7 @@ from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
 from bauble.plugins.imex.iojson import JSONImporter, JSONExporter
 from bauble.test import BaubleTestCase
 import json
+from bauble.editor import MockView
 
 
 # TODO: test that when we export data we get what we expect
@@ -454,8 +455,8 @@ class JSONExportTests(BaubleTestCase):
     def test_writes_complete_database(self):
         "exporting without specifying what: export complete database"
 
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(None)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = None
         exporter.selection_based_on == 'sbo_selection'
         exporter.include_private = False
         exporter.filename = self.temp_path
@@ -499,15 +500,25 @@ class JSONExportTests(BaubleTestCase):
         for o2 in target:
             self.assertTrue(o1 in result)
 
+    def test_when_selection_huge_ask(self):
+        view = MockView()
+        exporter = JSONExporter(view)
+        exporter.selection_based_on == 'sbo_selection'
+        view.selection = range(5000)
+        view.reply_yes_no_dialog = [False]
+        exporter.run()
+        self.assertTrue('run_yes_no_dialog' in view.invoked)
+        self.assertEquals(view.reply_yes_no_dialog, [])
+
     def test_writes_full_taxonomic_info(self):
         "exporting one family: export full taxonomic information below family"
 
         selection = self.session.query(Family).filter(
             Family.family == u'Orchidaceae').all()
-        exporter = JSONExporter(MockExportView())
+        exporter = JSONExporter(MockView())
         exporter.selection_based_on == 'sbo_selection'
         exporter.include_private = False
-        exporter.view.set_selection(selection)
+        exporter.view.selection = selection
         exporter.filename = self.temp_path
         exporter.run()
         result = json.load(open(self.temp_path))
@@ -520,8 +531,8 @@ class JSONExportTests(BaubleTestCase):
 
         selection = self.session.query(Genus).filter(
             Genus.genus == u'Calopogon').all()
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(selection)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = selection
         exporter.selection_based_on == 'sbo_selection'
         exporter.include_private = False
         exporter.filename = self.temp_path
@@ -540,8 +551,8 @@ class JSONExportTests(BaubleTestCase):
         selection = self.session.query(
             Species).filter(Species.sp == u'tuberosus').join(
             Genus).filter(Genus.genus == u"Calopogon").all()
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(selection)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = selection
         exporter.selection_based_on == 'sbo_selection'
         exporter.include_private = False
         exporter.filename = self.temp_path
@@ -568,8 +579,8 @@ class JSONExportTests(BaubleTestCase):
 
         selection = self.session.query(Genus).filter(
             Genus.genus == u'Zygoglossum').all()
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(selection)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = selection
         exporter.selection_based_on == 'sbo_selection'
         exporter.include_private = True
         exporter.filename = self.temp_path
@@ -588,12 +599,12 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(accepted['ht-epithet'], 'Orchidaceae')
 
     def test_export_ignores_private_if_sbo_selection(self):
-        exporter = JSONExporter(MockExportView())
+        exporter = JSONExporter(MockView())
         selection = [o for o in self.objects if isinstance(o, Accession)]
         non_private = [a for a in selection if a.private is False]
         self.assertEquals(len(selection), 3)
         self.assertEquals(len(non_private), 2)
-        exporter.view.set_selection(selection)
+        exporter.view.selection = selection
         exporter.selection_based_on == 'sbo_selection'
         exporter.include_private = False
         exporter.filename = self.temp_path
@@ -602,8 +613,8 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(result), 3)
 
     def test_export_non_private_if_sbo_accessions(self):
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(None)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = None
         exporter.selection_based_on = 'sbo_accessions'
         exporter.include_private = False
         exporter.filename = self.temp_path
@@ -612,8 +623,8 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(result), 5)
 
     def test_export_private_if_sbo_accessions(self):
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(None)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = None
         exporter.selection_based_on = 'sbo_accessions'
         exporter.include_private = True
         exporter.filename = self.temp_path
@@ -623,8 +634,8 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(result), 6)
 
     def test_export_non_private_if_sbo_plants(self):
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(None)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = None
         exporter.selection_based_on = 'sbo_plants'
         exporter.include_private = False
         exporter.filename = self.temp_path
@@ -633,8 +644,8 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(result), 6)
 
     def test_export_private_if_sbo_plants(self):
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(None)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = None
         exporter.selection_based_on = 'sbo_plants'
         exporter.include_private = True
         exporter.filename = self.temp_path
@@ -655,8 +666,8 @@ class JSONExportTests(BaubleTestCase):
         self.session.commit()
 
         ## action
-        exporter = JSONExporter(MockExportView())
-        exporter.view.set_selection(None)
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = None
         exporter.selection_based_on = 'sbo_taxa'
         exporter.include_private = False
         exporter.filename = self.temp_path
@@ -668,6 +679,15 @@ class JSONExportTests(BaubleTestCase):
                           if i['object'] == 'vernacular_name']
         self.assertEquals(len(vern_from_json), 1)
         self.assertEquals(vern_from_json[0]['language'], 'es')
+
+    def test_on_btnbrowse_clicked(self):
+        view = MockView()
+        exporter = JSONExporter(view)
+        view.reply_file_chooser_dialog = ['/tmp/test.json']
+        exporter.on_btnbrowse_clicked('button')
+        exporter.on_text_entry_changed('filename')
+        self.assertEquals(exporter.filename, '/tmp/test.json')
+        self.assertEquals(JSONExporter.last_folder, '/tmp')
 
 
 class MockImportView:
@@ -1003,3 +1023,22 @@ class JSONImportTests(BaubleTestCase):
             self.session, {'epithet': u"Anacampseros"}, create=False)
         self.assertEquals(anacampseros.__class__, Genus)
         self.assertEquals(anacampseros.author, u'')
+
+    def test_on_btnbrowse_clicked(self):
+        view = MockView()
+        exporter = JSONImporter(view)
+        view.reply_file_chooser_dialog = ['/tmp/test.json']
+        exporter.on_btnbrowse_clicked('button')
+        exporter.on_text_entry_changed('input_filename')
+        self.assertEquals(exporter.filename, '/tmp/test.json')
+        self.assertEquals(JSONImporter.last_folder, '/tmp')
+
+
+class GlobalFunctionsTests(BaubleTestCase):
+    'Presenter manages view and model, implements view callbacks.'
+    def test_json_serializer_datetime(self):
+        import datetime
+        from iojson import serializedatetime
+        stamp = datetime.datetime(2011, 11, 11, 12, 13)
+        self.assertEquals(serializedatetime(stamp),
+                          {'millis': 1321013580000, '__class__': 'datetime'})

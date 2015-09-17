@@ -161,8 +161,9 @@ class JSONExporter(editor.GenericEditorPresenter):
         return result
 
     def on_btnbrowse_clicked(self, button):
-        self.view.run_FileChooserDialog(
+        self.view.run_file_chooser_dialog(
             _("Choose a file..."), None,
+            action=gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
             last_folder=self.last_folder, target='filename')
@@ -202,7 +203,7 @@ class JSONExporter(editor.GenericEditorPresenter):
                     'Exporting this many objects may take several minutes.  '
                     '\n\n<i>Would you like to continue?</i>') \
                 % ({'nplants': count})
-            if not utils.yes_no_dialog(msg):
+            if not self.view.run_yes_no_dialog(msg):
                 return
 
         import codecs
@@ -243,23 +244,14 @@ class JSONImporter(editor.GenericEditorPresenter):
         self.__error_exc = False
 
     def on_btnbrowse_clicked(self, button):
-        chooser = gtk.FileChooserDialog(
+        self.view.run_file_chooser_dialog(
             _("Choose a file..."), None,
+            action=gtk.FILE_CHOOSER_ACTION_OPEN,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        #chooser.set_do_overwrite_confirmation(True)
-        #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
-        try:
-            if self.last_folder:
-                chooser.set_current_folder(self.last_folder)
-            if chooser.run() == gtk.RESPONSE_ACCEPT:
-                filename = chooser.get_filename()
-                if filename:
-                    JSONImporter.last_folder, bn = os.path.split(filename)
-                    self.view.widget_set_value('input_filename', filename)
-        except Exception, e:
-            logger.warning("unhandled exception in iojson.py: %s" % e)
-        chooser.destroy()
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            last_folder=self.last_folder, target='input_filename')
+        filename = self.view.widget_get_value('input_filename')
+        JSONImporter.last_folder, bn = os.path.split(filename)
 
     def on_btnok_clicked(self, widget):
         obj = json.load(open(self.filename))
