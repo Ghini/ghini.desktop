@@ -485,7 +485,7 @@ def start_connection_manager(default_conn=None):
 
     cm = ConnMgrPresenter(view)
     result = cm.start()
-    if result == -5:
+    if result == gtk.RESPONSE_OK:
         return cm.connection_name, cm.connection_uri
     else:
         return None, None
