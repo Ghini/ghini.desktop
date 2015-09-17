@@ -79,9 +79,9 @@ if main_is_frozen():  # main is frozen
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
 
-if False:
-    sys.stderr.write('sys.path: %s\n' % sys.path)
-    sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
+#if False:
+#    sys.stderr.write('sys.path: %s\n' % sys.path)
+#    sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
 
 
 # set SQLAlchemy logging level
