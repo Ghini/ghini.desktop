@@ -1633,6 +1633,7 @@ class PlantSearchTest(GardenTestCase):
 
 
 from bauble.plugins.garden.accession import get_next_code
+from bauble.plugins.garden.location import mergevalues
 
 
 class GlobalFunctionsTests(GardenTestCase):
@@ -1661,3 +1662,21 @@ class GlobalFunctionsTests(GardenTestCase):
         self.session.add(acc)
         self.session.flush()
         self.assertEquals(get_next_code(), this_year + '.0051')
+
+    def test_mergevalues_equal(self):
+        'if the values are equal, return it'
+        self.assertEquals(mergevalues('1', '1', '%s|%s'), '1')
+
+    def test_mergevalues_conflict(self):
+        'if they conflict, return both'
+        self.assertEquals(mergevalues('2', '1', '%s|%s'), '2|1')
+
+    def test_mergevalues_one_empty(self):
+        'if one is empty, return the non empty one'
+        self.assertEquals(mergevalues('2', None, '%s|%s'), '2')
+        self.assertEquals(mergevalues(None, '2', '%s|%s'), '2')
+        self.assertEquals(mergevalues('2', '', '%s|%s'), '2')
+
+    def test_mergevalues_both_empty(self):
+        'if both are empty, return the empty string'
+        self.assertEquals(mergevalues(None, None, '%s|%s'), '')
