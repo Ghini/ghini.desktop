@@ -154,26 +154,6 @@ class Location(db.Base, db.Serializable):
 
 def mergevalues(value1, value2, formatter):
     """return the common value
-
-    if the values are equal, return it
-    >>> mergevalues('1', '1', '%s|%s')
-    '1'
-
-    if they conflict, return both
-    >>> mergevalues('2', '1', '%s|%s')
-    '2|1'
-
-    if one is empty, return the non empty one
-    >>> mergevalues('2', None, '%s|%s')
-    '2'
-    >>> mergevalues(None, '2', '%s|%s')
-    '2'
-    >>> mergevalues('2', '', '%s|%s')
-    '2'
-
-    if both are empty, return the empty string
-    >>> mergevalues(None, None, '%s|%s')
-    ''
     """
 
     if value1 == value2:

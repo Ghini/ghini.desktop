@@ -600,13 +600,6 @@ def construct_from_dict(session, obj, create=True, update=True):
 
 def class_of_object(o):
     """what class implements object o
-
-    >>> class_of_object("genus")
-    <class 'bauble.plugins.plants.genus.Genus'>
-    >>> class_of_object("accession_note")
-    <class 'bauble.plugins.garden.accession.AccessionNote'>
-    >>> class_of_object("not_existing")
-    >>>
     """
 
     name = ''.join(p.capitalize() for p in o.split('_'))
