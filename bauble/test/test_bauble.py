@@ -233,3 +233,19 @@ class MVPTests(BaubleTestCase):
         self.assertEquals(
             len(presenter.view._GenericEditorView__attached_signals), 1)
         presenter.on_tag_desc_textbuffer_changed()  # avoid uncounted line!
+
+
+class GlobalFunctionsTests(BaubleTestCase):
+    def test_newer_version_on_github(self):
+        import StringIO
+        from bauble import newer_version_on_github
+        stream = StringIO.StringIO('version = "1.0.0"  # comment')
+        self.assertFalse(newer_version_on_github(stream) and True or False)
+        stream = StringIO.StringIO('version = "1.0.99999"  # comment')
+        self.assertTrue(newer_version_on_github(stream) and True or False)
+        stream = StringIO.StringIO('version = "1.0.99999"  # comment')
+        self.assertEquals(newer_version_on_github(stream), '1.0.99999')
+        stream = StringIO.StringIO('version = "1.099999"  # comment')
+        self.assertFalse(newer_version_on_github(stream) and True or False)
+        stream = StringIO.StringIO('version = "1.0.99999-dev"  # comment')
+        self.assertFalse(newer_version_on_github(stream) and True or False)
