@@ -196,23 +196,6 @@ def newer_version_on_github(input_stream):
     if the remote version is higher than the running one, return
     something evaluating to True (possibly the remote version string).
     otherwise, return something evaluating to False
-
-    >>> import StringIO
-    >>> stream = StringIO.StringIO('version = "1.0.0"  # comment')
-    >>> newer_version_on_github(stream) and True or False
-    False
-    >>> stream = StringIO.StringIO('version = "1.0.99999"  # comment')
-    >>> newer_version_on_github(stream) and True or False
-    True
-    >>> stream = StringIO.StringIO('version = "1.0.99999"  # comment')
-    >>> newer_version_on_github(stream)
-    '1.0.99999'
-    >>> stream = StringIO.StringIO('version = "1.099999"  # comment')
-    >>> newer_version_on_github(stream) and True or False
-    False
-    >>> stream = StringIO.StringIO('version = "1.0.99999-dev"  # comment')
-    >>> newer_version_on_github(stream) and True or False
-    False
     """
 
     try:
