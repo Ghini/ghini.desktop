@@ -208,8 +208,8 @@ class _prefs(dict):
             return True
         return False
 
-    def save(self):
-        if testing:
+    def save(self, force=False):
+        if testing and not force:
             return
         try:
             f = open(self._filename, "w+")
@@ -223,6 +223,8 @@ class _prefs(dict):
                 import bauble.utils as utils
                 utils.message_dialog(msg, type=gtk.MESSAGE_ERROR,
                                      parent=bauble.gui.window)
+            else:
+                logger.error(msg)
 
 
 # TODO: remember pane sizes
