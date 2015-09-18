@@ -45,8 +45,9 @@ connections yet and Bauble will alert you about it.
 
 .. image:: images/screenshots/first-time-activation.png
 
-As it says: close the message box, you will return to the connection dialog,
-where you click on **Add** to create your first connection.
+This alert will show at first activation and also in the future if your
+connections list becomes empty. As it says: click on **Add** to create your
+first connection.
 
 .. image:: images/screenshots/enter-a-connection-name.png
 
