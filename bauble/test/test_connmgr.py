@@ -580,6 +580,7 @@ class OnDialogResponseTests(BaubleTestCase):
                        'type': 'SQLite',
                        'file': '/tmp/nugkui.db'}}
         prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        prefs.prefs[prefs.picture_root_pref] = '/tmp'
         view.reply_file_chooser_dialog = []
         presenter = ConnMgrPresenter(view)
         dialog = MockDialog()
@@ -587,6 +588,7 @@ class OnDialogResponseTests(BaubleTestCase):
         presenter.on_dialog_response(dialog, RESPONSE_OK)
         self.assertFalse('run_message_dialog' in view.invoked)
         self.assertTrue(dialog.hidden)
+        self.assertEquals(prefs.prefs[prefs.picture_root_pref], '/tmp/nugkui')
 
     def test_on_dialog_response_cancel(self):
         view = MockView(combos={'name_combo': [],

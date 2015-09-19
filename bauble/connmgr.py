@@ -219,6 +219,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if not valid:
                 self.view.run_message_dialog(msg, gtk.MESSAGE_ERROR)
             if valid:
+                ## picture root is stored in global setting
+                prefs.prefs[prefs.picture_root_pref] = settings['pictures']
                 self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
