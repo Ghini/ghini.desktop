@@ -1010,6 +1010,8 @@ class GenericEditorPresenter(object):
         omonym = q.first()
         if omonym is not None and omonym is not self.model:
             self.add_problem(self.PROBLEM_DUPLICATE, widget)
+        else:
+            self.remove_problem(self.PROBLEM_DUPLICATE, widget)
         ## ok
         self.__set_model_attr(attr, value)
 
