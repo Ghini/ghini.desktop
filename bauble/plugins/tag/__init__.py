@@ -111,6 +111,19 @@ remove_action = Action('tag_remove', _('_Delete'), callback=remove_callback,
 tag_context_menu = [edit_action, remove_action]
 
 
+class TagEditorPresenter(GenericEditorPresenter):
+
+    widget_to_field_map = {
+        'tag_name_entry': 'tag',
+        'tag_desc_textbuffer': 'description'}
+
+    view_accept_buttons = ['tag_ok_button', 'tag_cancel_button', ]
+
+    def on_tag_desc_textbuffer_changed(self, widget, value=None):
+        return GenericEditorPresenter.on_textbuffer_changed(
+            self, widget, value, attr='description')
+
+
 class TagItemGUI(editor.GenericEditorView):
     '''
     Interface for tagging individual items in the results of the SearchView
@@ -130,34 +143,16 @@ class TagItemGUI(editor.GenericEditorView):
 
     def on_new_button_clicked(self, *args):
         '''
-        create a new tag name
+        create a new tag
         '''
-        d = gtk.Dialog(_("Enter a tag name"), None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        d.set_default_response(gtk.RESPONSE_ACCEPT)
-        d.set_default_size(250, -1)
-        entry = gtk.Entry()
-        entry.connect("activate",
-                      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
-        d.vbox.pack_start(entry)
-        d.show_all()
-        error_code = d.run()
-        name = unicode(entry.get_text(), encoding='utf-8')
-        d.destroy()
-
-        if error_code != gtk.RESPONSE_ACCEPT:
-            return
-        #stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
         session = db.Session()
-        ntags = session.query(Tag).filter_by(tag=name).count()
-        if name not in ('', u'') and ntags == 0:
-            session.add(Tag(tag=name))
-            session.commit()
+        tag = Tag(description='')
+        session.add(tag)
+        error_state = edit_callback([tag])
+        if not error_state:
             model = self.tag_tree.get_model()
-            model.append([False, name])
+            model.append([False, tag.tag])
             _reset_tags_menu()
-        session.close()
 
     def on_toggled(self, renderer, path, data=None):
         '''
@@ -574,19 +569,6 @@ class TagPlugin(pluginmgr.Plugin):
                                       context_menu=tag_context_menu)
         if bauble.gui is not None:
             _reset_tags_menu()
-
-
-class TagEditorPresenter(GenericEditorPresenter):
-
-    widget_to_field_map = {
-        'tag_name_entry': 'tag',
-        'tag_desc_textbuffer': 'description'}
-
-    view_accept_buttons = ['tag_ok_button', 'tag_cancel_button', ]
-
-    def on_tag_desc_textbuffer_changed(self, widget, value=None):
-        return GenericEditorPresenter.on_textbuffer_changed(
-            self, widget, value, attr='description')
 
 
 plugin = TagPlugin
