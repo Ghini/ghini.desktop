@@ -24,3 +24,44 @@ the following command::
 For more information about other available code branches go to
 `bauble.classic on github <http://www.github.com/Bauble/bauble.classic>`_.
 
+
+Development Workflow
+=============================
+
+production line
+-----------------
+
+A bauble production line is a branch. Currently there is only one production
+line, that is bauble-1.0.  In perspective, we will have several one, each in
+use by one or more gardens.
+
+As long as we have only one production line, I keep working on the master
+branch, unless I later realize the work is going to take longer than one or
+two days.
+
+batches of simple issues
+------------------------------
+
+For issues that can be managed in one or two commits, and as long as there's
+no other activity on the repository, work on the master branch, accumulate
+issue-solving commits, finally merge master into the production line
+bauble-1.0.
+
+larger issues
+---------------
+
+When facing a single larger issue, create a branch tag, and follow the
+workflow described at
+
+https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
+
+in short::
+
+    git up
+    git checkout -b issue-xxxx
+    git push origin issue-xxxx
+
+work on the new branch. when ready, go to github, merge the branch with
+master, solve conflicts where necessary, delete the temporary branch.
+
+when ready for publication, merge master into the production line.
