@@ -51,19 +51,18 @@ else
     git checkout bauble-1.0
 fi
 
-mkdir $HOME/.virtualenvs >/dev/null 2>&1
+mkdir -p $HOME/.virtualenvs
 virtualenv $HOME/.virtualenvs/bacl --system-site-packages
-find $HOME/.virtualenvs/bacl -name "*.pyc" -execdir rm {} \;
-find $HOME/.virtualenvs/bacl -name "*.pth" -execdir rm {} \;
-mkdir $HOME/.virtualenvs/bacl/share >/dev/null 2>&1
-mkdir $HOME/.bauble >/dev/null 2>&1
+find $HOME/.virtualenvs/bacl -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
+mkdir -p $HOME/.virtualenvs/bacl/share
+mkdir -p $HOME/.bauble
 source $HOME/.virtualenvs/bacl/bin/activate
 
 pip install setuptools pip --upgrade
 
 python setup.py build
 python setup.py install
-mkdir $HOME/bin 2>/dev/null
+mkdir -p $HOME/bin 2>/dev/null
 cat <<EOF > $HOME/bin/bauble
 #!/bin/bash
 
