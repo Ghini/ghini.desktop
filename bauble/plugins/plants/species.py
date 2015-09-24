@@ -139,26 +139,6 @@ def species_markup_func(species):
         return u'...', u'...'
 
 
-def species_get_kids(species):
-    try:
-        return sorted(species.accessions, key=utils.natsort_key)
-    except Exception:
-        return []
-
-
-def vernname_get_kids(vernname):
-    '''
-    '''
-    # TODO: should probably just create an accessions property on vername that
-    # does the same thing as vername.species.accessions and might even make
-    # it faster if we create the join directly instead of loading the species
-    # first
-    try:
-        return sorted(vernname.species.accessions, key=utils.natsort_key)
-    except Exception:
-        return []
-
-
 def vernname_markup_func(vernname):
     '''
     '''

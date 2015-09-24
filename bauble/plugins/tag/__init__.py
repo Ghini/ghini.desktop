@@ -284,6 +284,12 @@ class Tag(db.Base):
         return get_tagged_objects(self)
     objects = property(_get_objects)
 
+    def is_tagging(self, object):
+        """tell whether self tags object
+
+        """
+        _get_tagged_object_pairs(self)
+
 
 class TaggedObj(db.Base):
     """
@@ -552,10 +558,18 @@ def _reset_tags_menu():
     session.close()
 
 
-def natsort_kids(kids):
+def attached_tags(obj, session=None):
+    """return the list of tags attached to obj
     """
-    """
-    return lambda(parent): sorted(getattr(parent, kids), key=utils.natsort_key)
+    if session is None:
+        from sqlalchemy.orm.session import object_session
+        session = object_session(obj)
+    modname = type(obj).__module__
+    clsname = type(obj).__name__
+    full_cls_name = '%s.%s' % (modname, clsname)
+    qto = session.query(TaggedObj).filter(TaggedObj.obj_class == full_cls_name)
+    qto = qto.filter(TaggedObj.obj_id == obj.id)
+    return [i.tag for i in qto.all()]
 
 
 class TagPlugin(pluginmgr.Plugin):
@@ -563,10 +577,12 @@ class TagPlugin(pluginmgr.Plugin):
     @classmethod
     def init(cls):
         from bauble.view import SearchView
+        from functools import partial
         mapper_search = search.get_strategy('MapperSearch')
         mapper_search.add_meta(('tag', 'tags'), Tag, ['tag'])
-        SearchView.view_meta[Tag].set(children=natsort_kids('objects'),
-                                      context_menu=tag_context_menu)
+        SearchView.row_meta[Tag].set(children=partial(db.natsort, 'objects'),
+                                     context_menu=tag_context_menu)
+        SearchView.bottom_info[Tag] = []
         if bauble.gui is not None:
             _reset_tags_menu()
 

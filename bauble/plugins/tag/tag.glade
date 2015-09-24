@@ -51,7 +51,7 @@
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
@@ -346,5 +346,59 @@
       <action-widget response="0">new_button</action-widget>
       <action-widget response="-5">button4</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkWindow" id="taginfo_parent">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkExpander" id="taginfo_xpd">
+        <property name="sensitive">False</property>
+        <property name="can_focus">True</property>
+        <child>
+          <object class="GtkScrolledWindow" id="taginfo_slv">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <object class="GtkTreeView" id="taginfo_trv">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="headers_clickable">False</property>
+                <property name="reorderable">True</property>
+                <child>
+                  <object class="GtkTreeViewColumn" id="name_col">
+                    <property name="title">Name</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="name_cell">
+                        <property name="xalign">0</property>
+                        <property name="yalign">0</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="text_col">
+                    <property name="title">Note</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="note_cell">
+                        <property name="xalign">0</property>
+                        <property name="yalign">0</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="label">
+          <object class="GtkLabel" id="taginfo_lbl">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="label" translatable="yes">Tags</property>
+          </object>
+        </child>
+      </object>
+    </child>
   </object>
 </interface>

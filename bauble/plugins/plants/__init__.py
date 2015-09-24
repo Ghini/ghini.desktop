@@ -48,10 +48,10 @@ from bauble.plugins.plants.genus import (
     )
 from bauble.plugins.plants.species import (
     Species, SpeciesEditorMenuItem, SpeciesInfoBox,
-    species_get_kids, species_markup_func,
+    species_markup_func,
     species_context_menu, add_accession_action,
     SynonymSearch, SpeciesDistribution,
-    VernacularName, VernacularNameInfoBox, vernname_get_kids,
+    VernacularName, VernacularNameInfoBox,
     vernname_context_menu, vernname_markup_func,
     )
 from bauble.plugins.plants.geography import (
@@ -75,36 +75,38 @@ class PlantsPlugin(pluginmgr.Plugin):
         mapper_search = search.get_strategy('MapperSearch')
 
         mapper_search.add_meta(('family', 'fam'), Family, ['family'])
-        SearchView.view_meta[Family].set(children="genera",
-                                         infobox=FamilyInfoBox,
-                                         context_menu=family_context_menu,
-                                         markup_func=family_markup_func)
+        SearchView.row_meta[Family].set(children="genera",
+                                        infobox=FamilyInfoBox,
+                                        context_menu=family_context_menu,
+                                        markup_func=family_markup_func)
 
         mapper_search.add_meta(('genus', 'gen'), Genus, ['genus'])
-        SearchView.view_meta[Genus].set(children="species",
-                                        infobox=GenusInfoBox,
-                                        context_menu=genus_context_menu,
-                                        markup_func=genus_markup_func)
+        SearchView.row_meta[Genus].set(children="species",
+                                       infobox=GenusInfoBox,
+                                       context_menu=genus_context_menu,
+                                       markup_func=genus_markup_func)
 
+        from functools import partial
         search.add_strategy(SynonymSearch)
         mapper_search.add_meta(('species', 'sp'), Species,
                                ['sp', 'sp2', 'infrasp1', 'infrasp2',
                                 'infrasp3', 'infrasp4'])
-        SearchView.view_meta[Species].set(children=species_get_kids,
-                                          infobox=SpeciesInfoBox,
-                                          context_menu=species_context_menu,
-                                          markup_func=species_markup_func)
+        SearchView.row_meta[Species].set(
+            children=partial(db.natsort, 'accessions'),
+            infobox=SpeciesInfoBox,
+            context_menu=species_context_menu,
+            markup_func=species_markup_func)
 
         mapper_search.add_meta(('vernacular', 'vern', 'common'),
                                VernacularName, ['name'])
-        SearchView.view_meta[VernacularName].set(
-            children=vernname_get_kids,
+        SearchView.row_meta[VernacularName].set(
+            children=partial(db.natsort, 'species.accessions'),
             infobox=VernacularNameInfoBox,
             context_menu=vernname_context_menu,
             markup_func=vernname_markup_func)
 
         mapper_search.add_meta(('geography', 'geo'), Geography, ['name'])
-        SearchView.view_meta[Geography].set(children=get_species_in_geography)
+        SearchView.row_meta[Geography].set(children=get_species_in_geography)
 
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))
