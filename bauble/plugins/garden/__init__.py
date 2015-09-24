@@ -54,10 +54,6 @@ Institution  # fake usage to avoid 'Imported but unused' warning.
 # - conservation table
 
 
-def natsort_kids(kids):
-    return lambda(parent): sorted(getattr(parent, kids), key=utils.natsort_key)
-
-
 class GardenPlugin(pluginmgr.Plugin):
 
     depends = ["PlantsPlugin"]
@@ -73,24 +69,28 @@ class GardenPlugin(pluginmgr.Plugin):
         from bauble.plugins.plants import Species
         mapper_search = search.get_strategy('MapperSearch')
 
+        from functools import partial
         mapper_search.add_meta(('accession', 'acc'), Accession, ['code'])
-        SearchView.view_meta[Accession].set(children=natsort_kids("plants"),
-                                            infobox=AccessionInfoBox,
-                                            context_menu=acc_context_menu,
-                                            markup_func=acc_markup_func)
+        SearchView.row_meta[Accession].set(
+            children=partial(db.natsort, "plants"),
+            infobox=AccessionInfoBox,
+            context_menu=acc_context_menu,
+            markup_func=acc_markup_func)
 
         mapper_search.add_meta(('location', 'loc'), Location, ['name', 'code'])
-        SearchView.view_meta[Location].set(children=natsort_kids('plants'),
-                                           infobox=LocationInfoBox,
-                                           context_menu=loc_context_menu,
-                                           markup_func=loc_markup_func)
+        SearchView.row_meta[Location].set(
+            children=partial(db.natsort, 'plants'),
+            infobox=LocationInfoBox,
+            context_menu=loc_context_menu,
+            markup_func=loc_markup_func)
 
         mapper_search.add_meta(('plant', 'plants'), Plant, ['code'])
         search.add_strategy(PlantSearch)  # special search value strategy
         #search.add_strategy(SpeciesSearch)  # special search value strategy
-        SearchView.view_meta[Plant].set(infobox=PlantInfoBox,
-                                        context_menu=plant_context_menu,
-                                        markup_func=plant_markup_func)
+        SearchView.row_meta[Plant].set(
+            infobox=PlantInfoBox,
+            context_menu=plant_context_menu,
+            markup_func=plant_markup_func)
 
         mapper_search.add_meta(('contact', 'contacts', 'person', 'org',
                                 'source'), SourceDetail, ['name'])
@@ -102,7 +102,7 @@ class GardenPlugin(pluginmgr.Plugin):
                 filter(SourceDetail.id == detail.id).all()
             return results
         sd_markup_func = lambda c: utils.xml_safe(c)
-        SearchView.view_meta[SourceDetail].set(
+        SearchView.row_meta[SourceDetail].set(
             children=sd_kids,
             infobox=SourceDetailInfoBox,
             markup_func=sd_markup_func,
@@ -112,14 +112,14 @@ class GardenPlugin(pluginmgr.Plugin):
                                Collection, ['locale'])
         coll_kids = lambda coll: sorted(coll.source.accession.plants,
                                         key=utils.natsort_key)
-        SearchView.view_meta[Collection].set(
+        SearchView.row_meta[Collection].set(
             children=coll_kids,
             infobox=AccessionInfoBox,
             markup_func=coll_markup_func,
             context_menu=collection_context_menu)
 
         # done here b/c the Species table is not part of this plugin
-        SearchView.view_meta[Species].child = "accessions"
+        SearchView.row_meta[Species].child = "accessions"
 
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))

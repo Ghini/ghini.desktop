@@ -40,6 +40,8 @@ from bauble.plugins.plants.genus import \
 from bauble.plugins.plants.geography import Geography, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids
 
+from functools import partial
+
 import logging
 logging.basicConfig()
 #logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -1314,8 +1316,7 @@ class PresenterTest(PlantTestCase):
 
 
 from bauble.plugins.plants.species import (
-    species_markup_func, vernname_markup_func,
-    species_get_kids, vernname_get_kids)
+    species_markup_func, vernname_markup_func)
 
 
 class GlobalFunctionsTest(PlantTestCase):
@@ -1354,8 +1355,8 @@ class GlobalFunctionsTest(PlantTestCase):
 
     def test_species_get_kids(self):
         mVa = self.session.query(Species).filter_by(id=1).one()
-        self.assertEquals(species_get_kids(mVa), [])
+        self.assertEquals(partial(db.natsort, 'accessions')(mVa), [])
 
     def test_vernname_get_kids(self):
         vName = self.session.query(VernacularName).filter_by(id=1).one()
-        self.assertEquals(vernname_get_kids(vName), [])
+        self.assertEquals(partial(db.natsort, 'species.accessions')(vName), [])

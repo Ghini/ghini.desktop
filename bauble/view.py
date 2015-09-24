@@ -367,7 +367,7 @@ class SearchView(pluginmgr.View):
         """
         This class shouldn't need to be instantiated directly.  Access
         the meta for the SearchView with the
-        :class:`bauble.view.SearchView`'s view_meta property.
+        :class:`bauble.view.SearchView`'s row_meta property.
         """
         class Meta(object):
             def __init__(self):
@@ -420,13 +420,15 @@ class SearchView(pluginmgr.View):
                 self[item] = self.Meta()
             return self.get(item)
 
-    view_meta = ViewMeta()
+    row_meta = ViewMeta()
+    bottom_info = ViewMeta()
 
     def __init__(self):
         '''
         the constructor
         '''
         super(SearchView, self).__init__()
+        self.view = self  # preparing conversion to Presenter
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
         self.widgets = utils.load_widgets(filename)
 
@@ -453,7 +455,15 @@ class SearchView(pluginmgr.View):
         """
         Update the notes treeview with the notes from the currently
         selected item.
+
+        Notes is a first example of objects, all of the same type,
+        associated to whatever object might be selected in the current
+        row. initially currently ad-hoc, should ever follow the same
+        implemtation as Tags.
+
         """
+        for klass, bottom_info in self.bottom_infos.items():
+            pass
         values = self.get_selected_values()
         if len(values) != 1:
             self._notes_expanded = self.widgets.notes_expander.props.expanded
@@ -480,8 +490,8 @@ class SearchView(pluginmgr.View):
 
     def update_infobox(self):
         '''
-        Sets the infobox according to the currently selected row
-        or remove the infobox is nothing is selected
+        Sets the infobox according to the currently selected row.
+        no infobox is shown if nothing is selected
         '''
 
         def set_infobox_from_row(row):
@@ -502,20 +512,20 @@ class SearchView(pluginmgr.View):
             if selected_type in self.infobox_cache.keys():
                 new_infobox = self.infobox_cache[selected_type]
             # if selected_type defines an infobox class:
-            elif selected_type in self.view_meta and \
-                    self.view_meta[selected_type].infobox is not None:
+            elif selected_type in self.row_meta and \
+                    self.row_meta[selected_type].infobox is not None:
                 logger.debug('%s defines infobox class %s'
                              % (selected_type,
-                                self.view_meta[selected_type].infobox))
+                                self.row_meta[selected_type].infobox))
                 # it might be in cache under different name
                 for ib in self.infobox_cache.values():
-                    if isinstance(ib, self.view_meta[selected_type].infobox):
+                    if isinstance(ib, self.row_meta[selected_type].infobox):
                         logger.debug('found same infobox under different name')
                         new_infobox = ib
                 # otherwise create one and put in the infobox_cache
                 if not new_infobox:
                     logger.debug('not found infobox, we make a new one')
-                    new_infobox = self.view_meta[selected_type].infobox()
+                    new_infobox = self.row_meta[selected_type].infobox()
                 self.infobox_cache[selected_type] = new_infobox
             logger.debug('created or retrieved infobox %s %s'
                          % (type(new_infobox), new_infobox))
@@ -563,7 +573,9 @@ class SearchView(pluginmgr.View):
         Update the infobox and switch the accelerators depending on the
         type of the row that the cursor points to.
         '''
+        ## update all forward-looking info boxes
         self.update_infobox()
+        ## update all backward-looking info boxes
         self.update_notes()
         pictures_view.floating_window.set_selection(self.get_selected_values())
 
@@ -582,7 +594,7 @@ class SearchView(pluginmgr.View):
             return
         selected_type = type(selected[0])
 
-        for action in self.view_meta[selected_type].actions:
+        for action in self.row_meta[selected_type].actions:
             enabled = (len(selected) > 1 and action.multiselect) or \
                 (len(selected) <= 1 and action.singleselect)
             if not enabled:
@@ -708,7 +720,7 @@ class SearchView(pluginmgr.View):
         view.collapse_row(path)
         self.remove_children(model, treeiter)
         try:
-            kids = self.view_meta[type(row)].get_children(row)
+            kids = self.row_meta[type(row)].get_children(row)
             if len(kids) == 0:
                 return True
         except saexc.InvalidRequestError, e:
@@ -777,10 +789,10 @@ class SearchView(pluginmgr.View):
             parent = model.prepend(None, [obj])
             obj_type = type(obj)
             if check_for_kids:
-                kids = self.view_meta[obj_type].get_children(obj)
+                kids = self.row_meta[obj_type].get_children(obj)
                 if len(kids) > 0:
                     model.prepend(parent, ['-'])
-            elif self.view_meta[obj_type].children is not None:
+            elif self.row_meta[obj_type].children is not None:
                 model.prepend(parent, ['-'])
             #steps_so_far += chunk_size
             steps_so_far += 1
@@ -805,7 +817,7 @@ class SearchView(pluginmgr.View):
         check(parent is not None, "append_children(): need a parent")
         for k in kids:
             i = model.append(parent, [k])
-            if self.view_meta[type(k)].children is not None:
+            if self.row_meta[type(k)].children is not None:
                 model.append(i, ["_dummy"])
         return model
 
@@ -835,7 +847,7 @@ class SearchView(pluginmgr.View):
                 else:
                     self.session.add(value)
             try:
-                func = self.view_meta[type(value)].markup_func
+                func = self.row_meta[type(value)].markup_func
                 if func is not None:
                     r = func(value)
                     if isinstance(r, (list, tuple)):
@@ -907,7 +919,7 @@ class SearchView(pluginmgr.View):
             return False
         selected_type = selected_types.pop()
 
-        if not self.view_meta[selected_type].actions:
+        if not self.row_meta[selected_type].actions:
             # no actions
             return True
 
@@ -921,8 +933,8 @@ class SearchView(pluginmgr.View):
             menu = self.context_menu_cache[selected_type]
         except KeyError:
             menu = gtk.Menu()
-            for action in self.view_meta[selected_type].actions:
-                logger.debug('path: %s' %  action.get_accel_path())
+            for action in self.row_meta[selected_type].actions:
+                logger.debug('path: %s' % action.get_accel_path())
                 item = action.create_menu_item()
 
                 def on_activate(item, cb):
@@ -949,7 +961,7 @@ class SearchView(pluginmgr.View):
             self.context_menu_cache[selected_type] = menu
 
         # enable/disable the menu items depending on the selection
-        for action in self.view_meta[selected_type].actions:
+        for action in self.row_meta[selected_type].actions:
             action.enabled = (len(selected) > 1 and action.multiselect) or \
                 (len(selected) <= 1 and action.singleselect)
 
@@ -1039,7 +1051,8 @@ class SearchView(pluginmgr.View):
             """
             if event.button == 3:
                 if (event.get_state() & gtk.gdk.CONTROL_MASK) == 0:
-                    path, _, _, _ = view.get_path_at_pos(int(event.x), int(event.y))
+                    path, _, _, _ = view.get_path_at_pos(int(event.x),
+                                                         int(event.y))
                     if not view.get_selection().path_is_selected(path):
                         return False
                 return True

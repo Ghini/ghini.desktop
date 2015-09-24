@@ -64,6 +64,29 @@ if SQLALCHEMY_DEBUG:
     logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
 
 
+def natsort(attr, obj):
+    """return the naturally sorted list of the object attribute
+
+    meant to be curried.  the main role of this function is to invert
+    the order in which the function getattr receives its arguments.
+
+    attr is in the form <attribute> but can also specify a path from the
+    object to the attribute, like <a1>.<a2>.<a3>, in which case each
+    step should return a single database object until the last step
+    where the result should be a list of objects.
+
+    e.g.:
+    from functools import partial
+    partial(natsort, 'accessions')(species)
+    partial(natsort, 'species.accessions')(vern_name)
+    """
+    from bauble import utils
+    jumps = attr.split('.')
+    for attr in jumps:
+        obj = getattr(obj, attr)
+    return sorted(obj, key=utils.natsort_key)
+
+
 class HistoryExtension(orm.MapperExtension):
     """
     HistoryExtension is a
