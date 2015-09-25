@@ -293,8 +293,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         conn_dict = self.connections
         conn_dict[self.connection_name] = params
         prefs.prefs[bauble.conn_list_pref] = conn_dict
-        if not prefs.testing:
-            prefs.prefs.save()
+        prefs.prefs.save()
 
     def compare_prefs_to_saved(self, name):
         """

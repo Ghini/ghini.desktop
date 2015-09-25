@@ -707,6 +707,14 @@ class GenericEditorView(object):
         pass
 
 
+class MockDialog:
+    def __init__(self):
+        self.hidden = False
+
+    def hide(self):
+        self.hidden = True
+
+
 class MockView:
     '''mocking the view, but so generic that we share it among clients
     '''
@@ -723,6 +731,7 @@ class MockView:
         self.reply_entry_dialog = []
         self.reply_yes_no_dialog = []
         self.reply_file_chooser_dialog = []
+        self.__window = MockDialog()
         for name, value in kwargs.items():
             setattr(self, name, value)
 
@@ -829,6 +838,7 @@ class MockView:
         pass
 
     def get_window(self):
+        return self.__window
         self.invoked.append('get_window')
         return None
 
