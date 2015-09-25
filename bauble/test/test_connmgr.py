@@ -38,17 +38,6 @@ def test_duplicate_ids():
     assert(not check_dupids(os.path.join(head, 'connmgr.glade')))
 
 
-class TagTests(BaubleTestCase):
-
-    family_ids = [1, 2]
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-
 import bauble
 import bauble.prefs as prefs
 prefs.testing = True  # prevents overwriting
