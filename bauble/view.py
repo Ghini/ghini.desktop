@@ -40,14 +40,15 @@ from sqlalchemy.orm import object_session
 import sqlalchemy.exc as saexc
 
 import bauble
-import bauble.db as db
+from bauble import db
 from bauble.error import check, BaubleError
-import bauble.paths as paths
-import bauble.pluginmgr as pluginmgr
-import bauble.prefs as prefs
-import bauble.search as search
-import bauble.utils as utils
-import bauble.pictures_view as pictures_view
+from bauble import paths
+from bauble import pluginmgr
+from bauble import prefs
+from bauble import search
+from bauble import utils
+from bauble import editor
+from bauble import pictures_view
 
 # use different formatting template for the result view depending on the
 # platform
@@ -428,9 +429,10 @@ class SearchView(pluginmgr.View):
         the constructor
         '''
         super(SearchView, self).__init__()
-        self.view = self  # preparing conversion to Presenter
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
         self.widgets = utils.load_widgets(filename)
+        self.view = editor.GenericEditorView(
+            filename, root_widget_name='main_window')
 
         self.create_gui()
 
@@ -462,15 +464,43 @@ class SearchView(pluginmgr.View):
         implemtation as Tags.
 
         """
-        for klass, bottom_info in self.bottom_infos.items():
-            pass
         values = self.get_selected_values()
+        ## Only one should be selected
         if len(values) != 1:
             self._notes_expanded = self.widgets.notes_expander.props.expanded
             self.widgets.notes_expander.hide()
             return
 
-        row = values[0]
+        row = values[0]  # the selected row
+
+        ## loop over bottom_info plugin classes (eg: Tag)
+        for klass, bottom_info in self.bottom_info.items():
+            wr_name = bottom_info['widgets_root']
+            fields_used = bottom_info['fields_used']
+            try:
+                self.view.widget_set_visible(('bottom_info', wr_name), False)
+            except (KeyError, AttributeError):
+                ## late initialization: put the widget in the view
+                glade_name = bottom_info['glade_name']
+                builder = utils.BuilderLoader.load(glade_name)
+                widgets = utils.BuilderWidgets(builder)
+                root = getattr(widgets, wr_name)
+                widgets.remove_parent(root)
+                self.view.widget_add('bottom_info', root)
+                self.view.widget_set_visible(root, False)
+                bottom_info['tree'] = root
+            if getattr(klass, 'attached_to') is None:
+                logging.warn('class %s does not implement attached_to' % klass)
+            objs = klass.attached_to(row)
+            if len(objs) > 0:
+                self.view.widget_set_visible(('bottom_info', wr_name), True)
+                self.view.widget_set_sensitive(('bottom_info', wr_name), True)
+                self.view.widget_set_expanded(('bottom_info', wr_name), True)
+                model = self.view.widget_get_model(
+                    bottom_info['path_to_treeview'])
+                model.clear()
+                for obj in objs:
+                    model.append([getattr(obj, k) for k in fields_used])
         if hasattr(row, 'notes') and isinstance(row.notes, list):
             self.widgets.notes_expander.show()
         else:

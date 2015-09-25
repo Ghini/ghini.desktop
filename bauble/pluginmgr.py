@@ -165,10 +165,10 @@ def init(force=False):
     2. Call each init() for each plugin the registry in order of dependency
     3. Register the command handlers in the plugin's commands[]
 
-    NOTE: This should be called after after Bauble has established a
-    connection to a database with db.open()
-    """
+    NOTE: This is called after after Bauble has created the GUI and
+    established a connection to a database with db.open()
 
+    """
     logger.debug('bauble.pluginmgr.init()')
     # ******
     # NOTE: Be careful not to keep any references to
@@ -237,9 +237,9 @@ def init(force=False):
             plugin.init()
             logger.debug('plugin %s initialized' % plugin)
         except KeyError, e:
-            # don't remove the plugin from the registry because if we
-            # find it again the user might decide to reinstall it
-            # which could overwrite data
+            # keep the plugin in the registry so if we find it again we do
+            # not offer the user the option to reinstall it, something which
+            # could overwrite data
             ordered.remove(plugin)
             msg = (_("The %(plugin_name)s plugin is listed in the registry "
                      "but isn't wasn't found in the plugin directory")

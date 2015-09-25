@@ -245,13 +245,10 @@ class TagPresenterTests(BaubleTestCase):
         self.assertEquals(view.widget_get_value("tag_name_entry"), u'1234')
 
 
-from bauble.plugins.tag import attached_tags
-
-
-class GlobalFunctionsTests(BaubleTestCase):
+class AttachedToTests(BaubleTestCase):
 
     def setUp(self):
-        super(GlobalFunctionsTests, self).setUp()
+        super(AttachedToTests, self).setUp()
         obj1 = Tag(tag=u'medicinal')
         obj2 = Tag(tag=u'maderable')
         obj3 = Tag(tag=u'frutal')
@@ -261,17 +258,17 @@ class GlobalFunctionsTests(BaubleTestCase):
 
     def test_attached_tags_empty(self):
         fam = self.session.query(Family).one()
-        self.assertEquals(attached_tags(fam), [])
+        self.assertEquals(Tag.attached_to(fam), [])
 
     def test_attached_tags_singleton(self):
         fam = self.session.query(Family).one()
         obj2 = self.session.query(Tag).filter(Tag.tag == u'maderable').one()
         tag_plugin.tag_objects(obj2, [fam])
-        self.assertEquals(attached_tags(fam), [obj2])
+        self.assertEquals(Tag.attached_to(fam), [obj2])
 
     def test_attached_tags_many(self):
         fam = self.session.query(Family).one()
         tags = self.session.query(Tag).all()
         for t in tags:
             tag_plugin.tag_objects(t, [fam])
-        self.assertEquals(attached_tags(fam), tags)
+        self.assertEquals(Tag.attached_to(fam), tags)
