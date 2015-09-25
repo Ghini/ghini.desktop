@@ -347,6 +347,14 @@
       <action-widget response="-5">button4</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="taginfo_lsto">
+    <columns>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+      <!-- column-name description -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkWindow" id="taginfo_parent">
     <property name="can_focus">False</property>
     <child>
@@ -363,8 +371,10 @@
               <object class="GtkTreeView" id="taginfo_trv">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="model">taginfo_lsto</property>
                 <property name="headers_clickable">False</property>
                 <property name="reorderable">True</property>
+                <property name="search_column">0</property>
                 <child>
                   <object class="GtkTreeViewColumn" id="name_col">
                     <property name="title">Name</property>
@@ -373,6 +383,9 @@
                         <property name="xalign">0</property>
                         <property name="yalign">0</property>
                       </object>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
                     </child>
                   </object>
                 </child>
@@ -380,10 +393,13 @@
                   <object class="GtkTreeViewColumn" id="text_col">
                     <property name="title">Note</property>
                     <child>
-                      <object class="GtkCellRendererText" id="note_cell">
+                      <object class="GtkCellRendererText" id="text_cell">
                         <property name="xalign">0</property>
                         <property name="yalign">0</property>
                       </object>
+                      <attributes>
+                        <attribute name="text">1</attribute>
+                      </attributes>
                     </child>
                   </object>
                 </child>

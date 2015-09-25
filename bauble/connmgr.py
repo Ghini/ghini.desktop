@@ -279,7 +279,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.connection_names.insert(0, name)
             self.connections[name] = self.get_params(new=name)
             self.view.combobox_prepend_text('name_combo', name)
-            self.view.expander_set_expanded('expander', True)
+            self.view.widget_set_expanded('expander', True)
             self.view.combobox_set_active('name_combo', 0)
 
     def save_current_to_prefs(self):

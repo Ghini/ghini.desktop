@@ -430,16 +430,41 @@ class GenericEditorView(object):
         else:
             raise NotImplementedError
 
+    def __get_widget(self, widget):
+        p = widget
+        if isinstance(widget, gtk.Widget):
+            return widget
+        elif isinstance(widget, tuple):
+            if len(widget) == 1:
+                return self.__get_widget(widget[0])
+            parent, widget = widget[:-1], widget[-1]
+            parent = self.__get_widget(parent)
+            for c in parent.get_children():
+                if gtk.Buildable.get_name(c) == widget:
+                    return c
+        else:
+            return self.widgets[widget]
+        logger.warn('cannot solve widget reference %s' % str(p))
+        return None
+
+    def widget_add(self, widget, child):
+        widget = self.__get_widget(widget)
+        widget.add(child)
+
+    def widget_get_model(self, widget):
+        widget = self.__get_widget(widget)
+        return widget.get_model()
+
     def widget_get_active(self, widget):
+        widget = self.__get_widget(widget)
         return widget.get_active()
 
     def widget_set_inconsistent(self, widget, value):
+        widget = self.__get_widget(widget)
         widget.set_inconsistent(value)
 
     def combobox_init(self, widget, values=None, cell_data_func=None):
-        combo = (isinstance(widget, gtk.Widget)
-                 and widget
-                 or self.widgets[widget])
+        combo = self.__get_widget(widget)
         model = gtk.ListStore(str)
         combo.clear()
         combo.set_model(model)
@@ -454,9 +479,7 @@ class GenericEditorView(object):
         return utils.setup_text_combobox(combo, values, cell_data_func)
 
     def combobox_remove(self, widget, item):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         if isinstance(item, StringTypes):
             # remove matching
             model = widget.get_model()
@@ -473,76 +496,52 @@ class GenericEditorView(object):
                            (type(item), item))
 
     def combobox_append_text(self, widget, value):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         widget.append_text(value)
 
     def combobox_prepend_text(self, widget, value):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         widget.prepend_text(value)
 
     def combobox_get_active_text(self, widget):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         return widget.get_active_text()
 
     def combobox_get_active(self, widget):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         return widget.get_active()
 
     def combobox_set_active(self, widget, index):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         widget.set_active(index)
 
     def combobox_get_model(self, widget):
         'get the list of values in the combo'
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         return widget.get_model()
 
     def widget_emit(self, widget, value):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         widget.emit(value)
 
-    def expander_set_expanded(self, widget, value):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+    def widget_set_expanded(self, widget, value):
+        widget = self.__get_widget(widget)
         widget.set_expanded(value)
 
     def widget_set_sensitive(self, widget, value=True):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         widget.set_sensitive(value)
 
     def widget_set_visible(self, widget, visible=True):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         widget.set_visible(visible)
 
     def widget_get_visible(self, widget):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         return widget.get_visible()
 
     def widget_get_value(self, widget, index=0):
-        widget = (isinstance(widget, gtk.Widget)
-                  and widget
-                  or self.widgets[widget])
+        widget = self.__get_widget(widget)
         return utils.get_widget_value(widget, index)
 
     def widget_set_value(self, widget, value, markup=False, default=None,
@@ -821,8 +820,8 @@ class MockView:
         self.invoked.append('widget_set_visible')
         self.visible[name] = value
 
-    def expander_set_expanded(self, widget, value):
-        self.invoked.append('expander_set_expanded')
+    def widget_set_expanded(self, widget, value):
+        self.invoked.append('widget_set_expanded')
         self.expanded[widget] = value
 
     def widget_set_sensitive(self, name, value=True):
