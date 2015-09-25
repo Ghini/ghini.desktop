@@ -567,8 +567,9 @@ def attached_tags(obj, session=None):
     modname = type(obj).__module__
     clsname = type(obj).__name__
     full_cls_name = '%s.%s' % (modname, clsname)
-    qto = session.query(TaggedObj).filter(TaggedObj.obj_class == full_cls_name)
-    qto = qto.filter(TaggedObj.obj_id == obj.id)
+    qto = session.query(TaggedObj).filter(
+        TaggedObj.obj_class == full_cls_name,
+        TaggedObj.obj_id == obj.id)
     return [i.tag for i in qto.all()]
 
 
