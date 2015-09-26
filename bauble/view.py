@@ -1148,7 +1148,10 @@ class Note:
         '''return the list of notes connected to obj
         '''
 
-        return obj.notes
+        try:
+            return obj.notes
+        except:
+            return []
 
 
 class StringColumn(gtk.TreeViewColumn):
