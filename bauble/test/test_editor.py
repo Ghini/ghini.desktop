@@ -59,12 +59,17 @@ class BaubleTests(BaubleTestCase):
         title = 'testing'
         self.assertRaises(NotImplementedError, view.set_icon, title)
 
-    def test_set_label(self):
+    def test_add_widget(self):
+        import gtk
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
         view = GenericEditorView(filename)
-        text = 'testing'
-        view.set_label('label1', text)
-        self.assertEquals(view.widgets.label1.get_label(), text)
+        label = gtk.Label('testing')
+        view.widget_add('statusbar', label)
+
+
+class PleaseIgnoreMe:
+    '''these cannot be tested in a non-windowed environment
+    '''
 
     def test_set_accept_buttons_sensitive_not_set(self):
         'it is a task of the presenter to indicate the accept buttons'

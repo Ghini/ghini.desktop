@@ -447,6 +447,10 @@ class GenericEditorView(object):
         logger.warn('cannot solve widget reference %s' % str(p))
         return None
 
+    def widget_append_page(self, widget, page, label):
+        widget = self.__get_widget(widget)
+        widget.append_page(page, label)
+
     def widget_add(self, widget, child):
         widget = self.__get_widget(widget)
         widget.add(child)
