@@ -586,12 +586,11 @@ class TagPlugin(pluginmgr.Plugin):
         SearchView.row_meta[Tag].set(children=partial(db.natsort, 'objects'),
                                      context_menu=tag_context_menu)
         SearchView.bottom_info[Tag] = {
-            'widgets_root': 'taginfo_xpd',
+            'page_widget': 'taginfo_scrolledwindow',
             'fields_used': ['tag', 'description'],
             'glade_name': os.path.join(paths.lib_dir(),
                                        'plugins/tag/tag.glade'),
-            'path_to_treeview': (('bottom_info', 'taginfo_xpd',
-                                  'taginfo_slv', 'taginfo_trv')),
+            'name': _('Tag'),
             }
         if bauble.gui is not None:
             _reset_tags_menu()

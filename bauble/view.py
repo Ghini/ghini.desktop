@@ -452,71 +452,86 @@ class SearchView(pluginmgr.View):
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
         self.session = db.Session()
+        self.init_notes_page_in_notebook()
 
-    def update_notes(self):
+    def update_bottom_notebook(self):
         """
-        Update the notes treeview with the notes from the currently
-        selected item.
+        Update the bottom_notebook from the currently selected row.
 
-        Notes is a first example of objects, all of the same type,
-        associated to whatever object might be selected in the current
-        row. initially currently ad-hoc, should ever follow the same
-        implemtation as Tags.
+        bottom_notebook has one page per type of information. Every page
+        is registered by its plugin, which adds an entry to the
+        dictionary self.bottom_info.
+
+        the GtkNotebook pages are ScrolledWindow containing a TreeView,
+        this should have a model, and the ordered names of the fields to
+        be stored in the model is in bottom_info['fields_used'].
 
         """
         values = self.get_selected_values()
         ## Only one should be selected
         if len(values) != 1:
-            self._notes_expanded = self.widgets.notes_expander.props.expanded
-            self.widgets.notes_expander.hide()
+            self.view.widget_set_visible('bottom_notebook', False)
             return
 
+        self.view.widget_set_visible('bottom_notebook', True)
         row = values[0]  # the selected row
 
         ## loop over bottom_info plugin classes (eg: Tag)
         for klass, bottom_info in self.bottom_info.items():
-            wr_name = bottom_info['widgets_root']
-            fields_used = bottom_info['fields_used']
             try:
-                self.view.widget_set_visible(('bottom_info', wr_name), False)
-            except (KeyError, AttributeError):
-                ## late initialization: put the widget in the view
+                label = bottom_info['label']
+            except (KeyError):
+                ## late initialization
+                # 1: get the widget from the glade file.
                 glade_name = bottom_info['glade_name']
                 builder = utils.BuilderLoader.load(glade_name)
                 widgets = utils.BuilderWidgets(builder)
-                root = getattr(widgets, wr_name)
-                widgets.remove_parent(root)
-                self.view.widget_add('bottom_info', root)
-                self.view.widget_set_visible(root, False)
-                bottom_info['tree'] = root
+                page = getattr(widgets, bottom_info['page_widget'])
+                # 2: detach it from parent (its container)
+                widgets.remove_parent(page)
+                # 3: create the label object
+                label = gtk.Label(bottom_info['name'])
+                # 4: add the page, non sensitive
+                self.view.widget_append_page('bottom_notebook', page, label)
+                label.set_sensitive(False)
+                # 5: store the values for later use
+                bottom_info['tree'] = page.get_children()[0]
+                bottom_info['label'] = label
             if getattr(klass, 'attached_to') is None:
                 logging.warn('class %s does not implement attached_to' % klass)
+                continue
             objs = klass.attached_to(row)
-            if len(objs) > 0:
-                self.view.widget_set_visible(('bottom_info', wr_name), True)
-                self.view.widget_set_sensitive(('bottom_info', wr_name), True)
-                self.view.widget_set_expanded(('bottom_info', wr_name), True)
-                model = self.view.widget_get_model(
-                    bottom_info['path_to_treeview'])
-                model.clear()
+            model = bottom_info['tree'].get_model()
+            model.clear()
+            if len(objs) == 0:
+                label.set_use_markup(False)
+                label.set_label(bottom_info['name'])
+            else:
+                label.set_use_markup(True)
+                label.set_label('<b>%s</b>' % bottom_info['name'])
                 for obj in objs:
-                    model.append([getattr(obj, k) for k in fields_used])
-        if hasattr(row, 'notes') and isinstance(row.notes, list):
-            self.widgets.notes_expander.show()
-        else:
-            self.widgets.notes_expander.hide()
-            return
+                    model.append([getattr(obj, k)
+                                  for k in bottom_info['fields_used']])
 
-        if len(row.notes) > 0:
-            self.widgets.notes_expander.props.sensitive = True
-            self.widgets.notes_expander.props.expanded = self._notes_expanded
-            model = gtk.ListStore(object)
-            for note in row.notes:
-                model.append([note])
-            self.widgets.notes_treeview.set_model(model)
-        else:
-            self.widgets.notes_expander.props.expanded = False
-            self.widgets.notes_expander.props.sensitive = False
+    def init_notes_page_in_notebook(self):
+        '''add notes page to bottom notebook
+
+        this is a temporary function, will be removed when notes are
+        implemented as a plugin
+
+        '''
+        page = self.view.widgets.notes_scrolledwindow
+        # detach it from parent (its container)
+        self.view.widgets.remove_parent(page)
+        # create the label object
+        label = gtk.Label('Notes')
+        self.view.widgets.bottom_notebook.append_page(page, label)
+        self.bottom_info[Note] = {
+            'fields_used': ['date', 'user', 'category', 'note'],
+            'tree': page.get_children()[0],
+            'label': label,
+            'name': _('Notes'),
+            }
 
     def update_infobox(self):
         '''
@@ -606,7 +621,7 @@ class SearchView(pluginmgr.View):
         ## update all forward-looking info boxes
         self.update_infobox()
         ## update all backward-looking info boxes
-        self.update_notes()
+        self.update_bottom_notebook()
         pictures_view.floating_window.set_selection(self.get_selected_values())
 
         for accel, cb in self.installed_accels:
@@ -727,7 +742,7 @@ class SearchView(pluginmgr.View):
                 self.results_view.set_cursor(0)
                 gobject.idle_add(lambda: self.results_view.scroll_to_cell(0))
 
-        self.update_notes()
+        self.update_bottom_notebook()
 
     def remove_children(self, model, parent):
         """
@@ -744,7 +759,6 @@ class SearchView(pluginmgr.View):
         Look up the table type of the selected row and if it has
         any children then add them to the row
         '''
-        expand = False
         model = view.get_model()
         row = model.get_value(treeiter, 0)
         view.collapse_row(path)
@@ -801,7 +815,6 @@ class SearchView(pluginmgr.View):
         # results by type in the same order
         groups = sorted(groups, key=lambda x: type(x[0]), reverse=True)
 
-        chunk_size = 100
         update_every = 200
         steps_so_far = 0
 
@@ -1103,20 +1116,6 @@ class SearchView(pluginmgr.View):
         self.pane = self.widgets.search_hpane
         self.picpane = self.widgets.search_h2pane
 
-        # initialize the notes expander and tree view
-        self._notes_expanded = False
-
-        def on_expanded(expander, *args):
-            self._notes_expanded = expander.props.expanded
-            if not self._notes_expanded:
-                # don't use the position property so that when the
-                # expander is collapsed then the top pane will
-                # maximize itself
-                self.widgets.search_vpane.props.position_set = False
-
-        self.widgets.notes_expander.connect_after('activate', on_expanded)
-        self.init_notes_treeview()
-
         vbox = self.widgets.search_vbox
         self.widgets.remove_parent(vbox)
         self.pack_start(vbox)
@@ -1139,39 +1138,17 @@ class SearchView(pluginmgr.View):
             treeiter = store.iter_next(treeiter)
             treeview.set_size_request(0, -1)
 
-    def init_notes_treeview(self):
-        def cell_data_func(col, cell, model, treeiter, prop):
-            row = model[treeiter][0]
-            val = getattr(row, prop)
-            if val:
-                if prop == 'date':
-                    format = prefs.prefs[prefs.date_format_pref]
-                    val = val.strftime(format)
-                cell.set_property('text', utils.utf8(val))
-            else:
-                cell.set_property('text', '')
 
-        date_cell = self.widgets.date_cell
-        date_col = self.widgets.date_column
-        date_col.set_cell_data_func(date_cell, cell_data_func, 'date')
+class Note:
+    """temporary patch before we implement Notes as a plugin
+    """
 
-        category_cell = self.widgets.category_cell
-        category_col = self.widgets.category_column
-        category_col.set_cell_data_func(category_cell, cell_data_func,
-                                        'category')
+    @classmethod
+    def attached_to(cls, obj):
+        '''return the list of notes connected to obj
+        '''
 
-        name_cell = self.widgets.name_cell
-        name_col = self.widgets.name_column
-        name_col.set_cell_data_func(name_cell, cell_data_func, 'user')
-
-        note_cell = self.widgets.note_cell
-        note_col = self.widgets.note_column
-        note_col.set_cell_data_func(note_cell, cell_data_func, 'note')
-
-        # TODO: need to better test to make sure this wraps the text properly
-        self.widgets.notes_treeview.\
-            connect_after("size-allocate", self.on_notes_size_allocation,
-                          note_col, note_cell)
+        return obj.notes
 
 
 class StringColumn(gtk.TreeViewColumn):
