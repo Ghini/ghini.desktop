@@ -493,7 +493,6 @@ class SearchView(pluginmgr.View):
                 label = gtk.Label(bottom_info['name'])
                 # 4: add the page, non sensitive
                 self.view.widget_append_page('bottom_notebook', page, label)
-                label.set_sensitive(False)
                 # 5: store the values for later use
                 bottom_info['tree'] = page.get_children()[0]
                 bottom_info['label'] = label
