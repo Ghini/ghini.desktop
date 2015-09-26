@@ -454,6 +454,21 @@ class SearchView(pluginmgr.View):
         self.session = db.Session()
         self.init_notes_page_in_notebook()
 
+    def add_page_to_bottom_notebook(self, bottom_info):
+        glade_name = bottom_info['glade_name']
+        builder = utils.BuilderLoader.load(glade_name)
+        widgets = utils.BuilderWidgets(builder)
+        page = getattr(widgets, bottom_info['page_widget'])
+        # 2: detach it from parent (its container)
+        widgets.remove_parent(page)
+        # 3: create the label object
+        label = gtk.Label(bottom_info['name'])
+        # 4: add the page, non sensitive
+        self.view.widget_append_page('bottom_notebook', page, label)
+        # 5: store the values for later use
+        bottom_info['tree'] = page.get_children()[0]
+        bottom_info['label'] = label
+
     def update_bottom_notebook(self):
         """
         Update the bottom_notebook from the currently selected row.
@@ -478,25 +493,10 @@ class SearchView(pluginmgr.View):
 
         ## loop over bottom_info plugin classes (eg: Tag)
         for klass, bottom_info in self.bottom_info.items():
-            try:
-                label = bottom_info['label']
-            except (KeyError):
-                ## late initialization
-                # 1: get the widget from the glade file.
-                glade_name = bottom_info['glade_name']
-                builder = utils.BuilderLoader.load(glade_name)
-                widgets = utils.BuilderWidgets(builder)
-                page = getattr(widgets, bottom_info['page_widget'])
-                # 2: detach it from parent (its container)
-                widgets.remove_parent(page)
-                # 3: create the label object
-                label = gtk.Label(bottom_info['name'])
-                # 4: add the page, non sensitive
-                self.view.widget_append_page('bottom_notebook', page, label)
-                # 5: store the values for later use
-                bottom_info['tree'] = page.get_children()[0]
-                bottom_info['label'] = label
-            if getattr(klass, 'attached_to') is None:
+            if 'label' not in bottom_info:  # late initialization
+                self.add_page_to_bottom_notebook(bottom_info)
+            label = bottom_info['label']
+            if not hasattr(klass, 'attached_to'):
                 logging.warn('class %s does not implement attached_to' % klass)
                 continue
             objs = klass.attached_to(row)
