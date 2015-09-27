@@ -68,6 +68,17 @@ class EnumTests(BaubleTestCase):
         self.session.add(t)
         self.session.flush()
 
+    def test_insert_by_value_ok(self):
+        t = self.Test(value=u'1')
+        self.session.add(t)
+        self.session.flush()
+
+    def test_insert_by_value_wrong_value_seen_late(self):
+        from sqlalchemy.exc import StatementError
+        t = self.Test(value=u'33')
+        self.session.add(t)
+        self.assertRaises(StatementError, self.session.flush)
+
     def test_bad_enum(self):
         def function_creating_enum(name, values, **kwargs):
             self.Table = type(
