@@ -47,11 +47,20 @@ class Enum(types.TypeDecorator):
         # create the translations from the values and set those from
         # the translations argument, this way if some translations are
         # missing then the translation will be the same as value
+        if values is None or len(values) is 0:
+            raise EnumError(_('Enum requires a list of values'))
+        try:
+            [len(x) for x in values if x is not None]
+        except TypeError:
+            raise EnumError(_('Enum requires string values (or None)'))
+        if set(type(x) for x in values if x is not None) - \
+                set([type(''), type(u'')]) != set():
+            raise EnumError(_('Enum requires string values (or None)'))
+        if len(values) != len(set(values)):
+            raise EnumError(_('Enum requires the values to be different'))
         self.translations = dict((v, v) for v in values)
         for key, value in translations.iteritems():
             self.translations[key] = value
-        if values is None or len(values) is 0:
-            raise EnumError(_('Enum requires a list of values'))
         if empty_to_none and None not in values:
             raise EnumError(_('You have configured empty_to_none=True but '
                               'None is not in the values lists'))
