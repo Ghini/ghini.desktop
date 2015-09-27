@@ -79,26 +79,40 @@ class EnumTests(BaubleTestCase):
         self.session.add(t)
         self.assertRaises(StatementError, self.session.flush)
 
+    def function_creating_enum(self, name, values, **kwargs):
+        self.Table = type(
+            'test_table_' + name, (db.Base, ),
+            {'__tablename__': 'test_enum_type_' + name,
+             'id': Column(Integer, primary_key=True),
+             'value': Column(Enum(values=values, **kwargs), default=u''),
+             })
+        self.table = self.Table.__table__
+        self.table.create(bind=db.engine)
+
     def test_bad_enum(self):
-        def function_creating_enum(name, values, **kwargs):
-            self.Table = type(
-                'test_table_' + name, (db.Base, ),
-                {'__tablename__': 'test_enum_type_' + name,
-                 'id': Column(Integer, primary_key=True),
-                 'value': Column(Enum(values=values, **kwargs), default=u''),
-                 })
-            self.table = self.Table.__table__
-            self.table.create(bind=db.engine)
-        function_creating_enum('zero', ['1', '2', '3', ])
-        self.assertRaises(EnumError, function_creating_enum, 'one', [])
-        self.assertRaises(EnumError, function_creating_enum, 'two', None)
-        self.assertRaises(EnumError, function_creating_enum, 'three', [1, ''])
-        self.assertRaises(EnumError, function_creating_enum, 'four',
-                          ['1', '1', ])
-        self.assertRaises(EnumError, function_creating_enum, 'five',
-                          ['1', [], None])
-        self.assertRaises(EnumError, function_creating_enum, 'six',
-                          ['1', '2'], empty_to_none=True)
+        self.function_creating_enum('zero', ['1', '2', '3', ])
+        self.assertRaises(EnumError, self.function_creating_enum, 'one', [])
+        self.assertRaises(EnumError, self.function_creating_enum, 'two', None)
+        self.assertRaises(EnumError, self.function_creating_enum, 'three',
+                          [1, ''])  # int can't be
+        self.assertRaises(EnumError, self.function_creating_enum, 'four',
+                          ['1', '1', ])  # same value twice
+        self.assertRaises(EnumError, self.function_creating_enum, 'five',
+                          ['1', [], None])  # strings please
+        self.assertRaises(EnumError, self.function_creating_enum, 'six',
+                          ['1', '2'], empty_to_none=True)  # no empty
+
+    def test_empty_to_none(self):
+        self.function_creating_enum('seven', ['1', None], empty_to_none=True)
+        t = self.Table(value=u'1')
+        self.session.add(t)
+        t = self.Table(value='')
+        self.session.add(t)
+        self.session.flush()
+        q = self.session.query(self.Table).filter_by(value='')
+        self.assertEquals(q.all(), [])
+        q = self.session.query(self.Table).filter_by(value=None)
+        self.assertEquals(q.all(), [t])
 
 
 class BaubleTests(BaubleTestCase):
