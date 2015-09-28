@@ -521,6 +521,7 @@ def _on_add_tag_activated(*args):
         # tag but not all of them
         tagitem = TagItemGUI(values)
         tagitem.start()
+        view.update_bottom_notebook()
     else:
         msg = _('In order to tag an item you must first search for '
                 'something and select one of the results.')
