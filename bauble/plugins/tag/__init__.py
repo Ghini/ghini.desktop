@@ -562,8 +562,6 @@ def _reset_tags_menu():
         msg = _('Could not create the tags menus')
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
-    #	raise
-            #debug('** maybe the tags table hasn\'t been created yet')
 
     global _tags_menu_item
     if _tags_menu_item is None:
@@ -590,7 +588,7 @@ class TagPlugin(pluginmgr.Plugin):
             'fields_used': ['tag', 'description'],
             'glade_name': os.path.join(paths.lib_dir(),
                                        'plugins/tag/tag.glade'),
-            'name': _('Tag'),
+            'name': _('Tags'),
             }
         if bauble.gui is not None:
             _reset_tags_menu()
