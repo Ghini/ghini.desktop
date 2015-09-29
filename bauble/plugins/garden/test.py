@@ -234,8 +234,9 @@ class ContactTests(GardenTestCase):
 
     #def itest_contact_editor(self):
     #    """
-    #    Interactively test the PlantEditor
+    #    Interactively test the ContactEditor
     #    """
+    #    raise SkipTest('separate view from presenter, then test presenter')
     #    loc = self.create(Contact, name=u'some contact')
     #    editor = ContactEditor(model=loc)
     #    editor.start()
@@ -356,7 +357,7 @@ class PlantTests(GardenTestCase):
         """
         Interactively test the PlantEditor
         """
-        raise SkipTest('Not Implemented')
+        raise SkipTest('separate view from presenter, then test presenter')
         for plant in self.session.query(Plant):
             self.session.delete(plant)
         for location in self.session.query(Location):
@@ -731,7 +732,7 @@ class PropagationTests(GardenTestCase):
         """
         Interactively test the PropagationEditor
         """
-        raise SkipTest('Not Implemented')
+        raise SkipTest('separate view from presenter, then test presenter')
         from bauble.plugins.garden.propagation import PropagationEditor
         propagation = Propagation()
         #propagation.prop_type = u'UnrootedCutting'
@@ -1063,7 +1064,7 @@ class AccessionTests(GardenTestCase):
         """
         Interactively test the AccessionEditor
         """
-        raise SkipTest('Not Implemented')
+        raise SkipTest('separate view from presenter, then test presenter')
         #donor = self.create(Donor, name=u'test')
         sp2 = Species(genus=self.genus, sp=u'species')
         sp2.synonyms.append(self.species)
@@ -1216,7 +1217,7 @@ class LocationTests(GardenTestCase):
         """
         Interactively test the PlantEditor
         """
-        raise SkipTest('Not Implemented')
+        raise SkipTest('separate view from presenter, then test presenter')
         loc = self.create(Location, name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
         editor.start()
