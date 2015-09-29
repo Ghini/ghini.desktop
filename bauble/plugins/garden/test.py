@@ -310,10 +310,7 @@ class PlantTests(GardenTestCase):
         """
         Test creating multiple plants with the plant editor.
         """
-        try:
-            import gtk
-        except ImportError:
-            raise SkipTest('could not import gtk')
+        import gtk
 
         # use our own plant because PlantEditor.commit_changes() will
         # only work in bulk mode when the plant is in session.new
@@ -375,10 +372,7 @@ class PlantTests(GardenTestCase):
         editor.start()
 
     def test_branch_editor(self):
-        try:
-            import gtk
-        except ImportError:
-            raise SkipTest('could not import gtk')
+        import gtk
 
         # test argument checks
         #
@@ -870,7 +864,7 @@ class SourceTests(GardenTestCase):
         self.assert_(self.session.query(SourceDetail).get(source_detail_id))
 
     def test_details_editor(self):
-        raise SkipTest('Not Implemented')
+        raise SkipTest('separate view from presenter, then test presenter')
         e = SourceDetailEditor()
         e.start()
 
@@ -1263,7 +1257,7 @@ class InstitutionTests(GardenTestCase):
     # InstututionEditor and checks that it doesn't leak memory
 
     def test_editor(self):
-        raise SkipTest('Not Implemented')
+        raise SkipTest('separate view from presenter, then test presenter')
         e = InstitutionEditor()
         e.start()
 
