@@ -452,9 +452,32 @@ class SearchView(pluginmgr.View):
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
         self.session = db.Session()
-        self.init_notes_page_in_notebook()
+        self.add_notes_page_to_bottom_notebook()
+
+    def add_notes_page_to_bottom_notebook(self):
+        '''add notebook page for notes
+
+        this is a temporary function, will be removed when notes are
+        implemented as a plugin. then notes will be added with the
+        generic add_page_to_bottom_notebook.
+
+        '''
+        page = self.view.widgets.notes_scrolledwindow
+        # detach it from parent (its container)
+        self.view.widgets.remove_parent(page)
+        # create the label object
+        label = gtk.Label('Notes')
+        self.view.widgets.bottom_notebook.append_page(page, label)
+        self.bottom_info[Note] = {
+            'fields_used': ['date', 'user', 'category', 'note'],
+            'tree': page.get_children()[0],
+            'label': label,
+            'name': _('Notes'),
+            }
 
     def add_page_to_bottom_notebook(self, bottom_info):
+        '''add notebook page for a plugin class
+        '''
         glade_name = bottom_info['glade_name']
         builder = utils.BuilderLoader.load(glade_name)
         widgets = utils.BuilderWidgets(builder)
@@ -511,26 +534,6 @@ class SearchView(pluginmgr.View):
                 for obj in objs:
                     model.append([getattr(obj, k)
                                   for k in bottom_info['fields_used']])
-
-    def init_notes_page_in_notebook(self):
-        '''add notes page to bottom notebook
-
-        this is a temporary function, will be removed when notes are
-        implemented as a plugin
-
-        '''
-        page = self.view.widgets.notes_scrolledwindow
-        # detach it from parent (its container)
-        self.view.widgets.remove_parent(page)
-        # create the label object
-        label = gtk.Label('Notes')
-        self.view.widgets.bottom_notebook.append_page(page, label)
-        self.bottom_info[Note] = {
-            'fields_used': ['date', 'user', 'category', 'note'],
-            'tree': page.get_children()[0],
-            'label': label,
-            'name': _('Notes'),
-            }
 
     def update_infobox(self):
         '''
