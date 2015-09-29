@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
-from threading import Lock, RLock, Thread, _MainThread, currentThread
+from threading import Thread, _MainThread, currentThread
 import Queue
 from gtk.gdk import threads_enter, threads_leave
 from gobject import GObject, SIGNAL_RUN_FIRST
@@ -259,7 +259,6 @@ class GtkWorker(GObject, Thread):
 
 if __name__ == "__main__":
     def findPrimes(worker):
-        from math import sqrt
         limit = 10**4.
         primes = []
         for n in xrange(2, int(limit)+1):
@@ -327,5 +326,6 @@ if __name__ == "__main__":
 
     w.connect("destroy", gtk.main_quit)
     w.show_all()
+    import gobject
     gobject.threads_init()
     gtk.main()
