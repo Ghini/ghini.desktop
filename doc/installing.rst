@@ -138,6 +138,7 @@ welcome.
 
 .. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.5.2.windows.1/Git-2.5.2-32-bit.exe
 .. _Direct link to download Python: https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi
+.. _direct link do download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.4.4.win32-py2.7.exe#md5=f69924a6a43d992bf91daf8b0cb25db2
 .. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.6.msi
 .. _Direct link to download psycopg2: http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
 
@@ -179,6 +180,23 @@ the installation steps on Windows:
    make a complete install, selecting everything:
 
    .. image:: images/screenshots/pygtk1.png
+
+#. (Windows 8.x) please consider this additional step. It is possibly
+   necessary to avoid the following error on Windows 8.1 installations::
+
+    Building without Cython.
+    ERROR: 'xslt-config' is not recognized as an internal or external command,
+    operable program or batch file.
+
+   If you skip this step and can confirm you get the error, please inform us.
+
+   You can download lxml from::
+
+    https://pypi.python.org/pypi/lxml/3.4.4
+
+   Remember you need the 32 bit version, for Python 2.7.
+
+   `direct link do download lxml`_
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
