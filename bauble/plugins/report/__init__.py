@@ -75,7 +75,7 @@ formatter_settings_expanded_pref = 'report.settings.expanded'
 #         _paths[parent][descendent] = query
 
 
-def _get_all_objects(cls, get_query_func, objs, session):
+def _get_pertinent_objects(cls, get_query_func, objs, session):
     """
     :param cls:
     :param get_query_func:
@@ -119,20 +119,20 @@ def get_plant_query(obj, session):
     elif isinstance(obj, Location):
         return q.filter_by(location_id=obj.id)
     elif isinstance(obj, Tag):
-        plants = get_all_plants(obj.objects, session)
+        plants = get_plants_pertinent_to(obj.objects, session)
         return q.filter(Plant.id.in_([p.id for p in plants]))
     else:
         raise BaubleError(_("Can't get plants from a %s") % type(obj).__name__)
 
 
-def get_all_plants(objs, session=None):
+def get_plants_pertinent_to(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
 
     Return all the plants found in objs.
     """
-    return _get_all_objects(Plant, get_plant_query, objs, session)
+    return _get_pertinent_objects(Plant, get_plant_query, objs, session)
 
 
 def get_accession_query(obj, session):
@@ -159,21 +159,22 @@ def get_accession_query(obj, session):
     elif isinstance(obj, Location):
         return q.join('plants').filter_by(location_id=obj.id)
     elif isinstance(obj, Tag):
-        acc = get_all_accessions(obj.objects, session)
+        acc = get_accessions_pertinent_to(obj.objects, session)
         return q.filter(Accession.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get accessions from a %s") %
                           type(obj).__name__)
 
 
-def get_all_accessions(objs, session=None):
+def get_accessions_pertinent_to(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
 
     Return all the accessions found in objs.
     """
-    return _get_all_objects(Accession, get_accession_query, objs, session)
+    return _get_pertinent_objects(
+        Accession, get_accession_query, objs, session)
 
 
 def get_species_query(obj, session):
@@ -201,14 +202,14 @@ def get_species_query(obj, session):
         return q.join('accessions', 'plants', 'location').\
             filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        acc = get_all_species(obj.objects, session)
+        acc = get_species_pertinent_to(obj.objects, session)
         return q.filter(Species.id.in_([a.id for a in acc]))
     else:
         raise BaubleError(_("Can't get species from a %s") %
                           type(obj).__name__)
 
 
-def get_all_species(objs, session=None):
+def get_species_pertinent_to(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
@@ -216,7 +217,7 @@ def get_all_species(objs, session=None):
     Return all the species found in objs.
     """
     return sorted(
-        _get_all_objects(Species, get_species_query, objs, session),
+        _get_pertinent_objects(Species, get_species_query, objs, session),
         key=str)
 
 
@@ -496,7 +497,6 @@ class ReportToolDialogPresenter(object):
         self.view.set_sensitive('ok_button', True)
 
     def init_formatter_combo(self):
-        import types
         plugins = []
         for p in pluginmgr.plugins.values():
             if isinstance(p, FormatterPlugin):
@@ -656,7 +656,3 @@ else:
         from bauble.plugins.report.mako import MakoFormatterPlugin
         return [ReportToolPlugin, XSLFormatterPlugin,
                 MakoFormatterPlugin]
-
-filter_isplant = get_all_plants
-filter_isaccession = get_all_accessions
-filter_isspecies = get_all_species
