@@ -33,8 +33,9 @@ desktop.open = lambda x: x
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
 #import bauble.plugins.report as report_plugin
-from bauble.plugins.report import get_all_species, get_all_accessions, \
-     get_all_plants
+from bauble.plugins.report import (
+    get_species_pertinent_to, get_accessions_pertinent_to,
+    get_plants_pertinent_to)
 from bauble.plugins.plants import Family, Genus, Species, \
     SpeciesDistribution, VernacularName, Geography
 from bauble.plugins.garden import Accession, Plant, Location

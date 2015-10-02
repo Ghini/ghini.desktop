@@ -1,5 +1,5 @@
 <%
-from bauble.plugins.report import filter_isplant
+from bauble.plugins.report import plant_pertinent_to
 subfamiliad = {
     '': '',
 'Arethuseae': 'Epidendroideae',
@@ -188,7 +188,7 @@ subtribusd = {
 'Zygopetalum': 'Zygopetalinae',
 }
 %>Item	Familia	Subfamilia	Tribu	Subtribu	Genero	Especie	Autor	Fecha registro	CITES	Condición	Conservación	Documento de ingreso	Número de Doc.	Ubicación	Situación	Habito
-% for v in filter_isplant(values):
+% for v in plant_pertinent_to(values):
 <%
     genus = v.accession.species.genus.genus
     if genus.startswith('Zzz-'):
