@@ -12,10 +12,15 @@ It is `open <http://www.opensource.org>`_ and `free <http://www.fsf.org>`_
 and is released under the `GNU Public License
 <http://www.fsf.org/licensing/licenses/gpl.html>`_
 
+
+Statements
+===================
+
 .. toctree::
    :maxdepth: 1
 
    peptalk
+   statements
 
 Installing Bauble
 =================

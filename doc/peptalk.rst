@@ -1,5 +1,6 @@
-not-so-brief list of highlights, meant to whet your appetite.
+Highlights
 -------------------------------------------------------------
+not-so-brief list of highlights, meant to whet your appetite.
 
 taxonomic information
 .....................

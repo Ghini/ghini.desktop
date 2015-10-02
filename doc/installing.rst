@@ -1,5 +1,5 @@
-Installation
---------------
+Introduction
+-----------------------
 
 bauble.classic is a cross-platform program and it will run on unix machines
 like Linux and MacOSX, as well as on Windows.
@@ -20,7 +20,7 @@ its dependencies by itself.
           content.
 
 Installing on Linux
-===================
+-------------------
 
 #. Download the `devinstall.sh` script and run it::
 
@@ -71,7 +71,7 @@ Installing on Linux
 :ref:`connecting`.
 
 Installing on MacOSX
-====================
+--------------------
 
 Being MacOSX a unix environment, most things will work the same as on Linux
 (sort of).
@@ -116,7 +116,7 @@ script for it. Read the above Linux instructions, follow them, enjoy.
 :ref:`connecting`.
 
 Installing on Windows
-=====================
+---------------------
 
 The Windows installer used to be a "batteries-included" installer,
 installing everything needed to run Bauble.  The current maintainer
@@ -253,30 +253,24 @@ to in your PATH.
 
 .. _troubleshoot_install:
 
-Troubleshooting the Install
-===========================
+Troubleshooting
+---------------------------
 
-#.  What are the packages that are installed by Bauble:
+#.  any error related to lxml.
 
-    The following packages are required by Bauble
+    In order to be able to compile lxml, you have to install a C compiler
+    (on Linux this would be the ``gcc`` package) and Cython (a Python
+    specialization, that gets compiled into C code. Note: Cython is not
+    CPython).
 
-    	*  SQLAlchemy
-    	*  lxml
+    However, It should not be necessary to compile anything, and ``pip``
+    should be able to locate the binary modules in the online libraries. 
 
-    The following packages are optional:
+    For some reason, this is not the case on Windows 8.1.
 
-    	* Mako - required by the template based report generator
-    	* gdata - required by the Picasa photos InfoBox
+    https://pypi.python.org/pypi/lxml/3.4.4
 
-
-#.  Couldn't install lxml.
-
-    The lxml packages have to be compile with a C compiler. If you
-    don't have a Make sure the libxml and libxsl packages are
-    installed.  Installing the Cython packages.  On Linux you will
-    have to install the gcc package.  On Windows there should be a
-    precompiled version available at
-    http://pypi.python.org/pypi/lxml/2.1.1
+    Please report any other trouble related to the installation of lxml.
 
 #.  Couldn't install gdata.
 
@@ -292,6 +286,3 @@ Troubleshooting the Install
 .. rubric:: Next...
 
 :ref:`connecting`.
-
-
-
