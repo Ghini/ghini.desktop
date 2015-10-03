@@ -393,6 +393,134 @@ class FamilyTests(PlantTestCase):
         assert utils.gc_objects_by_type('FamilyEditorView') == [], \
             'FamilyEditorView not deleted'
 
+    def test_remove_callback_no_genera_no_confirm(self):
+        # T_0
+        f5 = Family(family=u'Arecaceae')
+        self.session.add(f5)
+        self.session.flush()
+        self.yes_no_dialog_invoked = False
+        self.message_details_dialog_invoked = False
+
+        # action
+        def mock_yes_no_dialog(msg):
+            self.yes_no_dialog_invoked = True
+            return False
+
+        def mock_message_details_dialog(msg):
+            self.message_details_dialog_invoked = True
+            return False
+        utils.yes_no_dialog = mock_yes_no_dialog
+        utils.message_details_dialog = mock_message_details_dialog
+        from bauble.plugins.plants.family import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        self.assertFalse(self.message_details_dialog_invoked)
+        self.assertTrue(self.yes_no_dialog_invoked)
+        self.assertEquals(result, None)
+        q = self.session.query(Family).filter_by(family=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [f5])
+
+    def test_remove_callback_no_genera_confirm(self):
+        # T_0
+        f5 = Family(family=u'Arecaceae')
+        self.session.add(f5)
+        self.session.flush()
+        self.yes_no_dialog_invoked = False
+        self.message_details_dialog_invoked = False
+
+        # action
+        def mock_yes_no_dialog(msg):
+            self.yes_no_dialog_invoked = True
+            return True
+
+        def mock_message_details_dialog(msg):
+            self.message_details_dialog_invoked = True
+            return False
+        utils.yes_no_dialog = mock_yes_no_dialog
+        utils.message_details_dialog = mock_message_details_dialog
+        from bauble.plugins.plants.family import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        self.assertFalse(self.message_details_dialog_invoked)
+        self.assertTrue(self.yes_no_dialog_invoked)
+        self.assertEquals(result, True)
+        q = self.session.query(Family).filter_by(family=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [])
+
+    def test_remove_callback_with_genera_no_confirm(self):
+        # T_0
+        f5 = Family(family=u'Arecaceae')
+        gf5 = Genus(family=f5, genus=u'Areca')
+        self.session.add_all([f5, gf5])
+        self.session.flush()
+        self.yes_no_dialog_invoked = False
+        self.message_details_dialog_invoked = False
+
+        # action
+        def mock_yes_no_dialog(msg):
+            self.yes_no_dialog_invoked = True
+            return False
+
+        def mock_message_details_dialog(msg):
+            self.message_details_dialog_invoked = True
+            return False
+        utils.yes_no_dialog = mock_yes_no_dialog
+        utils.message_details_dialog = mock_message_details_dialog
+        from bauble.plugins.plants.family import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        self.assertFalse(self.message_details_dialog_invoked)
+        self.assertTrue(self.yes_no_dialog_invoked)
+        self.assertEquals(result, None)
+        q = self.session.query(Family).filter_by(family=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [f5])
+        q = self.session.query(Genus).filter_by(genus=u"Areca")
+        matching = q.all()
+        self.assertEquals(matching, [gf5])
+
+    def test_remove_callback_with_genera_confirm_cascade(self):
+        # T_0
+        f5 = Family(family=u'Arecaceae')
+        gf5 = Genus(family=f5, genus=u'Areca')
+        self.session.add_all([f5, gf5])
+        self.session.flush()
+        self.yes_no_dialog_invoked = False
+        self.message_details_dialog_invoked = False
+
+        # action
+        def mock_yes_no_dialog(msg):
+            self.yes_no_dialog_invoked = True
+            return True
+
+        def mock_message_details_dialog(msg):
+            self.message_details_dialog_invoked = True
+            return False
+        utils.yes_no_dialog = mock_yes_no_dialog
+        utils.message_details_dialog = mock_message_details_dialog
+        from bauble.plugins.plants.family import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        self.assertFalse(self.message_details_dialog_invoked)
+        self.assertTrue(self.yes_no_dialog_invoked)
+        self.assertEquals(result, True)
+        q = self.session.query(Family).filter_by(family=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [])
+        q = self.session.query(Genus).filter_by(genus=u"Areca")
+        matching = q.all()
+        self.assertEquals(matching, [])
+
 
 class GenusTests(PlantTestCase):
 
