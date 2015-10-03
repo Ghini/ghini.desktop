@@ -88,10 +88,10 @@ def _get_pertinent_objects(cls, get_query_func, objs, session):
     if not isinstance(objs, (tuple, list)):
         objs = [objs]
     queries = map(lambda o: get_query_func(o, session), objs)
+    # TODO: what is the problem with the following form?
+    # results = session.query(cls).order_by(None).union(*queries)
     unions = union(*[q.statement for q in queries])
     results = session.query(cls).from_statement(unions)
-    # TODO: the following should work but i must be overlooking something
-    #results = session.query(cls).order_by(None).union(*queries)
     return results
 
 
@@ -656,3 +656,8 @@ else:
         from bauble.plugins.report.mako import MakoFormatterPlugin
         return [ReportToolPlugin, XSLFormatterPlugin,
                 MakoFormatterPlugin]
+
+## compatibility aliases:
+get_all_plants = get_plants_pertinent_to
+get_all_accessions = get_accessions_pertinent_to
+get_all_species = get_species_pertinent_to
