@@ -275,7 +275,6 @@ class install(_install):
         _install.finalize_options(self)
 
     def run(self):
-        self.run_command('build')
         if sys.platform not in ('linux3', 'linux2', 'win32', 'darwin'):
             msg = "**Error: Can't install on this platform: %s" % sys.platform
             print msg
