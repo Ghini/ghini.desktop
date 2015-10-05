@@ -428,6 +428,7 @@ class SearchView(pluginmgr.View):
         '''
         the constructor
         '''
+        logger.debug('SearchView::__init__')
         super(SearchView, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
         self.widgets = utils.load_widgets(filename)
@@ -1019,6 +1020,7 @@ class SearchView(pluginmgr.View):
         reexpand the rows to the previous state where possible and
         update the infobox.
         """
+        logger.debug('SearchView::reset_view')
         model, paths = self.results_view.get_selection().get_selected_rows()
         ref = None
         try:
@@ -1054,7 +1056,7 @@ class SearchView(pluginmgr.View):
         '''
         expand the row on activation
         '''
-        logger.debug("on_view_row_activated %s %s %s %s"
+        logger.debug("SearchView::on_view_row_activated %s %s %s %s"
                      % (view, path, column, data))
         view.expand_row(path, False)
 
@@ -1062,6 +1064,7 @@ class SearchView(pluginmgr.View):
         '''
         create the interface
         '''
+        logger.debug('SearchView::create_gui')
         # create the results view and info box
         self.results_view = self.widgets.results_treeview
 
