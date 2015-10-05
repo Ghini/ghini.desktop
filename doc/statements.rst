@@ -30,3 +30,6 @@ Vision
 * by the year 2020 
 * reference point
 * community
+* development
+* integration with web portal
+* geographic information
