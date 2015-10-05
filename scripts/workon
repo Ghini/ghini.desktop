@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ "$1" == "" ] ; then
+  branch=master
+  venv=bacl
+else
+  branch=issue-$1
+  venv=bacl-$1
+fi
+
+git checkout $branch
+. ~/.virtualenvs/$venv/bin/activate
