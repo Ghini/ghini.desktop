@@ -75,10 +75,10 @@ do so would be by helping us finding and writing the missing unit tests.
 A well tested function is one whose behaviour you cannot change without
 breaking at least one unit test.
 
-We all agree that in theory practice and theory match perfectly and one
+We all agree that in theory theory and practice match perfectly and that one
 first writes the tests, then implements the function. In practice, however,
-theory does not match practice and we write tests after having written and
-even published the functions.
+practice does not match theory and we have been writing tests after writing
+and even publishing the functions.
 
 This section describes the process of adding unit tests for
 ``bauble.plugins.plants.family.remove_callback``.
@@ -89,7 +89,8 @@ What to test
 First of all, open the coverage report index, and choose a file with low
 coverage.
 
-For this example, I landed on ``bauble.plugins.plants.family``, at 33%.
+For this example, run in October 2015, we landed on
+``bauble.plugins.plants.family``, at 33%.
 
 https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2Ffamily.py
 
@@ -110,25 +111,21 @@ So, having decided what to describe in unit test, we look at the code and we
 see it needs discriminate a couple of cases:
 
 **parameter correctness**
-
-* the list of families has no elements.
-* the list of families has more than one element.
-* the list of families has exactly one element.
+  * the list of families has no elements.
+  * the list of families has more than one element.
+  * the list of families has exactly one element.
 
 **cascade**
-
-* the family has no genera
-* the family has one or more genera
+  * the family has no genera
+  * the family has one or more genera
 
 **confirm**
-
-* the user confirms deletion
-* the user does not confirm deletion
+  * the user confirms deletion
+  * the user does not confirm deletion
 
 **deleting**
-
-* all goes well when deleting the family
-* there is some error while deleting the family
+  * all goes well when deleting the family
+  * there is some error while deleting the family
 
 I decide I will only focus on the **cascade** and the **confirm**
 aspects. Two binary questions: 4 cases.
@@ -144,7 +141,7 @@ https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2F
           will be quite a bit of work because we need rewrite the
           FamilyEditorPresenter, separate it from the FamilyEditorView and
           reconsider what to do with the FamilyEditor class, which I think
-          should be removed and replaced with a function.
+          should be removed and replaced with a single function.
 
 writing the tests
 ------------------------------
@@ -176,18 +173,23 @@ When writing tests, I generally follow the pattern:
 * action, 
 * T₁ (testing the result of the action given the initial conditions)
 
-.. note:: Please never test two actions in one test.
+.. note:: There's a reason why unit tests are called unit tests. Please
+          never test two actions in one test.
 
-So let's describe T₀ for the first test, a family without genera::
+So let's describe T₀ for the first test, a database holding a family without
+genera::
 
         def test_remove_callback_no_genera_no_confirm(self):
             f5 = Family(family=u'Arecaceae')
             self.session.add(f5)
             self.session.flush()
 
-We do not want the function being tested to invoke the interactive function,
-so we replace the pointer to that interactive function with a pointer to a
-function which accepts one parameter and returns ``False``::
+We do not want the function being tested to invoke the interactive
+``utils.yes_no_dialog`` function, we want ``remove_callback`` to invoke a
+non-interactive replacement function. We achieve this simply by making
+``utils.yes_no_dialog`` point to a ``lambda`` expression which, like the
+original interactive function, accepts one parameter and returns a
+boolean. In this case: ``False``::
 
         def test_remove_callback_no_genera_no_confirm(self):
             # T_0
@@ -202,24 +204,25 @@ function which accepts one parameter and returns ``False``::
 
 Next we test the result.
 
-Well, now I realize I want to test more than just whether or not the object
-Arecaceae was deleted, I also want to know ``yes_no_dialog`` was invoked, and
-that ``message_details_dialog`` was not.
+Well, we don't just want to test whether or not the object Arecaceae was
+deleted, we also should test the value returned by ``remove_callback``, and
+whether ``yes_no_dialog`` and ``message_details_dialog`` were invoked or
+not.
 
-So I'm doing now something a bit more complex, which will make life a lot
-easier.
+A ``lambda`` expression is not enough for this. We do something apparently
+more complex, which will make life a lot easier.
 
-Instead of using a ``lambda`` expression, I define a more generic function::
+Let's first define a rather generic function::
 
-    def mockfunc(msg=None, name=None, caller=None, result=False):
+    def mockfunc(msg=None, name=None, caller=None, result=None):
         caller.invoked.append((name, msg))
         return result
 
-and I grab ``partial`` from the ``functools`` standard module, to partially
+and we grab ``partial`` from the ``functools`` standard module, to partially
 apply the above ``mockfunc``, leaving only ``msg`` unspecified, and use this
-partial application, which a function accepting one parameter and returning
-a value, where I first used the ``lambda`` expression. The test function now
-looks like this::
+partial application, which is a function accepting one parameter and
+returning a value, to replace the two functions in ``utils``. The test
+function now looks like this::
 
     def test_remove_callback_no_genera_no_confirm(self):
         # T_0
@@ -255,15 +258,16 @@ Arecaceae is still there::
 And so on
 -------------------------
 
-    `there are two kinds of people, those who complete what they start, and so on`
+    `there are two kinds of people, those who complete what they start, and
+    so on`
 
 Next test is almost the same, with the difference that the
 ``utils.yes_no_dialog`` should return ``True`` (this we achieve by
 specifying ``result=True`` in the partial application of the generic
 ``mockfunc``). 
 
-With this action, the result of the function should also be ``True``, and
-the Arecaceae should be removed::
+With this action, the value returned by ``remove_callback`` should be
+``True``, and there should be no Arecaceae Family in the database any more::
 
     def test_remove_callback_no_genera_confirm(self):
         # T_0
@@ -282,7 +286,6 @@ the Arecaceae should be removed::
         self.session.flush()
 
         # effect
-        print self.invoked
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
@@ -292,6 +295,9 @@ the Arecaceae should be removed::
         q = self.session.query(Family).filter_by(family=u"Arecaceae")
         matching = q.all()
         self.assertEquals(matching, [])
+
+have a look at commit 734f5bb9feffc2f4bd22578fcee1802c8682ca83 for the other
+two test functions.
 
 Putting all together
 --------------------------
