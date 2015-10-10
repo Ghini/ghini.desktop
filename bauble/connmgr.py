@@ -166,7 +166,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
             _("Choose a file..."), None,
-            action=gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER,
+            action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
             last_folder=last_folder, target='pictureroot_entry')
@@ -176,7 +176,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
             _("Choose a file..."), None,
-            action=gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER,
+            action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
             last_folder=last_folder, target='pictureroot2_entry')
