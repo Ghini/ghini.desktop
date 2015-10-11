@@ -1,17 +1,17 @@
 Bauble
 ======
 
-![Test Status](https://travis-ci.org/Bauble/bauble.classic.svg)
-![Coverage Status](https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github)
+.. image:: https://travis-ci.org/Bauble/bauble.classic.svg
+.. image:: https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github
 
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/fr/svg-badge.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/de/svg-badge.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/nl/svg-badge.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/it/svg-badge.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/cs/svg-badge.svg)
-![Translation Percentage](https://hosted.weblate.org/widgets/bauble/sv/svg-badge.svg)
+.. image:: https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg
+.. image:: https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg
+.. image:: https://hosted.weblate.org/widgets/bauble/fr/svg-badge.svg
+.. image:: https://hosted.weblate.org/widgets/bauble/de/svg-badge.svg
+.. image:: https://hosted.weblate.org/widgets/bauble/nl/svg-badge.svg
+.. image:: https://hosted.weblate.org/widgets/bauble/it/svg-badge.svg
+.. image:: https://hosted.weblate.org/widgets/bauble/cs/svg-badge.svg
+.. image:: https://hosted.weblate.org/widgets/bauble/sv/svg-badge.svg
 
 what is Bauble (classic)
 ------------------------
@@ -76,4 +76,4 @@ http://bauble.readthedocs.org. It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 
-For any kind of question, you can open an issue here on github https://github.com/Bauble/bauble.classic/issues/new, or if you feel more comfortable with it, you can start a thread on our google group https://groups.google.com/forum/#!forum/bauble
+For any kind of question, you can open an issue `here on github <https://github.com/Bauble/bauble.classic/issues/new>`_, or if you feel more comfortable with it, you can start a thread on `our google group <https://groups.google.com/forum/#!forum/bauble>`_.
