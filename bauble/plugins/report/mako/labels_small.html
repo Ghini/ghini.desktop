@@ -17,7 +17,7 @@
 <html>
 <head>
 <title>Labels</title>
-<style type="text/css" media="all">  
+<style type="text/css" media="all">
 @page {
     margin: 0;
     orphans: 100;
@@ -36,8 +36,14 @@
     page-break-after: auto;
     orphans: 100;
     widows: 100;
-  }
-
+    overflow: hidden;
+    position:relative;
+}
+.label:before {
+    content: '';
+    height: 38mm;
+    float: left;
+}
 .family {
     /* border: 1px solid red; */
     text-align: center;
@@ -45,7 +51,7 @@
     margin-top: 3mm;
     height: 1.2em;
     width: 100%;
-  }
+}
 .name {
     /* border: 1px solid red; */
     text-align: center;
@@ -61,71 +67,51 @@
     font: normal normal 14pt Arial, sans;
     width: 100%;
     margin-bottom: .5em;
-  }
+}
 .vernacular {
     /* border: 1px solid green; */
     text-align: center;
     font: normal bold 14pt Arial, sans;
     width: 100%;
-  }
-
+}
 .code {
     /* border: 1px solid orange; */
     font: normal normal 12pt serif;    
     vertical-align: bottom;
     text-align: left;
     white-space: nowrap;
-  }
+    width: 10em;
+    height: 2em;
+    margin: 3pt 12pt 0 2mm;
+    float: left;
+    clear: left; 
+}
 .distribution {
     /* border: 1px solid blue; */
     font: normal normal 11pt serif; 
     vertical-align: bottom;
+    height: 4.5em;
+    margin: 0 2mm 0 2em;
     text-align: right;
-  }
-
-  </style>
+}
+</style>
 </head>
 <body>
-<%
-   from bauble.plugins.garden import Plant
-   from bauble.plugins.report import get_plants_pertinent_to
-   import bauble.db as db
-   session = db.Session()
-   delimiter = ','
-%>
+<% from bauble.plugins.report import get_plants_pertinent_to %>\
 <%def name="make_label(plant)">
-  <table class="label">
-    <tr>
-      <td colspan="2" class="family">${plant.accession.species.genus.family}</td>
-    </tr>
-    <tr>
-      <td colspan="2" class="name">
-	<div class="species">
-	  ${plant.accession.species_str(markup=True)}
-	</div>
-	<div class="vernacular">
-	  <% 
-	  s = plant.accession.species.default_vernacular_name
-	  if s:
-	    context.write(str(s))
-	  %>
-	</div>
-      </td>
-    </tr>
-    <tr>
-      <td class="code">
-        ${plant}
-      </td>
-      <td class="distribution">
-	${plant.accession.species.distribution_str()}
-      </td>      
-    </tr>
-  </table>
-
-	
+<div class="label">
+  <div class="code">${plant}</div>
+  <div>
+    <div class="family">${plant.accession.species.genus.family}</div>
+    <div class="name">
+      <div class="species">${plant.accession.species_str(markup=True)}</div>
+      <div class="vernacular">${plant.accession.species.default_vernacular_name or '&nbsp;'}</div>
+    </div>
+    <div class="distribution">${plant.accession.species.distribution_str()}</div>
+  </div>
+</div>
 </%def>
 % for p in get_plants_pertinent_to(values):
     ${make_label(p)}
 % endfor
 </body>
-
