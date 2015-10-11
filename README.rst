@@ -2,6 +2,7 @@ Bauble
 ======
 
 .. image:: https://travis-ci.org/Bauble/bauble.classic.svg
+.. image:: https://img.shields.io/pypi/v/bauble.svg
 .. image:: https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github
 
 .. image:: https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg
