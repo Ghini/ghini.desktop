@@ -202,7 +202,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         del self.notes_presenter.view
         del self.infrasp_presenter.view
 
-    def dirty(self):
+    def is_dirty(self):
         return (self._dirty or
                 self.pictures_presenter.is_dirty() or
                 self.vern_presenter.is_dirty() or
@@ -528,15 +528,16 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.remove_menu.popup(None, None, None, event.button, event.time)
 
     def on_activate_add_menu_item(self, widget, geoid=None):
-        from bauble.plugins.plants.species_model import Geography
+        logger.debug('on_activate_add_menu_item %s %s' % (widget, geoid))
+        from bauble.plugins.plants.geography import Geography
         geo = self.session.query(Geography).filter_by(id=geoid).one()
         # check that this geography isn't already in the distributions
         if geo in [d.geography for d in self.model.distribution]:
-#            debug('%s already in %s' % (geo, self.model))
+            logger.debug('%s already in %s' % (geo, self.model))
             return
         dist = SpeciesDistribution(geography=geo)
         self.model.distribution.append(dist)
-#        debug([str(d) for d in self.model.distribution])
+        logger.debug([str(d) for d in self.model.distribution])
         self._dirty = True
         self.refresh_view()
         self.parent_ref().refresh_sensitivity()
