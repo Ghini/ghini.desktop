@@ -274,10 +274,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             logger.debug("looking for %s %s, found %s"
                          % (genus, epithet, omonym))
             if omonym in [None, self.model]:
+                ## should not warn, so check warning and remove
                 if self.omonym_box is not None:
                     self.view.remove_box(self.omonym_box)
                     self.omonym_box = None
-            else:
+            elif self.omonym_box is None:  # should warn, but not twice
                 msg = _("This binomial name is already in your collection"
                         ", as %s.\n\n"
                         "Are you sure you want to insert it again?") % \
