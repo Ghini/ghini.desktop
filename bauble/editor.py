@@ -352,7 +352,11 @@ class GenericEditorView(object):
             doc = etree.parse(self.filename)
             self.signals = doc.xpath('//signal')
         for s in self.signals:
-            handler = getattr(target, s.get('handler'))
+            try:
+                handler = getattr(target, s.get('handler'))
+            except AttributeError, text:
+                logger.debug("AttributeError: %s" % text)
+                continue
             signaller = getattr(self.widgets, s.getparent().get('id'))
             handler_id = signaller.connect(s.get('name'), handler)
             self.__attached_signals.append((signaller, handler_id))
