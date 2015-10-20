@@ -1440,6 +1440,11 @@ class PresenterTest(PlantTestCase):
         presenter = SpeciesEditorPresenter(model, MockView())
         presenter.on_text_entry_changed('sp_species_entry', 'grandiflora')
 
+    def test_cantinsertsametwice_warnonce(self):
+        'while binomial name in view matches database item, warn user'
+
+        raise SkipTest('Not Implemented')  # presenter uses view internals
+
 
 from bauble.plugins.plants.species import (
     species_markup_func, vernname_markup_func)
