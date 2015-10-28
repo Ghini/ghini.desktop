@@ -159,15 +159,31 @@ class IdentifierToken(object):
 
 class IdentExpressionToken(object):
     def __init__(self, t):
+        logger.debug('IdentExpressionToken::__init__(%s)' % t)
         self.op = t[0][1]
-        self.operation = {'>': lambda x, y: x > y,
-                          '<': lambda x, y: x < y,
-                          '>=': lambda x, y: x >= y,
-                          '<=': lambda x, y: x <= y,
-                          '=': lambda x, y: x == y,
+
+        def not_implemented_yet(x, y):
+            # raise an exception
+            raise NotImplementedError
+
+        # cfr: SearchParser.binop
+        # = == != <> < <= > >= not like contains has ilike icontains ihas is
+        self.operation = {'=': lambda x, y: x == y,
+                          '==': lambda x, y: x == y,
+                          'is': lambda x, y: x == y,
                           '!=': lambda x, y: x != y,
-                          'is': lambda x, y: x is y,
-                          'like': lambda x, y: utils.ilike(x, '%s' % y)
+                          '<>': lambda x, y: x != y,
+                          'not': lambda x, y: x != y,
+                          '<': lambda x, y: x < y,
+                          '<=': lambda x, y: x <= y,
+                          '>': lambda x, y: x > y,
+                          '>=': lambda x, y: x >= y,
+                          'like': lambda x, y: utils.ilike(x, '%s' % y),
+                          'contains': not_implemented_yet,
+                          'has': not_implemented_yet,
+                          'ilike': lambda x, y: utils.ilike(x, '%s' % y),
+                          'icontains': not_implemented_yet,
+                          'ihas': not_implemented_yet,
                           }[self.op]
         self.operands = t[0][0::2]  # every second object is an operand
 
@@ -177,9 +193,10 @@ class IdentExpressionToken(object):
     def evaluate(self, env):
         q, a = self.operands[0].evaluate(env)
         if self.operands[1].express() == set():
-            if self.op in ('is', '='):
+            # check against the empty set
+            if self.op in ('is', '=', '=='):
                 return q.filter(~a.any())
-            elif self.op in ('!='):
+            elif self.op in ('not', '<>', '!='):
                 return q.filter(a.any())
         clause = lambda x: self.operation(a, x)
         return q.filter(clause(self.operands[1].express()))
