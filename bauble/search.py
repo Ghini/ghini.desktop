@@ -850,7 +850,7 @@ class ExpressionRow(object):
         self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
-        conditions = ['=', '!=', '<', '<=', '>', '>=', 'is', 'is not', 'like',
+        conditions = ['=', '!=', '<', '<=', '>', '>=', 'is', 'not', 'like',
                       'ilike']
         map(self.cond_combo.append_text, conditions)
         self.cond_combo.set_active(0)
