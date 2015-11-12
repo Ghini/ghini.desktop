@@ -463,8 +463,6 @@ class SpeciesInfoBox(InfoBox):
             label = gtk.Label(label)
         self.insert_page(page, label, 0)
 
-        from bauble.plugins.picasa import PicasaInfoPage
-        page = PicasaInfoPage()
         label = page.label
         if isinstance(label, basestring):
             label = gtk.Label(label)
