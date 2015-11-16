@@ -620,5 +620,40 @@ class OnDialogResponseTests(BaubleTestCase):
         # T_1
         self.assertTrue(view.get_window().hidden)
 
-    def test_on_dialog_response_ok_creates_picture_folders(self):
+    def test_on_dialog_response_ok_creates_picture_folders_exist(self):
+        # make sure thumbnails and pictures folder already exist as folders.
+        # create view and presenter
+        # invoke action
+        # superfluous action is not performed, view is closed
+        raise SkipTest('related to issue 157')
+
+    def test_on_dialog_response_ok_creates_picture_folders_no_exist(self):
+        raise SkipTest('related to issue 157')
+        # make sure thumbnails and pictures folder do not exist.
+
+        # create view and presenter.
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': False,
+                       'pictures': '/tmp/nugkui',
+                       'type': 'SQLite',
+                       'file': '/tmp/nugkui.db'}}
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        prefs.prefs[prefs.picture_root_pref] = '/tmp'
+        view.reply_file_chooser_dialog = []
+        presenter = ConnMgrPresenter(view)
+        dialog = MockDialog()
+        view.invoked = []
+        # invoke action
+        presenter.on_dialog_response(dialog, RESPONSE_OK)
+
+        # check existence of pictures folder
+        # check existence of thumbnails folder
+
+    def test_on_dialog_response_ok_creates_picture_folders_occupied(self):
+        # make sure thumbnails and pictures folder already exist as files
+        # create view and presenter
+        # invoke action
+        # action is not performed, view is not closed
         raise SkipTest('related to issue 157')
