@@ -21,7 +21,7 @@ import os
 
 ## just keeping it here because I am forgetful and I never recall how to
 ## import SkipTest otherwise! and commented out because of FlyCheck.
-# from nose import SkipTest
+from nose import SkipTest
 
 from bauble.test import BaubleTestCase, check_dupids
 from bauble.connmgr import ConnMgrPresenter
@@ -619,3 +619,6 @@ class OnDialogResponseTests(BaubleTestCase):
         presenter.on_dialog_close_or_delete("widget")
         # T_1
         self.assertTrue(view.get_window().hidden)
+
+    def test_on_dialog_response_ok_creates_picture_folders(self):
+        raise SkipTest('related to issue 157')
