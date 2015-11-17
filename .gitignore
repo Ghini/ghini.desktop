@@ -32,3 +32,6 @@ doc/locale/
 bauble/plugins/plants/ipni.org/
 .build/
 cover/
+.project
+.pydevproject
+.settings/
