@@ -568,10 +568,15 @@ class SearchTests(BaubleTestCase):
         Family = self.Family
         Genus = self.Genus
         family2 = Family(family=u'family2')
-        genus2 = Genus(family=family2, genus=u'genus2')
+        family3 = Family(family=u'afamily3')
+        genus21 = Genus(family=family2, genus=u'genus21')
+        genus31 = Genus(family=family3, genus=u'genus31')
+        genus32 = Genus(family=family3, genus=u'genus32')
+        genus33 = Genus(family=family3, genus=u'genus33')
         f3 = Family(family=u'fam3')
-        g3 = Genus(family=f3, genus=u'genus3')
-        self.session.add_all([family2, genus2, f3, g3])
+        g3 = Genus(family=f3, genus=u'genus31')
+        self.session.add_all([family3, family2, genus21, genus31, genus32,
+                              genus33, f3, g3])
         self.session.commit()
 
         mapper_search = search.get_strategy('MapperSearch')
@@ -580,7 +585,7 @@ class SearchTests(BaubleTestCase):
         # test partial string matches on a query
         s = 'genus where family.family like family%'
         results = mapper_search.search(s, self.session)
-        self.assert_(set(results) == set([self.genus, genus2]))
+        self.assertEquals(set(results), set([self.genus, genus21]))
 
     def test_search_by_query22_underscore(self):
         """can use fields starting with an underscore"""
@@ -664,7 +669,7 @@ class SearchTests(BaubleTestCase):
     def test_search_by_query_binomial(self):
         """can use genus_species binomial identification"""
 
-        raise SkipTest
+        raise SkipTest("related to issue 192")
         Family = self.Family
         Genus = self.Genus
         from bauble.plugins.plants.species_model import Species
