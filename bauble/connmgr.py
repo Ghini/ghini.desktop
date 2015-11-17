@@ -219,7 +219,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if not valid:
                 self.view.run_message_dialog(msg, gtk.MESSAGE_ERROR)
             if valid:
-                ## picture root is stored in global setting
+                ## picture root is also made available in global setting
                 prefs.prefs[prefs.picture_root_pref] = settings['pictures']
                 self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
@@ -406,6 +406,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             return False, _("Please choose a name for this connection")
         valid = True
         msg = None
+        ## first check connection parameters, then pictures path
         if params['type'] == 'SQLite':
             filename = params['file']
             if not os.path.exists(filename):
@@ -437,10 +438,30 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if params["host"] == "":
                 valid = False
                 fields.append(_("DBMS host name"))
-            if valid:
+            if not valid:
                 msg = _("Current connection does not specify the fields:\n"
                         "%s\n"
                         "Please specify and try again.") % "\n".join(fields)
+        if not valid:
+            return valid, msg
+        ## now check the params['pictures']
+        # if it's a file, things are not OK
+        root = params['pictures']
+        thumbs = os.path.join(root, 'thumbs')
+        # root should exist as a directory
+        if os.path.exists(root):
+            if not os.path.isdir(root):
+                valid = False
+                msg = _("Pictures root name occupied by non directory.")
+            elif os.path.exists(thumbs):
+                if not os.path.isdir(thumbs):
+                    valid = False
+                    msg = _("Thumbnails name occupied by non directory.")
+        else:
+            os.mkdir(root)
+        # root should contain the thumbs directory
+        if valid and not os.path.exists(thumbs):
+            os.mkdir(thumbs)
         return valid, msg
 
     def get_params(self, new=None):
