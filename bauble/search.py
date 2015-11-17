@@ -379,13 +379,15 @@ class DomainExpressionAction(object):
 
         mapper = class_mapper(cls)
 
-        if self.cond in ('like', 'ilike', 'contains', 'icontains', 'has',
-                         'ihas'):
+        if self.cond in ('like', 'ilike'):
+            condition = lambda col: \
+                lambda val: utils.ilike(mapper.c[col], '%s' % val)
+        elif self.cond in ('contains', 'icontains', 'has', 'ihas'):
             condition = lambda col: \
                 lambda val: utils.ilike(mapper.c[col], '%%%s%%' % val)
         elif self.cond == '=':
             condition = lambda col: \
-                lambda val: utils.ilike(mapper.c[col], utils.utf8(val))
+                lambda val: mapper.c[col] == utils.utf8(val)
         else:
             condition = lambda col: \
                 lambda val: mapper.c[col].op(self.cond)(val)

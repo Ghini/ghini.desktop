@@ -290,12 +290,7 @@ class SearchTests(BaubleTestCase):
         g = list(results)[0]
         self.assertEqual(g.id, self.genus.id)
 
-    def test_search_by_expression(self):
-        """
-        Test searching by expression with MapperSearch
-
-        test whether the MapperSearch works, not a test on plugins.
-        """
+    def test_search_by_expression_family_eq(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
@@ -306,12 +301,68 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(f, self.Family))
         self.assertEquals(f.id, self.family.id)
 
+    def test_search_by_expression_genus_eq_1match(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
         # search for genus by domain
         results = mapper_search.search('gen=genus1', self.session)
         self.assertEquals(len(results), 1)
         g = list(results)[0]
         self.assertTrue(isinstance(g, self.Genus))
         self.assertEqual(g.id, self.genus.id)
+
+    def test_search_by_expression_genus_eq_nomatch(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        # search for genus by domain
+        results = mapper_search.search('genus=g', self.session)
+        self.assertEquals(len(results), 0)
+
+    def test_search_by_expression_genus_like_nomatch(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        # search for genus by domain
+        results = mapper_search.search('genus like gen', self.session)
+        self.assertEquals(len(results), 0)
+        # search for genus by domain
+        results = mapper_search.search('genus like nus%', self.session)
+        self.assertEquals(len(results), 0)
+        # search for genus by domain
+        results = mapper_search.search('genus like %gen', self.session)
+        self.assertEquals(len(results), 0)
+
+    def test_search_by_expression_genus_like_contains_eq(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+        Family = self.Family
+        f2 = Family(family=u'family2')
+        f3 = Family(family=u'afamily3')
+        f4 = Family(family=u'fam4')
+        self.session.add_all([f3, f2, f4])
+        self.session.commit()
+
+        # search for family by domain
+        results = mapper_search.search('family contains fam', self.session)
+        self.assertEquals(len(results), 4)  # all do
+        results = mapper_search.search('family like f%', self.session)
+        self.assertEquals(len(results), 3)  # three start by f
+        results = mapper_search.search('family like af%', self.session)
+        self.assertEquals(len(results), 1)  # one starts by af
+        results = mapper_search.search('family like fam', self.session)
+        self.assertEquals(len(results), 0)
+        results = mapper_search.search('family = fam', self.session)
+        self.assertEquals(len(results), 0)
+        results = mapper_search.search('family = fam4', self.session)
+        self.assertEquals(len(results), 1)  # exact name match
+        results = mapper_search.search('family = Fam4', self.session)
+        self.assertEquals(len(results), 0)  # = is case sensitive
+        results = mapper_search.search('family like Fam4', self.session)
+        self.assertEquals(len(results), 1)  # like is case insensitive
+        results = mapper_search.search('family contains FAM', self.session)
+        self.assertEquals(len(results), 4)  # they case insensitively do
 
     def test_search_by_query11(self):
         "query with MapperSearch, single table, single test"
