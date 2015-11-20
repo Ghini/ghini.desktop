@@ -269,13 +269,14 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if self.connection_names:
             self.view.combobox_set_active('name_combo', 0)
 
-    def on_add_button_clicked(self, button, data=None):
+    def on_add_button_clicked(self, *args):
         name = self.view.run_entry_dialog(
             _("Enter a connection name"),
             self.view.get_window(),
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
             (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         if name is not '':
+            self.connection_name = name
             self.connection_names.insert(0, name)
             self.connections[name] = self.get_params(new=name)
             self.view.combobox_prepend_text('name_combo', name)
