@@ -179,33 +179,6 @@ class ConnMgrPresenterTests(BaubleTestCase):
             'noconnectionlabel'))
         self.assertTrue('combobox_set_active' in view.invoked)
 
-    def test_no_connection_on_add_confirm_negative(self):
-        view = MockView(combos={'name_combo': [],
-                                'type_combo': []})
-        prefs.prefs[bauble.conn_list_pref] = {}
-        presenter = ConnMgrPresenter(view)
-        presenter.view.reply_entry_dialog.append('')
-        presenter.on_add_button_clicked('button')
-        ## nothing changes
-        self.assertFalse(presenter.view.widget_get_visible(
-            'expander'))
-        self.assertTrue(presenter.view.widget_get_visible(
-            'noconnectionlabel'))
-
-    def test_no_connection_on_add_confirm_positive(self):
-        view = MockView(combos={'name_combo': [],
-                                'type_combo': []})
-        prefs.prefs[bauble.conn_list_pref] = {}
-        presenter = ConnMgrPresenter(view)
-        presenter.view.reply_entry_dialog.append('conn_name')
-        presenter.on_add_button_clicked('button')
-        presenter.refresh_view()  # this is done by gtk
-        ## visibility swapped
-        self.assertTrue(presenter.view.widget_get_visible(
-            'expander'))
-        self.assertFalse(presenter.view.widget_get_visible(
-            'noconnectionlabel'))
-
     def test_one_connection_shown_and_selected_sqlite(self):
         view = MockView(combos={'name_combo': [],
                                 'type_combo': []})
@@ -456,6 +429,55 @@ class ConnMgrPresenterTests(BaubleTestCase):
         self.assertEquals(presenter.connection_uri,
                           'postgresql://pg@localhost/quisquis')
 
+
+class AddConnectionTests(BaubleTestCase):
+
+    def test_no_connection_on_add_confirm_negative(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {}
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_entry_dialog.append('')
+        presenter.on_add_button_clicked('button')
+        ## nothing changes
+        self.assertFalse(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertTrue(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_no_connection_on_add_confirm_positive(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {}
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_entry_dialog.append('conn_name')
+        presenter.on_add_button_clicked('button')
+        presenter.refresh_view()  # this is done by gtk
+        ## visibility swapped
+        self.assertTrue(presenter.view.widget_get_visible(
+            'expander'))
+        self.assertFalse(presenter.view.widget_get_visible(
+            'noconnectionlabel'))
+
+    def test_one_connection_on_add_confirm_positive(self):
+        view = MockView(combos={'name_combo': [],
+                                'type_combo': []})
+        prefs.prefs[bauble.conn_list_pref] = {
+            'nugkui': {'default': True,
+                       'pictures': 'nugkui',
+                       'type': 'SQLite',
+                       'file': 'nugkui.db'}}
+        prefs.prefs[bauble.conn_default_pref] = 'nugkui'
+        presenter = ConnMgrPresenter(view)
+        presenter.view.reply_entry_dialog.append('new_conn')
+        presenter.on_add_button_clicked('button')
+        presenter.refresh_view()  # this is done by gtk
+        self.assertTrue(('combobox_prepend_text', ['name_combo', 'new_conn'])
+                        in presenter.view.invoked_detailed)
+        self.assertTrue(('widget_set_value', ['name_combo', 'new_conn', ()])
+                        in presenter.view.invoked_detailed)
+        print presenter.view.invoked_detailed
+        1/0
 
 class MockRenderer(dict):
     def set_property(self, property, value):
