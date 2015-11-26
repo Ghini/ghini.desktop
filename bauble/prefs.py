@@ -58,11 +58,6 @@ default_prefs_file = os.path.join(paths.user_dir(), default_filename)
 The default file for the preference settings file.
 """
 
-# TODO: i don't think we use these icons anymore - issue #58
-prefs_icon_dir = os.path.join(paths.lib_dir(), 'images')
-general_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_general.png')
-security_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_security.png')
-
 config_version_pref = 'bauble.config.version'
 """
 The preferences key for the bauble version of the preferences file.
