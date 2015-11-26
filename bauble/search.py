@@ -338,6 +338,28 @@ class StatementAction(object):
         return repr(self.content)
 
 
+class BinomialNameAction(object):
+    """created when the parser hits a binomial_name token.
+
+    Searching using binomial names returns one or more species objects.
+    """
+
+    def __init__(self, t):
+        self.genus_epithet = t[0]
+        self.species_epithet = t[1]
+
+    def __repr__(self):
+        return "%s %s" % (self.genus_epithet, self.species_epithet)
+
+    def invoke(self, search_strategy):
+        from bauble.plugins.plants.species_model import Species
+        return set([Species.retrieve(
+            search_strategy._session,
+            {'epithet': self.species_epithet,
+             'ht-epithet': self.genus_epithet,
+             })])
+
+
 class DomainExpressionAction(object):
     """created when the parser hits a domain_expression token.
 
@@ -461,7 +483,7 @@ class ValueListAction(object):
 from pyparsing import (
     Word, alphas8bit, removeQuotes, delimitedList, Regex,
     OneOrMore, oneOf, alphas, alphanums, Group, Literal,
-    CaselessLiteral, WordStart, WordEnd,
+    CaselessLiteral, WordStart, WordEnd, srange,
     stringEnd, Keyword, quotedString,
     infixNotation, opAssoc, Forward)
 
@@ -505,6 +527,12 @@ class SearchParser(object):
         | (domain + binop + domain_values + stringEnd)
         ).setParseAction(DomainExpressionAction)('domain_expression')
 
+    caps = srange("[A-Z]")
+    lowers = caps.lower()
+    binomial_name = (
+        Word(caps, lowers) + Word(lowers)
+        ).setParseAction(BinomialNameAction)('binomial_name')
+
     AND_ = WordStart() + (CaselessLiteral("AND") | Literal("&&")) + WordEnd()
     OR_ = WordStart() + (CaselessLiteral("OR") | Literal("||")) + WordEnd()
     NOT_ = WordStart() + (CaselessLiteral("NOT") | Literal('!')) + WordEnd()
@@ -531,6 +559,7 @@ class SearchParser(object):
 
     statement = (query('query')
                  | domain_expression('domain')
+                 | binomial_name('binomial')
                  | value_list('value_list')
                  ).setParseAction(StatementAction)('statement')
 
