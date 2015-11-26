@@ -766,8 +766,7 @@ class BinomialSearchTests(BaubleTestCase):
     def tearDown(self):
         super(BinomialSearchTests, self).tearDown()
 
-    def test_search_by_query_binomial_complete(self):
-
+    def test_binomial_complete(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
@@ -775,8 +774,7 @@ class BinomialSearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([self.ic]))
 
-    def test_search_by_query_binomial_incomplete(self):
-
+    def test_binomial_incomplete(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
@@ -784,8 +782,7 @@ class BinomialSearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([self.ic]))
 
-    def test_search_by_query_binomial_no_match(self):
-
+    def test_binomial_no_match(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
@@ -793,14 +790,28 @@ class BinomialSearchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set())
 
-    def test_search_by_query_almost_binomial(self):
-
+    def test_almost_binomial(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         s = 'ixora coccinea'  # matches Ixora, I.coccinea, P.coccinea
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([self.ixora, self.ic, self.pc]))
+
+    def test_cultivar_also_matched(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        from bauble.plugins.plants.species import Species
+        from bauble.plugins.plants.genus import Genus
+        g3 = self.session.query(Genus).filter(Genus.genus == u'Ixora').one()
+        sp5 = Species(sp=u"coccinea", genus=g3,
+                      infrasp1_rank=u'cv.', infrasp1=u'Nora Grant')
+        self.session.add_all([sp5])
+        self.session.commit()
+        s = 'Ixora coccinea'  # matches I.coccinea and Nora Grant
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.ic, sp5]))
 
 
 class QueryBuilderTests(BaubleTestCase):

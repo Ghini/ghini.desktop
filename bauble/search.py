@@ -356,11 +356,8 @@ class BinomialNameAction(object):
         from bauble.plugins.plants.species import Species
         result = search_strategy._session.query(Species).filter(
             Species.sp.startswith(self.species_epithet)).join(Genus).filter(
-            Genus.genus.startswith(self.genus_epithet)).first()
-        if result is None:
-            return set()
-        else:
-            return set([result])
+            Genus.genus.startswith(self.genus_epithet)).all()
+        return set(result)
 
 
 class DomainExpressionAction(object):
