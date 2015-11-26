@@ -352,12 +352,15 @@ class BinomialNameAction(object):
         return "%s %s" % (self.genus_epithet, self.species_epithet)
 
     def invoke(self, search_strategy):
-        from bauble.plugins.plants.species_model import Species
-        return set([Species.retrieve(
-            search_strategy._session,
-            {'epithet': self.species_epithet,
-             'ht-epithet': self.genus_epithet,
-             })])
+        from bauble.plugins.plants.genus import Genus
+        from bauble.plugins.plants.species import Species
+        result = search_strategy._session.query(Species).filter(
+            Species.sp.startswith(self.species_epithet)).join(Genus).filter(
+            Genus.genus.startswith(self.genus_epithet)).first()
+        if result is None:
+            return set()
+        else:
+            return set([result])
 
 
 class DomainExpressionAction(object):
