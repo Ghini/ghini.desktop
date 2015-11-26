@@ -477,7 +477,8 @@ class AddConnectionTests(BaubleTestCase):
         self.assertTrue(('widget_set_value', ['name_combo', 'new_conn', ()])
                         in presenter.view.invoked_detailed)
         print presenter.view.invoked_detailed
-        1/0
+        raise SkipTest("related to issue #194")
+
 
 class MockRenderer(dict):
     def set_property(self, property, value):
