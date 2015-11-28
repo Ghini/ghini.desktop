@@ -496,12 +496,12 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if self.dbtype == 'SQLite':
             self.filename = params['file']
             self.use_defaults = params['default']
-            self.pictureroot = params['pictures']
+            self.pictureroot = params.get('pictures', '')
         else:
             self.database = params['db']
             self.host = params['host']
             self.user = params['user']
-            self.pictureroot = params['pictures']
+            self.pictureroot = params.get('pictures', '')
             self.passwd = params['passwd']
         self.refresh_view()
 
