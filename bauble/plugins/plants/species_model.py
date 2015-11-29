@@ -403,7 +403,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         session = object_session(self)
         syn = session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == self.id).first()
-        accepted = syn and syn.family
+        accepted = syn and syn.species
         return accepted
 
     @accepted.setter
