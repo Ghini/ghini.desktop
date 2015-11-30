@@ -26,6 +26,9 @@ import weakref
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
     UnicodeText, func, and_, UniqueConstraint, String
 from sqlalchemy.orm import relation, backref, validates
@@ -195,7 +198,8 @@ class Family(db.Base, db.Serializable):
         return Family.str(self)
 
     @staticmethod
-    def str(family, qualifier=False):
+    def str(family, qualifier=False, author=False):
+        # author is not in the model but it really should
         if family.family is None:
             return db.Base.__repr__(family)
         else:
@@ -801,7 +805,24 @@ class SynonymsExpander(InfoExpander):
         syn_box.foreach(syn_box.remove)
         # use True comparison in case the preference isn't set
         self.set_expanded(prefs[self.expanded_pref] is True)
-        if len(row.synonyms) == 0:
+        logger.debug("family %s is synonym of %s and has synonyms %s" %
+                     (row, row.accepted, row.synonyms))
+        self.set_label(_("Synonyms"))  # reset default value
+        if row.accepted is not None:
+            self.set_label(_("Accepted name"))
+            on_clicked = lambda l, e, syn: select_in_search_results(syn)
+            # create clickable label that will select the synonym
+            # in the search results
+            box = gtk.EventBox()
+            label = gtk.Label()
+            label.set_alignment(0, .5)
+            label.set_markup(Family.str(row.accepted, author=True))
+            box.add(label)
+            utils.make_label_clickable(label, on_clicked, row.accepted)
+            syn_box.pack_start(box, expand=False, fill=False)
+            self.show_all()
+            self.set_sensitive(True)
+        elif len(row.synonyms) == 0:
             self.set_sensitive(False)
         else:
             on_clicked = lambda l, e, syn: select_in_search_results(syn)
