@@ -298,7 +298,7 @@ def create(import_defaults=True):
 
     """
 
-##    debug('entered db.create()')
+    logger.debug('entered db.create()')
     if not engine:
         raise ValueError('engine is None, not connected to a database')
     import bauble

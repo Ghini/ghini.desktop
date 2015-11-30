@@ -128,6 +128,7 @@ class PlantsPlugin(pluginmgr.Plugin):
             return
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
         filenames = [os.path.join(path, f) for f in 'family.txt',
+                     'family_synonym.txt',
                      'genus.txt', 'genus_synonym.txt', 'geography.txt',
                      'habit.txt']
 
