@@ -683,7 +683,6 @@
 682,"Calligonaceae"
 683,"Calochortaceae"
 684,"Calophyllaceae"
-685,"Clusiaceae"
 686,"Cambogiaceae"
 687,"Camelliaceae"
 688,"Campynemataceae"
