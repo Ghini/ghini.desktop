@@ -412,6 +412,12 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         assert isinstance(value, self.__class__)
         if self in value.synonyms:
             return
+        # remove any previous `accepted` link
+        from sqlalchemy.orm.session import object_session
+        session = object_session(self) or db.Session()
+        session.query(SpeciesSynonym).filter(
+            SpeciesSynonym.synonym_id == self.id).delete()
+        session.commit()
         value.synonyms.append(self)
 
     def has_accessions(self):

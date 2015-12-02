@@ -229,7 +229,7 @@ class Genus(db.Base, db.Serializable):
         if self in value.synonyms:
             return
         # remove any previous `accepted` link
-        session = db.Session()
+        session = object_session(self) or db.Session()
         session.query(GenusSynonym).filter(
             GenusSynonym.synonym_id == self.id).delete()
         session.commit()
