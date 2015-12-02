@@ -170,7 +170,7 @@ class PluginMgrTests(BaubleTestCase):
                     logger.error(e)
                     raise
                 from bauble.plugins.plants import Family
-                self.assert_(self.session.query(Family).count() == 511)
+                self.assertEquals(self.session.query(Family).count(), 1393)
         pluginmgr.plugins[Dummy.__name__] = Dummy
         pluginmgr.install([Dummy])
 
