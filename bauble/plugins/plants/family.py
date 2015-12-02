@@ -221,6 +221,11 @@ class Family(db.Base, db.Serializable):
         assert isinstance(value, self.__class__)
         if self in value.synonyms:
             return
+        # remove any previous `accepted` link
+        session = object_session(self) or db.Session()
+        session.query(FamilySynonym).filter(
+            FamilySynonym.synonym_id == self.id).delete()
+        session.commit()
         value.synonyms.append(self)
 
     def has_accessions(self):

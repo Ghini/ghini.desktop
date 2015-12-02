@@ -601,6 +601,7 @@ class Serializable:
             logger.debug('returning updated existing %s' % result)
             return result
 
+        logger.debug("going to create new %s with %s" % (cls, keys))
         result = cls(**keys)
         session.add(result)
         session.flush()
