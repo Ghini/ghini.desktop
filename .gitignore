@@ -37,3 +37,6 @@ cover/
 .pydevproject
 .settings/
 bauble/plugins/plants/default/ars-grin/?????.html
+bauble/plugins/plants/default/ars-grin/taxonomygenus.tar.gz
+bauble/plugins/plants/default/genera-conservanda-uniq.json
+bauble/plugins/plants/default/genera-conservanda.json
