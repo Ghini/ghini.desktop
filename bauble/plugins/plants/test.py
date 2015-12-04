@@ -38,7 +38,7 @@ from bauble.plugins.plants.family import (
 from bauble.plugins.plants.genus import \
     Genus, GenusSynonym, GenusEditor, GenusNote
 from bauble.plugins.plants.geography import Geography, get_species_in_geography
-from bauble.test import BaubleTestCase, check_dupids
+from bauble.test import BaubleTestCase, check_dupids, mockfunc
 
 from functools import partial
 
@@ -268,11 +268,6 @@ class PlantTestCase(BaubleTestCase):
 
     def tearDown(self):
         super(PlantTestCase, self).tearDown()
-
-
-def mockfunc(msg=None, name=None, caller=None, result=False):
-    caller.invoked.append((name, msg))
-    return result
 
 
 class FamilyTests(PlantTestCase):

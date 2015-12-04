@@ -115,7 +115,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
     def __init__(self, view=None):
         self.filename = self.database = self.host = self.user = \
-            self.pictureroot = self.connection_name = ''
+            self.pictureroot = self.connection_name = \
+            self.prev_connection_name = ''
         self.use_defaults = True
         self.passwd = False
         ## following two look like overkill, since they will be initialized
@@ -135,7 +136,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if self.connection_names:
             self.connection_name = prefs.prefs[bauble.conn_default_pref]
             if self.connection_name not in self.connections:
-                self.connection_name = self.connection_names[0]
+                self.prev_connection_name = \
+                    self.connection_name = self.connection_names[0]
             self.dbtype = None
             self.set_params()
         else:
@@ -187,9 +189,12 @@ class ConnMgrPresenter(GenericEditorPresenter):
         if conn_dict is None or len(conn_dict.keys()) == 0:
             self.view.widget_set_visible('noconnectionlabel', True)
             self.view.widget_set_visible('expander', False)
+            self.prev_connection_name = None
+            self.view.widget_set_sensitive('connect_button', False)
         else:
             self.view.widget_set_visible('expander', True)
             self.view.widget_set_visible('noconnectionlabel', False)
+            self.view.widget_set_sensitive('connect_button', True)
             if self.dbtype == 'SQLite':
                 self.view.widget_set_visible('sqlite_parambox', True)
                 self.view.widget_set_visible('dbms_parambox', False)
@@ -270,6 +275,12 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.view.combobox_set_active('name_combo', 0)
 
     def on_add_button_clicked(self, *args):
+        if not self.compare_prefs_to_saved(self.prev_connection_name):
+            msg = (_("Do you want to save your changes to %s ?")
+                   % self.prev_connection_name)
+            if self.view.run_yes_no_dialog(msg):
+                self.save_current_to_prefs()
+        self.prev_connection_name = None
         name = self.view.run_entry_dialog(
             _("Enter a connection name"),
             self.view.get_window(),
@@ -313,28 +324,30 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         the name changed so fill in everything else
         """
-        prev_connection_name = self.connection_name
+        logger.debug('on_name_combo_changing from %s to %s' %
+                     (self.prev_connection_name, self.connection_name))
 
         conn_dict = self.connections
-        if prev_connection_name is not None and \
-                prev_connection_name in self.connection_names:
+        if self.prev_connection_name is not None and \
+                self.prev_connection_name in self.connection_names:
             ## we are leaving some valid settings
-            if prev_connection_name not in conn_dict:
-                msg = _("Do you want to save %s?") % prev_connection_name
+            if self.prev_connection_name not in conn_dict:
+                msg = _("Do you want to save %s?") % self.prev_connection_name
                 if self.view.run_yes_no_dialog(msg):
                     self.save_current_to_prefs()
                 else:
-                    self.remove_connection(prev_connection_name)
-            elif not self.compare_prefs_to_saved(prev_connection_name):
+                    self.remove_connection(self.prev_connection_name)
+            elif not self.compare_prefs_to_saved(self.prev_connection_name):
                 msg = (_("Do you want to save your changes to %s ?")
-                       % prev_connection_name)
+                       % self.prev_connection_name)
                 if self.view.run_yes_no_dialog(msg):
                     self.save_current_to_prefs()
 
         if self.connection_names:
             self.on_combo_changed(combo, data)  # this updates connection_name
+        logger.debug('on_name_combo_changed %s' % self.connection_name)
         logger.debug("changing form >%s< to >%s<" %
-                     (prev_connection_name, self.connection_name))
+                     (self.prev_connection_name, self.connection_name))
 
         if self.connection_name in conn_dict:
             ## we are retrieving connection info from the global settings
@@ -350,6 +363,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:  # this is for new connections
             self.view.combobox_set_active('type_combo', 0)
         self.refresh_view()
+        self.prev_connection_name = self.connection_name
 
     def get_passwd(self, title=_("Enter your password"), before_main=False):
         """

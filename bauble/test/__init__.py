@@ -94,3 +94,8 @@ class BaubleTestCase(unittest.TestCase):
     if sys.version_info[:2] < (2, 7):
         def assertIsNone(self, item):
             self.assertTrue(item is None)
+
+
+def mockfunc(msg=None, name=None, caller=None, result=False):
+    caller.invoked.append((name, msg))
+    return result
