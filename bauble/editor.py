@@ -1088,8 +1088,9 @@ class GenericEditorPresenter(object):
 
     def on_relation_entry_changed(self, widget, value=None):
         attr = self.__get_widget_attr(widget)
-        logger.debug('calling unimplemented on_relation_entry_changed(%s, %s)'
-                     % (widget, attr))
+        logger.debug(
+            'calling unimplemented on_relation_entry_changed(%s, %s, %s(%s))'
+            % (widget, attr, type(value), value))
 
     def on_group_changed(self, widget, *args):
         "handle group-changed signal on radio-button"
@@ -1347,6 +1348,8 @@ class GenericEditorPresenter(object):
         :param on_select: callback for when a value is selected from
           the list of completions
         """
+
+        logger.debug('assign_completions_handler %s' % widget)
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
         PROBLEM = hash(gtk.Buildable.get_name(widget))
@@ -1373,6 +1376,8 @@ class GenericEditorPresenter(object):
             gobject.idle_add(idle_callback, values)
 
         def on_changed(entry, *args):
+            logger.debug('assign_completions_handler::on_changed %s %s'
+                         % (entry, args))
             text = entry.get_text()
             comp = entry.get_completion()
             comp_model = comp.get_model()
@@ -1406,6 +1411,12 @@ class GenericEditorPresenter(object):
             # if entry is empty select nothing and remove all problem
             if text == '':
                 on_select(None)
+                self.remove_problem(PROBLEM, widget)
+            elif not comp_model:
+                ## completion model is not in place when object is forced
+                ## programmatically.
+                on_select(text)  # `on_select` will know how to convert the
+                                 # text into a properly typed value.
                 self.remove_problem(PROBLEM, widget)
 
             return True
