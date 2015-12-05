@@ -45,6 +45,7 @@ import bauble.utils as utils
 import bauble.btypes as types
 import bauble.view as view
 import bauble.paths as paths
+from types import StringTypes
 
 
 def coll_markup_func(coll):
@@ -819,6 +820,9 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             return query
 
         def on_select(value):
+            logger.debug('on select: %s' % value)
+            if isinstance(value, StringTypes):
+                return
             # populate the propagation browser
             treeview = self.view.widgets.source_prop_treeview
             if not value:

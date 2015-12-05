@@ -62,6 +62,7 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
 from bauble.search import SearchStrategy
+from types import StringTypes
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -1731,6 +1732,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 order_by(Species.sp)
 
         def on_select(value):
+            logger.debug('on select: %s' % value)
+            if isinstance(value, StringTypes):
+                value = Species.retrieve(
+                    self.session, {'species': value})
             def set_model(v):
                 self.set_model_attr('species', v)
                 self.refresh_id_qual_rank_combo()

@@ -35,6 +35,7 @@ import weakref
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
+from types import StringTypes
 import bauble
 from bauble.i18n import _
 from bauble.prefs import prefs
@@ -123,16 +124,20 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # called when a genus is selected from the genus completions
         def on_select(value):
-            #debug('on select: %s' % value)
+            logger.debug('on select: %s' % value)
+            if isinstance(value, StringTypes):
+                value = self.session.query(Genus).filter(
+                    Genus.genus == value).first()
             for kid in self.view.widgets.message_box_parent.get_children():
                 self.view.widgets.remove_parent(kid)
             self.set_model_attr('genus', value)
-            if value:
-                ## is value considered a synonym?
-                syn = self.session.query(GenusSynonym).filter(
-                    GenusSynonym.synonym_id == value.id).first()
-            if not value or not syn:
-                ## no value or value is not a synonym: fine
+            if not value:  # no choice is a fine choice
+                return
+            ## is value considered a synonym?
+            syn = self.session.query(GenusSynonym).filter(
+                GenusSynonym.synonym_id == value.id).first()
+            if not syn:
+                # chosen value is not a synonym, also fine
                 return
 
             ## value is a synonym: user alert needed
@@ -145,9 +150,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             def on_response(button, response):
                 self.view.remove_box(box)
                 if response:
-                    self.view.widgets.sp_genus_entry.\
-                        set_text(utils.utf8(syn.genus))
                     self.set_model_attr('genus', syn.genus)
+                    self.refresh_view()
+                    self.refresh_fullname_label()
                 else:
                     self.set_model_attr('genus', value)
             box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
@@ -155,6 +160,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             box.on_response = on_response
             box.show()
             self.view.add_box(box)
+
+        on_select(self.model.genus)
 
         self.assign_completions_handler('sp_genus_entry',  # 'genus',
                                         gen_get_completions,
@@ -337,9 +344,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 value = self.model.genus
             else:
                 value = getattr(self.model, field)
-#            debug('%s, %s, %s' % (widget, field, value))
-#            self.view.widget_set_value(widget, value,
-#                                       default=self.defaults.get(field, None))
+            logger.debug('%s, %s, %s(%s)'
+                         % (widget, field, type(value), value))
             self.view.widget_set_value(widget, value)
 
         utils.set_widget_value(self.view.widgets.sp_habit_comboentry,
