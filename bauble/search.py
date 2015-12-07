@@ -665,6 +665,8 @@ class MapperSearch(SearchStrategy):
         self._results.clear()
         results = self.parser.parse_string(text.decode())
         self._results.update(results.statement.invoke(self))
+        logger.debug('search returns %s(%s)'
+                     % (type(self._results), self._results))
 
         # these _results get filled in when the parse actions are called
         return self._results
