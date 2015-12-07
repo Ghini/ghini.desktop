@@ -168,23 +168,24 @@ class IdentExpressionToken(object):
 
         # cfr: SearchParser.binop
         # = == != <> < <= > >= not like contains has ilike icontains ihas is
-        self.operation = {'=': lambda x, y: x == y,
-                          '==': lambda x, y: x == y,
-                          'is': lambda x, y: x == y,
-                          '!=': lambda x, y: x != y,
-                          '<>': lambda x, y: x != y,
-                          'not': lambda x, y: x != y,
-                          '<': lambda x, y: x < y,
-                          '<=': lambda x, y: x <= y,
-                          '>': lambda x, y: x > y,
-                          '>=': lambda x, y: x >= y,
-                          'like': lambda x, y: utils.ilike(x, '%s' % y),
-                          'contains': not_implemented_yet,
-                          'has': not_implemented_yet,
-                          'ilike': lambda x, y: utils.ilike(x, '%s' % y),
-                          'icontains': not_implemented_yet,
-                          'ihas': not_implemented_yet,
-                          }[self.op]
+        self.operation = {
+            '=': lambda x, y: x == y,
+            '==': lambda x, y: x == y,
+            'is': lambda x, y: x == y,
+            '!=': lambda x, y: x != y,
+            '<>': lambda x, y: x != y,
+            'not': lambda x, y: x != y,
+            '<': lambda x, y: x < y,
+            '<=': lambda x, y: x <= y,
+            '>': lambda x, y: x > y,
+            '>=': lambda x, y: x >= y,
+            'like': lambda x, y: utils.ilike(x, '%s' % y),
+            'contains': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'has': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'ilike': lambda x, y: utils.ilike(x, '%s' % y),
+            'icontains': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'ihas': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            }[self.op]
         self.operands = t[0][0::2]  # every second object is an operand
 
     def __repr__(self):
@@ -883,8 +884,7 @@ class ExpressionRow(object):
         self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
-        conditions = ['=', '!=', '<', '<=', '>', '>=', 'is', 'not', 'like',
-                      'ilike']
+        conditions = ['=', '!=', '<', '<=', '>', '>=', 'like', 'contains']
         map(self.cond_combo.append_text, conditions)
         self.cond_combo.set_active(0)
         self.table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
