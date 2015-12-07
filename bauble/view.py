@@ -781,7 +781,8 @@ class SearchView(pluginmgr.View):
             logger.debug(traceback.format_exc())
             return True
         else:
-            self.append_children(model, treeiter, kids)
+            self.append_children(
+                model, treeiter, sorted(kids, key=utils.natsort_key))
             return False
 
     def populate_results(self, results, check_for_kids=False):
