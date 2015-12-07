@@ -130,7 +130,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         view.combobox_init('type_combo', dbtypes, type_combo_cell_data_func)
         self.connection_names = []
         self.connections = prefs.prefs[bauble.conn_list_pref] or {}
-        for ith_connection_name in self.connections:
+        for ith_connection_name in sorted(self.connections):
             view.combobox_append_text('name_combo', ith_connection_name)
             self.connection_names.append(ith_connection_name)
         if self.connection_names:
