@@ -853,7 +853,7 @@ class SourceTests(GardenTestCase):
         self.accession.source = None  # tests the accessions source
         self.session.commit()
 
-        # the Colection and Propagation should be
+        # the Collection and Propagation should be
         # deleted since they are specific to the source
         self.assert_(not self.session.query(Collection).get(coll_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
