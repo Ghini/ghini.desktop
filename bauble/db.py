@@ -474,6 +474,7 @@ class DefiningPictures:
                 pixbuf = gtk.gdk.pixbuf_new_from_file(
                     os.path.join(prefs.prefs[prefs.picture_root_pref],
                                  filename))
+                pixbuf = pixbuf.apply_embedded_orientation()
                 scale_x = pixbuf.get_width() / 400
                 scale_y = pixbuf.get_height() / 400
                 scale = max(scale_x, scale_y, 1)

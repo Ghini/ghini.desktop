@@ -1775,6 +1775,7 @@ class PictureBox(NoteBox):
                     pixbuf = gtk.gdk.pixbuf_new_from_file(thumbname)
                 else:
                     fullbuf = gtk.gdk.pixbuf_new_from_file(filename)
+                    fullbuf = fullbuf.apply_embedded_orientation()
                     scale_x = fullbuf.get_width() / 400.0
                     scale_y = fullbuf.get_height() / 400.0
                     scale = max(scale_x, scale_y, 1)
