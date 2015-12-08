@@ -453,6 +453,11 @@ class AccessionNote(db.Base, db.Serializable):
         'Accession', uselist=False,
         backref=backref('notes', cascade='all, delete-orphan'))
 
+    def as_dict(self):
+        result = db.Serializable.as_dict(self)
+        result['accession'] = self.accession.code
+        return result
+
     @classmethod
     def retrieve(cls, session, keys):
         q = session.query(cls)
