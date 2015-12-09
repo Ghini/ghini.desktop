@@ -716,7 +716,7 @@ class Accession(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = str(self.species)
+        result['species'] = self.species.str(self.species, remove_zws=True)
         return result
 
     @classmethod

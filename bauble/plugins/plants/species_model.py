@@ -36,6 +36,13 @@ import bauble.btypes as types
 from bauble.i18n import _
 
 
+def _remove_zws(s):
+    "remove_zero_width_space"
+    if s:
+        return s.replace(u'\u200b', '')
+    return s
+
+
 class VNList(list):
     """
     A Collection class for Species.vernacular_names
@@ -313,7 +320,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
     hybrid_char = utils.utf8(u'\u2a09')  # U+2A09
 
     @staticmethod
-    def str(species, authors=False, markup=False):
+    def str(species, authors=False, markup=False, remove_zws=False):
         '''
         returns a string for species
 
@@ -327,16 +334,19 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         # since it won't be able to look up the genus....we could
         # probably try to query the genus directly with the genus_id
         genus = str(species.genus)
-        sp = species.sp
+        if species.sp:
+            sp = u'\u200b' + species.sp  # prepend with zero_width_space
+        else:
+            sp = species.sp
         sp2 = species.sp2
         if markup:
             escape = utils.xml_safe
             italicize = lambda s: u'<i>%s</i>' % escape(s)
             genus = italicize(genus)
             if sp is not None:
-                sp = italicize(species.sp)
+                sp = italicize(sp)
             if sp2 is not None:
-                sp2 = italicize(species.sp2)
+                sp2 = italicize(sp2)
         else:
             italicize = escape = lambda x: x
 
@@ -376,12 +386,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
             infrasp_parts.append(_("%(group)s Group") %
                                  dict(group=species.cv_group))
 
-        # make sure a species with empty epithet but with infraspecific
-        # parts will be placed at the end of the genus list, not somewhere
-        # in the middle.
-        if infrasp_parts:
-            infrasp_parts = [u"\u200b" + infrasp_parts[0]] + infrasp_parts[1:]
-
         # create the binomial part
         binomial = []
         if species.hybrid:
@@ -399,6 +403,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
 
         parts = chain(binomial, infrasp_parts, tail)
         s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
+        if remove_zws:
+            return _remove_zws(s)
         return s
 
     @property
@@ -526,7 +532,7 @@ class SpeciesNote(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = str(self.species)
+        result['species'] = self.species.str(self.species, remove_zws=True)
         return result
 
     @classmethod
@@ -617,7 +623,7 @@ class VernacularName(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = str(self.species)
+        result['species'] = self.species.str(self.species, remove_zws=True)
         return result
 
     @classmethod

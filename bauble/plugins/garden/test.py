@@ -54,6 +54,8 @@ import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution, InstitutionEditor
 import bauble.prefs as prefs
 
+from bauble.plugins.plants.species_model import _remove_zws as remove_zws
+
 
 accession_test_data = ({'id': 1, 'code': u'2001.1', 'species_id': 1},
                        {'id': 2, 'code': u'2001.2', 'species_id': 2,
@@ -887,25 +889,25 @@ class AccessionTests(GardenTestCase):
         acc = self.create(Accession, species=self.species, code=u'1')
         s = u'Echinocactus grusonii'
         sp_str = acc.species_str()
-        self.assertEquals(sp_str, s)
+        self.assertEquals(remove_zws(sp_str), s)
 
         acc.id_qual = '?'
         s = u'Echinocactus grusonii(?)'
         sp_str = acc.species_str()
-        self.assertEquals(sp_str, s)
+        self.assertEquals(remove_zws(sp_str), s)
 
         acc.id_qual = 'aff.'
         acc.id_qual_rank = u'sp'
         s = u'Echinocactus aff. grusonii'
         sp_str = acc.species_str()
-        self.assertEquals(sp_str, s)
+        self.assertEquals(remove_zws(sp_str), s)
 
         # here species.infrasp is None but we still allow the string
         acc.id_qual = 'cf.'
         acc.id_qual_rank = 'infrasp'
         s = u'Echinocactus grusonii cf.'  # ' None'
         sp_str = acc.species_str()
-        self.assertEquals(sp_str, s)
+        self.assertEquals(remove_zws(sp_str), s)
 
         # species.infrasp is still none but these just get pasted on
         # the end so it doesn't matter
@@ -913,20 +915,20 @@ class AccessionTests(GardenTestCase):
         acc.id_qual_rank = 'infrasp'
         s = u'Echinocactus grusonii(incorrect)'
         sp_str = acc.species_str()
-        self.assertEquals(sp_str, s)
+        self.assertEquals(remove_zws(sp_str), s)
 
         acc.id_qual = 'forsan'
         acc.id_qual_rank = u'sp'
         s = u'Echinocactus grusonii(forsan)'
         sp_str = acc.species_str()
-        self.assertEquals(sp_str, s)
+        self.assertEquals(remove_zws(sp_str), s)
 
         acc.species.set_infrasp(1, u'cv.', u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
-        s = u"Echinocactus grusonii cf. \u200b'Cultivar'"
+        s = u"Echinocactus grusonii cf. 'Cultivar'"
         sp_str = acc.species_str()
-        self.assertEquals(sp_str, s)
+        self.assertEquals(remove_zws(sp_str), s)
 
         # test that the cached string is returned
 
