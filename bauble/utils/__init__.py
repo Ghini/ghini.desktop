@@ -752,11 +752,11 @@ def natsort_key(obj):
     a key getter for sort and sorted function
 
     the sorting is done on return value of obj.__str__() so we can sort
-    objects as well, i don't know if this will cause problems with unicode
+    generic objects as well.
 
     use like: sorted(some_list, key=utils.natsort_key)
     """
-    # TODO: what happens with natsort and unicode characters
+
     item = str(obj)
     chunks = __natsort_rx.split(item)
     for ii in range(len(chunks)):

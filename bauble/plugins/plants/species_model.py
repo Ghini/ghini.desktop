@@ -338,8 +338,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
             if sp2 is not None:
                 sp2 = italicize(species.sp2)
         else:
-            italicize = lambda s: u'%s' % s
-            escape = lambda x: x
+            italicize = escape = lambda x: x
 
         author = None
         if authors and species.sp_author:
@@ -377,6 +376,12 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
             infrasp_parts.append(_("%(group)s Group") %
                                  dict(group=species.cv_group))
 
+        # make sure a species with empty epithet but with infraspecific
+        # parts will be placed at the end of the genus list, not somewhere
+        # in the middle.
+        if infrasp_parts:
+            infrasp_parts = [u"\u200b" + infrasp_parts[0]] + infrasp_parts[1:]
+
         # create the binomial part
         binomial = []
         if species.hybrid:
@@ -387,7 +392,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         else:
             binomial = [genus, sp, sp2, author]
 
-        # create the tail a.k.a think to add on to the end
+        # create the tail, ie: anything to add on to the end
         tail = []
         if species.sp_qual:
             tail = [species.sp_qual]

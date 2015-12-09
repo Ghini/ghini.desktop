@@ -887,24 +887,25 @@ class AccessionTests(GardenTestCase):
         acc = self.create(Accession, species=self.species, code=u'1')
         s = u'Echinocactus grusonii'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        self.assertEquals(sp_str, s)
+
         acc.id_qual = '?'
         s = u'Echinocactus grusonii(?)'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        self.assertEquals(sp_str, s)
 
         acc.id_qual = 'aff.'
         acc.id_qual_rank = u'sp'
         s = u'Echinocactus aff. grusonii'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        self.assertEquals(sp_str, s)
 
         # here species.infrasp is None but we still allow the string
         acc.id_qual = 'cf.'
         acc.id_qual_rank = 'infrasp'
         s = u'Echinocactus grusonii cf.'  # ' None'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        self.assertEquals(sp_str, s)
 
         # species.infrasp is still none but these just get pasted on
         # the end so it doesn't matter
@@ -912,20 +913,20 @@ class AccessionTests(GardenTestCase):
         acc.id_qual_rank = 'infrasp'
         s = u'Echinocactus grusonii(incorrect)'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        self.assertEquals(sp_str, s)
 
         acc.id_qual = 'forsan'
         acc.id_qual_rank = u'sp'
         s = u'Echinocactus grusonii(forsan)'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        self.assertEquals(sp_str, s)
 
         acc.species.set_infrasp(1, u'cv.', u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
-        s = u"Echinocactus grusonii cf. 'Cultivar'"
+        s = u"Echinocactus grusonii cf. \u200b'Cultivar'"
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        self.assertEquals(sp_str, s)
 
         # test that the cached string is returned
 
@@ -933,8 +934,7 @@ class AccessionTests(GardenTestCase):
         # on dirty species
         self.session.commit()
         s2 = acc.species_str()
-        assert id(sp_str) == id(s2), '%s(%s) == %s(%s)' % (sp_str, id(sp_str),
-                                                           s2, id(s2))
+        self.assertEquals(id(sp_str), id(s2))
 
         # this used to test that if the id_qual was set but the
         # id_qual_rank wasn't then we would get an error. now we just
