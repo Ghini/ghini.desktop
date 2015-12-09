@@ -60,6 +60,9 @@ logging.basicConfig()
 
 # TODO: create some scenarios that should fail
 
+
+from bauble.plugins.plants.species_model import _remove_zws as remove_zws
+
 if sys.platform == 'win32':
     # on windows the hybrid char is set to 'x'in PlantPlugin.init but
     # these strings are initialized before init is called so we set it
@@ -752,10 +755,6 @@ class SpeciesTests(PlantTestCase):
         def get_sp_str(id, **kwargs):
             return Species.str(self.session.query(Species).get(id), **kwargs)
 
-        def remove_zws(s):
-            "remove_zero_width_space"
-            return ''.join(i for i in s if i != u'\u200b')
-
         for sid, expect in species_str_map.iteritems():
                 sp = self.session.query(Species).get(sid)
                 printable_name = remove_zws("%s" % sp)
@@ -775,17 +774,16 @@ class SpeciesTests(PlantTestCase):
             spstr = get_sp_str(sid, markup=True, authors=True)
             self.assertEquals(remove_zws(spstr), expect)
 
-    def test_lexicographic_order__unspecified_follow_specified(self):
-        "should really be first unspecified then specified, it's the opposite"
+    def test_lexicographic_order__unspecified_precedes_specified(self):
         def get_sp_str(id, **kwargs):
             return Species.str(self.session.query(Species).get(id), **kwargs)
 
-        self.assertTrue(get_sp_str(1) < get_sp_str(22))
-        self.assertTrue(get_sp_str(1) < get_sp_str(23))
-        self.assertTrue(get_sp_str(1) < get_sp_str(24))
-        self.assertTrue(get_sp_str(16) < get_sp_str(22))
-        self.assertTrue(get_sp_str(16) < get_sp_str(23))
-        self.assertTrue(get_sp_str(16) < get_sp_str(24))
+        self.assertTrue(get_sp_str(1) > get_sp_str(22))
+        self.assertTrue(get_sp_str(1) > get_sp_str(23))
+        self.assertTrue(get_sp_str(1) > get_sp_str(24))
+        self.assertTrue(get_sp_str(16) > get_sp_str(22))
+        self.assertTrue(get_sp_str(16) > get_sp_str(23))
+        self.assertTrue(get_sp_str(16) > get_sp_str(24))
 
     # def test_dirty_string(self):
     #     """
@@ -1481,10 +1479,10 @@ class GlobalFunctionsTest(PlantTestCase):
                            'epithet': u'lobata'},
             create=False, update=False)
         first, second = species_markup_func(eCo)
-        self.assertEquals(first, u'<i>Maxillaria</i> <i>variabilis</i>')
+        self.assertEquals(remove_zws(first), u'<i>Maxillaria</i> <i>variabilis</i>')
         self.assertEquals(second, u'Orchidaceae -- SomeName, SomeName 2')
         first, second = species_markup_func(model)
-        self.assertEquals(first, u'<i>Laelia</i> <i>lobata</i>')
+        self.assertEquals(remove_zws(first), u'<i>Laelia</i> <i>lobata</i>')
         self.assertEquals(second, u'Orchidaceae')
 
     def test_species_markup_func_none(self):
@@ -1495,7 +1493,7 @@ class GlobalFunctionsTest(PlantTestCase):
     def test_vername_markup_func(self):
         vName = self.session.query(VernacularName).filter_by(id=1).one()
         first, second = vernname_markup_func(vName)
-        self.assertEquals(second, u'<i>Maxillaria</i> <i>variabilis</i>')
+        self.assertEquals(remove_zws(second), u'<i>Maxillaria</i> <i>variabilis</i>')
         self.assertEquals(first, u'SomeName')
 
     def test_species_get_kids(self):

@@ -496,9 +496,9 @@ class JSONExportTests(BaubleTestCase):
             {"accession": "2015.0003", "code": "1", "location": "1",
              "memorial": False, "object": "plant", "quantity": 1}]
         for o1 in result:
-            self.assertTrue(o1 in target)
+            self.assertTrue(o1 in target, o1)
         for o2 in target:
-            self.assertTrue(o1 in result)
+            self.assertTrue(o1 in result, o2)
 
     def test_when_selection_huge_ask(self):
         view = MockView()
