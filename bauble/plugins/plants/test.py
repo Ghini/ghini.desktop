@@ -144,6 +144,12 @@ species_test_data = (
     {'id': 19, 'genus_id': 6, 'sp': u'grandiflora', 'author': u'Lindl.'},
     {'id': 20, 'genus_id': 2, 'sp': u'fragrans', 'author': u'Dressler'},
     {'id': 21, 'genus_id': 7, 'sp': u'arborea', 'author': u'Lagerh.'},
+    {'id': 22, 'sp': u'', 'genus_id': 1, 'sp_author': u'',
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Layla Saida'},
+    {'id': 23, 'sp': u'', 'genus_id': 1, 'sp_author': u'',
+     'infrasp1_rank': u'cv.', 'infrasp1': u'Buonanotte'},
+    {'id': 24, 'sp': u'', 'genus_id': 1, 'sp_author': u'',
+     'infrasp1_rank': None, 'infrasp1': u'sp'},
     )
 
 species_note_test_data = (
@@ -746,27 +752,40 @@ class SpeciesTests(PlantTestCase):
         def get_sp_str(id, **kwargs):
             return Species.str(self.session.query(Species).get(id), **kwargs)
 
-        for sid, s in species_str_map.iteritems():
+        def remove_zws(s):
+            "remove_zero_width_space"
+            return ''.join(i for i in s if i != u'\u200b')
+
+        for sid, expect in species_str_map.iteritems():
                 sp = self.session.query(Species).get(sid)
-                self.assertEquals(species_str_map[sid], "%s" % sp)
+                printable_name = remove_zws("%s" % sp)
+                self.assertEquals(species_str_map[sid], printable_name)
                 spstr = get_sp_str(sid)
-                self.assert_(spstr == s,
-                             '"%s" != "%s" ** %s' % (spstr, s, unicode(spstr)))
+                self.assertEquals(remove_zws(spstr), expect)
 
-        for sid, s in species_str_authors_map.iteritems():
+        for sid, expect in species_str_authors_map.iteritems():
             spstr = get_sp_str(sid, authors=True)
-            self.assert_(spstr == s,
-                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
+            self.assertEquals(remove_zws(spstr), expect)
 
-        for sid, s in species_markup_map.iteritems():
+        for sid, expect in species_markup_map.iteritems():
             spstr = get_sp_str(sid, markup=True)
-            self.assert_(spstr == s,
-                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
+            self.assertEquals(remove_zws(spstr), expect)
 
-        for sid, s in species_markup_authors_map.iteritems():
+        for sid, expect in species_markup_authors_map.iteritems():
             spstr = get_sp_str(sid, markup=True, authors=True)
-            self.assert_(spstr == s,
-                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
+            self.assertEquals(remove_zws(spstr), expect)
+
+    def test_lexicographic_order__unspecified_follow_specified(self):
+        "should really be first unspecified then specified, it's the opposite"
+        def get_sp_str(id, **kwargs):
+            return Species.str(self.session.query(Species).get(id), **kwargs)
+
+        self.assertTrue(get_sp_str(1) < get_sp_str(22))
+        self.assertTrue(get_sp_str(1) < get_sp_str(23))
+        self.assertTrue(get_sp_str(1) < get_sp_str(24))
+        self.assertTrue(get_sp_str(16) < get_sp_str(22))
+        self.assertTrue(get_sp_str(16) < get_sp_str(23))
+        self.assertTrue(get_sp_str(16) < get_sp_str(24))
 
     # def test_dirty_string(self):
     #     """
