@@ -310,7 +310,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 msg = _("This binomial name is already in your collection"
                         ", as %s.\n\n"
                         "Are you sure you want to insert it again?") % \
-                    Species.str(omonym, authors=True)
+                    Species.str(omonym, authors=True, markup=True)
 
                 def on_response(button, response):
                     self.view.remove_box(self.omonym_box)
