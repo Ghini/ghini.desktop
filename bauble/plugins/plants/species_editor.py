@@ -69,6 +69,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
         self._dirty = False
         self.omonym_box = None
+        self.species_space = False  # do not accept spaces in epithet
         self.init_fullname_widgets()
         self.vern_presenter = VernacularNamePresenter(self)
         self.synonyms_presenter = SynonymsPresenter(self)
@@ -264,14 +265,20 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # get position from entry, can't trust position parameter
         position = entry.get_position()
-        result = text.replace(' ', '')
-        if result != '':
+        if text.count(u'×'):
+            self.species_space = True
+        if text.count(u'*'):
+            self.species_space = True
+            text = text.replace(u'*', u" × ")
+        if self.species_space is False:
+            text = text.replace(' ', '')
+        if text != '':
             # Insert the text at cursor (block handler to avoid recursion).
             entry.handler_block_by_func(self.on_sp_species_entry_insert_text)
-            entry.insert_text(result, position)
+            entry.insert_text(text, position)
             entry.handler_unblock_by_func(self.on_sp_species_entry_insert_text)
             # Set the new cursor position immediately after the inserted text.
-            new_pos = position + len(result)
+            new_pos = position + len(text)
             # Can't modify the cursor position from within this handler,
             # so we add it to be done at the end of the main loop:
             gobject.idle_add(entry.set_position, new_pos)
