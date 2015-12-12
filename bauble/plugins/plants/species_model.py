@@ -341,7 +341,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         sp2 = species.sp2
         if markup:
             escape = utils.xml_safe
-            italicize = lambda s: u'<i>%s</i>' % escape(s)
+            italicize = lambda s: (  # all but the multiplication signs
+                u'<i>%s</i>' % escape(s).replace(u'×', u'</i>×<i>'))
             genus = italicize(genus)
             if sp is not None:
                 sp = italicize(sp)
