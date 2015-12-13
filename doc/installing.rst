@@ -223,6 +223,16 @@ the installation steps on Windows:
    you can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
 
+#. the last installation step creates the Bauble group and shortcuts in the
+   Windows Start Menu, for all users. To do so, you need run a script with
+   administrative rights. The script is called ``devinstall-finalize.bat``,
+   it is right in your HOME folder, and has been created at the previous
+   step.
+
+   right-click on it, select run as administrator, confirm you want it to
+   make changes to your computer. These changes are in the Start Menu only:
+   create the Bauble group, place the Bauble shortcut.
+
 #. download the batch file you will use to stay up-to-date with the
    production line you chose to follow::
 
@@ -234,12 +244,6 @@ the installation steps on Windows:
 
    any time you want to update your installation, just start the command
    prompt and run ``bauble-update.bat``
-
-#. you can now start bauble using the ``bauble.lnk`` shortcut that the
-   installation procedure copies to the ``Scripts`` directory of the virtual
-   environment::
-
-    %HOMEDRIVE%%HOMEPATH%\.virtualenv\bacl\Scripts\bauble.lnk
 
 If you would like to generate and print PDF reports using Bauble's
 default report generator then you will need to download and install
