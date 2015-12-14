@@ -51,7 +51,7 @@ from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
-from bauble.plugins.garden.institution import Institution, InstitutionEditor
+from bauble.plugins.garden.institution import Institution, InstitutionPresenter
 import bauble.prefs as prefs
 
 from bauble.meta import BaubleMeta
@@ -1276,6 +1276,24 @@ class InstitutionTests(GardenTestCase):
             utils.ilike(BaubleMeta.name, 'inst_%')).all()
         self.assertEquals(len(fieldObjects), 9)
 
+    def test_init__always_initialized(self):
+        o = Institution()
+        o.inst_name = 'Fictive'
+        o.write()
+        u = Institution()
+        self.assertEquals(u.inst_name, u'Fictive')
+        o.inst_name = 'Bauble'
+        o.write()
+        u = Institution()
+        self.assertEquals(u.inst_name, u'Bauble')
+
+    def test_init__has_all_attributes(self):
+        o = Institution()
+        for a in ('inst_name', 'inst_abbreviation', 'inst_code',
+                  'inst_contact', 'inst_technical_contact', 'inst_email',
+                  'inst_tel', 'inst_fax', 'inst_address'):
+            self.assertTrue(hasattr(o, a))
+
     def test_write__None_stays_None(self):
         o = Institution()
         o.inst_name = 'Bauble'
@@ -1292,7 +1310,12 @@ class InstitutionTests(GardenTestCase):
 
 
 class InstitutionPresenterTests(GardenTestCase):
-    pass
+    def test_can_create_presenter(self):
+        from bauble.editor import MockView
+        view = MockView()
+        o = Institution()
+        presenter = InstitutionPresenter(o, view)
+        self.assertEquals(presenter.view, view)
 
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
