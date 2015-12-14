@@ -1015,7 +1015,13 @@ class GenericEditorPresenter(object):
         return self.widget_to_field_map.get(self.__get_widget_name(widget))
 
     def on_textbuffer_changed(self, widget, value=None, attr=None):
-        "handle 'changed' signal on textbuffer widgets."
+        """handle 'changed' signal on textbuffer widgets.
+
+        this will not work directly. check the unanswered question
+        http://stackoverflow.com/questions/32106765/
+
+        to use it, you need pass the `attr` yourself.
+        """
 
         if attr is None:
             attr = self.__get_widget_attr(widget)
