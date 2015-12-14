@@ -54,6 +54,8 @@ import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution, InstitutionEditor
 import bauble.prefs as prefs
 
+from bauble.meta import BaubleMeta
+
 from bauble.plugins.plants.species_model import _remove_zws as remove_zws
 
 
@@ -1256,13 +1258,41 @@ class LocationTests(GardenTestCase):
 
 class InstitutionTests(GardenTestCase):
 
-    # TODO: create a non interactive tests that starts the
-    # InstututionEditor and checks that it doesn't leak memory
+    def test_init__9_props(self):
+        o = Institution()
+        o.inst_name = 'Bauble'
+        o.write()
+        fields = self.session.query(BaubleMeta).filter(
+            utils.ilike(BaubleMeta.name, 'inst_%')).all()
+        self.assertEquals(len(fields), 9)  # 9 props define the institution
 
-    def test_editor(self):
-        raise SkipTest('separate view from presenter, then test presenter')
-        e = InstitutionEditor()
-        e.start()
+    def test_init__one_institution(self):
+        o = Institution()
+        o.inst_name = 'Fictive'
+        o.write()
+        o.inst_name = 'Bauble'
+        o.write()
+        fieldObjects = self.session.query(BaubleMeta).filter(
+            utils.ilike(BaubleMeta.name, 'inst_%')).all()
+        self.assertEquals(len(fieldObjects), 9)
+
+    def test_write__None_stays_None(self):
+        o = Institution()
+        o.inst_name = 'Bauble'
+        o.inst_email = 'bauble@anche.no'
+        o.write()
+        fieldObjects = self.session.query(BaubleMeta).filter(
+            utils.ilike(BaubleMeta.name, 'inst_%')).all()
+        fields = dict((i.name[5:], i.value)
+                      for i in fieldObjects
+                      if i.value is not None)
+        self.assertEquals(fields['name'], u'Bauble')
+        self.assertEquals(fields['email'], u'bauble@anche.no')
+        self.assertEquals(len(fields), 2)
+
+
+class InstitutionPresenterTests(GardenTestCase):
+    pass
 
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
