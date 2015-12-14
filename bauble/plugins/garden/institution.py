@@ -26,6 +26,9 @@ import os
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 import bauble.editor as editor
 import bauble.meta as meta
 import bauble.paths as paths
@@ -75,45 +78,15 @@ class Institution(object):
             # and do an insert and then catching the exception if it exists
             # and then updating the value is too slow
             if not row:
-                #debug('insert: %s = %s' % (prop, value))
+                logger.debug('insert: %s = %s' % (prop, value))
                 self.table.insert().execute(name=prop, value=value)
             else:
-                #debug('update: %s = %s' % (prop, value))
+                logger.debug('update: %s = %s' % (prop, value))
                 self.table.update(
                     self.table.c.name == prop).execute(value=value)
 
 
-class InstitutionEditorView(editor.GenericEditorView):
-
-    _tooltips = {'inst_name': _('The full name of the institution.'),
-                 'inst_abbr': _('The standard abbreviation of the '
-                                'institution.'),
-                 'inst_code': _('The intitution code should be unique among '
-                                'all institions.'),
-                 'inst_contact': _('The name of the person to contact for '
-                                   'information related to the institution.'),
-                 'inst_tech': _('The email address or phone number of the '
-                                'person to contact for technical '
-                                'information related to the institution.'),
-                 'inst_email': _('The email address of the institution.'),
-                 'inst_tel': _('The telephone number of the institution.'),
-                 'inst_fax': _('The fax number of the institution.'),
-                 'inst_addr': _('The mailing address of the institition.')
-                 }
-
-    def __init__(self, parent=None):
-        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                'institution.glade')
-        super(InstitutionEditorView, self).__init__(filename, parent=parent)
-
-    def get_window(self):
-        return self.widgets.inst_dialog
-
-    def start(self):
-        return self.get_window().run()
-
-
-class InstitutionEditorPresenter(editor.GenericEditorPresenter):
+class InstitutionPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'inst_name': 'inst_name',
                            'inst_abbr': 'inst_abbreviation',
@@ -123,43 +96,59 @@ class InstitutionEditorPresenter(editor.GenericEditorPresenter):
                            'inst_email': 'inst_email',
                            'inst_tel': 'inst_tel',
                            'inst_fax': 'inst_fax',
-                           'inst_addr': 'inst_address'
+                           'inst_addr_tb': 'inst_address'
                            }
 
     def __init__(self, model, view):
-        super(InstitutionEditorPresenter, self).__init__(model, view)
-        self.refresh_view()
-        for widget, field in self.widget_to_field_map.iteritems():
-            self.assign_simple_handler(widget, field)
-        self._dirty = False
+        super(InstitutionPresenter, self).__init__(
+            model, view, refresh_view=True)
 
     def set_model_attr(self, attr, value, validator):
-        super(InstitutionEditorPresenter, self).set_model_attr(attr, value,
-                                                               validator)
+        super(InstitutionPresenter, self).set_model_attr(attr, value,
+                                                         validator)
         self._dirty = True
 
-    def dirty(self):
-        return self._dirty
+    def on_inst_register_clicked(self, *args, **kwargs):
+        pass
 
-    def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():
-            self.view.widget_set_value(widget, getattr(self.model, field))
-
-    def start(self, commit_transaction=True):
-        return self.view.start()
+    def on_inst_addr_tb_changed(self, widget, value=None, attr=None):
+        return self.on_textbuffer_changed(widget, value, attr='inst_address')
 
 
-class InstitutionEditor(object):
+def start_institution_editor():
+    glade_path = os.path.join(paths.lib_dir(),
+                              "plugins", "garden", "institution.glade")
+    from bauble.editor import GenericEditorView
+    view = GenericEditorView(
+        glade_path,
+        parent=None,
+        root_widget_name='inst_dialog')
+    view._tooltips = {
+        'inst_name': _('The full name of the institution.'),
+        'inst_abbr': _('The standard abbreviation of the '
+                       'institution.'),
+        'inst_code': _('The intitution code should be unique among '
+                       'all institions.'),
+        'inst_contact': _('The name of the person to contact for '
+                          'information related to the institution.'),
+        'inst_tech': _('The email address or phone number of the '
+                       'person to contact for technical '
+                       'information related to the institution.'),
+        'inst_email': _('The email address of the institution.'),
+        'inst_tel': _('The telephone number of the institution.'),
+        'inst_fax': _('The fax number of the institution.'),
+        'inst_addr': _('The mailing address of the institition.')
+        }
 
-    def __init__(self, parent=None):
-        self.model = Institution()
-        self.view = InstitutionEditorView(parent=parent)
-        self.presenter = InstitutionEditorPresenter(self.model, self.view)
-
-    def start(self):
-        response = self.presenter.start()
-        if response == gtk.RESPONSE_OK:
-            self.model.write()
+    o = Institution()
+    inst_pres = InstitutionPresenter(o, view)
+    response = inst_pres.start()
+    if response == gtk.RESPONSE_OK:
+        o.write()
+        inst_pres.commit_changes()
+    else:
+        inst_pres.session.rollback()
+    inst_pres.session.close()
 
 
 class InstitutionCommand(pluginmgr.CommandHandler):
@@ -175,5 +164,4 @@ class InstitutionTool(pluginmgr.Tool):
 
     @classmethod
     def start(cls):
-        e = InstitutionEditor()
-        e.start()
+        start_institution_editor()
