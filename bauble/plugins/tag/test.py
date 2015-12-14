@@ -53,17 +53,9 @@ class TagTests(BaubleTestCase):
         self.family = Family(family=u'family')
         self.session.add(self.family)
         self.session.commit()
-        #for f in self.family_ids:
-        #    family_table.insert({'id': f, 'family': unicode(f)}).execute()
-        #for col in family_table.c:
-        #    utils.reset_sequence(col)
 
     def tearDown(self):
         super(TagTests, self).tearDown()
-        #self.session.bind.execute(family_table.delete())
-
-##     def test_get_tagged_objects(self):
-##         pass
 
     def test_str(self):
         """
