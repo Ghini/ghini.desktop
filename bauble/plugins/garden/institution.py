@@ -64,7 +64,8 @@ class Institution(object):
         for prop in self.__properties:
             value = getattr(self, prop)
             prop = utils.utf8(prop)
-            value = utils.utf8(value)
+            if value is not None:
+                value = utils.utf8(value)
             result = self.table.select(self.table.c.name == prop).\
                 execute()
             row = result.fetchone()
