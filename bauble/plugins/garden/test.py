@@ -52,7 +52,7 @@ from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution, InstitutionPresenter
-import bauble.prefs as prefs
+from bauble import prefs
 
 from bauble.meta import BaubleMeta
 
@@ -173,8 +173,9 @@ def test_duplicate_ids():
 
 class GardenTestCase(BaubleTestCase):
 
-    def __init__(self, *args):
-        super(GardenTestCase, self).__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super(GardenTestCase, self).__init__(*args, **kwargs)
+        prefs.testing = True
 
     def setUp(self):
         super(GardenTestCase, self).setUp()
@@ -1309,6 +1310,7 @@ class InstitutionTests(GardenTestCase):
 
 
 class InstitutionPresenterTests(GardenTestCase):
+
     def test_can_create_presenter(self):
         from bauble.editor import MockView
         view = MockView()
@@ -1316,6 +1318,56 @@ class InstitutionPresenterTests(GardenTestCase):
         presenter = InstitutionPresenter(o, view)
         self.assertEquals(presenter.view, view)
 
+    def test_empty_name_is_a_problem(self):
+        from bauble.editor import MockView
+        view = MockView()
+        o = Institution()
+        o.name = ''
+        InstitutionPresenter(o, view)
+        self.assertTrue('add_box' in view.invoked)
+        self.assertEquals(len(view.boxes), 1)
+
+    def test_initially_empty_name_then_specified_is_ok(self):
+        from bauble.editor import MockView
+        view = MockView()
+        o = Institution()
+        o.name = ''
+        presenter = InstitutionPresenter(o, view)
+        presenter.view.widget_set_value('inst_name', 'bauble')
+        presenter.on_non_empty_text_entry_changed('inst_name')
+        self.assertTrue('remove_box' in view.invoked)
+        self.assertEquals(o.name, 'bauble')
+        self.assertEquals(presenter.view.boxes, set())
+
+    def test_no_email_means_no_registering(self):
+        from bauble.editor import MockView
+        view = MockView(sensitive={'inst_register': None,
+                                   'inst_ok': None})
+        o = Institution()
+        o.name = 'bauble'
+        o.email = ''
+        InstitutionPresenter(o, view)
+        self.assertFalse(view.widget_get_sensitive('inst_register'))
+
+    def test_invalid_email_means_no_registering(self):
+        from bauble.editor import MockView
+        view = MockView(sensitive={'inst_register': None,
+                                   'inst_ok': None})
+        o = Institution()
+        o.name = 'bauble'
+        o.email = 'mario'
+        InstitutionPresenter(o, view)
+        self.assertFalse(view.widget_get_sensitive('inst_register'))
+
+    def test_no_email_means_can_register(self):
+        from bauble.editor import MockView
+        view = MockView(sensitive={'inst_register': None,
+                                   'inst_ok': None})
+        o = Institution()
+        o.name = 'bauble'
+        o.email = 'bauble@anche.no'
+        InstitutionPresenter(o, view)
+        self.assertTrue(view.widget_get_sensitive('inst_register'))
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]

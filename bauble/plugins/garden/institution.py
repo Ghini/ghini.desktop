@@ -29,6 +29,8 @@ import gtk
 import logging
 logger = logging.getLogger(__name__)
 
+import re
+
 import bauble.editor as editor
 import bauble.meta as meta
 import bauble.paths as paths
@@ -100,9 +102,11 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, model, view):
         self.message_box = None
+        self.email_regexp = re.compile(r'.+@.+\..+')
         super(InstitutionPresenter, self).__init__(
             model, view, refresh_view=True)
         self.on_non_empty_text_entry_changed('inst_name')
+        self.on_email_text_entry_changed('inst_email')
 
     def cleanup(self):
         super(InstitutionPresenter, self).cleanup()
@@ -125,6 +129,12 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             box.show()
             self.view.add_box(box)
             self.message_box = box
+
+    def on_email_text_entry_changed(self, widget, value=None):
+        value = super(InstitutionPresenter, self
+                      ).on_text_entry_changed(widget, value)
+        self.view.widget_set_sensitive(
+            'inst_register', self.email_regexp.match(value or ''))
 
     def set_model_attr(self, attr, value, validator):
         super(InstitutionPresenter, self).set_model_attr(attr, value,
