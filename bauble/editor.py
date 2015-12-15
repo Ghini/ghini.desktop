@@ -226,6 +226,7 @@ class GenericEditorView(object):
             self.get_window().set_transient_for(bauble.gui.window)
         self.response = None
         self.__attached_signals = []
+        self.boxes = set()
 
         # set the tooltips...use gtk.Tooltip api introducted in GTK+ 2.12
         for widget_name, markup in self._tooltips.iteritems():
@@ -724,6 +725,9 @@ class MockDialog:
     def run(self):
         pass
 
+    def show(self):
+        pass
+
 
 class MockView:
     '''mocking the view, but so generic that we share it among clients
@@ -745,6 +749,7 @@ class MockView:
         self.__window = MockDialog()
         for name, value in kwargs.items():
             setattr(self, name, value)
+        self.boxes = set()
 
     def get_selection(self):
         'fakes main UI search result - selection'
@@ -927,6 +932,25 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], [sensitive, ]))
         pass
 
+    def mark_problem(self, widget):
+        pass
+
+    def add_message_box(self, message_box_type=utils.MESSAGE_BOX_INFO):
+        self.invoked.append('set_accept_buttons_sensitive')
+        self.invoked_detailed.append((self.invoked[-1], [message_box_type, ]))
+        return MockDialog()
+
+    def add_box(self, box):
+        self.invoked.append('add_box')
+        self.invoked_detailed.append((self.invoked[-1], [box, ]))
+        self.boxes.add(box)
+
+    def remove_box(self, box):
+        self.invoked.append('remove_box')
+        self.invoked_detailed.append((self.invoked[-1], [box, ]))
+        if box in self.boxes:
+            self.boxes.remove(box)
+
 
 class DontCommitException(Exception):
     """
@@ -954,6 +978,7 @@ class GenericEditorPresenter(object):
     view_accept_buttons = []
 
     PROBLEM_DUPLICATE = random()
+    PROBLEM_EMPTY = random()
 
     def __init__(self, model, view, refresh_view=False):
         self.model = model
@@ -1047,6 +1072,17 @@ class GenericEditorPresenter(object):
         logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
                      % (widget, attr, getattr(self.model, attr), value))
         self.__set_model_attr(attr, value)
+        return value
+
+    def on_non_empty_text_entry_changed(self, widget, value=None):
+        "handle 'changed' signal on compulsory text entry widgets."
+
+        value = self.on_text_entry_changed(widget, value)
+        if not value:
+            self.add_problem(self.PROBLEM_EMPTY, widget)
+        else:
+            self.remove_problem(self.PROBLEM_EMPTY, widget)
+        return value
 
     def on_unique_text_entry_changed(self, widget, value=None):
         "handle 'changed' signal on text entry widgets with an uniqueness "
@@ -1158,7 +1194,7 @@ class GenericEditorPresenter(object):
         map(lambda p: self.remove_problem(p[0], p[1]), tmp)
         self.problems.clear()
 
-    def remove_problem(self, problem_id, problem_widgets=None):
+    def remove_problem(self, problem_id, widget=None):
         """
         Remove problem_id from self.problems and reset the background
         color of the widget(s) in problem_widgets.  If problem_id is
@@ -1172,22 +1208,29 @@ class GenericEditorPresenter(object):
          of the widget
         """
         logger.debug('remove_problem(%s, %s, %s)' %
-                     (self, problem_id, problem_widgets))
-        if problem_id is None and problem_widgets is None:
+                     (self, problem_id, widget))
+        if problem_id is None and widget is None:
             logger.warning('invoke remove_problem with None, None')
             # if no problem id and not problem widgets then don't do anything
             return
 
+        if not isinstance(widget, gtk.Widget):
+            try:
+                widget = getattr(self.view.widgets, widget)
+            except:
+                logger.info("can't get widget %s" % widget)
+
         tmp = self.problems.copy()
         for p, w in tmp:
-            if (w == problem_widgets and p == problem_id) or \
-                    (problem_widgets is None and p == problem_id) or \
-                    (w == problem_widgets and problem_id is None):
-                if w:
+            if (w == widget and p == problem_id) or \
+                    (widget is None and p == problem_id) or \
+                    (w == widget and problem_id is None):
+                if w and not prefs.testing:
                     w.modify_bg(gtk.STATE_NORMAL, None)
                     w.modify_base(gtk.STATE_NORMAL, None)
                     w.queue_draw()
                 self.problems.remove((p, w))
+        logger.debug('problems now: %s' % self.problems)
 
     def add_problem(self, problem_id, problem_widgets=None):
         """
@@ -1201,17 +1244,19 @@ class GenericEditorPresenter(object):
           (default=None)
         """
         ## map case list of widget to list of cases single widget.
+        logger.debug('add_problem(%s, %s, %s)' %
+                     (self, problem_id, problem_widgets))
         if isinstance(problem_widgets, (tuple, list)):
             map(lambda w: self.add_problem(problem_id, w), problem_widgets)
 
         ## here single widget.
         widget = problem_widgets
-        self.problems.add((problem_id, widget))
         if not isinstance(widget, gtk.Widget):
             try:
                 widget = getattr(self.view.widgets, widget)
             except:
                 logger.info("can't get widget %s" % widget)
+        self.problems.add((problem_id, widget))
         from types import StringTypes
         if isinstance(widget, StringTypes):
             self.view.mark_problem(widget)
@@ -1219,6 +1264,7 @@ class GenericEditorPresenter(object):
             widget.modify_bg(gtk.STATE_NORMAL, self.problem_color)
             widget.modify_base(gtk.STATE_NORMAL, self.problem_color)
             widget.queue_draw()
+        logger.debug('problems now: %s' % self.problems)
 
     def init_enum_combo(self, widget_name, field):
         """
@@ -1452,7 +1498,9 @@ class GenericEditorPresenter(object):
         """
         run the dialog associated to the view
         """
-        return self.view.get_window().run()
+        result = self.view.get_window().run()
+        self.cleanup()
+        return result
 
     def cleanup(self):
         """
