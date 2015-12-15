@@ -45,9 +45,9 @@ class Institution(object):
     Institution values are stored in the Bauble meta database and not in
     its own table
     '''
-    __properties = ('inst_name', 'inst_abbreviation', 'inst_code',
-                    'inst_contact', 'inst_technical_contact', 'inst_email',
-                    'inst_tel', 'inst_fax', 'inst_address')
+    __properties = ('name', 'abbreviation', 'code',
+                    'contact', 'technical_contact', 'email',
+                    'tel', 'fax', 'address')
 
     table = meta.BaubleMeta.__table__
 
@@ -56,8 +56,8 @@ class Institution(object):
         map(lambda p: setattr(self, p, None), self.__properties)
 
         for prop in self.__properties:
-            prop = utils.utf8(prop)
-            result = self.table.select(self.table.c.name == prop).execute()
+            db_prop = utils.utf8('inst_' + prop)
+            result = self.table.select(self.table.c.name == db_prop).execute()
             row = result.fetchone()
             if row:
                 setattr(self, prop, row['value'])
@@ -66,11 +66,10 @@ class Institution(object):
     def write(self):
         for prop in self.__properties:
             value = getattr(self, prop)
-            prop = utils.utf8(prop)
+            db_prop = utils.utf8('inst_' + prop)
             if value is not None:
                 value = utils.utf8(value)
-            result = self.table.select(self.table.c.name == prop).\
-                execute()
+            result = self.table.select(self.table.c.name == db_prop).execute()
             row = result.fetchone()
             result.close()
             # have to check if the property exists first because sqlite doesn't
@@ -79,24 +78,24 @@ class Institution(object):
             # and then updating the value is too slow
             if not row:
                 logger.debug('insert: %s = %s' % (prop, value))
-                self.table.insert().execute(name=prop, value=value)
+                self.table.insert().execute(name=db_prop, value=value)
             else:
                 logger.debug('update: %s = %s' % (prop, value))
                 self.table.update(
-                    self.table.c.name == prop).execute(value=value)
+                    self.table.c.name == db_prop).execute(value=value)
 
 
 class InstitutionPresenter(editor.GenericEditorPresenter):
 
-    widget_to_field_map = {'inst_name': 'inst_name',
-                           'inst_abbr': 'inst_abbreviation',
-                           'inst_code': 'inst_code',
-                           'inst_contact': 'inst_contact',
-                           'inst_tech': 'inst_technical_contact',
-                           'inst_email': 'inst_email',
-                           'inst_tel': 'inst_tel',
-                           'inst_fax': 'inst_fax',
-                           'inst_addr_tb': 'inst_address'
+    widget_to_field_map = {'inst_name': 'name',
+                           'inst_abbr': 'abbreviation',
+                           'inst_code': 'code',
+                           'inst_contact': 'contact',
+                           'inst_tech': 'technical_contact',
+                           'inst_email': 'email',
+                           'inst_tel': 'tel',
+                           'inst_fax': 'fax',
+                           'inst_addr_tb': 'address'
                            }
 
     def __init__(self, model, view):
@@ -112,7 +111,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         pass
 
     def on_inst_addr_tb_changed(self, widget, value=None, attr=None):
-        return self.on_textbuffer_changed(widget, value, attr='inst_address')
+        return self.on_textbuffer_changed(widget, value, attr='address')
 
 
 def start_institution_editor():
