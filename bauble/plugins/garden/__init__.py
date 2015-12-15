@@ -133,7 +133,7 @@ class GardenPlugin(pluginmgr.Plugin):
         meta.get_default(plant_delimiter_key, default_plant_delimiter)
 
         institution = Institution()
-        if not prefs.testing and not institution.name:
+        if not institution.name:
             start_institution_editor()
 
 

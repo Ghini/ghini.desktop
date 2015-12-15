@@ -117,11 +117,16 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
 def start_institution_editor():
     glade_path = os.path.join(paths.lib_dir(),
                               "plugins", "garden", "institution.glade")
-    from bauble.editor import GenericEditorView
-    view = GenericEditorView(
-        glade_path,
-        parent=None,
-        root_widget_name='inst_dialog')
+    from bauble import prefs
+    if prefs.testing:
+        from bauble.editor import MockView
+        view = MockView()
+    else:
+        from bauble.editor import GenericEditorView
+        view = GenericEditorView(
+            glade_path,
+            parent=None,
+            root_widget_name='inst_dialog')
     view._tooltips = {
         'inst_name': _('The full name of the institution.'),
         'inst_abbr': _('The standard abbreviation of the '

@@ -721,6 +721,9 @@ class MockDialog:
     def hide(self):
         self.hidden = True
 
+    def run(self):
+        pass
+
 
 class MockView:
     '''mocking the view, but so generic that we share it among clients
