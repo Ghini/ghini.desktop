@@ -79,6 +79,10 @@ def check_dupids(filename):
 
 class BaubleTestCase(unittest.TestCase):
 
+    def __init__(self, *args, **kwargs):
+        super(BaubleTestCase, self).__init__(*args, **kwargs)
+        prefs.testing = True
+
     def setUp(self):
         assert uri is not None, "The database URI is not set"
         init_bauble(uri)
