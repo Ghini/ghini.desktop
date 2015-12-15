@@ -40,7 +40,6 @@ def test_duplicate_ids():
 
 import bauble
 import bauble.prefs as prefs
-prefs.testing = True  # prevents overwriting
 
 
 class ConnMgrPresenterTests(BaubleTestCase):
