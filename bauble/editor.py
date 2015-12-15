@@ -539,7 +539,7 @@ class GenericEditorView(object):
 
     def widget_set_sensitive(self, widget, value=True):
         widget = self.__get_widget(widget)
-        widget.set_sensitive(value)
+        widget.set_sensitive(value and True or False)
 
     def widget_set_visible(self, widget, visible=True):
         widget = self.__get_widget(widget)
@@ -865,7 +865,7 @@ class MockView:
     def widget_set_sensitive(self, name, value=True):
         self.invoked.append('widget_set_sensitive')
         self.invoked_detailed.append((self.invoked[-1], [name, value]))
-        self.sensitive[name] = value
+        self.sensitive[name] = value and True or False
 
     def widget_get_sensitive(self, name):
         self.invoked.append('widget_get_sensitive')
