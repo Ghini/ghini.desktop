@@ -99,8 +99,32 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
                            }
 
     def __init__(self, model, view):
+        self.message_box = None
         super(InstitutionPresenter, self).__init__(
             model, view, refresh_view=True)
+        self.on_non_empty_text_entry_changed('inst_name')
+
+    def cleanup(self):
+        super(InstitutionPresenter, self).cleanup()
+        if self.message_box:
+            self.view.remove_box(self.message_box)
+            self.message_box = None
+
+    def on_non_empty_text_entry_changed(self, widget, value=None):
+        value = super(InstitutionPresenter, self
+                      ).on_non_empty_text_entry_changed(widget, value)
+        box = self.message_box
+        if value:
+            if box:
+                self.view.remove_box(box)
+                self.message_box = None
+        elif not box:
+            box = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
+            box.message = _('Please specify an institution name for this '
+                            'database.')
+            box.show()
+            self.view.add_box(box)
+            self.message_box = box
 
     def set_model_attr(self, attr, value, validator):
         super(InstitutionPresenter, self).set_model_attr(attr, value,
