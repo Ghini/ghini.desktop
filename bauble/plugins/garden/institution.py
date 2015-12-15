@@ -142,7 +142,8 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self._dirty = True
 
     def on_inst_register_clicked(self, *args, **kwargs):
-        pass
+        from bauble.utils import desktop
+        desktop.open('mailto:bauble@anche.no')
 
     def on_inst_addr_tb_changed(self, widget, value=None, attr=None):
         return self.on_textbuffer_changed(widget, value, attr='address')
