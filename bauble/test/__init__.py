@@ -44,6 +44,7 @@ def init_bauble(uri, create=False):
     if not bauble.db.engine:
         raise BaubleError('not connected to a database')
     prefs.init()
+    prefs.testing = True
     pluginmgr.load()
     db.create(create)
     pluginmgr.init(force=True)
