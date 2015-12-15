@@ -105,8 +105,8 @@ class ABCDTestCase(BaubleTestCase):
         source.collection = collection
         from bauble.plugins.garden import Institution
         inst = Institution()
-        inst.inst_name = inst.inst_code = inst.inst_contact = \
-            inst.inst_technical_contact = inst.inst_email = 'test'
+        inst.name = inst.code = inst.contact = \
+            inst.technical_contact = inst.email = 'test'
         inst.write()
         self.session.commit()
         dummy, filename = tempfile.mkstemp()

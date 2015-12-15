@@ -1260,7 +1260,7 @@ class InstitutionTests(GardenTestCase):
 
     def test_init__9_props(self):
         o = Institution()
-        o.inst_name = 'Bauble'
+        o.name = 'Bauble'
         o.write()
         fields = self.session.query(BaubleMeta).filter(
             utils.ilike(BaubleMeta.name, 'inst_%')).all()
@@ -1268,9 +1268,9 @@ class InstitutionTests(GardenTestCase):
 
     def test_init__one_institution(self):
         o = Institution()
-        o.inst_name = 'Fictive'
+        o.name = 'Fictive'
         o.write()
-        o.inst_name = 'Bauble'
+        o.name = 'Bauble'
         o.write()
         fieldObjects = self.session.query(BaubleMeta).filter(
             utils.ilike(BaubleMeta.name, 'inst_%')).all()
@@ -1278,26 +1278,25 @@ class InstitutionTests(GardenTestCase):
 
     def test_init__always_initialized(self):
         o = Institution()
-        o.inst_name = 'Fictive'
+        o.name = 'Fictive'
         o.write()
         u = Institution()
-        self.assertEquals(u.inst_name, u'Fictive')
-        o.inst_name = 'Bauble'
+        self.assertEquals(u.name, u'Fictive')
+        o.name = 'Bauble'
         o.write()
         u = Institution()
-        self.assertEquals(u.inst_name, u'Bauble')
+        self.assertEquals(u.name, u'Bauble')
 
     def test_init__has_all_attributes(self):
         o = Institution()
-        for a in ('inst_name', 'inst_abbreviation', 'inst_code',
-                  'inst_contact', 'inst_technical_contact', 'inst_email',
-                  'inst_tel', 'inst_fax', 'inst_address'):
+        for a in ('name', 'abbreviation', 'code', 'contact',
+                  'technical_contact', 'email', 'tel', 'fax', 'address'):
             self.assertTrue(hasattr(o, a))
 
     def test_write__None_stays_None(self):
         o = Institution()
-        o.inst_name = 'Bauble'
-        o.inst_email = 'bauble@anche.no'
+        o.name = 'Bauble'
+        o.email = 'bauble@anche.no'
         o.write()
         fieldObjects = self.session.query(BaubleMeta).filter(
             utils.ilike(BaubleMeta.name, 'inst_%')).all()

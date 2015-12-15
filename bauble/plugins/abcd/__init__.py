@@ -81,10 +81,10 @@ def validate_xml(root):
 
 def verify_institution(institution):
     test = lambda x: x != '' and x != None
-    return test(institution.inst_name) and \
-        test(institution.inst_technical_contact) and \
-        test(institution.inst_email) and test(institution.inst_contact) and \
-        test(institution.inst_code)
+    return test(institution.name) and \
+        test(institution.technical_contact) and \
+        test(institution.email) and test(institution.contact) and \
+        test(institution.code)
 
 
 namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
@@ -202,12 +202,12 @@ def create_abcd(decorated_objects, authors=True, validate=True):
 
     # TODO: need to include contact information in bauble meta when
     # creating a new database
-    ABCDElement(tech_contact, 'Name', text=inst.inst_technical_contact)
-    ABCDElement(tech_contact, 'Email', text=inst.inst_email)
+    ABCDElement(tech_contact, 'Name', text=inst.technical_contact)
+    ABCDElement(tech_contact, 'Email', text=inst.email)
     cont_contacts = ABCDElement(ds, 'ContentContacts')
     cont_contact = ABCDElement(cont_contacts, 'ContentContact')
-    ABCDElement(cont_contact, 'Name', text=inst.inst_contact)
-    ABCDElement(cont_contact, 'Email', text=inst.inst_email)
+    ABCDElement(cont_contact, 'Name', text=inst.contact)
+    ABCDElement(cont_contact, 'Email', text=inst.email)
     metadata = ABCDElement(ds, 'Metadata', )
     description = ABCDElement(metadata, 'Description')
 
@@ -222,7 +222,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     # build the ABCD unit
     for obj in decorated_objects:
         unit = ABCDElement(units, 'Unit')
-        ABCDElement(unit, 'SourceInstitutionID', text=inst.inst_code)
+        ABCDElement(unit, 'SourceInstitutionID', text=inst.code)
 
         # TODO: don't really understand the SourceID element
         ABCDElement(unit, 'SourceID', text='Bauble')
