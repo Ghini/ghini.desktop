@@ -41,17 +41,18 @@ from bauble.plugins.garden.plant import PlantEditor, PlantNote, \
 from bauble.plugins.garden.source import \
     Source, SourceDetail, SourceDetailInfoBox, source_detail_context_menu, \
     Collection, collection_context_menu, coll_markup_func
-from bauble.plugins.garden.institution import \
-    Institution, InstitutionCommand, InstitutionTool
+from bauble.plugins.garden.institution import (
+    Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
+
 #from bauble.plugins.garden.propagation import *
 import bauble.search as search
 import re
 
-Institution  # fake usage to avoid 'Imported but unused' warning.
-
 # other ideas:
 # - cultivation table
 # - conservation table
+
+from bauble import prefs
 
 
 class GardenPlugin(pluginmgr.Plugin):
@@ -130,6 +131,10 @@ class GardenPlugin(pluginmgr.Plugin):
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
         meta.get_default(plant_delimiter_key, default_plant_delimiter)
+
+        institution = Institution()
+        if not prefs.testing and not institution.name:
+            start_institution_editor()
 
 
 def init_location_comboentry(presenter, combo, on_select, required=True):
@@ -240,7 +245,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     presenter.view.connect(entry, 'changed', on_entry_changed, presenter)
 
     def on_combo_changed(combo, *args):
-        model = combo.get_model()
+        # model = combo.get_model()
         i = combo.get_active_iter()
         if not i:
             return
