@@ -136,11 +136,6 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self.view.widget_set_sensitive(
             'inst_register', self.email_regexp.match(value or ''))
 
-    def set_model_attr(self, attr, value, validator):
-        super(InstitutionPresenter, self).set_model_attr(attr, value,
-                                                         validator)
-        self._dirty = True
-
     def on_inst_register_clicked(self, *args, **kwargs):
         from bauble.utils import desktop
         desktop.open('mailto:bauble@anche.no')
@@ -153,11 +148,10 @@ def start_institution_editor():
     glade_path = os.path.join(paths.lib_dir(),
                               "plugins", "garden", "institution.glade")
     from bauble import prefs
+    from bauble.editor import GenericEditorView, MockView
     if prefs.testing:
-        from bauble.editor import MockView
         view = MockView()
     else:
-        from bauble.editor import GenericEditorView
         view = GenericEditorView(
             glade_path,
             parent=None,
