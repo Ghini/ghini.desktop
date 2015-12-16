@@ -1369,6 +1369,21 @@ class InstitutionPresenterTests(GardenTestCase):
         InstitutionPresenter(o, view)
         self.assertTrue(view.widget_get_sensitive('inst_register'))
 
+    def test_(self):
+        from bauble.utils import desktop
+        from bauble.test import mockfunc
+        from functools import partial
+        self.invoked = []
+        desktop.open = partial(mockfunc, name='desktop.open', caller=self)
+        from bauble.editor import MockView
+        view = MockView(sensitive={'inst_register': None,
+                                   'inst_ok': None})
+        o = Institution()
+        p = InstitutionPresenter(o, view)
+        p.on_inst_register_clicked()
+        self.assertTrue(('desktop.open', 'mailto:bauble@anche.no') in
+                        self.invoked)
+
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]
 
