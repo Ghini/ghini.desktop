@@ -485,7 +485,7 @@ from pyparsing import (
     Word, alphas8bit, removeQuotes, delimitedList, Regex,
     OneOrMore, oneOf, alphas, alphanums, Group, Literal,
     CaselessLiteral, WordStart, WordEnd, srange,
-    stringEnd, Keyword, quotedString,
+    stringStart, stringEnd, Keyword, quotedString,
     infixNotation, opAssoc, Forward)
 
 
@@ -511,7 +511,7 @@ class SearchParser(object):
         ).setParseAction(TypedValueToken)
 
     value = (
-        typed_value | numeric_value | none_token | empty_token | string_value
+        typed_value | stringStart + numeric_value + stringEnd | none_token | empty_token | string_value
         ).setParseAction(ValueToken)('value')
     value_list << Group(
         OneOrMore(value) ^ delimitedList(value)
