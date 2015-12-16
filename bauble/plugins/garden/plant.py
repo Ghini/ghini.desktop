@@ -199,8 +199,8 @@ class PlantSearch(SearchStrategy):
         if text[0] == text[-1] and text[0] in ['"', "'"]:
             text = text[1:-1]
         else:
-            logger.debug("text is not quoted, so strategy does not apply")
-            return []
+            logger.debug("text is not quoted, should strategy apply?")
+            #return []
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
             logger.debug("delimiter not found, can't split the code")
@@ -212,7 +212,7 @@ class PlantSearch(SearchStrategy):
             from bauble.plugins.garden import Accession
             query = session.query(Plant).filter(
                 Plant.code == unicode(plant_code)).join(Accession).filter(
-                Accession.code == unicode(acc_code))
+                utils.ilike(Accession.code, u'%%%s' % unicode(acc_code)))
             return query.all()
         except Exception, e:
             logger.debug("%s %s" % (e.__class__.name, e))
