@@ -208,50 +208,53 @@ class GardenTestCase(BaubleTestCase):
         return obj
 
 
+''' - there is no "Contact" class, is there?
+
 class ContactTests(GardenTestCase):
 
     def __init__(self, *args):
         super(ContactTests, self).__init__(*args)
 
-    # def test_delete(self):
-    #     acc = self.create(Accession, species=self.species, code=u'1')
-    #     contact = Contact(name=u'name')
-    #     donation = Donation()
-    #     donation.contact = contact
-    #     acc.source = donation
-    #     self.session.commit()
-    #     self.session.close()
-    #     # test that we can't delete a contact if it has corresponding
-    #     # donations
-    #     import bauble
-    #     session = db.Session()
-    #     contact = session.query(Contact).filter_by(name=u'name').one()
+    def test_delete(self):
+        acc = self.create(Accession, species=self.species, code=u'1')
+        contact = Contact(name=u'name')
+        donation = Donation()
+        donation.contact = contact
+        acc.source = donation
+        self.session.commit()
+        self.session.close()
+        # test that we can't delete a contact if it has corresponding
+        # donations
+        import bauble
+        session = db.Session()
+        contact = session.query(Contact).filter_by(name=u'name').one()
 
-    #     shouldn't be allowed to delete contact if it has donations, what
-    #     is happening here is that when deleting the contact the
-    #     corresponding donations.contact_id's are being be set to null
-    #     which isn't allowed by the scheme....is this the best we can do?
-    #     or can we get some sort of error when creating a dangling
-    #     reference
+        # shouldn't be allowed to delete contact if it has donations, what
+        # is happening here is that when deleting the contact the
+        # corresponding donations.contact_id's are being be set to null
+        # which isn't allowed by the scheme....is this the best we can do?
+        # or can we get some sort of error when creating a dangling
+        # reference
 
-    #     session.delete(contact)
-    #     self.assertRaises(DBAPIError, session.commit)
+        session.delete(contact)
+        self.assertRaises(DBAPIError, session.commit)
 
-    #def itest_contact_editor(self):
-    #    """
-    #    Interactively test the ContactEditor
-    #    """
-    #    raise SkipTest('separate view from presenter, then test presenter')
-    #    loc = self.create(Contact, name=u'some contact')
-    #    editor = ContactEditor(model=loc)
-    #    editor.start()
-    #    del editor
-    #    assert utils.gc_objects_by_type('ContactEditor') == [], \
-    #        'ContactEditor not deleted'
-    #    assert utils.gc_objects_by_type('ContactEditorPresenter') == [], \
-    #        'ContactEditorPresenter not deleted'
-    #    assert utils.gc_objects_by_type('ContactEditorView') == [], \
-    #        'ContactEditorView not deleted'
+    def itest_contact_editor(self):
+        """
+        Interactively test the ContactEditor
+        """
+        raise SkipTest('separate view from presenter, then test presenter')
+        loc = self.create(Contact, name=u'some contact')
+        editor = ContactEditor(model=loc)
+        editor.start()
+        del editor
+        assert utils.gc_objects_by_type('ContactEditor') == [], \
+            'ContactEditor not deleted'
+        assert utils.gc_objects_by_type('ContactEditorPresenter') == [], \
+            'ContactEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('ContactEditorView') == [], \
+            'ContactEditorView not deleted'
+'''
 
 
 class PlantTests(GardenTestCase):
@@ -1742,6 +1745,23 @@ class PlantSearchTest(GardenTestCase):
             Accession.id == 2).first()
         logger.debug("%s, %s" % (a, expect))
         self.assertEqual(a, expect)
+
+    def test_plant_from_dict(self):
+        p = Plant.retrieve_or_create(
+            self.session, {'object': 'plant',
+                           'accession': u'2001.1',
+                           'code': u'1'},
+            create=False)
+        self.assertFalse(p is None)
+
+    def test_plant_note_from_dict(self):
+        p = PlantNote.retrieve_or_create(
+            self.session, {'object': 'plant_note',
+                           'plant': u'2001.1.1',
+                           'note': u'1',
+                           'category': u'RBW'},
+            create=True)
+        self.assertFalse(p is None)
 
 
 from bauble.plugins.garden.accession import get_next_code
