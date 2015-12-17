@@ -1140,11 +1140,7 @@ class VerificationTests(GardenTestCase):
         ver.species = acc.species
         ver.prev_species = acc.species
         acc.verifications.append(ver)
-        try:
-            self.session.commit()
-        except Exception, e:
-            logger.debug(e)
-            self.session.rollback()
+        self.session.commit()
         self.assert_(ver in acc.verifications)
         self.assert_(ver in self.session)
 
@@ -1710,7 +1706,6 @@ class PlantSearchTest(GardenTestCase):
         setUp_data()
 
     def test_searchbyplantcode(self):
-        #raise SkipTest('should really work, please inspect')
         mapper_search = search.get_strategy('PlantSearch')
 
         results = mapper_search.search('1.1.1', self.session)
