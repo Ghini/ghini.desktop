@@ -259,16 +259,18 @@ class PlantNote(db.Base, db.Serializable):
 
     @classmethod
     def compute_serializable_fields(cls, session, keys):
-        result = {'accession': None}
+        'plant is given as text, should be object'
+        result = {'plant': None}
 
-        acc_keys = {}
-        acc_keys.update(keys)
-        acc_keys['code'] = keys['accession']
-        accession = Accession.retrieve_or_create(
-            session, acc_keys, create=(
-                'taxon' in acc_keys and 'rank' in acc_keys))
+        acc_code, plant_code = keys['plant'].rsplit(
+            Plant.get_delimiter(), 1)
+        print acc_code, plant_code
+        q = session.query(Plant).filter(
+            Plant.code == unicode(plant_code)).join(
+            Accession).filter(Accession.code == unicode(acc_code))
+        plant = q.one()
 
-        result['accession'] = accession
+        result['plant'] = plant
 
         return result
 
