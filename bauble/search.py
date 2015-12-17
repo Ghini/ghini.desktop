@@ -485,9 +485,10 @@ from pyparsing import (
     Word, alphas8bit, removeQuotes, delimitedList, Regex,
     OneOrMore, oneOf, alphas, alphanums, Group, Literal,
     CaselessLiteral, WordStart, WordEnd, srange,
-    stringStart, stringEnd, Keyword, quotedString,
+    stringEnd, Keyword, quotedString,
     infixNotation, opAssoc, Forward)
 
+wordStart, wordEnd = WordStart(), WordEnd()
 
 class SearchParser(object):
     """The parser for bauble.search.MapperSearch
@@ -511,7 +512,11 @@ class SearchParser(object):
         ).setParseAction(TypedValueToken)
 
     value = (
-        typed_value | stringStart + numeric_value + stringEnd | none_token | empty_token | string_value
+        typed_value |
+        WordStart('0123456789.-e') + numeric_value + WordEnd('0123456789.-e') |
+        none_token |
+        empty_token |
+        string_value
         ).setParseAction(ValueToken)('value')
     value_list << Group(
         OneOrMore(value) ^ delimitedList(value)
@@ -534,10 +539,10 @@ class SearchParser(object):
         Word(caps, lowers) + Word(lowers)
         ).setParseAction(BinomialNameAction)('binomial_name')
 
-    AND_ = WordStart() + (CaselessLiteral("AND") | Literal("&&")) + WordEnd()
-    OR_ = WordStart() + (CaselessLiteral("OR") | Literal("||")) + WordEnd()
-    NOT_ = WordStart() + (CaselessLiteral("NOT") | Literal('!')) + WordEnd()
-    BETWEEN_ = WordStart() + CaselessLiteral("BETWEEN") + WordEnd()
+    AND_ = wordStart + (CaselessLiteral("AND") | Literal("&&")) + wordEnd
+    OR_ = wordStart + (CaselessLiteral("OR") | Literal("||")) + wordEnd
+    NOT_ = wordStart + (CaselessLiteral("NOT") | Literal('!')) + wordEnd
+    BETWEEN_ = wordStart + CaselessLiteral("BETWEEN") + wordEnd
 
     query_expression = Forward()('filter')
     identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),

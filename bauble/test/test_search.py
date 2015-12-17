@@ -31,6 +31,7 @@ from pyparsing import ParseException
 
 import bauble.db as db
 import bauble.search as search
+from bauble import prefs
 from bauble.test import BaubleTestCase
 
 
@@ -233,6 +234,7 @@ class SearchParserTests(unittest.TestCase):
 class SearchTests(BaubleTestCase):
     def __init__(self, *args):
         super(SearchTests, self).__init__(*args)
+        prefs.testing = True
 
     def setUp(self):
         super(SearchTests, self).setUp()
