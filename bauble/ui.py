@@ -48,10 +48,41 @@ class DefaultView(pluginmgr.View):
     '''
     def __init__(self):
         super(DefaultView, self).__init__()
+        ssn = db.Session()
+        plt_count, = ssn.execute("select count(*) from plant").first()
+        acc_count, = ssn.execute("select count(*) from accession").first()
+        spc_count, = ssn.execute(
+            "select count(distinct species.id) "
+            "from species join accession "
+            "on accession.species_id=species.id").first()
+        gen_count, = ssn.execute(
+            "select count(distinct species.genus_id) "
+            "from species join accession "
+            "on accession.species_id=species.id").first()
+
+        # Put a vbox into the main window.
+        box1 = gtk.VBox(False, 0)
+        self.add(box1)
+
         image = gtk.Image()
         image.set_from_file(os.path.join(paths.lib_dir(), 'images',
                                          'bauble_logo.png'))
-        self.pack_start(image)
+        label = gtk.Label()
+        label.set_markup("<big>" + _(
+            "Database contains %(p)s plants in %(a)s accessions, "
+            "representing %(s)s species in %(g)s genera.") %
+            {
+                'p': plt_count,
+                'a': acc_count,
+                's': spc_count,
+                'g': gen_count
+            } + "</big>")
+        box1.pack_start(label, expand=False, fill=False)
+        box1.pack_start(image, expand=True, fill=True)
+        # then an other label to make it symmetric
+        label = gtk.Label()
+        label.set_markup("<big>&nbsp;</big>")
+        box1.pack_start(label, expand=False, fill=False)
 
 
 class GUI(object):
