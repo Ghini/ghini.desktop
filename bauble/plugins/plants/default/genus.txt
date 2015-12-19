@@ -5773,8 +5773,6 @@
 5772,"Ranzania","T. Ito",59
 5773,"Streptothamnus","F. Muell.",641
 5774,"Berberidopsis","Hook. f.",641
-5775,"Capillovirus","",645
-5776,"Citrivirus","",645
 5777,"Duschekia","Opiz",60
 5778,"Alnaster","Spach",60
 5779,"Clethropsis","Spach",60
@@ -6956,7 +6954,6 @@
 6955,"Hohenbergia","Schult. f.",69
 6956,"Navia","Schult. f.",69
 6957,"Billbergia","Thunb.",69
-6958,"Ilarvirus","",666
 6959,"Brunellia","Ruiz & Pav.",70
 6960,"Pavinda","Thunb.",71
 6961,"Rabenhorstia","Rchb.",71
@@ -8187,7 +8184,6 @@
 8186,"Costaea","A. Rich.",110
 8187,"Clethra","L.",110
 8188,"Purdiaea","Planch.",110
-8189,"Closterovirus","",734
 8190,"Stearodendron","Engl.",221
 8191,"Balboa","Planch. & Triana",221
 8192,"Tovomitopsis","Planch. & Triana",221
@@ -15770,7 +15766,6 @@
 15769,"Helminthostachys","Kaulf.",343
 15770,"Ophioglossum","L.",343
 15771,"Botrychium","Sw.",343
-15772,"Ophiovirus","",1104
 15773,"Izabalaea","Lundell",344
 15774,"Leptonium","Griff.",344
 15775,"Lepionurus","Blume",344
@@ -19986,10 +19981,6 @@
 19985,"Sedopsis","(Engl.) Exell & Mendonca",390
 19986,"Portulaca","L.",390
 19987,"Posidonia","K. D. Koenig",391
-19988,"Apscaviroid","",1186
-19989,"Cocaviroid","",1186
-19990,"Hostuviroid","",1186
-19991,"Pospiviroid","",1186
 19992,"Stuckenia","Borner",392
 19993,"Vleisia","Toml. & Posl.",392
 19994,"Coleogeton","(Rchb.) Les & R. R. Haynes",392
@@ -22854,7 +22845,6 @@
 22853,"Nemesia","Vent.",433
 22854,"Wightia","Wall.",433
 22855,"Jerdonia","Wight",433
-22856,"Sadwavirus","",1265
 22857,"Lycopodion","Adans.",436
 22858,"Mirmau","Adans.",436
 22859,"Lycopodioides","Boehm.",436
