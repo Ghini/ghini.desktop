@@ -196,6 +196,66 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
                  if i.category.lower() == u'condition']
         return (notes + [None])[0]
 
+    @property
+    def infraspecific_rank(self):
+        infrasp = ((self.infrasp1_rank, self.infrasp1,
+                    self.infrasp1_author),
+                   (self.infrasp2_rank, self.infrasp2,
+                    self.infrasp2_author),
+                   (self.infrasp3_rank, self.infrasp3,
+                    self.infrasp3_author),
+                   (self.infrasp4_rank, self.infrasp4,
+                    self.infrasp4_author))
+        for rank, epithet, author in infrasp:
+            if rank not in [u'cv.', '', None]:
+                return rank
+        return None
+
+    @property
+    def infraspecific_epithet(self):
+        infrasp = ((self.infrasp1_rank, self.infrasp1,
+                    self.infrasp1_author),
+                   (self.infrasp2_rank, self.infrasp2,
+                    self.infrasp2_author),
+                   (self.infrasp3_rank, self.infrasp3,
+                    self.infrasp3_author),
+                   (self.infrasp4_rank, self.infrasp4,
+                    self.infrasp4_author))
+        for rank, epithet, author in infrasp:
+            if rank not in [u'cv.', '', None]:
+                return epithet
+        return None
+
+    @property
+    def infraspecific_author(self):
+        infrasp = ((self.infrasp1_rank, self.infrasp1,
+                    self.infrasp1_author),
+                   (self.infrasp2_rank, self.infrasp2,
+                    self.infrasp2_author),
+                   (self.infrasp3_rank, self.infrasp3,
+                    self.infrasp3_author),
+                   (self.infrasp4_rank, self.infrasp4,
+                    self.infrasp4_author))
+        for rank, epithet, author in infrasp:
+            if rank not in [u'cv.', '', None]:
+                return author
+        return None
+
+    @property
+    def cultivar_epithet(self):
+        infrasp = ((self.infrasp1_rank, self.infrasp1,
+                    self.infrasp1_author),
+                   (self.infrasp2_rank, self.infrasp2,
+                    self.infrasp2_author),
+                   (self.infrasp3_rank, self.infrasp3,
+                    self.infrasp3_author),
+                   (self.infrasp4_rank, self.infrasp4,
+                    self.infrasp4_author))
+        for rank, epithet, author in infrasp:
+            if rank == u'cv.':
+                return epithet
+        return None
+
     # columns
     sp = Column(Unicode(64), index=True)
     sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
