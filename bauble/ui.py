@@ -47,7 +47,9 @@ class DefaultView(pluginmgr.View):
 
     it is displayed at program start and never again.
     it's the core of the "what do I do now" screen.
-    DefaultView is not related to view.DefaultCommandHandler
+
+    DefaultView is related to the SplashCommandHandler,
+    not to the view.DefaultCommandHandler
     '''
     infoboxclass = None
 
@@ -78,6 +80,25 @@ class DefaultView(pluginmgr.View):
         if self.infobox:
             logger.debug('DefaultView::update - updating infobox')
             self.infobox.update()
+
+
+class SplashCommandHandler(pluginmgr.CommandHandler):
+
+    def __init__(self):
+        super(SplashCommandHandler, self).__init__()
+        if self.view is None:
+            logger.warning('SplashCommandHandler.view is None, expect trouble')
+
+    command = ['home', 'splash']
+    view = None
+
+    def get_view(self):
+        if self.view is None:
+            self.view = DefaultView()
+        return self.view
+
+    def __call__(self, cmd, arg):
+        self.view.update()
 
 
 class GUI(object):
@@ -323,7 +344,9 @@ class GUI(object):
         main_entry = self.widgets.main_comboentry.child
         if main_entry is not None:
             main_entry.set_text('')
-        self.set_view(DefaultView())
+        SplashCommandHandler.view = DefaultView()
+        self.set_view(SplashCommandHandler.view)
+        pluginmgr.register_command(SplashCommandHandler)
 
     def set_view(self, view=None):
         '''
