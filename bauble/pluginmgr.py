@@ -75,8 +75,8 @@ def register_command(handler):
         commands[handler.command] = handler
     else:
         for cmd in handler.command:
-            #if cmd in commands:
-            #    raise ValueError(_('%s already registered' % cmd))
+            if cmd in commands:
+                logger.info('overwriting command %s' % cmd)
             commands[cmd] = handler
 
 
