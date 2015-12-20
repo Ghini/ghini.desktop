@@ -401,8 +401,8 @@ def main(uri=None):
     prefs.save()
 
     # set the default command handler
-    import bauble.view as view
-    pluginmgr.register_command(view.DefaultCommandHandler)
+    from bauble.view import DefaultCommandHandler
+    pluginmgr.register_command(DefaultCommandHandler)
 
     # now that we have a connection create the gui, start before the plugins
     # are initialized in case they have to do anything like add a menu
