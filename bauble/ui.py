@@ -146,11 +146,14 @@ class GUI(object):
                                    gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         self.window.add_accel_group(accel_group)
 
-        go_button = self.widgets.go_button
-        go_button.connect('clicked', self.on_go_button_clicked)
+        self.widgets.home_button.connect(
+            'clicked', self.on_home_button_clicked)
 
-        query_button = self.widgets.query_button
-        query_button.connect('clicked', self.on_query_button_clicked)
+        self.widgets.go_button.connect(
+            'clicked', self.on_go_button_clicked)
+
+        self.widgets.query_button.connect(
+            'clicked', self.on_query_button_clicked)
 
         self.set_default_view()
 
@@ -249,6 +252,11 @@ class GUI(object):
 
     def on_main_entry_activate(self, widget, data=None):
         self.widgets.go_button.emit("clicked")
+
+    def on_home_button_clicked(self, widget):
+        '''
+        '''
+        bauble.command_handler('home', None)
 
     def on_go_button_clicked(self, widget):
         '''
@@ -444,7 +452,8 @@ class GUI(object):
         self.clear_menu('/ui/MenuBar/insert_menu')
         self.clear_menu('/ui/MenuBar/tools_menu')
 
-        self.insert_menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
+        self.insert_menu = self.ui_manager.get_widget(
+            '/ui/MenuBar/insert_menu')
         return self.menubar
 
     def clear_menu(self, path):
