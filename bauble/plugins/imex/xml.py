@@ -23,30 +23,21 @@
 # Description: handle import and exporting from a simple XML format
 #
 import os
-import csv
 import traceback
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.INFO)
+
 import gtk.gdk
-import gobject
-from sqlalchemy import *
 
 import bauble
 import bauble.db as db
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
-from bauble.utils import xml_safe
 
-# <tableset>
-# <table name="tablename">
-#  <row>
-#    <column name='colname'>
-#       ...
-#    </column>
-#  </row>
-# </table>
-# <table>
-# </tablest>
+from bauble.i18n import _
 
 
 # TODO: single file or one file per table
@@ -60,10 +51,9 @@ def ElementFactory(parent, name, **kwargs):
     try:
         if text is not None:
             el.text = unicode(text, 'utf8')
-    except (AssertionError, TypeError), e:
+    except (AssertionError, TypeError):
         el.text = unicode(str(text), 'utf8')
     return el
-
 
 
 class XMLExporter:
@@ -71,11 +61,10 @@ class XMLExporter:
     def __init__(self):
         pass
 
-
     def start(self, path=None):
 
         d = gtk.Dialog('Bauble - XML Exporter', bauble.gui.window,
-                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                         gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
 
@@ -96,24 +85,20 @@ class XMLExporter:
         d.run()
         d.hide()
 
-
     def on_dialog_response(self, dialog, response, filename, one_file):
-        debug('on_dialog_response(%s, %s)' % (filename, one_file))
+        logger.debug('on_dialog_response(%s, %s)' % (filename, one_file))
         if response == gtk.RESPONSE_ACCEPT:
             self.__export_task(filename, one_file)
         dialog.destroy()
 
-
     def __export_task(self, path, one_file=True):
-        ntables = len(db.metadata.tables)
-        steps_so_far = 0
         if not one_file:
             tableset_el = etree.Element('tableset')
 
-        for table_name, table in tables.iteritems():
+        for table_name, table in db.metadata.tables.iteritems():
             if one_file:
                 tableset_el = etree.Element('tableset')
-            info('exporting %s...' % table_name)
+            logger.info('exporting %s...' % table_name)
             table_el = ElementFactory(tableset_el, 'table',
                                       attrib={'name': table_name})
             results = table.select().execute().fetchall()
@@ -142,18 +127,16 @@ class XMLExporter:
             tree.write(filename, encoding='utf8', xml_declaration=True)
 
 
-
 class XMLExportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'exxml'
 
     def __call__(self, cmd, arg):
-        debug('XMLExportCommandHandler(%s)' % arg)
+        logger.debug('XMLExportCommandHandler(%s)' % arg)
         exporter = XMLExporter()
-        debug('starting')
+        logger.debug('starting')
         exporter.start(arg)
-        debug('started')
-
+        logger.debug('started')
 
 
 class XMLExportTool(pluginmgr.Tool):
@@ -166,14 +149,12 @@ class XMLExportTool(pluginmgr.Tool):
         c.start()
 
 
-
 class XMLImexPlugin(pluginmgr.Plugin):
     tools = [XMLExportTool]
     commands = [XMLExportCommandHandler]
 
-
 try:
     import lxml.etree as etree
 except ImportError:
-    utils.message_dialog('The <i>lxml</i> package is required for the '\
+    utils.message_dialog('The <i>lxml</i> package is required for the '
                          'XML Import/Exporter plugin')
