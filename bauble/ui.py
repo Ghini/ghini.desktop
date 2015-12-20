@@ -63,7 +63,7 @@ class DefaultView(pluginmgr.View):
         image = gtk.Image()
         image.set_from_file(os.path.join(paths.lib_dir(), 'images',
                                          'bauble_logo.png'))
-        self.hbox.pack_start(image, expand=True, fill=True)
+        self.hbox.pack_start(image, expand=True)
 
         # the following means we do not have an infobox yet
         self.infobox = None
@@ -73,7 +73,7 @@ class DefaultView(pluginmgr.View):
         if self.infoboxclass and not self.infobox:
             logger.debug('DefaultView::update - creating infobox')
             self.infobox = self.infoboxclass()
-            self.hbox.pack_end(self.infobox, expand=True, fill=False)
+            self.hbox.pack_end(self.infobox, expand=False, padding=8)
             self.infobox.show()
         if self.infobox:
             logger.debug('DefaultView::update - updating infobox')
