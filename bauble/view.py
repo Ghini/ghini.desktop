@@ -1270,14 +1270,14 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
 
     def __init__(self):
         super(DefaultCommandHandler, self).__init__()
-        self.view = None
 
     command = [None]
+    view = None
 
     def get_view(self):
-        if self.view is None:
-            self.view = SearchView()
-        return self.view
+        if self.__class__.view is None:
+            self.__class__.view = SearchView()
+        return self.__class__.view
 
     def __call__(self, cmd, arg):
         self.view.search(arg)

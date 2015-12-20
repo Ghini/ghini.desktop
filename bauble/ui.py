@@ -355,16 +355,25 @@ class GUI(object):
         :param view: default=None
         '''
         view_box = self.widgets.view_box
+        must_add_this_view = True
         for kid in view_box.get_children():
-            view_box.remove(kid)
-        view_box.pack_start(view, True, True, 0)
+            if view == kid:
+                must_add_this_view = False
+                kid.set_visible(True)
+            else:
+                kid.set_visible(False)
+        if must_add_this_view:
+            view_box.pack_start(view, True, True, 0)
         view.show_all()
 
     def get_view(self):
         '''
         return the current view in the view box
         '''
-        return self.widgets.view_box.get_children()[0]
+        for kid in self.widgets.view_box.get_children():
+            if kid.get_visible():
+                return kid
+        return None
 
     def create_main_menu(self):
         """
