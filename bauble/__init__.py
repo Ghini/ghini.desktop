@@ -438,6 +438,7 @@ def main(uri=None):
             logger.warning("%s\n%s(%s)"
                            % (traceback.format_exc(), type(e), e))
             utils.message_dialog(utils.utf8(e), gtk.MESSAGE_WARNING)
+        gui.get_view().update()
         gtk.gdk.threads_leave()
 
     gobject.idle_add(_post_loop)
