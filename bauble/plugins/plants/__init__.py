@@ -83,9 +83,9 @@ class SplashInfoBox(gtk.VBox):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
         self.widgets = utils.load_widgets(filename)
-        general_box = self.widgets.splash_vbox
-        self.widgets.remove_parent(general_box)
-        self.pack_start(general_box, expand=False, padding=8)
+        self.widgets.remove_parent(self.widgets.splash_vbox)
+        self.pack_start(self.widgets.splash_vbox,
+                        expand=False, padding=8)
 
         utils.make_label_clickable(
             self.widgets.splash_nfamuse,
