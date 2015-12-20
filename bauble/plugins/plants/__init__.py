@@ -34,6 +34,11 @@
 
 import os
 import sys
+import gtk
+
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
 
 import bauble
 import bauble.db as db
@@ -58,10 +63,117 @@ from bauble.plugins.plants.geography import (
     Geography, get_species_in_geography)
 import bauble.search as search
 from bauble.view import SearchView
+from bauble.ui import DefaultView
+from bauble import utils
 from bauble.i18n import _
 
 ## naming locally unused objects. will be imported by clients of the module
 Familia, SpeciesDistribution,
+
+
+class SplashInfoBox(gtk.VBox):
+    '''
+    '''
+
+    def __init__(self):
+        '''
+        '''
+        logger.debug('SplashInfoBox::__init__')
+        super(SplashInfoBox, self).__init__()
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+                                'infoboxes.glade')
+        self.widgets = utils.load_widgets(filename)
+        general_box = self.widgets.splash_vbox
+        self.widgets.remove_parent(general_box)
+        self.pack_start(general_box, expand=False, padding=8)
+
+        utils.make_label_clickable(
+            self.widgets.splash_nfamuse,
+            lambda *a: bauble.gui.send_command(
+                'family where genera.species.accessions.id != 0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_ngenuse,
+            lambda *a: bauble.gui.send_command(
+                'genus where species.accessions.id != 0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nspcuse,
+            lambda *a: bauble.gui.send_command(
+                'species where accessions.id != 0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nspctot,
+            lambda *a: bauble.gui.send_command(
+                'species like %'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_naccliving,
+            lambda *a: bauble.gui.send_command(
+                'accession where plant.id != 0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nacctot,
+            lambda *a: bauble.gui.send_command(
+                'accession like %'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nplttot,
+            lambda *a: bauble.gui.send_command(
+                'plant like %'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nlocuse,
+            lambda *a: bauble.gui.send_command(
+                'location where plants.id != 0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nloctot,
+            lambda *a: bauble.gui.send_command(
+                'location like %'))
+
+    def update(self):
+        '''
+        '''
+        logger.debug('SplashInfoBox::update')
+        ssn = db.Session()
+        if 'GardenPlugin' in pluginmgr.plugins:
+            plttot, = ssn.execute(
+                "select count(*) from plant").first()
+            acctot, = ssn.execute(
+                "select count(*) from accession").first()
+            accliving, = ssn.execute(
+                "select count(*) from accession").first()
+            loctot, = ssn.execute(
+                "select count(*) from location").first()
+            locuse, = ssn.execute(
+                "select count(*) from location").first()
+            self.widgets.splash_nplttot.set_text(str(plttot))
+            self.widgets.splash_nacctot.set_text(str(acctot))
+            self.widgets.splash_naccliving.set_text(str(accliving))
+            self.widgets.splash_nloctot.set_text(str(loctot))
+            self.widgets.splash_nlocuse.set_text(str(locuse))
+
+        spcuse, = ssn.execute(
+            "select count(distinct species.id) "
+            "from species join accession "
+            "on accession.species_id=species.id").first()
+        genuse, = ssn.execute(
+            "select count(distinct species.genus_id) "
+            "from species join accession "
+            "on accession.species_id=species.id").first()
+        spctot, = ssn.execute(
+            "select count(*) from species").first()
+        famuse, = ssn.execute(
+            "select count(distinct genus.family_id) from genus "
+            "join species on species.genus_id=genus.id "
+            "join accession on accession.species_id=species.id "
+            ).first()
+        self.widgets.splash_nfamuse.set_text(str(famuse))
+        self.widgets.splash_ngenuse.set_text(str(genuse))
+        self.widgets.splash_nspcuse.set_text(str(spcuse))
+        self.widgets.splash_nspctot.set_text(str(spctot))
+        ssn.close()
 
 
 class PlantsPlugin(pluginmgr.Plugin):
@@ -107,6 +219,10 @@ class PlantsPlugin(pluginmgr.Plugin):
 
         mapper_search.add_meta(('geography', 'geo'), Geography, ['name'])
         SearchView.row_meta[Geography].set(children=get_species_in_geography)
+
+        ## now it's the turn of the DefaultView
+        logger.debug('PlantsPlugin::init, registering splash info box')
+        DefaultView.infoboxclass = SplashInfoBox
 
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))

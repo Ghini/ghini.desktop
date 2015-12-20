@@ -43,46 +43,41 @@ from bauble.view import SearchView
 
 
 class DefaultView(pluginmgr.View):
-    '''
+    '''consider DefaultView a splash screen.
+
+    it is displayed at program start and never again.
+    it's the core of the "what do I do now" screen.
     DefaultView is not related to view.DefaultCommandHandler
     '''
+    infoboxclass = None
+
     def __init__(self):
         super(DefaultView, self).__init__()
-        ssn = db.Session()
-        plt_count, = ssn.execute("select count(*) from plant").first()
-        acc_count, = ssn.execute("select count(*) from accession").first()
-        spc_count, = ssn.execute(
-            "select count(distinct species.id) "
-            "from species join accession "
-            "on accession.species_id=species.id").first()
-        gen_count, = ssn.execute(
-            "select count(distinct species.genus_id) "
-            "from species join accession "
-            "on accession.species_id=species.id").first()
 
-        # Put a vbox into the main window.
-        box1 = gtk.VBox(False, 0)
-        self.add(box1)
+        # splash window contains a hbox: left half is for the proper splash,
+        # right half for infobox, only one infobox is allowed.
+
+        self.hbox = gtk.HBox(False, 0)
+        self.add(self.hbox)
 
         image = gtk.Image()
         image.set_from_file(os.path.join(paths.lib_dir(), 'images',
                                          'bauble_logo.png'))
-        label = gtk.Label()
-        label.set_markup("<big>" + _(
-            "Database contains %(p)s plants in %(a)s accessions, "
-            "representing %(s)s species in %(g)s genera.") %
-            {
-                'p': plt_count,
-                'a': acc_count,
-                's': spc_count,
-                'g': gen_count
-            } + "</big>")
-        box1.pack_start(label, expand=False, fill=False)
-        box1.pack_start(image, expand=True, fill=True)
-        # then an other label to make it symmetric
-        label = gtk.Label()
-        label.set_markup("<big>&nbsp;</big>")
-        box1.pack_start(label, expand=False, fill=False)
+        self.hbox.pack_start(image, expand=True, fill=True)
+
+        # the following means we do not have an infobox yet
+        self.infobox = None
+
+    def update(self):
+        logger.debug('DefaultView::update')
+        if self.infoboxclass and not self.infobox:
+            logger.debug('DefaultView::update - creating infobox')
+            self.infobox = self.infoboxclass()
+            self.hbox.pack_end(self.infobox, expand=True, fill=False)
+            self.infobox.show()
+        if self.infobox:
+            logger.debug('DefaultView::update - updating infobox')
+            self.infobox.update()
 
 
 class GUI(object):
