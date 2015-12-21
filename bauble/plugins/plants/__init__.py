@@ -142,6 +142,10 @@ class SplashInfoBox(gtk.VBox):
         '''
         '''
         logger.debug('SplashInfoBox::update')
+        statusbar = bauble.gui.widgets.statusbar
+        sbcontext_id = statusbar.get_context_id('searchview.nresults')
+        statusbar.pop(sbcontext_id)
+        bauble.gui.widgets.main_comboentry.child.set_text('')
 
         ssn = db.Session()
         if 'GardenPlugin' in pluginmgr.plugins:
