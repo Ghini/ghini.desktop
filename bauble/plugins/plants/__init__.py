@@ -72,7 +72,8 @@ Familia, SpeciesDistribution,
 
 
 class SplashInfoBox(gtk.VBox):
-    '''
+    '''info box shown in the initial splash screen.
+
     '''
 
     def __init__(self):
@@ -90,17 +91,17 @@ class SplashInfoBox(gtk.VBox):
         utils.make_label_clickable(
             self.widgets.splash_nfamuse,
             lambda *a: bauble.gui.send_command(
-                'family where genera.species.accessions.id != 0'))
+                'family where genera.species.accessions.plants.quantity>0'))
 
         utils.make_label_clickable(
             self.widgets.splash_ngenuse,
             lambda *a: bauble.gui.send_command(
-                'genus where species.accessions.id != 0'))
+                'genus where species.accessions.plants.quantity>0'))
 
         utils.make_label_clickable(
             self.widgets.splash_nspcuse,
             lambda *a: bauble.gui.send_command(
-                'species where accessions.id != 0'))
+                'species where accessions.plants.quantity>0'))
 
         utils.make_label_clickable(
             self.widgets.splash_nspctot,
@@ -108,14 +109,19 @@ class SplashInfoBox(gtk.VBox):
                 'species like %'))
 
         utils.make_label_clickable(
-            self.widgets.splash_naccliving,
+            self.widgets.splash_naccuse,
             lambda *a: bauble.gui.send_command(
-                'accession where plant.id != 0'))
+                'accession where plants.quantity>0'))
 
         utils.make_label_clickable(
             self.widgets.splash_nacctot,
             lambda *a: bauble.gui.send_command(
                 'accession like %'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_npltuse,
+            lambda *a: bauble.gui.send_command(
+                'plant where quantity>0'))
 
         utils.make_label_clickable(
             self.widgets.splash_nplttot,
@@ -136,21 +142,27 @@ class SplashInfoBox(gtk.VBox):
         '''
         '''
         logger.debug('SplashInfoBox::update')
+
         ssn = db.Session()
         if 'GardenPlugin' in pluginmgr.plugins:
             plttot, = ssn.execute(
                 "select count(*) from plant").first()
+            pltuse, = ssn.execute(
+                "select count(*) from plant where quantity>0").first()
             acctot, = ssn.execute(
                 "select count(*) from accession").first()
-            accliving, = ssn.execute(
-                "select count(*) from accession").first()
+            accuse, = ssn.execute(
+                "select count(distinct accession.id) from accession "
+                "join plant on plant.accession_id=accession.id").first()
             loctot, = ssn.execute(
                 "select count(*) from location").first()
             locuse, = ssn.execute(
-                "select count(*) from location").first()
+                "select count(distinct location.id) from location "
+                "join plant on plant.location_id=location.id").first()
             self.widgets.splash_nplttot.set_text(str(plttot))
+            self.widgets.splash_npltuse.set_text(str(pltuse))
             self.widgets.splash_nacctot.set_text(str(acctot))
-            self.widgets.splash_naccliving.set_text(str(accliving))
+            self.widgets.splash_naccuse.set_text(str(accuse))
             self.widgets.splash_nloctot.set_text(str(loctot))
             self.widgets.splash_nlocuse.set_text(str(locuse))
 
@@ -162,16 +174,22 @@ class SplashInfoBox(gtk.VBox):
             "select count(distinct species.genus_id) "
             "from species join accession "
             "on accession.species_id=species.id").first()
-        spctot, = ssn.execute(
-            "select count(*) from species").first()
         famuse, = ssn.execute(
             "select count(distinct genus.family_id) from genus "
             "join species on species.genus_id=genus.id "
             "join accession on accession.species_id=species.id "
             ).first()
+        spctot, = ssn.execute(
+            "select count(*) from species").first()
+        gentot, = ssn.execute(
+            "select count(*) from genus").first()
+        famtot, = ssn.execute(
+            "select count(*) from family").first()
         self.widgets.splash_nfamuse.set_text(str(famuse))
         self.widgets.splash_ngenuse.set_text(str(genuse))
         self.widgets.splash_nspcuse.set_text(str(spcuse))
+        self.widgets.splash_nfamtot.set_text(str(famtot))
+        self.widgets.splash_ngentot.set_text(str(gentot))
         self.widgets.splash_nspctot.set_text(str(spctot))
         ssn.close()
 
