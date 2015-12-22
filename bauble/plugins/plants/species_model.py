@@ -78,6 +78,16 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
 # make sure that at least one of the specific epithet, cultivar name
 # or cultivar group is specificed
 
+
+def compare_rank(rank1, rank2):
+    'implement the binary comparison operation needed for sorting'
+
+    ordering = [u'familia', u'subfamilia', u'tribus', u'subtribus',
+                u'genus', u'subgenus', u'species', u'subsp.',
+                u'var.', u'subvar.', u'f.', u'subf.']
+    return ordering.index(rank1).__cmp__(ordering.index(rank2))
+
+
 class Species(db.Base, db.Serializable, db.DefiningPictures):
     """
     :Table name: species
@@ -196,50 +206,31 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
                  if i.category.lower() == u'condition']
         return (notes + [None])[0]
 
-    @property
-    def infraspecific_rank(self):
-        infrasp = ((self.infrasp1_rank, self.infrasp1,
+    def __lowest_infraspecific(self):
+        infrasp = [(self.infrasp1_rank, self.infrasp1,
                     self.infrasp1_author),
                    (self.infrasp2_rank, self.infrasp2,
                     self.infrasp2_author),
                    (self.infrasp3_rank, self.infrasp3,
                     self.infrasp3_author),
                    (self.infrasp4_rank, self.infrasp4,
-                    self.infrasp4_author))
-        for rank, epithet, author in infrasp:
-            if rank not in [u'cv.', '', None]:
-                return rank
-        return None
+                    self.infrasp4_author)]
+        infrasp = [i for i in infrasp if i[0] not in [u'cv.', '', None]]
+        if infrasp == []:
+            return (u'', u'', u'')
+        return sorted(infrasp, cmp=lambda a, b: compare_rank(a[0], b[0]))[-1]
+
+    @property
+    def infraspecific_rank(self):
+        return self.__lowest_infraspecific()[0] or u''
 
     @property
     def infraspecific_epithet(self):
-        infrasp = ((self.infrasp1_rank, self.infrasp1,
-                    self.infrasp1_author),
-                   (self.infrasp2_rank, self.infrasp2,
-                    self.infrasp2_author),
-                   (self.infrasp3_rank, self.infrasp3,
-                    self.infrasp3_author),
-                   (self.infrasp4_rank, self.infrasp4,
-                    self.infrasp4_author))
-        for rank, epithet, author in infrasp:
-            if rank not in [u'cv.', '', None]:
-                return epithet
-        return None
+        return self.__lowest_infraspecific()[1] or u''
 
     @property
     def infraspecific_author(self):
-        infrasp = ((self.infrasp1_rank, self.infrasp1,
-                    self.infrasp1_author),
-                   (self.infrasp2_rank, self.infrasp2,
-                    self.infrasp2_author),
-                   (self.infrasp3_rank, self.infrasp3,
-                    self.infrasp3_author),
-                   (self.infrasp4_rank, self.infrasp4,
-                    self.infrasp4_author))
-        for rank, epithet, author in infrasp:
-            if rank not in [u'cv.', '', None]:
-                return author
-        return None
+        return self.__lowest_infraspecific()[2] or u''
 
     @property
     def cultivar_epithet(self):
@@ -254,7 +245,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         for rank, epithet, author in infrasp:
             if rank == u'cv.':
                 return epithet
-        return None
+        return u''
 
     # columns
     sp = Column(Unicode(64), index=True)
