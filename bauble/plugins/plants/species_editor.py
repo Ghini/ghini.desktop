@@ -47,7 +47,7 @@ from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import (
     Species, SpeciesDistribution, VernacularName, SpeciesSynonym, Habit,
-    infrasp_rank_values)
+    infrasp_rank_values, compare_rank)
 
 
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
@@ -419,8 +419,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
             # rank combo
             self.rank_combo = gtk.ComboBox()
-            self.presenter.view.init_translatable_combo(self.rank_combo,
-                                                        infrasp_rank_values)
+            self.presenter.view.init_translatable_combo(
+                self.rank_combo, infrasp_rank_values, cmp=compare_rank)
             utils.set_widget_value(self.rank_combo, rank)
             presenter.view.connect(self.rank_combo,
                                    'changed', self.on_rank_combo_changed)
