@@ -35,11 +35,16 @@ class AskTPL(threading.Thread):
                  group=None, verbose=None, **kwargs):
         super(AskTPL, self).__init__(
             group=group, target=None, name=None, verbose=verbose)
-        logger.info("%s %s", self.name, self.running and self.running.name)
+        logger.debug("new %s, already running %s.",
+                     self.name, self.running and self.running.name)
         if self.running is not None:
             if self.running.binomial == binomial:
+                logger.debug("%s has same query as %s, do not start %s",
+                             self.name, self.running.name, self.name)
                 binomial = None
             else:
+                logger.debug("%s has other query than %s, stop %s",
+                             self.name, self.running.name, self.running.name)
                 self.running.stop()
         if binomial:
             self.__class__.running = self
@@ -75,14 +80,13 @@ class AskTPL(threading.Thread):
             pass
 
         if self.binomial is None:
-            logger.info("%s same value as %s, do not start", self.name, self.running.name)
             return
 
         try:
             synonym = None
-            logger.info("%s before first query", self.name)
+            logger.debug("%s before first query", self.name)
             candidates = ask_tpl(self.binomial)
-            logger.info("%s after first query", self.name)
+            logger.debug("%s after first query", self.name)
             if self.stopped():
                 raise ShouldStopNow('after first query')
             if len(candidates) > 1:
@@ -103,16 +107,16 @@ class AskTPL(threading.Thread):
             if candidate['Accepted ID']:
                 synonym = candidate
                 candidate = ask_tpl(candidate['Accepted ID'])[0]
-                logger.info("%s after second query", self.name)
+                logger.debug("%s after second query", self.name)
             if self.stopped():
                 raise ShouldStopNow('after second query')
         except Exception, e:
-            logger.info("%s (%s)%s -> do not invoke callback",
-                        self.name, type(e).__name__, e)
+            logger.debug("%s (%s)%s : do not invoke callback",
+                         self.name, type(e).__name__, e)
             self.__class__.running = None
             return
         self.__class__.running = None
-        logger.info("%s before invoking callback" % self.name)
+        logger.debug("%s before invoking callback" % self.name)
         self.callback(candidate, synonym)
 
 
@@ -124,12 +128,12 @@ def citation(d):
 
 def what_to_do_with_it(accepted, synonym):
     if synonym is not None:
-        logger.info("%s - synonym of:", citation(synonym))
-    logger.info("%s", citation(accepted))
+        logger.debug("%s - synonym of:", citation(synonym))
+    logger.debug("%s", citation(accepted))
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
     while True:
         binomial = raw_input()
