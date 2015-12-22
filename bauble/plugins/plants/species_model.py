@@ -83,8 +83,8 @@ def compare_rank(rank1, rank2):
     'implement the binary comparison operation needed for sorting'
 
     ordering = [u'familia', u'subfamilia', u'tribus', u'subtribus',
-                u'genus', u'subgenus', u'species', u'subsp.',
-                u'var.', u'subvar.', u'f.', u'subf.', u'cv.', None]
+                u'genus', u'subgenus', u'species', None, u'subsp.',
+                u'var.', u'subvar.', u'f.', u'subf.', u'cv.']
     return ordering.index(rank1).__cmp__(ordering.index(rank2))
 
 
