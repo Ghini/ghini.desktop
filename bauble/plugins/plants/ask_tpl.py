@@ -21,19 +21,59 @@ import difflib
 import requests
 import csv
 
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
 header = None
 
+import threading
 
-def ask_tpl(s):
-    result = requests.get(
-        'http://www.theplantlist.org/tpl1.1/search?q=' + s + '&csv=true',
-        timeout=5)
-    l = result.text[1:].split('\n')
-    result = [row for row in csv.reader(k.encode('utf-8') for k in l if k)]
-    global header
-    header = result[0]
-    result = result[1:]
-    return result
+
+class AskTPL(threading.Thread):
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs=None, verbose=None):
+        threading.Thread.__init__(self, group=group, target=target, name=name,
+                                  verbose=verbose)
+        self.args = args
+        self.kwargs = kwargs
+        return
+
+    def run(self):
+        def ask_tpl(binomial):
+            result = requests.get(
+                'http://www.theplantlist.org/tpl1.1/search?q=' + binomial +
+                '&csv=true',
+                timeout=4)
+            l = result.text[1:].split('\n')
+            result = [row for row in csv.reader(k.encode('utf-8')
+                                                for k in l if k)]
+            header = result[0]
+            result = result[1:]
+            return [dict(zip(header, k)) for k in result]
+
+        logger.info('running with %s and %s', self.args, self.kwargs)
+
+        s, threshold = self.args[:2]
+        candidates = ask_tpl(s)
+        if len(candidates) > 1:
+            l = []
+            for candidate in candidates:
+                g, s = candidate['Genus'], candidate['Species']
+                seq = difflib.SequenceMatcher(a=binomial, b='%s %s' % (g, s))
+                l.append((seq.ratio(), candidate))
+
+            score, candidate = sorted(l)[-1]
+            if score < threshold:
+                score = 0
+        else:
+            candidate = candidates.pop()
+        logger.info("%(Genus)s %(Species hybrid marker)s%(Species)s %(Authorship)s (%(Family)s)", candidate)
+        if candidate['Accepted ID']:
+            candidate = ask_tpl(candidate['Accepted ID'])[0]
+        logger.info("%(Genus)s %(Species hybrid marker)s%(Species)s %(Authorship)s (%(Family)s)", candidate)
+
+        return
 
 
 def citation(l):
@@ -42,29 +82,12 @@ def citation(l):
         "%(Authorship)s (%(Family)s)" % d
 
 
-def best_tpl_match(binomial, threshold=0.8):
-    l = []
-    for row in ask_tpl(binomial):
-        g, s = row[4], row[6]
-        seq = difflib.SequenceMatcher(a=binomial, b='%s %s' % (g, s))
-        l.append((seq.ratio(), row))
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    while True:
+        binomial = raw_input()
+        if not binomial:
+            break
 
-    score, candidate = sorted(l)[-1]
-    if score < threshold:
-        score = 0
-    return score, candidate
-
-
-while True:
-    binomial = raw_input()
-    if not binomial:
-        break
-
-    score, candidate = best_tpl_match(binomial)
-
-    print {1: 'your match is',
-           0: 'do you really mean'}.get(score, 'you probably mean')
-    print citation(candidate)
-    if candidate[-1]:
-        print 'synonym of'
-        print citation(ask_tpl(candidate[-1])[0])
+        t = AskTPL(args=(binomial, 0.8))
+        t.run()
