@@ -1510,7 +1510,7 @@ Lauraceae,,Cinnamomum,,"camphora",var.,"nominale","Hats. & Hayata"
                       infrasp2_rank=u'cv.')
         self.assertEquals(obj.infraspecific_rank, u'var.')
         self.assertEquals(obj.infraspecific_epithet, u'inermis')
-        self.assertEquals(obj.infraspecific_author, None)
+        self.assertEquals(obj.infraspecific_author, u'')
         self.assertEquals(obj.cultivar_epithet, u'Sunburst')
 
     def test_variety_and_cultivar_2(self):
@@ -1523,8 +1523,71 @@ Lauraceae,,Cinnamomum,,"camphora",var.,"nominale","Hats. & Hayata"
                       infrasp1_rank=u'cv.')
         self.assertEquals(obj.infraspecific_rank, u'var.')
         self.assertEquals(obj.infraspecific_epithet, u'inermis')
-        self.assertEquals(obj.infraspecific_author, None)
+        self.assertEquals(obj.infraspecific_author, u'')
         self.assertEquals(obj.cultivar_epithet, u'Sunburst')
+
+    def test_infraspecific_props_is_lowest_ranked(self):
+        '''Saxifraga aizoon\
+        var. aizoon subvar. brevifolia f. multicaulis subf. surculosa'''
+        Family.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'rank': 'family',
+                           'epithet': 'Saxifragaceae'})
+        self.genus = Genus.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'family',
+                           'ht-epithet': u'Saxifragaceae',
+                           'rank': 'genus',
+                           'epithet': u'Saxifraga'})
+        self.species = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'ht-epithet': u'Saxifraga',
+                           'rank': 'species',
+                           'epithet': u'aizoon'})
+        subvar = Species(genus=self.genus,
+                         sp=u'aizoon',
+                         infrasp1_rank=u'var.',
+                         infrasp1=u'aizoon',
+                         infrasp2_rank=u'subvar.',
+                         infrasp2=u'brevifolia',
+                         )
+        subf = Species(genus=self.genus,
+                       sp=u'aizoon',
+                       infrasp2_rank=u'var.',
+                       infrasp2=u'aizoon',
+                       infrasp1_rank=u'subvar.',
+                       infrasp1=u'brevifolia',
+                       infrasp3_rank=u'f.',
+                       infrasp3=u'multicaulis',
+                       infrasp4_rank=u'subf.',
+                       infrasp4=u'surculosa',
+                       )
+        self.assertEquals(subvar.infraspecific_rank, u'subvar.')
+        self.assertEquals(subvar.infraspecific_epithet, u'brevifolia')
+        self.assertEquals(subvar.infraspecific_author, u'')
+        self.assertEquals(subvar.cultivar_epithet, u'')
+        self.assertEquals(subf.infraspecific_rank, u'subf.')
+        self.assertEquals(subf.infraspecific_epithet, u'surculosa')
+        self.assertEquals(subf.infraspecific_author, u'')
+        self.assertEquals(subf.cultivar_epithet, u'')
+        "Saxifraga aizoon var. aizoon subvar. brevifolia f. multicaulis "
+        "cv. 'Bellissima'"
+        cv = Species(genus=self.genus,
+                     sp=u'aizoon',
+                     infrasp4_rank=u'var.',
+                     infrasp4=u'aizoon',
+                     infrasp1_rank=u'subvar.',
+                     infrasp1=u'brevifolia',
+                     infrasp3_rank=u'f.',
+                     infrasp3=u'multicaulis',
+                     infrasp2_rank=u'cv.',
+                     infrasp2=u'Bellissima',
+                     )
+        self.assertEquals(cv.infraspecific_rank, u'f.')
+        self.assertEquals(cv.infraspecific_epithet, u'multicaulis')
+        self.assertEquals(cv.infraspecific_author, u'')
+        self.assertEquals(cv.cultivar_epithet, u'Bellissima')
 
 
 class SpeciesProperties_test(PlantTestCase):
