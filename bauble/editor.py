@@ -652,7 +652,6 @@ class GenericEditorView(object):
 
         return completion
 
-    # TODO: add the ability to pass a sort function
     # TODO: add a default value to set in the combo
     def init_translatable_combo(self, combo, translations, default=None,
                                 cmp=None):
@@ -676,6 +675,9 @@ class GenericEditorView(object):
         model = gtk.ListStore(object, str)
         if isinstance(translations, dict):
             translations = sorted(translations.iteritems(), key=lambda x: x[1])
+        if cmp is not None:
+            translations = sorted(translations,
+                                  cmp=lambda a, b: cmp(a[0], b[0]))
         for key, value in translations:
             model.append([key, value])
         combo.set_model(model)
