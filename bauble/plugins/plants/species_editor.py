@@ -123,6 +123,21 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             return self.session.query(Genus).filter(clause).\
                 order_by(Genus.genus)
 
+        def on_sp_species_button_clicked(widget, event=None):
+            # this activity runs in a thread
+            # return False
+            from ask_tpl import AskTPL, what_to_do_with_it
+
+            binomial = '%s %s' % (self.model.genus, self.model.sp)
+            AskTPL(binomial, what_to_do_with_it, timeout=2).start()
+            if event is not None:
+                return False
+
+        self.view.connect('sp_species_button', "clicked",
+                          on_sp_species_button_clicked)
+        self.view.connect('sp_species_entry', "focus-out-event",
+                          on_sp_species_button_clicked)
+
         # called when a genus is selected from the genus completions
         def on_select(value):
             logger.debug('on select: %s' % value)
