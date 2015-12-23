@@ -31,7 +31,7 @@ import threading
 class AskTPL(threading.Thread):
     running = None
 
-    def __init__(self, binomial, callback, threshold=0.8, timeout=4,
+    def __init__(self, binomial, callback, threshold=0.8, timeout=4, gui=False,
                  group=None, verbose=None, **kwargs):
         super(AskTPL, self).__init__(
             group=group, target=None, name=None, verbose=verbose)
@@ -53,6 +53,7 @@ class AskTPL(threading.Thread):
         self.threshold = threshold
         self.callback = callback
         self.timeout = timeout
+        self.gui = gui
 
     def stop(self):
         self._stop = True
@@ -71,7 +72,7 @@ class AskTPL(threading.Thread):
                                                 for k in l if k)]
             header = result[0]
             result = result[1:]
-            return [dict(zip(header, k)) for k in result]
+            return [dict(zip(header, k)) for k in result if k[7] == '']
 
         class ShouldStopNow(Exception):
             pass
@@ -83,7 +84,7 @@ class AskTPL(threading.Thread):
             return
 
         try:
-            synonym = None
+            accepted = None
             logger.debug("%s before first query", self.name)
             candidates = ask_tpl(self.binomial)
             logger.debug("%s after first query", self.name)
@@ -91,33 +92,40 @@ class AskTPL(threading.Thread):
                 raise ShouldStopNow('after first query')
             if len(candidates) > 1:
                 l = []
-                for candidate in candidates:
-                    g, s = candidate['Genus'], candidate['Species']
+                for item in candidates:
+                    g, s = item['Genus'], item['Species']
                     seq = difflib.SequenceMatcher(a=self.binomial,
                                                   b='%s %s' % (g, s))
-                    l.append((seq.ratio(), candidate))
+                    l.append((seq.ratio(), item))
 
-                score, candidate = sorted(l)[-1]
+                score, found = sorted(l)[-1]
                 if score < self.threshold:
                     score = 0
             elif candidates:
-                candidate = candidates.pop()
+                found = candidates.pop()
             else:
                 raise NoResult
-            if candidate['Accepted ID']:
-                synonym = candidate
-                candidate = ask_tpl(candidate['Accepted ID'])[0]
+            if found['Accepted ID']:
+                accepted = ask_tpl(found['Accepted ID'])[0]
                 logger.debug("%s after second query", self.name)
             if self.stopped():
                 raise ShouldStopNow('after second query')
+        except ShouldStopNow:
+            logger.debug("%s interrupted : do not invoke callback",
+                         self.name)
+            return
         except Exception, e:
-            logger.debug("%s (%s)%s : do not invoke callback",
+            logger.debug("%s (%s)%s : completed with trouble",
                          self.name, type(e).__name__, e)
             self.__class__.running = None
-            return
+            found = accepted = None
         self.__class__.running = None
         logger.debug("%s before invoking callback" % self.name)
-        self.callback(candidate, synonym)
+        if self.gui:
+            import gobject
+            gobject.idle_add(self.callback, found, accepted)
+        else:
+            self.callback(found, accepted)
 
 
 def citation(d):
@@ -126,10 +134,13 @@ def citation(d):
         "%(Authorship)s (%(Family)s)" % d
 
 
-def what_to_do_with_it(accepted, synonym):
-    if synonym is not None:
-        logger.debug("%s - synonym of:", citation(synonym))
-    logger.debug("%s", citation(accepted))
+def what_to_do_with_it(found, accepted):
+    if found is None and accepted is None:
+        logger.info("nothing matches")
+        return
+    logger.info("%s", citation(found))
+    if accepted is not None:
+        logger.info("%s - is its accepted form", citation(accepted))
 
 
 if __name__ == '__main__':
