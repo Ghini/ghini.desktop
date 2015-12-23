@@ -145,7 +145,7 @@ welcome.
 the installation steps on Windows:
 
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
-   ``vi``) from:
+   ``vi``) from::
 
    https://git-scm.com/download/win
    
@@ -156,7 +156,7 @@ the installation steps on Windows:
 
    .. image:: images/screenshots/git3.png
 
-#. download and install Python 2.x (32bit) from:
+#. download and install Python 2.x (32bit) from::
 
    http://www.python.org
 
@@ -173,7 +173,7 @@ the installation steps on Windows:
 #. download ``pygtk`` from the following source. (this requires 32bit
    python). be sure you download the "all in one" version::
 
-    http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
+   http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
    `Direct link to download PyGTK`_
 
@@ -212,7 +212,7 @@ the installation steps on Windows:
 
    hey, this is Windows, you need to reboot for changes to take effect!
 
-#. download and run the batch file::
+#. download and run (from \system32\cmd.exe) the batch file:
 
     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.bat
 
@@ -234,7 +234,7 @@ the installation steps on Windows:
    create the Bauble group, place the Bauble shortcut.
 
 #. download the batch file you will use to stay up-to-date with the
-   production line you chose to follow::
+   production line you chose to follow:
 
     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/bauble-update.bat
 
