@@ -212,7 +212,7 @@ the installation steps on Windows:
 
    hey, this is Windows, you need to reboot for changes to take effect!
 
-#. download and run (from \system32\cmd.exe) the batch file:
+#. download and run (from ``\system32\cmd.exe``) the batch file:
 
     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.bat
 
@@ -222,6 +222,9 @@ the installation steps on Windows:
 
    you can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
+
+   this is the last installation step that depends, heavily, on a working
+   internet connection.
 
 #. the last installation step creates the Bauble group and shortcuts in the
    Windows Start Menu, for all users. To do so, you need run a script with
