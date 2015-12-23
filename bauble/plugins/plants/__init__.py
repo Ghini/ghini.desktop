@@ -157,12 +157,14 @@ class SplashInfoBox(gtk.VBox):
                 "select count(*) from accession").first()
             accuse, = ssn.execute(
                 "select count(distinct accession.id) from accession "
-                "join plant on plant.accession_id=accession.id").first()
+                "join plant on plant.accession_id=accession.id "
+                "where plant.quantity>0").first()
             loctot, = ssn.execute(
                 "select count(*) from location").first()
             locuse, = ssn.execute(
                 "select count(distinct location.id) from location "
-                "join plant on plant.location_id=location.id").first()
+                "join plant on plant.location_id=location.id "
+                "where plant.quantity>0").first()
             self.widgets.splash_nplttot.set_text(str(plttot))
             self.widgets.splash_npltuse.set_text(str(pltuse))
             self.widgets.splash_nacctot.set_text(str(acctot))
