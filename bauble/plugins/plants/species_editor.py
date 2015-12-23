@@ -69,6 +69,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
         self._dirty = False
         self.omonym_box = None
+        self.species_check_messages = []
+        self.genus_check_messages = []
         self.species_space = False  # do not accept spaces in epithet
         self.init_fullname_widgets()
         self.vern_presenter = VernacularNamePresenter(self)
@@ -123,22 +125,115 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             return self.session.query(Genus).filter(clause).\
                 order_by(Genus.genus)
 
+        def sp_species_TPL_callback(found, accepted):
+            # both found and accepted are dictionaries, their keys here
+            # relevant: 'Species hybrid marker', 'Species', 'Authorship',
+            # 'Taxonomic status in TPL'.
+
+            # we can provide the user the option to accept spellings
+            # corrections in 'Species', the full value of 'Authorship', and
+            # full acceptedy links. it's TWO boxes that we might show. or
+            # one if nothing matches.
+
+            if found:
+                found = dict((k, utils.to_unicode(v))
+                             for k, v in found.items())
+            if accepted:
+                accepted = dict((k, utils.to_unicode(v))
+                             for k, v in accepted.items())
+
+            msg_box_msg = _('No match found on ThePlantList.org')
+
+            if not (found is None and accepted is None):
+
+                # if inserted data matches found, just say so.
+                if (self.model.sp == found['Species'] and
+                        self.model.sp_author == found['Authorship'] and
+                        self.model.hybrid == (
+                            found['Species hybrid marker'] == u'×')):
+                    msg_box_msg = _(
+                        'your data finely matches ThePlantList.org')
+                else:
+                    cit = ('<i>%(Genus)s</i> %(Species hybrid marker)s'
+                           '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
+                           ) % found
+                    msg = _('%s is the closest match for your data.\n'
+                            'Do you want to accept it?' % cit)
+                    b1 = box = self.view.add_message_box(
+                        utils.MESSAGE_BOX_YESNO)
+                    box.message = msg
+
+                    def on_response_found(button, response):
+                        self.view.remove_box(b1)
+                        if response:
+                            self.set_model_attr('sp', found['Species'])
+                            self.set_model_attr('sp_author', found['Authorship'])
+                            self.set_model_attr(
+                                'hybrid',
+                                found['Species hybrid marker'] == u'×')
+                            self.refresh_view()
+                            self.refresh_fullname_label()
+                    box.on_response = on_response_found
+                    box.show()
+                    self.view.add_box(box)
+                    self.species_check_messages.append(box)
+                    msg_box_msg = None
+
+                if self.model.accepted is None and accepted:
+                    cit = ('<i>%(Genus)s</i> %(Species hybrid marker)s'
+                           '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
+                           ) % accepted
+                    msg = _('%s is the accepted taxon for your data.\n'
+                            'Do you want to add it?' % cit)
+                    b2 = box = self.view.add_message_box(
+                        utils.MESSAGE_BOX_YESNO)
+                    box.message = msg
+
+                    def on_response_accepted(button, response):
+                        self.view.remove_box(b2)
+                        if response:
+                            hybrid = accepted['Species hybrid marker'] == u'×'
+                            self.model.accepted = Species.retrieve_or_create(
+                                self.session, {
+                                    'object': 'taxon',
+                                    'rank': 'species',
+                                    'ht-rank': 'genus',
+                                    'ht-epithet': accepted['Genus'],
+                                    'epithet': accepted['Species'],
+                                    'sp_author': accepted['Authorship'],
+                                    'hybrid': hybrid}
+                                )
+                            self.refresh_view()
+                            self.refresh_fullname_label()
+                    box.on_response = on_response_accepted
+                    box.show()
+                    self.view.add_box(box)
+                    self.species_check_messages.append(box)
+                    msg_box_msg = None
+
+            if msg_box_msg is not None:
+                b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
+                b0.message = msg_box_msg
+                b0.on_response = lambda b, r: self.view.remove_box(b0)
+                b0.show()
+                self.view.add_box(b0)
+                self.species_check_messages.append(b0)
+
         def on_sp_species_button_clicked(widget, event=None):
-            # this activity runs in a separate thread.
-            # return False
-            # Any code that modifies the UI that is called from outside the
-            # main thread must be pushed into the main thread and called
-            # asynchronously in the main loop, with gobject.idle_add.
-            from ask_tpl import AskTPL, what_to_do_with_it
+            # the real activity runs in a separate thread.
+            from ask_tpl import AskTPL
+
+            while self.species_check_messages:
+                kid = self.species_check_messages.pop()
+                self.view.widgets.remove_parent(kid)
 
             binomial = '%s %s' % (self.model.genus, self.model.sp)
-            AskTPL(binomial, what_to_do_with_it, timeout=2).start()
+            AskTPL(binomial, sp_species_TPL_callback, timeout=2, gui=True
+                   ).start()
             if event is not None:
                 return False
 
         self.view.connect('sp_species_button', "clicked",
-                          on_sp_species_button_clicked)
-        self.view.connect('sp_species_entry', "focus-out-event",
                           on_sp_species_button_clicked)
 
         # called when a genus is selected from the genus completions
@@ -147,7 +242,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             if isinstance(value, StringTypes):
                 value = self.session.query(Genus).filter(
                     Genus.genus == value).first()
-            for kid in self.view.widgets.message_box_parent.get_children():
+            while self.genus_check_messages:
+                kid = self.genus_check_messages.pop()
                 self.view.widgets.remove_parent(kid)
             self.set_model_attr('genus', value)
             if not value:  # no choice is a fine choice
@@ -179,6 +275,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             box.on_response = on_response
             box.show()
             self.view.add_box(box)
+            self.genus_check_messages.append(box)
 
         on_select(self.model.genus)
 
@@ -201,6 +298,15 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.sp_ok_and_add_button.set_sensitive(True)
         except Exception:
             pass
+
+    def on_sp_species_entry_changed(self, widget, *args):
+        self.on_text_entry_changed(widget, *args)
+        self.on_entry_changed_clear_boxes(widget, *args)
+
+    def on_entry_changed_clear_boxes(self, widget, *args):
+        while self.species_check_messages:
+            kid = self.species_check_messages.pop()
+            self.view.widgets.remove_parent(kid)
 
     def on_habit_comboentry_changed(self, combo, *args):
         """
@@ -280,6 +386,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     def on_sp_species_entry_insert_text(self, entry, text, length, position):
         '''remove all spaces from epithet
         '''
+
+        while self.species_check_messages:
+            kid = self.species_check_messages.pop()
+            self.view.widgets.remove_parent(kid)
 
         # get position from entry, can't trust position parameter
         position = entry.get_position()
@@ -986,7 +1096,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         w.set_geometry_hints(
             max_width=gtk.gdk.screen_get_default().get_width())
         w.set_position(gtk.WIN_POS_NONE)
-        print gtk.gdk.screen_get_default().get_width(), gtk.WIN_POS_CENTER_ON_PARENT
 
     def get_window(self):
         '''
