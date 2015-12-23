@@ -124,8 +124,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 order_by(Genus.genus)
 
         def on_sp_species_button_clicked(widget, event=None):
-            # this activity runs in a thread
+            # this activity runs in a separate thread.
             # return False
+            # Any code that modifies the UI that is called from outside the
+            # main thread must be pushed into the main thread and called
+            # asynchronously in the main loop, with gobject.idle_add.
             from ask_tpl import AskTPL, what_to_do_with_it
 
             binomial = '%s %s' % (self.model.genus, self.model.sp)
