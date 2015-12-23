@@ -254,7 +254,7 @@ class SynonymsExpander(InfoExpander):
         syn = self.session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == row.id).first()
         accepted = syn and syn.species
-        logger.debug("genus %s is synonym of %s and has synonyms %s" %
+        logger.debug("species %s is synonym of %s and has synonyms %s" %
                      (row, accepted, row.synonyms))
         self.set_label(_("Synonyms"))  # reset default value
         on_label_clicked = lambda l, e, syn: select_in_search_results(syn)
