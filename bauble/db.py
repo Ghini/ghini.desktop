@@ -150,6 +150,8 @@ class MapperBase(DeclarativeMeta):
                                           default=sa.func.now(),
                                           onupdate=sa.func.now())
             cls.__mapper_args__ = {'extension': HistoryExtension()}
+        if 'top_level_count' not in dict_:
+            cls.top_level_count = lambda x: {classname: 1}
         super(MapperBase, cls).__init__(classname, bases, dict_)
 
 
@@ -252,13 +254,10 @@ def open(uri, verify=True, show_error_dialogs=False):
     global engine
     new_engine = None
 
-    # use the SingletonThreadPool so that we always use the same
-    # connection in a thread, not sure how this is different than
-    # the threadlocal strategy but it doesn't cause as many lockups
     import sqlalchemy.pool as pool
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
                                   implicit_returning=False,
-                                  poolclass=pool.SingletonThreadPool)
+                                  poolclass=pool.NullPool)
     # TODO: there is a problem here: the code may cause an exception, but we
     # immediately loose the 'new_engine', which should know about the
     # encoding used in the exception string.
