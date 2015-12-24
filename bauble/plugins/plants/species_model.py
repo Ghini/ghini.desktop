@@ -566,6 +566,13 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
             raise error.NoResultException()
         return result
 
+    def top_level_count(self):
+        plants = [p for a in self.accessions for p in a.plants]
+        return {(1, 'Species'): 1,
+                (2, 'Accession'): len(self.accessions),
+                (3, 'Planting'): len(plants),
+                (4, 'Living plant'): sum(p.quantity for p in plants)}
+
 
 class SpeciesNote(db.Base, db.Serializable):
     """

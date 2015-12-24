@@ -260,6 +260,18 @@ class Family(db.Base, db.Serializable):
                 keys[internal] = keys[exchange]
                 del keys[exchange]
 
+    def top_level_count(self):
+        return {(1, 'Family'): 1}  # NOPE - this has to wait
+        species = [s for g in self.genera for s in g.species]
+        accessions = [a for s in species for a in s.accessions]
+        plants = [p for a in accessions for p in a.plants]
+        return {(1, 'Family'): 1,
+                (2, 'Genus'): len(self.genera),
+                (3, 'Species'): len(species),
+                (4, 'Accession'): len(accessions),
+                (5, 'Planting'): len(plants),
+                (6, 'Living plant'): sum(p.quantity for p in plants)}
+
 
 ## defining the latin alias to the class.
 Familia = Family

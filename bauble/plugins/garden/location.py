@@ -151,6 +151,11 @@ class Location(db.Base, db.Serializable):
         except:
             return None
 
+    def top_level_count(self):
+        return {(1, 'Location'): 1,
+                (2, 'Planting'): len(self.plants),
+                (3, 'Living plant'): sum(p.quantity for p in self.plants)}
+
 
 def mergevalues(value1, value2, formatter):
     """return the common value

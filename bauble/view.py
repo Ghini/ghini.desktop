@@ -33,6 +33,7 @@ logger = logging.getLogger(__name__)
 import gtk
 import gobject
 import pango
+import threading
 
 from bauble.i18n import _
 from pyparsing import ParseException
@@ -355,6 +356,44 @@ class LinksExpander(InfoExpander):
                     self.dynamic_box.pack_start(
                         button, expand=False, fill=False)
             self.dynamic_box.show_all()
+
+
+class CountResultsTask(threading.Thread):
+    def __init__(self, klass, ids,
+                 group=None, verbose=None, **kwargs):
+        super(CountResultsTask, self).__init__(
+            group=group, target=None, name=None, verbose=verbose)
+        self.klass = klass
+        self.ids = ids
+
+    def run(self):
+        session = db.Session()
+        ## we really need a new session
+        session.close()
+        session = db.Session()
+        klass = self.klass
+        d = {}
+        for ndx in self.ids:
+            item = session.query(klass).filter(klass.id == ndx).one()
+            for k, v in item.top_level_count().items():
+                d[k] = v + d.get(k, 0)
+        result = []
+        for k, v in sorted(d.items()):
+            if isinstance(k, tuple):
+                k = k[1]
+            result.append("%s: %d" % (k, v))
+        value = _("top level count: %s") % (", ".join(result))
+        if bauble.gui:
+            def callback(text):
+                statusbar = bauble.gui.widgets.statusbar
+                sbcontext_id = statusbar.get_context_id('searchview.nresults')
+                statusbar.pop(sbcontext_id)
+                statusbar.push(sbcontext_id, text)
+            gobject.idle_add(callback, value)
+        else:
+            logger.debug("showing text %s", value)
+        ## we should not leave the session around
+        session.close()
 
 
 class SearchView(pluginmgr.View):
@@ -740,8 +779,9 @@ class SearchView(pluginmgr.View):
                 return
             else:
                 statusbar.pop(sbcontext_id)
-                statusbar.push(sbcontext_id,
-                               _("%s search results") % len(results))
+                statusbar.push(sbcontext_id, _('counting results...'))
+                CountResultsTask(results[0].__class__,
+                                 [i.id for i in results]).start()
                 self.results_view.set_cursor(0)
                 gobject.idle_add(lambda: self.results_view.scroll_to_cell(0))
 

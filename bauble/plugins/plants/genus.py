@@ -330,6 +330,15 @@ class Genus(db.Base, db.Serializable):
             raise error.NoResultException()
         return result
 
+    def top_level_count(self):
+        accessions = [a for s in self.species for a in s.accessions]
+        plants = [p for a in accessions for p in a.plants]
+        return {(1, 'Genus'): 1,
+                (2, 'Species'): len(self.species),
+                (3, 'Accession'): len(accessions),
+                (4, 'Planting'): len(plants),
+                (5, 'Living plant'): sum(p.quantity for p in plants)}
+
 
 class GenusNote(db.Base):
     """
