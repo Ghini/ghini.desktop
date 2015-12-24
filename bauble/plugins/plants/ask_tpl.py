@@ -91,16 +91,15 @@ class AskTPL(threading.Thread):
             if self.stopped():
                 raise ShouldStopNow('after first query')
             if len(candidates) > 1:
-                l = []
                 for item in candidates:
                     g, s = item['Genus'], item['Species']
                     seq = difflib.SequenceMatcher(a=self.binomial,
                                                   b='%s %s' % (g, s))
-                    l.append((seq.ratio(), item))
+                    item['_score_'] = seq.ratio()
 
-                score, found = sorted(l)[-1]
-                if score < self.threshold:
-                    score = 0
+                found = sorted(candidates, cmp=lambda a, b: cmp(a['_score_'], b['_score_']) or cmp(b['Taxonomic status in TPL'], a['Taxonomic status in TPL']))[-1]
+                if found['_score_'] < self.threshold:
+                    found['_score_'] = 0
             elif candidates:
                 found = candidates.pop()
             else:
@@ -129,9 +128,10 @@ class AskTPL(threading.Thread):
 
 
 def citation(d):
-    return "%(Genus hybrid marker)s%(Genus)s "\
-        "%(Species hybrid marker)s%(Species)s "\
-        "%(Authorship)s (%(Family)s)" % d
+    return ("%(Genus hybrid marker)s%(Genus)s "
+            "%(Species hybrid marker)s%(Species)s "
+            #"%(Infraspecific rank)s %(Infraspecific epithet)s "
+            "%(Authorship)s (%(Family)s)" % d).replace('   ', ' ')
 
 
 def what_to_do_with_it(found, accepted):
