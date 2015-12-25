@@ -70,6 +70,13 @@ class EmptyToken(object):
     def express(self):
         return set()
 
+    def __eq__(self, other):
+        if isinstance(other, EmptyToken):
+            return True
+        if isinstance(other, set):
+            return len(other) == 0
+        return NotImplemented
+
 
 class ValueABC(object):
     ## abstract base class.
@@ -1013,7 +1020,10 @@ class ExpressionRow(object):
         and_or = ''
         if self.and_or_combo:
             and_or = self.and_or_combo.get_active_text()
-        result = ' '.join([and_or, self.prop_button.props.label,
+        field_name = self.prop_button.props.label
+        if value == EmptyToken():
+            field_name = field_name.rsplit('.', 1)[0]
+        result = ' '.join([and_or, field_name,
                            self.cond_combo.get_active_text(),
                            repr(value)]).strip()
         return result
