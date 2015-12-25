@@ -374,36 +374,68 @@ class AccessionMapperExtension(MapperExtension):
         return EXT_CONTINUE
 
 
-prov_type_values = [(u'Wild', _('Wild')),
-                    (u'NotWild', _("Not of wild source")),
-                    (u'Cultivated', _('Propagule of cultivated (wild) plant')),
-                    (u'Purchase', _('Purchase or gift')),
-                    (u'InsufficientData', _("Insufficient Data")),
-                    (u'Unknown', _("Unknown")),
-                    (None, '')]
+# ITF2 - E.1; Provenance Type Flag; Transfer code: prot
+prov_type_values = [
+    (u'Wild', _('Accession of wild source')),  # W
+    (u'Cultivated', _('Propagule(s) from a wild source plant')), # Z
+    (u'NotWild', _("Accession not of wild source")),  # G
+    (u'Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
+    (u'InsufficientData', _("Insufficient Data")),  # U
+    (u'Unknown', _("Unknown")),  # COLLAPSE INTO U
+    (None, ''),  # do not transfer this field
+    ]
 
-wild_prov_status_values = [(u'WildNative', _("Wild native")),
-                           (u'WildNonNative', _("Wild non-native")),
-                           (u'CultivatedNative', _("Cultivated native")),
-                           (u'Impound', _("Impound")),
-                           (u'Collection', _("Collection")),
-                           (u'Rescue', _("Rescue")),
-                           (u'InsufficientData', _("Insufficient Data")),
-                           (u'Unknown', _("Unknown")),
-                           (None, '')]
+# ITF2 - E.3; Wild Provenance Status Flag; Transfer code: wpst
+#  - further specifies the W and Z prov type flag
+#
+# according to the ITF2, the keys should literally be one of: 'Wild native',
+# 'Wild non-native', 'Cultivated native', 'Cultivated non-native'.  In
+# practice the standard just requires we note whether a wild (a cultivated
+# propagule Z or the one directly collected W) plant is native or not to the
+# place where it was found. a boolean should suffice, exporting will expand
+# to and importing will collapse from the standard value. Giving all four
+# options after the user has already selected W or Z works only confusing to
+# user not familiar with ITF2 standard.
+wild_prov_status_values = [
+    # Endemic found within indigenous range
+    (u'WildNative', _("Wild native")),
+    # found outside indigenous range
+    (u'WildNonNative', _("Wild non-native")),
+    # Endemic, cultivated, reintroduced or translocated within its
+    # indigenous range
+    (u'CultivatedNative', _("Cultivated native")),
 
-purchase_prov_status_values = [(u'National', _("National")),
-                               (u'Imported', _("Imported")),
-                               (u'Unknown', _("Unknown")),
-                               (None, '')]
+    # MISSING cultivated, found outside its indigenous range
+    # (u'CultivatedNonNative', _("Cultivated non-native"))
 
-cultivated_prov_status_values = [(u'InVitro', _("In vitro")),
-                                 (u'Division', _("Division")),
-                                 (u'Seed', _("Seed")),
-                                 (u'Unknown', _("Unknown")),
-                                 (None, '')]
+    # TO REMOVE:
+    (u'Impound', _("Impound")),
+    (u'Collection', _("Collection")),
+    (u'Rescue', _("Rescue")),
+    (u'InsufficientData', _("Insufficient Data")),
+    (u'Unknown', _("Unknown")),
 
+    # Not transferred
+    (None, '')]
 
+# not ITF2
+# - further specifies the Z prov type flag value
+cultivated_prov_status_values = [
+    (u'InVitro', _("In vitro")),
+    (u'Division', _("Division")),
+    (u'Seed', _("Seed")),
+    (u'Unknown', _("Unknown")),
+    (None, '')]
+
+# not ITF2
+# - further specifies the G prov type flag value
+purchase_prov_status_values = [
+    (u'National', _("National")),
+    (u'Imported', _("Imported")),
+    (u'Unknown', _("Unknown")),
+    (None, '')]
+
+# not ITF2
 recvd_type_values = {
     u'ALAY': _('Air layer'),
     U'BBPL': _('Balled & burlapped plant'),
