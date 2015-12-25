@@ -601,6 +601,10 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures):
         except:
             return None
 
+    def top_level_count(self):
+        return {(1, 'Plantings'): 1,
+                (2, 'Living plants'): self.quantity}
+
 
 from bauble.plugins.garden.accession import Accession
 
