@@ -959,3 +959,19 @@ class ParseTypedValue(BaubleTestCase):
     def test_parse_typed_value_fallback(self):
         result = search.parse_typed_value('whatever else')
         self.assertEquals(result, 'whatever else')
+
+
+class EmptySetEqualityTest(unittest.TestCase):
+    def test_EmptyToken_equals(self):
+        et1 = search.EmptyToken()
+        et2 = search.EmptyToken()
+        self.assertEquals(et1, et2)
+        self.assertTrue(et1 == et2)
+        self.assertTrue(et1 == set())
+
+    def test_empty_token_otherwise(self):
+        et1 = search.EmptyToken()
+        self.assertFalse(et1 is None)
+        self.assertFalse(et1 == 0)
+        self.assertFalse(et1 == '')
+        self.assertFalse(et1 == set([1, 2, 3]))
