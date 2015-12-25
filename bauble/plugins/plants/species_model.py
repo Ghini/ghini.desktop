@@ -571,7 +571,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         return {(1, 'Species'): 1,
                 (2, 'Accessions'): len(self.accessions),
                 (3, 'Plantings'): len(plants),
-                (4, 'Living plants'): sum(p.quantity for p in plants)}
+                (4, 'Living plants'): sum(p.quantity for p in plants),
+                (5, 'Locations'): set(p.location.id for p in plants)}
 
 
 class SpeciesNote(db.Base, db.Serializable):

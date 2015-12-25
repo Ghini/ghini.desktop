@@ -337,7 +337,8 @@ class Genus(db.Base, db.Serializable):
                 (2, 'Species'): len(self.species),
                 (3, 'Accessions'): len(accessions),
                 (4, 'Plantings'): len(plants),
-                (5, 'Living plants'): sum(p.quantity for p in plants)}
+                (5, 'Living plants'): sum(p.quantity for p in plants),
+                (6, 'Locations'): set(p.location.id for p in plants)}
 
 
 class GenusNote(db.Base):
