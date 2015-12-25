@@ -785,8 +785,13 @@ class SearchView(pluginmgr.View):
             else:
                 statusbar.pop(sbcontext_id)
                 statusbar.push(sbcontext_id, _('counting results...'))
-                CountResultsTask(results[0].__class__,
-                                 [i.id for i in results]).start()
+                if len(set(item.__class__ for item in results)) == 1:
+                    CountResultsTask(results[0].__class__,
+                                     [i.id for i in results]).start()
+                else:
+                    statusbar.push(sbcontext_id,
+                                   _('size of non homogeneous result: %s') %
+                                   len(results))
                 self.results_view.set_cursor(0)
                 gobject.idle_add(lambda: self.results_view.scroll_to_cell(0))
 
