@@ -65,7 +65,7 @@ class EmptyToken(object):
         pass
 
     def __repr__(self):
-        return '(Empty<Set>)'
+        return 'Empty'
 
     def express(self):
         return set()
@@ -853,6 +853,24 @@ class SchemaMenu(gtk.Menu):
         return items
 
 
+def parse_typed_value(value):
+    """parse the input string and return the corresponding typed value
+
+    handles integers, floats, None, Empty, and falls back to string.
+    """
+    try:
+        new_val = value
+        new_val = float(value)
+        new_val = int(value)
+    except:
+        if value == 'None':
+            new_val = None
+        if value == 'Empty':
+            new_val = EmptyToken()
+    value = new_val
+    return value
+
+
 class ExpressionRow(object):
     """
     """
@@ -973,7 +991,7 @@ class ExpressionRow(object):
 
     def get_expression(self):
         """
-        Return the expression represented but this ExpressionRow.  If
+        Return the expression represented by this ExpressionRow.  If
         the expression is not valid then return None.
 
         :param self:
@@ -991,12 +1009,14 @@ class ExpressionRow(object):
         else:
             # assume it's a gtk.Entry or other widget with a text property
             value = self.value_widget.props.text.strip()
+        value = parse_typed_value(value)
         and_or = ''
         if self.and_or_combo:
             and_or = self.and_or_combo.get_active_text()
-        return ' '.join([and_or, self.prop_button.props.label,
-                         self.cond_combo.get_active_text(),
-                         '"%s"' % value]).strip()
+        result = ' '.join([and_or, self.prop_button.props.label,
+                           self.cond_combo.get_active_text(),
+                           repr(value)]).strip()
+        return result
 
 
 class QueryBuilder(gtk.Dialog):
