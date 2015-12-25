@@ -255,8 +255,8 @@ def open(uri, verify=True, show_error_dialogs=False):
     new_engine = None
 
     from sqlalchemy.pool import NullPool, SingletonThreadPool
-    from bauble import gui
-    poolclass = gui and NullPool or SingletonThreadPool
+    from bauble.prefs import testing
+    poolclass = testing and SingletonThreadPool or NullPool
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
                                   implicit_returning=False,
                                   poolclass=poolclass)
