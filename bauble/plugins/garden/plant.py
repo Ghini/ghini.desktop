@@ -602,9 +602,16 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures):
             return None
 
     def top_level_count(self):
+        sd = self.accession.source and self.accession.source.source_detail
         return {(1, 'Plantings'): 1,
-                (2, 'Living plants'): self.quantity,
-                (3, 'Locations'): set([self.location.id])}
+                (2, 'Accessions'): set([self.accession.id]),
+                (3, 'Species'): set([self.accession.species.id]),
+                (4, 'Genera'): set([self.accession.species.genus.id]),
+                (5, 'Families'): set([self.accession.species.genus.family.id]),
+                (6, 'Living plants'): self.quantity,
+                (7, 'Locations'): set([self.location.id]),
+                (8, 'Sources'): set(sd and [sd.id] or []),
+                }
 
 
 from bauble.plugins.garden.accession import Accession

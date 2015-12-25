@@ -124,7 +124,7 @@ source_detail_context_menu = [source_detail_edit_action,
 
 
 class Source(db.Base):
-    """
+    """connected 1-1 to Accession, this class adds fields to Accession
     """
     __tablename__ = 'source'
     sources_code = Column(Unicode(32))
