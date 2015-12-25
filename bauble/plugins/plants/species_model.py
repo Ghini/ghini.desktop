@@ -569,10 +569,15 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
     def top_level_count(self):
         plants = [p for a in self.accessions for p in a.plants]
         return {(1, 'Species'): 1,
-                (2, 'Accessions'): len(self.accessions),
-                (3, 'Plantings'): len(plants),
-                (4, 'Living plants'): sum(p.quantity for p in plants),
-                (5, 'Locations'): set(p.location.id for p in plants)}
+                (2, 'Genera'): set([self.genus.id]),
+                (3, 'Families'): set([self.genus.family.id]),
+                (4, 'Accessions'): len(self.accessions),
+                (5, 'Plantings'): len(plants),
+                (6, 'Living plants'): sum(p.quantity for p in plants),
+                (7, 'Locations'): set(p.location.id for p in plants),
+                (8, 'Sources'): set([a.source.source_detail.id
+                                     for a in self.accessions
+                                     if a.source and a.source.source_detail])}
 
 
 class SpeciesNote(db.Base, db.Serializable):

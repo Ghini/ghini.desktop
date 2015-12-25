@@ -333,12 +333,16 @@ class Genus(db.Base, db.Serializable):
     def top_level_count(self):
         accessions = [a for s in self.species for a in s.accessions]
         plants = [p for a in accessions for p in a.plants]
-        return {(1, 'Genera'): 1,
-                (2, 'Species'): len(self.species),
-                (3, 'Accessions'): len(accessions),
-                (4, 'Plantings'): len(plants),
-                (5, 'Living plants'): sum(p.quantity for p in plants),
-                (6, 'Locations'): set(p.location.id for p in plants)}
+        return {(1, 'Genera'): set([self.id]),
+                (2, 'Families'): set([self.family.id]),
+                (3, 'Species'): len(self.species),
+                (4, 'Accessions'): len(accessions),
+                (5, 'Plantings'): len(plants),
+                (6, 'Living plants'): sum(p.quantity for p in plants),
+                (7, 'Locations'): set(p.location.id for p in plants),
+                (8, 'Sources'): set([a.source.source_detail.id
+                                     for a in accessions
+                                     if a.source and a.source.source_detail])}
 
 
 class GenusNote(db.Base):

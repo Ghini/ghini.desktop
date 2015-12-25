@@ -162,7 +162,9 @@ class Location(db.Base, db.Serializable):
                 (5, 'Species'): set(s.id for s in species),
                 (6, 'Genera'): set(g.id for g in genera),
                 (7, 'Families'): set(g.family.id for g in genera),
-                }
+                (8, 'Sources'): set([a.source.source_detail.id
+                                     for a in accessions
+                                     if a.source and a.source.source_detail])}
 
 
 def mergevalues(value1, value2, formatter):
