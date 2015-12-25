@@ -933,3 +933,29 @@ class BuildingSQLStatements(BaubleTestCase):
         results = sp.parse_string('species where id between 0 and 1')
         self.assertEqual(str(results.statement),
                          "SELECT * FROM species WHERE (BETWEEN id 0.0 1.0)")
+
+
+class ParseTypedValue(BaubleTestCase):
+    def test_parse_typed_value_floats(self):
+        result = search.parse_typed_value('0.0')
+        self.assertEquals(result, 0.0)
+        result = search.parse_typed_value('-4.0')
+        self.assertEquals(result, -4.0)
+
+    def test_parse_typed_value_int(self):
+        result = search.parse_typed_value('0')
+        self.assertEquals(result, 0)
+        result = search.parse_typed_value('-4')
+        self.assertEquals(result, -4)
+
+    def test_parse_typed_value_None(self):
+        result = search.parse_typed_value('None')
+        self.assertEquals(result, None)
+
+    def test_parse_typed_value_empty_set(self):
+        result = search.parse_typed_value('Empty')
+        self.assertEquals(type(result), search.EmptyToken)
+
+    def test_parse_typed_value_fallback(self):
+        result = search.parse_typed_value('whatever else')
+        self.assertEquals(result, 'whatever else')
