@@ -376,11 +376,16 @@ class CountResultsTask(threading.Thread):
         for ndx in self.ids:
             item = session.query(klass).filter(klass.id == ndx).one()
             for k, v in item.top_level_count().items():
-                d[k] = v + d.get(k, 0)
+                if isinstance(v, set):
+                    d[k] = v.union(d.get(k, set()))
+                else:
+                    d[k] = v + d.get(k, 0)
         result = []
         for k, v in sorted(d.items()):
             if isinstance(k, tuple):
                 k = k[1]
+            if isinstance(v, set):
+                v = len(v)
             result.append("%s: %d" % (k, v))
         value = _("top level count: %s") % (", ".join(result))
         if bauble.gui:

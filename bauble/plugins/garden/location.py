@@ -152,9 +152,17 @@ class Location(db.Base, db.Serializable):
             return None
 
     def top_level_count(self):
+        accessions = set(p.accession for p in self.plants)
+        species = set(a.species for a in accessions)
+        genera = set(s.genus for s in species)
         return {(1, 'Locations'): 1,
                 (2, 'Plantings'): len(self.plants),
-                (3, 'Living plants'): sum(p.quantity for p in self.plants)}
+                (3, 'Living plants'): sum(p.quantity for p in self.plants),
+                (4, 'Accessions'): set(a.id for a in accessions),
+                (5, 'Species'): set(s.id for s in species),
+                (6, 'Genera'): set(g.id for g in genera),
+                (7, 'Families'): set(g.family.id for g in genera),
+                }
 
 
 def mergevalues(value1, value2, formatter):
