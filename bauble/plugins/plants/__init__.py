@@ -61,6 +61,8 @@ from bauble.plugins.plants.species import (
     )
 from bauble.plugins.plants.geography import (
     Geography, get_species_in_geography)
+from taxonomy_check import (
+    TaxonomyCheckTool)
 import bauble.search as search
 from bauble.view import SearchView
 from bauble.ui import DefaultView
@@ -201,6 +203,7 @@ class SplashInfoBox(gtk.VBox):
 
 
 class PlantsPlugin(pluginmgr.Plugin):
+    tools = [TaxonomyCheckTool]
 
     @classmethod
     def init(cls):

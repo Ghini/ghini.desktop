@@ -20,7 +20,8 @@
 import os
 import logging
 logger = logging.getLogger(__name__)
-from bauble import db, paths
+from bauble import db, paths, pluginmgr
+from bauble.i18n import _
 
 
 from bauble.editor import (
@@ -35,9 +36,15 @@ def start_taxonomy_check():
         os.path.join(paths.lib_dir(), 'plugins', 'plants',
                      'taxonomy_check.glade'),
         parent=None,
-        root_widget_name='hbox1')
-    l = []
-    presenter = BatchTaxonomicCheckPresenter(l, view, refresh_view=True)
+        root_widget_name='dialog1')
+    env = {'page': 1,
+           'selection': view.get_selection(),
+           'tick_off': None,
+           'report': None,
+           }
+    if env['selection'] is None:
+        return
+    presenter = BatchTaxonomicCheckPresenter(env, view, refresh_view=True)
     error_state = presenter.start()
     if error_state:
         presenter.session.rollback()
@@ -62,4 +69,30 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
     the Model of the BTC is a list of tuples.
 
     '''
+
+    def __init__(self, *args, **kwargs):
+        super(BatchTaxonomicCheckPresenter, self).__init__(*args, **kwargs)
+        self.refresh_visible_frame()
+
+    def refresh_visible_frame(self):
+        for i in range(1, 4):
+            frame_id = 'frame%d' % i
+            self.view.widget_set_visible(frame_id, i == self.model['page'])
+
+    def on_frame_next(self, *args):
+        self.model['page'] += 1
+        self.refresh_visible_frame()
+
+    def on_frame_previous(self, *args):
+        self.model['page'] -= 1
+        self.refresh_visible_frame()
+
     pass
+
+
+class TaxonomyCheckTool(pluginmgr.Tool):
+    label = _('Taxonomy check')
+
+    @classmethod
+    def start(self):
+        start_taxonomy_check()
