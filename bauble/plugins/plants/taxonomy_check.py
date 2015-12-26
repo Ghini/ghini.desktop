@@ -79,6 +79,14 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
             frame_id = 'frame%d' % i
             self.view.widget_set_visible(frame_id, i == self.model['page'])
 
+    def on_frame1_next(self, *args):
+        'parse the results into the liststore1 and move to frame 2'
+        self.on_frame_next(*args)
+
+    def on_frame2_next(self, *args):
+        'execute all that is selected in liststore1 and move to frame 3'
+        self.on_frame_next(*args)
+
     def on_frame_next(self, *args):
         self.model['page'] += 1
         self.refresh_visible_frame()
@@ -86,6 +94,19 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
     def on_frame_previous(self, *args):
         self.model['page'] -= 1
         self.refresh_visible_frame()
+
+    def on_copy_to_clipboard_button_clicked(self, *args):
+        from bauble.plugins.plants import Species
+        binomials = [item.str(item, remove_zws=True)
+                     for item in self.model['selection']
+                     if isinstance(item, Species) and item.sp != '']
+        text = '\n'.join(binomials)
+        import gtk
+        clipboard = gtk.Clipboard()
+        clipboard.set_text(text)
+
+    def on_tnrs_browse_button_clicked(self, *args):
+        pass
 
     pass
 
