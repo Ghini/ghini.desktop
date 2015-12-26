@@ -103,12 +103,13 @@
                             <property name="homogeneous">True</property>
                             <property name="layout_style">edge</property>
                             <child>
-                              <object class="GtkButton" id="button4">
+                              <object class="GtkButton" id="copy_to_clipboard_button">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">copy result selection to clipboard</property>
                                 <property name="use_action_appearance">False</property>
+                                <signal name="clicked" handler="on_copy_to_clipboard_button_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image4">
                                     <property name="visible">True</property>
@@ -125,12 +126,13 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="button8">
+                              <object class="GtkButton" id="tnrs_browse_button">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">start TNRS lookup</property>
                                 <property name="use_action_appearance">False</property>
+                                <signal name="activate" handler="on_tnrs_browse_button_activate" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image8">
                                     <property name="visible">True</property>
@@ -152,7 +154,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">continue to next screen</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal name="clicked" handler="on_frame_next" swapped="no"/>
+                                <signal name="clicked" handler="on_frame1_next" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image1">
                                     <property name="visible">True</property>
@@ -259,25 +261,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="button2">
-                                <property name="visible">True</property>
-                                <property name="can_focus">True</property>
-                                <property name="receives_default">True</property>
-                                <property name="tooltip_text" translatable="yes">run the tool</property>
-                                <property name="use_action_appearance">False</property>
-                                <child>
-                                  <object class="GtkImage" id="image2">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="icon_name">system-run</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">False</property>
-                                <property name="position">1</property>
-                              </packing>
+                              <placeholder/>
                             </child>
                             <child>
                               <object class="GtkButton" id="button10">
@@ -285,7 +269,7 @@
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal name="clicked" handler="on_frame_next" swapped="no"/>
+                                <signal name="clicked" handler="on_frame2_next" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image10">
                                     <property name="visible">True</property>
