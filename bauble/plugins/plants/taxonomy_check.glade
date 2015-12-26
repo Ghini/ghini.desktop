@@ -52,7 +52,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkEntry" id="entry1">
+                              <object class="GtkEntry" id="file_path_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">•</property>
@@ -61,6 +61,7 @@
                                 <property name="secondary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">True</property>
                                 <property name="secondary_icon_sensitive">True</property>
+                                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -79,6 +80,8 @@
                                   <object class="GtkImage" id="image9">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="xpad">3</property>
+                                    <property name="ypad">3</property>
                                     <property name="stock">gtk-open</property>
                                   </object>
                                 </child>
@@ -132,7 +135,7 @@
                                 <property name="receives_default">True</property>
                                 <property name="tooltip_text" translatable="yes">start TNRS lookup</property>
                                 <property name="use_action_appearance">False</property>
-                                <signal name="activate" handler="on_tnrs_browse_button_activate" swapped="no"/>
+                                <signal name="clicked" handler="on_tnrs_browse_button_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkImage" id="image8">
                                     <property name="visible">True</property>
@@ -152,7 +155,8 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="tooltip_text" translatable="yes">continue to next screen</property>
+                                <property name="tooltip_text" translatable="yes">use this data and
+continue to next screen</property>
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_frame1_next" swapped="no"/>
                                 <child>
@@ -220,8 +224,65 @@
                               <object class="GtkTreeView" id="treeview2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="model">liststore1</property>
+                                <property name="model">liststore2</property>
                                 <property name="search_column">0</property>
+                                <property name="level_indentation">11</property>
+                                <signal name="row-activated" handler="on_tick_off_view_row_activated" swapped="no"/>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                                    <property name="title" translatable="yes">use</property>
+                                    <child>
+                                      <object class="GtkCellRendererPixbuf" id="tvc1_use_cell"/>
+                                      <attributes>
+                                        <attribute name="stock-id">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                                    <property name="title" translatable="yes">Query binomial</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="tvc1_query_cell"/>
+                                      <attributes>
+                                        <attribute name="text">1</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                                    <property name="title" translatable="yes">Matched binomial</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="tvc1_matched_cell"/>
+                                      <attributes>
+                                        <attribute name="text">2</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                                    <property name="title" translatable="yes">Authorship</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="tvc1_matched_author_cell"/>
+                                      <attributes>
+                                        <attribute name="text">3</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                                    <property name="title" translatable="yes">Status</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="tvc1_status_cell"/>
+                                      <attributes>
+                                        <attribute name="text">4</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
                             </child>
                           </object>
@@ -268,6 +329,8 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
+                                <property name="tooltip_text" translatable="yes">use this data and
+continue to next screen</property>
                                 <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_frame2_next" swapped="no"/>
                                 <child>
@@ -476,11 +539,17 @@
       <action-widget response="0">button12</action-widget>
     </action-widgets>
   </object>
-  <object class="GtkListStore" id="liststore1">
+  <object class="GtkListStore" id="liststore2">
     <columns>
       <!-- column-name active -->
-      <column type="gboolean"/>
-      <!-- column-name text -->
+      <column type="gchararray"/>
+      <!-- column-name query -->
+      <column type="gchararray"/>
+      <!-- column-name Name_Binomial -->
+      <column type="gchararray"/>
+      <!-- column-name Name_Authorship -->
+      <column type="gchararray"/>
+      <!-- column-name Taxonomic_status -->
       <column type="gchararray"/>
     </columns>
   </object>
