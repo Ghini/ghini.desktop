@@ -71,8 +71,8 @@ def remove_callback(locations):
         utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
+    session = db.Session()
     try:
-        session = db.Session()
         obj = session.query(Location).get(loc.id)
         session.delete(obj)
         session.commit()
@@ -80,6 +80,8 @@ def remove_callback(locations):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
     return True
 
 edit_action = Action('loc_edit', _('_Edit'), callback=edit_callback,

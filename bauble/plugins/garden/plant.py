@@ -149,6 +149,7 @@ def get_next_code(acc):
     from bauble.plugins.garden import Accession
     codes = session.query(Plant.code).join(Accession).\
         filter(Accession.id == acc.id).all()
+    session.close()
     next = 1
     if codes:
         try:
