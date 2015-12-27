@@ -311,7 +311,9 @@ class ABCDExporter(object):
         if plants:
             nplants = len(plants)
         else:
-            nplants = db.Session().query(Plant).count()
+            sss = db.Session()
+            nplants = sss.query(Plant).count()
+            sss.close()
 
         if nplants > 3000:
             msg = _('You are exporting %(nplants)s plants to ABCD format.  ' \
@@ -334,8 +336,10 @@ class ABCDExporter(object):
         # if plants is None then export all plants, this could be huge
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
-        if plants == None:
-            plants = db.Session().query(Plant).all()
+        if plants is None:
+            sss = db.Session()
+            plants = sss.query(Plant).all()
+            sss.close()
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin
