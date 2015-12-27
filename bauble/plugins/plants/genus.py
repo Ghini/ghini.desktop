@@ -252,11 +252,17 @@ class Genus(db.Base, db.Serializable):
         if self in value.synonyms:
             return
         # remove any previous `accepted` link
-        session = object_session(self) or db.Session()
+        session = object_session(self)
+        must_close_session = False
+        if not session:
+            must_close_session = True
+            session = db.Session()
         session.query(GenusSynonym).filter(
             GenusSynonym.synonym_id == self.id).delete()
         session.commit()
         value.synonyms.append(self)
+        if must_close_session:
+            session.close()
 
     def __repr__(self):
         return Genus.str(self)
@@ -962,6 +968,7 @@ class GeneralGenusExpander(InfoExpander):
 
         # stop here if no GardenPlugin
         if 'GardenPlugin' not in pluginmgr.plugins:
+            session.close()
             return
 
         from bauble.plugins.garden.accession import Accession
