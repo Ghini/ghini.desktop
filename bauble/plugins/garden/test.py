@@ -1033,6 +1033,7 @@ class AccessionTests(GardenTestCase):
         parent = session.query(Accession).filter_by(code=u'parent')[0]
         self.assertTrue(parent is not None)
         assert acc.source.plant_propagation_id == plant_prop_id
+        session.close()
 
     def test_accession_editor(self):
         raise SkipTest('Problem cannot be found in presenter')
@@ -1523,6 +1524,7 @@ class FromAndToDictTest(GardenTestCase):
         session = db.Session()
         loc = Location.retrieve_or_create(session, {'code': u'1', })
         self.assertEquals(loc._created, datetime(2001, 12, 10))
+        session.close()
 
     def test_set_create_timestamp_iso8601(self):
         from datetime import datetime
@@ -1534,6 +1536,7 @@ class FromAndToDictTest(GardenTestCase):
         session = db.Session()
         loc = Location.retrieve_or_create(session, {'code': u'1', })
         self.assertEquals(loc._created, datetime(2001, 12, 10))
+        session.close()
 
 
 class FromAndToDict_create_update_test(GardenTestCase):
