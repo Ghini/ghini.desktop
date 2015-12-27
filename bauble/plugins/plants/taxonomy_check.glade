@@ -38,6 +38,7 @@
                             <property name="can_focus">True</property>
                             <property name="editable">False</property>
                             <property name="wrap_mode">word</property>
+                            <property name="cursor_visible">False</property>
                             <property name="buffer">textbuffer1</property>
                           </object>
                           <packing>
@@ -232,9 +233,11 @@ continue to next screen</property>
                                   <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                                     <property name="title" translatable="yes">use</property>
                                     <child>
-                                      <object class="GtkCellRendererPixbuf" id="tvc1_use_cell"/>
+                                      <object class="GtkCellRendererPixbuf" id="tvc1_use_cell">
+                                        <property name="ypad">2</property>
+                                      </object>
                                       <attributes>
-                                        <attribute name="stock-id">0</attribute>
+                                        <attribute name="stock-id">1</attribute>
                                       </attributes>
                                     </child>
                                   </object>
@@ -245,7 +248,7 @@ continue to next screen</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="tvc1_query_cell"/>
                                       <attributes>
-                                        <attribute name="text">1</attribute>
+                                        <attribute name="text">2</attribute>
                                       </attributes>
                                     </child>
                                   </object>
@@ -256,7 +259,7 @@ continue to next screen</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="tvc1_matched_cell"/>
                                       <attributes>
-                                        <attribute name="text">2</attribute>
+                                        <attribute name="text">3</attribute>
                                       </attributes>
                                     </child>
                                   </object>
@@ -267,7 +270,7 @@ continue to next screen</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="tvc1_matched_author_cell"/>
                                       <attributes>
-                                        <attribute name="text">3</attribute>
+                                        <attribute name="text">4</attribute>
                                       </attributes>
                                     </child>
                                   </object>
@@ -278,7 +281,7 @@ continue to next screen</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="tvc1_status_cell"/>
                                       <attributes>
-                                        <attribute name="text">4</attribute>
+                                        <attribute name="text">5</attribute>
                                       </attributes>
                                     </child>
                                   </object>
@@ -291,6 +294,45 @@ continue to next screen</property>
                             <property name="fill">True</property>
                             <property name="padding">6</property>
                             <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="hbox3">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <child>
+                              <object class="GtkButton" id="toggle_all">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="use_action_appearance">False</property>
+                                <property name="focus_on_click">False</property>
+                                <signal name="clicked" handler="on_toggle_all_clicked" swapped="no"/>
+                                <child>
+                                  <object class="GtkImage" id="image2">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="stock">gtk-no</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -351,7 +393,7 @@ continue to next screen</property>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
-                            <property name="position">1</property>
+                            <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
@@ -398,6 +440,8 @@ continue to next screen</property>
                               <object class="GtkTextView" id="textview3">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="editable">False</property>
+                                <property name="cursor_visible">False</property>
                                 <property name="buffer">textbuffer3</property>
                               </object>
                             </child>
@@ -482,16 +526,39 @@ continue to next screen</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button13">
+              <object class="GtkButton" id="cancel_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <child>
-                  <object class="GtkImage" id="image13">
+                  <object class="GtkHBox" id="hbox4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="icon_name">dialog-cancel</property>
+                    <child>
+                      <object class="GtkImage" id="image3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-stop</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Cancel</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -502,16 +569,39 @@ continue to next screen</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button12">
+              <object class="GtkButton" id="ok_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <child>
-                  <object class="GtkImage" id="image12">
+                  <object class="GtkHBox" id="hbox5">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="icon_name">dialog-ok</property>
+                    <child>
+                      <object class="GtkImage" id="image6">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="stock">gtk-yes</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label5">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">OK</property>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -535,12 +625,14 @@ continue to next screen</property>
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">button13</action-widget>
-      <action-widget response="0">button12</action-widget>
+      <action-widget response="0">cancel_button</action-widget>
+      <action-widget response="0">ok_button</action-widget>
     </action-widgets>
   </object>
   <object class="GtkListStore" id="liststore2">
     <columns>
+      <!-- column-name acceptable -->
+      <column type="gboolean"/>
       <!-- column-name active -->
       <column type="gchararray"/>
       <!-- column-name query -->
@@ -551,10 +643,20 @@ continue to next screen</property>
       <column type="gchararray"/>
       <!-- column-name Taxonomic_status -->
       <column type="gchararray"/>
+      <!-- column-name Accepted_Name_Binomial -->
+      <column type="gchararray"/>
+      <!-- column-name Accepted_Name_Authorship -->
+      <column type="gchararray"/>
+      <!-- column-name to_process -->
+      <column type="gboolean"/>
     </columns>
   </object>
   <object class="GtkTextBuffer" id="textbuffer1">
     <property name="text" translatable="yes">Please interact with the http://tnrs.iplantcollaborative.org page.
+
+On this screen you should:
+1. use the below 'copy' button to copy the selection into the clipboard
+2. use the below 'browse' button to open the tnrs web page
 
 On that page you should:
 1. copy the content of the clipboard to the text field there
