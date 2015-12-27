@@ -368,9 +368,6 @@ class CountResultsTask(threading.Thread):
 
     def run(self):
         session = db.Session()
-        ## we really need a new session
-        session.close()
-        session = db.Session()
         klass = self.klass
         d = {}
         for ndx in self.ids:
@@ -724,9 +721,9 @@ class SearchView(pluginmgr.View):
         logger.debug('SearchView.search(%s)' % text)
         error_msg = None
         error_details_msg = None
-        self.session.close()
         # create a new session for each search...maybe we shouldn't
         # even have session as a class attribute
+        self.session.close()
         self.session = db.Session()
         bold = '<b>%s</b>'
         results = []
@@ -796,6 +793,7 @@ class SearchView(pluginmgr.View):
                 gobject.idle_add(lambda: self.results_view.scroll_to_cell(0))
 
         self.update_bottom_notebook()
+        self.session.close()
 
     def remove_children(self, model, parent):
         """
