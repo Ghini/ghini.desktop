@@ -196,7 +196,6 @@ class JSONExporter(editor.GenericEditorPresenter):
             objects.extend(s.query(Accession).all())
             objects.extend(s.query(Plant).all())
             objects.extend(s.query(Location).all())
-            s.close()
 
         count = len(objects)
         if count > 3000:
@@ -275,7 +274,6 @@ class JSONImporter(editor.GenericEditorPresenter):
             pb_set_fraction(float(i) / n)
             yield
         session.commit()
-        session.close()
 
 
 #
