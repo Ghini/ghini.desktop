@@ -339,7 +339,8 @@ class ABCDExporter(object):
         if plants is None:
             sss = db.Session()
             plants = sss.query(Plant).all()
-            sss.close()
+        else:
+            sss = None
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
         # PlantABCDAdapter into the ABCD plugin
@@ -355,6 +356,9 @@ class ABCDExporter(object):
             msg = _("The ABCD file was created but failed to validate "
                     "correctly against the ABCD standard.")
             utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+
+        if sss is not None:
+            sss.close()
 
 
 class ABCDExportTool(pluginmgr.Tool):
