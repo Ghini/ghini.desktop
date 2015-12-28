@@ -95,6 +95,12 @@ YES_ICON = 'gtk-yes'
 NO_ICON = 'gtk-no'
 
 
+def set_row_active(tick_off_row, to_process):
+    tick_off_row[TO_PROCESS] = to_process
+    stock_id = to_process and YES_ICON or NO_ICON
+    tick_off_row[STOCK_ID] = stock_id
+
+
 class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
     '''
     the batch taxonomy check (BTC) can run if you have an equal rank
@@ -226,11 +232,21 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
         desktop.open('http://tnrs.iplantcollaborative.org/TNRSapp.html')
 
     def on_tick_off_view_row_activated(self, view, path, column, data=None):
+        '''toggle the selected row
+
+        if selected row goes YES and is a synonym, also next row goes YES.
+        if selected row goes NO and previous is synonym, previous goes NO.
+        '''
         if self.tick_off_list[path][ACCEPTABLE]:
-            to_process = not self.tick_off_list[path][TO_PROCESS]
-            self.tick_off_list[path][TO_PROCESS] = to_process
-            stock_id = to_process and YES_ICON or NO_ICON
-            self.tick_off_list[path][STOCK_ID] = stock_id
+            tick_off_item = self.tick_off_list[path]
+            to_process = not tick_off_item[TO_PROCESS]
+            set_row_active(tick_off_item, to_process)
+            if to_process and tick_off_item[TAXON_STATUS] == 'Synonym':
+                next_row_path = (path[0] + 1,)
+                set_row_active(self.tick_off_list[next_row_path], to_process)
+            if not to_process and tick_off_item[OLD_BINOMIAL] == '':
+                prev_row_path = (path[0] - 1,)
+                set_row_active(self.tick_off_list[prev_row_path], to_process)
 
     def on_toggle_all_clicked(self, *args):
         all_active = reduce(lambda a, b: a and b,
