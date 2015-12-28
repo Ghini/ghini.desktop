@@ -982,18 +982,23 @@ class GenericEditorPresenter(object):
     PROBLEM_DUPLICATE = random()
     PROBLEM_EMPTY = random()
 
-    def __init__(self, model, view, refresh_view=False):
+    def __init__(self, model, view, refresh_view=False, session=None):
         self.model = model
         self.view = view
         self.problems = set()
         self._dirty = False
-        try:
-            self.session = object_session(model)
-        except UnmappedInstanceError:
-            if db.Session is not None:
-                self.session = db.Session()
-            else:
-                self.session = None
+        self.owns_session = False
+        self.session = session
+        if session is None:
+            try:
+                self.session = object_session(model)
+            except UnmappedInstanceError:
+                if db.Session is not None:
+                    self.session = db.Session()
+                    self.owns_session = True
+                else:
+                    self.session = None
+
         #logger.debug("session, model, view = %s, %s, %s"
         #             % (self.session, model, view))
         if view:
@@ -1026,6 +1031,9 @@ class GenericEditorPresenter(object):
             self.session.rollback()
             self.session.add_all(objs)
             raise
+        finally:
+            if self.owns_session:
+                self.session.close()
         return True
 
     def __set_model_attr(self, attr, value):
