@@ -28,7 +28,7 @@ import tempfile
 
 from sqlalchemy import Column, Integer, Boolean
 
-from bauble import db, prefs
+import bauble.db as db
 from bauble.plugins.plants import (
     Familia, Family, Genus, Species, VernacularName)
 from bauble.plugins.garden import Accession, Location, Plant
@@ -56,29 +56,28 @@ csv_test_data = ({})
 # Spiranthes delitescens Sheviak
 # Aerides lawrenceae Rchb. f.
 
-family_data = [{'id': 11, 'family': u'Orchidaceae', 'qualifier': u''},
-               {'id': 12, 'family': u'Myrtaceae'}]
-genus_data = [{'id': 11, 'genus': u'Calopogon', 'family_id': 11,
+family_data = [{'id': 1, 'family': u'Orchidaceae', 'qualifier': None},
+               {'id': 2, 'family': u'Myrtaceae'}]
+genus_data = [{'id': 1, 'genus': u'Calopogon', 'family_id': 1,
                'author': u'R. Br.'},
-              {'id': 12, 'genus': u'Panisea', 'family_id': 11}]
-species_data = [{'id': 11, 'sp': u'tuberosus', 'genus_id': 11}]
+              {'id': 2, 'genus': u'Panisea', 'family_id': 1}]
+species_data = [{'id': 1, 'sp': u'tuberosus', 'genus_id': 1}]
 accession_data = [
-    {'id': 11, 'species_id': 11, 'code': u'2015.0001'},
-    {'id': 12, 'species_id': 11, 'code': u'2015.0002'},
-    {'id': 13, 'species_id': 11, 'code': u'2015.0003', 'private': True}, ]
+    {'id': 1, 'species_id': 1, 'code': u'2015.0001'},
+    {'id': 2, 'species_id': 1, 'code': u'2015.0002'},
+    {'id': 3, 'species_id': 1, 'code': u'2015.0003', 'private': True}, ]
 location_data = [
-    {'id': 11, 'code': u'1'}, ]
+    {'id': 1, 'code': u'1'}, ]
 plant_data = [
-    {'id': 11, 'accession_id': 11, 'location_id': 11, 'code': u'1',
+    {'id': 1, 'accession_id': 1, 'location_id': 1, 'code': u'1',
      'quantity': 1},
-    {'id': 12, 'accession_id': 13, 'location_id': 11, 'code': u'1',
+    {'id': 2, 'accession_id': 3, 'location_id': 1, 'code': u'1',
      'quantity': 1}, ]
 
 
 class ImexTestCase(BaubleTestCase):
 
     def __init__(self, *args):
-        prefs.testing = True
         super(ImexTestCase, self).__init__(*args)
 
     def setUp(self):
@@ -207,7 +206,7 @@ class CSVTests(ImexTestCase):
         value is executed.
         """
         self.session = db.Session()
-        family = self.session.query(Family).filter_by(id=11).one()
+        family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
 
     def test_import_use_default(self):
@@ -218,11 +217,11 @@ class CSVTests(ImexTestCase):
         """
         q = self.session.query(Family)
         ids = [r.id for r in q]
-        self.assertEquals(ids, [11, 12])
+        self.assertEquals(ids, [1, 2])
         del q
         self.session.expunge_all()
         self.session = db.Session()
-        family = self.session.query(Family).filter_by(id=11).one()
+        family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
 
     def test_import_no_default(self):
@@ -231,7 +230,7 @@ class CSVTests(ImexTestCase):
         column and that column does not have a default value then that
         value is set to None
         """
-        species = self.session.query(Species).filter_by(id=11).one()
+        species = self.session.query(Species).filter_by(id=1).one()
         self.assert_(species.cv_group is None)
 
     def test_import_empty_is_none(self):
@@ -240,7 +239,7 @@ class CSVTests(ImexTestCase):
         but that column is empty and doesn't have a default values
         then the column is set to None
         """
-        species = self.session.query(Species).filter_by(id=11).one()
+        species = self.session.query(Species).filter_by(id=1).one()
         self.assert_(species.cv_group is None)
 
     def test_import_empty_uses_default(self):
@@ -249,7 +248,7 @@ class CSVTests(ImexTestCase):
         but that column is empty and has a default then the default is
         executed.
         """
-        family = self.session.query(Family).filter_by(id=12).one()
+        family = self.session.query(Family).filter_by(id=2).one()
         self.assert_(family.qualifier == '')
 
     def test_sequences(self):
@@ -283,7 +282,7 @@ class CSVTests(ImexTestCase):
         """
         Test importing a unicode string.
         """
-        genus = self.session.query(Genus).filter_by(id=11).one()
+        genus = self.session.query(Genus).filter_by(id=1).one()
         self.assert_(genus.author == genus_data[0]['author'])
 
     def test_import_no_inherit(self):
@@ -298,7 +297,7 @@ class CSVTests(ImexTestCase):
         """
         Test exporting a None column exports a ''
         """
-        species = Species(genus_id=11, sp='sp')
+        species = Species(genus_id=1, sp='sp')
         self.assertTrue(species is not None)
         from tempfile import mkdtemp
         temp_path = mkdtemp()
