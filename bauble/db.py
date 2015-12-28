@@ -257,7 +257,6 @@ def open(uri, verify=True, show_error_dialogs=False):
     from sqlalchemy.pool import NullPool, SingletonThreadPool
     from bauble.prefs import testing
     poolclass = testing and SingletonThreadPool or NullPool
-    poolclass = SingletonThreadPool
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
                                   implicit_returning=False,
                                   poolclass=poolclass)

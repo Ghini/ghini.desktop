@@ -987,15 +987,10 @@ class GenericEditorPresenter(object):
         self.view = view
         self.problems = set()
         self._dirty = False
-        self.must_close_session = False
         try:
             self.session = object_session(model)
-            logger.debug('reusing object session')
         except UnmappedInstanceError:
-            logger.debug('creating new session')
             if db.Session is not None:
-                db.Session.close_all()
-                self.must_close_session = True
                 self.session = db.Session()
             else:
                 self.session = None
@@ -1520,8 +1515,6 @@ class GenericEditorPresenter(object):
         self.clear_problems()
         if isinstance(self.view, GenericEditorView):
             self.view.cleanup()
-        if self.must_close_session:
-            self.session.close()
 
 
 class ChildPresenter(GenericEditorPresenter):
