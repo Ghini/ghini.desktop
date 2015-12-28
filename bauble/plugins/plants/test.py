@@ -142,11 +142,11 @@ species_test_data = (
     {'id': 16, 'genus_id': 1, 'sp': u'test',
      'infrasp1_rank': u'subsp.', 'infrasp1': u'test',
      'cv_group': u'SomeGroup'},
-    {'id': 17, 'genus_id': 5, 'sp': u'adductum', 'author': u'Asher'},
-    {'id': 18, 'genus_id': 6, 'sp': u'lobata', 'author': u'H.J. Veitch'},
-    {'id': 19, 'genus_id': 6, 'sp': u'grandiflora', 'author': u'Lindl.'},
-    {'id': 20, 'genus_id': 2, 'sp': u'fragrans', 'author': u'Dressler'},
-    {'id': 21, 'genus_id': 7, 'sp': u'arborea', 'author': u'Lagerh.'},
+    {'id': 17, 'genus_id': 5, 'sp': u'adductum', 'sp_author': u'Asher'},
+    {'id': 18, 'genus_id': 6, 'sp': u'lobata', 'sp_author': u'H.J. Veitch'},
+    {'id': 19, 'genus_id': 6, 'sp': u'grandiflora', 'sp_author': u'Lindl.'},
+    {'id': 20, 'genus_id': 2, 'sp': u'fragrans', 'sp_author': u'Dressler'},
+    {'id': 21, 'genus_id': 7, 'sp': u'arborea', 'sp_author': u'Lagerh.'},
     {'id': 22, 'sp': u'', 'genus_id': 1, 'sp_author': u'',
      'infrasp1_rank': u'cv.', 'infrasp1': u'Layla Saida'},
     {'id': 23, 'sp': u'', 'genus_id': 1, 'sp_author': u'',
@@ -194,14 +194,14 @@ species_markup_map = {
     }
 
 species_str_authors_map = {
-    1: 'Maxillaria variabilis Bateman ex Lindl.',
+    1: u'Maxillaria variabilis Bateman ex Lindl.',
     2: u'Encyclia cochleata (L.) Lem\xe9e',
-    3: 'Abrus precatorius L.',
+    3: u'Abrus precatorius L.',
     4: u'Campyloneurum %s alapense F\xe9e' % Species.hybrid_char,
     5: u'Encyclia cochleata (L.) Lem\xe9e var. cochleata',
     6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
-    7: 'Abrus precatorius L. SomethingRidiculous Group',
-    8: "Abrus precatorius L. (SomethingRidiculous Group) 'Hot Rio Nights'",
+    7: u'Abrus precatorius L. SomethingRidiculous Group',
+    8: u"Abrus precatorius L. (SomethingRidiculous Group) 'Hot Rio Nights'",
     15: "Encyclia cochleata L. subsp. "
     "cochleata L. var. cochleata L. 'Black' L.",
 }
@@ -244,14 +244,17 @@ def setUp_data():
     will get an error about the test data rows already existing in the database
     """
 
+    session = db.Session()
     for mapper, data in test_data_table_control:
         table = mapper.__table__
         # insert row by row instead of doing an insert many since each
         # row will have different columns
         for row in data:
-            table.insert().execute(row).close()
+            session.add(mapper(**row))
         for col in table.c:
             utils.reset_sequence(col)
+    session.commit()
+    session.close()
 
 
 def test_duplicate_ids():
