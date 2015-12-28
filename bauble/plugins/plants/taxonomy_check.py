@@ -44,7 +44,7 @@ def start_taxonomy_check():
     model.selection = view.get_selection()
     model.tick_off = None
     model.report = None
-    model.file_path = '/home/mario/Downloads/tnrs_results.txt'
+    model.file_path = ''
 
     if model.selection is None:
         return
@@ -66,6 +66,8 @@ def start_taxonomy_check():
 
 
 def species_to_fix(ssn, binomial, author, create=False):
+    if binomial.find(' ') == -1:
+        return None
     binomial = utils.to_unicode(binomial)
     author = utils.to_unicode(author)
     gen_epithet, sp_epithet = binomial.split(' ', 1)
@@ -123,6 +125,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
         for i in range(1, 4):
             frame_id = 'frame%d' % i
             self.view.widget_set_visible(frame_id, i == self.model.page)
+        self.view.widget_set_sensitive('ok_button', self.model.page == 3)
 
     def on_frame1_next(self, *args):
         'parse the results into the liststore2 and move to frame 2'
@@ -157,7 +160,9 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
         'execute all that is selected in liststore2 and move to frame 3'
         self.on_frame_next(*args)
         tb = self.view.widgets.textbuffer3
-        bold = tb.create_tag(None, weight=pango.WEIGHT_BOLD)
+        tag_bold = tb.create_tag(None, weight=pango.WEIGHT_BOLD)
+        tag_red = tb.create_tag(None, weight=pango.WEIGHT_BOLD,
+                                foreground=pango.Color('red'))
         tb.set_text('')
 
         for row in self.tick_off_list:
@@ -168,14 +173,11 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
             if row[OLD_BINOMIAL] == '':
                 tb.insert_with_tags(tb.get_end_iter(),
                                     "new taxon %s" % row[NEW_BINOMIAL],
-                                    bold)
+                                    tag_bold)
                 obj = species_to_fix(
                     self.session, row[NEW_BINOMIAL], row[AUTHORSHIP],
                     create=True)
             else:
-                tb.insert_with_tags(tb.get_end_iter(),
-                                    "update taxon %s" % row[OLD_BINOMIAL],
-                                    bold)
                 if row[TAXON_STATUS] == 'Synonym':
                     accepted = species_to_fix(
                         self.session, row[ACCEPTED_BINOMIAL],
@@ -186,6 +188,15 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
                 obj = species_to_fix(
                     self.session, row[OLD_BINOMIAL], row[AUTHORSHIP],
                     create=False)
+                if obj is None:
+                    tb.insert_with_tags(tb.get_end_iter(),
+                                        "bad taxon %s" % row[OLD_BINOMIAL],
+                                        tag_bold, tag_red)
+                    continue
+                tb.insert_with_tags(tb.get_end_iter(),
+                                    "update taxon %s" % row[OLD_BINOMIAL],
+                                    tag_bold)
+
                 gen_epithet, sp_epithet = utils.to_unicode(
                     row[NEW_BINOMIAL]).split(' ', 1)
                 obj.genus.genus = gen_epithet
@@ -194,7 +205,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
                     obj.accepted = accepted
             tb.insert_with_tags(tb.get_end_iter(),
                                 " %s\n" % row[AUTHORSHIP],
-                                bold)
+                                tag_bold)
 
     def on_frame_next(self, *args):
         self.model.page += 1
@@ -232,6 +243,17 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
             row[TO_PROCESS] = to_process
             stock_id = to_process and YES_ICON or NO_ICON
             row[STOCK_ID] = stock_id
+
+    def on_filebtnbrowse_clicked(self, *args):
+        import gtk
+        previously = self.view.widget_get_value('file_path_entry')
+        last_folder, bn = os.path.split(previously)
+        self.view.run_file_chooser_dialog(
+            _("Choose a file..."), None,
+            action=gtk.FILE_CHOOSER_ACTION_SAVE,
+            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            last_folder=last_folder, target='file_path_entry')
 
 
 class TaxonomyCheckTool(pluginmgr.Tool):
