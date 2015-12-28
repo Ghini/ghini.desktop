@@ -222,17 +222,11 @@ class Family(db.Base, db.Serializable):
         if self in value.synonyms:
             return
         # remove any previous `accepted` link
-        session = object_session(self)
-        must_close_session = False
-        if not session:
-            must_close_session = True
-            session = db.Session()
+        session = object_session(self) or db.Session()
         session.query(FamilySynonym).filter(
             FamilySynonym.synonym_id == self.id).delete()
         session.commit()
         value.synonyms.append(self)
-        if must_close_session:
-            session.close()
 
     def has_accessions(self):
         '''true if family is linked to at least one accession
