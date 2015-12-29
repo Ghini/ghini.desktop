@@ -248,7 +248,7 @@ class GenericEditorView(object):
                 self.connect(window, 'response', self.on_dialog_response)
         self.box = set()  # the top level, meant for warnings.
 
-    def abort_threads(self):
+    def cancel_threads(self):
         pass
 
     def update(self):

@@ -370,7 +370,7 @@ class GUI(object):
                 kid.set_visible(True)
             else:
                 kid.set_visible(False)
-                kid.abort_threads()
+                kid.cancel_threads()
         if must_add_this_view:
             view_box.pack_start(view, True, True, 0)
         view.show_all()

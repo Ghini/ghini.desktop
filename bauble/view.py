@@ -358,14 +358,42 @@ class LinksExpander(InfoExpander):
             self.dynamic_box.show_all()
 
 
+class AddOneDot(threading.Thread):
+
+    @staticmethod
+    def callback(dotno):
+        statusbar = bauble.gui.widgets.statusbar
+        sbcontext_id = statusbar.get_context_id('searchview.nresults')
+        statusbar.pop(sbcontext_id)
+        statusbar.push(sbcontext_id, _('counting results') + '.' * dotno)
+
+    def __init__(self, group=None, verbose=None, **kwargs):
+        super(AddOneDot, self).__init__(
+            group=group, target=None, name=None, verbose=verbose)
+        self.__stopped = threading.Event()
+        self.dotno = 0
+
+    def cancel(self):
+        self.__stopped.set()
+
+    def run(self):
+        while not self.__stopped.wait(1.0):
+            self.dotno += 1
+            gobject.idle_add(self.callback, self.dotno)
+
+
 class CountResultsTask(threading.Thread):
-    def __init__(self, klass, ids,
+    def __init__(self, klass, ids, dots_thread,
                  group=None, verbose=None, **kwargs):
         super(CountResultsTask, self).__init__(
             group=group, target=None, name=None, verbose=verbose)
         self.klass = klass
         self.ids = ids
-        self.abort = False
+        self.dots_thread = dots_thread
+        self.__cancel = False
+
+    def cancel(self):
+        self.__cancel = True
 
     def run(self):
         session = db.Session()
@@ -376,7 +404,7 @@ class CountResultsTask(threading.Thread):
         d = {}
         for ndx in self.ids:
             item = session.query(klass).filter(klass.id == ndx).one()
-            if self.abort:  # check whether caller asks to abort
+            if self.__cancel:  # check whether caller asks to cancel
                 break
             for k, v in item.top_level_count().items():
                 if isinstance(v, set):
@@ -390,7 +418,7 @@ class CountResultsTask(threading.Thread):
             if isinstance(v, set):
                 v = len(v)
             result.append("%s: %d" % (k, v))
-            if self.abort:  # check whether caller asks to abort
+            if self.__cancel:  # check whether caller asks to cancel
                 break
         value = _("top level count: %s") % (", ".join(result))
         if bauble.gui:
@@ -399,7 +427,8 @@ class CountResultsTask(threading.Thread):
                 sbcontext_id = statusbar.get_context_id('searchview.nresults')
                 statusbar.pop(sbcontext_id)
                 statusbar.push(sbcontext_id, text)
-            if not self.abort:  # check whether caller asks to abort
+            if not self.__cancel:  # check whether caller asks to cancel
+                self.dots_thread.cancel()
                 gobject.idle_add(callback, value)
         else:
             logger.debug("showing text %s", value)
@@ -504,7 +533,7 @@ class SearchView(pluginmgr.View):
         # be cleared when we do a new search
         self.session = db.Session()
         self.add_notes_page_to_bottom_notebook()
-        self.still_counting = None
+        self.running_threads = []
 
     def add_notes_page_to_bottom_notebook(self):
         '''add notebook page for notes
@@ -719,10 +748,10 @@ class SearchView(pluginmgr.View):
                 logger.warning(
                     'Could not parse accelerator: %s' % (action.accelerator))
 
-    def abort_threads(self):
-        if self.still_counting:
-            self.still_counting.abort = True
-        self.still_counting = None
+    def cancel_threads(self):
+        for k in self.running_threads:
+            k.cancel()
+        self.running_threads = []
 
     nresults_statusbar_context = 'searchview.nresults'
 
@@ -741,7 +770,7 @@ class SearchView(pluginmgr.View):
         # even have session as a class attribute
         self.session = db.Session()
         # stop whatever it might still be doing
-        self.abort_threads()
+        self.cancel_threads()
         bold = '<b>%s</b>'
         results = []
         try:
@@ -798,11 +827,16 @@ class SearchView(pluginmgr.View):
                 return
             else:
                 statusbar.pop(sbcontext_id)
-                statusbar.push(sbcontext_id, _('counting results...'))
+                statusbar.push(sbcontext_id, _('counting results'))
                 if len(set(item.__class__ for item in results)) == 1:
-                    self.still_counting = CountResultsTask(
-                        results[0].__class__, [i.id for i in results])
-                    self.still_counting.start()
+                    dots_thread = AddOneDot()
+                    self.running_threads.append(dots_thread)
+                    dots_thread.start()
+                    counting = CountResultsTask(
+                        results[0].__class__, [i.id for i in results],
+                        dots_thread)
+                    self.running_threads.append(counting)
+                    counting.start()
                 else:
                     statusbar.push(sbcontext_id,
                                    _('size of non homogeneous result: %s') %
