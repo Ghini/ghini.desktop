@@ -100,6 +100,25 @@ The preferences key for the default units for Bauble.
 Values: metric, imperial
 """
 
+use_sentry_client_pref = 'bauble.use_sentry_client'
+"""
+During normal usage, Bauble produces a log file which contains
+invaluable information for tracking down errors. This information is
+normally saved in a file on the local workstation.
+
+This preference key controls the option of sending exceptional
+conditions (WARNING and ERROR, normally related to software problems)
+to a central logging server, and developers will be notified by email
+of the fact that you encountered a problem.
+
+Logging messages at the levels Warning and Error do not contain personal
+information. If you have completed the registration steps, a developer
+might contact you to ask for further details, as it could be the
+complete content of your log file.
+
+Values: True, False (Default: False)
+"""
+
 
 from ConfigParser import RawConfigParser
 
@@ -133,6 +152,8 @@ class _prefs(dict):
             self[config_version_pref] = config_version
 
         # set some defaults if they don't exist
+        if use_sentry_client_pref not in self:
+            self[use_sentry_client_pref] = False
         if picture_root_pref not in self:
             self[picture_root_pref] = ''
         if date_format_pref not in self:

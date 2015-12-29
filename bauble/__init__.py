@@ -312,6 +312,10 @@ def main(uri=None):
     fileHandler.setLevel(logging.DEBUG)
     consoleHandler.setLevel(consoleLevel)
 
+    # intialize the user preferences
+    from bauble.prefs import prefs
+    prefs.init()
+
     try:
         # no raven.conf.setup_logging: just standard Python logging
         from raven import Client
@@ -320,7 +324,9 @@ def main(uri=None):
                                '00268114ed47460b94ce2b1b0b2a4a20@'
                                'app.getsentry.com/45704')
         handler = SentryHandler(sentry_client)
-        logging.getLogger().addHandler(handler)
+        # only register the sentry client if the user agrees on it
+        if prefs[prefs.use_sentry_client_pref]:
+            logging.getLogger().addHandler(handler)
         handler.setLevel(logging.WARNING)
     except:
         logger.warning("can't configure sentry client")
@@ -336,7 +342,6 @@ def main(uri=None):
         sys.exit(1)
 
     import bauble.pluginmgr as pluginmgr
-    from bauble.prefs import prefs
     import bauble.utils as utils
 
     # initialize threading
@@ -352,9 +357,6 @@ def main(uri=None):
     global gui, default_icon, conn_name
 
     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
-
-    # intialize the user preferences
-    prefs.init()
 
     import threading
     threading.Thread(target=check_and_notify_new_version).start()
