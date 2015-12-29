@@ -57,10 +57,10 @@ def start_taxonomy_check():
         presenter.session.rollback()
     else:
         presenter.commit_changes()
-        from bauble import gui, view
-        search_view = gui.get_view()
-        if isinstance(search_view, view.SearchView):
-            search_view.reset_view()
+        from bauble import gui
+        view = gui.get_view()
+        if hasattr(view, 'update'):
+            view.update()
     presenter.cleanup()
     return error_state
 
