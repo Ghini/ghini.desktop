@@ -482,7 +482,7 @@ class View(gtk.VBox):
         """
         super(View, self).__init__(*args, **kwargs)
 
-    def abort_threads(self):
+    def cancel_threads(self):
         pass
 
     def update(self):
