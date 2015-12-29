@@ -8,17 +8,17 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-10-04 14:33-0500\n"
-"PO-Revision-Date: 2015-07-12 18:49-0500\n"
-"Last-Translator: Adrian Budasz <adrianbudasz@gmail.com>\n"
-"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/"
-">\n"
+"PO-Revision-Date: 2015-12-29 03:04+0000\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/>"
+"\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Poedit 1.5.4\n"
+"X-Generator: Weblate 2.5-dev\n"
 "X-Launchpad-Export-Date: 2012-11-14 04:52+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -33,27 +33,27 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
-msgstr ""
+msgstr "# wykiełkowało."
 
 #: bauble/plugins/garden/propagation.py:184
 msgid "# of seedlings: %s"
-msgstr ""
+msgstr "# sadzonek: %s"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 msgid "# of seeds"
-msgstr ""
+msgstr "# nasion"
 
 #: bauble/plugins/garden/propagation.py:168
 msgid "# of seeds: %s"
-msgstr ""
+msgstr "# nasion: %s"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
-msgstr ""
+msgstr "% wykiełkowało."
 
 #: bauble/plugins/plants/species_model.py:377
 msgid "%(group)s Group"
-msgstr ""
+msgstr "%(group)s Grup"
 
 #: bauble/plugins/garden/accession.py:206
 msgid ""
