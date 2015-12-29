@@ -205,8 +205,8 @@ class TagItemGUI(editor.GenericEditorView):
             model.remove(row_iter)
             _reset_tags_menu()
             view = bauble.gui.get_view()
-            if isinstance(view, SearchView):
-                view.reset_view()
+            if hasattr(view, 'update'):
+                view.update()
         except Exception, e:
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
