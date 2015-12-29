@@ -192,7 +192,7 @@ class _prefs(dict):
         section, option = _prefs._parse_key(key)
         # this doesn't allow None values for preferences
         if not self.config.has_section(section) or \
-           not self.config.has_option(section, option):
+                not self.config.has_option(section, option):
             return None
         else:
             i = self.config.get(section, option)
@@ -204,7 +204,6 @@ class _prefs(dict):
             elif i == 'True' or i == 'False':
                 return eval(i)
             return i
-            #return self.config.get(section, option)
 
     def iteritems(self):
         return [('%s.%s' % (section, name), value)
@@ -275,7 +274,7 @@ class PrefsView(pluginmgr.View):
         # not getting saved in the prefs
 
         def on_move_handle(paned, data=None):
-            print paned.get_position()
+            logger.debug("handle moved to %s" % paned.get_position())
             prefs[self.pane_size_pref] = paned.get_position()
         pane.connect('check-resize', on_move_handle)
 
