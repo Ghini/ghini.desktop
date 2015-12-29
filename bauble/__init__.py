@@ -313,7 +313,7 @@ def main(uri=None):
     consoleHandler.setLevel(consoleLevel)
 
     # intialize the user preferences
-    from bauble.prefs import prefs
+    from bauble.prefs import prefs, use_sentry_client_pref
     prefs.init()
 
     try:
@@ -324,12 +324,18 @@ def main(uri=None):
                                '00268114ed47460b94ce2b1b0b2a4a20@'
                                'app.getsentry.com/45704')
         handler = SentryHandler(sentry_client)
+
         # only register the sentry client if the user agrees on it
-        if prefs[prefs.use_sentry_client_pref]:
+        if prefs[use_sentry_client_pref]:
+            logger.debug('registering sentry client')
             logging.getLogger().addHandler(handler)
+        else:
+            logger.debug('not registering sentry client')
+
         handler.setLevel(logging.WARNING)
-    except:
+    except Exception, e:
         logger.warning("can't configure sentry client")
+        logger.debug('%s - %s' % (type(e), e))
 
     import gtk.gdk
     import pygtk
