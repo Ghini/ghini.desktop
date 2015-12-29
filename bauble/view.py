@@ -702,7 +702,7 @@ class SearchView(pluginmgr.View):
                         # cursor is
                         sel = self.get_selected_values()
                         if func(sel):
-                            self.reset_view()
+                            self.update()
                     return _impl
                 self.accel_group.connect_group(keyval, mod,
                                                gtk.ACCEL_VISIBLE,
@@ -1051,7 +1051,7 @@ class SearchView(pluginmgr.View):
                             msg, tb, gtk.MESSAGE_ERROR)
                         logger.warning(traceback.format_exc())
                     if result:
-                        self.reset_view()
+                        self.update()
 
                 item.connect('activate', on_activate, action.callback)
                 menu.append(item)
@@ -1065,13 +1065,13 @@ class SearchView(pluginmgr.View):
         menu.popup(None, None, None, event.button, event.time)
         return True
 
-    def reset_view(self):
+    def update(self):
         """
         Expire all the children in the model, collapse everything,
         reexpand the rows to the previous state where possible and
         update the infobox.
         """
-        logger.debug('SearchView::reset_view')
+        logger.debug('SearchView::update')
         model, paths = self.results_view.get_selection().get_selected_rows()
         ref = None
         try:
