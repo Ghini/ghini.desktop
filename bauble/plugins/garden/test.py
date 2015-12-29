@@ -1369,7 +1369,7 @@ class InstitutionPresenterTests(GardenTestCase):
         self.assertTrue(view.widget_get_sensitive('inst_register'))
 
     def test_when_user_registers_info_is_logged(self):
-        SkipTest('please do not send stuff to sentry while testing')
+        raise SkipTest('please do not send stuff to sentry while testing')
         from bauble.utils import desktop
         from bauble.test import mockfunc
         from functools import partial
