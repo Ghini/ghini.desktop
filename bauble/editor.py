@@ -426,6 +426,18 @@ class GenericEditorView(object):
             obj.disconnect(sid)
         del self.__attached_signals[:]
 
+    def disconnect_widget_signals(self, widget):
+        """disconnect all signals attached to widget"""
+
+        removed = []
+        for obj, sid in self.__attached_signals:
+            if obj == widget:
+                widget.disconnect(sid)
+                removed.append((obj, sid))
+
+        for item in removed:
+            self.__attached_signals.remove(item)
+
     def get_window(self):
         """
         Return the top level window for view
