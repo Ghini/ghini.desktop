@@ -248,6 +248,12 @@ class GenericEditorView(object):
                 self.connect(window, 'response', self.on_dialog_response)
         self.box = set()  # the top level, meant for warnings.
 
+    def abort_threads(self):
+        pass
+
+    def update(self):
+        pass
+
     def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
         chooser = gtk.FileChooserDialog(text, parent, action, buttons)

@@ -365,6 +365,7 @@ class CountResultsTask(threading.Thread):
             group=group, target=None, name=None, verbose=verbose)
         self.klass = klass
         self.ids = ids
+        self.abort = False
 
     def run(self):
         session = db.Session()
@@ -375,6 +376,8 @@ class CountResultsTask(threading.Thread):
         d = {}
         for ndx in self.ids:
             item = session.query(klass).filter(klass.id == ndx).one()
+            if self.abort:  # check whether caller asks to abort
+                break
             for k, v in item.top_level_count().items():
                 if isinstance(v, set):
                     d[k] = v.union(d.get(k, set()))
@@ -387,6 +390,8 @@ class CountResultsTask(threading.Thread):
             if isinstance(v, set):
                 v = len(v)
             result.append("%s: %d" % (k, v))
+            if self.abort:  # check whether caller asks to abort
+                break
         value = _("top level count: %s") % (", ".join(result))
         if bauble.gui:
             def callback(text):
@@ -394,7 +399,8 @@ class CountResultsTask(threading.Thread):
                 sbcontext_id = statusbar.get_context_id('searchview.nresults')
                 statusbar.pop(sbcontext_id)
                 statusbar.push(sbcontext_id, text)
-            gobject.idle_add(callback, value)
+            if not self.abort:  # check whether caller asks to abort
+                gobject.idle_add(callback, value)
         else:
             logger.debug("showing text %s", value)
         ## we should not leave the session around
@@ -498,6 +504,7 @@ class SearchView(pluginmgr.View):
         # be cleared when we do a new search
         self.session = db.Session()
         self.add_notes_page_to_bottom_notebook()
+        self.still_counting = None
 
     def add_notes_page_to_bottom_notebook(self):
         '''add notebook page for notes
@@ -712,6 +719,11 @@ class SearchView(pluginmgr.View):
                 logger.warning(
                     'Could not parse accelerator: %s' % (action.accelerator))
 
+    def abort_threads(self):
+        if self.still_counting:
+            self.still_counting.abort = True
+        self.still_counting = None
+
     nresults_statusbar_context = 'searchview.nresults'
 
     def search(self, text):
@@ -728,6 +740,8 @@ class SearchView(pluginmgr.View):
         # create a new session for each search...maybe we shouldn't
         # even have session as a class attribute
         self.session = db.Session()
+        # stop whatever it might still be doing
+        self.abort_threads()
         bold = '<b>%s</b>'
         results = []
         try:
@@ -786,8 +800,9 @@ class SearchView(pluginmgr.View):
                 statusbar.pop(sbcontext_id)
                 statusbar.push(sbcontext_id, _('counting results...'))
                 if len(set(item.__class__ for item in results)) == 1:
-                    CountResultsTask(results[0].__class__,
-                                     [i.id for i in results]).start()
+                    self.still_counting = CountResultsTask(
+                        results[0].__class__, [i.id for i in results])
+                    self.still_counting.start()
                 else:
                     statusbar.push(sbcontext_id,
                                    _('size of non homogeneous result: %s') %
