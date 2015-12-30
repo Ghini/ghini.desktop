@@ -31,6 +31,7 @@ logger.setLevel(logging.DEBUG)
 from sqlalchemy import (
     Column, Integer)
 
+import unittest
 import bauble
 import bauble.db as db
 from bauble.btypes import Enum, EnumError
@@ -291,10 +292,10 @@ class MVPTests(BaubleTestCase):
         presenter.on_tag_desc_textbuffer_changed()  # avoid uncounted line!
 
 
-class GlobalFunctionsTests(BaubleTestCase):
+class GlobalFunctionsTests(unittest.TestCase):
     def test_newer_version_on_github(self):
         import StringIO
-        from bauble import newer_version_on_github
+        from bauble.connmgr import newer_version_on_github
         stream = StringIO.StringIO('version = "1.0.0"  # comment')
         self.assertFalse(newer_version_on_github(stream) and True or False)
         stream = StringIO.StringIO('version = "1.0.99999"  # comment')
