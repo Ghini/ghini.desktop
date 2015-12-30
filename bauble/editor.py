@@ -1044,6 +1044,10 @@ class GenericEditorPresenter(object):
         objs = list(self.session)
         try:
             self.session.flush()
+            try:
+                bauble.gui.get_view().update()
+            except Exception, e:
+                pass
         except Exception, e:
             logger.warning(e)
             self.session.rollback()
@@ -1242,7 +1246,7 @@ class GenericEditorPresenter(object):
             # if no problem id and not problem widgets then don't do anything
             return
 
-        if not isinstance(widget, gtk.Widget):
+        if not isinstance(widget, (gtk.Widget, type(None))):
             try:
                 widget = getattr(self.view.widgets, widget)
             except:
@@ -1614,6 +1618,10 @@ class GenericModelViewPresenterEditor(object):
         objs = list(self.session)
         try:
             self.session.flush()
+            try:
+                bauble.gui.get_view().update()
+            except Exception, e:
+                pass
         except Exception, e:
             logger.warning(e)
             self.session.rollback()
