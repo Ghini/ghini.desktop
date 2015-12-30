@@ -753,6 +753,11 @@ class SearchView(pluginmgr.View):
             k.cancel()
         self.running_threads = []
 
+    def start_thread(self, thread):
+        self.running_threads.append(thread)
+        thread.start()
+        return thread
+
     nresults_statusbar_context = 'searchview.nresults'
 
     def search(self, text):
@@ -829,14 +834,10 @@ class SearchView(pluginmgr.View):
                 statusbar.pop(sbcontext_id)
                 statusbar.push(sbcontext_id, _('counting results'))
                 if len(set(item.__class__ for item in results)) == 1:
-                    dots_thread = AddOneDot()
-                    self.running_threads.append(dots_thread)
-                    dots_thread.start()
-                    counting = CountResultsTask(
+                    dots_thread = self.start_thread(AddOneDot())
+                    self.start_thread(CountResultsTask(
                         results[0].__class__, [i.id for i in results],
-                        dots_thread)
-                    self.running_threads.append(counting)
-                    counting.start()
+                        dots_thread))
                 else:
                     statusbar.push(sbcontext_id,
                                    _('size of non homogeneous result: %s') %

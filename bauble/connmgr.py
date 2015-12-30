@@ -35,11 +35,8 @@ logger = logging.getLogger(__name__)
 import gtk
 
 from bauble.i18n import _
-import bauble.utils as utils
-from bauble.error import check
 import bauble
-import bauble.paths as paths
-import bauble.prefs as prefs
+from bauble import paths, prefs, utils
 
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
@@ -88,6 +85,80 @@ def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
     sensitive = dbtype in working_dbtypes
     renderer.set_property('sensitive', sensitive)
     renderer.set_property('text', dbtype)
+
+
+def newer_version_on_github(input_stream):
+    """is there a new patch on github for this production line
+
+    if the remote version is higher than the running one, return
+    something evaluating to True (possibly the remote version string).
+    otherwise, return something evaluating to False
+    """
+
+    try:
+        version_lines = input_stream.read().split('\n')
+        valid_lines = [i for i in version_lines
+                       if not i.startswith('#') and i.strip()]
+        if len(valid_lines) == 1:
+            try:
+                github_version = eval('"' + valid_lines[0].split('"')[1] + '"')
+            except:
+                logger.warning("can't parse github version.")
+                return False
+            github_patch = github_version.split('.')[2]
+            if int(github_patch) > int(bauble.version_tuple[2]):
+                return github_version
+            if int(github_patch) < int(bauble.version_tuple[2]):
+                logger.info("running unreleased version")
+    except TypeError:
+        logger.warning('TypeError while reading github stream')
+    except IndexError:
+        logger.warning('incorrect format for github version')
+    except ValueError:
+        logger.warning('incorrect format for github version')
+    return False
+
+
+def check_and_notify_new_version(view):
+    ## check whether there's a newer version on github.  this is executed in
+    ## a different thread, which does nothing or terminates the program.
+    version_on_github = (
+        'https://raw.githubusercontent.com/Bauble/bauble' +
+        '.classic/bauble-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
+    try:
+        import urllib2
+        import ssl
+        github_version_stream = urllib2.urlopen(
+            version_on_github, timeout=5)
+        remote = newer_version_on_github(github_version_stream)
+        if remote:
+            def show_message_box():
+                msg = _("new remote version %s available.\n"
+                        "continue, or exit to upgrade."
+                        ) % remote
+                box = view.add_message_box()
+                box.message = msg
+                box.show()
+                view.add_box(box)
+
+            # Any code that modifies the UI that is called from outside the
+            # main thread must be pushed into the main thread and called
+            # asynchronously in the main loop, with gobject.idle_add.
+            import gobject
+            gobject.idle_add(show_message_box)
+    except urllib2.URLError:
+        logger.info('connection is slow or down')
+        pass
+    except ssl.SSLError, e:
+        logger.info('SSLError %s while checking for newer version' % e)
+        pass
+    except urllib2.HTTPError:
+        logger.info('HTTPError while checking for newer version')
+        pass
+    except Exception, e:
+        logger.warning('unhandled %s(%s) while checking for newer version'
+                       % type(e), e)
+        pass
 
 
 class ConnMgrPresenter(GenericEditorPresenter):
@@ -152,6 +223,10 @@ class ConnMgrPresenter(GenericEditorPresenter):
             view.set_icon(gtk.gdk.pixbuf_new_from_file(bauble.default_icon))
         except:
             pass
+
+        from threading import Thread
+        self.start_thread(Thread(target=check_and_notify_new_version,
+                                 args=[self.view]))
 
     def on_file_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('file_entry')
