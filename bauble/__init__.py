@@ -239,19 +239,19 @@ dbengine.html#create-engine-url-arguments>`_
         # no raven.conf.setup_logging: just standard Python logging
         from raven import Client
         from raven.handlers.logging import SentryHandler
-        sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
-                               '00268114ed47460b94ce2b1b0b2a4a20@'
-                               'app.getsentry.com/45704')
-        handler = SentryHandler(sentry_client)
 
         # only register the sentry client if the user agrees on it
         if prefs[use_sentry_client_pref]:
             logger.debug('registering sentry client')
+            sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
+                                   '00268114ed47460b94ce2b1b0b2a4a20@'
+                                   'app.getsentry.com/45704')
+            handler = SentryHandler(sentry_client)
             logging.getLogger().addHandler(handler)
+            handler.setLevel(logging.WARNING)
         else:
             logger.debug('not registering sentry client')
 
-        handler.setLevel(logging.WARNING)
     except Exception, e:
         logger.warning("can't configure sentry client")
         logger.debug('%s - %s' % (type(e), e))
