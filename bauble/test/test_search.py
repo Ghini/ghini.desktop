@@ -35,9 +35,6 @@ from bauble import prefs
 from bauble.test import BaubleTestCase
 
 
-# TODO: test for memory leaks, could probably test
-
-
 class Results(object):
     def __init__(self):
         self.results = {}
@@ -57,7 +54,7 @@ class SearchParserTests(unittest.TestCase):
 
     def test_query_expression_token_UPPER(self):
         s = 'domain where col=value'
-        #debug(s)
+        logger.debug(s)
         parser.query.parseString(s)
 
         s = 'domain where relation.col=value'
