@@ -1005,6 +1005,7 @@ class GenericEditorPresenter(object):
         self.view = view
         self.problems = set()
         self._dirty = False
+        self.running_threads = []
         self.owns_session = False
         self.session = session
         if session is None:
@@ -1036,6 +1037,16 @@ class GenericEditorPresenter(object):
             value = getattr(self.model, attr)
             value = value is None and '' or value
             self.view.widget_set_value(widget, value)
+
+    def cancel_threads(self):
+        for k in self.running_threads:
+            k.cancel()
+        self.running_threads = []
+
+    def start_thread(self, thread):
+        self.running_threads.append(thread)
+        thread.start()
+        return thread
 
     def commit_changes(self):
         '''

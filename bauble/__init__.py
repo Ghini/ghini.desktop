@@ -190,94 +190,13 @@ conn_default_pref = "conn.default"
 conn_list_pref = "conn.list"
 
 
-def newer_version_on_github(input_stream):
-    """is there a new patch on github for this production line
-
-    if the remote version is higher than the running one, return
-    something evaluating to True (possibly the remote version string).
-    otherwise, return something evaluating to False
-    """
-
-    try:
-        version_lines = input_stream.read().split('\n')
-        valid_lines = [i for i in version_lines
-                       if not i.startswith('#') and i.strip()]
-        if len(valid_lines) == 1:
-            try:
-                github_version = eval('"' + valid_lines[0].split('"')[1] + '"')
-            except:
-                logger.warning("can't parse github version.")
-                return False
-            github_patch = github_version.split('.')[2]
-            if int(github_patch) > int(version_tuple[2]):
-                return github_version
-            if int(github_patch) < int(version_tuple[2]):
-                logger.info("running unreleased version")
-    except TypeError:
-        logger.warning('TypeError while reading github stream')
-    except IndexError:
-        logger.warning('incorrect format for github version')
-    except ValueError:
-        logger.warning('incorrect format for github version')
-    return False
-
-
-def check_and_notify_new_version():
-    ## check whether there's a newer version on github.  this is executed in
-    ## a different thread, which does nothing or terminates the program.
-    version_on_github = (
-        'https://raw.githubusercontent.com/Bauble/bauble' +
-        '.classic/bauble-%s.%s/bauble/version.py') % version_tuple[:2]
-    try:
-        import urllib2
-        import ssl
-        import gtk
-        github_version_stream = urllib2.urlopen(
-            version_on_github, timeout=5)
-        remote = newer_version_on_github(github_version_stream)
-        if remote:
-            def show_dialog():
-                md = gtk.MessageDialog(
-                    None, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO,
-                    gtk.BUTTONS_OK_CANCEL,
-                    _("new remote version available.\n\n"
-                      "remote version: %(1)s,\n"
-                      "running version: %(2)s.\n\n"
-                      "Cancel to stop and upgrade;\n"
-                      "OK to continue.") %
-                    {'1': remote,
-                     '2': version})
-                response = md.run()
-                md.destroy()
-                if response != gtk.RESPONSE_OK:
-                    exit(0)
-
-            # Any code that modifies the UI that is called from outside the
-            # main thread must be pushed into the main thread and called
-            # asynchronously in the main loop, with gobject.idle_add.
-            import gobject
-            gobject.idle_add(show_dialog)
-    except urllib2.URLError:
-        logger.info('connection is slow or down')
-        pass
-    except ssl.SSLError, e:
-        logger.info('SSLError %s while checking for newer version' % e)
-        pass
-    except urllib2.HTTPError:
-        logger.info('HTTPError while checking for newer version')
-        pass
-    except Exception, e:
-        logger.warning('unhandled %s(%s) while checking for newer version'
-                       % type(e), e)
-        pass
-
-
 def main(uri=None):
     """
     Run the main Bauble application.
 
     :param uri:  the URI of the database to connect to.  For more information
-                 about database URIs see `<http://www.sqlalchemy.org/docs/05/dbengine.html#create-engine-url-arguments>`_
+                 about database URIs see `<http://www.sqlalchemy.org/docs/05/\
+dbengine.html#create-engine-url-arguments>`_
 
     :type uri: str
     """
@@ -363,9 +282,6 @@ def main(uri=None):
     global gui, default_icon, conn_name
 
     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
-
-    import threading
-    threading.Thread(target=check_and_notify_new_version).start()
 
     open_exc = None
     # open default database
