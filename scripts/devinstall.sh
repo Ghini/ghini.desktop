@@ -92,3 +92,17 @@ fi
 bauble
 EOF
 chmod +x $HOME/bin/bauble
+
+echo your local installation is now complete.
+echo enter your password to make Bauble available to other users.
+
+sudo addgroup bauble 2>/dev/null 
+sudo usermod -a -G bauble $(whoami)
+chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/bacl
+sudo chgrp -R bauble $HOME/.virtualenvs/bacl
+cat <<EOF | sudo tee /usr/local/bin/bauble > /dev/null
+#!/bin/bash
+source $HOME/.virtualenvs/bacl/bin/activate
+$HOME/.virtualenvs/bacl/bin/bauble
+EOF
+sudo chmod +x /usr/local/bin/bauble
