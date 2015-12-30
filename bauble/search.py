@@ -134,6 +134,7 @@ class TypedValueToken(ValueABC):
 
 class IdentifierToken(object):
     def __init__(self, t):
+        logger.debug('IdentifierToken::__init__(%s)' % t)
         self.value = t[0]
 
     def __repr__(self):
@@ -164,9 +165,9 @@ class IdentifierToken(object):
         return self.value[:-1]
 
 
-class IdentExpressionToken(object):
+class IdentExpression(object):
     def __init__(self, t):
-        logger.debug('IdentExpressionToken::__init__(%s)' % t)
+        logger.debug('IdentExpression::__init__(%s)' % t)
         self.op = t[0][1]
 
         def not_implemented_yet(x, y):
@@ -207,10 +208,38 @@ class IdentExpressionToken(object):
             elif self.op in ('not', '<>', '!='):
                 return q.filter(a.any())
         clause = lambda x: self.operation(a, x)
-        return q.filter(clause(self.operands[1].express()))
+        return q.group_by(a).having(clause(self.operands[1].express()))
 
     def needs_join(self, env):
         return [self.operands[0].needs_join(env)]
+
+
+class AggregatedExpression(IdentExpression):
+    '''select on value of aggregated function
+
+    this one looks like ident.binop.value, but the ident is an
+    aggregating function, so that the query has to be altered
+    differently: not filter, but group_by and having.
+    '''
+
+    def __init__(self, t):
+        super(AggregatedExpression, self).__init__(t)
+        logger.debug('AggregatedExpression::__init__(%s)' % t)
+
+    def evaluate(self, env):
+        # operands[0] is the function/identifier pair
+        # operands[1] is the value against which to test
+        # operation implements the clause
+        q, a = self.operands[0].identifier.evaluate(env)
+        from sqlalchemy.sql import func
+        f = getattr(func, self.operands[0].function)
+        clause = lambda x: self.operation(f(a), x)
+        # group by main ID
+        # apply having
+        main_table = q.column_descriptions[0]['type']
+        result = q.group_by(getattr(main_table, 'id')
+                            ).having(clause(self.operands[1].express()))
+        return result
 
 
 class BetweenExpressionAction(object):
@@ -429,6 +458,32 @@ class DomainExpressionAction(object):
         return result
 
 
+class AggregatingAction(object):
+
+    def __init__(self, t):
+        logger.debug("AggregatingAction::__init__(%s)" % t)
+        self.function = t[0]
+        self.identifier = t[2]
+
+    def __repr__(self):
+        return "(%s %s)" % (self.function, self.identifier)
+
+    def needs_join(self, env):
+        return [self.identifier.needs_join(env)]
+
+    def evaluate(self, env):
+        """return pair (query, attribute)
+
+        let the identifier compute the query and its attribute, we do
+        not need alter anything right now since the condition on the
+        aggregated identifier is applied in the HAVING and not in the
+        WHERE.
+
+        """
+
+        return self.identifier.evaluate(env)
+
+
 class ValueListAction(object):
 
     def __init__(self, t):
@@ -551,14 +606,20 @@ class SearchParser(object):
     NOT_ = wordStart + (CaselessLiteral("NOT") | Literal('!')) + wordEnd
     BETWEEN_ = wordStart + CaselessLiteral("BETWEEN") + wordEnd
 
+    aggregating_func = (Literal('sum') | Literal('min') | Literal('max')
+                        | Literal('count'))
+
     query_expression = Forward()('filter')
     identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),
                                      '.')).setParseAction(IdentifierToken)
-    ident_expression = (
-        Group(identifier + binop + value).setParseAction(IdentExpressionToken)
-        | (
-            Literal('(') + query_expression + Literal(')')
-        ).setParseAction(ParenthesisedQuery))
+    aggregated = (aggregating_func + Literal('(') + identifier + Literal(')')
+                  ).setParseAction(AggregatingAction)
+    ident_expression = (Group(identifier + binop + value
+                              ).setParseAction(IdentExpression)
+                        | Group(aggregated + binop + value
+                              ).setParseAction(AggregatedExpression)
+                        | (Literal('(') + query_expression + Literal(')')
+                           ).setParseAction(ParenthesisedQuery))
     between_expression = Group(
         identifier + BETWEEN_ + value + AND_ + value
         ).setParseAction(BetweenExpressionAction)
