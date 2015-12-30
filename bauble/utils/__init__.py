@@ -1122,11 +1122,13 @@ class MessageBox(GenericMessageBox):
         self.vbox = gtk.VBox()
         self.box.pack_start(self.vbox)
 
-        self.label = gtk.Label()
-        self.label.set_padding(8, 8)
-        self.label.set_alignment(0, 0)
+        self.label = gtk.TextView()
+        self.buffer = gtk.TextBuffer()
+        self.label.set_buffer(self.buffer)
+        #self.label.set_padding(8, 8)
+        #self.label.set_alignment(0, 0)
         if msg:
-            self.label.set_markup(msg)
+            self.buffer.set_text(msg)
         self.vbox.pack_start(self.label, expand=True, fill=True)
 
         button_box = gtk.VBox()
@@ -1175,17 +1177,16 @@ class MessageBox(GenericMessageBox):
             self.details_expander.hide()
 
     def _get_message(self, msg):
-        return self.label.text
+        return self.buffer.text
 
     def _set_message(self, msg):
         # TODO: we could probably do something smarter here that
         # involved check the font size and window width and adjust the
         # wrap widget accordingly
         if msg:
-            msg = '\n'.join(textwrap.wrap(msg, 100))
-            self.label.set_markup(msg)
+            self.buffer.set_text(msg)
         else:
-            self.label.set_markup('')
+            self.buffer.set_text('')
     message = property(_get_message, _set_message)
 
     def _get_details(self, msg):
