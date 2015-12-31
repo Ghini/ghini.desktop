@@ -495,9 +495,17 @@ class View(gtk.VBox):
             widget = root_widget.get_children()[0]
             self.view.widgets.remove_parent(widget)
             self.add(widget)
+        self.running_threads = []
 
     def cancel_threads(self):
-        pass
+        for k in self.running_threads:
+            k.cancel()
+        self.running_threads = []
+
+    def start_thread(self, thread):
+        self.running_threads.append(thread)
+        thread.start()
+        return thread
 
     def update(self):
         pass
