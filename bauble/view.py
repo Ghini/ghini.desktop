@@ -1260,81 +1260,64 @@ class Note:
             return []
 
 
-class StringColumn(gtk.TreeViewColumn):
-
-    """
-    A generic StringColumn for use in a gtk.TreeView.
-
-    This code partially based on the StringColumn from the Quidgets
-    project (http://launchpad.net/quidgets)
-    """
-    def __init__(self, title, format_func=None, **kwargs):
-        self.renderer = gtk.CellRendererText()
-        super(StringColumn, self).__init__(title, self.renderer, **kwargs)
-        self.renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        if format_func:
-            self.set_cell_data_func(self.renderer, self.cell_data_func,
-                                    format_func)
-
-    def cell_data_func(self, column, cell, model, treeiter, format):
-        value = format(model[treeiter])
-        cell.set_property('text', value)
-
-
 class HistoryView(pluginmgr.View):
     """Show the tables row in the order they were last updated
     """
+
     def __init__(self):
-        super(HistoryView, self).__init__()
-        self.init_gui()
+        logger.debug('PrefsView::__init__')
+        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
+        from bauble import utils, editor
+        self.widgets = utils.load_widgets(filename)
+        self.view = editor.GenericEditorView(
+            filename, root_widget_name='history_window')
+        super(HistoryView, self
+              ).__init__(root_widget=self.view.widgets.history_sv)
+        self.view.connect_signals(self)
+        self.liststore = self.view.widgets.history_ls
+        self.update()
 
-    def init_gui(self):
-        self.treeview = gtk.TreeView()
-        #self.treeview.set_fixed_height_mode(True)
-        columns = [(_('Timestamp'), 0), (_('Operation'), 1),
-                   (_('User'), 2), (_('Table'), 3), (_('Values'), 4)]
-        for name, index in columns:
-            column = StringColumn(name, text=index)
-            column.set_sort_column_id(index)
-            column.set_expand(False)
-            column.props.sizing = gtk.TREE_VIEW_COLUMN_AUTOSIZE
-            column.set_resizable(True)
-            column.renderer.set_fixed_height_from_font(1)
-            self.treeview.append_column(column)
-        sw = gtk.ScrolledWindow()
-        sw.add(self.treeview)
-        self.pack_start(sw)
-
-    def populate_history(self, arg):
+    def update(self):
         """
         Add the history items to the view.
         """
         session = db.Session()
-        utils.clear_model(self.treeview)
-        model = gtk.ListStore(str, str, str, str, str)
+        self.liststore.clear()
         for item in session.query(db.History).\
                 order_by(db.History.timestamp.desc()).all():
-            model.append([item.timestamp, item.operation, item.user,
-                          item.table_name, item.values])
-        self.treeview.set_model(model)
+            d = eval(item.values)
+            del d['_created']
+            del d['_last_updated']
+            friendly = ', '.join(u"%s: %s" % (k, self.show_typed_value(v))
+                                 for k, v in sorted(d.items())
+                                 )
+            self.liststore.append([item.timestamp, item.operation, item.user,
+                                   item.table_name, friendly, item.values])
         session.close()
 
+    @staticmethod
+    def show_typed_value(v):
+        try:
+            eval(v)
+            return v
+        except:
+            return u"»%s«" % v
 
 class HistoryCommandHandler(pluginmgr.CommandHandler):
 
+    command = 'history'
+    view = None
+
     def __init__(self):
         super(HistoryCommandHandler, self).__init__()
-        self.view = None
-
-    command = 'history'
 
     def get_view(self):
         if not self.view:
-            self.view = HistoryView()
+            self.__class__.view = HistoryView()
         return self.view
 
     def __call__(self, cmd, arg):
-        self.view.populate_history(arg)
+        self.view.update()
 
 
 pluginmgr.register_command(HistoryCommandHandler)

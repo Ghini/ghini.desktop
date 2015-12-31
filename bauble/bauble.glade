@@ -2,6 +2,97 @@
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkListStore" id="history_ls">
+    <columns>
+      <!-- column-name timestamp -->
+      <column type="gchararray"/>
+      <!-- column-name operation -->
+      <column type="gchararray"/>
+      <!-- column-name user -->
+      <column type="gchararray"/>
+      <!-- column-name table -->
+      <column type="gchararray"/>
+      <!-- column-name user_friendly -->
+      <column type="gchararray"/>
+      <!-- column-name dict -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkWindow" id="history_window">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkScrolledWindow" id="history_sv">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="hscrollbar_policy">automatic</property>
+        <property name="vscrollbar_policy">automatic</property>
+        <child>
+          <object class="GtkTreeView" id="history_tv">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="model">history_ls</property>
+            <property name="reorderable">True</property>
+            <property name="rules_hint">True</property>
+            <child>
+              <object class="GtkTreeViewColumn" id="history_treeviewcolumn0">
+                <property name="title" translatable="yes">Timestamp</property>
+                <child>
+                  <object class="GtkCellRendererText" id="history_cellrenderertext0"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="history_treeviewcolumn1">
+                <property name="title" translatable="yes">Operation</property>
+                <child>
+                  <object class="GtkCellRendererText" id="history_cellrenderertext1"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="history_treeviewcolumn2">
+                <property name="title" translatable="yes">User</property>
+                <child>
+                  <object class="GtkCellRendererText" id="history_cellrenderertext2"/>
+                  <attributes>
+                    <attribute name="text">2</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="history_treeviewcolumn3">
+                <property name="title" translatable="yes">Table</property>
+                <child>
+                  <object class="GtkCellRendererText" id="history_cellrenderertext3"/>
+                  <attributes>
+                    <attribute name="text">3</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="history_treeviewcolumn4">
+                <property name="title" translatable="yes">Values</property>
+                <child>
+                  <object class="GtkCellRendererText" id="history_cellrenderertext4"/>
+                  <attributes>
+                    <attribute name="text">4</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">True</property>
     <property name="title">Bauble</property>
