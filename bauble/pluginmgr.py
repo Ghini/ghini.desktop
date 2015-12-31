@@ -480,13 +480,21 @@ class View(gtk.VBox):
         If a class extends this View and provides its own __init__ it *must*
         call its parent (this) __init__
         """
-        root_widget = kwargs.get('root_widget')
-        if root_widget is not None:
-            del kwargs['root_widget']
+        filename = kwargs.get('filename')
+        if filename is not None:
+            del kwargs['filename']
+            root_widget_name = kwargs.get('root_widget_name')
+            del kwargs['root_widget_name']
         super(View, self).__init__(*args, **kwargs)
-        if root_widget is not None:
-            self.view.widgets.remove_parent(root_widget)
-            self.add(root_widget)
+        if filename is not None:
+            from bauble import utils, editor
+            self.widgets = utils.load_widgets(filename)
+            self.view = editor.GenericEditorView(
+                filename, root_widget_name=root_widget_name)
+            root_widget = getattr(self.view.widgets, root_widget_name)
+            widget = root_widget.get_children()[0]
+            self.view.widgets.remove_parent(widget)
+            self.add(widget)
 
     def cancel_threads(self):
         pass

@@ -251,13 +251,9 @@ class PrefsView(pluginmgr.View):
 
     def __init__(self):
         logger.debug('PrefsView::__init__')
-        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
-        from bauble import utils, editor
-        self.widgets = utils.load_widgets(filename)
-        self.view = editor.GenericEditorView(
-            filename, root_widget_name='prefs_window')
-        super(PrefsView, self
-              ).__init__(root_widget=self.view.widgets.prefs_view)
+        super(PrefsView, self).__init__(
+            filename=os.path.join(paths.lib_dir(), 'bauble.glade'),
+            root_widget_name='prefs_window')
         self.view.connect_signals(self)
         self.prefs_ls = self.view.widgets.prefs_prefs_ls
         self.plugins_ls = self.view.widgets.prefs_plugins_ls

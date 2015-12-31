@@ -1266,13 +1266,9 @@ class HistoryView(pluginmgr.View):
 
     def __init__(self):
         logger.debug('PrefsView::__init__')
-        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
-        from bauble import utils, editor
-        self.widgets = utils.load_widgets(filename)
-        self.view = editor.GenericEditorView(
-            filename, root_widget_name='history_window')
-        super(HistoryView, self
-              ).__init__(root_widget=self.view.widgets.history_sv)
+        super(HistoryView, self).__init__(
+            filename=os.path.join(paths.lib_dir(), 'bauble.glade'),
+            root_widget_name='history_window')
         self.view.connect_signals(self)
         self.liststore = self.view.widgets.history_ls
         self.update()
@@ -1289,11 +1285,31 @@ class HistoryView(pluginmgr.View):
             del d['_created']
             del d['_last_updated']
             friendly = ', '.join(u"%s: %s" % (k, self.show_typed_value(v))
-                                 for k, v in sorted(d.items())
+                                 for k, v in sorted(d.items(), self.cmp_items)
                                  )
-            self.liststore.append([item.timestamp, item.operation, item.user,
-                                   item.table_name, friendly, item.values])
+            self.liststore.append([
+                ("%s" % item.timestamp)[:19], item.operation, item.user,
+                item.table_name, friendly, item.values
+                ])
         session.close()
+
+    @staticmethod
+    def cmp_items(a, b):
+        ka, va = a
+        kb, vb = b
+        if ka == 'id':
+            return -1
+        if kb == 'id':
+            return 1
+        if va == 'None' and vb != 'None':
+            return 1
+        if vb == 'None' and va != 'None':
+            return -1
+        if a < b:
+            return -1
+        if b < a:
+            return 1
+        return 0
 
     @staticmethod
     def show_typed_value(v):
