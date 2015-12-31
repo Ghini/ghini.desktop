@@ -258,13 +258,27 @@ class PrefsView(pluginmgr.View):
             filename, root_widget_name='prefs_window')
         super(PrefsView, self
               ).__init__(root_widget=self.view.widgets.prefs_view)
+        self.view.connect_signals(self)
+        self.prefs_ls = self.view.widgets.prefs_prefs_ls
+        self.plugins_ls = self.view.widgets.prefs_plugins_ls
         self.update()
+
+    def on_prefs_prefs_tv_row_activated(self, tv, path, column):
+        global prefs
+        modified = False
+        key, repr_str, type_str = self.prefs_ls[path]
+        if type_str == 'bool':
+            self.prefs_ls[path][1] = prefs[key] = not prefs[key]
+            modified = True
+        if modified:
+            prefs.save()
 
     def update(self):
         self.widgets.prefs_prefs_ls.clear()
         global prefs
         for key, value in prefs.iteritems():
-            self.widgets.prefs_prefs_ls.append((key, value, str(type(value))))
+            self.widgets.prefs_prefs_ls.append(
+                (key, value, prefs[key].__class__.__name__))
 
         self.widgets.prefs_plugins_ls.clear()
         from bauble.pluginmgr import PluginRegistry
