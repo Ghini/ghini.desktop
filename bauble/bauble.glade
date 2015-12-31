@@ -131,6 +131,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">back to startup screen</property>
                     <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image3">
@@ -151,6 +152,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">activate query builder</property>
                     <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image2">
@@ -179,6 +181,7 @@
                     <child internal-child="entry">
                       <object class="GtkEntry" id="comboboxentry-entry2">
                         <property name="can_focus">True</property>
+                        <property name="tooltip_text" translatable="yes">enter here your query or command</property>
                         <property name="primary_icon_activatable">False</property>
                         <property name="secondary_icon_activatable">False</property>
                         <property name="primary_icon_sensitive">True</property>
@@ -197,6 +200,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">execute the query</property>
                     <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image1">
