@@ -814,7 +814,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="n_rows">12</property>
-            <property name="n_columns">8</property>
+            <property name="n_columns">3</property>
             <property name="column_spacing">2</property>
             <property name="row_spacing">8</property>
             <property name="homogeneous">True</property>
@@ -828,7 +828,6 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="right_attach">2</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
                 <property name="x_options">GTK_FILL</property>
@@ -845,7 +844,6 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="right_attach">2</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
                 <property name="x_options">GTK_FILL</property>
@@ -862,7 +860,6 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
@@ -877,8 +874,8 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
               </packing>
             </child>
             <child>
@@ -889,8 +886,8 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">6</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
               </packing>
             </child>
             <child>
@@ -903,7 +900,6 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="right_attach">2</property>
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
                 <property name="x_options">GTK_FILL</property>
@@ -920,7 +916,6 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="right_attach">2</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
                 <property name="x_options">GTK_FILL</property>
@@ -937,7 +932,6 @@
                 <property name="use_markup">True</property>
               </object>
               <packing>
-                <property name="right_attach">2</property>
                 <property name="top_attach">6</property>
                 <property name="bottom_attach">7</property>
                 <property name="x_options">GTK_FILL</property>
@@ -961,8 +955,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
@@ -985,8 +979,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">6</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
               </packing>
@@ -1007,8 +1001,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">6</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
               </packing>
@@ -1029,8 +1023,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
               </packing>
@@ -1051,8 +1045,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
               </packing>
@@ -1073,8 +1067,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">6</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
               </packing>
@@ -1095,8 +1089,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">6</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">6</property>
                 <property name="bottom_attach">7</property>
               </packing>
@@ -1117,8 +1111,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">6</property>
                 <property name="bottom_attach">7</property>
               </packing>
@@ -1139,8 +1133,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">6</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
               </packing>
@@ -1161,8 +1155,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">4</property>
-                <property name="right_attach">6</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
               </packing>
@@ -1184,8 +1178,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
               </packing>
@@ -1206,8 +1200,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">4</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
               </packing>
@@ -1218,9 +1212,6 @@
                 <property name="can_focus">False</property>
                 <property name="xalign">1</property>
               </object>
-              <packing>
-                <property name="right_attach">2</property>
-              </packing>
             </child>
             <child>
               <object class="GtkLabel" id="label18">
@@ -1233,7 +1224,6 @@
                 <property name="angle">90</property>
               </object>
               <packing>
-                <property name="right_attach">2</property>
                 <property name="top_attach">7</property>
                 <property name="bottom_attach">12</property>
               </packing>
@@ -1248,8 +1238,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">5</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">7</property>
                 <property name="bottom_attach">8</property>
               </packing>
@@ -1264,8 +1254,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">5</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">8</property>
                 <property name="bottom_attach">9</property>
               </packing>
@@ -1280,8 +1270,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">5</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">9</property>
                 <property name="bottom_attach">10</property>
               </packing>
@@ -1296,8 +1286,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">5</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">10</property>
                 <property name="bottom_attach">11</property>
               </packing>
@@ -1312,8 +1302,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">5</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">11</property>
                 <property name="bottom_attach">12</property>
               </packing>
@@ -1328,8 +1318,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">5</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">7</property>
                 <property name="bottom_attach">8</property>
               </packing>
@@ -1344,8 +1334,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">5</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">8</property>
                 <property name="bottom_attach">9</property>
               </packing>
@@ -1360,8 +1350,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">5</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">9</property>
                 <property name="bottom_attach">10</property>
               </packing>
@@ -1376,8 +1366,8 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">5</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">10</property>
                 <property name="bottom_attach">11</property>
               </packing>
@@ -1392,154 +1382,10 @@
                 <property name="focus_on_click">False</property>
               </object>
               <packing>
-                <property name="left_attach">5</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">2</property>
+                <property name="right_attach">3</property>
                 <property name="top_attach">11</property>
                 <property name="bottom_attach">12</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="splash_use_label1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;unused&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEventBox" id="splash_nfamuse_ebox1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="splash_nfamuse1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">-</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEventBox" id="splash_nfamuse_ebox2">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="splash_nfamuse2">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">-</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEventBox" id="splash_nfamuse_ebox3">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="splash_nfamuse3">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">-</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEventBox" id="splash_nfamuse_ebox4">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="splash_nfamuse4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">-</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEventBox" id="splash_nfamuse_ebox5">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="splash_nfamuse5">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">-</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-                <property name="top_attach">5</property>
-                <property name="bottom_attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEventBox" id="splash_nfamuse_ebox6">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <child>
-                  <object class="GtkLabel" id="splash_nfamuse6">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">-</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-                <property name="top_attach">6</property>
-                <property name="bottom_attach">7</property>
               </packing>
             </child>
           </object>
