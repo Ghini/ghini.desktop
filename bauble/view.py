@@ -1315,7 +1315,7 @@ class HistoryView(pluginmgr.View):
         for item in session.query(db.History).\
                 order_by(db.History.timestamp.desc()).all():
             model.append([item.timestamp, item.operation, item.user,
-                          item.tablename, item.values])
+                          item.table_name, item.values])
         self.treeview.set_model(model)
         session.close()
 
