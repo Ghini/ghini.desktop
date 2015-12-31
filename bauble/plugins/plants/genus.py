@@ -810,7 +810,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             sp = Species(genus=self.model)
-            more_committed = edit_species(model=sp, parent=self.parent)
+            more_committed = edit_species(model=sp, parent_view=self.parent)
 
         if more_committed is not None:
             if isinstance(more_committed, list):
