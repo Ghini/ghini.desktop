@@ -93,17 +93,17 @@ class SplashInfoBox(gtk.VBox):
         utils.make_label_clickable(
             self.widgets.splash_nfamuse,
             lambda *a: bauble.gui.send_command(
-                'family where genera.species.accessions.plants.quantity>0'))
+                'family where genera.species.id != 0'))
 
         utils.make_label_clickable(
             self.widgets.splash_ngenuse,
             lambda *a: bauble.gui.send_command(
-                'genus where species.accessions.plants.quantity>0'))
+                'genus where not species = Empty'))
 
         utils.make_label_clickable(
             self.widgets.splash_nspcuse,
             lambda *a: bauble.gui.send_command(
-                'species where accessions.plants.quantity>0'))
+                'species where not accessions = Empty'))
 
         utils.make_label_clickable(
             self.widgets.splash_nspctot,
