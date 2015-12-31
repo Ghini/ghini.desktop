@@ -748,16 +748,6 @@ class SearchView(pluginmgr.View):
                 logger.warning(
                     'Could not parse accelerator: %s' % (action.accelerator))
 
-    def cancel_threads(self):
-        for k in self.running_threads:
-            k.cancel()
-        self.running_threads = []
-
-    def start_thread(self, thread):
-        self.running_threads.append(thread)
-        thread.start()
-        return thread
-
     nresults_statusbar_context = 'searchview.nresults'
 
     def search(self, text):
@@ -1260,6 +1250,35 @@ class Note:
             return []
 
 
+class AppendThousandRows(threading.Thread):
+
+    def callback(self, rows):
+        for row in rows:
+            self.view.add_row(row)
+
+    def __init__(self, view, group=None, verbose=None, **kwargs):
+        super(AppendThousandRows, self).__init__(
+            group=group, target=None, name=None, verbose=verbose)
+        self.__stopped = threading.Event()
+        self.view = view
+
+    def cancel(self):
+        self.__stopped.set()
+
+    def run(self):
+        session = db.Session()
+        q = session.query(db.History).order_by(db.History.timestamp.desc())
+        # add rows in small batches
+        offset = 0
+        step = 200
+        count = q.count()
+        while offset < count and not self.__stopped.isSet():
+            rows = q.offset(offset).limit(step).all()
+            gobject.idle_add(self.callback, rows)
+            offset += step
+        session.close()
+
+
 class HistoryView(pluginmgr.View):
     """Show the tables row in the order they were last updated
     """
@@ -1272,26 +1291,6 @@ class HistoryView(pluginmgr.View):
         self.view.connect_signals(self)
         self.liststore = self.view.widgets.history_ls
         self.update()
-
-    def update(self):
-        """
-        Add the history items to the view.
-        """
-        session = db.Session()
-        self.liststore.clear()
-        for item in session.query(db.History).\
-                order_by(db.History.timestamp.desc()).all():
-            d = eval(item.values)
-            del d['_created']
-            del d['_last_updated']
-            friendly = ', '.join(u"%s: %s" % (k, self.show_typed_value(v))
-                                 for k, v in sorted(d.items(), self.cmp_items)
-                                 )
-            self.liststore.append([
-                ("%s" % item.timestamp)[:19], item.operation, item.user,
-                item.table_name, friendly, item.values
-                ])
-        session.close()
 
     @staticmethod
     def cmp_items(a, b):
@@ -1318,6 +1317,26 @@ class HistoryView(pluginmgr.View):
             return v
         except:
             return u"»%s«" % v
+
+    def add_row(self, item):
+        d = eval(item.values)
+        del d['_created']
+        del d['_last_updated']
+        friendly = ', '.join(u"%s: %s" % (k, self.show_typed_value(v))
+                             for k, v in sorted(d.items(), self.cmp_items)
+                             )
+        self.liststore.append([
+            ("%s" % item.timestamp)[:19], item.operation, item.user,
+            item.table_name, friendly, item.values
+            ])
+
+    def update(self):
+        """
+        Add the history items to the view.
+        """
+        self.liststore.clear()
+        self.start_thread(AppendThousandRows(self))
+
 
 class HistoryCommandHandler(pluginmgr.CommandHandler):
 
