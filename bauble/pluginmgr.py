@@ -480,7 +480,13 @@ class View(gtk.VBox):
         If a class extends this View and provides its own __init__ it *must*
         call its parent (this) __init__
         """
+        root_widget = kwargs.get('root_widget')
+        if root_widget is not None:
+            del kwargs['root_widget']
         super(View, self).__init__(*args, **kwargs)
+        if root_widget is not None:
+            self.view.widgets.remove_parent(root_widget)
+            self.add(root_widget)
 
     def cancel_threads(self):
         pass

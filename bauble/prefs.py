@@ -242,10 +242,6 @@ class _prefs(dict):
                 logger.error(msg)
 
 
-# TODO: remember pane sizes
-
-# TODO: we need to include the meta table in the pref view
-
 class PrefsView(pluginmgr.View):
     """
     The PrefsView displays the values of in the preferences and the registry.
@@ -254,94 +250,30 @@ class PrefsView(pluginmgr.View):
     pane_size_pref = 'bauble.prefs.pane_position'
 
     def __init__(self):
-        super(PrefsView, self).__init__()
-        self.create_gui()
+        logger.debug('PrefsView::__init__')
+        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
+        from bauble import utils, editor
+        self.widgets = utils.load_widgets(filename)
+        self.view = editor.GenericEditorView(
+            filename, root_widget_name='prefs_window')
+        super(PrefsView, self
+              ).__init__(root_widget=self.view.widgets.prefs_view)
+        self.update()
 
-#     def create_registry_view(self):
-#         pass
-
-    def create_meta_view(self):
-        pass
-
-    def create_gui(self):
-        pane = gtk.VPaned()
-        self.pack_start(pane)
-        pane.set_border_width(5)
-        width, height = pane.size_request()
-
-        # TODO: check-resize and move_handle are not the correct
-        # signals when the pane is resized....so right now the size is
-        # not getting saved in the prefs
-
-        def on_move_handle(paned, data=None):
-            logger.debug("handle moved to %s" % paned.get_position())
-            prefs[self.pane_size_pref] = paned.get_position()
-        pane.connect('check-resize', on_move_handle)
-
-        if prefs.get(self.pane_size_pref, None) is not None:
-            pane.set_position(prefs[self.pane_size_pref])
-        else:
-            # setting the default to half the height of the window is
-            # close enough to the middle even though the top pane will
-            # be a little larger
-            rect = bauble.gui.window.get_allocation()
-            pane.set_position(int(rect.height/2))
-
-        label = gtk.Label()
-        label.set_markup(_('<b>Preferences</b>'))
-        label.set_padding(5, 0)
-        frame = gtk.Frame()
-        frame.set_label_widget(label)
-        view = self.create_prefs_view()
-        frame.add(view)
-        pane.pack1(frame)
-
-        label = gtk.Label()
-        label.set_markup(_('<b>Plugins</b>'))
-        label.set_padding(5, 0)
-        frame = gtk.Frame()
-        frame.set_label_widget(label)
-        view = self.create_registry_view()
-        frame.add(view)
-        pane.pack2(frame)
-
-    def create_tree(self, columns, itemsiter):
-        treeview = gtk.TreeView()
-        treeview.set_rules_hint(True)
-
-        i = 0
-        model_cols = []
-        for c in columns:
-            renderer = gtk.CellRendererText()
-            column = gtk.TreeViewColumn(c, renderer, text=i)
-            treeview.append_column(column)
-            i += 1
-            model_cols.append(str)
-
-        model = gtk.ListStore(*model_cols)
-        for item in itemsiter:
-            model.append(item)
-        treeview.set_model(model)
-
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        sw.add(treeview)
-        return sw
-
-    def create_prefs_view(self):
+    def update(self):
+        self.widgets.prefs_prefs_ls.clear()
         global prefs
-        tree = self.create_tree([_('Names'), _('Values')], prefs.iteritems())
-        return tree
+        for key, value in prefs.iteritems():
+            self.widgets.prefs_prefs_ls.append((key, value, str(type(value))))
 
-    def create_registry_view(self):
-        #from bauble.pluginmgr import Registry
+        self.widgets.prefs_plugins_ls.clear()
         from bauble.pluginmgr import PluginRegistry
         session = db.Session()
         plugins = session.query(PluginRegistry.name, PluginRegistry.version)
-        tree = self.create_tree([_('Name'), _('Version')],
-                                plugins)
+        for item in plugins:
+            self.widgets.prefs_plugins_ls.append(item)
         session.close()
-        return tree
+        pass
 
 
 class PrefsCommandHandler(pluginmgr.CommandHandler):
@@ -354,7 +286,7 @@ class PrefsCommandHandler(pluginmgr.CommandHandler):
 
     def get_view(self):
         if self.view is None:
-            self.view = PrefsView()
+            self.__class__.view = PrefsView()
         return self.view
 
 
