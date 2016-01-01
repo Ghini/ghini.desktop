@@ -113,6 +113,7 @@ class GUI(object):
         self.widgets = utils.load_widgets(filename)
         self.window = self.widgets.main_window
         self.window.hide()
+        self.previous_view = None
 
         # restore the window size
         geometry = prefs[self.window_geometry_pref]
@@ -148,6 +149,9 @@ class GUI(object):
 
         self.widgets.home_button.connect(
             'clicked', self.on_home_button_clicked)
+
+        self.widgets.prev_view_button.connect(
+            'clicked', self.on_prev_view_button_clicked)
 
         self.widgets.go_button.connect(
             'clicked', self.on_go_button_clicked)
@@ -258,6 +262,12 @@ class GUI(object):
         '''
         bauble.command_handler('home', None)
 
+    def on_prev_view_button_clicked(self, widget):
+        '''
+        '''
+        self.widgets.main_comboentry.child.set_text('')
+        bauble.gui.set_view('previous')
+
     def on_go_button_clicked(self, widget):
         '''
         '''
@@ -362,6 +372,9 @@ class GUI(object):
 
         :param view: default=None
         '''
+        if view == 'previous':
+            view = self.previous_view
+            self.previous_view = None
         view_box = self.widgets.view_box
         must_add_this_view = True
         for kid in view_box.get_children():
@@ -369,6 +382,8 @@ class GUI(object):
                 must_add_this_view = False
                 kid.set_visible(True)
             else:
+                if kid.get_visible() is True:
+                    self.previous_view = kid
                 kid.set_visible(False)
                 kid.cancel_threads()
         if must_add_this_view:
