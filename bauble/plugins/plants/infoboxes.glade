@@ -1229,13 +1229,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button1">
+              <object class="GtkButton" id="stqr_01_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1245,13 +1246,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button2">
+              <object class="GtkButton" id="stqr_03_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1261,13 +1263,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button3">
+              <object class="GtkButton" id="stqr_05_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1277,13 +1280,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button4">
+              <object class="GtkButton" id="stqr_07_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1293,13 +1297,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button5">
+              <object class="GtkButton" id="stqr_09_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -1309,13 +1314,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button6">
+              <object class="GtkButton" id="stqr_02_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -1325,13 +1331,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button7">
+              <object class="GtkButton" id="stqr_04_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -1341,13 +1348,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button8">
+              <object class="GtkButton" id="stqr_06_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -1357,13 +1365,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button9">
+              <object class="GtkButton" id="stqr_08_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -1373,13 +1382,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button10">
+              <object class="GtkButton" id="stqr_10_button">
                 <property name="label" translatable="yes">&lt;empty&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
                 <property name="focus_on_click">False</property>
+                <signal name="clicked" handler="on_sqb_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">2</property>

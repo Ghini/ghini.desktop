@@ -40,6 +40,8 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
+from functools import partial
+
 import bauble
 import bauble.db as db
 import bauble.paths as paths
@@ -140,6 +142,11 @@ class SplashInfoBox(gtk.VBox):
             lambda *a: bauble.gui.send_command(
                 'location like %'))
 
+        for i in range(1, 11):
+            wname = "stqr_%02d_button" % i
+            widget = getattr(self.widgets, wname)
+            widget.connect('clicked', partial(self.on_sqb_clicked, i))
+
     def update(self):
         '''
         '''
@@ -199,7 +206,31 @@ class SplashInfoBox(gtk.VBox):
         self.widgets.splash_nfamtot.set_text(str(famtot))
         self.widgets.splash_ngentot.set_text(str(gentot))
         self.widgets.splash_nspctot.set_text(str(spctot))
+
+        q = ssn.query(bauble.meta.BaubleMeta)
+        q = q.filter(bauble.meta.BaubleMeta.name.startswith(u'stqr_'))
+        name_tooltip_query = dict(
+            (int(i.name[5:]), (i.value.split(':', 2)))
+            for i in q.all())
         ssn.close()
+
+        for i in range(1, 11):
+            wname = "stqr_%02d_button" % i
+            widget = getattr(self.widgets, wname)
+            name, tooltip, query = name_tooltip_query.get(
+                i, (_('<empty>'), '', ''))
+            widget.set_label(name)
+            widget.set_tooltip_text(tooltip)
+
+        self.name_tooltip_query = name_tooltip_query
+
+    def on_sqb_clicked(self, btn_no, *args):
+        try:
+            query = self.name_tooltip_query[btn_no][2]
+            bauble.gui.widgets.main_comboentry.child.set_text(query)
+            bauble.gui.widgets.go_button.emit("clicked")
+        except:
+            pass
 
 
 class PlantsPlugin(pluginmgr.Plugin):
