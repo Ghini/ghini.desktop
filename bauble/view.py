@@ -1290,6 +1290,13 @@ class HistoryView(pluginmgr.View):
     """Show the tables row in the order they were last updated
     """
 
+    TVC_TIMESTAMP = 0
+    TVC_OPERATION = 1
+    TVC_USER = 2
+    TVC_TABLE = 3
+    TVC_USER_FRIENDLY = 4
+    TVC_DICT = 5
+
     def __init__(self):
         logger.debug('PrefsView::__init__')
         super(HistoryView, self).__init__(
@@ -1337,6 +1344,31 @@ class HistoryView(pluginmgr.View):
             item.table_name, friendly, item.values
             ])
 
+    def on_row_activated(self, tree, path, column):
+        row = self.liststore[path]
+        dic = eval(row[self.TVC_DICT])
+        table = row[self.TVC_TABLE]
+        obj_id = int(dic['id'])
+        for table_name, equivalent, key in [
+                ('genus_note', 'genus', 'genus_id'),
+                ('species_note', 'species', 'species_id'),
+                ('location_note', 'location', 'location_id'),
+                ('accession_note', 'accession', 'accession_id'),
+                ('plant_note', 'plant', 'plant_id'),
+                ('genus_synonym', 'genus', 'genus_id'),
+                ('species_synonym', 'species', 'species_id'),
+                ('vernacular_name', 'species', 'species_id'),
+                ('default_vernacular_name', 'species', 'species_id'),
+                ('plant_change', 'plant', 'plant_id'),
+                ]:
+            if table == table_name:
+                table = equivalent
+                obj_id = int(dic[key])
+        mapper_search = search.get_strategy('MapperSearch')
+        if table in mapper_search._domains:
+            query = '%s where id=%s' % (table, obj_id)
+            bauble.gui.widgets.main_comboentry.child.set_text(query)
+            bauble.gui.widgets.go_button.emit("clicked")
 
     def update(self):
         """
