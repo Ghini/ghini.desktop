@@ -378,4 +378,7 @@ dbengine.html#create-engine-url-arguments>`_
     gui.show()
     gtk.threads_enter()
     gtk.main()
+    active_view = gui.get_view()
+    if active_view:
+        active_view.cancel_threads()
     gtk.threads_leave()
