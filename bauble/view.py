@@ -1256,6 +1256,11 @@ class AppendThousandRows(threading.Thread):
         for row in rows:
             self.view.add_row(row)
 
+    def cancel_callback(self):
+        row = ['---'] * 6
+        row[4] = '** ' + _('interrupted') + ' **'
+        self.view.liststore.append(row)
+
     def __init__(self, view, group=None, verbose=None, **kwargs):
         super(AppendThousandRows, self).__init__(
             group=group, target=None, name=None, verbose=verbose)
@@ -1277,6 +1282,8 @@ class AppendThousandRows(threading.Thread):
             gobject.idle_add(self.callback, rows)
             offset += step
         session.close()
+        if offset < count:
+            gobject.idle_add(self.cancel_callback)
 
 
 class HistoryView(pluginmgr.View):
@@ -1329,6 +1336,7 @@ class HistoryView(pluginmgr.View):
             ("%s" % item.timestamp)[:19], item.operation, item.user,
             item.table_name, friendly, item.values
             ])
+
 
     def update(self):
         """
