@@ -706,11 +706,32 @@ class SearchTests(BaubleTestCase):
         g4.accepted = g3
         self.session.commit()
 
+        prefs.prefs['bauble.search.return_synonyms'] = True
         mapper_search = search.get_strategy('SynonymSearch')
 
         s = 'Schetti'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, [g3])
+
+    def test_search_by_query_synonyms_disabled(self):
+        """SynonymSearch strategy gives all synonyms of given taxon."""
+        Family = self.Family
+        Genus = self.Genus
+        family2 = Family(family=u'family2')
+        g2 = Genus(family=family2, genus=u'genus2')
+        f3 = Family(family=u'fam3', qualifier=u's. lat.')
+        g3 = Genus(family=f3, genus=u'Ixora')
+        g4 = Genus(family=f3, genus=u'Schetti')
+        self.session.add_all([family2, g2, f3, g3, g4])
+        g4.accepted = g3
+        self.session.commit()
+
+        prefs.prefs['bauble.search.return_synonyms'] = False
+        mapper_search = search.get_strategy('SynonymSearch')
+
+        s = 'Schetti'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, [])
 
     def test_search_by_query_vernacural(self):
         """can find species by vernacular name"""
