@@ -438,6 +438,7 @@
                     <property name="headers_clickable">False</property>
                     <property name="rules_hint">True</property>
                     <property name="search_column">0</property>
+                    <signal name="row-activated" handler="on_prefs_prefs_tv_row_activated" swapped="no"/>
                     <child>
                       <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn1">
                         <property name="title" translatable="yes">Name</property>
