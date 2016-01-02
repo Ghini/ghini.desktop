@@ -190,16 +190,18 @@ class SplashInfoBox(pluginmgr.View):
 
         self.name_tooltip_query = name_tooltip_query
 
+        # LabelUpdater objects **can** run in a thread.
         if 'GardenPlugin' in pluginmgr.plugins:
-            self.start_thread(
-                LabelUpdater(self.widgets.splash_nplttot,
-                             "select count(*) from plant"))
+            LabelUpdater(self.widgets.splash_nplttot,
+                         "select count(*) from plant").run()
             self.start_thread(
                 LabelUpdater(self.widgets.splash_npltuse,
                              "select count(*) from plant where quantity>0"))
             self.start_thread(
-                LabelUpdater(self.widgets.splash_nacctot,
-                             "select count(*) from accession"))
+                LabelUpdater(self.widgets.splash_npltnot,
+                             "select count(*) from plant where quantity=0"))
+            LabelUpdater(self.widgets.splash_nacctot,
+                         "select count(*) from accession").run()
             self.start_thread(
                 LabelUpdater(self.widgets.splash_naccuse,
                              "select count(distinct accession.id) "
@@ -207,14 +209,27 @@ class SplashInfoBox(pluginmgr.View):
                              "join plant on plant.accession_id=accession.id "
                              "where plant.quantity>0"))
             self.start_thread(
-                LabelUpdater(self.widgets.splash_nloctot,
-                             "select count(*) from location"))
+                LabelUpdater(self.widgets.splash_naccnot,
+                             "select count(id) "
+                             "from accession "
+                             "where id not in "
+                             "(select accession_id from plant "
+                             " where plant.quantity>0)"))
+            LabelUpdater(self.widgets.splash_nloctot,
+                         "select count(*) from location").run()
             self.start_thread(
                 LabelUpdater(self.widgets.splash_nlocuse,
                              "select count(distinct location.id) "
                              "from location "
                              "join plant on plant.location_id=location.id "
                              "where plant.quantity>0"))
+            self.start_thread(
+                LabelUpdater(self.widgets.splash_nlocnot,
+                             "select count(id) "
+                             "from location "
+                             "where id not in "
+                             "(select location_id from plant "
+                             " where plant.quantity>0)"))
 
         self.start_thread(
             LabelUpdater(self.widgets.splash_nspcuse,
@@ -231,15 +246,33 @@ class SplashInfoBox(pluginmgr.View):
                          "select count(distinct genus.family_id) from genus "
                          "join species on species.genus_id=genus.id "
                          "join accession on accession.species_id=species.id "))
+        LabelUpdater(self.widgets.splash_nspctot,
+                     "select count(*) from species").run()
+        LabelUpdater(self.widgets.splash_ngentot,
+                     "select count(*) from genus").run()
+        LabelUpdater(self.widgets.splash_nfamtot,
+                     "select count(*) from family").run()
         self.start_thread(
-            LabelUpdater(self.widgets.splash_nspctot,
-                         "select count(*) from species"))
+            LabelUpdater(self.widgets.splash_nspcnot,
+                         "select count(id) from species "
+                         "where id not in "
+                         "(select distinct species.id "
+                         " from species join accession "
+                         " on accession.species_id=species.id)"))
         self.start_thread(
-            LabelUpdater(self.widgets.splash_ngentot,
-                         "select count(*) from genus"))
+            LabelUpdater(self.widgets.splash_ngennot,
+                         "select count(id) from genus "
+                         "where id not in "
+                         "(select distinct species.genus_id "
+                         " from species join accession "
+                         " on accession.species_id=species.id)"))
         self.start_thread(
-            LabelUpdater(self.widgets.splash_nfamtot,
-                         "select count(*) from family"))
+            LabelUpdater(self.widgets.splash_nfamnot,
+                         "select count(id) from family "
+                         "where id not in "
+                         "(select distinct genus.family_id from genus "
+                         "join species on species.genus_id=genus.id "
+                         "join accession on accession.species_id=species.id)"))
 
     def on_sqb_clicked(self, btn_no, *args):
         try:
