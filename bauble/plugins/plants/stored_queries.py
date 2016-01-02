@@ -25,6 +25,17 @@ logger = logging.getLogger(__name__)
 from bauble import db, meta
 
 
+def get_or_create(session, model, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        session.add(instance)
+        session.flush()
+        return instance
+
+
 class StoredQueries(object):
     def __init__(self):
         self.__label = [''] * 11
@@ -44,10 +55,15 @@ class StoredQueries(object):
             self.page, self.__label[1:], self.__tooltip[1:], self.__query[1:])
 
     def save(self):
+        ssn = db.Session()
         for index in range(1, 11):
+            obj = get_or_create(ssn, meta.BaubleMeta,
+                                name=u'stqr_%02d' % index)
             if self.__label[index] == '':
-                continue
-            print 'stqr_%02d' % index, self[index]
+                ssn.delete(obj)
+            obj.value = self[index]
+        ssn.commit()
+        ssn.close()
 
     def __getitem__(self, index):
         return u'%s:%s:%s' % (self.__label[index],
