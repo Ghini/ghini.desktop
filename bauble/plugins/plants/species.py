@@ -153,7 +153,7 @@ class SynonymSearch(search.SearchStrategy):
     """
     Return any synonyms for matching species.
 
-    This can by setting bauble.search.return_synonyms in the prefs to False.
+    bauble.search.return_synonyms in the prefs toggles this.
     """
     return_synonyms_pref = 'bauble.search.return_synonyms'
 
@@ -167,15 +167,16 @@ class SynonymSearch(search.SearchStrategy):
         from genus import Genus, GenusSynonym
         super(SynonymSearch, self).search(text, session)
         if not prefs[self.return_synonyms_pref]:
-            return
+            return []
         mapper_search = search.get_strategy('MapperSearch')
         r1 = mapper_search.search(text, session)
         if not r1:
             return []
         results = []
         for result in r1:
-            # iterate through the results and see if we can find some
-            # synonyms for the returned values
+            # iterate through the results and for all objects considered
+            # synonym of something else, include that something else. that
+            # is, the accepted name.
             if isinstance(result, Species):
                 q = session.query(SpeciesSynonym).\
                     filter_by(synonym_id=result.id)
