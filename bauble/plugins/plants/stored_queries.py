@@ -18,11 +18,15 @@
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import gtk
+
 import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
-from bauble import db, meta
+from bauble import db, meta, editor, paths, pluginmgr
+from bauble.i18n import _
+import os.path
 
 
 def get_or_create(session, model, **kwargs):
@@ -36,7 +40,7 @@ def get_or_create(session, model, **kwargs):
         return instance
 
 
-class StoredQueries(object):
+class StoredQueriesModel(object):
     def __init__(self):
         self.__label = [''] * 11
         self.__tooltip = [''] * 11
@@ -108,3 +112,62 @@ class StoredQueries(object):
     @query.setter
     def query(self, value):
         self.__query[self.page] = value
+
+
+class StoredQueriesPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {
+        'stqr_label_entry': 'label',
+        'stqr_tooltip_entry': 'tooltip',
+        'stqr_query_textbuffer': 'query'}
+
+    view_accept_buttons = ['stqr_ok_button', ]
+
+    def on_tag_desc_textbuffer_changed(self, widget, value=None):
+        return super(StoredQueriesPresenter, self).on_textbuffer_changed(
+            widget, value, attr='query')
+
+    def refresh_toggles(self):
+        for i in range(1, 11):
+            iter_name = 'stqr_%02d_button' % i
+            iter_widget = getattr(self.view.widgets, iter_name)
+            iter_widget.set_active(i == self.model.page)
+
+    def refresh_view(self):
+        super(StoredQueriesPresenter, self).refresh_view()
+        self.refresh_toggles()
+
+    def on_button_clicked(self, widget, *args):
+        if widget.get_active() is False:
+            return
+        widget_name = gtk.Buildable.get_name(widget)
+        self.model.page = int(widget_name[5:7])
+        self.refresh_view()
+
+    def on_stqr_query_textbuffer_changed(self, widget, value=None, attr=None):
+        return self.on_textbuffer_changed(widget, value, attr='query')
+
+
+def edit_callback():
+    session = db.Session()
+    view = editor.GenericEditorView(
+        os.path.join(paths.lib_dir(),
+                     'plugins', 'plants', 'stored_queries.glade'),
+        parent=None,
+        root_widget_name='stqr_dialog')
+    stored_queries = StoredQueriesModel()
+    presenter = StoredQueriesPresenter(
+        stored_queries, view, session=session, refresh_view=True)
+    error_state = presenter.start()
+    if error_state > 0:
+        stored_queries.save()
+    session.close()
+    return error_state
+
+
+class StoredQueryEditorTool(pluginmgr.Tool):
+    label = _('Edit stored queries')
+
+    @classmethod
+    def start(self):
+        edit_callback()

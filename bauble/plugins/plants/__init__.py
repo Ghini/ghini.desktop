@@ -65,6 +65,8 @@ from bauble.plugins.plants.geography import (
     Geography, get_species_in_geography)
 from taxonomy_check import (
     TaxonomyCheckTool)
+from stored_queries import (
+    StoredQueryEditorTool)
 import bauble.search as search
 from bauble.view import SearchView
 from bauble.ui import DefaultView
@@ -304,7 +306,7 @@ class SplashInfoBox(pluginmgr.View):
 
 
 class PlantsPlugin(pluginmgr.Plugin):
-    tools = [TaxonomyCheckTool]
+    tools = [TaxonomyCheckTool, StoredQueryEditorTool]
 
     @classmethod
     def init(cls):
