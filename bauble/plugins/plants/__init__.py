@@ -119,19 +119,19 @@ class SplashInfoBox(pluginmgr.View):
                 'genus where not species = Empty'))
 
         utils.make_label_clickable(
-            self.widgets.splash_nspcuse,
-            lambda *a: bauble.gui.send_command(
-                'species where not accessions = Empty'))
-
-        utils.make_label_clickable(
             self.widgets.splash_nspctot,
             lambda *a: bauble.gui.send_command(
                 'species like %'))
 
         utils.make_label_clickable(
-            self.widgets.splash_naccuse,
+            self.widgets.splash_nspcuse,
             lambda *a: bauble.gui.send_command(
-                'accession where plants.quantity>0'))
+                'species where not accessions = Empty'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nspcnot,
+            lambda *a: bauble.gui.send_command(
+                'species where accessions = Empty'))
 
         utils.make_label_clickable(
             self.widgets.splash_nacctot,
@@ -139,9 +139,14 @@ class SplashInfoBox(pluginmgr.View):
                 'accession like %'))
 
         utils.make_label_clickable(
-            self.widgets.splash_npltuse,
+            self.widgets.splash_naccuse,
             lambda *a: bauble.gui.send_command(
-                'plant where quantity>0'))
+                'accession where plants.quantity>0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_naccnot,
+            lambda *a: bauble.gui.send_command(
+                'accession where plants = Empty or sum(plants.quantity)=0'))
 
         utils.make_label_clickable(
             self.widgets.splash_nplttot,
@@ -149,14 +154,29 @@ class SplashInfoBox(pluginmgr.View):
                 'plant like %'))
 
         utils.make_label_clickable(
-            self.widgets.splash_nlocuse,
+            self.widgets.splash_npltuse,
             lambda *a: bauble.gui.send_command(
-                'location where plants.id != 0'))
+                'plant where sum(quantity)>0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_npltnot,
+            lambda *a: bauble.gui.send_command(
+                'plant where sum(quantity)=0'))
 
         utils.make_label_clickable(
             self.widgets.splash_nloctot,
             lambda *a: bauble.gui.send_command(
                 'location like %'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nlocuse,
+            lambda *a: bauble.gui.send_command(
+                'location where sum(plants.quantity)>0'))
+
+        utils.make_label_clickable(
+            self.widgets.splash_nlocnot,
+            lambda *a: bauble.gui.send_command(
+                'location where plants is Empty or sum(plants.quantity)=0'))
 
         for i in range(1, 11):
             wname = "stqr_%02d_button" % i
