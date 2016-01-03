@@ -19,6 +19,7 @@
 #
 
 import gtk
+import pango
 
 import logging
 logger = logging.getLogger(__name__)
@@ -121,6 +122,10 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
         'stqr_tooltip_entry': 'tooltip',
         'stqr_query_textbuffer': 'query'}
 
+    weight = {False: pango.AttrList(),
+              True: pango.AttrList()}
+    weight[True].insert(pango.AttrWeight(pango.WEIGHT_HEAVY, 0, 50))
+
     view_accept_buttons = ['stqr_ok_button', ]
 
     def on_tag_desc_textbuffer_changed(self, widget, value=None):
@@ -132,6 +137,8 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
             iter_name = 'stqr_%02d_button' % i
             iter_widget = getattr(self.view.widgets, iter_name)
             iter_widget.set_active(i == self.model.page)
+            iter_widget.get_children()[0].set_attributes(
+                self.weight[i == self.model.page])
 
     def refresh_view(self):
         super(StoredQueriesPresenter, self).refresh_view()
@@ -143,6 +150,20 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
         widget_name = gtk.Buildable.get_name(widget)
         self.model.page = int(widget_name[5:7])
         self.refresh_view()
+
+    def on_next_button_clicked(self, widget, *args):
+        self.model.page = self.model.page % 10 + 1
+        self.refresh_view()
+
+    def on_prev_button_clicked(self, widget, *args):
+        self.model.page = (self.model.page - 2) % 10 + 1
+        self.refresh_view()
+
+    def on_label_entry_changed(self, widget, *args):
+        self.on_text_entry_changed(widget, *args)
+        page_name = 'stqr_%02d_button' % self.model.page
+        page_button = getattr(self.view.widgets, page_name)
+        page_button.get_children()[0].set_text(widget.get_text())
 
     def on_stqr_query_textbuffer_changed(self, widget, value=None, attr=None):
         return self.on_textbuffer_changed(widget, value, attr='query')
