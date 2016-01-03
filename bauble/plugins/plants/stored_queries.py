@@ -25,6 +25,7 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
+import bauble
 from bauble import db, meta, editor, paths, pluginmgr
 from bauble.i18n import _
 import os.path
@@ -128,6 +129,14 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
 
     view_accept_buttons = ['stqr_ok_button', ]
 
+    def __init__(self, *args, **kwargs):
+        super(StoredQueriesPresenter, self).__init__(*args, **kwargs)
+        for self.model.page in range(1, 11):
+            iter_name = 'stqr_%02d_label' % self.model.page
+            iter_widget = getattr(self.view.widgets, iter_name)
+            iter_widget.set_text(self.model.label or _('<empty>'))
+        self.model.page = 1
+
     def on_tag_desc_textbuffer_changed(self, widget, value=None):
         return super(StoredQueriesPresenter, self).on_textbuffer_changed(
             widget, value, attr='query')
@@ -161,9 +170,9 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
 
     def on_label_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)
-        page_name = 'stqr_%02d_button' % self.model.page
-        page_button = getattr(self.view.widgets, page_name)
-        page_button.get_children()[0].set_text(widget.get_text())
+        page_label_name = 'stqr_%02d_label' % self.model.page
+        page_label = getattr(self.view.widgets, page_label_name)
+        page_label.set_text(widget.get_text() or _('<empty>'))
 
     def on_stqr_query_textbuffer_changed(self, widget, value=None, attr=None):
         return self.on_textbuffer_changed(widget, value, attr='query')
@@ -182,6 +191,7 @@ def edit_callback():
     error_state = presenter.start()
     if error_state > 0:
         stored_queries.save()
+        bauble.gui.get_view().update()
     session.close()
     return error_state
 
