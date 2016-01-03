@@ -59,54 +59,10 @@
             <property name="can_focus">False</property>
             <property name="border_width">6</property>
             <property name="n_rows">6</property>
-            <property name="n_columns">10</property>
+            <property name="n_columns">8</property>
             <property name="column_spacing">2</property>
             <property name="row_spacing">8</property>
             <property name="homogeneous">True</property>
-            <child>
-              <object class="GtkToggleButton" id="stqr_01_button">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <signal name="clicked" handler="on_button_clicked" swapped="no"/>
-                <child>
-                  <object class="GtkLabel" id="stqr_01_label">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">&lt;empty&gt;</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleButton" id="stqr_02_button">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <signal name="toggled" handler="on_button_clicked" swapped="no"/>
-                <child>
-                  <object class="GtkLabel" id="stqr_02_label">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">&lt;empty&gt;</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">8</property>
-                <property name="right_attach">10</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
             <child>
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
@@ -178,6 +134,50 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToggleButton" id="stqr_01_button">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_button_clicked" swapped="no"/>
+                <child>
+                  <object class="GtkLabel" id="stqr_01_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">&lt;empty&gt;</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">6</property>
+                <property name="right_attach">7</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToggleButton" id="stqr_02_button">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="receives_default">True</property>
+                <property name="use_action_appearance">False</property>
+                <signal name="toggled" handler="on_button_clicked" swapped="no"/>
+                <child>
+                  <object class="GtkLabel" id="stqr_02_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">&lt;empty&gt;</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">7</property>
+                <property name="right_attach">8</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToggleButton" id="stqr_03_button">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -194,7 +194,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
+                <property name="right_attach">7</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
               </packing>
@@ -215,8 +215,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">8</property>
-                <property name="right_attach">10</property>
+                <property name="left_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
               </packing>
@@ -238,7 +238,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
+                <property name="right_attach">7</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
               </packing>
@@ -259,8 +259,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">8</property>
-                <property name="right_attach">10</property>
+                <property name="left_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
               </packing>
@@ -282,7 +282,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
+                <property name="right_attach">7</property>
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
               </packing>
@@ -303,8 +303,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">8</property>
-                <property name="right_attach">10</property>
+                <property name="left_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
               </packing>
@@ -326,7 +326,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">8</property>
+                <property name="right_attach">7</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
               </packing>
@@ -347,8 +347,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">8</property>
-                <property name="right_attach">10</property>
+                <property name="left_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
               </packing>
@@ -376,6 +376,7 @@
                   <object class="GtkTextView" id="stqr_query_textview">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="wrap_mode">word-char</property>
                     <property name="buffer">stqr_query_textbuffer</property>
                   </object>
                 </child>
@@ -395,7 +396,7 @@
                 <property name="label" translatable="yes">click on query button and edit the associated values</property>
               </object>
               <packing>
-                <property name="right_attach">10</property>
+                <property name="right_attach">8</property>
               </packing>
             </child>
             <child>
