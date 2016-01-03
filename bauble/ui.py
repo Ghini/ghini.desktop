@@ -375,6 +375,8 @@ class GUI(object):
         if view == 'previous':
             view = self.previous_view
             self.previous_view = None
+        if view is None:
+            return
         view_box = self.widgets.view_box
         must_add_this_view = True
         for kid in view_box.get_children():
