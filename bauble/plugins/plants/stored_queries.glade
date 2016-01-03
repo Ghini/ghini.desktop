@@ -59,7 +59,7 @@
             <property name="can_focus">False</property>
             <property name="border_width">6</property>
             <property name="n_rows">6</property>
-            <property name="n_columns">8</property>
+            <property name="n_columns">10</property>
             <property name="column_spacing">2</property>
             <property name="row_spacing">8</property>
             <property name="homogeneous">True</property>
@@ -80,7 +80,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
               </packing>
@@ -101,8 +101,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">7</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">8</property>
+                <property name="right_attach">10</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
               </packing>
@@ -132,7 +132,7 @@
                 <property name="secondary_icon_activatable">False</property>
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
-                <signal name="changed" handler="on_text_entry_changed" swapped="no"/>
+                <signal name="changed" handler="on_label_entry_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -194,7 +194,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
               </packing>
@@ -215,8 +215,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">7</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">8</property>
+                <property name="right_attach">10</property>
                 <property name="top_attach">2</property>
                 <property name="bottom_attach">3</property>
               </packing>
@@ -238,7 +238,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
               </packing>
@@ -259,8 +259,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">7</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">8</property>
+                <property name="right_attach">10</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
               </packing>
@@ -282,7 +282,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
               </packing>
@@ -303,8 +303,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">7</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">8</property>
+                <property name="right_attach">10</property>
                 <property name="top_attach">4</property>
                 <property name="bottom_attach">5</property>
               </packing>
@@ -326,7 +326,7 @@
               </object>
               <packing>
                 <property name="left_attach">6</property>
-                <property name="right_attach">7</property>
+                <property name="right_attach">8</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
               </packing>
@@ -347,8 +347,8 @@
                 </child>
               </object>
               <packing>
-                <property name="left_attach">7</property>
-                <property name="right_attach">8</property>
+                <property name="left_attach">8</property>
+                <property name="right_attach">10</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
               </packing>
@@ -395,7 +395,7 @@
                 <property name="label" translatable="yes">click on query button and edit the associated values</property>
               </object>
               <packing>
-                <property name="right_attach">8</property>
+                <property name="right_attach">10</property>
               </packing>
             </child>
             <child>
@@ -411,11 +411,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button1">
+              <object class="GtkButton" id="stqr_prev_button">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_prev_button_clicked" swapped="no"/>
                 <child>
                   <object class="GtkHBox" id="hbox1">
                     <property name="visible">True</property>
@@ -455,11 +456,12 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button2">
+              <object class="GtkButton" id="stqr_next_button">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="receives_default">True</property>
                 <property name="use_action_appearance">False</property>
+                <signal name="clicked" handler="on_next_button_clicked" swapped="no"/>
                 <child>
                   <object class="GtkHBox" id="hbox2">
                     <property name="visible">True</property>
