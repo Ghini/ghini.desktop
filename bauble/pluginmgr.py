@@ -500,6 +500,8 @@ class View(gtk.VBox):
     def cancel_threads(self):
         for k in self.running_threads:
             k.cancel()
+        for k in self.running_threads:
+            k.join()
         self.running_threads = []
 
     def start_thread(self, thread):
