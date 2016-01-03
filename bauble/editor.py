@@ -1035,12 +1035,14 @@ class GenericEditorPresenter(object):
          '''
         for widget, attr in self.widget_to_field_map.items():
             value = getattr(self.model, attr)
-            value = value is None and '' or value
+            value = (value is not None) and value or ''
             self.view.widget_set_value(widget, value)
 
     def cancel_threads(self):
         for k in self.running_threads:
             k.cancel()
+        for k in self.running_threads:
+            k.join()
         self.running_threads = []
 
     def start_thread(self, thread):
