@@ -184,6 +184,9 @@ class SplashInfoBox(pluginmgr.View):
             wname = "stqr_%02d_button" % i
             widget = getattr(self.widgets, wname)
             widget.connect('clicked', partial(self.on_sqb_clicked, i))
+        wname = "splash_stqr_button"
+        widget = getattr(self.widgets, wname)
+        widget.connect('clicked', self.on_splash_stqr_button_clicked)
 
     def update(self):
         '''
@@ -303,6 +306,11 @@ class SplashInfoBox(pluginmgr.View):
             bauble.gui.widgets.go_button.emit("clicked")
         except:
             pass
+
+    def on_splash_stqr_button_clicked(self, *args):
+        print 'on_splash_stqr_button_clicked'
+        from stored_queries import edit_callback
+        edit_callback()
 
 
 class PlantsPlugin(pluginmgr.Plugin):
