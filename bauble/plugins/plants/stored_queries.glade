@@ -371,6 +371,7 @@
             <child>
               <object class="GtkViewport" id="viewport1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkScrolledWindow" id="viewport1_content">
                     <property name="visible">True</property>
@@ -432,7 +433,7 @@
                       <object class="GtkImage" id="image1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">go-previous</property>
+                        <property name="stock">gtk-go-back</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -489,7 +490,7 @@
                       <object class="GtkImage" id="image2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">go-next</property>
+                        <property name="stock">gtk-go-forward</property>
                       </object>
                       <packing>
                         <property name="expand">True</property>
