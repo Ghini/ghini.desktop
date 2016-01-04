@@ -390,6 +390,7 @@ class SearchTests(BaubleTestCase):
         f2 = Family(family=u'family2')
         g2 = Genus(family=f2, genus=u'genus2')
         f3 = Family(family=u'fam3')
+        # g3(homonym) is here just to have two matches on one value
         g3 = Genus(family=f3, genus=u'genus2')
         g4 = Genus(family=f3, genus=u'genus4')
         self.session.add_all([f2, g2, f3, g3, g4])
@@ -401,7 +402,6 @@ class SearchTests(BaubleTestCase):
         # search with or conditions
         s = 'genus where genus=genus2 OR genus=genus1'
         results = mapper_search.search(s, self.session)
-        raise SkipTest('this strange test broke during #184')
         self.assertEquals(sorted([r.id for r in results]),
                           [g.id for g in (self.genus, g2, g3)])
 
