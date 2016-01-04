@@ -58,7 +58,42 @@ def read_in_chunks(file_object, chunk_size=1024):
         yield data
 
 
+class Cache:
+    '''a simple class for caching images
+
+    you instantiate a size 10 cache like this:
+    >>> cache = ImageCache(10)
+
+    if `getter` is a function that returns a picture, you don't immediately
+    invoke it, you use the cache like this:
+    >>> image = cache.get(name, getter)
+
+    internally, the cache is stored in a dictionary, the key is the name of
+    the image, the value is a pair with first the timestamp of the last usage
+    of that key and second the value.
+    '''
+
+    def __init__(self, size):
+        self.size = size
+        self.storage = {}
+
+    def get(self, key, getter):
+        if key in self.storage:
+            value = self.storage[key][1]
+        else:
+            if len(self.storage) == self.size:
+                # remove the oldest entry
+                k = min(zip(self.storage.values(), self.storage.keys()))[1]
+                del self.storage[k]
+            value = getter()
+        import time
+        self.storage[key] = time.time(), value
+        return value
+
+
 class ImageLoader(threading.Thread):
+    cache = Cache(10)  # class-global cached results
+
     def __init__(self, box, url, *args, **kwargs):
         super(ImageLoader, self).__init__(*args, **kwargs)
         self.box = box  # will hold image or label
@@ -109,53 +144,19 @@ class ImageLoader(threading.Thread):
     def run(self):
         self.loader.connect("area-prepared", self.loader_notified)
         self.loader.connect("closed", self.loader_notified)
-        self.reader_function()  # do read and expect loader_notified
+        content = self.cache.get(self.url, self.reader_function)
+        self.loader.write(content)
         self.loader.close()
 
     def read_global_url(self):
         import urllib
         import contextlib
         with contextlib.closing(urllib.urlopen(self.url)) as f:
-            for piece in read_in_chunks(f, 128):
-                self.loader.write(piece)
+            return f.read()
 
     def read_local_url(self):
         with open(self.url) as f:
-            for piece in read_in_chunks(f, 128):
-                self.loader.write(piece)
-
-
-class Cache:
-    '''a simple class for caching images
-
-    you instantiate a size 10 cache like this:
-    >>> cache = ImageCache(10)
-
-    if `getter` is a function that returns a picture, you don't immediately
-    invoke it, you use the cache like this:
-    >>> image = cache.get(name, getter)
-
-    internally, the cache is stored in a dictionary, the key is the name of
-    the image, the value is a pair with first the timestamp of the last usage
-    of that key and second the value.
-    '''
-
-    def __init__(self, size):
-        self.size = size
-        self.storage = {}
-
-    def get(self, key, getter):
-        if key in self.storage:
-            value = self.storage[key][1]
-        else:
-            if len(self.storage) == self.size:
-                # remove the oldest entry
-                k = min(zip(self.storage.values(), self.storage.keys()))[1]
-                del self.storage[k]
-            value = getter()
-        import time
-        self.storage[key] = time.time(), value
-        return value
+            return f.read()
 
 
 def find_dependent_tables(table, metadata=None):
