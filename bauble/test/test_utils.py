@@ -87,3 +87,22 @@ class CacheTest(TestCase):
         cache.get(4, partial(getter, 4))
         self.assertEquals(invoked, [1, 2, 3, 4])
         self.assertEquals(sorted(cache.storage.keys()), [1, 4])
+
+    def test_cache_on_hit(self):
+        from bauble.utils import Cache
+        from functools import partial
+        invoked = []
+
+        def getter(x):
+            return x
+
+        cache = Cache(2)
+        cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        cache.get(2, partial(getter, 2), on_hit=invoked.append)
+        cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        cache.get(3, partial(getter, 3), on_hit=invoked.append)
+        cache.get(1, partial(getter, 1), on_hit=invoked.append)
+        cache.get(4, partial(getter, 4), on_hit=invoked.append)
+        self.assertEquals(invoked, [1, 1, 1])
+        self.assertEquals(sorted(cache.storage.keys()), [1, 4])
