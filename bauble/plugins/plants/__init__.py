@@ -143,7 +143,7 @@ class SplashInfoBox(pluginmgr.View):
         utils.make_label_clickable(
             self.widgets.splash_naccuse,
             lambda *a: bauble.gui.send_command(
-                'accession where plants.quantity>0'))
+                'accession where sum(plants.quantity)>0'))
 
         utils.make_label_clickable(
             self.widgets.splash_naccnot,
@@ -308,7 +308,6 @@ class SplashInfoBox(pluginmgr.View):
             pass
 
     def on_splash_stqr_button_clicked(self, *args):
-        print 'on_splash_stqr_button_clicked'
         from stored_queries import edit_callback
         edit_callback()
 
