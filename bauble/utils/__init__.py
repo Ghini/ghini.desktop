@@ -32,15 +32,97 @@ import xml.sax.saxutils as saxutils
 
 import gtk
 import gobject
-
-from bauble.i18n import _
-import bauble
-from bauble.error import check
-import bauble.paths as paths
+import glib
 
 import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
+
+import threading
+
+from bauble.i18n import _
+import bauble
+from bauble.error import check
+from bauble import paths
+
+
+def read_in_chunks(file_object, chunk_size=1024):
+    """read a chunk from a stream
+
+    Lazy function (generator) to read piece by piece from a file-like object.
+    Default chunk size: 1k."""
+    while True:
+        data = file_object.read(chunk_size)
+        if not data:
+            break
+        yield data
+
+
+class ImageLoader(threading.Thread):
+    def __init__(self, box, url, *args, **kwargs):
+        super(ImageLoader, self).__init__(*args, **kwargs)
+        self.box = box  # will hold image or label
+        self.loader = gtk.gdk.PixbufLoader()
+        if (url.startswith('http://') or url.startswith('https://')):
+            self.reader_function = self.read_global_url
+            self.url = url
+        else:
+            self.reader_function = self.read_local_url
+            from bauble import prefs
+            pfolder = prefs.prefs[prefs.picture_root_pref]
+            self.url = os.path.join(pfolder, url)
+
+    def callback(self):
+        pixbuf = self.loader.get_pixbuf()
+        try:
+            pixbuf = pixbuf.apply_embedded_orientation()
+            scale_x = pixbuf.get_width() / 400
+            scale_y = pixbuf.get_height() / 400
+            scale = max(scale_x, scale_y, 1)
+            x = int(pixbuf.get_width() / scale)
+            y = int(pixbuf.get_height() / scale)
+            scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+            if self.box.get_children():
+                image = self.box.get_children()[0]
+            else:
+                image = gtk.Image()
+                self.box.add(image)
+            image.set_from_pixbuf(scaled_buf)
+        except glib.GError, e:
+            logger.debug("picture %s caused glib.GError %s" %
+                         (self.url, e))
+            text = _('picture file %s not found.') % self.url
+            label = gtk.Label()
+            label.set_text(text)
+            self.box.add(label)
+        except Exception, e:
+            logger.warning("picture %s caused Exception %s:%s" %
+                           (self.url, type(e), e))
+            label = gtk.Label()
+            label.set_text(str(e))
+            self.box.add(label)
+        self.box.show_all()
+
+    def loader_notified(self, pixbufloader):
+        gobject.idle_add(self.callback)
+
+    def run(self):
+        self.loader.connect("area-prepared", self.loader_notified)
+        self.loader.connect("closed", self.loader_notified)
+        self.reader_function()  # do read and expect loader_notified
+        self.loader.close()
+
+    def read_global_url(self):
+        import urllib
+        import contextlib
+        with contextlib.closing(urllib.urlopen(self.url)) as f:
+            for piece in read_in_chunks(f, 128):
+                self.loader.write(piece)
+
+    def read_local_url(self):
+        with open(self.url) as f:
+            for piece in read_in_chunks(f, 128):
+                self.loader.write(piece)
 
 
 def find_dependent_tables(table, metadata=None):
