@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2015-2016 Mario Frasca <mario@anche.no>
 #
 # This file is part of bauble.classic.
 #
@@ -123,6 +123,39 @@ class ImageLoader(threading.Thread):
         with open(self.url) as f:
             for piece in read_in_chunks(f, 128):
                 self.loader.write(piece)
+
+
+class Cache:
+    '''a simple class for caching images
+
+    you instantiate a size 10 cache like this:
+    >>> cache = ImageCache(10)
+
+    if `getter` is a function that returns a picture, you don't immediately
+    invoke it, you use the cache like this:
+    >>> image = cache.get(name, getter)
+
+    internally, the cache is stored in a dictionary, the key is the name of
+    the image, the value is a pair with first the timestamp of the last usage
+    of that key and second the value.
+    '''
+
+    def __init__(self, size):
+        self.size = size
+        self.storage = {}
+
+    def get(self, key, getter):
+        if key in self.storage:
+            value = self.storage[key][1]
+        else:
+            if len(self.storage) == self.size:
+                # remove the oldest entry
+                k = min(zip(self.storage.values(), self.storage.keys()))[1]
+                del self.storage[k]
+            value = getter()
+        import time
+        self.storage[key] = time.time(), value
+        return value
 
 
 def find_dependent_tables(table, metadata=None):
