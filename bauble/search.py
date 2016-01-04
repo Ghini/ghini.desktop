@@ -208,7 +208,8 @@ class IdentExpression(object):
             elif self.op in ('not', '<>', '!='):
                 return q.filter(a.any())
         clause = lambda x: self.operation(a, x)
-        return q.group_by(a).having(clause(self.operands[1].express()))
+        logger.debug('filtering on %s(%s)' % (type(a), a))
+        return q.filter(clause(self.operands[1].express()))
 
     def needs_join(self, env):
         return [self.operands[0].needs_join(env)]
@@ -237,8 +238,9 @@ class AggregatedExpression(IdentExpression):
         # group by main ID
         # apply having
         main_table = q.column_descriptions[0]['type']
-        result = q.group_by(getattr(main_table, 'id')
-                            ).having(clause(self.operands[1].express()))
+        mta = getattr(main_table, 'id')
+        logger.debug('filtering on %s(%s)' % (type(mta), mta))
+        result = q.group_by(mta).having(clause(self.operands[1].express()))
         return result
 
 
@@ -348,6 +350,9 @@ class QueryAction(object):
         use ilike but this would raise an error on SQLite.
         """
 
+        logger.debug('QueryAction:invoke - %s(%s) %s(%s)' %
+                     (type(self.domain), self.domain,
+                      type(self.filter), self.filter))
         domain = self.domain
         check(domain in search_strategy._domains or
               domain in search_strategy._shorthand,
@@ -389,6 +394,7 @@ class BinomialNameAction(object):
         return "%s %s" % (self.genus_epithet, self.species_epithet)
 
     def invoke(self, search_strategy):
+        logger.debug('BinomialNameAction:invoke')
         from bauble.plugins.plants.genus import Genus
         from bauble.plugins.plants.species import Species
         result = search_strategy._session.query(Species).filter(
@@ -416,6 +422,7 @@ class DomainExpressionAction(object):
         return "%s %s %s" % (self.domain, self.cond, self.values)
 
     def invoke(self, search_strategy):
+        logger.debug('DomainExpressionAction:invoke')
         try:
             if self.domain in search_strategy._shorthand:
                 self.domain = search_strategy._shorthand[self.domain]
@@ -505,6 +512,7 @@ class ValueListAction(object):
         add_meta()
         """
 
+        logger.debug('ValueListAction:invoke')
         # make searches case-insensitive, in postgres use ilike,
         # in other use upper()
         like = lambda table, col, val: \
@@ -737,8 +745,9 @@ class MapperSearch(SearchStrategy):
         self._session = session
 
         self._results.clear()
-        results = self.parser.parse_string(text.decode())
-        self._results.update(results.statement.invoke(self))
+        statement = self.parser.parse_string(text.decode()).statement
+        logger.debug("statement : %s(%s)" % (type(statement), statement))
+        self._results.update(statement.invoke(self))
         logger.debug('search returns %s(%s)'
                      % (type(self._results), self._results))
 
