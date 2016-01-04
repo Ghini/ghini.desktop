@@ -463,39 +463,13 @@ class DefiningPictures:
         '''a list of gtk.Image objects
         '''
 
-        import glib
-        import bauble.prefs as prefs
-        pfolder = prefs.prefs[prefs.picture_root_pref]
         result = []
         for n in self.notes:
             if n.category != '<picture>':
                 continue
-            filename = os.path.join(pfolder, n.note)
-            im = gtk.Image()
-            try:
-                pixbuf = gtk.gdk.pixbuf_new_from_file(
-                    os.path.join(prefs.prefs[prefs.picture_root_pref],
-                                 filename))
-                pixbuf = pixbuf.apply_embedded_orientation()
-                scale_x = pixbuf.get_width() / 400
-                scale_y = pixbuf.get_height() / 400
-                scale = max(scale_x, scale_y, 1)
-                x = int(pixbuf.get_width() / scale)
-                y = int(pixbuf.get_height() / scale)
-                scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
-                im.set_from_pixbuf(scaled_buf)
-            except glib.GError, e:
-                logger.debug("picture %s caused glib.GError %s" %
-                             (filename, e))
-                label = _('picture file %s not found.') % filename
-                im = gtk.Label()
-                im.set_text(label)
-            except Exception, e:
-                logger.warning("picture %s caused Exception %s" %
-                               (filename, e))
-                im = gtk.Label()
-                im.set_text(e)
-            result.append(im)
+            box = gtk.VBox()  # contains the image or the error message
+            utils.ImageLoader(box, n.note).start()
+            result.append(box)
         return result
 
 
