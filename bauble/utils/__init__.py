@@ -77,9 +77,10 @@ class Cache:
         self.size = size
         self.storage = {}
 
-    def get(self, key, getter):
+    def get(self, key, getter, on_hit=lambda x: None):
         if key in self.storage:
             value = self.storage[key][1]
+            on_hit(value)
         else:
             if len(self.storage) == self.size:
                 # remove the oldest entry
@@ -92,7 +93,7 @@ class Cache:
 
 
 class ImageLoader(threading.Thread):
-    cache = Cache(10)  # class-global cached results
+    cache = Cache(12)  # class-global cached results
 
     def __init__(self, box, url, *args, **kwargs):
         super(ImageLoader, self).__init__(*args, **kwargs)
@@ -142,21 +143,30 @@ class ImageLoader(threading.Thread):
         gobject.idle_add(self.callback)
 
     def run(self):
-        self.loader.connect("area-prepared", self.loader_notified)
         self.loader.connect("closed", self.loader_notified)
-        content = self.cache.get(self.url, self.reader_function)
-        self.loader.write(content)
+        self.cache.get(
+            self.url, self.reader_function, on_hit=self.loader.write)
         self.loader.close()
 
     def read_global_url(self):
+        self.loader.connect("area-prepared", self.loader_notified)
         import urllib
         import contextlib
+        pieces = []
         with contextlib.closing(urllib.urlopen(self.url)) as f:
-            return f.read()
+            for piece in read_in_chunks(f, 4096):
+                self.loader.write(piece)
+                pieces.append(piece)
+        return ''.join(pieces)
 
     def read_local_url(self):
+        self.loader.connect("area-prepared", self.loader_notified)
+        pieces = []
         with open(self.url) as f:
-            return f.read()
+            for piece in read_in_chunks(f, 4096):
+                self.loader.write(piece)
+                pieces.append(piece)
+        return ''.join(pieces)
 
 
 def find_dependent_tables(table, metadata=None):
