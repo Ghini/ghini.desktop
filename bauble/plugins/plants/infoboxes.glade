@@ -816,7 +816,7 @@
             <property name="n_rows">12</property>
             <property name="n_columns">8</property>
             <property name="column_spacing">2</property>
-            <property name="row_spacing">8</property>
+            <property name="row_spacing">2</property>
             <property name="homogeneous">True</property>
             <child>
               <object class="GtkLabel" id="splash_nspc_label">
@@ -879,6 +879,7 @@
               <packing>
                 <property name="left_attach">2</property>
                 <property name="right_attach">4</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -891,6 +892,7 @@
               <packing>
                 <property name="left_attach">4</property>
                 <property name="right_attach">6</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -1220,6 +1222,7 @@
               </object>
               <packing>
                 <property name="right_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -1228,7 +1231,7 @@
                 <property name="can_focus">False</property>
                 <property name="xalign">1</property>
                 <property name="xpad">6</property>
-                <property name="label" translatable="yes">s t o r e d   q u e r i e s</property>
+                <property name="label" translatable="yes">stored queries</property>
                 <property name="angle">90</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
@@ -1239,6 +1242,7 @@
                 <property name="right_attach">2</property>
                 <property name="top_attach">7</property>
                 <property name="bottom_attach">11</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
@@ -1421,6 +1425,7 @@
               <packing>
                 <property name="left_attach">6</property>
                 <property name="right_attach">8</property>
+                <property name="x_options">GTK_FILL</property>
               </packing>
             </child>
             <child>
