@@ -48,18 +48,17 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants.family import (
     Familia, Family, FamilyInfoBox, FamilyEditor,
-    family_context_menu, family_markup_func)
+    family_context_menu)
 from bauble.plugins.plants.genus import (
     Genus, GenusEditor, GenusInfoBox,
-    genus_context_menu, genus_markup_func,
+    genus_context_menu,
     )
 from bauble.plugins.plants.species import (
     Species, SpeciesEditorMenuItem, SpeciesInfoBox,
-    species_markup_func,
     species_context_menu, add_accession_action,
     SynonymSearch, SpeciesDistribution,
     VernacularName, VernacularNameInfoBox,
-    vernname_context_menu, vernname_markup_func,
+    vernname_context_menu,
     )
 from bauble.plugins.plants.geography import (
     Geography, get_species_in_geography)
@@ -326,14 +325,12 @@ class PlantsPlugin(pluginmgr.Plugin):
         mapper_search.add_meta(('family', 'fam'), Family, ['family'])
         SearchView.row_meta[Family].set(children="genera",
                                         infobox=FamilyInfoBox,
-                                        context_menu=family_context_menu,
-                                        markup_func=family_markup_func)
+                                        context_menu=family_context_menu)
 
         mapper_search.add_meta(('genus', 'gen'), Genus, ['genus'])
         SearchView.row_meta[Genus].set(children="species",
                                        infobox=GenusInfoBox,
-                                       context_menu=genus_context_menu,
-                                       markup_func=genus_markup_func)
+                                       context_menu=genus_context_menu)
 
         from functools import partial
         search.add_strategy(SynonymSearch)
@@ -343,16 +340,14 @@ class PlantsPlugin(pluginmgr.Plugin):
         SearchView.row_meta[Species].set(
             children=partial(db.natsort, 'accessions'),
             infobox=SpeciesInfoBox,
-            context_menu=species_context_menu,
-            markup_func=species_markup_func)
+            context_menu=species_context_menu)
 
         mapper_search.add_meta(('vernacular', 'vern', 'common'),
                                VernacularName, ['name'])
         SearchView.row_meta[VernacularName].set(
             children=partial(db.natsort, 'species.accessions'),
             infobox=VernacularNameInfoBox,
-            context_menu=vernname_context_menu,
-            markup_func=vernname_markup_func)
+            context_menu=vernname_context_menu)
 
         mapper_search.add_meta(('geography', 'geo'), Geography, ['name'])
         SearchView.row_meta[Geography].set(children=get_species_in_geography)

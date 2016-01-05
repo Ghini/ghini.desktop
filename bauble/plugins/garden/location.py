@@ -92,14 +92,6 @@ remove_action = Action('loc_remove', _('_Delete'), callback=remove_callback,
 loc_context_menu = [edit_action, add_plant_action, remove_action]
 
 
-def loc_markup_func(location):
-    if location.description is not None:
-        return utils.xml_safe(str(location)), \
-            utils.xml_safe(str(location.description))
-    else:
-        return utils.xml_safe(str(location))
-
-
 class Location(db.Base, db.Serializable):
     """
     :Table name: location
@@ -124,6 +116,15 @@ class Location(db.Base, db.Serializable):
 
     # relations
     plants = relation('Plant', backref=backref('location', uselist=False))
+
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        if self.description is not None:
+            return (utils.xml_safe(str(self)),
+                    utils.xml_safe(str(self.description)))
+        else:
+            return utils.xml_safe(str(self))
 
     @validates('code', 'name')
     def validate_stripping(self, key, value):

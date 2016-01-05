@@ -32,15 +32,15 @@ import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
 from bauble.plugins.garden.accession import AccessionEditor, \
     Accession, AccessionInfoBox, AccessionNote, \
-    acc_context_menu, acc_markup_func
+    acc_context_menu
 from bauble.plugins.garden.location import LocationEditor, \
-    Location, LocationInfoBox, loc_context_menu, loc_markup_func
+    Location, LocationInfoBox, loc_context_menu
 from bauble.plugins.garden.plant import PlantEditor, PlantNote, \
-    Plant, PlantSearch, PlantInfoBox, plant_context_menu, plant_markup_func, \
+    Plant, PlantSearch, PlantInfoBox, plant_context_menu, \
     plant_delimiter_key, default_plant_delimiter
 from bauble.plugins.garden.source import \
     Source, SourceDetail, SourceDetailInfoBox, source_detail_context_menu, \
-    Collection, collection_context_menu, coll_markup_func
+    Collection, collection_context_menu
 from bauble.plugins.garden.institution import (
     Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
 
@@ -51,8 +51,6 @@ import re
 # other ideas:
 # - cultivation table
 # - conservation table
-
-from bauble import prefs
 
 
 class GardenPlugin(pluginmgr.Plugin):
@@ -75,23 +73,20 @@ class GardenPlugin(pluginmgr.Plugin):
         SearchView.row_meta[Accession].set(
             children=partial(db.natsort, "plants"),
             infobox=AccessionInfoBox,
-            context_menu=acc_context_menu,
-            markup_func=acc_markup_func)
+            context_menu=acc_context_menu)
 
         mapper_search.add_meta(('location', 'loc'), Location, ['name', 'code'])
         SearchView.row_meta[Location].set(
             children=partial(db.natsort, 'plants'),
             infobox=LocationInfoBox,
-            context_menu=loc_context_menu,
-            markup_func=loc_markup_func)
+            context_menu=loc_context_menu)
 
         mapper_search.add_meta(('plant', 'plants'), Plant, ['code'])
         search.add_strategy(PlantSearch)  # special search value strategy
         #search.add_strategy(SpeciesSearch)  # special search value strategy
         SearchView.row_meta[Plant].set(
             infobox=PlantInfoBox,
-            context_menu=plant_context_menu,
-            markup_func=plant_markup_func)
+            context_menu=plant_context_menu)
 
         mapper_search.add_meta(('contact', 'contacts', 'person', 'org',
                                 'source'), SourceDetail, ['name'])
@@ -102,11 +97,9 @@ class GardenPlugin(pluginmgr.Plugin):
                 join(SourceDetail).options(eagerload('species')).\
                 filter(SourceDetail.id == detail.id).all()
             return results
-        sd_markup_func = lambda c: utils.xml_safe(c)
         SearchView.row_meta[SourceDetail].set(
             children=sd_kids,
             infobox=SourceDetailInfoBox,
-            markup_func=sd_markup_func,
             context_menu=source_detail_context_menu)
 
         mapper_search.add_meta(('collection', 'col', 'coll'),
@@ -116,7 +109,6 @@ class GardenPlugin(pluginmgr.Plugin):
         SearchView.row_meta[Collection].set(
             children=coll_kids,
             infobox=AccessionInfoBox,
-            markup_func=coll_markup_func,
             context_menu=collection_context_menu)
 
         # done here b/c the Species table is not part of this plugin

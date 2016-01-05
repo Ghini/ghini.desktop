@@ -48,13 +48,6 @@ import bauble.paths as paths
 from types import StringTypes
 
 
-def coll_markup_func(coll):
-    acc = coll.source.accession
-    safe = utils.xml_safe
-    return '%s - <small>%s</small>' %  \
-        (safe(acc), safe(acc.species_str())), safe(coll)
-
-
 def collection_edit_callback(coll):
     from bauble.plugins.garden.accession import edit_callback
     # TODO: set the tab to the source tab on the accessio neditor
@@ -252,6 +245,15 @@ class Collection(db.Base):
     region = relation(Geography, uselist=False)
 
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)
+
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        acc = self.source.accession
+        safe = utils.xml_safe
+        return (
+            '%s - <small>%s</small>' % (safe(acc), safe(acc.species_str())),
+            safe(self))
 
     def __str__(self):
         return _('Collection at %s') % (self.locale or repr(self))

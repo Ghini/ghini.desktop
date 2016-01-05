@@ -984,16 +984,11 @@ class SearchView(pluginmgr.View):
                 else:
                     self.session.add(value)
             try:
-                func = self.row_meta[type(value)].markup_func
-                if func is not None:
-                    r = func(value)
-                    if isinstance(r, (list, tuple)):
-                        main, substr = r
-                    else:
-                        main = r
-                        substr = '(%s)' % type(value).__name__
+                r = value.search_view_markup_pair()
+                if isinstance(r, (list, tuple)):
+                    main, substr = r
                 else:
-                    main = utils.xml_safe(str(value))
+                    main = r
                     substr = '(%s)' % type(value).__name__
                 cell.set_property(
                     'markup', '%s\n%s' %
