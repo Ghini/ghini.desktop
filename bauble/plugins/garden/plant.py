@@ -553,10 +553,6 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures):
         return plant
 
     def markup(self):
-        #return "%s.%s" % (self.accession, self.plant_id)
-        # FIXME: this makes expanding accessions look ugly with too many
-        # plant names around but makes expanding the location essential
-        # or you don't know what plants you are looking at
         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
                                 self.accession.species_str(markup=True))
 
