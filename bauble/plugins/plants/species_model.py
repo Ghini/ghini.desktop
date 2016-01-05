@@ -155,6 +155,27 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
     rank = 'species'
     link_keys = ['accepted']
 
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        try:
+            if len(self.vernacular_names) > 0:
+                substring = (
+                    '%s -- %s' %
+                    (self.genus.family,
+                     ', '.join([str(v) for v in self.vernacular_names])))
+            else:
+                substring = '%s' % self.genus.family
+            trail = (' <span weight="light">%s</span>' %
+                     utils.xml_safe(self.sp_author or ''))
+            if self.accepted:
+                trail += ('<span foreground="#555555" size="small" '
+                          'weight="light"> - ' + _("synonym of %s") + "</span>"
+                          ) % self.accepted.markup(authors=True)
+            return self.markup(authors=False) + trail, substring
+        except:
+            return u'...', u'...'
+
     @property
     def cites(self):
         '''the cites status of this taxon, or None
@@ -675,6 +696,11 @@ class VernacularName(db.Base, db.Serializable):
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
     __table_args__ = (UniqueConstraint('name', 'language',
                                        'species_id', name='vn_index'), {})
+
+    def search_view_markup_pair(self):
+        """provide the two lines describing object for SearchView row.
+        """
+        return str(self), self.species.markup(authors=False)
 
     def __str__(self):
         if self.name:

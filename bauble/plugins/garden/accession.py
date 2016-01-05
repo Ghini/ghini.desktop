@@ -237,21 +237,6 @@ remove_action = Action('acc_remove', _('_Delete'), callback=remove_callback,
 acc_context_menu = [edit_action, add_plant_action, remove_action]
 
 
-def acc_markup_func(acc):
-    """provide the two lines describing object for SearchView row.
-
-    it is a global function because it's invoked from a global environment.
-    see issue #258
-    """
-    first, second = utils.xml_safe(unicode(acc)), acc.species_str(markup=True)
-    suffix = _("%(1)s plant groups in %(2)s location(s)") % {
-        '1': len(set(acc.plants)),
-        '2': len(set(p.location for p in acc.plants))}
-    suffix = ('<span foreground="#555555" size="small" '
-              'weight="light"> - %s</span>') % suffix
-    return first + suffix, second
-
-
 # TODO: accession should have a one-to-many relationship on verifications
     #ver_level = StringCol(length=2, default=None) # verification level
     #ver_name = StringCol(length=50, default=None) # verifier's name
@@ -663,6 +648,19 @@ class Accession(db.Base, db.Serializable):
         'Location', primaryjoin='Accession.intended_location_id==Location.id')
     intended2_location = relation(
         'Location', primaryjoin='Accession.intended2_location_id==Location.id')
+
+    def search_view_markup_pair(self):
+        """provide the two lines describing object for SearchView row.
+
+        """
+        first, second = (utils.xml_safe(unicode(self)),
+                         self.species_str(markup=True))
+        suffix = _("%(1)s plant groups in %(2)s location(s)") % {
+            '1': len(set(self.plants)),
+            '2': len(set(p.location for p in self.plants))}
+        suffix = ('<span foreground="#555555" size="small" '
+                  'weight="light"> - %s</span>') % suffix
+        return first + suffix, second
 
     @property
     def pictures(self):

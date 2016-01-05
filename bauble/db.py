@@ -152,6 +152,11 @@ class MapperBase(DeclarativeMeta):
             cls.__mapper_args__ = {'extension': HistoryExtension()}
         if 'top_level_count' not in dict_:
             cls.top_level_count = lambda x: {classname: 1}
+        if 'search_view_markup_pair' not in dict_:
+            cls.search_view_markup_pair = lambda x: (
+                utils.xml_safe(str(x)),
+                '(%s)' % type(x).__name__)
+
         super(MapperBase, cls).__init__(classname, bases, dict_)
 
 

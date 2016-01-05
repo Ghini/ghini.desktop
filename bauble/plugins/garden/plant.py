@@ -122,24 +122,6 @@ plant_context_menu = [
     edit_action, branch_action, remove_action, ]
 
 
-def plant_markup_func(plant):
-    '''provide the two lines describing object for SearchView row.
-
-    see issue #258
-    '''
-    sp_str = plant.accession.species_str(markup=True)
-    dead_color = "#9900ff"
-    if plant.quantity <= 0:
-        dead_markup = '<span foreground="%s">%s</span>' % \
-            (dead_color, utils.xml_safe(plant))
-        return dead_markup, sp_str
-    else:
-        located_counted = ('%s <span foreground="#555555" size="small" '
-                           'weight="light">- %s alive in %s</span>') % (
-            utils.xml_safe(plant), plant.quantity, plant.location)
-        return located_counted, sp_str
-
-
 def get_next_code(acc):
     """
     Return the next available plant code for an accession.
@@ -490,6 +472,21 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures):
                             backref=backref('plant', uselist=False))
 
     _delimiter = None
+
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        sp_str = self.accession.species_str(markup=True)
+        dead_color = "#9900ff"
+        if self.quantity <= 0:
+            dead_markup = '<span foreground="%s">%s</span>' % \
+                (dead_color, utils.xml_safe(self))
+            return dead_markup, sp_str
+        else:
+            located_counted = ('%s <span foreground="#555555" size="small" '
+                               'weight="light">- %s alive in %s</span>') % (
+                utils.xml_safe(self), self.quantity, self.location)
+            return located_counted, sp_str
 
     @classmethod
     def get_delimiter(cls, refresh=False):

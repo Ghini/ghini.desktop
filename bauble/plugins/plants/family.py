@@ -110,14 +110,6 @@ remove_action = view.Action('family_remove', _('_Delete'),
 family_context_menu = [edit_action, add_species_action, remove_action]
 
 
-def family_markup_func(family):
-    """
-    return a string or object with __str__ method to use to markup
-    text in the results view
-    """
-    return family
-
-
 #
 # Family
 #

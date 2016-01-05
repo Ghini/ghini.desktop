@@ -120,13 +120,6 @@ remove_action = Action('genus_remove', _('_Delete'), callback=remove_callback,
 genus_context_menu = [edit_action, add_species_action, remove_action]
 
 
-def genus_markup_func(genus):
-    '''
-    '''
-    # TODO: the genus should be italicized for markup
-    return utils.xml_safe(genus), utils.xml_safe(genus.family)
-
-
 class Genus(db.Base, db.Serializable):
     """
     :Table name: genus
@@ -169,6 +162,11 @@ class Genus(db.Base, db.Serializable):
 
     rank = 'genus'
     link_keys = ['accepted']
+
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        return utils.xml_safe(self), utils.xml_safe(self.family)
 
     @property
     def cites(self):

@@ -122,29 +122,6 @@ species_context_menu = [edit_action, remove_action]
 vernname_context_menu = [edit_action]
 
 
-def species_markup_func(species):
-    '''
-    '''
-    # TODO: add (syn) after species name if there are species synonyms that
-    # refer to the id of this plant
-    try:
-        if len(species.vernacular_names) > 0:
-            substring = '%s -- %s' % \
-                        (species.genus.family,
-                         ', '.join([str(v) for v in species.vernacular_names]))
-        else:
-            substring = '%s' % species.genus.family
-        return species.markup(authors=False), substring
-    except:
-        return u'...', u'...'
-
-
-def vernname_markup_func(vernname):
-    '''
-    '''
-    return str(vernname), vernname.species.markup(authors=False)
-
-
 from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
     select_in_search_results
 
@@ -272,6 +249,7 @@ class SynonymsExpander(InfoExpander):
             syn_box.pack_start(box, expand=False, fill=False)
             self.show_all()
             self.set_sensitive(True)
+            self.set_expanded(True)
         elif len(row.synonyms) == 0:
             self.set_sensitive(False)
             self.set_expanded(False)
