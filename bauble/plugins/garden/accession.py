@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
 #
 # This file is part of bauble.classic.
 #
@@ -238,10 +238,18 @@ acc_context_menu = [edit_action, add_plant_action, remove_action]
 
 
 def acc_markup_func(acc):
+    """provide the two lines describing object for SearchView row.
+
+    it is a global function because it's invoked from a global environment.
+    see issue #258
     """
-    Returns str(acc), acc.species_str()
-    """
-    return utils.xml_safe(unicode(acc)), acc.species_str(markup=True)
+    first, second = utils.xml_safe(unicode(acc)), acc.species_str(markup=True)
+    suffix = _("%(1)s plant groups in %(2)s location(s)") % {
+        '1': len(set(acc.plants)),
+        '2': len(set(p.location for p in acc.plants))}
+    suffix = ('<span foreground="#555555" size="small" '
+              'weight="light"> - %s</span>') % suffix
+    return first + suffix, second
 
 
 # TODO: accession should have a one-to-many relationship on verifications
