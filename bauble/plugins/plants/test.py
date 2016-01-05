@@ -1686,10 +1686,6 @@ class PresenterTest(PlantTestCase):
         raise SkipTest('Not Implemented')  # presenter uses view internals
 
 
-from bauble.plugins.plants.species import (
-    species_markup_func, vernname_markup_func)
-
-
 class GlobalFunctionsTest(PlantTestCase):
     def test_species_markup_func(self):
         eCo = Species.retrieve_or_create(
@@ -1706,21 +1702,22 @@ class GlobalFunctionsTest(PlantTestCase):
                            'rank': 'species',
                            'epithet': u'lobata'},
             create=False, update=False)
-        first, second = species_markup_func(eCo)
-        self.assertEquals(remove_zws(first), u'<i>Maxillaria</i> <i>variabilis</i>')
+        first, second = eCo.search_view_markup_pair()
+        self.assertTrue(remove_zws(first).startswith(
+            u'<i>Maxillaria</i> <i>variabilis</i>'))
+        expect = '<i>Maxillaria</i> <i>variabilis</i> <span weight="light">'\
+            'Bateman ex Lindl.</span><span foreground="#555555" size="small" '\
+            'weight="light"> - synonym of <i>Encyclia</i> <i>cochleata</i> '\
+            '(L.) Lemée</span>'
+        self.assertEquals(remove_zws(first), expect)
         self.assertEquals(second, u'Orchidaceae -- SomeName, SomeName 2')
-        first, second = species_markup_func(model)
+        first, second = model.search_view_markup_pair()
         self.assertEquals(remove_zws(first), u'<i>Laelia</i> <i>lobata</i>')
         self.assertEquals(second, u'Orchidaceae')
 
-    def test_species_markup_func_none(self):
-        first, second = species_markup_func(None)
-        self.assertEquals(first, u'...')
-        self.assertEquals(second, u'...')
-
     def test_vername_markup_func(self):
         vName = self.session.query(VernacularName).filter_by(id=1).one()
-        first, second = vernname_markup_func(vName)
+        first, second = vName.search_view_markup_pair()
         self.assertEquals(remove_zws(second), u'<i>Maxillaria</i> <i>variabilis</i>')
         self.assertEquals(first, u'SomeName')
 

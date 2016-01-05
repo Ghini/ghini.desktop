@@ -166,8 +166,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
                      ', '.join([str(v) for v in self.vernacular_names])))
             else:
                 substring = '%s' % self.genus.family
-            trail = (' <span weight="light">%s</span>' %
-                     utils.xml_safe(self.sp_author or ''))
+            trail = self.sp_author and (' <span weight="light">%s</span>' %
+                                        utils.xml_safe(self.sp_author)) or ''
             if self.accepted:
                 trail += ('<span foreground="#555555" size="small" '
                           'weight="light"> - ' + _("synonym of %s") + "</span>"
