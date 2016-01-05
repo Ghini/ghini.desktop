@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
 #
 # This file is part of bauble.classic.
 #
@@ -123,7 +123,9 @@ plant_context_menu = [
 
 
 def plant_markup_func(plant):
-    '''
+    '''provide the two lines describing object for SearchView row.
+
+    see issue #258
     '''
     sp_str = plant.accession.species_str(markup=True)
     dead_color = "#9900ff"
