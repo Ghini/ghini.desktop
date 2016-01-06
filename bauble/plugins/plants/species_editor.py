@@ -138,9 +138,13 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             if found:
                 found = dict((k, utils.to_unicode(v))
                              for k, v in found.items())
+                found_s = dict((k, utils.xml_safe(utils.to_unicode(v)))
+                               for k, v in found.items())
             if accepted:
                 accepted = dict((k, utils.to_unicode(v))
-                             for k, v in accepted.items())
+                                for k, v in accepted.items())
+                accepted_s = dict((k, utils.xml_safe(utils.to_unicode(v)))
+                                  for k, v in accepted.items())
 
             msg_box_msg = _('No match found on ThePlantList.org')
 
@@ -156,7 +160,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 else:
                     cit = ('<i>%(Genus)s</i> %(Species hybrid marker)s'
                            '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
-                           ) % found
+                           ) % found_s
                     msg = _('%s is the closest match for your data.\n'
                             'Do you want to accept it?' % cit)
                     b1 = box = self.view.add_message_box(
@@ -182,7 +186,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 if self.model.accepted is None and accepted:
                     cit = ('<i>%(Genus)s</i> %(Species hybrid marker)s'
                            '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
-                           ) % accepted
+                           ) % accepted_s
                     msg = _('%s is the accepted taxon for your data.\n'
                             'Do you want to add it?' % cit)
                     b2 = box = self.view.add_message_box(
@@ -198,6 +202,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                     'object': 'taxon',
                                     'rank': 'species',
                                     'ht-rank': 'genus',
+                                    'familia': accepted['Family'],
                                     'ht-epithet': accepted['Genus'],
                                     'epithet': accepted['Species'],
                                     'sp_author': accepted['Authorship'],

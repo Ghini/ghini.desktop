@@ -377,65 +377,6 @@ class GeneralSpeciesExpander(InfoExpander):
         session.close()
 
 
-class LinksExpander(view.LinksExpander):
-
-    """
-    A collection of link buttons to use for internet searches.
-    """
-
-    def __init__(self):
-        super(LinksExpander, self).__init__("notes")
-        buttons = []
-
-        import bauble.utils.web as web
-        self.wikipedia_button = web.WikipediaButton()
-        buttons.append(self.wikipedia_button)
-
-        self.google_button = web.GoogleButton()
-        buttons.append(self.google_button)
-
-        self.gbif_button = web.GBIFButton()
-        buttons.append(self.gbif_button)
-
-        self.itis_button = web.ITISButton()
-        buttons.append(self.itis_button)
-
-        self.ipni_button = web.IPNIButton()
-        buttons.append(self.ipni_button)
-
-        self.grin_button = web.GRINButton()
-        buttons.append(self.grin_button)
-
-        self.bgci_button = web.BGCIButton()
-        buttons.append(self.bgci_button)
-
-        self.tpl_button = web.TPLButton()
-        buttons.append(self.tpl_button)
-
-        self.tropicos_button = web.TropicosButton()
-        buttons.append(self.tropicos_button)
-
-        self.ala_button = web.ALAButton()
-        buttons.append(self.ala_button)
-
-        for b in buttons:
-            b.set_alignment(0, -1)
-            self.vbox.pack_start(b, expand=False, fill=False)
-
-    def update(self, row):
-        super(LinksExpander, self).update(row)
-        self.wikipedia_button.set_keywords(genus=row.genus, species=row.sp)
-        self.google_button.set_string(row)
-        self.gbif_button.set_string(row)
-        self.itis_button.set_string(row)
-        self.ipni_button.set_keywords(genus=row.genus, species=row.sp)
-        self.grin_button.set_string(row)
-        self.bgci_button.set_keywords(genus=row.genus, species=row.sp)
-        self.tpl_button.set_keywords(genus=row.genus, species=row.sp)
-        self.tropicos_button.set_keywords(genus=row.genus, species=row.sp)
-        self.ala_button.set_string(row)
-
-
 class SpeciesInfoBox(InfoBox):
 
     def __init__(self):
@@ -459,6 +400,18 @@ class SpeciesInfoPage(InfoBoxPage):
         '''
         the constructor
         '''
+        button_defs = [
+            {'name': 'GoogleButton', '_base_uri': "http://www.google.com/search?q=%s", '_space': '+', 'title': "Search Google", 'tooltip': None, },
+            {'name': 'GBIFButton', '_base_uri': "http://www.gbif.org/species/search?q=%s", '_space': '+', 'title': _("Search GBIF"), 'tooltip': _("Search the Global Biodiversity Information Facility"), },
+            {'name': 'ITISButton', '_base_uri': "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=Scientific_Name&search_value=%s&search_kingdom=Plant&search_span=containing&categories=All&source=html&search_credRating=All", '_space': '%20', 'title': _("Search ITIS"), 'tooltip': _("Search the Intergrated Taxonomic Information System"), },
+            {'name': 'GRINButton', '_base_uri': "http://www.ars-grin.gov/cgi-bin/npgs/swish/accboth?query=%s&submit=Submit+Text+Query&si=0", '_space': '+', 'title': _("Search NPGS/GRIN"), 'tooltip': _('Search National Plant Germplasm System'), },
+            {'name': 'ALAButton', '_base_uri': "http://bie.ala.org.au/search?q=%s", '_space': '+', 'title': _("Search ALA"), 'tooltip': _("Search the Atlas of Living Australia"), },
+            {'name': 'WikipediaButton', '_base_uri': "http://en.wikipedia.org/wiki/%(genus)s_%(sp)s", '_space': '+', 'title': _("Search Wikipedia"), 'tooltip': _("open the wikipedia page about this species"), },
+            {'name': 'IPNIButton', '_base_uri': "http://www.ipni.org/ipni/advPlantNameSearch.do?find_genus=%(genus)s&find_species=%(sp)s&find_isAPNIRecord=on& find_isGCIRecord=on&find_isIKRecord=on&output_format=normal", '_space': ' ', 'title': _("Search IPNI"), 'tooltip': _("Search the International Plant Names Index"), },
+            {'name': 'BGCIButton', '_base_uri': "http://www.bgci.org/plant_search.php?action=Find&ftrGenus=%(genus)s&ftrRedList=&ftrSpecies=%(sp)s&ftrRedList1997=&ftrEpithet=&ftrCWR=&x=0&y=0#results", '_space': ' ', 'title': _("Search BGCI"), 'tooltip': _("Search Botanic Gardens Conservation International"), },
+            {'name': 'TPLButton', '_base_uri': "http://www.theplantlist.org/tpl1.1/search?q=%(genus)s+%(sp)s", '_space': '+', 'title': _("Search TPL"), 'tooltip': _("Search The Plant List online database"), },
+            {'name': 'TropicosButton', '_base_uri': "http://tropicos.org/NameSearch.aspx?name=%(genus)s+%(sp)s", '_space': '+', 'title': _("Search Tropicos"), 'tooltip': _("Search Tropicos (MissouriBG) online database"), },
+            ]
         super(SpeciesInfoPage, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
@@ -474,7 +427,7 @@ class SpeciesInfoPage(InfoBoxPage):
         self.add_expander(self.vernacular)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.links = LinksExpander()
+        self.links = view.LinksExpander('notes', links=button_defs)
         self.add_expander(self.links)
         self.props = PropertiesExpander()
         self.add_expander(self.props)

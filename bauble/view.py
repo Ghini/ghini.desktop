@@ -330,7 +330,7 @@ class InfoBox(gtk.Notebook):
 
 class LinksExpander(InfoExpander):
 
-    def __init__(self, notes=None):
+    def __init__(self, notes=None, links=[]):
         """
         :param notes: the name of the notes property on the row
         """
@@ -338,10 +338,25 @@ class LinksExpander(InfoExpander):
         self.dynamic_box = gtk.VBox()
         self.vbox.pack_start(self.dynamic_box)
         self.notes = notes
+        self.buttons = []
+        from bauble.utils.web import BaubleLinkButton
+        for link in links:
+            try:
+                klass = type(link['name'], (BaubleLinkButton, ),
+                             link)
+                self.buttons.append(klass())
+            except Exception, e:
+                logger.debug('wrong link definition %s, %s(%s)' %
+                             (link, type(e), e))
+        for b in self.buttons:
+            b.set_alignment(0, -1)
+            self.vbox.pack_start(b)
 
     def update(self, row):
         import pango
         map(self.dynamic_box.remove, self.dynamic_box.get_children())
+        for b in self.buttons:
+            b.set_string(row)
         if self.notes:
             notes = getattr(row, self.notes)
             for note in notes:

@@ -856,48 +856,9 @@ class SynonymsExpander(InfoExpander):
 class IPNIFamilyButton(web.IPNIButton):
 
     _base_uri = "http://www.ipni.org/ipni/advPlantNameSearch.do?"\
-                "find_family=%(family)s" \
-                "&find_isAPNIRecord=on& find_isGCIRecord=on" \
-                "&find_isIKRecord=on&output_format=normal"
-
-
-class LinksExpander(view.LinksExpander):
-
-    def __init__(self):
-        super(LinksExpander, self).__init__('notes')
-
-        buttons = []
-
-        self.google_button = web.GoogleButton()
-        buttons.append(self.google_button)
-
-        self.gbif_button = web.GBIFButton()
-        buttons.append(self.gbif_button)
-
-        self.itis_button = web.ITISButton()
-        buttons.append(self.itis_button)
-
-        self.ipni_button = IPNIFamilyButton()
-        buttons.append(self.ipni_button)
-
-        self.grin_button = web.GRINButton()
-        buttons.append(self.grin_button)
-
-        self.ala_button = web.ALAButton()
-        buttons.append(self.ala_button)
-
-        for b in buttons:
-            b.set_alignment(0, -1)
-            self.vbox.pack_start(b)
-
-    def update(self, row):
-        super(LinksExpander, self).update(row)
-        self.google_button.set_string(row)
-        self.gbif_button.set_string(row)
-        self.itis_button.set_string(row)
-        self.ipni_button.set_keywords(family=row)
-        self.grin_button.set_string(row)
-        self.ala_button.set_string(row)
+                "find_family=%(family)s&" \
+                "find_isAPNIRecord=on& find_isGCIRecord=on&" \
+                "find_isIKRecord=on&output_format=normal"
 
 
 class FamilyInfoBox(InfoBox):
@@ -907,6 +868,16 @@ class FamilyInfoBox(InfoBox):
     def __init__(self):
         '''
         '''
+
+        button_defs = [
+            {'name': 'IPNIButton', '_base_uri': "http://www.ipni.org/ipni/advPlantNameSearch.do?find_family=%(family)s&find_isAPNIRecord=on& find_isGCIRecord=on&find_isIKRecord=on&output_format=normal", '_space': ' ', 'title': _("Search IPNI"), 'tooltip': _("Search the International Plant Names Index"), },
+            {'name': 'GoogleButton', '_base_uri': "http://www.google.com/search?q=%s", '_space': '+', 'title': "Search Google", 'tooltip': None, },
+            {'name': 'GBIFButton', '_base_uri': "http://www.gbif.org/species/search?q=%s", '_space': '+', 'title': _("Search GBIF"), 'tooltip': _("Search the Global Biodiversity Information Facility"), },
+            {'name': 'ITISButton', '_base_uri': "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=Scientific_Name&search_value=%s&search_kingdom=Plant&search_span=containing&categories=All&source=html&search_credRating=All", '_space': '%20', 'title': _("Search ITIS"), 'tooltip': _("Search the Intergrated Taxonomic Information System"), },
+            {'name': 'GRINButton', '_base_uri': "http://www.ars-grin.gov/cgi-bin/npgs/swish/accboth?query=%s&submit=Submit+Text+Query&si=0", '_space': '+', 'title': _("Search NPGS/GRIN"), 'tooltip': _('Search National Plant Germplasm System'), },
+            {'name': 'ALAButton', '_base_uri': "http://bie.ala.org.au/search?q=%s", '_space': '+', 'title': _("Search ALA"), 'tooltip': _("Search the Atlas of Living Australia"), },
+
+            ]
         InfoBox.__init__(self)
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
@@ -915,7 +886,7 @@ class FamilyInfoBox(InfoBox):
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.links = LinksExpander()
+        self.links = view.LinksExpander('notes', links=button_defs)
         self.add_expander(self.links)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
