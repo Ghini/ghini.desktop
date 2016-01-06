@@ -113,7 +113,7 @@ class WikipediaButton(KeywordsLinkButton):
     _base_uri = "http://en.wikipedia.org/wiki/%(genus)s_%(species)s"
     _space = '+'
 
-    def __init__(self, title=_("Search the Wikipedia"), tooltip=_(
+    def __init__(self, title=_("Search Wikipedia"), tooltip=_(
             "open the wikipedia page about this species")):
         super(WikipediaButton, self).__init__(title, tooltip)
 
@@ -170,3 +170,13 @@ class GRINButton(StringLinkButton):
     def __init__(self, title=_("Search NPGS/GRIN"),
                  tooltip=_('Search National Plant Germplasm System')):
         super(GRINButton, self).__init__(title, tooltip)
+
+    
+class ALAButton(StringLinkButton):
+
+    _base_uri = "http://bie.ala.org.au/search?q=%s"
+    _space = '+'
+
+    def __init__(self, title=_("Search ALA"), tooltip=_(
+            "Search the Atlas of Living Australia")):
+        super(ALAButton, self).__init__(title, tooltip)

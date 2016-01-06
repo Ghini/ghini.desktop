@@ -877,6 +877,9 @@ class LinksExpander(view.LinksExpander):
         self.tropicos_button = web.TropicosButton()
         buttons.append(self.tropicos_button)
 
+        self.ala_button = web.ALAButton()
+        buttons.append(self.ala_button)
+
         for b in buttons:
             b.set_alignment(0, -1)
             self.vbox.pack_start(b)
@@ -891,6 +894,7 @@ class LinksExpander(view.LinksExpander):
         self.bgci_button.set_keywords(genus=row.genus, species='')
         self.tpl_button.set_keywords(genus=row.genus, species='')
         self.tropicos_button.set_keywords(genus=row.genus, species='')
+        self.ala_button.set_string(row)
 
 
 class GeneralGenusExpander(InfoExpander):
