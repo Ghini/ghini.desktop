@@ -493,6 +493,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
     @accepted.setter
     def accepted(self, value):
         'Name that should be used if name of self should be rejected'
+        logger.debug("Accepted taxon: %s %s" % (type(value), value))
         assert isinstance(value, self.__class__)
         if self in value.synonyms:
             return
