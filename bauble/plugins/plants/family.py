@@ -883,6 +883,9 @@ class LinksExpander(view.LinksExpander):
         self.grin_button = web.GRINButton()
         buttons.append(self.grin_button)
 
+        self.ala_button = web.ALAButton()
+        buttons.append(self.ala_button)
+
         for b in buttons:
             b.set_alignment(0, -1)
             self.vbox.pack_start(b)
@@ -894,6 +897,7 @@ class LinksExpander(view.LinksExpander):
         self.itis_button.set_string(row)
         self.ipni_button.set_keywords(family=row)
         self.grin_button.set_string(row)
+        self.ala_button.set_string(row)
 
 
 class FamilyInfoBox(InfoBox):
