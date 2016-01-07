@@ -28,6 +28,8 @@ logger = logging.getLogger(__name__)
 import os
 import traceback
 
+from sqlalchemy.orm.session import object_session
+
 import bauble
 import bauble.paths as paths
 import bauble.db as db
@@ -69,8 +71,8 @@ def remove_callback(values):
     The callback function to remove a species from the species context menu.
     """
     from bauble.plugins.garden.accession import Accession
-    session = db.Session()
     species = values[0]
+    session = object_session(species)
     if isinstance(species, VernacularName):
         species = species.species
     nacc = session.query(Accession).filter_by(species_id=species.id).count()
@@ -92,8 +94,6 @@ def remove_callback(values):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
-    finally:
-        session.close()
     return True
 
 
@@ -227,9 +227,8 @@ class SynonymsExpander(InfoExpander):
         # remove old labels
         syn_box.foreach(syn_box.remove)
         logger.debug(row.synonyms)
-        from sqlalchemy.orm.session import object_session
-        self.session = object_session(row)
-        syn = self.session.query(SpeciesSynonym).filter(
+        session = object_session(row)
+        syn = session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == row.id).first()
         accepted = syn and syn.species
         logger.debug("species %s is synonym of %s and has synonyms %s" %
@@ -285,7 +284,7 @@ class GeneralSpeciesExpander(InfoExpander):
         general_box = self.widgets.sp_general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
-        self.widgets.sp_name_data.set_line_wrap(True)
+        self.widgets.sp_epithet_data.set_line_wrap(True)
 
         # make the check buttons read only
         def on_enter(button, *args):
@@ -314,13 +313,23 @@ class GeneralSpeciesExpander(InfoExpander):
         :param row: the row to get the values from
         '''
         self.current_obj = row
-        # TODO: how do we put the genus in a seperate label so it
-        # can be clickable but still respect the text wrap to wrap
-        # around and indent from the genus name instead of from the
-        # species name
-        session = db.Session()
-        self.widget_set_value('sp_name_data', '<big>%s</big>' %
-                              row.markup(True), markup=True)
+        session = object_session(row)
+        # link function
+        on_label_clicked = lambda l, e, x: select_in_search_results(x)
+        # Link to family
+        self.widget_set_value('sp_fam_data', '<small>(%s)</small>' %
+                              row.genus.family.family, markup=True)
+        utils.make_label_clickable(
+            self.widgets.sp_fam_data, on_label_clicked, row.genus.family)
+        # link to genus
+        self.widget_set_value('sp_gen_data', '<big><i>%s</i></big>' %
+                              row.genus.genus, markup=True)
+        utils.make_label_clickable(
+            self.widgets.sp_gen_data, on_label_clicked, row.genus)
+        # epithet (full binomial but missing genus)
+        self.widget_set_value('sp_epithet_data', '<big>%s</big>' %
+                              row.markup(authors=True, genus=False),
+                              markup=True)
 
         awards = ''
         if row.awards:
@@ -374,7 +383,6 @@ class GeneralSpeciesExpander(InfoExpander):
                 filter_by(id=row.id).distinct().count()
             self.widget_set_value('sp_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
-        session.close()
 
 
 class SpeciesInfoBox(InfoBox):

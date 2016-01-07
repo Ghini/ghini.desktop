@@ -379,20 +379,20 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
             dist = ['%s' % d for d in self.distribution]
             return unicode(', ').join(sorted(dist))
 
-    def markup(self, authors=False):
+    def markup(self, authors=False, genus=True):
         '''
         returns this object as a string with markup
 
         :param authors: flag to toggle whethe the author names should be
         included
         '''
-        return Species.str(self, authors, True)
+        return Species.str(self, authors, markup=True, genus=genus)
 
     # in PlantPlugins.init() we set this to 'x' for win32
     hybrid_char = utils.utf8(u'\u2a09')  # U+2A09
 
     @staticmethod
-    def str(species, authors=False, markup=False, remove_zws=False):
+    def str(species, authors=False, markup=False, remove_zws=False, genus=True):
         '''
         returns a string for species
 
@@ -405,7 +405,10 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         # TODO: this method will raise an error if the session is none
         # since it won't be able to look up the genus....we could
         # probably try to query the genus directly with the genus_id
-        genus = str(species.genus)
+        if genus is True:
+            genus = str(species.genus)
+        else:
+            genus = ''
         if species.sp:
             sp = u'\u200b' + species.sp  # prepend with zero_width_space
         else:
@@ -485,6 +488,9 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         'Name that should be used if name of self should be rejected'
         from sqlalchemy.orm.session import object_session
         session = object_session(self)
+        if not session:
+            logger.warn('species:accepted - object not in session')
+            return None
         syn = session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == self.id).first()
         accepted = syn and syn.species
@@ -499,7 +505,10 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
             return
         # remove any previous `accepted` link
         from sqlalchemy.orm.session import object_session
-        session = object_session(self) or db.Session()
+        session = object_session(self)
+        if not session:
+            logger.warn('species:accepted.setter - object not in session')
+            return
         session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == self.id).delete()
         session.commit()
