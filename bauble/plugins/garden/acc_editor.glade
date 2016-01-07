@@ -1237,7 +1237,7 @@
                                               <object class="GtkLabel" id="label44">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="label" translatable="yes">Source code</property>
+                                                <property name="label" translatable="yes">Source's ID</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
