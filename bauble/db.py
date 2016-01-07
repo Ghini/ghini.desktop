@@ -562,6 +562,16 @@ class Serializable:
 
         keys.update(extradict)
 
+        # early construct object before building links
+        if not is_in_session and create:
+            logger.debug("going to create new %s with %s" % (cls, keys))
+            result = cls(**keys)
+            session.add(result)
+
+        # or possibly reuse existing object
+        if is_in_session and update:
+            result = is_in_session
+
         ## completing the task of building the links
         logger.debug("links? %s, %s" % (cls.link_keys, keys.keys()))
         for key in cls.link_keys:
@@ -572,20 +582,14 @@ class Serializable:
             obj = construct_from_dict(session, d)
             keys[key] = obj
 
-        if is_in_session and update:
-            result = is_in_session
-            logger.debug("going to update %s with %s" % (result, keys))
-            if 'id' in keys:
-                del keys['id']
-            for k, v in keys.items():
-                if v is not None:
-                    setattr(result, k, v)
-            logger.debug('returning updated existing %s' % result)
-            return result
+        logger.debug("going to update %s with %s" % (result, keys))
+        if 'id' in keys:
+            del keys['id']
+        for k, v in keys.items():
+            if v is not None:
+                setattr(result, k, v)
+        logger.debug('returning updated existing %s' % result)
 
-        logger.debug("going to create new %s with %s" % (cls, keys))
-        result = cls(**keys)
-        session.add(result)
         session.flush()
 
         logger.debug('returning new %s' % result)
