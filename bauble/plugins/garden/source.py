@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
 #
 # This file is part of bauble.classic.
 #
@@ -168,8 +168,11 @@ class SourceDetail(db.Base):
     __tablename__ = 'source_detail'
     __mapper_args__ = {'order_by': 'name'}
 
+    # ITF2 - E6 - Donor
     name = Column(Unicode(75), unique=True)
+    # extra description, not included in E6
     description = Column(UnicodeText)
+    # ITF2 - E5 - Donor Type Flag
     source_type = Column(types.Enum(values=[i[0] for i in source_type_values],
                                     translations=dict(source_type_values)),
                          default=None)
@@ -228,17 +231,27 @@ class Collection(db.Base):
     __tablename__ = 'collection'
 
     # columns
+    # ITF2 - F24 - Primary Collector's Name
     collector = Column(Unicode(64))
+    # ITF2 - F.25 - Collector's Identifier
     collectors_code = Column(Unicode(50))
+    # ITF2 - F.27 - Collection Date
     date = Column(types.Date)
     locale = Column(UnicodeText, nullable=False)
+    # ITF2 - F1, F2, F3, F4 - Latitude, Degrees, Minutes, Seconds, Direction
     latitude = Column(Unicode(15))
+    # ITF2 - F5, F6, F7, F8 - Longitude, Degrees, Minutes, Seconds, Direction
     longitude = Column(Unicode(15))
     gps_datum = Column(Unicode(32))
+    # ITF2 - F9 - Accuracy of Geographical Referencing Data
     geo_accy = Column(Float)
+    # ITF2 - F17 - Altitude
     elevation = Column(Float)
+    # ITF2 - F18 - Accuracy of Altitude
     elevation_accy = Column(Float)
+    # ITF2 - F22 - Habitat
     habitat = Column(UnicodeText)
+    # ITF2 - F18 - Collection Notes
     notes = Column(UnicodeText)
 
     geography_id = Column(Integer, ForeignKey('geography.id'))
@@ -261,9 +274,11 @@ class Collection(db.Base):
 
 class SourceDetailEditorView(editor.GenericEditorView):
 
-    # i think the field names are pretty self explanatory and tooltips
-    # would be pointless
-    _tooltips = {}
+    _tooltips = {
+        'source_name_entry': 'ITF2 - E.6 - <b>Donor</b> - don',
+        'source_type_combo': 'ITF2 - E.5 - <b>Donor Type Flag</b> - dont',
+        'source_desc_textview': 'additional private description for donor',
+        }
 
     def __init__(self, parent=None):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
