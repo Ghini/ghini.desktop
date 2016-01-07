@@ -853,14 +853,6 @@ class SynonymsExpander(InfoExpander):
             self.set_sensitive(True)
 
 
-class IPNIFamilyButton(web.IPNIButton):
-
-    _base_uri = "http://www.ipni.org/ipni/advPlantNameSearch.do?"\
-                "find_family=%(family)s&" \
-                "find_isAPNIRecord=on& find_isGCIRecord=on&" \
-                "find_isIKRecord=on&output_format=normal"
-
-
 class FamilyInfoBox(InfoBox):
     '''
     '''
