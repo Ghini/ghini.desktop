@@ -120,6 +120,7 @@ class Source(db.Base):
     """connected 1-1 to Accession, this class adds fields to Accession
     """
     __tablename__ = 'source'
+    # ITF2 - E7 - Donor's Accession Identifier - donacc
     sources_code = Column(Unicode(32))
 
     accession_id = Column(Integer, ForeignKey('accession.id'), unique=True)

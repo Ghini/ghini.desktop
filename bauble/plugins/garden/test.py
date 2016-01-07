@@ -1679,7 +1679,7 @@ class AccessionNotesSerializeTest(GardenTestCase):
                            'accession': u'010203',
                            'category': u'foto',
                            'date': '2014-01-01',
-                           'note': 'url://'
+                           'note': u'url://'
                            },
             create=False, update=False)
         self.assertTrue(obj is not None)
@@ -1692,7 +1692,7 @@ class AccessionNotesSerializeTest(GardenTestCase):
                            'accession': u'010203',
                            'category': u'foto',
                            'date': '2014-01-01',
-                           'note': 'url://'
+                           'note': u'url://'
                            },
             create=False, update=True)
         self.assertTrue(obj is not None)
