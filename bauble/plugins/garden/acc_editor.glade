@@ -2791,7 +2791,7 @@
   <object class="GtkDialog" id="source_details_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
-    <property name="title" translatable="yes">Source Details</property>
+    <property name="title" translatable="yes">Contact (Donor) Editor</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
