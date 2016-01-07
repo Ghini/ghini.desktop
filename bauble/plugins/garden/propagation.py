@@ -359,7 +359,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
             tab_box.pack_start(box, expand=False, fill=True)
         self._dirty = False
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def add_propagation(self):
@@ -608,7 +608,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.view.connect('rooted_remove_button', "clicked",
                           self.on_rooted_remove_clicked)
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def set_model_attr(self, field, value, validator=None):
@@ -735,7 +735,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
         utils.setup_date_button(self.view, 'seed_date_planted_entry',
                                 'seed_date_planted_button')
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def set_model_attr(self, field, value, validator=None):
@@ -837,11 +837,11 @@ class PropagationPresenter(editor.ChildPresenter):
         if not self.model.date:
             self.view.widgets.prop_date_entry.emit('changed')
 
-    def dirty(self):
+    def is_dirty(self):
         if self.model.prop_type == u'UnrootedCutting':
-            return self._cutting_presenter.dirty() or self._dirty
+            return self._cutting_presenter.is_dirty() or self._dirty
         elif self.model.prop_type == u'Seed':
-            return self._seed_presenter.dirty() or self._dirty
+            return self._seed_presenter.is_dirty() or self._dirty
         else:
             return self._dirty
 
@@ -936,8 +936,8 @@ class SourcePropagationPresenter(PropagationPresenter):
     def refresh_sensitivity(self):
         self.parent_ref().refresh_sensitivity()
 
-    def dirty(self):
-        return super(SourcePropagationPresenter, self).dirty() or self._dirty
+    def is_dirty(self):
+        return super(SourcePropagationPresenter, self).is_dirty() or self._dirty
 
 
 class PropagationEditorPresenter(PropagationPresenter):
@@ -1063,7 +1063,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 self._return = self.model
-                if self.presenter.dirty() and commit:
+                if self.presenter.is_dirty() and commit:
                     self.commit_changes()
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
@@ -1080,8 +1080,8 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                or not self.presenter.dirty():
+        elif self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg) \
+                or not self.presenter.is_dirty():
             self.session.rollback()
             return True
         else:

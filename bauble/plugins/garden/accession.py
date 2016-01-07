@@ -863,7 +863,9 @@ class AccessionEditorView(editor.GenericEditorView):
         'acc_ok_and_add_button': _('Save your changes changes and add a '
                                    'plant to this accession.'),
         'acc_next_button': _('Save your changes changes and add another '
-                             'accession.')
+                             'accession.'),
+
+        'sources_code_entry': "ITF2 - E7 - Donor's Accession Identifier - donacc",
         }
 
     def __init__(self, parent=None):
@@ -1028,7 +1030,7 @@ class VoucherPresenter(editor.GenericEditorPresenter):
                 model.append([voucher])
         treeview.set_model(model)
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def on_cell_edited(self, cell, path, new_text, data):
@@ -1107,7 +1109,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             set_expanded(True)
         self._dirty = False
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def refresh_view(self):
@@ -1497,10 +1499,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 active = self.garden_prop_str
         self.populate_source_combo(active)
 
-    def dirty(self):
-        return self._dirty or self.source_prop_presenter.dirty() or \
-            self.prop_chooser_presenter.dirty() or \
-            self.collection_presenter.dirty()
+    def is_dirty(self):
+        return self._dirty or self.source_prop_presenter.is_dirty() or \
+            self.prop_chooser_presenter.is_dirty() or \
+            self.collection_presenter.is_dirty()
 
     def refresh_sensitivity(self):
         logger.warning('refresh_sensitivity: %s' % str(self.problems))
@@ -1958,10 +1960,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.view.widget_set_value(target_widget, location)
             self.set_model_attr(target_field, location)
 
-    def dirty(self):
+    def is_dirty(self):
         presenters = [self.ver_presenter, self.voucher_presenter,
                       self.notes_presenter, self.source_presenter]
-        dirty_kids = [p.dirty() for p in presenters]
+        dirty_kids = [p.is_dirty() for p in presenters]
         return self._dirty or True in dirty_kids
 
     def on_recvd_type_comboentry_changed(self, combo, *args):
@@ -2124,7 +2126,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         else:
             self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
 
-        sensitive = self.dirty() and self.validate() \
+        sensitive = self.is_dirty() and self.validate() \
             and not self.problems \
             and not self.source_presenter.all_problems() \
             and not self.ver_presenter.problems \
@@ -2227,7 +2229,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     #
                     # msg = _('Some required fields have not been completed')
                     return False
-                if self.presenter.dirty():
+                if self.presenter.is_dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
             except DBAPIError, e:
@@ -2242,8 +2244,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                or not self.presenter.dirty():
+        elif self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg) \
+                or not self.presenter.is_dirty():
             self.session.rollback()
             return True
         else:

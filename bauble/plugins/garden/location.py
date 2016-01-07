@@ -326,7 +326,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
     def refresh_sensitivity(self):
         sensitive = False
         ignore = ('id')
-        if self.dirty() and not \
+        if self.is_dirty() and not \
                 utils.get_invalid_columns(self.model, ignore_columns=ignore):
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
@@ -337,7 +337,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self._dirty = True
         self.refresh_sensitivity()
 
-    def dirty(self):
+    def is_dirty(self):
         return self._dirty
 
     def refresh_view(self):
@@ -391,7 +391,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                if self.presenter.dirty():
+                if self.presenter.is_dirty():
                     self.commit_changes()
                 self._committed.append(self.model)
             except DBAPIError, e:
@@ -408,9 +408,9 @@ class LocationEditor(GenericModelViewPresenterEditor):
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
-        elif self.presenter.dirty() \
+        elif self.presenter.is_dirty() \
                 and utils.yes_no_dialog(not_ok_msg) \
-                or not self.presenter.dirty():
+                or not self.presenter.is_dirty():
             self.session.rollback()
             return True
         else:
