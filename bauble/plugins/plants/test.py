@@ -384,7 +384,7 @@ class FamilyTests(PlantTestCase):
         self.assert_(str(f) == repr(f))
         f = Family(family=u'fam')
         self.assert_(str(f) == 'fam')
-        f.qualifier = 's. lat.'
+        f.qualifier = u's. lat.'
         self.assert_(str(f) == 'fam s. lat.')
 
     def test_editor(self):
@@ -1188,9 +1188,9 @@ class FromAndToDict_create_update_test(PlantTestCase):
             self.session, {'object': 'taxon',
                            'rank': 'familia',
                            'epithet': 'Leguminosae',
-                           'qualifier': 's. lat.'},
+                           'qualifier': u's. lat.'},
             create=False, update=False)
-        self.assertEquals(obj.qualifier, 's. str.')
+        self.assertEquals(obj.qualifier, u's. str.')
 
     def test_family_nocreate_updatediff_existing(self):
         ## update object in self.session
@@ -1198,9 +1198,9 @@ class FromAndToDict_create_update_test(PlantTestCase):
             self.session, {'object': 'taxon',
                            'rank': 'familia',
                            'epithet': 'Leguminosae',
-                           'qualifier': 's. lat.'},
+                           'qualifier': u's. lat.'},
             create=False, update=True)
-        self.assertEquals(obj.qualifier, 's. lat.')
+        self.assertEquals(obj.qualifier, u's. lat.')
 
     def test_genus_nocreate_noupdate_noexisting_impossible(self):
         # do not create if not existing
