@@ -84,7 +84,7 @@ def remove_callback(genera):
     """
     genus = genera[0]
     from bauble.plugins.plants.species_model import Species
-    session = db.Session()
+    session = object_session(genus)
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
     safe_str = utils.xml_safe(str(genus))
     if nsp > 0:
@@ -104,8 +104,6 @@ def remove_callback(genera):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
-    finally:
-        session.close()
     return True
 
 
@@ -238,6 +236,9 @@ class Genus(db.Base, db.Serializable):
     def accepted(self):
         'Name that should be used if name of self should be rejected'
         session = object_session(self)
+        if not session:
+            logger.warn('genus:accepted - object not in session')
+            return None
         syn = session.query(GenusSynonym).filter(
             GenusSynonym.synonym_id == self.id).first()
         accepted = syn and syn.genus
@@ -250,7 +251,10 @@ class Genus(db.Base, db.Serializable):
         if self in value.synonyms:
             return
         # remove any previous `accepted` link
-        session = object_session(self) or db.Session()
+        session = object_session(self)
+        if not session:
+            logger.warn('genus:accepted.setter - object not in session')
+            return
         session.query(GenusSynonym).filter(
             GenusSynonym.synonym_id == self.id).delete()
         session.commit()
@@ -893,7 +897,7 @@ class GeneralGenusExpander(InfoExpander):
 
         :param row: the row to get the values from
         '''
-        session = db.Session()
+        session = object_session(row)
         self.current_obj = row
         self.widget_set_value('gen_name_data', '<big>%s</big> %s' %
                               (row, utils.xml_safe(unicode(row.author))),
@@ -939,7 +943,6 @@ class GeneralGenusExpander(InfoExpander):
                               filter_by(id=row.id).distinct().count())
             self.widget_set_value('gen_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
-        session.close()
 
 
 class SynonymsExpander(InfoExpander):
@@ -963,7 +966,6 @@ class SynonymsExpander(InfoExpander):
         syn_box.foreach(syn_box.remove)
         # use True comparison in case the preference isn't set
         self.set_expanded(prefs[self.expanded_pref] is True)
-        self.session = object_session(row)
         logger.debug("genus %s is synonym of %s and has synonyms %s" %
                      (row, row.accepted, row.synonyms))
         self.set_label(_("Synonyms"))  # reset default value

@@ -73,7 +73,7 @@ def remove_callback(families):
     """
     family = families[0]
     from bauble.plugins.plants.genus import Genus
-    session = db.Session()
+    session = object_session(family)
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
     safe_str = utils.xml_safe(str(family))
     if ngen > 0:
@@ -202,6 +202,9 @@ class Family(db.Base, db.Serializable):
     def accepted(self):
         'Name that should be used if name of self should be rejected'
         session = object_session(self)
+        if not session:
+            logger.warn('family:accepted - object not in session')
+            return None
         syn = session.query(FamilySynonym).filter(
             FamilySynonym.synonym_id == self.id).first()
         accepted = syn and syn.family
@@ -214,7 +217,10 @@ class Family(db.Base, db.Serializable):
         if self in value.synonyms:
             return
         # remove any previous `accepted` link
-        session = object_session(self) or db.Session()
+        session = object_session(self)
+        if not session:
+            logger.warn('family:accepted.setter - object not in session')
+            return
         session.query(FamilySynonym).filter(
             FamilySynonym.synonym_id == self.id).delete()
         session.commit()
@@ -745,7 +751,7 @@ class GeneralFamilyExpander(InfoExpander):
         self.current_obj = row
         self.widget_set_value('fam_name_data', '<big>%s</big>' % row,
                               markup=True)
-        session = db.Session()
+        session = object_session(row)
         # get the number of genera
         ngen = session.query(Genus).filter_by(family_id=row.id).count()
         self.widget_set_value('fam_ngen_data', ngen)
@@ -794,7 +800,6 @@ class GeneralFamilyExpander(InfoExpander):
                 filter_by(id=row.id).distinct().count()
             self.widget_set_value('fam_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
-        session.close()
 
 
 class SynonymsExpander(InfoExpander):
