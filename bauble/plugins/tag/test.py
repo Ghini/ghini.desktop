@@ -46,6 +46,11 @@ def test_duplicate_ids():
 
 class TagTests(BaubleTestCase):
 
+    def __init__(self, *args, **kwargs):
+        super(TagTests, self).__init__(*args, **kwargs)
+        import bauble.prefs
+        bauble.prefs.testing = True
+
     family_ids = [1, 2]
 
     def setUp(self):
@@ -72,37 +77,28 @@ class TagTests(BaubleTestCase):
         family1_id = self.family.id
         family2_id = family2.id
         tag_plugin.tag_objects('test', [self.family, family2])
-        # get object by string
-        tagged_objs = tag_plugin.get_tagged_objects('test')
-        sorted_pairs = sorted([(type(o), o.id) for o in tagged_objs],
-                              cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family, family1_id),
-                                      (Family, family2_id)],
-                     sorted_pairs)
 
+        # we do not offer gettin object by string
         # get object by tag
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        tagged_objs = tag_plugin.get_tagged_objects(tag)
-        sorted_pairs = sorted([(type(o), o.id) for o in tagged_objs],
-                              cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family, family1_id),
-                                      (Family, family2_id)],
-                     sorted_pairs)
+        tagged_objs = tag.objects
+        sorted_pairs = sorted([(type(o), o.id) for o in tagged_objs])
+        self.assertEquals(sorted([(Family, family1_id),
+                                  (Family, family2_id)]),
+                          sorted_pairs)
 
         tag_plugin.tag_objects('test', [self.family, family2])
+        self.assertEquals(tag.objects, [self.family, family2])
 
         #
         # now untag everything
         #
         tag_plugin.untag_objects('test', [self.family, family2])
-        # get object by string
-        tagged_objs = tag_plugin.get_tagged_objects('test')
-        pairs = [(type(o), o.id) for o in tagged_objs]
-        self.assert_(pairs == [], pairs)
 
         # get object by tag
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        tagged_objs = tag_plugin.get_tagged_objects(tag)
+        tagged_objs = tag.objects
+        self.assertEquals(tagged_objs, [])
 
     def test_get_tag_ids(self):
         family2 = Family(family=u'family2')
@@ -162,6 +158,11 @@ class MockTagView(GenericEditorView):
 
 class TagPresenterTests(BaubleTestCase):
     'Presenter manages view and model, implements view callbacks.'
+
+    def __init__(self, *args, **kwargs):
+        super(TagPresenterTests, self).__init__(*args, **kwargs)
+        import bauble.prefs
+        bauble.prefs.testing = True
 
     def test_when_user_edits_name_name_is_memorized(self):
         model = Tag()
@@ -238,6 +239,11 @@ class TagPresenterTests(BaubleTestCase):
 
 
 class AttachedToTests(BaubleTestCase):
+
+    def __init__(self, *args, **kwargs):
+        super(AttachedToTests, self).__init__(*args, **kwargs)
+        import bauble.prefs
+        bauble.prefs.testing = True
 
     def setUp(self):
         super(AttachedToTests, self).setUp()
