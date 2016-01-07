@@ -38,9 +38,10 @@ from bauble.plugins.garden.location import LocationEditor, \
 from bauble.plugins.garden.plant import PlantEditor, PlantNote, \
     Plant, PlantSearch, PlantInfoBox, plant_context_menu, \
     plant_delimiter_key, default_plant_delimiter
-from bauble.plugins.garden.source import \
-    Source, SourceDetail, SourceDetailInfoBox, source_detail_context_menu, \
-    Collection, collection_context_menu
+from bauble.plugins.garden.source import (
+    Source, SourceDetail, SourceDetailEditor,
+    SourceDetailInfoBox, source_detail_context_menu,
+    Collection, collection_context_menu)
 from bauble.plugins.garden.institution import (
     Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
 
@@ -118,7 +119,7 @@ class GardenPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
             bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
-            #bauble.gui.add_to_insert_menu(ContactEditor, _('Contact'))
+            bauble.gui.add_to_insert_menu(SourceDetailEditor, _('Contact'))
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
