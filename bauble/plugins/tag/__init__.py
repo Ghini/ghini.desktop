@@ -37,6 +37,7 @@ from sqlalchemy.orm import relation
 from sqlalchemy.orm.exc import DetachedInstanceError
 from sqlalchemy import and_
 from sqlalchemy.exc import DBAPIError, InvalidRequestError
+from sqlalchemy.orm.session import object_session
 
 from bauble.i18n import _
 import bauble
@@ -86,7 +87,7 @@ def remove_callback(tags):
     msg = _("Are you sure you want to remove %s?") % s
     if not utils.yes_no_dialog(msg):
         return
-    session = db.Session()
+    session = object_session(tag)
     try:
         obj = session.query(Tag).get(tag.id)
         session.delete(obj)
@@ -95,8 +96,6 @@ def remove_callback(tags):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
-    finally:
-        session.close()
 
     # reinitialize the tag menu
     _reset_tags_menu()
@@ -153,6 +152,7 @@ class TagItemGUI(editor.GenericEditorView):
             model = self.tag_tree.get_model()
             model.append([False, tag.tag])
             _reset_tags_menu()
+        session.close()
 
     def on_toggled(self, renderer, path, data=None):
         '''
@@ -280,25 +280,42 @@ class Tag(db.Base):
     def markup(self):
         return '%s Tag' % self.tag
 
-    def _get_objects(self):
-        return get_tagged_objects(self)
-    objects = property(_get_objects)
+    @property
+    def objects(self):
+        return self.get_tagged_objects()
 
-    def is_tagging(self, object):
-        """tell whether self tags object
+    def is_tagging(self, obj):
+        """tell whether self tags obj
 
         """
-        _get_tagged_object_pairs(self)
+        return obj in self.objects
+
+    def get_tagged_objects(self):
+        """
+        Return all object tagged with tag.
+
+        """
+        session = object_session(self)
+
+        # filter out any None values from the query which can happen if
+        # you tag something and then delete it from the datebase
+
+        # TODO: the missing tagged objects should probably be removed from
+        # the database
+        r = [session.query(mapper).filter_by(id=obj_id).first()
+             for mapper, obj_id in _get_tagged_object_pairs(self)]
+        r = [i for i in r if i is not None]
+        return r
 
     @classmethod
-    def attached_to(cls, obj, session=None):
+    def attached_to(cls, obj):
         """return the list of tags attached to obj
 
-        this is a class method, so more classes can implement it.
+        this is a class method, so more classes can invoke it.
         """
-        if session is None:
-            from sqlalchemy.orm.session import object_session
-            session = object_session(obj)
+        session = object_session(obj)
+        if not session:
+            return []
         modname = type(obj).__module__
         clsname = type(obj).__name__
         full_cls_name = '%s.%s' % (modname, clsname)
@@ -373,33 +390,19 @@ def _get_tagged_object_pairs(tag):
     return kids
 
 
-def get_tagged_objects(tag, session=None):
+def create_named_empty_tag(name):
+    """make sure the named tag exists
     """
-    Return all object tagged with tag.
-
-    :param tag: A string or :class:`Tag`
-    :param session:
-    """
-    close_session = False
-    if not isinstance(tag, Tag):
-        if not session:
-            session = db.Session()
-        tag = session.query(Tag).filter_by(tag=utils.utf8(tag)).first()
-    elif not session:
-        from sqlalchemy.orm.session import object_session
-        session = object_session(tag)
-
-    # filter out any None values from the query which can happen if
-    # you tag something and then delete it from the datebase
-
-    # TODO: the missing tagged objects should probably be removed from
-    # the database
-    r = [session.query(mapper).filter_by(id=obj_id).first()
-         for mapper, obj_id in _get_tagged_object_pairs(tag)]
-    r = filter(lambda x: x is not None, r)
-    if close_session:
-        session.close()
-    return r
+    session = db.Session()
+    try:
+        tag = session.query(Tag).filter_by(tag=name).one()
+    except InvalidRequestError, e:
+        logger.debug("%s - %s" % (type(e), e))
+        tag = Tag(tag=name)
+        session.add(tag)
+    session.commit()
+    session.close()
+    return
 
 
 def untag_objects(name, objs):
@@ -414,7 +417,10 @@ def untag_objects(name, objs):
     # TODO: should we loop through objects in a tag to delete
     # the TaggedObject or should we delete tags is they match
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
-    session = db.Session()
+    if not objs:
+        create_named_empty_tag(name)
+        return
+    session = object_session(objs[0])
     try:
         tag = session.query(Tag).filter_by(tag=utils.utf8(name)).one()
     except Exception, e:
@@ -424,14 +430,10 @@ def untag_objects(name, objs):
     same = lambda x, y: x.obj_class == _classname(y) and x.obj_id == y.id
     for obj in objs:
         for kid in tag._objects:
-            # x = kid
-            # y = obj
             if same(kid, obj):
-                #o = session.load(type(kid), kid.id)
                 o = session.query(type(kid)).filter_by(id=kid.id).one()
                 session.delete(o)
     session.commit()
-    session.close()
 
 
 # create the classname stored in the tagged_obj table
@@ -450,7 +452,10 @@ def tag_objects(name, objs):
     :param obj: A list of mapped objects to tag.
     :type obj: list
     """
-    session = db.Session()
+    if not objs:
+        create_named_empty_tag(name)
+        return
+    session = object_session(objs[0])
     name = utils.utf8(name)
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
@@ -470,7 +475,6 @@ def tag_objects(name, objs):
     # if a new tag is created with the name parameter it is always saved
     # regardless of whether the objects are tagged
     session.commit()
-    session.close()
 
 
 def get_tag_ids(objs):
@@ -485,7 +489,9 @@ def get_tag_ids(objs):
     #clause = lambda x: and_(TaggedObj.obj_class==_classname(x),
     #                        TaggedObj.obj_id==x.id)
     #ors = or_(*map(clause, objs))
-    session = db.Session()
+    if not objs:
+        return []
+    session = object_session(objs[0])
     s = set()
     tag_id_query = session.query(Tag.id).join('_objects')
     for obj in objs:

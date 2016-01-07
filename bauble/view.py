@@ -693,6 +693,10 @@ class SearchView(pluginmgr.View):
             set_infobox_from_row(None)
             return
 
+        if object_session(values[0]) is None:
+            logger.debug('cannot populate info box from detached object')
+            return
+
         try:
             set_infobox_from_row(values[0])
         except Exception, e:
@@ -775,12 +779,12 @@ class SearchView(pluginmgr.View):
         logger.debug('SearchView.search(%s)' % text)
         error_msg = None
         error_details_msg = None
+        # stop whatever it might still be doing
+        self.cancel_threads()
         self.session.close()
         # create a new session for each search...maybe we shouldn't
         # even have session as a class attribute
         self.session = db.Session()
-        # stop whatever it might still be doing
-        self.cancel_threads()
         bold = '<b>%s</b>'
         results = []
         try:
@@ -997,7 +1001,7 @@ class SearchView(pluginmgr.View):
                     # expire the object in the session with the same key
                     self.session.expire(value)
                 else:
-                    self.session.add(value)
+                    self.session.merge(value)
             try:
                 r = value.search_view_markup_pair()
                 if isinstance(r, (list, tuple)):
