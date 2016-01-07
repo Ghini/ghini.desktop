@@ -876,7 +876,7 @@ class GeneralGenusExpander(InfoExpander):
 
         def on_nacc_clicked(*args):
             g = self.current_obj
-            cmd = 'acc where species.genus.genus="%s" ' \
+            cmd = 'accession where species.genus.genus="%s" ' \
                 'and species.genus.qualifier="%s"' \
                 % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
