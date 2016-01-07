@@ -2419,8 +2419,6 @@ class GeneralAccessionExpander(InfoExpander):
         else:
             self.widgets.remove_parent(acc_private)
 
-        #self.widget_set_value('name_data', '%s %s' % \
-        #                      (row.species.markup(True), row.id_qual or '',))
         self.widget_set_value('name_data', row.species_str(markup=True),
                               markup=True)
 
@@ -2539,6 +2537,12 @@ class SourceExpander(InfoExpander):
             self.widgets.source_name_data.props.visible = True
             self.widget_set_value('source_name_data',
                                   utils.utf8(row.source.source_detail))
+
+            def on_source_clicked(w, e, x):
+                select_in_search_results(x)
+            utils.make_label_clickable(self.widgets.source_name_data,
+                                       on_source_clicked,
+                                       row.source.source_detail)
         else:
             self.widgets.source_name_label.props.visible = False
             self.widgets.source_name_data.props.visible = False
