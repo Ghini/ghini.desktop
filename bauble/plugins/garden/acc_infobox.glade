@@ -481,10 +481,15 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel" id="source_name_data">
+              <object class="GtkEventBox" id="source_name_eventbox">
                 <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="no">--</property>
+                <child>
+                  <object class="GtkLabel" id="source_name_data">
+                    <property name="visible">True</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="no">--</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="left_attach">1</property>
