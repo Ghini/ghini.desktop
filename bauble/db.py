@@ -100,11 +100,11 @@ class HistoryExtension(orm.MapperExtension):
         Add a new entry to the history table.
         """
         user = None
-        from bauble import db
         try:
-            if db.engine.name in ('postgres', 'postgresql'):
-                import bauble.plugins.users as users
-                user = users.current_user()
+            if engine.name.startswith('sqlite'):
+                raise TypeError("this engine know nothing of users")
+            import bauble.plugins.users as users
+            user = users.current_user()
         except:
             if 'USER' in os.environ and os.environ['USER']:
                 user = os.environ['USER']
