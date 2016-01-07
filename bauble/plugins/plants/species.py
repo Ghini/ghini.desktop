@@ -294,7 +294,7 @@ class GeneralSpeciesExpander(InfoExpander):
         self.current_obj = None
 
         def on_nacc_clicked(*args):
-            cmd = 'acc where species.id=%s' % self.current_obj.id
+            cmd = 'accession where species.id=%s' % self.current_obj.id
             bauble.gui.send_command(cmd)
 
         utils.make_label_clickable(self.widgets.sp_nacc_data,

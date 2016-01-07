@@ -726,7 +726,7 @@ class GeneralFamilyExpander(InfoExpander):
 
         def on_nacc_clicked(*args):
             f = self.current_obj
-            cmd = 'acc where species.genus.family.family="%s" ' \
+            cmd = 'accession where species.genus.family.family="%s" ' \
                 'and species.genus.family.qualifier="%s"' \
                 % (f.family, f.qualifier)
             bauble.gui.send_command(cmd)
