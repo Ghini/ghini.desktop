@@ -417,12 +417,13 @@ def untag_objects(name, objs):
     # TODO: should we loop through objects in a tag to delete
     # the TaggedObject or should we delete tags is they match
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
+    name = utils.utf8(name)
     if not objs:
         create_named_empty_tag(name)
         return
     session = object_session(objs[0])
     try:
-        tag = session.query(Tag).filter_by(tag=utils.utf8(name)).one()
+        tag = session.query(Tag).filter_by(tag=name).one()
     except Exception, e:
         logger.info("%s - %s" % (type(e), e))
         logger.debug(traceback.format_exc())
@@ -452,11 +453,11 @@ def tag_objects(name, objs):
     :param obj: A list of mapped objects to tag.
     :type obj: list
     """
+    name = utils.utf8(name)
     if not objs:
         create_named_empty_tag(name)
         return
     session = object_session(objs[0])
-    name = utils.utf8(name)
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:
@@ -502,7 +503,6 @@ def get_tag_ids(objs):
             s.update(tags)
         else:
             s.intersection_update(tags)
-    session.close()
     return list(s)
 
 

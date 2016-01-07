@@ -103,7 +103,7 @@ class TagTests(BaubleTestCase):
     def test_get_tag_ids(self):
         family2 = Family(family=u'family2')
         self.session.add(family2)
-        self.session.commit()
+        self.session.flush()
         tag_plugin.tag_objects('test', [self.family, family2])
         tag_plugin.tag_objects('test2', [self.family])
 
