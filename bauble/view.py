@@ -412,9 +412,6 @@ class CountResultsTask(threading.Thread):
 
     def run(self):
         session = db.Session()
-        ## we really need a new session
-        session.close()
-        session = db.Session()
         klass = self.klass
         d = {}
         for ndx in self.ids:
@@ -781,10 +778,13 @@ class SearchView(pluginmgr.View):
         error_details_msg = None
         # stop whatever it might still be doing
         self.cancel_threads()
-        self.session.close()
-        # create a new session for each search...maybe we shouldn't
-        # even have session as a class attribute
-        self.session = db.Session()
+        if False:
+            # create a new session for each search...
+            self.session.close()
+            self.session = db.Session()
+        else:
+            # reuse session, but undo all that has not been committed
+            self.session.rollback()
         bold = '<b>%s</b>'
         results = []
         try:
@@ -1426,6 +1426,8 @@ def select_in_search_results(obj):
     view = bauble.gui.get_view()
     if not isinstance(view, SearchView):
         return None
+    logger.debug("select_in_search_results %s is in session %s" %
+                 (obj, obj in view.session))
     model = view.results_view.get_model()
     found = utils.search_tree_model(model, obj)
     row_iter = None
