@@ -724,28 +724,29 @@ class Accession(db.Base, db.Serializable):
             logger.warning(msg)
             self.__warned_about_id_qual = True
 
-        # copy the species so we don't affect the original
-        session = db.Session()
-        species = session.merge(self.species)  # , dont_load=True)
+        if self.id_qual:
+            # copy the species so we don't affect the original
+            session = db.Session()
+            species = session.merge(self.species)  # , dont_load=True)
 
-        # generate the string
-        if self.id_qual in ('aff.', 'cf.'):
-            if self.id_qual_rank == 'infrasp':
-                species.sp = '%s %s' % (species.sp, self.id_qual)
-            elif self.id_qual_rank:
-                setattr(species, self.id_qual_rank,
-                        '%s %s' % (self.id_qual,
-                                   getattr(species, self.id_qual_rank)))
-            sp_str = Species.str(species, authors, markup)
-        elif self.id_qual:
-            sp_str = '%s(%s)' % (Species.str(species, authors, markup),
-                                 self.id_qual)
+            # generate the string
+            if self.id_qual in ('aff.', 'cf.'):
+                if self.id_qual_rank == 'infrasp':
+                    species.sp = '%s %s' % (species.sp, self.id_qual)
+                elif self.id_qual_rank:
+                    setattr(species, self.id_qual_rank,
+                            '%s %s' % (self.id_qual,
+                                       getattr(species, self.id_qual_rank)))
+                sp_str = Species.str(species, authors, markup)
+            elif self.id_qual:
+                sp_str = '%s(%s)' % (Species.str(species, authors, markup),
+                                     self.id_qual)
+            # clean up and return the string
+            del species
+            session.close()
         else:
-            sp_str = Species.str(species, authors, markup)
+            sp_str = Species.str(self.species, authors, markup)
 
-        # clean up and return the string
-        del species
-        session.close()
         self.__cached_species_str[(markup, authors)] = sp_str
         return sp_str
 
