@@ -280,7 +280,12 @@ def open(uri, verify=True, show_error_dialogs=False):
         global Session, engine
         engine = new_engine
         metadata.bind = engine  # make engine implicit for metadata
+        def temp():
+            import inspect
+            logger.debug('creating session %s' % str(inspect.stack()[1]))
+            return sessionmaker(bind=engine, autoflush=False)()
         Session = sessionmaker(bind=engine, autoflush=False)
+        Session = temp
 
     if new_engine is not None and not verify:
         _bind()
