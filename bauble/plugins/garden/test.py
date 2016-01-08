@@ -877,6 +877,169 @@ class SourceTests(GardenTestCase):
         e.start()
 
 
+class AccessionQualifiedTaxon(GardenTestCase):
+
+    def __init__(self, *args):
+        super(AccessionQualifiedTaxon, self).__init__(*args)
+
+    def setUp(self):
+        super(AccessionQualifiedTaxon, self).setUp()
+        self.sp3 = Species(genus=self.genus, sp=u'grusonii',
+                           infrasp1_rank=u'var.', infrasp1=u'albispinus')
+        self.session.add(self.sp3)
+        self.session.commit()
+        self.ac1 = self.create(Accession, species=self.species, code=u'1')
+        self.ac2 = self.create(Accession, species=self.sp3, code=u'2')
+
+    def tearDown(self):
+        super(AccessionQualifiedTaxon, self).tearDown()
+
+    def test_species_str_plain(self):
+        s = u'Echinocactus grusonii'
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+        s = u'<i>Echinocactus</i> <i>grusonii</i> var. <i>albispinus</i>'
+        sp_str = self.ac2.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+
+    def test_species_str_without_zws(self):
+        s = u'Echinocactus grusonii'
+        sp_str = self.species.str(remove_zws=True)
+        self.assertEquals(sp_str, s)
+        s = u'Echinocactus grusonii var. albispinus'
+        sp_str = self.sp3.str(remove_zws=True)
+        self.assertEquals(sp_str, s)
+        s = u'<i>Echinocactus</i> <i>grusonii</i> var. <i>albispinus</i>'
+        sp_str = self.sp3.str(remove_zws=True, markup=True)
+        self.assertEquals(sp_str, s)
+
+    def test_species_str_with_qualification_too_deep(self):
+        self.ac1.id_qual = u'?'
+        self.ac1.id_qual_rank = u'infrasp'
+        s = u'<i>Echinocactus</i> <i>grusonii</i>'
+        sp_str = self.ac1.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+        s = u'Echinocactus grusonii'
+        sp_str = self.ac1.species_str()
+        self.assertEquals(sp_str, s)
+
+        self.ac1.id_qual = 'cf.'
+        self.ac1.id_qual_rank = 'infrasp'
+        s = u'Echinocactus grusonii'
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+    def test_species_str_with_qualification_correct(self):
+        self.ac1.id_qual = u'?'
+        self.ac1.id_qual_rank = u'sp'
+        s = u'<i>Echinocactus</i> ? <i>grusonii</i>'
+        sp_str = self.ac1.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+
+        # aff. before qualified epithet
+        self.ac1.id_qual = 'aff.'
+        self.ac1.id_qual_rank = u'genus'
+        s = u'aff. <i>Echinocactus</i> <i>grusonii</i>'
+        sp_str = self.ac1.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+
+        self.ac1.id_qual_rank = u'sp'
+        s = u'<i>Echinocactus</i> aff. <i>grusonii</i>'
+        sp_str = self.ac1.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+
+        self.ac2.id_qual = 'aff.'
+        self.ac2.id_qual_rank = u'infrasp'
+        s = u'<i>Echinocactus</i> <i>grusonii</i> aff. var. <i>albispinus</i>'
+        sp_str = self.ac2.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+
+        self.ac1.id_qual = 'cf.'
+        self.ac1.id_qual_rank = u'sp'
+        s = u'<i>Echinocactus</i> cf. <i>grusonii</i>'
+        sp_str = self.ac1.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+
+        self.ac1.id_qual = 'aff.'
+        self.ac1.id_qual_rank = u'sp'
+        s = u'Echinocactus aff. grusonii'
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+        self.ac1.id_qual = 'forsan'
+        self.ac1.id_qual_rank = u'sp'
+        s = u'Echinocactus forsan grusonii'
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+        ## add cultivar to species and refer to it as cf.
+        self.ac1.species.set_infrasp(1, u'cv.', u'Cultivar')
+        self.ac1.id_qual = u'cf.'
+        self.ac1.id_qual_rank = u'infrasp'
+        s = u"Echinocactus grusonii cf. 'Cultivar'"
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+    def test_species_str_qualification_appended(self):
+        # previously, if the id_qual is set but the id_qual_rank isn't then
+        # we would get an error. now we just log a warning and append it
+        #
+        # self.ac1.id_qual = 'aff.'
+        # self.ac1.id_qual_rank = None
+        # self.assertRaises(CheckConditionError, self.ac1.species_str)
+
+        self.ac1.id_qual = None
+        self.ac1.id_qual = '?'
+        s = u'Echinocactus grusonii (?)'
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+        # species.infrasp is still none but these just get pasted on
+        # the end so it doesn't matter
+        self.ac1.id_qual = 'incorrect'
+        self.ac1.id_qual_rank = 'infrasp'
+        s = u'Echinocactus grusonii (incorrect)'
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+        self.ac1.id_qual = 'incorrect'
+        self.ac1.id_qual_rank = 'sp'
+        s = u'<i>Echinocactus</i> <i>grusonii</i> (incorrect)'
+        sp_str = self.ac1.species_str(markup=True)
+        self.assertEquals(remove_zws(sp_str), s)
+
+    def test_species_str_is_cached(self):
+        self.ac1.species.set_infrasp(1, u'cv.', u'Cultivar')
+        self.ac1.id_qual = u'cf.'
+        self.ac1.id_qual_rank = u'infrasp'
+        s = u"Echinocactus grusonii cf. 'Cultivar'"
+        sp_str = self.ac1.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+        # have to commit because the cached string won't be returned
+        # on dirty species
+        self.session.commit()
+        s2 = self.ac1.species_str()
+        self.assertEquals(id(sp_str), id(s2))
+
+    def test_species_str_be_specific_in_infraspecific(self):
+        'be specific qualifying infraspecific identification - still unused'
+        ## add  to species with variety and refer to it as cf.
+        self.sp3.set_infrasp(2, u'cv.', u'Cultivar')
+        self.ac2.id_qual = u'cf.'
+        self.ac2.id_qual_rank = u'cv.'
+        s = u"Echinocactus grusonii var. albispinus cf. 'Cultivar'"
+        sp_str = self.ac2.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+        self.ac2.id_qual = u'cf.'
+        self.ac2.id_qual_rank = u'var.'
+        s = u"Echinocactus grusonii var. cf. albispinus 'Cultivar'"
+        sp_str = self.ac2.species_str()
+        self.assertEquals(remove_zws(sp_str), s)
+
+
 class AccessionTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -887,69 +1050,6 @@ class AccessionTests(GardenTestCase):
 
     def tearDown(self):
         super(AccessionTests, self).tearDown()
-
-    def test_species_str(self):
-        """
-        Test Accession.species_str()
-        """
-        acc = self.create(Accession, species=self.species, code=u'1')
-        s = u'Echinocactus grusonii'
-        sp_str = acc.species_str()
-        self.assertEquals(remove_zws(sp_str), s)
-
-        acc.id_qual = '?'
-        s = u'Echinocactus grusonii(?)'
-        sp_str = acc.species_str()
-        self.assertEquals(remove_zws(sp_str), s)
-
-        acc.id_qual = 'aff.'
-        acc.id_qual_rank = u'sp'
-        s = u'Echinocactus aff. grusonii'
-        sp_str = acc.species_str()
-        self.assertEquals(remove_zws(sp_str), s)
-
-        # here species.infrasp is None but we still allow the string
-        acc.id_qual = 'cf.'
-        acc.id_qual_rank = 'infrasp'
-        s = u'Echinocactus grusonii cf.'  # ' None'
-        sp_str = acc.species_str()
-        self.assertEquals(remove_zws(sp_str), s)
-
-        # species.infrasp is still none but these just get pasted on
-        # the end so it doesn't matter
-        acc.id_qual = 'incorrect'
-        acc.id_qual_rank = 'infrasp'
-        s = u'Echinocactus grusonii(incorrect)'
-        sp_str = acc.species_str()
-        self.assertEquals(remove_zws(sp_str), s)
-
-        acc.id_qual = 'forsan'
-        acc.id_qual_rank = u'sp'
-        s = u'Echinocactus grusonii(forsan)'
-        sp_str = acc.species_str()
-        self.assertEquals(remove_zws(sp_str), s)
-
-        acc.species.set_infrasp(1, u'cv.', u'Cultivar')
-        acc.id_qual = u'cf.'
-        acc.id_qual_rank = u'infrasp'
-        s = u"Echinocactus grusonii cf. 'Cultivar'"
-        sp_str = acc.species_str()
-        self.assertEquals(remove_zws(sp_str), s)
-
-        # test that the cached string is returned
-
-        # have to commit because the cached string won't be returned
-        # on dirty species
-        self.session.commit()
-        s2 = acc.species_str()
-        self.assertEquals(id(sp_str), id(s2))
-
-        # this used to test that if the id_qual was set but the
-        # id_qual_rank wasn't then we would get an error. now we just
-        # show an warning and put the id_qual on the end of the string
-#         acc.id_qual = 'aff.'
-#         acc.id_qual_rank = None
-#         self.assertRaises(CheckConditionError, acc.species_str)
 
     def test_delete(self):
         """

@@ -344,11 +344,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         super(Species, self).__init__(*args, **kwargs)
 
     def __str__(self):
-        '''
-        returns a string representation of this species,
-        calls Species.str(self)
-        '''
-        return Species.str(self)
+        'return the default string representation for self.'
+        return self.str()
 
     def _get_default_vernacular_name(self):
         if self._default_vernacular_name is None:
@@ -386,34 +383,37 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
         :param authors: flag to toggle whethe the author names should be
         included
         '''
-        return Species.str(self, authors, markup=True, genus=genus)
+        return self.str(authors, markup=True, genus=genus)
 
     # in PlantPlugins.init() we set this to 'x' for win32
     hybrid_char = utils.utf8(u'\u2a09')  # U+2A09
 
-    @staticmethod
-    def str(species, authors=False, markup=False, remove_zws=False, genus=True):
+    def str(self, authors=False, markup=False, remove_zws=False, genus=True,
+            qualification=None):
         '''
         returns a string for species
 
-        :param species: the species object to get the values from
-        :param authors: flags to toggle whether the author names should be
-        included
-        :param markup: flags to toggle whether the returned text is marked up
+        :param authors: flag to toggle whether authorship should be included
+        :param markup: flag to toggle whether the returned text is marked up
         to show italics on the epithets
+        :param remove_zws: flag to toggle zero width spaces, helping
+        semantically correct lexicographic order.
+        :param genus: flag to toggle leading genus name.
+        :param qualification: pair or None. if specified, first is the
+        qualified rank, second is the qualification.
         '''
         # TODO: this method will raise an error if the session is none
         # since it won't be able to look up the genus....we could
         # probably try to query the genus directly with the genus_id
         if genus is True:
-            genus = str(species.genus)
+            genus = str(self.genus)
         else:
             genus = ''
-        if species.sp:
-            sp = u'\u200b' + species.sp  # prepend with zero_width_space
+        if self.sp and not remove_zws:
+            sp = u'\u200b' + self.sp  # prepend with zero_width_space
         else:
-            sp = species.sp
-        sp2 = species.sp2
+            sp = self.sp
+        sp2 = self.sp2
         if markup:
             escape = utils.xml_safe
             italicize = lambda s: (  # all but the multiplication signs
@@ -427,26 +427,26 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
             italicize = escape = lambda x: x
 
         author = None
-        if authors and species.sp_author:
-            author = escape(species.sp_author)
+        if authors and self.sp_author:
+            author = escape(self.sp_author)
 
-        infrasp = ((species.infrasp1_rank, species.infrasp1,
-                    species.infrasp1_author),
-                   (species.infrasp2_rank, species.infrasp2,
-                    species.infrasp2_author),
-                   (species.infrasp3_rank, species.infrasp3,
-                    species.infrasp3_author),
-                   (species.infrasp4_rank, species.infrasp4,
-                    species.infrasp4_author))
+        infrasp = ((self.infrasp1_rank, self.infrasp1,
+                    self.infrasp1_author),
+                   (self.infrasp2_rank, self.infrasp2,
+                    self.infrasp2_author),
+                   (self.infrasp3_rank, self.infrasp3,
+                    self.infrasp3_author),
+                   (self.infrasp4_rank, self.infrasp4,
+                    self.infrasp4_author))
 
         infrasp_parts = []
         group_added = False
         for rank, epithet, iauthor in infrasp:
             if rank == 'cv.' and epithet:
-                if species.cv_group and not group_added:
+                if self.cv_group and not group_added:
                     group_added = True
                     infrasp_parts.append(_("(%(group)s Group)") %
-                                         dict(group=species.cv_group))
+                                         dict(group=self.cv_group))
                 infrasp_parts.append("'%s'" % escape(epithet))
             else:
                 if rank:
@@ -458,29 +458,43 @@ class Species(db.Base, db.Serializable, db.DefiningPictures):
 
             if authors and iauthor:
                 infrasp_parts.append(escape(iauthor))
-        if species.cv_group and not group_added:
+        if self.cv_group and not group_added:
             infrasp_parts.append(_("%(group)s Group") %
-                                 dict(group=species.cv_group))
+                                 dict(group=self.cv_group))
 
         # create the binomial part
-        binomial = []
-        if species.hybrid:
-            if species.sp2:
-                binomial = [genus, sp, species.hybrid_char, sp2, author]
-            else:
-                binomial = [genus, species.hybrid_char, sp, author]
-        else:
-            binomial = [genus, sp, sp2, author]
+        binomial = [genus, self.hybrid and self.hybrid_char, sp, author]
 
         # create the tail, ie: anything to add on to the end
         tail = []
-        if species.sp_qual:
-            tail = [species.sp_qual]
+        if self.sp_qual:
+            tail = [self.sp_qual]
+
+        if qualification is not None:
+            rank, qual = qualification
+            if qual in ['incorrect']:
+                rank = None
+            if rank == 'sp':
+                binomial.insert(2, qual)
+            elif not rank:
+                binomial[2] += ' (' + qual + ')'
+            elif rank == 'genus':
+                binomial.insert(0, qual)
+            elif rank == 'infrasp':
+                if infrasp_parts:
+                    infrasp_parts.insert(0, qual)
+            else:
+                for r, e, a in infrasp:
+                    if r == 'cv.':
+                        e = "'%s'" % e
+                    if rank == r:
+                        pos = infrasp_parts.index(e)
+                        infrasp_parts.insert(pos, qual)
+                else:
+                    logger.info('cannot find specified rank %s' % e)
 
         parts = chain(binomial, infrasp_parts, tail)
-        s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
-        if remove_zws:
-            return _remove_zws(s)
+        s = utils.utf8(' '.join(i for i in parts if i))
         return s
 
     @property

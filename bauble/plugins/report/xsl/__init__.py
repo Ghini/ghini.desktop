@@ -129,7 +129,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(self.species.genus.family)
 
     def get_FullScientificNameString(self, authors=True):
-        s = Species.str(self.species, authors=authors, markup=False)
+        s = self.species.str(authors=authors, markup=False)
         return utils.xml_safe(s)
 
     def get_GenusOrMonomial(self):

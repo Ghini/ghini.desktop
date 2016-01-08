@@ -609,14 +609,15 @@ class Accession(db.Base, db.Serializable):
                                    translations=recvd_type_values),
                         default=None)
 
-    # "id_qual" new in 0.7
+    # ITF2 - C24 - Rank Qualified Flag - Transfer code: rkql
+    ## B: Below Family; F: Family; G: Genus; S: Species; I: first
+    ## Infraspecific Epithet; J: second Infraspecific Epithet; C: Cultivar;
+    id_qual_rank = Column(Unicode(10))
+
+    # ITF2 - C25 - Identification Qualifier - Transfer code: idql
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
                                         'forsan', 'near', '?', None]),
                      default=None)
-
-    # new in 0.9, this column should contain the name of the column in
-    # the species table that the id_qual refers to, e.g. genus, sp, etc.
-    id_qual_rank = Column(Unicode(10))
 
     # "private" new in 0.8b2
     private = Column(Boolean, default=False)
@@ -725,27 +726,11 @@ class Accession(db.Base, db.Serializable):
             self.__warned_about_id_qual = True
 
         if self.id_qual:
-            # copy the species so we don't affect the original
-            session = db.Session()
-            species = session.merge(self.species)  # , dont_load=True)
-
-            # generate the string
-            if self.id_qual in ('aff.', 'cf.'):
-                if self.id_qual_rank == 'infrasp':
-                    species.sp = '%s %s' % (species.sp, self.id_qual)
-                elif self.id_qual_rank:
-                    setattr(species, self.id_qual_rank,
-                            '%s %s' % (self.id_qual,
-                                       getattr(species, self.id_qual_rank)))
-                sp_str = Species.str(species, authors, markup)
-            elif self.id_qual:
-                sp_str = '%s(%s)' % (Species.str(species, authors, markup),
-                                     self.id_qual)
-            # clean up and return the string
-            del species
-            session.close()
+            sp_str = self.species.str(
+                authors, markup, remove_zws=True,
+                qualification=(self.id_qual_rank, self.id_qual))
         else:
-            sp_str = Species.str(self.species, authors, markup)
+            sp_str = self.species.str(authors, markup, remove_zws=True)
 
         self.__cached_species_str[(markup, authors)] = sp_str
         return sp_str
@@ -971,7 +956,7 @@ class AccessionEditorView(editor.GenericEditorView):
         """
         v = model[treeiter][0]
         renderer.set_property(
-            'text', '%s (%s)' % (Species.str(v, authors=True), v.genus.family))
+            'text', '%s (%s)' % (v.str(authors=True), v.genus.family))
 
 
 class VoucherPresenter(editor.GenericEditorPresenter):
@@ -1198,7 +1183,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             def sp_cell_data_func(col, cell, model, treeiter, data=None):
                 v = model[treeiter][0]
                 cell.set_property('text', '%s (%s)' %
-                                  (Species.str(v, authors=True),
+                                  (v.str(authors=True),
                                    v.genus.family))
 
             ver_prev_taxon_entry = self.widgets.ver_prev_taxon_entry

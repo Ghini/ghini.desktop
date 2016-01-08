@@ -755,7 +755,7 @@ class SpeciesTests(PlantTestCase):
         Test the Species.str() method
         """
         def get_sp_str(id, **kwargs):
-            return Species.str(self.session.query(Species).get(id), **kwargs)
+            return self.session.query(Species).get(id).str(**kwargs)
 
         for sid, expect in species_str_map.iteritems():
                 sp = self.session.query(Species).get(sid)
@@ -778,7 +778,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_lexicographic_order__unspecified_precedes_specified(self):
         def get_sp_str(id, **kwargs):
-            return Species.str(self.session.query(Species).get(id), **kwargs)
+            return self.session.query(Species).get(id).str(**kwargs)
 
         self.assertTrue(get_sp_str(1) > get_sp_str(22))
         self.assertTrue(get_sp_str(1) > get_sp_str(23))
@@ -1246,8 +1246,8 @@ class FromAndToDict_create_update_test(PlantTestCase):
         obj = Genus.retrieve_or_create(
             self.session, {'object': 'taxon',
                            'rank': 'genus',
-                           'epithet': 'Maxillaria',
-                           'author': 'Schltr.'},
+                           'epithet': u'Maxillaria',
+                           'author': u'Schltr.'},
             create=False, update=False)
         self.assertTrue(obj is not None)
         self.assertEquals(obj.author, '')
@@ -1257,11 +1257,11 @@ class FromAndToDict_create_update_test(PlantTestCase):
         obj = Genus.retrieve_or_create(
             self.session, {'object': 'taxon',
                            'rank': 'genus',
-                           'epithet': 'Maxillaria',
-                           'author': 'Schltr.'},
+                           'epithet': u'Maxillaria',
+                           'author': u'Schltr.'},
             create=False, update=True)
         self.assertTrue(obj is not None)
-        self.assertEquals(obj.author, 'Schltr.')
+        self.assertEquals(obj.author, u'Schltr.')
 
     def test_vernacular_name_as_dict(self):
         bra = self.session.query(Species).filter(Species.id == 21).first()

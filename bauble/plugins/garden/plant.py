@@ -765,13 +765,13 @@ class PlantEditorPresenter(GenericEditorPresenter):
             # new accession, fixes bug #103946
             self.view.widgets.acc_species_label.set_markup('')
             if value is not None:
-                sp_str = Species.str(self.model.accession.species, markup=True)
+                sp_str = self.model.accession.species.str(markup=True)
                 self.view.widgets.acc_species_label.set_markup(sp_str)
                 self.view.widgets.plant_code_entry.emit('changed')
         self.assign_completions_handler('plant_acc_entry', acc_get_completions,
                                         on_select=on_select)
         if self.model.accession:
-            sp_str = Species.str(self.model.accession.species, markup=True)
+            sp_str = self.model.accession.species.str(markup=True)
         else:
             sp_str = ''
         self.view.widgets.acc_species_label.set_markup(sp_str)
