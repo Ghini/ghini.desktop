@@ -1039,6 +1039,27 @@ class AccessionQualifiedTaxon(GardenTestCase):
         sp_str = self.ac2.species_str()
         self.assertEquals(remove_zws(sp_str), s)
 
+    def test_species_str_unsorted_infraspecific(self):
+        'be specific qualifying infraspecific identification - still unused'
+        ## add  to species with variety and refer to it as cf.
+        self.sp3.set_infrasp(1, u'var.', u'aizoon')
+        self.sp3.set_infrasp(2, u'subvar.', u'brevifolia')
+        self.sp3.set_infrasp(3, u'f.', u'multicaulis')
+        self.ac2.id_qual = u'cf.'
+        self.ac2.id_qual_rank = u'f.'
+        #s = u"Echinocactus grusonii f. cf. multicaulis"
+        sp_str = self.ac2.species_str()
+        #self.assertEquals(remove_zws(sp_str), s)
+        self.assertTrue(sp_str.endswith("f. cf. multicaulis"))
+
+        self.sp3.set_infrasp(4, u'subf.', u'surculosa')
+        self.ac2.id_qual = u'cf.'
+        self.ac2.id_qual_rank = u'subf.'
+        #s = u"Echinocactus grusonii subf. cf. surculosa"
+        sp_str = self.ac2.species_str()
+        #self.assertEquals(remove_zws(sp_str), s)
+        self.assertTrue(sp_str.endswith("subf. cf. surculosa"))
+
 
 class AccessionTests(GardenTestCase):
 
