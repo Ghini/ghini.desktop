@@ -88,7 +88,7 @@ def compare_rank(rank1, rank2):
     return ordering.index(rank1).__cmp__(ordering.index(rank2))
 
 
-class Species(db.Base, db.Serializable, db.DefiningPictures):
+class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     """
     :Table name: species
 

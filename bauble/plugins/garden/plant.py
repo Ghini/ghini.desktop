@@ -403,7 +403,7 @@ acc_type_values = {u'Plant': _('Plant'),
                    None: ''}
 
 
-class Plant(db.Base, db.Serializable, db.DefiningPictures):
+class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     """
     :Table name: plant
 

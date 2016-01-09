@@ -118,7 +118,7 @@ remove_action = Action('genus_remove', _('_Delete'), callback=remove_callback,
 genus_context_menu = [edit_action, add_species_action, remove_action]
 
 
-class Genus(db.Base, db.Serializable):
+class Genus(db.Base, db.Serializable, db.WithNotes):
     """
     :Table name: genus
 
