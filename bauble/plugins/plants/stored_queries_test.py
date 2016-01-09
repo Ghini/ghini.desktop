@@ -116,3 +116,15 @@ class StoredQueriesTests(BaubleTestCase):
         n = StoredQueriesModel()
         self.assertEquals([i for i in n], [k for k in m])
         self.assertFalse(id(n) == id(m))
+
+    def test_save_overwrite(self):
+        m = StoredQueriesModel()
+        m[1] = 'l:t:q'
+        m[4] = 'l:t:q'
+        m.save()
+        n = StoredQueriesModel()
+        n[5] = 'l:t:q'
+        n.save()
+        m = StoredQueriesModel()
+        self.assertEquals([i for i in n], [k for k in m])
+        self.assertFalse(id(n) == id(m))
