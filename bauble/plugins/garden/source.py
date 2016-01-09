@@ -181,6 +181,14 @@ class SourceDetail(db.Base):
     def __str__(self):
         return utils.utf8(self.name)
 
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        safe = utils.xml_safe
+        return (
+            str(self),
+            safe(self.source_type or ''))
+
 
 # TODO: should provide a collection type: alcohol, bark, boxed,
 # cytological, fruit, illustration, image, other, packet, pollen,
