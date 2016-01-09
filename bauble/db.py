@@ -262,10 +262,9 @@ def open(uri, verify=True, show_error_dialogs=False):
     from sqlalchemy.pool import NullPool, SingletonThreadPool
     from bauble.prefs import testing
     poolclass = testing and SingletonThreadPool or NullPool
-    poolclass = SingletonThreadPool
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
                                   implicit_returning=False,
-                                  poolclass=poolclass, pool_size=16)
+                                  poolclass=poolclass)
     # TODO: there is a problem here: the code may cause an exception, but we
     # immediately loose the 'new_engine', which should know about the
     # encoding used in the exception string.
