@@ -158,6 +158,10 @@ species_test_data = (
 species_note_test_data = (
     {'id': 1, 'species_id': 18, 'category': u'CITES', 'note': u'I'},
     {'id': 2, 'species_id': 20, 'category': u'IUCN', 'note': u'LC'},
+    {'id': 3, 'species_id': 18, 'category': u'<price>', 'note': u'19.50'},
+    {'id': 4, 'species_id': 18, 'category': u'[list_var]', 'note': u'abc'},
+    {'id': 5, 'species_id': 18, 'category': u'[list_var]', 'note': u'def'},
+    {'id': 6, 'species_id': 18, 'category': u'<price_tag>', 'note': u'$19.50'},
     )
 
 species_str_map = {
@@ -170,8 +174,8 @@ species_str_map = {
     7: 'Abrus precatorius SomethingRidiculous Group',
     8: "Abrus precatorius (SomethingRidiculous Group) 'Hot Rio Nights'",
     9: "Maxillaria %s generalis 'Red'" % Species.hybrid_char,
-    10: "Maxillaria %s generalis (SomeGroup Group) 'Red'"
-    % Species.hybrid_char,
+    10: ("Maxillaria %s generalis (SomeGroup Group) 'Red'"
+         % Species.hybrid_char),
     11: "Maxillaria generalis agg.",
     12: "Maxillaria SomeGroup Group",
     13: "Maxillaria 'Red'",
@@ -189,8 +193,8 @@ species_markup_map = {
     6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
     12: "<i>Maxillaria</i> SomeGroup Group",
     14: "<i>Maxillaria</i> 'Red &amp; Blue'",
-    15: "<i>Encyclia</i> <i>cochleata</i> subsp. <i>"
-    "cochleata</i> var. <i>cochleata</i> 'Black'",
+    15: ("<i>Encyclia</i> <i>cochleata</i> subsp. <i>"
+         "cochleata</i> var. <i>cochleata</i> 'Black'"),
     }
 
 species_str_authors_map = {
@@ -202,8 +206,8 @@ species_str_authors_map = {
     6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
     7: 'Abrus precatorius L. SomethingRidiculous Group',
     8: "Abrus precatorius L. (SomethingRidiculous Group) 'Hot Rio Nights'",
-    15: "Encyclia cochleata L. subsp. "
-    "cochleata L. var. cochleata L. 'Black' L.",
+    15: ("Encyclia cochleata L. subsp. "
+         "cochleata L. var. cochleata L. 'Black' L."),
 }
 
 species_markup_authors_map = {
@@ -1631,6 +1635,38 @@ class SpeciesProperties_test(PlantTestCase):
                            'note': u'EX'},
             create=False, update=True)
         self.assertEquals(obj.note, u'EX')
+
+
+class AttributesStoredInNotes(PlantTestCase):
+    def test_atomic_value_interpreted(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'rank': 'species',
+                           'ht-epithet': u'Laelia',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        self.assertEquals(obj.price, 19.50)
+
+    def test_atomic_value_verbatim(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'rank': 'species',
+                           'ht-epithet': u'Laelia',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        self.assertEquals(obj.price_tag, '$19.50')
+
+    def test_list_value(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'rank': 'species',
+                           'ht-epithet': u'Laelia',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        self.assertEquals(obj.list_var, ['abc', 'def'])
 
 
 class ConservationStatus_test(PlantTestCase):

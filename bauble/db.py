@@ -466,6 +466,27 @@ def verify_connection(engine, show_error_dialogs=False):
     return True
 
 
+class WithNotes:
+
+    def __getattr__(self, name):
+        '''retrieve value from corresponding note(s)
+        '''
+
+        result = []
+        for n in self.notes:
+            if n.category == ('[%s]' % name):
+                result.append(n.note)
+            if n.category == ('<%s>' % name):
+                try:
+                    return eval(n.note)
+                except:
+                    return n.note
+        if result == []:
+            # if nothing was found, do not break the proxy.
+            return Base.__getattr__(self, name)
+        return result
+
+
 class DefiningPictures:
 
     @property

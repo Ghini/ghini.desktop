@@ -113,7 +113,7 @@ family_context_menu = [edit_action, add_species_action, remove_action]
 #
 # Family
 #
-class Family(db.Base, db.Serializable):
+class Family(db.Base, db.Serializable, db.WithNotes):
     """
     :Table name: family
 

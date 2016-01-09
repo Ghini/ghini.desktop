@@ -514,7 +514,7 @@ class AccessionNote(db.Base, db.Serializable):
         return result
 
 
-class Accession(db.Base, db.Serializable):
+class Accession(db.Base, db.Serializable, db.WithNotes):
     """
     :Table name: accession
 
