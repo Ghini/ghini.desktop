@@ -1004,10 +1004,19 @@ def make_label_clickable(label, on_clicked, *args):
             label.__pressed = False
             label.modify_fg(gtk.STATE_NORMAL, None)
             on_clicked(label, event, *args)
-    eventbox.connect('enter_notify_event', on_enter_notify)
-    eventbox.connect('leave_notify_event', on_leave_notify)
-    eventbox.connect('button_press_event', on_press)
-    eventbox.connect('button_release_event', on_release, *args)
+
+    try:
+        eventbox.disconnect(label.__on_event)
+        logger.debug('disconnected previous release-event handler')
+        label.__on_event = eventbox.connect(
+            'button_release_event', on_release, *args)
+    except AttributeError:
+        logger.debug('defining handlers')
+        label.__on_event = eventbox.connect(
+            'button_release_event', on_release, *args)
+        eventbox.connect('enter_notify_event', on_enter_notify)
+        eventbox.connect('leave_notify_event', on_leave_notify)
+        eventbox.connect('button_press_event', on_press)
 
 
 def enum_values_str(col):
