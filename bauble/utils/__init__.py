@@ -987,10 +987,12 @@ def make_label_clickable(label, on_clicked, *args):
           'label must have an gtk.EventBox as its parent')
     label.__pressed = False
 
-    def on_enter_notify(*args):
+    def on_enter_notify(widget, *args):
+        widget.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("#faf8f7"))
         label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("blue"))
 
-    def on_leave_notify(*args):
+    def on_leave_notify(widget, *args):
+        widget.modify_bg(gtk.STATE_NORMAL, None)
         label.modify_fg(gtk.STATE_NORMAL, None)
         label.__pressed = False
 
