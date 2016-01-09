@@ -216,16 +216,18 @@ class SplashInfoBox(pluginmgr.View):
 
         # LabelUpdater objects **can** run in a thread.
         if 'GardenPlugin' in pluginmgr.plugins:
-            LabelUpdater(self.widgets.splash_nplttot,
-                         "select count(*) from plant").run()
+            self.start_thread(
+                LabelUpdater(self.widgets.splash_nplttot,
+                             "select count(*) from plant"))
             self.start_thread(
                 LabelUpdater(self.widgets.splash_npltuse,
                              "select count(*) from plant where quantity>0"))
             self.start_thread(
                 LabelUpdater(self.widgets.splash_npltnot,
                              "select count(*) from plant where quantity=0"))
-            LabelUpdater(self.widgets.splash_nacctot,
-                         "select count(*) from accession").run()
+            self.start_thread(
+                LabelUpdater(self.widgets.splash_nacctot,
+                             "select count(*) from accession"))
             self.start_thread(
                 LabelUpdater(self.widgets.splash_naccuse,
                              "select count(distinct accession.id) "
@@ -239,8 +241,9 @@ class SplashInfoBox(pluginmgr.View):
                              "where id not in "
                              "(select accession_id from plant "
                              " where plant.quantity>0)"))
-            LabelUpdater(self.widgets.splash_nloctot,
-                         "select count(*) from location").run()
+            self.start_thread(
+                LabelUpdater(self.widgets.splash_nloctot,
+                             "select count(*) from location"))
             self.start_thread(
                 LabelUpdater(self.widgets.splash_nlocuse,
                              "select count(distinct location.id) "
@@ -270,12 +273,15 @@ class SplashInfoBox(pluginmgr.View):
                          "select count(distinct genus.family_id) from genus "
                          "join species on species.genus_id=genus.id "
                          "join accession on accession.species_id=species.id "))
-        LabelUpdater(self.widgets.splash_nspctot,
-                     "select count(*) from species").run()
-        LabelUpdater(self.widgets.splash_ngentot,
-                     "select count(*) from genus").run()
-        LabelUpdater(self.widgets.splash_nfamtot,
-                     "select count(*) from family").run()
+        self.start_thread(
+            LabelUpdater(self.widgets.splash_nspctot,
+                         "select count(*) from species"))
+        self.start_thread(
+            LabelUpdater(self.widgets.splash_ngentot,
+                         "select count(*) from genus"))
+        self.start_thread(
+            LabelUpdater(self.widgets.splash_nfamtot,
+                         "select count(*) from family"))
         self.start_thread(
             LabelUpdater(self.widgets.splash_nspcnot,
                          "select count(id) from species "
