@@ -26,6 +26,7 @@ from sqlalchemy.orm import class_mapper
 
 import datetime
 import os
+import re
 import bauble.error as error
 from bauble.i18n import _
 
@@ -468,15 +469,25 @@ def verify_connection(engine, show_error_dialogs=False):
 
 class WithNotes:
 
+    key_pattern = re.compile(r'{[^:]+:(.*)}')
+
     def __getattr__(self, name):
         '''retrieve value from corresponding note(s)
+
+        the result can be an atomic value, a list, or a dictionary.
         '''
 
         result = []
+        is_dict = False
         for n in self.notes:
             if n.category == ('[%s]' % name):
                 result.append(n.note)
-            if n.category == ('<%s>' % name):
+            elif n.category.startswith('{%s' % name):
+                is_dict = True
+                match = self.key_pattern.match(n.category)
+                key = match.group(1)
+                result.append((key, n.note))
+            elif n.category == ('<%s>' % name):
                 try:
                     return eval(n.note)
                 except:
@@ -484,6 +495,8 @@ class WithNotes:
         if result == []:
             # if nothing was found, do not break the proxy.
             return Base.__getattr__(self, name)
+        if is_dict:
+            return dict(result)
         return result
 
 
