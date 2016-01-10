@@ -162,6 +162,9 @@ species_note_test_data = (
     {'id': 4, 'species_id': 18, 'category': u'[list_var]', 'note': u'abc'},
     {'id': 5, 'species_id': 18, 'category': u'[list_var]', 'note': u'def'},
     {'id': 6, 'species_id': 18, 'category': u'<price_tag>', 'note': u'$19.50'},
+    {'id': 7, 'species_id': 18, 'category': u'{dict_var:k}', 'note': u'abc'},
+    {'id': 8, 'species_id': 18, 'category': u'{dict_var:l}', 'note': u'def'},
+    {'id': 9, 'species_id': 18, 'category': u'{dict_var:m}', 'note': u'xyz'},
     )
 
 species_str_map = {
@@ -1667,6 +1670,16 @@ class AttributesStoredInNotes(PlantTestCase):
                            'epithet': u'lobata'},
             create=False, update=False)
         self.assertEquals(obj.list_var, ['abc', 'def'])
+
+    def test_dict_value(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'rank': 'species',
+                           'ht-epithet': u'Laelia',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        self.assertEquals(obj.dict_var, {'k': 'abc', 'l': 'def', 'm': 'xyz'})
 
 
 class ConservationStatus_test(PlantTestCase):
