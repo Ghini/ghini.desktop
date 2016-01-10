@@ -580,16 +580,29 @@ class Serializable:
             if keys.get(k):
                 link_values[k] = keys[k]
 
+        logger.debug("link_values : %s" % str(link_values))
+
         for k in keys.keys():
             if k not in class_mapper(cls).mapped_table.c:
                 del keys[k]
         if 'id' in keys:
             del keys['id']
+        logger.debug('4 value of keys: %s' % keys)
 
         keys.update(extradict)
+        logger.debug('5 value of keys: %s' % keys)
 
         # early construct object before building links
         if not is_in_session and create:
+            ## completing the task of building the links
+            logger.debug("links? %s, %s" % (cls.link_keys, keys.keys()))
+            for key in cls.link_keys:
+                d = link_values.get(key)
+                if d is None:
+                    continue
+                logger.debug('recursive call to construct_from_dict %s' % d)
+                obj = construct_from_dict(session, d)
+                keys[key] = obj
             logger.debug("going to create new %s with %s" % (cls, keys))
             result = cls(**keys)
             session.add(result)
@@ -598,15 +611,15 @@ class Serializable:
         if is_in_session and update:
             result = is_in_session
 
-        ## completing the task of building the links
-        logger.debug("links? %s, %s" % (cls.link_keys, keys.keys()))
-        for key in cls.link_keys:
-            d = link_values.get(key)
-            if d is None:
-                continue
-            logger.debug('recursive call to construct_from_dict %s' % d)
-            obj = construct_from_dict(session, d)
-            keys[key] = obj
+            ## completing the task of building the links
+            logger.debug("links? %s, %s" % (cls.link_keys, keys.keys()))
+            for key in cls.link_keys:
+                d = link_values.get(key)
+                if d is None:
+                    continue
+                logger.debug('recursive call to construct_from_dict %s' % d)
+                obj = construct_from_dict(session, d)
+                keys[key] = obj
 
         logger.debug("going to update %s with %s" % (result, keys))
         if 'id' in keys:
