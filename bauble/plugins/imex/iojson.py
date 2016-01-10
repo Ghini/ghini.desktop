@@ -268,7 +268,9 @@ class JSONImporter(editor.GenericEditorPresenter):
         for i, obj in enumerate(objects):
             try:
                 db.construct_from_dict(session, obj, self.create, self.update)
+                session.commit()
             except Exception as e:
+                session.rollback()
                 logger.warning("could not import %s (%s: %s)" %
                                (obj, type(e).__name__, e.args))
             pb_set_fraction(float(i) / n)
