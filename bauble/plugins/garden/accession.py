@@ -740,7 +740,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(self.species, remove_zws=True)
+        result['species'] = self.species.str(remove_zws=True, authors=False)
         return result
 
     @classmethod
@@ -754,6 +754,10 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     def compute_serializable_fields(cls, session, keys):
         logger.debug('compute_serializable_fields(session, %s)' % keys)
         result = {'species': None}
+        keys = dict(keys)  # make copy
+        if 'species' in keys:
+            keys['taxon'] = keys['species']
+            keys['rank'] = 'species'
         if 'rank' in keys and 'taxon' in keys:
             ## now we must connect the accession to the species it refers to
             if keys['rank'] == 'species':
