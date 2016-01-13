@@ -1,0 +1,16 @@
+
+i don't quite know what these mean, is it that Trisiola has two parent 
+synonyms?, if that is the case I would suspect they would have different 
+authors at least but it seems like these names may have been recycled as some 
+point and they are both synonyms for seperate names
+
+so i removed them from Genus.txt
+
+
+"id","hybrid","genus","author","synonymID","familyID"
+15846,"","Trisiola","Raf.",12925,214
+15845,"","Trisiola","Raf.",13361,214
+16614,"","Decemium","Raf.","",246
+19390,"","Decemium","Raf.",7958,246
+11264,"","Parasarcochilus","Dockrill",11391,345
+22830,"","Parasarcochilus","Dockrill",11347,345

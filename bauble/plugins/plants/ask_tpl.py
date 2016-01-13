@@ -1,0 +1,156 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+#
+# This file is part of bauble.classic.
+#
+# bauble.classic is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# bauble.classic is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+
+import difflib
+import requests
+import csv
+
+import logging
+logger = logging.getLogger(__name__)
+#logger.setLevel(logging.DEBUG)
+
+import threading
+
+
+class AskTPL(threading.Thread):
+    running = None
+
+    def __init__(self, binomial, callback, threshold=0.8, timeout=4, gui=False,
+                 group=None, verbose=None, **kwargs):
+        super(AskTPL, self).__init__(
+            group=group, target=None, name=None, verbose=verbose)
+        logger.debug("new %s, already running %s.",
+                     self.name, self.running and self.running.name)
+        if self.running is not None:
+            if self.running.binomial == binomial:
+                logger.debug("%s has same query as %s, do not start %s",
+                             self.name, self.running.name, self.name)
+                binomial = None
+            else:
+                logger.debug("%s has other query than %s, stop %s",
+                             self.name, self.running.name, self.running.name)
+                self.running.stop()
+        if binomial:
+            self.__class__.running = self
+        self._stop = False
+        self.binomial = binomial
+        self.threshold = threshold
+        self.callback = callback
+        self.timeout = timeout
+        self.gui = gui
+
+    def stop(self):
+        self._stop = True
+
+    def stopped(self):
+        return self._stop
+
+    def run(self):
+        def ask_tpl(binomial):
+            result = requests.get(
+                'http://www.theplantlist.org/tpl1.1/search?q=' + binomial +
+                '&csv=true',
+                timeout=self.timeout)
+            l = result.text[1:].split('\n')
+            result = [row for row in csv.reader(k.encode('utf-8')
+                                                for k in l if k)]
+            header = result[0]
+            result = result[1:]
+            return [dict(zip(header, k)) for k in result if k[7] == '']
+
+        class ShouldStopNow(Exception):
+            pass
+
+        class NoResult(Exception):
+            pass
+
+        if self.binomial is None:
+            return
+
+        try:
+            accepted = None
+            logger.debug("%s before first query", self.name)
+            candidates = ask_tpl(self.binomial)
+            logger.debug("%s after first query", self.name)
+            if self.stopped():
+                raise ShouldStopNow('after first query')
+            if len(candidates) > 1:
+                for item in candidates:
+                    g, s = item['Genus'], item['Species']
+                    seq = difflib.SequenceMatcher(a=self.binomial,
+                                                  b='%s %s' % (g, s))
+                    item['_score_'] = seq.ratio()
+
+                found = sorted(candidates, cmp=lambda a, b: cmp(a['_score_'], b['_score_']) or cmp(b['Taxonomic status in TPL'], a['Taxonomic status in TPL']))[-1]
+                if found['_score_'] < self.threshold:
+                    found['_score_'] = 0
+            elif candidates:
+                found = candidates.pop()
+            else:
+                raise NoResult
+            if found['Accepted ID']:
+                accepted = ask_tpl(found['Accepted ID'])[0]
+                logger.debug("%s after second query", self.name)
+            if self.stopped():
+                raise ShouldStopNow('after second query')
+        except ShouldStopNow:
+            logger.debug("%s interrupted : do not invoke callback",
+                         self.name)
+            return
+        except Exception, e:
+            logger.debug("%s (%s)%s : completed with trouble",
+                         self.name, type(e).__name__, e)
+            self.__class__.running = None
+            found = accepted = None
+        self.__class__.running = None
+        logger.debug("%s before invoking callback" % self.name)
+        if self.gui:
+            import gobject
+            gobject.idle_add(self.callback, found, accepted)
+        else:
+            self.callback(found, accepted)
+
+
+def citation(d):
+    return ("%(Genus hybrid marker)s%(Genus)s "
+            "%(Species hybrid marker)s%(Species)s "
+            #"%(Infraspecific rank)s %(Infraspecific epithet)s "
+            "%(Authorship)s (%(Family)s)" % d).replace('   ', ' ')
+
+
+def what_to_do_with_it(found, accepted):
+    if found is None and accepted is None:
+        logger.info("nothing matches")
+        return
+    logger.info("%s", citation(found))
+    if accepted is not None:
+        logger.info("%s - is its accepted form", citation(accepted))
+
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
+    while True:
+        binomial = raw_input()
+        if not binomial:
+            if AskTPL.running is not None:
+                AskTPL.running.stop()
+            break
+
+        AskTPL(binomial, what_to_do_with_it, timeout=2).start()

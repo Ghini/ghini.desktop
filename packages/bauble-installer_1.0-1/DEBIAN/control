@@ -1,0 +1,10 @@
+Package: bauble-installer
+Version: 1.0-1
+Section: base
+Priority: optional
+Architecture: all
+Depends: gettext, git, python-all-dev, python-gtk2, python-virtualenv, libxslt1-dev
+Maintainer: Mario Frasca <mario@anche.no>
+Description: Bauble installer
+ installer script and dependencies for bauble-1.0
+ to install Bauble, run bauble-install
