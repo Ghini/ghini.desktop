@@ -33,41 +33,41 @@ if [ "$PROBLEMS" != "" ]; then
     exit 1
 fi
 
-if [ -d $HOME/Local/github/Bauble/bauble.classic ]
+if [ -d $HOME/Local/github/Ghini/ghini.desktop ]
 then
-    echo "bauble checkout already in place"
-    cd $HOME/Local/github/Bauble/bauble.classic
+    echo "ghini checkout already in place"
+    cd $HOME/Local/github/Ghini/ghini.desktop
 else
-    mkdir -p $HOME/Local/github/Bauble >/dev/null 2>&1
-    cd $HOME/Local/github/Bauble
-    git clone https://github.com/Bauble/bauble.classic
-    cd bauble.classic
+    mkdir -p $HOME/Local/github/Ghini >/dev/null 2>&1
+    cd $HOME/Local/github/Ghini
+    git clone https://github.com/Ghini/ghini.desktop
+    cd ghini.desktop
 fi
 
 if [ $# -ne 0 ]
 then
-    git checkout bauble-$1
+    git checkout ghini-$1
 else
-    git checkout bauble-1.0
+    git checkout ghini-1.0
 fi
 
 mkdir -p $HOME/.virtualenvs
-virtualenv $HOME/.virtualenvs/bacl --system-site-packages
-find $HOME/.virtualenvs/bacl -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
-mkdir -p $HOME/.virtualenvs/bacl/share
-mkdir -p $HOME/.bauble
-source $HOME/.virtualenvs/bacl/bin/activate
+virtualenv $HOME/.virtualenvs/gide --system-site-packages
+find $HOME/.virtualenvs/gide -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
+mkdir -p $HOME/.virtualenvs/gide/share
+mkdir -p $HOME/.ghini
+source $HOME/.virtualenvs/gide/bin/activate
 
 pip install setuptools pip --upgrade
 
 python setup.py build
 python setup.py install
 mkdir -p $HOME/bin 2>/dev/null
-cat <<EOF > $HOME/bin/bauble
+cat <<EOF > $HOME/bin/ghini
 #!/bin/bash
 
-GITHOME=$HOME/Local/github/Bauble/bauble.classic/
-source \$HOME/.virtualenvs/bacl/bin/activate
+GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
+source \$HOME/.virtualenvs/gide/bin/activate
 
 BUILDANDEND=0
 while getopts us: f
@@ -76,7 +76,7 @@ do
     u)  cd \$GITHOME
         BUILDANDEND=1;;
     s)  cd \$GITHOME
-        git checkout bauble-\$OPTARG || exit 1
+        git checkout ghini-\$OPTARG || exit 1
         BUILDANDEND=1;;
   esac
 done
@@ -89,20 +89,20 @@ then
     exit 1
 fi
 
-bauble
+ghini
 EOF
-chmod +x $HOME/bin/bauble
+chmod +x $HOME/bin/ghini
 
 echo your local installation is now complete.
-echo enter your password to make Bauble available to other users.
+echo enter your password to make Ghini available to other users.
 
-sudo addgroup bauble 2>/dev/null 
-sudo usermod -a -G bauble $(whoami)
-chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/bacl
-sudo chgrp -R bauble $HOME/.virtualenvs/bacl
-cat <<EOF | sudo tee /usr/local/bin/bauble > /dev/null
+sudo addgroup ghini 2>/dev/null 
+sudo usermod -a -G ghini $(whoami)
+chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/gide
+sudo chgrp -R ghini $HOME/.virtualenvs/gide
+cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
 #!/bin/bash
-source $HOME/.virtualenvs/bacl/bin/activate
-$HOME/.virtualenvs/bacl/bin/bauble
+source $HOME/.virtualenvs/gide/bin/activate
+$HOME/.virtualenvs/gide/bin/ghini
 EOF
-sudo chmod +x /usr/local/bin/bauble
+sudo chmod +x /usr/local/bin/ghini
