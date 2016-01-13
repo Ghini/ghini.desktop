@@ -3,20 +3,20 @@
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2015 Mario Frasca <mario@anche.no>
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
 try:
@@ -86,8 +86,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                        'mako.cache'] + \
         gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
-        'console': ["scripts/bauble"],
-        'windows': [{'script': 'scripts/bauble',
+        'console': ["scripts/ghini"],
+        'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
     py2exe_options = {
         "py2exe": {
@@ -206,7 +206,7 @@ class build(_build):
             os.environ['PATH'] = os.environ['PATH'] + \
                 ';c:\\Program Files\\GnuWin32\\bin'
         if not spawn.find_executable('msgfmt'):
-            msg = '** Error: Building Bauble requires the gettext utilities ' \
+            msg = '** Error: Building Ghini requires the gettext utilities ' \
                   'be installed.  If they are installed please ensure that ' \
                   'the msgfmt command is in your PATH'
             print msg
@@ -430,7 +430,7 @@ setuptools.setup(name="bauble",
                  license="GPLv2+",
                  keywords="database biodiversity botanic collection "
                  "botany herbarium arboretum",
-                 url="http://github.com/Bauble/bauble.classic/",
+                 url="http://github.com/Bauble/ghini.desktop/",
                  options=py2exe_options,
                  **py2exe_setup_args
                  )
