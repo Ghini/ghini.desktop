@@ -1,0 +1,31 @@
+<ui>
+  <menubar name="MenuBar">
+    <menu action="file">
+      <!-- <menuitem action="file_new"/> -->
+      <menuitem action="file_open"/>
+      <separator/>
+      <menuitem action="file_quit"/>
+    </menu>
+    <menu action="edit">
+      <menuitem action="edit_cut"/>
+      <menuitem action="edit_copy"/>
+      <menuitem action="edit_paste"/>
+      <!--<separator/>
+      <menuitem action="edit_preferences"/>
+      <separator/>-->
+    </menu>    
+    <menu name="insert_menu" action="insert"/>
+    <menu name="tools_menu" action="tools"/>
+    <menu name="help_menu" action="help">
+      <menuitem action="help_contents"/>
+      <separator/>
+      <menuitem action="help_bug"/>
+      <menuitem action="help_logfile"/>
+      <menuitem action="help_web.devel"/>
+      <menuitem action="help_web.wiki"/>
+      <menuitem action="help_web.forum"/>
+      <separator/>
+      <menuitem action="help_about"/>
+    </menu>
+  </menubar>
+</ui>

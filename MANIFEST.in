@@ -1,0 +1,7 @@
+recursive-include bauble *.ui *.py *.glade *.txt *.xsl *.csv *.html
+recursive-include po *.po
+#recursive-include debian *.*
+recursive-include bauble/images *.*
+recursive-include bauble/pixmaps *.*
+recursive-include data *.*
+include README LICENSE CHANGES ez_setup.py setup.cfg

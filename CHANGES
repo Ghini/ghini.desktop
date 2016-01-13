@@ -1,0 +1,1572 @@
+0.7.0
+-------
+- More robust and cleaned up plugin interface
+- Translatable
+
+
+0.6.0 (changes since 0.5.3)
+-------
+- Now uses SQLAlchemy instead of SQLObject as the database ORM.
+- Moved away from the table/spreadsheet style data entry.
+- Reworked formatter plugin.
+- More reliable CSV import/export
+- More correct ABCD export (still some work to be done)
+- Close to 3 billion bug fixes.
+
+2006.07.04
+----------
+- builds now include the revision in the filename
+- fix a bug when there is no infobox for a type in the search results
+
+2006.07.02
+----------
+- don't remove and destroy the infobox if the current infobox is the same
+type we are going to create
+- cache infoboxes so we only create one of each type once
+- create a (crappy) icon for windows
+
+2006.07.01
+----------
+- added an InfoBox for Family
+- lots of improvements all the infoboxes
+- context menu for locations
+
+2006.06.30
+----------
+- improved behavior of resetting the view after an action has been done
+from the context menu or insert menu
+- don't change sensitivity on search
+- first go at a Genus infobox
+
+2006.06.29
+----------
+- change the way the results in the search view are displayed and how the 
+context menu is built, push more of the work off to the plugins since they 
+should know more about the types they represent
+
+2006.06.28
+----------
+- fixed error message in update_infobox if the iter was None
+- fixed a problem when trying to commit donations, refactored out fixing up
+the model from the accession source presenter depending on the type of the 
+presenter
+
+2006.06.26
+----------
+release 0.5.2
+
+2006.06.25
+----------
+- pass species correctly accession editor when opened from the species editor
+- fixes for windows
+- set app busy when creating a new database, this doesn't work very well since
+the gui isn't given time to update and csv import doesn't block
+- now get plants from family and genera in results 
+- make sure that the plants in the formatter list are unique
+- other minor improvements to formatter plugin and documentation updates
+
+2006.06.24
+----------
+- on going doc improvements
+- improved speed of editor.SQLObjectProxy by doing less attribute lookups
+in some methods
+- removed some unnecessary code in species_editor.py
+- removing a row from the vernacular name table with now set any 
+Species.default_vernacular_name column to None if the default_vernacular_name
+refers to the deleted row
+- basic cleanup/fixing to get ready for 0.5.2 release
+- new vernacular names and synonyms are now blue to show that they have just 
+been added but not committed
+- some tweaks to the search results tree view
+- update infobox after editing an existing row
+
+2006.06.21
+----------
+- documentation updates
+- species now includes sp_qual in the name and the id_qual is included
+in the infobox
+
+2006.06.14
+----------
+- documentation updates 
+
+2006.06.13
+----------
+- now ask in BaubleApp.create_database if the user wants to import the genera
+- show a message and don't let the use open the accession or species editor
+unless species or genera already exist in the database
+- forgot to change GenusSynonyms.txt to new imex_csv format
+- change Family.family to not be alternateID so we can have both, 
+e.g., Malvaceae (s. lat) and Malvaceae (s. str), this is a bit of a fuck
+up since it changes the model so it should require us to bump the minor
+number and recreate the database if you want this feature
+- other small bugs in imex_csv and the utils message_dialog
+
+2006.06.12
+----------
+- changed the format of csv import to now use the column names as they are in
+the database instead of how SQLObject sees them
+- changed the way dialogs are show in csv import to prevent lock ups
+- tried to improve the speed of imports a bit by changing the way the rows
+are inserted, we now use sqlobject.sqlbuild.Insert. though it would still probably
+be faster if we got it to work by sending the entire list of values to the 
+insert instead of one row at i time, i'm not sure if this is the real bottleneck
+on the imports
+- lots of other small fixes in csv import/export
+
+2006.06.09
+----------
+- more work on csv export to make the gui more responsive
+- code cleanups and docs
+
+2006.06.08
+----------
+- rewrote csv importing to use gtasklets 
+(http://www.gnome.org/~gjc/gtasklet/gtasklets.html) so now we have a progress 
+dialog
+
+2006.06.07
+----------
+- created some test for Species.str() to make sure we are getting string that
+conform to proper botanical nomenclature
+
+2006.06.06
+----------
+- fixed bug with setting background color on the species editor genus entry 
+when a character is deleted
+- fixed a bug when cancelling a dirty model in the species and accession 
+editors would make further commits not commit until bauble was closed and 
+possibly not commit at all
+- connected the full name label in the species editor
+- lots of small changes in the species editor so we can stabilize for 0.5.2
+- any value from a widget that doesn't validate against the model now adds
+a problem to the presenter which usually disables the ok buttons
+- fixes and on the species and accession info boxes
+
+2006.06.01
+----------
+- continue work on species editor
+- fixed but in utils.search_tree_model where the function was calling itself
+recursively with the wrong arguments
+- fixed setting False values on a gtk.CheckBoxe in utils.set_widget_value
+
+2006.05.30
+----------
+- did some work on the species editor and the vernacular name editor, can now
+set default vernacular names for the species
+
+2006.05.29
+----------
+- can no longer set attributes in SQLObjectProxy that don't exist, this helps
+reduce possible bugs
+- first pass at adding vernacular names in the species editor
+
+2006.05.29
+----------
+- got the basics working on the species editor
+- first pass at adding synonyms with new species editor
+
+2006.05.28
+----------
+- did some work to try and improve the speed of displaying strings
+- cleaned up SearchView.search and added status bar message for the number of 
+results in a search
+
+2006.05.27
+----------
+- started toying around with the species editor
+- alot of changes in the plants plugin, all species model definitions were
+moved to species_model.py while all editor(and for now infoboxes) for species
+model are in species_model.py
+- changed all plugins to use absolute instead of relative paths
+- fixed problem with acc_id_entry and the sensitivity/self.problems
+
+2006.05.23
+----------
+- changed the way that the accession editor displays when something is wrong
+with an entry, the old way using event boxes didn't work like i thought
+- moved Problems class into editor.py and added self.problem to 
+GenericEditorPresenter and added GenericEditorPresenter.add_problem and 
+GenericEditorPresenter.remove_problem
+- fix calculation error with accession.dms_to_decimal when the direction is 
+west or source, i.e. negative
+- don't save the elevation accuracy for the accession if the elevation is None
+- make sure that both or neither latitude and longitude are required
+- don't save geo accuracy of latitude and longitude are none
+- desensitize geoacc_entry if latitude or longitude are None
+- desensitize altacc_entry if alt_entry is None
+- accession editor gui tweaks for win32
+- add dms labels back to accession editor which i accidentaly deleted
+
+2006.05.23
+----------
+- bumped version to 0.5.1
+- accession editor now gives status is accession entered is a duplicate 
+accession id
+- fixed problem with existing accession notes not showing up in the editor
+- now include README, LICENSE and CHANGES in the distribution
+- fixed annoying 'feature' where the species entry on the accession editor 
+would reset the completions for the species when a species was selected, this
+caused weird pauses when the a species was selected
+
+2006.05.22
+----------
+- interface tweaks for windows
+- niced up the donor editor and donation editors a bit
+- fix accidental line change in init_species_entry
+- fix warning from the donor_combo in the accession editor
+- problem with dates in the accession editor
+- upgrade SQLObject to SQLObject-0.7.1dev_r1788 bugfix branch for the 
+windows bundle
+- branch for 0.5.0
+
+2006.05.20
+----------
+- fixed provenance combos in the accession editor
+
+2006.05.18
+----------
+- added a main.py to bauble which will start the full application
+- some win32 tweaks and import cleanups
+- added a custom validator to accession.py for when floats col gets and empty
+string from it's widget
+
+2006.05.17
+----------
+- fixed problem with setting the completion when a species is passed to an 
+accession editor
+- the species entry on the accession editor now shows if the value in the 
+entry, or rather in the model, is a valid species by setting the ok buttons
+sensitive and changing the color of the species entry
+- changed donor contact info the unicode
+- Accession.acc_id now unicode
+- Plant.plant_id now unicode
+- Donor.donor_acc now unicode
+- changed some other columns from StringCol to UnicodeCol but I can't remember
+all of them
+
+2006.05.16
+----------
+- fixed problems passing default values into new editors
+- fixed problem with arguments on old editors, added temporary fix for 
+old editors
+- workaround for weird bug with text entries and completions in the accession
+editor
+
+2006.05.14
+----------
+- more model changes on family, genus and species
+- sort text files on csv import so we import them in order of dependencies
+- can now import csv from the command line, it's crude but it works
+- more work on bauble-upgrade-0.4-to-0.5.py script
+- appropriate changes to editors where the model changed
+- changes to BaubleApp so that we can open and create database without starting
+up the gui/full app
+- don't load plugins on automatically on plugins module import, 
+# wait until either plugins.load is called or plugins.init_plugins()
+- more, more, more
+
+2006.05.12
+----------
+- more tweaks on the accession editor, the labels on required fields are now 
+italicized, the lon/lat editing should be a dream now
+- don't round lon/lat conversion values
+
+2006.05.12
+----------
+- drastically improved the accession editor gui
+- changed version to 0.5.0
+- made model changes for 0.5.0
+- added PlantHistory table though it doesn't have an editor yet
+- added Accession.date and updated the editor
+- removed Collection.collector2
+- changed all <not set>'s in EnumCol's to None
+
+2006.05.11
+----------
+- brought the decimal/dms conversion funcation back into accession.py
+since this is the only place they are used and fixed them up a bit
+- wrote my first unit test for the conversion funcations and added
+the test.py to the garden plugin
+
+2006.05.10
+----------
+- added validator support to GenericEditorPresenter.assign_simple_handler()
+- changed Accession.source_type to an EnumCol(Collection, Donation, None), this
+shouldn't change anything in the database but could cause problems if using an
+older broken version of bauble that was storing the string NoneType in 
+the source type, although this changes the model i'm not bumping the minor 
+version number
+- small fixes on the accession infobox
+- added proper handlers for collection dates and lat/lon though lat/lon still 
+doesn't work that well
+- and loads of other improvements/fixes to accession.py that i can't remember
+
+2006.05.09
+----------
+- fixed indentation problems in search.py
+- improvements on the accession editor, should open faster now but 
+completion for the species entry are built in an idle_add callback
+so when this is being done the things seem to lock up
+- connect next and ok_and_add buttons to accession editor
+
+2006.05.05
+----------
+- refactored TreeViewEditorDialog and all relevant code out of 
+bauble/editor.py and into bauble/treevieweditor.py
+- changed all files relevant to TreeViewEditorDialog refactoring
+- more accession editor work
+- start of work for a better donor editor
+- committed r251
+- both accession and donor editor seem more or less finished, just need to
+hook up next and ok_and_add buttons
+- more refactoring and cleanup, too much to list
+
+2006.05.04
+----------
+- added accelerator for Insert menu
+- changed to utils.set_widget_value to try and make setting the combobox
+value a bit more correct
+- indentation fixes in _gui.py
+- factored check_constraints and commit_to_table out of the editor
+- accession editor seems to be working pretty good though I still need
+to write test and work on editing donations
+
+2006.05.02
+----------
+- add a callback system to SQLObjectProxy to notify of changed in the model
+- the basics seem to work on the accession editor as long as you
+don't mess around with the collection/donation information
+- created bauble/error.py to hold exception/error classes
+
+2006.05.01
+----------
+- mostly work on new accession editor
+- some small fixes for utils
+- added get method to prefs to return default value
+- small change in searchview.search.py to support new editor api
+
+=======
+>>>>>>> .r343
+=======
+2006.07.02
+----------
+- don't remove and destroy the infobox if the current infobox is the same
+type we are going to create
+- cache infoboxes so we only create one of each type once
+- create a (crappy) icon for windows
+
+2006.07.01
+----------
+- added an InfoBox for Family
+- lots of improvements all the infoboxes
+- context menu for locations
+
+2006.06.30
+----------
+- improved behavior of resetting the view after an action has been done
+from the context menu or insert menu
+- don't change sensitivity on search
+- first go at a Genus infobox
+
+2006.06.29
+----------
+- change the way the results in the search view are displayed and how the 
+context menu is built, push more of the work off to the plugins since they 
+should know more about the types they represent
+
+2006.06.28
+----------
+- fixed error message in update_infobox if the iter was None
+- fixed a problem when trying to commit donations, refactored out fixing up
+the model from the accession source presenter depending on the type of the 
+presenter
+
+2006.06.26
+----------
+release 0.5.2
+
+2006.06.25
+----------
+- pass species correctly accession editor when opened from the species editor
+- fixes for windows
+- set app busy when creating a new database, this doesn't work very well since
+the gui isn't given time to update and csv import doesn't block
+- now get plants from family and genera in results 
+- make sure that the plants in the formatter list are unique
+- other minor improvements to formatter plugin and documentation updates
+
+2006.06.24
+----------
+- on going doc improvements
+- improved speed of editor.SQLObjectProxy by doing less attribute lookups
+in some methods
+- removed some unnecessary code in species_editor.py
+- removing a row from the vernacular name table with now set any 
+Species.default_vernacular_name column to None if the default_vernacular_name
+refers to the deleted row
+- basic cleanup/fixing to get ready for 0.5.2 release
+- new vernacular names and synonyms are now blue to show that they have just 
+been added but not committed
+- some tweaks to the search results tree view
+- update infobox after editing an existing row
+
+2006.06.21
+----------
+- documentation updates
+- species now includes sp_qual in the name and the id_qual is included
+in the infobox
+
+2006.06.14
+----------
+- documentation updates 
+
+2006.06.13
+----------
+- now ask in BaubleApp.create_database if the user wants to import the genera
+- show a message and don't let the use open the accession or species editor
+unless species or genera already exist in the database
+- forgot to change GenusSynonyms.txt to new imex_csv format
+- change Family.family to not be alternateID so we can have both, 
+e.g., Malvaceae (s. lat) and Malvaceae (s. str), this is a bit of a fuck
+up since it changes the model so it should require us to bump the minor
+number and recreate the database if you want this feature
+- other small bugs in imex_csv and the utils message_dialog
+
+2006.06.12
+----------
+- changed the format of csv import to now use the column names as they are in
+the database instead of how SQLObject sees them
+- changed the way dialogs are show in csv import to prevent lock ups
+- tried to improve the speed of imports a bit by changing the way the rows
+are inserted, we now use sqlobject.sqlbuild.Insert. though it would still probably
+be faster if we got it to work by sending the entire list of values to the 
+insert instead of one row at i time, i'm not sure if this is the real bottleneck
+on the imports
+- lots of other small fixes in csv import/export
+
+2006.06.09
+----------
+- more work on csv export to make the gui more responsive
+- code cleanups and docs
+
+2006.06.08
+----------
+- rewrote csv importing to use gtasklets 
+(http://www.gnome.org/~gjc/gtasklet/gtasklets.html) so now we have a progress 
+dialog
+
+2006.06.07
+----------
+- created some test for Species.str() to make sure we are getting string that
+conform to proper botanical nomenclature
+
+2006.06.06
+----------
+- fixed bug with setting background color on the species editor genus entry 
+when a character is deleted
+- fixed a bug when cancelling a dirty model in the species and accession 
+editors would make further commits not commit until bauble was closed and 
+possibly not commit at all
+- connected the full name label in the species editor
+- lots of small changes in the species editor so we can stabilize for 0.5.2
+- any value from a widget that doesn't validate against the model now adds
+a problem to the presenter which usually disables the ok buttons
+- fixes and on the species and accession info boxes
+
+2006.06.01
+----------
+- continue work on species editor
+- fixed but in utils.search_tree_model where the function was calling itself
+recursively with the wrong arguments
+- fixed setting False values on a gtk.CheckBoxe in utils.set_widget_value
+
+2006.05.30
+----------
+- did some work on the species editor and the vernacular name editor, can now
+set default vernacular names for the species
+
+2006.05.29
+----------
+- can no longer set attributes in SQLObjectProxy that don't exist, this helps
+reduce possible bugs
+- first pass at adding vernacular names in the species editor
+
+2006.05.29
+----------
+- got the basics working on the species editor
+- first pass at adding synonyms with new species editor
+
+2006.05.28
+----------
+- did some work to try and improve the speed of displaying strings
+- cleaned up SearchView.search and added status bar message for the number of 
+results in a search
+
+2006.05.27
+----------
+- started toying around with the species editor
+- alot of changes in the plants plugin, all species model definitions were
+moved to species_model.py while all editor(and for now infoboxes) for species
+model are in species_model.py
+- changed all plugins to use absolute instead of relative paths
+- fixed problem with acc_id_entry and the sensitivity/self.problems
+
+2006.05.23
+----------
+- changed the way that the accession editor displays when something is wrong
+with an entry, the old way using event boxes didn't work like i thought
+- moved Problems class into editor.py and added self.problem to 
+GenericEditorPresenter and added GenericEditorPresenter.add_problem and 
+GenericEditorPresenter.remove_problem
+- fix calculation error with accession.dms_to_decimal when the direction is 
+west or source, i.e. negative
+- don't save the elevation accuracy for the accession if the elevation is None
+- make sure that both or neither latitude and longitude are required
+- don't save geo accuracy of latitude and longitude are none
+- desensitize geoacc_entry if latitude or longitude are None
+- desensitize altacc_entry if alt_entry is None
+- accession editor gui tweaks for win32
+- add dms labels back to accession editor which i accidentaly deleted
+
+2006.05.23
+----------
+- bumped version to 0.5.1
+- accession editor now gives status is accession entered is a duplicate 
+accession id
+- fixed problem with existing accession notes not showing up in the editor
+- now include README, LICENSE and CHANGES in the distribution
+- fixed annoying 'feature' where the species entry on the accession editor 
+would reset the completions for the species when a species was selected, this
+caused weird pauses when the a species was selected
+
+2006.05.22
+----------
+- interface tweaks for windows
+- niced up the donor editor and donation editors a bit
+- fix accidental line change in init_species_entry
+- fix warning from the donor_combo in the accession editor
+- problem with dates in the accession editor
+- upgrade SQLObject to SQLObject-0.7.1dev_r1788 bugfix branch for the 
+windows bundle
+- branch for 0.5.0
+
+2006.05.20
+----------
+- fixed provenance combos in the accession editor
+
+2006.05.18
+----------
+- added a main.py to bauble which will start the full application
+- some win32 tweaks and import cleanups
+- added a custom validator to accession.py for when floats col gets and empty
+string from it's widget
+
+2006.05.17
+----------
+- fixed problem with setting the completion when a species is passed to an 
+accession editor
+- the species entry on the accession editor now shows if the value in the 
+entry, or rather in the model, is a valid species by setting the ok buttons
+sensitive and changing the color of the species entry
+- changed donor contact info the unicode
+- Accession.acc_id now unicode
+- Plant.plant_id now unicode
+- Donor.donor_acc now unicode
+- changed some other columns from StringCol to UnicodeCol but I can't remember
+all of them
+
+2006.05.16
+----------
+- fixed problems passing default values into new editors
+- fixed problem with arguments on old editors, added temporary fix for 
+old editors
+- workaround for weird bug with text entries and completions in the accession
+editor
+
+2006.05.14
+----------
+- more model changes on family, genus and species
+- sort text files on csv import so we import them in order of dependencies
+- can now import csv from the command line, it's crude but it works
+- more work on bauble-upgrade-0.4-to-0.5.py script
+- appropriate changes to editors where the model changed
+- changes to BaubleApp so that we can open and create database without starting
+up the gui/full app
+- don't load plugins on automatically on plugins module import, 
+# wait until either plugins.load is called or plugins.init_plugins()
+- more, more, more
+
+2006.05.12
+----------
+- more tweaks on the accession editor, the labels on required fields are now 
+italicized, the lon/lat editing should be a dream now
+- don't round lon/lat conversion values
+
+2006.05.12
+----------
+- drastically improved the accession editor gui
+- changed version to 0.5.0
+- made model changes for 0.5.0
+- added PlantHistory table though it doesn't have an editor yet
+- added Accession.date and updated the editor
+- removed Collection.collector2
+- changed all <not set>'s in EnumCol's to None
+
+2006.05.11
+----------
+- brought the decimal/dms conversion funcation back into accession.py
+since this is the only place they are used and fixed them up a bit
+- wrote my first unit test for the conversion funcations and added
+the test.py to the garden plugin
+
+2006.05.10
+----------
+- added validator support to GenericEditorPresenter.assign_simple_handler()
+- changed Accession.source_type to an EnumCol(Collection, Donation, None), this
+shouldn't change anything in the database but could cause problems if using an
+older broken version of bauble that was storing the string NoneType in 
+the source type, although this changes the model i'm not bumping the minor 
+version number
+- small fixes on the accession infobox
+- added proper handlers for collection dates and lat/lon though lat/lon still 
+doesn't work that well
+- and loads of other improvements/fixes to accession.py that i can't remember
+
+2006.05.09
+----------
+- fixed indentation problems in search.py
+- improvements on the accession editor, should open faster now but 
+completion for the species entry are built in an idle_add callback
+so when this is being done the things seem to lock up
+- connect next and ok_and_add buttons to accession editor
+
+2006.05.05
+----------
+- refactored TreeViewEditorDialog and all relevant code out of 
+bauble/editor.py and into bauble/treevieweditor.py
+- changed all files relevant to TreeViewEditorDialog refactoring
+- more accession editor work
+- start of work for a better donor editor
+- committed r251
+- both accession and donor editor seem more or less finished, just need to
+hook up next and ok_and_add buttons
+- more refactoring and cleanup, too much to list
+
+2006.05.04
+----------
+- added accelerator for Insert menu
+- changed to utils.set_widget_value to try and make setting the combobox
+value a bit more correct
+- indentation fixes in _gui.py
+- factored check_constraints and commit_to_table out of the editor
+- accession editor seems to be working pretty good though I still need
+to write test and work on editing donations
+
+2006.05.02
+----------
+- add a callback system to SQLObjectProxy to notify of changed in the model
+- the basics seem to work on the accession editor as long as you
+don't mess around with the collection/donation information
+- created bauble/error.py to hold exception/error classes
+
+2006.05.01
+----------
+- mostly work on new accession editor
+- some small fixes for utils
+- added get method to prefs to return default value
+- small change in searchview.search.py to support new editor api
+
+>>>>>>> .r343
+=======
+2006.07.02
+----------
+- don't remove and destroy the infobox if the current infobox is the same
+type we are going to create
+- cache infoboxes so we only create one of each type once
+- create a (crappy) icon for windows
+
+2006.07.01
+----------
+- added an InfoBox for Family
+- lots of improvements all the infoboxes
+- context menu for locations
+
+2006.06.30
+----------
+- improved behavior of resetting the view after an action has been done
+from the context menu or insert menu
+- don't change sensitivity on search
+- first go at a Genus infobox
+
+2006.06.29
+----------
+- change the way the results in the search view are displayed and how the 
+context menu is built, push more of the work off to the plugins since they 
+should know more about the types they represent
+
+2006.06.28
+----------
+- fixed error message in update_infobox if the iter was None
+- fixed a problem when trying to commit donations, refactored out fixing up
+the model from the accession source presenter depending on the type of the 
+presenter
+
+2006.06.26
+----------
+release 0.5.2
+
+2006.06.25
+----------
+- pass species correctly accession editor when opened from the species editor
+- fixes for windows
+- set app busy when creating a new database, this doesn't work very well since
+the gui isn't given time to update and csv import doesn't block
+- now get plants from family and genera in results 
+- make sure that the plants in the formatter list are unique
+- other minor improvements to formatter plugin and documentation updates
+
+2006.06.24
+----------
+- on going doc improvements
+- improved speed of editor.SQLObjectProxy by doing less attribute lookups
+in some methods
+- removed some unnecessary code in species_editor.py
+- removing a row from the vernacular name table with now set any 
+Species.default_vernacular_name column to None if the default_vernacular_name
+refers to the deleted row
+- basic cleanup/fixing to get ready for 0.5.2 release
+- new vernacular names and synonyms are now blue to show that they have just 
+been added but not committed
+- some tweaks to the search results tree view
+- update infobox after editing an existing row
+
+2006.06.21
+----------
+- documentation updates
+- species now includes sp_qual in the name and the id_qual is included
+in the infobox
+
+2006.06.14
+----------
+- documentation updates 
+
+2006.06.13
+----------
+- now ask in BaubleApp.create_database if the user wants to import the genera
+- show a message and don't let the use open the accession or species editor
+unless species or genera already exist in the database
+- forgot to change GenusSynonyms.txt to new imex_csv format
+- change Family.family to not be alternateID so we can have both, 
+e.g., Malvaceae (s. lat) and Malvaceae (s. str), this is a bit of a fuck
+up since it changes the model so it should require us to bump the minor
+number and recreate the database if you want this feature
+- other small bugs in imex_csv and the utils message_dialog
+
+2006.06.12
+----------
+- changed the format of csv import to now use the column names as they are in
+the database instead of how SQLObject sees them
+- changed the way dialogs are show in csv import to prevent lock ups
+- tried to improve the speed of imports a bit by changing the way the rows
+are inserted, we now use sqlobject.sqlbuild.Insert. though it would still probably
+be faster if we got it to work by sending the entire list of values to the 
+insert instead of one row at i time, i'm not sure if this is the real bottleneck
+on the imports
+- lots of other small fixes in csv import/export
+
+2006.06.09
+----------
+- more work on csv export to make the gui more responsive
+- code cleanups and docs
+
+2006.06.08
+----------
+- rewrote csv importing to use gtasklets 
+(http://www.gnome.org/~gjc/gtasklet/gtasklets.html) so now we have a progress 
+dialog
+
+2006.06.07
+----------
+- created some test for Species.str() to make sure we are getting string that
+conform to proper botanical nomenclature
+
+2006.06.06
+----------
+- fixed bug with setting background color on the species editor genus entry 
+when a character is deleted
+- fixed a bug when cancelling a dirty model in the species and accession 
+editors would make further commits not commit until bauble was closed and 
+possibly not commit at all
+- connected the full name label in the species editor
+- lots of small changes in the species editor so we can stabilize for 0.5.2
+- any value from a widget that doesn't validate against the model now adds
+a problem to the presenter which usually disables the ok buttons
+- fixes and on the species and accession info boxes
+
+2006.06.01
+----------
+- continue work on species editor
+- fixed but in utils.search_tree_model where the function was calling itself
+recursively with the wrong arguments
+- fixed setting False values on a gtk.CheckBoxe in utils.set_widget_value
+
+2006.05.30
+----------
+- did some work on the species editor and the vernacular name editor, can now
+set default vernacular names for the species
+
+2006.05.29
+----------
+- can no longer set attributes in SQLObjectProxy that don't exist, this helps
+reduce possible bugs
+- first pass at adding vernacular names in the species editor
+
+2006.05.29
+----------
+- got the basics working on the species editor
+- first pass at adding synonyms with new species editor
+
+2006.05.28
+----------
+- did some work to try and improve the speed of displaying strings
+- cleaned up SearchView.search and added status bar message for the number of 
+results in a search
+
+2006.05.27
+----------
+- started toying around with the species editor
+- alot of changes in the plants plugin, all species model definitions were
+moved to species_model.py while all editor(and for now infoboxes) for species
+model are in species_model.py
+- changed all plugins to use absolute instead of relative paths
+- fixed problem with acc_id_entry and the sensitivity/self.problems
+
+2006.05.23
+----------
+- changed the way that the accession editor displays when something is wrong
+with an entry, the old way using event boxes didn't work like i thought
+- moved Problems class into editor.py and added self.problem to 
+GenericEditorPresenter and added GenericEditorPresenter.add_problem and 
+GenericEditorPresenter.remove_problem
+- fix calculation error with accession.dms_to_decimal when the direction is 
+west or source, i.e. negative
+- don't save the elevation accuracy for the accession if the elevation is None
+- make sure that both or neither latitude and longitude are required
+- don't save geo accuracy of latitude and longitude are none
+- desensitize geoacc_entry if latitude or longitude are None
+- desensitize altacc_entry if alt_entry is None
+- accession editor gui tweaks for win32
+- add dms labels back to accession editor which i accidentaly deleted
+
+2006.05.23
+----------
+- bumped version to 0.5.1
+- accession editor now gives status is accession entered is a duplicate 
+accession id
+- fixed problem with existing accession notes not showing up in the editor
+- now include README, LICENSE and CHANGES in the distribution
+- fixed annoying 'feature' where the species entry on the accession editor 
+would reset the completions for the species when a species was selected, this
+caused weird pauses when the a species was selected
+
+2006.05.22
+----------
+- interface tweaks for windows
+- niced up the donor editor and donation editors a bit
+- fix accidental line change in init_species_entry
+- fix warning from the donor_combo in the accession editor
+- problem with dates in the accession editor
+- upgrade SQLObject to SQLObject-0.7.1dev_r1788 bugfix branch for the 
+windows bundle
+- branch for 0.5.0
+
+2006.05.20
+----------
+- fixed provenance combos in the accession editor
+
+2006.05.18
+----------
+- added a main.py to bauble which will start the full application
+- some win32 tweaks and import cleanups
+- added a custom validator to accession.py for when floats col gets and empty
+string from it's widget
+
+2006.05.17
+----------
+- fixed problem with setting the completion when a species is passed to an 
+accession editor
+- the species entry on the accession editor now shows if the value in the 
+entry, or rather in the model, is a valid species by setting the ok buttons
+sensitive and changing the color of the species entry
+- changed donor contact info the unicode
+- Accession.acc_id now unicode
+- Plant.plant_id now unicode
+- Donor.donor_acc now unicode
+- changed some other columns from StringCol to UnicodeCol but I can't remember
+all of them
+
+2006.05.16
+----------
+- fixed problems passing default values into new editors
+- fixed problem with arguments on old editors, added temporary fix for 
+old editors
+- workaround for weird bug with text entries and completions in the accession
+editor
+
+2006.05.14
+----------
+- more model changes on family, genus and species
+- sort text files on csv import so we import them in order of dependencies
+- can now import csv from the command line, it's crude but it works
+- more work on bauble-upgrade-0.4-to-0.5.py script
+- appropriate changes to editors where the model changed
+- changes to BaubleApp so that we can open and create database without starting
+up the gui/full app
+- don't load plugins on automatically on plugins module import, 
+# wait until either plugins.load is called or plugins.init_plugins()
+- more, more, more
+
+2006.05.12
+----------
+- more tweaks on the accession editor, the labels on required fields are now 
+italicized, the lon/lat editing should be a dream now
+- don't round lon/lat conversion values
+
+2006.05.12
+----------
+- drastically improved the accession editor gui
+- changed version to 0.5.0
+- made model changes for 0.5.0
+- added PlantHistory table though it doesn't have an editor yet
+- added Accession.date and updated the editor
+- removed Collection.collector2
+- changed all <not set>'s in EnumCol's to None
+
+2006.05.11
+----------
+- brought the decimal/dms conversion funcation back into accession.py
+since this is the only place they are used and fixed them up a bit
+- wrote my first unit test for the conversion funcations and added
+the test.py to the garden plugin
+
+2006.05.10
+----------
+- added validator support to GenericEditorPresenter.assign_simple_handler()
+- changed Accession.source_type to an EnumCol(Collection, Donation, None), this
+shouldn't change anything in the database but could cause problems if using an
+older broken version of bauble that was storing the string NoneType in 
+the source type, although this changes the model i'm not bumping the minor 
+version number
+- small fixes on the accession infobox
+- added proper handlers for collection dates and lat/lon though lat/lon still 
+doesn't work that well
+- and loads of other improvements/fixes to accession.py that i can't remember
+
+2006.05.09
+----------
+- fixed indentation problems in search.py
+- improvements on the accession editor, should open faster now but 
+completion for the species entry are built in an idle_add callback
+so when this is being done the things seem to lock up
+- connect next and ok_and_add buttons to accession editor
+
+2006.05.05
+----------
+- refactored TreeViewEditorDialog and all relevant code out of 
+bauble/editor.py and into bauble/treevieweditor.py
+- changed all files relevant to TreeViewEditorDialog refactoring
+- more accession editor work
+- start of work for a better donor editor
+- committed r251
+- both accession and donor editor seem more or less finished, just need to
+hook up next and ok_and_add buttons
+- more refactoring and cleanup, too much to list
+
+2006.05.04
+----------
+- added accelerator for Insert menu
+- changed to utils.set_widget_value to try and make setting the combobox
+value a bit more correct
+- indentation fixes in _gui.py
+- factored check_constraints and commit_to_table out of the editor
+- accession editor seems to be working pretty good though I still need
+to write test and work on editing donations
+
+2006.05.02
+----------
+- add a callback system to SQLObjectProxy to notify of changed in the model
+- the basics seem to work on the accession editor as long as you
+don't mess around with the collection/donation information
+- created bauble/error.py to hold exception/error classes
+
+2006.05.01
+----------
+- mostly work on new accession editor
+- some small fixes for utils
+- added get method to prefs to return default value
+- small change in searchview.search.py to support new editor api
+
+>>>>>>> .r343
+2006.04.09
+----------
+- fixed a small problem with the logger and the user directory that could
+make Bauble not run at all
+- released 0.4.6
+
+2006.04.09
+----------
+- released 0.4.5
+
+2006.04.08
+----------
+- fix for a problem with constraints and EnumCols returning unicode strings
+- preparing for 0.4.5
+
+2006.04.07
+----------
+- fix regression for source editor not returning the correct response codes
+
+
+2006.04.05
+----------
+- fixed problem where bauble wouldn't run if it couldn't open the log file (reported by Helder Perez)
+
+
+2006.04.04
+----------
+- cache Species strings but disable it until we can invalidate the cache
+in case the Species is changed
+
+
+2006.03.13
+----------
+- fix for searching for strings in unicode columns
+
+
+2006.03.10
+----------
+- search parser correctness fixes
+- remove name domain for searching species and replaced it with 'species'
+- made quoting of value in search expression more portable with _LikeQuotedx
+
+
+2006.03.07
+----------
+- fix problem with unicode strings and constraints
+
+
+2006.03.04
+----------
+- finally made the ok button on the message_details_dialog the default focus
+- check the constraints on the columns before we try and commit se we don't
+mess up out transaction which can screw up any pending commits from an editor's
+sub editors
+- starting the mockups for the new editors and combined all editors in a plugin
+into one glade file, see editors.glade in the plugin directory
+- created basic installer script for windows
+
+
+2006.03.04
+----------
+- combined editor.pre_commit_hook and _transform_row in _model_row_to_values
+- updated all editors to use _model_row_values and got rid of all instances of
+_transform_row and pre_commit_hook
+- cleaned out old bits code
+
+
+2006.03.02
+----------
+- forgot to add icon and logo to svn
+- disabled icon from win32 since my gtk for win32 doesn't have an svg pixbuf 
+loader
+
+
+2006.03.01
+----------
+- fixed the open_database() fix
+- adding and editing item from the context menu refreshes the view a bit 
+smarter
+- new logo image
+- new logo as window icon
+- cleaned up some old code in the GUI
+- fixed problem with storing the string 'NoneType' instead of the value None in
+the accession.source_type column
+
+
+2006.02.28
+----------
+- fixed problem with creating vernacular names
+- save an editors state even if the dialog is canceled
+- fixed problem when opening a database fails the wrong value was being
+return from open_database()
+
+
+2006.02.23
+----------
+- more or less finished the new search queries, can now do search like
+acc where plants.acc_status = Dead
+
+
+2006.02.22
+----------
+- first commit on new search query features
+
+
+2006.02.20
+----------
+- don't continue with program if loading one of the plugins fail
+- upgraded searchview.pyparsing to 1.4.1
+
+
+2006.02.08
+----------
+- release 0.4.4
+
+
+2006.02.07
+----------
+- if we can't find any connections in the prefs then popup a dialog telling
+the user they should create one
+- change the window title to include the name of the current connection
+- opening a new connection or creating a new database now resets the searchview
+- include the example xsl files in the distribution
+- add .pdf to formatter output filename so file associations work on windows
+- added user_dir() to bauble.paths to get the users setting directory
+- log message now automatically go to a file in a frozen executable on win32
+- in general made logging better, shouldn't get logger popup on windows 
+anymore though it may still come up if there's a print statement somewhere
+
+
+2006.02.06
+----------
+- fixes for building a py2exe executable using pygtk >= 2.8.4
+- make sure we check for pysqlite even if SQLObject says sqlite is not 
+supported
+
+
+2006.02.03
+----------
+- fixed removing existing data in a row which also means you can now set None
+to a row
+- fixed a problem where we were corrupting $PATH
+
+
+2006.02.02
+----------
+- some usability work on the connection manager and minor fixes
+- the prefs config directory is now only created when bauble is run, not just
+when it's packages are imported, like when run from setup.py
+- small try..except changes to the utils dialogs
+
+
+2006.01.25
+----------
+- fixed a problem are trying to commit the values in an editor if there had
+been a previous exception trying to commit
+- the offending row is now highlighted when there is a problem trying to 
+commit the values in an editor
+- added editor.CommitException to wrap the exception throws from the database
+on commit, also allows us to pass the model row used when trying to commit
+
+
+2006.01.23
+----------
+- changed TreeViewEditorDialog._commit_model_row to _commit_model_rows
+
+
+2006.01.19
+----------
+- make the default sort order more reasonable for accessions, plants, families,
+genera, and species
+- removed sorting of results in the search view since tables should now
+specify their own sort order
+
+
+2006.01.16
+----------
+- a clicking on the "Search" button in the search view now turns off the 
+current infobox
+- the ConnectionManager and its password dialog now ask to be centered on 
+the screen
+- fixed problem with editing an Accession's Donation if the donations already 
+exists
+- fixed some problems with the Accession Infobox
+- fixes for the message dialog in utils if they are opened before the gui
+starts
+
+
+2006.01.16
+----------
+- properly escape Species.sp_author and Species.
+- fixed a problem if tag table couldn't be loaded then the global transaction
+is invalidated and bauble can't be used
+- move set_widget_value into utils, eventually need to change all the plugins
+to use this one to be consisten
+
+
+2005.01.07
+----------
+- think i finally fixed what was causing all the crashes, for some reason i was
+unparenting widgets instead of removing them from their containers
+- ready for 0.4.2, the real release of the 0.4.x series
+- had to revert some changes in setup.py to make py2exe work for win32
+- small fix for the libxml2/formatter problem
+
+
+2005.01.04
+----------
+- some 'correctness' fixes, like giving dialogs parents if applicable
+- forgot to package the 'tag' plugin which is a major feature for 0.4.x, yes 
+i'm an idiot
+- tweaks to the example xsl stylesheet in the formatter plugin 
+(labels.xsl, larger_label.xsl)
+- removed all signs of threading code, there's no going back
+- the SpeciesMetaEditor now just uses the vbox from the glade file instead
+of destroying the dialog it was graciously given by TableEditorDialog only to 
+replace it by another dialog
+
+
+2005.01.04
+----------
+- fixed bug where editing an existing SpeciesMeta would just create a new
+one
+- back to deleting dialogs instead of just hiding them
+- abcd export and formatter wouldn't work if a Species SpeciesMeta was None
+
+
+2005.01.03
+----------
+- did a terrible job packaging 0.4.0 and probably earlier version, should 
+be better now
+- results in the search view are now sorted alphabetically
+
+
+2005.01.02
+----------
+- drastically improved csv export speed by about a million percent by 
+using map()
+- some fixes for win32, mostly works now
+- ready for 0.4.0
+- released 0.4.0
+- tried to get rid of that annoying dialog caused by the logger
+- rearranged the sys.path to put library.zip in front when using py2exe so
+that libxml2 get imported correctly, this fixes the formatter on win32
+
+
+2005.12.31
+----------
+- small regression fix for opening databases created with a version different 
+from the version of Bauble you're using
+- properly handle exception thrown when importing csv files
+
+
+2005.12.30
+----------
+- you can now do 'OR'ed searches with by separting values with a comma, 
+e.g 2004.0001,2004.0002 would give you both accessions with those acc_id's
+
+
+2005.12.28
+----------
+- fixed datetime issues with the CollectionEditor
+- change TreeViewEditorDialog.commit_changes again to just iterate of the model
+in the view and call _transform_row on each row in the model instead of 
+calling _set_value_from_widgets in start()
+- if everything doesn't get successfully committed in a TreeViewEditorDialog
+then desensitize those rows that were committed correctly and reshow the dialog
+- removed 'Preferences' from the Edit menu until we get some preferences tabs
+- forgot to commit plugin\tag\tag.glade to svn
+- too many fixes to name, i think we're ready for 0.4.0, just have to test on 
+Windows
+
+
+2005.12.26
+----------
+- got fed up with connections and transactions behaving differently between
+postgres and sqlite so i changed everything that accesses the database to use
+transactions
+
+
+2005.12.23
+----------
+- fixed bug when creating Tag tables
+- think i fixed the problem with transaction and ghost data by 
+setting cacheValues=True
+- a large refactoring of TableEditor, TreeViewEditor and now TableEditorDialog
+- refresh search view after creating tables
+- fixes a bug importing csv tables where we pass in more than one filename to
+csv.start() and the file has the id's included in the rows
+
+
+2005.12.22
+----------
+- editing SingleJoin and MultipleJoin columns now work
+- creating a column in a TreeViewEditorDialog that's not a column in the table
+is now much easier
+- lots of fixes in speciesmeta.py
+- preparing for a release soon
+- too many fixes to list
+
+
+2005.12.20
+----------
+- columns that have external editors now have a star(*) in their header
+- think i need to rethink this whole multiple join editors on columns
+
+
+2005.12.18
+----------
+- synonym editors work, now just have to finish the VernacularNameEditor
+
+
+2005.12.17
+----------
+- editing multiple join columns now seems to be pretty stable, just have to
+finish the GenusSynonym, SpeciesSynonym and VernacularName tables and editors
+- check that plugins, views, tool, editors and tables are subclasses of the 
+appropriate types
+
+
+2005.12.15
+----------
+- change editor.text_values_before_commit to pre_commit_hook
+- editing multiple join columns somewhat working though alot of things are
+still broke i'm sure
+
+
+2005.12.13
+----------
+- explicitly set the cascade on most database objects to help keep the
+database from getting dangling references incase something is deleted
+- show a dialog in case removing an item from the search view fails
+
+
+2005.12.10
+----------
+- some spring cleaning of old, unused code
+- reworked tag schemas, the previous ones were an embarassment to all thats
+good and decent in the world
+- tagging results in the search view should now work
+- some UI love
+- forgot the add conn_mgr.glade to svn
+- had to remove some duplicate genus entries from Genus.txt until we get
+the synonyms better sorted out
+- refresh the search view after adding or removing items from the results
+
+
+2005.12.09
+----------
+- major overhaul on the connection manager, now (mostly) uses glade
+
+
+2005.12.08
+---------
+- started work on tag support in plugins\tag, the db schema seems to be set
+and tagging working, just need to create an interface for it
+- field Genus.genus is now an alternateID, probably more schema changes coming
+soon so we can get everything in a relatively stable state
+
+
+2005.12.02
+---------
+- lots of work on connecting the database to the infoboxes and creating 
+infoboxes for those database types that didn't have
+
+
+2005.12.01
+---------
+- fixes for formatters
+- fixes to use vernacular_name instead of default_vernacular_name in abcd.py
+- Accession and Plant now have markup() which give the species name
+- some searchview fixes
+- tagged 0.3.0 and forgot to uncomment the schema changes, tag 0.3.1
+- fixed problem with exporting CSV that was only in 0.3.0 so no worries
+- changed setup.py to use version_str from bauble\__init__.py so we only
+have to set the version in one place
+
+
+2005.11.26
+---------
+- hopefully fixes some unstableness by not deleting the dialog of a 
+TreeViewEditorDialog
+- changed the model again to add a notes column to both Plant and 
+Accession
+- bumped revision to 0.3.0 because of change to the model
+
+
+2005.11.24
+---------
+- fixed editing a species giving a message as if you were adding a new
+one
+- fixed markup tag on species
+
+
+2005.11.23
+---------
+- added some more safety check that you're not connected to a corrupt
+- fixed a problem when on committing multiple items in an editor
+- csv export is painfully slow, need to do something about it
+- fixe for expanding a species
+- 0.2.0 and 0.2.1 was tagged but not release
+- released 0.2.2
+
+
+2005.11.23
+---------
+- changed version to 0.2.0 since we're not using the VernacularName table
+at the moment altough there was never a way to edit it
+- some fixes for the connection manager so it acts the way you would 
+expect it to, could still use some love
+- 
+
+2005.11.23
+--------
+- remove most of the null values from the EnumCols
+- gave up on the VernacularName table and editor at the moment and just
+made a Species.vernacular_name UnicodeCol
+
+
+2005.11.22
+---------
+- forgot to fix the VernacularName editor
+- made ABCD export and more xml safe
+
+
+2005.11.20
+---------
+- fixed bug when trying to cancel importing CSV files
+- the combined plant_id and accession_id of Plant now have to be unique
+- removed most of the None default values from the EnumCols
+- release 0.1.1
+
+
+2005.11.19
+---------
+- fixed some logic in editor.py so that the editor dialog acts as expected
+when you close it
+- fixed the donor editor so it works correctly
+- registered the 'donor' and 'don' keywords for the search view
+- made some dummy classes for DonorInfoBox and its expanders, now it just
+needs to be filled in
+- Ctrl-l now correctly gives focus to the search entry, to do this i had to
+move the part that sets the current_view in the gui into app.main()
+- other small fixes i can't remember
+- disabled the MySQL importer
+- a new table was added to the database to keep information about the database,
+right now it just hold the version of the database and the datetime it was 
+created
+- will give a warning if trying to connect to a database with different 
+major and minor numbers than the software
+- will not connect to a database that doesn't have a 'bauble' table in the
+database
+- fixed some win32 problems
+- fixed problem with create the first database at a connection
+- message dialog from utils now accept markup
+- fixed a problem in imex_csv when creating a database before the gui
+has been started
+- changed setup.py to use the new formatter module instead of
+the old labels ones
+- released 0.1.0
+
+
+2005.11.13
+---------
+- fixed adding donors from the donation editor
+
+
+2005.11.12
+---------
+- searchview parser now uses pyparser and can now handle more complex queries
+though some work still needs to be done
+
+
+2005.11.5
+----------
+- lots of fixes related to the Donor table and DonorEditor
+
+2005.11.3
+----------
+- fixed completion bug so that the selected value is inserted into the proper 
+row
+
+
+2005.11.2
+----------
+- editors should be fixed for the most part but i'm sure they still need some
+polish
+- invoking an editor inside an editor to edit a single join work now
+- editors now set sqlhub.processConnection to the editors transaction so that
+all operations that happend while something is being edited can be rolled 
+backed, this doesn't seem to cause any problems and is the best way to keep 
+from getting straggling data such as collection data not associated with 
+an accession
+- need alot of API cleanup
+- commited r114
+- remove TableEditorDialog, i don't think its really a useful abstraction
+- alot of code cleanup and removing debugging code and old irrelevant stuff
+- committed r115
+- just before i committed i noticed that there's a problem with editing
+multiple values in a treevieweditor dialog with completion, it seems that
+only the first row gets set no matter which row is being edited
+- there also seem to be a problem with the accession editor that causes it to
+randomly crash, usually when entering the species name
+
+
+2005.11.1
+----------
+- editors now take keyword argument connection
+
+
+2005.10.29
+----------
+- the editor start method no longer commits your changes, whoever invokes
+the editor is responsible or commiting the changes
+- tried to simplify TreeViewEditorDialog.commit_changes
+- the editing the single joins are broken at the moment
+
+
+2005.10.28
+----------
+- still doing some work on external editors, still broken but closer
+
+
+2005.10.27
+----------
+- got external editors working for SingleJoins, its far from perfect yet but its 
+a first pass, e.g. right now you can create species_meta for a species table
+but you can't edit it later
+- external editors can now signal that changes were made so the dirty flag can
+be properly set on the editor
+- commited r111
+- update species_infobox to reflect species meta
+
+2005.10.25
+----------
+- changed Plantnames to Species 
+- added a SpeciesMeta table to hold extra information about a species such
+as distribution and created an SpeciesMetaEditor
+
+
+2005.10.23
+----------
+- more work on XSL formatter plugin, should work now
+
+
+2005.10.21
+----------
+- canged preferences to use python's ConfigParse with a dict interfase, the 
+prefs API should be the same as before but the config file format is no longer 
+compatible, the new format uses an ini type syntax
+- added a generic XSL formatter plugin, though not finished yet
+- moved main_is_frozen to bauble.__init__.py
+
+
+2005.10.15
+----------
+- fixes in latitude/longitude handling in the CollectionEditor dialog as well
+as in the Collection infobox
+- ** dates still don't work in the CollectionEditor
+- removed Plantname.supfam,subgen and subgen_rank
+- got the great idea to create a 'CHANGES' files and added to version control
+- see revision 106 for other things for the day

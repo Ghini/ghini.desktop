@@ -1,0 +1,117 @@
+## This file is part of bauble.classic.
+##
+## bauble.classic is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## bauble.classic is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+##
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>Labels</title>
+<style type="text/css" media="all">
+@page {
+    margin: 0;
+    orphans: 100;
+    widows: 100;
+    size: landscape;
+}
+.label {
+    border: 1px solid black;
+    padding: 2px;
+    margin: 1px;
+    width: 78mm;
+    height: 45mm;
+    float: left;
+    /*page-break-inside: avoid;*/
+    page-break-before: auto;
+    page-break-after: auto;
+    orphans: 100;
+    widows: 100;
+    overflow: hidden;
+    position:relative;
+}
+.label:before {
+    content: '';
+    height: 38mm;
+    float: left;
+}
+.family {
+    /* border: 1px solid red; */
+    text-align: center;
+    font: normal bold 14pt Arial, sans;
+    margin-top: 3mm;
+    height: 1.2em;
+    width: 100%;
+}
+.name {
+    /* border: 1px solid red; */
+    text-align: center;
+    margin-top: 1mm;
+    font: normal normal 14pt Arial, sans;
+    height: 18mm;
+    width: 100%;
+    vertical-align: middle;
+}
+.species {
+    /* border: 1px solid blue; */
+    text-align: center;
+    font: normal normal 14pt Arial, sans;
+    width: 100%;
+    margin-bottom: .5em;
+}
+.vernacular {
+    /* border: 1px solid green; */
+    text-align: center;
+    font: normal bold 14pt Arial, sans;
+    width: 100%;
+}
+.code {
+    /* border: 1px solid orange; */
+    font: normal normal 12pt serif;    
+    vertical-align: bottom;
+    text-align: left;
+    white-space: nowrap;
+    width: 10em;
+    height: 2em;
+    margin: 3pt 12pt 0 2mm;
+    float: left;
+    clear: left; 
+}
+.distribution {
+    /* border: 1px solid blue; */
+    font: normal normal 11pt serif; 
+    vertical-align: bottom;
+    height: 4.5em;
+    margin: 0 2mm 0 2em;
+    text-align: right;
+}
+</style>
+</head>
+<body>
+<% from bauble.plugins.report import get_plants_pertinent_to %>\
+<%def name="make_label(plant)">
+<div class="label">
+  <div class="code">${plant}</div>
+  <div>
+    <div class="family">${plant.accession.species.genus.family}</div>
+    <div class="name">
+      <div class="species">${plant.accession.species_str(markup=True)}</div>
+      <div class="vernacular">${plant.accession.species.default_vernacular_name or '&nbsp;'}</div>
+    </div>
+    <div class="distribution">${plant.accession.species.distribution_str()}</div>
+  </div>
+</div>
+</%def>
+% for p in get_plants_pertinent_to(values):
+    ${make_label(p)}
+% endfor
+</body>

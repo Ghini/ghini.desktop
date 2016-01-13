@@ -55,3 +55,41 @@ docs/_build/
 
 # PyBuilder
 target/
+
+testme.py
+issues.txt
+.bzr
+doc/.build
+doc/*.txt
+.tx
+*~
+*pyc
+po/*.mo
+pot
+
+## temporary files from the Cuchubo activity. ask mario@anche.no
+scripts/drop2bauble.py
+scripts/fixme.py
+scripts/gh-issues-import.py
+scripts/map2db.py
+scripts/tomongo.py
+scripts/what_are_the_problems.py
+scripts/what_is_available.py
+bauble/test/test_search2.py
+bauble/multiple-orig.py 
+bauble/multiple.py
+piccolo_test.py
+po/.doctrees/
+issues/
+doc/_build/
+doc/locale/
+bauble/plugins/plants/ipni.org/
+.build/
+cover/
+.project
+.pydevproject
+.settings/
+bauble/plugins/plants/default/ars-grin/?????.html
+bauble/plugins/plants/default/ars-grin/taxonomygenus.tar.gz
+bauble/plugins/plants/default/genera-conservanda-uniq.json
+bauble/plugins/plants/default/genera-conservanda.json

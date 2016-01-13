@@ -1,0 +1,303 @@
+#!/usr/bin/env python
+#
+#  Copyright (c) 2005,2006,2007,2008  Brett Adams <brett@belizebotanic.org>
+#  This is free software, see GNU General Public License v2 for details.
+"""
+The bauble-admin script makes it easier to create and database and change
+some of its properties.
+"""
+
+import sys
+import os
+from optparse import OptionParser
+from getpass import getpass
+import logging
+from logging import info, warn, error
+
+print '\n*** This script is considered ALPHA quality. You mileage may vary.\n'
+
+usage = 'usage: %prog [command] [options] dbname'
+parser = OptionParser(usage)
+parser.add_option('-H', '--host', dest='hostname', metavar='HOST',
+		  help='the host to connect to')
+parser.add_option('-u', '--user', dest='user', metavar='USER',
+		  help='the user name to use when connecting to the server')
+parser.add_option('-P', '--port', dest='port', metavar='PORT',
+		  help='the port on the server to connect to')
+parser.add_option('-o', '--owner', dest='owner', metavar='OWNER',
+		  help='the owner of the newly created database, if not ' \
+                       'set  then use the user name')
+parser.add_option('-p', action='store_true', default=False, dest='password',
+		  help='ask for a password')
+parser.add_option('-d', '--dbtype', dest='dbtype', metavar='TYPE',
+		  help='the database type')
+parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+		  default=False, help='verbose output')
+parser.add_option('-y', '--dryrun', dest='dryrun', action='store_true',
+		  default=False, help="don't execute anything")
+
+options, args = parser.parse_args()
+commands = {}
+
+logging.basicConfig(format='%(levelname)s: %(message)s')
+#if options.verbose:
+logging.getLogger().setLevel(logging.INFO)
+
+
+def error_and_exit(msg, retval=1):
+    error(msg)
+    sys.exit(retval)
+
+
+default_encoding = 'UTF8'
+
+class Command(object):
+    """
+    New commands should subclass the Command class.
+    """
+    def __init__(self):
+        if self.__doc__ == Command.__doc__:
+            warn('No help set for %s' % self)
+
+    @classmethod
+    def run(self):
+        raise NotImplementedError
+
+
+def execute(cursor, command, verbose=options.verbose):
+    if verbose:
+        logging.info(command)
+    if not options.dryrun:
+        cursor.execute(command)
+    return cursor
+
+
+class CreateCommand(Command):
+    """
+    The create command creates a database.
+    """
+    name = 'create'
+
+    @classmethod
+    def run(cls):
+        if options.dbtype != 'postgres':
+            error_and_exit('Creating a database is only supported for '
+                           'PostgreSQL database')
+        cls._run_postgres()
+
+
+    @classmethod
+    def _run_mysql(cls):
+        raise NotImplementedError
+
+
+    @classmethod
+    def _run_postgres(cls):
+        # ISOLATION_LEVEL_AUTOCOMMIT needed from create database
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+        cursor = None
+        if not options.dryrun:
+            conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            cursor = conn.cursor()
+
+        # check if the database already exists
+        sql = "SELECT datname FROM pg_database WHERE datname='%s';" % dbname
+        execute(cursor, sql)
+        if not options.dryrun:
+            rows = cursor.fetchall()
+            if (dbname,) in rows:
+                print 'database %s already exists' % dbname
+                sys.exit(1)
+
+        # create the owner if the owner doesn't already exist
+        sql = "SELECT rolname FROM pg_roles WHERE rolname='%s';" % \
+            options.owner
+        execute(cursor, sql, verbose=False)
+        password = ''
+        if not options.dryrun:
+            if (options.owner,) in cursor.fetchall():
+                print 'user %s already exist' % options.owner
+            else:
+                password = getpass('Password for new database owner %s: ' % \
+                                   options.owner)
+                sql = "CREATE ROLE %s LOGIN PASSWORD '%s';" % \
+                    (options.owner, password)
+                execute(cursor, sql)
+
+        # create the database and give owner permissions full permissions
+        options_dict = dict(dbname=dbname, owner=options.owner,
+                            encoding=default_encoding)
+        sql = 'CREATE DATABASE %(dbname)s WITH OWNER="%(owner)s" ' \
+            'ENCODING=\'%(encoding)s\';' % options_dict
+        execute(cursor, sql)
+        sql = 'GRANT ALL ON DATABASE %(dbname)s TO "%(owner)s" ' \
+            'WITH GRANT OPTION;' % options_dict
+        execute(cursor, sql)
+
+
+
+class GroupCommand(Command):
+    """
+    The group command allows you to add, remove and change groups on a
+    database
+
+    With this command you can either create "admin" groups or regular
+    groups.  For more fine-grained control then you must edit the database
+    manually.
+    """
+    name = 'group'
+
+    @classmethod
+    def run(cls):
+        pass
+
+    def _run_postgres(cls):
+        pass
+
+
+class UserCommand(Command):
+    """
+    The user command allows you to add, remove and change the
+    permissions of a user on a database.
+
+    With this command you can either create "admin" users or regular users.
+    For more fine-grained control then you must edit the database manually.
+    """
+    name = 'user'
+
+    @classmethod
+    def run(cls):
+        if options.dbtype != 'postgres':
+            error_and_exit('User properties can only be changed on a '
+                           'postgres database.')
+        cls._run_postgres()
+
+
+    @classmethod
+    def _run_postgres(cls):
+        # TODO: get subcommands
+        pass
+
+
+
+
+class DropCommand(Command):
+    """
+    Remove a database from a server.  BE CAREFUL.
+    """
+    name = 'drop'
+
+    @classmethod
+    def _run_postgres(cls):
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = conn.cursor()
+        msg = '** WARNING: Dropping a database will completely remove the ' \
+            'database and all its data.  Are you sure you want to drop the ' \
+            '"%s" database? ' % dbname
+        response = raw_input(msg)
+        if response not in ('Y', 'y'):
+            print 'Whew.'
+            return
+
+        args = []
+        for a in connect_args:
+            if a.startswith('dbname='):
+                args.append('dbname=postgres')
+            else:
+                args.append(a)
+
+        logging.info(args)
+        conn2 = dbapi.connect(' '.join(connect_args))
+        conn2.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor2 = conn2.cursor()
+        #logging.info(connect_args)
+        sql = 'DROP DATABASE %s;' % dbname
+        execute(cursor2, sql)
+        conn2.close()
+
+
+
+    @classmethod
+    def run(cls):
+        if options.dbtype != 'postgres':
+            error_and_exit('Creating a database is only supported for '
+                           'PostgreSQL database')
+        cls._run_postgres()
+
+
+
+def register_command(command):
+    """
+    Register a new command.
+    """
+    commands[command.name] = command
+
+register_command(CreateCommand)
+register_command(UserCommand)
+register_command(DropCommand)
+
+
+if len(args) < 1:
+    parser.error('You must supply a command')
+
+cmd = args[0]
+if cmd not in commands:
+    parser.error('%s is an invalid command' % cmd)
+
+try:
+    dbname =  args[-1]
+except:
+    parser.error('You must specify a database name')
+
+
+def build_postgres_command():
+    pass
+
+def build_mysql_command():
+    pass
+
+dbapi = None
+if options.dbtype == 'sqlite':
+    parser.error('It it not necessary to use this script on an SQLite '
+                 'database')
+elif options.dbtype == 'postgres':
+    dbapi = __import__('psycopg2')
+elif options.dbtype == 'mysql':
+    dbapi = __import__('MySQLdb')
+else:
+    parser.error('You must specify the database type with -d')
+
+if not options.user:
+    options.user = os.environ['USER']
+
+if not options.owner:
+#    options.owner = #os.environ['USER']
+    options.owner = options.user
+    print 'Setting owner as %s' % options.owner
+
+
+# build connect() args and connect to the server
+connect_args = ['dbname=postgres']
+if options.hostname is not None:
+    connect_args.append('host=%s' % options.hostname)
+if options.password:
+    password = getpass('Password for %s: ' % options.user)
+    connect_args.append('password=%s' % password)
+if options.user:
+    connect_args.append('user=%s' % options.user)
+if options.port:
+    connect_args.append('port=%s' % options.port)
+
+#connect_args = ' '.join(connect_args)
+if options.verbose:
+    logging.info('connect_args: %s' % ' '.join(connect_args))
+
+conn = None
+if not options.dryrun:
+    conn = dbapi.connect(' '.join(connect_args))
+
+commands[cmd].run()
+if not options.dryrun:
+    conn.close()
+
