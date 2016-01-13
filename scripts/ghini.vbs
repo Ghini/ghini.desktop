@@ -1,0 +1,1 @@
+CreateObject("Wscript.Shell").Run "ghini.bat", 0, True

@@ -96,7 +96,7 @@
   </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">True</property>
-    <property name="title">Bauble</property>
+    <property name="title">Ghini</property>
     <property name="role">bauble</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
