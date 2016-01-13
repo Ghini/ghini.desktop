@@ -1,3 +1,3 @@
 @echo off
-call "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\bacl\Scripts\activate.bat
-pythonw "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\bacl\Scripts\bauble
+call "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghide\Scripts\activate.bat
+pythonw "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghide\Scripts\bauble

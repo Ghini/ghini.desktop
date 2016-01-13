@@ -49,24 +49,24 @@ for /F "delims=" %%i in (
 
 ECHO going to checkout %CHECKOUT%
 call .virtualenvs\bacl\Scripts\activate.bat
-mkdir Local\github\Bauble 2>NUL
-cd Local\github\Bauble
-git clone https://github.com/Bauble/bauble.classic.git
-cd bauble.classic
+mkdir Local\github\Ghini 2>NUL
+cd Local\github\Ghini
+git clone https://github.com/Ghini/ghini.desktop.git
+cd ghini.desktop
 git checkout %CHECKOUT%
 
 ECHO going to build and install
 python setup.py build
 python setup.py install
-mkdir "%APPDATA%\Bauble" 2>NUL
+mkdir "%APPDATA%\Ghini" 2>NUL
 cd "%HOMEPATH%"
 
 ECHO create the globalizing script
 IF DEFINED PUBLIC (SET AUDESKTOP=%PUBLIC%\Desktop) & (SET AUSTARTMENU=%PROGRAMDATA%\Microsoft\Windows\Start Menu) ELSE (SET AUDESKTOP=%ALLUSERSPROFILE%\Desktop) & (SET AUSTARTMENU=%ALLUSERSPROFILE%\Start Menu)
 (
 echo @echo off
-echo mkdir "%AUSTARTMENU%\Programs\Bauble"
-echo copy "%HOMEDRIVE%%HOMEPATH%"\Local\github\Bauble\bauble.classic\scripts\bauble.lnk "%AUSTARTMENU%\Programs\Bauble"
+echo mkdir "%AUSTARTMENU%\Programs\Ghini"
+echo copy "%HOMEDRIVE%%HOMEPATH%"\Local\github\Ghini\ghini.desktop\scripts\ghini.lnk "%AUSTARTMENU%\Programs\Ghini"
 ) > devinstall-finalize.bat
 
 ECHO please run devinstall-finalize.bat as administrator.
