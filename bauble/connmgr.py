@@ -218,7 +218,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self, model=self, view=view, refresh_view=True)
         logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
         view.image_set_from_file('logo_image', logo_path)
-        view.set_title('%s %s' % ('Bauble', bauble.version))
+        view.set_title('%s %s' % ('Ghini', bauble.version))
         try:
             view.set_icon(gtk.gdk.pixbuf_new_from_file(bauble.default_icon))
         except:

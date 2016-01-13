@@ -53,10 +53,11 @@ locale_path = os.path.join('share', 'locale')
 
 gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo",
             "gio"]
-plugins = setuptools.find_packages(where='bauble/plugins',
-                                   exclude=['test', 'bauble.*.test'])
+plugins = setuptools.find_packages(
+    where='bauble/plugins',
+    exclude=['test', 'bauble.*.test', 'ghini.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
-all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test'])
+all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test', 'ghini.*.test'])
 
 package_data = {'': ['README', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
@@ -236,7 +237,7 @@ class build(_build):
         if sys.platform in ('linux3', 'linux2'):
             app_dir = os.path.join(self.build_base, 'share', 'applications')
             dir_util.mkpath(app_dir)
-            file_util.copy_file('data/bauble.desktop', app_dir)
+            file_util.copy_file('data/ghini.desktop', app_dir)
 
             icon_sizes = [16, 22, 24, 32, 48, 64]
             icon_root = os.path.join(
@@ -245,17 +246,17 @@ class build(_build):
             # copy scalable icon
             scalable_dir = os.path.join(icon_root, 'scalable', 'apps')
             dir_util.mkpath(scalable_dir)
-            file_util.copy_file('data/bauble.svg', scalable_dir)
+            file_util.copy_file('data/ghini.svg', scalable_dir)
 
             pixmaps_dir = os.path.join(self.build_base, 'share', 'pixmaps')
             dir_util.mkpath(pixmaps_dir)
-            file_util.copy_file('data/bauble.svg', pixmaps_dir)
+            file_util.copy_file('data/ghini.svg', pixmaps_dir)
 
             # copy .png icons
             dimension = lambda s: '%sx%s' % (s, s)
             for size in icon_sizes:
-                img = 'data/bauble-%s.png' % size
-                dest = os.path.join(icon_root, '%s/apps/bauble.png'
+                img = 'data/ghini-%s.png' % size
+                dest = os.path.join(icon_root, '%s/apps/ghini.png'
                                     % dimension(size))
                 dir_util.mkpath(os.path.split(dest)[0])
                 file_util.copy_file(img, dest)
@@ -288,7 +289,7 @@ class install(_install):
         else:
             _install.run(self)
 
-        # install bauble.desktop and icons
+        # install ghini.desktop and icons
         if sys.platform in ('linux3', 'linux2'):
             # install everything in share
             dir_util.copy_tree(os.path.join(self.build_base, 'share'),
@@ -303,7 +304,7 @@ class install(_install):
 
         file_util.copy_file(
             "LICENSE",
-            os.path.join(self.install_data, 'share', 'LICENSE.bauble'))
+            os.path.join(self.install_data, 'share', 'LICENSE.ghini'))
 
 
 # docs command
@@ -386,7 +387,7 @@ class run(Command):
 
     def run(self):
         cwd = os.getcwd()
-        os.system(os.path.join(cwd, 'bauble.sh'))
+        os.system(os.path.join(cwd, 'ghini.sh'))
 
 # require pysqlite if not using python2.5 or greater
 needs_sqlite = []
@@ -396,10 +397,10 @@ try:
 except ImportError:
     needs_sqlite = ["pysqlite>=2.3.2"]
 
-scripts = ["scripts/bauble", "scripts/bauble-admin"]
+scripts = ["scripts/ghini"]
 if sys.platform == 'win32':
-    scripts = ["scripts/bauble", "scripts/bauble.bat", "scripts/bauble.vbs",
-               "scripts/bauble.lnk", "scripts/bauble-update.bat"]
+    scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
+               "scripts/ghini.lnk", "scripts/ghini-update.bat"]
 
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
@@ -425,12 +426,12 @@ setuptools.setup(name="bauble",
                  test_suite="nose.collector",
                  author="Mario Frasca",
                  author_email="mario@anche.no",
-                 description="Bauble is a biodiversity collection manager "
+                 description="Ghini is a biodiversity collection manager "
                  "software application",
                  license="GPLv2+",
                  keywords="database biodiversity botanic collection "
                  "botany herbarium arboretum",
-                 url="http://github.com/Bauble/ghini.desktop/",
+                 url="http://github.com/Ghini/ghini.desktop/",
                  options=py2exe_options,
                  **py2exe_setup_args
                  )
