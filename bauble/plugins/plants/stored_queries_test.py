@@ -19,8 +19,10 @@
 
 from nose import SkipTest
 
-from bauble.plugins.plants.stored_queries import StoredQueriesModel
+from bauble.plugins.plants.stored_queries import (
+    StoredQueriesModel, StoredQueriesPresenter)
 from bauble.test import BaubleTestCase
+from bauble.editor import MockView
 
 import bauble.prefs
 bauble.prefs.testing = True
@@ -128,3 +130,48 @@ class StoredQueriesTests(BaubleTestCase):
         m = StoredQueriesModel()
         self.assertEquals([i for i in n], [k for k in m])
         self.assertFalse(id(n) == id(m))
+
+
+class StoredQueriesPresenterTests(BaubleTestCase):
+
+    def test_create_presenter(self):
+        view = MockView()
+        m = StoredQueriesModel()
+        presenter = StoredQueriesPresenter(m, view)
+        self.assertEquals(presenter.view, view)
+        self.assertEquals(id(presenter.model), id(m))
+
+    def test_change_page(self):
+        view = MockView()
+        m = StoredQueriesModel()
+        presenter = StoredQueriesPresenter(m, view)
+        m.page = 2
+        presenter.refresh_view()
+        for i in range(1, 11):
+            bname = 'stqr_%02d_button' % i
+            self.assertTrue(('widget_set_active', (bname, i == m.page)) in
+                            presenter.view.invoked_detailed)
+            lname = 'stqr_%02d_label' % i
+            self.assertTrue(('widget_set_attributes',
+                             (lname, presenter.weight[i == m.page])) in
+                            presenter.view.invoked_detailed)
+
+    def test_next_page(self):
+        view = MockView()
+        m = StoredQueriesModel()
+        presenter = StoredQueriesPresenter(m, view)
+        self.assertEquals(m.page, 1)
+        presenter.on_next_button_clicked(None)
+        self.assertEquals(m.page, 2)
+        presenter.on_next_button_clicked(None)
+        self.assertEquals(m.page, 3)
+
+    def test_prev_page(self):
+        view = MockView()
+        m = StoredQueriesModel()
+        presenter = StoredQueriesPresenter(m, view)
+        self.assertEquals(m.page, 1)
+        presenter.on_prev_button_clicked(None)
+        self.assertEquals(m.page, 10)
+        presenter.on_prev_button_clicked(None)
+        self.assertEquals(m.page, 9)
