@@ -132,9 +132,8 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
     def __init__(self, *args, **kwargs):
         super(StoredQueriesPresenter, self).__init__(*args, **kwargs)
         for self.model.page in range(1, 11):
-            iter_name = 'stqr_%02d_label' % self.model.page
-            iter_widget = getattr(self.view.widgets, iter_name)
-            iter_widget.set_text(self.model.label or _('<empty>'))
+            name = 'stqr_%02d_label' % self.model.page
+            self.view.widget_set_text(name, self.model.label or _('<empty>'))
         self.model.page = 1
 
     def on_tag_desc_textbuffer_changed(self, widget, value=None):
@@ -143,11 +142,11 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
 
     def refresh_toggles(self):
         for i in range(1, 11):
-            iter_name = 'stqr_%02d_button' % i
-            iter_widget = getattr(self.view.widgets, iter_name)
-            iter_widget.set_active(i == self.model.page)
-            iter_widget.get_children()[0].set_attributes(
-                self.weight[i == self.model.page])
+            bname = 'stqr_%02d_button' % i
+            lname = 'stqr_%02d_label' % i
+            self.view.widget_set_active(bname, i == self.model.page)
+            self.view.widget_set_attributes(lname,
+                                            self.weight[i == self.model.page])
 
     def refresh_view(self):
         super(StoredQueriesPresenter, self).refresh_view()

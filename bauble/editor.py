@@ -486,6 +486,14 @@ class GenericEditorView(object):
         widget = self.__get_widget(widget)
         return widget.get_active()
 
+    def widget_set_active(self, widget, active=True):
+        widget = self.__get_widget(widget)
+        return widget.set_active()
+
+    def widget_set_attributes(self, widget, attribs):
+        widget = self.__get_widget(widget)
+        return widget.set_attributes(attribs)
+
     def widget_set_inconsistent(self, widget, value):
         widget = self.__get_widget(widget)
         widget.set_inconsistent(value)
@@ -566,6 +574,14 @@ class GenericEditorView(object):
     def widget_get_visible(self, widget):
         widget = self.__get_widget(widget)
         return widget.get_visible()
+
+    def widget_set_text(self, widget, text):
+        widget = self.__get_widget(widget)
+        widget.set_text(text)
+
+    def widget_get_text(self, widget):
+        widget = self.__get_widget(widget)
+        return widget.get_text()
 
     def widget_get_value(self, widget, index=0):
         widget = self.__get_widget(widget)
@@ -896,6 +912,18 @@ class MockView:
         self.invoked.append('widget_set_inconsistent')
         self.invoked_detailed.append((self.invoked[-1], args))
         pass
+
+    def widget_set_text(self, *args):
+        self.invoked.append('widget_set_text')
+        self.invoked_detailed.append((self.invoked[-1], args))
+
+    def widget_set_active(self, *args):
+        self.invoked.append('widget_set_active')
+        self.invoked_detailed.append((self.invoked[-1], args))
+
+    def widget_set_attributes(self, *args):
+        self.invoked.append('widget_set_attributes')
+        self.invoked_detailed.append((self.invoked[-1], args))
 
     def get_window(self):
         return self.__window
