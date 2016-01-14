@@ -136,10 +136,6 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
             self.view.widget_set_text(name, self.model.label or _('<empty>'))
         self.model.page = 1
 
-    def on_tag_desc_textbuffer_changed(self, widget, value=None):
-        return super(StoredQueriesPresenter, self).on_textbuffer_changed(
-            widget, value, attr='query')
-
     def refresh_toggles(self):
         for i in range(1, 11):
             bname = 'stqr_%02d_button' % i
@@ -153,9 +149,7 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
         self.refresh_toggles()
 
     def on_button_clicked(self, widget, *args):
-        if widget.get_active() is False:
-            return
-        widget_name = gtk.Buildable.get_name(widget)
+        widget_name = self.widget_get_name(widget)
         self.model.page = int(widget_name[5:7])
         self.refresh_view()
 
@@ -170,8 +164,9 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
     def on_label_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)
         page_label_name = 'stqr_%02d_label' % self.model.page
-        page_label = getattr(self.view.widgets, page_label_name)
-        page_label.set_text(widget.get_text() or _('<empty>'))
+        value = self.view.widget_get_text(widget)
+        self.view.widget_set_text(
+            page_label_name, value or _('<empty>'))
 
     def on_stqr_query_textbuffer_changed(self, widget, value=None, attr=None):
         return self.on_textbuffer_changed(widget, value, attr='query')

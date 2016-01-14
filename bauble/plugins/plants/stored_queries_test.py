@@ -175,3 +175,35 @@ class StoredQueriesPresenterTests(BaubleTestCase):
         self.assertEquals(m.page, 10)
         presenter.on_prev_button_clicked(None)
         self.assertEquals(m.page, 9)
+
+    def test_select_page(self):
+        view = MockView()
+        m = StoredQueriesModel()
+        presenter = StoredQueriesPresenter(m, view)
+        self.assertEquals(m.page, 1)
+        bname = 'stqr_05_button'
+        presenter.on_button_clicked(bname)
+        self.assertEquals(m.page, 5)
+        self.assertTrue(('widget_set_active', (bname, True)) in
+                        presenter.view.invoked_detailed)
+        self.assertTrue(('widget_set_active', ('stqr_01_button', False)) in
+                        presenter.view.invoked_detailed)
+
+    def test_label_entry_change(self):
+        view = MockView()
+        m = StoredQueriesModel()
+        presenter = StoredQueriesPresenter(m, view)
+        bname = 'stqr_04_button'
+        presenter.on_button_clicked(bname)
+        self.assertEquals(m.page, 4)
+        presenter.view.values['stqr_label_entry'] = 'abc'
+        presenter.on_label_entry_changed('stqr_label_entry')
+        print presenter.view.invoked_detailed
+        self.assertEquals(m.label, 'abc')
+        self.assertTrue(('widget_set_text', ('stqr_04_label', 'abc')) in
+                        presenter.view.invoked_detailed)
+        presenter.view.values['stqr_label_entry'] = ''
+        presenter.on_label_entry_changed('stqr_label_entry')
+        self.assertEquals(m.label, '')
+        self.assertTrue(('widget_set_text', ('stqr_04_label', '<empty>')) in
+                        presenter.view.invoked_detailed)

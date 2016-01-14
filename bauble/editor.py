@@ -913,9 +913,15 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], args))
         pass
 
+    def widget_get_text(self, widget, *args):
+        self.invoked.append('widget_get_text')
+        self.invoked_detailed.append((self.invoked[-1], [widget, args]))
+        return self.values[widget]
+
     def widget_set_text(self, *args):
         self.invoked.append('widget_set_text')
         self.invoked_detailed.append((self.invoked[-1], args))
+        self.values[args[0]] = args[1]
 
     def widget_set_active(self, *args):
         self.invoked.append('widget_set_active')
@@ -1111,6 +1117,8 @@ class GenericEditorPresenter(object):
         return (isinstance(widget, StringTypes)
                 and widget
                 or gtk.Buildable.get_name(widget))
+
+    widget_get_name = __get_widget_name
 
     def __get_widget_attr(self, widget):
         return self.widget_to_field_map.get(self.__get_widget_name(widget))
