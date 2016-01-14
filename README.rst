@@ -21,9 +21,10 @@ Ghini was born as Bauble at the Belize Botanic Gardens, At its heart it is a
 framework for creating database applications.  In their distributed form
 Bauble and Ghini are applications to manage plant records and specifically
 living collections.  Either as Ghini or Bauble, the software is used among
-others by Belize Botanic Gardens to manage their live collections.  Included
-by default is RBG Kew's Family and Genera list from Vascular Plant Families
-and Genera compiled by R. K. Brummitt and published by the Royal Botanic
+others by Belize Botanic Gardens, the Jardín Botánico de Quito, the Mackay
+Regional Botanical Garden, to manage their live collections.  Included by
+default is RBG Kew's Family and Genera list from Vascular Plant Families and
+Genera compiled by R. K. Brummitt and published by the Royal Botanic
 Gardens, Kew in 1992 used by permission from RBG Kew.
 
 All code contained as part of the Bauble package is licenced under
