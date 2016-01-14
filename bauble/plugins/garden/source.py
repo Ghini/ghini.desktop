@@ -263,7 +263,7 @@ class Collection(db.Base):
     # ITF2 - F18 - Collection Notes
     notes = Column(UnicodeText)
 
-    geography_id = Column(Integer, ForeignKey('geography.id'))
+    geography_id = Column(Integer, ForeignKey('gheography.id'))
     region = relation(Geography, uselist=False)
 
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)

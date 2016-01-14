@@ -128,7 +128,7 @@ class CSVTests(ImexTestCase):
                     {'id': 1, 'name': u'1', 'parent_id': None},
                     {'id': 2, 'name': u'2', 'parent_id': 1},
                     ]
-        filename = os.path.join(self.path, 'geography.txt')
+        filename = os.path.join(self.path, 'gheography.txt')
         f = open(filename, 'wb')
         format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
                   'quotechar': QUOTE_CHAR}

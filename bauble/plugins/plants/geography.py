@@ -168,13 +168,13 @@ class Geography(db.Base):
 
     :Constraints:
     """
-    __tablename__ = 'geography'
+    __tablename__ = 'gheography'
 
     # columns
     name = Column(Unicode(255), nullable=False)
     tdwg_code = Column(String(6))
     iso_code = Column(String(7))
-    parent_id = Column(Integer, ForeignKey('geography.id'))
+    parent_id = Column(Integer, ForeignKey('gheography.id'))
 
     def __str__(self):
         return self.name
