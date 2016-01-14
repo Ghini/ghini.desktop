@@ -354,8 +354,10 @@ class CSVImporter(Importer):
             for table, filename in reversed(sorted_tables):
                 if self.__cancel or self.__error:
                     break
+                klass = registered_tables.get(table.name)
+                klassname = klass and klass.__name__ or table.name
                 msg = _('importing %(table)s table from %(filename)s') \
-                    % {'table': registered_tables[table.name].__name__,
+                    % {'table': klassname,
                        'filename': filename}
                 #log.info(msg)
                 bauble.task.set_message(msg)
