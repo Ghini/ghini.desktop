@@ -824,7 +824,7 @@ class SpeciesDistribution(db.Base):
     __tablename__ = 'species_distribution'
 
     # columns
-    geography_id = Column(Integer, ForeignKey('geography.id'), nullable=False)
+    geography_id = Column(Integer, ForeignKey('gheography.id'), nullable=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
     def __str__(self):

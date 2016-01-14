@@ -736,7 +736,7 @@ class SpeciesTests(PlantTestCase):
         import bauble.paths as paths
         default_path = os.path.join(
             paths.lib_dir(), "plugins", "plants", "default")
-        filenames = [os.path.join(default_path, f) for f in 'geography.txt',
+        filenames = [os.path.join(default_path, f) for f in 'gheography.txt',
                      'habit.txt']
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
@@ -1001,7 +1001,7 @@ class GeographyTests(PlantTestCase):
         # import default geography data
         import bauble.paths as paths
         filename = os.path.join(paths.lib_dir(), "plugins", "plants",
-                                "default", 'geography.txt')
+                                "default", 'gheography.txt')
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
         importer.start([filename], force=True)
