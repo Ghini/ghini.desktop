@@ -41,6 +41,8 @@ from bauble.test import BaubleTestCase
 import json
 from bauble.editor import MockView
 
+import bauble.prefs
+bauble.prefs.testing = True
 
 # TODO: test that when we export data we get what we expect
 # TODO: test that importing and then exporting gives the same data
@@ -495,6 +497,7 @@ class JSONExportTests(BaubleTestCase):
              "memorial": False, "object": "plant", "quantity": 1},
             {"accession": "2015.0003", "code": "1", "location": "1",
              "memorial": False, "object": "plant", "quantity": 1}]
+        self.assertEquals(sorted(result), sorted(target))
         for o1 in result:
             self.assertTrue(o1 in target, o1)
         for o2 in target:
