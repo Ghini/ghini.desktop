@@ -738,11 +738,11 @@ class GUI(object):
 
     def on_help_menu_about(self, widget, data=None):
         about = gtk.AboutDialog()
-        about.set_name('Bauble')
+        about.set_name('Ghini')
         about.set_version(bauble.version)
         gtk.about_dialog_set_url_hook(lambda d, l:
                                       desktop.open(l, dialog_on_error=True))
-        about.set_website(_('http://bauble.wikidot.com'))
+        about.set_website(_('http://ghini.github.io'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)
         about.set_logo(pixbuf)
@@ -750,7 +750,7 @@ class GUI(object):
 
         import codecs
         with codecs.open(os.path.join(paths.installation_dir(), 'share',
-                                      'LICENSE.bauble')) as f:
+                                      'LICENSE.ghini')) as f:
             license = f.read()
         about.set_license(license)  # not translated
         about.run()

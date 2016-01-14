@@ -17,14 +17,14 @@ Ghini
 what is Ghini (desktop)
 ------------------------
 
-At its heart Bauble is a framework for creating database
-applications.  In its distributed form Bauble is an application to
-manage plant records and specifically living collections.  It is
-used among others by Belize Botanic Gardens to manage their live
-collections.  Included by default is RBG Kew's Family and Genera
-list from Vascular Plant Families and Genera compiled by
-R. K. Brummitt and published by the Royal Botanic Gardens, Kew in
-1992 used by permission from RBG Kew.
+Ghini was born as Bauble at the Belize Botanic Gardens, At its heart it is a
+framework for creating database applications.  In their distributed form
+Bauble and Ghini are applications to manage plant records and specifically
+living collections.  Either as Ghini or Bauble, the software is used among
+others by Belize Botanic Gardens to manage their live collections.  Included
+by default is RBG Kew's Family and Genera list from Vascular Plant Families
+and Genera compiled by R. K. Brummitt and published by the Royal Botanic
+Gardens, Kew in 1992 used by permission from RBG Kew.
 
 All code contained as part of the Bauble package is licenced under
 the GNU GPLv2+.
@@ -32,22 +32,25 @@ the GNU GPLv2+.
 Terms and Names
 ---------------
 
-This file describes 'bauble.classic', a standalone
-application. 'bauble.classic' was formerly known just as as
-'Bauble'. currently 'Bauble' is the name of an organization on github,
-enclosing 'bauble.classic', 'bauble.webapp' and 'bauble.api'.
+This file describes 'ghini.desktop', a standalone application. Until 2015
+'ghini.desktop' was known as 'Bauble/bauble.classic'. Ghini and Bauble are
+two github organizations. The current maintainer of Ghini forked development
+from Bauble into Ghini mostly because of his difficulty in pronouncing
+"bauble" and in explaining why the software was named that way.
 
-'bauble.classic' is what you would install if you want to start using
-'Bauble' straight away.
+Luca Ghini was the founder of the botanical garden of Pisa, and Pisa is the
+place where the current maintainer Mario Frasca has completed his studies in
+computer science.
 
-The database structure of both 'bauble.classic' and the pair
-'bauble.webapp/bauble.api' is similar so any data you would insert using
-'bauble.classic' will be available once you install a running version of
-'bauble.webapp/bauble.api'.
+Within the Ghini organization, you will find 'ghini.desktop', this program,
+'ghini.github.io', the sources for the ghini website, 'ghini.geoweb', a very
+very alpha quality thing which still did not formalize.
+
+Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
 
 Requirements
 ------------
-bauble.classic requires the following packages to run.
+ghini.desktop requires the following packages to run.
 
 * Python (travis-ci checks Bauble against Python 2.6 and 2.7)
 * SQLAlchemy (>= 0.6.0, at least up to 1.0.3)
@@ -68,9 +71,12 @@ XSL->PDF renderer. For a free renderer check out Apache FOP
 Further info
 ------------
 
-The complete documentation for bauble.classic is to be found at
+The complete documentation for ghini.desktop is to be found at
 http://bauble.readthedocs.org. It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 
-For any kind of question, you can open an issue `here on github <https://github.com/Bauble/bauble.classic/issues/new>`_, or if you feel more comfortable with it, you can start a thread on `our google group <https://groups.google.com/forum/#!forum/bauble>`_.
+For any kind of question, you can open an issue `here on github
+<https://github.com/Ghini/ghini.desktop/issues/new>`_, or if you feel more
+comfortable with it, you can start a thread on `our google group
+<https://groups.google.com/forum/#!forum/bauble>`_.
