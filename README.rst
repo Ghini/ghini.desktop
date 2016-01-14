@@ -1,9 +1,9 @@
-Bauble
+Ghini
 ======
 
-.. image:: https://travis-ci.org/Bauble/bauble.classic.svg
+.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg
 .. image:: https://img.shields.io/pypi/v/bauble.svg
-.. image:: https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github
+.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github
 
 .. image:: https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg
 .. image:: https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg
@@ -14,7 +14,7 @@ Bauble
 .. image:: https://hosted.weblate.org/widgets/bauble/cs/svg-badge.svg
 .. image:: https://hosted.weblate.org/widgets/bauble/sv/svg-badge.svg
 
-what is Bauble (classic)
+what is Ghini (desktop)
 ------------------------
 
 At its heart Bauble is a framework for creating database
@@ -36,10 +36,6 @@ This file describes 'bauble.classic', a standalone
 application. 'bauble.classic' was formerly known just as as
 'Bauble'. currently 'Bauble' is the name of an organization on github,
 enclosing 'bauble.classic', 'bauble.webapp' and 'bauble.api'.
-
-the two new projects 'bauble.webapp' and 'bauble.api' are what you would
-fork/download if you want to participate to the development of a web-based
-version of 'Bauble'.
 
 'bauble.classic' is what you would install if you want to start using
 'Bauble' straight away.
