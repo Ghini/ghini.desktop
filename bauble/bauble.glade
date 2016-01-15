@@ -159,7 +159,7 @@
                       <object class="GtkImage" id="image4">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="icon_name">go-previous</property>
+                        <property name="stock">gtk-go-back</property>
                       </object>
                     </child>
                   </object>
