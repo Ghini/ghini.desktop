@@ -244,22 +244,46 @@ class HistoryTests(BaubleTestCase):
         f = Family(epithet=u'Family')
         self.session.add(f)
         self.session.commit()
-        history = self.session.query(db.History).\
-            order_by(db.History.timestamp.desc()).first()
+        q = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc())
+        history = q.first()
+        base_count = q.count()
         self.assertEquals(history.table_name, 'family')
         self.assertEquals(history.operation, 'insert')
 
-        f.family = u'Family2'
+        f.author = u'L.'
         self.session.commit()
-        history = self.session.query(db.History).\
-            order_by(db.History.timestamp.desc()).first()
+        q = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc())
+        history = q.first()
+        self.assertEquals(q.count(), base_count + 1)
+        self.assertEquals(history.table_name, 'family')
+        self.assertEquals(history.operation, 'update')
+
+        f.author = u'Rch.'
+        self.session.commit()
+        q = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc())
+        history = q.first()
+        self.assertEquals(q.count(), base_count + 2)
+        self.assertEquals(history.table_name, 'family')
+        self.assertEquals(history.operation, 'update')
+
+        f.epithet = u'CanWeRename'
+        self.session.commit()
+        q = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc())
+        history = q.first()
+        self.assertEquals(q.count(), base_count + 3)
         self.assertEquals(history.table_name, 'family')
         self.assertEquals(history.operation, 'update')
 
         self.session.delete(f)
         self.session.commit()
-        history = self.session.query(db.History).\
-            order_by(db.History.timestamp.desc()).first()
+        q = self.session.query(db.History).\
+            order_by(db.History.timestamp.desc())
+        history = q.first()
+        self.assertEquals(q.count(), base_count + 4)
         self.assertEquals(history.table_name, 'family')
         self.assertEquals(history.operation, 'delete')
 
