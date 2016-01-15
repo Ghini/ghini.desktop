@@ -566,7 +566,7 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(result[0]['epithet'], 'tuberosus')
         self.assertEquals(result[0]['ht-rank'], 'genus')
         self.assertEquals(result[0]['ht-epithet'], 'Calopogon')
-        self.assertEquals(result[0]['hybrid_marker'], False)
+        self.assertEquals(result[0]['hybrid_marker'], '')
 
     def test_partial_taxonomic_with_synonymy(self):
         "exporting one genus which is not an accepted name."

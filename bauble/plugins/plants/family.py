@@ -240,13 +240,6 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         except:
             return None
 
-    @classmethod
-    def correct_field_names(cls, keys):
-        for internal, exchange in [('family', 'epithet')]:
-            if exchange in keys:
-                keys[internal] = keys[exchange]
-                del keys[exchange]
-
     def top_level_count(self):
         genera = set(g for g in self.genera if g.species)
         species = [s for g in genera for s in g.species]

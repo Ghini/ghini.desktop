@@ -246,19 +246,22 @@ class HistoryTests(BaubleTestCase):
         self.session.commit()
         history = self.session.query(db.History).\
             order_by(db.History.timestamp.desc()).first()
-        assert history.table_name == 'family' and history.operation == 'insert'
+        self.assertEquals(history.table_name, 'family')
+        self.assertEquals(history.operation, 'insert')
 
         f.family = u'Family2'
         self.session.commit()
         history = self.session.query(db.History).\
             order_by(db.History.timestamp.desc()).first()
-        assert history.table_name == 'family' and history.operation == 'update'
+        self.assertEquals(history.table_name, 'family')
+        self.assertEquals(history.operation, 'update')
 
         self.session.delete(f)
         self.session.commit()
         history = self.session.query(db.History).\
             order_by(db.History.timestamp.desc()).first()
-        assert history.table_name == 'family' and history.operation == 'delete'
+        self.assertEquals(history.table_name, 'family')
+        self.assertEquals(history.operation, 'delete')
 
 
 class MVPTests(BaubleTestCase):
