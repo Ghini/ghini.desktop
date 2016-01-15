@@ -55,7 +55,7 @@ class TagTests(BaubleTestCase):
 
     def setUp(self):
         super(TagTests, self).setUp()
-        self.family = Family(family=u'family')
+        self.family = Family(epithet=u'family')
         self.session.add(self.family)
         self.session.commit()
 
@@ -71,7 +71,7 @@ class TagTests(BaubleTestCase):
         self.assert_(str(tag) == name)
 
     def test_tag_objects(self):
-        family2 = Family(family=u'family2')
+        family2 = Family(epithet=u'family2')
         self.session.add(family2)
         self.session.commit()
         family1_id = self.family.id
@@ -101,7 +101,7 @@ class TagTests(BaubleTestCase):
         self.assertEquals(tagged_objs, [])
 
     def test_get_tag_ids(self):
-        family2 = Family(family=u'family2')
+        family2 = Family(epithet=u'family2')
         self.session.add(family2)
         self.session.flush()
         tag_plugin.tag_objects('test', [self.family, family2])
@@ -250,7 +250,7 @@ class AttachedToTests(BaubleTestCase):
         obj1 = Tag(tag=u'medicinal')
         obj2 = Tag(tag=u'maderable')
         obj3 = Tag(tag=u'frutal')
-        fam = Family(family=u'Solanaceae')
+        fam = Family(epithet=u'Solanaceae')
         self.session.add_all([obj1, obj2, obj3, fam])
         self.session.commit()
 

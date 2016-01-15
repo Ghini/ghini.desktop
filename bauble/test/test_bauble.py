@@ -241,7 +241,7 @@ class HistoryTests(BaubleTestCase):
         Test the HistoryMapperExtension
         """
         from bauble.plugins.plants import Family
-        f = Family(family=u'Family')
+        f = Family(epithet=u'Family')
         self.session.add(f)
         self.session.commit()
         history = self.session.query(db.History).\

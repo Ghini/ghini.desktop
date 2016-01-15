@@ -1181,7 +1181,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 query = self.presenter().session.query(Species).join('genus').\
                     filter(utils.ilike(Genus.genus, '%s%%' % text)).\
                     filter(Species.id != self.model.id).\
-                    order_by(Species.sp)
+                    order_by(Species.epithet)
                 return query
 
             def sp_cell_data_func(col, cell, model, treeiter, data=None):
@@ -1775,7 +1775,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 and_(Species.genus_id == Genus.id,
                      or_(ilike(Genus.genus, '%s%%' % text),
                          ilike(Genus.genus, '%s%%' % genus)))).\
-                order_by(Species.sp)
+                order_by(Species.epithet)
 
         def on_select(value):
             logger.debug('on select: %s' % value)
@@ -1910,7 +1910,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         active = None
         if self.model.id_qual_rank == 'genus':
             active = it
-        it = model.append([str(species.sp), u'sp'])
+        it = model.append([str(species.epithet), u'sp'])
         if self.model.id_qual_rank == u'sp':
             active = it
 

@@ -52,16 +52,16 @@ class MakoFormatterTests(BaubleTestCase):
         super(MakoFormatterTests, self).setUp()
         fctr = gctr = sctr = actr = pctr = 0
         for f in xrange(2):
-            fctr+=1
-            family = Family(id=fctr, family=u'fam%s' % fctr)
+            fctr + =1
+            family = Family(id=fctr, epithet=u'fam%s' % fctr)
             self.session.add(family)
             for g in range(2):
-                gctr+=1
-                genus = Genus(id=gctr, family=family, genus=u'gen%s' % gctr)
+                gctr + =1
+                genus = Genus(id=gctr, family=family, epithet=u'gen%s' % gctr)
                 self.session.add(genus)
                 for s in range(2):
-                    sctr+=1
-                    sp = Species(id=sctr, genus=genus, sp=u'sp%s' % sctr)
+                    sctr + =1
+                    sp = Species(id=sctr, genus=genus, epithet=u'sp%s' % sctr)
                     # TODO: why doesn't this geography, species
                     # distribution stuff seem to work
                     geo = Geography(id=sctr, name=u'Mexico%s' % sctr)

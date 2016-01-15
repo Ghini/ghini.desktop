@@ -328,12 +328,12 @@ class PlantsPlugin(pluginmgr.Plugin):
 
         mapper_search = search.get_strategy('MapperSearch')
 
-        mapper_search.add_meta(('family', 'fam'), Family, ['family'])
+        mapper_search.add_meta(('family', 'fam'), Family, ['epithet'])
         SearchView.row_meta[Family].set(children="genera",
                                         infobox=FamilyInfoBox,
                                         context_menu=family_context_menu)
 
-        mapper_search.add_meta(('genus', 'gen'), Genus, ['genus'])
+        mapper_search.add_meta(('genus', 'gen'), Genus, ['epithet'])
         SearchView.row_meta[Genus].set(children="species",
                                        infobox=GenusInfoBox,
                                        context_menu=genus_context_menu)
@@ -341,7 +341,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         from functools import partial
         search.add_strategy(SynonymSearch)
         mapper_search.add_meta(('species', 'sp'), Species,
-                               ['sp', 'sp2', 'infrasp1', 'infrasp2',
+                               ['epithet', 'infrasp1', 'infrasp2',
                                 'infrasp3', 'infrasp4'])
         SearchView.row_meta[Species].set(
             children=partial(db.natsort, 'accessions'),

@@ -58,12 +58,12 @@ csv_test_data = ({})
 # Spiranthes delitescens Sheviak
 # Aerides lawrenceae Rchb. f.
 
-family_data = [{'id': 1, 'family': u'Orchidaceae', 'qualifier': None},
-               {'id': 2, 'family': u'Myrtaceae'}]
-genus_data = [{'id': 1, 'genus': u'Calopogon', 'family_id': 1,
+family_data = [{'id': 1, 'epithet': u'Orchidaceae', 'aggregate': None},
+               {'id': 2, 'epithet': u'Myrtaceae'}]
+genus_data = [{'id': 1, 'epithet': u'Calopogon', 'family_id': 1,
                'author': u'R. Br.'},
-              {'id': 2, 'genus': u'Panisea', 'family_id': 1}]
-species_data = [{'id': 1, 'sp': u'tuberosus', 'genus_id': 1}]
+              {'id': 2, 'epithet': u'Panisea', 'family_id': 1}]
+species_data = [{'id': 1, 'epithet': u'tuberosus', 'genus_id': 1}]
 accession_data = [
     {'id': 1, 'species_id': 1, 'code': u'2015.0001'},
     {'id': 2, 'species_id': 1, 'code': u'2015.0002'},
@@ -209,7 +209,7 @@ class CSVTests(ImexTestCase):
         """
         self.session = db.Session()
         family = self.session.query(Family).filter_by(id=1).one()
-        self.assert_(family.qualifier == '')
+        self.assert_(family.aggregate == '')
 
     def test_import_use_default(self):
         """
@@ -224,7 +224,7 @@ class CSVTests(ImexTestCase):
         self.session.expunge_all()
         self.session = db.Session()
         family = self.session.query(Family).filter_by(id=1).one()
-        self.assert_(family.qualifier == '')
+        self.assert_(family.aggregate == '')
 
     def test_import_no_default(self):
         """
@@ -251,7 +251,7 @@ class CSVTests(ImexTestCase):
         executed.
         """
         family = self.session.query(Family).filter_by(id=2).one()
-        self.assert_(family.qualifier == '')
+        self.assert_(family.aggregate == '')
 
     def test_sequences(self):
         """
@@ -299,7 +299,7 @@ class CSVTests(ImexTestCase):
         """
         Test exporting a None column exports a ''
         """
-        species = Species(genus_id=1, sp='sp')
+        species = Species(genus_id=1, epithet='sp')
         self.assertTrue(species is not None)
         from tempfile import mkdtemp
         temp_path = mkdtemp()
@@ -484,7 +484,7 @@ class JSONExportTests(BaubleTestCase):
             {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae",
              "ht-rank": "familia", "object": "taxon", "rank": "genus"},
             {"epithet": "tuberosus", "ht-epithet": "Calopogon",
-             "ht-rank": "genus", "hybrid": False, "object": "taxon",
+             "ht-rank": "genus", "hybrid_marker": False, "object": "taxon",
              "rank": "species"},
             {"code": "2015.0001", "object": "accession", "private": False,
              "species": "Calopogon tuberosus"},
@@ -517,7 +517,7 @@ class JSONExportTests(BaubleTestCase):
         "exporting one family: export full taxonomic information below family"
 
         selection = self.session.query(Family).filter(
-            Family.family == u'Orchidaceae').all()
+            Family.epithet == u'Orchidaceae').all()
         exporter = JSONExporter(MockView())
         exporter.selection_based_on == 'sbo_selection'
         exporter.include_private = False
@@ -533,7 +533,7 @@ class JSONExportTests(BaubleTestCase):
         "exporting one genus: all species below genus"
 
         selection = self.session.query(Genus).filter(
-            Genus.genus == u'Calopogon').all()
+            Genus.epithet == u'Calopogon').all()
         exporter = JSONExporter(MockView())
         exporter.view.selection = selection
         exporter.selection_based_on == 'sbo_selection'
@@ -552,8 +552,8 @@ class JSONExportTests(BaubleTestCase):
         "exporting one species: all species below species"
 
         selection = self.session.query(
-            Species).filter(Species.sp == u'tuberosus').join(
-            Genus).filter(Genus.genus == u"Calopogon").all()
+            Species).filter(Species.epithet == u'tuberosus').join(
+            Genus).filter(Genus.epithet == u"Calopogon").all()
         exporter = JSONExporter(MockView())
         exporter.view.selection = selection
         exporter.selection_based_on == 'sbo_selection'
@@ -566,22 +566,22 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(result[0]['epithet'], 'tuberosus')
         self.assertEquals(result[0]['ht-rank'], 'genus')
         self.assertEquals(result[0]['ht-epithet'], 'Calopogon')
-        self.assertEquals(result[0]['hybrid'], False)
+        self.assertEquals(result[0]['hybrid_marker'], False)
 
     def test_partial_taxonomic_with_synonymy(self):
         "exporting one genus which is not an accepted name."
 
         f = self.session.query(
             Family).filter(
-            Family.family == u'Orchidaceae').one()
-        bu = Genus(family=f, genus=u'Bulbophyllum')  # accepted
-        zy = Genus(family=f, genus=u'Zygoglossum')  # synonym
+            Family.epithet == u'Orchidaceae').one()
+        bu = Genus(family=f, epithet=u'Bulbophyllum')  # accepted
+        zy = Genus(family=f, epithet=u'Zygoglossum')  # synonym
         bu.synonyms.append(zy)
         self.session.add_all([f, bu, zy])
         self.session.commit()
 
         selection = self.session.query(Genus).filter(
-            Genus.genus == u'Zygoglossum').all()
+            Genus.epithet == u'Zygoglossum').all()
         exporter = JSONExporter(MockView())
         exporter.view.selection = selection
         exporter.selection_based_on == 'sbo_selection'
@@ -660,9 +660,9 @@ class JSONExportTests(BaubleTestCase):
         "exporting one genus which is not an accepted name."
 
         ## precondition
-        sola = Family(family='Solanaceae')
-        brug = Genus(family=sola, genus=u'Brugmansia')
-        arbo = Species(genus=brug, sp=u'arborea')
+        sola = Family(epithet=u'Solanaceae')
+        brug = Genus(family=sola, epithet=u'Brugmansia')
+        arbo = Species(genus=brug, epithet=u'arborea')
         vern = VernacularName(species=arbo,
                               language=u"es", name=u"Floripondio")
         self.session.add_all([sola, brug, arbo, vern])
@@ -735,12 +735,12 @@ class JSONImportTests(BaubleTestCase):
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
-            Genus.genus == u"Neogyna").all()), 0)
+            Genus.epithet == u"Neogyna").all()), 0)
         importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
-            Genus.genus == u"Neogyna").all()), 1)
+            Genus.epithet == u"Neogyna").all()), 1)
 
     def test_import_new_inserts_lowercase(self):
         "importing new taxon adds it to database, rank name can be\
@@ -750,24 +750,24 @@ class JSONImportTests(BaubleTestCase):
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
-            Genus.genus == u"Neogyna").all()), 0)
+            Genus.epithet == u"Neogyna").all()), 0)
         importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
-            Genus.genus == u"Neogyna").all()), 1)
+            Genus.epithet == u"Neogyna").all()), 1)
 
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
         json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank"'\
-            ': "Genus", "ht-epithet": "Calopogon", "hybrid": false, "author"'\
+            ': "Genus", "ht-epithet": "Calopogon", "hybrid_marker": false, "author"'\
             ': "Britton et al."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         previously = Species.retrieve_or_create(
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
-        self.assertEquals(previously.sp_author, None)
+        self.assertEquals(previously.author, None)
         importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
@@ -775,7 +775,7 @@ class JSONImportTests(BaubleTestCase):
         afterwards = Species.retrieve_or_create(
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
-        self.assertEquals(afterwards.sp_author, u"Britton et al.")
+        self.assertEquals(afterwards.author, u"Britton et al.")
 
     def test_import_ignores_id_new(self):
         "importing taxon disregards id value if present (new taxon)."
@@ -802,8 +802,8 @@ class JSONImportTests(BaubleTestCase):
                                                 {'ht-epithet': u"Calopogon",
                                                  'epithet': u"tuberosus"}).id
         json_string = '[{"rank": "Species", "epithet": "tuberosus", '\
-            '"ht-rank": "Genus", "ht-epithet": "Calopogon", "hybrid": false, '\
-            '"id": 8}]'
+            '"ht-rank": "Genus", "ht-epithet": "Calopogon", '\
+            '"hybrid_marker": false, "id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         importer = JSONImporter(MockImportView())
@@ -830,8 +830,8 @@ class JSONImportTests(BaubleTestCase):
         ## should check the logs
         ## check the species is still not there
         sp = self.session.query(Species).filter(
-            Species.sp == u'lawrenceae').join(Genus).filter(
-            Genus.genus == u'Aerides').all()
+            Species.epithet == u'lawrenceae').join(Genus).filter(
+            Genus.epithet == u'Aerides').all()
         self.assertEquals(sp, [])
 
     def test_import_species_to_new_genus_and_family(self):
@@ -839,8 +839,8 @@ class JSONImportTests(BaubleTestCase):
 
         ## precondition: the species is not there
         sp = self.session.query(Species).filter(
-            Species.sp == u'lawrenceae').join(Genus).filter(
-            Genus.genus == u'Aerides').all()
+            Species.epithet == u'lawrenceae').join(Genus).filter(
+            Genus.epithet == u'Aerides').all()
         self.assertEquals(sp, [])
 
         json_string = '[{"rank": "Species", "epithet": "lawrenceae", '\
@@ -855,14 +855,14 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
         ## postcondition: the species is there
         sp = self.session.query(Species).filter(
-            Species.sp == u'lawrenceae').join(Genus).filter(
-            Genus.genus == u'Aerides').all()
+            Species.epithet == u'lawrenceae').join(Genus).filter(
+            Genus.epithet == u'Aerides').all()
         self.assertEquals(len(sp), 1)
         sp = sp[0]
         genus = self.session.query(Genus).filter(
-            Genus.genus == u'Aerides').first()
+            Genus.epithet == u'Aerides').first()
         family = self.session.query(Family).filter(
-            Family.family == u'Orchidaceae').first()
+            Family.epithet == u'Orchidaceae').first()
         self.assertEquals(sp.genus, genus)
         self.assertEquals(genus.family, family)
 
@@ -890,10 +890,10 @@ class JSONImportTests(BaubleTestCase):
     def test_use_author_to_break_ties(self):
         "importing homonym taxon is possible if authorship breaks ties"
         # Anacampseros was used twice, by Linnaeus, and by Miller
-        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
-        linnaeus = Genus(family=ataceae, genus=u'Anacampseros', author=u'L.')
-        claceae = Family(family=u'Crassulaceae')  # J. St.-Hil.
-        miller = Genus(family=claceae, genus=u'Anacampseros', author=u'Mill.')
+        ataceae = Family(epithet=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, epithet=u'Anacampseros', author=u'L.')
+        claceae = Family(epithet=u'Crassulaceae')  # J. St.-Hil.
+        miller = Genus(family=claceae, epithet=u'Anacampseros', author=u'Mill.')
         self.session.add_all([claceae, ataceae, linnaeus, miller])
         self.session.commit()
 
@@ -927,8 +927,8 @@ class JSONImportTests(BaubleTestCase):
         'existing gets updated, not existing is created'
 
         ## T_0
-        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
-        linnaeus = Genus(family=ataceae, genus=u'Anacampseros')  # L.
+        ataceae = Family(epithet=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, epithet=u'Anacampseros')  # L.
         self.session.add_all([ataceae, linnaeus])
         self.session.commit()
 
@@ -962,8 +962,8 @@ class JSONImportTests(BaubleTestCase):
         'existing gets updated, not existing is not created'
 
         ## T_0
-        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
-        linnaeus = Genus(family=ataceae, genus=u'Anacampseros')  # L.
+        ataceae = Family(epithet=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, epithet=u'Anacampseros')  # L.
         self.session.add_all([ataceae, linnaeus])
         self.session.commit()
 
@@ -996,8 +996,8 @@ class JSONImportTests(BaubleTestCase):
         'existing remains untouched, not existing is created'
 
         ## T_0
-        ataceae = Family(family=u'Anacampserotaceae')  # Eggli & Nyffeler
-        linnaeus = Genus(family=ataceae, genus=u'Anacampseros')  # L.
+        ataceae = Family(epithet=u'Anacampserotaceae')  # Eggli & Nyffeler
+        linnaeus = Genus(family=ataceae, epithet=u'Anacampseros')  # L.
         self.session.add_all([ataceae, linnaeus])
         self.session.commit()
 
