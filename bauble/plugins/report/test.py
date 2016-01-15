@@ -71,15 +71,15 @@ class ReportTests(ReportTestCase):
         fctr = gctr = sctr = actr = pctr = 0
         for f in xrange(2):
             fctr += 1
-            family = Family(id=fctr, family=u'fam%s' % fctr)
+            family = Family(id=fctr, epithet=u'fam%s' % fctr)
             self.session.add(family)
             for g in range(2):
                 gctr += 1
-                genus = Genus(id=gctr, family=family, genus=u'gen%s' % gctr)
+                genus = Genus(id=gctr, family=family, epithet=u'gen%s' % gctr)
                 self.session.add(genus)
                 for s in range(2):
                     sctr += 1
-                    sp = Species(id=sctr, genus=genus, sp=u'sp%s' % sctr)
+                    sp = Species(id=sctr, genus=genus, epithet=u'sp%s' % sctr)
                     vn = VernacularName(id=sctr, species=sp,
                                         name=u'name%s' % sctr)
                     self.session.add_all([sp, vn])
