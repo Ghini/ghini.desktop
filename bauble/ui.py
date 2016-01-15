@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # ui.py
 #
@@ -125,6 +125,7 @@ class GUI(object):
         self.window.set_title(self.title)
 
         try:
+            logger.debug("loading icon from %s" % bauble.default_icon)
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.window.set_icon(pixbuf)
         except Exception:
@@ -443,13 +444,13 @@ class GUI(object):
                                    _("Open the log-file"), None,
                                    None, self.on_help_menu_logfile),
                                   ("help_web.devel", gtk.STOCK_HOME,
-                                   _("Bauble development website"), None,
+                                   _("Ghini development website"), None,
                                    None, self.on_help_menu_web_devel),
                                   ("help_web.wiki", gtk.STOCK_EDIT,
-                                   _("Bauble wiki"), None,
+                                   _("Ghini wiki"), None,
                                    None, self.on_help_menu_web_wiki),
                                   ("help_web.forum", gtk.STOCK_JUSTIFY_LEFT,
-                                   _("Bauble forum"), None,
+                                   _("Ghini forum"), None,
                                    None, self.on_help_menu_web_forum),
                                   ("help_about", gtk.STOCK_ABOUT, _("About"),
                                    None, None, self.on_help_menu_about),
@@ -717,7 +718,7 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):
-        desktop.open('https://github.com/Bauble/bauble.classic/issues/new',
+        desktop.open('https://github.com/Ghini/ghini.desktop/issues/new',
                      dialog_on_error=True)
 
     def on_help_menu_logfile(self, widget, data=None):
@@ -725,11 +726,11 @@ class GUI(object):
         desktop.open(filename, dialog_on_error=True)
 
     def on_help_menu_web_devel(self, widget, data=None):
-        desktop.open('http://github.com/Bauble/bauble.classic/',
+        desktop.open('http://github.com/Ghini/ghini.desktop/',
                      dialog_on_error=True)
 
     def on_help_menu_web_wiki(self, widget, data=None):
-        desktop.open('http://github.com/Bauble/bauble.classic/wiki',
+        desktop.open('http://github.com/Ghini/ghini.desktop/wiki',
                      dialog_on_error=True)
 
     def on_help_menu_web_forum(self, widget, data=None):

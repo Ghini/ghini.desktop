@@ -34,12 +34,12 @@
        id="filter4781">
       <feGaussianBlur
          id="feGaussianBlur4783"
-         stdDeviation="24.984074" />
+         stdDeviation="8" />
     </filter>
   </defs>
   <path
      d="m 508.23302,241.61748 a 261.85049,261.85049 0 1 1 -523.700992,0 261.85049,261.85049 0 1 1 523.700992,0 z"
-     transform="matrix(0.8080534,0,0,0.8080534,45,51)"
+     transform="matrix(0.86,0,0,0.895,33,30)"
      id="path4614"
      style="color:#000000;fill:#3be7ff;fill-opacity:1;fill-rule:nonzero;stroke:#00ff00;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter4781);enable-background:accumulate" />
   <path
