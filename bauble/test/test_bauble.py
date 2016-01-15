@@ -38,6 +38,10 @@ from bauble.btypes import Enum, EnumError
 from bauble.test import BaubleTestCase, check_dupids
 import bauble.meta as meta
 
+from bauble import prefs
+prefs.testing = True
+
+
 """
 Tests for the main bauble module.
 """
