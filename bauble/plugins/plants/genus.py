@@ -260,8 +260,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     @classmethod
     def correct_field_names(cls, keys):
-        for internal, exchange in [('genus', 'epithet'),
-                                   ('family', 'ht-epithet')]:
+        for internal, exchange in [('family', 'ht-epithet')]:
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]

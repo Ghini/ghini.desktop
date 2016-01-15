@@ -1,4 +1,4 @@
-"id","family"
+"id","epithet"
 1,"Acanthaceae"
 2,"Aceraceae"
 3,"Achariaceae"

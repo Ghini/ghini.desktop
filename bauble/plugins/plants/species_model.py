@@ -557,6 +557,13 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return None
 
     @classmethod
+    def correct_field_names(cls, keys):
+        for internal, exchange in [('genus', 'ht-epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
+
+    @classmethod
     def compute_serializable_fields(cls, session, keys):
         from genus import Genus
         result = {'genus': None}
