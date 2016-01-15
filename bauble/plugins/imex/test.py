@@ -766,14 +766,14 @@ class JSONImportTests(BaubleTestCase):
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
         json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank"'\
-            ': "Genus", "ht-epithet": "Calopogon", "hybrid_marker": false, "author"'\
-            ': "Britton et al."}]'
+            ': "Genus", "ht-epithet": "Calopogon", "hybrid_marker": false, '\
+            '"author": "Britton et al."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         previously = Species.retrieve_or_create(
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
-        self.assertEquals(previously.author, None)
+        self.assertEquals(previously.author, u'')
         importer = JSONImporter(MockImportView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
