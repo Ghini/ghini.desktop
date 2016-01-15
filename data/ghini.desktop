@@ -1,10 +1,10 @@
 [Desktop Entry]
 Encoding=UTF-8
-Name=Bauble
+Name=Ghini
 Version=1.0.56  # :bump
 Comment=An application for managing botanical collections
 Terminal=False
-Icon=bauble
+Icon=ghini
 Type=Application
-Exec=bauble
+Exec=ghini
 Categories=Education;
