@@ -41,6 +41,8 @@ from bauble.plugins.plants.geography import Geography, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids, mockfunc
 
 from functools import partial
+from bauble import prefs
+prefs.testing = True
 
 import logging
 logging.basicConfig()
@@ -98,41 +100,41 @@ genus_note_test_data = (
 
 species_test_data = (
     {'id': 1, 'epithet': u'variabilis', 'genus_id': 1,
-     'sp_author': u'Bateman ex Lindl.'},
+     'author': u'Bateman ex Lindl.'},
     {'id': 2, 'epithet': u'cochleata', 'genus_id': 2,
-     'sp_author': u'(L.) Lem\xe9e'},
+     'author': u'(L.) Lem\xe9e'},
     {'id': 3, 'epithet': u'precatorius', 'genus_id': 3,
-     'sp_author': u'L.'},
+     'author': u'L.'},
     {'id': 4, 'epithet': u'alapense', 'genus_id': 4,
-     'hybrid': True, 'sp_author': u'F\xe9e'},
+     'hybrid_marker': u'×', 'author': u'F\xe9e'},
     {'id': 5, 'epithet': u'cochleata', 'genus_id': 2,
-     'sp_author': u'(L.) Lem\xe9e',
+     'author': u'(L.) Lem\xe9e',
      'infrasp1_rank': u'var.', 'infrasp1': u'cochleata'},
     {'id': 6, 'epithet': u'cochleata', 'genus_id': 2,
-     'sp_author': u'(L.) Lem\xe9e',
+     'author': u'(L.) Lem\xe9e',
      'infrasp1_rank': u'cv.', 'infrasp1': u'Black Night'},
     {'id': 7, 'epithet': u'precatorius', 'genus_id': 3,
-     'sp_author': u'L.', 'cv_group': u'SomethingRidiculous'},
+     'author': u'L.', 'cv_group': u'SomethingRidiculous'},
     {'id': 8, 'epithet': u'precatorius', 'genus_id': 3,
-     'sp_author': u'L.',
+     'author': u'L.',
      'infrasp1_rank': u'cv.', 'infrasp1': u'Hot Rio Nights',
      'cv_group': u'SomethingRidiculous'},
     {'id': 9, 'epithet': u'generalis', 'genus_id': 1,
-     'hybrid': True,
+     'hybrid_marker': u'×',
      'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
     {'id': 10, 'epithet': u'generalis', 'genus_id': 1,
-     'hybrid': True, 'sp_author': u'L.',
+     'hybrid_marker': u'×', 'author': u'L.',
      'infrasp1_rank': u'cv.', 'infrasp1': u'Red',
      'cv_group': u'SomeGroup'},
     {'id': 11, 'epithet': u'generalis', 'genus_id': 1,
-     'sp_qual': u'agg.'},
+     'aggregate': u'A'},
     {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
     {'id': 13, 'genus_id': 1,
      'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
     {'id': 14, 'genus_id': 1,
      'infrasp1_rank': u'cv.', 'infrasp1': u'Red & Blue'},
     {'id': 15, 'epithet': u'cochleata', 'genus_id': 2,
-     'sp_author': u'L.',
+     'author': u'L.',
      'infrasp1_rank': u'subsp.', 'infrasp1': u'cochleata',
      'infrasp1_author': u'L.',
      'infrasp2_rank': u'var.', 'infrasp2': u'cochleata',
@@ -147,11 +149,11 @@ species_test_data = (
     {'id': 19, 'genus_id': 6, 'epithet': u'grandiflora', 'author': u'Lindl.'},
     {'id': 20, 'genus_id': 2, 'epithet': u'fragrans', 'author': u'Dressler'},
     {'id': 21, 'genus_id': 7, 'epithet': u'arborea', 'author': u'Lagerh.'},
-    {'id': 22, 'epithet': u'', 'genus_id': 1, 'sp_author': u'',
+    {'id': 22, 'epithet': u'', 'genus_id': 1, 'author': u'',
      'infrasp1_rank': u'cv.', 'infrasp1': u'Layla Saida'},
-    {'id': 23, 'epithet': u'', 'genus_id': 1, 'sp_author': u'',
+    {'id': 23, 'epithet': u'', 'genus_id': 1, 'author': u'',
      'infrasp1_rank': u'cv.', 'infrasp1': u'Buonanotte'},
-    {'id': 24, 'epithet': u'', 'genus_id': 1, 'sp_author': u'',
+    {'id': 24, 'epithet': u'', 'genus_id': 1, 'author': u'',
      'infrasp1_rank': None, 'infrasp1': u'sp'},
     )
 
@@ -277,8 +279,6 @@ class PlantTestCase(BaubleTestCase):
 
     def __init__(self, *args):
         super(PlantTestCase, self).__init__(*args)
-        from bauble import prefs
-        prefs.testing = True
 
     def setUp(self):
         super(PlantTestCase, self).setUp()
@@ -764,7 +764,7 @@ class SpeciesTests(PlantTestCase):
         def get_sp_str(id, **kwargs):
             return self.session.query(Species).get(id).str(**kwargs)
 
-        for sid, expect in species_str_map.iteritems():
+        for sid, expect in sorted(species_str_map.items()):
                 sp = self.session.query(Species).get(sid)
                 printable_name = remove_zws("%s" % sp)
                 self.assertEquals(species_str_map[sid], printable_name)
@@ -1195,7 +1195,7 @@ class FromAndToDict_create_update_test(PlantTestCase):
             self.session, {'object': 'taxon',
                            'rank': 'familia',
                            'epithet': u'Leguminosae',
-                           'aggregate': u'A'},
+                           'aggregate': u''},
             create=False, update=False)
         self.assertEquals(obj.aggregate, u'A')
 
@@ -1205,9 +1205,9 @@ class FromAndToDict_create_update_test(PlantTestCase):
             self.session, {'object': 'taxon',
                            'rank': 'familia',
                            'epithet': u'Leguminosae',
-                           'aggregate': u'A'},
+                           'aggregate': u''},
             create=False, update=True)
-        self.assertEquals(obj.aggregate, u'A')
+        self.assertEquals(obj.aggregate, u'')
 
     def test_genus_nocreate_noupdate_noexisting_impossible(self):
         # do not create if not existing
@@ -1271,19 +1271,19 @@ class FromAndToDict_create_update_test(PlantTestCase):
         self.assertEquals(obj.author, u'Schltr.')
 
     def test_vernacular_name_as_dict(self):
-        bra = self.session.query(Species).filter(Species.id == 21).first()
+        bra = self.session.query(Species).filter(Species.id == 21).one()
         vn_bra = self.session.query(VernacularName).filter(
             VernacularName.language == u'agr',
-            VernacularName.species == bra).all()
-        self.assertEquals(vn_bra[0].as_dict(),
+            VernacularName.species == bra).one()
+        self.assertEquals(vn_bra.as_dict(),
                           {'object': 'vernacular_name',
                            'name': u'Toé',
                            'language': u'agr',
                            'species': 'Brugmansia arborea'})
         vn_bra = self.session.query(VernacularName).filter(
             VernacularName.language == u'es',
-            VernacularName.species == bra).all()
-        self.assertEquals(vn_bra[0].as_dict(),
+            VernacularName.species == bra).one()
+        self.assertEquals(vn_bra.as_dict(),
                           {'object': 'vernacular_name',
                            'name': u'Floripondio',
                            'language': u'es',
@@ -1761,7 +1761,8 @@ class GlobalFunctionsTest(PlantTestCase):
         self.assertEquals(remove_zws(first), expect)
         self.assertEquals(second, u'Orchidaceae -- SomeName, SomeName 2')
         first, second = model.search_view_markup_pair()
-        self.assertEquals(remove_zws(first), u'<i>Laelia</i> <i>lobata</i>')
+        self.assertEquals(remove_zws(first), u'<i>Laelia</i> <i>lobata</i>'
+                          u' <span weight="light">H.J. Veitch</span>')
         self.assertEquals(second, u'Orchidaceae')
 
     def test_vername_markup_func(self):

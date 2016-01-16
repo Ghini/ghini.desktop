@@ -355,10 +355,10 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         return self.str(authors, markup=True, genus=genus)
 
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = utils.utf8(u'\u2a09')  # U+2A09
+    hybrid_char = utils.utf8(u'×')
 
     def str(self, authors=False, markup=False, remove_zws=False, genus=True,
-            qualification=None):
+            qualification=None, sensu=None):
         '''
         returns a string for species
 
@@ -433,10 +433,15 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         # create the tail, ie: anything to add on to the end
         tail = []
-        if self.aggregate:
-            tail = [self.aggregate]
+        if self.aggregate == u'A':
+            if sensu is not None:
+                tail.append(sensu)
+            else:
+                tail.append(u'agg.')
 
-        if qualification is not None:
+        if qualification is None:
+            pass
+        else:
             rank, qual = qualification
             print binomial, qualification
             if qual in ['incorrect']:
@@ -608,7 +613,7 @@ class SpeciesNote(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(self.species, remove_zws=True)
+        result['species'] = self.species.str(remove_zws=True)
         return result
 
     @classmethod
@@ -704,7 +709,7 @@ class VernacularName(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(self.species, remove_zws=True)
+        result['species'] = self.species.str(remove_zws=True)
         return result
 
     @classmethod
