@@ -52,22 +52,22 @@ else
 fi
 
 mkdir -p $HOME/.virtualenvs
-virtualenv $HOME/.virtualenvs/ghide --system-site-packages
-find $HOME/.virtualenvs/ghide -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
-mkdir -p $HOME/.virtualenvs/ghide/share
-mkdir -p $HOME/.ghini
-source $HOME/.virtualenvs/ghide/bin/activate
+virtualenv $HOME/.virtualenvs/ghide11 --system-site-packages
+find $HOME/.virtualenvs/ghide11 -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
+mkdir -p $HOME/.virtualenvs/ghide11/share
+mkdir -p $HOME/.bauble
+source $HOME/.virtualenvs/ghide11/bin/activate
 
 pip install setuptools pip --upgrade
 
 python setup.py build
 python setup.py install
 mkdir -p $HOME/bin 2>/dev/null
-cat <<EOF > $HOME/bin/ghini
+cat <<EOF > $HOME/bin/ghini11
 #!/bin/bash
 
 GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
-source \$HOME/.virtualenvs/ghide/bin/activate
+source \$HOME/.virtualenvs/ghide11/bin/activate
 
 BUILDANDEND=0
 while getopts us: f
@@ -91,18 +91,18 @@ fi
 
 ghini
 EOF
-chmod +x $HOME/bin/ghini
+chmod +x $HOME/bin/ghini11
 
 echo your local installation is now complete.
 echo enter your password to make Ghini available to other users.
 
 sudo addgroup ghini 2>/dev/null 
 sudo usermod -a -G ghini $(whoami)
-chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide
-sudo chgrp -R ghini $HOME/.virtualenvs/ghide
-cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
+chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide11
+sudo chgrp -R ghini $HOME/.virtualenvs/ghide11
+cat <<EOF | sudo tee /usr/local/bin/ghini11 > /dev/null
 #!/bin/bash
-source $HOME/.virtualenvs/ghide/bin/activate
-$HOME/.virtualenvs/ghide/bin/ghini
+source $HOME/.virtualenvs/ghide11/bin/activate
+$HOME/.virtualenvs/ghide11/bin/ghini
 EOF
-sudo chmod +x /usr/local/bin/ghini
+sudo chmod +x /usr/local/bin/ghini11
