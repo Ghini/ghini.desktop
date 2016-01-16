@@ -4,20 +4,20 @@
 # Copyright 2004-2010 Brett Adams <brett@bauble.io>
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 """
 Replace the version string in the relevant files.
@@ -49,7 +49,7 @@ version = sys.argv[1]
 
 bump_tag = ':bump'
 
-# should I just increment version as of bauble.version?
+# should I just increment version as of ghini.version?
 if version in ['+', '++', '+++']:
     inc_patch = version == '+'
     inc_minor = version == '++'
@@ -134,14 +134,13 @@ def bump_nsi_file(filename):
 # bump and grind
 bump_py_file(os.path.join(root_of_clone(), 'bauble/version.py'))
 bump_py_file(os.path.join(root_of_clone(), 'doc/conf.py'), 'release')
-bump_desktop_file(os.path.join(root_of_clone(), 'data/bauble.desktop'))
+bump_desktop_file(os.path.join(root_of_clone(), 'data/ghini.desktop'))
 bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build.nsi'))
 
-# TODO: the bauble UBC version is prefixed with ubc-
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
 
 # TODO: commit the changes
 print
 print 'git commit -m "bumping to %s" bauble/version.py doc/conf.py'\
-    ' data/bauble.desktop scripts/build.nsi packages/builddeb.sh' % version
+    ' data/ghini.desktop scripts/build.nsi packages/builddeb.sh' % version

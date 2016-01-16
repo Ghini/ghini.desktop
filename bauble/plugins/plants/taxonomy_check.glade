@@ -124,7 +124,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="tooltip_text" translatable="yes">copy results selection to clipboard</property>
-                                        <property name="icon_name">gtk-copy</property>
+                                        <property name="stock">gtk-copy</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -169,7 +169,7 @@
                                       <object class="GtkImage" id="image8">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="icon_name">applications-internet</property>
+                                        <property name="stock">gtk-find</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -227,7 +227,7 @@ continue to next screen</property>
                                       <object class="GtkImage" id="image1">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="icon_name">go-next</property>
+                                        <property name="stock">gtk-go-forward</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -427,7 +427,7 @@ continue to next screen</property>
                                       <object class="GtkImage" id="image7">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="icon_name">go-previous</property>
+                                        <property name="stock">gtk-go-back</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -488,7 +488,7 @@ continue to next screen</property>
                                       <object class="GtkImage" id="image10">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="icon_name">go-next</property>
+                                        <property name="stock">gtk-go-forward</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -591,7 +591,7 @@ continue to next screen</property>
                                       <object class="GtkImage" id="image5">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="icon_name">go-previous</property>
+                                        <property name="stock">gtk-go-back</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>

@@ -134,14 +134,14 @@ class JSONExporter(editor.GenericEditorPresenter):
         ## now the taxonomy, based either on all species or on the ones used
         if self.selection_based_on == 'sbo_taxa':
             species = self.session.query(Species).order_by(
-                Species.sp).all()
+                Species.epithet).all()
         else:
             # prepend results with accession data
             result = accessions + accessionnotes + result
 
             species = self.session.query(Species).filter(
                 Species.id.in_([j.species_id for j in accessions])).order_by(
-                Species.sp).all()
+                Species.epithet).all()
 
         vernacular = self.session.query(VernacularName).filter(
             VernacularName.species_id.in_([j.id for j in species])).all()
@@ -149,10 +149,10 @@ class JSONExporter(editor.GenericEditorPresenter):
         ## and all used genera and families
         genera = self.session.query(Genus).filter(
             Genus.id.in_([j.genus_id for j in species])).order_by(
-            Genus.genus).all()
+            Genus.epithet).all()
         families = self.session.query(Familia).filter(
             Familia.id.in_([j.family_id for j in genera])).order_by(
-            Familia.family).all()
+            Familia.epithet).all()
 
         ## prepend the result with the taxonomic information
         result = families + genera + species + vernacular + result
