@@ -213,7 +213,6 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     @staticmethod
     def str(genus, author=False):
-        # TODO: the genus should be italicized for markup
         if genus.epithet is None:
             return repr(genus)
         elif not author or genus.author is None:
@@ -245,6 +244,13 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     @classmethod
     def retrieve(cls, session, keys):
+        # hybrid spec is contained in epithet
+        firstchar = keys['epithet'][0]
+        if firstchar in [u'×', u'x', u'+']:
+            keys['hybrid_marker'] = {'x': u'×'}.get(firstchar, firstchar)
+            keys['epithet'] = keys['epithet'][1:]
+        if keys['epithet'].find(u'×') != -1:
+            keys['hybrid_marker'] = u'H'
         try:
             return session.query(cls).filter(
                 cls.epithet == keys['epithet']).one()
