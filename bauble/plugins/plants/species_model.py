@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
-    UnicodeText, func, UniqueConstraint
+from sqlalchemy import (
+    Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint)
 from sqlalchemy.orm import relation, backref
 import bauble.db as db
 import bauble.error as error
@@ -93,41 +93,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     :Table name: species
 
     :Columns:
-        *sp*:
-        *sp2*:
-        *sp_author*:
-
-        *hybrid*:
-            Hybrid flag
-
-        *infrasp1*:
-        *infrasp1_rank*:
-        *infrasp1_author*:
-
-        *infrasp2*:
-        *infrasp2_rank*:
-        *infrasp2_author*:
-
-        *infrasp3*:
-        *infrasp3_rank*:
-        *infrasp3_author*:
-
-        *infrasp4*:
-        *infrasp4_rank*:
-        *infrasp4_author*:
+        *epithet*:
+        *author*:
 
         *cv_group*:
         *trade_name*:
-
-        *sp_qual*:
-            Species qualifier
-
-            Possible values:
-                *agg.*: An aggregate species
-
-                *s. lat.*: aggregrate species (sensu lato)
-
-                *s. str.*: segregate species (sensu stricto)
 
         *label_distribution*:
             UnicodeText
@@ -146,14 +116,49 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         *distribution*:
 
     :Constraints:
-        The combination of sp, sp_author, hybrid, sp_qual,
+        The combination of epithet, author, hybrid, aggregate,
         cv_group, trade_name, genus_id
     """
     __tablename__ = 'species'
-    __mapper_args__ = {'order_by': ['sp', 'sp_author']}
+    __mapper_args__ = {'order_by': ['epithet', 'author']}
 
     rank = 'species'
     link_keys = ['accepted']
+
+    # columns
+    epithet = Column(Unicode(64), nullable=True, index=True)  # allows for `sp`
+    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    author = Column(Unicode(255), default=u'')
+    aggregate = Column(Unicode(1), nullable=False, default=u'')
+
+    cv_group = Column(Unicode(50))
+    trade_name = Column(Unicode(64))
+
+    infrasp1 = Column(Unicode(64))
+    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp1_author = Column(Unicode(64))
+
+    infrasp2 = Column(Unicode(64))
+    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp2_author = Column(Unicode(64))
+
+    infrasp3 = Column(Unicode(64))
+    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp3_author = Column(Unicode(64))
+
+    infrasp4 = Column(Unicode(64))
+    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp4_author = Column(Unicode(64))
+
+    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
+    ## the Species.genus property is defined as backref in Genus.species
+
+    label_distribution = Column(UnicodeText)
+    bc_distribution = Column(UnicodeText)
 
     def search_view_markup_pair(self):
         '''provide the two lines describing object for SearchView row.
@@ -166,8 +171,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                      ', '.join([str(v) for v in self.vernacular_names])))
             else:
                 substring = '%s' % self.genus.family
-            trail = self.sp_author and (' <span weight="light">%s</span>' %
-                                        utils.xml_safe(self.sp_author)) or ''
+            trail = self.author and (' <span weight="light">%s</span>' %
+                                     utils.xml_safe(self.author)) or ''
             if self.accepted:
                 trail += ('<span foreground="#555555" size="small" '
                           'weight="light"> - ' + _("synonym of %s") + "</span>"
@@ -268,42 +273,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 return epithet
         return u''
 
-    # columns
-    sp = Column(Unicode(64), index=True)
-    sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
-    sp_author = Column(Unicode(128))
-    hybrid = Column(Boolean, default=False)
-    sp_qual = Column(types.Enum(values=['agg.', 's. lat.', 's. str.', None]),
-                     default=None)
-    cv_group = Column(Unicode(50))
-    trade_name = Column(Unicode(64))
-
-    infrasp1 = Column(Unicode(64))
-    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp1_author = Column(Unicode(64))
-
-    infrasp2 = Column(Unicode(64))
-    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp2_author = Column(Unicode(64))
-
-    infrasp3 = Column(Unicode(64))
-    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp3_author = Column(Unicode(64))
-
-    infrasp4 = Column(Unicode(64))
-    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp4_author = Column(Unicode(64))
-
-    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
-    ## the Species.genus property is defined as backref in Genus.species
-
-    label_distribution = Column(UnicodeText)
-    bc_distribution = Column(UnicodeText)
-
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
     _synonyms = relation('SpeciesSynonym',
@@ -386,10 +355,10 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         return self.str(authors, markup=True, genus=genus)
 
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = utils.utf8(u'\u2a09')  # U+2A09
+    hybrid_char = utils.utf8(u'×')
 
     def str(self, authors=False, markup=False, remove_zws=False, genus=True,
-            qualification=None):
+            qualification=None, sensu=None):
         '''
         returns a string for species
 
@@ -409,26 +378,23 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             genus = str(self.genus)
         else:
             genus = ''
-        if self.sp and not remove_zws:
-            sp = u'\u200b' + self.sp  # prepend with zero_width_space
+        if self.epithet and not remove_zws:
+            epithet = u'\u200b' + self.epithet  # prepend with zero_width_space
         else:
-            sp = self.sp
-        sp2 = self.sp2
+            epithet = self.epithet
         if markup:
             escape = utils.xml_safe
             italicize = lambda s: (  # all but the multiplication signs
                 u'<i>%s</i>' % escape(s).replace(u'×', u'</i>×<i>'))
             genus = italicize(genus)
-            if sp is not None:
-                sp = italicize(sp)
-            if sp2 is not None:
-                sp2 = italicize(sp2)
+            if epithet is not None:
+                epithet = italicize(epithet)
         else:
             italicize = escape = lambda x: x
 
         author = None
-        if authors and self.sp_author:
-            author = escape(self.sp_author)
+        if authors and self.author:
+            author = escape(self.author)
 
         infrasp = ((self.infrasp1_rank, self.infrasp1,
                     self.infrasp1_author),
@@ -441,20 +407,20 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         infrasp_parts = []
         group_added = False
-        for rank, epithet, iauthor in infrasp:
-            if rank == 'cv.' and epithet:
+        for irank, iepithet, iauthor in infrasp:
+            if irank == 'cv.' and iepithet:
                 if self.cv_group and not group_added:
                     group_added = True
                     infrasp_parts.append(_("(%(group)s Group)") %
                                          dict(group=self.cv_group))
-                infrasp_parts.append("'%s'" % escape(epithet))
+                infrasp_parts.append("'%s'" % escape(iepithet))
             else:
-                if rank:
-                    infrasp_parts.append(rank)
-                if epithet and rank:
-                    infrasp_parts.append(italicize(epithet))
-                elif epithet:
-                    infrasp_parts.append(escape(epithet))
+                if irank:
+                    infrasp_parts.append(irank)
+                if iepithet and irank:
+                    infrasp_parts.append(italicize(iepithet))
+                elif iepithet:
+                    infrasp_parts.append(escape(iepithet))
 
             if authors and iauthor:
                 infrasp_parts.append(escape(iauthor))
@@ -463,15 +429,21 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                                  dict(group=self.cv_group))
 
         # create the binomial part
-        binomial = [genus, self.hybrid and self.hybrid_char, sp, author]
+        binomial = [genus, self.hybrid_marker, epithet, author]
 
         # create the tail, ie: anything to add on to the end
         tail = []
-        if self.sp_qual:
-            tail = [self.sp_qual]
+        if self.aggregate == u'A':
+            if sensu is not None:
+                tail.append(sensu)
+            else:
+                tail.append(u'agg.')
 
-        if qualification is not None:
+        if qualification is None:
+            pass
+        else:
             rank, qual = qualification
+            print binomial, qualification
             if qual in ['incorrect']:
                 rank = None
             if rank == 'sp':
@@ -566,36 +538,35 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     def as_dict(self, recurse=True):
         result = dict((col, getattr(self, col))
                       for col in self.__table__.columns.keys()
-                      if col not in ['id', 'sp']
+                      if col not in ['id', 'epithet']
                       and col[0] != '_'
                       and getattr(self, col) is not None
                       and not col.endswith('_id'))
         result['object'] = 'taxon'
         result['rank'] = 'species'
-        result['epithet'] = self.sp
+        result['epithet'] = self.epithet
         result['ht-rank'] = 'genus'
-        result['ht-epithet'] = self.genus.genus
+        result['ht-epithet'] = self.genus.epithet
         if recurse and self.accepted is not None:
             result['accepted'] = self.accepted.as_dict(recurse=False)
         return result
-
-    @classmethod
-    def correct_field_names(cls, keys):
-        for internal, exchange in [('sp_author', 'author'),
-                                   ('sp', 'epithet')]:
-            if exchange in keys:
-                keys[internal] = keys[exchange]
-                del keys[exchange]
 
     @classmethod
     def retrieve(cls, session, keys):
         from genus import Genus
         try:
             return session.query(cls).filter(
-                cls.sp == keys['epithet']).join(Genus).filter(
-                Genus.genus == keys['ht-epithet']).one()
+                cls.epithet == keys['epithet']).join(Genus).filter(
+                Genus.epithet == keys['ht-epithet']).one()
         except:
             return None
+
+    @classmethod
+    def correct_field_names(cls, keys):
+        for internal, exchange in [('genus', 'ht-epithet')]:
+            if exchange in keys:
+                keys[internal] = keys[exchange]
+                del keys[exchange]
 
     @classmethod
     def compute_serializable_fields(cls, session, keys):
@@ -642,7 +613,7 @@ class SpeciesNote(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(self.species, remove_zws=True)
+        result['species'] = self.species.str(remove_zws=True)
         return result
 
     @classmethod
@@ -663,8 +634,8 @@ class SpeciesNote(db.Base, db.Serializable):
         try:
             return session.query(cls).filter(
                 cls.category == keys['category']).join(Species).filter(
-                Species.sp == epithet).join(Genus).filter(
-                Genus.genus == genus).one()
+                Species.epithet == epithet).join(Genus).filter(
+                Genus.epithet == genus).one()
         except:
             return None
 
@@ -738,7 +709,7 @@ class VernacularName(db.Base, db.Serializable):
 
     def as_dict(self):
         result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(self.species, remove_zws=True)
+        result['species'] = self.species.str(remove_zws=True)
         return result
 
     @classmethod
@@ -759,8 +730,8 @@ class VernacularName(db.Base, db.Serializable):
         from genus import Genus
         g_epithet, s_epithet = keys['species'].split(' ', 1)
         sp = session.query(Species).filter(
-            Species.sp == s_epithet).join(Genus).filter(
-            Genus.genus == g_epithet).first()
+            Species.epithet == s_epithet).join(Genus).filter(
+            Genus.epithet == g_epithet).first()
         try:
             return session.query(cls).filter(
                 cls.species == sp,
@@ -824,7 +795,7 @@ class SpeciesDistribution(db.Base):
     __tablename__ = 'species_distribution'
 
     # columns
-    geography_id = Column(Integer, ForeignKey('geography.id'), nullable=False)
+    geography_id = Column(Integer, ForeignKey('gheography.id'), nullable=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
     def __str__(self):

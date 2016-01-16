@@ -450,6 +450,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     # columns
     code = Column(Unicode(6), nullable=False)
+    date_planted = Column(types.Date, nullable=True, default=None)
 
     @validates('code')
     def validate_stripping(self, key, value):
@@ -670,6 +671,7 @@ class PlantEditorView(GenericEditorView):
 class PlantEditorPresenter(GenericEditorPresenter):
 
     widget_to_field_map = {'plant_code_entry': 'code',
+                           'plant_date_entry': 'date_planted',
                            'plant_acc_entry': 'accession',
                            'plant_loc_comboentry': 'location',
                            'plant_acc_type_combo': 'acc_type',

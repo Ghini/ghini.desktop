@@ -136,10 +136,10 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(str(self.species.genus))
 
     def get_FirstEpithet(self):
-        return utils.xml_safe(str(self.species.sp))
+        return utils.xml_safe(str(self.species.epithet))
 
     def get_AuthorTeam(self):
-        author = self.species.sp_author
+        author = self.species.author
         if author is None:
             return None
         else:

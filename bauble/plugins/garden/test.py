@@ -180,10 +180,10 @@ class GardenTestCase(BaubleTestCase):
     def setUp(self):
         super(GardenTestCase, self).setUp()
         plants_test.setUp_data()
-        self.family = Family(family=u'Cactaceae')
-        self.genus = Genus(family=self.family, genus=u'Echinocactus')
-        self.species = Species(genus=self.genus, sp=u'grusonii')
-        self.sp2 = Species(genus=self.genus, sp=u'texelensis')
+        self.family = Family(epithet=u'Cactaceae')
+        self.genus = Genus(family=self.family, epithet=u'Echinocactus')
+        self.species = Species(genus=self.genus, epithet=u'grusonii')
+        self.sp2 = Species(genus=self.genus, epithet=u'texelensis')
         self.session.add_all([self.family, self.genus, self.species, self.sp2])
         self.session.commit()
 
@@ -884,7 +884,7 @@ class AccessionQualifiedTaxon(GardenTestCase):
 
     def setUp(self):
         super(AccessionQualifiedTaxon, self).setUp()
-        self.sp3 = Species(genus=self.genus, sp=u'grusonii',
+        self.sp3 = Species(genus=self.genus, epithet=u'grusonii',
                            infrasp1_rank=u'var.', infrasp1=u'albispinus')
         self.session.add(self.sp3)
         self.session.commit()
@@ -1190,7 +1190,7 @@ class AccessionTests(GardenTestCase):
         """
         raise SkipTest('separate view from presenter, then test presenter')
         #donor = self.create(Donor, name=u'test')
-        sp2 = Species(genus=self.genus, sp=u'species')
+        sp2 = Species(genus=self.genus, epithet=u'species')
         sp2.synonyms.append(self.species)
         self.session.add(sp2)
         self.session.commit()

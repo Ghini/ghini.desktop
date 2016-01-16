@@ -239,8 +239,8 @@ class SearchTests(BaubleTestCase):
         db.engine.execute('delete from family')
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
-        self.family = Family(family=u'family1', qualifier=u's. lat.')
-        self.genus = Genus(family=self.family, genus=u'genus1')
+        self.family = Family(epithet=u'family1', aggregate=u'A')
+        self.genus = Genus(family=self.family, epithet=u'genus1')
         self.Family = Family
         self.Genus = Genus
         self.session.add_all([self.family, self.genus])
@@ -333,9 +333,9 @@ class SearchTests(BaubleTestCase):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
         Family = self.Family
-        f2 = Family(family=u'family2')
-        f3 = Family(family=u'afamily3')
-        f4 = Family(family=u'fam4')
+        f2 = Family(epithet=u'family2')
+        f3 = Family(epithet=u'afamily3')
+        f4 = Family(epithet=u'fam4')
         self.session.add_all([f3, f2, f4])
         self.session.commit()
 
@@ -365,8 +365,8 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        genus2 = Genus(family=family2, genus=u'genus2')
+        family2 = Family(epithet=u'family2')
+        genus2 = Genus(family=family2, epithet=u'genus2')
         self.session.add_all([family2, genus2])
         self.session.commit()
 
@@ -374,7 +374,7 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search cls.column
-        results = mapper_search.search('genus where genus=genus1',
+        results = mapper_search.search('genus where epithet=genus1',
                                        self.session)
         self.assertEquals(len(results), 1)
         f = list(results)[0]
@@ -387,12 +387,12 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        f2 = Family(family=u'family2')
-        g2 = Genus(family=f2, genus=u'genus2')
-        f3 = Family(family=u'fam3')
+        f2 = Family(epithet=u'family2')
+        g2 = Genus(family=f2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3')
         # g3(homonym) is here just to have two matches on one value
-        g3 = Genus(family=f3, genus=u'genus2')
-        g4 = Genus(family=f3, genus=u'genus4')
+        g3 = Genus(family=f3, epithet=u'genus2')
+        g4 = Genus(family=f3, epithet=u'genus4')
         self.session.add_all([f2, g2, f3, g3, g4])
         self.session.commit()
 
@@ -400,7 +400,7 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search with or conditions
-        s = 'genus where genus=genus2 OR genus=genus1'
+        s = 'genus where epithet=genus2 OR epithet=genus1'
         results = mapper_search.search(s, self.session)
         self.assertEquals(sorted([r.id for r in results]),
                           [g.id for g in (self.genus, g2, g3)])
@@ -411,11 +411,11 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        genus2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3')
-        g3 = Genus(family=f3, genus=u'genus2')
-        g4 = Genus(family=f3, genus=u'genus4')
+        family2 = Family(epithet=u'family2')
+        genus2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3')
+        g3 = Genus(family=f3, epithet=u'genus2')
+        g4 = Genus(family=f3, epithet=u'genus4')
         self.session.add_all([family2, genus2, f3, g3, g4])
         self.session.commit()
 
@@ -439,8 +439,8 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        genus2 = Genus(family=family2, genus=u'genus2')
+        family2 = Family(epithet=u'family2')
+        genus2 = Genus(family=family2, epithet=u'genus2')
         self.session.add_all([family2, genus2])
         self.session.commit()
 
@@ -448,7 +448,7 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # search cls.parent.column
-        results = mapper_search.search('genus where family.family=family1',
+        results = mapper_search.search('genus where family.epithet=family1',
                                        self.session)
         self.assertEquals(len(results), 1)
         g0 = list(results)[0]
@@ -456,7 +456,7 @@ class SearchTests(BaubleTestCase):
         self.assertEquals(g0.id, self.genus.id)
 
         # search cls.children.column
-        results = mapper_search.search('family where genera.genus=genus1',
+        results = mapper_search.search('family where genera.epithet=genus1',
                                        self.session)
         self.assertEquals(len(results), 1)
         f = list(results)[0]
@@ -470,46 +470,46 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'genus3')
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'genus3')
         self.session.add_all([family2, g2, f3, g3])
         self.session.commit()
 
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
-        s = 'genus where genus=genus2 AND family.family=fam3'
+        s = 'genus where epithet=genus2 AND family.epithet=fam3'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 0)
 
-        s = 'genus where genus=genus3 AND family.family=fam3'
+        s = 'genus where epithet=genus3 AND family.epithet=fam3'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 1)
         g0 = list(results)[0]
         self.assertTrue(isinstance(g0, Genus))
         self.assertEqual(g0.id, g3.id)
 
-        s = 'genus where family.family="Orchidaceae" AND family.qualifier=""'
+        s = 'genus where family.epithet="Orchidaceae" AND family.aggregate=""'
         results = mapper_search.search(s, self.session)
         r = list(results)
         self.assertEqual(r, [])
 
-        s = 'genus where family.family=fam3 AND family.qualifier=""'
+        s = 'genus where family.epithet=fam3 AND family.aggregate=""'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([]))
 
         # sqlite3 stores None as the empty string.
-        s = 'genus where family.qualifier=""'
+        s = 'genus where family.aggregate=""'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([g2]))
 
         # test where the column is ambiguous so make sure we choose
         # the right one, in this case we want to make sure we get the
-        # qualifier on the family and not the genus
-        s = 'plant where accession.species.genus.family.family="Orchidaceae" '\
-            'AND accession.species.genus.family.qualifier=""'
+        # aggregate on the family and not the genus
+        s = 'plant where accession.species.genus.family.epithet="Orchidaceae" '\
+            'AND accession.species.genus.family.aggregate=""'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([]))
 
@@ -519,25 +519,25 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'genus3')
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'genus3')
         self.session.add_all([family2, g2, f3, g3])
         self.session.commit()
 
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
-        s = 'genus where genus=genus2 && family.family=fam3'
+        s = 'genus where epithet=genus2 && family.epithet=fam3'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 0)
 
-        s = 'family where family=family1 || family=fam3'
+        s = 'family where epithet=family1 || epithet=fam3'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 2)
 
-        s = 'family where ! family=family1'
+        s = 'family where ! epithet=family1'
         results = mapper_search.search(s, self.session)
         self.assertEqual(len(results), 2)
 
@@ -552,17 +552,17 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'genus3')
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'genus3')
         self.session.add_all([family2, g2, f3, g3])
         self.session.commit()
 
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
-        s = 'genus where family.qualifier is None'
+        s = 'genus where family.aggregate is None'
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([]))
 
@@ -590,10 +590,10 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        genus2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3')
-        g3 = Genus(family=f3, genus=u'genus3')
+        family2 = Family(epithet=u'family2')
+        genus2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3')
+        g3 = Genus(family=f3, epithet=u'genus3')
         self.session.add_all([family2, genus2, f3, g3])
         self.session.commit()
 
@@ -613,14 +613,14 @@ class SearchTests(BaubleTestCase):
         # test does not depend on plugin functionality
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        family3 = Family(family=u'afamily3')
-        genus21 = Genus(family=family2, genus=u'genus21')
-        genus31 = Genus(family=family3, genus=u'genus31')
-        genus32 = Genus(family=family3, genus=u'genus32')
-        genus33 = Genus(family=family3, genus=u'genus33')
-        f3 = Family(family=u'fam3')
-        g3 = Genus(family=f3, genus=u'genus31')
+        family2 = Family(epithet=u'family2')
+        family3 = Family(epithet=u'afamily3')
+        genus21 = Genus(family=family2, epithet=u'genus21')
+        genus31 = Genus(family=family3, epithet=u'genus31')
+        genus32 = Genus(family=family3, epithet=u'genus32')
+        genus33 = Genus(family=family3, epithet=u'genus33')
+        f3 = Family(epithet=u'fam3')
+        g3 = Genus(family=f3, epithet=u'genus31')
         self.session.add_all([family3, family2, genus21, genus31, genus32,
                               genus33, f3, g3])
         self.session.commit()
@@ -629,7 +629,7 @@ class SearchTests(BaubleTestCase):
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
 
         # test partial string matches on a query
-        s = 'genus where family.family like family%'
+        s = 'genus where family.epithet like family%'
         results = mapper_search.search(s, self.session)
         self.assertEquals(set(results), set([self.genus, genus21]))
 
@@ -643,11 +643,11 @@ class SearchTests(BaubleTestCase):
         from bauble.plugins.garden.accession import Accession
         from bauble.plugins.garden.location import Location
         from bauble.plugins.garden.plant import Plant
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'Ixora')
-        sp = Species(sp=u"coccinea", genus=g3)
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'Ixora')
+        sp = Species(epithet=u"coccinea", genus=g3)
         ac = Accession(species=sp, code=u'1979.0001')
         lc = Location(name=u'loc1', code=u'loc1')
         pp = Plant(accession=ac, code=u'01', location=lc, quantity=1)
@@ -674,11 +674,11 @@ class SearchTests(BaubleTestCase):
         from bauble.plugins.garden.accession import Accession
         #from bauble.plugins.garden.location import Location
         #from bauble.plugins.garden.plant import Plant
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'Ixora')
-        sp = Species(sp=u"coccinea", genus=g3)
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'Ixora')
+        sp = Species(epithet=u"coccinea", genus=g3)
         ac = Accession(species=sp, code=u'1979.0001')
         self.session.add_all([family2, g2, f3, g3, sp, ac])
         self.session.commit()
@@ -697,11 +697,11 @@ class SearchTests(BaubleTestCase):
         """SynonymSearch strategy gives all synonyms of given taxon."""
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'Ixora')
-        g4 = Genus(family=f3, genus=u'Schetti')
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'Ixora')
+        g4 = Genus(family=f3, epithet=u'Schetti')
         self.session.add_all([family2, g2, f3, g3, g4])
         g4.accepted = g3
         self.session.commit()
@@ -717,11 +717,11 @@ class SearchTests(BaubleTestCase):
         """SynonymSearch strategy gives all synonyms of given taxon."""
         Family = self.Family
         Genus = self.Genus
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'Ixora')
-        g4 = Genus(family=f3, genus=u'Schetti')
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'Ixora')
+        g4 = Genus(family=f3, epithet=u'Schetti')
         self.session.add_all([family2, g2, f3, g3, g4])
         g4.accepted = g3
         self.session.commit()
@@ -740,11 +740,11 @@ class SearchTests(BaubleTestCase):
         Genus = self.Genus
         from bauble.plugins.plants.species_model import Species
         from bauble.plugins.plants.species_model import VernacularName
-        family2 = Family(family=u'family2')
-        g2 = Genus(family=family2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'Ixora')
-        sp = Species(sp=u"coccinea", genus=g3)
+        family2 = Family(epithet=u'family2')
+        g2 = Genus(family=family2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'Ixora')
+        sp = Species(epithet=u"coccinea", genus=g3)
         vn = VernacularName(name=u"coral rojo", language=u"es", species=sp)
         self.session.add_all([family2, g2, f3, g3, sp, vn])
         self.session.commit()
@@ -768,17 +768,17 @@ class BinomialSearchTests(BaubleTestCase):
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
         from bauble.plugins.plants.species import Species
-        f1 = Family(family=u'family1', qualifier=u's. lat.')
-        g1 = Genus(family=f1, genus=u'genus1')
-        f2 = Family(family=u'family2')
-        g2 = Genus(family=f2, genus=u'genus2')
-        f3 = Family(family=u'fam3', qualifier=u's. lat.')
-        g3 = Genus(family=f3, genus=u'Ixora')
-        sp = Species(sp=u"coccinea", genus=g3)
-        sp2 = Species(sp=u"peruviana", genus=g3)
-        sp3 = Species(sp=u"chinensis", genus=g3)
-        g4 = Genus(family=f3, genus=u'Pachystachys')
-        sp4 = Species(sp=u'coccinea', genus=g4)
+        f1 = Family(epithet=u'family1', aggregate=u'A')
+        g1 = Genus(family=f1, epithet=u'genus1')
+        f2 = Family(epithet=u'family2')
+        g2 = Genus(family=f2, epithet=u'genus2')
+        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        g3 = Genus(family=f3, epithet=u'Ixora')
+        sp = Species(epithet=u"coccinea", genus=g3)
+        sp2 = Species(epithet=u"peruviana", genus=g3)
+        sp3 = Species(epithet=u"chinensis", genus=g3)
+        g4 = Genus(family=f3, epithet=u'Pachystachys')
+        sp4 = Species(epithet=u'coccinea', genus=g4)
         self.session.add_all([f1, f2, g1, g2, f3, g3, sp, sp2, sp3, g4, sp4])
         self.session.commit()
         self.ixora, self.ic, self.pc = g3, sp, sp4
@@ -824,8 +824,8 @@ class BinomialSearchTests(BaubleTestCase):
 
         from bauble.plugins.plants.species import Species
         from bauble.plugins.plants.genus import Genus
-        g3 = self.session.query(Genus).filter(Genus.genus == u'Ixora').one()
-        sp5 = Species(sp=u"coccinea", genus=g3,
+        g3 = self.session.query(Genus).filter(Genus.epithet == u'Ixora').one()
+        sp5 = Species(epithet=u"coccinea", genus=g3,
                       infrasp1_rank=u'cv.', infrasp1=u'Nora Grant')
         self.session.add_all([sp5])
         self.session.commit()
@@ -863,19 +863,19 @@ class BuildingSQLStatements(BaubleTestCase):
 
         sp = self.SearchParser()
         results = sp.parse_string('species where species.genus=genus1 OR '
-                                  'species.sp=name AND species.genus.family'
-                                  '.family=name')
+                                  'species.epithet=name AND species.genus.family'
+                                  '.epithet=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
-                         "((species.genus = 'genus1') OR ((species.sp = 'name'"
-                         ") AND (species.genus.family.family = 'name')))")
+                         "((species.genus = 'genus1') OR ((species.epithet = 'name'"
+                         ") AND (species.genus.family.epithet = 'name')))")
 
         sp = self.SearchParser()
         results = sp.parse_string('species where species.genus=genus1 || '
-                                  'species.sp=name && species.genus.family.'
-                                  'family=name')
+                                  'species.epithet=name && species.genus.family.'
+                                  'epithet=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
-                         "((species.genus = 'genus1') OR ((species.sp = 'name'"
-                         ") AND (species.genus.family.family = 'name')))")
+                         "((species.genus = 'genus1') OR ((species.epithet = 'name'"
+                         ") AND (species.genus.family.epithet = 'name')))")
 
     def test_canfindfamilyfromgenus(self):
         'can find family from genus'
@@ -906,13 +906,13 @@ class BuildingSQLStatements(BaubleTestCase):
 
         sp = self.SearchParser()
         results = sp.parse_string('species where NOT species.genus.family.'
-                                  'family=name')
+                                  'epithet=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
-                         "NOT (species.genus.family.family = 'name')")
-        results = sp.parse_string('species where ! species.genus.family.family'
+                         "NOT (species.genus.family.epithet = 'name')")
+        results = sp.parse_string('species where ! species.genus.family.epithet'
                                   '=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
-                         "NOT (species.genus.family.family = 'name')")
+                         "NOT (species.genus.family.epithet = 'name')")
         results = sp.parse_string('species where family=1 OR family=2 AND NOT '
                                   'genus.id=3')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
@@ -924,13 +924,13 @@ class BuildingSQLStatements(BaubleTestCase):
 
         sp = self.SearchParser()
         results = sp.parse_string('species where not species.genus.family.'
-                                  'family=name')
+                                  'epithet=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
-                         "NOT (species.genus.family.family = 'name')")
-        results = sp.parse_string('species where ! species.genus.family.family'
+                         "NOT (species.genus.family.epithet = 'name')")
+        results = sp.parse_string('species where ! species.genus.family.epithet'
                                   '=name')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
-                         "NOT (species.genus.family.family = 'name')")
+                         "NOT (species.genus.family.epithet = 'name')")
         results = sp.parse_string('species where family=1 or family=2 and not '
                                   'genus.id=3')
         self.assertEqual(str(results.statement), "SELECT * FROM species WHERE "
@@ -1007,21 +1007,21 @@ class AggregatingFunctions(BaubleTestCase):
         db.engine.execute('delete from species')
         db.engine.execute('delete from accession')
         from bauble.plugins.plants import Family, Genus, Species
-        f1 = Family(family=u'Rutaceae', qualifier=u'')
-        g1 = Genus(family=f1, genus=u'Citrus')
-        sp1 = Species(sp=u"medica", genus=g1)
-        sp2 = Species(sp=u"maxima", genus=g1)
-        sp3 = Species(sp=u"aurantium", genus=g1)
+        f1 = Family(epithet=u'Rutaceae', aggregate=u'')
+        g1 = Genus(family=f1, epithet=u'Citrus')
+        sp1 = Species(epithet=u"medica", genus=g1)
+        sp2 = Species(epithet=u"maxima", genus=g1)
+        sp3 = Species(epithet=u"aurantium", genus=g1)
 
-        f2 = Family(family=u'Sapotaceae')
-        g2 = Genus(family=f2, genus=u'Manilkara')
-        sp4 = Species(sp=u'zapota', genus=g2)
-        sp5 = Species(sp=u'zapotilla', genus=g2)
-        g3 = Genus(family=f2, genus=u'Pouteria')
-        sp6 = Species(sp=u'stipitata', genus=g3)
+        f2 = Family(epithet=u'Sapotaceae')
+        g2 = Genus(family=f2, epithet=u'Manilkara')
+        sp4 = Species(epithet=u'zapota', genus=g2)
+        sp5 = Species(epithet=u'zapotilla', genus=g2)
+        g3 = Genus(family=f2, epithet=u'Pouteria')
+        sp6 = Species(epithet=u'stipitata', genus=g3)
 
-        f3 = Family(family=u'Musaceae')
-        g4 = Genus(family=f3, genus=u'Musa')
+        f3 = Family(epithet=u'Musaceae')
+        g4 = Genus(family=f3, epithet=u'Musa')
         self.session.add_all([f1, f2, f3, g1, g2, g3, g4,
                               sp1, sp2, sp3, sp4, sp5, sp6])
         self.session.commit()

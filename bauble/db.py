@@ -131,6 +131,9 @@ class HistoryExtension(orm.MapperExtension):
         self._add('delete', mapper, instance)
 
 
+registered_tables = {}
+
+
 class MapperBase(DeclarativeMeta):
     """
     MapperBase adds the id, _created and _last_updated columns to all
@@ -151,6 +154,7 @@ class MapperBase(DeclarativeMeta):
                                           default=sa.func.now(),
                                           onupdate=sa.func.now())
             cls.__mapper_args__ = {'extension': HistoryExtension()}
+            registered_tables[dict_['__tablename__']] = cls
         if 'top_level_count' not in dict_:
             cls.top_level_count = lambda x: {classname: 1}
         if 'search_view_markup_pair' not in dict_:
@@ -494,7 +498,7 @@ class WithNotes:
                     return n.note
         if result == []:
             # if nothing was found, do not break the proxy.
-            return Base.__getattr__(self, name)
+            return self.__getattribute__(name)
         if is_dict:
             return dict(result)
         return result

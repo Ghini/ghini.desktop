@@ -122,44 +122,26 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     """
     :Table name: genus
 
-    :Columns:
-        *genus*:
-            The name of the genus.  In addition to standard generic
-            names any additional hybrid flags or genera should included here.
-
-        *qualifier*:
-            Designates the botanical status of the genus.
-
-            Possible values:
-                * s. lat.: aggregrate genus (sensu lato)
-
-                * s. str.: segregate genus (sensu stricto)
-
-        *author*:
-            The name or abbreviation of the author who published this genus.
-
-    :Properties:
-        *family*:
-            The family of the genus.
-
-        *synonyms*:
-            The list of genera who are synonymous with this genus.  If
-            a genus is listed as a synonym of this genus then this
-            genus should be considered the current and valid name for
-            the synonym.
-
     :Contraints:
-        The combination of genus, author, qualifier
+        The combination of genus, author, aggregate
         and family_id must be unique.
     """
     __tablename__ = 'genus'
-    __table_args__ = (UniqueConstraint('genus', 'author',
-                                       'qualifier', 'family_id'),
+    __table_args__ = (UniqueConstraint('epithet', 'author', 'aggregate',
+                                       'family_id'),
                       {})
     __mapper_args__ = {'order_by': ['genus', 'author']}
 
     rank = 'genus'
     link_keys = ['accepted']
+
+    # columns - common for all taxa
+    epithet = Column(Unicode(64), nullable=False, index=True)
+    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    author = Column(Unicode(255), default=u'')
+    aggregate = Column(Unicode(1), nullable=False, default=u'')
+
+    family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
     def search_view_markup_pair(self):
         '''provide the two lines describing object for SearchView row.
@@ -177,45 +159,11 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
             return self.family.cites
         return cites_notes[0]
 
-    @property
-    def epithet(self):
-        '''strip the leading char if it is an hybrid marker
-        '''
-        if self.genus[0] in [u'x', u'×']:
-            return self.genus[1:]
-        if self.genus[0] in [u'+', u'➕']:
-            return self.genus[1:]
-        return self.genus
-
-    @property
-    def hybrid_marker(self):
-        """Intergeneric Hybrid Flag (ITF2)
-        """
-        if self.genus[0] in [u'x', u'×']:
-            return u'×'
-        if self.genus[0] in [u'+', u'➕']:
-            return u'+'
-        if self.genus.find(u'×') > 0:
-            # the genus field contains a formula
-            return u'H'
-        return u''
-
-    # columns
-    genus = Column(String(64), nullable=False, index=True)
-
-    # use '' instead of None so that the constraints will work propertly
-    author = Column(Unicode(255), default=u'')
-
     @validates('genus', 'author')
     def validate_stripping(self, key, value):
         if value is None:
             return None
         return value.strip()
-
-    qualifier = Column(types.Enum(values=['s. lat.', 's. str', u'']),
-                       default=u'')
-
-    family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
     # relations
     # `species` relation is defined outside of `Genus` class definition
@@ -265,15 +213,14 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     @staticmethod
     def str(genus, author=False):
-        # TODO: the genus should be italicized for markup
-        if genus.genus is None:
+        if genus.epithet is None:
             return repr(genus)
         elif not author or genus.author is None:
-            return ' '.join([s for s in [genus.genus, genus.qualifier]
+            return ' '.join([s for s in [genus.epithet, genus.aggregate]
                              if s not in ('', None)])
         else:
             return ' '.join(
-                [s for s in [genus.genus, genus.qualifier,
+                [s for s in [genus.epithet, genus.aggregate,
                              xml.sax.saxutils.escape(genus.author)]
                  if s not in ('', None)])
 
@@ -285,36 +232,41 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
-        del result['genus']
-        del result['qualifier']
+        del result['aggregate']
         result['object'] = 'taxon'
         result['rank'] = 'genus'
-        result['epithet'] = self.genus
+        result['epithet'] = self.epithet
         result['ht-rank'] = 'familia'
-        result['ht-epithet'] = self.family.family
+        result['ht-epithet'] = self.family.epithet
         if recurse and self.accepted is not None:
             result['accepted'] = self.accepted.as_dict(recurse=False)
         return result
 
     @classmethod
     def retrieve(cls, session, keys):
+        # hybrid spec is contained in epithet
+        firstchar = keys['epithet'][0]
+        if firstchar in [u'×', u'x', u'+']:
+            keys['hybrid_marker'] = {'x': u'×'}.get(firstchar, firstchar)
+            keys['epithet'] = keys['epithet'][1:]
+        if keys['epithet'].find(u'×') != -1:
+            keys['hybrid_marker'] = u'H'
         try:
             return session.query(cls).filter(
-                cls.genus == keys['epithet']).one()
+                cls.epithet == keys['epithet']).one()
         except:
             if 'author' not in keys:
                 return None
         try:
             return session.query(cls).filter(
-                cls.genus == keys['epithet'],
+                cls.epithet == keys['epithet'],
                 cls.author == keys['author']).one()
         except:
             return None
 
     @classmethod
     def correct_field_names(cls, keys):
-        for internal, exchange in [('genus', 'epithet'),
-                                   ('family', 'ht-epithet')]:
+        for internal, exchange in [('family', 'ht-epithet')]:
             if exchange in keys:
                 keys[internal] = keys[exchange]
                 del keys[exchange]
@@ -398,7 +350,7 @@ from bauble.plugins.plants.species_editor import edit_species
 # only now that we have `Species` can we define the sorted `species` in
 # the `Genus` class.
 Genus.species = relation('Species', cascade='all, delete-orphan',
-                         order_by=[Species.sp],
+                         order_by=[Species.epithet],
                          backref=backref('genus', uselist=False))
 
 
@@ -497,8 +449,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         # connect signals
         def fam_get_completions(text):
             query = self.session.query(Family)
-            return query.filter(Family.family.like('%s%%' % text)).\
-                order_by(Family.family)
+            return query.filter(Family.epithet.like('%s%%' % text)).\
+                order_by(Family.epithet)
 
         def on_select(value):
             for kid in self.view.widgets.message_box_parent.get_children():
@@ -568,7 +520,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
     def refresh_sensitivity(self):
         # TODO: check widgets for problems
         sensitive = False
-        if self.model.family and self.model.genus and self.model.family:
+        if self.model.family and self.model.epithet and self.model.family:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
@@ -612,9 +564,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
         def gen_get_completions(text):
             query = self.session.query(Genus)
-            return query.filter(and_(Genus.genus.like('%s%%' % text),
+            return query.filter(and_(Genus.epithet.like('%s%%' % text),
                                      Genus.id != self.model.id)).\
-                order_by(Genus.genus)
+                order_by(Genus.epithet)
 
         self._selected = None
 
@@ -869,24 +821,24 @@ class GeneralGenusExpander(InfoExpander):
 
         def on_nsp_clicked(*args):
             g = self.current_obj
-            cmd = 'species where genus.genus="%s" and genus.qualifier="%s"' \
-                % (g.genus, g.qualifier)
+            cmd = 'species where genus.epithet="%s" and genus.aggregate="%s"' \
+                % (g.epithet, g.aggregate)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.gen_nsp_data, on_nsp_clicked)
 
         def on_nacc_clicked(*args):
             g = self.current_obj
-            cmd = 'accession where species.genus.genus="%s" ' \
-                'and species.genus.qualifier="%s"' \
-                % (g.genus, g.qualifier)
+            cmd = 'accession where species.genus.epithet="%s" ' \
+                'and species.genus.aggregate="%s"' \
+                % (g.epithet, g.aggregate)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.gen_nacc_data, on_nacc_clicked)
 
         def on_nplants_clicked(*args):
             g = self.current_obj
-            cmd = 'plant where accession.species.genus.genus="%s" and ' \
-                'accession.species.genus.qualifier="%s"' \
-                % (g.genus, g.qualifier)
+            cmd = 'plant where accession.species.genus.epithet="%s" and ' \
+                'accession.species.genus.aggregate="%s"' \
+                % (g.epithet, g.aggregate)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(
             self.widgets.gen_nplants_data, on_nplants_clicked)

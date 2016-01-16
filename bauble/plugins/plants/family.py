@@ -118,18 +118,10 @@ class Family(db.Base, db.Serializable, db.WithNotes):
     :Table name: family
 
     :Columns:
-        *family*:
+        *epithet*:
             The name of the family. Required.
 
-        *qualifier*:
-            The family qualifier.
-
-            Possible values:
-                * s. lat.: aggregrate family (senso lato)
-
-                * s. str.: segregate family (senso stricto)
-
-                * '': the empty string
+        *aggregate*: aggregate(complex)
 
     :Properties:
         *synonyms*:
@@ -140,11 +132,17 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         The family table has a unique constraint on family/qualifier.
     """
     __tablename__ = 'family'
-    __table_args__ = (UniqueConstraint('family'), {})
-    __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
+    __table_args__ = (UniqueConstraint('epithet', 'author', 'aggregate'), {})
+    __mapper_args__ = {'order_by': ['Family.epithet', 'Family.aggregate']}
 
     rank = 'familia'
     link_keys = ['accepted']
+
+    # columns - common for all taxa
+    epithet = Column(Unicode(45), nullable=False, index=True)
+    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    author = Column(Unicode(255), default=u'')
+    aggregate = Column(Unicode(1), nullable=False, default=u'')
 
     @validates('genus')
     def validate_stripping(self, key, value):
@@ -162,14 +160,6 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         if not cites_notes:
             return None
         return cites_notes[0]
-
-    # columns
-    family = Column(String(45), nullable=False, index=True)
-
-    # we use the blank string here instead of None so that the
-    # contraints will work properly,
-    qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
-                       default=u'')
 
     # relations
     # `genera` relation is defined outside of `Family` class definition
@@ -190,13 +180,13 @@ class Family(db.Base, db.Serializable, db.WithNotes):
         return Family.str(self)
 
     @staticmethod
-    def str(family, qualifier=False, author=False):
+    def str(family, aggregate=False, author=False):
         # author is not in the model but it really should
-        if family.family is None:
+        if family.epithet is None:
             return db.Base.__repr__(family)
         else:
             return ' '.join([s for s in [
-                family.family, family.qualifier] if s not in (None, '')])
+                family.epithet, family.aggregate] if s not in (None, '')])
 
     @property
     def accepted(self):
@@ -234,11 +224,10 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
-        del result['family']
-        del result['qualifier']
+        del result['aggregate']
         result['object'] = 'taxon'
         result['rank'] = self.rank
-        result['epithet'] = self.family
+        result['epithet'] = self.epithet
         if recurse and self.accepted is not None:
             result['accepted'] = self.accepted.as_dict(recurse=False)
         return result
@@ -247,16 +236,9 @@ class Family(db.Base, db.Serializable, db.WithNotes):
     def retrieve(cls, session, keys):
         try:
             return session.query(cls).filter(
-                cls.family == keys['epithet']).one()
+                cls.epithet == keys['epithet']).one()
         except:
             return None
-
-    @classmethod
-    def correct_field_names(cls, keys):
-        for internal, exchange in [('family', 'epithet')]:
-            if exchange in keys:
-                keys[internal] = keys[exchange]
-                del keys[exchange]
 
     def top_level_count(self):
         genera = set(g for g in self.genera if g.species)
@@ -337,7 +319,7 @@ from bauble.plugins.plants.genus import Genus, GenusEditor
 # only now that we have `Genus` can we define the sorted `genera` in the
 # `Family` class.
 Family.genera = relation('Genus',
-                         order_by=[Genus.genus],
+                         order_by=[Genus.epithet],
                          backref='family', cascade='all, delete-orphan')
 
 
@@ -396,7 +378,7 @@ class FamilyEditorView(editor.GenericEditorView):
 class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'family',
-                           'fam_qualifier_combo': 'qualifier'}
+                           'fam_qualifier_combo': 'aggregate'}
 
     def __init__(self, model, view):
         '''
@@ -407,14 +389,14 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.init_enum_combo('fam_qualifier_combo', 'qualifier')
+        self.init_enum_combo('fam_qualifier_combo', 'aggregate')
         self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view()  # put model values in view
 
         # connect signals
         self.assign_simple_handler('fam_family_entry', 'family',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('fam_qualifier_combo', 'qualifier',
+        self.assign_simple_handler('fam_qualifier_combo', 'aggregate',
                                    editor.UnicodeOrEmptyValidator())
 
         notes_parent = self.view.widgets.notes_parent_box
@@ -433,7 +415,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
     def refresh_sensitivity(self):
         # TODO: check widgets for problems
         sensitive = False
-        if self.dirty() and self.model.family:
+        if self.dirty() and self.model.epithet:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
@@ -480,9 +462,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
         def fam_get_completions(text):
             query = self.session.query(Family)
-            return query.filter(and_(Family.family.like('%s%%' % text),
+            return query.filter(and_(Family.epithet.like('%s%%' % text),
                                      Family.id != self.model.id)).\
-                order_by(Family.family)
+                order_by(Family.epithet)
 
         self._selected = None
 
@@ -710,34 +692,34 @@ class GeneralFamilyExpander(InfoExpander):
 
         def on_ngen_clicked(*args):
             f = self.current_obj
-            cmd = 'genus where family.family="%s" and family.qualifier="%s"'\
-                % (f.family, f.qualifier)
+            cmd = 'genus where family.epithet="%s" and family.aggregate="%s"'\
+                % (f.epithet, f.aggregate)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_ngen_data,
                                    on_ngen_clicked)
 
         def on_nsp_clicked(*args):
             f = self.current_obj
-            cmd = 'species where genus.family.family="%s" '\
-                'and genus.family.qualifier="%s"' % (f.family, f.qualifier)
+            cmd = 'species where genus.family.epithet="%s" '\
+                'and genus.family.aggregate="%s"' % (f.epithet, f.aggregate)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nsp_data,
                                    on_nsp_clicked)
 
         def on_nacc_clicked(*args):
             f = self.current_obj
-            cmd = 'accession where species.genus.family.family="%s" ' \
-                'and species.genus.family.qualifier="%s"' \
-                % (f.family, f.qualifier)
+            cmd = 'accession where species.genus.family.epithet="%s" ' \
+                'and species.genus.family.aggregate="%s"' \
+                % (f.epithet, f.aggregate)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nacc_data,
                                    on_nacc_clicked)
 
         def on_nplants_clicked(*args):
             f = self.current_obj
-            cmd = 'plant where accession.species.genus.family.family="%s" ' \
-                'and accession.species.genus.family.qualifier="%s"' \
-                % (f.family, f.qualifier)
+            cmd = 'plant where accession.species.genus.family.epithet="%s" ' \
+                'and accession.species.genus.family.aggregate="%s"' \
+                % (f.epithet, f.aggregate)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nplants_data,
                                    on_nplants_clicked)
