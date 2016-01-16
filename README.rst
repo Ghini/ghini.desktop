@@ -4,6 +4,7 @@ Ghini
 .. image:: https://travis-ci.org/Ghini/ghini.desktop.svg
 .. image:: https://img.shields.io/pypi/v/bauble.svg
 .. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github
+  :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=master
 
 .. image:: https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg
 .. image:: https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg
