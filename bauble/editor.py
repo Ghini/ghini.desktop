@@ -414,10 +414,6 @@ class GenericEditorView(object):
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
         sid = obj.connect_after(signal, callback, *args)
-        # if data:
-        #     sid = obj.connect_after(signal, callback, data)
-        # else:
-        #     sid = obj.connect_after(signal, callback)
         self.__attached_signals.append((obj, sid))
         return sid
 
