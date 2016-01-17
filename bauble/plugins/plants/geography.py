@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2016 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
