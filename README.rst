@@ -2,18 +2,13 @@ Ghini
 ======
 
 .. image:: https://travis-ci.org/Ghini/ghini.desktop.svg
-.. image:: https://img.shields.io/pypi/v/bauble.svg
+.. image:: https://img.shields.io/pypi/v/ghini.svg
 .. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github
   :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=master
 
-.. image:: https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/fr/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/de/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/nl/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/it/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/cs/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/sv/svg-badge.svg
+* **ghini-1.0** is stable - use this; 
+* **ghini-1.1** is testing - feedback is welcome;
+* **master** is unstable - do not open issues on this one; 
 
 what is Ghini (desktop)
 ------------------------
