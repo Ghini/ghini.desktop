@@ -142,7 +142,7 @@ class Family(db.Base, db.Serializable, db.WithNotes):
     epithet = Column(Unicode(45), nullable=False, index=True)
     hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(types.Enum(values=['A', None]), default=None)
+    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
 
     @validates('genus')
     def validate_stripping(self, key, value):
@@ -223,7 +223,6 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
-        del result['aggregate']
         result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.epithet
