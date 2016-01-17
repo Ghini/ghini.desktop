@@ -139,7 +139,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     epithet = Column(Unicode(64), nullable=False, index=True)
     hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(types.Enum(values=['A', None]), default=None)
+    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
 
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
@@ -231,7 +231,6 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
-        del result['aggregate']
         result['object'] = 'taxon'
         result['rank'] = 'genus'
         result['epithet'] = self.epithet
