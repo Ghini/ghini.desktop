@@ -948,7 +948,7 @@ class AccessionEditorView(editor.GenericEditorView):
         """
         species = completion.get_model()[treeiter][0]
         if str(species).lower().startswith(key.lower()) \
-                or str(species.genus.genus).lower().startswith(key.lower()):
+                or str(species.genus.epithet).lower().startswith(key.lower()):
             return True
         return False
 
@@ -1179,7 +1179,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # species entries
             def sp_get_completions(text):
                 query = self.presenter().session.query(Species).join('genus').\
-                    filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                    filter(utils.ilike(Genus.epithet, '%s%%' % text)).\
                     filter(Species.id != self.model.id).\
                     order_by(Species.epithet)
                 return query
@@ -1773,8 +1773,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             from utils import ilike
             return query.filter(
                 and_(Species.genus_id == Genus.id,
-                     or_(ilike(Genus.genus, '%s%%' % text),
-                         ilike(Genus.genus, '%s%%' % genus)))).\
+                     or_(ilike(Genus.epithet, '%s%%' % text),
+                         ilike(Genus.epithet, '%s%%' % genus)))).\
                 order_by(Species.epithet)
 
         def on_select(value):
