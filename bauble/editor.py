@@ -1359,12 +1359,6 @@ class GenericEditorPresenter(object):
         combo = self.view.widgets[widget_name]
         mapper = object_mapper(self.model)
         values = sorted(mapper.c[field].type.values)
-        # WARNING: this is really dangerous since it might mean that a
-        # value is stored in the column that is not in the Enum
-        #
-        #if None in values:
-        #    values.remove(None)
-        #    values.insert(0, '')
         utils.setup_text_combobox(combo, values)
 
     def set_model_attr(self, attr, value, validator=None):
