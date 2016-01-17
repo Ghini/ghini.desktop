@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: a collection of functions and abstract classes for creating
 # editors for Bauble data
@@ -1359,12 +1359,6 @@ class GenericEditorPresenter(object):
         combo = self.view.widgets[widget_name]
         mapper = object_mapper(self.model)
         values = sorted(mapper.c[field].type.values)
-        # WARNING: this is really dangerous since it might mean that a
-        # value is stored in the column that is not in the Enum
-        #
-        #if None in values:
-        #    values.remove(None)
-        #    values.insert(0, '')
         utils.setup_text_combobox(combo, values)
 
     def set_model_attr(self, attr, value, validator=None):

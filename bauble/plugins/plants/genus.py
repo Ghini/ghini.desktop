@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Genera table module
 #
@@ -139,7 +139,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     epithet = Column(Unicode(64), nullable=False, index=True)
     hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(Unicode(1), nullable=False, default=u'')
+    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
 
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
@@ -209,19 +209,18 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
         value.synonyms.append(self)
 
     def __repr__(self):
-        return Genus.str(self)
+        return self.str()
 
-    @staticmethod
-    def str(genus, author=False):
-        if genus.epithet is None:
-            return repr(genus)
-        elif not author or genus.author is None:
-            return ' '.join([s for s in [genus.epithet, genus.aggregate]
+    def str(self, author=False):
+        if self.epithet is None:
+            return repr(self)
+        elif not author or self.author is None:
+            return ' '.join([s for s in [self.epithet, self.aggregate]
                              if s not in ('', None)])
         else:
             return ' '.join(
-                [s for s in [genus.epithet, genus.aggregate,
-                             xml.sax.saxutils.escape(genus.author)]
+                [s for s in [self.epithet, self.aggregate,
+                             xml.sax.saxutils.escape(self.author)]
                  if s not in ('', None)])
 
     def has_accessions(self):
@@ -232,7 +231,6 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
-        del result['aggregate']
         result['object'] = 'taxon'
         result['rank'] = 'genus'
         result['epithet'] = self.epithet
@@ -400,7 +398,7 @@ class GenusEditorView(editor.GenericEditorView):
         else:
             author = utils.xml_safe(unicode(v.author))
         renderer.set_property('markup', '<i>%s</i> %s (<small>%s</small>)'
-                              % (Genus.str(v), author, Family.str(v.family)))
+                              % (v.str(), author, Family.str(v.family)))
 
     def save_state(self):
         '''
@@ -431,7 +429,7 @@ class GenusEditorView(editor.GenericEditorView):
 class GenusEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'gen_family_entry': 'family',
-                           'gen_genus_entry': 'genus',
+                           'gen_genus_entry': 'epithet',
                            'gen_author_entry': 'author'}
 
     def __init__(self, model, view):
@@ -497,7 +495,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.assign_completions_handler('gen_family_entry',
                                         fam_get_completions,
                                         on_select=on_select)
-        self.assign_simple_handler('gen_genus_entry', 'genus',
+        self.assign_simple_handler('gen_genus_entry', 'epithet',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('gen_author_entry', 'author',
                                    editor.UnicodeOrNoneValidator())
@@ -609,7 +607,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             v = model[iter][0]
             syn = v.synonym
             cell.set_property('markup', '<i>%s</i> %s (<small>%s</small>)'
-                              % (Genus.str(syn),
+                              % (syn.str(),
                                  utils.xml_safe(unicode(syn.author)),
                                  Family.str(syn.family)))
             # set background color to indicate it's new
@@ -669,7 +667,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         path, col = tree.get_cursor()
         tree_model = tree.get_model()
         value = tree_model[tree_model.get_iter(path)][0]
-        s = Genus.str(value.synonym)
+        s = value.synonym.str()
         msg = _('Are you sure you want to remove %(genus)s as a synonym to '
                 'the current genus?\n\n<i>Note: This will not remove the '
                 'genus from the database.</i>') % {'genus': s}
@@ -929,7 +927,7 @@ class SynonymsExpander(InfoExpander):
             box = gtk.EventBox()
             label = gtk.Label()
             label.set_alignment(0, .5)
-            label.set_markup(Genus.str(row.accepted, author=True))
+            label.set_markup(row.accepted.str(author=True))
             box.add(label)
             utils.make_label_clickable(label, on_clicked, row.accepted)
             syn_box.pack_start(box, expand=False, fill=False)
@@ -945,7 +943,7 @@ class SynonymsExpander(InfoExpander):
                 box = gtk.EventBox()
                 label = gtk.Label()
                 label.set_alignment(0, .5)
-                label.set_markup(Genus.str(syn, author=True))
+                label.set_markup(syn.str(author=True))
                 box.add(label)
                 utils.make_label_clickable(label, on_clicked, syn)
                 syn_box.pack_start(box, expand=False, fill=False)

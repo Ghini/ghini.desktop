@@ -3,20 +3,20 @@
 # Copyright 2004-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 import csv
 import logging
@@ -476,17 +476,17 @@ class JSONExportTests(BaubleTestCase):
                    if i['object'] == 'taxon' and i['rank'] == 'species']
         self.assertEquals(len(species), 1)
         target = [
-            {u"epithet": u"Orchidaceae", u"object": u"taxon",
-             u"rank": u"familia", u"author": u"", u"hybrid_marker": u""},
-            {u"epithet": u"Myrtaceae", u"object": u"taxon",
+            {"epithet": u"Orchidaceae", u"object": u"taxon", 'aggregate': u'',
+             "rank": u"familia", u"author": u"", u"hybrid_marker": u""},
+            {u"epithet": u"Myrtaceae", u"object": u"taxon", 'aggregate': u'',
              u"rank": u"familia", u"author": u"", u"hybrid_marker": u""},
             {u"author": u"R. Br.", u"epithet": u"Calopogon",
              u"ht-epithet": u"Orchidaceae", u"ht-rank": u"familia",
-             u"object": u"taxon", u"rank": u"genus",
+             u"object": u"taxon", u"rank": u"genus", 'aggregate': u'',
              u"hybrid_marker": u""},
             {u"object": u"taxon", u"author": u"", u"epithet": u"Panisea",
              u"ht-epithet": u"Orchidaceae", u"ht-rank": u"familia",
-             u"rank": u"genus", u"hybrid_marker": u''},
+             'aggregate': u'', u"rank": u"genus", u"hybrid_marker": u''},
             {u"epithet": u"tuberosus", u"ht-epithet": u"Calopogon",
              u"ht-rank": u"genus", u"hybrid_marker": u"", u"object": u"taxon",
              u"rank": u"species", u'aggregate': u'', 'author': u''},

@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2016 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 from itertools import chain
 
@@ -129,8 +129,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     epithet = Column(Unicode(64), nullable=True, index=True)  # allows for `sp`
     hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(Unicode(1), nullable=False, default=u'')
-
+    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
     cv_group = Column(Unicode(50))
     trade_name = Column(Unicode(64))
 

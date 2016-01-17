@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2014-2016 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Family table definition
 #
@@ -142,7 +142,7 @@ class Family(db.Base, db.Serializable, db.WithNotes):
     epithet = Column(Unicode(45), nullable=False, index=True)
     hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(Unicode(1), nullable=False, default=u'')
+    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
 
     @validates('genus')
     def validate_stripping(self, key, value):
@@ -177,16 +177,15 @@ class Family(db.Base, db.Serializable, db.WithNotes):
                      cascade='all, delete-orphan', uselist=True)
 
     def __repr__(self):
-        return Family.str(self)
+        return self.str()
 
-    @staticmethod
-    def str(family, aggregate=False, author=False):
+    def str(self, aggregate=False, author=False):
         # author is not in the model but it really should
-        if family.epithet is None:
-            return db.Base.__repr__(family)
+        if self.epithet is None:
+            return db.Base.__repr__(self)
         else:
             return ' '.join([s for s in [
-                family.epithet, family.aggregate] if s not in (None, '')])
+                self.epithet, self.aggregate] if s not in (None, '')])
 
     @property
     def accepted(self):
@@ -224,7 +223,6 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     def as_dict(self, recurse=True):
         result = db.Serializable.as_dict(self)
-        del result['aggregate']
         result['object'] = 'taxon'
         result['rank'] = self.rank
         result['epithet'] = self.epithet
@@ -308,7 +306,7 @@ class FamilySynonym(db.Base):
         super(FamilySynonym, self).__init__(**kwargs)
 
     def __str__(self):
-        return Family.str(self.synonym)
+        return self.synonym.str()
 
 
 #
@@ -377,7 +375,7 @@ class FamilyEditorView(editor.GenericEditorView):
 
 class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
-    widget_to_field_map = {'fam_family_entry': 'family',
+    widget_to_field_map = {'fam_family_entry': 'epithet',
                            'fam_qualifier_combo': 'aggregate'}
 
     def __init__(self, model, view):
@@ -394,7 +392,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_view()  # put model values in view
 
         # connect signals
-        self.assign_simple_handler('fam_family_entry', 'family',
+        self.assign_simple_handler('fam_family_entry', 'epithet',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('fam_qualifier_combo', 'aggregate',
                                    editor.UnicodeOrEmptyValidator())
@@ -559,7 +557,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         tree_model = tree.get_model()
         value = tree_model[tree_model.get_iter(path)][0]
 #        debug('%s: %s' % (value, type(value)))
-        s = Family.str(value.synonym)
+        s = value.synonym.str()
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current family?\n\n<i>Note: This will not remove the family '\
               '%s from the database.</i>' % (s, s)
@@ -816,7 +814,7 @@ class SynonymsExpander(InfoExpander):
             box = gtk.EventBox()
             label = gtk.Label()
             label.set_alignment(0, .5)
-            label.set_markup(Family.str(row.accepted, author=True))
+            label.set_markup(row.accepted.str(author=True))
             box.add(label)
             utils.make_label_clickable(label, on_clicked, row.accepted)
             syn_box.pack_start(box, expand=False, fill=False)
@@ -832,7 +830,7 @@ class SynonymsExpander(InfoExpander):
                 box = gtk.EventBox()
                 label = gtk.Label()
                 label.set_alignment(0, .5)
-                label.set_markup(Family.str(syn))
+                label.set_markup(syn.str())
                 box.add(label)
                 utils.make_label_clickable(label, on_clicked, syn)
                 syn_box.pack_start(box, expand=False, fill=False)

@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2016 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Species table definition
 #
@@ -55,11 +55,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     PROBLEM_INVALID_GENUS = 1
 
     widget_to_field_map = {'sp_genus_entry': 'genus',
-                           'sp_species_entry': 'sp',
-                           'sp_author_entry': 'sp_author',
-                           'sp_hybrid_check': 'hybrid',
+                           'sp_species_entry': 'epithet',
+                           'sp_author_entry': 'author',
+                           'sp_hybrid_check': 'hybrid_marker',
                            'sp_cvgroup_entry': 'cv_group',
-                           'sp_spqual_combo': 'sp_qual',
+                           'sp_spqual_combo': 'aggregate',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
                            }
@@ -88,7 +88,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.pictures_presenter = editor.PicturesPresenter(
             self, 'notes', pictures_parent)
 
-        self.init_enum_combo('sp_spqual_combo', 'sp_qual')
+        self.init_enum_combo('sp_spqual_combo', 'aggregate')
 
         def cell_data_func(column, cell, model, treeiter, data=None):
             cell.props.text = utils.utf8(model[treeiter][0])
@@ -121,9 +121,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            clause = utils.ilike(Genus.genus, '%s%%' % unicode(text))
+            clause = utils.ilike(Genus.epithet, '%s%%' % unicode(text))
             return self.session.query(Genus).filter(clause).\
-                order_by(Genus.genus)
+                order_by(Genus.epithet)
 
         def sp_species_TPL_callback(found, accepted):
             # both found and accepted are dictionaries, their keys here
@@ -151,10 +151,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             if not (found is None and accepted is None):
 
                 # if inserted data matches found, just say so.
-                if (self.model.sp == found['Species'] and
-                        self.model.sp_author == found['Authorship'] and
-                        self.model.hybrid == (
-                            found['Species hybrid marker'] == u'×')):
+                if (self.model.epithet == found['Species'] and
+                        self.model.author == found['Authorship'] and
+                        self.model.hybrid_marker == (
+                            found['Species hybrid marker'])):
                     msg_box_msg = _(
                         'your data finely matches ThePlantList.org')
                 else:
@@ -170,11 +170,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     def on_response_found(button, response):
                         self.view.remove_box(b1)
                         if response:
-                            self.set_model_attr('sp', found['Species'])
-                            self.set_model_attr('sp_author', found['Authorship'])
+                            self.set_model_attr('epithet', found['Species'])
+                            self.set_model_attr('author', found['Authorship'])
                             self.set_model_attr(
-                                'hybrid',
-                                found['Species hybrid marker'] == u'×')
+                                'hybrid_marker',
+                                found['Species hybrid marker'])
                             self.refresh_view()
                             self.refresh_fullname_label()
                     box.on_response = on_response_found
@@ -196,7 +196,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     def on_response_accepted(button, response):
                         self.view.remove_box(b2)
                         if response:
-                            hybrid = accepted['Species hybrid marker'] == u'×'
+                            hybrid = accepted['Species hybrid marker']
                             self.model.accepted = Species.retrieve_or_create(
                                 self.session, {
                                     'object': 'taxon',
@@ -205,8 +205,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                     'familia': accepted['Family'],
                                     'ht-epithet': accepted['Genus'],
                                     'epithet': accepted['Species'],
-                                    'sp_author': accepted['Authorship'],
-                                    'hybrid': hybrid}
+                                    'author': accepted['Authorship'],
+                                    'hybrid_marker': hybrid}
                                 )
                             self.refresh_view()
                             self.refresh_fullname_label()
@@ -232,7 +232,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 kid = self.species_check_messages.pop()
                 self.view.widgets.remove_parent(kid)
 
-            binomial = '%s %s' % (self.model.genus, self.model.sp)
+            binomial = '%s %s' % (self.model.genus, self.model.epithet)
             AskTPL(binomial, sp_species_TPL_callback, timeout=2, gui=True
                    ).start()
             if event is not None:
@@ -246,7 +246,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             logger.debug('on select: %s' % value)
             if isinstance(value, StringTypes):
                 value = self.session.query(Genus).filter(
-                    Genus.genus == value).first()
+                    Genus.epithet == value).first()
             while self.genus_check_messages:
                 kid = self.genus_check_messages.pop()
                 self.view.widgets.remove_parent(kid)
@@ -289,7 +289,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
+        self.assign_simple_handler('sp_spqual_combo', 'aggregate',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
                                    editor.UnicodeOrNoneValidator())
@@ -364,9 +364,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             sensitive = False
         elif not self.model.genus:
             sensitive = False
-        # elif not (self.model.sp or self.model.cv_group or \
-        #         (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
-        #     sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
 
     def refresh_sensitivity(self):
@@ -437,7 +434,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             omonym = self.session.query(
                 Species).filter(
                 Species.genus == genus,
-                Species.sp == epithet
+                Species.epithet == epithet
                 ).first()
             logger.debug("looking for %s %s, found %s"
                          % (genus, epithet, omonym))
@@ -924,9 +921,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
         def sp_get_completions(text):
             query = self.session.query(Species).join('genus').\
-                filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                filter(utils.ilike(Genus.epithet, '%s%%' % text)).\
                 filter(Species.id != self.model.id).\
-                order_by(Genus.genus, Species.sp)
+                order_by(Genus.epithet, Species.epithet)
             return query
 
         def on_select(value):
@@ -1117,7 +1114,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         """
         genus = completion.get_model()[iter][0]
         if str(genus).lower().startswith(key.lower()) \
-                or str(genus.genus).lower().startswith(key.lower()):
+                or str(genus.epithet).lower().startswith(key.lower()):
             return True
         return False
 
@@ -1140,8 +1137,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         '''
         v = model[treeiter][0]
-        renderer.set_property('text', '%s (%s)' % (Genus.str(v),
-                                                   Family.str(v.family)))
+        renderer.set_property('text', '%s (%s)' % (v.str(), v.family.str()))
 
     @staticmethod
     def syn_cell_data_func(column, renderer, model, treeiter, data=None):
@@ -1274,14 +1270,6 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         return True
 
     def commit_changes(self):
-        # if self.model.sp or cv_group is empty and
-        # self.model.infrasp_rank=='cv.' and self.model.infrasp
-        # then show a dialog saying we can't commit and return
-
-        # if self.model.hybrid is None and self.model.infrasp_rank is None:
-        #     self.model.infrasp = None
-        #     self.model.infrasp_author = None
-        #     self.model.cv_group = None
 
         # remove incomplete vernacular names
         for vn in self.model.vernacular_names:
