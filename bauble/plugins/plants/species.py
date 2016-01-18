@@ -318,12 +318,12 @@ class GeneralSpeciesExpander(InfoExpander):
         on_label_clicked = lambda l, e, x: select_in_search_results(x)
         # Link to family
         self.widget_set_value('sp_fam_data', '<small>(%s)</small>' %
-                              row.genus.family.family, markup=True)
+                              row.genus.family.epithet, markup=True)
         utils.make_label_clickable(
             self.widgets.sp_fam_data, on_label_clicked, row.genus.family)
         # link to genus
         self.widget_set_value('sp_gen_data', '<big><i>%s</i></big>' %
-                              row.genus.genus, markup=True)
+                              row.genus.epithet, markup=True)
         utils.make_label_clickable(
             self.widgets.sp_gen_data, on_label_clicked, row.genus)
         # epithet (full binomial but missing genus)
@@ -414,11 +414,11 @@ class SpeciesInfoPage(InfoBoxPage):
             {'name': 'ITISButton', '_base_uri': "http://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=Scientific_Name&search_value=%s&search_kingdom=Plant&search_span=containing&categories=All&source=html&search_credRating=All", '_space': '%20', 'title': _("Search ITIS"), 'tooltip': _("Search the Intergrated Taxonomic Information System"), },
             {'name': 'GRINButton', '_base_uri': "http://www.ars-grin.gov/cgi-bin/npgs/swish/accboth?query=%s&submit=Submit+Text+Query&si=0", '_space': '+', 'title': _("Search NPGS/GRIN"), 'tooltip': _('Search National Plant Germplasm System'), },
             {'name': 'ALAButton', '_base_uri': "http://bie.ala.org.au/search?q=%s", '_space': '+', 'title': _("Search ALA"), 'tooltip': _("Search the Atlas of Living Australia"), },
-            {'name': 'WikipediaButton', '_base_uri': "http://en.wikipedia.org/wiki/%(genus.genus)s_%(sp)s", '_space': '+', 'title': _("Search Wikipedia"), 'tooltip': _("open the wikipedia page about this species"), },
-            {'name': 'IPNIButton', '_base_uri': "http://www.ipni.org/ipni/advPlantNameSearch.do?find_genus=%(genus.genus)s&find_species=%(sp)s&find_isAPNIRecord=on& find_isGCIRecord=on&find_isIKRecord=on&output_format=normal", '_space': ' ', 'title': _("Search IPNI"), 'tooltip': _("Search the International Plant Names Index"), },
-            {'name': 'BGCIButton', '_base_uri': "http://www.bgci.org/plant_search.php?action=Find&ftrGenus=%(genus.genus)s&ftrRedList=&ftrSpecies=%(sp)s&ftrRedList1997=&ftrEpithet=&ftrCWR=&x=0&y=0#results", '_space': ' ', 'title': _("Search BGCI"), 'tooltip': _("Search Botanic Gardens Conservation International"), },
-            {'name': 'TPLButton', '_base_uri': "http://www.theplantlist.org/tpl1.1/search?q=%(genus.genus)s+%(sp)s", '_space': '+', 'title': _("Search TPL"), 'tooltip': _("Search The Plant List online database"), },
-            {'name': 'TropicosButton', '_base_uri': "http://tropicos.org/NameSearch.aspx?name=%(genus.genus)s+%(sp)s", '_space': '+', 'title': _("Search Tropicos"), 'tooltip': _("Search Tropicos (MissouriBG) online database"), },
+            {'name': 'WikipediaButton', '_base_uri': "http://en.wikipedia.org/wiki/%(genus.epithet)s_%(sp)s", '_space': '+', 'title': _("Search Wikipedia"), 'tooltip': _("open the wikipedia page about this species"), },
+            {'name': 'IPNIButton', '_base_uri': "http://www.ipni.org/ipni/advPlantNameSearch.do?find_genus=%(genus.epithet)s&find_species=%(sp)s&find_isAPNIRecord=on& find_isGCIRecord=on&find_isIKRecord=on&output_format=normal", '_space': ' ', 'title': _("Search IPNI"), 'tooltip': _("Search the International Plant Names Index"), },
+            {'name': 'BGCIButton', '_base_uri': "http://www.bgci.org/plant_search.php?action=Find&ftrGenus=%(genus.epithet)s&ftrRedList=&ftrSpecies=%(sp)s&ftrRedList1997=&ftrEpithet=&ftrCWR=&x=0&y=0#results", '_space': ' ', 'title': _("Search BGCI"), 'tooltip': _("Search Botanic Gardens Conservation International"), },
+            {'name': 'TPLButton', '_base_uri': "http://www.theplantlist.org/tpl1.1/search?q=%(genus.epithet)s+%(sp)s", '_space': '+', 'title': _("Search TPL"), 'tooltip': _("Search The Plant List online database"), },
+            {'name': 'TropicosButton', '_base_uri': "http://tropicos.org/NameSearch.aspx?name=%(genus.epithet)s+%(sp)s", '_space': '+', 'title': _("Search Tropicos"), 'tooltip': _("Search Tropicos (MissouriBG) online database"), },
             ]
         super(SpeciesInfoPage, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
