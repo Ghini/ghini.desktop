@@ -1705,7 +1705,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
                            }
-    combo_value_render = {'acc_qual_combo': itf2.accession_qualifier,
+    combo_value_render = {'acc_spql_combo': itf2.acc_spql,
                           }
 
     PROBLEM_INVALID_DATE = random()
