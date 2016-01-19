@@ -18,118 +18,134 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
-# dictionaries from the ITF2 document.
+# sorted dictionaries from the ITF2 document, to be used to populate list
+# stores associated to combo boxes.
 
 # section B:
 
-accsta_dict = {
-    u'C': 'Current accession in the living collection',
-    u'D': 'Non‑current accession of the living collection due to death',
-    u'T': ('Non‑current accession due to transfer to another record '
-           'system, normally of another garden'),
-    u'S': 'Stored in a dormant state',
-    u'O': 'Other accession status  - different from those above.',
-    }
+accsta_dict = (
+    (u'', ''),
+    (u'C', 'Current accession in the living collection'),
+    (u'D', 'Non‑current accession of the living collection due to death'),
+    (u'T', ('Non‑current accession due to transfer to another record '
+            'system, normally of another garden')),
+    (u'S', 'Stored in a dormant state'),
+    (u'O', 'Other accession status  - different from those above.'),
+    )
 
-acct_dict = {
-    u'P': 'Whole plant',
-    u'S': 'Seed or Spore',
-    u'V': 'Vegetative part',
-    u'T': 'Tissue culture ',
-    u'O': 'Other',
-    }
+acct_dict = (
+    (u'', ''),
+    (u'P', 'Whole plant'),
+    (u'S', 'Seed or Spore'),
+    (u'V' 'Vegetative part'),
+    (u'T' 'Tissue culture '),
+    (u'O', 'Other'),
+    )
 
 # section C:
 
 ## this applies to `genhyb` and `sphyb`
-hyb_dict = {
-    u'H': 'H - hybrid formula',
-    u'×': '× - nothotaxon',
-    u'+': '+ - graft chimera',
-    u'': ''
-    }
+hyb_dict = (
+    (u'', 'not a hybrid')
+    (u'H', 'H - hybrid formula'),
+    (u'×', '× - nothotaxon'),
+    (u'+', '+ - graft chimera'),
+    )
 
 ## this applies to spql when only considering the taxon.
-aggregate_field_dict = {
-    u'agg.': 'aggregate-complex',
-    u'': '',
-    }
+aggregate_field_dict = (
+    (u'', 'not a complex'),
+    (u'agg.', 'aggregate taxon'),
+    )
 
-vlev_dict = {
-    u'U': ('It is not known if the name of the plant has been checked by '
-           'an authority.'),
-    u'0': ('The name of the plant has not been determined by any authority'),
-    u'1': ('The name of the plant has been determined by comparison with '
-           'other named plants'),
-    u'2': ('The name of the plant has been determined by a taxonomist or '
-           'other competent person using the facilities of a library and/or '
-           'herbarium, or other documented living material'),
-    u'3': ('The name of the plant has been determined by a taxonomist who is '
-           'currently or has been recently involved in a revision of the '
-           'family or genus'),
-    u'4': ('The plant represents all or part of the type material on which '
-           'the name was based, or the plant has been derived therefore by '
-           'asexual propagation'),
-    }
+## this applies to spql when considering an accession associated to a
+## complex taxon.
+qualifier_field_dict = (
+    (u'', ''),
+    (u's. lat.', 'aggregrate species (sensu lato)'),
+    (u's. str.', 'segregate species (sensu stricto)'),
+    )
 
-prot_dict = {
-    u'W': 'Accession of wild source',
-    u'Z': 'Propagule(s) from a wild source plant in cultivation',
-    u'G': 'Accession not of wild source',
-    u'U': 'Insufficient data to determine which of the above categories apply',
-    }
+vlev_dict = (
+    (u'', ''),
+    (u'U', ('It is not known if the name of the plant has been checked by '
+            'an authority.')),
+    (u'0', ('The name of the plant has not been determined by any '
+            'authority')),
+    (u'1', ('The name of the plant has been determined by comparison with '
+            'other named plants')),
+    (u'2', ('The name of the plant has been determined by a taxonomist or '
+            'other competent person using the facilities of a library '
+            'and/or herbarium, or other documented living material')),
+    (u'3', ('The name of the plant has been determined by a taxonomist who '
+            'is currently or has been recently involved in a revision of '
+            'the family or genus')),
+    (u'4', ('The plant represents all or part of the type material on '
+            'which the name was based, or the plant has been derived '
+            'therefore by asexual propagation')),
+    )
 
-prohis_dict = {
-    u'I': 'Individual wild plant(s)',
-    u'S': ('Plant material arising from sexual reproduction (excluding '
-           'apomixis)'),
-    u'SA': 'From open breeding',
-    u'SB': 'From controlled breeding',
-    u'SC': 'From plants that are isolated and definitely self-pollinated',
-    u'V': 'Plant material derived asexually',
-    u'VA': 'From vegetative reproduction ',
-    u'VB': 'From apomictic cloning (agamospermy)',
-    u'U': 'Propagation history uncertain, or no information.',
-    }
+prot_dict = (
+    (u'', ''),
+    (u'W', 'Accession of wild source'),
+    (u'Z', 'Propagule(s) from a wild source plant in cultivation'),
+    (u'G', 'Accession not of wild source'),
+    (u'U', ('Insufficient data to determine')),
+    )
 
-dont_dict = {
-    u'E': 'Expedition',
-    u'G': 'Gene bank',
-    u'B': 'Botanic Garden or Arboretum',
-    u'R': 'Other research, field or experimental station',
-    u'S': 'Staff of the botanic garden to which record system applies',
-    u'U': 'University Department',
-    u'H': 'Horticultural Association or Garden Club',
-    u'M': 'Municipal department',
-    u'N': 'Nursery or other commercial establishment',
-    u'I': 'Individual',
-    u'O': 'Other',
-    u'U': 'Unknown',
-    }
+prohis_dict = (
+    (u'', ''),
+    (u'I', 'Individual wild plant(s)'),
+    (u'S', ('Plant material arising from sexual reproduction (excluding '
+            'apomixis)')),
+    (u'SA', 'From open breeding'),
+    (u'SB', 'From controlled breeding'),
+    (u'SC', 'From plants that are isolated and definitely self-pollinated'),
+    (u'V', 'Plant material derived asexually'),
+    (u'VA', 'From vegetative reproduction '),
+    (u'VB', 'From apomictic cloning (agamospermy)'),
+    (u'U', 'Propagation history uncertain, or no information.'),
+    )
 
-per_dict = {
-    u'M': 'Monocarpic plants',
-    u'MA': 'Annuals',
-    u'MB': 'Biennials and short-lived perennials',
-    u'ML': 'Long-lived monocarpic plants',
-    u'P': 'Polycarpic plants',
-    u'PD': 'Deciduous polycarpic plants',
-    u'PE': 'Evergreen polycarpic plants',
-    u'U': 'Uncertain which of the above applies.',
-    }
+dont_dict = (
+    (u'E', 'Expedition'),
+    (u'G', 'Gene bank'),
+    (u'B', 'Botanic Garden or Arboretum'),
+    (u'R', 'Other research, field or experimental station'),
+    (u'S', 'Staff of this botanic garden'),
+    (u'U', 'University Department'),
+    (u'H', 'Horticultural Association or Garden Club'),
+    (u'M', 'Municipal department'),
+    (u'N', 'Nursery or other commercial establishment'),
+    (u'I', 'Individual'),
+    (u'O', 'Other'),
+    (u'U', 'Unknown'),
+    )
 
-brs_dict = {
-    u'M': ('\'Male\', defined as plants that do not produce functional female '
-           'flowers'),
-    u'F': ('\'Female\', defined as plants that do not produce functional male '
-           'flowers'),
-    u'B': ('The accession includes both \'male\' and \'female\' individuals '
-           'as described above'),
-    u'Q': ('Dioecious plant of unknown sex'),
-    u'H': ('The accession reproduces sexually, and possesses hermaphrodite '
-           'flowers or is monoecious'),
-    u'H1': ('The accession reproduces sexually, and possesses hermaphrodite '
-            'flowers or is monoecious, but is known to be self-incompatible.'),
-    u'A': ('The accession reproduces by agamospermy'),
-    u'U': ('Insufficient information to determine breeding system.'),
-    }
+per_dict = (
+    (u'M', 'Monocarpic plants'),
+    (u'MA', 'Annuals'),
+    (u'MB', 'Biennials and short-lived perennials'),
+    (u'ML', 'Long-lived monocarpic plants'),
+    (u'P', 'Polycarpic plants'),
+    (u'PD', 'Deciduous polycarpic plants'),
+    (u'PE', 'Evergreen polycarpic plants'),
+    (u'U', 'Uncertain which of the above applies.'),
+    )
+
+brs_dict = (
+    (u'M', ('\'Male\', defined as plants that do not produce functional '
+            'female flowers')),
+    (u'F', ('\'Female\', defined as plants that do not produce functional '
+            'male flowers')),
+    (u'B', ('The accession includes both \'male\' and \'female\' '
+            'individuals as described above')),
+    (u'Q', ('Dioecious plant of unknown sex')),
+    (u'H', ('The accession reproduces sexually, and possesses '
+            'hermaphrodite flowers or is monoecious')),
+    (u'H1', ('The accession reproduces sexually, and possesses '
+             'hermaphrodite flowers or is monoecious, but is known to be '
+             'self-incompatible.')),
+    (u'A', ('The accession reproduces by agamospermy')),
+    (u'U', ('Insufficient information to determine breeding system.')),
+    )
