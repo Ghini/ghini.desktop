@@ -30,7 +30,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
-    UnicodeText, func, and_, UniqueConstraint, String
+    UnicodeText, func, and_, UniqueConstraint
 from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
@@ -41,11 +41,11 @@ import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
-import bauble.utils.web as web
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
 from bauble.i18n import _
+from bauble.plugins.plants import itf2
 
 
 def edit_callback(families):
@@ -140,10 +140,11 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     # columns - common for all taxa
     epithet = Column(Unicode(45), nullable=False, index=True)
-    hybrid_marker = Column(types.Enum(values=[u'×', u'+', u'H', u'']),
+    hybrid_marker = Column(types.Enum(values=dict(itf2.hybrid_marker).keys()),
                            default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
+    aggregate = Column(types.Enum(values=dict(itf2.aggregate).keys()),
+                       default=u'')
 
     @validates('genus')
     def validate_stripping(self, key, value):
@@ -378,6 +379,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
     widget_to_field_map = {'fam_family_entry': 'epithet',
                            'fam_aggregate_combo': 'aggregate',
                            'fam_hybrid_combo': 'hybrid_marker'}
+    combo_value_render = {'fam_aggregate_combo': itf2.aggregate,
+                          'fam_hybrid_combo': itf2.hybrid_marker, }
 
     def __init__(self, model, view):
         '''
@@ -388,10 +391,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.init_enum_combo('fam_aggregate_combo', 'aggregate')
         self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view()  # put model values in view
-        self.init_enum_combo('fam_hybrid_combo', 'hybrid_marker')
 
         # connect signals
         self.assign_simple_handler('fam_family_entry', 'epithet',

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -253,6 +253,18 @@ class GenericEditorView(object):
 
     def update(self):
         pass
+
+    def populate_store(self, wname, defs):
+        '''pupulate wname list store with the values in defs
+
+        defs is an iterable of tuples or lists, all matching the column
+        count of the liststore.
+        '''
+
+        w = self.__get_widget(wname)
+        w.clear()
+        for item in defs:
+            w.append(item)
 
     def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
@@ -787,6 +799,11 @@ class MockView:
         'fakes main UI search result - selection'
         return self.selection
 
+    def populate_store(self, *args):
+        self.invoked.append('populate_store')
+        self.invoked_detailed.append((self.invoked[-1], args))
+        pass
+
     def image_set_from_file(self, *args):
         self.invoked.append('image_set_from_file')
         self.invoked_detailed.append((self.invoked[-1], args))
@@ -1025,6 +1042,7 @@ class GenericEditorPresenter(object):
     """
     problem_color = gtk.gdk.color_parse('#FFDCDF')
     widget_to_field_map = {}
+    combo_value_render = {}
     view_accept_buttons = []
 
     PROBLEM_DUPLICATE = random()
@@ -1055,6 +1073,9 @@ class GenericEditorPresenter(object):
             if model and refresh_view:
                 self.refresh_view()
             view.connect_signals(self)
+            for wname, wdef in self.combo_value_render.items():
+                lname = wname.replace('_combo', '_liststore')
+                view.populate_store(lname, wdef)
 
     def refresh_view(self):
         '''fill the values in the widgets as the field values in the model

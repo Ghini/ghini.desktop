@@ -48,6 +48,7 @@ from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import (
     Species, SpeciesDistribution, VernacularName, SpeciesSynonym, Habit,
     infrasp_rank_values, compare_rank)
+from bauble.plugins.plants import itf2
 
 
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
@@ -63,6 +64,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
                            }
+    combo_value_render = {'sp_aggregate_combo': itf2.aggregate,
+                          'sp_hybrid_combo': itf2.hybrid_marker, }
 
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
@@ -87,12 +90,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         pictures_parent.foreach(pictures_parent.remove)
         self.pictures_presenter = editor.PicturesPresenter(
             self, 'notes', pictures_parent)
-
-        self.init_enum_combo('sp_aggregate_combo', 'aggregate')
-        self.view.init_translatable_combo(self.view.widgets.sp_aggregate_combo,
-                                          (('A', 'aggregate'),
-                                           ('', 'segregate')))
-        self.init_enum_combo('sp_hybrid_combo', 'hybrid_marker')
 
         def cell_data_func(column, cell, model, treeiter, data=None):
             cell.props.text = utils.utf8(model[treeiter][0])
