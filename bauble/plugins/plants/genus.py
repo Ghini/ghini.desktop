@@ -137,7 +137,8 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     # columns - common for all taxa
     epithet = Column(Unicode(64), nullable=False, index=True)
-    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    hybrid_marker = Column(types.Enum(values=[u'×', u'+', u'H', u'']),
+                           default=u'')
     author = Column(Unicode(255), default=u'')
     aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
 
@@ -430,6 +431,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'gen_family_entry': 'family',
                            'gen_genus_entry': 'epithet',
+                           'gen_aggregate_combo': 'aggregate',
+                           'gen_hybrid_combo': 'hybrid_marker',
                            'gen_author_entry': 'author'}
 
     def __init__(self, model, view):
@@ -443,6 +446,9 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         # initialize widgets
         self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view()  # put model values in view
+
+        self.init_enum_combo('gen_aggregate_combo', 'aggregate')
+        self.init_enum_combo('gen_hybrid_combo', 'hybrid_marker')
 
         # connect signals
         def fam_get_completions(text):
