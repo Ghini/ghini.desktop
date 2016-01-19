@@ -60,7 +60,7 @@ aggregate = (
 
 ## this applies to spql when considering an accession associated to a
 ## complex taxon.
-accession_qualifier = (
+acc_spql = (
     (u'', ''),
     (u's. lat.', 'aggregrate species (sensu lato)'),
     (u's. str.', 'segregate species (sensu stricto)'),

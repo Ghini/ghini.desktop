@@ -239,7 +239,7 @@ class SearchTests(BaubleTestCase):
         db.engine.execute('delete from family')
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
-        self.family = Family(epithet=u'family1', aggregate=u'A')
+        self.family = Family(epithet=u'family1', aggregate=u'agg.')
         self.genus = Genus(family=self.family, epithet=u'genus1')
         self.Family = Family
         self.Genus = Genus
@@ -472,7 +472,7 @@ class SearchTests(BaubleTestCase):
         Genus = self.Genus
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'genus3')
         self.session.add_all([family2, g2, f3, g3])
         self.session.commit()
@@ -521,7 +521,7 @@ class SearchTests(BaubleTestCase):
         Genus = self.Genus
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'genus3')
         self.session.add_all([family2, g2, f3, g3])
         self.session.commit()
@@ -554,7 +554,7 @@ class SearchTests(BaubleTestCase):
         Genus = self.Genus
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'genus3')
         self.session.add_all([family2, g2, f3, g3])
         self.session.commit()
@@ -645,7 +645,7 @@ class SearchTests(BaubleTestCase):
         from bauble.plugins.garden.plant import Plant
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'Ixora')
         sp = Species(epithet=u"coccinea", genus=g3)
         ac = Accession(species=sp, code=u'1979.0001')
@@ -676,7 +676,7 @@ class SearchTests(BaubleTestCase):
         #from bauble.plugins.garden.plant import Plant
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'Ixora')
         sp = Species(epithet=u"coccinea", genus=g3)
         ac = Accession(species=sp, code=u'1979.0001')
@@ -699,7 +699,7 @@ class SearchTests(BaubleTestCase):
         Genus = self.Genus
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'Ixora')
         g4 = Genus(family=f3, epithet=u'Schetti')
         self.session.add_all([family2, g2, f3, g3, g4])
@@ -719,7 +719,7 @@ class SearchTests(BaubleTestCase):
         Genus = self.Genus
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'Ixora')
         g4 = Genus(family=f3, epithet=u'Schetti')
         self.session.add_all([family2, g2, f3, g3, g4])
@@ -742,7 +742,7 @@ class SearchTests(BaubleTestCase):
         from bauble.plugins.plants.species_model import VernacularName
         family2 = Family(epithet=u'family2')
         g2 = Genus(family=family2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'Ixora')
         sp = Species(epithet=u"coccinea", genus=g3)
         vn = VernacularName(name=u"coral rojo", language=u"es", species=sp)
@@ -768,11 +768,11 @@ class BinomialSearchTests(BaubleTestCase):
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
         from bauble.plugins.plants.species import Species
-        f1 = Family(epithet=u'family1', aggregate=u'A')
+        f1 = Family(epithet=u'family1', aggregate=u'agg.')
         g1 = Genus(family=f1, epithet=u'genus1')
         f2 = Family(epithet=u'family2')
         g2 = Genus(family=f2, epithet=u'genus2')
-        f3 = Family(epithet=u'fam3', aggregate=u'A')
+        f3 = Family(epithet=u'fam3', aggregate=u'agg.')
         g3 = Genus(family=f3, epithet=u'Ixora')
         sp = Species(epithet=u"coccinea", genus=g3)
         sp2 = Species(epithet=u"peruviana", genus=g3)

@@ -435,7 +435,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         # create the tail, ie: anything to add on to the end
         tail = []
-        if self.aggregate == u'A':
+        if self.aggregate != u'':
             if sensu is not None:
                 tail.append(sensu)
             else:
