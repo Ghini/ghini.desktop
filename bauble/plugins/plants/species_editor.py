@@ -291,7 +291,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_aggregate_combo', 'aggregate',
-                                   editor.UnicodeOrNoneValidator())
+                                   editor.UnicodeOrEmptyValidator())
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_awards_entry', 'awards',
