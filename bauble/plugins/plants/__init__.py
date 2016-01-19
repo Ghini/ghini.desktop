@@ -34,7 +34,6 @@
 
 import os
 import sys
-import gtk
 
 import logging
 logger = logging.getLogger(__name__)

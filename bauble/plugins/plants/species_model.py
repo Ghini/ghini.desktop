@@ -127,7 +127,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     # columns
     epithet = Column(Unicode(64), nullable=True, index=True)  # allows for `sp`
-    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    hybrid_marker = Column(types.Enum(values=[u'×', u'+', u'H', u'']),
+                           default=u'')
     author = Column(Unicode(255), default=u'')
     aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
     cv_group = Column(Unicode(50))

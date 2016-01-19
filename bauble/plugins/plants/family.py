@@ -140,7 +140,8 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     # columns - common for all taxa
     epithet = Column(Unicode(45), nullable=False, index=True)
-    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    hybrid_marker = Column(types.Enum(values=[u'×', u'+', u'H', u'']),
+                           default=u'')
     author = Column(Unicode(255), default=u'')
     aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
 
@@ -327,9 +328,8 @@ class FamilyEditorView(editor.GenericEditorView):
 
     _tooltips = {
         'fam_family_entry': _('The family name.'),
-        'fam_qualifier_combo': _('The family qualifier helps to remove '
-                                 'ambiguities that might be associated with '
-                                 'this family name.'),
+        'fam_aggregate_combo': _('Whether or not the family is considered a '
+                                 'complex or aggregate.'),
         'fam_syn_frame': _('A list of synonyms for this family.\n\nTo add a '
                            'synonym enter a family name and select one from '
                            'the list of completions.  Then click Add to add '
@@ -376,7 +376,8 @@ class FamilyEditorView(editor.GenericEditorView):
 class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'epithet',
-                           'fam_qualifier_combo': 'aggregate'}
+                           'fam_aggregate_combo': 'aggregate',
+                           'fam_hybrid_combo': 'hybrid_marker'}
 
     def __init__(self, model, view):
         '''
@@ -387,14 +388,15 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.init_enum_combo('fam_qualifier_combo', 'aggregate')
+        self.init_enum_combo('fam_aggregate_combo', 'aggregate')
         self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view()  # put model values in view
+        self.init_enum_combo('fam_hybrid_combo', 'hybrid_marker')
 
         # connect signals
         self.assign_simple_handler('fam_family_entry', 'epithet',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('fam_qualifier_combo', 'aggregate',
+        self.assign_simple_handler('fam_aggregate_combo', 'aggregate',
                                    editor.UnicodeOrEmptyValidator())
 
         notes_parent = self.view.widgets.notes_parent_box
