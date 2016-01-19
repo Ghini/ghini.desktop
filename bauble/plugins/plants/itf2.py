@@ -45,22 +45,22 @@ acct_dict = (
 # section C:
 
 ## this applies to `genhyb` and `sphyb`
-hyb_dict = (
-    (u'', 'not a hybrid')
+hybrid_marker = (
+    (u'', 'not a hybrid'),
     (u'H', 'H - hybrid formula'),
     (u'×', '× - nothotaxon'),
     (u'+', '+ - graft chimera'),
     )
 
 ## this applies to spql when only considering the taxon.
-aggregate_field_dict = (
+aggregate = (
     (u'', 'not a complex'),
     (u'agg.', 'aggregate taxon'),
     )
 
 ## this applies to spql when considering an accession associated to a
 ## complex taxon.
-qualifier_field_dict = (
+accession_qualifier = (
     (u'', ''),
     (u's. lat.', 'aggregrate species (sensu lato)'),
     (u's. str.', 'segregate species (sensu stricto)'),
