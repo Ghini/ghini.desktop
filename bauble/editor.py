@@ -1069,13 +1069,13 @@ class GenericEditorPresenter(object):
         #logger.debug("session, model, view = %s, %s, %s"
         #             % (self.session, model, view))
         if view:
+            for wname, wdef in self.combo_value_render.items():
+                lname = wname.replace('_combo', '_liststore')
+                view.populate_store(lname, wdef)
             view.accept_buttons = self.view_accept_buttons
             if model and refresh_view:
                 self.refresh_view()
             view.connect_signals(self)
-            for wname, wdef in self.combo_value_render.items():
-                lname = wname.replace('_combo', '_liststore')
-                view.populate_store(lname, wdef)
 
     def refresh_view(self):
         '''fill the values in the widgets as the field values in the model
