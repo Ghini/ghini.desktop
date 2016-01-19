@@ -61,8 +61,8 @@ import bauble.utils as utils
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
-from bauble.search import SearchStrategy
 from types import StringTypes
+from bauble.plugins.plants import itf2
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -370,7 +370,7 @@ class AccessionMapperExtension(MapperExtension):
 # ITF2 - E.1; Provenance Type Flag; Transfer code: prot
 prov_type_values = [
     (u'Wild', _('Accession of wild source')),  # W
-    (u'Cultivated', _('Propagule(s) from a wild source plant')), # Z
+    (u'Cultivated', _('Propagule(s) from a wild source plant')),  # Z
     (u'NotWild', _("Accession not of wild source")),  # G
     (u'Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
     (u'InsufficientData', _("Insufficient Data")),  # U
@@ -1705,6 +1705,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
                            }
+    combo_value_render = {'acc_qual_combo': itf2.accession_qualifier,
+                          }
 
     PROBLEM_INVALID_DATE = random()
     PROBLEM_DUPLICATE_ACCESSION = random()
