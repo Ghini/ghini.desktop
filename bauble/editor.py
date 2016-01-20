@@ -137,7 +137,7 @@ class UnicodeOrEmptyValidator(Validator):
 
     def to_python(self, value):
         if not value.strip():
-            return ''
+            return u''
         return utils.to_unicode(value, self.encoding)
 
 

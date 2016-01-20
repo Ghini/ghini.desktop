@@ -656,6 +656,8 @@ class PlantEditorView(GenericEditorView):
         self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
         self.init_translatable_combo('reason_combo', change_reasons)
         utils.setup_date_button(self, 'plant_date_entry', 'plant_date_button')
+        utils.setup_date_button(self, 'plant_date_planted_entry',
+                                'plant_date_planted_button')
         self.widgets.plant_notebook.set_current_page(0)
 
     def get_window(self):

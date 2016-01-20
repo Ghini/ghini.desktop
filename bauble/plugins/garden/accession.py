@@ -619,6 +619,9 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                                         'forsan', 'near', '?', None]),
                      default=None)
 
+    sp_qual = Column(types.Enum(values=dict(itf2.acc_spql).keys()),
+                     default=u'')
+
     # "private" new in 0.8b2
     private = Column(Boolean, default=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
@@ -1704,6 +1707,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
+                           'acc_spql_combo': 'sp_qual',
                            }
     combo_value_render = {'acc_spql_combo': itf2.acc_spql,
                           }
@@ -1826,6 +1830,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
         self.assign_simple_handler('acc_prov_combo', 'prov_type')
         self.assign_simple_handler('acc_wild_prov_combo', 'wild_prov_status')
+        self.assign_simple_handler('acc_spql_combo', 'sp_qual',
+                                   editor.UnicodeOrEmptyValidator())
 
         # connect recvd_type comboentry widget and child entry
         self.view.connect('acc_recvd_type_comboentry', 'changed',

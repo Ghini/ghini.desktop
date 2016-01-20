@@ -221,7 +221,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">ID Qualifier</property>
+                                    <property name="label" translatable="yes">Identification Qualifier</property>
                                     <property name="use_markup">True</property>
                                   </object>
                                   <packing>
@@ -301,7 +301,7 @@
                                       <object class="GtkLabel" id="label21">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Qualifier Rank</property>
+                                        <property name="label" translatable="yes">Qualified Rank</property>
                                         <property name="use_markup">True</property>
                                       </object>
                                     </child>
@@ -408,12 +408,6 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <object class="GtkLabel" id="label59">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -439,6 +433,12 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="model">acc_spql_liststore</property>
+                                        <child>
+                                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                                          <attributes>
+                                            <attribute name="text">1</attribute>
+                                          </attributes>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>
@@ -450,6 +450,12 @@
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"/>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </object>
                             </child>
