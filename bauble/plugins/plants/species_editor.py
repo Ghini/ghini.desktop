@@ -48,6 +48,7 @@ from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import (
     Species, SpeciesDistribution, VernacularName, SpeciesSynonym, Habit,
     infrasp_rank_values, compare_rank)
+from bauble.plugins.plants import itf2
 
 
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
@@ -57,12 +58,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     widget_to_field_map = {'sp_genus_entry': 'genus',
                            'sp_species_entry': 'epithet',
                            'sp_author_entry': 'author',
-                           'sp_hybrid_check': 'hybrid_marker',
+                           'sp_hybrid_combo': 'hybrid_marker',
                            'sp_cvgroup_entry': 'cv_group',
-                           'sp_spqual_combo': 'aggregate',
+                           'sp_aggregate_combo': 'aggregate',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
                            }
+    combo_value_render = {'sp_aggregate_combo': itf2.aggregate,
+                          'sp_hybrid_combo': itf2.hybrid_marker, }
 
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
@@ -87,8 +90,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         pictures_parent.foreach(pictures_parent.remove)
         self.pictures_presenter = editor.PicturesPresenter(
             self, 'notes', pictures_parent)
-
-        self.init_enum_combo('sp_spqual_combo', 'aggregate')
 
         def cell_data_func(column, cell, model, treeiter, data=None):
             cell.props.text = utils.utf8(model[treeiter][0])
@@ -289,8 +290,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_spqual_combo', 'aggregate',
-                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_aggregate_combo', 'aggregate',
+                                   editor.UnicodeOrEmptyValidator())
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_awards_entry', 'awards',
@@ -380,10 +381,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_fullname_label()
         refresh = lambda *args: self.refresh_fullname_label(*args)
         widgets = ['sp_genus_entry', 'sp_species_entry', 'sp_author_entry',
-                   'sp_cvgroup_entry', 'sp_spqual_combo']
+                   'sp_cvgroup_entry', 'sp_aggregate_combo', 'sp_hybrid_combo']
         for widget_name in widgets:
             self.view.connect_after(widget_name, 'changed', refresh)
-        self.view.connect_after('sp_hybrid_check', 'toggled', refresh)
 
     def on_sp_species_entry_insert_text(self, entry, text, length, position):
         '''remove all spaces from epithet
@@ -1058,9 +1058,9 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_genus_entry': _('Genus'),
         'sp_species_entry': _('Species epithet'),
         'sp_author_entry': _('Species author'),
-        'sp_hybrid_check': _('Species hybrid flag'),
+        'sp_hybrid_combo': _('Species hybrid flag'),
         'sp_cvgroup_entry': _('Cultivar group'),
-        'sp_spqual_combo': _('Species qualifier'),
+        'sp_aggregate_combo': _('Indicates if the species a complex'),
         'sp_dist_frame': _('Species distribution'),
         'sp_vern_frame': _('Vernacular names'),
         'sp_syn_frame': _('Species synonyms'),

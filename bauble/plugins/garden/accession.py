@@ -61,8 +61,8 @@ import bauble.utils as utils
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
-from bauble.search import SearchStrategy
 from types import StringTypes
+from bauble.plugins.plants import itf2
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -370,7 +370,7 @@ class AccessionMapperExtension(MapperExtension):
 # ITF2 - E.1; Provenance Type Flag; Transfer code: prot
 prov_type_values = [
     (u'Wild', _('Accession of wild source')),  # W
-    (u'Cultivated', _('Propagule(s) from a wild source plant')), # Z
+    (u'Cultivated', _('Propagule(s) from a wild source plant')),  # Z
     (u'NotWild', _("Accession not of wild source")),  # G
     (u'Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
     (u'InsufficientData', _("Insufficient Data")),  # U
@@ -618,6 +618,9 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
                                         'forsan', 'near', '?', None]),
                      default=None)
+
+    sp_qual = Column(types.Enum(values=dict(itf2.acc_spql).keys()),
+                     default=u'')
 
     # "private" new in 0.8b2
     private = Column(Boolean, default=False)
@@ -948,7 +951,7 @@ class AccessionEditorView(editor.GenericEditorView):
         """
         species = completion.get_model()[treeiter][0]
         if str(species).lower().startswith(key.lower()) \
-                or str(species.genus.genus).lower().startswith(key.lower()):
+                or str(species.genus.epithet).lower().startswith(key.lower()):
             return True
         return False
 
@@ -1179,7 +1182,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # species entries
             def sp_get_completions(text):
                 query = self.presenter().session.query(Species).join('genus').\
-                    filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                    filter(utils.ilike(Genus.epithet, '%s%%' % text)).\
                     filter(Species.id != self.model.id).\
                     order_by(Species.epithet)
                 return query
@@ -1704,7 +1707,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
+                           'acc_spql_combo': 'sp_qual',
                            }
+    combo_value_render = {'acc_spql_combo': itf2.acc_spql,
+                          }
 
     PROBLEM_INVALID_DATE = random()
     PROBLEM_DUPLICATE_ACCESSION = random()
@@ -1773,8 +1779,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             from utils import ilike
             return query.filter(
                 and_(Species.genus_id == Genus.id,
-                     or_(ilike(Genus.genus, '%s%%' % text),
-                         ilike(Genus.genus, '%s%%' % genus)))).\
+                     or_(ilike(Genus.epithet, '%s%%' % text),
+                         ilike(Genus.epithet, '%s%%' % genus)))).\
                 order_by(Species.epithet)
 
         def on_select(value):
@@ -1824,6 +1830,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
         self.assign_simple_handler('acc_prov_combo', 'prov_type')
         self.assign_simple_handler('acc_wild_prov_combo', 'wild_prov_status')
+        self.assign_simple_handler('acc_spql_combo', 'sp_qual',
+                                   editor.UnicodeOrEmptyValidator())
 
         # connect recvd_type comboentry widget and child entry
         self.view.connect('acc_recvd_type_comboentry', 'changed',

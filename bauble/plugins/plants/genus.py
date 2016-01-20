@@ -52,6 +52,7 @@ from bauble.prefs import prefs
 from bauble.view import (InfoBox, InfoExpander, PropertiesExpander,
                          select_in_search_results, Action)
 import bauble.view as view
+from bauble.plugins.plants import itf2
 
 # TODO: warn the user that a duplicate genus name is being entered
 # even if only the author or qualifier is different
@@ -137,9 +138,11 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     # columns - common for all taxa
     epithet = Column(Unicode(64), nullable=False, index=True)
-    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    hybrid_marker = Column(types.Enum(values=dict(itf2.hybrid_marker).keys()),
+                           default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
+    aggregate = Column(types.Enum(values=dict(itf2.aggregate).keys()),
+                       default=u'')
 
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
@@ -430,7 +433,11 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'gen_family_entry': 'family',
                            'gen_genus_entry': 'epithet',
+                           'gen_aggregate_combo': 'aggregate',
+                           'gen_hybrid_combo': 'hybrid_marker',
                            'gen_author_entry': 'author'}
+    combo_value_render = {'gen_aggregate_combo': itf2.aggregate,
+                          'gen_hybrid_combo': itf2.hybrid_marker, }
 
     def __init__(self, model, view):
         '''

@@ -34,6 +34,7 @@ import bauble.error as error
 import bauble.utils as utils
 import bauble.btypes as types
 from bauble.i18n import _
+from bauble.plugins.plants import itf2
 
 
 def _remove_zws(s):
@@ -127,9 +128,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     # columns
     epithet = Column(Unicode(64), nullable=True, index=True)  # allows for `sp`
-    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    hybrid_marker = Column(types.Enum(values=dict(itf2.hybrid_marker).keys()),
+                           default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
+    aggregate = Column(types.Enum(values=dict(itf2.aggregate).keys()),
+                       default=u'')
     cv_group = Column(Unicode(50))
     trade_name = Column(Unicode(64))
 
@@ -432,7 +435,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         # create the tail, ie: anything to add on to the end
         tail = []
-        if self.aggregate == u'A':
+        if self.aggregate != u'':
             if sensu is not None:
                 tail.append(sensu)
             else:

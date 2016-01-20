@@ -75,7 +75,7 @@ if sys.platform == 'win32':
 
 family_test_data = (
     {'id': 1, 'epithet': u'Orchidaceae'},
-    {'id': 2, 'epithet': u'Leguminosae', 'aggregate': u'A'},
+    {'id': 2, 'epithet': u'Leguminosae', 'aggregate': u'agg.'},
     {'id': 3, 'epithet': u'Polypodiaceae'},
     {'id': 4, 'epithet': u'Solanaceae'},
     )
@@ -127,7 +127,7 @@ species_test_data = (
      'infrasp1_rank': u'cv.', 'infrasp1': u'Red',
      'cv_group': u'SomeGroup'},
     {'id': 11, 'epithet': u'generalis', 'genus_id': 1,
-     'aggregate': u'A'},
+     'aggregate': u'agg.'},
     {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
     {'id': 13, 'genus_id': 1,
      'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
@@ -371,7 +371,7 @@ class FamilyTests(PlantTestCase):
         Test that the family constraints were created correctly
         """
         values = [dict(epithet=u'family'),
-                  dict(epithet=u'family', aggregate=u'A')]
+                  dict(epithet=u'family', aggregate=u'agg.')]
         for v in values:
             self.session.add(Family(**v))
             self.session.add(Family(**v))
@@ -391,8 +391,8 @@ class FamilyTests(PlantTestCase):
         self.assert_(str(f) == repr(f))
         f = Family(epithet=u'fam')
         self.assert_(str(f) == 'fam')
-        f.aggregate = u'A'
-        self.assert_(str(f) == 'fam A')
+        f.aggregate = u'agg.'
+        self.assert_(str(f) == 'fam agg.')
 
     def test_editor(self):
         """
@@ -603,8 +603,8 @@ class GenusTests(PlantTestCase):
         # an IntegrityError because the UniqueConstraint on Genus
         values = [dict(family=family, epithet=u'genus'),
                   dict(family=family, epithet=u'genus', author=u'author'),
-                  dict(family=family, epithet=u'genus', aggregate=u'A'),
-                  dict(family=family, epithet=u'genus', aggregate=u'A',
+                  dict(family=family, epithet=u'genus', aggregate=u'agg.'),
+                  dict(family=family, epithet=u'genus', aggregate=u'agg.',
                        author=u'author')
                   ]
         for v in values:
@@ -1187,7 +1187,7 @@ class FromAndToDict_create_update_test(PlantTestCase):
                            'epithet': u'Leguminosae'},
             create=False, update=False)
         self.assertTrue(obj is not None)
-        self.assertEquals(obj.aggregate, 'A')
+        self.assertEquals(obj.aggregate, u'agg.')
 
     def test_family_nocreate_noupdatediff_existing(self):
         ## do not update object with new data
@@ -1197,7 +1197,7 @@ class FromAndToDict_create_update_test(PlantTestCase):
                            'epithet': u'Leguminosae',
                            'aggregate': u''},
             create=False, update=False)
-        self.assertEquals(obj.aggregate, u'A')
+        self.assertEquals(obj.aggregate, u'agg.')
 
     def test_family_nocreate_updatediff_existing(self):
         ## update object in self.session

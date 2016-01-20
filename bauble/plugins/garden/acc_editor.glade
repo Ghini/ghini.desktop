@@ -2,6 +2,46 @@
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkListStore" id="acc_id_qual_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="acc_id_qual_rank_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="acc_prov_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="acc_spql_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="acc_wild_prov_liststore">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkDialog" id="accession_dialog">
     <property name="can_focus">False</property>
     <property name="title">Accession Editor</property>
@@ -172,7 +212,7 @@
                               <object class="GtkTable" id="table2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="n_rows">2</property>
+                                <property name="n_rows">3</property>
                                 <property name="n_columns">4</property>
                                 <property name="column_spacing">5</property>
                                 <property name="row_spacing">3</property>
@@ -181,7 +221,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">ID Qualifier</property>
+                                    <property name="label" translatable="yes">Identification Qualifier</property>
                                     <property name="use_markup">True</property>
                                   </object>
                                   <packing>
@@ -201,6 +241,7 @@
                                       <object class="GtkComboBox" id="acc_id_qual_combo">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="model">acc_id_qual_liststore</property>
                                       </object>
                                     </child>
                                   </object>
@@ -260,7 +301,7 @@
                                       <object class="GtkLabel" id="label21">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="label" translatable="yes">Qualifier Rank</property>
+                                        <property name="label" translatable="yes">Qualified Rank</property>
                                         <property name="use_markup">True</property>
                                       </object>
                                     </child>
@@ -277,6 +318,7 @@
                                   <object class="GtkComboBox" id="acc_id_qual_rank_combo">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="model">acc_id_qual_rank_liststore</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">3</property>
@@ -364,6 +406,56 @@
                                     <property name="left_attach">1</property>
                                     <property name="right_attach">4</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label59">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Species Qualifier</property>
+                                    <property name="use_markup">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"/>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkAlignment" id="alignment27">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="xscale">0</property>
+                                    <child>
+                                      <object class="GtkComboBox" id="acc_spql_combo">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="model">acc_spql_liststore</property>
+                                        <child>
+                                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                                          <attributes>
+                                            <attribute name="text">1</attribute>
+                                          </attributes>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"/>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </object>
                             </child>
@@ -1053,6 +1145,7 @@
                                       <object class="GtkComboBox" id="acc_prov_combo">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="model">acc_prov_liststore</property>
                                       </object>
                                     </child>
                                   </object>
@@ -1072,6 +1165,7 @@
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">False</property>
+                                        <property name="model">acc_wild_prov_liststore</property>
                                       </object>
                                     </child>
                                   </object>
@@ -2903,6 +2997,7 @@
               <object class="GtkComboBox" id="source_type_combo">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="model">source_type_liststore</property>
               </object>
               <packing>
                 <property name="left_attach">1</property>
@@ -2979,6 +3074,8 @@
       <action-widget response="-5">sd_ok_button</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="source_type_liststore"/>
+  <object class="GtkListStore" id="ver_level_liststore"/>
   <object class="GtkWindow" id="verification_window">
     <property name="can_focus">False</property>
     <child>
@@ -3058,6 +3155,7 @@
                       <object class="GtkComboBox" id="ver_level_combo">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="model">ver_level_liststore</property>
                       </object>
                       <packing>
                         <property name="left_attach">1</property>

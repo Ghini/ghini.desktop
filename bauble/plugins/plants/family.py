@@ -30,7 +30,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
-    UnicodeText, func, and_, UniqueConstraint, String
+    UnicodeText, func, and_, UniqueConstraint
 from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
@@ -41,11 +41,11 @@ import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
-import bauble.utils.web as web
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
 from bauble.i18n import _
+from bauble.plugins.plants import itf2
 
 
 def edit_callback(families):
@@ -140,9 +140,11 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     # columns - common for all taxa
     epithet = Column(Unicode(45), nullable=False, index=True)
-    hybrid_marker = Column(Unicode(1), nullable=True, default=u'')
+    hybrid_marker = Column(types.Enum(values=dict(itf2.hybrid_marker).keys()),
+                           default=u'')
     author = Column(Unicode(255), default=u'')
-    aggregate = Column(types.Enum(values=[u'A', u'']), default=u'')
+    aggregate = Column(types.Enum(values=dict(itf2.aggregate).keys()),
+                       default=u'')
 
     @validates('genus')
     def validate_stripping(self, key, value):
@@ -327,9 +329,8 @@ class FamilyEditorView(editor.GenericEditorView):
 
     _tooltips = {
         'fam_family_entry': _('The family name.'),
-        'fam_qualifier_combo': _('The family qualifier helps to remove '
-                                 'ambiguities that might be associated with '
-                                 'this family name.'),
+        'fam_aggregate_combo': _('Whether or not the family is considered a '
+                                 'complex or aggregate.'),
         'fam_syn_frame': _('A list of synonyms for this family.\n\nTo add a '
                            'synonym enter a family name and select one from '
                            'the list of completions.  Then click Add to add '
@@ -376,7 +377,10 @@ class FamilyEditorView(editor.GenericEditorView):
 class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'epithet',
-                           'fam_qualifier_combo': 'aggregate'}
+                           'fam_aggregate_combo': 'aggregate',
+                           'fam_hybrid_combo': 'hybrid_marker'}
+    combo_value_render = {'fam_aggregate_combo': itf2.aggregate,
+                          'fam_hybrid_combo': itf2.hybrid_marker, }
 
     def __init__(self, model, view):
         '''
@@ -387,14 +391,13 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.init_enum_combo('fam_qualifier_combo', 'aggregate')
         self.synonyms_presenter = SynonymsPresenter(self)
         self.refresh_view()  # put model values in view
 
         # connect signals
         self.assign_simple_handler('fam_family_entry', 'epithet',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('fam_qualifier_combo', 'aggregate',
+        self.assign_simple_handler('fam_aggregate_combo', 'aggregate',
                                    editor.UnicodeOrEmptyValidator())
 
         notes_parent = self.view.widgets.notes_parent_box
