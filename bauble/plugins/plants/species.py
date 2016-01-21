@@ -323,7 +323,7 @@ class GeneralSpeciesExpander(InfoExpander):
             self.widgets.sp_fam_data, on_label_clicked, row.genus.family)
         # link to genus
         self.widget_set_value('sp_gen_data', '<big><i>%s</i></big>' %
-                              row.genus.epithet, markup=True)
+                              row.genus.str(use_hybrid_marker=True), markup=True)
         utils.make_label_clickable(
             self.widgets.sp_gen_data, on_label_clicked, row.genus)
         # epithet (full binomial but missing genus)
