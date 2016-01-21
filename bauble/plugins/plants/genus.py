@@ -215,16 +215,19 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
         return self.str()
 
     def str(self, author=False):
+        # string representation of genus, good for markup.
         if self.epithet is None:
             return repr(self)
         elif not author or self.author is None:
-            return ' '.join([s for s in [self.epithet, self.aggregate]
-                             if s not in ('', None)])
+            return (self.hybrid_marker +
+                    ' '.join([s for s in [self.epithet, self.aggregate]
+                              if s not in ('', None)]))
         else:
-            return ' '.join(
-                [s for s in [self.epithet, self.aggregate,
-                             xml.sax.saxutils.escape(self.author)]
-                 if s not in ('', None)])
+            return (self.hybrid_marker +
+                    ' '.join(
+                        [s for s in [self.epithet, self.aggregate,
+                                     xml.sax.saxutils.escape(self.author)]
+                         if s not in ('', None)]))
 
     def has_accessions(self):
         '''true if genus is linked to at least one accession
