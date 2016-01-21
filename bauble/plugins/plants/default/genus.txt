@@ -23887,3 +23887,3047 @@
 23896,"Neoluederitzia","Schinz",511
 23897,"Kallstroemia","Scop.",511
 23898,"Augea","Thunb.",511
+23899,"Anthacanthus","Nees",1
+23900,"Cardanthera","Buch.-Ham. ex Benth.",1
+23901,"Cardiacanthus","Nees & Schauer",1
+23902,"Chrestienia","Montrouz.",1
+23903,"Ethesia","Raf.",1
+23904,"Gatesia","A.Gray",1
+23905,"Gerardia","Benth.",1
+23906,"Gerardia","Benth.",433
+23907,"Gilletiella","De Wild. & T.Durand",1
+23908,"Glockeria","Nees",1
+23909,"Leda","C.B.Clarke",1
+23910,"Meyenia","Nees",1
+23911,"Meyenia","Backeb.",79
+23912,"Meyenia","Schltdl.",440
+23913,"Nicoteba","Lindau",1
+23914,"Odontophyllum","Sreem.",1
+23915,"Perenideboles","Ram.Goyena",1
+23916,"Petalanthera","Raf.",1
+23917,"Petalanthera","Nutt.",285
+23918,"Phaylopsis","Willd.",1
+23919,"Pseudo-Barleria","Oerst.",1
+23920,"Rhytiglossa","Nees ex Lindl.",1
+23921,"Scytanthus","T.Anderson ex Benth.",1
+23922,"Sebastiano-Schaueria","Nees",1
+23923,"Syringidium","Lindau",1
+23924,"Thomandersia","Baill.",1
+23925,"Adiantopsis","Fee",8
+23926,"Adiantum","L.",8
+23927,"Aleuritopteris","Fee",8
+23928,"Allosorus","Bernh.",8
+23929,"Anogramma","Link",8
+23930,"Argyrochosma","(J.Sm.) Windham",8
+23931,"Aspidotis","(Nutt. ex Hook.) Copel.",8
+23932,"Aspleniopsis","Mett. ex Kuhn",8
+23933,"Austrogramme","E.Fourn.",8
+23934,"Bakeropteris","Kuntze",8
+23935,"Bommeria","E.Fourn.",8
+23936,"Botryogramme","Fee",8
+23937,"Callogramme","Fee",8
+23938,"Calomelanos","(C.Presl) Lindl.",8
+23939,"Cassebeera","Kaulf.",8
+23940,"Ceratodactylis","J.Sm.",8
+23941,"Ceropteris","Link",8
+23942,"Cerosora","(Baker) Domin",8
+23943,"Cheilanthes","Sw.",8
+23944,"Cheiloplecton","Fee",8
+23945,"Cheilosoria","Trevis.",8
+23946,"Choristosoria","Mett. ex Kuhn",8
+23947,"Chrysochosma","(J.Sm.) Kummerle",8
+23948,"Cincinalis","Gled. ex Desv.",8
+23949,"Cincinalis","Gled.",151
+23950,"x Coniodictyogramme","Nakai",8
+23951,"Coniogramme","Fee",8
+23952,"Cosentinia","Tod.",8
+23953,"Craspedodictyum","Copel.",8
+23954,"Cryptogramma","R.Br.",8
+23955,"Dictyogramme","Fee",8
+23956,"Doryopteris","J.Sm.",8
+23957,"Dyctiogramme","C.Presl",8
+23958,"x Eriosonia","Pic.Serm.",8
+23959,"Eriosorus","Fee",8
+23960,"Gymnogramma","Desv.",8
+23961,"Gymnopteris","Bernh.",8
+23962,"Gymnopteris","C.Presl",388
+23963,"Heteropteris","Fee",8
+23964,"Heteropteris","Kunth",297
+23965,"Hewardia","J.Sm.",8
+23966,"Hewardia","Hook.f.",255
+23967,"Holttumia","Copel.",8
+23968,"Holttumiella","Copel.",8
+23969,"Jamesonia","Hook. & Grev.",8
+23970,"Leptolepidium","K.H.Hsing & S.K.Wu",8
+23971,"Leptostegia","D.Don",8
+23972,"Llavea","Lag.",8
+23973,"Llavea","Liebm.",195
+23974,"Mildella","Trevis.",8
+23975,"Myriopteris","Fee",8
+23976,"Negripteris","Pic.Serm.",8
+23977,"Nephopteris","Lellinger",8
+23978,"Nesoris","Raf.",8
+23979,"Neurogramma","Link",8
+23980,"Neurosoria","Mett. ex Kuhn",8
+23981,"Notholaena","R.Br.",8
+23982,"Notogramme","C.Presl",8
+23983,"Oeosporangium","Vis.",8
+23984,"Onychium","Kaulf.",8
+23985,"Onychium","Blume",345
+23986,"Onychium","Reinw.",388
+23987,"Ormopteris","J.Sm.",8
+23988,"Paraceterach","Copel.",8
+23989,"Pellaeopsis","J.Sm.",8
+23990,"Pentagramma","Yatsk., Windham & E.Wollenw.",8
+23991,"Phorolobus","Desv.",8
+23992,"Pityrogramma","Link",8
+23993,"x Pityromeria","L.D.Gomez",8
+23994,"Platyloma","J.Sm.",8
+23995,"Platytaenia","Kuhn",8
+23996,"Platytaenia","Nevski & Vved.",491
+23997,"Pomatophytum","M.E.Jones",8
+23998,"Psilogramme","Kuhn",8
+23999,"Pteridella","Mett. ex Kuhn",8
+24000,"Pterozonium","Fee",8
+24001,"Saffordia","Maxon",8
+24002,"Schizogramma","Link",8
+24003,"Schizolepton","Fee",8
+24004,"Sinopteris","C.Chr. & Ching",8
+24005,"Syngramma","J.Sm.",8
+24006,"Syngrammatopsis","Alston",8
+24007,"Synochlamys","Fee",8
+24008,"Taenitis","Willd. ex Schkuhr",8
+24009,"Toxopteris","Trevis.",8
+24010,"Trachypteris","Andre ex H.Christ",8
+24011,"Trichiogramme","Kuhn",8
+24012,"Trismeria","Fee",8
+24013,"Tryonella","Pic.Serm.",8
+24014,"Cohnia","Kunth",11
+24015,"Cohnia","Rchb.f.",345
+24016,"Cordyline","Comm. ex R.Br.",11
+24017,"Taetsia","Medik.",11
+24018,"Acaulon","N.E.Br.",13
+24019,"Ludolfia","Adans.",13
+24020,"Maughania","N.E.Br.",13
+24021,"Maughania","J.St.-Hil.",273
+24022,"Nycteranthus","Rothm.",13
+24023,"Pentacoilanthus","Rappa & Camarrone 1953",13
+24024,"Pentacoilanthus","Rappa & Camarrone 1960",13
+24027,"Perapentacoilanthus","Rappa & Camarrone",13
+24028,"Portulacastrum","Juss. ex Medik.",13
+24029,"Reme","Adans.",13
+24030,"Schickia","Tischer",13
+24031,"Tetracoilanthus","Rappa & Camarrone",13
+24032,"Lophiocarpus","(Kunth) Miq.",16
+24033,"Lophiocarpus","Turcz.",372
+24034,"Agapanthus","L'Her.",17
+24035,"Allium","L.",17
+24036,"Ancrumia","Harv. ex Baker",17
+24037,"Androstephium","Torr.",17
+24038,"Beauverdia","Herter",17
+24039,"Behria","Greene",17
+24040,"Bessera","Schult.",17
+24041,"Bessera","Spreng.",190
+24042,"Bloomeria","Kellogg",17
+24043,"Brevoortia","A.W.Wood",17
+24044,"Brodiaea","Sm.",17
+24045,"Caloscordum","Herb.",17
+24046,"Dandya","H.E.Moore",17
+24047,"Dichelostemma","Kunth",17
+24048,"Dipterostemon","Rydb.",17
+24049,"Erinna","Phil.",17
+24050,"Garaventia","Looser",17
+24051,"Gethyum","Phil.",17
+24052,"Gilliesia","Lindl.",17
+24053,"Ipheion","Raf.",17
+24054,"Latace","Phil.",17
+24055,"Leucocoryne","Lindl.",17
+24056,"Miersia","Lindl.",17
+24057,"Milla","Cav.",17
+24058,"Milula","Prain",17
+24059,"Muilla","S.Watson ex Benth.",17
+24060,"Nectaroscordum","Lindl.",17
+24061,"Nothoscordum","Kunth",17
+24062,"Pabellonia","Quezada & Martic.",17
+24063,"Petronymphe","H.E.Moore",17
+24064,"Solaria","Phil.",17
+24065,"Speea","Loes.",17
+24066,"Steinmannia","Phil.",17
+24067,"Stemmatium","Phil.",17
+24068,"Stropholirion","Torr.",17
+24069,"Trichlora","Baker",17
+24070,"Tristagma","Poepp.",17
+24071,"Triteleia","Douglas ex Lindl.",17
+24072,"Triteleiopsis","Hoover",17
+24073,"Tulbaghia","L.",17
+24074,"Aloe","L.",18
+24075,"Apicra","Willd.",18
+24076,"Astroloba","Uitewaal",18
+24077,"Chamaealoe","A.Berger",18
+24078,"Chortolirion","A.Berger",18
+24079,"x Gasteraloe","Guillaumin",18
+24080,"x Gasterhaworthia","G.D.Rowley",18
+24081,"Gasteria","Duval",18
+24082,"x Gastrolea","E.Walther",18
+24083,"Haworthia","Duval",18
+24084,"Lomatophyllum","Willd.",18
+24085,"Poellnitzia","Uitewaal",18
+24086,"Hebantha","Mart.",22
+24087,"x Amarcrinum","Coutts",23
+24088,"x Calicharis","Meerow",23
+24089,"x Crindonna","Ragion.",23
+24090,"x Crinodonna","Stapf",23
+24091,"Eurycles","Salisb. ex Schult. & Schult.f.",23
+24092,"Stricklandia","Baker",23
+24093,"Tapeinanthus","Herb.",23
+24094,"Tapeinanthus","Boiss. ex Benth.",265
+24095,"x Urceocharis","Mast.",23
+24096,"Anaphrenium","E.Mey. ex Endl.",25
+24097,"Antrocaryon","Pierre",25
+24098,"Emiliomarcetia","T.Durand & H.Durand",25
+24099,"Juliania","Schltdl.",25
+24100,"Aberemoa","Aubl.",29
+24101,"Kentia","Blume",29
+24102,"Kentia","Blume",349
+24103,"Neo-Uvaria","Airy Shaw",29
+24104,"Oxymitra","(Blume) Hook.f. & Thomson",29
+24105,"Pleuripetalum","T.Durand",29
+24106,"Richella","A.Gray",29
+24107,"Alania","Endl.",30
+24108,"Alectorurus","Makino",30
+24109,"Anemarrhena","Bunge",30
+24110,"Anthericum","L.",30
+24111,"Arnocrinum","Endl. & Lehm.",30
+24112,"Arthropodium","R.Br.",30
+24113,"Borya","Labill.",30
+24114,"Borya","Willd.",338
+24115,"Bottionea","Colla",30
+24116,"Caesia","R.Br.",30
+24117,"Chamaescilla","F.Muell. ex Benth.",30
+24118,"Chlorophytum","Ker Gawl.",30
+24119,"Comospermum","Rauschert",30
+24120,"Corynotheca","F.Muell. ex Benth.",30
+24121,"Debesia","Kuntze",30
+24122,"Diamena","Ravenna",30
+24123,"Dichopogon","Kunth",30
+24124,"Diora","Ravenna",30
+24125,"Diuranthera","Hemsl.",30
+24126,"Echeandia","Ortega",30
+24127,"Eremocrinum","M.E.Jones",30
+24128,"Hagenbachia","Nees & Mart.",30
+24129,"Hensmania","W.Fitzg.",30
+24130,"Herpolirion","Hook.f.",30
+24131,"Hodgsoniola","F.Muell.",30
+24132,"Johnsonia","R.Br.",30
+24133,"Johnsonia","Adans.",310
+24134,"Laxmannia","R.Br.",30
+24135,"Laxmannia","S.G.Gmel. ex Trin.",414
+24136,"Leucocrinum","Nutt. ex A.Gray",30
+24137,"Murchisonia","Brittan",30
+24138,"Nanolirion","Benth.",30
+24139,"Pasithea","D.Don",30
+24140,"Sowerbaea","Sm.",30
+24141,"Stawellia","F.Muell.",30
+24142,"Thysanotus","R.Br.",30
+24143,"Trichopetalum","Lindl.",30
+24144,"Tricoryne","R.Br.",30
+24145,"Aphyllanthes","L.",31
+24146,"Trichostomantherium","Domin",32
+24147,"Acanthophora","Merr.",36
+24148,"Coemansia","Marchal",36
+24149,"Echinopanax","Decne. & Planch.",36
+24150,"Palmervandenbrockia","Gibbs",36
+24151,"Pterotropia","W.F.Hillebr.",36
+24152,"Raukana","Seem.",36
+24153,"Sciadophyllum","P.Browne",36
+24154,"Aralidium","Miq.",37
+24155,"Acustelma","Baill.",40
+24156,"Aechmolepis","Decne.",40
+24157,"Apoxyanthera","Hochst.",40
+24158,"Astelma","Schltr.",40
+24159,"Atherandra","Decne.",40
+24160,"Atherolepis","Hook.f.",40
+24161,"Atherostemon","Blume",40
+24162,"Baeolepis","Decne. ex Moq.",40
+24163,"Baroniella","Costantin & Gallaud",40
+24164,"Baseonema","Schltr. & Rendle",40
+24165,"Batesanthus","N.E.Br.",40
+24166,"Campelepis","Falc.",40
+24167,"Camptocarpus","Decne.",40
+24168,"Camptocarpus","K.Koch",66
+24169,"Ceramanthus","(Kunze) Malme",40
+24170,"Ceramanthus","Hassk.",190
+24171,"Chlorocyathus","Oliv.",40
+24172,"Cochlanthus","Balf.f.",40
+24173,"Cryptolepis","R.Br.",40
+24174,"Cryptostegia","R.Br.",40
+24175,"Curinila","Schult.",40
+24176,"Curroria","Planch. ex Benth.",40
+24177,"Cylixylon","Llanos",40
+24178,"Cyprinia","Browicz",40
+24179,"Decalepis","Wight & Arn.",40
+24180,"Dicerolepis","Blume",40
+24181,"Ectadiopsis","Benth.",40
+24182,"Ectadium","E.Mey.",40
+24183,"Enslenia","Nutt.",40
+24184,"Epistemma","D.V.Field & J.B.Hall",40
+24185,"Finlaysonia","Wall.",40
+24186,"Fissiglossum","Rusby",40
+24187,"Gongylosperma","King & Gamble",40
+24188,"Gonocrypta","Baill.",40
+24189,"Gothofreda","Vent.",40
+24190,"Guru","Buch.-Ham. ex Wight",40
+24191,"Gymnanthera","R.Br.",40
+24192,"Gymnolaema","Benth.",40
+24193,"Harpanema","Decne.",40
+24194,"Harrisonia","Hook.",40
+24195,"Harrisonia","R.Br. ex A.Juss.",437
+24196,"Hemidesmus","R.Br.",40
+24197,"x Hoodiapelia","G.D.Rowley",40
+24198,"x Hoodiopsis","C.A.Luckh.",40
+24199,"Ischnolepis","Jum. & H.Perrier",40
+24200,"Janakia","J.Joseph & Chandras.",40
+24201,"Kompitsia","Costantin & Gallaud",40
+24202,"Lepistoma","Blume",40
+24203,"Leposma","Blume",40
+24204,"Leptopaetia","Harv.",40
+24205,"Luckhoffia","A.C.White & B.Sloane",40
+24206,"Mafekingia","Baill.",40
+24207,"Mangenotia","Pichon",40
+24208,"Meladerma","Kerr",40
+24209,"Microstelma","Baill.",40
+24210,"Mitolepis","Balf.f.",40
+24211,"Mondia","Skeels",40
+24212,"Myriopteron","Griff.",40
+24213,"Odonostephana","Alexander",40
+24214,"Omphalogonus","Baill.",40
+24215,"Omphalophthalmum","H.Karst.",40
+24216,"Parquetina","Baill.",40
+24217,"Pentagonanthus","Bullock",40
+24218,"Pentanura","Blume",40
+24219,"Pentopetia","Decne.",40
+24220,"Pentopetiopsis","Costantin & Gallaud",40
+24221,"Periploca","L.",40
+24222,"Perithrix","Pierre",40
+24223,"Petalonema","Schltr.",40
+24224,"Petalonema","Gilg",309
+24225,"Petopentia","Bullock",40
+24226,"Phyllanthera","Blume",40
+24227,"Prosopostelma","Baill.",40
+24228,"Raphiacme","K.Schum.",40
+24229,"Raphionacme","Harv.",40
+24230,"Sacleuxia","Baill.",40
+24231,"Sarcorrhiza","Bullock",40
+24232,"Schizonotus","A.Gray",40
+24233,"Schlechterella","K.Schum.",40
+24234,"Schlechterella","Hoehne",345
+24235,"Socotora","Balf.f.",40
+24236,"Socotranthus","Kuntze",40
+24237,"Stelmacrypton","Baill.",40
+24238,"Stelmatocrypton","Baill.",40
+24239,"Stomatostemma","N.E.Br.",40
+24240,"Streptocaulon","Wight & Arn.",40
+24241,"Streptomanes","K.Schum.",40
+24242,"Symphytonema","Schltr.",40
+24243,"Tacazzea","Decne.",40
+24244,"Tanulepis","Balf.f.",40
+24245,"Telectadium","Baill.",40
+24246,"Telesilla","Klotzsch",40
+24247,"Triodoglossum","Bullock",40
+24248,"Triplolepis","Turcz.",40
+24249,"Utleria","Bedd. ex Benth.",40
+24250,"Verlotia","E.Fourn.",40
+24251,"Vicarya","Wall. ex Voigt",40
+24252,"White-Sloanea","Chiov.",40
+24253,"Zacateza","Bullock",40
+24254,"Zaczatea","Baill.",40
+24255,"Zucchellia","Decne.",40
+24256,"Zygostelma","E.Fourn.",40
+24257,"Zygostelma","Benth.",40
+24260,"Asphodeline","Rchb.",42
+24261,"Asphodelus","L.",42
+24262,"Bulbine","Wolf",42
+24263,"Bulbinella","Kunth",42
+24264,"Bulbinopsis","Borzi",42
+24265,"Eremurus","M.Bieb.",42
+24266,"Glyphosperma","S.Watson",42
+24267,"Hemiphylacus","S.Watson",42
+24268,"Jodrellia","Baijnath",42
+24269,"Kniphofia","Moench",42
+24270,"Kniphofia","Scop.",116
+24271,"Liriothamnus","Schltr.",42
+24272,"Notosceptrum","Benth.",42
+24273,"Paradisea","Mazzuc.",42
+24274,"Simethis","Kunth",42
+24275,"Trachyandra","Kunth",42
+24276,"x Asplenoceterach","D.E.Mey.",43
+24277,"x Asplenophyllitis","Alston",43
+24278,"x Asplenosorus","Wherry",43
+24279,"x Ceterophyllitis","Pic.Serm.",43
+24280,"Glossopteris","Raf.",43
+24281,"Triphlebium","Baker",43
+24282,"Eubasis","Salisb.",46
+24283,"Avicennia","L.",48
+24284,"Juellia","Aspl.",52
+24285,"Latraeophila","Leandro",52
+24286,"Anisostichus","Bureau",61
+24287,"Barnettia","Santisuk",61
+24288,"Clyostomanthus","Pichon",61
+24289,"Craterocoma","Mart. ex DC.",61
+24290,"Daniella","Corr.Mello",61
+24291,"Dendrosicus","Raf.",61
+24292,"Diplanthera","Banks & Sol.",61
+24293,"Diplanthera","Raf.",345
+24294,"Dombeya","L'Her.",61
+24295,"Dombeya","Cav.",449
+24296,"Hilariophyton","Pichon",61
+24297,"Lageropyxis","Miq.",61
+24298,"Muenteria","Seem.",61
+24299,"Neves-Armondia","K.Schum.",61
+24300,"Orthotheca","Pichon",61
+24301,"Rojasiophytum","Hassl.",61
+24302,"Synapsis","Griseb.",61
+24303,"Lonchitis-Aspera","Hill ex Farw.",64
+24304,"Boschia","Korth.",65
+24305,"Coelostegia","Benth.",65
+24306,"Cullenia","Wight",65
+24307,"Durio","Adans.",65
+24308,"Kostermansia","Soegeng",65
+24309,"Lahia","Hassk.",65
+24310,"Neesia","Blume",65
+24313,"Caryolopha","Fisch. ex Trautv.",66
+24314,"Ceballosia","G.Kunkel",66
+24315,"Coldenia","L.",66
+24316,"Cordiada","Vell.",66
+24317,"Cordiopsis","Desv.",66
+24318,"Echioides","Ortega",66
+24319,"Gerascanthus","P.Browne",66
+24320,"Lithocardium","Kuntze",66
+24321,"Megastoma","Coss. & Durieu",66
+24322,"Messerschmidia","Hebenstr.",66
+24323,"Messerschmidia","Roem. & Schult.",66
+24326,"Monomesia","Raf.",66
+24327,"Pteleocarpa","Oliv.",66
+24328,"Rhabdocalyx","Lindl.",66
+24329,"Rhytispermum","Link",66
+24330,"Saccellium","Bonpl.",66
+24331,"Tysonia","Bolus",66
+24332,"Wheelerella","G.B.Grant",66
+24333,"Zwackhia","Sendtn. ex Rchb.",66
+24334,"Bowenia","Hook.",67
+24335,"Aregelia","Kuntze",69
+24336,"Caraguata","Lindl.",69
+24337,"Cryptanopsis","Ule",69
+24338,"Fosterelia","Airy Shaw",69
+24339,"Astrocoma","Neck.",71
+24340,"Gravenshorstia","Nees",71
+24341,"Adenoplea","Radlk.",72
+24342,"Adenoplusia","Radlk.",72
+24343,"Androya","H.Perrier",72
+24344,"Buddleja","L.",72
+24345,"Chilianthus","Burch.",72
+24346,"Emorya","Torr.",72
+24347,"Gomphostigma","Turcz.",72
+24348,"Hasslerella","Chodat",72
+24349,"Lachnopylis","Hochst.",72
+24350,"Nicodemia","Ten.",72
+24351,"Nuxia","Comm. ex Lam.",72
+24352,"Peltanthera","Benth.",72
+24353,"Polypremum","L.",72
+24354,"Elaphrium","Jacq.",74
+24355,"Hedwigia","Sw.",74
+24356,"Crantzia","Sw.",76
+24357,"Crantzia","Scop.",203
+24358,"Crantzia","Nutt.",491
+24359,"Andenea","Fric",79
+24360,"Aporocereus","Fric & Kreuz.",79
+24361,"Aulacothele","Monv.",79
+24362,"Aureilobivia","Fric",79
+24363,"Backebergia","Bravo",79
+24364,"Bergerocereus","Fric & Kreuz.",79
+24365,"Binghamia","Britton & Rose",79
+24366,"Borzicereus","Fric & Kreuz.",79
+24367,"Brasilicactus","Backeb.",79
+24368,"Brasilocactus","Fric",79
+24369,"Brittonia","C.A.Armstr.",79
+24370,"Brittonrosea","Speg.",79
+24371,"Cactodendron","Bigelow",79
+24372,"Cactus","L.",79
+24373,"Cactus","Britton & Rose",79
+24374,"Cactus","Lem.",79
+24381,"Cassyta","J.Mill.",79
+24382,"Cephalomammillaria","Fric",79
+24383,"Ceratistes","Labour.",79
+24384,"Chamaelobivia","Y.Ito",79
+24385,"Chichipia","Backeb.",79
+24386,"Chilenia","Backeb. [1935]",79
+24387,"Chilenia","Backeb. [1938]",79
+24388,"Chilenia","Backeb. [1939]",79
+24395,"Chileocactus","Fric",79
+24396,"Chrysocactus","Y.Ito",79
+24397,"Clavarioidia","Kreuz.",79
+24398,"Cleistocereus","Fric & Kreuz.",79
+24399,"Corryocereus","Fric & Kreuz.",79
+24400,"Diploperianthium","F.Ritter",79
+24401,"Disocereus","Fric & Kreuz.",79
+24402,"Dracocactus","Y.Ito",79
+24403,"Eccremocereus","Fric & Kreuz.",79
+24404,"Echinolobivia","Y.Ito",79
+24405,"Echinonyctanthus","Lem.",79
+24406,"Echinorebutia","Fric",79
+24407,"Eriocactus","Backeb.",79
+24408,"Erythrocereus","Houghton",79
+24409,"Eulychnocactus","Backeb.",79
+24410,"Eurebutia","Fric",79
+24411,"Floresia","Krainz & F.Ritter ex Backeb.",79
+24412,"Fobea","Fric",79
+24413,"Frailea","Britton & Rose",79
+24414,"Furiolobivia","Y.Ito",79
+24415,"Gerocephalus","F.Ritter",79
+24416,"Haagea","Fric",79
+24417,"Haageocactus","Backeb.",79
+24418,"Hariota","DC.",79
+24419,"Hariota","Adans.",79
+24422,"Heterolobivia","Y.Ito",79
+24423,"Hildmannia","Kreuz. & Buining",79
+24424,"Hymenorebulobivia","Fric",79
+24425,"Lactomammillaria","Fric",79
+24426,"Leptocladia","Buxb.",79
+24427,"Lobirebutia","Fric",79
+24428,"Lobiviopsis","Fric",79
+24429,"Malacocarpus","Salm-Dyck",79
+24430,"Malacocarpus","Fisch. & C.A.Mey.",511
+24431,"Mammariella","Shafer",79
+24432,"Mediocereus","Fric & Kreuz.",79
+24433,"Mediorebutia","Fric",79
+24434,"Megalobivia","Y.Ito",79
+24438,"Myrtillocereus","Fric & Kreuz.",79
+24439,"Napina","Fric",79
+24440,"Neolemaireocereus","Backeb.",79
+24441,"Neomammillaria","Britton & Rose",79
+24442,"Nichelia","Bullock",79
+24443,"Opuntiopsis","Knebel",79
+24444,"Parviopuntia","Soulaire & Marn.-Lap.",79
+24445,"Phyllarthus","Neck. ex M.Gomez",79
+24446,"Phyllocactus","Link",79
+24447,"Pilocereus","Lem.",79
+24448,"Pilocereus","K.Schum.",79
+24451,"Pilopsis","Y.Ito",79
+24452,"Pseudoechinocereus","Buining",79
+24453,"Pseudosolisia","Y.Ito",79
+24454,"Rathbunia","Britton & Rose",79
+24455,"Rebulobivia","Fric",79
+24456,"Rodentiophila","F.Ritter ex Backeb.",79
+24457,"Roseia","Fric",79
+24458,"Salmiopuntia","Fric",79
+24459,"Setirebutia","Fric & Kreuz.",79
+24460,"Spegazzinia","Backeb.",79
+24461,"Spinicalycium","Fric",79
+24462,"Stromatocactus","Karw. ex Rumpler",79
+24463,"Strophocereus","Fric & Kreuz.",79
+24464,"Thelomastus","Fric",79
+24465,"Toumeya","Britton & Rose",79
+24466,"Winteria","F.Ritter",79
+24467,"Winterocereus","Backeb.",79
+24468,"Wittia","K.Schum.",79
+24469,"Zygocereus","Fric & Kreuz.",79
+24470,"Calectasia","R.Br.",80
+24471,"Callitriche","L.",81
+24472,"Cervicina","Delile",84
+24473,"Clintonia","Douglas ex Lindl.",84
+24474,"Clintonia","Raf.",120
+24475,"Cyphia","Bergius",84
+24476,"Cyphocarpus","Miers",84
+24477,"Fedorovia","Kolak.",84
+24478,"Laurentia","Adans.",84
+24479,"Nemacladus","Nutt.",84
+24480,"Parishella","A.Gray",84
+24481,"Phyllocharis","Diels",84
+24482,"Pongatium","Juss.",84
+24483,"Pseudonemacladus","McVaugh",84
+24484,"Specularia","A.DC.",84
+24485,"Trematocarpus","Zahlbr.",84
+24486,"Trochocodon","Candargy",84
+24487,"Borthwickia","W.W.Sm.",89
+24488,"Buhsia","Bunge",89
+24489,"Chilocalyx","Klotzsch",89
+24490,"Cleomella","DC.",89
+24491,"Cristatella","Nutt.",89
+24492,"Dactylaena","Schrad. ex Schult.f.",89
+24493,"Forchhammeria","Liebm.",89
+24494,"Gynandropsis","DC.",89
+24495,"Haptocarpum","Ule",89
+24496,"Isomeris","Nutt.",89
+24497,"Justago","Kuntze",89
+24498,"Neothorelia","Gagnep.",89
+24499,"Niebuhria","DC.",89
+24500,"Oxystylis","Torr. & Frem.",89
+24501,"Pedicellaria","Schrank",89
+24502,"Physostemon","Mart.",89
+24503,"Podandrogyne","Ducke",89
+24504,"Polanisia","Raf.",89
+24505,"Rorida","J.F.Gmel.",89
+24506,"Roydsia","Roxb.",89
+24507,"Stixis","Lour.",89
+24508,"Tetrateleia","Arw.",89
+24509,"Tetratelia","Sond.",89
+24510,"Tirania","Pierre",89
+24511,"Wislizenia","Engelm.",89
+24512,"Sambucus","L.",90
+24513,"Viburnum","L.",90
+24514,"Gastrocalyx","Schischk.",95
+24515,"Lychnis","L.",95
+24516,"Psammophila","Ikonn.",95
+24517,"Psammophila","Schult.",214
+24518,"Tunica","Mert. & W.D.J.Koch",95
+24519,"Tunica","Ludw.",95
+24522,"Ambaiba","Adans.",97
+24523,"Bhesa","Buch.-Ham. ex Arn.",98
+24524,"Hartogia","Thunb. ex L.f.",98
+24525,"Nothocnestis","Miq.",98
+24526,"Pragmotropa","Pierre",98
+24527,"Pyrospermum","Miq.",98
+24528,"Rhacoma","P.Browne ex L.",98
+24529,"Trochisandra","Bedd.",98
+24530,"Devauxia","R.Br.",99
+24531,"Devauxia","Kunth",214
+24532,"Bushia","Nieuwl.",105
+24533,"Ceratoides","Gagnebin",105
+24534,"Dondia","Adans.",105
+24535,"Dondia","Spreng.",491
+24536,"Echinopsilon","Moq.",105
+24537,"Eremosemium","Greene",105
+24538,"Eurotia","Adans.",105
+24539,"Patellaria","J.T.Williams, A.J.Scott & Ford-Lloyd",105
+24540,"Salmasia","Schreb.",107
+24541,"Salmasia","Bubani",214
+24542,"Burchardia","R.Br.",114
+24543,"Reya","Kuntze",114
+24544,"Gimbernatea","Ruiz & Pav.",116
+24545,"Grislea","L.",116
+24546,"Grislea","Loefl.",294
+24549,"Donnellia","C.B.Clarke ex Donn.Sm.",117
+24550,"Forrestia","A.Rich.",117
+24551,"Mandonia","Hassk.",117
+24552,"Neotreleasea","Rose",117
+24553,"Spironema","Lindl.",117
+24554,"Adenanthemum","B.Nord.",118
+24555,"Alciope","DC. ex Lindl.",118
+24556,"Billya","Cass.",118
+24557,"Bubonium","Hill",118
+24558,"Cacalia","L.",118
+24559,"Charieis","Cass.",118
+24560,"Daumalia","Arenes",118
+24561,"Dracopsis","Cass.",118
+24562,"Eriosphaera","Less.",118
+24563,"Grantia","Boiss.",118
+24564,"Helminthia","Juss.",118
+24565,"Kitamuraea","Rauschert",118
+24566,"Kuhnia","L.",118
+24567,"Lagenifera","Cass.",118
+24568,"Macraea","Hook.f.",118
+24569,"Macraea","Wight",190
+24570,"Modestia","Kharadze & Tamamsch.",118
+24571,"Myripnois","Bunge",118
+24572,"Pechuel-Loeschea","O.Hoffm.",118
+24573,"Postia","Boiss. & Blanche",118
+24574,"Pterachenia","(Benth.) Lipsch.",118
+24575,"Ptilepida","Raf.",118
+24576,"Rhynea","DC.",118
+24577,"Schaetzellia","Sch.Bip.",118
+24578,"Sparganophorus","Boehm.",118
+24579,"Stanfieldia","Small",118
+24580,"Takhtajanianthus","A.B.De",118
+24581,"Terana","La Llave",118
+24582,"Virginia","(DC.) Nicoli",118
+24583,"Santalodes","Kuntze",119
+24584,"Tapomana","Adans.",119
+24585,"Antherolophus","Gagnep.",120
+24586,"Aspidistra","Ker Gawl.",120
+24587,"Brachycyrtis","Koidz.",120
+24588,"Campylandra","Baker",120
+24591,"Colania","Gagnep.",120
+24592,"Convallaria","L.",120
+24593,"Disporopsis","Hance",120
+24594,"Disporum","Salisb. ex D.Don",120
+24595,"Drymophila","R.Br.",120
+24596,"Gonioscypha","Baker",120
+24597,"Kreysigia","Rchb.",120
+24598,"Kuntheria","Conran & Clifford",120
+24599,"Liriope","Lour.",120
+24600,"Maianthemum","Weber",120
+24601,"Medeola","L.",120
+24602,"Oligobotrya","Baker",120
+24603,"Ophiopogon","Ker Gawl.",120
+24604,"Peliosanthes","Andrews",120
+24605,"Polygonatum","Mill.",120
+24606,"Rohdea","Roth",120
+24607,"Schelhammera","R.Br.",120
+24608,"Smilacina","Desf.",120
+24609,"Speirantha","Baker",120
+24610,"Streptopus","Michx.",120
+24611,"Theropogon","Maxim.",120
+24612,"Tricalistra","Ridl.",120
+24613,"Tricyrtis","Wall.",120
+24614,"Tripladenia","D.Don",120
+24615,"Tupistra","Ker Gawl.",120
+24616,"Uvularia","L.",120
+24617,"Baillandea","Roberty",121
+24618,"Breueria","R.Br.",121
+24619,"Calycantherum","Klotzsch",121
+24620,"Dimerodisus","Gagnep.",121
+24621,"Lettsomia","Roxb.",121
+24622,"Parasitipomoea","Hayata",121
+24623,"Saccia","Naudin",121
+24624,"Curtisia","Aiton",123
+24625,"Davidia","Baill.",123
+24626,"Diplopanax","Hand.-Mazz.",123
+24627,"Macrocarpium","(Spach) Nakai",123
+24628,"Mastixia","Blume",123
+24629,"Carpinus","L.",125
+24630,"Ostrya","Scop.",125
+24631,"Ostryopsis","Decne.",125
+24632,"Parvisedum","R.T.Clausen",128
+24633,"x Sedeveria","E.Walther",128
+24634,"Borodinia","N.Busch",130
+24635,"Catenularia","Botsch.",130
+24636,"Chodsha-Kasiana","Rauschert",130
+24637,"Discovium","Raf.",130
+24638,"Heterocarpus","Phil.",130
+24639,"Icianthus","Greene",130
+24640,"Iondraba","Rchb.",130
+24641,"Machaerophorus","Schltdl.",130
+24642,"Macrostigmatella","Rauschert",130
+24643,"Microsisymbrium","O.E.Schulz",130
+24644,"Neotchihatchewia","Rauschert",130
+24645,"Palmstruckia","Sond.",130
+24646,"Redowskia","Cham. & Schltdl.",130
+24647,"Skottsbergiella","Boelcke",130
+24648,"Skottsbergiella","Epling",265
+24649,"Solms-Laubachia","Muschl.",130
+24650,"Stigmatella","Eig",130
+24651,"Synstemonanthus","Botsch.",130
+24652,"Texiera","Jaub. & Spach",130
+24653,"Torularia","O.E.Schulz",130
+24654,"Turrita","Wallr.",130
+24655,"Vogelia","Medik.",130
+24656,"Vogelia","Lam.",381
+24657,"Allagosperma","M.Roem.",133
+24658,"Anguria","Jacq.",133
+24659,"Anguria","Mill.",133
+24662,"Bryonopsis","Arn.",133
+24663,"Chayota","Jacq.",133
+24664,"Cogniauxiella","Baill.",133
+24665,"Colocynthis","Mill.",133
+24666,"Corynosicyos","F.Muell.",133
+24667,"Dimorphoclamys","Hook.f.",133
+24668,"Elaterium","Mill.",133
+24669,"Elaterium","Jacq.",133
+24672,"Macrozanonia","(Cogn.) Cogn.",133
+24673,"Maximowiczia","Cogn.",133
+24674,"Mellouia","Gasp.",133
+24675,"Nhandiroba","Adans.",133
+24676,"Penar-Valli","Adans.",133
+24677,"Peponia","Naudin",133
+24678,"Oosterdickia","Boehm.",134
+24679,"Ornithrophus","Bojer ex Engl.",134
+24680,"Spiraeopsis","Miq.",134
+24681,"Stutzeria","F.Muell.",134
+24682,"Trimerisma","C.Presl",134
+24683,"Heyderia","K.Koch",135
+24684,"Cormiophyllum","Newman",137
+24685,"Halophlebia","(Mart.) Lindl.",137
+24686,"Asepalum","Marais",140
+24687,"Cyclocheilon","Oliv.",140
+24688,"Courtoisia","Nees",143
+24689,"Courtoisia","Rchb.",385
+24690,"Dichromena","Michx.",143
+24691,"Hymenochaeta","P.Beauv.",143
+24692,"Indocourtoisia","Bennet & Raizada",143
+24693,"Maximovicziella","A.P.Khokhr.",143
+24694,"Neo-Senea","K.Schum. ex H.Pfeiff.",143
+24695,"Pseudomariscus","Rauschert",143
+24696,"Scirpidiella","Rauschert",143
+24697,"Leucostegia","C.Presl",148
+24698,"Pteroneura","Fee",148
+24699,"Wibelia","Bernh.",148
+24700,"Wibelia","Fee",151
+24701,"Anisosorus","Trevis. ex Maxon",151
+24704,"Coptidipteris","Nakai & Momose",151
+24705,"Filix","Ludw.",151
+24707,"Filix","Seg.",169
+24709,"Filix","Adans.",504
+24712,"Lonchitis","L.",151
+24713,"Lonchitis","Bubani",345
+24714,"Odontoloma","J.Sm.",151
+24717,"Calochlaena","(Maxon) R.A.White & M.D.Turner",155
+24718,"Cibotium","Kaulf.",155
+24719,"Culcita","C.Presl",155
+24720,"Lophosoria","C.Presl",155
+24721,"Panicularia","Colla",155
+24722,"Panicularia","Fabr.",214
+24723,"Pinonia","Gaudich.",155
+24724,"Thyrsopteris","Kunze",155
+24725,"Trichosorus","Liebm.",155
+24726,"Diegodendron","Capuron",158
+24727,"Beaucarnea","Lem.",167
+24728,"Calibanus","Rose",167
+24729,"Dasylirion","Zucc.",167
+24730,"Dracaena","Vand. ex L.",167
+24731,"Nolina","Michx.",167
+24732,"Pleomele","Salisb.",167
+24733,"Sansevieria","Thunb.",167
+24734,"Drosophyllum","Link",168
+24735,"Arcypteris","Underw.",169
+24736,"Aspidium","Sw.",169
+24737,"Dictyopteris","C.Presl",169
+24738,"Didymochlaena","Desv.",169
+24745,"Monochlaena","Gaudich.",169
+24746,"Pleocnemia","C.Presl",169
+24747,"Sagenopteris","Trevis.",169
+24748,"Tegularia","Reinw.",169
+24749,"Monocera","Jack",174
+24750,"Monocera","Elliott",214
+24751,"Eremosyne","Endl.",182
+24752,"Befaria","Mutis ex L.",183
+24753,"Chiogenes","Salisb. ex Torr.",183
+24754,"Findlaya","Hook.f.",183
+24755,"Hornemannia","Vahl",183
+24756,"x Kalmiothamnus","Starling",183
+24757,"x Phyllothamnus","C.K.Schneid.",183
+24758,"Schizococcus","Eastw.",183
+24759,"Xolisma","Raf.",183
+24760,"Philodice","Mart.",184
+24761,"Eriospermum","Jacq. ex Willd.",185
+24762,"Abrophyllum","Hook.f. ex Benth.",187
+24763,"Argophyllum","J.R.Forst. & G.Forst.",187
+24764,"Argyrocalymma","K.Schum. & Lauterb.",187
+24765,"Brexia","Noronha ex Thouars",187
+24766,"Carpodetus","J.R.Forst. & G.Forst.",187
+24767,"Chalepoa","Hook.f.",187
+24768,"Corokia","A.Cunn.",187
+24769,"Curraniodendron","Merr.",187
+24770,"Cuttsia","F.Muell.",187
+24771,"Dedea","Baill.",187
+24772,"Defforgia","Lam.",187
+24773,"Desforgia","Steud.",187
+24774,"Dulongia","Kunth",187
+24775,"Ixerba","A.Cunn.",187
+24776,"Lautea","F.Br.",187
+24777,"Phyllonoma","Willd. ex Schult.",187
+24778,"Platyspermation","Guillaumin",187
+24779,"Polyosma","Blume",187
+24780,"Quintinia","A.DC.",187
+24781,"Thomassetia","Hemsl.",187
+24782,"Tribeles","Phil.",187
+24783,"Venana","Lam.",187
+24784,"Aalius","Lam. ex Kuntze",190
+24785,"Acanthopyxis","Miq. ex Lanj.",190
+24786,"Actephila","Blume",190
+24787,"Aerisilvaea","Radcl.-Sm.",190
+24788,"Agyneia","L.",190
+24789,"Agyneja","L.",190
+24790,"Agyneja","Vent.",190
+24793,"Alcineanthus","Merr.",190
+24794,"Amanoa","Aubl.",190
+24795,"Anabaena","A.Juss.",190
+24796,"Anabaenella","Pax & K.Hoffm.",190
+24797,"Anaua","Miq.",190
+24798,"Andrachne","L.",190
+24799,"Androstachys","Prain",190
+24800,"Angostyles","Benth.",190
+24801,"Anisonema","A.Juss.",190
+24802,"Antidesma","L.",190
+24803,"Aporosella","Chodat",190
+24804,"Arachne","(Endl.) Pojark.",190
+24805,"Arachnodes","Gagnep.",190
+24806,"Ardinghalia","Comm. ex Juss.",190
+24807,"Asterandra","Klotzsch",190
+24808,"Astrocasia","B.L.Rob. & Millsp.",190
+24809,"Astylis","Wight",190
+24810,"Bellevalia","Roem. & Schult.",190
+24811,"Bellevalia","Lapeyr.",241
+24814,"Bestram","Adans.",190
+24815,"Bischofia","Blume",190
+24816,"Bivonea","Raf.",190
+24817,"Blotia","Leandri",190
+24818,"Bradleia","Cav.",190
+24819,"Bradleja","Banks ex Gaertn.",190
+24820,"Brexiopsis","H.Perrier",190
+24821,"Breynia","J.R.Forst. & G.Forst.",190
+24822,"Breyniopsis","Beille",190
+24823,"Bridelia","Willd.",190
+24824,"Bruea","Gaudich.",190
+24825,"Calococcus","Kurz ex Teijsm.",190
+24826,"Calyptosepalum","S.Moore",190
+24827,"Canariastrum","Engl.",190
+24828,"Candelabria","Hochst.",190
+24829,"Cathetus","Lour.",190
+24830,"Cavanilla","Vell.",190
+24831,"Cavanilla","Thunb.",251
+24834,"Ceratogynum","Wight",190
+24835,"Chaenotheca","Urb.",190
+24836,"Charidia","Baill.",190
+24837,"Chascotheca","Urb.",190
+24838,"Chorisandra","Wight",190
+24839,"Chorisandrachne","Airy Shaw",190
+24840,"Cicca","L.",190
+24841,"Cieca","Adans.",190
+24842,"Cieca","Medik.",356
+24843,"Clambus","Miers",190
+24844,"Cleistanthus","Hook.f. ex Planch.",190
+24845,"Clistanthus","Post & Kuntze",190
+24846,"Cluytiandra","Mull.Arg.",190
+24847,"Coccoglochidion","K.Schum.",190
+24848,"Colmeiroa","Reut.",190
+24849,"Cometia","Thouars ex Baill.",190
+24850,"Comopyena","Kuntze",190
+24851,"Conami","Aubl.",190
+24852,"Coulejia","Dennst.",190
+24853,"Croizatia","Steyerm.",190
+24854,"Crozophora","A.Juss.",190
+24855,"Cyclostemon","Blume",190
+24856,"Cyclostigma","Klotzsch ex Seem.",190
+24857,"Cyclostigma","Phil.",440
+24858,"Cynocrambe","Hill",190
+24859,"Danguyodrypetes","Leandri",190
+24860,"Dendrophyllanthus","S.Moore",190
+24861,"Diasperus","Kuntze",190
+24862,"Dicholactina","Hance",190
+24863,"Dicoelia","Benth.",190
+24864,"Dimorphocladium","Britton",190
+24865,"Diplomorpha","Griff.",190
+24866,"Discocarpus","Klotzsch",190
+24867,"Discophis","Raf.",190
+24868,"Dodecastemon","Hassk.",190
+24869,"Drypetes","Vahl",190
+24870,"Durandeeldia","Kuntze",190
+24871,"Elaterioides","Kuntze",190
+24872,"Emblica","Gaertn.",190
+24873,"Episteira","Raf.",190
+24874,"Epistylium","Sw.",190
+24875,"Eraeliss","Forssk.",190
+24876,"Eriococcus","Hassk.",190
+24877,"Eutrophia","Klotzsch",190
+24878,"Flueggea","Willd.",190
+24879,"Fluggeopsis","K.Schum.",190
+24880,"Foersteria","Scop.",190
+24881,"Forsteria","Steud.",190
+24882,"Freireodendron","Mull.Arg.",190
+24883,"Furcaria","Boivin ex Baill.",190
+24884,"Furcaria","Desv.",354
+24885,"Geblera","Fisch. & C.A.Mey.",190
+24886,"Gelonium","Roxb. ex Willd.",190
+24887,"Geminaria","Raf.",190
+24888,"Genesiphylla","L'Her.",190
+24889,"Gentilia","Chev. & Beille",190
+24890,"Glochidion","J.R.Forst. & G.Forst.",190
+24891,"Glochidionopsis","Blume",190
+24892,"Glochisandra","Wight",190
+24893,"Godefroya","Gagnep.",190
+24894,"Gonatogyne","Klotzsch ex Mull.Arg.",190
+24895,"Guya","Frapp.",190
+24896,"Gynoon","Juss.",190
+24897,"Hasskarlia","Baill.",190
+24898,"Hemicicca","Baill.",190
+24899,"Hemicyclia","Wight & Arn.",190
+24900,"Hemiglochidion","(Mull.Arg.) K.Schum.",190
+24901,"Heterocalymnantha","Domin",190
+24902,"Hexadena","Raf.",190
+24903,"Hexakestra","Hook.f.",190
+24904,"Hexakistra","Hook.f.",190
+24905,"Hexaspermum","Domin",190
+24906,"Heywoodia","Sim",190
+24907,"Hieronima","Allemao",190
+24908,"Humblotia","Baill.",190
+24909,"Hyeronima","Allemao",190
+24910,"Hymenocardia","Wall. ex Lindl.",190
+24911,"Ibina","Noronha",190
+24912,"Junghuhnia","Miq.",190
+24913,"Kaluhaburunghos","Kuntze",190
+24914,"Keayodendron","Leandri",190
+24915,"Kirganelia","Juss.",190
+24916,"Kleinodendron","L.B.Sm. & Downs",190
+24917,"Lachnostylis","Turcz.",190
+24918,"Laneasagum","Bedd.",190
+24919,"Lebidiera","Baill.",190
+24920,"Lebidieropsis","Mull.Arg.",190
+24921,"Leichhardtia","F.Muell.",190
+24922,"Leiopyxis","Miq.",190
+24923,"Lepidococea","Turcz.",190
+24924,"Leptopus","Decne.",190
+24925,"Leptopus","Klotzsch & Garcke",190
+24928,"Lingelsheimia","Pax",190
+24929,"Liparena","Poit. ex Leman",190
+24930,"Liparene","Baill.",190
+24931,"Lithoxylon","Endl.",190
+24932,"Lobocarpus","Wight & Arn.",190
+24933,"Lomanthes","Raf.",190
+24934,"Maborea","Aubl.",190
+24937,"Margaritaria","L.f.",190
+24938,"Maschalanthus","Nutt.",190
+24939,"Meineckia","Baill.",190
+24940,"Melanthes","Blume",190
+24941,"Melanthesa","Blume",190
+24942,"Melanthesopsis","Mull.Arg.",190
+24943,"Menarda","Comm. ex Juss.",190
+24944,"Microelus","Wight & Arn.",190
+24945,"Micropetalum","Poit. ex Baill.",190
+24946,"Minutalia","Fenzl",190
+24947,"Mirobalanus","Rumph.",190
+24948,"Moeroris","Raf.",190
+24949,"Nanopetalum","Hassk.",190
+24950,"Nellica","Raf.",190
+24951,"Neogoetzia","Pax",190
+24952,"Neopeltandra","Gamble",190
+24953,"Neowawraea","Rock",190
+24954,"Niruri","Adans.",190
+24955,"Nymphanthus","Lour.",190
+24956,"Omalanthus","A.Juss.",190
+24957,"Orbicularia","Baill.",190
+24958,"Oreoporanthera","Hutch.",190
+24959,"Oxalistylis","Baill.",190
+24960,"Palenga","Thwaites",190
+24961,"Palissya","Baill.",190
+24962,"Paracasearia","Boerl.",190
+24963,"Paracelsea","Zoll.",190
+24964,"Paracleisthus","Gagnep.",190
+24965,"Paradrypetes","Kuhlm.",190
+24966,"Pentabrachion","Mull.Arg.",190
+24967,"Pentameria","Klotzsch ex Baill.",190
+24968,"Periplexis","Wall.",190
+24969,"Petalodiscus","Baill.",190
+24970,"Phyllanthodendron","Hemsl.",190
+24971,"Phyllanthus","L.",190
+24972,"Pilinophyton","Klotzsch",190
+24973,"Pleiostemon","Sond.",190
+24974,"Poranthera","Rudge",190
+24975,"Poranthera","Raf.",214
+24976,"Prosorus","Dalzell",190
+24977,"Pseudoglochidion","Gamble",190
+24978,"Pseudolachnostylis","Pax",190
+24979,"Pseudosagotia","Secco",190
+24980,"Pycnosandra","Blume",190
+24981,"Ramsdenia","Britton",190
+24982,"Reidia","Wight",190
+24983,"Reverchonia","A.Gray",190
+24984,"Rhopium","Schreb.",190
+24985,"Rhytis","Lour.",190
+24986,"Richeriella","Pax & K.Hoffm.",190
+24987,"Riseleya","Hemsl.",190
+24988,"Roigia","Britton",190
+24989,"Rubina","Noronha",190
+24990,"Samaropyxis","Miq.",190
+24991,"Sauropus","Blume",190
+24992,"Savia","Willd.",190
+24993,"Scepasma","Blume",190
+24994,"Schistostigma","Lauterb.",190
+24995,"Scortechinia","Hook.f.",190
+24996,"Securinega","Comm. ex Juss.",190
+24997,"Shirakia","Hurus.",190
+24998,"Sibangea","Oliv.",190
+24999,"Siphonia","Rich.",190
+25000,"Siphonia","Benth.",414
+25001,"Sphragidia","Thwaites",190
+25002,"Spixia","Leandro",190
+25003,"Staurothylax","Griff.",190
+25004,"Stelechanteria","Thouars ex Baill.",190
+25005,"Stenonia","Baill.",190
+25006,"Stenonia","Didr.",190
+25009,"Stenoniella","Kuntze",190
+25010,"Stilago","L.",190
+25011,"Stylodiscus","Benn.",190
+25012,"Synastemon","F.Muell.",190
+25013,"Synexemia","Raf.",190
+25014,"Synostemon","F.Muell.",190
+25015,"Tacarcuna","Huft",190
+25016,"Tetraglochidion","K.Schum.",190
+25017,"Thelypotzium","Gagnep.",190
+25018,"Tirucalia","Raf.",190
+25019,"Toxicodendrum","Thunb.",190
+25020,"Tricarium","Lour.",190
+25021,"Tzellemtinia","Chiov.",190
+25022,"Uapaca","Baill.",190
+25023,"Urinaria","Medik.",190
+25024,"Wielandia","Baill.",190
+25025,"Williamia","Baill.",190
+25026,"Wurtzia","Baill.",190
+25027,"Xylophylla","L.",190
+25028,"Zarcoa","Llanos",190
+25029,"Zenkerodendron","Gilg ex Jabl.",190
+25030,"Zimmermannia","Pax",190
+25031,"Zimmermanniopsis","Radcl.-Sm.",190
+25032,"Zygospermum","Thwaites ex Baill.",190
+25033,"Lightia","R.H.Schomb.",191
+25034,"Trisynsyne","Baill.",194
+25035,"Aphaerema","Miers",195
+25036,"Aphloia","(DC.) Benn.",195
+25037,"Bembicia","Oliv.",195
+25038,"Casearia","Jacq.",195
+25039,"Euceraea","Mart.",195
+25040,"Gerrardina","Oliv.",195
+25041,"Gossypiospermum","(Griseb.) Urb.",195
+25042,"Guayabilla","Sesse & Moc.",195
+25043,"Guidonia","P.Browne",195
+25044,"Guidonia","(DC.) Griseb.",195
+25045,"Guidonia","Mill.",195
+25052,"Hecatostemon","S.F.Blake",195
+25053,"Laetia","L.",195
+25056,"Lunania","Hook.",195
+25057,"Mocquerysia","Hua",195
+25058,"Neoptychocarpus","Buchheim",195
+25059,"Neumannia","A.Rich.",195
+25060,"Ophiobotrys","Gilg",195
+25061,"Osmelia","Thwaites",195
+25062,"Patrisia","Rich.",195
+25063,"Phyllobotryon","Mull.Arg.",195
+25064,"Phylloclinium","Baill.",195
+25065,"Pineda","Ruiz & Pav.",195
+25066,"Pseudosmelia","Sleumer",195
+25067,"Ptychocarpus","Kuhlm.",195
+25068,"Ryania","Vahl",195
+25069,"Samyda","Jacq.",195
+25070,"Samyda","L.",310
+25071,"Synandrina","Standl. & L.O.Williams",195
+25072,"Tetrathylacium","Poepp.",195
+25073,"Trichostephanus","Gilg",195
+25074,"Zuelania","A.Rich.",195
+25075,"Erythraea","L.",201
+25076,"Kingdon-Wardia","C.Marquand",201
+25077,"Lecanthus","Griseb.",201
+25078,"Lecanthus","Wedd.",492
+25079,"Oreophylax","Endl.",201
+25080,"Pitygentias","Gilg",201
+25081,"Balbisia","Cav.",202
+25082,"Ledocarpon","Desf.",202
+25083,"Rhynchotheca","Ruiz & Pav.",202
+25084,"Wendtia","Meyen",202
+25085,"Bucinella","Wiehler",203
+25086,"Coptocheile","Hoffmanns.",203
+25090,"Dolichodiera","Hanst.",203
+25091,"x Gloxinera","Weathers",203
+25092,"Slackia","Griff.",203
+25093,"Slackia","Griff.",349
+25094,"Trichosporum","D.Don",203
+25095,"Tussacia","Benth.",203
+25096,"Tussacia","Raf. ex Desv.",345
+25097,"Glaucidium","Siebold & Zucc.",206
+25098,"Cockburnia","Balf.f.",208
+25099,"Globularia","L.",208
+25100,"Lytanthus","Wettst.",208
+25101,"Poskea","Vatke",208
+25102,"Bissea","V.R.Fuentes",210
+25103,"Abola","Adans.",214
+25104,"Abola","Lindl.",345
+25105,"Achyrodes","Boehm.",214
+25106,"Acophorum","Steud.",214
+25107,"Acrochaete","Peter",214
+25108,"Acrospelion","Steud.",214
+25109,"Acroxis","Steud.",214
+25110,"Actinochloa","Roem. & Schult.",214
+25111,"Actinochloris","Steud.",214
+25112,"Aechmophora","Steud.",214
+25113,"Aegicon","Adans.",214
+25114,"x Aegilosecale","Cif. & Giacom.",214
+25115,"x Aegilotricale","Tscherm.-Seys.",214
+25116,"x Aegilotrichum","E.G.Camus",214
+25117,"x Aegilotricum","Tscherm.-Seys.",214
+25118,"Aeropsis","Asch. & Graebn.",214
+25119,"Aethonopogon","Kuntze",214
+25120,"Aglycia","Steud.",214
+25121,"Agrestis","Bubani",214
+25122,"x Agrocalamagrostis","Asch. & Graebn.",214
+25123,"x Agropyrohordeum","A.Camus",214
+25124,"x Agrotrigia","Tzvelev",214
+25125,"x Agrotrisecale","Cif. & Giacom.",214
+25126,"Allagostachyum","Steud.",214
+25127,"Alycia","Steud.",214
+25128,"Amagris","Raf.",214
+25129,"Amaxitis","Adans.",214
+25130,"Amblychloa","Link",214
+25131,"Amblytes","Dulac",214
+25132,"Anemagrostis","Trin.",214
+25133,"Anisopyrum","(Griseb.) Gren. & Duval",214
+25134,"Anoplia","Steud.",214
+25135,"Anthopogon","Nutt.",214
+25136,"Antichloa","Steud.",214
+25137,"Antitragus","Gaertn.",214
+25138,"Antoschmidtia","Boiss.",214
+25139,"Aplocera","Raf.",214
+25140,"Arcangelina","Kuntze",214
+25141,"x Arctodupontia","Tzvelev",214
+25142,"Arrozia","Kunth",214
+25143,"Arthrochlaena","Benth.",214
+25144,"Arundarbor","Kuntze",214
+25145,"Asprella","Schreb.",214
+25146,"Asprella","Host",214
+25149,"Asthenatherum","Nevski",214
+25150,"Athernotus","Dulac",214
+25151,"Atherophora","Steud.",214
+25152,"Atropis","(Trin.) Griseb.",214
+25153,"Aulacolepis","Hack.",214
+25154,"Aulaxia","Nutt.",214
+25155,"Avenaria","Fabr.",214
+25156,"Balansochloa","Kuntze",214
+25157,"Bambos","Retz.",214
+25158,"Beesha","Kunth",214
+25159,"Beesha","Munro",214
+25162,"Brachatera","Desv.",214
+25163,"Brachyathera","Kuntze",214
+25164,"Brachystylus","Dulac",214
+25165,"Brizopyrum","Link",214
+25166,"Brizopyrum","Stapf",214
+25169,"x Bromofestuca","Prodan",214
+25170,"Bulbilis","Kuntze",214
+25171,"Bulbulus","Swallen",214
+25172,"x Calammophila","Brand",214
+25173,"x Calamophila","O.Schwarz",214
+25174,"Calanthera","Hook.",214
+25175,"Callichloea","Steud.",214
+25176,"Calochloa","Kunze",214
+25177,"Calotheria","Steud.",214
+25178,"Campella","Link",214
+25179,"Capriola","Adans.",214
+25180,"Caryophyllea","Opiz",214
+25181,"Casiostega","Galeotti",214
+25182,"Centosteca","Desv.",214
+25183,"Cephalochloa","Coss. & Durieu",214
+25184,"Cerea","Schltdl.",214
+25185,"Ceytosis","Munro",214
+25186,"Chalcoelytrum","Lunell",214
+25187,"Chalynochlamys","Franch.",214
+25188,"Chamagrostis","Borkh.",214
+25189,"Chasea","Nieuwl.",214
+25190,"Chauvinia","Steud.",214
+25191,"Chloridopsis","Hack.",214
+25192,"Chloroides","Regel",214
+25193,"Chloropsis","Kuntze",214
+25194,"Chlorostis","Raf.",214
+25195,"Chondrolaena","Nees",214
+25196,"Chretomeris","Nutt. ex J.G.Sm.",214
+25197,"Chrysurus","Pers.",214
+25198,"Claudia","Opiz",214
+25199,"Cleachne","Adans.",214
+25200,"Cleistogenes","Keng",214
+25201,"Codonachne","Steud.",214
+25202,"Coelochloa","Steud.",214
+25203,"Coliquea","Bibra",214
+25204,"Colobanthium","(Rchb.) G.Taylor",214
+25205,"Corethrum","Vahl",214
+25206,"Crithopyrum","Steud.",214
+25207,"Cryptopyrum","Heynh.",214
+25208,"Cycloteria","Stapf",214
+25209,"Cylichnium","Dulac",214
+25210,"Cymbachne","Retz.",214
+25211,"Cymbanthelia","Andersson",214
+25212,"x Cynochloris","Clifford & Everist",214
+25213,"Cyrenea","F.Allam.",214
+25214,"Czerniaevia","Ledeb.",214
+25215,"Dactylodes","Kuntze",214
+25216,"Dalucum","Adans.",214
+25217,"Danthorhiza","Ten.",214
+25218,"x Danthosieglingia","Domin",214
+25219,"Davyella","Hack.",214
+25220,"Dendragrostis","B.D.Jacks.",214
+25223,"Diacisperma","Kuntze",214
+25224,"Diandranthus","Liou",214
+25225,"Diarina","Raf.",214
+25226,"Dichromus","Schltdl.",214
+25227,"Digraphis","Trin.",214
+25228,"Dileucaden","(Raf.) Steud.",214
+25229,"Dimesia","Raf.",214
+25230,"Diplachyrium","Nees",214
+25231,"Dipogonia","P.Beauv.",214
+25232,"Distomomischus","Dulac",214
+25233,"Doellochloa","Kuntze",214
+25234,"Donacium","Fr.",214
+25235,"Drake-Brockmania","Stapf",214
+25236,"Drymonaetes","Fourr.",214
+25237,"x Dupontopoa","Prob.",214
+25238,"Echinalysium","Trin.",214
+25239,"Ectosperma","Swallen",214
+25240,"Ehrhartia","Weber",214
+25241,"x Elymopyrum","Cugnac",214
+25242,"x Elymostachys","Tzvelev",214
+25243,"x Elymotrigia","Hyl.",214
+25244,"x Elytrordeum","Hyl.",214
+25245,"Endallex","Raf.",214
+25246,"Enodium","Pers. ex Gaudin",214
+25247,"Ephebopogon","Steud.",214
+25248,"Eriolytrum","Kunth",214
+25249,"Eriopodium","Hochst.",214
+25250,"Erosion","Lunell",214
+25251,"x Euchlaezea","Bor",214
+25252,"Eudonax","Fr.",214
+25253,"Eufournia","Reeder",214
+25254,"Eupogon","Desv.",214
+25255,"Exagrostis","Steud.",214
+25256,"Falimiria","Rchb.",214
+25257,"Fartis","Adans.",214
+25258,"Festucaria","Fabr.",214
+25259,"Festucaria","Link",214
+25262,"x Festulpia","Stace & R.Cotton",214
+25263,"Flavia","Fabr.",214
+25264,"Flexularia","Raf.",214
+25265,"Foenodorum","E.H.L.Krause",214
+25266,"Forasaccus","Bubani",214
+25267,"Frumentum","E.H.L.Krause",214
+25268,"Fussia","Schur",214
+25269,"Genea","(Dumort.) Dumort.",214
+25270,"Geopogon","Steud.",214
+25271,"Ginannia","Bubani",214
+25272,"Glandiloba","(Raf.) Steud.",214
+25273,"Gnomonia","Lunell",214
+25274,"Gramen","Seg.",214
+25275,"Gramen","Krause",214
+25276,"Gramen","W.Young",214
+25283,"Greenia","Nutt.",214
+25284,"Gymnanthelia","Schweinf.",214
+25285,"Habrurus","Hochst.",214
+25286,"x Hainardiopholis","Castrov.",214
+25287,"Halochloa","Griseb.",214
+25288,"Hellera","Doll",214
+25289,"Helleria","E.Fourn.",214
+25290,"Hemigymnia","Stapf",214
+25291,"Heptaseta","Koidz.",214
+25292,"Heuffelia","Schur",214
+25293,"Hippagrostis","Kuntze",214
+25294,"Homalocenchrus","Miegev.",214
+25295,"Homoplitis","Trin.",214
+25296,"x Hordeopyrum","Simonet",214
+25297,"x Hordeoroegneria","Tzvelev",214
+25298,"Hydropoa","(Dumort.) Dumort.",214
+25299,"Hypudaerus","A.Braun",214
+25300,"Hystringium","Steud.",214
+25301,"Indoryza","A.N.Henry & B.Roy",214
+25302,"Irulia","Bedd.",214
+25303,"Ixalum","G.Forst.",214
+25304,"Kielboul","Adans.",214
+25305,"Knappia","Sm.",214
+25306,"Korycarpus","Lag.",214
+25307,"Kralikiella","Batt. & Trab.",214
+25308,"Kratzmannia","Opiz",214
+25309,"Lachnochloa","Steud.",214
+25310,"Lachryma-jobi","Ortega",214
+25311,"Lachrymaria","Fabr.",214
+25312,"Lacryma","Medik.",214
+25313,"Lasiostega","Benth.",214
+25314,"Lasiotrichos","Lehm.",214
+25315,"Lechlera","Steud.",214
+25316,"Lenormandia","Steud.",214
+25317,"Lepidurus","Janch.",214
+25318,"Lepitoma","Steud.",214
+25319,"Lepiurus","Dumort.",214
+25320,"Leptocercus","Raf.",214
+25321,"Leptochloris","Kuntze",214
+25322,"Leptostachys","G.Mey.",214
+25323,"Leptothrix","(Dumort.) Dumort.",214
+25324,"Lepyroxis","E.Fourn.",214
+25325,"Lerchenfeldia","Schur",214
+25326,"x Leymopyron","Tzvelev",214
+25327,"x Leymostachys","Tzvelev",214
+25328,"x Leymotrigia","Tzvelev",214
+25329,"x Leymotrix","Khark. & Prob.",214
+25330,"x Leytesion","Barkworth",214
+25331,"Limnetis","Rich.",214
+25332,"Lindbergia","Bor",214
+25333,"Linosparton","Adans.",214
+25334,"Lithagrostis","Gaertn.",214
+25335,"Loxostachys","Peter",214
+25336,"Ludolphia","Willd.",214
+25337,"Macrochaeta","Steud.",214
+25338,"Macronax","Raf.",214
+25339,"Macrostachya","A.Rich.",214
+25340,"Maizilla","Schltdl.",214
+25341,"x Maltea","B.Boivin",214
+25342,"Malya","Opiz",214
+25343,"Mapira","Adans.",214
+25344,"Mays","Mill.",214
+25345,"Mayzea","Raf.",214
+25346,"Medusather","Candargy",214
+25347,"Melinum","Link",214
+25348,"Merathrepta","Raf.",214
+25349,"Micagrostis","Juss.",214
+25350,"Micropogon","Pfeiff.",214
+25351,"Microthuareia","Thouars",214
+25352,"Miegia","Pers.",214
+25353,"Miliarium","Moench",214
+25354,"Miliastrum","Fabr.",214
+25355,"Miphragtes","Nieuwl.",214
+25356,"Mitwabochloa","J.B.Phipps",214
+25357,"Molinerella","Rouy",214
+25358,"Monathera","Raf.",214
+25361,"Monostemon","Henrard",214
+25362,"Moorea","Lem.",214
+25363,"Moorea","Rolfe",345
+25364,"Moulinsia","Raf.",214
+25365,"Mygalurus","Link",214
+25366,"Natschia","Bubani",214
+25367,"Navicularia","Raddi",214
+25368,"Nazia","Adans.",214
+25369,"Neobambus","Keng f.",214
+25370,"Nevroctola","Raf.",214
+25371,"Nothoholcus","Nash",214
+25372,"Notholcus","Hitchc.",214
+25373,"Oedipachne","Link",214
+25374,"Omeiocalamus","Keng f.",214
+25375,"Onoea","Franch. & Sav.",214
+25376,"x Oryticum","C.P.Wang & S.H.Tang",214
+25377,"Osterdamia","Kuntze",214
+25378,"Pachea","Steud.",214
+25379,"Paneion","Lunell",214
+25380,"Panicastrella","Moench",214
+25383,"Parodiella","Reeder & C.Reeder",214
+25384,"Pechea","Lapeyr.",214
+25385,"Peltophorus","Desv.",214
+25386,"Penicillaria","Willd.",214
+25387,"Pentastachya","Steud.",214
+25388,"Perlaria","Fabr.",214
+25389,"Petriella","Zotov",214
+25390,"Phalarella","Boiss.",214
+25391,"Phalaridantha","St.-Lag.",214
+25392,"Pithecurus","Kunth",214
+25393,"Plagiarthron","P.A.Duvign.",214
+25394,"Planotia","Munro",214
+25395,"Plantinia","Bubani",214
+25396,"Plazerium","Kunth",214
+25397,"Pleiodon","Rchb.",214
+25398,"Plotia","Steud.",214
+25399,"Poagris","Raf.",214
+25400,"Poarion","Rchb.",214
+25401,"Podinapus","Dulac",214
+25402,"Polyneura","Peter",214
+25403,"x Polypogonagrostis","(Asch. & Graebn.) Maire & Weiller",214
+25404,"Polyraphis","(Trin.) Lindl.",214
+25407,"Potamochloa","Griff.",214
+25408,"Preissia","Opiz",214
+25409,"Prosphysis","Dulac",214
+25412,"Pseudosecale","(Godr.) Degen",214
+25413,"x Pucciphippsia","Tzvelev",214
+25414,"Raram","Adans.",214
+25415,"Raspailia","C.Presl",214
+25416,"Rebentischia","Opiz",214
+25417,"Reimbolea","Debeaux",214
+25418,"Rhiniachne","Steud.",214
+25419,"Rouxia","Husn.",214
+25420,"Runcina","F.Allam.",214
+25421,"Rytilix","Hitchc.",214
+25422,"Sabsab","Adans.",214
+25423,"Saccharifera","Stokes",214
+25426,"Schnizleinia","Steud.",214
+25427,"Schoenanthus","Adans.",214
+25428,"Sciadonardus","Steud.",214
+25429,"Scirpobambus","Kuntze",214
+25430,"Sclerophyllum","Griff.",214
+25431,"Secalidium","Schur",214
+25432,"x Secalotricum","Kostov",214
+25433,"Senites","Adans.",214
+25434,"Sennenia","Sennen",214
+25435,"Sinoarundinaria","Ohwi",214
+25436,"x Sitordeum","Bowden",214
+25437,"Sitospelos","Adans.",214
+25438,"Solenophyllum","Baill.",214
+25439,"Sorgum","Adans.",214
+25440,"Sparteum","P.Beauv.",214
+25441,"Spartum","P.Beauv.",214
+25442,"Sphaerella","Bubani",214
+25443,"Sphaerium","Kuntze",214
+25444,"Spirochloe","Lunell",214
+25445,"Stapfia","Burtt Davy",214
+25446,"Stelephuros","Adans.",214
+25447,"Steudelella","Honda",214
+25448,"Stipavena","Vierh.",214
+25449,"Streptia","Doll",214
+25450,"Strombodurus","Steud.",214
+25451,"Sturmia","Hoppe",214
+25452,"Sturmia","Rchb.f.",345
+25453,"Sturmia","C.F.Gaertn.",414
+25454,"Symbasiandra","Steud.",214
+25455,"Terrellia","Lunell",214
+25456,"x Terrelymus","B.R.Baum",214
+25457,"Thalysia","Kuntze",214
+25458,"Thorea","Rouy",214
+25459,"Thoreochloa","Holub",214
+25460,"Thyridostachyum","Nees",214
+25461,"Tinaea","Garzia",214
+25462,"Tisserantiella","Mimeur",214
+25463,"Torresia","Ruiz & Pav.",214
+25464,"Tosagris","P.Beauv.",214
+25465,"Trachynotia","Michx.",214
+25466,"Trachyozus","Rchb.",214
+25467,"Trachypoa","Bubani",214
+25468,"Trachystachys","A.Dietr.",214
+25469,"Tremularia","Fabr.",214
+25470,"Trianthium","Desv.",214
+25471,"Triatherus","Raf.",214
+25472,"Trichochloa","DC.",214
+25473,"Trichodiclida","Cerv.",214
+25474,"Trichosantha","Steud.",214
+25475,"Triodon","Baumg.",214
+25476,"Triodon","DC.",414
+25477,"Trisetarium","Poir.",214
+25478,"x Trisetokoeleria","Tzvelev",214
+25479,"Tristegis","Nees",214
+25480,"x Tritisecale","Lebedev",214
+25481,"Triunila","Raf.",214
+25482,"Trochera","Rich.",214
+25483,"Tschompskia","Asch. & Graebn.",214
+25484,"Turraya","Wall.",214
+25485,"Valota","Adans.",214
+25486,"Verinea","Merino",214
+25487,"Vilfagrostis","Doll",214
+25488,"Wasatchia","M.E.Jones",214
+25489,"Weingaertneria","Bernh.",214
+25490,"Wilibald-schmidtia","Conrad",214
+25491,"Wilibalda","Roth",214
+25492,"Wirtgenia","Doll",214
+25493,"Xanthonanthus","St.-Lag.",214
+25494,"Yadakeya","Makino",214
+25495,"Zeia","Lunell",214
+25496,"Zerna","Panz.",214
+25497,"Zygadenia","L.E.Bishop",215
+25498,"Rolsonia","Rchb.",218
+25499,"Bucklandia","R.Br. ex Griff.",226
+25500,"Symingtonia","Steenis",226
+25501,"Hectorella","Hook.f.",228
+25502,"Lyallia","Hook.f.",228
+25503,"Hemerocallis","L.",231
+25504,"Hazomalamia","Capuron",232
+25505,"Hertelia","Neck.",232
+25506,"Clara","Kunth",233
+25507,"Herreria","Ruiz & Pav.",233
+25508,"Herreriopsis","H.Perrier",233
+25509,"Hippuris","L.",236
+25510,"Hosta","Tratt.",238
+25511,"Albuca","L.",241
+25512,"Alrawia","(Wendelbo) K.M.Perss. & Wendelbo",241
+25513,"Amphisiphon","W.F.Barker",241
+25514,"Battandiera","Maire",241
+25517,"Botryanthus","Kunth",241
+25518,"Bowiea","Harv. ex Hook.f.",241
+25519,"Brachyscypha","Baker",241
+25520,"Brimeura","Salisb.",241
+25521,"Camassia","Lindl.",241
+25522,"Chionodoxa","Boiss.",241
+25523,"x Chionoscilla","J.Allen ex G.Nicholson",241
+25524,"Chlorogalum","(Lindl.) Kunth",241
+25525,"Daubenya","Lindl.",241
+25526,"Dipcadi","Medik.",241
+25527,"Drimia","Jacq. ex Willd.",241
+25528,"Drimiopsis","Lindl. & Paxton",241
+25529,"Elsiea","F.M.Leight.",241
+25530,"Endymion","Dumort.",241
+25531,"Eucomis","L'Her.",241
+25532,"Fortunatia","J.F.Macbr.",241
+25533,"Galtonia","Decne.",241
+25534,"Hastingsia","S.Watson",241
+25535,"Hesperocallis","A.Gray",241
+25536,"Hyacinthella","Schur",241
+25537,"Hyacinthoides","Heist. ex Fabr.",241
+25538,"Hyacinthus","L.",241
+25539,"Lachenalia","J.Jacq. ex Murray",241
+25540,"Ledebouria","Roth",241
+25541,"Leopoldia","Parl.",241
+25542,"Litanthus","Harv.",241
+25543,"Massonia","Thunb. ex L.f.",241
+25544,"Muscari","Mill.",241
+25545,"Muscarimia","Kostel.",241
+25546,"Neobakeria","Schltr.",241
+25547,"Neopatersonia","Schonl.",241
+25548,"Ornithogalum","L.",241
+25549,"Polyxena","Kunth",241
+25550,"Pseudogaltonia","(Kuntze) Engl.",241
+25551,"Pseudomuscari","Garbari & Greuter",241
+25552,"Puschkinia","Adams",241
+25553,"Resnova","Van der Merwe",241
+25554,"Rhadamanthus","Salisb.",241
+25555,"Rhodocodon","Baker",241
+25556,"Schizobasis","Baker",241
+25557,"Schizocarphus","Van der Merwe",241
+25558,"Schoenolirion","Torr. ex Durand",241
+25559,"Scilla","L.",241
+25560,"Strangweja","Bertol.",241
+25561,"Sypharissa","Salisb.",241
+25562,"Thuranthos","C.H.Wright",241
+25563,"Urginea","Steinh.",241
+25564,"Urgineopsis","Compton",241
+25565,"Veltheimia","Gled.",241
+25566,"Whiteheadia","Harv.",241
+25567,"Benedictaea","Toledo",245
+25568,"Xystrolobus","Gagnep.",245
+25569,"Lecanium","C.Presl",248
+25570,"Lecanium","Reinw.",388
+25571,"Alsodeidium","Engl.",251
+25572,"Aveledoa","Pittier",251
+25575,"Metteniusa","H.Karst.",251
+25576,"Neoferetia","Baehni",251
+25577,"Villaresia","Ruiz & Pav.",251
+25578,"Anomatheca","Ker Gawl.",255
+25579,"Duthiella","M.P.de Vos",255
+25580,"Engysiphon","G.J.Lewis",255
+25581,"Exohebea","R.C.Foster",255
+25582,"x Gladanthera","J.M.Wright",255
+25585,"Marica","Ker Gawl.",255
+25586,"Symphyostemon","Miers ex Klatt",255
+25587,"Hicorius","Raf.",261
+25588,"Pterilema","Reinw.",261
+25589,"Prionium","E.Mey.",262
+25590,"Audibertia","Benth. (1831)",265
+25591,"Audibertia","Benth. (1829)",265
+25594,"Brotera","Spreng.",265
+25595,"Ceranthera","Elliott",265
+25596,"Ceranthera","Raf.",440
+25597,"Erianthera","Benth.",265
+25598,"Galeobdolon","Huds.",265
+25599,"Gnoteris","Raf.",265
+25600,"Leonuroides","Rauschert",265
+25601,"x Majoranamaracus","Rech.f.",265
+25602,"Moldavica","Fabr.",265
+25603,"Moschosma","Rchb.",265
+25604,"Oreospacus","Phil.",265
+25605,"Orthodon","Benth. & Oliv.",265
+25606,"Salviastrum","Scheele",265
+25609,"Susilkumara","Bennet",265
+25612,"Micropora","Hook.f.",270
+25613,"Ravensara","Sonn.",270
+25614,"Asteranthos","Desf.",271
+25615,"Asteranthus","Spreng.",271
+25616,"Cercophora","Miers",271
+25617,"Japarandiba","Adans.",271
+25618,"Phyllocarpus","Riedel ex Tul.",273
+25619,"Westia","Vahl",273
+25620,"Anneslia","Salisb.",273
+25621,"Cailliea","Guill. & Perr.",273
+25622,"Gonsii","Adans.",273
+25623,"Permia","Raf.",273
+25624,"Agati","Adans.",273
+25625,"Aniotum","Sol. ex Parkinson",273
+25626,"Aragallus","Neck. ex Greene",273
+25627,"Bonaveria","Scop.",273
+25628,"Bradburya","Raf.",273
+25629,"Catenaria","Benth.",273
+25630,"Coumarouna","Aubl.",273
+25631,"Cryptophaeseolus","Kuntze",273
+25632,"Dicerma","DC.",273
+25633,"Dolicholus","Medik.",273
+25634,"Helminthocarpon","A.Rich.",273
+25635,"Heylandia","DC.",273
+25636,"Ichtyomethia","Kuntze",273
+25637,"Kerstingiella","Harms",273
+25638,"Kuhnistera","Lam.",273
+25639,"Lourea","Desv.",273
+25640,"Lygos","Adans.",273
+25643,"Monosemion","Raf.",273
+25644,"Mystirophora","Nevski",273
+25645,"Pediomellum","Rydb.",273
+25646,"Physanthillis","Boiss.",273
+25647,"Podocarpium","(Benth.) Y.C.Yang & P.H.Huang",273
+25648,"Possira","Aubl.",273
+25649,"Pseudomelissitus","Ovcz., Rassulova & Kinzik.",273
+25650,"Stizolobium","P.Browne",273
+25651,"Tounatea","Aubl.",273
+25652,"Trichopodium","C.Presl",273
+25653,"Trichopodium","Lindl.",480
+25654,"Voandzeia","Thouars",273
+25655,"Lentibularia","Seg.",277
+25656,"Acroclasia","C.Presl",285
+25657,"Chryostoma","Lilja",285
+25658,"Creslobus","Lilja",285
+25659,"Microsperma","Hook.",285
+25660,"Ortiga","Neck.",285
+25663,"Anthocleista","Afzel. ex R.Br.",286
+25664,"Cyrtophyllum","Reinw.",286
+25665,"Desfontainia","Ruiz & Pav.",286
+25666,"Fagraea","Thunb.",286
+25667,"Potalia","Aubl.",286
+25668,"Acanthocarpus","Lehm.",287
+25669,"Baxteria","R.Br. ex Hook.",287
+25670,"Chamaexeros","Benth.",287
+25671,"Lomandra","Labill.",287
+25672,"Romnalda","P.F.Stevens",287
+25673,"Xerolirion","A.S.George",287
+25674,"Xerotes","R.Br.",287
+25675,"Cheiloepton","Fee",288
+25676,"Lophopyxis","Hook.f.",289
+25677,"Beccarina","Tiegh.",290
+25678,"Choristegia","Tiegh.",290
+25679,"Danserella","Balle",290
+25680,"Furcilla","Tiegh.",290
+25681,"Itacania","Raf.",290
+25682,"Macrocalyx","Tiegh.",290
+25683,"Macrocalyx","Costantin & J.Poiss.",298
+25684,"Odontella","Tiegh.",290
+25685,"Pasovia","H.Karst.",290
+25686,"Stegastrum","Tiegh.",290
+25687,"Wolfia","Post & Kuntze",291
+25688,"Copodium","Raf.",293
+25689,"Urostachys","(E.Pritz.) Herter",293
+25690,"Duabanga","Buch.-Ham.",294
+25693,"Salicaria","Adans.",294
+25694,"Banisteria","L.",297
+25695,"Calyntranthele","Nied.",297
+25698,"Malpighiantha","Rojas Acosta",297
+25699,"Skoliopterys","Cuatrec.",297
+25700,"Stenocalyx","Turcz.",297
+25701,"Stenocalyx","O.Berg",329
+25702,"Verrucularina","Rauschert",297
+25703,"Arcynospermum","Turcz.",298
+25704,"Armourea","Lewton",298
+25707,"Clinogyne","K.Schum.",299
+25708,"Hytophrynium","K.Schum.",299
+25709,"Clementea","Cav.",300
+25710,"Spheroidea","Dulac",302
+25711,"Soyauxia","Oliv.",306
+25712,"Kaliphora","Hook.f.",307
+25713,"Melanophylla","Baker",307
+25714,"Aletris","L.",308
+25715,"Chamaelirium","Willd.",308
+25716,"Chionographis","Maxim.",308
+25717,"Harperocallis","McDaniel",308
+25718,"Helonias","L.",308
+25719,"Heloniopsis","A.Gray",308
+25720,"Japonolirion","Nakai",308
+25721,"Lophiola","Ker Gawl.",308
+25722,"Melanthium","L.",308
+25723,"Metanarthecium","Maxim.",308
+25724,"Narthecium","Huds.",308
+25725,"Nietneria","Klotzsch ex Benth.",308
+25726,"Petrosavia","Becc.",308
+25727,"Pleea","Michx.",308
+25728,"Tofieldia","Huds.",308
+25729,"Xerophyllum","Michx.",308
+25730,"Ypsilandra","Franch.",308
+25731,"Hedusa","Raf.",309
+25732,"Kadalia","Raf.",309
+25733,"Lomanodia","Raf.",309
+25736,"Pharmaceum","Kuntze",309
+25737,"Barola","Adans.",310
+25738,"Camunium","Roxb.",310
+25739,"Chickassia","Wight & Arn.",310
+25740,"Elutheria","M.Roem.",310
+25741,"Elutheria","P.Browne",310
+25744,"Ginnania","M.Roem.",310
+25745,"Hartigshea","A.Juss.",310
+25748,"Melio-Schinzia","K.Schum.",310
+25749,"Nimmoia","Wight",310
+25750,"Rutea","M.Roem.",310
+25753,"Parapachygone","Forman",313
+25754,"Fauria","Franch.",314
+25755,"Acanthosphaera","Warb.",320
+25756,"Alicastrum","P.Browne",320
+25757,"Bucephalon","L.",320
+25758,"Macrophthalmia","Gasp.",320
+25759,"Papyrius","Lam.",320
+25760,"Piratinera","Aubl.",320
+25761,"Sitodium","Parkinson",320
+25762,"Tenorea","Gasp.",320
+25763,"Urostigma","Gasp.",320
+25764,"Acanthocalyx","(DC.) Tiegh.",321
+25765,"Cryptothladia","(Bunge) M.J.Cannon",321
+25766,"Morina","L.",321
+25767,"Aegiceras","Gaertn.",328
+25768,"Julibaria","Mez",328
+25769,"Maesa","Forssk.",328
+25770,"Auticoryne","Turcz.",329
+25771,"Camphoromyrtus","Schauer",329
+25772,"Caryophyllus","L.",329
+25773,"Endesmia","R.Br.",329
+25774,"Enosanthes","A.Cunn. ex Schauer",329
+25775,"Fabricia","Gaertn.",329
+25776,"Heteromyrtus","Blume",329
+25777,"Melanoleuca","St.-Lag.",329
+25778,"Microsideros","Baum.-Bod.",329
+25779,"Nelitris","Spreng.",329
+25780,"Nelitris","Gaertn.",414
+25781,"Phyllocalyx","O.Berg",329
+25782,"Pyrenocarpa","H.T.Chang & R.H.Miao",329
+25785,"Nesogenes","A.DC.",332
+25786,"Torrukia","Vell.",334
+25787,"Kaieteuria","Dwyer",336
+25788,"Coula","Baill.",337
+25789,"Diogoa","Exell & Mendonca",337
+25790,"Eganthus","Tiegh.",337
+25791,"Endusa","Miers",337
+25792,"Erythropalum","Blume",337
+25793,"Lavallea","Baill.",337
+25794,"Lavalleopsis","Tiegh.",337
+25795,"Minquartia","Aubl.",337
+25796,"Ochanostachys","Mast.",337
+25797,"Octoknema","Pierre",337
+25798,"Scorodocarpus","Becc.",337
+25799,"Strombosia","Blume",337
+25800,"Strombosiopsis","Engl.",337
+25801,"Tetrastylidium","Engl.",337
+25802,"Binia","Noronha ex Thouars",338
+25805,"Busbeckia","Hecart",338
+25806,"Calyptrospermum","A.Dietr.",338
+25807,"Freyeria","Scop.",338
+25808,"Gymelaea","(Endl.) Spach",338
+25809,"Keiria","Bowdich",338
+25810,"Liliacum","Renault",338
+25811,"Mannaphorus","Raf.",338
+25812,"Mayepea","Aubl.",338
+25813,"Pausia","Raf.",338
+25814,"Samarpsea","Raf.",338
+25815,"Leptopleuron","C.Presl",339
+25816,"Plectronia","L.",340
+25817,"Agaosizia","Spach",341
+25818,"Dantia","Boehm.",341
+25819,"Meriolix","Raf. ex Endl.",341
+25820,"Nemotopyxis","Miq.",341
+25821,"Phaestoma","Spach",341
+25822,"Quadricosta","Dulac",341
+25823,"Regmus","Dulac",341
+25824,"Usoricum","Lunell",341
+25825,"Japanobotrychium","Masam.",343
+25828,"x Acinbreea","Hort.",345
+25829,"Acroanthes","Raf.",345
+25830,"x Adaglossum","Hort.",345
+25831,"x Adioda","Hort.",345
+25832,"Aeonia","Lindl.",345
+25833,"x Aerasconetia","Hort.",345
+25834,"x Aeridachnis","Hort.",345
+25835,"x Aeridisia","Hort.",345
+25836,"x Aeriditis","Hort.",345
+25837,"x Aeridocentrum","Hort.",345
+25838,"x Aeridochilus","Hort.",345
+25839,"x Aeridofinetia","Hort.",345
+25840,"x Aeridoglossum","Hort.",345
+25841,"x Aeridopsis","Hort.",345
+25842,"x Aeridovanda","Hort.",345
+25843,"x Aeridovanisia","Hort.",345
+25844,"x Aitkenara","Hort.",345
+25845,"x Alexanderara","Hort.",345
+25846,"x Aliceara","Hort.",345
+25847,"Alipsea","Hoffmanns.",345
+25848,"x Allenara","Hort.",345
+25849,"x Anacamptiplatanthera","E.G.Camus",345
+25850,"x Anacamptorchis","E.G.Camus",345
+25851,"x Andrewara","Hort.",345
+25852,"x Angraecentrum","Hort.",345
+25853,"x Angraecostylis","Hort.",345
+25854,"x Angraeorchis","Hort.",345
+25855,"x Angrangis","Hort.",345
+25856,"x Angranthes","Hort.",345
+25857,"x Angulocaste","Hort.",345
+25858,"Anisopetalum","Hook.",345
+25859,"x Anoectomaria","Hort.",345
+25860,"x Ansidium","Hort.",345
+25861,"x Aracampe","Hort.",345
+25862,"Arachnanthe","Blume",345
+25863,"x Arachnoglossum","Hort.",345
+25864,"x Arachnoglottis","Hort.",345
+25865,"x Arachnopsis","Hort.",345
+25866,"x Arachnostylis","Hort.",345
+25867,"Arhynchium","Lindl. & Paxton",345
+25868,"Aristolelea","Lour.",345
+25869,"x Arizara","Hort.",345
+25870,"x Ascandopsis","Hort.",345
+25871,"x Ascocleinetia","Hort.",345
+25872,"x Ascofinetia","Hort.",345
+25873,"x Ascogastisia","Hort.",345
+25874,"x Ascoglottis","Hort.",345
+25875,"x Asconopsis","Hort.",345
+25876,"x Ascorachnis","Hort.",345
+25877,"x Ascovandoritis","Hort.",345
+25878,"x Aspasium","Hort.",345
+25879,"x Aspodonia","Hort.",345
+25880,"x Aspoglossum","Hort.",345
+25881,"Astroglossus","Rchb. ex Benth.",345
+25882,"x Ayubara","Hort.",345
+25883,"Azadehdelia","Braem",345
+25884,"x Bakerara","Hort.",345
+25885,"x Baldwinara","Hort.",345
+25886,"x Barangis","Hort.",345
+25887,"x Barbendrum","Hort.",345
+25888,"x Barbosaara","Hort.",345
+25889,"x Barlaceras","E.G.Camus",345
+25890,"Baskervillea","Lindl.",345
+25891,"x Bateostylis","Hort.",345
+25892,"x Baumannara","Hort.",345
+25893,"x Beardara","Hort.",345
+25894,"x Bishopara","Hort.",345
+25895,"x Blackara","Hort.",345
+25896,"x Bloomara","Hort.",345
+25897,"x Bokchoonara","Hort.",345
+25898,"x Bovornara","Hort.",345
+25899,"Brachystepis","Pritz.",345
+25900,"x Bradeara","Hort.",345
+25901,"x Brapasia","Hort.",345
+25902,"x Brassada","Hort.",345
+25903,"x Brassocattleya","Hort.",345
+25904,"x Brassophronitis","Hort.",345
+25905,"x Brilliandeara","Hort.",345
+25906,"x Brownara","Hort.",345
+25907,"x Brummitara","Hort.",345
+25908,"x Buiara","Hort.",345
+25909,"Bulbophyllopsis","Rchb.f.",345
+25910,"x Burkillara","Hort.",345
+25911,"Byurlingtonia","Lindl.",345
+25912,"Calanthidum","Pfitzer",345
+25913,"x Campbellara","Hort.",345
+25914,"x Carterara","Hort.",345
+25915,"x Casoara","Hort.",345
+25916,"x Catamodes","Hort.",345
+25917,"x Catanoches","Hort.",345
+25918,"x Cattkeria","Hort.",345
+25919,"x Cattleyopsisgoa","Hort.",345
+25920,"x Cattleyopsistonia","Hort.",345
+25921,"x Cattleytonia","Hort.",345
+25922,"x Cattotes","Hort.",345
+25923,"Centrogenium","Schltr.",345
+25924,"x Chamodenia","E.G.Camus",345
+25925,"x Charlesworthara","Hort.",345
+25926,"x Chewara","Hort.",345
+25927,"x Chilocentrum","Hort.",345
+25928,"x Chondrobollea","Hort.",345
+25929,"x Christieara","Hort.",345
+25930,"x Chuanyenara","Hort.",345
+25931,"x Chyletia","Hort.",345
+25932,"x Cirrhophyllum","Hort.",345
+25933,"x Cleisodes","Hort.",345
+25934,"x Cleisonopsis","Hort.",345
+25935,"x Cleisoquetia","Hort.",345
+25936,"x Cochella","Hort.",345
+25937,"x Cochlecaste","Hort.",345
+25938,"x Cochlenia","Hort.",345
+25939,"x Cochlepetalum","Hort.",345
+25940,"x Coeloplatanthera","E.G.Camus",345
+25943,"Colax","Lindl.",345
+25944,"x Colmanara","Hort.",345
+25945,"x Conphronitis","Hort.",345
+25946,"Corallorrhiza","Gagnebin",345
+25947,"x Coryhopea","Hort.",345
+25948,"x Crawshayara","Hort.",345
+25949,"Cymbiglossum","Halb.",345
+25950,"Cyperochis","Blume",345
+25951,"x Cyrtellia","Hort.",345
+25952,"Cyrtidium","Schltr.",345
+25953,"x Dactylella","E.G.Camus",345
+25954,"x Dactylitella","E.G.Camus",345
+25955,"x Dactyloglossum","E.G.Camus",345
+25956,"x Dactylogymnadenia","E.G.Camus",345
+25957,"x Darwinara","Hort.",345
+25958,"Darwiniella","Braas & Luckel",345
+25959,"x Debruyneara","Hort.",345
+25960,"x Degarmoara","Hort.",345
+25961,"x Dekensara","Hort.",345
+25962,"x Devereuxara","Hort.",345
+25963,"x Diabroughtonia","Hort.",345
+25964,"x Diacattleya","Hort.",345
+25965,"Diacrium","Benth.",345
+25966,"x Dialaelia","Hort.",345
+25967,"x Dialaeliocattleya","Hort.",345
+25968,"x Dialaeliopsis","Hort.",345
+25969,"x Dillonara","Hort.",345
+25970,"Diphyes","Blume",345
+25973,"Diplectrum","Pers.",345
+25974,"x Diplonopsis","Hort.",345
+25975,"x Domindesmia","Hort.",345
+25976,"x Domintonia","Hort.",345
+25977,"x Dominyara","Hort.",345
+25978,"x Domliopsis","Hort.",345
+25979,"x Doncollinara","Hort.",345
+25980,"x Dorandopsis","Hort.",345
+25981,"x Doricentrum","Hort.",345
+25982,"x Doriella","Hort.",345
+25983,"x Doriellaopsis","Hort.",345
+25984,"x Dorifinetia","Hort.",345
+25985,"x Doriglossum","Hort.",345
+25986,"x Doristylis","Hort.",345
+25987,"x Dorthera","Hort.",345
+25988,"x Dossinimaria","Hort.",345
+25989,"x Downsara","Hort.",345
+25990,"x Dracuvallia","Hort.",345
+25991,"x Dresslerara","Hort.",345
+25992,"Dressleriella","Brieger",345
+25993,"Dryorchis","Thouars",345
+25994,"Dubois-Reymondia","H.Karst.",345
+25995,"x Duggerara","Hort.",345
+25996,"x Dunnara","Hort.",345
+25997,"x Dunningara","Hort.",345
+25998,"x Durutyara","Hort.",345
+25999,"x Eastonara","Hort.",345
+26000,"x Edeara","Hort.",345
+26001,"x Epibarkiella","Hort.",345
+26002,"x Epibrassonitis","Hort.",345
+26003,"x Epicatonia","Hort.",345
+26004,"x Epicattleya","Hort.",345
+26005,"Epicrianthus","Blume",345
+26006,"x Epidella","Hort.",345
+26007,"x Epidiacrium","Hort.",345
+26008,"x Epiglottis","Hort.",345
+26009,"x Epigoa","Hort.",345
+26010,"x Epilaelia","Hort.",345
+26011,"x Epilaeliocattleya","Hort.",345
+26012,"x Epilaeliopsis","Hort.",345
+26013,"x Epiphronitis","Hort.",345
+26014,"x Epistoma","Hort.",345
+26015,"x Epitonia","Hort.",345
+26016,"x Ernestara","Hort.",345
+26017,"x Eulocymbidiella","Hort.",345
+26018,"x Euryangis","Hort.",345
+26019,"x Eurynopsis","Hort.",345
+26020,"Evrardiana","Aver.",345
+26021,"x Fergusonaria","Hort.",345
+26022,"x Forgetara","Hort.",345
+26023,"x Freedara","Hort.",345
+26024,"x Fujioara","Hort.",345
+26025,"x Fujiwarara","Hort.",345
+26026,"x Galeansellia","Hort.",345
+26027,"Garayella","Brieger",345
+26028,"x Gastisia","Hort.",345
+26029,"x Gastritis","Hort.",345
+26030,"x Gastrochiloglottis","Hort.",345
+26031,"x Gastrosarcochilus","Hort.",345
+26032,"x Gastrothera","Hort.",345
+26033,"x Gauntlettara","Hort.",345
+26034,"Geocalpa","Brieger",345
+26035,"Glossapis","Spreng.",345
+26036,"x Goffara","Hort.",345
+26037,"x Gomochilus","Hort.",345
+26038,"x Gottererara","Hort.",345
+26039,"x Grammatocymbidium","Hort.",345
+26040,"x Gymnaglossum","E.G.Camus",345
+26041,"x Gymnanacamptis","E.G.Camus",345
+26042,"x Gymnaplatanthera","E.G.Camus",345
+26043,"x Gymnigritella","E.G.Camus",345
+26044,"Haemaria","Lindl.",345
+26045,"x Hagerara","Hort.",345
+26046,"x Hamelwellsara","Hort.",345
+26047,"x Hanesara","Hort.",345
+26048,"x Hartara","Hort.",345
+26049,"Hartwegia","Lindl.",345
+26050,"x Hasegawaara","Hort.",345
+26051,"x Hattoriara","Hort.",345
+26052,"x Hausermannara","Hort.",345
+26053,"x Hawaiiara","Hort.",345
+26054,"x Hawkesara","Hort.",345
+26055,"x Hawkinsara","Hort.",345
+26056,"x Herbertara","Hort.",345
+26057,"x Herscheliodisa","Linder",345
+26058,"x Higashiara","Hort.",345
+26059,"x Hildaara","Hort.",345
+26060,"x Himoriara","Hort.",345
+26061,"Holmesia","P.J.Cribb",345
+26062,"x Holttumara","Hort.",345
+26063,"x Hookerara","Hort.",345
+26064,"x Howeara","Hort.",345
+26065,"x Hueylihara","Hort.",345
+26066,"x Hugofreedara","Hort.",345
+26067,"x Huntleanthes","Hort.",345
+26068,"Hyerochilus","Pfitzer",345
+26069,"Hypodematium","A.Rich.",345
+26070,"Hypodematium","A.Rich.",414
+26071,"Hypodematium","Kunze",504
+26072,"Ibidium","Salisb. ex Small",345
+26073,"x Ionocidium","Hort.",345
+26074,"x Irvingara","Hort.",345
+26075,"x Isaoara","Hort.",345
+26076,"x Iwanagara","Hort.",345
+26077,"x Izumiara","Hort.",345
+26078,"x Jewellara","Hort.",345
+26079,"x Jimenezara","Hort.",345
+26080,"x Joannara","Hort.",345
+26081,"x Johnkellyara","Hort.",345
+26082,"x Jonettia","Hort.",345
+26083,"x Jumanthes","Hort.",345
+26084,"x Kagawara","Hort.",345
+26085,"x Kanzerara","Hort.",345
+26086,"x Kawamotoara","Hort.",345
+26087,"x Keferanthes","Hort.",345
+26088,"x Kirchara","Hort.",345
+26089,"x Knappara","Hort.",345
+26090,"x Knudsonara","Hort.",345
+26091,"x Komkrisara","Hort.",345
+26092,"x Kraussara","Hort.",345
+26093,"x Laeliocattkeria","Hort.",345
+26094,"x Laeliokeria","Hort.",345
+26095,"x Laeliopleya","Hort.",345
+26096,"x Laelonia","Hort.",345
+26097,"x Lagerara","Hort.",345
+26098,"x Lancebirkara","Hort.",345
+26099,"x Lauara","Hort.",345
+26100,"x Laycockara","Hort.",345
+26101,"x Leeara","Hort.",345
+26102,"x Lemaireara","Hort.",345
+26103,"x Leocidium","Hort.",345
+26104,"x Leocidmesa","Hort.",345
+26105,"x Leptolaelia","Hort.",345
+26106,"x Leptovola","Hort.",345
+26107,"x Leslieara","Hort.",345
+26108,"Leucolaena","Ridl.",345
+26109,"x Lewisara","Hort.",345
+26110,"x Liaopsis","Hort.",345
+26111,"x Liebmanara","Hort.",345
+26112,"x Limara","Hort.",345
+26113,"Lindleyella","Schltr.",345
+26114,"Lindleyella","Rydb.",413
+26115,"x Lioponia","Hort.",345
+26116,"Lissochilus","R.Br.",345
+26117,"x Lockcidium","Hort.",345
+26118,"x Lockochilus","Hort.",345
+26122,"Lophoglottis","Raf.",345
+26123,"Lothoniana","Kraenzl.",345
+26124,"x Lowara","Hort.",345
+26125,"x Lowsonara","Hort.",345
+26126,"x Luascotia","Hort.",345
+26127,"x Luicentrum","Hort.",345
+26128,"x Luichilus","Hort.",345
+26129,"x Luinetia","Hort.",345
+26130,"x Luinopsis","Hort.",345
+26131,"x Luisanda","Hort.",345
+26132,"x Luivanetia","Hort.",345
+26133,"x Lutherara","Hort.",345
+26134,"x Lycasteria","Hort.",345
+26135,"x Lymanara","Hort.",345
+26136,"x Lyonara","Hort.",345
+26137,"x Maccoyara","Hort.",345
+26138,"x Maclemoreara","Hort.",345
+26139,"x Macomaria","Hort.",345
+26140,"x Macradesa","Hort.",345
+26141,"x Mailamaiara","Hort.",345
+26142,"x Maxillacaste","Hort.",345
+26143,"x Maymoirara","Hort.",345
+26144,"Meciclis","Raf.",345
+26145,"Mendoncella","A.D.Hawkes",345
+26146,"x Micholitzara","Hort.",345
+26147,"Microepidendrum","Brieger",345
+26148,"x Milpasia","Hort.",345
+26149,"x Milpilia","Hort.",345
+26150,"x Miltada","Hort.",345
+26151,"x Miltadium","Hort.",345
+26152,"x Miltonioda","Hort.",345
+26153,"Minicolumna","Brieger",345
+26154,"x Mizutara","Hort.",345
+26155,"x Moirara","Hort.",345
+26156,"x Moonara","Hort.",345
+26159,"x Moscosoara","Hort.",345
+26160,"Mycaridanthes","Blume",345
+26161,"x Nakagawaara","Hort.",345
+26162,"x Nakamotoara","Hort.",345
+26163,"x Nashara","Hort.",345
+26164,"x Naugleara","Hort.",345
+26165,"Neo-urbania","Fawc. & Rendle",345
+26166,"x Neobatopus","Hort.",345
+26167,"x Neostylis","Hort.",345
+26168,"Neuwiedia","Blume",345
+26169,"x Ngara","Hort.",345
+26170,"x Nobleara","Hort.",345
+26171,"x Nonaara","Hort.",345
+26172,"x Northenara","Hort.",345
+26173,"x Norwoodara","Hort.",345
+26174,"x Notylidium","Hort.",345
+26175,"Oakes-Amesia","C.Schweinf. & P.H.Allen",345
+26176,"Octandrorchis","Brieger",345
+26177,"x Odontioda","Hort.",345
+26178,"x Odontobrassia","Hort.",345
+26179,"x Odontocidium","Hort.",345
+26180,"x Odontonia","Hort.",345
+26181,"x Odontorettia","Hort.",345
+26182,"Odontostyles","Breda",345
+26183,"x Okaara","Hort.",345
+26184,"x Oncidenia","Hort.",345
+26185,"x Oncidettia","Hort.",345
+26186,"x Oncidiella","Hort.",345
+26187,"x Oncidioda","Hort.",345
+26188,"x Oncidpilia","Hort.",345
+26189,"x Onoara","Hort.",345
+26193,"x Opsisanda","Hort.",345
+26194,"x Opsiscattleya","Hort.",345
+26195,"x Opsistylis","Hort.",345
+26196,"x Orchiaceras","E.G.Camus",345
+26197,"x Orchidactyla","E.G.Camus",345
+26198,"x Orchigymnadenia","E.G.Camus",345
+26199,"x Orchimantoglossum","E.G.Camus",345
+26200,"x Ornithocidium","E.G.Camus",345
+26201,"x Osmentara","Hort.",345
+26202,"x Otaara","Hort.",345
+26203,"x Otocolax","Hort.",345
+26204,"x Otonisia","Hort.",345
+26205,"x Otosepalum","Hort.",345
+26206,"x Owensara","Hort.",345
+26207,"Pachystelis","Rauschert",345
+26208,"x Pageara","Hort.",345
+26209,"x Palmerara","Hort.",345
+26210,"x Pantapaara","Hort.",345
+26211,"x Parachilus","Hort.",345
+26212,"x Parnataara","Hort.",345
+26213,"x Paulsenara","Hort.",345
+26214,"x Pehara","Hort.",345
+26215,"x Pelacentrum","Hort.",345
+26216,"x Pelachilus","Hort.",345
+26217,"x Pelatoritis","Hort.",345
+26218,"x Perreiraara","Hort.",345
+26219,"x Pescatobollea","Hort.",345
+26220,"x Pescawarrea","Hort.",345
+26221,"x Pescoranthes","Hort.",345
+26222,"x Pettitara","Hort.",345
+26223,"x Phaiocalanthe","Hort.",345
+26224,"x Phaiocymbidium","Hort.",345
+26225,"x Phalaerianda","Hort.",345
+26226,"x Phalandopsis","Hort.",345
+26227,"x Phalanetia","Hort.",345
+26228,"x Phaliella","Hort.",345
+26229,"Phaniasia","Blume ex Miq.",345
+26230,"x Phillipsara","Hort.",345
+26231,"x Phragmipaphium","Hort.",345
+26232,"Phyllorkis","Thouars",345
+26233,"x Plectochilus","Hort.",345
+26234,"x Plectrelgraecum","Hort.",345
+26235,"Plecturus","Raf.",345
+26236,"Polytoma","Lour. ex Gomes",345
+26237,"x Pomacentrum","Hort.",345
+26238,"x Pomatisia","Hort.",345
+26239,"x Potinara","Hort.",345
+26240,"x Prolax","Hort.",345
+26241,"x Propetalum","Hort.",345
+26242,"x Pseudadenia","E.G.Camus",345
+26243,"x Pseudinium","E.G.Camus",345
+26244,"x Pseuditella","E.G.Camus",345
+26245,"Pseudohexadesmia","Brieger",345
+26246,"Pseudoorleanesia","Rauschert",345
+26247,"Pseudoponera","Brieger",345
+26248,"x Pseudorhiza","E.G.Camus",345
+26249,"x Raganara","Hort.",345
+26250,"x Ramasamyara","Hort.",345
+26251,"x Randactyle","E.G.Camus",345
+26252,"x Recchara","Hort.",345
+26253,"x Renades","Hort.",345
+26254,"x Renafinanda","Hort.",345
+26255,"x Renaglottis","Hort.",345
+26256,"x Renancentrum","Hort.",345
+26257,"x Renanetia","Hort.",345
+26258,"x Renanopsis","Hort.",345
+26259,"x Renanstylis","Hort.",345
+26260,"x Renanthoglossum","Hort.",345
+26261,"x Renanthopsis","Hort.",345
+26262,"x Rhinochilus","Hort.",345
+26263,"x Rhizanthera","E.G.Camus",345
+26264,"x Rhynchocentrum","Hort.",345
+26265,"x Rhynchonopsis","Hort.",345
+26266,"x Rhynchorides","Hort.",345
+26267,"x Rhynchovanda","Hort.",345
+26268,"x Rhyndoropsis","Hort.",345
+26269,"x Richardmizutaara","Hort.",345
+26270,"x Richardsonara","Hort.",345
+26271,"x Ridleyara","Hort.",345
+26272,"x Robifinetia","Hort.",345
+26273,"x Robinara","Hort.",345
+26274,"x Rodrassia","Hort.",345
+26275,"x Rodrettia","Hort.",345
+26276,"x Rodrettiopsis","Hort.",345
+26277,"x Rodrichilus","Hort.",345
+26278,"x Rodricidium","Hort.",345
+26279,"x Rodridenia","Hort.",345
+26280,"x Rodriglossum","Hort.",345
+26281,"x Rodriopsis","Hort.",345
+26282,"x Rodritonia","Hort.",345
+26283,"x Rolfeara","Hort.",345
+26284,"x Ronnyara","Hort.",345
+26285,"x Rosakirschara","Hort.",345
+26286,"x Roseara","Hort.",345
+26287,"x Rothara","Hort.",345
+26288,"x Rumrillara","Hort.",345
+26289,"x Sagarikara","Hort.",345
+26290,"x Sanderara","Hort.",345
+26291,"x Sappanara","Hort.",345
+26292,"Sarcanthus","Lindl.",345
+26293,"x Sarcocentrum","Hort.",345
+26294,"x Sarconopsis","Hort.",345
+26295,"Sarcopodium","Lindl.",345
+26296,"x Sarcothera","Hort.",345
+26297,"x Sarcovanda","Hort.",345
+26298,"x Saridestylis","Hort.",345
+26299,"x Sartylis","Hort.",345
+26300,"x Sauledaara","Hort.",345
+26301,"x Schafferara","Hort.",345
+26304,"x Schombavola","Hort.",345
+26305,"x Schombocatonia","Hort.",345
+26306,"x Schombocattleya","Hort.",345
+26307,"x Schombodiacrium","Hort.",345
+26308,"x Schomboepidendrum","Hort.",345
+26309,"x Schombolaelia","Hort.",345
+26310,"x Schombonia","Hort.",345
+26311,"x Schombonitis","Hort.",345
+26312,"Scleropterys","Scheidw.",345
+26313,"x Scottara","Hort.",345
+26314,"x Scullyara","Hort.",345
+26315,"x Seahexa","Hort.",345
+26316,"x Serapirhiza","E.G.Camus",345
+26317,"Sessilibulbum","Brieger",345
+26318,"x Severinara","Hort.",345
+26319,"x Shigeuraara","Hort.",345
+26320,"x Shipmanara","Hort.",345
+26321,"x Sidranara","Hort.",345
+26322,"x Silpaprasertara","Hort.",345
+26323,"x Sladeara","Hort.",345
+26324,"Smallia","Nieuwl.",345
+26325,"x Sobennigraecum","Hort.",345
+26326,"x Sophrocattleya","Hort.",345
+26327,"x Staalara","Hort.",345
+26328,"x Stacyara","Hort.",345
+26329,"x Stamariaara","Hort.",345
+26330,"x Stanfieldara","Hort.",345
+26331,"x Stangora","Hort.",345
+26332,"x Stanhocycnis","Hort.",345
+26333,"Staurites","Rchb.f.",345
+26334,"x Stellamizutaara","Hort.",345
+26335,"x Stewartara","Hort.",345
+26336,"Stictophyllum","Dodson & M.W.Chase",345
+26340,"x Sutingara","Hort.",345
+26341,"Sylvalismis","Thouars",345
+26342,"x Teohara","Hort.",345
+26343,"x Tetrakeria","Hort.",345
+26344,"x Tetraliopsis","Hort.",345
+26345,"x Tetratonia","Hort.",345
+26346,"x Thesaera","Hort.",345
+26347,"x Trautara","Hort.",345
+26348,"x Trevorara","Hort.",345
+26349,"Triaristella","Brieger",345
+26350,"Triaristellina","Rauschert",345
+26351,"x Trichocidium","Hort.",345
+26352,"x Trichonopsis","Hort.",345
+26353,"x Trichopsis","Hort.",345
+26354,"x Trichostylois","Hort.",345
+26355,"x Trichovanda","Hort.",345
+26356,"Tricochilus","Ames",345
+26357,"Trigonanthe","(Schltr.) Brieger",345
+26358,"x Tubaecum","Hort.",345
+26359,"x Tuckerara","Hort.",345
+26362,"x Vanalstyneara","Hort.",345
+26363,"x Vancampe","Hort.",345
+26364,"x Vandachnis","Hort.",345
+26365,"x Vandaenopsis","Hort.",345
+26366,"x Vandaeranthes","Hort.",345
+26367,"x Vandewegheara","Hort.",345
+26368,"x Vandofinetia","Hort.",345
+26369,"x Vandofinides","Hort.",345
+26370,"x Vandopsides","Hort.",345
+26371,"x Vandoritis","Hort.",345
+26372,"x Vanglossum","Hort.",345
+26373,"x Vascostylis","Hort.",345
+26374,"x Vaughnara","Hort.",345
+26375,"x Vuylstekeara","Hort.",345
+26376,"x Warneara","Hort.",345
+26377,"Warscewiczella","Rchb.f.",345
+26378,"x Westara","Hort.",345
+26379,"x Wilburchangara","Hort.",345
+26380,"x Wilkinsara","Hort.",345
+26381,"x Wingfieldara","Hort.",345
+26382,"x Withnerara","Hort.",345
+26383,"x Wooara","Hort.",345
+26384,"x Yahiroara","Hort.",345
+26385,"x Yamadara","Hort.",345
+26386,"x Yapara","Hort.",345
+26387,"x Yoneoara","Hort.",345
+26388,"x Yusofara","Hort.",345
+26389,"x Zygobatemannia","Hort.",345
+26390,"x Zygocaste","Hort.",345
+26391,"x Zygocella","Hort.",345
+26392,"x Zygocolax","Hort.",345
+26393,"x Zygolum","Hort.",345
+26394,"x Zygorhyncha","Hort.",345
+26395,"x Zygostylis","Hort.",345
+26396,"Toddavaddia","Kuntze",347
+26397,"Trifoliada","Rojas Acosta",347
+26398,"Ancistrophyllum","(G.Mann & H.Wendl.) H.Wendl.",349
+26399,"Anothea","O.F.Cook",349
+26400,"x Attabignya","Balick, A.B.Anderson & Med.-Costa",349
+26401,"Codda-Pana","Adans.",349
+26402,"Docanthe","O.F.Cook",349
+26403,"Englerophoenix","Kuntze",349
+26404,"Eora","O.F.Cook",349
+26405,"Eucheila","O.F.Cook",349
+26408,"Keppleria","Mart. ex Endl.",349
+26409,"Keppleria","Meisn.",349
+26412,"Legnea","O.F.Cook",349
+26413,"Lobia","O.F.Cook",349
+26414,"Lophothele","O.F.Cook",349
+26415,"Meiota","O.F.Cook",349
+26416,"Micronoma","H.Wendl. ex Hook.f.",349
+26417,"Neoancistrophyllum","Rauschert",349
+26418,"Nunnezharia","Ruiz & Pav.",349
+26419,"Oothrinax","O.F.Cook",349
+26420,"Oreodoxa","Willd.",349
+26421,"Palmjuncus","Kuntze",349
+26422,"Paranthe","O.F.Cook",349
+26423,"Paschalococos","J.Dransf.",349
+26424,"Platythea","O.F.Cook",349
+26425,"Saguerus","Steck",349
+26426,"Sagus","Gaertn.",349
+26427,"Sagus","Steck",349
+26430,"Schunda-Pana","Adans.",349
+26431,"Simpsonia","O.F.Cook",349
+26434,"Styloma","O.F.Cook",349
+26435,"Bennettia","R.Br.",350
+26436,"Centroplacus","Pierre",350
+26437,"Adlumia","Raf. ex DC.",352
+26438,"Capnoides","Mill.",352
+26439,"Ceratocapnos","Durieu",352
+26440,"Chiazospermum","Bernh.",352
+26441,"Corydalis","DC.",352
+26442,"Cryptocapnos","Rech.f.",352
+26443,"Cumminsia","King ex Prain",352
+26444,"Cysticapnos","Mill.",352
+26445,"Cysticorydalis","Fedde ex Ikonn.",352
+26446,"Dactylicapnos","Wall.",352
+26447,"Dactyliocapnos","Spreng.",352
+26448,"Discocapnos","Cham. & Schltdl.",352
+26449,"Dissosperma","Sojak",352
+26450,"Fumaria","L.",352
+26451,"Fumariola","Korsh.",352
+26452,"Hesperomecon","Greene",352
+26453,"Hypecoum","L.",352
+26454,"Phacocapnos","Bernh.",352
+26455,"Platycapnos","(DC.) Bernh.",352
+26456,"Pseudofumaria","Medik.",352
+26457,"Roborowskia","Batalin",352
+26458,"Rupicapnos","Pomel",352
+26459,"Sarcocapnos","DC.",352
+26460,"Trigonocapnos","Schltr.",352
+26463,"Cryptopetalum","Hook. & Arn.",355
+26464,"Lepuropetalon","Elliott",355
+26465,"Parnassia","L.",355
+26466,"Blepharanthes","Sm.",356
+26469,"Tetrapathaea","Rchb.",356
+26470,"Pelliciera","Planch. & Triana ex Benth.",358
+26471,"Sarcocolla","Kunth",359
+26472,"Behnia","Didr.",366
+26473,"Eustrephus","R.Br.",366
+26474,"Geitonoplesium","A.Cunn. ex R.Br.",366
+26475,"Luzuriaga","Ruiz & Pav.",366
+26476,"Agrostocrinum","F.Muell.",368
+26477,"Dianella","Lam.",368
+26478,"Eccremis","Baker",368
+26479,"Excremis","Willd.",368
+26480,"Phormium","J.R.Forst. & G.Forst.",368
+26481,"Stypandra","R.Br.",368
+26482,"Thelionema","R.J.F.Hend.",368
+26483,"Xeronema","Brongn. & Gris",368
+26486,"Microtea","Sw.",372
+26487,"Villamilla","Ruiz & Pav.",372
+26488,"Chrysolarix","H.E.Moore",373
+26489,"x Hesperotsuga","C.N.Page",373
+26490,"Pleistachyopiper","Trel.",374
+26491,"Plagiopteron","Griff.",377
+26492,"Aeoniopsis","Rech.f.",381
+26493,"Bubania","Girard",381
+26494,"Statice","L.",381
+26497,"Decussocarpus","de Laub.",383
+26498,"Mniopsis","Mart. & Zucc.",384
+26499,"Terniola","Tul.",384
+26500,"Caldasia","Willd.",385
+26501,"Caldasia","Lag.",491
+26504,"Dactylophyllum","Spach",385
+26505,"Mundia","Kunth",386
+26506,"Bucephalora","Pau",387
+26507,"Gymnogonum","Parry",387
+26508,"Phyllogonum","Coville",387
+26509,"Grammatopteris","Alderw.",388
+26512,"Hyalotricha","Copel.",388
+26515,"Microferus","C.Presl",388
+26516,"Niphobolus","Kaulf.",388
+26517,"Oetosis","Neck. ex Kuntze",388
+26518,"Oetosis","Neck. ex Greene",500
+26522,"x Pleopodium","Schelpe & N.C.Anthony",388
+26523,"Pleuridium","(C.Presl) Fee",388
+26524,"Polypodioides","Ching",388
+26525,"Polypodiopsis","Copel.",388
+26526,"Scyopteris","C.Presl",388
+26527,"Pseudoprimula","(Pax) O.Schwarz",393
+26528,"Samolus","L.",393
+26529,"Vitaliana","Sesl.",393
+26530,"Bleasdalea","F.Muell. ex Domin",394
+26531,"Pterilis","Raf.",397
+26532,"Pterilis","Raf.",504
+26533,"Schizostegeopsis","Copel.",397
+26534,"Thelipteris","Adans.",397
+26535,"Pterostemon","Schauer",398
+26536,"Coriflora","Weber",401
+26537,"Kingdonia","Balf.f. & W.W.Sm.",401
+26538,"Epiphyton","Maguire",402
+26539,"Saxofridericia","R.H.Schomb.",402
+26540,"Astrocarpus","Duby",403
+26541,"Homalodiscus","Bunge ex Boiss.",403
+26542,"Pseudoloxocarya","Linder",404
+26543,"Retzia","Thunb.",405
+26544,"Legnotis","Sw.",409
+26545,"Petelotoma","DC.",409
+26546,"Amelanchier","Medik.",413
+26547,"Ariosorbus","Koidz.",413
+26548,"Aronia","Medik.",413
+26549,"Bollwilleria","Zabel",413
+26550,"Chaenomeles","Lindl.",413
+26551,"Chamaemeles","Lindl.",413
+26552,"Cormus","Spach",413
+26553,"Cotoneaster","Medik.",413
+26554,"x Cratae-Mespilus","E.G.Camus",413
+26555,"+ Crataegomespilus","Simon-Louis & Bellair",413
+26556,"Crataegus","L.",413
+26557,"Cydonia","Mill.",413
+26558,"Dichotomanthes","Kurz",413
+26559,"Docynia","Decne.",413
+26560,"Eriobotrya","Lindl.",413
+26561,"Eriolobus","(DC.) M.Roem.",413
+26562,"Exochorda","Lindl.",413
+26563,"Hesperomeles","Lindl.",413
+26564,"Heteromeles","M.Roem.",413
+26565,"Kageneckia","Ruiz & Pav.",413
+26566,"Lauro-Cerasus","Duhamel",413
+26567,"Lindleya","Kunth",413
+26568,"Lindleya","Nees",468
+26571,"Malacomeles","(Decne.) Engl.",413
+26572,"Malus","Mill.",413
+26573,"x Margyracaena","Bitter",413
+26575,"Mespilus","L.",413
+26576,"Micromeles","Decne.",413
+26577,"Nagelia","Lindl.",413
+26578,"Neolindleyella","Fedde",413
+26579,"Oemleria","Rchb.",413
+26580,"Osmaronia","Greene",413
+26581,"Osteomeles","Lindl.",413
+26582,"Peraphyllum","Nutt.",413
+26583,"Photinia","Lindl.",413
+26584,"Plagiospermum","Oliv.",413
+26585,"Pourthiaea","Decne.",413
+26586,"Prinsepia","Royle",413
+26587,"Pseudocydonia","(C.K.Schneid.) C.K.Schneid.",413
+26588,"Pyracantha","M.Roem.",413
+26589,"x Pyronia","Veitch ex Trab.",413
+26590,"Pyrus","L.",413
+26591,"Rhaphiolepis","Lindl.",413
+26592,"Sinoplagiospermum","Rauschert",413
+26593,"x Sorbaronia","C.K.Schneid.",413
+26594,"x Sorbopyrus","C.K.Schneid.",413
+26595,"Sorbus","L.",413
+26596,"Stranvaesia","Lindl.",413
+26597,"Vauquelinia","Correa ex Humb. & Bonpl.",413
+26598,"Acmostigma","Raf.",414
+26599,"Agylophora","Neck. ex Raf.",414
+26600,"Ambraria","Fabr.",414
+26601,"Ancylanthus","Steud.",414
+26602,"Argocoffea","(Pierre ex De Wild.) Lebrun",414
+26603,"x Asperugalium","E.Fourn.",414
+26604,"Bancalus","Kuntze",414
+26605,"Belicia","Lundell",414
+26606,"Cafe","Adans.",414
+26607,"Camptophytum","Pierre ex A.Chev.",414
+26608,"Caquepira","J.F.Gmel.",414
+26609,"Carandra","Gaertn.",414
+26610,"Caryococca","Willd. ex Roem. & Schult.",414
+26611,"Ceriscus","Gaertn. ex Nees",414
+26612,"Chrysoxylon","Wedd.",414
+26613,"Clavennaea","Neck. ex Post & Kuntze",414
+26614,"Coupoui","Aubl.",414
+26615,"Daun-Contu","Adans.",414
+26616,"Diodioides","Loefl.",414
+26617,"Diodois","Pohl",414
+26618,"Duggena","Vahl",414
+26619,"Endolithodes","Bartl.",414
+26620,"Ereicotis","(DC.) Kuntze",414
+26621,"Eriostoma","Boivin ex Baill.",414
+26622,"Ernestimeyera","Kuntze",414
+26623,"Euathronia","Nutt. ex A.Gray",414
+26624,"Eurhotia","Neck.",414
+26625,"Franciella","Guillaumin",414
+26626,"Furcatella","Baum.-Bod.",414
+26627,"x Galiasperula","Ronniger",414
+26628,"Gamatopea","Bremek.",414
+26629,"Genipella","A.Rich. ex DC.",414
+26630,"Gilipus","Raf.",414
+26631,"Gomozia","Mutis ex L.f.",414
+26632,"Gonianthes","A.Rich.",414
+26633,"Gruhlmannia","Neck. ex Raf.",414
+26634,"Hallea","J.-F.Leroy",414
+26635,"Hondbessen","Adans.",414
+26639,"Ipecacuahna","Arruda",414
+26640,"Lagotis","E.Mey.",414
+26641,"Lagotis","Gaertn.",433
+26642,"Lasiostoma","Benth.",414
+26645,"Lygistrum","P.Browne",414
+26646,"Margaris","Griseb.",414
+26647,"Menestoria","DC.",414
+26648,"Microsplenium","Hook.f.",414
+26651,"Neogaillonia","Lincz.",414
+26652,"Neomazaea","Urb.",414
+26653,"Ohigginsis","Ruiz & Pav.",414
+26654,"Orthostemma","Wall. ex Voigt",414
+26655,"Ourouparia","Aubl.",414
+26656,"Pacheya","Scop.",414
+26657,"Panchezia","B.D.Jacks.",414
+26658,"Paracoffea","J.-F.Leroy",414
+26659,"Pelaphia","Banks & Sol.",414
+26660,"Phosanthus","Raf.",414
+26661,"Placodium","Hook.f.",414
+26662,"Platanocephalus","Crantz",414
+26663,"Pleotheca","Wall.",414
+26664,"Polycoryne","Keay",414
+26665,"Ptychodea","Willd. ex Cham. & Schltdl.",414
+26666,"Ptychostigma","Hochst.",414
+26667,"Rubeola","Hill",414
+26668,"Rubeola","Mill.",414
+26671,"Sahlbergia","Neck.",414
+26672,"Sclerococcus","Bartl.",414
+26675,"Spallanzania","DC.",414
+26676,"Stelmanis","Raf.",414
+26677,"Stephegyne","Korth.",414
+26678,"Stigmatanthus","Roem. & Schult.",414
+26682,"Sulzeria","Roem. & Schult.",414
+26683,"Tapesia","C.F.Gaertn.",414
+26684,"Thunbgeria","Montin",414
+26687,"Ucriana","Willd.",414
+26688,"Varnera","L.",414
+26689,"Vavanga","Rohr",414
+26690,"Viviana","Colla",414
+26691,"Viviana","Raf.",414
+26694,"Wiasemskya","Klotzsch",414
+26695,"Zamaria","Raf.",414
+26696,"Ruscus","L.",415
+26697,"Semele","Kunth",415
+26698,"Pleurocitrus","Tanaka",416
+26699,"Monebia","L'Her.",420
+26700,"Bellingia","Pierre",423
+26701,"Sapindopsis","F.C.How & C.N.Ho",423
+26702,"Achradelpha","O.F.Cook",424
+26703,"Achras","L.",424
+26704,"Aisandra","Pierre",424
+26705,"Beccariella","Pierre",424
+26706,"Beccarimnia","Pierre ex Koord.",424
+26707,"Blabea","Baehni",424
+26708,"Delastrea","A.DC.",424
+26709,"Fibocentrum","Pierre ex Glaz.",424
+26710,"Iteiluma","Baill.",424
+26711,"Le-Monniera","Lecomte",424
+26712,"Nycteristion","Ruiz & Pav.",424
+26713,"Nzidora","A.Chev.",424
+26714,"Peuceluma","Baill.",424
+26715,"Prozetia","Neck.",424
+26716,"Sarcorhyna","C.Presl",424
+26717,"Scleroxylon","Bertol.",424
+26718,"Spondogona","Raf.",424
+26719,"Stironeuron","Radlk.",424
+26720,"Van-Royena","Aubrev.",424
+26721,"Aceriphyllum","Engl.",429
+26722,"Bensonia","Abrams & Bacig.",429
+26723,"Francoa","Cav.",429
+26724,"Frankoa","Rchb.",429
+26725,"Megasea","Haw.",429
+26726,"Peltiphyllum","Engl.",429
+26727,"Tetilla","DC.",429
+26728,"Therofon","Raf.",429
+26729,"Anemidictyum","J.Sm. ex Hook.",432
+26730,"Ugena","Cav.",432
+26731,"Acanthorrhinum","Rothm.",433
+26732,"Achetaria","Cham. & Schltdl.",433
+26733,"Adenosma","R.Br.",433
+26734,"Adenostegia","Benth.",433
+26735,"Albraunia","Speta",433
+26736,"Alectorolophus","Zinn",433
+26737,"Amphianthus","Torr.",433
+26738,"Anarrhinum","Desf.",433
+26739,"Angelonia","Bonpl.",433
+26740,"Antirrhinum","L.",433
+26741,"Apentostera","Raf.",433
+26742,"Aragoa","Kunth",433
+26743,"Artanema","D.Don",433
+26744,"Asarina","Mill.",433
+26745,"Bacopa","Aubl.",433
+26746,"Bartramia","Salisb.",433
+26747,"Basistemon","Turcz.",433
+26748,"Beccabunga","Hill",433
+26749,"Benjaminia","Mart. ex Benj.",433
+26750,"Berendtia","A.Gray",433
+26751,"Berendtiella","Wettst. & Harms",433
+26752,"Besseya","Rydb.",433
+26753,"Beyrichia","Cham. & Schltdl.",433
+26754,"Bonnaya","Link & Otto",433
+26755,"Bonnayodes","Blatt. & Hallb.",433
+26756,"Botryopleuron","Hemsl.",433
+26757,"Brami","Adans.",433
+26758,"Bramia","Lam.",433
+26759,"Braunblanquetia","Eskuche",433
+26760,"Brookea","Benth.",433
+26761,"Bryodes","Benth.",433
+26762,"Bythophyton","Hook.f.",433
+26763,"Callianassa","Webb & Berthel.",433
+26764,"Calorhabdos","Benth.",433
+26765,"Campylanthus","Roth",433
+26766,"Capraria","L.",433
+26767,"Chaenorhinum","(DC.) Rchb.",433
+26768,"Chaenorrhinum","(DC.) Rchb.",433
+26769,"Chamaeacanthus","Chiov.",433
+26770,"Chamaegigas","Dinter ex Heil",433
+26771,"Chionohebe","B.G.Briggs & Ehrend.",433
+26772,"Chionophila","Benth.",433
+26773,"Cochlidiosperma","(Rchb.) Rchb.",433
+26774,"Collinsia","Nutt.",433
+26775,"Conobea","Aubl.",433
+26776,"Craterostigma","Hochst.",433
+26777,"Curanga","Juss.",433
+26778,"Cymbalaria","Hill",433
+26779,"Cyphocalyx","Gagnep.",433
+26780,"Deinostema","T.Yamaz.",433
+26781,"Dermatocalyx","Oerst.",433
+26782,"Derwentia","Raf.",433
+26783,"Desdemona","S.Moore",433
+26784,"Detzneria","Schltr. ex Diels",433
+26785,"Digitalis","L.",433
+26786,"Dizygostemon","(Benth.) Radlk. ex Wettst.",433
+26787,"Dopatrium","Buch.-Ham.",433
+26788,"Elatinoides","(Chav.) Wettst.",433
+26789,"Encopa","Griseb.",433
+26790,"Encopella","Pennell",433
+26791,"Epixiphium","(A.Gray) Munz",433
+26792,"Erinus","L.",433
+26793,"Galvezia","Dombey ex Juss.",433
+26794,"Gambelia","Nutt.",433
+26795,"Geochorda","Cham. & Schltdl.",433
+26796,"Geoffraya","Bonati",433
+26799,"Gibsoniothamnus","L.O.Williams",433
+26800,"Glossostigma","Wight & Arn.",433
+26801,"Gratiola","L.",433
+26802,"Halleria","L.",433
+26803,"Hassleropsis","Chodat",433
+26804,"Hemiarrhena","Benth.",433
+26805,"Hemichaena","Benth.",433
+26806,"Hemiphragma","Wall.",433
+26807,"Herpestis","Gaertn.",433
+26808,"Holmgrenanthe","Elisens",433
+26809,"Holzneria","Speta",433
+26810,"Howelliella","Rothm.",433
+26811,"Hueblia","Speta",433
+26812,"Hydranthelium","Kunth",433
+26813,"Hydrotriche","Zucc.",433
+26814,"Ildefonsia","Gardner",433
+26815,"Ilysanthes","Raf.",433
+26816,"Isoplexis","(Lindl.) Loudon",433
+26817,"Kashmiria","D.Y.Hong",433
+26818,"Keckia","Straw",433
+26819,"Keckiella","Straw",433
+26820,"Kickxia","Dumort.",433
+26821,"Lafuentea","Lag.",433
+26822,"Lafuentia","Lag.",433
+26825,"Lancea","Hook.f. & Thomson",433
+26826,"Leiostemon","Raf.",433
+26827,"Lendneria","Minod",433
+26828,"Leonohebe","Heads",433
+26829,"Leptandra","Nutt.",433
+26830,"Lepteiris","Raf.",433
+26831,"Leucocarpus","D.Don",433
+26832,"Leucospora","Nutt.",433
+26833,"Limnophila","R.Br.",433
+26834,"Limosella","L.",433
+26835,"Lindenbergia","Lehm.",433
+26836,"Lindernia","All.",433
+26837,"Lophospermum","D.Don",433
+26838,"Lunellia","Nieuwl.",433
+26839,"Mabrya","Elisens",433
+26840,"Macrostemon","Boriss.",433
+26841,"Macuillamia","Raf.",433
+26842,"Maeviella","Rossow",433
+26843,"Maurandella","(A.Gray) Rothm.",433
+26844,"Maurandya","Ortega",433
+26845,"Mazus","Lour.",433
+26846,"Mecardonia","Ruiz & Pav.",433
+26847,"Melosperma","Benth.",433
+26848,"Micranthemum","Michx.",433
+26849,"Microcarpaea","R.Br.",433
+26850,"Misopates","Raf.",433
+26851,"Mohavea","A.Gray",433
+26852,"Monocardia","Pennell",433
+26853,"Monopera","Barringer",433
+26854,"Monttea","Gay",433
+26855,"Morgania","R.Br.",433
+26856,"Nanorrhinum","Betsche",433
+26857,"Neogaerrhinum","Rothm.",433
+26858,"Neopicrorhiza","D.Y.Hong",433
+26859,"Nothochelone","(A.Gray) Straw",433
+26860,"Nuttallanthus","D.A.Sutton",433
+26861,"Odicardis","Raf.",433
+26862,"Oftia","Adans.",433
+26863,"Oligospermum","D.Y.Hong",433
+26864,"Omania","S.Moore",433
+26865,"Otacanthus","Lindl.",433
+26866,"Ourisia","Comm. ex Juss.",433
+26867,"Ourisianthus","Bonati",433
+26868,"Paederota","L.",433
+26869,"Parahebe","W.R.B.Oliv.",433
+26870,"Penstemon","Schmidel",433
+26871,"Peplidium","Delile",433
+26872,"Picria","Lour.",433
+26873,"Picrorhiza","Royle ex Benth.",433
+26874,"Poarium","Desv.",433
+26875,"Pogonorrhinum","Betsche",433
+26876,"Psammetes","Hepper",433
+26877,"Pseudo-Lysimachium","(W.D.J.Koch) Opiz",433
+26878,"Pseudolysimachion","(W.D.J.Koch) Opiz",433
+26879,"Pseudorontium","(A.Gray) Rothm.",433
+26880,"Pygmea","Hook.f.",433
+26881,"Rehmannia","Libosch. ex Fisch. & C.A.Mey.",433
+26882,"Rhodochiton","Zucc. ex Otto & A.Dietr.",433
+26883,"Russelia","Jacq.",433
+26884,"Saccanthus","Herzog",433
+26885,"Saccularia","Kellogg",433
+26886,"Sairocarpus","D.A.Sutton",433
+26887,"Schistophragma","Benth. ex Endl.",433
+26888,"Schizosepala","G.M.Barroso",433
+26889,"Schlegelia","Miq.",433
+26890,"Schweinfurthia","A.Braun",433
+26891,"Scoparia","L.",433
+26892,"Scrofella","Maxim.",433
+26893,"Sinobacopa","D.Y.Hong",433
+26894,"Sophronanthe","Benth.",433
+26895,"Spielmannia","Medik.",433
+26896,"Stemodia","L.",433
+26897,"Strigina","Engl.",433
+26898,"Synthyris","Benth.",433
+26899,"Tetranema","Benth.",433
+26900,"Tetraulacium","Turcz.",433
+26901,"Tonella","Nutt. ex A.Gray",433
+26902,"Torenia","L.",433
+26903,"Tragiola","Small & Pennell",433
+26904,"Triaenophora","(Hook.f.) Soler.",433
+26905,"Trianthera","Wettst.",433
+26906,"Trimerocalyx","(Murb.) Murb.",433
+26907,"Tuyamaea","T.Yamaz.",433
+26908,"Uroskinnera","Lindl.",433
+26909,"Vandellia","P.Browne ex L.",433
+26910,"Veronica","L.",433
+26911,"Veronicastrum","Heist. ex Fabr.",433
+26912,"Wulfenia","Jacq.",433
+26913,"Wulfeniopsis","D.Y.Hong",433
+26914,"Brazzeia","Baill.",435
+26915,"Erythropyxis","Engl.",435
+26916,"Erytropyxis","Pierre",435
+26917,"Oubanguia","Baill.",435
+26918,"Pierrina","Engl.",435
+26919,"Pseudobrazzeia","Engl.",435
+26920,"Rhaptopetalum","Oliv.",435
+26921,"Scytopetalum","Pierre ex Engl.",435
+26922,"Lycopodiodes","Dill. ex Kuntze",436
+26925,"Nothospondias","Engl.",437
+26926,"Atrichodendron","Gagnep.",440
+26927,"Blenocoes","Raf.",440
+26930,"Ceratocaulos","(Bernh.) Rchb.",440
+26933,"Isandra","F.Muell.",440
+26934,"Isandraea","Rauschert",440
+26935,"Latnax","Miers",440
+26936,"Lavana","Raf.",440
+26940,"Pentaphitrum","Rchb.",440
+26941,"Schwecnkiopsis","Dammer",440
+26942,"Scubulus","Raf.",440
+26943,"Walberia","Mill. ex Ehret",440
+26944,"Sphenostemon","Baill.",442
+26945,"Huertea","Ruiz & Pav.",446
+26946,"Aethiocarpa","Vollesen",449
+26947,"Astiria","Lindl.",449
+26948,"Cheirolaena","Benth.",449
+26949,"Cistanthera","K.Schum.",449
+26950,"Dendroleandria","Arenes",449
+26953,"Eriolaena","DC.",449
+26954,"Harmsia","K.Schum.",449
+26955,"Helmiopsiella","Arenes",449
+26956,"Helmiopsis","H.Perrier",449
+26957,"Melhania","Forssk.",449
+26958,"Nesogordonia","Baill.",449
+26959,"Paradombeya","Stapf",449
+26960,"Paramelhania","Arenes",449
+26961,"Pentapetes","L.",449
+26962,"Pterospermum","Schreb.",449
+26963,"Ruizia","Cav.",449
+26964,"Sideria","Ewart & A.H.K.Petrie",449
+26965,"Trochetia","DC.",449
+26966,"Trochetiopsis","Marais",449
+26967,"Tamaricaria","Qaiser & Ali",460
+26968,"Sciadopitys","Siebold & Zucc.",462
+26969,"Androsyne","Salisb.",463
+26970,"Walleria","J.Kirk",463
+26971,"Adinandra","Jack",468
+26972,"Adinandrella","Exell",468
+26973,"Amphania","Banks ex DC.",468
+26974,"Anneslea","Wall.",468
+26975,"Balthasaria","Verdc.",468
+26976,"Cleyera","Thunb.",468
+26977,"Dupinia","Scop.",468
+26978,"Ficalhoa","Hiern",468
+26979,"Freziera","Willd.",468
+26980,"Hoferia","Scop.",468
+26981,"Killipiodendron","Kobuski",468
+26984,"Llanosia","Blanco",468
+26985,"Melchiora","Kobuski",468
+26986,"Paranneslea","Gagnep.",468
+26987,"Patascoya","Urb.",468
+26988,"Pseudoeurya","Yamam.",468
+26989,"Sakakia","Nakai",468
+26990,"Sladenia","Kurz",468
+26991,"Symplococarpon","Airy Shaw",468
+26992,"Taonabo","Aubl.",468
+26993,"Ternstroemia","Mutis ex L.f.",468
+26994,"Ternstroemiopsis","Urb.",468
+26995,"Tristylium","Turcz.",468
+26996,"Visnea","L.f.",468
+26997,"Voelckeria","Klotzsch & H.Karst. ex Endl.",468
+26998,"Amphineuron","Holttum",470
+26999,"x Chrismatopteris","Quansah & D.S.Edwards",470
+27000,"Lastrea","Bory",470
+27001,"Goodallia","Benth.",473
+27002,"Leucosmis","Benth.",473
+27003,"Asterophorum","Sprague",475
+27004,"Berrya","Roxb.",475
+27005,"Brownlowia","Roxb.",475
+27006,"Carpodiptera","Griseb.",475
+27007,"Christiana","DC.",475
+27008,"Corchoropsis","Siebold & Zucc.",475
+27009,"Diplodiscus","Turcz.",475
+27010,"Erotium","Blanco",475
+27011,"Hainania","Merr.",475
+27012,"Jarandersonia","Kosterm.",475
+27013,"Muntingia","L.",475
+27014,"Neosprucea","Sleumer",475
+27015,"Petenaea","Lundell",475
+27016,"Pityranthe","Thwaites",475
+27017,"Pleuranthodendron","L.O.Williams",475
+27018,"Prockia","P.Browne ex L.",475
+27019,"Sparmannia","L.f.",475
+27020,"Tahitia","Burret",475
+27023,"Daiswa","Raf.",482
+27024,"Kinugasa","Tatew. & Suto",482
+27025,"Scoliopus","Torr.",482
+27026,"Trillium","L.",482
+27027,"Piptocalyx","Oliv. ex Benth.",483
+27028,"Triplostegia","Wall. ex DC.",484
+27029,"Hexuris","Miers",485
+27030,"Aphananthe","Planch.",490
+27031,"Celtis","L.",490
+27032,"Chaetachme","Planch.",490
+27033,"Chaetacme","Planch.",490
+27034,"Gironniera","Gaudich.",490
+27035,"Helminthospermum","Thwaites",490
+27036,"Lozanella","Greenm.",490
+27037,"Mirandaceltis","Sharp",490
+27038,"Nematostigma","Planch.",490
+27039,"Parasponia","Miq.",490
+27040,"Pteroceltis","Maxim.",490
+27041,"Sparrea","Hunz. & Dottori",490
+27042,"Sponia","Comm. ex Decne.",490
+27043,"Albertia","Regel & Schmalh.",491
+27044,"x Anthrichaerophyllum","P.Fourn.",491
+27045,"Apleura","Phil.",491
+27046,"Azorella","Lam.",491
+27047,"Baumiella","H.Wolff",491
+27050,"Centella","L.",491
+27051,"Cephalopodium","Korovin",491
+27052,"Ciclospermum","Lag.",491
+27056,"Cryptodiscus","Schrenk ex Fisch. & C.A.Mey.",491
+27057,"Cynorrhiza","Eckl. & Zeyh.",491
+27058,"Dactylaea","Fedde ex H.Wolff",491
+27059,"Deweya","Torr. & A.Gray",491
+27062,"Eulophus","Nutt. ex DC.",491
+27063,"Gliopsis","Rauschert",491
+27064,"Hydrocotyle","L.",491
+27065,"Merinogyne","H.Wolff",491
+27066,"Neopaulia","Pimenov & Kljuykov",491
+27067,"Neoturczaninovia","Koso-Pol.",491
+27068,"Ochotia","A.P.Khokhr.",491
+27069,"Opoidea","Lindl.",491
+27070,"Platyraphe","Miq.",491
+27071,"Platysace","Bunge",491
+27074,"Portenschlagia","Vis.",491
+27075,"Ruthea","Bolle",491
+27076,"Sajania","Pimenov",491
+27077,"Schiedophytum","H.Wolff",491
+27078,"Thorella","Briq.",491
+27079,"Trisanthus","Lour.",491
+27080,"Turczaninoviella","Koso-Pol.",491
+27081,"Xanthosia","Rudge",491
+27082,"Dunniella","Rauschert",492
+27083,"Haynea","Schumach. & Thonn.",492
+27086,"Misiessya","Wedd.",492
+27087,"Morocarpus","Siebold & Zucc.",492
+27088,"Smithiella","Dunn",492
+27089,"Acanthochlamys","P.C.Kao",495
+27090,"Didymocolpus","S.C.Chen",495
+27091,"Talbotiopsis","L.B.Sm.",495
+27092,"Castelia","Cav.",496
+27093,"Chloanthes","R.Br.",496
+27094,"Congea","Roxb.",496
+27095,"Cyanostegia","Turcz.",496
+27096,"Denisonia","F.Muell.",496
+27097,"Dicrastylis","J.L.Drumm. ex Harv.",496
+27098,"Dimetra","Kerr",496
+27099,"Hemiphora","(F.Muell.) F.Muell.",496
+27100,"Hoseanthus","Merr.",496
+27101,"Lachnostachys","Hook.",496
+27102,"Mallophora","Endl.",496
+27103,"Monopyrena","Speg.",496
+27104,"Newcastelia","F.Muell.",496
+27105,"Nyctanthes","L.",496
+27106,"Physopsis","Turcz.",496
+27107,"Pityrodia","R.Br.",496
+27108,"Plexipus","Raf.",496
+27109,"Spartothamnella","Briq.",496
+27110,"Sphenodesme","Jack",496
+27111,"Symphorema","Roxb.",496
+27112,"Thryothamnus","Phil.",496
+27113,"Agation","Brongn.",497
+27114,"Razoumofskia","Hoffm.",498
+27115,"Columella","Lour.",499
+27118,"Agardhia","Spreng.",501
+27119,"Cucullaria","Schreb.",501
+27120,"Debraea","Roem. & Schult.",501
+27121,"Ditmaria","Spreng.",501
+27122,"Sarcodrimys","(Baill.) Baum.-Bod.",503
+27123,"Wintera","Murray",503
+27124,"Wintera","G.Forst.",503
+27127,"Acystopteris","Nakai",504
+27128,"Allantodia","R.Br.",504
+27129,"Anisocampium","C.Presl",504
+27130,"Anisogonium","C.Presl",504
+27131,"x Asplenicystopteris","P.Fourn.",504
+27132,"Athyriopsis","Ching",504
+27133,"Athyrium","Roth",504
+27134,"Brachysorus","C.Presl",504
+27135,"Callipteris","Bory",504
+27136,"Carpogymnia","(H.P.Fuchs ex Janch.) D.Love & A.Love",504
+27137,"Cornopteris","Nakai",504
+27138,"Currania","Copel.",504
+27139,"Cyclopteris","Schrad. ex Gray",504
+27140,"Cyste","Dulac",504
+27141,"Cystea","Sm.",504
+27142,"Cystoathyrium","Ching",504
+27143,"Cystopteris","Bernh.",504
+27144,"Deparia","Hook. & Grev.",504
+27145,"Dictyodroma","Ching",504
+27146,"Digrammaria","C.Presl",504
+27147,"Diplaziopsis","C.Chr.",504
+27148,"Diplazium","Sw.",504
+27149,"Dryoathyrium","Ching",504
+27150,"Filicula","Seg.",504
+27152,"Filix-Foemina","Hill ex Farw.",151
+27154,"Filix-Mas","Hill ex Farw.",169
+27156,"Gymnocarpium","Newman",504
+27157,"Hemidictyum","C.Presl",504
+27158,"Homalosorus","Small ex Pic.Serm.",504
+27159,"Hypochlamys","Fee",504
+27163,"Kuniwatsukia","Pic.Serm.",504
+27164,"Lotzea","Klotzsch & H.Karst.",504
+27165,"Lunathyrium","Koidz.",504
+27166,"Monomelangium","Hayata",504
+27167,"Neoathyrium","Ching & Z.R.Wang",504
+27168,"Ochlogramma","C.Presl",504
+27169,"Oxygonium","C.Presl",504
+27170,"Parathyrium","Holttum",504
+27171,"Pseudathyrium","Newman",504
+27172,"Pseudocystopteris","Ching",504
+27173,"Pteriglyphis","Fee",504
+27176,"Rhachidosorus","Ching",504
+27177,"Rhizomatopteris","Khokhr.",504
+27178,"Riediea","Mirb.",504
+27179,"Triblemma","(J.Sm.) Ching",504
+27180,"Cienkowskia","Schweinf.",509
+27181,"Geanthus","Reinw.",509
+27182,"Hellenia","Willd.",509
+27183,"Covillea","Vail",511
+27186,"Peganum","L.",511
+27187,"Tetradiclis","Steven ex M.Bieb.",511
