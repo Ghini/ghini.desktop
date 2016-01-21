@@ -377,7 +377,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         # since it won't be able to look up the genus....we could
         # probably try to query the genus directly with the genus_id
         if genus is True:
-            genus = str(self.genus)
+            genus = self.genus.str(author=False, use_hybrid_marker=True)
         else:
             genus = ''
         if self.epithet and not remove_zws:

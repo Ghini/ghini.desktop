@@ -535,6 +535,41 @@ class FamilyTests(PlantTestCase):
 
 class GenusTests(PlantTestCase):
 
+    def test_genus_str_plain(self):
+        f = Family(epithet=u'Rosaceae')
+        genus = Genus(family=f, epithet=u'Crataegus',
+                      author='L.', hybrid_marker='')
+        self.assertEquals(genus.str(), 'Crataegus')
+        self.assertEquals(genus.str(use_hybrid_marker=True), 'Crataegus')
+        self.assertEquals(genus.str(author=True),
+                          'Crataegus L.')
+
+    def test_genus_str_nothotaxon(self):
+        f = Family(epithet=u'Rosaceae')
+        genus = Genus(family=f, epithet=u"Cratae-Mespilus",
+                      author="E.G.Camus", hybrid_marker="×")
+        self.assertEquals(
+            genus.str(), 'Cratae-Mespilus')
+        self.assertEquals(
+            genus.str(use_hybrid_marker=True), '×Cratae-Mespilus')
+        self.assertEquals(
+            genus.str(author=True), 'Cratae-Mespilus E.G.Camus')
+        self.assertEquals(
+            genus.str(author=True, use_hybrid_marker=True),
+            '×Cratae-Mespilus E.G.Camus')
+
+    def test_genus_str_graft_chimera(self):
+        f = Family(epithet=u'Rosaceae')
+        genus = Genus(family=f, epithet=u'Crataegomespilus',
+                      author="Simon-Louis & Bellair", hybrid_marker="+")
+        self.assertEquals(genus.str(), 'Crataegomespilus')
+        self.assertEquals(
+            genus.str(use_hybrid_marker=True), '+Crataegomespilus')
+        self.assertEquals(genus.str(author=True),
+                          'Crataegomespilus Simon-Louis &amp; Bellair')
+        self.assertEquals(genus.str(use_hybrid_marker=True, author=True),
+                          '+Crataegomespilus Simon-Louis &amp; Bellair')
+
     def test_synonyms(self):
         family = Family(epithet=u'family')
         genus = Genus(family=family, epithet=u'genus')
@@ -757,10 +792,7 @@ class SpeciesTests(PlantTestCase):
         assert utils.gc_objects_by_type('SpeciesEditorView') == [], \
             'SpeciesEditorView not deleted'
 
-    def test_str(self):
-        """
-        Test the Species.str() method
-        """
+    def test_species_str(self):
         def get_sp_str(id, **kwargs):
             return self.session.query(Species).get(id).str(**kwargs)
 

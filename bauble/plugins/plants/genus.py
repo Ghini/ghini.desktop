@@ -149,7 +149,8 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     def search_view_markup_pair(self):
         '''provide the two lines describing object for SearchView row.
         '''
-        return utils.xml_safe(self), utils.xml_safe(self.family)
+        return utils.xml_safe(self.str(use_hybrid_marker=True),
+                              utils.xml_safe(self.family))
 
     @property
     def cites(self):
@@ -214,17 +215,21 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
     def __repr__(self):
         return self.str()
 
-    def str(self, author=False):
+    def str(self, author=False, use_hybrid_marker=False):
+        # string representation of genus, good for markup.
+        prepend = use_hybrid_marker and self.hybrid_marker or ''
         if self.epithet is None:
             return repr(self)
         elif not author or self.author is None:
-            return ' '.join([s for s in [self.epithet, self.aggregate]
-                             if s not in ('', None)])
+            return (prepend +
+                    ' '.join([s for s in [self.epithet, self.aggregate]
+                              if s not in ('', None)]))
         else:
-            return ' '.join(
-                [s for s in [self.epithet, self.aggregate,
-                             xml.sax.saxutils.escape(self.author)]
-                 if s not in ('', None)])
+            return (prepend +
+                    ' '.join(
+                        [s for s in [self.epithet, self.aggregate,
+                                     xml.sax.saxutils.escape(self.author)]
+                         if s not in ('', None)]))
 
     def has_accessions(self):
         '''true if genus is linked to at least one accession
@@ -857,7 +862,8 @@ class GeneralGenusExpander(InfoExpander):
         session = object_session(row)
         self.current_obj = row
         self.widget_set_value('gen_name_data', '<big>%s</big> %s' %
-                              (row, utils.xml_safe(unicode(row.author))),
+                              (row.str(use_hybrid_marker=True),
+                               utils.xml_safe(unicode(row.author))),
                               markup=True)
         self.widget_set_value('gen_fam_data',
                               (utils.xml_safe(unicode(row.family))))

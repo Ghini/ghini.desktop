@@ -496,7 +496,7 @@ class GenericEditorView(object):
 
     def widget_set_active(self, widget, active=True):
         widget = self.__get_widget(widget)
-        return widget.set_active()
+        return widget.set_active(active)
 
     def widget_set_attributes(self, widget, attribs):
         widget = self.__get_widget(widget)
