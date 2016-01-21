@@ -378,6 +378,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'epithet',
                            'fam_aggregate_combo': 'aggregate',
+                           'fam_author_entry': 'author',
                            'fam_hybrid_combo': 'hybrid_marker'}
     combo_value_render = {'fam_aggregate_combo': itf2.aggregate,
                           'fam_hybrid_combo': itf2.hybrid_marker, }

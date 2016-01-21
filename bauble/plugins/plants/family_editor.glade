@@ -346,7 +346,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="fam_family_entry1">
+                      <object class="GtkEntry" id="fam_kingdom_entry">
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
