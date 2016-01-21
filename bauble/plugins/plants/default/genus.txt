@@ -24657,7 +24657,6 @@
 24705,"Filix","Ludw.",151
 24707,"Filix","Seg.",169
 24709,"Filix","Adans.",504
-24711,"Lonchitis-Aspera","Hill ex Farw.",64
 24712,"Lonchitis","L.",151
 24713,"Lonchitis","Bubani",345
 24714,"Odontoloma","J.Sm.",151
@@ -25968,7 +25967,6 @@
 26116,"Lissochilus","R.Br.",345
 26117,"x Lockcidium","Hort.",345
 26118,"x Lockochilus","Hort.",345
-26119,"Lonchitis-Aspera","Hill ex Farw.",64
 26122,"Lophoglottis","Raf.",345
 26123,"Lothoniana","Kraenzl.",345
 26124,"x Lowara","Hort.",345
