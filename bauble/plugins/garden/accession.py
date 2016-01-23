@@ -1776,6 +1776,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             if isinstance(value, StringTypes):
                 value = Species.retrieve(
                     self.session, {'species': value})
+
             def set_model(v):
                 self.set_model_attr('species', v)
                 self.refresh_id_qual_rank_combo()
@@ -2092,11 +2093,18 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             and not self.ver_presenter.problems \
             and not self.voucher_presenter.problems
         self.view.set_accept_buttons_sensitive(sensitive)
+        if self.model.species is None:
+            self.view.widget_set_sensitive('acc_spql_combo', False)
+        elif self.model.species.aggregate != u'agg.':
+            self.view.widget_set_sensitive('acc_spql_combo', False)
+        else:
+            self.view.widget_set_sensitive('acc_spql_combo', True)
 
     def refresh_view(self):
         '''
         get the values from the model and put them in the view
         '''
+        super(AccessionEditorPresenter, self).refresh_view()
         date_format = prefs.prefs[prefs.date_format_pref]
         for widget, field in self.widget_to_field_map.iteritems():
             if field == 'species_id':
@@ -2105,12 +2113,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
 
-        if self.model.species is None:
-            self.view.widget_set_sensitive('acc_spql_combo', True)
-        elif self.model.species.aggregate != u'agg.':
-            self.view.widget_set_sensitive('acc_spql_combo', False)
-        else:
-            self.view.widget_set_sensitive('acc_spql_combo', True)
         self.view.widget_set_value(
             'acc_wild_prov_combo',
             dict(wild_prov_status_values)[self.model.wild_prov_status],
