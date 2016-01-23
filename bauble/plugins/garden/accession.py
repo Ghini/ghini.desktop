@@ -2120,7 +2120,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         '''
         get the values from the model and put them in the view
         '''
-        super(AccessionEditorPresenter, self).refresh_view()
         date_format = prefs.prefs[prefs.date_format_pref]
         for widget, field in self.widget_to_field_map.iteritems():
             if field == 'species_id':
