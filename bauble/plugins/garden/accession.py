@@ -2109,6 +2109,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             and not self.ver_presenter.problems \
             and not self.voucher_presenter.problems
         self.view.set_accept_buttons_sensitive(sensitive)
+        if prefs.testing:
+            return
         if self.model.species is None:
             self.view.widget_set_sensitive('acc_spql_combo', False)
         elif self.model.species.aggregate != u'agg.':
