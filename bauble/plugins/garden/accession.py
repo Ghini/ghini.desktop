@@ -626,10 +626,6 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     private = Column(Boolean, default=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
-    # intended location
-    intended_location_id = Column(Integer, ForeignKey('location.id'))
-    intended2_location_id = Column(Integer, ForeignKey('location.id'))
-
     # the source of the accession
     source = relation('Source', uselist=False, cascade='all, delete-orphan',
                       backref=backref('accession', uselist=False))
@@ -648,10 +644,6 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                              backref=backref('accession', uselist=False))
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
-    intended_location = relation(
-        'Location', primaryjoin='Accession.intended_location_id==Location.id')
-    intended2_location = relation(
-        'Location', primaryjoin='Accession.intended2_location_id==Location.id')
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row.
@@ -691,12 +683,12 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
     def species_str(self, authors=False, markup=False):
         """
-        Return the string of the species with the id qualifier(id_qual)
-        injected into the proper place.
+        Return the string of the species with id qualifier and species
+        qualifier (id_qual, sp_qual) injected into the proper place.
 
         If the species isn't part of a session of if the species is dirty,
         i.e. in object_session(species).dirty, then a new string will be
-        built even if the species hasn't been changeq since the last call
+        built even if the species hasn't been changed since the last call
         to this method.
         """
         # WARNING: don't use session.is_modified() here because it
@@ -731,9 +723,11 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         if self.id_qual:
             sp_str = self.species.str(
                 authors, markup, remove_zws=True,
-                qualification=(self.id_qual_rank, self.id_qual))
+                qualification=(self.id_qual_rank, self.id_qual),
+                sensu=self.sp_qual)
         else:
-            sp_str = self.species.str(authors, markup, remove_zws=True)
+            sp_str = self.species.str(authors, markup, remove_zws=True,
+                                      sensu=self.sp_qual)
 
         self.__cached_species_str[(markup, authors)] = sp_str
         return sp_str
@@ -837,10 +831,6 @@ class AccessionEditorView(editor.GenericEditorView):
             'The type of the accessioned material.'),
         'acc_quantity_recvd_entry': _('The amount of plant material at the '
                                       'time it was accessioned.'),
-        'intended_loc_comboentry': _('The intended location for plant '
-                                     'material being accessioned.'),
-        'intended2_loc_comboentry': _('The intended location for plant '
-                                      'material being accessioned.'),
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
@@ -1701,8 +1691,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_date_recvd_entry': 'date_recvd',
                            'acc_recvd_type_comboentry': 'recvd_type',
                            'acc_quantity_recvd_entry': 'quantity_recvd',
-                           'intended_loc_comboentry': 'intended_location',
-                           'intended2_loc_comboentry': 'intended2_location',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
@@ -1858,20 +1846,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         utils.setup_date_button(self.view, 'acc_date_accd_entry',
                                 'acc_date_accd_button')
 
-        self.view.connect(
-            self.view.widgets.intended_loc_add_button,
-            'clicked',
-            self.on_loc_button_clicked,
-            self.view.widgets.intended_loc_comboentry,
-            'intended_location')
-
-        self.view.connect(
-            self.view.widgets.intended2_loc_add_button,
-            'clicked',
-            self.on_loc_button_clicked,
-            self.view.widgets.intended2_loc_comboentry,
-            'intended2_location')
-
         ## add a taxon implies setting the acc_species_entry
         self.view.connect(
             self.view.widgets.acc_taxon_add_button, 'clicked',
@@ -1886,18 +1860,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('acc_private_check', 'private')
 
         from bauble.plugins.garden import init_location_comboentry
-
-        def on_loc1_select(value):
-            self.set_model_attr('intended_location', value)
-        init_location_comboentry(
-            self, self.view.widgets.intended_loc_comboentry,
-            on_loc1_select, required=False)
-
-        def on_loc2_select(value):
-            self.set_model_attr('intended2_location', value)
-        init_location_comboentry(
-            self, self.view.widgets.intended2_loc_comboentry,
-            on_loc2_select, required=False)
 
         self.refresh_sensitivity()
 
@@ -2143,6 +2105,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = getattr(self.model, field)
             self.view.widget_set_value(widget, value)
 
+        if self.model.species is None:
+            self.view.widget_set_sensitive('acc_spql_combo', True)
+        elif self.model.species.aggregate != u'agg.':
+            self.view.widget_set_sensitive('acc_spql_combo', False)
+        else:
+            self.view.widget_set_sensitive('acc_spql_combo', True)
         self.view.widget_set_value(
             'acc_wild_prov_combo',
             dict(wild_prov_status_values)[self.model.wild_prov_status],
@@ -2465,10 +2433,7 @@ class GeneralAccessionExpander(InfoExpander):
             stock = gtk.STOCK_YES
         self.widgets.private_image.set_from_stock(stock, image_size)
 
-        loc_map = (('intended_loc_data', 'intended_location'),
-                   ('intended2_loc_data', 'intended2_location'))
-
-        for label, attr in loc_map:
+        for label, attr in []:
             location_str = ''
             location = getattr(row, attr)
             if location:
