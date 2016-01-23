@@ -113,9 +113,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 pass
         combo.child.connect('focus-out-event', on_focus_out)
 
-        # set the model values in the widgets
-        self.refresh_view()
-
         # connect habit comboentry widget and child entry
         self.view.connect('sp_habit_comboentry', 'changed',
                           self.on_habit_comboentry_changed)
@@ -304,6 +301,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.sp_ok_and_add_button.set_sensitive(True)
         except Exception:
             pass
+
+        # set the model values in the widgets
+        self.refresh_view()
+        self.refresh_fullname_label()
 
     def on_sp_species_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)
