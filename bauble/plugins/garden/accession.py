@@ -40,9 +40,10 @@ import lxml.etree as etree
 import pango
 from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
-    UnicodeText
+    UnicodeText, Table
 from sqlalchemy.orm import EXT_CONTINUE, MapperExtension, \
-    backref, relation, reconstructor, validates
+    backref, relationship, reconstructor, validates
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -63,6 +64,7 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
 import bauble.view as view
 from types import StringTypes
 from bauble.plugins.plants import itf2
+from location import Location
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -316,9 +318,9 @@ class Verification(db.Base):
     # what it was verified from
     prev_species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
-    species = relation(
+    species = relationship(
         'Species', primaryjoin='Verification.species_id==Species.id')
-    prev_species = relation(
+    prev_species = relationship(
         'Species', primaryjoin='Verification.prev_species_id==Species.id')
 
     notes = Column(UnicodeText)
@@ -474,7 +476,7 @@ class AccessionNote(db.Base, db.Serializable):
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relation(
+    accession = relationship(
         'Accession', uselist=False,
         backref=backref('notes', cascade='all, delete-orphan'))
 
@@ -627,23 +629,26 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
     # the source of the accession
-    source = relation('Source', uselist=False, cascade='all, delete-orphan',
-                      backref=backref('accession', uselist=False))
+    source = relationship('Source', uselist=False, cascade='all, delete-orphan',
+                          backref=backref('accession', uselist=False))
 
     # relations
-    species = relation('Species', uselist=False,
-                       backref=backref('accessions',
-                                       cascade='all, delete-orphan'))
+    species = relationship('Species', uselist=False,
+                           backref=backref('accessions',
+                                           cascade='all, delete-orphan'))
+
+    intended_locations = relationship(
+        Location, secondary=lambda: intended_locations_table)
 
     # use Plant.code for the order_by to avoid ambiguous column names
-    plants = relation('Plant', cascade='all, delete-orphan',
-                      #order_by='plant.code',
-                      backref=backref('accession', uselist=False))
-    verifications = relation('Verification',  # order_by='date',
-                             cascade='all, delete-orphan',
-                             backref=backref('accession', uselist=False))
-    vouchers = relation('Voucher', cascade='all, delete-orphan',
-                        backref=backref('accession', uselist=False))
+    plants = relationship('Plant', cascade='all, delete-orphan',
+                          #order_by='plant.code',
+                          backref=backref('accession', uselist=False))
+    verifications = relationship('Verification',  # order_by='date',
+                                 cascade='all, delete-orphan',
+                                 backref=backref('accession', uselist=False))
+    vouchers = relationship('Voucher', cascade='all, delete-orphan',
+                            backref=backref('accession', uselist=False))
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row.
@@ -799,6 +804,14 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
 from bauble.plugins.garden.plant import Plant, PlantEditor
 
+
+intended_locations_table = Table(
+    'intended_location', db.Base.metadata,
+    Column('accession_id', Integer, ForeignKey('accession.id'),
+           nullable=False),
+    Column('location_id', Integer, ForeignKey('location.id'),
+           nullable=False)
+)
 
 class AccessionEditorView(editor.GenericEditorView):
     """
