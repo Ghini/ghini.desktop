@@ -312,6 +312,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     awards = Column(UnicodeText)
 
     def __init__(self, *args, **kwargs):
+        self.author = self.aggregate = self.hybrid_marker = u''
         super(Species, self).__init__(*args, **kwargs)
 
     def __str__(self):
@@ -435,11 +436,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         # create the tail, ie: anything to add on to the end
         tail = []
-        if self.aggregate != u'':
+        if self.aggregate:
             if sensu is not None:
                 tail.append(sensu)
             else:
-                tail.append(u'agg.')
+                tail.append(self.aggregate)
 
         if qualification is None:
             pass
