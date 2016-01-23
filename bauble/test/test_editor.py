@@ -24,11 +24,12 @@
 import os
 
 from bauble.editor import GenericEditorView
-import bauble.prefs as prefs
 import bauble.paths as paths
 import bauble.utils as utils
 
 from bauble.test import BaubleTestCase
+from bauble import prefs
+prefs.testing = True
 
 
 class BaubleTests(BaubleTestCase):

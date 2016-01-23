@@ -39,6 +39,8 @@ import bauble.pluginmgr as pluginmgr
 from bauble.pluginmgr import PluginRegistry
 from bauble.error import BaubleError
 import bauble.utils as utils
+from bauble import prefs
+prefs.testing = True
 
 
 class A(pluginmgr.Plugin):

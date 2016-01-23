@@ -33,6 +33,7 @@ import bauble.db as db
 import bauble.search as search
 from bauble import prefs
 from bauble.test import BaubleTestCase
+prefs.testing = True
 
 
 class Results(object):

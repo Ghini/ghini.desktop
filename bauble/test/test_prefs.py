@@ -27,7 +27,6 @@ from bauble import prefs
 from tempfile import mkstemp
 from bauble import version_tuple
 
-
 prefs.testing = True
 
 
