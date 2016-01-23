@@ -497,8 +497,7 @@ class WithNotes:
                 except:
                     return n.note
         if result == []:
-            # if nothing was found, do not break the proxy.
-            return self.__getattribute__(name)
+            raise AttributeError("nothing was found, do not break the proxy")
         if is_dict:
             return dict(result)
         return result
