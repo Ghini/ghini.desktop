@@ -20,6 +20,8 @@
 
 import bauble.utils as utils
 from unittest import TestCase
+from bauble import prefs
+prefs.testing = True
 
 
 class Utils(TestCase):

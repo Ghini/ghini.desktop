@@ -23,6 +23,8 @@ import bauble.plugins.plants.genus
 import bauble.plugins.garden.accession
 
 from bauble.db import class_of_object
+from bauble import prefs
+prefs.testing = True
 
 
 class GlobalFunctionsTests(BaubleTestCase):

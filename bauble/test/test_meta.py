@@ -23,6 +23,8 @@
 
 import bauble.meta as meta
 from bauble.test import BaubleTestCase
+from bauble import prefs
+prefs.testing = True
 
 
 class MetaTests(BaubleTestCase):
