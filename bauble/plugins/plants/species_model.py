@@ -389,8 +389,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             epithet = self.epithet
         if markup:
             escape = utils.xml_safe
-            italicize = lambda s: (  # all but the multiplication signs
-                u'<i>%s</i>' % escape(s).replace(u'×', u'</i>×<i>'))
+            italicize = lambda s: s and (  # all but the multiplication signs
+                u'<i>%s</i>' % escape(s).replace(u'×', u'</i>×<i>')) or u''
             genus = italicize(genus)
             if epithet is not None:
                 epithet = italicize(epithet)
@@ -436,15 +436,16 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         if self.hybrid_marker == u'H':
             # totally do something else!
             # and return
-            operands_str = [i.str(remove_zws=True)
-                            for i in self.hybrid_operands]
-            # is this an intergeneric or interspecific hybrid?
-            genus_str = operands_str[0].split(u' ')[0]
-            if reduce(lambda x, y: x and y,
-                      [i.startswith(genus_str) for i in operands_str]):
-                operands_str = [i[len(genus_str) + 1:] for i in operands_str]
-                prefix = genus_str + u' '
+            genera = set(i.genus for i in self.hybrid_operands)
+            if len(genera) == 1:
+                operands_str = [i.str(remove_zws=True, genus=False,
+                                      markup=markup)
+                                for i in self.hybrid_operands]
+                prefix = italicize(genera.pop().str()) + u' '
             else:
+                operands_str = [i.str(remove_zws=True, genus=True,
+                                      markup=markup)
+                                for i in self.hybrid_operands]
                 prefix = u''
             return prefix + u' × '.join(operands_str)
 
@@ -463,7 +464,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             pass
         else:
             rank, qual = qualification
-            print binomial, qualification
             if qual in ['incorrect']:
                 rank = None
             if rank == 'sp':
