@@ -289,6 +289,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_aggregate_combo', 'aggregate',
                                    editor.UnicodeOrEmptyValidator())
+        self.assign_simple_handler('sp_hybrid_combo', 'hybrid_marker',
+                                   editor.UnicodeOrEmptyValidator())
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_awards_entry', 'awards',
