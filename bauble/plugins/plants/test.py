@@ -155,6 +155,8 @@ species_test_data = (
      'infrasp1_rank': u'cv.', 'infrasp1': u'Buonanotte'},
     {'id': 24, 'epithet': u'', 'genus_id': 1, 'author': u'',
      'infrasp1_rank': None, 'infrasp1': u'sp'},
+    {'id': 25, 'epithet': u'tenuifolia', 'genus_id': 1,
+     'author': u'Lindl.'},
     )
 
 species_note_test_data = (
@@ -772,7 +774,7 @@ class HybridOperands(PlantTestCase):
     def test_can_set_hybrid_operands(self):
         sp1 = db.get_or_create(self.session, Species, id=1)
         sp2 = db.get_or_create(self.session, Species, id=11)
-        sp = db.get_or_create(self.session, Species, genus=sp1.genus)
+        sp = db.get_or_create(self.session, Species, genus=sp1.genus, id=90)
         self.assertEquals(sp1.genus, sp2.genus)
         sp.hybrid_operands.append(sp1)
         sp.hybrid_operands.append(sp2)
@@ -780,22 +782,21 @@ class HybridOperands(PlantTestCase):
 
     def test_hybrid_operands_same_genus(self):
         sp1 = db.get_or_create(self.session, Species, id=1)
-        sp2 = db.get_or_create(self.session, Species, id=11)
-        sp = db.get_or_create(self.session, Species, genus=sp1.genus)
+        sp2 = db.get_or_create(self.session, Species, id=25)
+        sp = db.get_or_create(self.session, Species, genus=sp1.genus, id=90)
         sp.hybrid_marker = u'H'
         self.assertEquals(sp1.genus, sp2.genus)
         sp.hybrid_operands.append(sp1)
         sp.hybrid_operands.append(sp2)
         self.assertEquals(str(sp),
-                          u'Maxillaria variabilis × generalis')
+                          u'Maxillaria variabilis × tenuifolia')
 
     def test_hybrid_operands_intergeneric(self):
         sp1 = db.get_or_create(self.session, Species, id=1)
         sp2 = db.get_or_create(self.session, Species, id=2)
-        sp = db.get_or_create(self.session, Species, genus=sp1.genus)
+        sp = db.get_or_create(self.session, Species, genus=sp1.genus, id=90)
         sp.hybrid_marker = u'H'
-        sp.hybrid_operands.append(sp1)
-        sp.hybrid_operands.append(sp2)
+        sp.hybrid_operands = [sp1, sp2]
         self.assertEquals(str(sp),
                           u'Maxillaria variabilis × Encyclia cochleata')
 

@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
+from functools import reduce
 from sqlalchemy import (
     Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint,
     Table)
@@ -432,6 +433,21 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             infrasp_parts.append(_("%(group)s Group") %
                                  dict(group=self.cv_group))
 
+        if self.hybrid_marker == u'H':
+            # totally do something else!
+            # and return
+            operands_str = [i.str(remove_zws=True)
+                            for i in self.hybrid_operands]
+            # is this an intergeneric or interspecific hybrid?
+            genus_str = operands_str[0].split(u' ')[0]
+            if reduce(lambda x, y: x and y,
+                      [i.startswith(genus_str) for i in operands_str]):
+                operands_str = [i[len(genus_str) + 1:] for i in operands_str]
+                prefix = genus_str + u' '
+            else:
+                prefix = u''
+            return prefix + u' × '.join(operands_str)
+
         # create the binomial part
         binomial = [genus, self.hybrid_marker, epithet, author]
 
@@ -470,7 +486,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                     logger.info('cannot find specified rank %s' % e)
 
         parts = chain(binomial, infrasp_parts, tail)
-        s = utils.utf8(' '.join(i for i in parts if i))
+        s = utils.utf8(u' '.join(i for i in parts if i))
         return s
 
     @property
