@@ -811,8 +811,8 @@ intended_locations_table = Table(
            nullable=False),
     Column('location_id', Integer, ForeignKey('location.id'),
            nullable=False),
-    Column('quantity', Integer, nullable=False),
-    Column('planned_date', types.Date),
+    Column('quantity', Integer, nullable=False, default=0),
+    Column('planned_date', types.Date, nullable=True),
 )
 
 
