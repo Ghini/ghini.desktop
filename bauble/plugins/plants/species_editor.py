@@ -314,13 +314,33 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         'alter visibility of fields if H'
 
         if self.model.hybrid_marker == u'H':
+            self.view.widget_set_visible('sp_genus_hbox1', False)
+            self.view.widget_set_visible('sp_genus_entry', False)
             self.view.widget_set_visible('sp_epithet_hbox1', False)
             self.view.widget_set_visible('sp_epithet_hbox2', False)
+            self.view.widget_set_visible('sp_author_label', False)
+            self.view.widget_set_visible('sp_author_entry', False)
+            self.view.widget_set_visible('sp_cvgroup_label', False)
+            self.view.widget_set_visible('sp_cvgroup_entry', False)
+            self.view.widget_set_visible('sp_aggregate_label', False)
+            self.view.widget_set_visible('sp_aggregate_alignment', False)
+            self.view.widget_set_visible('sp_isp_label', False)
+            self.view.widget_set_visible('sp_isp_alignment', False)
             self.view.widget_set_visible('sp_hybrid_operands_vbox1', True)
             self.view.widget_set_visible('sp_hybrid_operands_vbox2', True)
         else:
+            self.view.widget_set_visible('sp_genus_hbox1', True)
+            self.view.widget_set_visible('sp_genus_entry', True)
             self.view.widget_set_visible('sp_epithet_hbox1', True)
             self.view.widget_set_visible('sp_epithet_hbox2', True)
+            self.view.widget_set_visible('sp_author_label', True)
+            self.view.widget_set_visible('sp_author_entry', True)
+            self.view.widget_set_visible('sp_cvgroup_label', True)
+            self.view.widget_set_visible('sp_cvgroup_entry', True)
+            self.view.widget_set_visible('sp_aggregate_label', True)
+            self.view.widget_set_visible('sp_aggregate_alignment', True)
+            self.view.widget_set_visible('sp_isp_label', True)
+            self.view.widget_set_visible('sp_isp_alignment', True)
             self.view.widget_set_visible('sp_hybrid_operands_vbox1', False)
             self.view.widget_set_visible('sp_hybrid_operands_vbox2', False)
 
