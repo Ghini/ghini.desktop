@@ -810,8 +810,11 @@ intended_locations_table = Table(
     Column('accession_id', Integer, ForeignKey('accession.id'),
            nullable=False),
     Column('location_id', Integer, ForeignKey('location.id'),
-           nullable=False)
+           nullable=False),
+    Column('quantity', Integer, nullable=False),
+    Column('planned_date', types.Date),
 )
+
 
 class AccessionEditorView(editor.GenericEditorView):
     """
