@@ -330,7 +330,7 @@ class PropSeed(db.Base):
 
     # still unused - see ghini.desktop#8
     pollen_donor_id = Column(Integer, ForeignKey('plant.id'),
-                             nullable=False)
+                             nullable=True)
 
     def __str__(self):
         # what would the string be...???
