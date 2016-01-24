@@ -30,8 +30,6 @@ import re
 import bauble.error as error
 from bauble.i18n import _
 
-SQLALCHEMY_DEBUG = False
-
 try:
     import sqlalchemy as sa
     parts = tuple(int(i) for i in sa.__version__.split('.')[:2])
@@ -57,12 +55,16 @@ import bauble.btypes as types
 import bauble.utils as utils
 
 
-if SQLALCHEMY_DEBUG:
-    import logging
-    global engine
-    logging.basicConfig()
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-    logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
+def sqlalchemy_debug(verbose):
+    if verbose:
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+        logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
+    else:
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.WARN)
+        logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.WARN)
+
+SQLALCHEMY_DEBUG = False
+sqlalchemy_debug(SQLALCHEMY_DEBUG)
 
 
 def natsort(attr, obj):

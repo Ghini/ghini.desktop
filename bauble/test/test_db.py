@@ -22,13 +22,17 @@ from bauble.test import BaubleTestCase
 import bauble.plugins.plants.genus
 import bauble.plugins.garden.accession
 
-from bauble.db import class_of_object
+from bauble import db
+from bauble import prefs
+prefs.testing = True
+
+db.sqlalchemy_debug(True)
 
 
 class GlobalFunctionsTests(BaubleTestCase):
     def test_get_next_code_first_this_year(self):
-        self.assertEquals(class_of_object("genus"),
+        self.assertEquals(db.class_of_object("genus"),
                           bauble.plugins.plants.genus.Genus)
-        self.assertEquals(class_of_object("accession_note"),
+        self.assertEquals(db.class_of_object("accession_note"),
                           bauble.plugins.garden.accession.AccessionNote)
-        self.assertEquals(class_of_object("not_existing"), None)
+        self.assertEquals(db.class_of_object("not_existing"), None)
