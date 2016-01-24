@@ -31,17 +31,6 @@ from bauble.i18n import _
 import os.path
 
 
-def get_or_create(session, model, **kwargs):
-    instance = session.query(model).filter_by(**kwargs).first()
-    if instance:
-        return instance
-    else:
-        instance = model(**kwargs)
-        session.add(instance)
-        session.flush()
-        return instance
-
-
 class StoredQueriesModel(object):
     def __init__(self):
         self.__label = [''] * 11
@@ -63,8 +52,8 @@ class StoredQueriesModel(object):
     def save(self):
         ssn = db.Session()
         for index in range(1, 11):
-            obj = get_or_create(ssn, meta.BaubleMeta,
-                                name=u'stqr_%02d' % index)
+            obj = db.get_or_create(ssn, meta.BaubleMeta,
+                                   name=u'stqr_%02d' % index)
             if self.__label[index] == '':
                 ssn.delete(obj)
             obj.value = self[index]
