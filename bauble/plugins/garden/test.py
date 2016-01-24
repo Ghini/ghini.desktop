@@ -57,7 +57,7 @@ from bauble import prefs
 from bauble.meta import BaubleMeta
 
 from bauble.plugins.plants.species_model import _remove_zws as remove_zws
-from bauble.plugins.plants.stored_queries import get_or_create
+from bauble.db import get_or_create
 
 prefs.testing = True
 
