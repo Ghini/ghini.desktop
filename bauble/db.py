@@ -67,6 +67,17 @@ SQLALCHEMY_DEBUG = False
 sqlalchemy_debug(SQLALCHEMY_DEBUG)
 
 
+def get_or_create(session, model, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        session.add(instance)
+        session.flush()
+        return instance
+
+
 def natsort(attr, obj):
     """return the naturally sorted list of the object attribute
 

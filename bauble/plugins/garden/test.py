@@ -57,6 +57,7 @@ from bauble import prefs
 from bauble.meta import BaubleMeta
 
 from bauble.plugins.plants.species_model import _remove_zws as remove_zws
+prefs.testing = True
 
 
 accession_test_data = ({'id': 1, 'code': u'2001.1', 'species_id': 1},
