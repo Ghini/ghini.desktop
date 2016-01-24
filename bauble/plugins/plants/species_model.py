@@ -27,7 +27,8 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.ext.associationproxy import association_proxy
 
 from sqlalchemy import (
-    Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint)
+    Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint,
+    Table)
 from sqlalchemy.orm import relation, backref
 import bauble.db as db
 import bauble.error as error
@@ -597,6 +598,27 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 (8, 'Sources'): set([a.source.source_detail.id
                                      for a in self.accessions
                                      if a.source and a.source.source_detail])}
+hybrid_parent_role = (
+    ('?', 'not specified'),
+    ('m', 'pollen donor'),
+    ('f', 'seed parent'),
+    )
+
+hybrid_operands_table = Table(
+    'hybrid_operands', db.Base.metadata,
+    Column('child_id', Integer, ForeignKey('species.id'),
+           nullable=False),
+    Column('parent_id', Integer, ForeignKey('species.id'),
+           nullable=False),
+    Column('role', types.Enum(values=dict(hybrid_parent_role).keys()),
+           default=u'?'),
+)
+
+Species.hybrid_operands = relation(
+    Species,
+    secondary=lambda: hybrid_operands_table,
+    primaryjoin=Species.id == hybrid_operands_table.c.child_id,
+    secondaryjoin=Species.id == hybrid_operands_table.c.parent_id)
 
 
 class SpeciesNote(db.Base, db.Serializable):
