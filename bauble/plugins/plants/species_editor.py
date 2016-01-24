@@ -295,6 +295,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_awards_entry', 'awards',
                                    editor.UnicodeOrNoneValidator())
+        self.view.connect('sp_hybrid_combo', 'changed',
+                          self.on_hybrid_marker_changed)
 
         try:
             import bauble.plugins.garden
@@ -307,6 +309,20 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         # set the model values in the widgets
         self.refresh_view()
         self.refresh_fullname_label()
+
+    def on_hybrid_marker_changed(self, widget, *args):
+        'alter visibility of fields if H'
+
+        if self.model.hybrid_marker == u'H':
+            self.view.widget_set_visible('sp_epithet_hbox1', False)
+            self.view.widget_set_visible('sp_epithet_hbox2', False)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox1', True)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox2', True)
+        else:
+            self.view.widget_set_visible('sp_epithet_hbox1', True)
+            self.view.widget_set_visible('sp_epithet_hbox2', True)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox1', False)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox2', False)
 
     def on_sp_species_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)
