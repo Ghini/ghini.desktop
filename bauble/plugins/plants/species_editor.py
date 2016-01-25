@@ -50,6 +50,7 @@ from bauble.plugins.plants.species_model import (
     infrasp_rank_values, compare_rank)
 from bauble.plugins.plants import itf2
 from functools import partial
+from bauble import db
 
 
 def species_match_func(completion, key, treeiter, data=None):
@@ -333,34 +334,29 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 order_by(Species.epithet)
             return query
 
-        def on_selected_parent(parent):
-            if not isinstance(parent, Species):
+        def on_selected_parent(value, model, container, text_entry, callback):
+            if not isinstance(value, db.Base):
                 return
-            self.view.widget_set_value('sp_parent_entry', '')
-            if parent in self.model.hybrid_operands:
+            text_entry.set_text('')
+            if value in model:
                 return
-            self.model.hybrid_operands.append(parent)
-            vbox = self.view.widgets.sp_hybrid_operands_vbox2
-            vbox.set_value(self.model.hybrid_operands)
-            self._dirty = True
-            self.refresh_fullname_label()
+            model.append(value)
+            container.set_value(model)
+            callback()
 
-        def on_remove_clicked(widget, obj, *args):
-            self.model.hybrid_operands.remove(obj)
-            vbox = self.view.widgets.sp_hybrid_operands_vbox2
-            vbox.set_value(self.model.hybrid_operands)
-            self._dirty = True
-            self.refresh_fullname_label()
+        def on_remove_clicked(widget, model, container, obj, callback, *args):
+            model.remove(obj)
+            container.set_value(model)
+            callback()
 
-        def on_set_value(items):
-            vbox = self.view.widgets.sp_hybrid_operands_vbox2
-            # empty the vbox just keeping the text entry
-            for c in vbox.children()[1:]:
-                vbox.remove(c)
+        def on_set_value(items, container):
+            # empty the container just keeping the text entry
+            for c in container.children()[1:]:
+                container.remove(c)
             # loop over the value adding lines
             for v in items:
                 hbox = gtk.HBox()
-                vbox.pack_end(hbox)
+                container.pack_end(hbox)
                 label = gtk.Label(v.str())
                 label.set_alignment(0.0, 0.5)
                 hbox.pack_start(label)
@@ -369,17 +365,31 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                                gtk.ICON_SIZE_BUTTON)
                 button.props.image = img
                 hbox.pack_end(button, expand=False)
-                self.view.connect(button, "clicked",
-                                  partial(on_remove_clicked, obj=v))
-            vbox.show_all()
+                self.view.connect(
+                    button,
+                    "clicked",
+                    partial(on_remove_clicked,
+                            model=self.model.hybrid_operands,
+                            container=container,
+                            obj=v,
+                            callback=self.refresh_fullname_label))
+            container.show_all()
 
         self.view.attach_completion('sp_parent_entry',
                                     cell_data_func=species_cell_data_func,
                                     match_func=species_match_func)
-        self.assign_completions_handler('sp_parent_entry',
-                                        sp_get_completions,
-                                        on_select=on_selected_parent)
-        self.view.widgets.sp_hybrid_operands_vbox2.set_value = on_set_value
+        self.assign_completions_handler(
+            'sp_parent_entry',
+            sp_get_completions,
+            on_select=partial(
+                on_selected_parent,
+                model=self.model.hybrid_operands,
+                container=self.view.widgets.sp_hybrid_operands_vbox2,
+                text_entry=(self.view.widgets.
+                            sp_hybrid_operands_vbox2.children()[0]),
+                callback=self.refresh_fullname_label))
+        self.view.widgets.sp_hybrid_operands_vbox2.set_value = partial(
+            on_set_value, container=self.view.widgets.sp_hybrid_operands_vbox2)
 
         try:
             import bauble.plugins.garden
@@ -1392,7 +1402,6 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         return True
 
     def commit_changes(self):
-
         # remove incomplete vernacular names
         for vn in self.model.vernacular_names:
             if vn.name in (None, ''):
