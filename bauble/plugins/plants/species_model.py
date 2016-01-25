@@ -26,8 +26,10 @@ logger = logging.getLogger(__name__)
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
+from functools import reduce
 from sqlalchemy import (
-    Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint)
+    Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint,
+    Table)
 from sqlalchemy.orm import relation, backref
 import bauble.db as db
 import bauble.error as error
@@ -234,6 +236,25 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                  if i.category.lower() == u'condition']
         return (notes + [None])[0]
 
+    @staticmethod
+    def match_func(completion, key, treeiter, data=None):
+        """
+        """
+        species = completion.get_model()[treeiter][0]
+        if str(species).lower().startswith(key.lower()) \
+                or str(species.genus.epithet).lower().startswith(key.lower()):
+            return True
+        return False
+
+    @staticmethod
+    def cell_data_func(column, renderer, model, treeiter, data=None):
+        """
+        """
+        v = model[treeiter][0]
+        renderer.set_property(
+            'text', '%s (%s)' % (v.str(authors=True), v.genus.family))
+    
+
     def __lowest_infraspecific(self):
         infrasp = [(self.infrasp1_rank, self.infrasp1,
                     self.infrasp1_author),
@@ -312,6 +333,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     awards = Column(UnicodeText)
 
     def __init__(self, *args, **kwargs):
+        self.author = self.aggregate = self.hybrid_marker = u''
         super(Species, self).__init__(*args, **kwargs)
 
     def __str__(self):
@@ -386,8 +408,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             epithet = self.epithet
         if markup:
             escape = utils.xml_safe
-            italicize = lambda s: (  # all but the multiplication signs
-                u'<i>%s</i>' % escape(s).replace(u'×', u'</i>×<i>'))
+            italicize = lambda s: s and (  # all but the multiplication signs
+                u'<i>%s</i>' % escape(s).replace(u'×', u'</i>×<i>')) or u''
             genus = italicize(genus)
             if epithet is not None:
                 epithet = italicize(epithet)
@@ -430,22 +452,37 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             infrasp_parts.append(_("%(group)s Group") %
                                  dict(group=self.cv_group))
 
+        if self.hybrid_marker == u'H':
+            # totally do something else!
+            # and return
+            genera = set(i.genus for i in self.hybrid_operands)
+            if len(genera) == 1:
+                operands_str = [i.str(remove_zws=True, genus=False,
+                                      markup=markup)
+                                for i in self.hybrid_operands]
+                prefix = italicize(genera.pop().str()) + u' '
+            else:
+                operands_str = [i.str(remove_zws=True, genus=True,
+                                      markup=markup)
+                                for i in self.hybrid_operands]
+                prefix = u''
+            return prefix + u' × '.join(operands_str)
+
         # create the binomial part
         binomial = [genus, self.hybrid_marker, epithet, author]
 
         # create the tail, ie: anything to add on to the end
         tail = []
-        if self.aggregate != u'':
+        if self.aggregate:
             if sensu is not None:
                 tail.append(sensu)
             else:
-                tail.append(u'agg.')
+                tail.append(self.aggregate)
 
         if qualification is None:
             pass
         else:
             rank, qual = qualification
-            print binomial, qualification
             if qual in ['incorrect']:
                 rank = None
             if rank == 'sp':
@@ -468,7 +505,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                     logger.info('cannot find specified rank %s' % e)
 
         parts = chain(binomial, infrasp_parts, tail)
-        s = utils.utf8(' '.join(i for i in parts if i))
+        s = utils.utf8(u' '.join(i for i in parts if i))
         return s
 
     @property
@@ -596,6 +633,27 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 (8, 'Sources'): set([a.source.source_detail.id
                                      for a in self.accessions
                                      if a.source and a.source.source_detail])}
+hybrid_parent_role = (
+    ('?', 'not specified'),
+    ('m', 'pollen donor'),
+    ('f', 'seed parent'),
+    )
+
+hybrid_operands_table = Table(
+    'hybrid_operands', db.Base.metadata,
+    Column('child_id', Integer, ForeignKey('species.id'), primary_key=True,
+           nullable=False),
+    Column('parent_id', Integer, ForeignKey('species.id'), primary_key=True,
+           nullable=False),
+    Column('role', types.Enum(values=dict(hybrid_parent_role).keys()),
+           default=u'?'),
+)
+
+Species.hybrid_operands = relation(
+    Species,
+    secondary=lambda: hybrid_operands_table,
+    primaryjoin=Species.id == hybrid_operands_table.c.child_id,
+    secondaryjoin=Species.id == hybrid_operands_table.c.parent_id)
 
 
 class SpeciesNote(db.Base, db.Serializable):

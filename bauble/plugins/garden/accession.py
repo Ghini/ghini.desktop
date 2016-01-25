@@ -34,15 +34,17 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 import gtk
+from functools import partial
 
 from bauble.i18n import _
 import lxml.etree as etree
 import pango
 from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
-    UnicodeText
+    UnicodeText, Table
 from sqlalchemy.orm import EXT_CONTINUE, MapperExtension, \
-    backref, relation, reconstructor, validates
+    backref, relationship, reconstructor, validates
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
@@ -63,6 +65,7 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
 import bauble.view as view
 from types import StringTypes
 from bauble.plugins.plants import itf2
+from location import Location
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -316,9 +319,9 @@ class Verification(db.Base):
     # what it was verified from
     prev_species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
-    species = relation(
+    species = relationship(
         'Species', primaryjoin='Verification.species_id==Species.id')
-    prev_species = relation(
+    prev_species = relationship(
         'Species', primaryjoin='Verification.prev_species_id==Species.id')
 
     notes = Column(UnicodeText)
@@ -474,7 +477,7 @@ class AccessionNote(db.Base, db.Serializable):
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relation(
+    accession = relationship(
         'Accession', uselist=False,
         backref=backref('notes', cascade='all, delete-orphan'))
 
@@ -626,32 +629,27 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     private = Column(Boolean, default=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
-    # intended location
-    intended_location_id = Column(Integer, ForeignKey('location.id'))
-    intended2_location_id = Column(Integer, ForeignKey('location.id'))
-
     # the source of the accession
-    source = relation('Source', uselist=False, cascade='all, delete-orphan',
-                      backref=backref('accession', uselist=False))
+    source = relationship('Source', uselist=False, cascade='all, delete-orphan',
+                          backref=backref('accession', uselist=False))
 
     # relations
-    species = relation('Species', uselist=False,
-                       backref=backref('accessions',
-                                       cascade='all, delete-orphan'))
+    species = relationship('Species', uselist=False,
+                           backref=backref('accessions',
+                                           cascade='all, delete-orphan'))
+
+    intended_locations = relationship(
+        Location, secondary=lambda: intended_locations_table)
 
     # use Plant.code for the order_by to avoid ambiguous column names
-    plants = relation('Plant', cascade='all, delete-orphan',
-                      #order_by='plant.code',
-                      backref=backref('accession', uselist=False))
-    verifications = relation('Verification',  # order_by='date',
-                             cascade='all, delete-orphan',
-                             backref=backref('accession', uselist=False))
-    vouchers = relation('Voucher', cascade='all, delete-orphan',
-                        backref=backref('accession', uselist=False))
-    intended_location = relation(
-        'Location', primaryjoin='Accession.intended_location_id==Location.id')
-    intended2_location = relation(
-        'Location', primaryjoin='Accession.intended2_location_id==Location.id')
+    plants = relationship('Plant', cascade='all, delete-orphan',
+                          #order_by='plant.code',
+                          backref=backref('accession', uselist=False))
+    verifications = relationship('Verification',  # order_by='date',
+                                 cascade='all, delete-orphan',
+                                 backref=backref('accession', uselist=False))
+    vouchers = relationship('Voucher', cascade='all, delete-orphan',
+                            backref=backref('accession', uselist=False))
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row.
@@ -691,12 +689,12 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
     def species_str(self, authors=False, markup=False):
         """
-        Return the string of the species with the id qualifier(id_qual)
-        injected into the proper place.
+        Return the string of the species with id qualifier and species
+        qualifier (id_qual, sp_qual) injected into the proper place.
 
         If the species isn't part of a session of if the species is dirty,
         i.e. in object_session(species).dirty, then a new string will be
-        built even if the species hasn't been changeq since the last call
+        built even if the species hasn't been changed since the last call
         to this method.
         """
         # WARNING: don't use session.is_modified() here because it
@@ -731,9 +729,11 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         if self.id_qual:
             sp_str = self.species.str(
                 authors, markup, remove_zws=True,
-                qualification=(self.id_qual_rank, self.id_qual))
+                qualification=(self.id_qual_rank, self.id_qual),
+                sensu=self.sp_qual)
         else:
-            sp_str = self.species.str(authors, markup, remove_zws=True)
+            sp_str = self.species.str(authors, markup, remove_zws=True,
+                                      sensu=self.sp_qual)
 
         self.__cached_species_str[(markup, authors)] = sp_str
         return sp_str
@@ -806,6 +806,17 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 from bauble.plugins.garden.plant import Plant, PlantEditor
 
 
+intended_locations_table = Table(
+    'intended_location', db.Base.metadata,
+    Column('accession_id', Integer, ForeignKey('accession.id'),
+           nullable=False),
+    Column('location_id', Integer, ForeignKey('location.id'),
+           nullable=False),
+    Column('quantity', Integer, nullable=False, default=0),
+    Column('planned_date', types.Date, nullable=True),
+)
+
+
 class AccessionEditorView(editor.GenericEditorView):
     """
     AccessionEditorView provide the view part of the
@@ -837,10 +848,6 @@ class AccessionEditorView(editor.GenericEditorView):
             'The type of the accessioned material.'),
         'acc_quantity_recvd_entry': _('The amount of plant material at the '
                                       'time it was accessioned.'),
-        'intended_loc_comboentry': _('The intended location for plant '
-                                     'material being accessioned.'),
-        'intended2_loc_comboentry': _('The intended location for plant '
-                                      'material being accessioned.'),
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
@@ -1139,8 +1146,11 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                     "acc_editor.glade")
             xml = etree.parse(filename)
             el = xml.find("//object[@id='ver_box']")
+            vlls = xml.find("//object[@id='ver_level_liststore']")
             builder = gtk.Builder()
-            s = '<interface>%s</interface>' % etree.tostring(el)
+            s = '<interface>%s%s</interface>' % (
+                etree.tostring(vlls),
+                etree.tostring(el))
             if sys.platform == 'win32':
                 # NOTE: PyGTK for Win32 is broken so we have to include
                 # this little hack
@@ -1701,8 +1711,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_date_recvd_entry': 'date_recvd',
                            'acc_recvd_type_comboentry': 'recvd_type',
                            'acc_quantity_recvd_entry': 'quantity_recvd',
-                           'intended_loc_comboentry': 'intended_location',
-                           'intended2_loc_comboentry': 'intended2_location',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
@@ -1768,6 +1776,33 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # put model values in view before any handlers are connected
         self.refresh_view()
 
+        def location_get_completions(text):
+            code_like = "%" + text + "%"
+            query = self.session.query(Location).\
+                filter(utils.ilike(Location.code, code_like)).\
+                order_by(Location.code)
+            return query
+
+        from bauble.editor import on_selected_parent, on_set_value
+
+        self.view.attach_completion('acc_locations_entry',
+                                    cell_data_func=Location.cell_data_func,
+                                    match_func=Location.match_func)
+        self.assign_completions_handler(
+            'acc_locations_entry',
+            location_get_completions,
+            on_select=partial(
+                on_selected_parent,
+                model=self.model.intended_locations,
+                container=self.view.widgets.acc_locations_vbox,
+                text_entry=(self.view.widgets.
+                            acc_locations_vbox.children()[0]),
+                callback=lambda: None))
+        self.view.widgets.acc_locations_vbox.set_value = partial(
+            on_set_value, view=self.view, model=self.model.intended_locations,
+            container=self.view.widgets.acc_locations_vbox,
+            callback=lambda: None)
+
         # connect signals
         def sp_get_completions(text):
             query = self.session.query(Species)
@@ -1788,6 +1823,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             if isinstance(value, StringTypes):
                 value = Species.retrieve(
                     self.session, {'species': value})
+
             def set_model(v):
                 self.set_model_attr('species', v)
                 self.refresh_id_qual_rank_combo()
@@ -1858,20 +1894,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         utils.setup_date_button(self.view, 'acc_date_accd_entry',
                                 'acc_date_accd_button')
 
-        self.view.connect(
-            self.view.widgets.intended_loc_add_button,
-            'clicked',
-            self.on_loc_button_clicked,
-            self.view.widgets.intended_loc_comboentry,
-            'intended_location')
-
-        self.view.connect(
-            self.view.widgets.intended2_loc_add_button,
-            'clicked',
-            self.on_loc_button_clicked,
-            self.view.widgets.intended2_loc_comboentry,
-            'intended2_location')
-
         ## add a taxon implies setting the acc_species_entry
         self.view.connect(
             self.view.widgets.acc_taxon_add_button, 'clicked',
@@ -1886,18 +1908,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('acc_private_check', 'private')
 
         from bauble.plugins.garden import init_location_comboentry
-
-        def on_loc1_select(value):
-            self.set_model_attr('intended_location', value)
-        init_location_comboentry(
-            self, self.view.widgets.intended_loc_comboentry,
-            on_loc1_select, required=False)
-
-        def on_loc2_select(value):
-            self.set_model_attr('intended2_location', value)
-        init_location_comboentry(
-            self, self.view.widgets.intended2_loc_comboentry,
-            on_loc2_select, required=False)
 
         self.refresh_sensitivity()
 
@@ -2130,6 +2140,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             and not self.ver_presenter.problems \
             and not self.voucher_presenter.problems
         self.view.set_accept_buttons_sensitive(sensitive)
+        if self.model.species is None:
+            self.view.widget_set_sensitive('acc_spql_combo', False)
+        elif self.model.species.aggregate != u'agg.':
+            self.view.widget_set_sensitive('acc_spql_combo', False)
+        else:
+            self.view.widget_set_sensitive('acc_spql_combo', True)
 
     def refresh_view(self):
         '''
@@ -2465,10 +2481,7 @@ class GeneralAccessionExpander(InfoExpander):
             stock = gtk.STOCK_YES
         self.widgets.private_image.set_from_stock(stock, image_size)
 
-        loc_map = (('intended_loc_data', 'intended_location'),
-                   ('intended2_loc_data', 'intended2_location'))
-
-        for label, attr in loc_map:
+        for label, attr in []:
             location_str = ''
             location = getattr(row, attr)
             if location:

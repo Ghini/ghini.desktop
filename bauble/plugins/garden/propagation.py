@@ -328,6 +328,10 @@ class PropSeed(db.Base):
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
 
+    # still unused - see ghini.desktop#8
+    pollen_donor_id = Column(Integer, ForeignKey('plant.id'),
+                             nullable=True)
+
     def __str__(self):
         # what would the string be...???
         # cuttings of self.accession.species_str() and accession number

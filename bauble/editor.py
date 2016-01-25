@@ -41,6 +41,7 @@ import lxml.etree as etree
 import pango
 from sqlalchemy.orm import object_mapper, object_session
 from sqlalchemy.orm.exc import UnmappedInstanceError
+from functools import partial
 
 from bauble.i18n import _
 import bauble
@@ -1028,6 +1029,52 @@ class DontCommitException(Exception):
     pass
 
 
+def on_selected_parent(value, model, container, text_entry, callback):
+    if not isinstance(value, db.Base):
+        return
+    text_entry.set_text('')
+    if value in model:
+        return
+    model.append(value)
+    container.set_value(model)
+    callback()
+
+
+def on_remove_clicked(widget, model, container, obj, callback, *args):
+    model.remove(obj)
+    container.set_value(model)
+    callback()
+
+
+def on_set_value(items, view, model, container, callback):
+    # empty the container just keeping the text entry
+    scrolledwindow = container.children()[1]
+    viewport = scrolledwindow.children()[0]
+    vbox = viewport.children()[0]
+    for c in vbox.children():
+        vbox.remove(c)
+    # loop over the value adding lines
+    for v in items:
+        hbox = gtk.HBox()
+        vbox.pack_start(hbox, expand=False)
+        label = gtk.Label(str(v))
+        label.set_alignment(0.0, 0.5)
+        hbox.pack_start(label)
+        button = gtk.Button()
+        img = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
+                                       gtk.ICON_SIZE_BUTTON)
+        button.props.image = img
+        hbox.pack_end(button, expand=False)
+        view.connect(button,
+                     "clicked",
+                     partial(on_remove_clicked,
+                             model=model,
+                             container=container,
+                             obj=v,
+                             callback=callback))
+    vbox.show_all()
+
+
 class GenericEditorPresenter(object):
     """
     The presenter of the Model View Presenter Pattern
@@ -1677,7 +1724,7 @@ class GenericModelViewPresenterEditor(object):
         '''
         objs = list(self.session)
         try:
-            self.session.flush()
+            self.session.commit()
             try:
                 bauble.gui.get_view().update()
             except Exception, e:

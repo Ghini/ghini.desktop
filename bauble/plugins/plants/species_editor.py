@@ -49,6 +49,8 @@ from bauble.plugins.plants.species_model import (
     Species, SpeciesDistribution, VernacularName, SpeciesSynonym, Habit,
     infrasp_rank_values, compare_rank)
 from bauble.plugins.plants import itf2
+from functools import partial
+from bauble import db
 
 
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
@@ -63,6 +65,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_aggregate_combo': 'aggregate',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
+                           'sp_hybrid_operands_vbox2': 'hybrid_operands',
                            }
     combo_value_render = {'sp_aggregate_combo': itf2.aggregate,
                           'sp_hybrid_combo': itf2.hybrid_marker, }
@@ -113,12 +116,20 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 pass
         combo.child.connect('focus-out-event', on_focus_out)
 
-        # set the model values in the widgets
-        self.refresh_view()
-
         # connect habit comboentry widget and child entry
         self.view.connect('sp_habit_comboentry', 'changed',
                           self.on_habit_comboentry_changed)
+
+        from bauble.editor import on_selected_parent, on_set_value
+
+        self.view.widgets.sp_hybrid_operands_vbox2.set_value = partial(
+            on_set_value, view=self.view, model=self.model.hybrid_operands,
+            container=self.view.widgets.sp_hybrid_operands_vbox2,
+            callback=self.refresh_fullname_label)
+
+        # put model values in view before any handlers are connected
+        self.refresh_view()
+        self.refresh_fullname_label()
 
         # connect signals
         def gen_get_completions(text):
@@ -292,10 +303,43 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_aggregate_combo', 'aggregate',
                                    editor.UnicodeOrEmptyValidator())
+        self.assign_simple_handler('sp_hybrid_combo', 'hybrid_marker',
+                                   editor.UnicodeOrEmptyValidator())
         self.assign_simple_handler('sp_label_dist_entry', 'label_distribution',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_awards_entry', 'awards',
                                    editor.UnicodeOrNoneValidator())
+        self.view.connect('sp_hybrid_combo', 'changed',
+                          self.refresh_on_hybrid_marker)
+
+        def sp_get_completions(text):
+            try:
+                genus_e, species_e = text.split(' ', 1)
+                genus_like = genus_e,
+                species_like = "%s%%" % species_e
+            except:
+                genus_like = "%s%%" % text
+                species_like = u'%'
+            query = self.session.query(Species).join('genus').\
+                filter(utils.ilike(Genus.epithet, genus_like)).\
+                filter(utils.ilike(Genus.epithet, species_like)).\
+                filter(Species.id != self.model.id).\
+                order_by(Species.epithet)
+            return query
+
+        self.view.attach_completion('sp_parent_entry',
+                                    cell_data_func=Species.cell_data_func,
+                                    match_func=Species.match_func)
+        self.assign_completions_handler(
+            'sp_parent_entry',
+            sp_get_completions,
+            on_select=partial(
+                on_selected_parent,
+                model=self.model.hybrid_operands,
+                container=self.view.widgets.sp_hybrid_operands_vbox2,
+                text_entry=(self.view.widgets.
+                            sp_hybrid_operands_vbox2.children()[0]),
+                callback=self.refresh_fullname_label))
 
         try:
             import bauble.plugins.garden
@@ -304,6 +348,40 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.sp_ok_and_add_button.set_sensitive(True)
         except Exception:
             pass
+
+    def refresh_on_hybrid_marker(self, *args):
+        'alter visibility of fields if H'
+
+        if self.model.hybrid_marker == u'H':
+            self.view.widget_set_visible('sp_genus_hbox1', False)
+            self.view.widget_set_visible('sp_genus_entry', False)
+            self.view.widget_set_visible('sp_epithet_hbox1', False)
+            self.view.widget_set_visible('sp_epithet_hbox2', False)
+            self.view.widget_set_visible('sp_author_label', False)
+            self.view.widget_set_visible('sp_author_entry', False)
+            self.view.widget_set_visible('sp_cvgroup_label', False)
+            self.view.widget_set_visible('sp_cvgroup_entry', False)
+            self.view.widget_set_visible('sp_aggregate_label', False)
+            self.view.widget_set_visible('sp_aggregate_alignment', False)
+            self.view.widget_set_visible('sp_isp_label', False)
+            self.view.widget_set_visible('sp_isp_alignment', False)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox1', True)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox2', True)
+        else:
+            self.view.widget_set_visible('sp_genus_hbox1', True)
+            self.view.widget_set_visible('sp_genus_entry', True)
+            self.view.widget_set_visible('sp_epithet_hbox1', True)
+            self.view.widget_set_visible('sp_epithet_hbox2', True)
+            self.view.widget_set_visible('sp_author_label', True)
+            self.view.widget_set_visible('sp_author_entry', True)
+            self.view.widget_set_visible('sp_cvgroup_label', True)
+            self.view.widget_set_visible('sp_cvgroup_entry', True)
+            self.view.widget_set_visible('sp_aggregate_label', True)
+            self.view.widget_set_visible('sp_aggregate_alignment', True)
+            self.view.widget_set_visible('sp_isp_label', True)
+            self.view.widget_set_visible('sp_isp_alignment', True)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox1', False)
+            self.view.widget_set_visible('sp_hybrid_operands_vbox2', False)
 
     def on_sp_species_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)
@@ -490,6 +568,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.dist_presenter.refresh_view()
+        self.refresh_on_hybrid_marker()
 
 
 class InfraspPresenter(editor.GenericEditorPresenter):
@@ -1270,7 +1349,6 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         return True
 
     def commit_changes(self):
-
         # remove incomplete vernacular names
         for vn in self.model.vernacular_names:
             if vn.name in (None, ''):

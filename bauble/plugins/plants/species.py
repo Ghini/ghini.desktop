@@ -322,10 +322,14 @@ class GeneralSpeciesExpander(InfoExpander):
         utils.make_label_clickable(
             self.widgets.sp_fam_data, on_label_clicked, row.genus.family)
         # link to genus
-        self.widget_set_value('sp_gen_data', '<big><i>%s</i></big>' %
-                              row.genus.str(use_hybrid_marker=True), markup=True)
-        utils.make_label_clickable(
-            self.widgets.sp_gen_data, on_label_clicked, row.genus)
+        if row.hybrid_marker != u'H':
+            self.widget_set_value('sp_gen_data', '<big><i>%s</i></big> ' %
+                                  row.genus.str(use_hybrid_marker=True),
+                                  markup=True)
+            utils.make_label_clickable(
+                self.widgets.sp_gen_data, on_label_clicked, row.genus)
+        else:
+            self.widget_set_value('sp_gen_data', '')
         # epithet (full binomial but missing genus)
         self.widget_set_value('sp_epithet_data', '<big>%s</big>' %
                               row.markup(authors=True, genus=False),

@@ -39,7 +39,8 @@ def test_duplicate_ids():
 
 
 import bauble
-import bauble.prefs as prefs
+from bauble import prefs
+prefs.testing = True
 
 
 class ConnMgrPresenterTests(BaubleTestCase):

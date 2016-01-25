@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -155,6 +155,8 @@ species_test_data = (
      'infrasp1_rank': u'cv.', 'infrasp1': u'Buonanotte'},
     {'id': 24, 'epithet': u'', 'genus_id': 1, 'author': u'',
      'infrasp1_rank': None, 'infrasp1': u'sp'},
+    {'id': 25, 'epithet': u'tenuifolia', 'genus_id': 1,
+     'author': u'Lindl.'},
     )
 
 species_note_test_data = (
@@ -755,6 +757,48 @@ class GenusSynonymyTests(PlantTestCase):
         sedum = Genus(family=claceae, epithet=u'Sedum', author=u'L.')
         alta.accepted = sedum
         self.session.commit()
+
+
+class HybridOperands(PlantTestCase):
+
+    def setUp(self):
+        super(HybridOperands, self).setUp()
+
+    def tearDown(self):
+        super(HybridOperands, self).tearDown()
+
+    def test_has_hybrid_operands(self):
+        sp = db.get_or_create(self.session, Species, id=1)
+        self.assertEquals(sp.hybrid_operands, [])
+
+    def test_can_set_hybrid_operands(self):
+        sp1 = db.get_or_create(self.session, Species, id=1)
+        sp2 = db.get_or_create(self.session, Species, id=11)
+        sp = db.get_or_create(self.session, Species, genus=sp1.genus, id=90)
+        self.assertEquals(sp1.genus, sp2.genus)
+        sp.hybrid_operands.append(sp1)
+        sp.hybrid_operands.append(sp2)
+        self.assertEquals(sp.hybrid_operands, [sp1, sp2])
+
+    def test_hybrid_operands_same_genus(self):
+        sp1 = db.get_or_create(self.session, Species, id=1)
+        sp2 = db.get_or_create(self.session, Species, id=25)
+        sp = db.get_or_create(self.session, Species, genus=sp1.genus, id=90)
+        sp.hybrid_marker = u'H'
+        self.assertEquals(sp1.genus, sp2.genus)
+        sp.hybrid_operands.append(sp1)
+        sp.hybrid_operands.append(sp2)
+        self.assertEquals(str(sp),
+                          u'Maxillaria variabilis × tenuifolia')
+
+    def test_hybrid_operands_intergeneric(self):
+        sp1 = db.get_or_create(self.session, Species, id=1)
+        sp2 = db.get_or_create(self.session, Species, id=2)
+        sp = db.get_or_create(self.session, Species, genus=sp1.genus, id=90)
+        sp.hybrid_marker = u'H'
+        sp.hybrid_operands = [sp1, sp2]
+        self.assertEquals(str(sp),
+                          u'Maxillaria variabilis × Encyclia cochleata')
 
 
 class SpeciesTests(PlantTestCase):

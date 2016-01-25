@@ -508,11 +508,8 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
             widget.props.label = ''
         else:
             widget.props.label = utf8(value)
-
     else:
-        raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
-                        'the widget type %s with name %s' %
-                        (type(widget), widget.name))
+        widget.set_value(value)
 
 
 def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,

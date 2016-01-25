@@ -30,8 +30,6 @@ import re
 import bauble.error as error
 from bauble.i18n import _
 
-SQLALCHEMY_DEBUG = False
-
 try:
     import sqlalchemy as sa
     parts = tuple(int(i) for i in sa.__version__.split('.')[:2])
@@ -57,12 +55,27 @@ import bauble.btypes as types
 import bauble.utils as utils
 
 
-if SQLALCHEMY_DEBUG:
-    import logging
-    global engine
-    logging.basicConfig()
-    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-    logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
+def sqlalchemy_debug(verbose):
+    if verbose:
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+        logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
+    else:
+        logging.getLogger('sqlalchemy.engine').setLevel(logging.WARN)
+        logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.WARN)
+
+SQLALCHEMY_DEBUG = False
+sqlalchemy_debug(SQLALCHEMY_DEBUG)
+
+
+def get_or_create(session, model, **kwargs):
+    instance = session.query(model).filter_by(**kwargs).first()
+    if instance:
+        return instance
+    else:
+        instance = model(**kwargs)
+        session.add(instance)
+        session.flush()
+        return instance
 
 
 def natsort(attr, obj):
@@ -497,8 +510,7 @@ class WithNotes:
                 except:
                     return n.note
         if result == []:
-            # if nothing was found, do not break the proxy.
-            return self.__getattribute__(name)
+            raise AttributeError("nothing was found, do not break the proxy")
         if is_dict:
             return dict(result)
         return result
