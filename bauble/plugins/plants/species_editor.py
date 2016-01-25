@@ -49,6 +49,25 @@ from bauble.plugins.plants.species_model import (
     Species, SpeciesDistribution, VernacularName, SpeciesSynonym, Habit,
     infrasp_rank_values, compare_rank)
 from bauble.plugins.plants import itf2
+from functools import partial
+
+
+def species_match_func(completion, key, treeiter, data=None):
+    """
+    """
+    species = completion.get_model()[treeiter][0]
+    if str(species).lower().startswith(key.lower()) \
+            or str(species.genus.epithet).lower().startswith(key.lower()):
+        return True
+    return False
+
+
+def species_cell_data_func(column, renderer, model, treeiter, data=None):
+    """
+    """
+    v = model[treeiter][0]
+    renderer.set_property(
+        'text', '%s (%s)' % (v.str(authors=True), v.genus.family))
 
 
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
@@ -63,6 +82,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_aggregate_combo': 'aggregate',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
+                           'sp_hybrid_operands_vbox2': 'hybrid_operands',
                            }
     combo_value_render = {'sp_aggregate_combo': itf2.aggregate,
                           'sp_hybrid_combo': itf2.hybrid_marker, }
@@ -297,6 +317,69 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.view.connect('sp_hybrid_combo', 'changed',
                           self.on_hybrid_marker_changed)
+
+        def sp_get_completions(text):
+            try:
+                genus_e, species_e = text.split(' ', 1)
+                genus_like = genus_e,
+                species_like = "%s%%" % species_e
+            except:
+                genus_like = "%s%%" % text
+                species_like = u'%'
+            query = self.session.query(Species).join('genus').\
+                filter(utils.ilike(Genus.epithet, genus_like)).\
+                filter(utils.ilike(Genus.epithet, species_like)).\
+                filter(Species.id != self.model.id).\
+                order_by(Species.epithet)
+            return query
+
+        def on_selected_parent(parent):
+            if not isinstance(parent, Species):
+                return
+            self.view.widget_set_value('sp_parent_entry', '')
+            if parent in self.model.hybrid_operands:
+                return
+            self.model.hybrid_operands.append(parent)
+            vbox = self.view.widgets.sp_hybrid_operands_vbox2
+            vbox.set_value(self.model.hybrid_operands)
+            self._dirty = True
+            self.refresh_fullname_label()
+
+        def on_remove_clicked(widget, obj, *args):
+            self.model.hybrid_operands.remove(obj)
+            vbox = self.view.widgets.sp_hybrid_operands_vbox2
+            vbox.set_value(self.model.hybrid_operands)
+            self._dirty = True
+            self.refresh_fullname_label()
+
+        def on_set_value(items):
+            vbox = self.view.widgets.sp_hybrid_operands_vbox2
+            # empty the vbox just keeping the text entry
+            for c in vbox.children()[1:]:
+                vbox.remove(c)
+            # loop over the value adding lines
+            for v in items:
+                hbox = gtk.HBox()
+                vbox.pack_end(hbox)
+                label = gtk.Label(v.str())
+                label.set_alignment(0.0, 0.5)
+                hbox.pack_start(label)
+                button = gtk.Button()
+                img = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
+                                               gtk.ICON_SIZE_BUTTON)
+                button.props.image = img
+                hbox.pack_end(button, expand=False)
+                self.view.connect(button, "clicked",
+                                  partial(on_remove_clicked, obj=v))
+            vbox.show_all()
+
+        self.view.attach_completion('sp_parent_entry',
+                                    cell_data_func=species_cell_data_func,
+                                    match_func=species_match_func)
+        self.assign_completions_handler('sp_parent_entry',
+                                        sp_get_completions,
+                                        on_select=on_selected_parent)
+        self.view.widgets.sp_hybrid_operands_vbox2.set_value = on_set_value
 
         try:
             import bauble.plugins.garden
