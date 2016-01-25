@@ -622,9 +622,9 @@ hybrid_parent_role = (
 
 hybrid_operands_table = Table(
     'hybrid_operands', db.Base.metadata,
-    Column('child_id', Integer, ForeignKey('species.id'),
+    Column('child_id', Integer, ForeignKey('species.id'), primary_key=True,
            nullable=False),
-    Column('parent_id', Integer, ForeignKey('species.id'),
+    Column('parent_id', Integer, ForeignKey('species.id'), primary_key=True,
            nullable=False),
     Column('role', types.Enum(values=dict(hybrid_parent_role).keys()),
            default=u'?'),
