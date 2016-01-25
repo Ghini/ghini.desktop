@@ -149,6 +149,8 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
         self.refresh_toggles()
 
     def on_button_clicked(self, widget, *args):
+        if widget.get_active() is False:
+            return
         widget_name = self.widget_get_name(widget)
         self.model.page = int(widget_name[5:7])
         self.refresh_view()
