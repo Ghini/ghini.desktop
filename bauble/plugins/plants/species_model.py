@@ -236,6 +236,25 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                  if i.category.lower() == u'condition']
         return (notes + [None])[0]
 
+    @staticmethod
+    def match_func(completion, key, treeiter, data=None):
+        """
+        """
+        species = completion.get_model()[treeiter][0]
+        if str(species).lower().startswith(key.lower()) \
+                or str(species.genus.epithet).lower().startswith(key.lower()):
+            return True
+        return False
+
+    @staticmethod
+    def cell_data_func(column, renderer, model, treeiter, data=None):
+        """
+        """
+        v = model[treeiter][0]
+        renderer.set_property(
+            'text', '%s (%s)' % (v.str(authors=True), v.genus.family))
+    
+
     def __lowest_infraspecific(self):
         infrasp = [(self.infrasp1_rank, self.infrasp1,
                     self.infrasp1_author),

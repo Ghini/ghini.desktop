@@ -138,6 +138,22 @@ class Location(db.Base, db.Serializable):
         else:
             return str(self.code)
 
+    @staticmethod
+    def match_func(completion, key, treeiter, data=None):
+        """
+        """
+        location = completion.get_model()[treeiter][0]
+        return (location.name.lower().startswith(key.lower()) or
+                location.code.lower().startswith(key.lower()))
+
+    @staticmethod
+    def cell_data_func(column, renderer, model, treeiter, data=None):
+        """
+        """
+        v = model[treeiter][0]
+        renderer.set_property(
+            'text', '%s (%s)' % (v.code, v.name))
+
     def has_accessions(self):
         '''true if location is linked to at least one accession
         '''
