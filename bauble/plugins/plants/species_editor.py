@@ -53,24 +53,6 @@ from functools import partial
 from bauble import db
 
 
-def species_match_func(completion, key, treeiter, data=None):
-    """
-    """
-    species = completion.get_model()[treeiter][0]
-    if str(species).lower().startswith(key.lower()) \
-            or str(species.genus.epithet).lower().startswith(key.lower()):
-        return True
-    return False
-
-
-def species_cell_data_func(column, renderer, model, treeiter, data=None):
-    """
-    """
-    v = model[treeiter][0]
-    renderer.set_property(
-        'text', '%s (%s)' % (v.str(authors=True), v.genus.family))
-
-
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_GENUS = 1
@@ -137,6 +119,17 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         # connect habit comboentry widget and child entry
         self.view.connect('sp_habit_comboentry', 'changed',
                           self.on_habit_comboentry_changed)
+
+        from bauble.editor import on_selected_parent, on_set_value
+
+        self.view.widgets.sp_hybrid_operands_vbox2.set_value = partial(
+            on_set_value, view=self.view, model=self.model.hybrid_operands,
+            container=self.view.widgets.sp_hybrid_operands_vbox2,
+            callback=self.refresh_fullname_label)
+
+        # put model values in view before any handlers are connected
+        self.refresh_view()
+        self.refresh_fullname_label()
 
         # connect signals
         def gen_get_completions(text):
@@ -317,7 +310,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_awards_entry', 'awards',
                                    editor.UnicodeOrNoneValidator())
         self.view.connect('sp_hybrid_combo', 'changed',
-                          self.on_hybrid_marker_changed)
+                          self.refresh_on_hybrid_marker)
 
         def sp_get_completions(text):
             try:
@@ -334,50 +327,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 order_by(Species.epithet)
             return query
 
-        def on_selected_parent(value, model, container, text_entry, callback):
-            if not isinstance(value, db.Base):
-                return
-            text_entry.set_text('')
-            if value in model:
-                return
-            model.append(value)
-            container.set_value(model)
-            callback()
-
-        def on_remove_clicked(widget, model, container, obj, callback, *args):
-            model.remove(obj)
-            container.set_value(model)
-            callback()
-
-        def on_set_value(items, container):
-            # empty the container just keeping the text entry
-            for c in container.children()[1:]:
-                container.remove(c)
-            # loop over the value adding lines
-            for v in items:
-                hbox = gtk.HBox()
-                container.pack_end(hbox)
-                label = gtk.Label(v.str())
-                label.set_alignment(0.0, 0.5)
-                hbox.pack_start(label)
-                button = gtk.Button()
-                img = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
-                                               gtk.ICON_SIZE_BUTTON)
-                button.props.image = img
-                hbox.pack_end(button, expand=False)
-                self.view.connect(
-                    button,
-                    "clicked",
-                    partial(on_remove_clicked,
-                            model=self.model.hybrid_operands,
-                            container=container,
-                            obj=v,
-                            callback=self.refresh_fullname_label))
-            container.show_all()
-
         self.view.attach_completion('sp_parent_entry',
-                                    cell_data_func=species_cell_data_func,
-                                    match_func=species_match_func)
+                                    cell_data_func=Species.cell_data_func,
+                                    match_func=Species.match_func)
         self.assign_completions_handler(
             'sp_parent_entry',
             sp_get_completions,
@@ -388,8 +340,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                 text_entry=(self.view.widgets.
                             sp_hybrid_operands_vbox2.children()[0]),
                 callback=self.refresh_fullname_label))
-        self.view.widgets.sp_hybrid_operands_vbox2.set_value = partial(
-            on_set_value, container=self.view.widgets.sp_hybrid_operands_vbox2)
 
         try:
             import bauble.plugins.garden
@@ -399,11 +349,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         except Exception:
             pass
 
-        # set the model values in the widgets
-        self.refresh_view()
-        self.refresh_fullname_label()
-
-    def on_hybrid_marker_changed(self, widget, *args):
+    def refresh_on_hybrid_marker(self, *args):
         'alter visibility of fields if H'
 
         if self.model.hybrid_marker == u'H':
@@ -622,6 +568,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.dist_presenter.refresh_view()
+        self.refresh_on_hybrid_marker()
 
 
 class InfraspPresenter(editor.GenericEditorPresenter):

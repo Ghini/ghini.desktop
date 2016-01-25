@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 import gtk
+from functools import partial
 
 from bauble.i18n import _
 import lxml.etree as etree
@@ -1774,6 +1775,33 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # put model values in view before any handlers are connected
         self.refresh_view()
+
+        def location_get_completions(text):
+            code_like = "%" + text + "%"
+            query = self.session.query(Location).\
+                filter(utils.ilike(Location.code, code_like)).\
+                order_by(Location.code)
+            return query
+
+        from bauble.editor import on_selected_parent, on_set_value
+
+        self.view.attach_completion('acc_locations_entry',
+                                    cell_data_func=Location.cell_data_func,
+                                    match_func=Location.match_func)
+        self.assign_completions_handler(
+            'acc_locations_entry',
+            location_get_completions,
+            on_select=partial(
+                on_selected_parent,
+                model=self.model.intended_locations,
+                container=self.view.widgets.acc_locations_vbox,
+                text_entry=(self.view.widgets.
+                            acc_locations_vbox.children()[0]),
+                callback=lambda: None))
+        self.view.widgets.acc_locations_vbox.set_value = partial(
+            on_set_value, view=self.view, model=self.model.intended_locations,
+            container=self.view.widgets.acc_locations_vbox,
+            callback=lambda: None)
 
         # connect signals
         def sp_get_completions(text):
