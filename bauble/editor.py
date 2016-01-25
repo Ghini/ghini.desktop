@@ -1677,7 +1677,7 @@ class GenericModelViewPresenterEditor(object):
         '''
         objs = list(self.session)
         try:
-            self.session.flush()
+            self.session.commit()
             try:
                 bauble.gui.get_view().update()
             except Exception, e:
