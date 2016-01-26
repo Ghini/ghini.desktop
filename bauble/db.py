@@ -507,7 +507,7 @@ class WithNotes:
                     return n.note
         if result == []:
             # if nothing was found, do not break the proxy.
-            return Base.__getattr__(self, name)
+            raise AttributeError(name)
         if is_dict:
             return dict(result)
         return result
