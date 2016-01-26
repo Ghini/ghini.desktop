@@ -1136,11 +1136,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                     "acc_editor.glade")
             xml = etree.parse(filename)
             el = xml.find("//object[@id='ver_box']")
-            vlls = xml.find("//object[@id='ver_level_liststore']")
             builder = gtk.Builder()
-            s = '<interface>%s%s</interface>' % (
-                etree.tostring(vlls),
-                etree.tostring(el))
+            s = '<interface>%s</interface>' % etree.tostring(el)
             if sys.platform == 'win32':
                 # NOTE: PyGTK for Win32 is broken so we have to include
                 # this little hack
