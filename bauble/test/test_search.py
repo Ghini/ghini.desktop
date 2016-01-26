@@ -768,11 +768,11 @@ class InOperatorSearch(BaubleTestCase):
         db.engine.execute('delete from family')
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
-        self.family = Family(family=u'family1', qualifier=u's. lat.', id=1)
-        self.g1 = Genus(family=self.family, genus=u'genus1', id=1)
-        self.g2 = Genus(family=self.family, genus=u'genus2', id=2)
-        self.g3 = Genus(family=self.family, genus=u'genus3', id=3)
-        self.g4 = Genus(family=self.family, genus=u'genus4', id=4)
+        self.family = Family(epithet=u'family1', id=1)
+        self.g1 = Genus(family=self.family, epithet=u'genus1', id=1)
+        self.g2 = Genus(family=self.family, epithet=u'genus2', id=2)
+        self.g3 = Genus(family=self.family, epithet=u'genus3', id=3)
+        self.g4 = Genus(family=self.family, epithet=u'genus4', id=4)
         self.Family = Family
         self.Genus = Genus
         self.session.add_all([self.family, self.g1, self.g2, self.g3, self.g4])
