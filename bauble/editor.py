@@ -880,7 +880,7 @@ class MockView:
     def widget_get_value(self, widget, *args):
         self.invoked.append('widget_get_value')
         self.invoked_detailed.append((self.invoked[-1], [widget, args]))
-        return self.values[widget]
+        return self.values.get(widget)
 
     def widget_set_value(self, widget, value, *args):
         self.invoked.append('widget_set_value')
