@@ -370,7 +370,7 @@ class AccessionMapperExtension(MapperExtension):
 # ITF2 - E.1; Provenance Type Flag; Transfer code: prot
 prov_type_values = [
     (u'Wild', _('Accession of wild source')),  # W
-    (u'Cultivated', _('Propagule(s) from a wild source plant')), # Z
+    (u'Cultivated', _('Propagule(s) from a wild source plant')),  # Z
     (u'NotWild', _("Accession not of wild source")),  # G
     (u'Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
     (u'InsufficientData', _("Insufficient Data")),  # U
