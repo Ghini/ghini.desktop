@@ -9,16 +9,19 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">%Y.####</col>
+        <col id="0"></col>
       </row>
       <row>
-        <col id="0" translatable="yes">######</col>
+        <col id="0">%Y.####</col>
       </row>
       <row>
-        <col id="0" translatable="yes">SD.#####</col>
+        <col id="0">######</col>
       </row>
       <row>
-        <col id="0" translatable="yes">H.#####</col>
+        <col id="0">SD.#####</col>
+      </row>
+      <row>
+        <col id="0">H.#####</col>
       </row>
     </data>
   </object>
@@ -715,6 +718,7 @@
                                             <property name="can_focus">False</property>
                                             <property name="model">acc_code_format_liststore</property>
                                             <property name="text_column">0</property>
+                                            <signal name="changed" handler="on_acc_code_format_comboentry_changed" swapped="no"/>
                                             <child internal-child="entry">
                                               <object class="GtkEntry" id="comboboxentry-entry10">
                                                 <property name="can_focus">False</property>

@@ -23,6 +23,7 @@
 
 import os
 import sys
+from unittest import TestCase
 
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import IntegrityError
@@ -261,16 +262,17 @@ def setUp_data():
             utils.reset_sequence(col)
 
 
-def test_duplicate_ids():
-    """
-    Test for duplicate ids for all .glade files in the plants plugin.
-    """
-    import bauble.plugins.plants as mod
-    import glob
-    head, tail = os.path.split(mod.__file__)
-    files = glob.glob(os.path.join(head, '*.glade'))
-    for f in files:
-        assert(not check_dupids(f))
+class DuplicateIdsGlade(TestCase):
+    def test_duplicate_ids(self):
+        """
+        Test for duplicate ids for all .glade files in the plants plugin.
+        """
+        import bauble.plugins.garden as mod
+        import glob
+        head, tail = os.path.split(mod.__file__)
+        files = glob.glob(os.path.join(head, '*.glade'))
+        for f in files:
+            self.assertTrue(not check_dupids(f), f)
 
 
 class PlantTestCase(BaubleTestCase):

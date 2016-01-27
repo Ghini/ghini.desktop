@@ -63,6 +63,7 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
 import bauble.view as view
 from bauble.search import SearchStrategy
 from types import StringTypes
+from bauble.utils import safe_int
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -619,7 +620,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         'Location', primaryjoin='Accession.intended2_location_id==Location.id')
 
     @classmethod
-    def get_next_code(cls):
+    def get_next_code(cls, code_format=None):
         """
         Return the next available accession code.
 
@@ -631,9 +632,14 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         """
         # auto generate/increment the accession code
         session = db.Session()
-        format = cls.code_format.replace('%PD', Plant.get_delimiter())
+        if code_format is None:
+            code_format = cls.code_format
+        format = code_format.replace('%PD', Plant.get_delimiter())
         format = datetime.date.today().strftime(format)
         start = unicode(format.rstrip('#'))
+        if start == format:
+            # fixed value
+            return start
         digits = len(format) - len(start)
         format = start + '%%0%dd' % digits
         q = session.query(Accession.code).\
@@ -641,7 +647,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         next = None
         try:
             if q.count() > 0:
-                codes = [int(row[0][len(start):]) for row in q]
+                codes = [safe_int(row[0][len(start):]) for row in q]
                 next = format % (max(codes)+1)
             else:
                 next = format % 1
@@ -1723,10 +1729,17 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
 
+        ls = view.widgets.acc_code_format_liststore
+        first_row = ls.get_iter_first()
         if not model.code:
             model.code = model.get_next_code()
             if self.model.species:
                 self._dirty = True
+            top_value = u''
+        else:
+            top_value = model.code
+        ls.set_value(first_row, 0, top_value)
+        self.view.widget_set_value('acc_code_format_comboentry', top_value)
 
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
                                                    self.session)
@@ -1897,6 +1910,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         if self.model not in self.session.new:
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
+
+    def on_acc_code_format_comboentry_changed(self, widget, *args):
+        code_format = self.view.widget_get_value(widget)
+        code = Accession.get_next_code(code_format)
+        self.view.widget_set_value('acc_code_entry', code)
 
     def refresh_id_qual_rank_combo(self):
         """
