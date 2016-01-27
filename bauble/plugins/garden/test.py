@@ -1989,6 +1989,16 @@ class AccessionGetNextCode(GardenTestCase):
         self.assertEquals(Accession.get_next_code(u'00003'), '00003')
         self.assertEquals(Accession.get_next_code(u'H.0003'), 'H.0003')
 
+    def test_get_next_code_previous_year_subst(self):
+        this_year = datetime.date.today().year
+        last_year = this_year - 1
+        acc = Accession(species=self.species, code=u'%s.0012' % last_year)
+        ac2 = Accession(species=self.species, code=u'%s.0987' % this_year)
+        self.session.add_all([acc, ac2])
+        self.session.flush()
+        self.assertEquals(Accession.get_next_code(u'%{Y-1}.####')[5:], '0013')
+        self.assertEquals(Accession.get_next_code(u'%Y.####')[5:], '0988')
+
 
 class GlobalFunctionsTests(GardenTestCase):
 
