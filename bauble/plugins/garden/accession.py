@@ -1724,7 +1724,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.current_source_box = None
 
         if not model.code:
-            model.code = self.get_next_code()
+            model.code = model.get_next_code()
             if self.model.species:
                 self._dirty = True
 
