@@ -126,42 +126,6 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     return dec.quantize(nplaces)
 
 
-def get_next_code():
-    """
-    Return the next available accession code.  This function should be
-    specific to the institution.
-
-    At the moment it assumes that you are using an accession code of
-    the format: YYYY.CCCC where YYYY is the four digit year and CCCC
-    is the four digit code left filled with zeroes
-
-    If there is an error getting the next code the None is returned.
-    """
-    # auto generate/increment the accession code
-    session = db.Session()
-    format = '%Y%PD####'
-    format = format.replace('%PD', Plant.get_delimiter())
-    format = datetime.date.today().strftime(format)
-    start = format.rstrip('#')
-    digits = len(format) - len(start)
-    format = start + '%%0%dd' % digits
-    q = session.query(Accession.code).\
-        filter(Accession.code.startswith(start))
-    next = None
-    try:
-        if q.count() > 0:
-            codes = [int(row[0][len(start):]) for row in q]
-            next = format % (max(codes)+1)
-        else:
-            next = format % 1
-    except Exception, e:
-        logger.debug(e)
-        pass
-    finally:
-        session.close()
-    return next
-
-
 def generic_taxon_add_action(model, view, presenter, top_presenter,
                              button, taxon_entry):
     """user hit click on taxon add button
@@ -589,6 +553,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     # columns
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
+    code_format = u'%Y%PD####'
 
     @validates('code')
     def validate_stripping(self, key, value):
@@ -652,6 +617,40 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         'Location', primaryjoin='Accession.intended_location_id==Location.id')
     intended2_location = relation(
         'Location', primaryjoin='Accession.intended2_location_id==Location.id')
+
+    @classmethod
+    def get_next_code(cls):
+        """
+        Return the next available accession code.
+
+        the format is stored in the `bauble` table.
+        the format may contain a %PD, replaced by the plant delimiter.
+        date formatting is applied.
+
+        If there is an error getting the next code the None is returned.
+        """
+        # auto generate/increment the accession code
+        session = db.Session()
+        format = cls.code_format.replace('%PD', Plant.get_delimiter())
+        format = datetime.date.today().strftime(format)
+        start = unicode(format.rstrip('#'))
+        digits = len(format) - len(start)
+        format = start + '%%0%dd' % digits
+        q = session.query(Accession.code).\
+            filter(Accession.code.startswith(start))
+        next = None
+        try:
+            if q.count() > 0:
+                codes = [int(row[0][len(start):]) for row in q]
+                next = format % (max(codes)+1)
+            else:
+                next = format % 1
+        except Exception, e:
+            logger.debug(e)
+            pass
+        finally:
+            session.close()
+        return unicode(next)
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row.
@@ -1725,7 +1724,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.current_source_box = None
 
         if not model.code:
-            model.code = get_next_code()
+            model.code = self.get_next_code()
             if self.model.species:
                 self._dirty = True
 

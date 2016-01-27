@@ -1887,28 +1887,27 @@ class PlantSearchTest(GardenTestCase):
         self.assertFalse(p is None)
 
 
-from bauble.plugins.garden.accession import get_next_code
 from bauble.plugins.garden.location import mergevalues
 
 
-class GlobalFunctionsTests(GardenTestCase):
+class AccessionGetNextCode(GardenTestCase):
     def test_get_next_code_first_this_year(self):
         this_year = str(datetime.date.today().year)
-        self.assertEquals(get_next_code(), this_year + '.0001')
+        self.assertEquals(Accession.get_next_code(), this_year + '.0001')
 
     def test_get_next_code_second_this_year(self):
         this_year = str(datetime.date.today().year)
-        this_code = get_next_code()
-        acc = Accession(species=self.species, code=this_code)
+        this_code = Accession.get_next_code()
+        acc = Accession(species=self.species, code=unicode(this_code))
         self.session.add(acc)
         self.session.flush()
-        self.assertEquals(get_next_code(), this_year + '.0002')
+        self.assertEquals(Accession.get_next_code(), this_year + '.0002')
 
     def test_get_next_code_absolute_beginning(self):
         this_year = str(datetime.date.today().year)
         self.session.query(Accession).delete()
         self.session.flush()
-        self.assertEquals(get_next_code(), this_year + '.0001')
+        self.assertEquals(Accession.get_next_code(), this_year + '.0001')
 
     def test_get_next_code_next_with_hole(self):
         this_year = str(datetime.date.today().year)
@@ -1916,7 +1915,36 @@ class GlobalFunctionsTests(GardenTestCase):
         acc = Accession(species=self.species, code=this_code)
         self.session.add(acc)
         self.session.flush()
-        self.assertEquals(get_next_code(), this_year + '.0051')
+        self.assertEquals(Accession.get_next_code(), this_year + '.0051')
+
+    def test_get_next_code_alter_format_first(self):
+        this_year = str(datetime.date.today().year)
+        this_code = this_year + u'.0050'
+        orig = Accession.code_format
+        acc = Accession(species=self.species, code=this_code)
+        self.session.add(acc)
+        self.session.flush()
+        Accession.code_format = u'H.###'
+        self.assertEquals(Accession.get_next_code(), 'H.001')
+        Accession.code_format = u'SD.###'
+        self.assertEquals(Accession.get_next_code(), 'SD.001')
+        Accession.code_format = orig
+
+    def test_get_next_code_alter_format_next(self):
+        orig = Accession.code_format
+        acc = Accession(species=self.species, code=u'H.012')
+        self.session.add(acc)
+        acc = Accession(species=self.species, code=u'SD.002')
+        self.session.add(acc)
+        self.session.flush()
+        Accession.code_format = u'H.###'
+        self.assertEquals(Accession.get_next_code(), 'H.013')
+        Accession.code_format = u'SD.###'
+        self.assertEquals(Accession.get_next_code(), 'SD.003')
+        Accession.code_format = orig
+
+
+class GlobalFunctionsTests(GardenTestCase):
 
     def test_mergevalues_equal(self):
         'if the values are equal, return it'
