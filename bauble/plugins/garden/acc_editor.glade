@@ -15,13 +15,19 @@
         <col id="0">%Y.####</col>
       </row>
       <row>
-        <col id="0">######</col>
+        <col id="0">%{Y-1}.####</col>
+      </row>
+      <row>
+        <col id="0">XXXX.####</col>
       </row>
       <row>
         <col id="0">SD.#####</col>
       </row>
       <row>
         <col id="0">H.#####</col>
+      </row>
+      <row>
+        <col id="0">######</col>
       </row>
     </data>
   </object>
