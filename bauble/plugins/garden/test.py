@@ -20,7 +20,7 @@
 
 import os
 import datetime
-import unittest
+from unittest import TestCase
 
 import gtk
 
@@ -159,17 +159,17 @@ def setUp_data():
 # 5. existing accession with existing source
 # - create test for parsing latitude/longitude entered into the lat/lon entries
 
-
-def test_duplicate_ids():
-    """
-    Test for duplicate ids for all .glade files in the gardens plugin.
-    """
-    import bauble.plugins.garden as mod
-    import glob
-    head, tail = os.path.split(mod.__file__)
-    files = glob.glob(os.path.join(head, '*.glade'))
-    for f in files:
-        assert(not check_dupids(f))
+class DuplicateIdsGlade(TestCase):
+    def test_duplicate_ids(self):
+        """
+        Test for duplicate ids for all .glade files in the gardens plugin.
+        """
+        import bauble.plugins.garden as mod
+        import glob
+        head, tail = os.path.split(mod.__file__)
+        files = glob.glob(os.path.join(head, '*.glade'))
+        for f in files:
+            self.assertTrue(not check_dupids(f), f)
 
 
 class GardenTestCase(BaubleTestCase):
@@ -1566,7 +1566,7 @@ parse_lat_lon_data = ((('N', '17 21 59'), dec('17.366389')),
                       (('E', '121 40 39'), dec('121.6775')))
 
 
-class DMSConversionTests(unittest.TestCase):
+class DMSConversionTests(TestCase):
 
     # test coordinate conversions
     def test_dms_to_decimal(self):
@@ -1942,6 +1942,52 @@ class AccessionGetNextCode(GardenTestCase):
         Accession.code_format = u'SD.###'
         self.assertEquals(Accession.get_next_code(), 'SD.003')
         Accession.code_format = orig
+
+    def test_get_next_code_alter_format_first_specified(self):
+        this_year = str(datetime.date.today().year)
+        this_code = this_year + u'.0050'
+        acc = Accession(species=self.species, code=this_code)
+        self.session.add(acc)
+        self.session.flush()
+        self.assertEquals(Accession.get_next_code(u'H.###'), 'H.001')
+        self.assertEquals(Accession.get_next_code(u'SD.###'), 'SD.001')
+
+    def test_get_next_code_alter_format_next_specified(self):
+        acc = Accession(species=self.species, code=u'H.012')
+        self.session.add(acc)
+        acc = Accession(species=self.species, code=u'SD.002')
+        self.session.add(acc)
+        self.session.flush()
+        self.assertEquals(Accession.get_next_code(u'H.###'), 'H.013')
+        self.assertEquals(Accession.get_next_code(u'SD.###'), 'SD.003')
+
+    def test_get_next_code_plain_numeric_zero(self):
+        self.assertEquals(Accession.get_next_code(u'#####'), '00001')
+
+    def test_get_next_code_plain_numeric_next(self):
+        acc = Accession(species=self.species, code=u'00012')
+        self.session.add(acc)
+        self.session.flush()
+        self.assertEquals(Accession.get_next_code(u'#####'), '00013')
+
+    def test_get_next_code_plain_numeric_next_multiple(self):
+        acc = Accession(species=self.species, code=u'00012')
+        ac2 = Accession(species=self.species, code=u'H.0987')
+        ac3 = Accession(species=self.species, code=u'2112.0019')
+        self.session.add_all([acc, ac2, ac3])
+        self.session.flush()
+        self.assertEquals(Accession.get_next_code(u'#####'), '00013')
+
+    def test_get_next_code_fixed(self):
+        acc = Accession(species=self.species, code=u'00012')
+        ac2 = Accession(species=self.species, code=u'H.0987')
+        ac3 = Accession(species=self.species, code=u'2112.0019')
+        self.session.add_all([acc, ac2, ac3])
+        self.session.flush()
+        self.assertEquals(Accession.get_next_code(u'2112.003'), '2112.003')
+        self.assertEquals(Accession.get_next_code(u'2112.0003'), '2112.0003')
+        self.assertEquals(Accession.get_next_code(u'00003'), '00003')
+        self.assertEquals(Accession.get_next_code(u'H.0003'), 'H.0003')
 
 
 class GlobalFunctionsTests(GardenTestCase):
