@@ -33,7 +33,7 @@ import gtk
 import gobject
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey,\
-    Float, UnicodeText, select
+    Float, UnicodeText, select, Boolean
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import relation, backref
 
@@ -173,6 +173,8 @@ class SourceDetail(db.Base):
     name = Column(Unicode(75), unique=True)
     # extra description, not included in E6
     description = Column(UnicodeText)
+    email = Column(Unicode(254), default=u'')
+    private = Column(Boolean, default=False)
     # ITF2 - E5 - Donor Type Flag
     source_type = Column(types.Enum(values=[i[0] for i in source_type_values],
                                     translations=dict(source_type_values)),
