@@ -139,18 +139,21 @@ def get_next_code():
     """
     # auto generate/increment the accession code
     session = db.Session()
-    year = str(datetime.date.today().year)
-    start = '%s%s' % (year, Plant.get_delimiter())
+    format = '%Y%PD####'
+    format = format.replace('%PD', Plant.get_delimiter())
+    format = datetime.date.today().strftime(format)
+    start = format.rstrip('#')
+    digits = len(format) - len(start)
+    format = start + '%%0%dd' % digits
     q = session.query(Accession.code).\
         filter(Accession.code.startswith(start))
     next = None
     try:
         if q.count() > 0:
-            codes = [int(code[0][len(start):]) for code in q]
-            next = '%s%s' % (start, str(max(codes)+1).zfill(4))
+            codes = [int(row[0][len(start):]) for row in q]
+            next = format % (max(codes)+1)
         else:
-            next = '%s%s0001' % (datetime.date.today().year,
-                                 Plant.get_delimiter())
+            next = format % 1
     except Exception, e:
         logger.debug(e)
         pass
