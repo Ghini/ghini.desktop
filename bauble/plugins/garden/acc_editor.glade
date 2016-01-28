@@ -113,8 +113,8 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="0">button2</action-widget>
-      <action-widget response="0">button1</action-widget>
+      <action-widget response="-1">button2</action-widget>
+      <action-widget response="1">button1</action-widget>
     </action-widgets>
   </object>
   <object class="GtkListStore" id="acc_codes_liststore">

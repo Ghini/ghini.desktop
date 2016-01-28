@@ -1733,11 +1733,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
 
-        self.populate_code_formats()
-
         # set the default code and add it to the top of the code formats
-        ls = view.widgets.acc_code_format_liststore
-        first_row = ls.get_iter_first()
         if not model.code:
             model.code = model.get_next_code()
             if self.model.species:
@@ -1745,7 +1741,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             top_value = u''
         else:
             top_value = model.code
-        ls.set_value(first_row, 0, top_value)
+        self.populate_code_formats(top_value)
         self.view.widget_set_value('acc_code_format_comboentry', top_value)
 
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
@@ -1918,18 +1914,23 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         if self.model not in self.session.new:
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
 
-    def populate_code_formats(self):
+    def populate_code_formats(self, entry_one=None, values=None):
+        print 'populate_code_formats', entry_one, values
         ls = self.view.widgets.acc_code_format_liststore
+        if entry_one is None:
+            entry_one = ls.get_value(ls.get_iter_first(), 0)
         ls.clear()
-        ls.append([''])
-        query = self.session.\
-            query(meta.BaubleMeta).\
-            filter(meta.BaubleMeta.name.like(u'acidf_%')).\
-            order_by(meta.BaubleMeta.name)
-        if query.count():
-            Accession.code_format = query.first().value
-        for row in query:
-            ls.append([row.value])
+        ls.append([entry_one])
+        if values is None:
+            query = self.session.\
+                query(meta.BaubleMeta).\
+                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+                order_by(meta.BaubleMeta.name)
+            if query.count():
+                Accession.code_format = query.first().value
+            values = [r.value for r in query]
+        for v in values:
+            ls.append([v])
 
     def on_acc_code_format_comboentry_changed(self, widget, *args):
         code_format = self.view.widget_get_value(widget)
@@ -1964,8 +1965,28 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                         ls.set_value(i, 0, ls.get_value(i, 0)-1)
                         i = ls.iter_next(i)
 
-        presenter = Presenter(ls, view)
-        presenter.start()  # does not save them yet
+        presenter = Presenter(ls, view, session=db.Session())
+        if presenter.start() > 0:
+            presenter.session.\
+                query(meta.BaubleMeta).\
+                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+                delete(synchronize_session=False)
+            i = 1
+            iter = ls.get_iter_first()
+            values = []
+            while iter:
+                value = ls.get_value(iter, 1)
+                iter = ls.iter_next(iter)
+                i += 1
+                if not value:
+                    continue
+                obj = meta.BaubleMeta(name=u'acidf_%02d' % i,
+                                      value=value)
+                values.append(value)
+                presenter.session.add(obj)
+            self.populate_code_formats(values=values)
+            presenter.session.commit()
+        presenter.session.close()
 
     def refresh_id_qual_rank_combo(self):
         """
