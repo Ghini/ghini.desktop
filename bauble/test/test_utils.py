@@ -106,3 +106,20 @@ class CacheTest(TestCase):
         cache.get(4, partial(getter, 4), on_hit=invoked.append)
         self.assertEquals(invoked, [1, 1, 1])
         self.assertEquals(sorted(cache.storage.keys()), [1, 4])
+
+
+class GlobalFuncs(TestCase):
+    def test_safe_int_valid(self):
+        self.assertEquals(utils.safe_int('123'), 123)
+
+    def test_safe_int_valid_not(self):
+        self.assertEquals(utils.safe_int('123.2'), 0)
+
+    def test_safe_numeric_valid(self):
+        self.assertEquals(utils.safe_numeric('123'), 123)
+
+    def test_safe_numeric_valid_decimal(self):
+        self.assertEquals(utils.safe_numeric('123.2'), 123.2)
+
+    def test_safe_numeric_valid_not(self):
+        self.assertEquals(utils.safe_numeric('123a.2'), 0)

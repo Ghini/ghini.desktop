@@ -870,6 +870,30 @@ def xml_safe_utf8(obj):
     return xml_safe(obj)
 
 
+def safe_numeric(s):
+    'evaluate the string as a number, or return zero'
+
+    try:
+        return int(s)
+    except ValueError:
+        pass
+    try:
+        return float(s)
+    except ValueError:
+        pass
+    return 0
+
+
+def safe_int(s):
+    'evaluate the string as an integer, or return zero'
+
+    try:
+        return int(s)
+    except ValueError:
+        pass
+    return 0
+
+
 __natsort_rx = re.compile('(\d+(?:\.\d+)?)')
 
 
