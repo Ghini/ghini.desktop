@@ -52,11 +52,15 @@ class StoredQueriesModel(object):
     def save(self):
         ssn = db.Session()
         for index in range(1, 11):
-            obj = db.get_or_create(ssn, meta.BaubleMeta,
-                                   name=u'stqr_%02d' % index)
             if self.__label[index] == '':
-                ssn.delete(obj)
-            obj.value = self[index]
+                ssn.query(meta.BaubleMeta).\
+                    filter_by(name=u'stqr_%02d' % index).\
+                    delete()
+            else:
+                obj = db.get_or_create(ssn, meta.BaubleMeta,
+                                       name=u'stqr_%02d' % index)
+                if obj.value != self[index]:
+                    obj.value = self[index]
         ssn.commit()
         ssn.close()
 
