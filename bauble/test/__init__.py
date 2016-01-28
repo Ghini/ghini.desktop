@@ -68,6 +68,8 @@ def check_dupids(filename):
     import lxml.etree as etree
     tree = etree.parse(filename)
     for el in tree.getiterator():
+        if el.tag == 'col':
+            continue
         elid = el.get('id')
         if elid not in ids:
             ids.add(elid)
