@@ -1922,10 +1922,13 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         ls = self.view.widgets.acc_code_format_liststore
         ls.clear()
         ls.append([''])
-        for row in self.session.\
-                query(meta.BaubleMeta).\
-                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
-                order_by(meta.BaubleMeta.name):
+        query = self.session.\
+            query(meta.BaubleMeta).\
+            filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+            order_by(meta.BaubleMeta.name)
+        if query.count():
+            Accession.code_format = query.first().value
+        for row in query:
             ls.append([row.value])
 
     def on_acc_code_format_comboentry_changed(self, widget, *args):
