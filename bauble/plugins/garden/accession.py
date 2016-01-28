@@ -49,6 +49,7 @@ from sqlalchemy.exc import DBAPIError
 import bauble
 import bauble.db as db
 import bauble.editor as editor
+from bauble import meta
 from bauble.error import check
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
@@ -1732,6 +1733,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
 
+        self.populate_code_formats()
+
+        # set the default code and add it to the top of the code formats
         ls = view.widgets.acc_code_format_liststore
         first_row = ls.get_iter_first()
         if not model.code:
@@ -1913,6 +1917,16 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         if self.model not in self.session.new:
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
+
+    def populate_code_formats(self):
+        ls = self.view.widgets.acc_code_format_liststore
+        ls.clear()
+        ls.append([''])
+        for row in self.session.\
+                query(meta.BaubleMeta).\
+                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+                order_by(meta.BaubleMeta.name):
+            ls.append([row.value])
 
     def on_acc_code_format_comboentry_changed(self, widget, *args):
         code_format = self.view.widget_get_value(widget)
