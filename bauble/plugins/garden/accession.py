@@ -1936,6 +1936,37 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         code = Accession.get_next_code(code_format)
         self.view.widget_set_value('acc_code_entry', code)
 
+    def on_acc_code_format_edit_btn_clicked(self, widget, *args):
+        view = editor.GenericEditorView(
+            os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                         'acc_editor.glade'),
+            root_widget_name='acc_codes_dialog')
+        ls = view.widgets.acc_codes_liststore
+        ls.clear()
+        query = self.session.\
+            query(meta.BaubleMeta).\
+            filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+            order_by(meta.BaubleMeta.name)
+        for i, row in enumerate(query):
+            ls.append([i+1, row.value])
+        ls.append([len(ls)+1, ''])
+
+        class Presenter(editor.GenericEditorPresenter):
+            def on_acc_cf_renderer_edited(self, widget, iter, value):
+                i = ls.get_iter_from_string(str(iter))
+                ls.set_value(i, 1, value)
+                if ls.iter_next(i) is None:
+                    if value:
+                        ls.append([len(ls)+1, ''])
+                elif value == '':
+                    ls.remove(i)
+                    while i:
+                        ls.set_value(i, 0, ls.get_value(i, 0)-1)
+                        i = ls.iter_next(i)
+
+        presenter = Presenter(ls, view)
+        presenter.start()  # does not save them yet
+
     def refresh_id_qual_rank_combo(self):
         """
         Populate the id_qual_rank_combo with the parts of the species string
