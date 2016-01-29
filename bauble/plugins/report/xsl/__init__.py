@@ -35,6 +35,9 @@ import tempfile
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 #from sqlalchemy import *
 from sqlalchemy.orm import object_session
 
@@ -549,7 +552,7 @@ class XSLFormatterPlugin(FormatterPlugin):
 
         session.close()
 
-        # logger.debug(etree.dump(abcd_data.getroot()))
+        logger.debug(etree.dump(abcd_data.getroot()))
 
         # create xsl fo file
         dummy, fo_filename = tempfile.mkstemp()
@@ -568,12 +571,11 @@ class XSLFormatterPlugin(FormatterPlugin):
         # on the path for this to work
         fo_cmd = fo_cmd % ({'fo_filename': fo_filename,
                             'out_filename': filename})
-#        print fo_cmd
-#        debug(fo_cmd)
+        logger.debug(fo_cmd)
         # TODO: use popen to get output
         os.system(fo_cmd)
 
-#        print filename
+        logger.debug(filename)
         if not os.path.exists(filename):
             utils.message_dialog(_('Error creating the PDF file. Please '
                                    'ensure that your PDF formatter is '
