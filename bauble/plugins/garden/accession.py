@@ -1915,7 +1915,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
 
     def populate_code_formats(self, entry_one=None, values=None):
-        print 'populate_code_formats', entry_one, values
+        logger.debug('populate_code_formats %s %s' % (entry_one, values))
         ls = self.view.widgets.acc_code_format_liststore
         if entry_one is None:
             entry_one = ls.get_value(ls.get_iter_first(), 0)
