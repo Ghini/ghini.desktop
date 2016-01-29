@@ -144,4 +144,4 @@ bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
 # TODO: commit the changes
 print
 print 'git commit -m "bumping to %s" bauble/version.py doc/conf.py'\
-    ' data/bauble.desktop scripts/build.nsi packages/builddeb.sh' % version
+    ' data/ghini.desktop scripts/build.nsi packages/builddeb.sh' % version
