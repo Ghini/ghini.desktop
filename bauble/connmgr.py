@@ -123,8 +123,8 @@ def check_and_notify_new_version(view):
     ## check whether there's a newer version on github.  this is executed in
     ## a different thread, which does nothing or terminates the program.
     version_on_github = (
-        'https://raw.githubusercontent.com/Bauble/bauble' +
-        '.classic/bauble-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
+        'https://raw.githubusercontent.com/Ghini/ghini' +
+        '.desktop/ghini-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
     try:
         import urllib2
         import ssl
