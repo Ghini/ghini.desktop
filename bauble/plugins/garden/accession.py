@@ -1734,15 +1734,13 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.current_source_box = None
 
         # set the default code and add it to the top of the code formats
+        self.populate_code_formats(model.code or '')
+        self.view.widget_set_value('acc_code_format_comboentry',
+                                   model.code or '')
         if not model.code:
             model.code = model.get_next_code()
             if self.model.species:
                 self._dirty = True
-            top_value = u''
-        else:
-            top_value = model.code
-        self.populate_code_formats(top_value)
-        self.view.widget_set_value('acc_code_format_comboentry', top_value)
 
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
                                                    self.session)
