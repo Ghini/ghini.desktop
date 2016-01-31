@@ -321,6 +321,28 @@ class Tag(db.Base):
             TaggedObj.obj_id == obj.id)
         return [i.tag for i in qto.all()]
 
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        objects = self.objects
+        classes = set(type(o) for o in objects)
+        if len(classes) == 1:
+            fine_prints = "tagging %(1)s objects of type %(2)s" % {
+                '1': len(objects),
+                '2': classes.pop().__name__}
+        elif len(classes) == 0:
+            fine_prints = "tagging nothing"
+        else:
+            fine_prints = "tagging %(1)s objects of %(2)s different types" % {
+                '1': len(objects),
+                '2': len(classes)}
+            if len(classes) < 4:
+                fine_prints += ': ' + (', '.join(
+                    t.__name__ for t in classes))
+        first = '%s - <span weight="light">%s</span>' % (
+            utils.xml_safe(self), fine_prints)
+        return first, '(%s)' % type(self).__name__
+
 
 class TaggedObj(db.Base):
     """
