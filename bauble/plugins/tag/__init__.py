@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
 #
 # This file is part of bauble.classic.
 #
@@ -61,8 +61,6 @@ def edit_callback(tags):
     tag = tags[0]
     if tag is None:
         tag = Tag()
-    session = db.Session()
-    session.merge(tag)
     view = GenericEditorView(
         os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade'),
         parent=None,
@@ -73,7 +71,6 @@ def edit_callback(tags):
         presenter.session.rollback()
     else:
         presenter.commit_changes()
-    presenter.session.close()
     presenter.cleanup()
     return error_state
 
