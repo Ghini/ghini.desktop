@@ -228,7 +228,8 @@ class TagItemGUI(editor.GenericEditorView):
         model = gtk.ListStore(bool, str)
         item_tags = get_tag_ids(self.values)
         has_tag = False
-        tag_query = db.Session().query(Tag)
+        session = db.Session()  # we need close it
+        tag_query = session.query(Tag)
         for tag in tag_query:
             if tag.id in item_tags:
                 has_tag = True
@@ -246,6 +247,7 @@ class TagItemGUI(editor.GenericEditorView):
 
         self.get_window().hide()
         self.disconnect_all()
+        session.close()
 
 
 class Tag(db.Base):
