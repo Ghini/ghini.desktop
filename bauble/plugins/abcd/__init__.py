@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
 #
 # This file is part of bauble.classic.
 #
@@ -24,22 +24,19 @@
 #
 
 import os
-import csv
 
 import gtk
 
-from sqlalchemy import *
-from sqlalchemy.orm import *
+#from sqlalchemy import *
+#from sqlalchemy.orm import *
 
-import bauble
 import bauble.db as db
-from bauble.error import check, CheckConditionError
+from bauble.error import check
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
-from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
-from bauble.plugins.garden.accession import Accession
+from bauble.i18n import _
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
@@ -60,6 +57,7 @@ from bauble.plugins.garden.accession import Accession
 # we could have a special case just for generating labels
 #
 
+
 def validate_xml(root):
     """
     Validate root against ABCD 2.06 schema
@@ -68,10 +66,11 @@ def validate_xml(root):
     :returns: True or False depending if root validates correctly
     """
     schema_file = os.path.join(paths.lib_dir(), 'plugins',
-            'abcd','abcd_2.06.xsd')
+                               'abcd', 'abcd_2.06.xsd')
     xmlschema_doc = etree.parse(schema_file)
     abcd_schema = etree.XMLSchema(xmlschema_doc)
     return abcd_schema.validate(root)
+
 
 # TODO: this function needs to be renamed since we now check an object in
 # the list is an Accession them we use the accession data as the UnitID, else
@@ -80,7 +79,7 @@ def validate_xml(root):
 # only problem is that accessions don't keep status, like dead, etc.
 
 def verify_institution(institution):
-    test = lambda x: x != '' and x != None
+    test = lambda x: x != '' and x is not None
     return test(institution.name) and \
         test(institution.technical_contact) and \
         test(institution.email) and test(institution.contact) and \
@@ -102,7 +101,7 @@ def ABCDElement(parent, name, text=None, attrib=None):
     if attrib is None:
         attrib = {}
     el = SubElement(parent, '{%s}%s' % (namespaces['abcd'], name),
-                   nsmap=namespaces, attrib=attrib)
+                    nsmap=namespaces, attrib=attrib)
     el.text = text
     return el
 
@@ -174,7 +173,6 @@ class ABCDAdapter(object):
         pass
 
 
-
 def create_abcd(decorated_objects, authors=True, validate=True):
     """
     :param objects: a list/tuple of objects that implement the ABCDDecorator
@@ -187,8 +185,8 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     import bauble.plugins.garden.institution as institution
     inst = institution.Institution()
     if not verify_institution(inst):
-        msg = _('Some or all of the information about your institution or ' \
-                'business is not complete. Please make sure that the ' \
+        msg = _('Some or all of the information about your institution or '
+                'business is not complete. Please make sure that the '
                 'Name, Technical Contact, Email, Contact and Institution '
                 'Code fields are filled in.')
         utils.message_dialog(msg)
@@ -213,7 +211,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
 
     # TODO: need to get the localized language
     representation = ABCDElement(description, 'Representation',
-                                    attrib={'language': 'en'})
+                                 attrib={'language': 'en'})
     revision = ABCDElement(metadata, 'RevisionData')
     ABCDElement(revision, 'DateModified', text='2001-03-01T00:00:00')
     title = ABCDElement(representation, 'Title', text='TheTitle')
@@ -249,12 +247,12 @@ def create_abcd(decorated_objects, authors=True, validate=True):
 
         scientific_name = ABCDElement(taxon_identified, 'ScientificName')
         ABCDElement(scientific_name, 'FullScientificNameString',
-                       text=obj.get_FullScientificNameString(authors))
+                    text=obj.get_FullScientificNameString(authors))
 
         name_atomised = ABCDElement(scientific_name, 'NameAtomised')
         botanical = ABCDElement(name_atomised, 'Botanical')
         ABCDElement(botanical, 'GenusOrMonomial',
-                       text=obj.get_GenusOrMonomial())
+                    text=obj.get_GenusOrMonomial())
         ABCDElement(botanical, 'FirstEpithet', text=obj.get_FirstEpithet())
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
@@ -270,7 +268,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             result = ABCDElement(identification, 'Result')
             taxon_identified = ABCDElement(result, 'TaxonIdentified')
             ABCDElement(taxon_identified, 'InformalNameString',
-                           text=vernacular_name)
+                        text=vernacular_name)
 
         # add all the extra non standard elements
         obj.extra_elements(unit)
@@ -290,14 +288,13 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     return ElementTree(datasets)
 
 
-
 class ABCDExporter(object):
     """
     Export Plants to an ABCD file.
     """
 
     def start(self, filename=None, plants=None):
-        if filename == None: # no filename, ask the user
+        if filename is None:  # no filename, ask the user
             d = gtk.FileChooserDialog(_("Choose a file to export to..."), None,
                                       gtk.FILE_CHOOSER_ACTION_SAVE,
                                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
@@ -305,7 +302,7 @@ class ABCDExporter(object):
             response = d.run()
             filename = d.get_filename()
             d.destroy()
-            if response != gtk.RESPONSE_ACCEPT or filename == None:
+            if response != gtk.RESPONSE_ACCEPT or filename is None:
                 return
 
         if plants:
@@ -314,27 +311,26 @@ class ABCDExporter(object):
             nplants = db.Session().query(Plant).count()
 
         if nplants > 3000:
-            msg = _('You are exporting %(nplants)s plants to ABCD format.  ' \
-                    'Exporting this many plants may take several minutes.  '\
+            msg = _('You are exporting %(nplants)s plants to ABCD format.  '
+                    'Exporting this many plants may take several minutes.  '
                     '\n\n<i>Would you like to continue?</i>') \
-                    % ({'nplants': nplants})
+                % ({'nplants': nplants})
             if not utils.yes_no_dialog(msg):
                 return
         self.run(filename, plants)
 
-
     def run(self, filename, plants=None):
-        if filename == None:
+        if filename is None:
             raise ValueError("filename can not be None")
 
         if os.path.exists(filename) and not os.path.isfile(filename):
-            raise ValueError("%s exists and is not a a regular file" \
-                                 % filename)
+            raise ValueError("%s exists and is not a a regular file"
+                             % filename)
 
         # if plants is None then export all plants, this could be huge
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
-        if plants == None:
+        if plants is None:
             plants = db.Session().query(Plant).all()
 
         # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
@@ -369,7 +365,7 @@ class ABCDImexPlugin(pluginmgr.Plugin):
 
 try:
     import lxml.etree as etree
-    import lxml._elementpath # put this here sp py2exe picks it up
+    import lxml._elementpath  # put this here sp py2exe picks it up
     from lxml.etree import Element, SubElement, ElementTree
 except ImportError:
     utils.message_dialog(_('The <i>lxml</i> package is required for the '
