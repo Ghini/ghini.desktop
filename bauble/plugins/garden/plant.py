@@ -476,6 +476,9 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     def search_view_markup_pair(self):
         '''provide the two lines describing object for SearchView row.
         '''
+        import inspect
+        logger.debug('entering search_view_markup_pair %s, %s' % (
+            self, str(inspect.stack()[1:3])))
         sp_str = self.accession.species_str(markup=True)
         dead_color = "#9900ff"
         if self.quantity <= 0:

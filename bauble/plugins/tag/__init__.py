@@ -326,6 +326,9 @@ class Tag(db.Base):
     def search_view_markup_pair(self):
         '''provide the two lines describing object for SearchView row.
         '''
+        import inspect
+        logging.debug('entering search_view_markup_pair %s, %s' % (
+            self, str(inspect.stack()[1])))
         objects = self.objects
         classes = set(type(o) for o in objects)
         if len(classes) == 1:
@@ -343,7 +346,10 @@ class Tag(db.Base):
                     t.__name__ for t in classes))
         first = '%s - <span weight="light">%s</span>' % (
             utils.xml_safe(self), fine_prints)
-        return first, '(%s)' % type(self).__name__
+        second = '(%s) - <span weight="light">%s</span>' % (
+            type(self).__name__,
+            (self.description or '').replace('\n', ' ')[:256])
+        return first, second
 
 
 class TaggedObj(db.Base):
