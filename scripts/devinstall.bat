@@ -25,11 +25,11 @@ IF %SHOULD_CANCEL% NEQ 0 exit /b
 ECHO sanity check passed
 
 IF %1.==. GOTO DEFAULTCHOICE
-set CHECKOUT=bauble-%1
+set CHECKOUT=ghini-%1
 GOTO CONTINUE
 
 :DEFAULTCHOICE
-set CHECKOUT=bauble-1.0
+set CHECKOUT=ghini-1.0
 
 :CONTINUE
 
