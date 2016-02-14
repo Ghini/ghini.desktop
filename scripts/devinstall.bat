@@ -38,24 +38,24 @@ cd "%HOMEDRIVE%%HOMEPATH%"
 
 ECHO installing dependencies
 pip install virtualenv 2>NUL
-virtualenv --system-site-packages .virtualenvs\bacl
+virtualenv --system-site-packages .virtualenvs\ghide
 
 ECHO clearing previous checkouts
 for /F "delims=" %%i in (
-  'dir /b .virtualenvs\bacl\Lib\site-packages\bauble-*egg'
+  'dir /b .virtualenvs\ghide\Lib\site-packages\bauble-*egg'
 ) do (
-  rmdir ".virtualenvs\bacl\Lib\site-packages\""%%i" /s/q
+  rmdir ".virtualenvs\ghide\Lib\site-packages\""%%i" /s/q 2>NUL
 )
 
-ECHO activating the virtual environment
-call .virtualenvs\bacl\Scripts\activate.bat
-pip install --upgrade pip 2>NUL
 ECHO going to checkout %CHECKOUT%
+call .virtualenvs\ghide\Scripts\activate.bat
+pip install --upgrade pip 2>NUL
 mkdir Local\github\Ghini 2>NUL
 cd Local\github\Ghini
-git clone https://github.com/Ghini/ghini.desktop.git 2>NUL
+git clone https://github.com/Ghini/ghini.desktop.git
 cd ghini.desktop
 git checkout %CHECKOUT%
+git pull
 
 ECHO create the program shortcut
 pip install pypiwin32 2>NUL
