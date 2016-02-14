@@ -56,6 +56,10 @@ cd ghini.desktop
 git checkout %CHECKOUT%
 git pull
 
+ECHO create the program shortcut
+pip install pypiwin32 2>NUL
+python scripts\mklnk.py
+
 ECHO going to build and install
 python setup.py build
 python setup.py install
