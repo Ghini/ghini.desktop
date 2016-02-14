@@ -47,8 +47,10 @@ for /F "delims=" %%i in (
   rmdir ".virtualenvs\bacl\Lib\site-packages\""%%i" /s/q
 )
 
-ECHO going to checkout %CHECKOUT%
+ECHO activating the virtual environment
 call .virtualenvs\bacl\Scripts\activate.bat
+pip install --upgrade pip 2>NUL
+ECHO going to checkout %CHECKOUT%
 mkdir Local\github\Ghini 2>NUL
 cd Local\github\Ghini
 git clone https://github.com/Ghini/ghini.desktop.git
@@ -60,6 +62,10 @@ python setup.py build
 python setup.py install
 mkdir "%APPDATA%\Ghini" 2>NUL
 cd "%HOMEPATH%"
+
+ECHO create the program shortcut
+pip install pypiwin32 2>NUL
+python mklnk.py
 
 ECHO create the globalizing script
 IF DEFINED PUBLIC (SET AUDESKTOP=%PUBLIC%\Desktop) & (SET AUSTARTMENU=%PROGRAMDATA%\Microsoft\Windows\Start Menu) ELSE (SET AUDESKTOP=%ALLUSERSPROFILE%\Desktop) & (SET AUSTARTMENU=%ALLUSERSPROFILE%\Start Menu)
