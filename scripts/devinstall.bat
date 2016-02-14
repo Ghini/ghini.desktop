@@ -44,7 +44,7 @@ ECHO clearing previous checkouts
 for /F "delims=" %%i in (
   'dir /b .virtualenvs\ghide\Lib\site-packages\bauble-*egg'
 ) do (
-  rmdir ".virtualenvs\ghide\Lib\site-packages\""%%i" /s/q
+  rmdir ".virtualenvs\ghide\Lib\site-packages\""%%i" /s/q 2>NUL
 )
 
 ECHO going to checkout %CHECKOUT%
@@ -54,6 +54,7 @@ cd Local\github\Ghini
 git clone https://github.com/Ghini/ghini.desktop.git
 cd ghini.desktop
 git checkout %CHECKOUT%
+git pull
 
 ECHO going to build and install
 python setup.py build
