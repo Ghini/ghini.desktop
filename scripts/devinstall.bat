@@ -25,11 +25,11 @@ IF %SHOULD_CANCEL% NEQ 0 exit /b
 ECHO sanity check passed
 
 IF %1.==. GOTO DEFAULTCHOICE
-set CHECKOUT=bauble-%1
+set CHECKOUT=ghini-%1
 GOTO CONTINUE
 
 :DEFAULTCHOICE
-set CHECKOUT=bauble-1.0
+set CHECKOUT=ghini-1.0
 
 :CONTINUE
 
@@ -53,19 +53,19 @@ pip install --upgrade pip 2>NUL
 ECHO going to checkout %CHECKOUT%
 mkdir Local\github\Ghini 2>NUL
 cd Local\github\Ghini
-git clone https://github.com/Ghini/ghini.desktop.git
+git clone https://github.com/Ghini/ghini.desktop.git 2>NUL
 cd ghini.desktop
 git checkout %CHECKOUT%
+
+ECHO create the program shortcut
+pip install pypiwin32 2>NUL
+python scripts\mklnk.py
 
 ECHO going to build and install
 python setup.py build
 python setup.py install
 mkdir "%APPDATA%\Ghini" 2>NUL
 cd "%HOMEPATH%"
-
-ECHO create the program shortcut
-pip install pypiwin32 2>NUL
-python mklnk.py
 
 ECHO create the globalizing script
 IF DEFINED PUBLIC (SET AUDESKTOP=%PUBLIC%\Desktop) & (SET AUSTARTMENU=%PROGRAMDATA%\Microsoft\Windows\Start Menu) ELSE (SET AUDESKTOP=%ALLUSERSPROFILE%\Desktop) & (SET AUSTARTMENU=%ALLUSERSPROFILE%\Start Menu)
