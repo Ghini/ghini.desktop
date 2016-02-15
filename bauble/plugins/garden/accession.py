@@ -578,7 +578,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                      default=None)
 
     sp_qual = Column(types.Enum(values=dict(itf2.acc_spql).keys()),
-                     default=u'')
+                     default=None)
 
     # "private" new in 0.8b2
     private = Column(Boolean, default=False)
