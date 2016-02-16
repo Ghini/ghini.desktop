@@ -978,14 +978,13 @@ class SearchView(pluginmgr.View):
         return model
 
     def cell_data_func(self, col, cell, model, treeiter):
+        # start with a (redundant) check, whether the cell is visible.
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
         cell_rect = self.results_view.get_cell_area(path, col)
         if cell_rect.y > tree_rect.height:
-            # only update the cells if they're visible...this
-            # drastically speeds up populating the view with large
-            # datasets
             return
+        # now update the the cell
         value = model[treeiter][0]
         if isinstance(value, basestring):
             cell.set_property('markup', value)
@@ -994,7 +993,7 @@ class SearchView(pluginmgr.View):
             # view's session so that we can access its child
             # properties...this usually happens when one of the
             # ViewMeta's get_children() functions return a list of
-            # object who's session was closed...we add it here for
+            # object whose session was closed...we add it here for
             # performance reasons so we only add it once it's visible
             if not object_session(value):
                 if value in self.session:
