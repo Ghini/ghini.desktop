@@ -33,7 +33,7 @@ if [ "$PROBLEMS" != "" ]; then
     exit 1
 fi
 
-if [ -d $HOME/Local/github/Ghini/ghini.desktop ]
+if [ -d $HOME/Local/github/Ghini/ghini.desktop/.git ]
 then
     echo "ghini checkout already in place"
     cd $HOME/Local/github/Ghini/ghini.desktop
