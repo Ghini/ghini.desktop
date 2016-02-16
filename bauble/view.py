@@ -1374,6 +1374,7 @@ class HistoryView(pluginmgr.View):
                 ('vernacular_name', 'species', 'species_id'),
                 ('default_vernacular_name', 'species', 'species_id'),
                 ('plant_change', 'plant', 'plant_id'),
+                ('source_detail', 'contact', 'id'),
                 ]:
             if table == table_name:
                 table = equivalent
