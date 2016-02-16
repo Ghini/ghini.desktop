@@ -14,14 +14,14 @@ what is Ghini (desktop)
 ------------------------
 
 Ghini was born as Bauble at the Belize Botanic Gardens, At its heart it is a
-framework for creating database applications.  In their distributed form
-Bauble and Ghini are applications to manage plant records and specifically
-living collections.  Either as Ghini or Bauble, the software is used among
-others by Belize Botanic Gardens, the Jardín Botánico de Quito, the Mackay
-Regional Botanical Garden, to manage their live collections.  Included by
-default is RBG Kew's Family and Genera list from Vascular Plant Families and
-Genera compiled by R. K. Brummitt and published by the Royal Botanic
-Gardens, Kew in 1992 used by permission from RBG Kew.
+framework for creating database applications.  In its distributed form Ghini
+is an application to manage plant records and specifically living
+collections.  Either as Ghini or Bauble, the software is used among others
+by Belize Botanic Gardens, the Jardín Botánico de Quito, the Mackay Regional
+Botanical Garden, to manage their live collections.  Included by default is
+RBG Kew's Family and Genera list from Vascular Plant Families and Genera
+compiled by R. K. Brummitt and published by the Royal Botanic Gardens, Kew
+in 1992 used by permission from RBG Kew.
 
 All code contained as part of the Bauble package is licenced under
 the GNU GPLv2+.
@@ -29,21 +29,31 @@ the GNU GPLv2+.
 Terms and Names
 ---------------
 
-This file describes 'ghini.desktop', a standalone application. Until 2015
-'ghini.desktop' was known as 'Bauble/bauble.classic'. Ghini and Bauble are
-two github organizations. The current maintainer of Ghini forked development
-from Bauble into Ghini mostly because of his difficulty in pronouncing
-"bauble" and in explaining why the software was named that way.
+When it was born, around 2004, Bauble was a desktop application, and the
+name Bauble used to indicate the software and the organization behind it.
+More recently the original author of Bauble is rewriting Bauble as a web
+application and with the possibility to install it as a desktop program.  In
+order to avoid confusion between the new ``bauble.web`` program, its
+perspective ``bauble.desktop`` desktop version, the stable and still current
+desktop application ``bauble.classic`` and its corresponding node.js web
+based prototype ``mfrasca/ghini``, we have split development in two separate
+organizations: Ghini and Bauble.
 
-Luca Ghini was the founder of the botanical garden of Pisa, and Pisa is the
-place where the current maintainer Mario Frasca has completed his studies in
-computer science.
+please check the Bauble site for further details about it.
 
-Within the Ghini organization, you will find 'ghini.desktop', this program,
-'ghini.github.io', the sources for the ghini website, 'ghini.geoweb', a very
-very alpha quality thing which still did not formalize.
+Within the Ghini organization
 
-Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
+- ``ghini.desktop`` is the new name of the stable and well established
+  software previously distributed as ``bauble.classic``. ``ghini.desktop``
+  is Ghini's flagship, it is a GTK+ desktop application and it is described
+  here.
+- ``ghini.web`` is the name for the geographic and web interface to a
+  ``ghini.desktop`` PostgreSQL database.
+- ``ghini.github.io`` contains the sources for the ghini web site.
+
+The name _Ghini_ is to honour Luca Ghini, the founder of the botanical
+garden of Pisa, and Pisa is the place where the current maintainer Mario
+Frasca has completed his studies in computer science.
 
 Requirements
 ------------
@@ -69,7 +79,7 @@ Further info
 ------------
 
 The complete documentation for ghini.desktop is to be found at
-http://bauble.readthedocs.org. It includes detailed and up-to-date
+http://ghini.readthedocs.org. It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 
