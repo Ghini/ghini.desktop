@@ -3,7 +3,7 @@
 Editing and Inserting Data
 ==========================
 
-The main way that we add or change information in Bauble is by using
+The main way that we add or change information in Ghini is by using
 the editors.  Each basic type of data has its own editor.  For example
 there is a Family editor, a Genus editor, an Accession editor, etc.
 
@@ -24,7 +24,7 @@ on a Family and selecting "Add genus".
 
 Notes
 -----
-Almost all of the editors in Bauble have a *Notes* tab which should work
+Almost all of the editors in Ghini have a *Notes* tab which should work
 the same regardless of which editor you are using.  
 
 If you enter a web address in a note then the link will show up in the
@@ -127,7 +127,7 @@ Accessions
 ----------
 
 The Accession editor allows us to add an accession to a species.  In
-Bauble an accession represents a group of plants or clones.  The
+Ghini an accession represents a group of plants or clones.  The
 accession would refer maybe a group of seed or cuttings from a
 species.  A plant would be an individual from that accesssion, i.e. a
 specific plant in a specific location.
@@ -173,7 +173,7 @@ plants that are created.
 Pictures
 ^^^^^^^^
 
-Just as almost all objects in the Bauble database can have *Notes*
+Just as almost all objects in the Ghini database can have *Notes*
 associated to them, Plants can have *Pictures*: next to the tab for Notes,
 the Plants editor contains an extra tab called "Pictures". You can associate
 as many pictures as you might need to a plant.
@@ -182,9 +182,9 @@ When you associate a picture to a plant, the file is copied in the
 *pictures* folder, and a miniature (500x500) is generated and copied in the
 `thumbnails` folder inside of the pictures folder.
 
-As of Bauble-1.0.41, Pictures are not kept in the database. To ensure
+As of Ghini-1.0.58, Pictures are not kept in the database. To ensure
 pictures are available on all terminals where you have installed and
-configured Bauble, you can use a file sharing service like Copy or
+configured Ghini, you can use a file sharing service like Copy or
 Dropbox. The personal choice of the writer of this document is to use Copy,
 because it offers much more space and because of its "Fair Storage" policy.
 

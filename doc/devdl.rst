@@ -1,13 +1,13 @@
 Downloading the source
 ======================
 
-The Bauble source can be downloaded from our source
-repository on `github <http://github.com/Bauble/bauble.classic>`_.
+The Ghini source can be downloaded from our source
+repository on `github <http://github.com/Ghini/ghini.desktop>`_.
 
-If you want a particular version of Bauble, we release and maintain versions
+If you want a particular version of Ghini, we release and maintain versions
 into branches. You should ``git checkout`` the branch corresponding to the
-version of your choice. Branch names for Bauble versions are of the form
-``bauble-x.y``, where x.y can be 1.0, for example. Our workflow is to commit
+version of your choice. Branch names for Ghini versions are of the form
+``ghini-x.y``, where x.y can be 1.0, for example. Our workflow is to commit
 to the `master` development branch or to a `patch` branch and to include the
 commits into a `release` branch when ready.
 
@@ -16,13 +16,13 @@ to install the `Git <http://www.git.org>`_ version control system. Git is
 incuded in all reasonable Linux distributions and can be installed on all
 current operating systems.
 
-Once you have installed Git you can checkout the latest Bauble code with
+Once you have installed Git you can checkout the latest Ghini code with
 the following command::
 
-        git clone https://github.com/Bauble/bauble.classic.git
+        git clone https://github.com/Ghini/ghini.desktop.git
 
 For more information about other available code branches go to
-`bauble.classic on github <http://www.github.com/Bauble/bauble.classic>`_.
+`ghini.desktop on github <http://www.github.com/Ghini/ghini.desktop>`_.
 
 
 Development Workflow
@@ -31,8 +31,8 @@ Development Workflow
 production line
 -----------------
 
-A bauble production line is a branch. Currently there is only one production
-line, that is bauble-1.0.  In perspective, we will have several one, each in
+A ghini production line is a branch. Currently there is only one production
+line, that is ghini-1.0.  In perspective, we will have several one, each in
 use by one or more gardens.
 
 As long as we have only one production line, I keep working on the master
@@ -45,7 +45,7 @@ batches of simple issues
 For issues that can be managed in one or two commits, and as long as there's
 no other activity on the repository, work on the master branch, accumulate
 issue-solving commits, finally merge master into the production line
-bauble-1.0.
+ghini-1.0.
 
 larger issues
 ---------------
@@ -69,7 +69,7 @@ when ready for publication, merge master into the production line.
 Adding missing unit tests
 ====================================
 
-If you are interested contributing to development of Bauble, a good way to
+If you are interested contributing to development of Ghini, a good way to
 do so would be by helping us finding and writing the missing unit tests.
 
 A well tested function is one whose behaviour you cannot change without
@@ -314,11 +314,11 @@ And at the end of the process you want to update the statistics::
 Plugins structure
 =============================
 
-Bauble is a framework for handling collections, and is distributed along
-with a set of plugins making Bauble a botanical collection manager. But
-Bauble stays a framework and you could in theory remove all plugins we
+Ghini is a framework for handling collections, and is distributed along
+with a set of plugins making Ghini a botanical collection manager. But
+Ghini stays a framework and you could in theory remove all plugins we
 distribute and write your own, or write your own plugins that extend or
-complete the current Bauble behaviour.
+complete the current Ghini behaviour.
 
 Once you have selected and opened a database connection, you land in the
 Search window. The Search window is an interaction between two objects:
@@ -332,7 +332,7 @@ The search results shown in the largest part of SV are rows, objects that
 are instances of classes registered in a plugin.
 
 Each of these classes must implement an amount of functions in order to
-properly behave within the Bauble framework. The Bauble framework reserves
+properly behave within the Ghini framework. The Ghini framework reserves
 space to pluggable classes.
 
 SP knows of all registered (plugged in) classes, they are stored in a

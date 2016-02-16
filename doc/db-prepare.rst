@@ -11,5 +11,5 @@ PostgreSQL - scalable choice
 
 allow network connections
 
-create the bauble main user
+create the ghini main user
 

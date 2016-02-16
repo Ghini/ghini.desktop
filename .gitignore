@@ -75,6 +75,7 @@ scripts/map2db.py
 scripts/tomongo.py
 scripts/what_are_the_problems.py
 scripts/what_is_available.py
+scripts/ghini.lnk
 bauble/test/test_search2.py
 bauble/multiple-orig.py 
 bauble/multiple.py

@@ -261,7 +261,6 @@ class PlantNote(db.Base, db.Serializable):
         return result
 
 
-# TODO: some of these reasons are specific to UBC and could probably be culled.
 change_reasons = {
     u'DEAD': _('Dead'),
     u'DISC': _('Discarded'),

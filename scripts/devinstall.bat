@@ -25,11 +25,11 @@ IF %SHOULD_CANCEL% NEQ 0 exit /b
 ECHO sanity check passed
 
 IF %1.==. GOTO DEFAULTCHOICE
-set CHECKOUT=bauble-%1
+set CHECKOUT=ghini-%1
 GOTO CONTINUE
 
 :DEFAULTCHOICE
-set CHECKOUT=bauble-1.0
+set CHECKOUT=ghini-1.0
 
 :CONTINUE
 
@@ -38,22 +38,28 @@ cd "%HOMEDRIVE%%HOMEPATH%"
 
 ECHO installing dependencies
 pip install virtualenv 2>NUL
-virtualenv --system-site-packages .virtualenvs\bacl
+virtualenv --system-site-packages .virtualenvs\ghide
 
 ECHO clearing previous checkouts
 for /F "delims=" %%i in (
-  'dir /b .virtualenvs\bacl\Lib\site-packages\bauble-*egg'
+  'dir /b .virtualenvs\ghide\Lib\site-packages\bauble-*egg'
 ) do (
-  rmdir ".virtualenvs\bacl\Lib\site-packages\""%%i" /s/q
+  rmdir ".virtualenvs\ghide\Lib\site-packages\""%%i" /s/q 2>NUL
 )
 
 ECHO going to checkout %CHECKOUT%
-call .virtualenvs\bacl\Scripts\activate.bat
+call .virtualenvs\ghide\Scripts\activate.bat
+pip install --upgrade pip 2>NUL
 mkdir Local\github\Ghini 2>NUL
 cd Local\github\Ghini
 git clone https://github.com/Ghini/ghini.desktop.git
 cd ghini.desktop
 git checkout %CHECKOUT%
+git pull
+
+ECHO create the program shortcut
+pip install pypiwin32 2>NUL
+python scripts\mklnk.py
 
 ECHO going to build and install
 python setup.py build

@@ -758,6 +758,67 @@ class SearchTests(BaubleTestCase):
         self.assertEqual(results, set([sp]))
 
 
+class InOperatorSearch(BaubleTestCase):
+    def __init__(self, *args):
+        super(InOperatorSearch, self).__init__(*args)
+
+    def setUp(self):
+        super(InOperatorSearch, self).setUp()
+        db.engine.execute('delete from genus')
+        db.engine.execute('delete from family')
+        from bauble.plugins.plants.family import Family
+        from bauble.plugins.plants.genus import Genus
+        self.family = Family(epithet=u'family1', id=1)
+        self.g1 = Genus(family=self.family, epithet=u'genus1', id=1)
+        self.g2 = Genus(family=self.family, epithet=u'genus2', id=2)
+        self.g3 = Genus(family=self.family, epithet=u'genus3', id=3)
+        self.g4 = Genus(family=self.family, epithet=u'genus4', id=4)
+        self.Family = Family
+        self.Genus = Genus
+        self.session.add_all([self.family, self.g1, self.g2, self.g3, self.g4])
+        self.session.commit()
+
+    def test_in_singleton(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where id in 1'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.g1]))
+
+    def test_in_list(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where id in 1,2,3'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.g1, self.g2, self.g3]))
+
+    def test_in_list_no_result(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where id in 5,6'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set())
+
+    def test_in_composite_expression(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where id in 1,2 or id>8'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.g1, self.g2]))
+
+    def test_in_composite_expression_excluding(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where id in 1,2,4 and id<3'
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.g1, self.g2]))
+
+
 class BinomialSearchTests(BaubleTestCase):
     def __init__(self, *args):
         super(BinomialSearchTests, self).__init__(*args)

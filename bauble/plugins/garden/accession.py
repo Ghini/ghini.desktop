@@ -369,51 +369,6 @@ class AccessionMapperExtension(MapperExtension):
         instance.invalidate_str_cache()
         return EXT_CONTINUE
 
-
-# ITF2 - E.1; Provenance Type Flag; Transfer code: prot
-prov_type_values = [
-    (u'Wild', _('Accession of wild source')),  # W
-    (u'Cultivated', _('Propagule(s) from a wild source plant')),  # Z
-    (u'NotWild', _("Accession not of wild source")),  # G
-    (u'Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
-    (u'InsufficientData', _("Insufficient Data")),  # U
-    (u'Unknown', _("Unknown")),  # COLLAPSE INTO U
-    (None, ''),  # do not transfer this field
-    ]
-
-# ITF2 - E.3; Wild Provenance Status Flag; Transfer code: wpst
-#  - further specifies the W and Z prov type flag
-#
-# according to the ITF2, the keys should literally be one of: 'Wild native',
-# 'Wild non-native', 'Cultivated native', 'Cultivated non-native'.  In
-# practice the standard just requires we note whether a wild (a cultivated
-# propagule Z or the one directly collected W) plant is native or not to the
-# place where it was found. a boolean should suffice, exporting will expand
-# to and importing will collapse from the standard value. Giving all four
-# options after the user has already selected W or Z works only confusing to
-# user not familiar with ITF2 standard.
-wild_prov_status_values = [
-    # Endemic found within indigenous range
-    (u'WildNative', _("Wild native")),
-    # found outside indigenous range
-    (u'WildNonNative', _("Wild non-native")),
-    # Endemic, cultivated, reintroduced or translocated within its
-    # indigenous range
-    (u'CultivatedNative', _("Cultivated native")),
-
-    # MISSING cultivated, found outside its indigenous range
-    # (u'CultivatedNonNative', _("Cultivated non-native"))
-
-    # TO REMOVE:
-    (u'Impound', _("Impound")),
-    (u'Collection', _("Collection")),
-    (u'Rescue', _("Rescue")),
-    (u'InsufficientData', _("Insufficient Data")),
-    (u'Unknown', _("Unknown")),
-
-    # Not transferred
-    (None, '')]
-
 # not ITF2
 # - further specifies the Z prov type flag value
 cultivated_prov_status_values = [
@@ -529,14 +484,14 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             the provenance type
 
             Possible values:
-                * first column of prov_type_values
+                * first column of itf2.prot_dict
 
         *wild_prov_status*:  :class:`bauble.types.Enum`
             this column can be used to give more provenance
             information
 
             Possible values:
-                * union of first columns of wild_prov_status_values,
+                * union of first columns of itf2.wpst_dict,
                 * purchase_prov_status_values,
                 * cultivated_prov_status_values
 
@@ -596,13 +551,13 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
             return None
         return value.strip()
 
-    prov_type = Column(types.Enum(values=[i[0] for i in prov_type_values],
-                                  translations=dict(prov_type_values)),
+    prov_type = Column(types.Enum(values=[i[0] for i in itf2.prot_dict],
+                                  translations=dict(itf2.prot_dict)),
                        default=None)
 
     wild_prov_status = Column(
-        types.Enum(values=[i[0] for i in wild_prov_status_values],
-                   translations=dict(wild_prov_status_values)),
+        types.Enum(values=[i[0] for i in itf2.wpst_dict],
+                   translations=dict(itf2.wpst_dict)),
         default=None)
 
     date_accd = Column(types.Date)
@@ -623,7 +578,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                      default=None)
 
     sp_qual = Column(types.Enum(values=dict(itf2.acc_spql).keys()),
-                     default=u'')
+                     default=None)
 
     # "private" new in 0.8b2
     private = Column(Boolean, default=False)
@@ -851,11 +806,11 @@ class AccessionEditorView(editor.GenericEditorView):
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
-                           ', '.join(i[1] for i in prov_type_values)),
+                           ', '.join(i[1] for i in itf2.prot_dict)),
         'acc_wild_prov_combo': (_('The wild status is used to clarify the '
                                   'provenance.\n\nPossible values: %s') %
                                 ', '.join(i[1]
-                                          for i in wild_prov_status_values)),
+                                          for i in itf2.wpst_dict)),
         'acc_private_check': _('Indicates whether this accession record '
                                'should be considered private.'),
         'acc_cancel_button': _('Cancel your changes.'),
@@ -896,9 +851,9 @@ class AccessionEditorView(editor.GenericEditorView):
             model.append([abbr])
         completion.set_model(model)
 
-        self.init_translatable_combo('acc_prov_combo', prov_type_values)
+        self.init_translatable_combo('acc_prov_combo', itf2.prot_dict)
         self.init_translatable_combo('acc_wild_prov_combo',
-                                     wild_prov_status_values)
+                                     itf2.wpst_dict)
         self.init_translatable_combo('acc_recvd_type_comboentry',
                                      recvd_type_values)
         adjustment = self.widgets.source_sw.get_vadjustment()
@@ -2161,11 +2116,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         self.view.widget_set_value(
             'acc_wild_prov_combo',
-            dict(wild_prov_status_values)[self.model.wild_prov_status],
+            dict(itf2.wpst_dict)[self.model.wild_prov_status],
             index=1)
         self.view.widget_set_value(
             'acc_prov_combo',
-            dict(prov_type_values)[self.model.prov_type],
+            dict(itf2.prot_dict)[self.model.prov_type],
             index=1)
         self.view.widget_set_value(
             'acc_recvd_type_comboentry',
@@ -2469,10 +2424,10 @@ class GeneralAccessionExpander(InfoExpander):
             quantity_str = row.quantity_recvd
         self.widget_set_value('quantity_recvd_data', quantity_str)
 
-        prov_str = dict(prov_type_values)[row.prov_type]
+        prov_str = dict(itf2.prot_dict)[row.prov_type]
         if row.prov_type == u'Wild' and row.wild_prov_status:
             prov_str = '%s (%s)' % \
-                (prov_str, dict(wild_prov_status_values)[row.wild_prov_status])
+                (prov_str, dict(itf2.wpst_dict)[row.wild_prov_status])
         self.widget_set_value('prov_data', prov_str, False)
 
         image_size = gtk.ICON_SIZE_MENU

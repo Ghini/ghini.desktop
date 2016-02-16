@@ -1,7 +1,7 @@
 Importing and Exporting Data
 ============================
 
-Although Bauble can be extended through plugins to support alternate
+Although Ghini can be extended through plugins to support alternate
 import and export formats, by default it can only import and export
 comma seperated values files or CSV.
 
@@ -18,11 +18,11 @@ Exporting ABCD and XML will not be covered here.
 
 Importing from CSV
 ------------------
-In general it is best to only import CSV files into Bauble that were
-previously exported from Bauble. It is possible to import any CSV file
+In general it is best to only import CSV files into Ghini that were
+previously exported from Ghini. It is possible to import any CSV file
 but that is more advanced that this doc will cover.
 
-To import CSV files into Bauble select
+To import CSV files into Ghini select
 :menuselection:`Tools-->Export-->Comma Seperated Values` from the
 menu.
 
@@ -34,11 +34,11 @@ files you want to import.
 Exporting to CSV
 ----------------
 
-To export the Bauble data to CSV select
+To export the Ghini data to CSV select
 :menuselection:`Tools-->Export-->Comma Seperated Values` from the menu.
 
 This tool will ask you to select a directory to export the CSV data.
-All of the tables in Bauble will be exported to files in the format
+All of the tables in Ghini will be exported to files in the format
 tablename.txt where tablename is the name of the table where the data
 was exported from.
 
@@ -47,13 +47,13 @@ Importing from JSON
 
 This is *the* way to import data into an existing database, without
 destroying previous content. A typical example of this functionality would
-be importing your digital collection into a fresh, just initialized Bauble
-database. Converting a database into bauble json interchange format is
+be importing your digital collection into a fresh, just initialized Ghini
+database. Converting a database into ghini json interchange format is
 beyond the scope of this manual, please contact one of the authors if you
 need any further help.
 
-Using the Bauble json interchange format, you can import data which you have
-exported from a different Bauble installation.
+Using the Ghini json interchange format, you can import data which you have
+exported from a different Ghini installation.
 
 Exporting to JSON
 -----------------

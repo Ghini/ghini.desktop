@@ -121,6 +121,7 @@ class TypedValueToken(ValueABC):
                    }
 
     def __init__(self, t):
+        logger.debug('constructing typedvaluetoken %s' % str(t))
         try:
             constructor, converter = self.constructor[t[1]]
         except KeyError:
@@ -193,7 +194,7 @@ class IdentExpression(object):
             'ilike': lambda x, y: utils.ilike(x, '%s' % y),
             'icontains': lambda x, y: utils.ilike(x, '%%%s%%' % y),
             'ihas': lambda x, y: utils.ilike(x, '%%%s%%' % y),
-            }[self.op]
+            }.get(self.op)
         self.operands = t[0][0::2]  # every second object is an operand
 
     def __repr__(self):
@@ -213,6 +214,14 @@ class IdentExpression(object):
 
     def needs_join(self, env):
         return [self.operands[0].needs_join(env)]
+
+
+class ElementSetExpression(IdentExpression):
+    # currently only implements `in`
+
+    def evaluate(self, env):
+        q, a = self.operands[0].evaluate(env)
+        return q.filter(a.in_(self.operands[1].express()))
 
 
 class AggregatedExpression(IdentExpression):
@@ -596,6 +605,7 @@ class SearchParser(object):
     domain = Word(alphas, alphanums)
     binop = oneOf('= == != <> < <= > >= not like contains has ilike '
                   'icontains ihas is')
+    binop_set = oneOf('in')
     equals = Literal('=')
     star_value = Literal('*')
     domain_values = (value_list.copy())('domain_values')
@@ -625,8 +635,10 @@ class SearchParser(object):
                   ).setParseAction(AggregatingAction)
     ident_expression = (Group(identifier + binop + value
                               ).setParseAction(IdentExpression)
+                        | Group(identifier + binop_set + value_list
+                                ).setParseAction(ElementSetExpression)
                         | Group(aggregated + binop + value
-                              ).setParseAction(AggregatedExpression)
+                                ).setParseAction(AggregatedExpression)
                         | (Literal('(') + query_expression + Literal(')')
                            ).setParseAction(ParenthesisedQuery))
     between_expression = Group(
