@@ -478,7 +478,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         '''
         import inspect
         logger.debug('entering search_view_markup_pair %s, %s' % (
-            self, str(inspect.stack()[1:3])))
+            self, str(inspect.stack()[1])))
         sp_str = self.accession.species_str(markup=True)
         dead_color = "#9900ff"
         if self.quantity <= 0:
