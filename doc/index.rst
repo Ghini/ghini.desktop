@@ -1,11 +1,11 @@
-Documentation for Bauble 1.0
+Documentation for Ghini 1.0
 ############################
 
-.. image:: https://travis-ci.org/Bauble/bauble.classic.svg?branch=bauble-1.0
+.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0
 .. image:: https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg
-.. image:: https://coveralls.io/repos/Bauble/bauble.classic/badge.svg?branch=master&service=github :target: https://coveralls.io/github/Bauble/bauble.classic?branch=master 
+.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=master 
 
-Bauble is an application for managing botanical specimen collections.
+Ghini is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
 
 It is `open <http://www.opensource.org>`_ and `free <http://www.fsf.org>`_
@@ -22,7 +22,7 @@ Statements
    peptalk
    statements
 
-Installing Bauble
+Installing Ghini
 =================
 
 .. toctree::
@@ -31,7 +31,7 @@ Installing Bauble
    installing
 
 
-Using Bauble
+Using Ghini
 ============
 
 .. toctree::
@@ -55,7 +55,7 @@ Administration
    administration
 
 
-Bauble Development
+Ghini Development
 ==================
 
 .. toctree::
@@ -66,12 +66,12 @@ Bauble Development
    extending
    api
 
-Supporting Bauble
+Supporting Ghini
 =================
 
 .. image:: https://pledgie.com/campaigns/29188.png
 
-If you're using Bauble, or if you feel like helping its development anyway, 
+If you're using Ghini, or if you feel like helping its development anyway, 
 please consider `donating <https://pledgie.com/campaigns/29188>`_
 
 

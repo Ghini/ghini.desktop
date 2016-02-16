@@ -1,20 +1,20 @@
 Developer's Manual
 ========================
 
-helping bauble development
+helping ghini development
 --------------------------
 
-Installing Bauble always includes downloading the sources, connected to the
+Installing Ghini always includes downloading the sources, connected to the
 github repository. This is so because in our eyes, every user is always
 potentially also a developer.
 
-If you want to contribute to Bauble, you can do so in quite a few different ways:
+If you want to contribute to Ghini, you can do so in quite a few different ways:
 
  * use the software, note the things you don't like, open issue for each of them. a developer will react.
  * if you have an idea of what you miss in the software but can't quite
    formalize it into separate issues, you could consider hiring a
    professional. this is the best way to make sure that something happens
-   quickly on Bauble. do make sure the developer opens issues and publishes
+   quickly on Ghini. do make sure the developer opens issues and publishes
    their contribution on github.
  * translate! any help with translations will be welcome, so please do! you
    can do this without installing anything on your computer, just using the

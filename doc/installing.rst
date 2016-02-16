@@ -1,21 +1,21 @@
 Introduction
 -----------------------
 
-bauble.classic is a cross-platform program and it will run on unix machines
+ghini.desktop is a cross-platform program and it will run on unix machines
 like Linux and MacOSX, as well as on Windows.
 
-To install Bauble first requires that you install its dependencies that
+To install Ghini first requires that you install its dependencies that
 cannot be installed automatically.  These include virtualenvwrapper, PyGTK
 and pip. Python and GTK+, you probably already have. As long as you have
-these packages installed then Bauble should be able to install the rest of
+these packages installed then Ghini should be able to install the rest of
 its dependencies by itself.
 
-.. note:: If you follow these installation steps, you will end with Bauble
+.. note:: If you follow these installation steps, you will end with Ghini
           running within a Python virtual environment, all Python
           dependencies installed locally, non conflicting with any other
           Python program you may have on your system.
 
-          if you later choose to remove Bauble, you simply remove the
+          if you later choose to remove Ghini, you simply remove the
           virtual environment, which is a directory, with all of its
           content.
 
@@ -24,7 +24,7 @@ Installing on Linux
 
 #. Download the `devinstall.sh` script and run it::
 
-     https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.sh
+     https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.sh
 
    Please not that the script will not help you install any extra database
    connector. This you will do in a later step.
@@ -32,23 +32,23 @@ Installing on Linux
    You can study the script to see what steps if runs for you. In short it
    will install dependencies which can't be satisfied in a virtual
    environment, then it will create a virtual environment named `bacl`,
-   download the sources and connect your git checkout to the `bauble-1.0`
-   branch (this you can consider a production line), it then builds bauble,
+   download the sources and connect your git checkout to the `ghini-1.0`
+   branch (this you can consider a production line), it then builds ghini,
    downloading all remaining dependencies, and finally it creates a startup
    script in your `~/bin` folder.
 
-   If the script ends without error, you can now start bauble::
+   If the script ends without error, you can now start ghini::
 
-     ~/bin/bauble
+     ~/bin/ghini
 
-   or update bauble to the latest released production patch::
+   or update ghini to the latest released production patch::
 
-     ~/bin/bauble -u
+     ~/bin/ghini -u
 
    The same script you can use to switch to a different production line, but
-   at the moment there's only `bauble-1.0`.
+   at the moment there's only `ghini-1.0`.
 
-#. on Unity, open a terminal, start bauble, its icon will show up in the
+#. on Unity, open a terminal, start ghini, its icon will show up in the
    launcher, you can now `lock to launcher` it.
 
 #. If you would like to use the default `SQLite <http://sqlite.org/>`_
@@ -82,7 +82,7 @@ immediately preceding release are kept up-to-date by Apple-the-firm.
 
 Last time we tested, some of the dependencies could not be installed on
 MacOSX 10.5 and we assume similar problems would present themselves on older
-OSX versions.  Bauble has been successfully tested with 10.7 and 10.9.
+OSX versions.  Ghini has been successfully tested with 10.7 and 10.9.
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
@@ -118,7 +118,7 @@ script for it. Read the above Linux instructions, follow them, enjoy.
 Installing on Windows
 ---------------------
 
-The current maintainer of bauble.classic has no interest in learning how to
+The current maintainer of ghini.desktop has no interest in learning how to
 produce Windows installers, so the Windows installation is here reduced to
 the same installation procedure as on Unix (Linux and MacOSX).
 
@@ -127,10 +127,10 @@ particular by other Windows users.
 
 The steps described here instruct you on how to install Git, Gtk, Python,
 and the python database connectors. With this environment correctly set up,
-the Bauble installation procedure runs as on Linux. The concluding steps are
+the Ghini installation procedure runs as on Linux. The concluding steps are
 again Windows specific.
 
-.. note:: Bauble has been tested with and is known to work on W-XP, W-7 and
+.. note:: Ghini has been tested with and is known to work on W-XP, W-7 and
    W-8. Although it should work fine on other versions Windows it has not
    been thoroughly tested.
 
@@ -165,9 +165,9 @@ The installation steps on Windows:
 
    `Direct link to download Python`_
 
-   Bauble has been developed and tested using Python 2.x.  It will
+   Ghini has been developed and tested using Python 2.x.  It will
    definitely **not** run on Python 3.x.  If you are interested in helping
-   port to Python 3.x, please contact the Bauble maintainers.
+   port to Python 3.x, please contact the Ghini maintainers.
 
    when installing Python, do put Python in the PATH:
 
@@ -217,16 +217,16 @@ The installation steps on Windows:
 
 #. download and run (from ``\system32\cmd.exe``) the batch file:
 
-    https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/devinstall.bat
+    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.bat
 
    right before you hit the enter key to run the script, your screen might
    look like something like this:
 
    .. image:: images/screenshots/sys32cmd-1.png
 
-   this will pull the ``bauble.classic`` repository on github to your home
-   directory, under ``Local\github\Bauble``, checkout the ``bauble-1.0``
-   production line, create a virtual environment and install bauble into it.
+   this will pull the ``ghini.desktop`` repository on github to your home
+   directory, under ``Local\github\Ghini``, checkout the ``ghini-1.0``
+   production line, create a virtual environment and install ghini into it.
 
    you can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
@@ -237,7 +237,7 @@ The installation steps on Windows:
    the operation can take several minutes to complete, depending on the
    speed of your internet connection.
 
-#. the last installation step creates the Bauble group and shortcuts in the
+#. the last installation step creates the Ghini group and shortcuts in the
    Windows Start Menu, for all users. To do so, you need run a script with
    administrative rights. The script is called ``devinstall-finalize.bat``,
    it is right in your HOME folder, and has been created at the previous
@@ -245,21 +245,21 @@ The installation steps on Windows:
 
    right-click on it, select run as administrator, confirm you want it to
    make changes to your computer. These changes are in the Start Menu only:
-   create the Bauble group, place the Bauble shortcut.
+   create the Ghini group, place the Ghini shortcut.
 
 #. download the batch file you will use to stay up-to-date with the
    production line you chose to follow:
 
-    https://raw.githubusercontent.com/Bauble/bauble.classic/master/scripts/bauble-update.bat
+    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/ghini-update.bat
 
-   if you are on a recent Bauble installation, each time you start the
-   program, Bauble will check on the development site and alert you of any
-   newer bauble release within your chosen production line.
+   if you are on a recent Ghini installation, each time you start the
+   program, Ghini will check on the development site and alert you of any
+   newer ghini release within your chosen production line.
 
    any time you want to update your installation, just start the command
-   prompt and run ``bauble-update.bat``
+   prompt and run ``ghini-update.bat``
 
-If you would like to generate and print PDF reports using Bauble's
+If you would like to generate and print PDF reports using Ghini's
 default report generator then you will need to download and install
 `Apache FOP <http://xmlgraphics.apache.org/fop/>`_. After extracting
 the FOP archive you will need to include the directory you extracted
