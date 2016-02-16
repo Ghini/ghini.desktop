@@ -279,9 +279,31 @@ class Tag(db.Base):
     def markup(self):
         return '%s Tag' % self.tag
 
+    __my_own_timestamp = None
+    __last_objects = None
+
     @property
     def objects(self):
-        return self.get_tagged_objects()
+        """return all tagged objects
+
+        reuse last result if nothing was changed in the database since
+        list was retrieved.
+        """
+        if self.__my_own_timestamp is not None:
+            # should I update my list?
+            session = object_session(self)
+            last_history = session.query(db.History)\
+                .order_by(db.History.timestamp.desc())\
+                .limit(1).one()
+            if last_history.timestamp > self.__my_own_timestamp:
+                self.__last_objects = None
+        if self.__last_objects is None:
+            # here I update my list
+            from datetime import datetime
+            self.__my_own_timestamp = datetime.now()
+            self.__last_objects = self.get_tagged_objects()
+        # here I return my list
+        return self.__last_objects
 
     def is_tagging(self, obj):
         """tell whether self tags obj
