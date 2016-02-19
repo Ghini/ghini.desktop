@@ -2345,8 +2345,6 @@ from bauble.plugins.plants.species_model import Species, SpeciesSynonym
 # infobox for searchview
 #
 
-# TODO: i don't think this shows all field of an accession, like the
-# accuracy values
 class GeneralAccessionExpander(InfoExpander):
     """
     generic information about an accession like
@@ -2436,18 +2434,18 @@ class GeneralAccessionExpander(InfoExpander):
             stock = gtk.STOCK_YES
         self.widgets.private_image.set_from_stock(stock, image_size)
 
-        for label, attr in []:
-            location_str = ''
-            location = getattr(row, attr)
-            if location:
-                if location.name and location.code:
-                    location_str = '%s (%s)' % (location.name,
-                                                location.code)
-                elif location.name and not location.code:
-                    location_str = '%s' % location.name
-                elif not location.name and location.code:
-                    location_str = '(%s)' % location.code
-            self.widget_set_value(label, location_str)
+        locations = []
+        for location in row.intended_locations:
+            if location.name and location.code:
+                location_str = '%s (%s)' % (location.name,
+                                            location.code)
+            elif location.name and not location.code:
+                location_str = '%s' % location.name
+            elif not location.name and location.code:
+                location_str = '(%s)' % location.code
+            if location_str:
+                locations.append(location_str)
+        self.widget_set_value('intended_loc_data', ',\n'.join(locations))
 
 
 class SourceExpander(InfoExpander):
