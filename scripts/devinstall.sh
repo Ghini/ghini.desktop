@@ -37,6 +37,7 @@ if [ -d $HOME/Local/github/Ghini/ghini.desktop/.git ]
 then
     echo "ghini checkout already in place"
     cd $HOME/Local/github/Ghini/ghini.desktop
+    git pull
 else
     mkdir -p $HOME/Local/github/Ghini >/dev/null 2>&1
     cd $HOME/Local/github/Ghini
