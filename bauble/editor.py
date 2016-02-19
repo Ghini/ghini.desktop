@@ -1030,6 +1030,8 @@ class DontCommitException(Exception):
 
 
 def on_selected_parent(value, model, container, text_entry, callback):
+    """add the selected entry to the model list - see on_set_value.
+    """
     if not isinstance(value, db.Base):
         return
     text_entry.set_text('')
@@ -1041,12 +1043,23 @@ def on_selected_parent(value, model, container, text_entry, callback):
 
 
 def on_remove_clicked(widget, model, container, obj, callback, *args):
+    """remove an item from the list - see on_set_value.
+    """
     model.remove(obj)
     container.set_value(model)
     callback()
 
 
 def on_set_value(items, view, model, container, callback):
+    """update the container based on model value
+
+    model is a list of values, container is a vbox where the first item
+    is a text entry (with smart completion handler), the next a scrolled
+    window, containing a viewport, containing a vbox. this vbox contains
+    hboxes which hold a label (the str representation of a value in the
+    list) and a button that can be used to remove the item.
+
+    """
     # empty the container just keeping the text entry
     scrolledwindow = container.children()[1]
     viewport = scrolledwindow.children()[0]
