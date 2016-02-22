@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # csv convert 1.0 to 1.1
 #
@@ -119,7 +120,7 @@ def do_genus(filename):
 
     for line in reader:
         genus_writer.writerow(
-            [line['id'], line['genus'], line['hybrid'] and u'×' or '',
+            [line['id'], line['genus'], '',
              line['author'], line['qualifier'],
              line['family_id'], line['_created'],
              line['_last_updated']])
@@ -145,7 +146,9 @@ def do_species(filename):
     species_writer.writerow(species_columns)
 
     for line in reader:
-        hybrid_marker = ''
+        hybrid_marker = line['hybrid'] and u'×' or '',
+        if line['sp'] and line['sp'].find(u'×') != -1:
+            hybrid_marker = 'H'
         species_writer.writerow([
             line['id'], line['sp'], hybrid_marker, line['sp_author'],
             line['sp_qual'], line['cv_group'],
@@ -302,10 +305,10 @@ file_map = {
     'default_vernacular_name.txt': copy_file,
     'family_note.txt': copy_file,
     'family_synonym.txt': copy_file,
-    'family.txt': copy_file,
+    'family.txt': do_family,
     'genus_note.txt': copy_file,
     'genus_synonym.txt': copy_file,
-    'genus.txt': copy_file,
+    'genus.txt': do_genus,
     'geography.txt': copy_file,
     'habit.txt': copy_file,
     'history.txt': copy_file,
@@ -325,7 +328,7 @@ file_map = {
     'species_distribution.txt': copy_file,
     'species_note.txt': copy_file,
     'species_synonym.txt': copy_file,
-    'species.txt': copy_file,
+    'species.txt': do_species,
     'tagged_obj.txt': copy_file,
     'tag.txt': copy_file,
     'verification.txt': copy_file,
