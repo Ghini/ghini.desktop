@@ -85,22 +85,6 @@ def create_writer(filename, columns):
     return writer
 
 
-class NoteWriter(object):
-
-    def __init__(self, filename, parent_id_column, id_start=1):
-        self.id_ctr = id_start
-        self.columns = ['id', 'note', 'date', 'user', 'category', '_created',
-                        '_last_updated']
-        self.columns.append(parent_id_column)
-        self.writer = create_writer(filename, self.columns)
-
-    def write(self, note, parent_id, date=dummy_date, category=None):
-        new_note = [self.id_ctr, note, date, None, category, dummy_timestamp,
-                    dummy_timestamp, parent_id]
-        self.writer.writerow(new_note)
-        self.id_ctr += 1
-
-
 def do_family(filename):
     """
     Convert the family.txt
@@ -109,19 +93,13 @@ def do_family(filename):
 
     family_filename = os.path.join(dst_path, 'family.txt')
     family_writer = UnicodeWriter(open(family_filename, "wb"))
-    family_columns = ['id', 'epithet', 'qualifier',
+    family_columns = ['id', 'epithet', 'hybrid_marker', 'author', 'aggregate',
                       '_created', '_last_updated']
     family_writer.writerow(family_columns)
 
-    note_filename = os.path.join(dst_path, 'family_note.txt')
-    note_writer = NoteWriter(note_filename, 'family_id')
-
     for line in reader:
-        note = line.pop('notes')
-        family_writer.writerow([line['id'], line['family'], line['qualifier'],
+        family_writer.writerow([line['id'], line['family'], '', '', '',
                                line['_created'], line['_last_updated']])
-        if note:
-            note_writer.write(note, line['id'])
     print 'converted'
 
 
@@ -134,21 +112,17 @@ def do_genus(filename):
 
     genus_filename = os.path.join(dst_path, 'genus.txt')
     genus_writer = UnicodeWriter(open(genus_filename, "wb"))
-    genus_columns = ['id', 'epithet', 'author', 'hybrid_marker', 'qualifier',
-                     'family_id', '_created', '_last_updated']
+    genus_columns = [
+        'id', 'epithet', 'hybrid_marker', 'author', 'aggregate',
+        'family_id', '_created', '_last_updated']
     genus_writer.writerow(genus_columns)
 
-    note_filename = os.path.join(dst_path, 'genus_note.txt')
-    note_writer = NoteWriter(note_filename, 'genus_id')
-
     for line in reader:
-        note = line.pop('notes')
-        genus_writer.writerow([line['id'], line['genus'], line['hybrid'],
-                               line['author'], line['qualifier'],
-                               line['family_id'], line['_created'],
-                               line['_last_updated']])
-        if note:
-            note_writer.write(note, line['id'])
+        genus_writer.writerow(
+            [line['id'], line['genus'], line['hybrid'] and u'×' or '',
+             line['author'], line['qualifier'],
+             line['family_id'], line['_created'],
+             line['_last_updated']])
     print 'converted'
 
 
@@ -160,51 +134,32 @@ def do_species(filename):
 
     species_filename = os.path.join(dst_path, 'species.txt')
     species_writer = UnicodeWriter(open(species_filename, "wb"))
-    species_columns = ['id', 'epithet', 'author', 'hybrid_marker', 'sp_qual',
-                       'cv_group', 'trade_name', 'infrasp1', 'infrasp1_rank',
-                       'infrasp1_author', 'infrasp2', 'infrasp2_rank',
-                       'infrasp2_author', 'infrasp3', 'infrasp3_rank',
-                       'infrasp3_author', 'infrasp4', 'infrasp4_rank',
-                       'infrasp4_author', 'genus_id', 'label_distribution',
-                       'habit_id', 'flower_color_id', 'awards', '_created',
-                       '_last_updated']
+    species_columns = [
+        'id', 'epithet', 'hybrid_marker', 'author', 'aggregate', 'cv_group',
+        'trade_name', 'infrasp1', 'infrasp1_rank', 'infrasp1_author',
+        'infrasp2', 'infrasp2_rank', 'infrasp2_author',
+        'infrasp3', 'infrasp3_rank', 'infrasp3_author',
+        'infrasp4', 'infrasp4_rank', 'infrasp4_author',
+        'genus_id', 'label_distribution', 'bc_distribution', 'habit_id',
+        'flower_color_id', 'awards', '_created', '_last_updated']
     species_writer.writerow(species_columns)
 
-    note_filename = os.path.join(dst_path, 'species_note.txt')
-    note_writer = NoteWriter(note_filename, 'species_id')
-
     for line in reader:
-        # in bauble 0.9 if sp_hybrid was not None then the infrasp held sp2
-        hybrid = False
-        if line['sp_hybrid']:
-            hybrid = True
-            if line['infrasp_rank'] or line['infrasp_author']:
-                print '**', line['sp'], line['infrasp'], line['infrasp_rank'],\
-                    line['infrasp_author']
-            sp2 = line['infrasp']
-            infrasp1 = None
-        else:
-            sp2 = None
-            infrasp1 = line['infrasp']
-
-        species_writer.writerow([line['id'], line['sp'], sp2,
-                                 line['sp_author'], hybrid,
-                                 line['sp_qual'], line['cv_group'],
-                                 line['trade_name'], infrasp1,
-                                 line['infrasp_rank'], line['infrasp_author'],
-                                 None, None, None, # infrasp2
-                                 None, None, None, # infrasp3
-                                 None, None, None, # infrasp4
-                                 line['genus_id'],
-                                 None, # label_distribution
-                                 None, # habit_id,
-                                 None, # flower_color_id
-                                 None, # awards
-                                 line['_created'], line['_last_updated']])
-
-        note = line.pop('notes')
-        if note:
-            note_writer.write(note, line['id'])
+        hybrid_marker = ''
+        species_writer.writerow([
+            line['id'], line['sp'], hybrid_marker, line['sp_author'],
+            line['sp_qual'], line['cv_group'],
+            line['trade_name'],
+            line['infrasp1'], line['infrasp1_rank'], line['infrasp1_author'],
+            line['infrasp2'], line['infrasp2_rank'], line['infrasp2_author'],
+            line['infrasp3'], line['infrasp3_rank'], line['infrasp3_author'],
+            line['infrasp4'], line['infrasp4_rank'], line['infrasp4_author'],
+            line['genus_id'],
+            line['label_distribution'],
+            line['habit_id'],
+            line['flower_color_id'],
+            line['awards'],
+            line['_created'], line['_last_updated']])
     print 'converted'
 
 
@@ -225,9 +180,6 @@ wild_prov_map = {"Wild native": 'WildNative',
                  'None': None}
 
 
-next_accession_note_id = -1
-
-
 def do_accession(filename):
     reader = UnicodeReader(open(filename))
 
@@ -239,9 +191,6 @@ def do_accession(filename):
                          'intended2_location_id', '_created', '_last_updated']
     accession_writer = create_writer(accession_filename, accession_columns)
 
-    note_filename = os.path.join(dst_path, 'accession_note.txt')
-    note_writer = NoteWriter(note_filename, 'accession_id')
-
     for line in reader:
         prov_type = prov_type_map[line['prov_type']]
         wild_prov_status = wild_prov_map[line['wild_prov_status']]
@@ -251,11 +200,6 @@ def do_accession(filename):
                                    line['id_qual_rank'], line['private'],
                                    line['species_id'], None, None,
                                    line['_created'], line['_last_updated']])
-        note = line.pop('notes')
-        if note:
-            note_writer.write(note, line['id'])
-
-    next_accession_note_id = note_writer.id_ctr
     print 'converted'
 
 acc_type_map = {'Plant': 'Plant',
@@ -275,9 +219,6 @@ def do_plant(filename):
                      '_last_updated']
     plant_writer = create_writer(plant_filename, plant_columns)
 
-    note_filename = os.path.join(dst_path, 'plant_note.txt')
-    note_writer = NoteWriter(note_filename, 'plant_id')
-
     for line in reader:
         if line['acc_status'] == 'Dead':
             quantity = 0
@@ -288,9 +229,6 @@ def do_plant(filename):
                                quantity, line['accession_id'],
                                line['location_id'], line['_created'],
                                line['_last_updated']])
-        note = line.pop('notes')
-        if note:
-            note_writer.write(note, line['id'])
     print 'converted'
 
 
