@@ -146,8 +146,8 @@ def do_species(filename):
     species_writer.writerow(species_columns)
 
     for line in reader:
-        hybrid_marker = line['hybrid'] and u'×' or '',
-        if line['sp'] and line['sp'].find(u'×') != -1:
+        hybrid_marker = (line['hybrid'] == 'True') and u'×' or ''
+        if line['sp'] and (line['sp'].find(u'×') != -1):
             hybrid_marker = 'H'
         species_writer.writerow([
             line['id'], line['sp'], hybrid_marker, line['sp_author'],
@@ -159,6 +159,7 @@ def do_species(filename):
             line['infrasp4'], line['infrasp4_rank'], line['infrasp4_author'],
             line['genus_id'],
             line['label_distribution'],
+            line['bc_distribution'],
             line['habit_id'],
             line['flower_color_id'],
             line['awards'],
@@ -236,18 +237,36 @@ def do_plant(filename):
 
 
 def do_bauble(filename):
-    # should only have to convert the version string
+    # copy everything except the version string which needs be updated
     reader = UnicodeReader(open(filename))
     columns = ['id', 'name', 'value', '_created', '_last_updated']
     bauble_filename = os.path.join(dst_path, 'bauble.txt')
     writer = create_writer(bauble_filename, columns)
     for line in reader:
         if line['name'] == 'version':
-            value = '1.0.0'
+            value = '1.1.0'
         else:
             value = line['value']
         writer.writerow([line['id'], line['name'], value, line['_created'],
                          line['_last_updated']])
+    print 'converted'
+
+
+def do_vernacular_name(filename):
+    # copy everything except the version string which needs be updated
+    reader = UnicodeReader(open(filename))
+    columns = ['id', 'name', 'language', 'species_id',
+               '_created', '_last_updated']
+    bauble_filename = os.path.join(dst_path, 'vernacular_name.txt')
+    writer = create_writer(bauble_filename, columns)
+    for line in reader:
+        if not line['name']:
+            continue
+        if not line['species_id']:
+            continue
+        writer.writerow([
+            line['id'], line['name'], line['language'], line['species_id'],
+            line['_created'], line['_last_updated']])
     print 'converted'
 
 
@@ -297,27 +316,30 @@ def skip_file(filename):
 
 
 file_map = {
-    'accession_note.txt': copy_file,
-    'accession.txt': copy_file,
     'bauble.txt': copy_file,
     'collection.txt': copy_file,
     'color.txt': copy_file,
-    'default_vernacular_name.txt': copy_file,
+    'family.txt': do_family,
     'family_note.txt': copy_file,
     'family_synonym.txt': copy_file,
-    'family.txt': do_family,
+    'genus.txt': do_genus,
     'genus_note.txt': copy_file,
     'genus_synonym.txt': copy_file,
-    'genus.txt': do_genus,
+    'species.txt': do_species,
+    'species_distribution.txt': copy_file,
+    'species_note.txt': copy_file,
+    'species_synonym.txt': copy_file,
     'geography.txt': copy_file,
     'habit.txt': copy_file,
     'history.txt': copy_file,
     'location.txt': copy_file,
+    'accession.txt': copy_file,
+    'accession_note.txt': copy_file,
+    'plant.txt': copy_file,
     'plant_change.txt': copy_file,
     'plant_note.txt': copy_file,
     'plant_prop.txt': copy_file,
     'plant_status.txt': copy_file,
-    'plant.txt': copy_file,
     'plugin.txt': copy_file,
     'propagation.txt': copy_file,
     'prop_cutting_rooted.txt': copy_file,
@@ -325,14 +347,11 @@ file_map = {
     'prop_seed.txt': copy_file,
     'source_detail.txt': copy_file,
     'source.txt': copy_file,
-    'species_distribution.txt': copy_file,
-    'species_note.txt': copy_file,
-    'species_synonym.txt': copy_file,
-    'species.txt': do_species,
     'tagged_obj.txt': copy_file,
     'tag.txt': copy_file,
     'verification.txt': copy_file,
-    'vernacular_name.txt': copy_file,
+    'vernacular_name.txt': do_vernacular_name,
+    'default_vernacular_name.txt': copy_file,
     'voucher.txt': copy_file,
     }
 
