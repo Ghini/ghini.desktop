@@ -2,8 +2,9 @@
 #
 # bauble-upgrade-0.9-to-1.0.py
 #
-# export CSV files from a Bauble 0.9 database to save them as CSV
-# files that can be imported into a Bauble 1.0 databa
+# use Bauble 0.9 to export your database as CSV files; then use this script
+# to convert the exported CSV files in the newer format; finally use
+# Ghini/Bauble 1.0 to import the converted export in a new database.
 #
 
 import csv
@@ -43,7 +44,7 @@ dummy_date = None
 dummy_timestamp = None
 
 
-# a directory full of CSV text files exported from Bauble 0.8
+# a directory full of CSV text files exported from Bauble 0.9
 src_path = args[0]
 if not os.path.exists(src_path):
     parser.error('%s does not exist' % src_path)
