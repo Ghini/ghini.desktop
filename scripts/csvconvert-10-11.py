@@ -8,7 +8,6 @@
 # finally use Ghini 1.1 to import the converted export in a new database.
 #
 
-#import csv
 import glob
 import argparse
 import os
@@ -29,6 +28,8 @@ if bauble.version_tuple[0] != '1' and bauble.version_tuple[1] != '1':
 
 #from bauble import utils
 from bauble.plugins.imex.csv_ import UnicodeReader, UnicodeWriter
+from bauble.plugins.plants import itf2
+itf2._ = lambda x: x
 
 
 parser = argparse.ArgumentParser(
@@ -41,12 +42,6 @@ args = parser.parse_args()
 
 if not args:
     print parser.error('a directory with a dumped CSV files is required')
-
-
-#dummy_date = "1902-01-01"
-#dummy_timestamp = '1902-01-01 00:00:00.0-00:00'
-dummy_date = None
-dummy_timestamp = None
 
 
 # a directory full of CSV text files exported from Bauble 1.0
@@ -135,8 +130,8 @@ def do_species(filename):
     reader = UnicodeReader(open(filename))
 
     species_filename = os.path.join(dst_path, 'species.txt')
-    species_writer = UnicodeWriter(open(species_filename, "wb"))
-    species_columns = [
+    writer = UnicodeWriter(open(species_filename, "wb"))
+    columns = [
         'id', 'epithet', 'hybrid_marker', 'author', 'aggregate', 'cv_group',
         'trade_name', 'infrasp1', 'infrasp1_rank', 'infrasp1_author',
         'infrasp2', 'infrasp2_rank', 'infrasp2_author',
@@ -144,43 +139,44 @@ def do_species(filename):
         'infrasp4', 'infrasp4_rank', 'infrasp4_author',
         'genus_id', 'label_distribution', 'bc_distribution', 'habit_id',
         'flower_color_id', 'awards', '_created', '_last_updated']
-    species_writer.writerow(species_columns)
+    writer.writerow(columns)
 
+    post_process_hyop = []
     for line in reader:
-        hybrid_marker = (line['hybrid'] == 'True') and u'×' or ''
-        if line['sp'] and (line['sp'].find(u'×') != -1):
-            hybrid_marker = 'H'
-        species_writer.writerow([
-            line['id'], line['sp'], hybrid_marker, line['sp_author'],
-            line['sp_qual'], line['cv_group'],
-            line['trade_name'],
-            line['infrasp1'], line['infrasp1_rank'], line['infrasp1_author'],
-            line['infrasp2'], line['infrasp2_rank'], line['infrasp2_author'],
-            line['infrasp3'], line['infrasp3_rank'], line['infrasp3_author'],
-            line['infrasp4'], line['infrasp4_rank'], line['infrasp4_author'],
-            line['genus_id'],
-            line['label_distribution'],
-            line['bc_distribution'],
-            line['habit_id'],
-            line['flower_color_id'],
-            line['awards'],
-            line['_created'], line['_last_updated']])
+        line = dict(line)
+        if line['sp'] and (line['sp'].find(u'×') > 0):
+            line['hybrid_marker'] = 'H'
+            line['epithet'] = ''
+            post_process_hyop.append(dict(line))
+        else:
+            line['hybrid_marker'] = (line['hybrid'] == 'True') and u'×' or ''
+            line['epithet'] = line['sp']
+        line['author'] = line['sp_author']
+        line['aggregate'] = line['sp_qual']
+        writer.writerow([line[k] for k in columns])
+
+    hybrid_operand = os.path.join(dst_path, 'hybrid_operands.txt')
+    hyop_columns = ['child_id', 'parent_id', 'role']
+    hyop_writer = create_writer(hybrid_operand, hyop_columns)
+    if post_process_hyop:
+        print post_process_hyop
+
     print 'done'
 
 
-prov_type_map = {"Wild": 'Wild',
-                 "Propagule of cultivated wild plant": 'Cultivated',
-                 "Not of wild source": 'NotWild',
-                 "Insufficient Data": 'InsufficientData',
-                 "Unknown": "Unknown",
+prov_type_map = {'Wild': 'W',
+                 'Cultivated': 'Z',
+                 'NotWild': 'G',
+                 'InsufficientData': 'U',
+                 "Unknown": 'U',
                  None: None,
                  'None': None}
 
-wild_prov_map = {"Wild native": 'WildNative',
-                 "Wild non-native": 'WildNonNative',
-                 "Cultivated native": 'CultivatedNative',
-                 "Insufficient Data": 'InsufficientData',
-                 "Unknown": 'Unknown',
+wild_prov_map = {'WildNative': 'Wild native',
+                 'WildNonNative': 'Wild non-native',
+                 'CultivatedNative': 'Cultivated native',
+                 'InsufficientData': None,
+                 'Unknown': None,
                  None: None,
                  'None': None}
 
@@ -188,23 +184,28 @@ wild_prov_map = {"Wild native": 'WildNative',
 def do_accession(filename):
     reader = UnicodeReader(open(filename))
 
-    accession_filename = os.path.join(dst_path, 'accession.txt')
-    accession_columns = ['id', 'code', 'prov_type', 'wild_prov_status',
-                         'date_accd', 'date_recvd', 'quantity_recvd',
-                         'recvd_type', 'id_qual', 'id_qual_rank', 'private',
-                         'species_id', 'intended_location_id',
-                         'intended2_location_id', '_created', '_last_updated']
-    accession_writer = create_writer(accession_filename, accession_columns)
+    basename = os.path.basename(filename)
+    accession_filename = os.path.join(dst_path, basename)
+    columns = ['id', 'code', 'prov_type', 'wild_prov_status',
+               'date_accd', 'date_recvd', 'quantity_recvd',
+               'recvd_type', 'id_qual', 'id_qual_rank', 'private',
+               'species_id', '_created', '_last_updated']
+    writer = create_writer(accession_filename, columns)
+    intended_location = os.path.join(dst_path, 'intended_location.txt')
+    il_columns = ['accession_id', 'location_id', 'quantity', 'planned_date']
+    il_writer = create_writer(intended_location, il_columns)
 
     for line in reader:
-        prov_type = prov_type_map[line['prov_type']]
-        wild_prov_status = wild_prov_map[line['wild_prov_status']]
-        accession_writer.writerow([line['id'], line['code'], prov_type,
-                                   wild_prov_status, line['date'], None,
-                                   None, None, line['id_qual'],
-                                   line['id_qual_rank'], line['private'],
-                                   line['species_id'], None, None,
-                                   line['_created'], line['_last_updated']])
+        line = dict(line)
+        line['prov_type'] = prov_type_map[line['prov_type']]
+        line['wild_prov_status'] = wild_prov_map[line['wild_prov_status']]
+        writer.writerow([line[k] for k in columns])
+        if line['intended_location_id']:
+            il_writer.writerow(
+                [line['id'], line['intended_location_id'], 0, None])
+        if line['intended2_location_id']:
+            il_writer.writerow(
+                [line['id'], line['intended2_location_id'], 0, None])
     print 'done'
 
 acc_type_map = {'Plant': 'Plant',
@@ -237,27 +238,12 @@ def do_plant(filename):
     print 'done'
 
 
-def do_bauble(filename):
-    # copy everything except the version string which needs be updated
-    reader = UnicodeReader(open(filename))
-    columns = ['id', 'name', 'value', '_created', '_last_updated']
-    bauble_filename = os.path.join(dst_path, 'bauble.txt')
-    writer = create_writer(bauble_filename, columns)
-    for line in reader:
-        if line['name'] == 'version':
-            value = '1.1.0'
-        else:
-            value = line['value']
-        writer.writerow([line['id'], line['name'], value, line['_created'],
-                         line['_last_updated']])
-    print 'done'
-
-
-def do_copy(filename, non_nullable=[], new_name=None):
+def do_copy(filename, non_nullable=[], new_name=None, change=[]):
     """copy the file but consider variations on theme
 
     skip rows with unacceptable null values.
     write to new_name.
+    change: [(key_field, key_value, value_field, replacement), ...]
     """
     reader = UnicodeReader(open(filename))
     columns = reader.reader.fieldnames
@@ -273,6 +259,10 @@ def do_copy(filename, non_nullable=[], new_name=None):
         if any(line[k] is None for k in non_nullable):
             skipped += 1
             continue
+        line = dict(line)
+        for key_field, key_value, value_field, new_value in change:
+            if line[key_field] == key_value:
+                line[value_field] = new_value
         writer.writerow([line[k] for k in columns])
     if non_nullable:
         print 'skipped', skipped, '...',
@@ -325,7 +315,8 @@ def skip_file(filename):
 
 
 file_map = {
-    'bauble.txt': copy_file,
+    'bauble.txt': partial(do_copy,
+                          change=[('name', 'version', 'value', '1.1.0')]),
     'collection.txt': copy_file,
     'color.txt': copy_file,
     'family.txt': do_family,
@@ -343,7 +334,7 @@ file_map = {
     'habit.txt': copy_file,
     'history.txt': copy_file,
     'location.txt': copy_file,
-    'accession.txt': copy_file,
+    'accession.txt': do_accession,
     'accession_note.txt': copy_file,
     'plant.txt': copy_file,
     'plant_change.txt': copy_file,
