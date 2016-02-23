@@ -3,8 +3,8 @@
 #
 # csv convert 1.0 to 1.1
 #
-# use Ghini/Bauble 1.0 database to export your database as CSV files; then
-# use this script to convert the exported CSV files in the newer format;
+# first: use Ghini/Bauble 1.0 to export your database as CSV files; then run
+# this script to convert the exported CSV files into the newer format;
 # finally use Ghini 1.1 to import the converted export in a new database.
 #
 
@@ -14,6 +14,7 @@ import argparse
 import os
 import shutil
 import sys
+from functools import partial
 
 import logging
 logging.basicConfig()
@@ -101,7 +102,7 @@ def do_family(filename):
     for line in reader:
         family_writer.writerow([line['id'], line['family'], '', '', '',
                                line['_created'], line['_last_updated']])
-    print 'converted'
+    print 'done'
 
 
 def do_genus(filename):
@@ -124,7 +125,7 @@ def do_genus(filename):
              line['author'], line['qualifier'],
              line['family_id'], line['_created'],
              line['_last_updated']])
-    print 'converted'
+    print 'done'
 
 
 def do_species(filename):
@@ -164,7 +165,7 @@ def do_species(filename):
             line['flower_color_id'],
             line['awards'],
             line['_created'], line['_last_updated']])
-    print 'converted'
+    print 'done'
 
 
 prov_type_map = {"Wild": 'Wild',
@@ -204,7 +205,7 @@ def do_accession(filename):
                                    line['id_qual_rank'], line['private'],
                                    line['species_id'], None, None,
                                    line['_created'], line['_last_updated']])
-    print 'converted'
+    print 'done'
 
 acc_type_map = {'Plant': 'Plant',
                 'Seed/Spore': 'Seed',
@@ -233,7 +234,7 @@ def do_plant(filename):
                                quantity, line['accession_id'],
                                line['location_id'], line['_created'],
                                line['_last_updated']])
-    print 'converted'
+    print 'done'
 
 
 def do_bauble(filename):
@@ -249,25 +250,33 @@ def do_bauble(filename):
             value = line['value']
         writer.writerow([line['id'], line['name'], value, line['_created'],
                          line['_last_updated']])
-    print 'converted'
+    print 'done'
 
 
-def do_vernacular_name(filename):
-    # copy everything except the version string which needs be updated
+def do_copy(filename, non_nullable=[], new_name=None):
+    """copy the file but consider variations on theme
+
+    skip rows with unacceptable null values.
+    write to new_name.
+    """
     reader = UnicodeReader(open(filename))
-    columns = ['id', 'name', 'language', 'species_id',
-               '_created', '_last_updated']
-    bauble_filename = os.path.join(dst_path, 'vernacular_name.txt')
+    columns = reader.reader.fieldnames
+    if new_name:
+        basename = new_name
+        print 'as', new_name, '...',
+    else:
+        basename = os.path.basename(filename)
+    bauble_filename = os.path.join(dst_path, basename)
     writer = create_writer(bauble_filename, columns)
+    skipped = 0
     for line in reader:
-        if not line['name']:
+        if any(line[k] is None for k in non_nullable):
+            skipped += 1
             continue
-        if not line['species_id']:
-            continue
-        writer.writerow([
-            line['id'], line['name'], line['language'], line['species_id'],
-            line['_created'], line['_last_updated']])
-    print 'converted'
+        writer.writerow([line[k] for k in columns])
+    if non_nullable:
+        print 'skipped', skipped, '...',
+    print 'done'
 
 
 def do_location(filename):
@@ -297,7 +306,7 @@ def do_location(filename):
         location_writer.writerow([line['id'], code, line['site'],
                                   line['description'], line['_created'],
                                   line['_last_updated']])
-    print 'converted'
+    print 'done'
 
 
 def copy_file(filename):
@@ -305,7 +314,7 @@ def copy_file(filename):
     Copy filename to the destination for new files
     """
     shutil.copy(filename, dst_path)
-    print 'copied'
+    print 'done'
 
 
 def skip_file(filename):
@@ -329,7 +338,8 @@ file_map = {
     'species_distribution.txt': copy_file,
     'species_note.txt': copy_file,
     'species_synonym.txt': copy_file,
-    'geography.txt': copy_file,
+    'geography.txt': partial(do_copy,
+                             new_name='gheography.txt'),
     'habit.txt': copy_file,
     'history.txt': copy_file,
     'location.txt': copy_file,
@@ -350,7 +360,8 @@ file_map = {
     'tagged_obj.txt': copy_file,
     'tag.txt': copy_file,
     'verification.txt': copy_file,
-    'vernacular_name.txt': do_vernacular_name,
+    'vernacular_name.txt': partial(do_copy,
+                                   non_nullable=['name', 'species_id']),
     'default_vernacular_name.txt': copy_file,
     'voucher.txt': copy_file,
     }
@@ -358,13 +369,13 @@ file_map = {
 # for each text file in src_path call the appropriate entry in file_map
 for f in glob.glob(os.path.join(src_path, "*.txt")):
     basename = os.path.basename(f)
-    print basename,
+    print basename, '...',
     if basename not in file_map:
         print "** don't know what to do with: %s" % f
         sys.exit(1)
     if not file_map[basename]:
         shutil.copy(f, dst_path)
-        print 'copied'
+        print 'done'
     else:
         file_map[basename](f)
 
