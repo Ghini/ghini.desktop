@@ -427,7 +427,7 @@ class CSVImporter(Importer):
                 # that refer to itself, if so create a new file with
                 # the lines sorted in order of dependency so that we
                 # don't get errors about importing values into a
-                # foreign_key that don't reference and existin row
+                # foreign_key that don't reference an existing row
                 self_keys = filter(lambda f: f.column.table == table,
                                    table.foreign_keys)
                 if self_keys:
