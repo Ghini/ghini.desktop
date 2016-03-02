@@ -91,7 +91,9 @@ namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
 
 def ABCDElement(parent, name, text=None, attrib=None):
     """
-    A factory function to create an ABCDElement, must be a subelement.
+    append a named element to parent, with text and attributes.
+
+    it assumes the element to be added is in the abcd namespace.
 
     :param parent: an element
     :param name: a string, the name of the new element
@@ -164,6 +166,15 @@ class ABCDAdapter(object):
         """
         Get the Author string.
         """
+        pass
+
+    def get_InfraspecificAuthor(self):
+        pass
+
+    def get_InfraspecificRank(self):
+        pass
+
+    def get_InfraspecificEpithet(self):
         pass
 
     def get_InformalNameString(self):
@@ -254,6 +265,12 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         ABCDElement(botanical, 'GenusOrMonomial',
                     text=obj.get_GenusOrMonomial())
         ABCDElement(botanical, 'FirstEpithet', text=obj.get_FirstEpithet())
+        ABCDElement(botanical, 'InfraspecificEpithet',
+                    text=obj.get_InfraspecificEpithet())
+        ABCDElement(botanical, 'InfraspecificRank',
+                    text=obj.get_InfraspecificRank())
+        ABCDElement(botanical, 'InfraspecificAuthor',
+                    text=obj.get_InfraspecificAuthor())
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
