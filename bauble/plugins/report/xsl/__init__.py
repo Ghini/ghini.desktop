@@ -145,6 +145,15 @@ class SpeciesABCDAdapter(ABCDAdapter):
         else:
             return utils.xml_safe(author)
 
+    def get_InfraspecificAuthor(self):
+        return utils.xml_safe(str(self.species.infraspecific_author))
+
+    def get_InfraspecificRank(self):
+        return utils.xml_safe(str(self.species.infraspecific_rank))
+
+    def get_InfraspecificEpithet(self):
+        return utils.xml_safe(str(self.species.infraspecific_epithet))
+
     def get_InformalNameString(self):
         vernacular_name = self.species.default_vernacular_name
         if vernacular_name is None:

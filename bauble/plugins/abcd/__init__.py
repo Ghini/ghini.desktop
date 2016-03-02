@@ -35,6 +35,7 @@ from bauble.plugins.garden.plant import Plant
 from bauble.i18n import _
 from bauble import prefs
 
+
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
 
@@ -53,7 +54,6 @@ from bauble import prefs
 # though this could be a problem b/c abcd data expects 'unitid' fields but
 # we could have a special case just for generating labels
 #
-
 
 def validate_xml(root):
     """
@@ -163,6 +163,15 @@ class ABCDAdapter(object):
         """
         pass
 
+    def get_InfraspecificAuthor(self):
+        pass
+
+    def get_InfraspecificRank(self):
+        pass
+
+    def get_InfraspecificEpithet(self):
+        pass
+
     def get_InformalNameString(self):
         """
         Get the common name string.
@@ -211,7 +220,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
                                  attrib={'language': 'en'})
     revision = ABCDElement(metadata, 'RevisionData')
     ABCDElement(revision, 'DateModified', text='2001-03-01T00:00:00')
-    title = ABCDElement(representation, 'Title', text='TheTitle')
+    ABCDElement(representation, 'Title', text='TheTitle')
     units = ABCDElement(ds, 'Units')
 
     # build the ABCD unit
@@ -222,7 +231,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         # TODO: don't really understand the SourceID element
         ABCDElement(unit, 'SourceID', text='Bauble')
 
-        unit_id = ABCDElement(unit, 'UnitID', text=obj.get_UnitID())
+        ABCDElement(unit, 'UnitID', text=obj.get_UnitID())
         ABCDElement(unit, 'DateLastEdited', text=obj.get_DateLastEdited())
 
         # TODO: add list of verifications to Identifications
@@ -237,10 +246,8 @@ def create_abcd(decorated_objects, authors=True, validate=True):
 
         # TODO: ABCDDecorator should provide an iterator so that we can
         # have multiple HigherTaxonName's
-        higher_taxon_name = ABCDElement(higher_taxon, 'HigherTaxonName',
-                                        text=obj.get_family())
-        higher_taxon_rank = ABCDElement(higher_taxon, 'HigherTaxonRank',
-                                        text='familia')
+        ABCDElement(higher_taxon, 'HigherTaxonName', text=obj.get_family())
+        ABCDElement(higher_taxon, 'HigherTaxonRank', text='familia')
 
         scientific_name = ABCDElement(taxon_identified, 'ScientificName')
         ABCDElement(scientific_name, 'FullScientificNameString',
@@ -254,6 +261,11 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
+        if obj.get_InfraspecificEpithet():
+            ABCDElement(botanical, 'InfraspecificEpithet',
+                        text=obj.get_InfraspecificEpithet())
+            ABCDElement(botanical, 'Rank',
+                        text=obj.get_InfraspecificRank())
         ABCDElement(identification, 'PreferredFlag', text='true')
 
         # vernacular name identification
