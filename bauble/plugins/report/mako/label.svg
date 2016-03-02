@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="744.09448" height="1052.3622" id="svg2">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1244.09448" height="1052.3622" id="svg2">
   <defs id="defs3470">
     <path id="U0020" d="" style="fill:none;stroke:#000000" />
     <path id="U0041" d="m 8.5,0.5 -8,21 m 8,-21 8,21 m -13,-7 10,0" style="fill:none;stroke:#000000" />
@@ -68,32 +68,32 @@
     <path id="U003E" d="m 0.5,0.5 16,9 -16,9" style="fill:none;stroke:#000000" />
     <path id="U003F" d="m 0.5,5.5 0,-1 1,-2 1,-1 2,-1 4,0 2,1 1,1 1,2 0,2 -1,2 -1,1 -4,2 0,3 m 0,5 -1,1 1,1 1,-1 -1,-1" style="fill:none;stroke:#000000" />
     <path id="U0040" d="m 15.5,8.5 -1,-2 -2,-1 -3,0 -2,1 -1,1 -1,3 0,3 1,2 2,1 3,0 2,-1 1,-2 m -5,-8 -2,2 -1,3 0,3 1,2 1,1 m 7,-11 -1,8 0,2 2,1 2,0 2,-2 1,-3 0,-2 -1,-3 -1,-2 -2,-2 -2,-1 -3,-1 -3,0 -3,1 -2,1 -2,2 -1,2 -1,3 0,3 1,3 1,2 2,2 2,1 3,1 3,0 3,-1 2,-1 1,-1 m -2,-13 -1,8 0,2 1,1" style="fill:none;stroke:#000000" />
-    <path id="U0061" d="m 12.5,0.5 0,14 m 0,-11 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
+    <path id="U0061" d="m 12.5,7 0,14 m 0,-11 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
     <path id="U0062" d="m 0.5,0.5 0,21 m 0,-11 2,-2 2,-1 3,0 2,1 2,2 1,3 0,2 -1,3 -2,2 -2,1 -3,0 -2,-1 -2,-2" style="fill:none;stroke:#000000" />
-    <path id="U0063" d="m 12.5,3.5 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
+    <path id="U0063" d="m 12.5,10.5 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
     <path id="U0064" d="m 12.5,0.5 0,21 m 0,-11 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
-    <path id="U0065" d="m 0.5,6.5 12,0 0,-2 -1,-2 -1,-1 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
+    <path id="U0065" d="m 0.5,13.5 12,0 0,-2 -1,-2 -1,-1 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
     <path id="U0066" d="m 8.5,0.5 -2,0 -2,1 -1,3 0,17 m -3,-14 7,0" style="fill:none;stroke:#000000" />
-    <path id="U0067" d="m 12.5,0.5 0,16 -1,3 -1,1 -2,1 -3,0 -2,-1 m 9,-17 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
+    <path id="U0067" d="m 12.5,7.5 0,16 -1,3 -1,1 -2,1 -3,0 -2,-1 m 9,-17 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
     <path id="U0068" d="m 0.5,0.5 0,21 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#000000" />
-    <path id="U0069" d="m 0.5,1.5 1,1 1,-1 -1,-1 -1,1 m 1,7 0,14" style="fill:none;stroke:#000000" />
-    <path id="U006A" d="m 4.5,1.5 1,1 1,-1 -1,-1 -1,1 m 1,7 0,17 -1,3 -2,1 -2,0" style="fill:none;stroke:#000000" />
+    <path id="U0069" d="m 0.5,0.5 1,1 1,-1 -1,-1 -1,1 m 1,7 0,14" style="fill:none;stroke:#000000" />
+    <path id="U006A" d="m 4.5,0.5 1,1 1,-1 -1,-1 -1,1 m 1,7 0,17 -1,3 -2,1 -2,0" style="fill:none;stroke:#000000" />
     <path id="U006B" d="m 0.5,0.5 0,21 m 10,-14 -10,10 m 4,-4 7,8" style="fill:none;stroke:#000000" />
     <path id="U006C" d="m 0.5,0.5 0,21" style="fill:none;stroke:#000000" />
-    <path id="U006D" d="m 0.5,0.5 0,14 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#000000" />
-    <path id="U006E" d="m 0.5,0.5 0,14 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#000000" />
-    <path id="U006F" d="m 5.5,0.5 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2 1,-3 0,-2 -1,-3 -2,-2 -2,-1 -3,0" style="fill:none;stroke:#000000" />
-    <path id="U0070" d="m 0.5,0.5 0,21 m 0,-18 2,-2 2,-1 3,0 2,1 2,2 1,3 0,2 -1,3 -2,2 -2,1 -3,0 -2,-1 -2,-2" style="fill:none;stroke:#000000" />
-    <path id="U0071" d="m 12.5,0.5 0,21 m 0,-18 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
-    <path id="U0072" d="m 0.5,0.5 0,14 m 0,-8 1,-3 2,-2 2,-1 3,0" style="fill:none;stroke:#000000" />
-    <path id="U0073" d="m 11.5,3.5 -1,-2 -3,-1 -3,0 -3,1 -1,2 1,2 2,1 5,1 2,1 1,2 0,1 -1,2 -3,1 -3,0 -3,-1 -1,-2" style="fill:none;stroke:#000000" />
-    <path id="U0074" d="m 3.5,0.5 0,17 1,3 2,1 2,0 m -8,-14 7,0" style="fill:none;stroke:#000000" />
-    <path id="U0075" d="m 0.5,0.5 0,10 1,3 2,1 3,0 2,-1 3,-3 m 0,-10 0,14" style="fill:none;stroke:#000000" />
-    <path id="U0076" d="m 0.5,0.5 6,14 m 6,-14 -6,14" style="fill:none;stroke:#000000" />
-    <path id="U0077" d="m 0.5,0.5 4,14 m 4,-14 -4,14 m 4,-14 4,14 m 4,-14 -4,14" style="fill:none;stroke:#000000" />
-    <path id="U0078" d="m 0.5,0.5 11,14 m 0,-14 -11,14" style="fill:none;stroke:#000000" />
-    <path id="U0079" d="m 1.5,0.5 6,14 m 6,-14 -6,14 -2,4 -2,2 -2,1 -1,0" style="fill:none;stroke:#000000" />
-    <path id="U007A" d="m 11.5,0.5 -11,14 m 0,-14 11,0 m -11,14 11,0" style="fill:none;stroke:#000000" />
+    <path id="U006D" d="m 0.5,7 0,14 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#000000" />
+    <path id="U006E" d="m 0.5,7 0,14 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#000000" />
+    <path id="U006F" d="m 5.5,7 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2 1,-3 0,-2 -1,-3 -2,-2 -2,-1 -3,0" style="fill:none;stroke:#000000" />
+    <path id="U0070" d="m 0.5,7 0,21 m 0,-18 2,-2 2,-1 3,0 2,1 2,2 1,3 0,2 -1,3 -2,2 -2,1 -3,0 -2,-1 -2,-2" style="fill:none;stroke:#000000" />
+    <path id="U0071" d="m 12.5,7 0,21 m 0,-18 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#000000" />
+    <path id="U0072" d="m 0.5,7 0,14 m 0,-8 1,-3 2,-2 2,-1 3,0" style="fill:none;stroke:#000000" />
+    <path id="U0073" d="m 11.5,10 -1,-2 -3,-1 -3,0 -3,1 -1,2 1,2 2,1 5,1 2,1 1,2 0,1 -1,2 -3,1 -3,0 -3,-1 -1,-2" style="fill:none;stroke:#000000" />
+    <path id="U0074" d="m 3.5,0 0,17 1,3 2,1 2,0 m -8,-14 7,0" style="fill:none;stroke:#000000" />
+    <path id="U0075" d="m 0.5,7 0,10 1,3 2,1 3,0 2,-1 3,-3 m 0,-10 0,14" style="fill:none;stroke:#000000" />
+    <path id="U0076" d="m 0.5,7 6,14 m 6,-14 -6,14" style="fill:none;stroke:#000000" />
+    <path id="U0077" d="m 0.5,7 4,14 m 4,-14 -4,14 m 4,-14 4,14 m 4,-14 -4,14" style="fill:none;stroke:#000000" />
+    <path id="U0078" d="m 0.5,7 11,14 m 0,-14 -11,14" style="fill:none;stroke:#000000" />
+    <path id="U0079" d="m 1.5,7 6,14 m 6,-14 -6,14 -2,4 -2,2 -2,1 -1,0" style="fill:none;stroke:#000000" />
+    <path id="U007A" d="m 11.5,7 -11,14 m 0,-14 11,0 m -11,14 11,0" style="fill:none;stroke:#000000" />
     <path id="U007B" d="m 5.5,0.5 -2,1 -1,1 -1,2 0,2 1,2 1,1 1,2 0,2 -2,2 m 1,-14 -1,2 0,2 1,2 1,1 1,2 0,2 -1,2 -4,2 4,2 1,2 0,2 -1,2 -1,1 -1,2 0,2 1,2 m -1,-14 2,2 0,2 -1,2 -1,1 -1,2 0,2 1,2 1,1 2,1" style="fill:none;stroke:#000000" />
     <path id="U007C" d="m 0.5,0.5 0,32" style="fill:none;stroke:#000000" />
     <path id="U007D" d="m 0.5,0.5 2,1 1,1 1,2 0,2 -1,2 -1,1 -1,2 0,2 2,2 m -1,-14 1,2 0,2 -1,2 -1,1 -1,2 0,2 1,2 4,2 -4,2 -1,2 0,2 1,2 1,1 1,2 0,2 -1,2 m 1,-14 -2,2 0,2 1,2 1,1 1,2 0,2 -1,2 -1,1 -2,1" style="fill:none;stroke:#000000" />
@@ -107,10 +107,35 @@
     <path id="U00E5" d="m 6.01345,0.5 -0.78893,0.23567 -0.78891,0.47134 -0.39445,0.707 0,0.47134 0.39445,0.707 0.78891,0.47134 0.78893,0.23567 1.18338,0 0.78893,-0.23567 0.78891,-0.47134 0.39445,-0.707 0,-0.47134 L 8.77467,1.20701 7.98576,0.73567 7.19683,0.5 6.01345,0.5 M 12.5,7.14498 l 0,14 m 0,-11 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="color:#000000;fill:none;stroke:#000000" />
     <path id="U00E6" d="m 5.79625,8.65048 -2.10039,0 -1.59793,0 L 0.5,9.66929 l 0,1.01881 0.53264,2.03762 0.53264,1.01881 1.0653,1.01881 1.59793,0 1.06529,-1.01881 1.06529,-2.03762 m 0,-8.15048 L 5.2938,1.51881 4.22851,0.5 2.63058,0.5 1.56528,1.51881 0.5,3.55643 m 5.53265,3.06244 7.68356,0 0,-2.02557 -0.66542,-2.02558 -0.66543,-1.01279 -1.33084,-1.0128 -1.99627,0 -1.33084,1.0128 -1.33085,2.02558 -0.36391,3.03836 0,2.0256 0.36391,3.03836 1.33085,2.02558 1.33084,1.0128 1.99627,0 1.33084,-1.0128 1.33085,-2.02558" style="color:#000000;fill:none;stroke:#000000" />
   </defs>
-  <g transform="translate(14,4)scale(4,4)matrix(1,0,-0.1,1,0,0)" id="layer2">
+  <g transform="translate(14,4)scale(4,4)" id="layer2">
     <path d="m 0,25 0,-25 40,0 0,25 -40,0 z" id="path3092" style="fill:none;stroke:#ccc" />
-    <use id="use3094" xlink:href="#U0049" />
-    <use id="use3094" xlink:href="#U0030" transform="translate(18,0)"/>
+    <use id="use3094" xlink:href="#U004D" transform="translate(0,0)" />
+    <use id="use3094" xlink:href="#U0061" transform="translate(18,0)" />
+    <use id="use3094" xlink:href="#U0062" transform="translate(28,0)" />
+    <use id="use3094" xlink:href="#U0063" transform="translate(38,0)" />
+    <use id="use3094" xlink:href="#U0064" transform="translate(48,0)" />
+    <use id="use3094" xlink:href="#U0065" transform="translate(58,0)" />
+    <use id="use3094" xlink:href="#U0066" transform="translate(68,0)" />
+    <use id="use3094" xlink:href="#U0067" transform="translate(78,0)" />
+    <use id="use3094" xlink:href="#U0068" transform="translate(88,0)" />
+    <use id="use3094" xlink:href="#U0069" transform="translate(98,0)" />
+    <use id="use3094" xlink:href="#U006A" transform="translate(108,0)" />
+    <use id="use3094" xlink:href="#U006B" transform="translate(118,0)" />
+    <use id="use3094" xlink:href="#U006C" transform="translate(128,0)" />
+    <use id="use3094" xlink:href="#U006D" transform="translate(138,0)" />
+    <use id="use3094" xlink:href="#U006E" transform="translate(148,0)" />
+    <use id="use3094" xlink:href="#U006F" transform="translate(158,0)" />
+    <use id="use3094" xlink:href="#U0070" transform="translate(168,0)" />
+    <use id="use3094" xlink:href="#U0071" transform="translate(178,0)" />
+    <use id="use3094" xlink:href="#U0072" transform="translate(188,0)" />
+    <use id="use3094" xlink:href="#U0073" transform="translate(198,0)" />
+    <use id="use3094" xlink:href="#U0074" transform="translate(208,0)" />
+    <use id="use3094" xlink:href="#U0075" transform="translate(218,0)" />
+    <use id="use3094" xlink:href="#U0076" transform="translate(228,0)" />
+    <use id="use3094" xlink:href="#U0077" transform="translate(238,0)" />
+    <use id="use3094" xlink:href="#U0078" transform="translate(248,0)" />
+    <use id="use3094" xlink:href="#U0079" transform="translate(258,0)" />
+    <use id="use3094" xlink:href="#U007A" transform="translate(268,0)" />
   </g>
   <metadata id="metadata7">
     <rdf:RDF>
