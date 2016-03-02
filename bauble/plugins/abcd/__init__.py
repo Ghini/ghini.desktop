@@ -265,12 +265,11 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         ABCDElement(botanical, 'GenusOrMonomial',
                     text=obj.get_GenusOrMonomial())
         ABCDElement(botanical, 'FirstEpithet', text=obj.get_FirstEpithet())
-        ABCDElement(botanical, 'InfraspecificEpithet',
-                    text=obj.get_InfraspecificEpithet())
-        ABCDElement(botanical, 'InfraspecificRank',
-                    text=obj.get_InfraspecificRank())
-        ABCDElement(botanical, 'InfraspecificAuthor',
-                    text=obj.get_InfraspecificAuthor())
+        if obj.get_InfraspecificEpithet():
+            ABCDElement(botanical, 'InfraspecificEpithet',
+                        text=obj.get_InfraspecificEpithet())
+            ABCDElement(botanical, 'Rank',
+                        text=obj.get_InfraspecificRank())
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
