@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1244.09448" height="1052.3622" id="svg2">
+<%
+from bauble.plugins.report import get_species_pertinent_to
+
+page = 1
+xpos = ypos = 0
+
+font = {
+    u'!': 20, u'A': 38, u'a': 31, u'á': 31, u'Á': 38,
+    u'"': 23, u'B': 34, u'b': 31, u'à': 31, u'À': 38,
+    u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
+    u'$': 32, u'D': 39, u'd': 31, u'å': 31, u'Å': 38,
+    u'%': 54, u'E': 32, u'e': 30, u'ä': 31, u'Ä': 38,
+    u'&': 37, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38,
+    u"'": 13, u'G': 39, u'g': 31, u'ç': 28, u'Ç': 35,
+    u'(': 22, u'H': 38, u'h': 31, u'ð': 31, u'Ð': 39,
+    u')': 23, u'I': 11, u'i': 11, u'é': 30, u'É': 32,
+    u'*': 32, u'J': 22, u'j': 16, u'è': 30, u'È': 31,
+    u'+': 41, u'K': 35, u'k': 29, u'ê': 30, u'Ê': 32,
+    u',': 18, u'L': 28, u'l': 15, u'ë': 29, u'Ë': 32,
+    u'-': 23, u'M': 39, u'm': 49, u'í': 11, u'Í': 11,
+    u'.': 18, u'N': 37, u'n': 30, u'î': 11, u'Î': 11,
+    u'/': 23, u'O': 40, u'o': 31, u'ï': 11, u'Ï': 11,
+    u'0': 31, u'P': 30, u'p': 30, u'ñ': 30, u'Ñ': 37,
+    u'1': 32, u'Q': 39, u'q': 32, u'ó': 31, u'Ó': 40,
+    u'2': 32, u'R': 35, u'r': 21, u'ò': 31, u'Ò': 40,
+    u'3': 32, u'S': 34, u's': 27, u'ô': 31, u'Ô': 40,
+    u'4': 32, u'T': 33, u't': 20, u'ö': 31, u'Ö': 40,
+    u'5': 31, u'U': 37, u'u': 31, u'õ': 31, u'Õ': 40,
+    u'6': 32, u'V': 36, u'v': 30, u'ø': 31, u'Ø': 40,
+    u'7': 32, u'W': 49, u'w': 41, u'ú': 32, u'Ú': 37,
+    u'8': 32, u'X': 34, u'x': 29, u'ù': 31, u'Ù': 36,
+    u'9': 31, u'Y': 31, u'y': 30, u'û': 32, u'Û': 37,
+    u':': 23, u'Z': 34, u'z': 26, u'ü': 32, u'Ü': 37,
+    u';': 23, u'[': 23, u'{': 32, u'ý': 29, u'Ý': 30,
+    u'<': 41, u'\\': 23, u'|': 23, u'ÿ': 30, u'Ÿ': 31,
+    u'=': 41, u']': 23, u'}': 32, u'ń': 31, u'Ń': 38,
+    u'>': 41, u'^': 40, u'~': 41, u'ł': 15, u'Ł': 27,
+    u'?': 27, u'_': 32, u' ': 18, u'č': 26, u'Č': 35,
+    u'@': 50, u'`': 32, u'×': 26, u'š': 26, u'Š': 35,
+    }
+
+
+def add_text(x, y, s, size, align_right=False, italic=False):
+    """compute the `use` elements to be added and the width of the result
+
+    the returned value is a 3-tuple, where the first element is the
+    string to be added to the svg, second and third element are the next
+    insertion point if you want to continue the text on the same line
+    with different attributes.
+    """
+    result_list = []
+    totalwidth = 0
+    if not s:
+        return '', x, y
+    for i in s:
+        if i not in font:
+            i = u'?'
+        glyph_wid = font[i] / 2.0
+        glyph_ref = "U%04X" % ord(i)
+        result_list.append(
+            '<use transform="translate(%s,0)" xlink:href="#%s"/>' %
+            (totalwidth, glyph_ref))
+        totalwidth += glyph_wid
+    if align_right:
+        x -= totalwidth * size
+    italic_text = italic and 'matrix(1,0,-0.1,1,2,0)' or ''
+    result_list.insert(
+        0, (('<g transform="translate(%s, %s)scale(%s)'+italic_text+'">')
+            % (x, y, size)))
+    result_list.append('</g>')
+    result = "\n".join(result_list)
+    return result, x+totalwidth*size, y
+%>
+  <defs id="defs3470">
+    <path id="U0020" d="" style="fill:none;stroke:#0000ff" />
+    <path id="U0041" d="m 8,0.5 -8,21 m 8,-21 8,21 m -13,-7 10,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0042" d="m 0.5,0.5 0,21 m 0,-21 9,0 3,1 1,1 1,2 0,2 -1,2 -1,1 -3,1 m -9,0 9,0 3,1 1,1 1,2 0,3 -1,2 -1,1 -3,1 -9,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0043" d="m 15.5,5.5 -1,-2 -2,-2 -2,-1 -4,0 -2,1 -2,2 -1,2 -1,3 0,5 1,3 1,2 2,2 2,1 4,0 2,-1 2,-2 1,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0044" d="m 0.5,0.5 0,21 m 0,-21 7,0 3,1 2,2 1,2 1,3 0,5 -1,3 -1,2 -2,2 -3,1 -7,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0045" d="m 0.5,0.5 0,21 m 0,-21 13,0 m -13,10 8,0 m -8,11 13,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0046" d="m 0.5,0.5 0,21 m 0,-21 13,0 m -13,10 8,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0047" d="m 15.5,5.5 -1,-2 -2,-2 -2,-1 -4,0 -2,1 -2,2 -1,2 -1,3 0,5 1,3 1,2 2,2 2,1 4,0 2,-1 2,-2 1,-2 0,-3 m -5,0 5,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0048" d="m 0.5,0.5 0,21 m 14,-21 0,21 m -14,-11 14,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0049" d="m 1.5,0.5 0,21" style="fill:none;stroke:#0000ff" />
+    <path id="U004A" d="m 10.5,0.5 0,16 -1,3 -1,1 -2,1 -2,0 -2,-1 -1,-1 -1,-3 0,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U004B" d="m 0.5,0.5 0,21 m 14,-21 -14,14 m 5,-5 9,12" style="fill:none;stroke:#0000ff" />
+    <path id="U004C" d="m 0.5,0.5 0,21 m 0,0 12,0" style="fill:none;stroke:#0000ff" />
+    <path id="U004D" d="m 0.5,0.5 0,21 m 0,-21 8,21 m 8,-21 -8,21 m 8,-21 0,21" style="fill:none;stroke:#0000ff" />
+    <path id="U004E" d="m 0.5,0.5 0,21 m 0,-21 14,21 m 0,-21 0,21" style="fill:none;stroke:#0000ff" />
+    <path id="U004F" d="m 6.5,0.5 -2,1 -2,2 -1,2 -1,3 0,5 1,3 1,2 2,2 2,1 4,0 2,-1 2,-2 1,-2 1,-3 0,-5 -1,-3 -1,-2 -2,-2 -2,-1 -4,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0050" d="m 0.5,0.5 0,21 m 0,-21 9,0 3,1 1,1 1,2 0,3 -1,2 -1,1 -3,1 -9,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0051" d="m 6.5,0.5 -2,1 -2,2 -1,2 -1,3 0,5 1,3 1,2 2,2 2,1 4,0 2,-1 2,-2 1,-2 1,-3 0,-5 -1,-3 -1,-2 -2,-2 -2,-1 -4,0 m 3,17 6,6" style="fill:none;stroke:#0000ff" />
+    <path id="U0052" d="m 0.5,0.5 0,21 m 0,-21 9,0 3,1 1,1 1,2 0,2 -1,2 -1,1 -3,1 -9,0 m 7,0 7,11" style="fill:none;stroke:#0000ff" />
+    <path id="U0053" d="m 14.5,3.5 -2,-2 -3,-1 -4,0 -3,1 -2,2 0,2 1,2 1,1 2,1 6,2 2,1 1,1 1,2 0,3 -2,2 -3,1 -4,0 -3,-1 -2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0054" d="m 7.5,0.5 0,21 m -7,-21 14,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0055" d="m 0.5,0.5 0,15 1,3 2,2 3,1 2,0 3,-1 2,-2 1,-3 0,-15" style="fill:none;stroke:#0000ff" />
+    <path id="U0056" d="m 0.5,0.5 8,21 m 8,-21 -8,21" style="fill:none;stroke:#0000ff" />
+    <path id="U0057" d="m 0.5,0.5 5,21 m 5,-21 -5,21 m 5,-21 5,21 m 5,-21 -5,21" style="fill:none;stroke:#0000ff" />
+    <path id="U0058" d="m 0.5,0.5 14,21 m 0,-21 -14,21" style="fill:none;stroke:#0000ff" />
+    <path id="U0059" d="m 0.5,0.5 8,10 0,11 m 8,-21 -8,10" style="fill:none;stroke:#0000ff" />
+    <path id="U005A" d="m 14.5,0.5 -14,21 m 0,-21 14,0 m -14,21 14,0" style="fill:none;stroke:#0000ff" />
+    <path id="U005B" d="m 0.5,0.5 0,32 m 1,-32 0,32 m -1,-32 7,0 m -7,32 7,0" style="fill:none;stroke:#0000ff" />
+    <path id="U005C" d="m 0.5,0.5 14,24" style="fill:none;stroke:#0000ff" />
+    <path id="U005D" d="m 6.5,0.5 0,32 m 1,-32 0,32 m -7,-32 7,0 m -7,32 7,0" style="fill:none;stroke:#0000ff" />
+    <path id="U005E" d="m 8.5,0.5 -8,14 m 8,-14 8,14" style="fill:none;stroke:#0000ff" />
+    <path id="U005F" d="m 0.5,0.5 18,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0060" d="m 2.5,0.5 -2,2 0,2 1,1 1,-1 -1,-1 -1,1" style="fill:none;stroke:#0000ff" />
+    <path id="U0021" d="m 1.5,0.5 0,14 m 0,5 -1,1 1,1 1,-1 -1,-1" style="fill:none;stroke:#0000ff" />
+    <path id="U0022" d="m 0.5,0.5 0,7 m 8,-7 0,7" style="fill:none;stroke:#0000ff" />
+    <path id="U0023" d="m 8.5,0.5 -7,32 m 13,-32 -7,32 m -6,-19 14,0 m -15,6 14,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0024" d="m 5.5,0.5 0,29 m 4,-29 0,29 m 5,-22 -2,-2 -3,-1 -4,0 -3,1 -2,2 0,2 1,2 1,1 2,1 6,2 2,1 1,1 1,2 0,3 -2,2 -3,1 -4,0 -3,-1 -2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0025" d="m 18.5,0.5 -18,21 m 5,-21 2,2 0,2 -1,2 -2,1 -2,0 -2,-2 0,-2 1,-2 2,-1 2,0 2,1 3,1 3,0 3,-1 2,-1 m -4,14 -2,1 -1,2 0,2 2,2 2,0 2,-1 1,-2 0,-2 -2,-2 -2,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0026" d="m 20.5,9.5 0,-1 -1,-1 -1,0 -1,1 -1,2 -2,5 -2,3 -2,2 -2,1 -4,0 -2,-1 -1,-1 -1,-2 0,-2 1,-2 1,-1 7,-4 1,-1 1,-2 0,-2 -1,-2 -2,-1 -2,1 -1,2 0,2 1,3 2,3 5,7 2,2 2,1 2,0 1,-1 0,-1" style="fill:none;stroke:#0000ff" />
+    <path id="U0027" d="m 1.5,2.5 -1,-1 1,-1 1,1 0,2 -1,2 -1,1" style="fill:none;stroke:#0000ff" />
+    <path id="U0028" d="m 7.5,0.5 -2,2 -2,3 -2,4 -1,5 0,4 1,5 2,4 2,3 2,2" style="fill:none;stroke:#0000ff" />
+    <path id="U0029" d="m 0.5,0.5 2,2 2,3 2,4 1,5 0,4 -1,5 -2,4 -2,3 -2,2" style="fill:none;stroke:#0000ff" />
+    <path id="U002A" d="m 5.5,0.5 0,12 m -5,-9 10,6 m 0,-6 -10,6" style="fill:none;stroke:#0000ff" />
+    <path id="U002B" d="m 9.5,0.5 0,18 m -9,-9 18,0" style="fill:none;stroke:#0000ff" />
+    <path id="U002C" d="m 2.5,1.5 -1,1 -1,-1 1,-1 1,1 0,2 -2,2" style="fill:none;stroke:#0000ff" />
+    <path id="U002D" d="m 0.5,20.5 18,0" style="fill:none;stroke:#0000ff" />
+    <path id="U002E" d="m 5,20.5 -1,1 1,1 1,-1 -1,-1" style="fill:none;stroke:#0000ff" />
+    <path id="U002F" d="m 18.5,0.5 -18,32" style="fill:none;stroke:#0000ff" />
+    <path id="U0030" d="m 6.5,0.5 -3,1 -2,3 -1,5 0,3 1,5 2,3 3,1 2,0 3,-1 2,-3 1,-5 0,-3 -1,-5 -2,-3 -3,-1 -2,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0031" d="m 0.5,4.5 2,-1 3,-3 0,21" style="fill:none;stroke:#0000ff" />
+    <path id="U0032" d="m 1.5,5.5 0,-1 1,-2 1,-1 2,-1 4,0 2,1 1,1 1,2 0,2 -1,2 -2,3 -10,10 14,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0033" d="m 2.5,0.5 11,0 -6,8 3,0 2,1 1,1 1,3 0,2 -1,3 -2,2 -3,1 -3,0 -3,-1 -1,-1 -1,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0034" d="m 10.5,0.5 -10,14 15,0 m -5,-14 0,21" style="fill:none;stroke:#0000ff" />
+    <path id="U0035" d="m 12.5,0.5 -10,0 -1,9 1,-1 3,-1 3,0 3,1 2,2 1,3 0,2 -1,3 -2,2 -3,1 -3,0 -3,-1 -1,-1 -1,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0036" d="m 12.5,3.5 -1,-2 -3,-1 -2,0 -3,1 -2,3 -1,5 0,5 1,4 2,2 3,1 1,0 3,-1 2,-2 1,-3 0,-1 -1,-3 -2,-2 -3,-1 -1,0 -3,1 -2,2 -1,3" style="fill:none;stroke:#0000ff" />
+    <path id="U0037" d="m 14.5,0.5 -10,21 m -4,-21 14,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0038" d="m 5.5,0.5 -3,1 -1,2 0,2 1,2 2,1 4,1 3,1 2,2 1,2 0,3 -1,2 -1,1 -3,1 -4,0 -3,-1 -1,-1 -1,-2 0,-3 1,-2 2,-2 3,-1 4,-1 2,-1 1,-2 0,-2 -1,-2 -3,-1 -4,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0039" d="m 13.5,7.5 -1,3 -2,2 -3,1 -1,0 -3,-1 -2,-2 -1,-3 0,-1 1,-3 2,-2 3,-1 1,0 3,1 2,2 1,4 0,5 -1,5 -2,3 -3,1 -2,0 -3,-1 -1,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U003A" d="m 1.5,0.5 -1,1 1,1 1,-1 -1,-1 m 0,7 -1,1 1,1 1,-1 -1,-1" style="fill:none;stroke:#0000ff" />
+    <path id="U003B" d="m 1.5,0.5 -1,1 1,1 1,-1 -1,-1 m 1,8 -1,1 -1,-1 1,-1 1,1 0,2 -2,2" style="fill:none;stroke:#0000ff" />
+    <path id="U003C" d="m 16.5,0.5 -16,9 16,9" style="fill:none;stroke:#0000ff" />
+    <path id="U003D" d="m 0.5,0.5 18,0 m -18,6 18,0" style="fill:none;stroke:#0000ff" />
+    <path id="U003E" d="m 0.5,0.5 16,9 -16,9" style="fill:none;stroke:#0000ff" />
+    <path id="U003F" d="m 0.5,5.5 0,-1 1,-2 1,-1 2,-1 4,0 2,1 1,1 1,2 0,2 -1,2 -1,1 -4,2 0,3 m 0,5 -1,1 1,1 1,-1 -1,-1" style="fill:none;stroke:#0000ff" />
+    <path id="U0040" d="m 15.5,8.5 -1,-2 -2,-1 -3,0 -2,1 -1,1 -1,3 0,3 1,2 2,1 3,0 2,-1 1,-2 m -5,-8 -2,2 -1,3 0,3 1,2 1,1 m 7,-11 -1,8 0,2 2,1 2,0 2,-2 1,-3 0,-2 -1,-3 -1,-2 -2,-2 -2,-1 -3,-1 -3,0 -3,1 -2,1 -2,2 -1,2 -1,3 0,3 1,3 1,2 2,2 2,1 3,1 3,0 3,-1 2,-1 1,-1 m -2,-13 -1,8 0,2 1,1" style="fill:none;stroke:#0000ff" />
+    <path id="U0061" d="m 12.5,7 0,14 m 0,-11 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0062" d="m 0.5,0.5 0,21 m 0,-11 2,-2 2,-1 3,0 2,1 2,2 1,3 0,2 -1,3 -2,2 -2,1 -3,0 -2,-1 -2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0063" d="m 12.5,10 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0064" d="m 12.5,0.5 0,21 m 0,-11 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0065" d="m 0.5,13 12,0 0,-2 -1,-2 -1,-1 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0066" d="m 8.5,0.5 -2,0 -2,1 -1,3 0,17 m -3,-14 7,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0067" d="m 12.5,7.5 0,16 -1,3 -1,1 -2,1 -3,0 -2,-1 m 9,-17 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0068" d="m 0.5,0.5 0,21 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#0000ff" />
+    <path id="U0069" d="m 1,0 1,1 1,-1 -1,-1 -1,1 m 1,7 0,14" style="fill:none;stroke:#0000ff" />
+    <path id="U006A" d="m 4.5,0.5 1,1 1,-1 -1,-1 -1,1 m 1,7 0,17 -1,3 -2,1 -2,0" style="fill:none;stroke:#0000ff" />
+    <path id="U006B" d="m 0.5,0.5 0,21 m 10,-14 -10,10 m 4,-4 7,8" style="fill:none;stroke:#0000ff" />
+    <path id="U006C" d="m 0.5,0.5 0,21" style="fill:none;stroke:#0000ff" />
+    <path id="U006D" d="m 0.5,7 0,14 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#0000ff" />
+    <path id="U006E" d="m 0.5,7 0,14 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#0000ff" />
+    <path id="U006F" d="m 5.5,7 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2 1,-3 0,-2 -1,-3 -2,-2 -2,-1 -3,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0070" d="m 0.5,7 0,21 m 0,-18 2,-2 2,-1 3,0 2,1 2,2 1,3 0,2 -1,3 -2,2 -2,1 -3,0 -2,-1 -2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0071" d="m 12.5,7 0,21 m 0,-18 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0072" d="m 0.5,7 0,14 m 0,-8 1,-3 2,-2 2,-1 3,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0073" d="m 11.5,10 -1,-2 -3,-1 -3,0 -3,1 -1,2 1,2 2,1 5,1 2,1 1,2 0,1 -1,2 -3,1 -3,0 -3,-1 -1,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U0074" d="m 3.5,0 0,17 1,3 2,1 2,0 m -8,-14 7,0" style="fill:none;stroke:#0000ff" />
+    <path id="U0075" d="m 0.5,7 0,10 1,3 2,1 3,0 2,-1 3,-3 m 0,-10 0,14" style="fill:none;stroke:#0000ff" />
+    <path id="U0076" d="m 0.5,7 6,14 m 6,-14 -6,14" style="fill:none;stroke:#0000ff" />
+    <path id="U0077" d="m 0.5,7 4,14 m 4,-14 -4,14 m 4,-14 4,14 m 4,-14 -4,14" style="fill:none;stroke:#0000ff" />
+    <path id="U0078" d="m 0.5,7 11,14 m 0,-14 -11,14" style="fill:none;stroke:#0000ff" />
+    <path id="U0079" d="m 1.5,7 6,14 m 6,-14 -6,14 -2,4 -2,2 -2,1 -1,0" style="fill:none;stroke:#0000ff" />
+    <path id="U007A" d="m 11.5,7 -11,14 m 0,-14 11,0 m -11,14 11,0" style="fill:none;stroke:#0000ff" />
+    <path id="U007B" d="m 5.5,0.5 -2,1 -1,1 -1,2 0,2 1,2 1,1 1,2 0,2 -2,2 m 1,-14 -1,2 0,2 1,2 1,1 1,2 0,2 -1,2 -4,2 4,2 1,2 0,2 -1,2 -1,1 -1,2 0,2 1,2 m -1,-14 2,2 0,2 -1,2 -1,1 -1,2 0,2 1,2 1,1 2,1" style="fill:none;stroke:#0000ff" />
+    <path id="U007C" d="m 0.5,0.5 0,32" style="fill:none;stroke:#0000ff" />
+    <path id="U007D" d="m 0.5,0.5 2,1 1,1 1,2 0,2 -1,2 -1,1 -1,2 0,2 2,2 m -1,-14 1,2 0,2 -1,2 -1,1 -1,2 0,2 1,2 4,2 -4,2 -1,2 0,2 1,2 1,1 1,2 0,2 -1,2 m 1,-14 -2,2 0,2 1,2 1,1 1,2 0,2 -1,2 -1,1 -2,1" style="fill:none;stroke:#0000ff" />
+    <path id="U007E" d="m 0.5,6.5 0,-2 1,-3 2,-1 2,0 2,1 4,3 2,1 2,0 2,-1 1,-2 m -18,2 1,-2 2,-1 2,0 2,1 4,3 2,1 2,0 2,-1 1,-3 0,-2" style="fill:none;stroke:#0000ff" />
+    <path id="U00D7" d="m 0.5,8.5 8,-8 m -8,0 8,8" style="fill:none;stroke:#0000ff" />
+    <path id="grave" d="m 1,0 4,4" style="fill:none;stroke:#0000ff" />
+    <path id="acute" d="m 0,4 4,-4" style="fill:none;stroke:#0000ff" />
+    <path id="circum" d="m 0,4 3,-4 3,4" style="fill:none;stroke:#0000ff" />
+    <path id="tilde" d="m -1,4 2,-3 1,0 2,3 1,0 2,-3" style="fill:none;stroke:#0000ff" />
+    <path id="dots" d="m -0.5,2 1,1 1,-1 -1,-1 -1,1 m 5,0 1,1 1,-1 -1,-1 -1,1" style="fill:none;stroke:#0000ff" />
+    <g id="U00E0"><use xlink:href="#U0061"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
+    <g id="U00E1"><use xlink:href="#U0061"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
+    <g id="U00E2"><use xlink:href="#U0061"/><use xlink:href="#circum" transform="translate(4,0)"/></g>
+    <g id="U00E3"><use xlink:href="#U0061"/><use xlink:href="#tilde" transform="translate(4,0)"/></g>
+    <g id="U00E4"><use xlink:href="#U0061"/><use xlink:href="#dots" transform="translate(4,0)"/></g>
+    <g id="U00E5"><use xlink:href="#U0061"/><path d="m 4.5,1.5 2,-2 1,0 2,2 0,1 -2,2 -1,0 -2,-2 0,-1" style="fill:none;stroke:#0000ff"/></g>
+    <path id="U00E6" d="m 5.79625,8.65048 -2.10039,0 -1.59793,0 L 0.5,9.66929 l 0,1.01881 0.53264,2.03762 0.53264,1.01881 1.0653,1.01881 1.59793,0 1.06529,-1.01881 1.06529,-2.03762 m 0,-8.15048 L 5.2938,1.51881 4.22851,0.5 2.63058,0.5 1.56528,1.51881 0.5,3.55643 m 5.53265,3.06244 7.68356,0 0,-2.02557 -0.66542,-2.02558 -0.66543,-1.01279 -1.33084,-1.0128 -1.99627,0 -1.33084,1.0128 -1.33085,2.02558 -0.36391,3.03836 0,2.0256 0.36391,3.03836 1.33085,2.02558 1.33084,1.0128 1.99627,0 1.33084,-1.0128 1.33085,-2.02558" transform="translate(0,6)" style="fill:none;stroke:#0000ff" />
+    <g id="U00E8"><use xlink:href="#U0065"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
+    <g id="U00E9"><use xlink:href="#U0065"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
+    <g id="U00EA"><use xlink:href="#U0065"/><use xlink:href="#circum" transform="translate(4,0)"/></g>
+    <g id="U00EB"><use xlink:href="#U0065"/><use xlink:href="#dots" transform="translate(4,0)"/></g>
+    <g id="U00EC"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#grave"/></g>
+    <g id="U00ED"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#acute"/></g>
+    <g id="U00EE"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#circum" transform="translate(-1,0)"/></g>
+    <g id="U00EF"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#dots" transform="translate(-1,0)"/></g>
+    <g id="U00F2"><use xlink:href="#U006F"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
+    <g id="U00F3"><use xlink:href="#U006F"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
+    <g id="U00F4"><use xlink:href="#U006F"/><use xlink:href="#circum" transform="translate(4,0)"/></g>
+    <g id="U00F5"><use xlink:href="#U006F"/><use xlink:href="#tilde" transform="translate(4,0)"/></g>
+    <g id="U00F8"><use xlink:href="#U006F"/><use xlink:href="#dots" transform="translate(4,0)"/></g>
+    <g id="U00F9"><use xlink:href="#U0075"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
+    <g id="U00FA"><use xlink:href="#U0075"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
+    <g id="U00FB"><use xlink:href="#U0075"/><use xlink:href="#circum" transform="translate(3,0)"/></g>
+    <g id="U00FC"><use xlink:href="#U0075"/><use xlink:href="#dots" transform="translate(3,0)"/></g>
+  </defs>
+<pageSet>
+<page>
+% for p, v in enumerate(get_species_pertinent_to(values)):
+  % if xpos == 2:
+    <% xpos = 0 %>
+    <% ypos += 1 %>
+  % endif
+  % if ypos == 4:
+    <% xpos = 0 %>
+    <% ypos = 0 %>
+    </page>
+    <page>
+  % endif
+  <g transform="translate(${xpos*680},${ypos*340})">
+    <path d="m 40,260 600,0" style="fill:none;stroke:#0000ff" />
+    <path d="m 0,40 c 0,-12 12,0 40,-40 l 600,0 16,4 12,8 8,12 4,16 0,260 -4,16 -8,12 -12,8 -16,4 -600,0 -16,-4 -12,-8 -8,-12 -4,-16 z" id="path3250" style="fill:none;stroke:#ff0000" />
+    <path d="m 35,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
+    <path d="m 650,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
+    <% text, x, y = add_text(40, 40, str(v.genus) + ' ', 2, italic=True) %>
+    ${text}
+    <% text, x, y = add_text(x, y, str(v.sp), 2, italic=True) %>
+    ${text}
+    % if v.infraspecific_rank:
+      <% text, x, y = add_text(40, 100, str(v.infraspecific_rank), 2, italic=False) %>
+      ${text}
+      <% text, x, y = add_text(x, y, str(v.infraspecific_epithet), 2, italic=True) %>
+      ${text}
+    % endif
+    <% text, x, y = add_text(40, 220, v.genus.family.family, 1.25) %>
+    ${text}
+    <% distribution = v.distribution_str() or v.label_distribution %>
+    <% text, x, y = add_text(640, 270, distribution, 1.25, align_right=True) %>
+    ${text}
+    <% name = v.default_vernacular_name and v.default_vernacular_name.name or '' %>
+    <% text, x, y = add_text(40, 270, name, 1.25) %>
+    ${text}
+  </g>
+  <% xpos += 1 %>
+% endfor
+</page>
+</pageSet>
+</svg>
