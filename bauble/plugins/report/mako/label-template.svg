@@ -194,6 +194,7 @@ def add_text(x, y, s, size, align_right=False, italic=False):
     <g id="U00F3"><use xlink:href="#U006F"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
     <g id="U00F4"><use xlink:href="#U006F"/><use xlink:href="#circum" transform="translate(4,0)"/></g>
     <g id="U00F5"><use xlink:href="#U006F"/><use xlink:href="#tilde" transform="translate(4,0)"/></g>
+    <g id="U00F6"><use xlink:href="#U006F"/><path d="m14,7 -14,14" style="fill:none;stroke:#0000ff"/></g>
     <g id="U00F8"><use xlink:href="#U006F"/><use xlink:href="#dots" transform="translate(4,0)"/></g>
     <g id="U00F9"><use xlink:href="#U0075"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
     <g id="U00FA"><use xlink:href="#U0075"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
