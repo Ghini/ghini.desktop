@@ -12,14 +12,14 @@ font = {
     u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
     u'$': 32, u'D': 39, u'd': 31, u'å': 31, u'Å': 38,
     u'%': 54, u'E': 32, u'e': 30, u'ä': 31, u'Ä': 38,
-    u'&': 37, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38,
+    u'&': 37, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38, u'æ': 31, u'Æ': 38,
     u"'": 13, u'G': 39, u'g': 31, u'ç': 28, u'Ç': 35,
     u'(': 22, u'H': 38, u'h': 31, u'ð': 31, u'Ð': 39,
     u')': 23, u'I': 11, u'i': 11, u'é': 30, u'É': 32,
     u'*': 32, u'J': 22, u'j': 16, u'è': 30, u'È': 31,
     u'+': 41, u'K': 35, u'k': 29, u'ê': 30, u'Ê': 32,
     u',': 18, u'L': 28, u'l': 15, u'ë': 29, u'Ë': 32,
-    u'-': 23, u'M': 39, u'm': 49, u'í': 11, u'Í': 11,
+    u'-': 23, u'M': 39, u'm': 49, u'í': 11, u'Í': 11, u'ì': 11, u'Ì': 11,
     u'.': 18, u'N': 37, u'n': 30, u'î': 11, u'Î': 11,
     u'/': 23, u'O': 40, u'o': 31, u'ï': 11, u'Ï': 11,
     u'0': 31, u'P': 30, u'p': 30, u'ñ': 30, u'Ñ': 37,
@@ -199,6 +199,37 @@ def add_text(x, y, s, size, align_right=False, italic=False):
     <g id="U00FA"><use xlink:href="#U0075"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
     <g id="U00FB"><use xlink:href="#U0075"/><use xlink:href="#circum" transform="translate(3,0)"/></g>
     <g id="U00FC"><use xlink:href="#U0075"/><use xlink:href="#dots" transform="translate(3,0)"/></g>
+
+
+    <g id="U00C0"><use xlink:href="#U0041"/><use xlink:href="#grave" transform="translate(6,-5)"/></g>
+    <g id="U00C1"><use xlink:href="#U0041"/><use xlink:href="#acute" transform="translate(5,-5)"/></g>
+    <g id="U00C2"><use xlink:href="#U0041"/><use xlink:href="#circum" transform="translate(5,-5)"/></g>
+    <g id="U00C3"><use xlink:href="#U0041"/><use xlink:href="#tilde" transform="translate(5,-5)"/></g>
+    <g id="U00C4"><use xlink:href="#U0041"/><use xlink:href="#dots" transform="translate(5,-5)"/></g>
+    <g id="U00C5"><use xlink:href="#U0041"/><path d="m 5.5,-2.5 2,-2 1,0 2,2 0,1 -2,2 -1,0 -2,-2 0,-1" style="fill:none;stroke:#0000ff"/></g>
+    <path id="U00C6" d="m 8,0.5 -1,0 -7,21 m 3,-7 5,0 m 0,7 0,-21 8,0 m -8,10 6,0 m -6,11 8,0" style="fill:none;stroke:#0000ff" />
+
+    <g id="U00C8"><use xlink:href="#U0045"/><use xlink:href="#grave" transform="translate(4,-5)"/></g>
+    <g id="U00C9"><use xlink:href="#U0045"/><use xlink:href="#acute" transform="translate(4,-5)"/></g>
+    <g id="U00CA"><use xlink:href="#U0045"/><use xlink:href="#circum" transform="translate(4,-5)"/></g>
+    <g id="U00CB"><use xlink:href="#U0045"/><use xlink:href="#dots" transform="translate(4,-5)"/></g>
+
+    <g id="U00CC"><use xlink:href="#U0049"/><use xlink:href="#grave" transform="translate(-1.5,-5)"/></g>
+    <g id="U00CD"><use xlink:href="#U0049"/><use xlink:href="#acute" transform="translate(-1.5,-5)"/></g>
+    <g id="U00CE"><use xlink:href="#U0049"/><use xlink:href="#circum" transform="translate(-1.5,-5)"/></g>
+    <g id="U00CF"><use xlink:href="#U0049"/><use xlink:href="#dots" transform="translate(-1.5,-5)"/></g>
+
+    <g id="U00D2"><use xlink:href="#U004F"/><use xlink:href="#grave" transform="translate(5.5,-5)"/></g>
+    <g id="U00D3"><use xlink:href="#U004F"/><use xlink:href="#acute" transform="translate(5.5,-5)"/></g>
+    <g id="U00D4"><use xlink:href="#U004F"/><use xlink:href="#circum" transform="translate(5.5,-5)"/></g>
+    <g id="U00D5"><use xlink:href="#U004F"/><use xlink:href="#tilde" transform="translate(5.5,-5)"/></g>
+    <g id="U00D6"><use xlink:href="#U004F"/><path d="m 0,21 17,-20" style="fill:none;stroke:#0000ff"/></g>
+    <g id="U00D8"><use xlink:href="#U004F"/><use xlink:href="#dots" transform="translate(5.5,-5)"/></g>
+
+    <g id="U00D9"><use xlink:href="#U0055"/><use xlink:href="#grave" transform="translate(5,-5)"/></g>
+    <g id="U00DA"><use xlink:href="#U0055"/><use xlink:href="#acute" transform="translate(5,-5)"/></g>
+    <g id="U00DB"><use xlink:href="#U0055"/><use xlink:href="#circum" transform="translate(4.5,-5)"/></g>
+    <g id="U00DC"><use xlink:href="#U0055"/><use xlink:href="#dots" transform="translate(4.5,-5)"/></g>
   </defs>
 <pageSet>
 <page>
@@ -215,7 +246,7 @@ def add_text(x, y, s, size, align_right=False, italic=False):
   % endif
   <g transform="translate(${xpos*680},${ypos*340})">
     <path d="m 40,260 600,0" style="fill:none;stroke:#0000ff" />
-    <path d="m 0,40 c 0,-12 12,0 40,-40 l 600,0 16,4 12,8 8,12 4,16 0,260 -4,16 -8,12 -12,8 -16,4 -600,0 -16,-4 -12,-8 -8,-12 -4,-16 z" id="path3250" style="fill:none;stroke:#ff0000" />
+    <path d="m 0,40 c 0,-28 12,-40 40,-40 l 600,0 c 28,0 40,12 40,40 l 0,260 c 0,20 -12,40 -40,40 l -600,0 c -28,0 -40,-12,-40,-40 z" id="path3250" style="fill:none;stroke:#ff0000" />
     <path d="m 35,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
     <path d="m 650,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
     <% text, x, y = add_text(40, 40, str(v.genus) + ' ', 2, italic=True) %>
