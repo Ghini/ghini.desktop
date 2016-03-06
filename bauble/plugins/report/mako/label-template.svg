@@ -300,13 +300,13 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
     <g id="s1-u00fb"><use xlink:href="#s1-u0075"/><use xlink:href="#circum" transform="translate(3,0)"/></g>
     <g id="s1-u00fc"><use xlink:href="#s1-u0075"/><use xlink:href="#dots" transform="translate(3,0)"/></g>
 
-    <g id="s1-u00c0"><use xlink:href="#s1-u0041"/><use xlink:href="#grave" transform="translate(6,-5)"/></g>
-    <g id="s1-u00c1"><use xlink:href="#s1-u0041"/><use xlink:href="#acute" transform="translate(5,-5)"/></g>
-    <g id="s1-u00c2"><use xlink:href="#s1-u0041"/><use xlink:href="#circum" transform="translate(5,-5)"/></g>
-    <g id="s1-u00c3"><use xlink:href="#s1-u0041"/><use xlink:href="#tilde" transform="translate(5,-5)"/></g>
-    <g id="s1-u00c4"><use xlink:href="#s1-u0041"/><use xlink:href="#dots" transform="translate(5,-5)"/></g>
+    <g id="s1-u00c0"><use xlink:href="#s1-u0041"/><use xlink:href="#grave" transform="translate(4,-5)"/></g>
+    <g id="s1-u00c1"><use xlink:href="#s1-u0041"/><use xlink:href="#acute" transform="translate(4,-5)"/></g>
+    <g id="s1-u00c2"><use xlink:href="#s1-u0041"/><use xlink:href="#circum" transform="translate(4,-5)"/></g>
+    <g id="s1-u00c3"><use xlink:href="#s1-u0041"/><use xlink:href="#tilde" transform="translate(4,-5)"/></g>
+    <g id="s1-u00c4"><use xlink:href="#s1-u0041"/><use xlink:href="#dots" transform="translate(4,-5)"/></g>
     <g id="s1-u00c5"><use xlink:href="#s1-u0041"/><use xlink:href="#ring" transform="translate(3,-3)"/></g>
-    <path id="s1-u00c6" d="m 8,0.5 -1,0 -7,21 m 3,-7 5,0 m 0,7 0,-21 8,0 m -8,10 6,0 m -6,11 8,0" style="fill:none;stroke:#0000ff" />
+    <path id="s1-u00c6" d="m 8,-21 -1,0 -7,21 m 3,-7 5,0 m 0,7 0,-21 8,0 m -8,10 6,0 m -6,11 8,0" style="fill:none;stroke:#0000ff" />
 
     <g id="s1-u00c8"><use xlink:href="#s1-u0045"/><use xlink:href="#grave" transform="translate(4,-5)"/></g>
     <g id="s1-u00c9"><use xlink:href="#s1-u0045"/><use xlink:href="#acute" transform="translate(4,-5)"/></g>
