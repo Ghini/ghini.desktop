@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1244.09448" height="1052.3622" id="svg2">
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1360" height="1360" id="svg2">
 <%
 from bauble.plugins.report import get_species_pertinent_to
 
@@ -8,27 +8,27 @@ xpos = ypos = 0
 
 font = {
     u'!': 20, u'A': 36, u'a': 31, u'á': 31, u'Á': 38,
-    u'"': 23, u'B': 34, u'b': 31, u'à': 31, u'À': 38,
+    u'"': 23, u'B': 34, u'b': 32, u'à': 31, u'À': 38,
     u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
     u'$': 32, u'D': 39, u'd': 31, u'å': 31, u'Å': 38,
     u'%': 54, u'E': 32, u'e': 30, u'ä': 31, u'Ä': 38,
     u'&': 37, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38, u'æ': 31, u'Æ': 38,
     u"'": 13, u'G': 39, u'g': 31, u'ç': 28, u'Ç': 35,
-    u'(': 22, u'H': 38, u'h': 31, u'ð': 31, u'Ð': 39,
+    u'(': 22, u'H': 38, u'h': 32, u'ð': 31, u'Ð': 39,
     u')': 23, u'I': 11, u'i': 11, u'é': 30, u'É': 32,
     u'*': 32, u'J': 22, u'j': 16, u'è': 30, u'È': 31,
     u'+': 41, u'K': 35, u'k': 29, u'ê': 30, u'Ê': 32,
-    u',': 18, u'L': 28, u'l': 15, u'ë': 29, u'Ë': 32,
-    u'-': 23, u'M': 39, u'm': 49, u'í': 11, u'Í': 11, u'ì': 11, u'Ì': 11,
-    u'.': 18, u'N': 37, u'n': 30, u'î': 11, u'Î': 11,
+    u',': 18, u'L': 28, u'l': 11, u'ë': 29, u'Ë': 32,
+    u'-': 23, u'M': 39, u'm': 51, u'í': 11, u'Í': 11, u'ì': 11, u'Ì': 11,
+    u'.': 18, u'N': 37, u'n': 31, u'î': 11, u'Î': 11,
     u'/': 23, u'O': 40, u'o': 31, u'ï': 11, u'Ï': 11,
-    u'0': 31, u'P': 30, u'p': 30, u'ñ': 30, u'Ñ': 37,
+    u'0': 31, u'P': 31, u'p': 32, u'ñ': 30, u'Ñ': 37,
     u'1': 32, u'Q': 39, u'q': 32, u'ó': 31, u'Ó': 40,
-    u'2': 32, u'R': 35, u'r': 21, u'ò': 31, u'Ò': 40,
+    u'2': 32, u'R': 35, u'r': 22, u'ò': 31, u'Ò': 40,
     u'3': 32, u'S': 34, u's': 27, u'ô': 31, u'Ô': 40,
-    u'4': 32, u'T': 33, u't': 20, u'ö': 31, u'Ö': 40,
-    u'5': 31, u'U': 37, u'u': 31, u'õ': 31, u'Õ': 40,
-    u'6': 32, u'V': 36, u'v': 30, u'ø': 31, u'Ø': 40,
+    u'4': 32, u'T': 29, u't': 20, u'ö': 31, u'Ö': 40,
+    u'5': 31, u'U': 37, u'u': 32, u'õ': 31, u'Õ': 40,
+    u'6': 32, u'V': 36, u'v': 27, u'ø': 31, u'Ø': 40,
     u'7': 32, u'W': 49, u'w': 41, u'ú': 32, u'Ú': 37,
     u'8': 32, u'X': 34, u'x': 29, u'ù': 31, u'Ù': 36,
     u'9': 31, u'Y': 31, u'y': 30, u'û': 32, u'Û': 37,
@@ -271,39 +271,41 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
     <path id="circum" d="m 3,-18 3,-4 3,4" style="fill:none;stroke:#0000ff" />
     <path id="tilde" d="m 2.5,-18 2,-3 1,0 2,3 1,0 2,-3" style="fill:none;stroke:#0000ff" />
     <path id="dots" d="m 2.5,-20 1,1 1,-1 -1,-1 -1,1 m 5,0 1,1 1,-1 -1,-1 -1,1" style="fill:none;stroke:#0000ff" />
+    <path id="ring" d="m 4,-20 2,-2 1,0 2,2 0,1 -2,2 -1,0 -2,-2 0,-1" style="fill:none;stroke:#0000ff"/>
     <g id="s1-u00e0"><use xlink:href="#s1-u0061"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
     <g id="s1-u00e1"><use xlink:href="#s1-u0061"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
     <g id="s1-u00e2"><use xlink:href="#s1-u0061"/><use xlink:href="#circum" transform="translate(4,0)"/></g>
     <g id="s1-u00e3"><use xlink:href="#s1-u0061"/><use xlink:href="#tilde" transform="translate(4,0)"/></g>
     <g id="s1-u00e4"><use xlink:href="#s1-u0061"/><use xlink:href="#dots" transform="translate(4,0)"/></g>
-    <g id="s1-u00e5"><use xlink:href="#s1-u0061"/><path d="m 4.5,1.5 2,-2 1,0 2,2 0,1 -2,2 -1,0 -2,-2 0,-1" style="fill:none;stroke:#0000ff"/></g>
-    <path id="s1-u00e6" d="m 5.79625,8.65048 -2.10039,0 -1.59793,0 L 0.5,9.66929 l 0,1.01881 0.53264,2.03762 0.53264,1.01881 1.0653,1.01881 1.59793,0 1.06529,-1.01881 1.06529,-2.03762 m 0,-8.15048 L 5.2938,1.51881 4.22851,0.5 2.63058,0.5 1.56528,1.51881 0.5,3.55643 m 5.53265,3.06244 7.68356,0 0,-2.02557 -0.66542,-2.02558 -0.66543,-1.01279 -1.33084,-1.0128 -1.99627,0 -1.33084,1.0128 -1.33085,2.02558 -0.36391,3.03836 0,2.0256 0.36391,3.03836 1.33085,2.02558 1.33084,1.0128 1.99627,0 1.33084,-1.0128 1.33085,-2.02558" transform="translate(0,6)" style="fill:none;stroke:#0000ff" />
+    <g id="s1-u00e5"><use xlink:href="#s1-u0061"/><use xlink:href="#ring" transform="translate(4,0)"/></g>
+    <path id="s1-u00e6" d="m 8,-12.35 -1.6,-1.5 -1.9,0 -1.5,1.5 -0.2,1 0,1 0.5,2 0.5,1 1,1 1.6,0 1,-1 1,-2 m 0,-8.15048 l -0.6,-2 -1,-1 -1.6,0 -1.1,1 -1,2 m 4.5,3.06244 7.68356,0 0,-2.02557 -0.66542,-2.02558 -0.66543,-1.01279 -1.33084,-1.0128 -1.99627,0 -1.33084,1.0128 -1.33085,2.02558 -0.36391,3.03836 0,2.0256 0.36391,3.03836 1.33085,2.02558 1.33084,1.0128 1.99627,0 1.33084,-1.0128 1.33085,-2.02558" transform="translate(0,6)" style="fill:none;stroke:#0000ff" />
+
     <g id="s1-u00e8"><use xlink:href="#s1-u0065"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
     <g id="s1-u00e9"><use xlink:href="#s1-u0065"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
     <g id="s1-u00ea"><use xlink:href="#s1-u0065"/><use xlink:href="#circum" transform="translate(4,0)"/></g>
     <g id="s1-u00eb"><use xlink:href="#s1-u0065"/><use xlink:href="#dots" transform="translate(4,0)"/></g>
-    <g id="s1-u00ec"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#grave"/></g>
-    <g id="s1-u00ed"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#acute"/></g>
-    <g id="s1-u00ee"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#circum" transform="translate(-1,0)"/></g>
-    <g id="s1-u00ef"><path d="m 2,7 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#dots" transform="translate(-1,0)"/></g>
+    <g id="s1-u00ec"><path d="m 2,-14 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#grave"/></g>
+    <g id="s1-u00ed"><path d="m 2,-14 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#acute"/></g>
+    <g id="s1-u00ee"><path d="m 2,-14 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#circum" transform="translate(-1,0)"/></g>
+    <g id="s1-u00ef"><path d="m 2,-14 0,14" style="fill:none;stroke:#0000ff"/><use xlink:href="#dots" transform="translate(-1,0)"/></g>
+
     <g id="s1-u00f2"><use xlink:href="#s1-u006f"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
     <g id="s1-u00f3"><use xlink:href="#s1-u006f"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
     <g id="s1-u00f4"><use xlink:href="#s1-u006f"/><use xlink:href="#circum" transform="translate(4,0)"/></g>
     <g id="s1-u00f5"><use xlink:href="#s1-u006f"/><use xlink:href="#tilde" transform="translate(4,0)"/></g>
-    <g id="s1-u00f6"><use xlink:href="#s1-u006f"/><path d="m14,7 -14,14" style="fill:none;stroke:#0000ff"/></g>
+    <g id="s1-u00f6"><use xlink:href="#s1-u006f"/><path d="m17,-14 -14,14" style="fill:none;stroke:#0000ff"/></g>
     <g id="s1-u00f8"><use xlink:href="#s1-u006f"/><use xlink:href="#dots" transform="translate(4,0)"/></g>
     <g id="s1-u00f9"><use xlink:href="#s1-u0075"/><use xlink:href="#grave" transform="translate(4,0)"/></g>
     <g id="s1-u00fa"><use xlink:href="#s1-u0075"/><use xlink:href="#acute" transform="translate(4,0)"/></g>
     <g id="s1-u00fb"><use xlink:href="#s1-u0075"/><use xlink:href="#circum" transform="translate(3,0)"/></g>
     <g id="s1-u00fc"><use xlink:href="#s1-u0075"/><use xlink:href="#dots" transform="translate(3,0)"/></g>
 
-
     <g id="s1-u00c0"><use xlink:href="#s1-u0041"/><use xlink:href="#grave" transform="translate(6,-5)"/></g>
     <g id="s1-u00c1"><use xlink:href="#s1-u0041"/><use xlink:href="#acute" transform="translate(5,-5)"/></g>
     <g id="s1-u00c2"><use xlink:href="#s1-u0041"/><use xlink:href="#circum" transform="translate(5,-5)"/></g>
     <g id="s1-u00c3"><use xlink:href="#s1-u0041"/><use xlink:href="#tilde" transform="translate(5,-5)"/></g>
     <g id="s1-u00c4"><use xlink:href="#s1-u0041"/><use xlink:href="#dots" transform="translate(5,-5)"/></g>
-    <g id="s1-u00c5"><use xlink:href="#s1-u0041"/><path d="m 5.5,-2.5 2,-2 1,0 2,2 0,1 -2,2 -1,0 -2,-2 0,-1" style="fill:none;stroke:#0000ff"/></g>
+    <g id="s1-u00c5"><use xlink:href="#s1-u0041"/><use xlink:href="#ring" transform="translate(3,-3)"/></g>
     <path id="s1-u00c6" d="m 8,0.5 -1,0 -7,21 m 3,-7 5,0 m 0,7 0,-21 8,0 m -8,10 6,0 m -6,11 8,0" style="fill:none;stroke:#0000ff" />
 
     <g id="s1-u00c8"><use xlink:href="#s1-u0045"/><use xlink:href="#grave" transform="translate(4,-5)"/></g>
@@ -346,10 +348,15 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
     <path d="m 0,40 c 0,-28 12,-40 40,-40 l 600,0 c 28,0 40,12 40,40 l 0,260 c 0,20 -12,40 -40,40 l -600,0 c -28,0 -40,-12,-40,-40 z" id="path3250" style="fill:none;stroke:#ff0000" />
     <path d="m 35,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
     <path d="m 650,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
-    <% text, x, y = add_text(22, 90, str(v.genus) + ' ', 2, italic=True, strokes=2) %>
-    ${text}
-    <% text, x, y = add_text(x, y, str(v.sp), 2, italic=True, strokes=2) %>
-    ${text}
+    <% x_base = 22 %>
+    <% text_genus, x, y = add_text(x_base, 90, str(v.genus) + ' ', 2, italic=True, strokes=2) %>
+    <% text_species, x, y = add_text(x, y, str(v.sp), 2, italic=True, strokes=2) %>
+    % if (x-x_base) > 600:
+      <g transform="translate(${x_base},0)scale(${600.0/(x-x_base)},1)translate(-${x_base},0)">${text_genus}${text_species}</g>
+    % else:
+      ${text_genus}
+      ${text_species}
+    % endif
     % if v.infraspecific_rank:
       <% text, x, y = add_text(25, 150, str(v.infraspecific_rank), 2, italic=False, strokes=2) %>
       ${text}
