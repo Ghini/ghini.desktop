@@ -11,29 +11,29 @@ font = {
     u'"': 23, u'B': 34, u'b': 32, u'à': 31, u'À': 38,
     u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
     u'$': 32, u'D': 39, u'd': 31, u'å': 31, u'Å': 38,
-    u'%': 54, u'E': 32, u'e': 30, u'ä': 31, u'Ä': 38,
-    u'&': 37, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38, u'æ': 31, u'Æ': 38,
+    u'%': 50, u'E': 32, u'e': 30, u'ä': 31, u'Ä': 38,
+    u'&': 46, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38, u'æ': 31, u'Æ': 38,
     u"'": 13, u'G': 39, u'g': 31, u'ç': 28, u'Ç': 35,
     u'(': 22, u'H': 38, u'h': 32, u'ð': 31, u'Ð': 39,
     u')': 23, u'I': 11, u'i': 11, u'é': 30, u'É': 32,
-    u'*': 32, u'J': 22, u'j': 16, u'è': 30, u'È': 31,
+    u'*': 32, u'J': 22, u'j': 11, u'è': 30, u'È': 31,
     u'+': 41, u'K': 35, u'k': 29, u'ê': 30, u'Ê': 32,
     u',': 18, u'L': 28, u'l': 11, u'ë': 29, u'Ë': 32,
-    u'-': 23, u'M': 39, u'm': 51, u'í': 11, u'Í': 11, u'ì': 11, u'Ì': 11,
+    u'-': 41, u'M': 39, u'm': 52, u'í': 11, u'Í': 11, u'ì': 11, u'Ì': 11,
     u'.': 18, u'N': 37, u'n': 31, u'î': 11, u'Î': 11,
     u'/': 23, u'O': 40, u'o': 31, u'ï': 11, u'Ï': 11,
-    u'0': 31, u'P': 31, u'p': 32, u'ñ': 30, u'Ñ': 37,
+    u'0': 32, u'P': 31, u'p': 32, u'ñ': 30, u'Ñ': 37,
     u'1': 32, u'Q': 39, u'q': 32, u'ó': 31, u'Ó': 40,
     u'2': 32, u'R': 35, u'r': 22, u'ò': 31, u'Ò': 40,
     u'3': 32, u'S': 34, u's': 27, u'ô': 31, u'Ô': 40,
-    u'4': 32, u'T': 29, u't': 20, u'ö': 31, u'Ö': 40,
-    u'5': 31, u'U': 37, u'u': 32, u'õ': 31, u'Õ': 40,
+    u'4': 32, u'T': 29, u't': 18, u'ö': 31, u'Ö': 40,
+    u'5': 32, u'U': 37, u'u': 32, u'õ': 31, u'Õ': 40,
     u'6': 32, u'V': 36, u'v': 27, u'ø': 31, u'Ø': 40,
     u'7': 32, u'W': 49, u'w': 41, u'ú': 32, u'Ú': 37,
     u'8': 32, u'X': 34, u'x': 29, u'ù': 31, u'Ù': 36,
-    u'9': 31, u'Y': 31, u'y': 30, u'û': 32, u'Û': 37,
-    u':': 23, u'Z': 34, u'z': 26, u'ü': 32, u'Ü': 37,
-    u';': 23, u'[': 23, u'{': 32, u'ý': 29, u'Ý': 30,
+    u'9': 32, u'Y': 31, u'y': 27, u'û': 32, u'Û': 37,
+    u':': 18, u'Z': 34, u'z': 26, u'ü': 32, u'Ü': 37,
+    u';': 18, u'[': 23, u'{': 32, u'ý': 29, u'Ý': 30,
     u'<': 41, u'\\': 23, u'|': 23, u'ÿ': 30, u'Ÿ': 31,
     u'=': 41, u']': 23, u'}': 32, u'ń': 31, u'Ń': 38,
     u'>': 41, u'^': 40, u'~': 41, u'ł': 15, u'Ł': 27,
@@ -72,7 +72,7 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
     result_list.append('</g>')
     result = "\n".join(result_list)
     return result, x+totalwidth*size, y
-%>
+%>\
   <defs id="defs3470">
     <path id="s2-u0020" d="" style="fill:none;stroke:#0000ff" />
     <path id="s2-u0021" d="m -7,-2 m 10.5844,-19.405662 0,14 1,0 m -1,-14 1,0 0,14 m -1,4 -1,1 0,1 1,1 1,0 1,-1 0,-1 -1,-1 -1,0 m 0,1 0,1 1,0 0,-1 -1,0" style="fill:none;stroke:#0000ff" />
@@ -243,7 +243,7 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
     <path id="s1-u0067" d="m 15.69094,-14.000616 0,16 -1,3 -1,1 -2,1 -3,0 -2,-1 m 9,-17 -2,-2 -2,-1 -3,0 -2,1 -2,2 -1,3 0,2 1,3 2,2 2,1 3,0 2,-1 2,-2" style="fill:none;stroke:#0000ff" />
     <path id="s1-u0068" d="m 4.69094,-21.000616 0,21 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#0000ff" />
     <path id="s1-u0069" d="m 3.69094,-21.000616 1,1 1,-1 -1,-1 -1,1 m 1,7 0,14" style="fill:none;stroke:#0000ff" />
-    <path id="s1-u006a" d="m 5.69094,-21.000616 1,1 1,-1 -1,-1 -1,1 m 1,7 0,17 -1,3 -2,1 -2,0" style="fill:none;stroke:#0000ff" />
+    <path id="s1-u006a" d="m 3.69094,-21.000616 1,1 1,-1 -1,-1 -1,1 m 1,7 0,17 -1,3 -2,1 -2,0" style="fill:none;stroke:#0000ff" />
     <path id="s1-u006b" d="m 4.69094,-21.000616 0,21 m 10,-14 -10,10 m 4,-4 7,8" style="fill:none;stroke:#0000ff" />
     <path id="s1-u006c" d="m 4.690954,-21.000616 0,21" style="fill:none;stroke:#0000ff" />
     <path id="s1-u006d" d="m 4.690954,-14.000616 0,14 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10 m 0,-10 3,-3 2,-1 3,0 2,1 1,3 0,10" style="fill:none;stroke:#0000ff" />
@@ -348,9 +348,9 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
     <path d="m 0,40 c 0,-28 12,-40 40,-40 l 600,0 c 28,0 40,12 40,40 l 0,260 c 0,20 -12,40 -40,40 l -600,0 c -28,0 -40,-12,-40,-40 z" id="path3250" style="fill:none;stroke:#ff0000" />
     <path d="m 35,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
     <path d="m 650,35 m 3.08482,-3.08482, -1.80704,4.362586 -4.36258,1.807042 -4.36259,-1.807042 l -1.807042,-4.36259 l 1.80704,-4.362585 4.36259,-1.807042 4.36258,1.807042 z" style="fill:none;stroke:#ff0000" />
-    <% x_base = 40 %>\
-    <% text_genus, x, y = add_text(x_base, 90, unicode(v.genus) + ' ', 2, italic=True, strokes=2) %>\
-    <% text_species, x, y = add_text(x, y, unicode(v.sp), 2, italic=True, strokes=2) %>\
+<% x_base = 40 %>\
+<% text_genus, x, y = add_text(x_base, 90, unicode(v.genus) + ' ', 2, italic=True, strokes=2) %>\
+<% text_species, x, y = add_text(x, y, unicode(v.sp), 2, italic=True, strokes=2) %>\
     % if (x-x_base) > 600:
       <g transform="translate(${x_base},0)scale(${600.0/(x-x_base)},1)translate(-${x_base},0)">${text_genus}${text_species}</g>
     % else:
@@ -358,24 +358,23 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
       ${text_species}
     % endif
     % if v.infraspecific_rank:
-      <% text, x, y = add_text(x_base, 150, unicode(v.infraspecific_rank), 2, italic=False, strokes=2) %>\
-      ${text}
-      <% text, x, y = add_text(x_base, y, unicode(v.infraspecific_epithet), 2, italic=True, strokes=2) %>\
-      ${text}
+<% text_rank, x, y = add_text(x_base, 150, unicode(v.infraspecific_rank), 2, italic=False, strokes=2) %>\
+<% text_epithet, x, y = add_text(x, y, unicode(v.infraspecific_epithet), 2, italic=True, strokes=2) %>\
+      <g transform="translate(${x_base},0)scale(${min(1,600.0/(x-x_base))},1)translate(-${x_base},0)">${text_rank}${text_epithet}</g>
     % elif v.sp_author:
       <% text, x, y = add_text(min(x, 600+x_base), 140, v.sp_author, 1.25, italic=False, align_right=True) %>\
       ${text}
     % endif
-    <% text, x, y = add_text(40, 245, v.genus.family.family, 1.25) %>\
+<% text, x, y = add_text(40, 245, v.genus.family.family, 1.25) %>\
     ${text}
-    <% distribution = v.distribution_str() or v.label_distribution %>\
-    <% text, x, y = add_text(640, 300, distribution, 1.25, align_right=True) %>\
+<% distribution = v.distribution_str() or v.label_distribution %>\
+<% text, x, y = add_text(640, 300, distribution, 1.25, align_right=True) %>\
     ${text}
-    <% name = v.default_vernacular_name and v.default_vernacular_name.name or '' %>\
-    <% text, x, y = add_text(40, y, name, 1.25) %>\
+<% name = v.default_vernacular_name and v.default_vernacular_name.name or '' %>\
+<% text, x, y = add_text(40, y, name, 1.25) %>\
     ${text}
   </g>
-  <% xpos += 1 %>
+<% xpos += 1 %>\
 % endfor
 </page>
 </pageSet>
