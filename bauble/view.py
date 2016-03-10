@@ -986,6 +986,8 @@ class SearchView(pluginmgr.View):
             return
         # now update the the cell
         value = model[treeiter][0]
+        logger.debug('TBR: far too detailed, please do not keep us here')
+        logger.debug('TBR: %s' % value)
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
@@ -1003,9 +1005,10 @@ class SearchView(pluginmgr.View):
                     self.session.merge(value)
             try:
                 r = value.search_view_markup_pair()
-                if isinstance(r, (list, tuple)):
+                logger.debug('TBR: %s' % str(r))
+                try:
                     main, substr = r
-                else:
+                except:
                     main = r
                     substr = '(%s)' % type(value).__name__
                 cell.set_property(
@@ -1015,7 +1018,8 @@ class SearchView(pluginmgr.View):
 
             except (saexc.InvalidRequestError, TypeError), e:
                 logger.warning(
-                    'bauble.view.SearchView.cell_data_func(): \n%s' % e)
+                    'bauble.view.SearchView.cell_data_func(): \n(%s)%s' %
+                    (type(e), e))
 
                 def remove():
                     model = self.results_view.get_model()
@@ -1024,6 +1028,12 @@ class SearchView(pluginmgr.View):
                         model.remove(found)
                     self.results_view.set_model(model)
                 gobject.idle_add(remove)
+
+            except Exception, e:
+                logger.error(
+                    'bauble.view.SearchView.cell_data_func(): \n(%s)%s' %
+                    (type(e), e))
+                raise
 
     def get_expanded_rows(self):
         '''
