@@ -65,8 +65,8 @@ def validate_xml(root):
     :param root: root of an XML tree to validate against
     :returns: True or False depending if root validates correctly
     """
-    schema_file = os.path.join(paths.lib_dir(), 'plugins',
-                               'abcd', 'abcd_2.06.xsd')
+    schema_file = os.path.join(
+        paths.lib_dir(), 'plugins', 'abcd', 'abcd_2.06.xsd')
     xmlschema_doc = etree.parse(schema_file)
     abcd_schema = etree.XMLSchema(xmlschema_doc)
     return abcd_schema.validate(root)
@@ -91,7 +91,9 @@ namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
 
 def ABCDElement(parent, name, text=None, attrib=None):
     """
-    A factory function to create an ABCDElement, must be a subelement.
+    append a named element to parent, with text and attributes.
+
+    it assumes the element to be added is in the abcd namespace.
 
     :param parent: an element
     :param name: a string, the name of the new element
@@ -164,6 +166,15 @@ class ABCDAdapter(object):
         """
         Get the Author string.
         """
+        pass
+
+    def get_InfraspecificAuthor(self):
+        pass
+
+    def get_InfraspecificRank(self):
+        pass
+
+    def get_InfraspecificEpithet(self):
         pass
 
     def get_InformalNameString(self):
@@ -254,6 +265,11 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         ABCDElement(botanical, 'GenusOrMonomial',
                     text=obj.get_GenusOrMonomial())
         ABCDElement(botanical, 'FirstEpithet', text=obj.get_FirstEpithet())
+        if obj.get_InfraspecificEpithet():
+            ABCDElement(botanical, 'InfraspecificEpithet',
+                        text=obj.get_InfraspecificEpithet())
+            ABCDElement(botanical, 'Rank',
+                        text=obj.get_InfraspecificRank())
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
