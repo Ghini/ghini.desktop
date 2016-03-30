@@ -488,7 +488,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         else:
             located_counted = ('%s <span foreground="#555555" size="small" '
                                'weight="light">- %s alive in %s</span>') % (
-                utils.xml_safe(self), self.quantity, self.location)
+                utils.xml_safe(self), self.quantity, utils.xml_safe(self.location))
             return located_counted, sp_str
 
     @classmethod
