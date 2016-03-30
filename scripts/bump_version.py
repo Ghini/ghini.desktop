@@ -137,11 +137,14 @@ bump_py_file(os.path.join(root_of_clone(), 'doc/conf.py'), 'release')
 bump_desktop_file(os.path.join(root_of_clone(), 'data/ghini.desktop'))
 bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build.nsi'))
 
-# TODO: the bauble UBC version is prefixed with ubc-
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
+
+rx = "(^version=)[0-9]*\.[0-9]*\.[0-9]*(.*?%s.*$)" % bump_tag
+bump_file(os.path.join(root_of_clone(), 'scripts/installer.cfg'), rx)
 
 # TODO: commit the changes
 print
 print 'git commit -m "bumping to %s" bauble/version.py doc/conf.py'\
-    ' data/ghini.desktop scripts/build.nsi packages/builddeb.sh' % version
+    ' data/ghini.desktop scripts/build.nsi packages/builddeb.sh' \
+    ' scripts/installer.cfg' % version
