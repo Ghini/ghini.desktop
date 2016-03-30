@@ -986,8 +986,8 @@ class SearchView(pluginmgr.View):
             return
         # now update the the cell
         value = model[treeiter][0]
-        logger.debug('TBR: far too detailed, please do not keep us here')
-        logger.debug('TBR: %s' % value)
+        #logger.debug('TBR: far too detailed, please do not keep us here')
+        #logger.debug('TBR: %s' % value)
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
@@ -1005,7 +1005,7 @@ class SearchView(pluginmgr.View):
                     self.session.merge(value)
             try:
                 r = value.search_view_markup_pair()
-                logger.debug('TBR: %s' % str(r))
+                #logger.debug('TBR: %s' % str(r))
                 try:
                     main, substr = r
                 except:
