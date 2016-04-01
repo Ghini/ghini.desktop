@@ -978,15 +978,16 @@ class SearchView(pluginmgr.View):
         return model
 
     def cell_data_func(self, col, cell, model, treeiter):
+        # start with a (redundant) check, whether the cell is visible.
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
         cell_rect = self.results_view.get_cell_area(path, col)
         if cell_rect.y > tree_rect.height:
-            # only update the cells if they're visible...this
-            # drastically speeds up populating the view with large
-            # datasets
             return
+        # now update the the cell
         value = model[treeiter][0]
+        #logger.debug('TBR: far too detailed, please do not keep us here')
+        #logger.debug('TBR: %s' % value)
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
@@ -994,7 +995,7 @@ class SearchView(pluginmgr.View):
             # view's session so that we can access its child
             # properties...this usually happens when one of the
             # ViewMeta's get_children() functions return a list of
-            # object who's session was closed...we add it here for
+            # object whose session was closed...we add it here for
             # performance reasons so we only add it once it's visible
             if not object_session(value):
                 if value in self.session:
@@ -1004,9 +1005,10 @@ class SearchView(pluginmgr.View):
                     self.session.merge(value)
             try:
                 r = value.search_view_markup_pair()
-                if isinstance(r, (list, tuple)):
+                #logger.debug('TBR: %s' % str(r))
+                try:
                     main, substr = r
-                else:
+                except:
                     main = r
                     substr = '(%s)' % type(value).__name__
                 cell.set_property(
@@ -1016,7 +1018,8 @@ class SearchView(pluginmgr.View):
 
             except (saexc.InvalidRequestError, TypeError), e:
                 logger.warning(
-                    'bauble.view.SearchView.cell_data_func(): \n%s' % e)
+                    'bauble.view.SearchView.cell_data_func(): \n(%s)%s' %
+                    (type(e), e))
 
                 def remove():
                     model = self.results_view.get_model()
@@ -1025,6 +1028,12 @@ class SearchView(pluginmgr.View):
                         model.remove(found)
                     self.results_view.set_model(model)
                 gobject.idle_add(remove)
+
+            except Exception, e:
+                logger.error(
+                    'bauble.view.SearchView.cell_data_func(): \n(%s)%s' %
+                    (type(e), e))
+                raise
 
     def get_expanded_rows(self):
         '''

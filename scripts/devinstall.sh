@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#echo missing in vanilla ubuntu - to run pip install bauble
+#echo libxslt1-dev python-all-dev gettext
+
 PROBLEMS=''
 if ! msgfmt --version >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS gettext"
@@ -56,7 +59,7 @@ virtualenv $HOME/.virtualenvs/ghide --system-site-packages
 find $HOME/.virtualenvs/ghide -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
 mkdir -p $HOME/.virtualenvs/ghide/share
 mkdir -p $HOME/.ghini
-source $HOME/.virtualenvs/ghide/bin/activate
+. $HOME/.virtualenvs/ghide/bin/activate
 
 pip install setuptools pip --upgrade
 
@@ -67,7 +70,7 @@ cat <<EOF > $HOME/bin/ghini
 #!/bin/bash
 
 GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
-source \$HOME/.virtualenvs/ghide/bin/activate
+. \$HOME/.virtualenvs/ghide/bin/activate
 
 BUILDANDEND=0
 while getopts us: f
@@ -102,7 +105,7 @@ chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide
 sudo chgrp -R ghini $HOME/.virtualenvs/ghide
 cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
 #!/bin/bash
-source $HOME/.virtualenvs/ghide/bin/activate
+. $HOME/.virtualenvs/ghide/bin/activate
 $HOME/.virtualenvs/ghide/bin/ghini
 EOF
 sudo chmod +x /usr/local/bin/ghini
