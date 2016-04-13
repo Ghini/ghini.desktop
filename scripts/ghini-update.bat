@@ -1,5 +1,5 @@
 @echo off
-call "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\bacl\Scripts\activate.bat
-cd "%HOMEDRIVE%%HOMEPATH%"\Local\github\Bauble\bauble.classic
+call "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghide\Scripts\activate.bat
+cd "%HOMEDRIVE%%HOMEPATH%"\Local\github\Ghini\ghini.desktop
 git pull
 python setup.py install
