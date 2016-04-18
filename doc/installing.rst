@@ -31,7 +31,7 @@ Installing on Linux
 
    You can study the script to see what steps if runs for you. In short it
    will install dependencies which can't be satisfied in a virtual
-   environment, then it will create a virtual environment named `bacl`,
+   environment, then it will create a virtual environment named `ghide`,
    download the sources and connect your git checkout to the `ghini-1.0`
    branch (this you can consider a production line), it then builds ghini,
    downloading all remaining dependencies, and finally it creates a startup
@@ -60,7 +60,7 @@ Installing on Linux
    database then activate the virtual environment and install psycopg2 with
    the following commands::
 
-     source ~/.virtualenvs/bacl/bin/activate
+     source ~/.virtualenvs/ghide/bin/activate
      pip install -U psycopg2
 
    You might need solve dependencies. How to do so, depends on which Linux
