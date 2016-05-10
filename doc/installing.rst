@@ -26,7 +26,7 @@ Installing on Linux
 
      https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.sh
 
-   Please not that the script will not help you install any extra database
+   Please note that the script will not help you install any extra database
    connector. This you will do in a later step.
 
    You can study the script to see what steps if runs for you. In short it
