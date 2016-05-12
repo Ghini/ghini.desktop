@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#echo missing in vanilla ubuntu - to run 'pip install bauble'
+#echo libxslt1-dev python-all-dev gettext
+
 PROBLEMS=''
 if ! msgfmt --version >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS gettext"
@@ -20,24 +23,26 @@ PYTHONHCOUNT=$(find /usr/include/python* /usr/local/include/python* -name Python
 if [ "$PYTHONHCOUNT" = "0" ]; then
     PROBLEMS="$PROBLEMS python-all-dev"
 fi
-SETUPTOOLS=$(pip show setuptools | grep Version | cut -f2 -d:)
-EXPRESSION=$(echo "$SETUPTOOLS" | cut -d- -f1 | cut -d. -f1-2)" <= 0.6"
-if [ $(echo $EXPRESSION | bc) -eq 1 ]; then
-    echo "your setuptools are really old. expect trouble."
-fi
 
 if [ "$PROBLEMS" != "" ]; then
-    echo please first solve the following dependencies:
-    echo '     (package names are ubuntu/debian, YMMV).'
+    echo 'please solve the following dependencies:'
+    echo '(package names are ubuntu/debian, YMMV.)'
+    echo '----------------------------------------'
     echo $PROBLEMS
+    echo '----------------------------------------'
+    echo 'then restart the devinstall.sh script'
+    if [ -x /usr/bin/apt-get ]; then
+        echo
+        echo you are on a debian-like system, I should know how to install them
+        sudo -k apt-get install $PROBLEMS
+    fi
     exit 1
 fi
 
-if [ -d $HOME/Local/github/Ghini/ghini.desktop/.git ]
+if [ -d $HOME/Local/github/Ghini/ghini.desktop ]
 then
     echo "ghini checkout already in place"
     cd $HOME/Local/github/Ghini/ghini.desktop
-    git pull
 else
     mkdir -p $HOME/Local/github/Ghini >/dev/null 2>&1
     cd $HOME/Local/github/Ghini
@@ -57,7 +62,7 @@ virtualenv $HOME/.virtualenvs/ghide --system-site-packages
 find $HOME/.virtualenvs/ghide -name "*.pyc" -or -name "*.pth" -execdir rm {} \;
 mkdir -p $HOME/.virtualenvs/ghide/share
 mkdir -p $HOME/.ghini
-source $HOME/.virtualenvs/ghide/bin/activate
+. $HOME/.virtualenvs/ghide/bin/activate
 
 pip install setuptools pip --upgrade
 
@@ -68,7 +73,7 @@ cat <<EOF > $HOME/bin/ghini
 #!/bin/bash
 
 GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
-source \$HOME/.virtualenvs/ghide/bin/activate
+. \$HOME/.virtualenvs/ghide/bin/activate
 
 BUILDANDEND=0
 while getopts us: f
@@ -97,13 +102,13 @@ chmod +x $HOME/bin/ghini
 echo your local installation is now complete.
 echo enter your password to make Ghini available to other users.
 
-sudo addgroup ghini 2>/dev/null 
+sudo -k groupadd ghini 2>/dev/null 
 sudo usermod -a -G ghini $(whoami)
 chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide
 sudo chgrp -R ghini $HOME/.virtualenvs/ghide
 cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
 #!/bin/bash
-source $HOME/.virtualenvs/ghide/bin/activate
+. $HOME/.virtualenvs/ghide/bin/activate
 $HOME/.virtualenvs/ghide/bin/ghini
 EOF
 sudo chmod +x /usr/local/bin/ghini
