@@ -19,6 +19,9 @@ fi
 if ! xslt-config --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS libxslt1-dev"
 fi
+if ! gcc --version >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS build-essential"
+fi
 PYTHONHCOUNT=$(find /usr/include/python* /usr/local/include/python* -name Python.h 2>/dev/null | wc -l)
 if [ "$PYTHONHCOUNT" = "0" ]; then
     PROBLEMS="$PROBLEMS python-all-dev"
@@ -33,8 +36,10 @@ if [ "$PROBLEMS" != "" ]; then
     echo 'then restart the devinstall.sh script'
     if [ -x /usr/bin/apt-get ]; then
         echo
-        echo you are on a debian-like system, I should know how to install them
-        sudo -k apt-get install $PROBLEMS
+        echo you are on a debian-like system, I should know how to install
+        echo $PROBLEMS
+        sudo -k apt-get -y install $PROBLEMS
+        echo please re-run devinstall.sh
     fi
     exit 1
 fi
