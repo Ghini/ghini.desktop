@@ -26,16 +26,23 @@ Installing on Linux
 
      https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.sh
 
-   Please not that the script will not help you install any extra database
+   Please note that the script will not help you install any extra database
    connector. This you will do in a later step.
 
-   You can study the script to see what steps if runs for you. In short it
-   will install dependencies which can't be satisfied in a virtual
-   environment, then it will create a virtual environment named `bacl`,
-   download the sources and connect your git checkout to the `ghini-1.0`
-   branch (this you can consider a production line), it then builds ghini,
-   downloading all remaining dependencies, and finally it creates a startup
-   script in your `~/bin` folder.
+.. note:: (technical) You can study the script to see what steps if runs for
+          you. In short it will install dependencies which can't be
+          satisfied in a virtual environment, then it will create a virtual
+          environment named `ghide`, download the sources and connect your
+          git checkout to the `ghini-1.0` branch (this you can consider a
+          production line), it then builds ghini, downloading all remaining
+          dependencies, and finally it creates a startup script in your
+          `~/bin` folder.
+
+.. note:: (beginner) To run a script, first make sure you note down the name
+          of the directory to which you have downloaded the script, then you
+          open a terminal window and in that window you type `bash` followed
+          by a space and the complete name of the script including directory
+          name, and hit on the enter key.
 
    If the script ends without error, you can now start ghini::
 
@@ -60,7 +67,7 @@ Installing on Linux
    database then activate the virtual environment and install psycopg2 with
    the following commands::
 
-     source ~/.virtualenvs/bacl/bin/activate
+     source ~/.virtualenvs/ghide/bin/activate
      pip install -U psycopg2
 
    You might need solve dependencies. How to do so, depends on which Linux
