@@ -202,7 +202,21 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def get_FullScientificNameString(self, authors=True):
         s = self.accession.species_str(authors=authors, markup=False)
         return utils.xml_safe(s)
-
+    
+    def get_IdentificationQualifier(self):
+        idqual=self.accession.id_qual
+        if idqual is None:
+            return None
+        else:
+            return utils.xml_safe(idqual)
+        
+    def get_IdentificationQualifierRank(self):
+        idqrank=self.accession.id_qual_rank
+        if idqrank is None:
+            return None
+        else:
+            return utils.xml_safe(idqrank)
+        
     def get_DateLastEdited(self):
         return utils.xml_safe(self.accession._last_updated.isoformat())
 
