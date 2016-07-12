@@ -176,6 +176,12 @@ class ABCDAdapter(object):
 
     def get_InfraspecificEpithet(self):
         pass
+    
+    def get_IdentificationQualifier(self):
+        pass
+    
+    def get_IdentiificationQualifierRank(self):
+        pass
 
     def get_InformalNameString(self):
         """
@@ -285,7 +291,10 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             taxon_identified = ABCDElement(result, 'TaxonIdentified')
             ABCDElement(taxon_identified, 'InformalNameString',
                         text=vernacular_name)
-
+        if obj.get_IdentificationQualifier():
+            ABCDElement(scientific_name, 'IdentificationQualifier', 
+                        text=obj.get_IdentificationQualifier(), 
+                        attrib={'insertionpoint': obj.get_IdentificationQualifierRank()})
         # add all the extra non standard elements
         obj.extra_elements(unit)
         # TODO: handle verifiers/identifiers
