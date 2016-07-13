@@ -186,7 +186,7 @@ class ABCDAdapter(object):
     def get_IdentificationQualifier(self):
         pass
     
-    def get_IdentiificationQualifierRank(self):
+    def get_IdentificationQualifierRank(self):
         pass
 
     def get_InformalNameString(self):
