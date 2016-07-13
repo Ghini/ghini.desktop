@@ -156,6 +156,9 @@ class SpeciesABCDAdapter(ABCDAdapter):
 
     def get_InfraspecificEpithet(self):
         return utils.xml_safe(str(self.species.infraspecific_epithet))
+    
+    def get_CultivarName(self):
+        return utils.xml_safe(str(self.species.cultivar_epithet))
 
     def get_InformalNameString(self):
         vernacular_name = self.species.default_vernacular_name
