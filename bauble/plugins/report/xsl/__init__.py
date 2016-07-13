@@ -160,6 +160,12 @@ class SpeciesABCDAdapter(ABCDAdapter):
     def get_CultivarName(self):
         return utils.xml_safe(str(self.species.cultivar_epithet))
 
+    def get_HybridFlag(self):
+        if self.species.hybrid is True:
+            return utils.xml_safe(str(self.species.hybrid_char))
+        else:
+            return None
+
     def get_InformalNameString(self):
         vernacular_name = self.species.default_vernacular_name
         if vernacular_name is None:
