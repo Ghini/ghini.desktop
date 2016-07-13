@@ -403,6 +403,15 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         if text.count(u'*'):
             self.species_space = True
             text = text.replace(u'*', u" × ")
+            # allow botanist flags for unnamed species(e.g. 'sp. nov.' 
+            # 'sp. (OrmeauL.H.Bird AQ435851)') - see ITF2 - Species Epithet: 
+            # Rule of information 1.2
+        if text.count(u'sp.'):
+            self.species_space = True
+            # allow descriptive botanist flags e.g. 'caerulea (Finch Hatton)' 
+            # (although not strictly ITF2 compliant the practice is in common use)
+        if text.count(u'('):
+            self.species_space = True
         if self.species_space is False:
             text = text.replace(' ', '')
         if text != '':
