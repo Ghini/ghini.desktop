@@ -177,6 +177,9 @@ class ABCDAdapter(object):
     def get_InfraspecificEpithet(self):
         pass
     
+    def get_CultivarName(self):
+        pass
+    
     def get_IdentificationQualifier(self):
         pass
     
@@ -276,6 +279,9 @@ def create_abcd(decorated_objects, authors=True, validate=True):
                         text=obj.get_InfraspecificEpithet())
             ABCDElement(botanical, 'Rank',
                         text=obj.get_InfraspecificRank())
+        if obj.get_CultivarName():
+            ABCDElement(botanical, 'CultivarName',
+                        text=obj.get_CultivarName())
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
