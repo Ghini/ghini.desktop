@@ -135,6 +135,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             # full acceptedy links. it's TWO boxes that we might show. or
             # one if nothing matches.
 
+            self.view.close_boxes()
             if found:
                 found = dict((k, utils.to_unicode(v))
                              for k, v in found.items())
@@ -247,6 +248,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             binomial = '%s %s' % (self.model.genus, self.model.sp)
             AskTPL(binomial, sp_species_TPL_callback, timeout=2, gui=True
                    ).start()
+            b0 = self.view.add_message_box(utils.MESSAGE_BOX_INFO)
+            b0.message = _("querying the plant list")
+            b0.on_response = lambda b, r: self.view.remove_box(b0)
+            b0.show()
+            self.view.add_box(b0)
             if event is not None:
                 return False
 
