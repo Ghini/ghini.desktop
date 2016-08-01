@@ -105,7 +105,17 @@ class AskTPL(threading.Thread):
             else:
                 raise NoResult
             if found['Accepted ID']:
-                accepted = ask_tpl(found['Accepted ID'])[0]
+                logger.debug("found this: %s", str(found))
+                accepted = ask_tpl(found['Accepted ID'])
+                logger.debug("ask_tpl on the Accepted ID returns %s", accepted)
+                if accepted:
+                    accepted = accepted[0]
+                else:
+                    logger.debug(
+                        "taxon %s %s (%s) is marked as synonym. "
+                        "accepted form (%s) is not in tpl.", 
+                        found['Genus'], found['Species'], found['ID'],
+                        found['Accepted ID'])
                 logger.debug("%s after second query", self.name)
             if self.stopped():
                 raise ShouldStopNow('after second query')
@@ -139,7 +149,9 @@ def what_to_do_with_it(found, accepted):
         logger.info("nothing matches")
         return
     logger.info("%s", citation(found))
-    if accepted is not None:
+    if accepted == []:
+        logger.info("invalid reference in tpl.")
+    if accepted:
         logger.info("%s - is its accepted form", citation(accepted))
 
 
