@@ -10,7 +10,7 @@ before_install:
     - export PKG_CONFIG_PATH=$VIRT_ROOT/lib/pkgconfig
     - pip install pip --upgrade
     # PyCairo
-    - wget http://www.cairographics.org/releases/py2cairo-1.10.0.tar.bz2
+    - wget http://www.cairographics.org/releases/py2cairo-1.10.0.tar.bz2 --no-check-certificate
     - tar xf py2cairo-1.10.0.tar.bz2
     - cd py2cairo-1.10.0
     - ./waf configure --prefix=$VIRT_ROOT > /dev/null
