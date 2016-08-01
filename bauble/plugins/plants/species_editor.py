@@ -184,7 +184,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     msg_box_msg = None
 
                 if self.model.accepted is None and accepted is not None:
-                    if accepted == []:  # infraspecific synonym, can't handle
+                    if not accepted:  # infraspecific synonym, can't handle
                         msg = _('closest match is a synonym of something at '
                                 'infraspecific rank, which I cannot handle.')
                         b2 = box = self.view.add_message_box(
