@@ -183,33 +183,45 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     self.species_check_messages.append(box)
                     msg_box_msg = None
 
-                if self.model.accepted is None and accepted:
-                    cit = ('<i>%(Genus)s</i> %(Species hybrid marker)s'
-                           '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
-                           ) % accepted_s
-                    msg = _('%s is the accepted taxon for your data.\n'
-                            'Do you want to add it?' % cit)
-                    b2 = box = self.view.add_message_box(
-                        utils.MESSAGE_BOX_YESNO)
-                    box.message = msg
+                if self.model.accepted is None and accepted is not None:
+                    if accepted == []:  # infraspecific synonym, can't handle
+                        msg = _('closest match is a synonym of something at '
+                                'infraspecific rank, which I cannot handle.')
+                        b2 = box = self.view.add_message_box(
+                            utils.MESSAGE_BOX_INFO)
+                        box.message = msg
 
-                    def on_response_accepted(button, response):
-                        self.view.remove_box(b2)
-                        if response:
-                            hybrid = accepted['Species hybrid marker'] == u'×'
-                            self.model.accepted = Species.retrieve_or_create(
-                                self.session, {
-                                    'object': 'taxon',
-                                    'rank': 'species',
-                                    'ht-rank': 'genus',
-                                    'familia': accepted['Family'],
-                                    'ht-epithet': accepted['Genus'],
-                                    'epithet': accepted['Species'],
-                                    'sp_author': accepted['Authorship'],
-                                    'hybrid': hybrid}
-                                )
-                            self.refresh_view()
-                            self.refresh_fullname_label()
+                        def on_response_accepted(button, response):
+                            self.view.remove_box(b2)
+                    else:
+                        ## synonym is at rank species, this is fine
+                        cit = ('<i>%(Genus)s</i> %(Species hybrid marker)s'
+                               '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
+                              ) % accepted_s
+                        msg = _('%s is the accepted taxon for your data.\n'
+                                'Do you want to add it?' % cit)
+                        b2 = box = self.view.add_message_box(
+                            utils.MESSAGE_BOX_YESNO)
+                        box.message = msg
+
+                        def on_response_accepted(button, response):
+                            self.view.remove_box(b2)
+                            if response:
+                                hybrid = accepted['Species hybrid marker']
+                                self.model.accepted = Species.retrieve_or_create(
+                                    self.session, {
+                                        'object': 'taxon',
+                                        'rank': 'species',
+                                        'ht-rank': 'genus',
+                                        'familia': accepted['Family'],
+                                        'ht-epithet': accepted['Genus'],
+                                        'epithet': accepted['Species'],
+                                        'author': accepted['Authorship'],
+                                        'hybrid_marker': hybrid}
+                                    )
+                                self.refresh_view()
+                                self.refresh_fullname_label()
+
                     box.on_response = on_response_accepted
                     box.show()
                     self.view.add_box(box)
