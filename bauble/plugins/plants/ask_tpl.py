@@ -67,6 +67,7 @@ class AskTPL(threading.Thread):
                 'http://www.theplantlist.org/tpl1.1/search?q=' + binomial +
                 '&csv=true',
                 timeout=self.timeout)
+            logger.debug(result.text)
             l = result.text[1:].split('\n')
             result = [row for row in csv.reader(k.encode('utf-8')
                                                 for k in l if k)]
