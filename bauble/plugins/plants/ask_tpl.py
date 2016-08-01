@@ -114,7 +114,7 @@ class AskTPL(threading.Thread):
                 else:
                     logger.debug(
                         "taxon %s %s (%s) is marked as synonym. "
-                        "accepted form (%s) is not in tpl.", 
+                        "accepted form (%s) is at infraspecific rank.",
                         found['Genus'], found['Species'], found['ID'],
                         found['Accepted ID'])
                 logger.debug("%s after second query", self.name)
