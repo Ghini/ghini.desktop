@@ -137,20 +137,21 @@ and the python database connectors. With this environment correctly set up,
 the Ghini installation procedure runs as on Linux. The concluding steps are
 again Windows specific.
 
-.. note:: Ghini has been tested with and is known to work on W-XP, W-7 and
-   W-8. Although it should work fine on other versions Windows it has not
-   been thoroughly tested.
+.. note:: Ghini has been installed and is known to work fine on W-XP, W-7,
+   W-8 and W-10. However, Windows is not Ghini's development and test
+   platform, so please report any problem you might encounter. During the
+   installation spurious error messages can be expected and safely ignored.
 
 .. note:: Direct download links are given for all needed components. They
           have been tested in September 2015, but things change with
           time. If any of the direct download links stops working, please
           ring the bell, so we can update the information here.
 
-.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.5.2.windows.1/Git-2.5.2-32-bit.exe
-.. _Direct link to download Python: https://www.python.org/ftp/python/2.7.10/python-2.7.10.msi
-.. _direct link do download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.4.4.win32-py2.7.exe#md5=f69924a6a43d992bf91daf8b0cb25db2
+.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.9.2.windows.1/Git-2.9.2-32-bit.exe
+.. _Direct link to download Python: https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
+.. _direct link do download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
 .. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
-.. _Direct link to download psycopg2: http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
+.. _Direct link to download psycopg2: http://www.stickpeople.com/projects/python/win-psycopg/2.6.2/psycopg2-2.6.2.win32-py2.7-pg9.5.3-release.exe
 
 The installation steps on Windows:
 
@@ -224,7 +225,7 @@ The installation steps on Windows:
 
 #. download and run (from ``\system32\cmd.exe``) the batch file:
 
-    https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/ghini-update.bat
+    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/ghini.bat
 
    right before you hit the enter key to run the script, your screen might
    look like something like this:
