@@ -2,10 +2,10 @@
 
 if [ "$1" == "" ] ; then
   branch=master
-  venv=bacl
+  venv=ghide
 else
   branch=issue-$1
-  venv=bacl-$1
+  venv=ghide-$1
 fi
 
 git checkout $branch
