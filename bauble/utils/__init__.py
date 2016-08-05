@@ -501,8 +501,9 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
         elif value is False:  # why do we need unset `inconsistent` for False?
             widget.set_inconsistent(False)
             widget.set_active(False)
-        else:
-            widget.set_inconsistent(True)
+        else: # treat None as False, we do not handle inconsistent cases.
+            widget.set_inconsistent(False)
+            widget.set_active(False)
     elif isinstance(widget, gtk.Button):
         if value is None:
             widget.props.label = ''
