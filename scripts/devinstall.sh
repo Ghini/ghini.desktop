@@ -10,6 +10,9 @@ fi
 if ! python -c 'import gtk' >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS python-gtk2"
 fi
+if ! python -c 'import lxml' >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS python-lxml"
+fi
 if ! git help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS git"
 fi
