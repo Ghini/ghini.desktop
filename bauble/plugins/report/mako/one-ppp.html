@@ -16,7 +16,7 @@
 <!DOCTYPE html>
 <html>
 <%
-from bauble.plugins.report import plant_pertinent_to
+from bauble.plugins.report import get_plants_pertinent_to
 subfamiliad = {
     '': '',
 'Arethuseae': 'Epidendroideae',
@@ -268,7 +268,7 @@ th {
     </style>
   </head>
   <body>
-% for v in plant_pertinent_to(values):
+% for v in get_plants_pertinent_to(values):
 <%
     genus = v.accession.species.genus.genus
     if genus.startswith('Zzz-'):
