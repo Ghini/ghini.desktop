@@ -562,9 +562,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if self.use_defaults is True:
                 name = new or self.connection_name
                 self.filename = os.path.join(
-                    paths.user_dir(), name + '.db')
+                    paths.appdata_dir(), name + '.db')
                 self.pictureroot = os.path.join(
-                    paths.user_dir(), name)
+                    paths.appdata_dir(), name)
             result = {'file': self.filename,
                       'default': self.use_defaults,
                       'pictures': self.pictureroot}
