@@ -1,0 +1,33 @@
+## This file is part of bauble.classic.
+##
+## bauble.classic is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## bauble.classic is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+##
+<%
+from bauble.plugins.report import get_plants_pertinent_to
+%>Item	Family	Genus	Species	Author	Acquisition date	CITES	Condition	Conservation	Acquisition document 	Doc. Number	No.of Plants	Habit
+% for v in get_accessions_pertinent_to(values):
+<%
+    genus = v.species.genus.genus
+    if genus.startswith('Zzz-'):
+        genus = ''
+    species_epithet = v.species.sp
+    if species_epithet == 'sp':
+        species_epithet = ''
+    doc_number = ([n.note for n in v.notes if n.category == 'invoice'] + [''])[0]
+    if doc_number != '':
+        doc_type = 'invoice'
+    else:
+        doc_type = ''
+%>${v}	${v.species.genus.family}	${genus}	${species_epithet}	${v.species.sp_author or ''}	${v._created.isoformat()[:10]}	${v.species.cites or ''}	${v.species.condition or ''}	${v.species.conservation or ''}	${doc_type}	${doc_number}	${len(v.plants)}	${v.species.habit or ''}
+% endfor
