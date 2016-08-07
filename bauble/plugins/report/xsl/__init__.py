@@ -492,14 +492,33 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
-        # copy default template files to appdata_dir
+        "create templates dir on plugin installation"
+        logger.debug("installing xsl plugin")
+        container_dir = os.path.join(paths.appdata_dir(), "templates")
+        if not os.path.exists(container_dir):
+            os.mkdir(container_dir)
+        cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", "xsl")
+        if not os.path.exists(cls.plugin_dir):
+            os.mkdir(cls.plugin_dir)
+
+    @classmethod
+    def init(cls):
+        """copy default template files to appdata_dir
+
+        we do this in the initialization instead of installation
+        because new version of plugin might provide new templates.
+
+        """
+        cls.install()  # plugins still not versioned...
+
         templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
                      'plant_list_ex.xsl', 'small_labels.xsl']
-        base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
+        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
         for template in templates:
-            f = os.path.join(paths.appdata_dir(), template)
-            if not os.path.exists(f):
-                shutil.copy(os.path.join(base_dir, template), f)
+            src = os.path.join(src_dir, template)
+            dst = os.path.join(cls.plugin_dir, template)
+            if not os.path.exists(dst) and os.path.exists(src):
+                shutil.copy(src, dst)
 
     @staticmethod
     def get_settings_box():

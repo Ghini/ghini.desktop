@@ -80,8 +80,25 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
+        "create templates dir on plugin installation"
         logger.debug("installing mako plugin")
-        # copy default template files to appdata_dir
+        container_dir = os.path.join(paths.appdata_dir(), "templates")
+        if not os.path.exists(container_dir):
+            os.mkdir(container_dir)
+        cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", "mako")
+        if not os.path.exists(cls.plugin_dir):
+            os.mkdir(cls.plugin_dir)
+
+    @classmethod
+    def init(cls):
+        """copy default template files to appdata_dir
+
+        we do this in the initialization instead of installation
+        because new version of plugin might provide new templates.
+
+        """
+        cls.install()  # plugins still not versioned...
+
         templates = ['example_accession.csv',
                      'example_accession-es.csv',
                      'example_plant.csv',
@@ -93,11 +110,12 @@ class MakoFormatterPlugin(FormatterPlugin):
                      'labels_small.html',
                      'label-engraving.svg',
         ]
-        base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
+        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
         for template in templates:
-            f = os.path.join(paths.appdata_dir(), template)
-            if not os.path.exists(f):
-                shutil.copy(os.path.join(base_dir, template), f)
+            src = os.path.join(src_dir, template)
+            dst = os.path.join(cls.plugin_dir, template)
+            if not os.path.exists(dst) and os.path.exists(src):
+                shutil.copy(src, dst)
 
     @staticmethod
     def get_settings_box():
