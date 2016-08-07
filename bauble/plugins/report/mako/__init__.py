@@ -82,7 +82,17 @@ class MakoFormatterPlugin(FormatterPlugin):
     def install(cls, import_defaults=True):
         logger.debug("installing mako plugin")
         # copy default template files to user_dir
-        templates = ['example.csv', 'example.csv']
+        templates = ['example_accession.csv',
+                     'example_accession-es.csv',
+                     'example_plant.csv',
+                     'example_plant-es.csv',
+                     'example_species.csv',
+                     'example_species-es.csv',
+                     'label.ps',
+                     'labels.html',
+                     'labels_small.html',
+                     'label-engraving.svg',
+        ]
         base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
         for template in templates:
             f = os.path.join(paths.user_dir(), template)
