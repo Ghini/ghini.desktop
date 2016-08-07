@@ -388,7 +388,7 @@ class FileChooserButton(gtk.Button):
                                       gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                                       gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         self.dialog.set_select_multiple(False)
-        self.dialog.set_current_folder(paths.user_dir())
+        self.dialog.set_current_folder(paths.appdata_dir())
         self.dialog.connect('response', self._on_response)
         self.connect('clicked', self._on_clicked)
 
@@ -407,7 +407,7 @@ class FileChooserButton(gtk.Button):
         if not filename:
             self._filename = None
             self.dialog.set_filename('')
-            self.dialog.set_current_folder(paths.user_dir())
+            self.dialog.set_current_folder(paths.appdata_dir())
             self.props.label = self._default_label
         else:
             self._filename = filename
@@ -492,12 +492,12 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
-        # copy default template files to user_dir
+        # copy default template files to appdata_dir
         templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
                      'plant_list_ex.xsl', 'small_labels.xsl']
         base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
         for template in templates:
-            f = os.path.join(paths.user_dir(), template)
+            f = os.path.join(paths.appdata_dir(), template)
             if not os.path.exists(f):
                 shutil.copy(os.path.join(base_dir, template), f)
 

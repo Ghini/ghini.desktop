@@ -53,7 +53,7 @@ using a dictionary like interface. e.g. ::
 # throughout bauble
 
 default_filename = 'config'
-default_prefs_file = os.path.join(paths.user_dir(), default_filename)
+default_prefs_file = os.path.join(paths.appdata_dir(), default_filename)
 """
 The default file for the preference settings file.
 """
