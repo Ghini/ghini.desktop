@@ -105,6 +105,7 @@ class MakoFormatterPlugin(FormatterPlugin):
                      'example_plant-es.csv',
                      'example_species.csv',
                      'example_species-es.csv',
+                     'bgci-upload.csv',
                      'label.ps',
                      'labels.html',
                      'labels_small.html',
