@@ -22,6 +22,9 @@ fi
 if ! xslt-config --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS libxslt1-dev"
 fi
+if ! pkg-config --cflags jpeg --help >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS libjpeg-dev"
+fi
 if ! gcc --version >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS build-essential"
 fi
