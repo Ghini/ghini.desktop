@@ -95,7 +95,7 @@ msgid "** Error: could not import gtk and/or gobject"
 msgstr ""
 
 #: bauble/__init__.py:328
-msgid "**Error: Bauble must be run in a windowed environment."
+msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
 
 #: bauble/plugins/tag/tag.glade:265
@@ -631,7 +631,7 @@ msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
 "\n"
 "<i>It is possible that this user could have permissions on other databases "
-"not related to Bauble.</i>"
+"not related to Ghini.</i>"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:289
@@ -658,70 +658,70 @@ msgstr ""
 
 #: bauble/prefs.py:219
 msgid ""
-"Bauble can't save your user preferences. \n"
+"Ghini can't save your user preferences. \n"
 "\n"
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
-"Bauble не может сохранить ваши пользовательские настройки.\n"
+"Ghini не может сохранить ваши пользовательские настройки.\n"
 "\n"
 "Пожалуйста, проверьте права доступа на ваш файл конфигурации.\n"
 " %s"
 
 #: bauble/ui.py:362
 #, fuzzy
-msgid "Bauble development website"
-msgstr "Вебсайт Bauble"
+msgid "Ghini development website"
+msgstr "Вебсайт Ghini"
 
 #: bauble/connmgr.py:423
 msgid ""
-"Bauble does not have permission to read the database file:\n"
+"Ghini does not have permission to read the database file:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble не имеет прав на чтение файла базы данных:\n"
+"Ghini не имеет прав на чтение файла базы данных:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:415
 msgid ""
-"Bauble does not have permission to read the directory:\n"
+"Ghini does not have permission to read the directory:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble не имеет прав на чтение директории:\n"
+"Ghini не имеет прав на чтение директории:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:427
 msgid ""
-"Bauble does not have permission to write to the database file:\n"
+"Ghini does not have permission to write to the database file:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble не имеет прав на запись в файл базы данных:\n"
+"Ghini не имеет прав на запись в файл базы данных:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:419
 msgid ""
-"Bauble does not have permission to write to the directory:\n"
+"Ghini does not have permission to write to the directory:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble не имеет прав на запись в директорию:\n"
+"Ghini не имеет прав на запись в директорию:\n"
 "\n"
 "%s"
 
 #: bauble/ui.py:368
 #, fuzzy
-msgid "Bauble forum"
-msgstr "Bauble"
+msgid "Ghini forum"
+msgstr "Ghini"
 
 #: bauble/ui.py:365
 #, fuzzy
-msgid "Bauble wiki"
-msgstr "Вебсайт Bauble"
+msgid "Ghini wiki"
+msgstr "Вебсайт Ghini"
 
 #: bauble/plugins/garden/source.py:160
 msgid "Botanic Garden or Arboretum"
@@ -2242,8 +2242,8 @@ msgid "Show details"
 msgstr "Показать детали"
 
 #: bauble/plugins/users/ui.glade:121
-msgid "Show only Bauble users"
-msgstr "Показывать только пользователям Bauble"
+msgid "Show only Ghini users"
+msgstr "Показывать только пользователям Ghini"
 
 #: bauble/plugins/garden/propagation.py:228
 msgid "Singled"
@@ -2429,21 +2429,21 @@ msgstr ""
 msgid ""
 "The database you have connected to does not have a timestamp for when it was "
 "created. This usually means that there was a problem when you created the "
-"database or the database you connected to wasn't created with Bauble."
+"database or the database you connected to wasn't created with Ghini."
 msgstr ""
 "База данных с которой вы соединились не имеет метки, когда она была создана. "
 "Это обычно означает, что была некая проблема при создании базы данных или "
-"база данных не была создана при помощи Bauble."
+"база данных не была создана при помощи Ghini."
 
 #: bauble/db.py:390
 msgid ""
 "The database you have connected to does not have the bauble meta table.  "
 "This usually means that the database is either corrupt or it was created "
-"with an old version of Bauble"
+"with an old version of Ghini"
 msgstr ""
 "База данных к которой вы присоединились не содержит мета таблицы bauble. "
 "Обычно это означает ,что база данных повреждена или была создана с "
-"использованием старой версии Bauble"
+"использованием старой версии Ghini"
 
 #: bauble/db.py:386
 msgid "The database you have connected to is empty."
@@ -2746,7 +2746,7 @@ msgstr ""
 #: bauble/db.py:38
 #, fuzzy
 msgid ""
-"This version of Bauble requires SQLAlchemy 0.6 or greater. You are using "
+"This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
@@ -2936,7 +2936,7 @@ msgstr "Хотите отменить текущие задачи?"
 
 #: bauble/__init__.py:416
 msgid ""
-"Would you like to create a new Bauble database at the current connection?\n"
+"Would you like to create a new Ghini database at the current connection?\n"
 "\n"
 "<i>Warning: If there is already a database at this connection any existing "
 "data will be destroyed!</i>"
@@ -2989,13 +2989,13 @@ msgstr ""
 
 #: bauble/db.py:405
 msgid ""
-"You are using Bauble version %(version)s while the database you have "
+"You are using Ghini version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
 "\n"
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
-"Вы используете Bauble версии %(version)s , когда база дынных к которой вы "
+"Вы используете Ghini версии %(version)s , когда база дынных к которой вы "
 "подключены была создана в версии %(db_version)s\n"
 "Некоторые вещи могут не работать, а ваши данные в любой момент могут быть "
 "повреждены."
@@ -3345,11 +3345,11 @@ msgstr "°F"
 #~ msgid "Album"
 #~ msgstr "Альбом"
 
-#~ msgid "Bauble"
-#~ msgstr "Bauble"
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
 
-#~ msgid "Bauble - Picasa Settings"
-#~ msgstr "Bauble - настройки Picasa"
+#~ msgid "Ghini - Picasa Settings"
+#~ msgstr "Ghini - настройки Picasa"
 
 #~ msgid "Browse..."
 #~ msgstr "Выбрать..."

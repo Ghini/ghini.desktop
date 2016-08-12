@@ -94,7 +94,7 @@ msgid "** Error: could not import gtk and/or gobject"
 msgstr ""
 
 #: bauble/__init__.py:328
-msgid "**Error: Bauble must be run in a windowed environment."
+msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
 
 #: bauble/plugins/tag/tag.glade:265
@@ -611,7 +611,7 @@ msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
 "\n"
 "<i>It is possible that this user could have permissions on other databases "
-"not related to Bauble.</i>"
+"not related to Ghini.</i>"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:289
@@ -638,69 +638,69 @@ msgstr ""
 
 #: bauble/prefs.py:219
 msgid ""
-"Bauble can't save your user preferences. \n"
+"Ghini can't save your user preferences. \n"
 "\n"
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
-"Bauble kan ikke gemme dine brugerindstillinger. \n"
+"Ghini kan ikke gemme dine brugerindstillinger. \n"
 "Kontroller filrettigheder på din konfigurationsfil:\n"
 " %s"
 
 #: bauble/ui.py:362
 #, fuzzy
-msgid "Bauble development website"
-msgstr "Bauble website"
+msgid "Ghini development website"
+msgstr "Ghini website"
 
 #: bauble/connmgr.py:423
 msgid ""
-"Bauble does not have permission to read the database file:\n"
+"Ghini does not have permission to read the database file:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at læse databasefil:\n"
+"Ghini har ikke tilladelse til at læse databasefil:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:415
 msgid ""
-"Bauble does not have permission to read the directory:\n"
+"Ghini does not have permission to read the directory:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at læse denne mappe:\n"
+"Ghini har ikke tilladelse til at læse denne mappe:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:427
 msgid ""
-"Bauble does not have permission to write to the database file:\n"
+"Ghini does not have permission to write to the database file:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at skrive til databasefilen:\n"
+"Ghini har ikke tilladelse til at skrive til databasefilen:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:419
 msgid ""
-"Bauble does not have permission to write to the directory:\n"
+"Ghini does not have permission to write to the directory:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble har ikke tilladelse til at skrive til denne mappe:\n"
+"Ghini har ikke tilladelse til at skrive til denne mappe:\n"
 "\n"
 "%s"
 
 #: bauble/ui.py:368
 #, fuzzy
-msgid "Bauble forum"
-msgstr "Bauble"
+msgid "Ghini forum"
+msgstr "Ghini"
 
 #: bauble/ui.py:365
 #, fuzzy
-msgid "Bauble wiki"
-msgstr "Bauble website"
+msgid "Ghini wiki"
+msgstr "Ghini website"
 
 #: bauble/plugins/garden/source.py:160
 msgid "Botanic Garden or Arboretum"
@@ -2217,7 +2217,7 @@ msgid "Show details"
 msgstr "Vis detaljer"
 
 #: bauble/plugins/users/ui.glade:121
-msgid "Show only Bauble users"
+msgid "Show only Ghini users"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:228
@@ -2399,21 +2399,21 @@ msgstr ""
 msgid ""
 "The database you have connected to does not have a timestamp for when it was "
 "created. This usually means that there was a problem when you created the "
-"database or the database you connected to wasn't created with Bauble."
+"database or the database you connected to wasn't created with Ghini."
 msgstr ""
 "Den database, du har tilsluttet  har ikke et tidsstempel for da den blev "
 "oprettet. Det betyder normalt, at der var et problem, da du oprettede "
-"databasen eller databasen du tilsluttet blev ikke oprettet med Bauble."
+"databasen eller databasen du tilsluttet blev ikke oprettet med Ghini."
 
 #: bauble/db.py:390
 msgid ""
 "The database you have connected to does not have the bauble meta table.  "
 "This usually means that the database is either corrupt or it was created "
-"with an old version of Bauble"
+"with an old version of Ghini"
 msgstr ""
 "Den database, du har tilsluttet til har kke bauble meta table. Det betyder "
 "normalt, at databasen er enten beskadiget eller den blev oprettet med en "
-"gammel version af Bauble"
+"gammel version af Ghini"
 
 #: bauble/db.py:386
 msgid "The database you have connected to is empty."
@@ -2694,7 +2694,7 @@ msgstr ""
 
 #: bauble/db.py:38
 msgid ""
-"This version of Bauble requires SQLAlchemy 0.6 or greater. You are using "
+"This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
@@ -2882,12 +2882,12 @@ msgstr "Vil du annullere den nuværende opgaver?"
 #: bauble/__init__.py:416
 #, fuzzy
 msgid ""
-"Would you like to create a new Bauble database at the current connection?\n"
+"Would you like to create a new Ghini database at the current connection?\n"
 "\n"
 "<i>Warning: If there is already a database at this connection any existing "
 "data will be destroyed!</i>"
 msgstr ""
-"Kunne du tænke dig at oprette en ny Bauble database på den aktuelle "
+"Kunne du tænke dig at oprette en ny Ghini database på den aktuelle "
 "forbindelse?"
 
 #: bauble/plugins/garden/prop_editor.glade:384
@@ -2928,13 +2928,13 @@ msgstr ""
 
 #: bauble/db.py:405
 msgid ""
-"You are using Bauble version %(version)s while the database you have "
+"You are using Ghini version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
 "\n"
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
-"Du bruger Bauble version %(version)s mens den database, du har tilsluttet "
+"Du bruger Ghini version %(version)s mens den database, du har tilsluttet "
 "blev oprettet med version %(db_version)s\n"
 "\n"
 "Some things might not work as or some of your data may become unexpectedly "
@@ -3266,8 +3266,8 @@ msgstr ""
 #~ msgid "<i>--</i>"
 #~ msgstr "<i>--</i>"
 
-#~ msgid "Bauble"
-#~ msgstr "Bauble"
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
 
 #, fuzzy
 #~ msgid "Choose a file to import from..."
