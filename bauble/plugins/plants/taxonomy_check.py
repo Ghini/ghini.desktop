@@ -109,7 +109,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
     http://tnrs.iplantcollaborative.org/TNRSapp.html page.
 
     the user will run the service on the remote site, then save the results to
-    a file. then back to Bauble's BTC, the user will open the file and finally
+    a file. then back to Ghini's BTC, the user will open the file and finally
     interact with the BTC view.
 
     the Model of the BTC is a list of tuples.

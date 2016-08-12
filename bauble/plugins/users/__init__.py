@@ -569,7 +569,7 @@ class UsersEditor(editor.GenericEditorView):
         user = self.get_selected_user()
         msg = _('Are you sure you want to remove user <b>%(name)s</b>?\n\n'
                 '<i>It is possible that this user could have permissions '
-                'on other databases not related to Bauble.</i>') \
+                'on other databases not related to Ghini.</i>') \
             % {'name': user}
         if not utils.yes_no_dialog(msg):
             return

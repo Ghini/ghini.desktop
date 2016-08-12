@@ -21,7 +21,7 @@
 # provide paths that bauble will need
 #
 """
-Access to standard paths used by Bauble.
+Access to standard paths used by Ghini.
 """
 import os
 import sys
@@ -29,7 +29,7 @@ import sys
 
 def main_is_frozen():
     """
-    Returns True/False if Bauble is being run from a py2exe
+    Returns True/False if Ghini is being run from a py2exe
     executable.  This method duplicates bauble.main_is_frozen in order
     to make paths.py not depend on any other Bauble modules.
     """

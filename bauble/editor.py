@@ -19,7 +19,7 @@
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: a collection of functions and abstract classes for creating
-# editors for Bauble data
+# editors for Ghini data
 #
 
 import datetime
@@ -200,7 +200,7 @@ def default_completion_match_func(completion, key_string, treeiter):
 class GenericEditorView(object):
     """
     A generic class meant (not) to be subclassed, to provide the view
-    for the Bauble Model-View-Presenter pattern. The idea is that you
+    for the Ghini Model-View-Presenter pattern. The idea is that you
     subclass the Presenter alone, and that the View remains as 'stupid'
     as it is conceivable.
 
