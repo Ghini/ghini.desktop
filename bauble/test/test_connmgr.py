@@ -39,7 +39,7 @@ def test_duplicate_ids():
 
 
 import bauble
-from bauble import prefs
+import bauble.prefs as prefs
 prefs.testing = True
 
 

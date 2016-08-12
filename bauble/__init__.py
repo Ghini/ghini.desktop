@@ -214,12 +214,12 @@ dbengine.html#create-engine-url-arguments>`_
         sys.exit(1)
 
     # create the user directory
-    if not os.path.exists(paths.user_dir()):
-        os.makedirs(paths.user_dir())
+    if not os.path.exists(paths.appdata_dir()):
+        os.makedirs(paths.appdata_dir())
 
     # add console root handler, and file root handler, set it at the logging
     # level specified by BAUBLE_LOGGING, or at INFO level.
-    filename = os.path.join(paths.user_dir(), 'bauble.log')
+    filename = os.path.join(paths.appdata_dir(), 'bauble.log')
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fileHandler = logging.FileHandler(filename, 'w+')
@@ -281,7 +281,7 @@ dbengine.html#create-engine-url-arguments>`_
     # declare module level variables
     global gui, default_icon, conn_name
 
-    default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
+    default_icon = os.path.join(paths.lib_dir(), "images", "icon.png")
 
     open_exc = None
     # open default database

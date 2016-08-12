@@ -377,6 +377,9 @@ class QueryAction(object):
             records = self.filter.evaluate(self).all()
             result.update(records)
 
+        if None in result:
+            logger.warn('removing None from result set')
+            result = set(i for i in result if i is not None)
         return result
 
 
@@ -407,10 +410,13 @@ class BinomialNameAction(object):
         from bauble.plugins.plants.genus import Genus
         from bauble.plugins.plants.species import Species
         result = search_strategy._session.query(Species).filter(
-            Species.epithet.startswith(self.species_epithet)
-            ).join(Genus).filter(
-            Genus.epithet.startswith(self.genus_epithet)).all()
-        return set(result)
+            Species.sp.startswith(self.species_epithet)).join(Genus).filter(
+            Genus.genus.startswith(self.genus_epithet)).all()
+        result = set(result)
+        if None in result:
+            logger.warn('removing None from result set')
+            result = set(i for i in result if i is not None)
+        return result
 
 
 class DomainExpressionAction(object):
@@ -472,6 +478,9 @@ class DomainExpressionAction(object):
             ors = or_(*map(condition(col), self.values.express()))
             result.update(query.filter(ors).all())
 
+        if None in result:
+            logger.warn('removing None from result set')
+            result = set(i for i in result if i is not None)
         return result
 
 
@@ -549,15 +558,19 @@ class ValueListAction(object):
                                for c, v in column_cross_value]))
             result.update(q.all())
 
-        logger.debug("result is now %s" % result)
-
         def replace(i):
             try:
-                return i.replacement()
+                replacement = i.replacement()
+                logger.debug('replacing %s by %s in result set' %
+                             (i, replacement))
+                return replacement
             except:
                 return i
         result = set([replace(i) for i in result])
         logger.debug("result is now %s" % result)
+        if None in result:
+            logger.warn('removing None from result set')
+            result = set(i for i in result if i is not None)
         return result
 
 
@@ -569,6 +582,7 @@ from pyparsing import (
     infixNotation, opAssoc, Forward)
 
 wordStart, wordEnd = WordStart(), WordEnd()
+
 
 class SearchParser(object):
     """The parser for bauble.search.MapperSearch

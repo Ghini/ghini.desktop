@@ -379,7 +379,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         return self.str(authors, markup=True, genus=genus)
 
     # in PlantPlugins.init() we set this to 'x' for win32
-    hybrid_char = utils.utf8(u'×')
+    hybrid_char = u'×'
 
     def str(self, authors=False, markup=False, remove_zws=False, genus=True,
             qualification=None, sensu=None):

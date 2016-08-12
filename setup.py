@@ -65,7 +65,7 @@ package_data = {'': ['README', 'CHANGES', 'LICENSE'],
 
 # ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
-                 '*.html', '*.csv']
+                 '*.html', '*.csv', '*.svg', '*.ps']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
 
@@ -420,6 +420,7 @@ setuptools.setup(name="bauble",
                                    "lxml",
                                    "mako==0.9.1",
                                    "gdata==2.0.18",
+                                   "requests",
                                    "fibra==0.0.17",
                                    "pyparsing==2.0.1",
                                    'python-dateutil<2.0'] + needs_sqlite,

@@ -35,7 +35,6 @@ from bauble.plugins.garden.plant import Plant
 from bauble.i18n import _
 from bauble import prefs
 
-
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
 
@@ -54,6 +53,7 @@ from bauble import prefs
 # though this could be a problem b/c abcd data expects 'unitid' fields but
 # we could have a special case just for generating labels
 #
+
 
 def validate_xml(root):
     """
@@ -88,7 +88,9 @@ namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
 
 def ABCDElement(parent, name, text=None, attrib=None):
     """
-    A factory function to create an ABCDElement, must be a subelement.
+    append a named element to parent, with text and attributes.
+
+    it assumes the element to be added is in the abcd namespace.
 
     :param parent: an element
     :param name: a string, the name of the new element
@@ -170,6 +172,18 @@ class ABCDAdapter(object):
         pass
 
     def get_InfraspecificEpithet(self):
+        pass
+    
+    def get_CultivarName(self):
+        pass
+
+    def get_HybridFlag (self):
+        pass    
+
+    def get_IdentificationQualifier(self):
+        pass
+    
+    def get_IdentificationQualifierRank(self):
         pass
 
     def get_InformalNameString(self):
@@ -258,6 +272,16 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         ABCDElement(botanical, 'GenusOrMonomial',
                     text=obj.get_GenusOrMonomial())
         ABCDElement(botanical, 'FirstEpithet', text=obj.get_FirstEpithet())
+        if obj.get_InfraspecificEpithet():
+            ABCDElement(botanical, 'InfraspecificEpithet',
+                        text=obj.get_InfraspecificEpithet())
+            ABCDElement(botanical, 'Rank',
+                        text=obj.get_InfraspecificRank())
+        if obj.get_HybridFlag():
+            ABCDElement(botanical, 'HybridFlag', text=obj.get_HybridFlag())
+        if obj.get_CultivarName():
+            ABCDElement(botanical, 'CultivarName',
+                        text=obj.get_CultivarName())
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
             ABCDElement(botanical, 'AuthorTeam', text=author_team)
@@ -278,7 +302,10 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             taxon_identified = ABCDElement(result, 'TaxonIdentified')
             ABCDElement(taxon_identified, 'InformalNameString',
                         text=vernacular_name)
-
+        if obj.get_IdentificationQualifier():
+            ABCDElement(scientific_name, 'IdentificationQualifier', 
+                        text=obj.get_IdentificationQualifier(), 
+                        attrib={'insertionpoint': obj.get_IdentificationQualifierRank()})
         # add all the extra non standard elements
         obj.extra_elements(unit)
         # TODO: handle verifiers/identifiers

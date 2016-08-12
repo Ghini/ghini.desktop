@@ -94,8 +94,7 @@ msgid "** Error: could not import gtk and/or gobject"
 msgstr ""
 
 #: bauble/__init__.py:328
-msgid "**Error: 
-Ghini must be run in a windowed environment."
+msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
 
 #: bauble/plugins/tag/tag.glade:265

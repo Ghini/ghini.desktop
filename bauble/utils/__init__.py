@@ -162,7 +162,7 @@ class ImageLoader(threading.Thread):
     def read_local_url(self):
         self.loader.connect("area-prepared", self.loader_notified)
         pieces = []
-        with open(self.url) as f:
+        with open(self.url, "rb") as f:
             for piece in read_in_chunks(f, 4096):
                 self.loader.write(piece)
                 pieces.append(piece)
@@ -501,8 +501,9 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
         elif value is False:  # why do we need unset `inconsistent` for False?
             widget.set_inconsistent(False)
             widget.set_active(False)
-        else:
-            widget.set_inconsistent(True)
+        else: # treat None as False, we do not handle inconsistent cases.
+            widget.set_inconsistent(False)
+            widget.set_active(False)
     elif isinstance(widget, gtk.Button):
         if value is None:
             widget.props.label = ''
@@ -865,6 +866,30 @@ def xml_safe_utf8(obj):
     logger.warning('invoking deprecated function')
 
     return xml_safe(obj)
+
+
+def safe_numeric(s):
+    'evaluate the string as a number, or return zero'
+
+    try:
+        return int(s)
+    except ValueError:
+        pass
+    try:
+        return float(s)
+    except ValueError:
+        pass
+    return 0
+
+
+def safe_int(s):
+    'evaluate the string as an integer, or return zero'
+
+    try:
+        return int(s)
+    except ValueError:
+        pass
+    return 0
 
 
 __natsort_rx = re.compile('(\d+(?:\.\d+)?)')

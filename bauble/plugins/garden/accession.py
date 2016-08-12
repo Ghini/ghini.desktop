@@ -51,6 +51,7 @@ from sqlalchemy.exc import DBAPIError
 import bauble
 import bauble.db as db
 import bauble.editor as editor
+from bauble import meta
 from bauble.error import check
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
@@ -66,6 +67,7 @@ import bauble.view as view
 from types import StringTypes
 from bauble.plugins.plants import itf2
 from location import Location
+from bauble.utils import safe_int
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -127,39 +129,6 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     if dir in ('W', 'S'):
         dec = -dec
     return dec.quantize(nplaces)
-
-
-def get_next_code():
-    """
-    Return the next available accession code.  This function should be
-    specific to the institution.
-
-    At the moment it assumes that you are using an accession code of
-    the format: YYYY.CCCC where YYYY is the four digit year and CCCC
-    is the four digit code left filled with zeroes
-
-    If there is an error getting the next code the None is returned.
-    """
-    # auto generate/increment the accession code
-    session = db.Session()
-    year = str(datetime.date.today().year)
-    start = '%s%s' % (year, Plant.get_delimiter())
-    q = session.query(Accession.code).\
-        filter(Accession.code.startswith(start))
-    next = None
-    try:
-        if q.count() > 0:
-            codes = [int(code[0][len(start):]) for code in q]
-            next = '%s%s' % (start, str(max(codes)+1).zfill(4))
-        else:
-            next = '%s%s0001' % (datetime.date.today().year,
-                                 Plant.get_delimiter())
-    except Exception, e:
-        logger.debug(e)
-        pass
-    finally:
-        session.close()
-    return next
 
 
 def generic_taxon_add_action(model, view, presenter, top_presenter,
@@ -369,6 +338,54 @@ class AccessionMapperExtension(MapperExtension):
         instance.invalidate_str_cache()
         return EXT_CONTINUE
 
+<<<<<<< HEAD
+=======
+
+# ITF2 - E.1; Provenance Type Flag; Transfer code: prot
+prov_type_values = [
+    (u'Wild', _('Accession of wild source')),  # W
+    (u'Cultivated', _('Propagule(s) from a wild source plant')),  # Z
+    (u'NotWild', _("Accession not of wild source")),  # G
+    (u'Purchase', _('Purchase or gift')),  # COLLAPSE INTO G
+    (u'InsufficientData', _("Insufficient Data")),  # U
+    (u'Unknown', _("Unknown")),  # COLLAPSE INTO U
+    (None, ''),  # do not transfer this field
+    ]
+
+# ITF2 - E.3; Wild Provenance Status Flag; Transfer code: wpst
+#  - further specifies the W and Z prov type flag
+#
+# according to the ITF2, the keys should literally be one of: 'Wild native',
+# 'Wild non-native', 'Cultivated native', 'Cultivated non-native'.  In
+# practice the standard just requires we note whether a wild (a cultivated
+# propagule Z or the one directly collected W) plant is native or not to the
+# place where it was found. a boolean should suffice, exporting will expand
+# to and importing will collapse from the standard value. Giving all four
+# options after the user has already selected W or Z works only confusing to
+# user not familiar with ITF2 standard.
+wild_prov_status_values = [
+    # Endemic found within indigenous range
+    (u'WildNative', _("Wild native")),
+    # found outside indigenous range
+    (u'WildNonNative', _("Wild non-native")),
+    # Endemic, cultivated, reintroduced or translocated within its
+    # indigenous range
+    (u'CultivatedNative', _("Cultivated native")),
+
+    # MISSING cultivated, found outside its indigenous range
+    # (u'CultivatedNonNative', _("Cultivated non-native"))
+
+    # TO REMOVE:
+    (u'Impound', _("Impound")),
+    (u'Collection', _("Collection")),
+    (u'Rescue', _("Rescue")),
+    (u'InsufficientData', _("Insufficient Data")),
+    (u'Unknown', _("Unknown")),
+
+    # Not transferred
+    (None, '')]
+
+>>>>>>> ghini-1.0-dev
 # not ITF2
 # - further specifies the Z prov type flag value
 cultivated_prov_status_values = [
@@ -544,6 +561,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     # columns
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
+    code_format = u'%Y%PD####'
 
     @validates('code')
     def validate_stripping(self, key, value):
@@ -605,6 +623,48 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                                  backref=backref('accession', uselist=False))
     vouchers = relationship('Voucher', cascade='all, delete-orphan',
                             backref=backref('accession', uselist=False))
+
+    @classmethod
+    def get_next_code(cls, code_format=None):
+        """
+        Return the next available accession code.
+
+        the format is stored in the `bauble` table.
+        the format may contain a %PD, replaced by the plant delimiter.
+        date formatting is applied.
+
+        If there is an error getting the next code the None is returned.
+        """
+        # auto generate/increment the accession code
+        session = db.Session()
+        if code_format is None:
+            code_format = cls.code_format
+        format = code_format.replace('%PD', Plant.get_delimiter())
+        today = datetime.date.today()
+        format = today.strftime(format)
+        if format.find('%{Y-1}') >= 0:
+            format = format.replace('%{Y-1}', str(today.year - 1))
+        start = unicode(format.rstrip('#'))
+        if start == format:
+            # fixed value
+            return start
+        digits = len(format) - len(start)
+        format = start + '%%0%dd' % digits
+        q = session.query(Accession.code).\
+            filter(Accession.code.startswith(start))
+        next = None
+        try:
+            if q.count() > 0:
+                codes = [safe_int(row[0][len(start):]) for row in q]
+                next = format % (max(codes)+1)
+            else:
+                next = format % 1
+        except Exception, e:
+            logger.debug(e)
+            pass
+        finally:
+            session.close()
+        return unicode(next)
 
     def search_view_markup_pair(self):
         """provide the two lines describing object for SearchView row.
@@ -1690,8 +1750,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
 
+        # set the default code and add it to the top of the code formats
+        self.populate_code_formats(model.code or '')
+        self.view.widget_set_value('acc_code_format_comboentry',
+                                   model.code or '')
         if not model.code:
-            model.code = get_next_code()
+            model.code = model.get_next_code()
             if self.model.species:
                 self._dirty = True
 
@@ -1868,6 +1932,80 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         if self.model not in self.session.new:
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
+
+    def populate_code_formats(self, entry_one=None, values=None):
+        logger.debug('populate_code_formats %s %s' % (entry_one, values))
+        ls = self.view.widgets.acc_code_format_liststore
+        if entry_one is None:
+            entry_one = ls.get_value(ls.get_iter_first(), 0)
+        ls.clear()
+        ls.append([entry_one])
+        if values is None:
+            query = self.session.\
+                query(meta.BaubleMeta).\
+                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+                order_by(meta.BaubleMeta.name)
+            if query.count():
+                Accession.code_format = query.first().value
+            values = [r.value for r in query]
+        for v in values:
+            ls.append([v])
+
+    def on_acc_code_format_comboentry_changed(self, widget, *args):
+        code_format = self.view.widget_get_value(widget)
+        code = Accession.get_next_code(code_format)
+        self.view.widget_set_value('acc_code_entry', code)
+
+    def on_acc_code_format_edit_btn_clicked(self, widget, *args):
+        view = editor.GenericEditorView(
+            os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                         'acc_editor.glade'),
+            root_widget_name='acc_codes_dialog')
+        ls = view.widgets.acc_codes_liststore
+        ls.clear()
+        query = self.session.\
+            query(meta.BaubleMeta).\
+            filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+            order_by(meta.BaubleMeta.name)
+        for i, row in enumerate(query):
+            ls.append([i+1, row.value])
+        ls.append([len(ls)+1, ''])
+
+        class Presenter(editor.GenericEditorPresenter):
+            def on_acc_cf_renderer_edited(self, widget, iter, value):
+                i = ls.get_iter_from_string(str(iter))
+                ls.set_value(i, 1, value)
+                if ls.iter_next(i) is None:
+                    if value:
+                        ls.append([len(ls)+1, ''])
+                elif value == '':
+                    ls.remove(i)
+                    while i:
+                        ls.set_value(i, 0, ls.get_value(i, 0)-1)
+                        i = ls.iter_next(i)
+
+        presenter = Presenter(ls, view, session=db.Session())
+        if presenter.start() > 0:
+            presenter.session.\
+                query(meta.BaubleMeta).\
+                filter(meta.BaubleMeta.name.like(u'acidf_%')).\
+                delete(synchronize_session=False)
+            i = 1
+            iter = ls.get_iter_first()
+            values = []
+            while iter:
+                value = ls.get_value(iter, 1)
+                iter = ls.iter_next(iter)
+                i += 1
+                if not value:
+                    continue
+                obj = meta.BaubleMeta(name=u'acidf_%02d' % i,
+                                      value=value)
+                values.append(value)
+                presenter.session.add(obj)
+            self.populate_code_formats(values=values)
+            presenter.session.commit()
+        presenter.session.close()
 
     def refresh_id_qual_rank_combo(self):
         """

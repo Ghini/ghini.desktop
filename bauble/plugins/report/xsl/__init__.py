@@ -35,6 +35,9 @@ import tempfile
 
 import gtk
 
+import logging
+logger = logging.getLogger(__name__)
+
 #from sqlalchemy import *
 from sqlalchemy.orm import object_session
 
@@ -153,6 +156,15 @@ class SpeciesABCDAdapter(ABCDAdapter):
 
     def get_InfraspecificEpithet(self):
         return utils.xml_safe(str(self.species.infraspecific_epithet))
+    
+    def get_CultivarName(self):
+        return utils.xml_safe(str(self.species.cultivar_epithet))
+
+    def get_HybridFlag(self):
+        if self.species.hybrid is True:
+            return utils.xml_safe(str(self.species.hybrid_char))
+        else:
+            return None
 
     def get_InformalNameString(self):
         vernacular_name = self.species.default_vernacular_name
@@ -199,7 +211,21 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def get_FullScientificNameString(self, authors=True):
         s = self.accession.species_str(authors=authors, markup=False)
         return utils.xml_safe(s)
-
+    
+    def get_IdentificationQualifier(self):
+        idqual=self.accession.id_qual
+        if idqual is None:
+            return None
+        else:
+            return utils.xml_safe(idqual)
+        
+    def get_IdentificationQualifierRank(self):
+        idqrank=self.accession.id_qual_rank
+        if idqrank is None:
+            return None
+        else:
+            return utils.xml_safe(idqrank)
+        
     def get_DateLastEdited(self):
         return utils.xml_safe(self.accession._last_updated.isoformat())
 
@@ -362,7 +388,7 @@ class FileChooserButton(gtk.Button):
                                       gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                                       gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         self.dialog.set_select_multiple(False)
-        self.dialog.set_current_folder(paths.user_dir())
+        self.dialog.set_current_folder(paths.appdata_dir())
         self.dialog.connect('response', self._on_response)
         self.connect('clicked', self._on_clicked)
 
@@ -381,7 +407,7 @@ class FileChooserButton(gtk.Button):
         if not filename:
             self._filename = None
             self.dialog.set_filename('')
-            self.dialog.set_current_folder(paths.user_dir())
+            self.dialog.set_current_folder(paths.appdata_dir())
             self.props.label = self._default_label
         else:
             self._filename = filename
@@ -466,14 +492,33 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
-        # copy default template files to user_dir
+        "create templates dir on plugin installation"
+        logger.debug("installing xsl plugin")
+        container_dir = os.path.join(paths.appdata_dir(), "templates")
+        if not os.path.exists(container_dir):
+            os.mkdir(container_dir)
+        cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", "xsl")
+        if not os.path.exists(cls.plugin_dir):
+            os.mkdir(cls.plugin_dir)
+
+    @classmethod
+    def init(cls):
+        """copy default template files to appdata_dir
+
+        we do this in the initialization instead of installation
+        because new version of plugin might provide new templates.
+
+        """
+        cls.install()  # plugins still not versioned...
+
         templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
                      'plant_list_ex.xsl', 'small_labels.xsl']
-        base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
+        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl')
         for template in templates:
-            f = os.path.join(paths.user_dir(), template)
-            if not os.path.exists(f):
-                shutil.copy(os.path.join(base_dir, template), f)
+            src = os.path.join(src_dir, template)
+            dst = os.path.join(cls.plugin_dir, template)
+            if not os.path.exists(dst) and os.path.exists(src):
+                shutil.copy(src, dst)
 
     @staticmethod
     def get_settings_box():
@@ -558,7 +603,7 @@ class XSLFormatterPlugin(FormatterPlugin):
 
         session.close()
 
-        # logger.debug(etree.dump(abcd_data.getroot()))
+        logger.debug(etree.dump(abcd_data.getroot()))
 
         # create xsl fo file
         dummy, fo_filename = tempfile.mkstemp()
@@ -577,12 +622,11 @@ class XSLFormatterPlugin(FormatterPlugin):
         # on the path for this to work
         fo_cmd = fo_cmd % ({'fo_filename': fo_filename,
                             'out_filename': filename})
-#        print fo_cmd
-#        debug(fo_cmd)
+        logger.debug(fo_cmd)
         # TODO: use popen to get output
         os.system(fo_cmd)
 
-#        print filename
+        logger.debug(filename)
         if not os.path.exists(filename):
             utils.message_dialog(_('Error creating the PDF file. Please '
                                    'ensure that your PDF formatter is '
