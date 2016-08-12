@@ -34,7 +34,7 @@ try:
     import sqlalchemy as sa
     parts = tuple(int(i) for i in sa.__version__.split('.')[:2])
     if parts < (0, 6):
-        msg = _('This version of Bauble requires SQLAlchemy 0.6 or greater. '
+        msg = _('This version of Ghini requires SQLAlchemy 0.6 or greater. '
                 'You are using version %s. '
                 'Please download and install a newer version of SQLAlchemy '
                 'from http://www.sqlalchemy.org or contact your system '
@@ -201,7 +201,7 @@ databases.
 
 Base = declarative_base(metaclass=MapperBase)
 """
-All tables/mappers in Bauble which use the SQLAlchemy declarative
+All tables/mappers in Ghini which use the SQLAlchemy declarative
 plugin for declaring tables and mappers should derive from this class.
 
 An instance of :class:`sqlalchemy.ext.declarative.Base`
@@ -209,7 +209,7 @@ An instance of :class:`sqlalchemy.ext.declarative.Base`
 
 
 metadata = Base.metadata
-"""The default metadata for all Bauble tables.
+"""The default metadata for all Ghini tables.
 
 An instance of :class:`sqlalchemy.schema.Metadata`
 """
@@ -262,7 +262,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     :type uri: str
 
     :param verify: Where the database we connect to should be verified
-        as one created by Bauble.  This flag is used mostly for
+        as one created by Ghini.  This flag is used mostly for
         testing.
     :type verify: bool
 
@@ -318,7 +318,7 @@ def open(uri, verify=True, show_error_dialogs=False):
 
 def create(import_defaults=True):
     """
-    Create new Bauble database at the current connection
+    Create new Ghini database at the current connection
 
     :param import_defaults: A flag that is passed to each plugins
         install() method to indicate where it should import its
@@ -397,7 +397,7 @@ def create(import_defaults=True):
 
 def verify_connection(engine, show_error_dialogs=False):
     """
-    Test whether a connection to an engine is a valid Bauble database. This
+    Test whether a connection to an engine is a valid Ghini database. This
     method will raise an error for the first problem it finds with the
     database.
 
@@ -420,7 +420,7 @@ def verify_connection(engine, show_error_dialogs=False):
             msg = _('The database you have connected to does not have the '
                     'bauble meta table.  This usually means that the database '
                     'is either corrupt or it was created with an old version '
-                    'of Bauble')
+                    'of Ghini')
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
         except error.TimestampError:
@@ -428,11 +428,11 @@ def verify_connection(engine, show_error_dialogs=False):
                     'timestamp for when it was created. This usually means '
                     'that there was a problem when you created the '
                     'database or the database you connected to wasn\'t '
-                    'created with Bauble.')
+                    'created with Ghini.')
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
         except error.VersionError, e:
-            msg = (_('You are using Bauble version %(version)s while the '
+            msg = (_('You are using Ghini version %(version)s while the '
                      'database you have connected to was created with '
                      'version %(db_version)s\n\nSome things might not work as '
                      'or some of your data may become unexpectedly '

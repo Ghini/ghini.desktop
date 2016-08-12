@@ -44,7 +44,7 @@ class Institution(object):
     Institution is a "live" object. When properties are changed the changes
     are immediately reflected in the database.
 
-    Institution values are stored in the Bauble meta database and not in
+    Institution values are stored in the Ghini meta database and not in
     its own table
     '''
     __properties = ('name', 'abbreviation', 'code',

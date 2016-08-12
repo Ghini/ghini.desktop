@@ -229,7 +229,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         ABCDElement(unit, 'SourceInstitutionID', text=inst.code)
 
         # TODO: don't really understand the SourceID element
-        ABCDElement(unit, 'SourceID', text='Bauble')
+        ABCDElement(unit, 'SourceID', text='Ghini')
 
         ABCDElement(unit, 'UnitID', text=obj.get_UnitID())
         ABCDElement(unit, 'DateLastEdited', text=obj.get_DateLastEdited())

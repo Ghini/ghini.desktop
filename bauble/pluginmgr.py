@@ -166,7 +166,7 @@ def init(force=False):
     2. Call each init() for each plugin the registry in order of dependency
     3. Register the command handlers in the plugin's commands[]
 
-    NOTE: This is called after after Bauble has created the GUI and
+    NOTE: This is called after after Ghini has created the GUI and
     established a connection to a database with db.open()
 
     """
@@ -332,7 +332,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
 class PluginRegistry(db.Base):
     """
     The PluginRegistry contains a list of plugins that have been installed
-    in a particular instance of a Bauble database.  At the moment it only
+    in a particular instance of a Ghini database.  At the moment it only
     includes the name and version of the plugin but this is likely to change
     in future versions.
     """
@@ -419,7 +419,7 @@ class Plugin(object):
     """
     tools:
       a list of BaubleTool classes that this plugin provides, the
-      tools' category and label will be used in Bauble's "Tool" menu
+      tools' category and label will be used in Ghini's "Tool" menu
     depends:
       a list of names classes that inherit from BaublePlugin that this
       plugin depends on
@@ -442,7 +442,7 @@ class Plugin(object):
     @classmethod
     def init(cls):
         '''
-        init() is run when Bauble is first started
+        init() is run when Ghini is first started
         '''
         pass
 
