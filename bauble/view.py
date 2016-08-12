@@ -450,7 +450,7 @@ class CountResultsTask(threading.Thread):
 
 class SearchView(pluginmgr.View):
     """
-    The SearchView is the main view for Bauble.  It manages the search
+    The SearchView is the main view for Ghini.  It manages the search
     results returned when search strings are entered into the main
     text entry.
     """
