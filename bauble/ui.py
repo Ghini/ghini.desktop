@@ -125,6 +125,7 @@ class GUI(object):
         self.window.set_title(self.title)
 
         try:
+            logger.debug("loading icon from %s" % bauble.default_icon)
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.window.set_icon(pixbuf)
         except Exception:
@@ -717,19 +718,19 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):
-        desktop.open('https://github.com/Ghini/bauble.classic/issues/new',
+        desktop.open('https://github.com/Ghini/ghini.desktop/issues/new',
                      dialog_on_error=True)
 
     def on_help_menu_logfile(self, widget, data=None):
-        filename = os.path.join(paths.user_dir(), 'bauble.log')
+        filename = os.path.join(paths.appdata_dir(), 'bauble.log')
         desktop.open(filename, dialog_on_error=True)
 
     def on_help_menu_web_devel(self, widget, data=None):
-        desktop.open('http://github.com/Ghini/bauble.classic/',
+        desktop.open('http://github.com/Ghini/ghini.desktop/',
                      dialog_on_error=True)
 
     def on_help_menu_web_wiki(self, widget, data=None):
-        desktop.open('http://github.com/Ghini/bauble.classic/wiki',
+        desktop.open('http://github.com/Ghini/ghini.desktop/wiki',
                      dialog_on_error=True)
 
     def on_help_menu_web_forum(self, widget, data=None):

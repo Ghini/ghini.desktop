@@ -61,8 +61,6 @@ def edit_callback(tags):
     tag = tags[0]
     if tag is None:
         tag = Tag()
-    session = db.Session()
-    session.merge(tag)
     view = GenericEditorView(
         os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade'),
         parent=None,
@@ -73,7 +71,6 @@ def edit_callback(tags):
         presenter.session.rollback()
     else:
         presenter.commit_changes()
-    presenter.session.close()
     presenter.cleanup()
     return error_state
 
@@ -231,7 +228,8 @@ class TagItemGUI(editor.GenericEditorView):
         model = gtk.ListStore(bool, str)
         item_tags = get_tag_ids(self.values)
         has_tag = False
-        tag_query = db.Session().query(Tag)
+        session = db.Session()  # we need close it
+        tag_query = session.query(Tag)
         for tag in tag_query:
             if tag.id in item_tags:
                 has_tag = True
@@ -249,6 +247,7 @@ class TagItemGUI(editor.GenericEditorView):
 
         self.get_window().hide()
         self.disconnect_all()
+        session.close()
 
 
 class Tag(db.Base):
@@ -280,9 +279,31 @@ class Tag(db.Base):
     def markup(self):
         return '%s Tag' % self.tag
 
+    __my_own_timestamp = None
+    __last_objects = None
+
     @property
     def objects(self):
-        return self.get_tagged_objects()
+        """return all tagged objects
+
+        reuse last result if nothing was changed in the database since
+        list was retrieved.
+        """
+        if self.__my_own_timestamp is not None:
+            # should I update my list?
+            session = object_session(self)
+            last_history = session.query(db.History)\
+                .order_by(db.History.timestamp.desc())\
+                .limit(1).one()
+            if last_history.timestamp > self.__my_own_timestamp:
+                self.__last_objects = None
+        if self.__last_objects is None:
+            # here I update my list
+            from datetime import datetime
+            self.__my_own_timestamp = datetime.now()
+            self.__last_objects = self.get_tagged_objects()
+        # here I return my list
+        return self.__last_objects
 
     def is_tagging(self, obj):
         """tell whether self tags obj
@@ -323,6 +344,34 @@ class Tag(db.Base):
             TaggedObj.obj_class == full_cls_name,
             TaggedObj.obj_id == obj.id)
         return [i.tag for i in qto.all()]
+
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        import inspect
+        logging.debug('entering search_view_markup_pair %s, %s' % (
+            self, str(inspect.stack()[1])))
+        objects = self.objects
+        classes = set(type(o) for o in objects)
+        if len(classes) == 1:
+            fine_prints = "tagging %(1)s objects of type %(2)s" % {
+                '1': len(objects),
+                '2': classes.pop().__name__}
+        elif len(classes) == 0:
+            fine_prints = "tagging nothing"
+        else:
+            fine_prints = "tagging %(1)s objects of %(2)s different types" % {
+                '1': len(objects),
+                '2': len(classes)}
+            if len(classes) < 4:
+                fine_prints += ': ' + (', '.join(
+                    t.__name__ for t in classes))
+        first = '%s - <span weight="light">%s</span>' % (
+            utils.xml_safe(self), fine_prints)
+        second = '(%s) - <span weight="light">%s</span>' % (
+            type(self).__name__,
+            (self.description or '').replace('\n', ' ')[:256])
+        return first, second
 
 
 class TaggedObj(db.Base):

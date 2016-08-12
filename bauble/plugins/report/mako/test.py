@@ -22,11 +22,14 @@ import os
 
 # TURN OFF desktop.open for this module so that the test doesn't open
 # the report
-#import bauble.db as db
 import bauble.utils.desktop as desktop
 desktop.open = lambda x: x
 
 from bauble.test import BaubleTestCase
+#import bauble.plugins.report as report_plugin
+from bauble.plugins.report import (
+    get_species_pertinent_to, get_accessions_pertinent_to,
+    get_plants_pertinent_to)
 from bauble.plugins.plants import Family, Genus, Species, \
     SpeciesDistribution, VernacularName, Geography
 from bauble.plugins.garden import Accession, Plant, Location

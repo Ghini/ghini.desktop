@@ -250,7 +250,7 @@ class PlantNote(db.Base, db.Serializable):
 
         acc_code, plant_code = keys['plant'].rsplit(
             Plant.get_delimiter(), 1)
-        print acc_code, plant_code
+        logger.debug("acc-plant: %s-%s" % (acc_code, plant_code))
         q = session.query(Plant).filter(
             Plant.code == unicode(plant_code)).join(
             Accession).filter(Accession.code == unicode(acc_code))
@@ -476,6 +476,9 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
     def search_view_markup_pair(self):
         '''provide the two lines describing object for SearchView row.
         '''
+        import inspect
+        logger.debug('entering search_view_markup_pair %s, %s' % (
+            self, str(inspect.stack()[1])))
         sp_str = self.accession.species_str(markup=True)
         dead_color = "#9900ff"
         if self.quantity <= 0:
@@ -485,7 +488,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         else:
             located_counted = ('%s <span foreground="#555555" size="small" '
                                'weight="light">- %s alive in %s</span>') % (
-                utils.xml_safe(self), self.quantity, self.location)
+                utils.xml_safe(self), self.quantity, utils.xml_safe(self.location))
             return located_counted, sp_str
 
     @classmethod

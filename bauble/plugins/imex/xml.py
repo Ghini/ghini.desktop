@@ -63,7 +63,7 @@ class XMLExporter:
 
     def start(self, path=None):
 
-        d = gtk.Dialog('Bauble - XML Exporter', bauble.gui.window,
+        d = gtk.Dialog('Ghini - XML Exporter', bauble.gui.window,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
                         gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))

@@ -225,7 +225,7 @@ The installation steps on Windows:
 
 #. download and run (from ``\system32\cmd.exe``) the batch file:
 
-    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/ghini.bat
+    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.bat
 
    right before you hit the enter key to run the script, your screen might
    look like something like this:

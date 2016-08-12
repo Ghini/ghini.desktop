@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -123,8 +123,8 @@ def check_and_notify_new_version(view):
     ## check whether there's a newer version on github.  this is executed in
     ## a different thread, which does nothing or terminates the program.
     version_on_github = (
-        'https://raw.githubusercontent.com/Ghini/bauble' +
-        '.classic/bauble-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
+        'https://raw.githubusercontent.com/Ghini/ghini' +
+        '.desktop/ghini-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
     try:
         import urllib2
         import ssl
@@ -562,9 +562,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if self.use_defaults is True:
                 name = new or self.connection_name
                 self.filename = os.path.join(
-                    paths.user_dir(), name + '.db')
+                    paths.appdata_dir(), name + '.db')
                 self.pictureroot = os.path.join(
-                    paths.user_dir(), name)
+                    paths.appdata_dir(), name)
             result = {'file': self.filename,
                       'default': self.use_defaults,
                       'pictures': self.pictureroot}
