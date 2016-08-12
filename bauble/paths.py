@@ -21,7 +21,7 @@
 # provide paths that bauble will need
 #
 """
-Access to standard paths used by Bauble.
+Access to standard paths used by Ghini.
 """
 import os
 import sys
@@ -29,9 +29,9 @@ import sys
 
 def main_is_frozen():
     """
-    Returns True/False if Bauble is being run from a py2exe
+    Returns True/False if Ghini is being run from a py2exe
     executable.  This method duplicates bauble.main_is_frozen in order
-    to make paths.py not depend on any other Bauble modules.
+    to make paths.py not depend on any other Ghini modules.
     """
     import imp
     return (hasattr(sys, "frozen") or  # new py2exe
@@ -94,14 +94,14 @@ def installation_dir():
 
 def user_dir():
     """
-    Returns the path to where Bauble settings should be saved.
+    Returns the path to where Ghini settings should be saved.
     """
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
-            d = os.path.join(os.environ["APPDATA"], "Bauble")
+            d = os.path.join(os.environ["APPDATA"], "Ghini")
         elif 'USERPROFILE' in os.environ:
             d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
-                             'Bauble')
+                             'Ghini')
         else:
             raise Exception('Could not get path for user settings: no '
                             'APPDATA or USERPROFILE variable')

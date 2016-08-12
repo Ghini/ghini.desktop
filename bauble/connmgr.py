@@ -23,7 +23,7 @@
 
 """
 The connection manager provides a GUI for creating and opening
-connections. This is the first thing displayed when Bauble starts.
+connections. This is the first thing displayed when Ghini starts.
 """
 import os
 import copy
@@ -123,7 +123,7 @@ def check_and_notify_new_version(view):
     ## check whether there's a newer version on github.  this is executed in
     ## a different thread, which does nothing or terminates the program.
     version_on_github = (
-        'https://raw.githubusercontent.com/Bauble/bauble' +
+        'https://raw.githubusercontent.com/Ghini/bauble' +
         '.classic/bauble-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
     try:
         import urllib2
@@ -503,19 +503,19 @@ class ConnMgrPresenter(GenericEditorPresenter):
                 path, f = os.path.split(filename)
                 if not os.access(path, os.R_OK):
                     valid = False
-                    msg = _("Bauble does not have permission to "
+                    msg = _("Ghini does not have permission to "
                             "read the directory:\n\n%s") % path
                 elif not os.access(path, os.W_OK):
                     valid = False
-                    msg = _("Bauble does not have permission to "
+                    msg = _("Ghini does not have permission to "
                             "write to the directory:\n\n%s") % path
             elif not os.access(filename, os.R_OK):
                 valid = False
-                msg = _("Bauble does not have permission to read the "
+                msg = _("Ghini does not have permission to read the "
                         "database file:\n\n%s") % filename
             elif not os.access(filename, os.W_OK):
                 valid = False
-                msg = _("Bauble does not have permission to "
+                msg = _("Ghini does not have permission to "
                         "write to the database file:\n\n%s") % filename
         else:
             fields = []
