@@ -81,7 +81,11 @@ def installation_dir():
     if sys.platform in ('linux4', 'linux3', 'linux2', 'darwin'):
         # installation_dir, relative to this file, is 7 levels up.
         this_file_location = __file__.split(os.path.sep)
-        d = os.path.sep.join(this_file_location[:-7])
+        try:
+            index_of_lib = this_file_location.index('lib')
+        except ValueError:
+            index_of_lib = 0
+        d = os.path.sep.join(this_file_location[:-index_of_lib - 1])
     elif sys.platform == 'win32':
         # main_dir is the location of the scripts, which is located in the
         # installation_dir:
