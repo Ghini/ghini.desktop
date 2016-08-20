@@ -401,7 +401,7 @@ class ABCDImexPlugin(pluginmgr.Plugin):
 
 try:
     import lxml.etree as etree
-    import lxml._elementpath  # put this here sp py2exe picks it up
+    import lxml._elementpath  # put this here so py2exe picks it up
     from lxml.etree import Element, SubElement, ElementTree
 except ImportError:
     utils.message_dialog(_('The <i>lxml</i> package is required for the '

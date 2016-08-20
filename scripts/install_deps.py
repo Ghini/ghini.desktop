@@ -60,7 +60,7 @@ EZ_SETUP_PATH = 'http://peak.telecommunity.com/dist/ez_setup.py'
 eggs_install = {'lxml': '==2.1.5',
                 'SQLAlchemy': '>=0.6',
                 'py2exe': '==0.6.9',
-                'gdata',
+                'gdata': '',
                 'mako': ''
                 'fibra: ==0.0.17',
                 'pyparsing': '>=1.5'}
