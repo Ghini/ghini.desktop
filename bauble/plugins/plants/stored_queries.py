@@ -52,11 +52,8 @@ class StoredQueriesModel(object):
     def save(self):
         ssn = db.Session()
         for index in range(1, 11):
-<<<<<<< HEAD
             obj = db.get_or_create(ssn, meta.BaubleMeta,
                                    name=u'stqr_%02d' % index)
-=======
->>>>>>> ghini-1.0-dev
             if self.__label[index] == '':
                 ssn.query(meta.BaubleMeta).\
                     filter_by(name=u'stqr_%02d' % index).\

@@ -338,8 +338,6 @@ class AccessionMapperExtension(MapperExtension):
         instance.invalidate_str_cache()
         return EXT_CONTINUE
 
-<<<<<<< HEAD
-=======
 
 # ITF2 - E.1; Provenance Type Flag; Transfer code: prot
 prov_type_values = [
@@ -385,7 +383,6 @@ wild_prov_status_values = [
     # Not transferred
     (None, '')]
 
->>>>>>> ghini-1.0-dev
 # not ITF2
 # - further specifies the Z prov type flag value
 cultivated_prov_status_values = [
