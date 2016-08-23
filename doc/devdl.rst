@@ -66,6 +66,24 @@ master, solve conflicts where necessary, delete the temporary branch.
 
 when ready for publication, merge master into the production line.
 
+Setting up the testing environment
+==========================================
+
+In Ghini, a developer installation starts with our installation procedure
+for a standard user installation. What you still need to set up to start
+contributing quality code is a decent editor, and the testing environment.
+
+So first choose a decent editor, and here opinions vary and all are equally
+valuable, here we describe how to set up ``nose``, the testing environment
+at the base of our unit test suites.
+
+A standard user installation gets you Ghini installed in a virtual
+environment. At this point, this does not contain the test environment.
+
+
+
+
+
 Adding missing unit tests
 ====================================
 
