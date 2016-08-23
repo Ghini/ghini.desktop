@@ -78,10 +78,22 @@ valuable, here we describe how to set up ``nose``, the testing environment
 at the base of our unit test suites.
 
 A standard user installation gets you Ghini installed in a virtual
-environment. At this point, this does not contain the test environment.
+environment, this virtual environment is enough for running the program, but
+misses two modules for unit testing: ``nose`` and ``coverage``. You simply
+need activate the environment, and install the them::
 
+  ``. ~/.virtualenv/ghide/bin/activate``
+  ``pip install coverage nose -I``
 
+the ``-I`` option is necessary to make sure that the two modules get
+installed in the virtual environment, whether they are already in your
+global installation or not.
 
+at this point you should be able to run the test suite::
+
+  ``cd ~/Local/github/Ghini/ghini.desktop/``
+  ``. ~/.virtualenv/ghide/bin/activate``
+  ``./scripts/update-coverage.sh``
 
 
 Adding missing unit tests
