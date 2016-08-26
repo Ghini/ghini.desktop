@@ -714,7 +714,7 @@ class GUI(object):
             self.widgets.statusbar.pop(cid)
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://bauble.readthedocs.org/en/latest/',
+        desktop.open('http://ghini.readthedocs.io/en/latest/',
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):

@@ -32,11 +32,14 @@ Installing on Linux
 .. note:: (technical) You can study the script to see what steps if runs for
           you. In short it will install dependencies which can't be
           satisfied in a virtual environment, then it will create a virtual
-          environment named `ghide`, download the sources and connect your
-          git checkout to the `ghini-1.0` branch (this you can consider a
-          production line), it then builds ghini, downloading all remaining
-          dependencies, and finally it creates a startup script in your
-          `~/bin` folder.
+          environment named ``ghide``, use git to download the sources to a
+          directory named ``~/Local/github/Ghini/ghini.desktop``, and
+          connect this git checkout to the ``ghini-1.0`` branch (this you
+          can consider a production line), it then builds ghini, downloading
+          all remaining dependencies in the virtual environment, and finally
+          it creates a startup script. If you have ``sudo`` permissions, it
+          will be placed in ``/usr/local/bin``, otherwise in your ``~/bin``
+          folder. Again if you 
 
 .. note:: (beginner) To run a script, first make sure you note down the name
           of the directory to which you have downloaded the script, then you
