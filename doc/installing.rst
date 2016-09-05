@@ -149,7 +149,7 @@ again Windows specific.
 
 .. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.9.2.windows.1/Git-2.9.2-32-bit.exe
 .. _Direct link to download Python: https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
-.. _direct link do download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
+.. _Direct link to download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
 .. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
 .. _Direct link to download psycopg2: http://www.stickpeople.com/projects/python/win-psycopg/2.6.2/psycopg2-2.6.2.win32-py2.7-pg9.5.3-release.exe
 
@@ -203,11 +203,11 @@ The installation steps on Windows:
 
    You can download lxml from::
 
-    https://pypi.python.org/pypi/lxml/3.4.4
+    https://pypi.python.org/pypi/lxml/3.6.0
 
    Remember you need the 32 bit version, for Python 2.7.
 
-   `direct link do download lxml`_
+   `Direct link to download lxml`_
 
 #. (optional) download and install a database connector other than
    ``sqlite3``. 
@@ -294,7 +294,7 @@ Troubleshooting
 
     For some reason, this is not the case on Windows 8.1.
 
-    https://pypi.python.org/pypi/lxml/3.4.4
+    https://pypi.python.org/pypi/lxml/3.6.0
 
     Please report any other trouble related to the installation of lxml.
 
