@@ -77,6 +77,7 @@ data_files = []
 
 # setup py2exe and nsis installer
 if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
+    import py2exe
     from distutils.command.py2exe import py2exe as _py2exe_cmd
     # setuptools.find packages doesn't dig deep enough so we search
     # for a list of all packages in the sqlalchemy namespace
