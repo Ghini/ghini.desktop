@@ -59,7 +59,7 @@ plugins = setuptools.find_packages(
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test', 'ghini.*.test'])
 
-package_data = {'': ['README', 'CHANGES', 'LICENSE'],
+package_data = {'': ['README.rst', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
                            'images/*.svg', 'images/*.gif', 'images/*.ico']}
 
@@ -82,12 +82,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     # for a list of all packages in the sqlalchemy namespace
     sqlalchemy_includes = ['sqlalchemy.dialects.sqlite',
                            'sqlalchemy.dialects.postgresql']
-    py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata',
+    py2exe_includes = ['sqlite3', 'lxml', 'gdata',
                        'fibra', 'psycopg2', 'encodings', 'mako',
-                       'mako.cache'] + \
+                       'mako.cache', 'pygments.styles.default', 'pyparsing'] + \
         gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
-        'console': ["scripts/ghini"],
+        #'console': ["scripts/ghini"],
         'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
     py2exe_options = {
@@ -102,7 +102,18 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                 "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
                 "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll",
                 "libpango-1.0-0.dll", "libpangowin32-1.0-0.dll",
-                "libxml2", "zlib1"]
+                #"libxml2", "zlib1"
+                "DNSAPI.DLL","MSIMG32.DLL", "Secur32.dll", # windows dlls
+                "SHFOLDER.dll", "CRYPT32.dll",
+                "api-ms-win-core-processthreads-l1-1-2.dll",
+                "api-ms-win-core-sysinfo-l1-2-1.dll", 
+                "api-ms-win-core-heap-l2-1-0.dll",
+                "api-ms-win-core-delayload-l1-1-1.dll",
+                "api-ms-win-core-errorhandling-l1-1-1.dll",
+                "api-ms-win-core-profile-l1-1-0.dll",
+                "api-ms-win-core-libraryloader-l1-2-0.dll",
+                "api-ms-win-core-string-obsolete-l1-1-0.dll",
+                "api-ms-win-security-activedirectoryclient-l1-1-0.dll"]
         }
     }
 
@@ -399,12 +410,11 @@ except ImportError:
 
 scripts = ["scripts/ghini"]
 if sys.platform == 'win32':
-    scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
-               "scripts/ghini.lnk", "scripts/ghini-update.bat"]
+    scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs", "scripts/ghini-update.bat"]
 
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
-setuptools.setup(name="bauble",
+setuptools.setup(name="ghini.desktop",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
                            'docs': docs, 'clean': clean, 'run': run},
