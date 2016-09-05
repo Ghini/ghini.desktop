@@ -61,7 +61,7 @@ all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test', 'ghini
 
 package_data = {'': ['README.rst', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
-                           'images/*.svg', 'images/*.gif', 'images/*.ico']}
+                           'images/*.svg', 'images/*.gif', 'images/*.ico', 'images/*.bmp']}
 
 # ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',

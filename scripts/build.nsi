@@ -10,19 +10,19 @@
 !include "MUI.nsh"
 
 ; general
-Name "Bauble"
+Name "Ghini"
 
 !define version "1.0.60" ; :bump
 !define src_dir "../dist"
-Outfile "bauble-${version}-setup.exe"
+Outfile "ghini.desktop-${version}-setup.exe"
 
-!define prodname "Bauble"
-!define exec "bauble.exe"
+!define prodname "Ghini.desktop"
+!define exec "ghini.exe"
 !define license_file "LICENSE"
 !define readme "README"
 
 ; icons must be Microsoft .ICO files
-; !define icon "icon.ico"
+; !define icon "${src_dir}/bauble/images/icon.ico"
 
 ; file containing list of file-installation commands
 ; !define files "files.nsi"
@@ -48,8 +48,16 @@ InstallDirRegKey HKLM "${regkey}" ""
 
 ;--------------------------------
 ;Interface Settings
+; MUI Settings
 
 !define MUI_ABORTWARNING
+!define MUI_UNABORTWARNING
+!define MUI_ICON "${src_dir}/bauble/images/icon.ico"
+!define MUI_UNICON "${src_dir}/bauble/images/icon.ico"
+!define MUI_HEADERIMAGE
+!define MUI_HEADERIMAGE_BITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
+!define MUI_HEADERIMAGE_RIGHT
 
 ;--------------------------------
 ;Pages
