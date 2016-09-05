@@ -153,7 +153,9 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             if not os.path.exists(dist_gtk):
                 ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
                                                 'man', 'demo', 'aclocal',
-                                                'doc', 'include')
+                                                'doc', 'include', 'emacs', 
+                                                'gettext', 'glade3', 'gtksourceview-2.0',
+                                                'info', 'intltool')
                 shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
             # register the pixbuf loaders
@@ -167,6 +169,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             rc = '%s\\share\\themes\\MS-Windows\\gtk-2.0\\gtkrc' % dist_gtk
             dest = '%s\\etc\\gtk-2.0' % dist_gtk
             file_util.copy_file(rc, dest)
+            
+            # copy the gnome index.theme - stops stderr messages
+            gtheme = '%s\\share\\icons\\hicolor\\index.theme' % gtk_root
+            dest = '%s\\share\\icons\\hicolor' % self.dist_dir
+            dir_util.mkpath(dest)
+            file_util.copy_file(gtheme, dest)
 
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
