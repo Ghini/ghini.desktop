@@ -176,6 +176,10 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             dir_util.mkpath(dest)
             file_util.copy_file(gtheme, dest)
 
+            # copy LICENSE to dist\share\LICENSE.ghini (for help>about)
+            file_util.copy_file("LICENSE",
+            os.path.join(self.dist_dir, 'share', 'LICENSE.ghini'))
+
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
         # 2. run the script to update the pixbuf paths
