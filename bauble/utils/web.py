@@ -28,7 +28,13 @@ from bauble.i18n import _
 
 
 def _open_link(func, data=None):
-    desktop.open(data)
+    # windows generates odd characters in the uri unless its in ascii 
+    import sys
+    if sys.platform == 'win32' :
+        udata=data.decode("utf-8")
+        asciidata=udata.encode("ascii","ignore")
+        desktop.open(asciidata)
+    else : desktop.open(data)
 
 gtk.link_button_set_uri_hook(_open_link)
 
