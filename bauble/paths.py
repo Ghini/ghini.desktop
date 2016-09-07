@@ -85,7 +85,7 @@ def installation_dir():
     elif sys.platform == 'win32':
         # main_dir is the location of the scripts, which is located in the
         # installation_dir:
-        d = os.path.dirname(main_dir())
+        d = main_dir()
     else:
         raise NotImplementedError('This platform does not support '
                                   'translations: %s' % sys.platform)
