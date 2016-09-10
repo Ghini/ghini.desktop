@@ -14,6 +14,8 @@ git commit -m "publish to 1.0"
 git push
 git checkout $LINE-dev
 git fetch --all
-scripts/bump_version.py +
-git commit -a -m "bumping version"
+tmpfile=$(mktemp /tmp/bump-commit.XXXXXX)
+scripts/bump_version.py + | tee $tmpfile
+$(tail -n 1 $tmpfile)
+rm $tmpfile
 git push
