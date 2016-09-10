@@ -23,7 +23,7 @@
 
 """
 The connection manager provides a GUI for creating and opening
-connections. This is the first thing displayed when Bauble starts.
+connections. This is the first thing displayed when Ghini starts.
 """
 import os
 import copy
@@ -503,19 +503,19 @@ class ConnMgrPresenter(GenericEditorPresenter):
                 path, f = os.path.split(filename)
                 if not os.access(path, os.R_OK):
                     valid = False
-                    msg = _("Bauble does not have permission to "
+                    msg = _("Ghini does not have permission to "
                             "read the directory:\n\n%s") % path
                 elif not os.access(path, os.W_OK):
                     valid = False
-                    msg = _("Bauble does not have permission to "
+                    msg = _("Ghini does not have permission to "
                             "write to the directory:\n\n%s") % path
             elif not os.access(filename, os.R_OK):
                 valid = False
-                msg = _("Bauble does not have permission to read the "
+                msg = _("Ghini does not have permission to read the "
                         "database file:\n\n%s") % filename
             elif not os.access(filename, os.W_OK):
                 valid = False
-                msg = _("Bauble does not have permission to "
+                msg = _("Ghini does not have permission to "
                         "write to the database file:\n\n%s") % filename
         else:
             fields = []
@@ -562,9 +562,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
             if self.use_defaults is True:
                 name = new or self.connection_name
                 self.filename = os.path.join(
-                    paths.user_dir(), name + '.db')
+                    paths.appdata_dir(), name + '.db')
                 self.pictureroot = os.path.join(
-                    paths.user_dir(), name)
+                    paths.appdata_dir(), name)
             result = {'file': self.filename,
                       'default': self.use_defaults,
                       'pictures': self.pictureroot}

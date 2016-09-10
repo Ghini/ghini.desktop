@@ -79,7 +79,7 @@ class PicturesView(gtk.HBox):
                 logger.debug('object %s has picture %s' % (o, p))
                 expander = gtk.HBox()
                 expander.add(p)
-                self.box.pack_start(expander, expand=False, fill=False)
+                self.box.pack_end(expander, expand=False, fill=False)
                 self.box.reorder_child(expander, 0)
                 expander.show_all()
                 p.show()

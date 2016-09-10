@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2016 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # report/mako/
 #
@@ -80,14 +80,43 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     @classmethod
     def install(cls, import_defaults=True):
+        "create templates dir on plugin installation"
         logger.debug("installing mako plugin")
-        # copy default template files to user_dir
-        templates = ['example.csv', 'example.csv']
-        base_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
+        container_dir = os.path.join(paths.appdata_dir(), "templates")
+        if not os.path.exists(container_dir):
+            os.mkdir(container_dir)
+        cls.plugin_dir = os.path.join(paths.appdata_dir(), "templates", "mako")
+        if not os.path.exists(cls.plugin_dir):
+            os.mkdir(cls.plugin_dir)
+
+    @classmethod
+    def init(cls):
+        """copy default template files to appdata_dir
+
+        we do this in the initialization instead of installation
+        because new version of plugin might provide new templates.
+
+        """
+        cls.install()  # plugins still not versioned...
+
+        templates = ['example_accession.csv',
+                     'example_accession-es.csv',
+                     'example_plant.csv',
+                     'example_plant-es.csv',
+                     'example_species.csv',
+                     'example_species-es.csv',
+                     'bgci-upload.csv',
+                     'label.ps',
+                     'labels.html',
+                     'labels_small.html',
+                     'label-engraving.svg',
+        ]
+        src_dir = os.path.join(paths.lib_dir(), "plugins", "report", 'mako')
         for template in templates:
-            f = os.path.join(paths.user_dir(), template)
-            if not os.path.exists(f):
-                shutil.copy(os.path.join(base_dir, template), f)
+            src = os.path.join(src_dir, template)
+            dst = os.path.join(cls.plugin_dir, template)
+            if not os.path.exists(dst) and os.path.exists(src):
+                shutil.copy(src, dst)
 
     @staticmethod
     def get_settings_box():

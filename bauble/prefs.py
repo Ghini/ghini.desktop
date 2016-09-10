@@ -35,7 +35,7 @@ testing = False  # set this to True when testing
 
 """
 The prefs module exposes an API for getting and setting user
-preferences in the Bauble config file.
+preferences in the Ghini config file.
 
 To use the preferences import bauble.prefs and access the prefs object
 using a dictionary like interface. e.g. ::
@@ -53,7 +53,7 @@ using a dictionary like interface. e.g. ::
 # throughout bauble
 
 default_filename = 'config'
-default_prefs_file = os.path.join(paths.user_dir(), default_filename)
+default_prefs_file = os.path.join(paths.appdata_dir(), default_filename)
 """
 The default file for the preference settings file.
 """
@@ -95,14 +95,14 @@ Values: True, False
 
 units_pref = 'bauble.units'
 """
-The preferences key for the default units for Bauble.
+The preferences key for the default units for Ghini.
 
 Values: metric, imperial
 """
 
 use_sentry_client_pref = 'bauble.use_sentry_client'
 """
-During normal usage, Bauble produces a log file which contains
+During normal usage, Ghini produces a log file which contains
 invaluable information for tracking down errors. This information is
 normally saved in a file on the local workstation.
 
@@ -231,7 +231,7 @@ class _prefs(dict):
             self.config.write(f)
             f.close()
         except Exception:
-            msg = _("Bauble can't save your user preferences. \n\nPlease "
+            msg = _("Ghini can't save your user preferences. \n\nPlease "
                     "check the file permissions of your config file:\n %s") \
                 % self._filename
             if bauble.gui is not None and bauble.gui.window is not None:

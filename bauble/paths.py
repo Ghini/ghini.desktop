@@ -1,27 +1,27 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # provide paths that bauble will need
 #
 """
-Access to standard paths used by Bauble.
+Access to standard paths used by Ghini.
 """
 import os
 import sys
@@ -29,7 +29,7 @@ import sys
 
 def main_is_frozen():
     """
-    Returns True/False if Bauble is being run from a py2exe
+    Returns True/False if Ghini is being run from a py2exe
     executable.  This method duplicates bauble.main_is_frozen in order
     to make paths.py not depend on any other Bauble modules.
     """
@@ -81,7 +81,11 @@ def installation_dir():
     if sys.platform in ('linux4', 'linux3', 'linux2', 'darwin'):
         # installation_dir, relative to this file, is 7 levels up.
         this_file_location = __file__.split(os.path.sep)
-        d = os.path.sep.join(this_file_location[:-7])
+        try:
+            index_of_lib = this_file_location.index('lib')
+        except ValueError:
+            index_of_lib = 0
+        d = os.path.sep.join(this_file_location[:-index_of_lib - 1])
     elif sys.platform == 'win32':
         # main_dir is the location of the scripts, which is located in the
         # installation_dir:
@@ -93,8 +97,22 @@ def installation_dir():
 
 
 def user_dir():
+    """Returns the path to where user data are saved.
+
+    this is not the same as Application Data, for app_data is going to be
+    replaced at each new installation or upgrade of the software. user_data
+    is responsibility of the user and the software should use it, not
+    overrule it. 
+
+    not implemented yet. will be a configuration item.
+
     """
-    Returns the path to where Bauble settings should be saved.
+    return appdata_dir()
+
+    
+def appdata_dir():
+    """Returns the path to where Ghini application data and settings are saved.
+
     """
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
@@ -126,4 +144,5 @@ if __name__ == '__main__':
     print 'main: %s' % main_dir()
     print 'lib: %s' % lib_dir()
     print 'locale: %s' % locale_dir()
+    print 'application: %s' % appdata_dir()
     print 'user: %s' % user_dir()

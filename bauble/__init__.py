@@ -19,7 +19,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 """
-The top level module for Bauble.
+The top level module for Ghini.
 """
 
 import logging
@@ -72,7 +72,7 @@ if main_is_frozen():  # main is frozen
 
 
 # if not hasattr(gtk.Widget, 'set_tooltip_markup'):
-#     msg = _('Bauble requires GTK+ version 2.12 or greater')
+#     msg = _('Ghini requires GTK+ version 2.12 or greater')
 #     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 #     sys.exit(1)
 
@@ -117,7 +117,7 @@ def save_state():
 
 def quit():
     """
-    Stop all tasks and quit Bauble.
+    Stop all tasks and quit Ghini.
     """
     import gtk
     import bauble.utils as utils
@@ -192,7 +192,7 @@ conn_list_pref = "conn.list"
 
 def main(uri=None):
     """
-    Run the main Bauble application.
+    Run the main Ghini application.
 
     :param uri:  the URI of the database to connect to.  For more information
                  about database URIs see `<http://www.sqlalchemy.org/docs/05/\
@@ -214,12 +214,12 @@ dbengine.html#create-engine-url-arguments>`_
         sys.exit(1)
 
     # create the user directory
-    if not os.path.exists(paths.user_dir()):
-        os.makedirs(paths.user_dir())
+    if not os.path.exists(paths.appdata_dir()):
+        os.makedirs(paths.appdata_dir())
 
     # add console root handler, and file root handler, set it at the logging
     # level specified by BAUBLE_LOGGING, or at INFO level.
-    filename = os.path.join(paths.user_dir(), 'bauble.log')
+    filename = os.path.join(paths.appdata_dir(), 'bauble.log')
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fileHandler = logging.FileHandler(filename, 'w+')
@@ -263,7 +263,7 @@ dbengine.html#create-engine-url-arguments>`_
 
     display = gtk.gdk.display_get_default()
     if display is None:
-        print _("**Error: Bauble must be run in a windowed environment.")
+        print _("**Error: Ghini must be run in a windowed environment.")
         sys.exit(1)
 
     import bauble.pluginmgr as pluginmgr
@@ -345,7 +345,7 @@ dbengine.html#create-engine-url-arguments>`_
         gtk.gdk.threads_enter()
         try:
             if isinstance(open_exc, err.DatabaseError):
-                msg = _('Would you like to create a new Bauble database at '
+                msg = _('Would you like to create a new Ghini database at '
                         'the current connection?\n\n<i>Warning: If there is '
                         'already a database at this connection any existing '
                         'data will be destroyed!</i>')

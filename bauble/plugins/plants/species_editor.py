@@ -208,7 +208,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                         def on_response_accepted(button, response):
                             self.view.remove_box(b2)
                             if response:
-                                hybrid = accepted['Species hybrid marker']
+                                hybrid = accepted['Species hybrid marker'] == Species.hybrid_char
                                 self.model.accepted = Species.retrieve_or_create(
                                     self.session, {
                                         'object': 'taxon',
@@ -218,7 +218,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                         'ht-epithet': accepted['Genus'],
                                         'epithet': accepted['Species'],
                                         'author': accepted['Authorship'],
-                                        'hybrid_marker': hybrid}
+                                        'hybrid': hybrid}
                                     )
                                 self.refresh_view()
                                 self.refresh_fullname_label()

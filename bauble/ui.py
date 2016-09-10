@@ -714,7 +714,7 @@ class GUI(object):
             self.widgets.statusbar.pop(cid)
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://bauble.readthedocs.org/en/latest/',
+        desktop.open('http://ghini.readthedocs.io/en/latest/',
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):
@@ -722,7 +722,7 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_logfile(self, widget, data=None):
-        filename = os.path.join(paths.user_dir(), 'bauble.log')
+        filename = os.path.join(paths.appdata_dir(), 'bauble.log')
         desktop.open(filename, dialog_on_error=True)
 
     def on_help_menu_web_devel(self, widget, data=None):

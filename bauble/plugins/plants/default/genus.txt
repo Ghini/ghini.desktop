@@ -24353,8 +24353,6 @@
 24370,"Brittonrosea","Speg.",79
 24371,"Cactodendron","Bigelow",79
 24372,"Cactus","L.",79
-24373,"Cactus","Britton & Rose",79
-24374,"Cactus","Lem.",79
 24381,"Cassyta","J.Mill.",79
 24382,"Cephalomammillaria","Fric",79
 24383,"Ceratistes","Labour.",79
@@ -24395,7 +24393,6 @@
 24426,"Leptocladia","Buxb.",79
 24427,"Lobirebutia","Fric",79
 24428,"Lobiviopsis","Fric",79
-24429,"Malacocarpus","Salm-Dyck",79
 24430,"Malacocarpus","Fisch. & C.A.Mey.",511
 24431,"Mammariella","Shafer",79
 24432,"Mediocereus","Fric & Kreuz.",79
@@ -24434,7 +24431,6 @@
 24470,"Calectasia","R.Br.",80
 24471,"Callitriche","L.",81
 24472,"Cervicina","Delile",84
-24473,"Clintonia","Douglas ex Lindl.",84
 24474,"Clintonia","Raf.",120
 24475,"Cyphia","Bergius",84
 24476,"Cyphocarpus","Miers",84
