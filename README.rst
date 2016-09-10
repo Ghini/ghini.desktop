@@ -73,7 +73,7 @@ Further info
 ------------
 
 The complete documentation for ghini.desktop is to be found at
-http://bauble.readthedocs.org. It includes detailed and up-to-date
+http://ghini.readthedocs.io. It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 
