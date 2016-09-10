@@ -142,7 +142,7 @@ class Importer(object):
 
 class CSVImporter(Importer):
 
-    """imports comma separated value files into a Bauble database.
+    """imports comma separated value files into a Ghini database.
 
     It imports multiple files, each of them equally named as the bauble
     database tables. The bauble tables dependency graph defines the correct

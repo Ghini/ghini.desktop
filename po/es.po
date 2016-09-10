@@ -97,8 +97,8 @@ msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Error: No se pudo importar gtk o gobject"
 
 #: bauble/__init__.py:328
-msgid "**Error: Bauble must be run in a windowed environment."
-msgstr "**Error: Bauble debe ejecutarse en un entorno de ventanas."
+msgid "**Error: Ghini must be run in a windowed environment."
+msgstr "**Error: Ghini debe ejecutarse en un entorno de ventanas."
 
 #: bauble/plugins/tag/tag.glade:265
 msgid "--"
@@ -634,12 +634,12 @@ msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
 "\n"
 "<i>It is possible that this user could have permissions on other databases "
-"not related to Bauble.</i>"
+"not related to Ghini.</i>"
 msgstr ""
 "Es cierto que quiere eliminar el usuario <b>%(name)s</b>?\n"
 "\n"
 "<i>hay la posibilidad que este usuario tenga derechos sobre otras base de "
-"datos no relacionadas con Bauble.</i>"
+"datos no relacionadas con Ghini.</i>"
 
 #: bauble/plugins/garden/plant.py:289
 msgid "Area transf. to Plant Ops."
@@ -666,67 +666,67 @@ msgstr ""
 
 #: bauble/prefs.py:219
 msgid ""
-"Bauble can't save your user preferences. \n"
+"Ghini can't save your user preferences. \n"
 "\n"
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
-"Bauble no puede guardar sus preferencias. \n"
+"Ghini no puede guardar sus preferencias. \n"
 "\n"
 "Compruebe los permisos del archivo de configuración:\n"
 " %s"
 
 #: bauble/ui.py:362
-msgid "Bauble development website"
-msgstr "Sitio web de desarrollo Bauble"
+msgid "Ghini development website"
+msgstr "Sitio web de desarrollo Ghini"
 
 #: bauble/connmgr.py:423
 msgid ""
-"Bauble does not have permission to read the database file:\n"
+"Ghini does not have permission to read the database file:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble no tiene permiso de lectura sobre el archivo de base de datos:\n"
+"Ghini no tiene permiso de lectura sobre el archivo de base de datos:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:415
 msgid ""
-"Bauble does not have permission to read the directory:\n"
+"Ghini does not have permission to read the directory:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble no tiene permiso de lectura sobre la carpeta:\n"
+"Ghini no tiene permiso de lectura sobre la carpeta:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:427
 msgid ""
-"Bauble does not have permission to write to the database file:\n"
+"Ghini does not have permission to write to the database file:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble no tiene permiso de escritura sobre el archivo de base de datos:\n"
+"Ghini no tiene permiso de escritura sobre el archivo de base de datos:\n"
 "\n"
 "%s"
 
 #: bauble/connmgr.py:419
 msgid ""
-"Bauble does not have permission to write to the directory:\n"
+"Ghini does not have permission to write to the directory:\n"
 "\n"
 "%s"
 msgstr ""
-"Bauble no tiene permiso de escritura sobre la carpeta:\n"
+"Ghini no tiene permiso de escritura sobre la carpeta:\n"
 "\n"
 "%s"
 
 #: bauble/ui.py:368
-msgid "Bauble forum"
-msgstr "forum usuarios Bauble"
+msgid "Ghini forum"
+msgstr "forum usuarios Ghini"
 
 #: bauble/ui.py:365
-msgid "Bauble wiki"
-msgstr "la wiki de Bauble"
+msgid "Ghini wiki"
+msgstr "la wiki de Ghini"
 
 #: bauble/plugins/garden/source.py:160
 msgid "Botanic Garden or Arboretum"
@@ -2275,8 +2275,8 @@ msgid "Show details"
 msgstr "Mostrar detalles"
 
 #: bauble/plugins/users/ui.glade:121
-msgid "Show only Bauble users"
-msgstr "Mostrar solo usuarios Bauble"
+msgid "Show only Ghini users"
+msgstr "Mostrar solo usuarios Ghini"
 
 #: bauble/plugins/garden/propagation.py:228
 msgid "Singled"
@@ -2475,21 +2475,21 @@ msgstr "Los premios a esta especie se han dado"
 msgid ""
 "The database you have connected to does not have a timestamp for when it was "
 "created. This usually means that there was a problem when you created the "
-"database or the database you connected to wasn't created with Bauble."
+"database or the database you connected to wasn't created with Ghini."
 msgstr ""
 "Se ha conectado a una base de datos que no tiene una marca de tiempo de "
 "creación. Esto suele deberse a que ocurrió un problema durante la creación "
-"de la base de datos o a que no fue creada con Bauble."
+"de la base de datos o a que no fue creada con Ghini."
 
 #: bauble/db.py:390
 msgid ""
 "The database you have connected to does not have the bauble meta table.  "
 "This usually means that the database is either corrupt or it was created "
-"with an old version of Bauble"
+"with an old version of Ghini"
 msgstr ""
-"Se ha conectado a una base de datos que no tiene la metatabla de Bauble. "
+"Se ha conectado a una base de datos que no tiene la metatabla de Ghini. "
 "Esto suele deberse a que la base de datos está dañada o a que se creó con "
-"una versión antigua de Bauble"
+"una versión antigua de Ghini"
 
 #: bauble/db.py:386
 msgid "The database you have connected to is empty."
@@ -2828,11 +2828,11 @@ msgstr ""
 
 #: bauble/db.py:38
 msgid ""
-"This version of Bauble requires SQLAlchemy 0.6 or greater. You are using "
+"This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
-"Esta versión de Bauble requiere SQLAlchemy 0.6 o superior. Usted está "
+"Esta versión de Ghini requiere SQLAlchemy 0.6 o superior. Usted está "
 "utilizando la versión %s. Por favor descargue e instale un versión mas nueva "
 "de SQLAlchemy desde http://www.sqlalchemy.org o pongase en contacto con su "
 "administrador de sistemas."
@@ -3020,12 +3020,12 @@ msgstr "¿Quiere cancelar las tareas actuales?"
 
 #: bauble/__init__.py:416
 msgid ""
-"Would you like to create a new Bauble database at the current connection?\n"
+"Would you like to create a new Ghini database at the current connection?\n"
 "\n"
 "<i>Warning: If there is already a database at this connection any existing "
 "data will be destroyed!</i>"
 msgstr ""
-"¿Quiere crear una base de datos Bauble nueva en esta conexión?\n"
+"¿Quiere crear una base de datos Ghini nueva en esta conexión?\n"
 "\n"
 "<i>Advertencia: Si ya hay una base de datos en esta conexión se destruirán "
 "todos los datos existentes.</i>"
@@ -3076,13 +3076,13 @@ msgstr ""
 
 #: bauble/db.py:405
 msgid ""
-"You are using Bauble version %(version)s while the database you have "
+"You are using Ghini version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
 "\n"
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
-"Está usando Bauble versión %(version)s, pero se ha conectado a una base de "
+"Está usando Ghini versión %(version)s, pero se ha conectado a una base de "
 "datos creada con la versión %(db_version)s\n"
 "\n"
 "Puede que algunas cosas no funcionen o que algunos de los datos se dañen sin "
@@ -3276,7 +3276,7 @@ msgstr ""
 
 #: bauble/ui.py:660
 msgid "http://bauble.wikidot.com"
-msgstr "http://github.com/Bauble/bauble.classic/wiki"
+msgstr "http://github.com/Ghini/bauble.classic/wiki"
 
 #: bauble/plugins/imex/csv_.py:356
 msgid "importing %(table)s table from %(filename)s"
@@ -3623,8 +3623,8 @@ msgstr "°F"
 #~ msgstr "Un MessageBox que muestra un mensaje en la cabecera del editor."
 
 # 2157030fdf434ab3a6ac2dab9e6335b7
-#~ msgid "A common set of utility functions used throughout Bauble."
-#~ msgstr "Conjunto común de funciones de utilidad empleada en Bauble."
+#~ msgid "A common set of utility functions used throughout Ghini."
+#~ msgstr "Conjunto común de funciones de utilidad empleada en Ghini."
 
 # f87f5dce978a44a5bdf208bcf69220f4
 #~ msgid "A couple of useful examples:"
@@ -3646,8 +3646,8 @@ msgstr "°F"
 #~ "un editor."
 
 # 9f99c003b66d4f69b26dde0ccee90f1d
-#~ msgid "Access to standard paths used by Bauble."
-#~ msgstr "Accesos a las rutas estándard empleadas por Bauble."
+#~ msgid "Access to standard paths used by Ghini."
+#~ msgstr "Accesos a las rutas estándard empleadas por Ghini."
 
 # b110bb7dda004ba09cfe4f4db85ba92e
 #~ msgid "Accession Source"
@@ -3688,12 +3688,12 @@ msgstr "°F"
 # de98dc817df440c1b19dda76bbedadd7
 #~ msgid ""
 #~ "All changes in the database is stored in the database, as history log. "
-#~ "All changes are 'signed' and time-stamped.  Bauble makes it easy to "
+#~ "All changes are 'signed' and time-stamped.  Ghini makes it easy to "
 #~ "retrieve the list of all changes in the last working day or week, or in "
 #~ "any specific period in the past."
 #~ msgstr ""
 #~ "Todos los cambios en la base de datos se almacenan en un log. Todos los "
-#~ "cambios son 'firmados' y sellados temporalmente. Bauble hace fácil la "
+#~ "cambios son 'firmados' y sellados temporalmente. Ghini hace fácil la "
 #~ "recuperación de todos los cambio en el último día o semana, o en un "
 #~ "período especifico del pasado."
 
@@ -3707,18 +3707,18 @@ msgstr "°F"
 
 # bf8dbf11271c4b9f93e4d48b4823ea22
 #~ msgid ""
-#~ "All tables/mappers in Bauble which use the SQLAlchemy declarative plugin "
+#~ "All tables/mappers in Ghini which use the SQLAlchemy declarative plugin "
 #~ "for declaring tables and mappers should derive from this class."
 #~ msgstr ""
-#~ "Todas las tablas/mappers de Bauble, que hacen uso del plugin declarativo "
+#~ "Todas las tablas/mappers de Ghini, que hacen uso del plugin declarativo "
 #~ "SQLAlchemy para declarar tablas y mappers, deben derivar de esta clase."
 
 # 9c76641f15fe4b3e8e72c7599aee6791
 #~ msgid ""
-#~ "Almost all of the editors in Bauble have a *Notes* tab which should work "
+#~ "Almost all of the editors in Ghini have a *Notes* tab which should work "
 #~ "the same regardless of which editor you are using."
 #~ msgstr ""
-#~ "Aproximadamente todos los editores en Bauble tienen una pestaña *Notas*, "
+#~ "Aproximadamente todos los editores en Ghini tienen una pestaña *Notas*, "
 #~ "que debería funcionar del mismo modo, independientemente del editor "
 #~ "empleado."
 
@@ -3735,11 +3735,11 @@ msgstr "°F"
 
 # 06220cdbadd6474ebb42cd7bc329b57d
 #~ msgid ""
-#~ "Although Bauble can be extended through plugins to support alternate "
+#~ "Although Ghini can be extended through plugins to support alternate "
 #~ "import and export formats, by default it can only import and export comma "
 #~ "seperated values files or CSV."
 #~ msgstr ""
-#~ "Aunque puede extenderse Bauble mediante plugins para que admita formatos "
+#~ "Aunque puede extenderse Ghini mediante plugins para que admita formatos "
 #~ "alternativos de importación y exportación, por defecto solo importa/"
 #~ "exporta ficheros con datos separados por coma o CSV."
 
@@ -3757,16 +3757,16 @@ msgstr "°F"
 
 # 693ce5177c4142b996c132f6692ad365
 #~ msgid ""
-#~ "As of Bauble-1.0.41, Pictures are not kept in the database. To ensure "
+#~ "As of Ghini-1.0.41, Pictures are not kept in the database. To ensure "
 #~ "pictures are available on all terminals where you have installed and "
-#~ "configured Bauble, you can use a file sharing service like Copy or "
+#~ "configured Ghini, you can use a file sharing service like Copy or "
 #~ "Dropbox. The personal choice of the writer of this document is to use "
 #~ "Copy, because it offers much more space and because of its \"Fair Storage"
 #~ "\" policy."
 #~ msgstr ""
-#~ "Al momento (Bauble 1.0.41), las imagenes no son guardadas en la base de "
+#~ "Al momento (Ghini 1.0.41), las imagenes no son guardadas en la base de "
 #~ "datos. para que las fotos sean disponibles en todos los terminales en que "
-#~ "se quiera utilizar Bauble, será necesario instalar un servicio de "
+#~ "se quiera utilizar Ghini, será necesario instalar un servicio de "
 #~ "condivisión de archivos, como pueden ser Copy o Dropbox. Quien escribe "
 #~ "esta documentación sugiere utilizar Copy porque ofrece más espacio y por "
 #~ "su política \"Fair Storage\"."
@@ -3781,8 +3781,8 @@ msgstr "°F"
 
 # 41a5850528264f5baaaf7055c1a85aa8
 #~ msgid ""
-#~ "At this point you can run Bauble.  To run the compiled executable run::"
-#~ msgstr "En este momento puede ejecutar Bauble. Para ejecutar el compilado::"
+#~ "At this point you can run Ghini.  To run the compiled executable run::"
+#~ msgstr "En este momento puede ejecutar Ghini. Para ejecutar el compilado::"
 
 # b8087e5aa61643949a78edd4ec80e3b6
 # 22cadd942bbc4e3ab5f63e24cdf19797
@@ -3795,38 +3795,38 @@ msgstr "°F"
 #~ msgid "Bases: :class:`gtk.EventBox`"
 #~ msgstr "Bases: :class:`gtk.EventBox`"
 
-#~ msgid "Bauble"
-#~ msgstr "la wiki de Bauble"
+#~ msgid "Ghini"
+#~ msgstr "la wiki de Ghini"
 
-#~ msgid "Bauble - Picasa Settings"
-#~ msgstr "Configuración Bauble-Picasa"
+#~ msgid "Ghini - Picasa Settings"
+#~ msgstr "Configuración Ghini-Picasa"
 
 # 650246b13a8644e1a266aa7b184e43c6
-#~ msgid "Bauble Development"
-#~ msgstr "Desarrollo de Bauble"
+#~ msgid "Ghini Development"
+#~ msgstr "Desarrollo de Ghini"
 
 # 8ed0cc85d51f40bda9cd82b44bbd58d2
-#~ msgid "Bauble allows read, write and execute permissions."
-#~ msgstr "Bauble permite la lectura, escritura y ejecución."
+#~ msgid "Ghini allows read, write and execute permissions."
+#~ msgstr "Ghini permite la lectura, escritura y ejecución."
 
 # a9bdf5cf5d764a599b4db0aeeefa540a
 #~ msgid ""
-#~ "Bauble allows you associate pictures to physical plants, this can help "
+#~ "Ghini allows you associate pictures to physical plants, this can help "
 #~ "recognize the plant in case a sticker is lost, or help taxonomic "
 #~ "identification if a taxonomist is not available at all times."
 #~ msgstr ""
-#~ "Bauble le permite asociar fotos a plantas físicas, esto puede ayudarle a "
+#~ "Ghini le permite asociar fotos a plantas físicas, esto puede ayudarle a "
 #~ "reconocer la planta en caso de que se pierda la nota, o ayudar a la "
 #~ "identificación taxonómica si no está disponible un taxónomo."
 
 # e67cf82363dc4eaaaf72a21e87d3622e
 #~ msgid ""
-#~ "Bauble allows you search the database using simple keywords, e.g.: the "
+#~ "Ghini allows you search the database using simple keywords, e.g.: the "
 #~ "name of the location or a genus name, or you can write more complex "
 #~ "queries, which do not reach the complexity of SQL but allow you a decent "
 #~ "level of detail localizing your data."
 #~ msgstr ""
-#~ "Bauble le permite consultar la base de datos empleando palabras clave "
+#~ "Ghini le permite consultar la base de datos empleando palabras clave "
 #~ "sencillas, p.e.: el nombre del lugar o un nombre de género, o puede "
 #~ "escribir consultas más complejas, que no llegarán a la complejidad de SQL "
 #~ "paro que le permitirán localizar sus datos con un nivel de detalle "
@@ -3834,10 +3834,10 @@ msgstr "°F"
 
 # e939003e8ab64ea782fb890d8f8c57b0
 #~ msgid ""
-#~ "Bauble is an application for managing botanical specimen collections. "
+#~ "Ghini is an application for managing botanical specimen collections. "
 #~ "With it you can create a searchable database of plant records."
 #~ msgstr ""
-#~ "Bauble es un programa para manejar una base de datos que represente una "
+#~ "Ghini es un programa para manejar una base de datos que represente una "
 #~ "colección botánica: inserción, búsquedas, informes, et cetera."
 
 # e2138f93551343379e6bf4a4519a7f1d
@@ -3904,10 +3904,10 @@ msgstr "°F"
 #~ msgid ""
 #~ "No Python database connectors installed.\n"
 #~ "Please consult the documentation for the prerequesites for installing "
-#~ "Bauble."
+#~ "Ghini."
 #~ msgstr ""
 #~ "No hay conectores instalados con la base de datos de Python.\n"
-#~ "Consulte la documentación de los prerrequisitos para instalar Bauble."
+#~ "Consulte la documentación de los prerrequisitos para instalar Ghini."
 
 #~ msgid "No images"
 #~ msgstr "No hay imagenes"

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
 
-# The Bauble version.
+# The Ghini version.
 # major, minor, revision version tuple
 
-version = "1.0.60"  # :bump
+version = "1.0.62"  # :bump

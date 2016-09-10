@@ -463,10 +463,18 @@ class GeneralLocationExpander(InfoExpander):
         general_box = self.widgets.loc_gen_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
+        self.current_obj = None
+
+        def on_nplants_clicked(*args):
+            cmd = 'plant where location.code="%s"' % self.current_obj.code
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.loc_nplants_data,
+                                   on_nplants_clicked)
 
     def update(self, row):
         '''
         '''
+        self.current_obj = row
         from bauble.plugins.garden.plant import Plant
         self.widget_set_value('loc_name_data',
                               '<big>%s</big>' % utils.xml_safe(str(row)),

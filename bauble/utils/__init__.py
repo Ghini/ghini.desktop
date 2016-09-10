@@ -22,7 +22,7 @@
 #
 
 """
-A common set of utility functions used throughout Bauble.
+A common set of utility functions used throughout Ghini.
 """
 import datetime
 import os
@@ -501,8 +501,9 @@ def set_widget_value(widget, value, markup=False, default=None, index=0):
         elif value is False:  # why do we need unset `inconsistent` for False?
             widget.set_inconsistent(False)
             widget.set_active(False)
-        else:
-            widget.set_inconsistent(True)
+        else: # treat None as False, we do not handle inconsistent cases.
+            widget.set_inconsistent(False)
+            widget.set_active(False)
     elif isinstance(widget, gtk.Button):
         if value is None:
             widget.props.label = ''
@@ -537,7 +538,7 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL |
                           gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=type, buttons=buttons)
-    d.set_title('Bauble')
+    d.set_title('Ghini')
     d.set_markup(msg)
 
     # get the width of a character
@@ -594,7 +595,7 @@ def create_yes_no_dialog(msg, parent=None):
                           gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=gtk.MESSAGE_QUESTION,
                           buttons=gtk.BUTTONS_YES_NO)
-    d.set_title('Bauble')
+    d.set_title('Ghini')
     d.set_markup(msg)
     if d.get_icon() is None:
         try:
@@ -647,7 +648,7 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL |
                           gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=type, buttons=buttons)
-    d.set_title('Bauble')
+    d.set_title('Ghini')
     d.set_markup(msg)
 
     # get the width of a character

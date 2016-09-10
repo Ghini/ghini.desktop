@@ -1382,7 +1382,7 @@ class InstitutionTests(GardenTestCase):
 
     def test_init__9_props(self):
         o = Institution()
-        o.name = 'Bauble'
+        o.name = 'Ghini'
         o.write()
         fields = self.session.query(BaubleMeta).filter(
             utils.ilike(BaubleMeta.name, 'inst_%')).all()
@@ -1392,7 +1392,7 @@ class InstitutionTests(GardenTestCase):
         o = Institution()
         o.name = 'Fictive'
         o.write()
-        o.name = 'Bauble'
+        o.name = 'Ghini'
         o.write()
         fieldObjects = self.session.query(BaubleMeta).filter(
             utils.ilike(BaubleMeta.name, 'inst_%')).all()
@@ -1404,10 +1404,10 @@ class InstitutionTests(GardenTestCase):
         o.write()
         u = Institution()
         self.assertEquals(u.name, u'Fictive')
-        o.name = 'Bauble'
+        o.name = 'Ghini'
         o.write()
         u = Institution()
-        self.assertEquals(u.name, u'Bauble')
+        self.assertEquals(u.name, u'Ghini')
 
     def test_init__has_all_attributes(self):
         o = Institution()
@@ -1417,7 +1417,7 @@ class InstitutionTests(GardenTestCase):
 
     def test_write__None_stays_None(self):
         o = Institution()
-        o.name = 'Bauble'
+        o.name = 'Ghini'
         o.email = 'bauble@anche.no'
         o.write()
         fieldObjects = self.session.query(BaubleMeta).filter(
@@ -1425,7 +1425,7 @@ class InstitutionTests(GardenTestCase):
         fields = dict((i.name[5:], i.value)
                       for i in fieldObjects
                       if i.value is not None)
-        self.assertEquals(fields['name'], u'Bauble')
+        self.assertEquals(fields['name'], u'Ghini')
         self.assertEquals(fields['email'], u'bauble@anche.no')
         self.assertEquals(len(fields), 2)
 
