@@ -160,11 +160,17 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                 shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
             # register the pixbuf loaders
+            # populate loaders.cache also
             exe = '%s\\bin\\gdk-pixbuf-query-loaders.exe' % dist_gtk
-            dest = '%s\\etc\\gtk-2.0\\gdk-pixbuf.loaders' % dist_gtk
-            cmd = 'call "%s" > "%s"' % (exe, dest)
-            print cmd
-            os.system(cmd)
+            dest1 = '%s\\etc\\gtk-2.0\\gdk-pixbuf.loaders' % dist_gtk
+            dest2 = '%s\\lib\\gdk-pixbuf-2.0\\2.10.0\\loaders.cache' % dist_gtk
+            cmd1 = 'call "%s" > "%s"' % (exe, dest1)
+            cmd2 = 'call "%s" > "%s"' % (exe, dest2)
+            print cmd1
+            print cmd2
+            os.system(cmd1)
+            os.system(cmd2)
+            
 
             # copy the the MS-Windows gtkrc to make it the default theme
             rc = '%s\\share\\themes\\MS-Windows\\gtk-2.0\\gtkrc' % dist_gtk
