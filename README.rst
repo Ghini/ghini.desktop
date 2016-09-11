@@ -52,15 +52,15 @@ Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
 If you are in a hurry
 ---------------------
 
-Download the following files and do the most logical thing with them. Or you may read the installation manual.
+Download the following files and do the most logical thing with them. Or also read the rest.
 
-https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/Git-2.10.0-32-bit.exe
-https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
-https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
-http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
-http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
-https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.bat
-https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/ghini-update.bat
+* https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/Git-2.10.0-32-bit.exe
+* https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
+* https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
+* http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
+* http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
+* https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.bat
+* https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/ghini-update.bat
 
 
 Requirements
