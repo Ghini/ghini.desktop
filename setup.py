@@ -93,7 +93,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
     py2exe_options = {
         "py2exe": {
-            "compressed": 1,
+            #no compression makes for better NSIS compression
+            "compressed": False,
             "optimize": 2,
             "includes": py2exe_includes,
             "dll_excludes": [

@@ -96,21 +96,12 @@ Section
     SetOutPath $INSTDIR ; for working directory
     CreateDirectory "${startmenu}"
     CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}"
-    ; have to use COMSPEC because of the redirection
-    #Exec "$INSTDIR\loadpixbufs.bat"
-    ExpandEnvStrings $0 %COMSPEC%
-
-    ; create a .bat file to run gdk-pixbuf-query-loaders.exe
-    Var /GLOBAL QUERY_PIXBUF_CMD
-    StrCpy $QUERY_PIXBUF_CMD '"$INSTDIR\gtk\bin\gdk-pixbuf-query-loaders.exe" > "$INSTDIR\gtk\etc\gtk-2.0\gdk-pixbuf.loaders"' 
-    FileOpen $0 $INSTDIR\query_pixbufs.bat w
-    IfErrors done
-    FileWrite $0 $QUERY_PIXBUF_CMD
-    FileClose $0
-;    MessageBox MB_OK|MB_ICONSTOP $INSTDIR
-;    MessageBox MB_OK|MB_ICONSTOP $QUERY_PIXBUF_CMD   
-    nsExec::Exec '"$INSTDIR\query_pixbufs.bat"'
-    done:
+    ; run gdk-pixbuf-query-loaders, gtk-query-immodules & pango-querymodules
+    ReadEnvStr $0 COMSPEC
+    SetOutPath "$INSTDIR"
+    nsExec::ExecToLog '$0 /C .\gtk\bin\pango-querymodules.exe > .\gtk\etc\pango\pango.modules'
+    nsExec::ExecToLog '$0 /C .\gtk\bin\gtk-query-immodules-2.0.exe > .\gtk\etc\gtk-2.0\gtk.immodules'
+    nsExec::ExecToLog '$0 /C .\gtk\bin\gdk-pixbuf-query-loaders.exe > .\gtk\etc\gtk-2.0\gdk-pixbuf.loaders'
 SectionEnd
 
 ; Uninstaller
