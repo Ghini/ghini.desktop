@@ -19,7 +19,7 @@ Outfile "ghini.desktop-${version}-setup.exe"
 !define prodname "Ghini.desktop"
 !define exec "ghini.exe"
 !define license_file "LICENSE"
-!define readme "README"
+!define readme "README.rst"
 
 ; icons must be Microsoft .ICO files
 ; !define icon "${src_dir}/bauble/images/icon.ico"
@@ -44,7 +44,7 @@ CRCCheck on
 SilentInstall normal
 
 InstallDir "$PROGRAMFILES\${prodname}"
-InstallDirRegKey HKLM "${regkey}" ""
+InstallDirRegKey HKCU "${regkey}" ""
 
 ;--------------------------------
 ;Interface Settings
