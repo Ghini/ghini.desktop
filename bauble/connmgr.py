@@ -224,9 +224,17 @@ class ConnMgrPresenter(GenericEditorPresenter):
         except:
             pass
 
-        from threading import Thread
-        self.start_thread(Thread(target=check_and_notify_new_version,
+        from bauble import main_is_frozen
+        # Don't check for new versions if we are in a py2exe environment
+        # TODO: when we there is a place for them check for new windows 
+        # installers (or patches?)
+        if main_is_frozen():
+            pass
+        else:
+            from threading import Thread
+            self.start_thread(Thread(target=check_and_notify_new_version,
                                  args=[self.view]))
+        logger.debug('main_is_frozen = %s' % (main_is_frozen()))
 
     def on_file_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('file_entry')
