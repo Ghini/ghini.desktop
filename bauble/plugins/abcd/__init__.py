@@ -213,7 +213,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
                 'Name, Technical Contact, Email, Contact and Institution '
                 'Code fields are filled in.')
         utils.message_dialog(msg)
-        institution.InstitutionEditor().start()
+        institution.start_institution_editor()
         return create_abcd(decorated_objects, authors, validate)
 
     datasets = DataSets()
