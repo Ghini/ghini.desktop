@@ -19,7 +19,7 @@ Outfile "ghini.desktop-${version}-setup.exe"
 !define prodname "Ghini.desktop"
 !define exec "ghini.exe"
 !define license_file "LICENSE"
-!define readme "README"
+!define readme "README.rst"
 
 ; icons must be Microsoft .ICO files
 ; !define icon "${src_dir}/bauble/images/icon.ico"
@@ -44,7 +44,7 @@ CRCCheck on
 SilentInstall normal
 
 InstallDir "$PROGRAMFILES\${prodname}"
-InstallDirRegKey HKLM "${regkey}" ""
+InstallDirRegKey HKCU "${regkey}" ""
 
 ;--------------------------------
 ;Interface Settings
@@ -58,6 +58,13 @@ InstallDirRegKey HKLM "${regkey}" ""
 !define MUI_HEADERIMAGE_BITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
 !define MUI_HEADERIMAGE_UNBITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
 !define MUI_HEADERIMAGE_RIGHT
+; allow users to check install log before continuing
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_FINISHPAGE_NOREBOOTSUPPORT
+!define MUI_FINISHPAGE_RUN_TEXT "Start Ghini"
+!define MUI_FINISHPAGE_RUN $INSTDIR\${exec}
+!define MUI_FINISHPAGE_LINK "Visit the Ghini home page"
+!define MUI_FINISHPAGE_LINK_LOCATION http://ghini.github.io/
 
 ;--------------------------------
 ;Pages
@@ -65,6 +72,7 @@ InstallDirRegKey HKLM "${regkey}" ""
 !insertmacro MUI_PAGE_LICENSE "${src_dir}/${license_file}"
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
 
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -98,7 +106,6 @@ Section
     CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}"
     ; run gdk-pixbuf-query-loaders, gtk-query-immodules & pango-querymodules
     ReadEnvStr $0 COMSPEC
-    SetOutPath "$INSTDIR"
     nsExec::ExecToLog '$0 /C gtk\bin\pango-querymodules.exe > gtk\etc\pango\pango.modules'
     nsExec::ExecToLog '$0 /C gtk\bin\gtk-query-immodules-2.0.exe > gtk\etc\gtk-2.0\gtk.immodules'
     nsExec::ExecToLog '$0 /C gtk\bin\gdk-pixbuf-query-loaders.exe > gtk\etc\gtk-2.0\gdk-pixbuf.loaders'
