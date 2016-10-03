@@ -123,3 +123,19 @@ cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
 $HOME/.virtualenvs/ghide/bin/ghini
 EOF
 sudo chmod +x /usr/local/bin/ghini
+
+cat <<EOF | sudo tee /usr/local/share/applications/ghini.desktop > /dev/null
+#!/bin/bash
+[Desktop Entry]
+Type=Application
+Name=Ghini Desktop
+Version=1.0
+GenericName=Biodiversity Manager
+Icon=$HOME/.virtualenvs/ghide/share/icons/hicolor/scalable/apps/ghini.svg
+TryExec=/usr/local/bin/ghini
+Exec=/usr/local/bin/ghini
+Terminal=false
+StartupNotify=false
+Categories=Qt;Education;Science;Geography;
+Keywords=botany;botanic;
+EOF
