@@ -495,7 +495,7 @@ class WithNotes:
         for n in self.notes:
             if n.category == ('[%s]' % name):
                 result.append(n.note)
-            elif n.category.startswith('{%s' % name):
+            elif n.category.startswith('{%s:' % name) and n.category.endswith('}'):
                 is_dict = True
                 match = self.key_pattern.match(n.category)
                 key = match.group(1)
