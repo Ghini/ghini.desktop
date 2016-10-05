@@ -1,0 +1,69 @@
+## This file is part of bauble.classic.
+##
+## bauble.classic is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## bauble.classic is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+##
+##
+## heights of plants, monitored per year.
+## accession code starts with the four digits of the planting.
+<%
+from bauble.plugins.report import get_plants_pertinent_to
+from bauble.plugins.report import get_species_pertinent_to
+planting_years = set()
+monitoring_years = set()
+##data = {}
+for p in get_plants_pertinent_to(values):
+    planting_year = p.accession.code.split('.')[0]
+    planting_years.add(planting_year)
+    try:
+        monitoring_years.update(p.height.keys())
+    except AttributeError:
+        pass
+##    data.setdefault(p.accession.species.id, {})
+##    data[p.accession.species.id].setdefault(planting_year, [])
+##    try:
+##        d = p.height
+##    except AttributeError:
+##        d = {}
+##    data[p.accession.species.id][planting_year].append(d)
+planting_years = sorted(planting_years)
+monitoring_years = sorted(monitoring_years)
+%>\
+##
+## we can finally produce the header
+Family	Genus	Species	Plant code\
+% for y in monitoring_years:
+	${y}\
+% endfor
+## almost done, do not forget the new-line!
+
+##
+## now report per individual plant
+##
+% for p in get_plants_pertinent_to(values):
+${p.accession.species.genus.family.family}	\
+${p.accession.species.genus.genus}	\
+${p.accession.species.sp}	\
+${p.accession.code}.${p.code}\
+%   for y in monitoring_years:
+<%
+    try:
+        d = p.height
+    except AttributeError:
+        d = {}
+
+%>	${d.get(y, '').split('#')[0]}\
+%   endfor
+## done producing the data line, close it by adding a new-line
+
+% endfor
