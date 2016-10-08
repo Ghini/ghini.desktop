@@ -14,6 +14,7 @@
 ; NsisMultiUser (https://github.com/Drizin/NsisMultiUser)
 ; nsisunz (http://nsis.sourceforge.net/Nsisunz_plug-in)
 ; Inetc (http://nsis.sourceforge.net/Inetc_plug-in)
+; MD5 (http://nsis.sourceforge.net/MD5_plugin)
 ;---
 
 
@@ -43,6 +44,8 @@ Outfile "${PRODUCT_NAME}-${VERSION}-setup.exe"
 !define FOP_MIRROR "http://www.apache.org/dyn/closer.cgi?filename=xmlgraphics/fop/binaries"
 !define FOP_VERSION "2.1"
 !define FOP_BINZIP "fop-${FOP_VERSION}-bin.zip"
+; http://www-eu.apache.org/dist/xmlgraphics/fop/binaries/fop-2.1-bin.zip.md5
+!define FOP_MD5 "http://www-eu.apache.org/dist/xmlgraphics/fop/binaries/${FOP_BINZIP}.md5"
 !define FOP_JRE "1.6"
 !define JRE_WEB "https://java.com/download"
 Var JREFwd
@@ -103,7 +106,7 @@ CRCCheck on
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_COMPONENTSPAGE_TEXT_COMPLIST "Or, select the optional components you wish to install: \
     $\r$\n$\r$\n* Extra Components marked (Download) will require an internet connection."
-!define MUI_FINISHPAGE_NOAUTOCLOSE  ;allows users to check install log before continuing
+;!define MUI_FINISHPAGE_NOAUTOCLOSE  ;allows users to check install log before continuing
 !define MUI_FINISHPAGE_TEXT_REBOOT "Rebooting is recommended but not required to start using ${PRODUCT_NAME} immediately"
 !define MUI_FINISHPAGE_TEXT_REBOOTNOW "Reboot now (required before using Apache FOP option)"
 !define MUI_FINISHPAGE_REBOOTLATER_DEFAULT
@@ -253,7 +256,6 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
         Goto DoneFOP
     
     ; Download FOP
-    ; TODO hash check
     DownloadFOP:
         InitPluginsDir
         ClearErrors
@@ -261,11 +263,27 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
             "${FOP_MIRROR}/${FOP_BINZIP}&action=download" "$PLUGINSDIR\${FOP_BINZIP}" /END
             Pop $0
             DetailPrint "Apache FOP Download Status: $0"
-            StrCmp $0 "OK" InstalFOP
-            MessageBox MB_OK|MB_ICONEXCLAMATION "Download Error, $0 aborting FOP installation.$\r$\nto try again \
-                re-run this installer at a later date" /SD IDOK 
-                Goto DoneFOP
-        
+            StrCmp $0 "OK" MD5checkFOP FOPFail
+
+    
+    ; MD5 hash check
+    MD5checkFOP:
+        ClearErrors
+        inetc::get /silent "${FOP_MD5}" "$PLUGINSDIR\fop.md5" /END
+            Pop $0
+            DetailPrint "Apache FOP MD5 Download Status: $0"
+            StrCmp $0 "OK" 0 FOPFail
+        md5dll::GetMD5File "$PLUGINSDIR\${FOP_BINZIP}"
+            Pop $1
+            ClearErrors
+            FileOpen $0 "$PLUGINSDIR\fop.md5" r
+            IfErrors FOPFail
+            FileRead $0 $2 32
+            StrCmp $2 $1 InstalFOP 
+            DetailPrint "Apache FOP MD5 check failed"
+            Goto FOPFail
+
+
     ; Unpack and install FOP
     InstalFOP:
         DetailPrint "Please wait... prepairing to extract and install Apache FOP"
@@ -323,10 +341,10 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
         DetailPrint "Reboot flag = False"
         Goto DoneFOP
 
-    ; Error with FOP unzipping
+    ; Error with FOP install
     FOPFail:
-        MessageBox MB_OK|MB_ICONEXCLAMATION "ERROR while extracting Apache FOP, installation aborted$\r$\n$\r$\n to \
-                try again re-run this installer at a later date" /SD IDOK
+        MessageBox MB_OK|MB_ICONEXCLAMATION "An ERROR occured while installing Apache FOP, installation aborted \
+                $\r$\n$\r$\n to try again re-run this installer at a later date" /SD IDOK
 
     DoneFOP:
 
