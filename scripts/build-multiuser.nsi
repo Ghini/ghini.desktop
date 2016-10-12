@@ -3,12 +3,25 @@
 ;
 
 ; Installer CLI options: /AllUsers or /CurrentUser
+;                      : /S             #Silent install
+;                      : /D=C:/...      #Set $INSTDIR
+;                      : /C=gFC         #Install Components, where:
+;                                               g = Unselect Ghini (normally always installed, used for component only installs)
+;                                               F = select Apache FOP
+;                                               C = select MS Visual C runtime
+;
+; A silent, system wide install, in the default location, with all components would look like this: 
+; >ghini.desktop-1.0.60-setup.exe /S /AllUsers /C=FC
+
+
+
 
 ;---
 ; Plugins, required to compile:
 ; -
 ; nsExec (included in NSIS v3.0) for executing commands
 ; WordFunc.nsh (included in NSIS v3.0) for comparing versions
+; FileFunc.nsh (included in NSIS v3.0) for command line options
 ; MUI2 (included in NSIS v3.0)
 ; UAC (included in NsisMultiUser)
 ; NsisMultiUser (https://github.com/Drizin/NsisMultiUser)
@@ -130,6 +143,7 @@ CRCCheck on
 !include "MUI2.nsh"
 !include "UAC.nsh"
 !include "WordFunc.nsh"
+!include "FileFunc.nsh"
 
 
 
@@ -189,7 +203,6 @@ InstType "Components Only"
 Section "!Ghini.desktop" SecMain
 
     SectionIN 1 2
-    ;SectionIN RO ; ReadOnly (user can't alter)
     
     ; Install Files
     SetOutPath "$INSTDIR"
@@ -595,6 +608,20 @@ FunctionEnd
 Function .onInit
 	; Initialize the NsisMultiUser plugin
 	!insertmacro MULTIUSER_INIT
+	; Check the command line option for components
+	${GetOptions} $CMDLINE "/C=" $2
+    CLLoop:
+        StrCpy $1 $2 1 -1
+        StrCpy $2 $2 -1
+        StrCmp $1 "" CLDone
+            StrCmp $1 "g" 0 +2
+                SectionSetFlags ${SecMain} 16
+            StrCmp $1 "F" 0 +2
+                SectionSetFlags ${SecFOP} 1
+            StrCmp $1 "C" 0 +2
+                SectionSetFlags ${SecMSC} 1
+        Goto CLLoop
+    CLDone:
 FunctionEnd
 
 Function un.onInit
