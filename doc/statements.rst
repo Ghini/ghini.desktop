@@ -23,7 +23,10 @@ people), unless obviously we mean both things.
 Mission
 ..............................................
 
-Mission: the mission is a purpose, it defines the rationale of an entity and
+Mission: To continuously develop Bauble ak GHINI as an open and free software for the documentation, research and management of biodiversity collections. The software is intended for organizations and educational institutions that have or manage for example botanical gardens, arboretums, herbaria, but also for people studying or working with such collections.
+Furthermore, the openness of the software and the linkage online, enables the various users to contribute to the improvement of the software and sharing solutions, to enhance the availability and visibility of such biodiversity collections.
+
+the mission is a purpose, it defines the rationale of an entity and
 is specific and true. For Bauble, the Mission Statement sets out the social
 order to which Bauble is committed, the needs that are satisfied with
 Bauble(the software) and with the services of Bauble(the people), the market
