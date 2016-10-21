@@ -86,13 +86,9 @@ Installing on MacOSX
 Being MacOSX a unix environment, most things will work the same as on Linux
 (sort of).
 
-One difficulty is that there are many more versions of MacOSX out
-there than one would want to support, and only the current and its
-immediately preceding release are kept up-to-date by Apple-the-firm.
-
 Last time we tested, some of the dependencies could not be installed on
 MacOSX 10.5 and we assume similar problems would present themselves on older
-OSX versions.  Ghini has been successfully tested with 10.7 and 10.9.
+OSX versions.  Ghini has been successfully tested with 10.7, 10.9 and 10.12.
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
