@@ -37,6 +37,7 @@ from bauble.i18n import _
 from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
+from geoalchemy2 import Geometry
 from sqlalchemy.orm import relation, backref, object_mapper, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
@@ -465,6 +466,8 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
+
+    coords = Column(Geometry('POINT'))
 
     propagations = relation('Propagation', cascade='all, delete-orphan',
                             single_parent=True,
