@@ -1,39 +1,38 @@
-Who is behind Bauble
+Who is behind Ghini
 ..............................................
 
-Bauble started as a one-man project, by Brett Adams. He wrote Bauble for the
+Ghini started as a one-man project, by Brett Adams. He wrote Bauble for the
 Belize Botanical Garden, and later on adapted it for a couple of other users
 who asked him to use it. Brett made Bauble a commons, by releasing it under
 a GPL license.
 
 After some years of stagnation Mario Frasca took responsibility of updating
-Bauble, and it is now Mario Frasca writing this, enhancing the software,
+Bauble, renamed it to Ghini in order to mark the difference in activity
+level, and it is now Mario Frasca writing this, enhancing the software,
 looking for users, requesting feedback...
 
-So currently behind Bauble there's again one developer, but much more
-importantly, a small but growing global users community.
+So even if currently behind Ghini there's again one developer, much more
+importantly, there is a small but growing global users community.
 
 Translations are provided by volunteers who mostly stay behind the scenes,
 translating a couple of missing terms or sentences, and disappearing again.
 
-To make things clearer when we speak of Bauble, but should—and in this
-document we will—indicate whether it's Bauble(the software), or Bauble(the
+To make things clearer when we speak of Ghini, but should—and in this
+document we will—indicate whether it's Ghini(the software), or Ghini(the
 people), unless obviously we mean both things.
 
 Mission
 ..............................................
 
-Mission: the mission is a purpose, it defines the rationale of an entity and
-is specific and true. For Bauble, the Mission Statement sets out the social
-order to which Bauble is committed, the needs that are satisfied with
-Bauble(the software) and with the services of Bauble(the people), the market
-in which Bauble develops and its intended public image.
+To continuously support open and free software for the documentation,
+research and management of biodiversity collections, for the benefit of
+organizations and educational institutions that have or manage botanical
+collections. For example botanical gardens, arboretums, herbaria, but also
+for people studying or working with such collections.
 
-* access to software
-* access to development
-* bundling resources
-* open source
-* open data
+To stimulate users to contributing to the improvement of the software and
+sharing solutions; to enhance the availability and visibility of such
+biodiversity collections.
 
 Vision
 ..............................................
