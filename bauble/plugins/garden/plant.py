@@ -37,7 +37,6 @@ from bauble.i18n import _
 from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
-from geoalchemy2 import Geometry
 from sqlalchemy.orm import relation, backref, object_mapper, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
@@ -466,8 +465,6 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
-
-    coords = Column(Geometry('POINT'))
 
     propagations = relation('Propagation', cascade='all, delete-orphan',
                             single_parent=True,
@@ -1219,6 +1216,16 @@ class GeneralPlantExpander(InfoExpander):
                               markup=True)
         self.widget_set_value('location_data', str(row.location))
         self.widget_set_value('quantity_data', row.quantity)
+        try:
+            logger.debug('trying to get coordinates of plant')
+            s = object_session(row)
+            result = s.execute('select id, coords from plant where id=%d' % row.id)
+            myid, mycoords = result.fetchone()
+            logger.debug('got %s for plant.id %s' % (mycoords, myid))
+            self.widget_set_value('coordinates_data', mycoords)
+            pass
+        except Exception, e:
+            logger.debug('cannot get coordinates of plant - %s %s' % (type(e), e))
 
         status_str = _('Alive')
         if row.quantity <= 0:
