@@ -1218,14 +1218,23 @@ class GeneralPlantExpander(InfoExpander):
         self.widget_set_value('quantity_data', row.quantity)
         try:
             logger.debug('trying to get coordinates of plant')
-            s = object_session(row)
-            result = s.execute('select id, coords from plant where id=%d' % row.id)
+            session = object_session(row)
+            result = session.execute('select id, coords from plant where id=%d' % row.id)
             myid, mycoords = result.fetchone()
-            logger.debug('got %s for plant.id %s' % (mycoords, myid))
-            self.widget_set_value('coordinates_data', mycoords)
+            if mycoords[:2] == '01':
+                r = '>Q'
+            else:
+                r = '<Q'
+            import struct
+            lon = struct.unpack('d', struct.pack(r, int(mycoords[-32:-16], 16)))[0]
+            lat = struct.unpack('d', struct.pack(r, int(mycoords[-16:], 16)))[0]
+
+            logger.debug('got %s,%s for plant.id %s' % (lon, lat, myid))
+            self.widget_set_value('coordinates_data', '%0.5f,%0.5f' % (lon, lat))
             pass
         except Exception, e:
             logger.debug('cannot get coordinates of plant - %s %s' % (type(e), e))
+            self.widget_set_value('coordinates_data', '--')
 
         status_str = _('Alive')
         if row.quantity <= 0:
