@@ -36,7 +36,7 @@ import gtk
 from bauble.i18n import _
 from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
-    UnicodeText, UniqueConstraint
+    UnicodeText, UniqueConstraint, Float
 from sqlalchemy.orm import relation, backref, object_mapper, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
@@ -470,6 +470,9 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                             single_parent=True,
                             secondary=PlantPropagation.__table__,
                             backref=backref('plant', uselist=False))
+    position_lat = Column(Float, nullable=True)
+    position_lon = Column(Float, nullable=True)
+    visible_zoom = Column(Integer, autoincrement=False, nullable=True)
 
     _delimiter = None
 
@@ -1217,24 +1220,10 @@ class GeneralPlantExpander(InfoExpander):
         self.widget_set_value('location_data', str(row.location))
         self.widget_set_value('quantity_data', row.quantity)
         try:
-            logger.debug('trying to get coordinates of plant')
-            session = object_session(row)
-            result = session.execute('select id, coords from plant where id=%d' % row.id)
-            myid, mycoords = result.fetchone()
-            if mycoords[:2] == '01':
-                r = '>Q'
-            else:
-                r = '<Q'
-            import struct
-            lon = struct.unpack('d', struct.pack(r, int(mycoords[-32:-16], 16)))[0]
-            lat = struct.unpack('d', struct.pack(r, int(mycoords[-16:], 16)))[0]
-
-            logger.debug('got %s,%s for plant.id %s' % (lon, lat, myid))
-            self.widget_set_value('coordinates_data', '%0.5f,%0.5f' % (lon, lat))
-            pass
-        except Exception, e:
-            logger.debug('cannot get coordinates of plant - %s %s' % (type(e), e))
-            self.widget_set_value('coordinates_data', '--')
+            coords = '%0.5f,%0.5f' % (row.position_lon, row.position_lat)
+        except TypeError:
+            coords = '--'
+        self.widget_set_value('coordinates_data', coords)
 
         status_str = _('Alive')
         if row.quantity <= 0:

@@ -410,8 +410,8 @@ class BinomialNameAction(object):
         from bauble.plugins.plants.genus import Genus
         from bauble.plugins.plants.species import Species
         result = search_strategy._session.query(Species).filter(
-            Species.sp.startswith(self.species_epithet)).join(Genus).filter(
-            Genus.genus.startswith(self.genus_epithet)).all()
+            Species.epithet.startswith(self.species_epithet)).join(Genus).filter(
+            Genus.epithet.startswith(self.genus_epithet)).all()
         result = set(result)
         if None in result:
             logger.warn('removing None from result set')
