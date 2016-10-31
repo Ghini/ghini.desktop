@@ -758,6 +758,48 @@ class SearchTests(BaubleTestCase):
         self.assertEqual(results, set([sp]))
 
 
+class Parenthesised(BaubleTestCase):
+    import bauble.search
+    SearchParser = bauble.search.SearchParser
+
+    def __init__(self, *args):
+        super(Parenthesised, self).__init__(*args)
+
+    def setUp(self):
+        super(Parenthesised, self).setUp()
+        db.engine.execute('delete from genus')
+        db.engine.execute('delete from family')
+        from bauble.plugins.plants.family import Family
+        from bauble.plugins.plants.genus import Genus
+        self.family = Family(epithet=u'family1', id=1)
+        self.g1 = Genus(family=self.family, epithet=u'genus1', id=1)
+        self.g2 = Genus(family=self.family, epithet=u'genus2', id=2)
+        self.g3 = Genus(family=self.family, epithet=u'genus3', id=3)
+        self.g4 = Genus(family=self.family, epithet=u'genus4', id=4)
+        self.Family = Family
+        self.Genus = Genus
+        self.session.add_all([self.family, self.g1, self.g2, self.g3, self.g4])
+        self.session.commit()
+
+    def test_parenthesised_represent(self):
+        'a clause can be put in parentheses'
+        sp = self.SearchParser()
+        results = sp.parse_string('species where (notes.id!=0)')
+        self.assertEqual(str(results.statement),
+                         "SELECT * FROM species WHERE ((notes.id != 0.0))")
+
+    def test_in_singleton(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = 'genus where id in 1'
+        results_no_par = mapper_search.search(s, self.session)
+        self.assertEqual(results_no_par, set([self.g1]))
+        s = 'genus where (id in 1)'
+        results_with_par = mapper_search.search(s, self.session)
+        self.assertEqual(results_with_par, results_no_par)
+
+
 class InOperatorSearch(BaubleTestCase):
     def __init__(self, *args):
         super(InOperatorSearch, self).__init__(*args)
@@ -1035,6 +1077,8 @@ class ParseTypedValue(BaubleTestCase):
     def test_parse_typed_value_empty_set(self):
         result = search.parse_typed_value('Empty')
         self.assertEquals(type(result), search.EmptyToken)
+        self.assertEquals(str(result), 'Empty')
+        self.assertEquals(result.express(), set())
 
     def test_parse_typed_value_fallback(self):
         result = search.parse_typed_value('whatever else')
