@@ -117,7 +117,7 @@ class GardenPlugin(pluginmgr.Plugin):
 
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
-            bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
+            bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
             bauble.gui.add_to_insert_menu(SourceDetailEditor, _('Contact'))
 

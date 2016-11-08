@@ -410,7 +410,7 @@ recvd_type_values = {
     u'DIVI': _('Division'),
     u'GRAF': _('Graft'),
     u'LAYE': _('Layer'),
-    u'PLNT': _('Plant'),
+    u'PLNT': _('Planting'),
     u'PSBU': _('Pseudobulb'),
     u'RCUT': _('Rooted cutting'),
     u'RHIZ': _('Rhizome'),

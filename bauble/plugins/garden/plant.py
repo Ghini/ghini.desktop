@@ -395,7 +395,7 @@ class PlantStatus(db.Base):
     #container_id = Column(Integer)
 
 
-acc_type_values = {u'Plant': _('Plant'),
+acc_type_values = {u'Plant': _('Planting'),
                    u'Seed': _('Seed/Spore'),
                    u'Vegetative': _('Vegetative Part'),
                    u'Tissue': _('Tissue Culture'),
@@ -620,7 +620,7 @@ from bauble.plugins.garden.accession import Accession
 class PlantEditorView(GenericEditorView):
 
     _tooltips = {
-        'plant_code_entry': _('The plant code must be a unique code for '
+        'plant_code_entry': _('The planting code must be a unique code for '
                               'the accession.  You may also use ranges '
                               'like 1,2,7 or 1-3 to create multiple '
                               'plants.'),
@@ -628,7 +628,7 @@ class PlantEditorView(GenericEditorView):
                              'of completions.  To add an accession use the '
                              'Accession editor.'),
         'plant_loc_comboentry': _(
-            'The location of the plant in your collection.'),
+            'The location of the planting in your collection.'),
         'plant_acc_type_combo': _('The type of the plant material.\n\n'
                                   'Possible values: %s') % (
             ', '.join(acc_type_values.values())),

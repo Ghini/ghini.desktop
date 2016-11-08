@@ -1786,15 +1786,15 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:2270
 #: bauble/plugins/garden/__init__.py:126
 #: bauble/plugins/garden/accession.py:418 bauble/plugins/garden/plant.py:410
-msgid "Plant"
+msgid "Planting"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:7
-msgid "Plant Species Editor"
+msgid "Species Editor"
 msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:512
-msgid "Plant code"
+msgid "Planting code"
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:83
@@ -2005,7 +2005,7 @@ msgid "Save your changes changes and add a genus to this family."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:808
-msgid "Save your changes changes and add a plant to this accession."
+msgid "Save your changes changes and add a planting to this accession."
 msgstr ""
 
 #: bauble/plugins/plants/genus.py:381
@@ -2466,7 +2466,7 @@ msgid "The intitution code should be unique among all institions."
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:616
-msgid "The location of the plant in your collection."
+msgid "The location of the planting in your collection."
 msgstr "Lokaliseringen av planten i din samling."
 
 #: bauble/plugins/garden/institution.py:100
@@ -2530,7 +2530,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:609
 msgid ""
-"The plant code must be a unique code for the accession.  You may also use "
+"The planting code must be a unique code for the accession.  You may also use "
 "ranges like 1,2,7 or 1-3 to create multiple plants."
 msgstr ""
 
