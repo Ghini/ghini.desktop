@@ -322,6 +322,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         except Exception:
             pass
 
+    def set_visible_buttons(self, visible):
+        self.view.widgets.sp_ok_and_add_button.set_visible(visible)
+        self.view.widgets.sp_next_button.set_visible(visible)
+
     def on_sp_species_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)
         self.on_entry_changed_clear_boxes(widget, *args)
@@ -1197,7 +1201,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
 
-    def __init__(self, model=None, parent=None):
+    def __init__(self, model=None, parent=None, is_dependent_window=False):
         '''
         :param model: a species instance or None
         :param parent: the parent window or None
@@ -1212,6 +1216,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
 
         view = SpeciesEditorView(parent=self.parent)
         self.presenter = SpeciesEditorPresenter(self.model, view)
+        self.presenter.set_visible_buttons(not is_dependent_window)
 
         ## I do not follow this: we have a MVP model, but also an extra
         ## 'Editor' thing and is it stealing functionality from either the
@@ -1327,8 +1332,8 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         return self._committed
 
 
-def edit_species(model=None, parent_view=None):
-    kkk = SpeciesEditorMenuItem(model, parent_view)
+def edit_species(model=None, parent_view=None, is_dependent_window=False):
+    kkk = SpeciesEditorMenuItem(model, parent_view, is_dependent_window)
     kkk.start()
     result = kkk._committed
     del kkk
