@@ -137,16 +137,21 @@ def generic_taxon_add_action(model, view, presenter, top_presenter,
     """
 
     from bauble.plugins.plants.species import edit_species
-    if edit_species(parent_view=view.get_window(), is_dependent_window=True):
+    committed = edit_species(parent_view=view.get_window(), is_dependent_window=True)
+    if committed:
+        if isinstance(committed, list):
+            committed = committed[0]
         logger.debug('new taxon added from within AccessionEditor')
         # add the new taxon to the session and start using it
-        presenter.session.add(editor.model)
-        taxon_entry.set_text("%s" % editor.model)
+        presenter.session.add(committed)
+        taxon_entry.set_text("%s" % committed)
         presenter.remove_problem(
             hash(gtk.Buildable.get_name(taxon_entry)), None)
-        setattr(model, 'species', editor.model)
+        setattr(model, 'species', committed)
         presenter._dirty = True
         top_presenter.refresh_sensitivity()
+    else:
+        logger.debug('new taxon not added after request from AccessionEditor')
 
 
 def edit_callback(accessions):
