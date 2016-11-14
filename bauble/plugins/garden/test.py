@@ -1104,16 +1104,18 @@ class AccessionTests(GardenTestCase):
         self.assertRaises(IntegrityError, self.session.commit)
 
     def test_accession_source_editor(self, accession=None):
+        ## create an accession, a location, a plant
         acc = self.create(Accession, species=self.species, code=u'parent')
         plant = self.create(Plant, accession=acc, quantity=1,
                             location=Location(name=u'site', code=u'STE'),
                             code=u'1')
-        # creating a dummy propagtion without a related seed/cutting
+        ## create a propagation without a related seed/cutting
         prop = self.create(Propagation, prop_type=u'Seed')
         plant.propagations.append(prop)
+        ## commit all the above to the database
         self.session.commit()
         plant_prop_id = prop.id
-        assert plant_prop_id  # assert we got a valid id after the commit
+        self.assertTrue(plant_prop_id > 0)  # we got a valid id after the commit
 
         acc = Accession(code=u'code', species=self.species)
         self.editor = AccessionEditor(acc)
@@ -1128,18 +1130,22 @@ class AccessionTests(GardenTestCase):
         # set the source type as "Garden Propagation"
         widgets.acc_source_comboentry.child.props.text = \
             SourcePresenter.garden_prop_str
-        assert not self.editor.presenter.problems
+        self.assertTrue(not self.editor.presenter.problems)
 
         # set the source plant
         widgets.source_prop_plant_entry.props.text = str(plant)
+        logger.debug('about to update the gui')
         update_gui()
         comp = widgets.source_prop_plant_entry.get_completion()
         comp.emit('match-selected', comp.get_model(),
                   comp.get_model().get_iter_first())
 
-        # assert that the propagations were added to the treevide
+        logger.debug('about to update the gui')
+        update_gui()  # ensures idle callback is called
+
+        # assert that the propagations were added to the treeview
         treeview = widgets.source_prop_treeview
-        assert treeview.get_model()
+        self.assertTrue(treeview.get_model() is not None)
 
         # select the first/only propagation in the treeview
         toggle_cell = widgets.prop_toggle_cell.emit('toggled', 0)
@@ -1149,7 +1155,7 @@ class AccessionTests(GardenTestCase):
         self.editor.handle_response(gtk.RESPONSE_OK)
         self.editor.session.close()
 
-        # open a seperate session and make sure everything committed
+        # open a separate session and make sure everything committed
         session = db.Session()
         acc = session.query(Accession).filter_by(code=u'code')[0]
         parent = session.query(Accession).filter_by(code=u'parent')[0]
