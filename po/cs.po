@@ -2117,39 +2117,39 @@ msgid "Save your changes"
 msgstr "Uložit Vaše změny"
 
 #: bauble/plugins/plants/family.py:336
-msgid "Save your changes changes and add a genus to this family."
+msgid "Save your changes and add a genus to this family."
 msgstr "Uložit Vaše změny a přidat rod do této rodiny."
 
 #: bauble/plugins/garden/accession.py:808
-msgid "Save your changes changes and add a planting to this accession."
+msgid "Save your changes and add a planting to this accession."
 msgstr "Uložit Vaše změny a přidat tuto rostlinu do tohoto přírůstku."
 
 #: bauble/plugins/plants/genus.py:381
-msgid "Save your changes changes and add a species to this genus."
+msgid "Save your changes and add a species to this genus."
 msgstr "Uložit Vaše změny a přidat druh do tohoto rodu."
 
 #: bauble/plugins/plants/species_editor.py:908
-msgid "Save your changes changes and add an accession to this species"
+msgid "Save your changes and add an accession to this species"
 msgstr "Uložit Vaše změny a přidat přírůstek k tomuto druhu"
 
 #: bauble/plugins/garden/accession.py:810
-msgid "Save your changes changes and add another accession."
+msgid "Save your changes and add another accession."
 msgstr "Uložit Vaše změny a přidat další přírůstek."
 
 #: bauble/plugins/plants/family.py:338
-msgid "Save your changes changes and add another family."
+msgid "Save your changes and add another family."
 msgstr "Uložit Vaše změny a přidat další rodinu."
 
 #: bauble/plugins/plants/genus.py:383
-msgid "Save your changes changes and add another genus."
+msgid "Save your changes and add another genus."
 msgstr "Uložit Vaše změny a přidat jiný rod."
 
 #: bauble/plugins/garden/plant.py:627
-msgid "Save your changes changes and add another plant."
+msgid "Save your changes and add another plant."
 msgstr "Uložit Vaše změny a přidat další rostlinu."
 
 #: bauble/plugins/plants/species_editor.py:910
-msgid "Save your changes changes and add another species "
+msgid "Save your changes and add another species "
 msgstr "Uložit Vaše změny a přidat nový druh "
 
 #: bauble/plugins/garden/accession.py:807 bauble/plugins/garden/plant.py:626

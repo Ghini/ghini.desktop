@@ -867,9 +867,9 @@ class AccessionEditorView(editor.GenericEditorView):
                                'should be considered private.'),
         'acc_cancel_button': _('Cancel your changes.'),
         'acc_ok_button': _('Save your changes.'),
-        'acc_ok_and_add_button': _('Save your changes changes and add a '
+        'acc_ok_and_add_button': _('Save your changes and add a '
                                    'plant to this accession.'),
-        'acc_next_button': _('Save your changes changes and add another '
+        'acc_next_button': _('Save your changes and add another '
                              'accession.'),
 
         'sources_code_entry': "ITF2 - E7 - Donor's Accession Identifier - donacc",

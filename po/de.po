@@ -2104,39 +2104,39 @@ msgid "Save your changes"
 msgstr ""
 
 #: bauble/plugins/plants/family.py:336
-msgid "Save your changes changes and add a genus to this family."
+msgid "Save your changes and add a genus to this family."
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:808
-msgid "Save your changes changes and add a planting to this accession."
+msgid "Save your changes and add a planting to this accession."
 msgstr ""
 
 #: bauble/plugins/plants/genus.py:381
-msgid "Save your changes changes and add a species to this genus."
+msgid "Save your changes and add a species to this genus."
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:908
-msgid "Save your changes changes and add an accession to this species"
+msgid "Save your changes and add an accession to this species"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:810
-msgid "Save your changes changes and add another accession."
+msgid "Save your changes and add another accession."
 msgstr ""
 
 #: bauble/plugins/plants/family.py:338
-msgid "Save your changes changes and add another family."
+msgid "Save your changes and add another family."
 msgstr ""
 
 #: bauble/plugins/plants/genus.py:383
-msgid "Save your changes changes and add another genus."
+msgid "Save your changes and add another genus."
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:627
-msgid "Save your changes changes and add another plant."
+msgid "Save your changes and add another plant."
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:910
-msgid "Save your changes changes and add another species "
+msgid "Save your changes and add another species "
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:807 bauble/plugins/garden/plant.py:626

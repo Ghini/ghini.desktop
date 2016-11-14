@@ -639,7 +639,9 @@ class PlantEditorView(GenericEditorView):
         'pad_cancel_button': _('Cancel your changes.'),
         'pad_ok_button': _('Save your changes.'),
         'pad_next_button': _(
-            'Save your changes changes and add another plant.')
+            'Save your changes and add another plant.'),
+        'pad_nextaccession_button': _(
+            'Save your changes and add another accession.'),
         }
 
     def __init__(self, parent=None):

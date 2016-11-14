@@ -417,9 +417,9 @@ class GenusEditorView(editor.GenericEditorView):
                            'it to the list of synonyms.'),
         'gen_cancel_button': _('Cancel your changes.'),
         'gen_ok_button': _('Save your changes.'),
-        'gen_ok_and_add_button': _('Save your changes changes and add a '
+        'gen_ok_and_add_button': _('Save your changes and add a '
                                    'species to this genus.'),
-        'gen_next_button': _('Save your changes changes and add another '
+        'gen_next_button': _('Save your changes and add another '
                              'genus.')
     }
 

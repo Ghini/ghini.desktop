@@ -2126,39 +2126,39 @@ msgid "Save your changes"
 msgstr "Salvar suas alterações"
 
 #: bauble/plugins/plants/family.py:336
-msgid "Save your changes changes and add a genus to this family."
+msgid "Save your changes and add a genus to this family."
 msgstr "Salvar as alterações e adicionar um gênero à esta família."
 
 #: bauble/plugins/garden/accession.py:808
-msgid "Save your changes changes and add a planting to this accession."
+msgid "Save your changes and add a planting to this accession."
 msgstr "Salvar as alterações e adicionar uma planta a essa referência."
 
 #: bauble/plugins/plants/genus.py:381
-msgid "Save your changes changes and add a species to this genus."
+msgid "Save your changes and add a species to this genus."
 msgstr "Salvar as alterações e adicionar uma espécie para este gênero."
 
 #: bauble/plugins/plants/species_editor.py:908
-msgid "Save your changes changes and add an accession to this species"
+msgid "Save your changes and add an accession to this species"
 msgstr "Salvar suas alterações e adicionar uma referência a essa espécie"
 
 #: bauble/plugins/garden/accession.py:810
-msgid "Save your changes changes and add another accession."
+msgid "Save your changes and add another accession."
 msgstr "Salvar as alterações e adicionar uma outra referência."
 
 #: bauble/plugins/plants/family.py:338
-msgid "Save your changes changes and add another family."
+msgid "Save your changes and add another family."
 msgstr "Salvar as alterações e adicionar outra família."
 
 #: bauble/plugins/plants/genus.py:383
-msgid "Save your changes changes and add another genus."
+msgid "Save your changes and add another genus."
 msgstr "Salvar as alterações e adicionar outro gênero."
 
 #: bauble/plugins/garden/plant.py:627
-msgid "Save your changes changes and add another plant."
+msgid "Save your changes and add another plant."
 msgstr "Salvar as alterações e adicionar outra planta."
 
 #: bauble/plugins/plants/species_editor.py:910
-msgid "Save your changes changes and add another species "
+msgid "Save your changes and add another species "
 msgstr "Salvar as alterações e adicionar outra espécie "
 
 #: bauble/plugins/garden/accession.py:807 bauble/plugins/garden/plant.py:626

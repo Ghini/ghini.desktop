@@ -1094,9 +1094,9 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_awards_entry': _('The awards this species have been given'),
         'sp_cancel_button': _('Cancel your changes'),
         'sp_ok_button': _('Save your changes'),
-        'sp_ok_and_add_button': _('Save your changes changes and add an '
+        'sp_ok_and_add_button': _('Save your changes and add an '
                                   'accession to this species'),
-        'sp_next_button': _('Save your changes changes and add another '
+        'sp_next_button': _('Save your changes and add another '
                             'species ')
         }
 
