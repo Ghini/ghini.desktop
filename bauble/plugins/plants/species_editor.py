@@ -291,8 +291,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     self.set_model_attr('genus', syn.genus)
                     self.refresh_view()
                     self.refresh_fullname_label()
-                else:
-                    self.set_model_attr('genus', value)
             box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
             box.message = msg
             box.on_response = on_response

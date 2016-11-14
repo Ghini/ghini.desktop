@@ -1329,6 +1329,7 @@ class GenericEditorPresenter(object):
                      (self, problem_id, problem_widgets))
         if isinstance(problem_widgets, (tuple, list)):
             map(lambda w: self.add_problem(problem_id, w), problem_widgets)
+            return
 
         ## here single widget.
         widget = problem_widgets
@@ -1492,6 +1493,7 @@ class GenericEditorPresenter(object):
 
         def add_completions(text):
             if get_completions is None:
+                logger.debug("completion model has static list")
                 # get_completions is None usually means that the
                 # completions model already has a static list of
                 # completions
@@ -1509,52 +1511,67 @@ class GenericEditorPresenter(object):
 
             key_length = widget.get_completion().props.minimum_key_length
             values = get_completions(text[:key_length])
+            ##values = get_completions(text)
+            logger.debug('completions to add: %s' % str([i for i in values]))
             gobject.idle_add(idle_callback, values)
 
         def on_changed(entry, *args):
             logger.debug('assign_completions_handler::on_changed %s %s'
                          % (entry, args))
             text = entry.get_text()
-            comp = entry.get_completion()
-            comp_model = comp.get_model()
-            found = []
-            if comp_model:
-                # search the tree model to see if the text in the
-                # entry matches one of the completions, if so then
-                # emit the match-selected signal, this allows us to
-                # type a match in the entry without having to select
-                # it from the popup
-                def _cmp(row, data):
-                    return utils.utf8(row[0]) == text
-                found = utils.search_tree_model(comp_model, text, _cmp)
-                if len(found) == 1:
-                    v = comp.get_model()[found[0]][0]
-                    # only auto select if the full string has been entered
-                    if text.lower() == utils.utf8(v).lower():
-                        comp.emit('match-selected', comp.get_model(), found[0])
-                    else:
-                        found = None
-
-            if text != '' and not found and PROBLEM not in self.problems:
-                self.add_problem(PROBLEM, widget)
-                on_select(None)
 
             key_length = widget.get_completion().props.minimum_key_length
-            if (not comp_model and len(text) > key_length) or \
-                    len(text) == key_length:
+            if len(text) > key_length:
+                logger.debug('recomputing completions matching %s' % text)
                 add_completions(text)
 
-            # if entry is empty select nothing and remove all problem
-            if text == '':
-                on_select(None)
-                self.remove_problem(PROBLEM, widget)
-            elif not comp_model:
-                ## completion model is not in place when object is forced
-                ## programmatically.
-                on_select(text)  # `on_select` will know how to convert the
-                                 # text into a properly typed value.
-                self.remove_problem(PROBLEM, widget)
+            def idle_callback(text):
+                logger.debug('on_changed - part two')
+                comp = entry.get_completion()
+                comp_model = comp.get_model()
+                found = []
+                if comp_model:
+                    comp_model.foreach(lambda m, p, i, ud: logger.debug("item(%s) of comp_model: %s" % (p, m[p][0])), None)
+                    # search the tree model to see if the text in the
+                    # entry matches one of the completions, if so then
+                    # emit the match-selected signal, this allows us to
+                    # type a match in the entry without having to select
+                    # it from the popup
+                    def _cmp(row, data):
+                        return utils.utf8(row[0])[:len(text)].lower() == data.lower()
+                    found = utils.search_tree_model(comp_model, text, _cmp)
+                    logger.debug("matches found in ListStore: %s" % str(found))
+                    if not found:
+                        logger.debug('nothing found, nothing to select from')
+                    elif len(found) == 1:
+                        logger.debug('one match, decide whether to select it - %s' % found[0])
+                        v = comp.get_model()[found[0]][0]
+                        # only auto select if the full string has been entered
+                        if text.lower() == utils.utf8(v).lower():
+                            comp.emit('match-selected', comp.get_model(), found[0])
+                        else:
+                            found = None
+                    else:
+                        logger.debug('multiple matches, we cannot select any - %s' % str(found))
 
+                if text != '' and not found and PROBLEM not in self.problems:
+                    self.add_problem(PROBLEM, widget)
+                    on_select(None)
+
+                # if entry is empty select nothing and remove all problem
+                if text == '':
+                    on_select(None)
+                    self.remove_problem(PROBLEM, widget)
+                elif not comp_model:
+                    ## completion model is not in place when object is forced
+                    ## programmatically.
+                    on_select(text)  # `on_select` will know how to convert the
+                                     # text into a properly typed value.
+                    self.remove_problem(PROBLEM, widget)
+                logger.debug('on_changed - part two - returning')
+
+            gobject.idle_add(idle_callback, text)
+            logger.debug('on_changed - part one - returning')
             return True
 
         def on_match_select(completion, compl_model, treeiter):
