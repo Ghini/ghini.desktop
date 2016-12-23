@@ -57,9 +57,12 @@ for obj in sorted(species):
     obj['ht-rank'] = 'genus'
     result.append(obj)
 
+location = {"code": "000", "description": "", "name": "lot 1", "object": "location"}
+result.append(location)
+
 for obj in k:
     obj['lat'], obj['lon'] = staale.utm_to_latlon(18, float(obj['easting']), float(obj['northing']))
-    accession = {"code": "%(code)s.1" % obj, "object": "accession", "species": "%(genus)s %(species-epithet)s" % obj}
+    accession = {"code": "%(code)s" % obj, "object": "accession", "species": "%(genus)s %(species-epithet)s" % obj}
     result.append(accession)
     plant = {"acc_type": "Plant", "accession": "%(code)s" % obj, "code": "1", "location": "000", "object": "plant", "quantity": 1}
     result.append(plant)
