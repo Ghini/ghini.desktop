@@ -836,13 +836,14 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                                     plant_cell_data_func, minimum_key_length=1)
 
         def plant_get_completions(text):
-            # TODO: only return those plants with propagations
             from bauble.plugins.garden.accession import Accession
             from bauble.plugins.garden.plant import Plant
-            query = self.session.query(Plant).join('accession').\
-                filter(utils.ilike(Accession.code, u'%s%%' % text)).\
-                filter(Accession.id != self.model.accession.id).\
-                order_by(Accession.code, Plant.code)
+            query = self.session.query(Plant).\
+                    filter(Plant.propagations.any()).\
+                    join('accession').\
+                    filter(utils.ilike(Accession.code, u'%s%%' % text)).\
+                    filter(Accession.id != self.model.accession.id).\
+                    order_by(Accession.code, Plant.code)
             return query
 
         def on_select(value):
