@@ -157,6 +157,7 @@ class Propagation(db.Base):
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)
+            t = _('Cutting')
             s = ', '.join(values)
         elif self.prop_type == u'Seed':
             s = str(self)
@@ -187,11 +188,16 @@ class Propagation(db.Base):
             date_planted = get_date(seed.date_planted)
             if date_planted:
                 values.append(_('Date planted: %s') % date_planted)
+            t = _('Seed')
             s = ', '.join(values)
         elif self.notes:
+            t = _('Other')
             s = utils.utf8(self.notes)
 
-        return s
+        if self.used_source:
+            s = _('(used in: %s) ') % self.used_source[0].accession + s
+
+        return ': '.join([t, s])
 
 
 class PropRooted(db.Base):

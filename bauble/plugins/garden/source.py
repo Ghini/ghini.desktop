@@ -147,7 +147,8 @@ class Source(db.Base):
     plant_propagation_id = Column(Integer, ForeignKey('propagation.id'))
     plant_propagation = relation(
         'Propagation', uselist=False,
-        primaryjoin='Source.plant_propagation_id==Propagation.id')
+        primaryjoin='Source.plant_propagation_id==Propagation.id',
+        backref=backref('used_source', uselist=True))
 
 
 source_type_values = [(u'Expedition', _('Expedition')),
@@ -813,6 +814,8 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             set_cell_data_func(cell, self.toggle_cell_data_func)
 
         def on_toggled(cell, path, data=None):
+            if cell.get_sensitive() is False:
+                return
             prop = None
             if not cell.get_active():  # it's not active so we make it active
                 treeview = self.view.widgets.source_prop_treeview
@@ -832,6 +835,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' %
                                   (str(v), str(v.accession.species)))
+
         self.view.attach_completion('source_prop_plant_entry',
                                     plant_cell_data_func, minimum_key_length=1)
 
@@ -895,15 +899,18 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
-        active = False
-        if self.model.plant_propagation == propagation:
-            active = True
+        if not hasattr(cell, 'initialized'):
+            cell.set_radio(True)
+            cell.initialized = True
+        active = self.model.plant_propagation == propagation
         cell.set_active(active)
-        cell.set_radio(True)
+        cell.set_sensitive(active or len(propagation.used_source) == 0)
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
-        prop = model[treeiter][0]
-        cell.props.text = prop.get_summary()
+        propagation = model[treeiter][0]
+        cell.props.text = propagation.get_summary()
+        cell.set_sensitive(self.model.plant_propagation == propagation or
+                           len(propagation.used_source) == 0)
 
     def dirty(self):
         return self._dirty
