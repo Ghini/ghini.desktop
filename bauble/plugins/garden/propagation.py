@@ -195,7 +195,9 @@ class Propagation(db.Base):
             s = utils.utf8(self.notes)
 
         if self.used_source:
-            s = _('(used in: %s) ') % self.used_source[0].accession + s
+            session = object_session(self.used_source.accession)
+            if self.used_source.accession not in session.new:
+                s = _('(used in: %s) ') % self.used_source.accession + s
 
         return ': '.join([t, s])
 

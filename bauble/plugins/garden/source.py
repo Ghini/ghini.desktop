@@ -148,7 +148,8 @@ class Source(db.Base):
     plant_propagation = relation(
         'Propagation', uselist=False,
         primaryjoin='Source.plant_propagation_id==Propagation.id',
-        backref=backref('used_source', uselist=True))
+        backref=backref('used_source',
+                        uselist=False))  # not sure how to enforce this
 
 
 source_type_values = [(u'Expedition', _('Expedition')),
@@ -904,13 +905,13 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             cell.initialized = True
         active = self.model.plant_propagation == propagation
         cell.set_active(active)
-        cell.set_sensitive(active or len(propagation.used_source) == 0)
+        cell.set_sensitive(active or not propagation.used_source)
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
         cell.props.text = propagation.get_summary()
         cell.set_sensitive(self.model.plant_propagation == propagation or
-                           len(propagation.used_source) == 0)
+                           not propagation.used_source)
 
     def dirty(self):
         return self._dirty
