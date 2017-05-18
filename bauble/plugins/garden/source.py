@@ -899,6 +899,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
         if self.model.plant_propagation == propagation:
             active = True
         cell.set_active(active)
+        cell.set_radio(True)
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
         prop = model[treeiter][0]
