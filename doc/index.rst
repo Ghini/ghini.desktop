@@ -40,6 +40,7 @@ Using Bauble
    started
    searching
    editing
+   propagations
    tagging
    report
    imex
