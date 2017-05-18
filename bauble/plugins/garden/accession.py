@@ -1633,17 +1633,17 @@ class SourcePresenter(editor.GenericEditorPresenter):
         entry.set_completion(completion)
 
         def update_visible():
-            visible = dict(source_sw=False,
-                           source_garden_prop_box=False,
-                           source_none_label=False)
+            widget_visibility = dict(source_sw=False,
+                                     source_garden_prop_box=False,
+                                     source_none_label=False)
             if entry.props.text == self.garden_prop_str:
-                visible['source_garden_prop_box'] = True
+                widget_visibility['source_garden_prop_box'] = True
             elif not self.model.source or not self.model.source.source_detail:
-                visible['source_none_label'] = True
+                widget_visibility['source_none_label'] = True
             else:
                 #self.model.source.source_detail = value
-                visible['source_sw'] = True
-            for widget, value in visible.iteritems():
+                widget_visibility['source_sw'] = True
+            for widget, value in widget_visibility.iteritems():
                 self.view.widgets[widget].props.visible = value
             self.view.widgets.source_alignment.props.sensitive = True
 
