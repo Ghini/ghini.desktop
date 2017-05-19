@@ -114,10 +114,15 @@ class Propagation(db.Base):
                 return date.strftime(date_format)
             return date
 
-        s = str(self)
+        values = []
+        if self.used_source:
+            session = object_session(self.used_source.accession)
+            if self.used_source.accession not in session.new:
+                values.append(_('used in: %s') % self.used_source.accession)
+
         if self.prop_type == u'UnrootedCutting':
             c = self._cutting
-            values = []
+            values.append(_('Cutting'))
             if c.cutting_type is not None:
                 values.append(_('Cutting type: %s') %
                               cutting_type_values[c.cutting_type])
@@ -157,12 +162,9 @@ class Propagation(db.Base):
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)
-            t = _('Cutting')
-            s = ', '.join(values)
         elif self.prop_type == u'Seed':
-            s = str(self)
             seed = self._seed
-            values = []
+            values.append(_('Seed'))
             if seed.pretreatment:
                 values.append(_('Pretreatment: %s') % seed.pretreatment)
             if seed.nseeds:
@@ -188,18 +190,15 @@ class Propagation(db.Base):
             date_planted = get_date(seed.date_planted)
             if date_planted:
                 values.append(_('Date planted: %s') % date_planted)
-            t = _('Seed')
-            s = ', '.join(values)
         elif self.notes:
-            t = _('Other')
-            s = utils.utf8(self.notes)
+            values.append(_('Other'))
+            values.append(utils.utf8(self.notes))
+        else:
+            values.append(str(self))
 
-        if self.used_source:
-            session = object_session(self.used_source.accession)
-            if self.used_source.accession not in session.new:
-                s = _('(used in: %s) ') % self.used_source.accession + s
+        s = '; '.join(values)
 
-        return ': '.join([t, s])
+        return s
 
 
 class PropRooted(db.Base):
