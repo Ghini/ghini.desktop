@@ -2512,7 +2512,9 @@
                                           <object class="GtkTreeViewColumn" id="prop_toggle_column">
                                             <property name="title">Source</property>
                                             <child>
-                                              <object class="GtkCellRendererToggle" id="prop_toggle_cell"/>
+                                              <object class="GtkCellRendererToggle" id="prop_toggle_cell">
+                                                <property name="radio">True</property>
+                                              </object>
                                             </child>
                                           </object>
                                         </child>

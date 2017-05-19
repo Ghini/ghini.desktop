@@ -900,9 +900,6 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
-        if not hasattr(cell, 'initialized'):
-            cell.set_radio(True)
-            cell.initialized = True
         active = self.model.plant_propagation == propagation
         cell.set_active(active)
         cell.set_sensitive(active or not propagation.used_source)
