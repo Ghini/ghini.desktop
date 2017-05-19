@@ -821,6 +821,16 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             if not cell.get_active():  # it's not active so we make it active
                 treeview = self.view.widgets.source_prop_treeview
                 prop = treeview.get_model()[path][0]
+                acc_view = self.parent_ref().view
+                acc_view.widget_set_value(
+                    'acc_species_entry', 
+                    utils.utf8(prop.plant.accession.species))
+                from bauble.plugins.garden.accession import recvd_type_values
+                from bauble.plugins.garden.propagation import prop_type_results
+                acc_view.widget_set_value(
+                    'acc_recvd_type_comboentry',
+                    recvd_type_values[prop_type_results[prop.prop_type]],
+                    index=1)
             self.model.plant_propagation = prop
             self._dirty = True
             self.parent_ref().refresh_sensitivity()

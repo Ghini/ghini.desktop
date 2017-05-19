@@ -50,6 +50,12 @@ prop_type_values = {u'Seed': _("Seed"),
                     u'UnrootedCutting': _('Unrooted cutting'),
                     u'Other': _('Other')}
 
+prop_type_results = {
+    u'Seed': u'SEDL',
+    u'UnrootedCutting': u'RCUT',
+    u'Other': u'UNKN',
+}
+
 
 class PlantPropagation(db.Base):
     """
