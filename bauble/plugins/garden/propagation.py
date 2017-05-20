@@ -110,7 +110,7 @@ class Propagation(db.Base):
 
     details = property(_get_details)
 
-    def get_summary(self):
+    def get_summary(self, partial=False):
         """
         """
         date_format = prefs.prefs[prefs.date_format_pref]
@@ -121,10 +121,16 @@ class Propagation(db.Base):
             return date
 
         values = []
-        if self.used_source:
+        accession_code = ''
+        
+        if self.used_source and partial != 2:
             session = object_session(self.used_source.accession)
             if self.used_source.accession not in session.new:
-                values.append(_('used in: %s') % self.used_source.accession)
+                accession_code = self.used_source.accession.code
+                values.append(_('used in: %s') % accession_code)
+
+        if partial == 1:
+            return accession_code
 
         if self.prop_type == u'UnrootedCutting':
             c = self._cutting

@@ -1323,6 +1323,10 @@ class ChangesExpander(InfoExpander):
         self.vbox.show_all()
 
 
+def label_size_allocate(widget, rect):
+    widget.set_size_request(rect.width, -1)
+
+
 class PropagationExpander(InfoExpander):
     """
     Propagation Expander
@@ -1332,7 +1336,7 @@ class PropagationExpander(InfoExpander):
         """
         """
         super(PropagationExpander, self).__init__(_('Propagations'), widgets)
-        self.vbox.set_spacing(3)
+        self.vbox.set_spacing(4)
 
     def update(self, row):
         sensitive = True
@@ -1340,16 +1344,46 @@ class PropagationExpander(InfoExpander):
             sensitive = False
         self.props.expanded = sensitive
         self.props.sensitive = sensitive
-
         self.vbox.foreach(self.vbox.remove)
         format = prefs.prefs[prefs.date_format_pref]
         for prop in row.propagations:
-            s = '<b>%s</b>: %s' % (prop.date.strftime(format),
-                                   prop.get_summary())
+            # (h1 (v1 (date_lbl)) (v2 (eventbox (accession_lbl)) (label)))
+            h1 = gtk.HBox()
+            h1.set_spacing(3)
+            self.vbox.pack_start(h1)
+
+            v1 = gtk.VBox()
+            v2 = gtk.VBox()
+            h1.pack_start(v1)
+            h1.pack_start(v2)
+
+            date_lbl = gtk.Label()
+            v1.pack_start(date_lbl)
+            date_lbl.set_markup("<b>%s</b>" % prop.date.strftime(format))
+            date_lbl.set_alignment(0.0, 0.0)
+
+            accession_code = prop.get_summary(partial=1)
+            if accession_code:
+                accession_lbl = gtk.Label()
+                eventbox = gtk.EventBox()
+                eventbox.add(accession_lbl)
+                v2.pack_start(eventbox)
+                accession_lbl.set_alignment(0.0, 0.0)
+                accession_lbl.set_text(accession_code)
+
+                def on_clicked(widget, event, obj):
+                    select_in_search_results(obj)
+
+                utils.make_label_clickable(accession_lbl, on_clicked,
+                                           prop.used_source.accession)
+            
             label = gtk.Label()
-            label.set_markup(s)
+            v2.pack_start(label)
+            
+            label.set_text(prop.get_summary(partial=2))
             label.props.wrap = True
-            label.set_alignment(0.0, 0.5)
+            label.set_alignment(0.0, 0.0)
+            label.connect("size-allocate", label_size_allocate)
             self.vbox.pack_start(label)
         self.vbox.show_all()
 
