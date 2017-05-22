@@ -1,3 +1,9 @@
+Statements
+==============
+
+Here we state who we are, what we think of our work, what you can expect of
+this project.
+
 Who is behind Ghini
 ..............................................
 
@@ -25,9 +31,9 @@ people), unless obviously we mean both things.
 Mission
 ..............................................
 
-Mission: the mission is a purpose, it defines the rationale of an entity and
-is specific and true. For Ghini, the Mission Statement sets out the social
-order to which Ghini is committed, the needs that are satisfied with
+The Mission Statement is a purpose, it defines the rationale of an entity
+and is specific and true. For Ghini, the Mission Statement sets out the
+social order to which Ghini is committed, the needs that are satisfied with
 Ghini(the software) and with the services of Ghini(the people), the market
 in which Ghini develops and its intended public image.
 
@@ -36,6 +42,7 @@ in which Ghini develops and its intended public image.
 * bundling resources
 * open source
 * open data
+* community forming
 
 Vision
 ..............................................
