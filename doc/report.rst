@@ -9,7 +9,7 @@ generating reports. More information about Mako and its language can
 be found at `makotemplates.org <http://www.makotemplates.org>`_.
 
 The Mako templating system should already be installed on your
-computer if Bauble is installed.
+computer if Ghini is installed.
 
 Creating reports with Mako is similar in the way that you would create
 a web page from a template.  It is much simpler than the XSL

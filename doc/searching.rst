@@ -1,19 +1,19 @@
 .. _searching-in-bauble:
 
-Searching in Bauble
+Searching in Ghini
 -------------------
 
 Searching allows you to view, browse and create reports from your
 data. You can perform searches by either entering the queries in the
 main search entry or by using the Query Builder to create the queries
-for you. The results of Bauble searches are listed in the main window.
+for you. The results of Ghini searches are listed in the main window.
 
 
 Search Strategies
 =================
 
-Three are three types of search strategies available in Bauble. Considering
-the search stragety types available in Bauble, sorted in increasing
+Three are three types of search strategies available in Ghini. Considering
+the search stragety types available in Ghini, sorted in increasing
 complexity: you can search by value, expression or query.
 
 Searching by query, the most complex and powerful, is assisted by the Query
@@ -39,7 +39,7 @@ Examples of searching by value would be: Maxillaria, Acanth,
 2008.1234, 2003.2.1
 
 Search string are separated by spaces. For example if you enter the
-search string ``Block 10`` then Bauble will search for the strings Block
+search string ``Block 10`` then Ghini will search for the strings Block
 and 10 and return all the results that match either of these
 strings. If you want to search for Block 10 as a while string then you
 should quote the string like ``"Block 10"``.  
@@ -86,7 +86,7 @@ An example of a query would be::
 This query would return all the plants whose family are Fabaceae and
 are located in Block 10.
 
-Searching with queries usually requires some knowledge of the Bauble
+Searching with queries usually requires some knowledge of the Ghini
 internals and database table layouts.  
 
 A couple of useful examples:

@@ -1,7 +1,7 @@
-Extending Bauble with Plugins
+Extending Ghini with Plugins
 -----------------------------
 
-Nearly everything about Bauble is extensible through plugins. Plugins
+Nearly everything about Ghini is extensible through plugins. Plugins
 can create tables, define custom searchs, add menu items, create
 custom commands and more.
 
