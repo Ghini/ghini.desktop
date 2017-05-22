@@ -1,5 +1,10 @@
-Getting Started
----------------
+Initial Configuration
+-------------------------
+
+After a successful installation, more complex organizations will need
+configure their database, and configure Ghini according to their database
+configuration. This page focuses on this task. If you don't know what this
+is about, please do read the part relative to SQLite.
 
 .. _before-you-start:
 
