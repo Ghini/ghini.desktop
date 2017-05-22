@@ -5,7 +5,7 @@ ghini.desktop is a cross-platform program and it will run on unix machines
 like GNU/Linux and MacOSX, as well as on Windows.
 
 To install Ghini first requires that you install its dependencies that
-cannot be installed automatically.  These include virtualenvwrapper, PyGTK
+cannot be installed automatically.  These include virtualenv, PyGTK
 and pip. Python and GTK+, you probably already have. As long as you have
 these packages installed then Ghini should be able to install the rest of
 its dependencies by itself.
