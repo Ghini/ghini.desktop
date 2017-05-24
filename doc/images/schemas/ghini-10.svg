@@ -15,10 +15,10 @@
    height="428.61081"
    id="svg4298"
    inkscape:version="0.48.5 r10040"
-   sodipodi:docname="ghini-11.svgz"
+   sodipodi:docname="ghini-10.svg"
    inkscape:export-filename="/home/mario/Local/github/Ghini/ghini.desktop/doc/images/schemas/ghini-10.png"
-   inkscape:export-xdpi="100.60366"
-   inkscape:export-ydpi="100.60366">
+   inkscape:export-xdpi="103.53"
+   inkscape:export-ydpi="103.53">
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -32,9 +32,9 @@
      inkscape:window-height="708"
      id="namedview3237"
      showgrid="false"
-     inkscape:zoom="1.2183154"
-     inkscape:cx="347.7298"
-     inkscape:cy="214.30541"
+     inkscape:zoom="3.4459163"
+     inkscape:cx="342.28917"
+     inkscape:cy="114.58031"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
@@ -108,7 +108,7 @@
      inkscape:connector-curvature="0"
      sodipodi:nodetypes="cssssc" />
   <path
-     d="m 183.36624,207.11082 c 0,0 23.69548,0 33.21456,0 9.51908,0 11.20998,-1.09578 11.20998,-8.145 0,-7.04922 1.80427,-8.145 10.88002,-8.145 9.07575,0 29.35799,0 29.35799,0"
+     d="m 183.36624,207.11082 c 0,0 25.43667,0 33.21456,0 7.77789,0 11.20998,-0.22518 11.20998,-8.145 0,-7.91982 5.86705,-8.145 10.88002,-8.145 5.01297,0 29.35799,0 29.35799,0"
      id="path4544"
      style="fill:none;stroke:#000000;stroke-miterlimit:10"
      inkscape:connector-curvature="0"

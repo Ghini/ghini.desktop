@@ -21,6 +21,7 @@ Statements
 
    peptalk
    statements
+   goal
 
 Installing Ghini
 =================
