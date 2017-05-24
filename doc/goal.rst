@@ -64,8 +64,9 @@ other plants already part of the garden's collection.
            
            »We got seedlings of Heliconia longa (a plant **Species**) from
            Carla Black (the **Contact** source), we named them 2007.0136 (a
-           single unique Accession code) and we planted them all together at
-           one **Location** as a single **Planting** with quantity 5.
+           single unique **Accession** code) and we planted them all
+           together at one **Location** as a single **Planting** with
+           quantity 5.
 
            »At the time of writing, 9 years later, **Accession** 2007.0136
            has 6 **Plantings** at different **Locations** in our ‘Tanager’
@@ -116,6 +117,12 @@ adding a taxonomist's opinion
 reproducing plants
 .................................................
 
-update taxonomy tree
+updating taxonomy tree
+.................................................
+
+producing report
+.................................................
+
+engraving labels
 .................................................
 
