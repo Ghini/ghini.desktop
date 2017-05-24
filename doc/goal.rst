@@ -12,7 +12,7 @@ Garden: Botanic
 
 According to the Wikipedia, »A botanic(al) garden is a garden dedicated to
 the collection, cultivation and display of a wide range of plants labelled
-with their botanical names.«, and still according to the Wikipedia, »a
+with their botanical names«, and still according to the Wikipedia, »a
 garden is a planned space, usually outdoors, set aside for the display,
 cultivation, and enjoyment of plants and other forms of nature.«
 
@@ -37,15 +37,49 @@ designed to perform a group of coordinated functions, tasks, or activities
 for the benefit of the user«, or, in short, »designed to help people perform
 an activity«.
 
-data and algorithms within Ghini have been designed to represent the
+Data and algorithms within Ghini have been designed to represent the
 physical space and the dynamic of a botanic garden.
 
 .. figure:: images/schemas/ghini-10.png
 
    **software view on garden data**
 
-The above picture only shows the basic structure of Ghini's database. Let's
-have a look at the basic operations Ghini lets you perform.
+The above picture only shows the basic structure of Ghini's database. 
+
+The central element in this point of view is the ``Accession``, an abstract
+concept linking physical living ``Plantings``, group of plants placed each
+at a ``Location`` in the garden, to the corresponding ``Species``, it tells
+us the date the material entered the collection, possibly to the ``Contact``
+from which we gathered the material, or if it was obtained as propagation of
+other plants already part of the garden's collection.
+
+.. topic:: What's in a name: Accession
+
+           New users not accustomed to the ITF2 nomenclature ask me why do
+           they need pass through the **Accession** screen while all
+           they want is to insert a plant in the database. And what is this
+           "accession" thing anyway?  Many discussions on the net don't make
+           the concept any clearer.  One of our users gave an example which
+           I'm glad to include in Ghini's documentation.
+           
+           »We got seedlings (one **Planting** with quantity 5) of
+           Heliconia longa (a plant **Species**) from Carla Black (the
+           **Contact** source), we named them 2007.0987 (a single unique
+           Accession code) and we planted them all together at one
+           **Location**.
+
+           »After several years, **Accession** 2007.0987 has several
+           **Plantings** at different **Locations** in our ‘Tanager’
+           garden, obtained vegetatively (asexually) from the original 5
+           plants. Our only intervention was separating and moving.
+
+           »New **Plantings** obtained by (assisted) sexual
+           **Propagation** come in the database under different
+           **Accession** codes, where our garden is the **Contact**
+           source and where we know which of our **Plantings** is the
+           seed parent.«
+
+Let's have a look at the basic operations Ghini lets you perform.
 
 representing the planned space
 .................................................
@@ -56,8 +90,8 @@ organized in tables, shelves, walls.
 
 In the above software view on garden data, the numeric indications at either
 end of the line connecting ``Location`` and ``Planting`` tells us that every
-``Planting`` can only belong to exactly one (``1``) ``Location``, while every
-``Location`` may contain zero or more (``0..n``) ``Plantings``.
+``Planting`` can only belong to exactly one (1) ``Location``, while every
+``Location`` may contain zero or more (0..n) ``Plantings``.
 
 A consequence of this constraint in the database is that your database needs
 ``Locations`` in order to place ``Plants`` in the garden, so a good practice
@@ -68,9 +102,9 @@ your garden.
 accepting a plant in the collection
 .................................................
 
-when a plant (or a group of genetically identical plants) enters the collection, 
+When a plant (or a group of genetically identical plants) enters the collection, 
 
-following the health status of a living plant
+building the history of a living plant
 .................................................
 
 managing contacts
