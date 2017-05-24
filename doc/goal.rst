@@ -62,19 +62,19 @@ other plants already part of the garden's collection.
            the concept any clearer.  One of our users gave an example which
            I'm glad to include in Ghini's documentation.
            
-           »We got seedlings (one **Planting** with quantity 5) of
-           Heliconia longa (a plant **Species**) from Carla Black (the
-           **Contact** source), we named them 2007.0987 (a single unique
-           Accession code) and we planted them all together at one
-           **Location**.
+           »We got seedlings of Heliconia longa (a plant **Species**) from
+           Carla Black (the **Contact** source), we named them 2007.0136 (a
+           single unique Accession code) and we planted them all together at
+           one **Location** as a single **Planting** with quantity 5.
 
-           »After several years, **Accession** 2007.0987 has several
-           **Plantings** at different **Locations** in our ‘Tanager’
+           »At the time of writing, 9 years later, **Accession** 2007.0136
+           has 6 **Plantings** at different **Locations** in our ‘Tanager’
            garden, obtained vegetatively (asexually) from the original 5
-           plants. Our only intervention was separating and moving.
+           plants. Our only intervention was splitting, moving, and of
+           course writing this information in the database.
 
            »New **Plantings** obtained by (assisted) sexual
-           **Propagation** come in the database under different
+           **Propagation** come in our database under different
            **Accession** codes, where our garden is the **Contact**
            source and where we know which of our **Plantings** is the
            seed parent.«
