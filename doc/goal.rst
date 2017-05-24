@@ -31,7 +31,7 @@ makes us call the garden a botanic garden.
 Botanic Garden Software
 -----------------------------------------------
 
-On the other end of our reasoning we have the application program Ghini, and
+At the other end of our reasoning we have the application program Ghini, and
 again quoting the Wikipedia, »an application program is a computer program
 designed to perform a group of coordinated functions, tasks, or activities
 for the benefit of the user«, or, in short, »designed to help people perform
@@ -44,14 +44,31 @@ physical space and the dynamic of a botanic garden.
 
    **software view on garden data**
 
-The above picture only shows the structure of Ghini's database. Let's have a
-look at a few basic operations Ghini lets you perform.
+The above picture only shows the basic structure of Ghini's database. Let's
+have a look at the basic operations Ghini lets you perform.
 
-organizing the garden in beds and greenhouses
+representing the planned space
 .................................................
+
+Botanic gardens are mostly organized in beds and greenhouses, and larger
+beds are probably organized in smaller sections, while greenhouses might be
+organized in tables, shelves, walls.
+
+In the above software view on garden data, the numeric indications at either
+end of the line connecting ``Location`` and ``Planting`` tells us that every
+``Planting`` can only belong to exactly one (``1``) ``Location``, while every
+``Location`` may contain zero or more (``0..n``) ``Plantings``.
+
+A consequence of this constraint in the database is that your database needs
+``Locations`` in order to place ``Plants`` in the garden, so a good practice
+is to start by entering a database ``Location`` for every physical bed
+section, greenhouse table, or whatever might be the basic location unit in
+your garden.
 
 accepting a plant in the collection
 .................................................
+
+when a plant (or a group of genetically identical plants) enters the collection, 
 
 following the health status of a living plant
 .................................................
