@@ -226,7 +226,7 @@ ver_level_descriptions = \
           'named plants.'),
      2: _('The name of the record determined by a taxonomist or by other '
           'competent persons using herbarium and/or library and/or '
-          ' documented living material.'),
+          'documented living material.'),
      3: _('The name of the plant determined by taxonomist engaged in '
           'systematic revision of the group.'),
      4: _('The record is part of type gathering or propagated from type '
@@ -298,9 +298,30 @@ class Verification(db.Base):
     notes = Column(UnicodeText)
 
 
-# TODO: auto add parent voucher if accession is a propagule of an
-# existing accession and that parent accession has vouchers...or at
-# least display them in the Voucher tab and Infobox
+# TODO: I have no internet, so I write this here. please remove this note
+# and add the text as new issues as soon as possible.
+#
+# First of all a ghini-1.1 issue: being 'Accession' an abstract concept, you
+# don't make a Voucher of an Accession, you make a Voucher of a Plant. As
+# with Photos, in the Accession Infobox you want to see all Vouchers of all
+# Plantings belonging to the Accession.
+#
+# 2: imagine you go on expedition and collect vouchers as well as seeds, or
+# stekken:nl. You will have vouchers of the parent plant plant, but the
+# parent plant will not be in your collection. This justifies requiring the
+# ability to add a Voucher to a Plant and mark it as Voucher of its parent
+# plant. On the other hand though, if the parent plant *is* in your
+# collection and the link is correctly represented in a Propagation, any
+# 'parent plant voucher' will conflict with the vouchers associated to the
+# parent plant. Maybe this can be solved by disabling the whole
+# parent_voucher panel in the case of plants resulting of a garden
+# propagation.
+#
+# 3: Infobox (Accession AND Plant) are to show parent plant information as a
+# link to the parent plant, or as the name of the parent plant voucher. At
+# the moment this is only partially the case for
+
+
 herbarium_codes = {}
 
 
@@ -312,13 +333,11 @@ class Voucher(db.Base):
       herbarium: :class:`sqlalchemy.types.Unicode`
         The name of the herbarium.
       code: :class:`sqlalchemy.types.Unicode`
-        The herbarium code.
+        The herbarium code for the voucher.
       parent_material: :class:`sqlalchemy.types.Boolean`
-        Is this voucher the parent material of the accession.  E.g did
-        the seed for the accession from come the plant used to make
-        this voucher.
+        Is this voucher relative to the parent material of the accession.
       accession_id: :class:`sqlalchemy.types.Integer`
-        A foreign key to :class:`Accession`
+        Foreign key to the :class:`Accession` .
 
 
     """
