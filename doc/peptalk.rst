@@ -107,9 +107,10 @@ platform agnostic
 .................
 
 Installing Ghini on Windows is an easy and linear process, it will not take
-longer than 10 minutes. Ghini was born on Linux and installing it on
-ubuntu, fedora or debian is also rather simple. It has been recently
-successfully tested on MacOSX 10.9.
+longer than 10 minutes. Ghini was born on Linux and installing it on ubuntu,
+fedora or debian is consequently even easier. MacOSX being based on unix, it
+is possible to successfully run the Linux installation procedure on any
+recent Apple computer, after a few preparation steps.
 
 easily updated
 ..............
