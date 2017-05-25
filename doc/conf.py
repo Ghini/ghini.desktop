@@ -59,8 +59,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Bauble'
-copyright = u'2004-2012, Brett Adams; 2012-2015, Mario Frasca'
+project = u'Ghini'
+copyright = u'2004-2017 bauble.classic & 2015-2017 ghini.desktop contributors'
 author = u'Brett Adams; Mario Frasca'
 
 # The version info for the project you're documenting, acts as replacement for
