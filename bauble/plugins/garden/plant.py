@@ -805,6 +805,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
+        self.view.connect('plant_split_button', 'clicked',
+                          self.on_split_clicked)
 
     def dirty(self):
         return (self.pictures_presenter.dirty() or
@@ -898,6 +900,15 @@ class PlantEditorPresenter(GenericEditorPresenter):
             .set_model_attr(field, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
+
+    def on_split_clicked(self, button):
+        # mostrar `view` que pida el número de plantas que se desplazan a cual location.
+        # si se seleccionó OK:
+        #     crear nueva `Planting`
+        #     asociar a la misma accession
+        #     añadir a la base de datos
+        #     decrementar el `quantity` de la planting activa
+        pass
 
     def on_loc_button_clicked(self, button, cmd=None):
         location = self.model.location
@@ -1389,10 +1400,10 @@ class PropagationExpander(InfoExpander):
 
                 utils.make_label_clickable(accession_lbl, on_clicked,
                                            prop.used_source.accession)
-            
+
             label = gtk.Label()
             v2.pack_start(label)
-            
+
             label.set_text(prop.get_summary(partial=2))
             label.props.wrap = True
             label.set_alignment(0.0, 0.0)
