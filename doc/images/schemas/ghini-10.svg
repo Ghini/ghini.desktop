@@ -16,21 +16,21 @@
     <path d="m 0,0 215,0 0,418 -215,0 z" id="rect-garden" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     <text x="10" y="410" id="text6429" style="font-size:20px;font-style:normal;font-weight:bold;line-height:125%;font-family:DejaVu Sans">Garden</text>
     <g transform="translate(30,20)" id="propagation-group">
-      <path d="m 0,0 150,0 0,86.260621 -150,0 z" id="propagation-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 150,0 0,90 -150,0 z" id="propagation-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="propagation-title" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
       <text x="75" y="18" id="text4376-5" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Propagation</text>
       <text x="6" y="45" id="text4404-6" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">type</text>
       <text x="6" y="65" id="text4404-6-0" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">etc.</text>
     </g>
-    <g transform="translate(30,140)" id="planting-group">
-      <path d="M 0,0 150,0 150,98 0,98 z" id="planting-block" style="color:#000000;fill:#91edaf;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <g transform="translate(30,150)" id="planting-group">
+      <path d="m 0,0 150,0 0,90 -150,0 z" id="planting-block" style="color:#000000;fill:#91edaf;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="planting-title" style="color:#000000;fill:#35e670;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <text x="75" y="18" id="text4492" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Planting</text>
       <text x="6" y="45" id="text3417" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">code</text>
       <text x="6" y="65" id="text3419" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">quantity</text>
     </g>
     <g transform="translate(30,295)" id="location-group">
-      <path d="M 0,0 150,0 150,88 0,88 z" id="location-block" style="color:#000000;fill:#91edaf;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <path d="m 0,0 150,0 0,90 -150,0 z" id="location-block" style="color:#000000;fill:#91edaf;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="location-title" style="color:#000000;fill:#35e670;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <text x="75" y="18" id="text4558" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Location</text>
       <text x="6" y="45" id="text4586-8" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">name</text>
@@ -41,21 +41,21 @@
     <path d="m 0,0 215,0 0,418 -215,0 z" id="rect-collection" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     <text x="10" y="410" id="text3799" style="font-size:20px;font-style:normal;font-weight:bold;line-height:125%;font-family:DejaVu Sans">Collection</text>
     <g transform="translate(30,20)" id="contact-group">
-      <path d="M 0,0 150,0 150,87 0,87 z" id="contact-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 150,0 0,90 -150,0 z" id="contact-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="path3432" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
       <text x="75" y="18" id="text3434" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Contact</text>
       <text x="6" y="45" id="text3438" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">name</text>
       <text x="6" y="65" id="text3436" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">type</text>
     </g>
-    <g transform="translate(30,140)" id="accession-group">
-      <path d="M 0,0 150,0 150,94 0,94 z" id="accession-block" style="color:#000000;fill:#ebed91;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <g transform="translate(30,150)" id="accession-group">
+      <path d="m 0,0 150,0 0,90 -150,0 z" id="accession-block" style="color:#000000;fill:#ebed91;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="accession-title" style="color:#000000;fill:#dde525;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <text x="75" y="18" id="text3443" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Accession</text>
       <text x="6" y="45" id="text3445" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">code</text>
       <text x="6" y="65" id="text3447" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">initial-quantity</text>
     </g>
     <g transform="translate(30,295)" id="verification-group">
-      <path d="M 0,0 150,0 150,87 0,87 z" id="path3450" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 150,0 0,90 -150,0 z" id="path3450" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="path3452" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
       <text x="75" y="18" id="text3454" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Verification</text>
       <text x="6" y="45" id="text3456" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">verifier</text>
@@ -66,7 +66,7 @@
     <path d="m 0,0 215,0 0,418 -215,0 z" id="rect-taxonomy" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
     <text x="10" y="410" id="text3821" style="font-size:20px;font-style:normal;font-weight:bold;line-height:125%;font-family:DejaVu Sans">Taxonomy</text>
     <g transform="translate(30,20)" id="species-group">
-      <path d="M 0,0 150,0 150,97 0,97 z" id="species-block" style="fill:#91e5ed;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1" />
+      <path d="m 0,0 150,0 0,90 -150,0 z" id="species-block" style="fill:#91e5ed;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="species-title" style="color:#000000;fill:#35cce6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
       <text x="75" y="18" id="text3826" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Species</text>
       <text x="6" y="45" id="text3828" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">sp</text>
@@ -80,7 +80,7 @@
       <text x="6" y="65" id="text3839" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">author</text>
     </g>
     <g transform="translate(30,300)" id="family-group">
-      <path d="M 0,0 150,0 150,74 0,74 z" id="family-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 150,0 0,70 -150,0 z" id="family-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
       <path d="m 0,0 0,26 150,0 0,-26 z" id="family-title" style="fill:#e0e0e0;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1" />
       <text x="75" y="18" id="text3844" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Family</text>
       <text x="6" y="45" id="text3846" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">family</text>
