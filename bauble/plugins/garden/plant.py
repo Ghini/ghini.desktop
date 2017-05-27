@@ -66,7 +66,7 @@ import bauble.view as view
 # possible, and open the issue on github.
 #
 # One user story includes reviewing the quantity of plantings, and
-# consequently splititng plantings with quantities that exceed some
+# consequently splitting plantings with quantities that exceed some
 # reasonable threshold. So what you would do is to (1) look for »plant where
 # accession.species.id = xxx and quantity > yyy«, (2) —editing one plant at
 # a time— remove a quantity value and put it in a new planting at a
@@ -805,7 +805,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
-        self.view.connect('plant_split_button', 'clicked',
+        self.view.connect('split_planting_button', 'clicked',
                           self.on_split_clicked)
 
     def dirty(self):
@@ -908,7 +908,25 @@ class PlantEditorPresenter(GenericEditorPresenter):
         #     asociar a la misma accession
         #     añadir a la base de datos
         #     decrementar el `quantity` de la planting activa
-        pass
+        glade_path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                  'plant_editor.glade')
+        view = GenericEditorView(
+            glade_path,
+            parent=self.view.get_window(),
+            root_widget_name='split_planting_dialog')
+        presenter = SplitPlantingPresenter(view, self.model)
+        result = presenter.start()
+        if result == gtk.RESPONSE_OK:
+            split_plant = Plant()
+            split_plant.code = presenter.plant_code
+            split_plant.accession = self.model.accession
+            split_plant.quantity = presenter.quantity
+            split_plant.location = presenter.location
+            self.session.add(split_plant)
+            value = self.model.quantity - presenter.quantity
+            self.view.widget_set_value('plant_quantity_entry', value)
+        else:
+            pass
 
     def on_loc_button_clicked(self, button, cmd=None):
         location = self.model.location
@@ -1461,3 +1479,28 @@ class PlantInfoBox(InfoBox):
             self.links.update(row)
 
         self.props.update(row)
+
+
+class SplitPlantingPresenter(GenericEditorPresenter):
+    widget_to_field_map = {'split_planting_quantity': 'quantity',
+                           'split_planting_location': 'location',
+                           'split_planting_code': 'plant_code',
+                           }
+    view_accept_buttons = ['split_planting_ok', 'split_planting_cancel', ]
+
+    def __init__(self, view, planting_to_split):
+        self.quantity = 1
+        self.location = None
+        self.plant_code = get_next_code(planting_to_split.accession)
+        super(SplitPlantingPresenter, self).__init__(
+            model=self, view=view, refresh_view=True, session=object_session(planting_to_split))
+        self.planting_to_split = planting_to_split
+
+        from bauble.plugins.garden import init_location_comboentry
+        from functools import partial
+
+        def on_location_select(location):
+            self.location=location
+        init_location_comboentry(self, view.widgets.split_planting_comboentry,
+                                 on_location_select)
+
