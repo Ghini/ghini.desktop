@@ -82,17 +82,19 @@ anyway?  Most discussions on the net don't make the concept any clearer.
 One of our users gave an example which I'm glad to include in Ghini's
 documentation.
 
-:use case: #. We got seedlings of *Heliconia longa* (a plant ``Species``) from
-              our neighbour (the ``Contact`` source), we named them 2007.0136
-              (a single unique ``Accession`` code) and we planted them all
-              together at one ``Location`` as a single ``Planting`` with
-              quantity 5.
+:use case: #. At the beginning of 2007 we got five seedlings of *Heliconia
+              longa* (a plant ``Species``) from our neighbour (the
+              ``Contact`` source). Since it was the first acquisition of the
+              year, we named them 2007.0001 (we gave them a single unique
+              ``Accession`` code) and we planted them all together at one
+              ``Location`` as a single ``Planting`` with quantity 5.
 
-           #. At the time of writing, 9 years later, ``Accession`` 2007.0136
-              has 6 distinct ``Plantings``, each at a different ``Locations``
-              in our garden, obtained vegetatively (asexually) from the
-              original 5 plants. Our only intervention was splitting, moving,
-              and of course writing this information in the database.
+           #. At the time of writing, nine years later, ``Accession``
+              2007.0001 has 6 distinct ``Plantings``, each at a different
+              ``Locations`` in our garden, obtained vegetatively (asexually)
+              from the original 5 plants. Our only intervention was
+              splitting, moving, and of course writing this information in
+              the database.
 
            #. New ``Plantings`` obtained by (assisted) sexual ``Propagation``
               come in our database under different ``Accession`` codes, where
