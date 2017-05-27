@@ -1060,6 +1060,9 @@ class GenericEditorPresenter(object):
                 self.refresh_view()
             view.connect_signals(self)
 
+    def refresh_sensitivity(self):
+        logger.debug('you should implement this in your subclass')
+            
     def refresh_view(self):
         '''fill the values in the widgets as the field values in the model
 
@@ -1153,6 +1156,25 @@ class GenericEditorPresenter(object):
         logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
                      % (widget, attr, getattr(self.model, attr), value))
         self.__set_model_attr(attr, value)
+        return value
+
+    def on_numeric_text_entry_changed(self, widget, value=None):
+        "handle 'changed' signal on numeric text entry widgets."
+
+        attr = self.__get_widget_attr(widget)
+        if attr is None:
+            return
+        value = self.view.widget_get_value(widget)
+        if value == '':
+            value = 0
+        try:
+            value = int(value)
+            logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
+                         % (widget, attr, getattr(self.model, attr), value))
+            self.__set_model_attr(attr, value)
+        except:
+            value = getattr(self.model, attr)
+            self.view.widget_set_value(widget, value)
         return value
 
     def on_non_empty_text_entry_changed(self, widget, value=None):
