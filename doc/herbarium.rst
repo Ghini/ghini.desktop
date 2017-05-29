@@ -8,12 +8,28 @@ setting separating the version for herbariums and collectors.
 Database view for herbaria and collectors
 ----------------------------------------------
 
-.. figure:: images/schemas/ghini-collector-12.svg
+.. figure:: images/schemas/ghini-herbarium-11.svg
 
             core structure
 
+The focus of a ``herbarium`` is on plant material collected by
+``collectors`` and sent to the herbarium for reference, or preservation.
 
-Plant material collected by 
+The focus of a ``collector`` is on the plant material they collected, which
+is possibly partly distributed across several ``herbaria`` as well as still
+in their possession.
+
+Plant material is collected during field ``expeditions``. A group of people
+participate to a field ``expedition`` to a specific ``place``, and for a
+specific period of time.
+
+Collected material is organized in ``accessions``. An ``accession`` is
+relative to a single plant specimen observed during a single ``expedition``
+by one ``collector``, who decides which and how many ``samples`` are needed
+to completely describe the specimen. The ``collector`` generally performs
+the first ``verification``, associating the ``accession`` to a ``taxon``.
+Later ``verifications`` will be added by taxonomists studying a herbarium or
+collector's collection.
 
 expedición de varias PERSONAS, se escogen LUGARES en que todavía no hay
 datos botánicos, el grupo se queda varios DÍAS, el campo tiene COORDENADAS
