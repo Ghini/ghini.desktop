@@ -95,3 +95,8 @@ bauble/plugins/plants/default/ars-grin/taxonomygenus.tar.gz
 bauble/plugins/plants/default/genera-conservanda-uniq.json
 bauble/plugins/plants/default/genera-conservanda.json
 users.json
+_static/
+registered.users.txt
+scripts/issue-.sql
+scripts/issue-0177.py
+scripts/issue-0177.py.txt
