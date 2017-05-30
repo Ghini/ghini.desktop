@@ -14,7 +14,7 @@
   <defs id="defs4300" />
   <path d="m 6,4.9999994 449,0 L 455,423 6,423 z" id="rect-collection" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
   <path d="m 39.05249,262.12874 -13.348125,0 c -6.66667,0 -9.401875,-3.33333 -9.401875,-10 l 0,-163 c 0,-6.66668 2.735205,-10.000001 9.401875,-10.000001 l 14.231955,0" id="path-accession-contact-2-9" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
-  <path d="m 39.05249,182.12874 -6.75,0 c -6.66667,0 -10,-3.33333 -10,-10 l 0,-63 c 0,-6.66668 3.33333,-10.000001 10,-10.000001 l 7.63383,0" id="path-accession-contact-2" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 39.05249,162.12874 -6.75,0 c -6.66667,0 -10,-3.33333 -10,-10 l 0,-43 c 0,-6.66668 3.33333,-10.000001 10,-10.000001 l 7.63383,0" id="path-accession-contact-2" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <text x="15" y="415" id="text-collection" style="font-size:20px;font-style:normal;font-weight:bold;line-height:125%;font-family:DejaVu Sans">Collection</text>
   <g id="accession-group">
     <path d="m 254,27 150,0 0,130 -150,0 z" id="accession-block" style="color:#000000;fill:#91edaf;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
@@ -65,27 +65,27 @@
     <text x="114" y="338" id="text4492" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Herbarium</text>
     <text x="45" y="365" id="text3417" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">name...</text>
   </g>
-  <text x="252" y="125" id="text3044-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
+  <text x="252" y="47" id="text3044-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
   <text x="405" y="239" id="text4012" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1..n</text>
   <text x="37" y="58.999996" id="text4015" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
   <text x="190" y="341" id="text3040" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..1</text>
-  <path d="m 253.10624,127.48987 -25.21772,0 c -6.66667,0 -11.22204,-3.33333 -11.22204,-10 l 0,-89.259051 c 0,-6.66667 -3.15629,-10 -9.82296,-10 l -181.139155,0 c -6.66667,0 -10.401245,3.33333 -10.401245,10 l 0,22.29 c 0,6.66667 3.734575,10 10.401245,10 l 13.401875,0" id="path-planting-location" style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
-  <text x="37" y="179" id="text4015-6" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
+  <path d="m 253.10624,49.48987 -25.21772,0 c -6.66667,0 -11.22204,-3.33333 -11.22204,-10 l 0,-11.259051 c 0,-6.66667 -3.15629,-10 -9.82296,-10 l -181.139155,0 c -6.66667,0 -10.401245,3.33333 -10.401245,10 l 0,22.29 c 0,6.66667 3.734575,10 10.401245,10 l 13.401875,0" id="path-planting-location" style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+  <text x="37" y="159" id="text4015-6" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
   <text x="38" y="97" id="text3044-9" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
   <g transform="translate(4,258)" id="g4518">
     <path d="m 185.36624,85.11082 c 0,0 21.16515,0 27.21456,0 6.04941,0 9.64591,-1.67302 9.64591,-9.788333 l 0,-55.967459 c 0,-9.894415 4.40231,-9.785138 10.44409,-9.785138 6.04178,0 17.35799,0 17.35799,0" id="path-accession-planting-3" style="color:#000000;fill:none;stroke:#000000;stroke-width:1.11082256;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
   </g>
-  <text x="406" y="343" id="text3038" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1..n</text>
+  <text x="406" y="345" id="text3038" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1..n</text>
   <path d="m 403.67379,244.12874 20.26253,0 c 6.66667,0 10,-3.33333 10,-10 l 0,-83 c 0,-6.66668 -3.33333,-10 -10,-10 l -19.63383,0" id="path-accession-contact-2-2" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
-  <path d="m 405.18632,348.12874 28.75,0 c 6.66667,0 10,-3.33333 10,-10 l 0,-207 c 0,-6.66668 -3.33333,-10 -10,-10 l -29.63383,0" id="path-accession-contact-2-2-3" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
-  <text x="405" y="379" id="text4012-7" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
+  <path d="m 404.03385,348.12874 29.90247,0 c 6.66667,0 10,-3.33333 10,-10 l 0,-207 c 0,-6.66668 -3.33333,-10 -10,-10 l -29.63383,0" id="path-accession-contact-2-2-3" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <text x="405" y="365" id="text4012-7" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
   <text x="406" y="139" id="text3040-5" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
   <text x="406" y="119" id="text3040-5-9" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
   <text x="252" y="265" id="text3044-2-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
   <g transform="translate(4.0000013,178)" id="g4518-6">
-    <path d="m 185.36624,85.11082 c 0,0 11.42787,0 17.47728,0 6.04941,0 9.82295,-1.67302 9.82295,-9.788333 l 0,-95.967459 c 0,-9.894415 5.18027,-9.785138 11.22205,-9.785138 6.04178,0 26.14027,0 26.14027,0" id="path-accession-planting-3-1" style="color:#000000;fill:none;stroke:#000000;stroke-width:1.11082256;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <path d="m 185.36624,85.11082 c 0,0 11.42787,0 17.47728,0 6.04941,0 9.82295,-1.67302 9.82295,-9.788333 l 0,-173.967459 c 0,-9.894418 5.18027,-9.785138 11.22205,-9.785138 6.04178,0 26.14027,0 26.14027,0" id="path-accession-planting-3-1" style="color:#000000;fill:none;stroke:#000000;stroke-width:1.11082256;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
   </g>
-  <text x="252" y="145" id="text3044-2-2-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
+  <text x="252" y="67" id="text3044-2-2-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
   <text x="190" y="261" id="text3040-9" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..1</text>
   <g transform="translate(475,5)" id="taxonomy-container">
     <path d="m 0,0 215,0 0,418 -215,0 z" id="rect-taxonomy" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
@@ -111,13 +111,13 @@
       <text x="6" y="45" id="text3846" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">epithet</text>
       <text x="6" y="65" id="text3545" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">authorship</text>
     </g>
-    <text x="28" y="72" id="text3311" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
+    <text x="28" y="40" id="text3311" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
     <text x="182" y="82" id="text3313" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
     <text x="182" y="190" id="text3315" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
     <text x="182" y="230" id="text3317" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
     <text x="182" y="330" id="text3319" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
   </g>
-  <path d="m 403.99076,381.13396 45.87548,0 c 10.35491,0 15.52726,-0.56417 15.52726,-12.14 l 0,-277.74314 c 0,-6.86348 2.78156,-12.14 10.47274,-12.14 l 28.82157,0" id="path4428-9" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 403.99076,368.15518 45.87548,0 c 10.35491,0 15.52726,-0.56417 15.52726,-12.14 l 0,-296.76436 c 0,-6.86348 2.78156,-12.14 10.47274,-12.14 l 28.82157,0" id="path4428-9" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <path d="m 654.83718,237.11082 18,0 c 6.66667,0 10,3.33333 10,10 l 0,81 c 0,6.66667 -3.33333,10 -10,10 l -18,0" id="path4722" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <path d="m 654.83718,89.11082 18,0 c 6.66667,0 10,3.33333 10,10 l 0,89 c 0,6.66667 -3.33333,10 -10,10 l -18,0" id="path4722-6" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <text x="37" y="259" id="text4015-6-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1..n</text>
