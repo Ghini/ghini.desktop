@@ -117,7 +117,7 @@
     <text x="182" y="230" id="text3317" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
     <text x="182" y="330" id="text3319" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
   </g>
-  <path d="m 403.99076,381.13396 45.87548,0 c 10.35491,0 17.52726,-2.56417 17.52726,-14.14 l 0,-277.74314 c 0,-6.86348 0.78156,-10.14 8.47274,-10.14 l 28.82157,0" id="path4428-9" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 403.99076,381.13396 45.87548,0 c 10.35491,0 15.52726,-0.56417 15.52726,-12.14 l 0,-277.74314 c 0,-6.86348 2.78156,-12.14 10.47274,-12.14 l 28.82157,0" id="path4428-9" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <path d="m 654.83718,237.11082 18,0 c 6.66667,0 10,3.33333 10,10 l 0,81 c 0,6.66667 -3.33333,10 -10,10 l -18,0" id="path4722" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <path d="m 654.83718,89.11082 18,0 c 6.66667,0 10,3.33333 10,10 l 0,89 c 0,6.66667 -3.33333,10 -10,10 l -18,0" id="path4722-6" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
   <text x="37" y="259" id="text4015-6-2" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1..n</text>
