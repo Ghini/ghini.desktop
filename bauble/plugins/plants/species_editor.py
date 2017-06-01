@@ -163,7 +163,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
                            ) % found_s
                     msg = _('%s is the closest match for your data.\n'
-                            'Do you want to accept it?' % cit)
+                            'Do you want to accept it?') % cit
                     b1 = box = self.view.add_message_box(
                         utils.MESSAGE_BOX_YESNO)
                     box.message = msg
@@ -200,7 +200,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                '<i>%(Species)s</i> %(Authorship)s (%(Family)s)'
                               ) % accepted_s
                         msg = _('%s is the accepted taxon for your data.\n'
-                                'Do you want to add it?' % cit)
+                                'Do you want to add it?') % cit
                         b2 = box = self.view.add_message_box(
                             utils.MESSAGE_BOX_YESNO)
                         box.message = msg
