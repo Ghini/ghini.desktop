@@ -66,6 +66,38 @@ master, solve conflicts where necessary, delete the temporary branch.
 
 when ready for publication, merge master into the production line.
 
+Updating the set of translatable strings
+==============================================
+
+From time to time, during the process of updating the software, you will be
+adding or modifying strings in the python sources, in the documentation, in
+the glade sources. Most of our strings are translatable, and are offered to
+weblate for people to contribute, in the form of several ``.po``
+files. These ``po`` files receive contributions from weblate, and offer
+lines without translation from new lines of code.
+
+We have organized the translation of ghini as two separate repositories in
+github, each repository being associated to sections of the same project on
+weblate. Translation of the software is in ghini.desktop, the software
+project, while translation of the documentation —itself part of the
+software— is in a separate project, ghini.desktop-docs.i18n.
+
+To update the ``po`` files relative to the software, you run a script from
+the project root dir::
+
+  ./scripts/i18n.sh
+
+This will update your ``po`` files, something you need commit and push to
+github.
+
+To update the ``po`` filese relative to the documentation, you need a
+up-to-date checkout of both projects. The root directory of the 
+ghini.desktop-docs.i18n project contains a script with an all telling name::
+
+  runme
+
+
+
 Adding missing unit tests
 ====================================
 
