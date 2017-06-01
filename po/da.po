@@ -636,6 +636,9 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
+msgid "Ghini"
+msgstr "Ghini"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -3266,9 +3269,6 @@ msgstr ""
 #~ msgid "<i>--</i>"
 #~ msgstr "<i>--</i>"
 
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
-
 #, fuzzy
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Vælg en fil at ekportere til..."
@@ -3297,6 +3297,67 @@ msgstr ""
 #~ msgid "Genus "
 #~ msgstr "Slægten "
 
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Ghini kan ikke gemme dine brugerindstillinger. \n"
+#~ "Kontroller filrettigheder på din konfigurationsfil:\n"
+#~ " %s"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Ghini website"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini har ikke tilladelse til at læse databasefil:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini har ikke tilladelse til at læse denne mappe:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini har ikke tilladelse til at skrive til databasefilen:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini har ikke tilladelse til at skrive til denne mappe:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Ghini website"
+
 #~ msgid "Images"
 #~ msgstr "Billeder"
 
@@ -3309,8 +3370,49 @@ msgstr ""
 #~ msgid "Settings"
 #~ msgstr "Indstillinger"
 
+#~ msgid ""
+#~ "The database you have connected to does not have a timestamp for when it "
+#~ "was created. This usually means that there was a problem when you created "
+#~ "the database or the database you connected to wasn't created with Ghini."
+#~ msgstr ""
+#~ "Den database, du har tilsluttet  har ikke et tidsstempel for da den blev "
+#~ "oprettet. Det betyder normalt, at der var et problem, da du oprettede "
+#~ "databasen eller databasen du tilsluttet blev ikke oprettet med Ghini."
+
+#~ msgid ""
+#~ "The database you have connected to does not have the bauble meta table.  "
+#~ "This usually means that the database is either corrupt or it was created "
+#~ "with an old version of Ghini"
+#~ msgstr ""
+#~ "Den database, du har tilsluttet til har kke bauble meta table. Det "
+#~ "betyder normalt, at databasen er enten beskadiget eller den blev oprettet "
+#~ "med en gammel version af Ghini"
+
 #~ msgid "Use default filename"
 #~ msgstr "Brug standard filnavn"
+
+#, fuzzy
+#~ msgid ""
+#~ "Would you like to create a new Ghini database at the current connection?\n"
+#~ "\n"
+#~ "<i>Warning: If there is already a database at this connection any "
+#~ "existing data will be destroyed!</i>"
+#~ msgstr ""
+#~ "Kunne du tænke dig at oprette en ny Ghini database på den aktuelle "
+#~ "forbindelse?"
+
+#~ msgid ""
+#~ "You are using Ghini version %(version)s while the database you have "
+#~ "connected to was created with version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as or some of your data may become "
+#~ "unexpectedly corrupted."
+#~ msgstr ""
+#~ "Du bruger Ghini version %(version)s mens den database, du har tilsluttet "
+#~ "blev oprettet med version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as or some of your data may become "
+#~ "unexpectedly corrupted."
 
 #~ msgid ""
 #~ "You don't have any connections in your connection list.\n"

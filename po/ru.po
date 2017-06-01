@@ -656,6 +656,12 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
+msgid "Ghini"
+msgstr "Ghini"
+
+msgid "Ghini - Picasa Settings"
+msgstr "Ghini - настройки Picasa"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -3345,12 +3351,6 @@ msgstr "°F"
 #~ msgid "Album"
 #~ msgstr "Альбом"
 
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
-
-#~ msgid "Ghini - Picasa Settings"
-#~ msgstr "Ghini - настройки Picasa"
-
 #~ msgid "Browse..."
 #~ msgstr "Выбрать..."
 
@@ -3381,6 +3381,71 @@ msgstr "°F"
 #~ msgid "Genus "
 #~ msgstr "Род "
 
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#~ msgid "Ghini - Picasa Settings"
+#~ msgstr "Ghini - настройки Picasa"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Ghini не может сохранить ваши пользовательские настройки.\n"
+#~ "\n"
+#~ "Пожалуйста, проверьте права доступа на ваш файл конфигурации.\n"
+#~ " %s"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Вебсайт Ghini"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini не имеет прав на чтение файла базы данных:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini не имеет прав на чтение директории:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini не имеет прав на запись в файл базы данных:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini не имеет прав на запись в директорию:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Вебсайт Ghini"
+
 #~ msgid "Images"
 #~ msgstr "Изображения"
 
@@ -3402,13 +3467,56 @@ msgstr "°F"
 #~ msgid "Settings"
 #~ msgstr "Настройки"
 
+#~ msgid "Show only Ghini users"
+#~ msgstr "Показывать только пользователям Ghini"
+
 #~ msgid ""
 #~ "The %(tablename)s table does not have a column named \"%(columname)s\""
 #~ msgstr ""
 #~ "Таблица %(tablename)s не содержит столбца с именем \"%(columname)s\""
 
+#~ msgid ""
+#~ "The database you have connected to does not have a timestamp for when it "
+#~ "was created. This usually means that there was a problem when you created "
+#~ "the database or the database you connected to wasn't created with Ghini."
+#~ msgstr ""
+#~ "База данных с которой вы соединились не имеет метки, когда она была "
+#~ "создана. Это обычно означает, что была некая проблема при создании базы "
+#~ "данных или база данных не была создана при помощи Ghini."
+
+#~ msgid ""
+#~ "The database you have connected to does not have the bauble meta table.  "
+#~ "This usually means that the database is either corrupt or it was created "
+#~ "with an old version of Ghini"
+#~ msgstr ""
+#~ "База данных к которой вы присоединились не содержит мета таблицы bauble. "
+#~ "Обычно это означает ,что база данных повреждена или была создана с "
+#~ "использованием старой версии Ghini"
+
+#, fuzzy
+#~ msgid ""
+#~ "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
+#~ "version %s. Please download and install a newer version of SQLAlchemy "
+#~ "from http://www.sqlalchemy.org or contact your system administrator."
+#~ msgstr ""
+#~ "Эта версия требует запустить SQLAlchemy 0.5.0 или greater.Пожалуйста "
+#~ "скачайте и установите новую версию SQLAlchemy из http://www.sqlalchemy."
+#~ "org или обратитесь к системному администратору."
+
 #~ msgid "Use default filename"
 #~ msgstr "Использовать имя файла по умолчанию"
+
+#~ msgid ""
+#~ "You are using Ghini version %(version)s while the database you have "
+#~ "connected to was created with version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as or some of your data may become "
+#~ "unexpectedly corrupted."
+#~ msgstr ""
+#~ "Вы используете Ghini версии %(version)s , когда база дынных к которой вы "
+#~ "подключены была создана в версии %(db_version)s\n"
+#~ "Некоторые вещи могут не работать, а ваши данные в любой момент могут быть "
+#~ "повреждены."
 
 #~ msgid ""
 #~ "You don't have any connections in your connection list.\n"

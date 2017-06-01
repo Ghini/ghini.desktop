@@ -634,6 +634,9 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
+msgid "Ghini"
+msgstr "Ghini"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -3171,11 +3174,23 @@ msgstr ""
 msgid "°F"
 msgstr ""
 
+#~ msgid "Copyright © Belize Botanic Gardens"
+#~ msgstr "Dreches d'autor © Belize Botanic Gardens"
+
 #~ msgid "Ghini"
 #~ msgstr "Ghini"
 
-#~ msgid "Copyright © Belize Botanic Gardens"
-#~ msgstr "Dreches d'autor © Belize Botanic Gardens"
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Site web de Ghini"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Site web de Ghini"
 
 #~ msgid "_New"
 #~ msgstr "_Novèl"

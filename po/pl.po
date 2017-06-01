@@ -10,8 +10,8 @@ msgstr ""
 "POT-Creation-Date: 2015-10-04 14:33-0500\n"
 "PO-Revision-Date: 2015-12-29 03:04+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/>"
-"\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/"
+">\n"
 "Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -648,6 +648,9 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
+msgid "Ghini"
+msgstr "Ghini"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -661,9 +664,8 @@ msgstr ""
 " %s"
 
 #: bauble/ui.py:362
-#, fuzzy
 msgid "Ghini development website"
-msgstr "Strona domowa Ghini"
+msgstr ""
 
 #: bauble/connmgr.py:423
 msgid ""
@@ -710,9 +712,8 @@ msgid "Ghini forum"
 msgstr "Forum Ghini"
 
 #: bauble/ui.py:365
-#, fuzzy
 msgid "Ghini wiki"
-msgstr "Strona domowa Ghini"
+msgstr "Ghini wiki"
 
 #: bauble/plugins/garden/source.py:160
 msgid "Botanic Garden or Arboretum"
@@ -2739,15 +2740,11 @@ msgid ""
 msgstr ""
 
 #: bauble/db.py:38
-#, fuzzy
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
-"Ta wersja programu Ghini wymaga SQLAlchemy w wersji 0.5.0 lub wyższej. "
-"Proszę pobrać i zainstalować nowszą wersję SQLAlchemy ze strony http://www."
-"sqlalchemy.org lub skontaktować się z administratorem systemu."
 
 #: bauble/view.py:1190
 msgid "Timestamp"
@@ -3317,6 +3314,9 @@ msgstr ""
 #~ "\n"
 #~ "%s"
 
+#~ msgid "**Error: Ghini must be run in a windowed environment."
+#~ msgstr "**Błąd: Ghini musi być uruchomiony w środowisku okienkowych."
+
 #~ msgid "+/-"
 #~ msgstr "+/-"
 
@@ -3325,9 +3325,6 @@ msgstr ""
 
 #~ msgid "<i>--</i>"
 #~ msgstr "<i>--</i>"
-
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
 
 #, fuzzy
 #~ msgid "Choose a file to import from..."
@@ -3366,6 +3363,67 @@ msgstr ""
 #~ msgid "Genus "
 #~ msgstr "Rodzaj "
 
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Ghini nie może zapisać Twoich ustawień użytkownika. \n"
+#~ "\n"
+#~ "Proszę sprawdzić uprawnienia dla pliku w pliku konfiguracyjnym:\n"
+#~ " %s"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Strona domowa Ghini"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nie ma uprawnień do odczytu pliku bazy danych:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nie ma uprawnień do odczytu katalogu.\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nie ma uprawnień do zapisu do pliku bazy danych:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nie ma uprawnień do zapisu do katalogu.\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid "Ghini forum"
+#~ msgstr "Forum Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Strona domowa Ghini"
+
 #~ msgid "Images"
 #~ msgstr "Zdjęcia"
 
@@ -3378,8 +3436,40 @@ msgstr ""
 #~ msgid "Settings"
 #~ msgstr "Ustawienia"
 
+#~ msgid ""
+#~ "The database you have connected to does not have a timestamp for when it "
+#~ "was created. This usually means that there was a problem when you created "
+#~ "the database or the database you connected to wasn't created with Ghini."
+#~ msgstr ""
+#~ "Baza danych, z którą się połączyłeś nie ma znacznika czasowego, kiedy "
+#~ "została utworzona. Zazwyczaj znaczy to, że podczas tworzenia bazy danych "
+#~ "wystąpił problem lub baza danych nie została utworzona przy pomocy Ghini."
+
+#, fuzzy
+#~ msgid ""
+#~ "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
+#~ "version %s. Please download and install a newer version of SQLAlchemy "
+#~ "from http://www.sqlalchemy.org or contact your system administrator."
+#~ msgstr ""
+#~ "Ta wersja programu Ghini wymaga SQLAlchemy w wersji 0.5.0 lub wyższej. "
+#~ "Proszę pobrać i zainstalować nowszą wersję SQLAlchemy ze strony http://"
+#~ "www.sqlalchemy.org lub skontaktować się z administratorem systemu."
+
 #~ msgid "Use default filename"
 #~ msgstr "Użyj domyślnej nazwy pliku"
+
+#~ msgid ""
+#~ "You are using Ghini version %(version)s while the database you have "
+#~ "connected to was created with version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as or some of your data may become "
+#~ "unexpectedly corrupted."
+#~ msgstr ""
+#~ "Używasz Ghini w wersji %(version)s natomiast baza danych, do której "
+#~ "jesteś podłączony została stworzona za pomocą wersji %(db_version)s\n"
+#~ "\n"
+#~ "Pewne rzeczy mogą nie działać lub pewne dane mogą zostać nieoczekiwanie "
+#~ "uszkodzone."
 
 #~ msgid ""
 #~ "You don't have any connections in your connection list.\n"

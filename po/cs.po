@@ -664,6 +664,12 @@ msgstr "Rostlina sevřená a zabalená do pytloviny"
 msgid "Bare root plant"
 msgstr "Rostlina s holým kořenem"
 
+msgid "Ghini"
+msgstr "Ghini"
+
+msgid "Ghini - Picasa Settings"
+msgstr "Ghini - Nastavení Picasa"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -1781,6 +1787,13 @@ msgstr "Další"
 #: bauble/plugins/garden/propagation.py:235
 msgid "No"
 msgstr "Ne"
+
+msgid ""
+"No Python database connectors installed.\n"
+"Please consult the documentation for the prerequesites for installing Ghini."
+msgstr ""
+"Nejsou nainstalovány žádné konektory Python s databázemi.\n"
+"Prosím prohlédněte si dokumentaci pro požadavky instalace Ghini."
 
 #: bauble/__init__.py:164
 msgid "No command handler for %s"
@@ -3427,6 +3440,9 @@ msgstr "°F"
 #~ "\n"
 #~ "%s"
 
+#~ msgid "**Error: Ghini must be run in a windowed environment."
+#~ msgstr "**Chyba: Ghini musí být spouštěn v režimu do okna."
+
 #~ msgid "+/-"
 #~ msgstr "+/-"
 
@@ -3436,11 +3452,16 @@ msgstr "°F"
 #~ msgid "Album"
 #~ msgstr "Album"
 
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
-
-#~ msgid "Ghini - Picasa Settings"
-#~ msgstr "Ghini - Nastavení Picasa"
+#~ msgid ""
+#~ "Are you sure you want to remove user <b>%(name)s</b>?\n"
+#~ "\n"
+#~ "<i>It is possible that this user could have permissions on other "
+#~ "databases not related to Ghini.</i>"
+#~ msgstr ""
+#~ "Jste si jisti, že chcete odstranit uživatele <b>%(name)s</b>?\n"
+#~ "\n"
+#~ "<i>Je možné, že tento uživatel by mohl mít oprávnění v jiných databázích, "
+#~ "které se nevztahují k Ghini.</i>"
 
 #~ msgid "Browse..."
 #~ msgstr "Procházet..."
@@ -3487,6 +3508,71 @@ msgstr "°F"
 #~ msgid "Genus "
 #~ msgstr "Rod "
 
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#~ msgid "Ghini - Picasa Settings"
+#~ msgstr "Ghini - Nastavení Picasa"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Ghini nemůže uložit nastavení uživatele. \n"
+#~ "\n"
+#~ "Zkontrolujte, prosím, oprávnění Vašeho souboru s nastavením:\n"
+#~ " %s"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Internetová stránka Ghini"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nemá oprávnění pro čtení souboru databáze:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nemá oprávnění pro čtení adresáře:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nemá oprávnění pro zápis do souboru databáze:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini nemá oprávnění pro zápis do adresáře:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Internetová stránka Ghini"
+
 #~ msgid "Images"
 #~ msgstr "Obrázky"
 
@@ -3516,12 +3602,67 @@ msgstr "°F"
 #~ msgid "Settings"
 #~ msgstr "Nastavení"
 
+#~ msgid "Show only Ghini users"
+#~ msgstr "Zobrazit pouze uživatele Ghini"
+
 #~ msgid ""
 #~ "The %(tablename)s table does not have a column named \"%(columname)s\""
 #~ msgstr "Tabulka %(tablename)s nemá sloupec s názvem \"%(columname)s\""
 
+#~ msgid ""
+#~ "The database you have connected to does not have a timestamp for when it "
+#~ "was created. This usually means that there was a problem when you created "
+#~ "the database or the database you connected to wasn't created with Ghini."
+#~ msgstr ""
+#~ "Databáze, ke které jste připojeni, nemá časovou známku jejího vytvoření. "
+#~ "To většinou znamená, že se vyskytl problém, při vytváření databáze nebo "
+#~ "databáze, ke které jste připojeni nebyla vytvořena pomocí Ghini."
+
+#~ msgid ""
+#~ "The database you have connected to does not have the bauble meta table.  "
+#~ "This usually means that the database is either corrupt or it was created "
+#~ "with an old version of Ghini"
+#~ msgstr ""
+#~ "Databáze, ke které jste se připojili, nemá meta tabulku bauble. To "
+#~ "většinou znamená, že databáze je buď poškozená, nebo byla vytvořená "
+#~ "starší verzí Ghini."
+
+#, fuzzy
+#~ msgid ""
+#~ "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
+#~ "version %s. Please download and install a newer version of SQLAlchemy "
+#~ "from http://www.sqlalchemy.org or contact your system administrator."
+#~ msgstr ""
+#~ "Tato verze Ghini vyžaduje SQLAlchemy 0.5.0 nebo vyšší. Stáhněte si a "
+#~ "nainstalujte, prosím novější verzi SQLAlchemy z http://www.sqlalchemy.org "
+#~ "nebo kontaktujte Vašeho správce systému."
+
 #~ msgid "Use default filename"
 #~ msgstr "Použít výchozí název souboru"
+
+#~ msgid ""
+#~ "Would you like to create a new Ghini database at the current connection?\n"
+#~ "\n"
+#~ "<i>Warning: If there is already a database at this connection any "
+#~ "existing data will be destroyed!</i>"
+#~ msgstr ""
+#~ "Chtěli byste vytvořit novou databázi Ghini na současném spojení?\n"
+#~ "\n"
+#~ "<i>Varování: pokud již na tomto připojení databáze existuje, jakákoliv "
+#~ "data budou zničena!</i>"
+
+#~ msgid ""
+#~ "You are using Ghini version %(version)s while the database you have "
+#~ "connected to was created with version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as or some of your data may become "
+#~ "unexpectedly corrupted."
+#~ msgstr ""
+#~ "Používáte Ghini verzi %(version)s zatímco databáze, ke které jste se "
+#~ "připojili byla vytvořena verzí %(db_version)s\n"
+#~ "\n"
+#~ "Některé věci nemusejí fungovat nebo některá data mohou být najednou "
+#~ "poškozená."
 
 #~ msgid ""
 #~ "You don't have any connections in your connection list.\n"

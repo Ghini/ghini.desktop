@@ -637,6 +637,9 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
+msgid "Ghini"
+msgstr "Ghini"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -3196,9 +3199,6 @@ msgstr ""
 #~ msgid "<i>--</i>"
 #~ msgstr "<i>--</i>"
 
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
-
 #, fuzzy
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Válasszon fájlt…"
@@ -3211,6 +3211,32 @@ msgstr ""
 
 #~ msgid "Genus "
 #~ msgstr "Nemzetség "
+
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "A Ghini nem képes elmenteni a felhasználói beállításokat.\n"
+#~ "\n"
+#~ "Ellenőrizze a beállítófájl fájlszintű jogosultságait:\n"
+#~ " %s"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Ghini weboldal"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Ghini weboldal"
 
 #~ msgid "Images"
 #~ msgstr "Képek"

@@ -651,6 +651,9 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
+msgid "Ghini"
+msgstr "Ghini"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -1750,6 +1753,13 @@ msgstr "Next"
 #: bauble/plugins/garden/propagation.py:235
 msgid "No"
 msgstr ""
+
+msgid ""
+"No Python database connectors installed.\n"
+"Please consult the documentation for the prerequesites for installing Ghini."
+msgstr ""
+"No Python database connectors installed.\n"
+"Please consult the documentation for the prerequesites for installing Ghini."
 
 #: bauble/__init__.py:164
 msgid "No command handler for %s"
@@ -3302,14 +3312,14 @@ msgstr ""
 msgid "°F"
 msgstr ""
 
+#~ msgid "**Error: Ghini must be run in a windowed environment."
+#~ msgstr "**Error: Ghini must be run in a windowed environment."
+
 #~ msgid "+/-"
 #~ msgstr "+/-"
 
 #~ msgid "<i>--</i>"
 #~ msgstr "<i>--</i>"
-
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
 
 #, fuzzy
 #~ msgid "Choose a file to import from..."
@@ -3345,6 +3355,68 @@ msgstr ""
 #~ msgid "Genus "
 #~ msgstr "Genus "
 
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Ghini website"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini does not have permission to read the database file:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini does not have permission to read the directory:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini does not have permission to write to the database file:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini does not have permission to write to the directory:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Ghini website"
+
 #~ msgid ""
 #~ "No Python database connectors installed.\n"
 #~ "Please consult the documentation for the prerequesites for installing "
@@ -3357,8 +3429,50 @@ msgstr ""
 #~ msgid "Please choose a user name for this connection"
 #~ msgstr "Please choose a user name for this connection"
 
+#~ msgid ""
+#~ "The database you have connected to does not have a timestamp for when it "
+#~ "was created. This usually means that there was a problem when you created "
+#~ "the database or the database you connected to wasn't created with Ghini."
+#~ msgstr ""
+#~ "The database you have connected to does not have a timestamp for when it "
+#~ "was created. This usually means that there was a problem when you created "
+#~ "the database or the database you connected to wasn't created with Ghini."
+
+#~ msgid ""
+#~ "The database you have connected to does not have the bauble meta table.  "
+#~ "This usually means that the database is either corrupt or it was created "
+#~ "with an old version of Ghini"
+#~ msgstr ""
+#~ "The database you have connected to does not have the bauble meta table.  "
+#~ "This usually means that the database is either corrupt or it was created "
+#~ "with an old version of Ghini"
+
 #~ msgid "Use default filename"
 #~ msgstr "Use default filename"
+
+#~ msgid ""
+#~ "Would you like to create a new Ghini database at the current connection?\n"
+#~ "\n"
+#~ "<i>Warning: If there is already a database at this connection any "
+#~ "existing data will be destroyed!</i>"
+#~ msgstr ""
+#~ "Would you like to create a new Ghini database at the current connection?\n"
+#~ "\n"
+#~ "<i>Warning: If there is already a database at this connection any "
+#~ "existing data will be destroyed!</i>"
+
+#~ msgid ""
+#~ "You are using Ghini version %(version)s while the database you have "
+#~ "connected to was created with version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as or some of your data may become "
+#~ "unexpectedly corrupted."
+#~ msgstr ""
+#~ "You are using Ghini version %(version)s while the database you have "
+#~ "connected to was created with version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as expected or some of your data may become "
+#~ "unexpectedly corrupted."
 
 #~ msgid ""
 #~ "You don't have any connections in your connection list.\n"

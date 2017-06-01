@@ -3187,5 +3187,13 @@ msgstr ""
 #~ msgid "Copyright © Belize Botanic Gardens"
 #~ msgstr "حقوق النشر محفوظة © Belize Botanic Gardens"
 
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "موقع Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "موقع Ghini"
+
 #~ msgid "_New"
 #~ msgstr "_جديد"

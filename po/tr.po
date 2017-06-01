@@ -634,6 +634,9 @@ msgstr ""
 msgid "Bare root plant"
 msgstr ""
 
+msgid "Ghini"
+msgstr "Ghini"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -3201,9 +3204,6 @@ msgstr ""
 #~ msgid "+/-"
 #~ msgstr "+/-"
 
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
-
 #, fuzzy
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Dışa aktarılacak dosyayı seçin..."
@@ -3216,6 +3216,21 @@ msgstr ""
 
 #~ msgid "Could not login to PicasaWeb account."
 #~ msgstr "PicasaWeb hesabına giriş yapılamıyor."
+
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Ghini web sitesi"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Ghini web sitesi"
 
 #~ msgid "Images"
 #~ msgstr "Görüntüler"

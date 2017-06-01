@@ -665,6 +665,12 @@ msgstr "Planta med rotklump i säckväv"
 msgid "Bare root plant"
 msgstr "Barrotsplanta"
 
+msgid "Ghini"
+msgstr "Ghini"
+
+msgid "Ghini - Picasa Settings"
+msgstr "Ghini - Inställningar för Picasa"
+
 #: bauble/prefs.py:219
 msgid ""
 "Ghini can't save your user preferences. \n"
@@ -680,7 +686,7 @@ msgstr ""
 #: bauble/ui.py:362
 #, fuzzy
 msgid "Ghini development website"
-msgstr "Baubles webbplats"
+msgstr "Ghinis webbplats"
 
 #: bauble/connmgr.py:423
 msgid ""
@@ -730,7 +736,7 @@ msgstr "Ghini"
 #: bauble/ui.py:365
 #, fuzzy
 msgid "Ghini wiki"
-msgstr "Baubles webbplats"
+msgstr "Ghinis webbplats"
 
 #: bauble/plugins/garden/source.py:160
 msgid "Botanic Garden or Arboretum"
@@ -1787,6 +1793,14 @@ msgstr "Nästa"
 #: bauble/plugins/garden/propagation.py:235
 msgid "No"
 msgstr "Nej"
+
+msgid ""
+"No Python database connectors installed.\n"
+"Please consult the documentation for the prerequesites for installing Ghini."
+msgstr ""
+"Det finns ingen Python-databasanslutare installerad.\n"
+"Läs i hjälpdokumentationen om de förutsättningar som krävs för att "
+"installera Ghini."
 
 #: bauble/__init__.py:164
 msgid "No command handler for %s"
@@ -3451,6 +3465,9 @@ msgstr "°F"
 #~ "\n"
 #~ "%s"
 
+#~ msgid "**Error: Ghini must be run in a windowed environment."
+#~ msgstr "**Fell: Ghini måste köras i en fönsterlägesmiljö."
+
 #~ msgid "+/-"
 #~ msgstr "+/-"
 
@@ -3460,11 +3477,16 @@ msgstr "°F"
 #~ msgid "Album"
 #~ msgstr "Album"
 
-#~ msgid "Ghini"
-#~ msgstr "Ghini"
-
-#~ msgid "Ghini - Picasa Settings"
-#~ msgstr "Ghini - Inställningar för Picasa"
+#~ msgid ""
+#~ "Are you sure you want to remove user <b>%(name)s</b>?\n"
+#~ "\n"
+#~ "<i>It is possible that this user could have permissions on other "
+#~ "databases not related to Ghini.</i>"
+#~ msgstr ""
+#~ "Är du säker på att du vill ta bort användaren <b>%(name)s</b>?\n"
+#~ "\n"
+#~ "<i>Denna användare kan ha behörigheter i andra databaser som inte är "
+#~ "relaterade till Ghini.</i>"
 
 #~ msgid "Browse..."
 #~ msgstr "Bläddra…"
@@ -3512,6 +3534,71 @@ msgstr "°F"
 #~ msgid "Genus "
 #~ msgstr "Släkte "
 
+#~ msgid "Ghini"
+#~ msgstr "Ghini"
+
+#~ msgid "Ghini - Picasa Settings"
+#~ msgstr "Ghini - Inställningar för Picasa"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Ghini kan inte spara dina användarinställningar. \n"
+#~ "\n"
+#~ "Kontrollera filbehörigheterna för din konfigurationsfil:\n"
+#~ " %s"
+
+#, fuzzy
+#~ msgid "Ghini development website"
+#~ msgstr "Ghinis webbplats"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini saknar behörighet att läsa databasfilen:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to read the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini saknar behörighet att läsa mappen:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the database file:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini saknar behörighet att skriva till  databasfilen:\n"
+#~ "\n"
+#~ "%s"
+
+#~ msgid ""
+#~ "Ghini does not have permission to write to the directory:\n"
+#~ "\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ghini saknar behörighet att skriva till mappen:\n"
+#~ "\n"
+#~ "%s"
+
+#, fuzzy
+#~ msgid "Ghini forum"
+#~ msgstr "Ghini"
+
+#, fuzzy
+#~ msgid "Ghini wiki"
+#~ msgstr "Ghinis webbplats"
+
 #~ msgid "Images"
 #~ msgstr "Bilder"
 
@@ -3542,13 +3629,68 @@ msgstr "°F"
 #~ msgid "Settings"
 #~ msgstr "Inställningar"
 
+#~ msgid "Show only Ghini users"
+#~ msgstr "Visa endast för Ghini-användare"
+
 #~ msgid ""
 #~ "The %(tablename)s table does not have a column named \"%(columname)s\""
 #~ msgstr ""
 #~ "Tabellen %(tablename)s har ingen kolumn med namnet \"%(columname)s\""
 
+#~ msgid ""
+#~ "The database you have connected to does not have a timestamp for when it "
+#~ "was created. This usually means that there was a problem when you created "
+#~ "the database or the database you connected to wasn't created with Ghini."
+#~ msgstr ""
+#~ "Databasen som du har anslutit till har ingen tidsstämpel för när den "
+#~ "skapades. Det betyder vanligtvis att ett problem uppstod när du skapade "
+#~ "databasen eller att databasen inte skapades i Ghini."
+
+#~ msgid ""
+#~ "The database you have connected to does not have the bauble meta table.  "
+#~ "This usually means that the database is either corrupt or it was created "
+#~ "with an old version of Ghini"
+#~ msgstr ""
+#~ "Databasen som du har anslutit till har inte metatabellen bauble. Det "
+#~ "betyder vanligtvis att databasen antingen är skadad eller att den "
+#~ "skapades i en äldre version av Ghini"
+
+#, fuzzy
+#~ msgid ""
+#~ "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
+#~ "version %s. Please download and install a newer version of SQLAlchemy "
+#~ "from http://www.sqlalchemy.org or contact your system administrator."
+#~ msgstr ""
+#~ "Denna version av Ghini kräver SQLAlchemy 0.5.0 eller senare. Var vänlig "
+#~ "hämta och installera en nyare version av SQLAlchemy från http://www."
+#~ "sqlalchemy.org eller kontakta din systemadministratör."
+
 #~ msgid "Use default filename"
 #~ msgstr "Använd standardfilnamn"
+
+#~ msgid ""
+#~ "Would you like to create a new Ghini database at the current connection?\n"
+#~ "\n"
+#~ "<i>Warning: If there is already a database at this connection any "
+#~ "existing data will be destroyed!</i>"
+#~ msgstr ""
+#~ "Vill du skapa en ny Ghini-databas på den aktuella anslutningen?\n"
+#~ "\n"
+#~ "<i>Varning: Om det redan finns en databas på denna anslutning kommer all "
+#~ "befintlig data att förloras!</i>"
+
+#~ msgid ""
+#~ "You are using Ghini version %(version)s while the database you have "
+#~ "connected to was created with version %(db_version)s\n"
+#~ "\n"
+#~ "Some things might not work as or some of your data may become "
+#~ "unexpectedly corrupted."
+#~ msgstr ""
+#~ "Du använder Ghini version %(version)s medan databasen som du har anslutit "
+#~ "till skapades i version %(db_version)s\n"
+#~ "\n"
+#~ "Vissa saker kan visa sig inte fungera som de skall och delar av din data "
+#~ "kan komma att skadas."
 
 #~ msgid ""
 #~ "You don't have any connections in your connection list.\n"

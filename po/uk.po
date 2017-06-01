@@ -93,7 +93,7 @@ msgstr ""
 
 #: bauble/__init__.py:328
 msgid "**Error: Ghini must be run in a windowed environment."
-msgstr ""
+msgstr "**Помилка: Ghini повинна бути запущена в віконному середовищі."
 
 #: bauble/plugins/tag/tag.glade:265
 msgid "--"
@@ -610,6 +610,10 @@ msgid ""
 "<i>It is possible that this user could have permissions on other databases "
 "not related to Ghini.</i>"
 msgstr ""
+"Ви впевнені, що хочете видалити користувача <b>%(name)s</b>?\n"
+"\n"
+"<i>Цілком можливо, що цей користувач може мати права доступу до інших баз "
+"даних, не пов'язаних з Ghini.</i>"
 
 #: bauble/plugins/garden/plant.py:289
 msgid "Area transf. to Plant Ops."
@@ -647,7 +651,7 @@ msgstr ""
 
 #: bauble/ui.py:362
 msgid "Ghini development website"
-msgstr ""
+msgstr "Ghini розробка сайту"
 
 #: bauble/connmgr.py:423
 msgid ""
@@ -655,6 +659,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Ghini не має дозволу на читання файлу бази даних:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:415
 msgid ""
@@ -662,6 +669,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Ghini не має права на читання каталогу:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:427
 msgid ""
@@ -669,6 +679,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Ghini не має права на запис в файл бази даних:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:419
 msgid ""
@@ -676,14 +689,17 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Ghini не має дозволу на запис в каталог:\n"
+"\n"
+"%s"
 
 #: bauble/ui.py:368
 msgid "Ghini forum"
-msgstr ""
+msgstr "Форум Ghini"
 
 #: bauble/ui.py:365
 msgid "Ghini wiki"
-msgstr ""
+msgstr "Ghini вікі"
 
 #: bauble/plugins/garden/source.py:160
 msgid "Botanic Garden or Arboretum"
@@ -2167,7 +2183,7 @@ msgstr "Показати подробиці"
 
 #: bauble/plugins/users/ui.glade:121
 msgid "Show only Ghini users"
-msgstr ""
+msgstr "Показувати тільки  Ghini користувачів"
 
 #: bauble/plugins/garden/propagation.py:228
 msgid "Singled"
@@ -2350,6 +2366,9 @@ msgid ""
 "created. This usually means that there was a problem when you created the "
 "database or the database you connected to wasn't created with Ghini."
 msgstr ""
+"Підключення до бази даних не містить часову позначку коли було створено. Це "
+"зазвичай означає, що сталася помилка під час створення бази даних або "
+"підключення до бази даних не було створено Ghini."
 
 #: bauble/db.py:390
 msgid ""
@@ -2357,6 +2376,9 @@ msgid ""
 "This usually means that the database is either corrupt or it was created "
 "with an old version of Ghini"
 msgstr ""
+"Підключення до бази даних не містить Ghini мета таблиці. Це зазвичай "
+"означає, що бази даних пошкоджена або вона була створена з старої версії "
+"Ghini"
 
 #: bauble/db.py:386
 msgid "The database you have connected to is empty."
@@ -2638,6 +2660,9 @@ msgid ""
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
+"Ця версія Ghini вимагає SQLAlchemy 0.6 або вище. Використовується версія "
+"%s. Завантажте та встановіть нову версію SQLAlchemy від http://www."
+"sqlalchemy.org або зверніться до системного адміністратора."
 
 #: bauble/view.py:1190
 msgid "Timestamp"
@@ -2822,6 +2847,10 @@ msgid ""
 "<i>Warning: If there is already a database at this connection any existing "
 "data will be destroyed!</i>"
 msgstr ""
+"Ви хочете створити нову базу даних Ghini в поточному з'єднанні?\n"
+"\n"
+"<i>Увага: Якщо вже є база даних з цим з'єднанням то будь-які існуючі дані "
+"будуть знищені!</i>"
 
 #: bauble/plugins/garden/prop_editor.glade:384
 msgid "Wounded"
@@ -2867,6 +2896,11 @@ msgid ""
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
+"Ви використовуєте Ghini версію %(version)s в той час як бази даних була "
+"створена з версією %(db_version)s\n"
+"\n"
+"Деякі речі можуть не працювати або деякі з ваших даних можуть некоректно "
+"відображатися."
 
 #: bauble/plugins/users/__init__.py:495
 msgid "You do not have privileges to change other user privileges"
@@ -3183,3 +3217,14 @@ msgstr ""
 #~ "Натисніть \"Гаразд\", щоб продовжити.\n"
 #~ "\n"
 #~ "%s"
+
+#~ msgid ""
+#~ "Ghini can't save your user preferences. \n"
+#~ "\n"
+#~ "Please check the file permissions of your config file:\n"
+#~ " %s"
+#~ msgstr ""
+#~ "Ghini не зміг зберегти ваші налаштування. \n"
+#~ "\n"
+#~ "Перевірте права доступу до вашого файлу налаштувань:\n"
+#~ " %s"

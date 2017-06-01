@@ -641,6 +641,10 @@ msgid ""
 "Please check the file permissions of your config file:\n"
 " %s"
 msgstr ""
+"Ghini이 사용자 환경 설정을 저장할 수 없습니다.\n"
+"\n"
+"구성 파일의 사용 권한을 확인하십시오:\n"
+"%s"
 
 #: bauble/ui.py:362
 msgid "Ghini development website"
@@ -778,10 +782,6 @@ msgstr ""
 #, fuzzy
 msgid "Choose a search domain..."
 msgstr ""
-"Bauble이 사용자 환경 설정을 저장할 수 없습니다.\n"
-"\n"
-"구성 파일의 사용 권한을 확인하십시오:\n"
-"%s"
 
 #: bauble/plugins/imex/csv_.py:569
 msgid "Choose file(s) to import..."
@@ -2720,10 +2720,6 @@ msgstr ""
 #: bauble/search.py:348
 msgid "Unknown search domain: %s"
 msgstr ""
-"Bauble이 사용자 환경 설정을 저장할 수 없습니다.\n"
-"\n"
-"구성 파일의 사용 권한을 확인하십시오:\n"
-"%s"
 
 #: bauble/plugins/garden/plant.py:361
 msgid "Unripe"
