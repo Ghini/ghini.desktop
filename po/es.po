@@ -2317,11 +2317,11 @@ msgstr "Guardar los cambios"
 
 #: bauble/plugins/plants/family.py:359
 msgid "Save your changes and add a genus to this family."
-msgstr "Guarde los cambios los  y añade un género a esta familia."
+msgstr "Guarde los cambios y añade un género a esta familia."
 
 #: bauble/plugins/garden/accession.py:889
 msgid "Save your changes and add a plant to this accession."
-msgstr ""
+msgstr "Guardar los cambios y añadir otra planta a este accesión."
 
 #: bauble/plugins/plants/genus.py:420
 msgid "Save your changes and add a species to this genus."
@@ -2329,11 +2329,11 @@ msgstr "Guarde los cambios y añade una especie de este género."
 
 #: bauble/plugins/plants/species_editor.py:1097
 msgid "Save your changes and add an accession to this species"
-msgstr "Guarde los cambios y añade una adhesión a esta especie"
+msgstr "Guarde los cambios y añade una accesión a esta especie"
 
 #: bauble/plugins/garden/accession.py:891 bauble/plugins/garden/plant.py:656
 msgid "Save your changes and add another accession."
-msgstr "Guardar las modificas y añadir otra accesión."
+msgstr "Guardar los cambios y añadir otra accesión."
 
 #: bauble/plugins/plants/family.py:361
 msgid "Save your changes and add another family."
@@ -2886,6 +2886,9 @@ msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or documented living material."
 msgstr ""
+"El nombre del registro, determinado por un taxonomista u otra persona "
+"competente, utilizando un herbario y/o biblioteca y/o material vivo "
+"documentado."
 
 #: bauble/plugins/garden/accession.py:225
 msgid ""
@@ -3330,6 +3333,8 @@ msgid ""
 "You don't have any connections in your connection list.\n"
 "Click on <b>Add</b> to create a new connection."
 msgstr ""
+"No hay ninguna conexión en la lista de conexiones.\n"
+"Presione «Añadir» para crear una conexión nueva."
 
 #: bauble/btypes.py:65
 msgid ""
@@ -3361,7 +3366,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species.py:114
 msgid "_Add accession"
-msgstr "_Añada adhesión"
+msgstr "_Añada accesión"
 
 #: bauble/plugins/plants/family.py:103
 msgid "_Add genus"
@@ -4332,36 +4337,6 @@ msgstr "°F"
 #~ msgid "Propagule of cultivated (wild) plant"
 #~ msgstr "Propagación de planta (selvaje) cultivada"
 
-#~ msgid "Save your changes and add a planting to this accession."
-#~ msgstr "Guardar las motificas y añadir otra planta a este accesión."
-
-#~ msgid "Save your changes changes and add a genus to this family."
-#~ msgstr "Guarde los cambios los  y añade un género a esta familia."
-
-#~ msgid "Save your changes changes and add a plant to this accession."
-#~ msgstr "Guardar las motificas y añadir otra planta a este accesión."
-
-#~ msgid "Save your changes changes and add a species to this genus."
-#~ msgstr "Guarde los cambios y añade una especie de este género."
-
-#~ msgid "Save your changes changes and add an accession to this species"
-#~ msgstr "Guarde los cambios y añade una adhesión a esta especie"
-
-#~ msgid "Save your changes changes and add another accession."
-#~ msgstr "Guardar las modificas y añadir otra accesión."
-
-#~ msgid "Save your changes changes and add another family."
-#~ msgstr "Guarde los cambios y agregue otra familia."
-
-#~ msgid "Save your changes changes and add another genus."
-#~ msgstr "Guarde los cambios y añade otro género."
-
-#~ msgid "Save your changes changes and add another plant."
-#~ msgstr "Guardar los cambios y añadir otra planta."
-
-#~ msgid "Save your changes changes and add another species "
-#~ msgstr "Guarde los cambios y añade otra especie "
-
 #~ msgid "Search Google"
 #~ msgstr "Buscar en Google"
 
@@ -4377,37 +4352,11 @@ msgstr "°F"
 #~ msgid "Source's code"
 #~ msgstr "Código del origen"
 
-#~ msgid "The location of the plant in your collection."
-#~ msgstr "Lugar de la planta en su colección."
-
-#~ msgid ""
-#~ "The name of the record determined by a taxonomist or by other competent "
-#~ "persons using herbarium and/or library and/or  documented living material."
-#~ msgstr ""
-#~ "El nombre del registro, determinado por un taxonomista u otra persona "
-#~ "competente, utilizando un herbario y/o biblioteca y/o material vivo "
-#~ "documentado."
-
-#~ msgid ""
-#~ "The plant code must be a unique code for the accession.  You may also use "
-#~ "ranges like 1,2,7 or 1-3 to create multiple plants."
-#~ msgstr ""
-#~ "El código de planta tiene que ser único en la accesión. también puedes "
-#~ "utilizar valores múltiplos, como 1,2,7 ó 1-3 para insertar más plantas a "
-#~ "la vez."
-
 #~ msgid "Use default filename"
 #~ msgstr "Usar el nombre de archivo por defecto"
 
 #~ msgid "Wild"
 #~ msgstr "Salvaje"
-
-#~ msgid ""
-#~ "You don't have any connections in your connection list.\n"
-#~ "Close this message and click on \"Add\" to create a new connection."
-#~ msgstr ""
-#~ "No hay ninguna conexión en la lista de conexiones.\n"
-#~ "Cierre este mensaje y presione «Añadir» para crear una conexión nueva."
 
 #~ msgid ""
 #~ "You have to choose or create a new connection before you can connect to "
