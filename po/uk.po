@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-01 20:04-0500\n"
+"POT-Creation-Date: 2017-06-01 20:38-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Rax <Unknown>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
@@ -1982,7 +1982,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:558
 msgid "Planting code"
-msgstr ""
+msgstr "Код рослини"
 
 #: bauble/connmgr.py:496
 msgid "Please choose a name for this connection"
@@ -2223,48 +2223,48 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:1096
 msgid "Save your changes"
-msgstr ""
+msgstr "Збережіть зміни"
 
 #: bauble/plugins/plants/family.py:359
 msgid "Save your changes and add a genus to this family."
-msgstr ""
+msgstr "Збережіть зміни і додайте рід до цього сімейства."
 
 #: bauble/plugins/garden/accession.py:889
 msgid "Save your changes and add a plant to this accession."
-msgstr ""
+msgstr "Збережіть зміни і додайте рослину до цього приєднання."
 
 #: bauble/plugins/plants/genus.py:420
 msgid "Save your changes and add a species to this genus."
-msgstr ""
+msgstr "Збережіть зміни і додайте вид до цього роду."
 
 #: bauble/plugins/plants/species_editor.py:1097
 msgid "Save your changes and add an accession to this species"
-msgstr ""
+msgstr "Збережіть зміни і додайте приєднання до цього виду"
 
 #: bauble/plugins/garden/accession.py:891 bauble/plugins/garden/plant.py:656
 msgid "Save your changes and add another accession."
-msgstr ""
+msgstr "Збережіть зміни і додайте ще одне приєднання."
 
 #: bauble/plugins/plants/family.py:361
 msgid "Save your changes and add another family."
-msgstr ""
+msgstr "Збережіть зміни і додайте ще одну сім'ю."
 
 #: bauble/plugins/plants/genus.py:422
 msgid "Save your changes and add another genus."
-msgstr ""
+msgstr "Збережіть зміни і додайте інший рід."
 
 #: bauble/plugins/garden/plant.py:654
 msgid "Save your changes and add another plant."
-msgstr ""
+msgstr "Збережіть зміни і додайте ще одну рослину."
 
 #: bauble/plugins/plants/species_editor.py:1099
 msgid "Save your changes and add another species "
-msgstr ""
+msgstr "Збережіть зміни і додайте ще один вид "
 
 #: bauble/plugins/garden/accession.py:888 bauble/plugins/garden/plant.py:653
 #: bauble/plugins/plants/family.py:358 bauble/plugins/plants/genus.py:419
 msgid "Save your changes."
-msgstr ""
+msgstr "Збережіть зміни."
 
 #: bauble/plugins/garden/accession.py:443
 msgid "Scion"
@@ -2328,7 +2328,7 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:1017 bauble/plugins/plants/species.py:421
 #, fuzzy
 msgid "Search Tropicos"
-msgstr "Пошук Google"
+msgstr "Пошук в Tropicos"
 
 #: bauble/plugins/plants/genus.py:1017 bauble/plugins/plants/species.py:421
 msgid "Search Tropicos (MissouriBG) online database"
@@ -2336,7 +2336,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species.py:417
 msgid "Search Wikipedia"
-msgstr ""
+msgstr "Пошук в Вікіпедії"
 
 #: bauble/editor.py:306 bauble/plugins/report/__init__.py:602
 #: bauble/plugins/report/__init__.py:607
@@ -2443,7 +2443,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:7
 msgid "Species Editor"
-msgstr ""
+msgstr "Редактор видів рослин"
 
 #: bauble/plugins/plants/infoboxes.glade:461
 msgid "Species Window"
@@ -2723,7 +2723,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:643
 msgid "The location of the planting in your collection."
-msgstr ""
+msgstr "Розташування рослини у вашій колекції."
 
 #: bauble/plugins/garden/institution.py:197
 msgid "The mailing address of the institition."
@@ -2745,6 +2745,9 @@ msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or documented living material."
 msgstr ""
+"Назва запису визначається з систематики або компетентними особами "
+"використовуючи гербарій і/або бібліотеку і / або документально живий "
+"матеріал."
 
 #: bauble/plugins/garden/accession.py:225
 msgid ""
@@ -2789,6 +2792,9 @@ msgid ""
 "The planting code must be a unique code for the accession.  You may also use "
 "ranges like 1,2,7 or 1-3 to create multiple plants."
 msgstr ""
+"Код рослини повинен бути унікальним кодом для приєднання. Ви також можете "
+"використовувати діапазони, як 1,2,7 або 1-3 для створення декількох "
+"рослин."
 
 #: bauble/pluginmgr.py:230
 msgid ""
@@ -3431,7 +3437,8 @@ msgstr ""
 msgid ""
 "new remote version %s available.\n"
 "continue, or exit to upgrade."
-msgstr ""
+msgstr "нова віддалена версія доступна.\n"
+"продовжити, або зупинити щоб оновити"
 
 #: bauble/plugins/plants/stored_queries.glade:491
 #: bauble/plugins/plants/taxonomy_check.glade:218
@@ -3591,17 +3598,6 @@ msgstr ""
 #~ msgid "%s search results"
 #~ msgstr "%s результати пошуку"
 
-#~ msgid ""
-#~ "** Could not open the default log file.\n"
-#~ "Press OK key to continue.\n"
-#~ "\n"
-#~ "%s"
-#~ msgstr ""
-#~ "** Не вдалося відкрити типовий файл логу.\n"
-#~ "Натисніть \"Гаразд\", щоб продовжити.\n"
-#~ "\n"
-#~ "%s"
-
 #~ msgid "<b>Name:</b>"
 #~ msgstr "<b>Ім'я</b>"
 
@@ -3626,47 +3622,11 @@ msgstr ""
 #~ msgid "Plant"
 #~ msgstr "Рослина"
 
-#~ msgid "Plant Species Editor"
-#~ msgstr "Редактор видів рослин"
-
-#~ msgid "Plant code"
-#~ msgstr "Код рослини"
-
 #~ msgid "Propagule of cultivated (wild) plant"
 #~ msgstr "Розмноження культивованих (диких) рослин"
 
-#~ msgid "Save your changes changes and add a genus to this family."
-#~ msgstr "Збережіть зміни і додайте рід до цього сімейства."
-
-#~ msgid "Save your changes changes and add a plant to this accession."
-#~ msgstr "Збережіть зміни і додайте рослину до цього приєднання."
-
-#~ msgid "Save your changes changes and add a species to this genus."
-#~ msgstr "Збережіть зміни і додайте вид до цього роду."
-
-#~ msgid "Save your changes changes and add an accession to this species"
-#~ msgstr "Збережіть зміни і додайте приєднання до цього виду"
-
-#~ msgid "Save your changes changes and add another accession."
-#~ msgstr "Збережіть зміни і додайте ще одне приєднання."
-
-#~ msgid "Save your changes changes and add another family."
-#~ msgstr "Збережіть зміни і додайте ще одну сім'ю."
-
-#~ msgid "Save your changes changes and add another genus."
-#~ msgstr "Збережіть зміни і додайте інший рід."
-
-#~ msgid "Save your changes changes and add another plant."
-#~ msgstr "Збережіть зміни і додайте ще одну рослину."
-
-#~ msgid "Save your changes changes and add another species "
-#~ msgstr "Збережіть зміни і додайте ще один вид "
-
 #~ msgid "Search Google"
 #~ msgstr "Пошук Google"
-
-#~ msgid "Search the Wikipedia"
-#~ msgstr "Пошук в Вікіпедії"
 
 #~ msgid "Select a source"
 #~ msgstr "Виберіть джерело"
@@ -3677,44 +3637,9 @@ msgstr ""
 #~ msgid "Source's code"
 #~ msgstr "Код джерела"
 
-#~ msgid "The location of the plant in your collection."
-#~ msgstr "Розташування рослини у вашій колекції."
-
-#~ msgid ""
-#~ "The name of the record determined by a taxonomist or by other competent "
-#~ "persons using herbarium and/or library and/or  documented living material."
-#~ msgstr ""
-#~ "Назва запису визначається з систематики або компетентними особами "
-#~ "використовуючи гербарій і/або бібліотеку і / або документально живий "
-#~ "матеріал."
-
-#~ msgid ""
-#~ "The plant code must be a unique code for the accession.  You may also use "
-#~ "ranges like 1,2,7 or 1-3 to create multiple plants."
-#~ msgstr ""
-#~ "Код рослини повинен бути унікальним кодом для приєднання. Ви також можете "
-#~ "використовувати діапазони, як 1,2,7 або 1-3 для створення декількох "
-#~ "рослин."
-
 #~ msgid "Wild"
 #~ msgstr "Дикоростучі"
 
 #~ msgid "http://bauble.wikidot.com"
 #~ msgstr "http://bauble.wikidot.com"
 
-#~ msgid ""
-#~ "new remote version available.\n"
-#~ "\n"
-#~ "remote version: %(1)s,\n"
-#~ "running version: %(2)s.\n"
-#~ "\n"
-#~ "Cancel to stop and upgrade;\n"
-#~ "OK to continue."
-#~ msgstr ""
-#~ "нова віддалена версія доступна.\n"
-#~ "\n"
-#~ "віддалена версія: %(1)s,\n"
-#~ "поточна версія: %(2)s.\n"
-#~ "\n"
-#~ "Скасувати, щоб зупинити і оновити;\n"
-#~ "ОК, щоб продовжити."
