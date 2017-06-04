@@ -1404,20 +1404,18 @@ class PropagationExpander(InfoExpander):
             date_lbl.set_markup("<b>%s</b>" % prop.date.strftime(format))
             date_lbl.set_alignment(0.0, 0.0)
 
-            accession_code = prop.get_summary(partial=1)
-            if accession_code:
+            for acc in prop.accessions:
                 accession_lbl = gtk.Label()
                 eventbox = gtk.EventBox()
                 eventbox.add(accession_lbl)
-                v2.pack_start(eventbox)
+                v2.pack_end(eventbox)
                 accession_lbl.set_alignment(0.0, 0.0)
-                accession_lbl.set_text(accession_code)
+                accession_lbl.set_text(acc.code)
 
                 def on_clicked(widget, event, obj):
                     select_in_search_results(obj)
 
-                utils.make_label_clickable(accession_lbl, on_clicked,
-                                           prop.used_source.accession)
+                utils.make_label_clickable(accession_lbl, on_clicked, acc)
 
             label = gtk.Label()
             v2.pack_start(label)
