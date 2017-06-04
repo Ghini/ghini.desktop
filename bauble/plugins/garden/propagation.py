@@ -96,18 +96,9 @@ class Propagation(db.Base):
         backref=backref('propagation', uselist=False))
 
     @property
-    def details(self):
-        if self.prop_type == 'Seed':
-            return self._seed
-        elif self.prop_type == 'UnrootedCutting':
-            return self._cutting
-        elif self.notes:
-            return self.notes
-        else:
-            raise NotImplementedError
-
-    @property
     def accessions(self):
+        if not self.used_source:
+            return []
         accessions = []
         session = object_session(self.used_source[0].accession)
         for us in self.used_source:
