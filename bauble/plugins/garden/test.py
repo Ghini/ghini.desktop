@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015,2017 Mario Frasca <mario@anche.no>.
 #
 # This file is part of bauble.classic.
 #
@@ -477,84 +477,83 @@ class PropagationTests(GardenTestCase):
         super(PropagationTests, self).setUp()
         self.accession = self.create(
             Accession, species=self.species, code=u'1')
-        # self.location = self.create(Location, name=u'name', code=u'code')
-        # self.plant = self.create(Plant, accession=self.accession,
-        #                          location=self.location, code=u'2')
+        self.plants = []
+
+    def add_plants(self, plant_codes=[]):
+        loc = self.create(Location, name=u'name', code=u'code')
+        for pc in plant_codes:
+            self.plants.append(self.create(
+                Plant,
+                accession=self.accession, location=loc, code=pc, quantity=1))
         self.session.commit()
+
+    def add_propagations(self, propagation_types=[]):
+        for i, pt in enumerate(propagation_types):
+            prop = Propagation()
+            prop.prop_type = pt
+            prop.plant = self.plants[i]
+            if pt == u'Seed':
+                specifically = PropSeed(**default_seed_values)
+            elif pt == u'UnrootedCutting':
+                specifically = PropCutting(**default_cutting_values)
+            specifically.propagation = prop
+        self.session.commit()
+        
 
     def tearDown(self):
-        #self.session.delete(self.location)
-        #self.session.delete(self.plant)
-        #self.session.commit()
-        #self.session.begin()
+        self.session.query(Plant).delete()
+        self.session.query(Location).delete()
+        self.session.query(Accession).delete()
+        self.session.commit()
         super(PropagationTests, self).tearDown()
 
-    def test_accession_prop(self):
-        # 'Accession' object has no attribute 'propagations'
-        """
-        Test the Accession->AccessionPropagation->Propagation relation
-        """
-        raise SkipTest('Not Implemented')
-        loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1',
-                      quantity=1)
-        prop = Propagation()
-        prop.plant = plant
-        prop.prop_type = u'UnrootedCutting'
-        cutting = PropCutting(**default_cutting_values)
-        cutting.propagation = prop
-        self.session.commit()
-        self.assert_(prop in self.accession.propagations)
-        self.assert_(prop.accession == self.accession)
+    def test_accession_propagations_is_union_of_plant_propagations(self):
+        self.add_plants([u'1', u'2'])
+        self.add_propagations([u'UnrootedCutting', u'Seed'])
+        self.assertEquals(len(self.accession.plants), 2)
+        self.assertEquals(len(self.plants[0].propagations), 1)
+        self.assertEquals(len(self.plants[1].propagations), 1)
+        self.assertEquals(len(self.accession.propagations), 2)
+        p1, p2 = self.plants[0].propagations[0], self.plants[1].propagations[0]
+        self.assertTrue(p1 in self.accession.propagations)
+        self.assertTrue(p2 in self.accession.propagations)
 
-    def test_plant_prop(self):
-        """
-        Test the Plant->PlantPropagation->Propagation relation
-        """
-        prop = Propagation()
-        loc = self.create(Location, name=u'site1', code=u'1')
-        plant = self.create(Plant, accession=self.accession, location=loc,
-                            code=u'1', quantity=1)
-        prop.prop_type = u'UnrootedCutting'
-        cutting = PropCutting(**default_cutting_values)
-        cutting.propagation = prop
-        plant.propagations.append(prop)
-        self.session.commit()
-        self.assert_(prop in plant.propagations)
-        self.assert_(prop.plant == plant)
+    def test_propagation_links_back_to_correct_plant(self):
+        self.add_plants([u'1', u'2', u'3'])
+        self.add_propagations([u'UnrootedCutting', u'Seed', u'Seed'])
+        for plant in self.plants:
+            self.assertEquals(len(plant.propagations), 1)
+            prop = plant.propagations[0]
+            self.assertEquals(prop.plant, plant)
 
-    def test_get_summary(self):
-        loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1',
-                      quantity=1)
+    def test_get_summary_cutting(self):
+        self.add_plants([u'1'])
         prop = Propagation()
-        prop.plant = plant
         prop.prop_type = u'UnrootedCutting'
+        prop.plant = self.plants[0]
         cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
         rooted = PropRooted()
         rooted.cutting = cutting
         self.session.commit()
         summary = prop.get_summary()
-        #debug(summary)
-        self.assert_(summary)
+        self.assertEquals(summary, 'Cutting; Cutting type: Nodal; Length: 2mm; Tip: Intact; Leaves: Intact; Flower buds: None; Wounded: Singled; Fungal soak: Physan; Hormone treatment: Auxin powder; Bottom heat: 65°F; Container: 4" pot; Media: standard mix; Location: Mist frame; Cover: Poly cover; Rooted: 90%')
 
+    def test_get_summary_seed(self):
+        self.add_plants([u'1'])
         prop = Propagation()
         prop.prop_type = u'Seed'
-        prop.plant = plant
+        prop.plant = self.plants[0]
         seed = PropSeed(**default_seed_values)
         seed.propagation = prop
         self.session.commit()
         summary = prop.get_summary()
-        #debug(summary)
-        self.assert_(summary)
+        self.assertEquals(summary, 'Seed; Pretreatment: Soaked in peroxide solution; # of seeds: 24; Date sown: 04-06-2017; Container: tray; Media: standard mix; Location: mist tent; Germination date: 04-06-2017; # of seedlings: 23; Germination rate: 99%; Date planted: 04-06-2017')
 
     def test_cutting_property(self):
-        loc = Location(name=u'name', code=u'code')
-        plant = Plant(accession=self.accession, location=loc, code=u'1',
-                      quantity=1)
+        self.add_plants([u'1'])
         prop = Propagation()
-        prop.plant = plant
+        prop.plant = self.plants[0]
         prop.prop_type = u'UnrootedCutting'
         prop.accession = self.accession
         cutting = PropCutting(**default_cutting_values)
@@ -576,6 +575,12 @@ class PropagationTests(GardenTestCase):
         self.session.commit()
         self.assert_(not self.session.query(PropCutting).get(cutting_id))
         self.assert_(not self.session.query(PropRooted).get(rooted_id))
+
+    def test_accession_links_to_parent_plant(self):
+        '''we can reach the parent plant from an accession'''
+
+        self.add_plants([u'1'])
+        pass
 
     def test_seed_property(self):
         loc = Location(name=u'name', code=u'code')
@@ -799,19 +804,23 @@ class SourceTests(GardenTestCase):
         super(SourceTests, self).tearDown()
 
     def _make_prop(self, source):
+        '''associate a seed Propagation to source
+
+        we create a seed propagation that is referred to by both a PropSeed
+        and a PropCutting, something that is not going to happen in the
+        code, we're just being lazy.
+
+        '''
         source.propagation = Propagation(prop_type=u'Seed')
 
-        # a propagation doesn't normally have _seed and _cutting but
-        # it's ok here for the test
         seed = PropSeed(**default_seed_values)
         seed.propagation = source.propagation
         cutting = PropCutting(**default_cutting_values)
         cutting.propagation = source.propagation
         self.session.commit()
-        prop_id = source.propagation.id
-        seed_id = source.propagation._seed.id
-        cutting_id = source.propagation._cutting.id
-        return prop_id, seed_id, cutting_id
+        return (source.propagation.id,
+                source.propagation._seed.id,
+                source.propagation._cutting.id)
 
     def test_propagation(self):
         """
@@ -820,14 +829,13 @@ class SourceTests(GardenTestCase):
         source = Source()
         self.accession.source = source
         prop_id, seed_id, cutting_id = self._make_prop(source)
-        self.session.commit()
-        source.propagation = None
-        self.session.commit()
         self.assert_(seed_id)
         self.assert_(cutting_id)
         self.assert_(prop_id)
-        # make sure the propagation got cleaned up when the
-        # source.propagation attribute was set to None
+        # make sure the propagation gets cleaned up when we set the
+        # source.propagation attribute to None - and commit
+        source.propagation = None
+        self.session.commit()
         self.assert_(not self.session.query(PropSeed).get(seed_id))
         self.assert_(not self.session.query(PropCutting).get(cutting_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
@@ -836,6 +844,13 @@ class SourceTests(GardenTestCase):
         """
         Test bauble.plugins.garden.Source and related properties
         """
+        # I consider this test a very good example of how NOT TO write unit
+        # tests: it has a non-descriptive name, it does not state what it
+        # tests, it uses a non-standard 'assert_' method, it tests several
+        # things at the same time, it does not fit in a single page, it even
+        # contains commented code, which distracts the reader by describing
+        # things that do not happen. Dear Reader: you're welcome decyphering
+        # it and rewriting it as unit tests. (Mario Frasca)
         source = Source()
         #self.assert_(hasattr(source, 'plant_propagation'))
 
