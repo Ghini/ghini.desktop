@@ -95,7 +95,8 @@ class Propagation(db.Base):
         cascade='all,delete-orphan', uselist=False,
         backref=backref('propagation', uselist=False))
 
-    def _get_details(self):
+    @property
+    def details(self):
         if self.prop_type == 'Seed':
             return self._seed
         elif self.prop_type == 'UnrootedCutting':
@@ -105,10 +106,14 @@ class Propagation(db.Base):
         else:
             raise NotImplementedError
 
-    #def _set_details(self, details):
-    #    return self._details
-
-    details = property(_get_details)
+    @property
+    def accessions(self):
+        accessions = []
+        session = object_session(self.used_source[0].accession)
+        for us in self.used_source:
+            if us.accession not in session.new:
+                accessions.append(us.accession)
+        return accessions
 
     def get_summary(self, partial=False):
         """compute a textual summary for this propagation
@@ -134,11 +139,8 @@ class Propagation(db.Base):
         accession_codes = []
         
         if self.used_source and partial != 2:
-            session = object_session(self.used_source[0].accession)
-            for us in self.used_source:
-                if us.accession not in session.new:
-                    accession_codes.append(us.accession.code)
-                    values.append(_('used in: %s') % us.accession.code)
+            values = [_('used in: %s') % acc.code for acc in self.accessions]
+            accession_codes = [acc.code for acc in self.accessions]
 
         if partial == 1:
             return ';'.join(accession_codes)

@@ -526,14 +526,6 @@ class PropagationTests(GardenTestCase):
             prop = plant.propagations[0]
             self.assertEquals(prop.plant, plant)
 
-    def test_accession_parent_plant_via_propagation(self):
-        self.add_plants([u'1'])
-        self.add_propagations([u'Seed'])
-        # add second accession obtained from propagation
-        pr = self.plants[0].propagations[0]
-        a2 = self.create(Accession, species=self.species, code=u'2')
-        raise SkipTest('TODO')
-
     def test_get_summary_cutting_complete(self):
         self.add_plants([u'1'])
         prop = Propagation()
@@ -593,6 +585,48 @@ class PropagationTests(GardenTestCase):
         prop = self.plants[0].propagations[0]
         self.assertEquals(prop.get_summary(partial=1), ';'.join(using))
 
+    def test_propagation_accessions_used_once(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        accession2 = self.create(Accession, species=self.species, code=u'2')
+        source2 = self.create(Source, plant_propagation=self.plants[0].propagations[0])
+        accession2.source = source2
+        self.session.commit()
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.accessions, [accession2])
+
+    def test_propagation_accessions_used_twice(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        prop = self.plants[0].propagations[0]
+        using = [u'2', u'3']
+        accs = []
+        for c in using:
+            a = self.create(Accession, species=self.species, code=c)
+            s = self.create(Source, plant_propagation=prop)
+            a.source = s
+            accs.append(a)
+        self.session.commit()
+        self.assertEquals(len(prop.accessions), 2)
+        self.assertEquals(sorted(accs), sorted(prop.accessions))
+
+    def test_accession_source_plant_propagation_points_at_parent_plant(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        prop = self.plants[0].propagations[0]
+        using = [u'2', u'3']
+        for c in using:
+            a = self.create(Accession, species=self.species, code=c)
+            s = self.create(Source, plant_propagation=prop)
+            a.source = s
+        self.session.commit()
+        for a in prop.accessions:
+            self.assertEquals(a.source.plant_propagation.plant, self.plants[0])
+            self.assertEquals(a.parent_plant, self.plants[0])
+
+    def test_accession_without_parent_plant(self):
+        self.assertEquals(self.accession.parent_plant, None)
+            
     def test_cutting_property(self):
         self.add_plants([u'1'])
         prop = Propagation()

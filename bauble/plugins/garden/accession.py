@@ -700,6 +700,13 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         return first + suffix, second
 
     @property
+    def parent_plant(self):
+        try:
+            return self.source.plant_propagation.plant
+        except AttributeError:
+            return None
+    
+    @property
     def propagations(self):
         import operator
         return reduce(operator.add, [p.propagations for p in self.plants], [])
