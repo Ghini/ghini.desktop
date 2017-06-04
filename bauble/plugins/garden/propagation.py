@@ -111,7 +111,17 @@ class Propagation(db.Base):
     details = property(_get_details)
 
     def get_summary(self, partial=False):
-        """
+        """compute a textual summary for this propagation
+
+        a full description contains all fields, in `key:value;` format, plus
+        a prefix telling us whether the resulting material of the
+        propagation was added as accessed in the collection.
+        
+        partial==1 means we only want to get the list of resulting
+        accessions.
+
+        partial==2 means we do not want the list of resulting accessions.
+
         """
         date_format = prefs.prefs[prefs.date_format_pref]
 
@@ -121,16 +131,17 @@ class Propagation(db.Base):
             return date
 
         values = []
-        accession_code = ''
+        accession_codes = []
         
         if self.used_source and partial != 2:
-            session = object_session(self.used_source.accession)
-            if self.used_source.accession not in session.new:
-                accession_code = self.used_source.accession.code
-                values.append(_('used in: %s') % accession_code)
+            session = object_session(self.used_source[0].accession)
+            for us in self.used_source:
+                if us.accession not in session.new:
+                    accession_codes.append(us.accession.code)
+                    values.append(_('used in: %s') % us.accession.code)
 
         if partial == 1:
-            return accession_code
+            return ';'.join(accession_codes)
 
         if self.prop_type == u'UnrootedCutting':
             c = self._cutting
@@ -921,12 +932,6 @@ class SourcePropagationPresenter(PropagationPresenter):
         # the PropagationPresenter.on_prop_type_changed or it won't work
         view.widgets.prop_type_combo.get_model().append([None, ''])
 
-        # create a temporary Propagation that we'll connect to the
-        # source when the prop_type_combo changes
-        # self.source = model
-        # if not self.source.propagation:
-        #     self.source.propagation = Propagation()
-        #     view.widgets.prop_details_box.props.visible=False
         self._dirty = False
         super(SourcePropagationPresenter, self).__init__(model, view)
 

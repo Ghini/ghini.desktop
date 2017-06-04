@@ -109,17 +109,17 @@ default_cutting_values = \
 default_seed_values = {
     'pretreatment': u'Soaked in peroxide solution',
     'nseeds': 24,
-    'date_sown': datetime.date.today(),  # utils.today_str(),
+    'date_sown': datetime.date(2017, 1, 1),
     'container': u"tray",
     'media': u'standard seed compost',
     'location': u'mist tent',
     'moved_from': u'mist tent',
     'moved_to': u'hardening table',
     'media': u'standard mix',
-    'germ_date': datetime.date.today(),  # utils.today_str(),
+    'germ_date': datetime.date(2017, 2, 1),
     'germ_pct': 99,
     'nseedlings': 23,
-    'date_planted': datetime.date.today(),
+    'date_planted': datetime.date(2017,2,8),
     }
 
 test_data_table_control = ((Accession, accession_test_data),
@@ -526,7 +526,15 @@ class PropagationTests(GardenTestCase):
             prop = plant.propagations[0]
             self.assertEquals(prop.plant, plant)
 
-    def test_get_summary_cutting(self):
+    def test_accession_parent_plant_via_propagation(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        # add second accession obtained from propagation
+        pr = self.plants[0].propagations[0]
+        a2 = self.create(Accession, species=self.species, code=u'2')
+        raise SkipTest('TODO')
+
+    def test_get_summary_cutting_complete(self):
         self.add_plants([u'1'])
         prop = Propagation()
         prop.prop_type = u'UnrootedCutting'
@@ -539,7 +547,7 @@ class PropagationTests(GardenTestCase):
         summary = prop.get_summary()
         self.assertEquals(summary, 'Cutting; Cutting type: Nodal; Length: 2mm; Tip: Intact; Leaves: Intact; Flower buds: None; Wounded: Singled; Fungal soak: Physan; Hormone treatment: Auxin powder; Bottom heat: 65°F; Container: 4" pot; Media: standard mix; Location: Mist frame; Cover: Poly cover; Rooted: 90%')
 
-    def test_get_summary_seed(self):
+    def test_get_summary_seed_complete(self):
         self.add_plants([u'1'])
         prop = Propagation()
         prop.prop_type = u'Seed'
@@ -548,7 +556,42 @@ class PropagationTests(GardenTestCase):
         seed.propagation = prop
         self.session.commit()
         summary = prop.get_summary()
-        self.assertEquals(summary, 'Seed; Pretreatment: Soaked in peroxide solution; # of seeds: 24; Date sown: 04-06-2017; Container: tray; Media: standard mix; Location: mist tent; Germination date: 04-06-2017; # of seedlings: 23; Germination rate: 99%; Date planted: 04-06-2017')
+        self.assertEquals(summary, 'Seed; Pretreatment: Soaked in peroxide solution; # of seeds: 24; Date sown: 01-01-2017; Container: tray; Media: standard mix; Location: mist tent; Germination date: 01-02-2017; # of seedlings: 23; Germination rate: 99%; Date planted: 08-02-2017')
+
+    def test_get_summary_seed_partial_1_still_unused(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.get_summary(partial=1), '')
+
+    def test_get_summary_seed_partial_2_still_unused(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.get_summary(partial=2),
+                          prop.get_summary())
+
+    def test_get_summary_seed_partial_1_used_once(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        accession2 = self.create(Accession, species=self.species, code=u'2')
+        source2 = self.create(Source, plant_propagation=self.plants[0].propagations[0])
+        accession2.source = source2
+        self.session.commit()
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.get_summary(partial=1), accession2.code)
+
+    def test_get_summary_seed_partial_1_used_twice(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        using = [u'2', u'3']
+        for c in using:
+            a = self.create(Accession, species=self.species, code=c)
+            s = self.create(Source, plant_propagation=self.plants[0].propagations[0])
+            a.source = s
+        self.session.commit()
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.get_summary(partial=1), ';'.join(using))
 
     def test_cutting_property(self):
         self.add_plants([u'1'])

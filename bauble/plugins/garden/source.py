@@ -117,7 +117,14 @@ source_detail_context_menu = [source_detail_edit_action,
 
 
 class Source(db.Base):
-    """connected 1-1 to Accession, this class adds fields to Accession
+    """connected 1-1 to Accession. 
+
+    Source objects have the function to add fields to one Accession.  From
+    an Accession, to access the fields added here you obviously still need
+    to go through its `.source` member.
+
+    Create an Accession a, then create a Source s, then assign a.source = s
+
     """
     __tablename__ = 'source'
     # ITF2 - E7 - Donor's Accession Identifier - donacc
@@ -135,15 +142,17 @@ class Source(db.Base):
                           backref=backref('source', uselist=False))
 
     # relation to a propagation that is specific to this Source and
-    # not attached to a Plant
+    # not attached to a Plant. 2017-06-04 : WHAT IS THIS ?
     propagation_id = Column(Integer, ForeignKey('propagation.id'))
     propagation = relation('Propagation', uselist=False, single_parent=True,
                            primaryjoin='Source.propagation_id==Propagation.id',
                            cascade='all, delete-orphan',
                            backref=backref('source', uselist=False))
 
-    # relation to a Propagation that already exists and is attached
-    # to a Plant
+    # an Accession of known Source (what we are describing here) may be in
+    # relation to a successful Plant Propagation trial. In this case, the
+    # Propagation points back to all Accessions that resulted from it, via
+    # the field `used_source.accession`.
     plant_propagation_id = Column(Integer, ForeignKey('propagation.id'))
     plant_propagation = relation(
         'Propagation', uselist=False,
