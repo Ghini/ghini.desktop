@@ -148,8 +148,7 @@ class Source(db.Base):
     plant_propagation = relation(
         'Propagation', uselist=False,
         primaryjoin='Source.plant_propagation_id==Propagation.id',
-        backref=backref('used_source',
-                        uselist=False))  # not sure how to enforce this
+        backref=backref('used_source', uselist=True))
 
 
 source_type_values = [(u'Expedition', _('Expedition')),
