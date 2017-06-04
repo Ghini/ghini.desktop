@@ -72,7 +72,7 @@
     <text x="182" y="224" id="text3038" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
     <text x="182" y="334" id="text3040" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
     <text x="28" y="170" id="text3044" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
-    <text x="28" y="190" id="text3046" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..1</text>
+    <text x="28" y="190" id="text3046" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
     <text x="28" y="224" id="text3048" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
     <text x="28" y="334" id="text3050" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
   </g>
