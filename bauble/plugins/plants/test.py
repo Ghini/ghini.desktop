@@ -398,7 +398,7 @@ class FamilyTests(PlantTestCase):
 
     def test_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the FamilyEditor
         """
         raise SkipTest('Not Implemented')
         #loc = self.create(Family, name=u'some site')
@@ -623,7 +623,7 @@ class GenusTests(PlantTestCase):
 
     def test_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the GenusEditor
         """
         raise SkipTest('Not Implemented')
         #loc = self.create(Genus, name=u'some site')
