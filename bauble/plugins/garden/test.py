@@ -583,7 +583,8 @@ class PropagationTests(GardenTestCase):
             a.source = s
         self.session.commit()
         prop = self.plants[0].propagations[0]
-        self.assertEquals(prop.get_summary(partial=1), ';'.join(using))
+        self.assertEquals(prop.get_summary(partial=1),
+                          ';'.join("%s" % a for a in prop.accessions))
 
     def test_propagation_accessions_used_once(self):
         self.add_plants([u'1'])
@@ -1434,7 +1435,7 @@ class LocationTests(GardenTestCase):
 
     def test_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the LocationEditor
         """
         raise SkipTest('separate view from presenter, then test presenter')
         loc = self.create(Location, name=u'some site', code=u'STE')
