@@ -1408,7 +1408,7 @@ class PropagationExpander(InfoExpander):
                 accession_lbl = gtk.Label()
                 eventbox = gtk.EventBox()
                 eventbox.add(accession_lbl)
-                v2.pack_end(eventbox)
+                v2.pack_start(eventbox)
                 accession_lbl.set_alignment(0.0, 0.0)
                 accession_lbl.set_text(acc.code)
 

@@ -104,7 +104,7 @@ class Propagation(db.Base):
         for us in self.used_source:
             if us.accession not in session.new:
                 accessions.append(us.accession)
-        return accessions
+        return sorted(accessions)
 
     def get_summary(self, partial=False):
         """compute a textual summary for this propagation

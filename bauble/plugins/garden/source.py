@@ -920,13 +920,12 @@ class PropagationChooserPresenter(editor.ChildPresenter):
         propagation = model[treeiter][0]
         active = self.model.plant_propagation == propagation
         cell.set_active(active)
-        cell.set_sensitive(active or not propagation.used_source)
+        cell.set_sensitive(True)
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
         cell.props.text = propagation.get_summary()
-        cell.set_sensitive(self.model.plant_propagation == propagation or
-                           not propagation.used_source)
+        cell.set_sensitive(True)
 
     def dirty(self):
         return self._dirty
