@@ -495,6 +495,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
         parts = chain(binomial, infrasp_parts, tail)
         s = utils.utf8(' '.join(i for i in parts if i))
+        if self.hybrid:
+            s = s.replace('%s ' % self.hybrid_char, self.hybrid_char)
         return s
 
     @property

@@ -172,13 +172,13 @@ species_str_map = {
     1: 'Maxillaria variabilis',
     2: 'Encyclia cochleata',
     3: 'Abrus precatorius',
-    4: 'Campyloneurum %s alapense' % Species.hybrid_char,
+    4: 'Campyloneurum %salapense' % Species.hybrid_char,
     5: 'Encyclia cochleata var. cochleata',
     6: "Encyclia cochleata 'Black Night'",
     7: 'Abrus precatorius SomethingRidiculous Group',
     8: "Abrus precatorius (SomethingRidiculous Group) 'Hot Rio Nights'",
-    9: "Maxillaria %s generalis 'Red'" % Species.hybrid_char,
-    10: ("Maxillaria %s generalis (SomeGroup Group) 'Red'"
+    9: "Maxillaria %sgeneralis 'Red'" % Species.hybrid_char,
+    10: ("Maxillaria %sgeneralis (SomeGroup Group) 'Red'"
          % Species.hybrid_char),
     11: "Maxillaria generalis agg.",
     12: "Maxillaria SomeGroup Group",
@@ -192,7 +192,7 @@ species_markup_map = {
     1: '<i>Maxillaria</i> <i>variabilis</i>',
     2: '<i>Encyclia</i> <i>cochleata</i>',
     3: '<i>Abrus</i> <i>precatorius</i>',
-    4: '<i>Campyloneurum</i> %s <i>alapense</i>' % Species.hybrid_char,
+    4: '<i>Campyloneurum</i> %s<i>alapense</i>' % Species.hybrid_char,
     5: '<i>Encyclia</i> <i>cochleata</i> var. <i>cochleata</i>',
     6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
     12: "<i>Maxillaria</i> SomeGroup Group",
@@ -205,7 +205,7 @@ species_str_authors_map = {
     1: 'Maxillaria variabilis Bateman ex Lindl.',
     2: u'Encyclia cochleata (L.) Lem\xe9e',
     3: 'Abrus precatorius L.',
-    4: u'Campyloneurum %s alapense F\xe9e' % Species.hybrid_char,
+    4: u'Campyloneurum %salapense F\xe9e' % Species.hybrid_char,
     5: u'Encyclia cochleata (L.) Lem\xe9e var. cochleata',
     6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
     7: 'Abrus precatorius L. SomethingRidiculous Group',
@@ -218,7 +218,7 @@ species_markup_authors_map = {
     1: '<i>Maxillaria</i> <i>variabilis</i> Bateman ex Lindl.',
     2: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e',
     3: '<i>Abrus</i> <i>precatorius</i> L.',
-    4: u'<i>Campyloneurum</i> %s <i>alapense</i> F\xe9e' % Species.hybrid_char,
+    4: u'<i>Campyloneurum</i> %s<i>alapense</i> F\xe9e' % Species.hybrid_char,
     5: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e var. <i>cochleata</i>',
     6: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e \'Black Night\''}
 

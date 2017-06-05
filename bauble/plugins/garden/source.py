@@ -117,7 +117,14 @@ source_detail_context_menu = [source_detail_edit_action,
 
 
 class Source(db.Base):
-    """connected 1-1 to Accession, this class adds fields to Accession
+    """connected 1-1 to Accession. 
+
+    Source objects have the function to add fields to one Accession.  From
+    an Accession, to access the fields added here you obviously still need
+    to go through its `.source` member.
+
+    Create an Accession a, then create a Source s, then assign a.source = s
+
     """
     __tablename__ = 'source'
     # ITF2 - E7 - Donor's Accession Identifier - donacc
@@ -135,19 +142,22 @@ class Source(db.Base):
                           backref=backref('source', uselist=False))
 
     # relation to a propagation that is specific to this Source and
-    # not attached to a Plant
+    # not attached to a Plant. 2017-06-04 : WHAT IS THIS ?
     propagation_id = Column(Integer, ForeignKey('propagation.id'))
     propagation = relation('Propagation', uselist=False, single_parent=True,
                            primaryjoin='Source.propagation_id==Propagation.id',
                            cascade='all, delete-orphan',
                            backref=backref('source', uselist=False))
 
-    # relation to a Propagation that already exists and is attached
-    # to a Plant
+    # an Accession of known Source (what we are describing here) may be in
+    # relation to a successful Plant Propagation trial. In this case, the
+    # Propagation points back to all Accessions that resulted from it, via
+    # `used_source[i].accession`. Arguably not practical.
     plant_propagation_id = Column(Integer, ForeignKey('propagation.id'))
     plant_propagation = relation(
         'Propagation', uselist=False,
-        primaryjoin='Source.plant_propagation_id==Propagation.id')
+        primaryjoin='Source.plant_propagation_id==Propagation.id',
+        backref=backref('used_source', uselist=True))
 
 
 source_type_values = [(u'Expedition', _('Expedition')),
@@ -813,10 +823,22 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             set_cell_data_func(cell, self.toggle_cell_data_func)
 
         def on_toggled(cell, path, data=None):
+            if cell.get_sensitive() is False:
+                return
             prop = None
             if not cell.get_active():  # it's not active so we make it active
                 treeview = self.view.widgets.source_prop_treeview
                 prop = treeview.get_model()[path][0]
+                acc_view = self.parent_ref().view
+                acc_view.widget_set_value(
+                    'acc_species_entry', 
+                    utils.utf8(prop.plant.accession.species))
+                from bauble.plugins.garden.accession import recvd_type_values
+                from bauble.plugins.garden.propagation import prop_type_results
+                acc_view.widget_set_value(
+                    'acc_recvd_type_comboentry',
+                    recvd_type_values[prop_type_results[prop.prop_type]],
+                    index=1)
             self.model.plant_propagation = prop
             self._dirty = True
             self.parent_ref().refresh_sensitivity()
@@ -832,17 +854,19 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' %
                                   (str(v), str(v.accession.species)))
+
         self.view.attach_completion('source_prop_plant_entry',
                                     plant_cell_data_func, minimum_key_length=1)
 
         def plant_get_completions(text):
-            # TODO: only return those plants with propagations
             from bauble.plugins.garden.accession import Accession
             from bauble.plugins.garden.plant import Plant
-            query = self.session.query(Plant).join('accession').\
-                filter(utils.ilike(Accession.code, u'%s%%' % text)).\
-                filter(Accession.id != self.model.accession.id).\
-                order_by(Accession.code, Plant.code)
+            query = self.session.query(Plant).\
+                    filter(Plant.propagations.any()).\
+                    join('accession').\
+                    filter(utils.ilike(Accession.code, u'%s%%' % text)).\
+                    filter(Accession.id != self.model.accession.id).\
+                    order_by(Accession.code, Plant.code)
             return query
 
         def on_select(value):
@@ -894,14 +918,14 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
-        active = False
-        if self.model.plant_propagation == propagation:
-            active = True
+        active = self.model.plant_propagation == propagation
         cell.set_active(active)
+        cell.set_sensitive(True)
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
-        prop = model[treeiter][0]
-        cell.props.text = prop.get_summary()
+        propagation = model[treeiter][0]
+        cell.props.text = propagation.get_summary()
+        cell.set_sensitive(True)
 
     def dirty(self):
         return self._dirty

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" version="1.1" width="695.45959" height="428.61081" id="svg4298">
+  <metadata id="metadata4728">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs id="defs4300" />
+  <g transform="translate(5,5)" id="garden-container">
+    <path d="m 0,0 215,0 0,418 -215,0 z" id="rect-garden" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text x="10" y="410" id="text6429" style="font-size:20px;font-style:normal;font-weight:bold;line-height:125%;font-family:DejaVu Sans">Garden</text>
+    <g transform="translate(30,20)" id="propagation-group">
+      <path d="M 0,0 150,0 150,90 0,90 z" id="propagation-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="propagation-title" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
+      <text x="75" y="18" id="text4376-5" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Propagation</text>
+      <text x="6" y="45" id="text4404-6" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">type</text>
+      <text x="6" y="65" id="text4404-6-0" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">etc.</text>
+    </g>
+    <g transform="translate(30,150)" id="planting-group">
+      <path d="M 0,0 150,0 150,90 0,90 z" id="planting-block" style="color:#000000;fill:#91edaf;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="planting-title" style="color:#000000;fill:#35e670;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <text x="75" y="18" id="text4492" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Planting</text>
+      <text x="6" y="45" id="text3417" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">code</text>
+      <text x="6" y="65" id="text3419" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">quantity</text>
+    </g>
+    <g transform="translate(30,295)" id="location-group">
+      <path d="M 0,0 150,0 150,90 0,90 z" id="location-block" style="color:#000000;fill:#91edaf;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="location-title" style="color:#000000;fill:#35e670;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <text x="75" y="18" id="text4558" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Location</text>
+      <text x="6" y="45" id="text4586-8" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">name</text>
+      <text x="6" y="65" id="text3426" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">description</text>
+    </g>
+    <text x="182" y="224" id="text4011" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
+    <text x="182" y="200" id="text4012" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
+    <text x="28" y="62" id="text4013" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
+    <text x="28" y="190" id="text4014" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
+    <text x="28" y="334" id="text4015" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
+    <text x="182" y="62" id="text4016" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..1</text>
+  </g>
+  <g transform="translate(240,5)" id="collection-container">
+    <path d="m 0,0 215,0 0,418 -215,0 z" id="rect-collection" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text x="10" y="410" id="text3799" style="font-size:20px;font-style:normal;font-weight:bold;line-height:125%;font-family:DejaVu Sans">Collection</text>
+    <g transform="translate(30,20)" id="contact-group">
+      <path d="M 0,0 150,0 150,90 0,90 z" id="contact-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="path3432" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
+      <text x="75" y="18" id="text3434" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Contact</text>
+      <text x="6" y="45" id="text3438" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">name</text>
+      <text x="6" y="65" id="text3436" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">type</text>
+    </g>
+    <g transform="translate(30,150)" id="accession-group">
+      <path d="M 0,0 150,0 150,90 0,90 z" id="accession-block" style="color:#000000;fill:#ebed91;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="accession-title" style="color:#000000;fill:#dde525;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <text x="75" y="18" id="text3443" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Accession</text>
+      <text x="6" y="45" id="text3445" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">code</text>
+      <text x="6" y="65" id="text3447" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">initial-quantity</text>
+    </g>
+    <g transform="translate(30,295)" id="verification-group">
+      <path d="M 0,0 150,0 150,90 0,90 z" id="path3450" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="path3452" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
+      <text x="75" y="18" id="text3454" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Verification</text>
+      <text x="6" y="45" id="text3456" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">verifier</text>
+      <text x="6" y="65" id="text3458" style="font-size:12px;text-align:start;text-anchor:start;fill:#000000;font-family:DejaVu Sans">level</text>
+    </g>
+    <text x="28" y="62" id="text3042" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..1</text>
+    <text x="182" y="190" id="text3036" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
+    <text x="182" y="224" id="text3038" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
+    <text x="182" y="334" id="text3040" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
+    <text x="28" y="170" id="text3044" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
+    <text x="28" y="190" id="text3046" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..1</text>
+    <text x="28" y="224" id="text3048" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
+    <text x="28" y="334" id="text3050" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">0..n</text>
+  </g>
+  <g transform="translate(475,5)" id="taxonomy-container">
+    <path d="m 0,0 215,0 0,418 -215,0 z" id="rect-taxonomy" style="color:#000000;fill:#57ffe6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1.20000005;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+    <text x="10" y="410" id="text3821" style="font-size:20px;font-style:normal;font-weight:bold;line-height:125%;font-family:DejaVu Sans">Taxonomy</text>
+    <g transform="translate(30,20)" id="species-group">
+      <path d="M 0,0 150,0 150,90 0,90 z" id="species-block" style="fill:#91e5ed;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="species-title" style="color:#000000;fill:#35cce6;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <text x="75" y="18" id="text3826" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Species</text>
+      <text x="6" y="45" id="text3828" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">epithet</text>
+      <text x="6" y="65" id="text3830" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">authorship</text>
+    </g>
+    <g transform="translate(30,160)" id="genus-group">
+      <path d="m 0,0 150,0 0,100 -150,0 z" id="genus-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="genus-title" style="fill:#e0e0e0;stroke:#000000;stroke-miterlimit:10" />
+      <text x="75" y="18" id="text3835" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Genus</text>
+      <text x="6" y="45" id="text3837" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">epithet</text>
+      <text x="6" y="65" id="text3839" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">authorship</text>
+    </g>
+    <g transform="translate(30,300)" id="family-group">
+      <path d="M 0,0 150,0 150,70 0,70 z" id="family-block" style="fill:#fcfcfc;fill-opacity:1;stroke:#000000" />
+      <path d="m 0,0 0,26 150,0 0,-26 z" id="family-title" style="fill:#e0e0e0;fill-opacity:1;stroke:#000000;stroke-width:1;stroke-opacity:1" />
+      <text x="75" y="18" id="text3844" style="font-size:12px;text-anchor:middle;fill:#000000;font-family:DejaVu Sans">Family</text>
+      <text x="6" y="45" id="text3846" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">epithet</text>
+      <text x="6" y="65" id="text3545" style="font-size:12px;text-align:start;fill:#000000;font-family:DejaVu Sans">authorship</text>
+    </g>
+    <text x="28" y="52" id="text3309" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
+    <text x="28" y="72" id="text3311" style="font-size:8.75px;font-weight:bold;text-anchor:end;font-family:DejaVu Sans">1</text>
+    <text x="182" y="82" id="text3313" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
+    <text x="182" y="190" id="text3315" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
+    <text x="182" y="230" id="text3317" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">0..n</text>
+    <text x="182" y="330" id="text3319" style="font-size:8.75px;font-weight:bold;text-anchor:start;font-family:DejaVu Sans">1</text>
+  </g>
+  <path d="m 419.99076,341.13396 29.87548,0 c 10.35491,0 17.52726,-2.56417 17.52726,-14.14 l 0,-237.74314 c 0,-6.86348 0.78156,-10.14 8.47274,-10.14 l 28.82157,0" id="path4428-9" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 184.39974,69.12872 34.40485,0 c 6.66667,0 9.4081,3.33334 9.4081,10.00002 l 0,109 c 0,6.66667 3.92523,10 10.5919,10 l 29.2726,0" id="path3663-3-7" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 419.86624,197.11082 24,0 c 10.35491,0 17.0086,-2.56416 17.0086,-14.14 l 0,-113.72 c 0,-6.86348 1.30022,-10.140005 8.9914,-10.140005 l 34.82157,0" id="path4428" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 185.36624,209.11082 c 0,0 27.16515,0 33.21456,0 6.04941,0 9.64591,1.35585 9.64591,7.93267 l 0,5.84725 c 0,8.01864 4.40231,7.93008 10.44409,7.93008 6.04178,0 29.35799,0 29.35799,0" id="path4544" style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+  <path d="m 654.83718,237.11082 18,0 c 6.66667,0 10,3.33333 10,10 l 0,81 c 0,6.66667 -3.33333,10 -10,10 l -18,0" id="path4722" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 269.05249,178.12874 -12.75,0 c -6.66667,0 -10,-3.33333 -10,-10 l 0,-89 c 0,-6.66668 3.33333,-10.000005 10,-10.000005 l 13.63383,0" id="path3663-3" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+  <path d="m 185.10624,231.48987 18,0 c 6.66667,0 10,3.33333 10,10 l 0,18.74095 c 0,6.66667 -3.33333,10 -10,10 l -182.000004,0 c -6.666667,0 -9.803119,3.33333 -9.803119,10 l 0,50.29 c 0,6.66667 3.136452,10 9.803119,10 l 14,0" id="path4600" style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+  <path d="m 35.193565,68.93082 -12.087329,0 c -6.66667,0 -9.80312,3.33333 -9.80312,10 l 0,108.59 c 0,6.66667 4.196213,10 8.590643,10 8.107897,0 13.181284,0 13.181284,0" id="path4600-8" style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+  <path d="m 419.10624,230.93082 18,0 c 6.66667,0 10,3.33333 10,10 l 0,19.3 c 0,6.66667 -3.33333,10 -10,10 l -180,0 c -6.66667,0 -9.80312,3.33333 -9.80312,10 l 0,50.29 c 0,6.66667 3.13645,10 9.80312,10 l 12.78562,0" id="path4600-6" style="color:#000000;fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+  <path d="m 654.83718,89.11082 18,0 c 6.66667,0 10,3.33333 10,10 l 0,89 c 0,6.66667 -3.33333,10 -10,10 l -18,0" id="path4722-6" style="fill:none;stroke:#000000;stroke-miterlimit:10" />
+</svg>

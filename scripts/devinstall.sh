@@ -22,6 +22,9 @@ fi
 if ! xslt-config --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS libxslt1-dev"
 fi
+if ! pkg-config --help >/dev/null 2>&1; then
+    PROBLEMS="$PROBLEMS pkg-config"
+fi
 if ! pkg-config --cflags jpeg --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS libjpeg-dev"
 fi
@@ -123,3 +126,20 @@ cat <<EOF | sudo tee /usr/local/bin/ghini > /dev/null
 $HOME/.virtualenvs/ghide/bin/ghini
 EOF
 sudo chmod +x /usr/local/bin/ghini
+
+sudo mkdir -p /usr/local/share/applications/ >/dev/null 2>&1
+cat <<EOF | sudo tee /usr/local/share/applications/ghini.desktop > /dev/null
+#!/bin/bash
+[Desktop Entry]
+Type=Application
+Name=Ghini Desktop
+Version=1.0
+GenericName=Biodiversity Manager
+Icon=$HOME/.virtualenvs/ghide/share/icons/hicolor/scalable/apps/ghini.svg
+TryExec=/usr/local/bin/ghini
+Exec=/usr/local/bin/ghini
+Terminal=false
+StartupNotify=false
+Categories=Qt;Education;Science;Geography;
+Keywords=botany;botanic;
+EOF

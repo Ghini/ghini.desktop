@@ -21,6 +21,9 @@ The above is one way to contribute to ghini's development. Others are:
 - open an issue on github (https://github.com/Ghini/ghini.desktop/issues/)
 - contribute code (fork the project on github)
 - hire a developer and have a set of github issues solved, if you need them quickly.
+- let me include your garden on our (still experimental) map: gardens.ghini.me
+
+I sincerely hope you will enjoy using the software I maintain
 
 Best regards,
 Mario Frasca

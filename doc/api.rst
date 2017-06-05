@@ -21,7 +21,7 @@ API Documentation
 .. autodata:: bauble.db.Base
 .. py:data:: bauble.db.Base
 
-   All tables/mappers in Bauble which use the SQLAlchemy declarative
+   All tables/mappers in Ghini which use the SQLAlchemy declarative
    plugin for declaring tables and mappers should derive from this
    class.
 
@@ -30,7 +30,7 @@ API Documentation
 .. autoattribute:: bauble.db.metadata
 .. py:data:: bauble.db.metadata
 
-   The default metadata for all Bauble tables.
+   The default metadata for all Ghini tables.
 
    An instance of :class:`sqlalchemy.schema.MetaData`
 

@@ -1,11 +1,11 @@
-Introduction
------------------------
+Installation
+============
 
 ghini.desktop is a cross-platform program and it will run on unix machines
-like Linux and MacOSX, as well as on Windows.
+like GNU/Linux and MacOSX, as well as on Windows.
 
 To install Ghini first requires that you install its dependencies that
-cannot be installed automatically.  These include virtualenvwrapper, PyGTK
+cannot be installed automatically.  These include virtualenv, PyGTK
 and pip. Python and GTK+, you probably already have. As long as you have
 these packages installed then Ghini should be able to install the rest of
 its dependencies by itself.
@@ -19,33 +19,39 @@ its dependencies by itself.
           virtual environment, which is a directory, with all of its
           content.
 
-Installing on Linux
--------------------
+Installing on GNU/Linux
+--------------------------
+
+Open a shell terminal window, and follow these instructions.
+
+.. topic:: technical note
+
+           You can study the script to see what steps if runs for you. In
+           short it will install dependencies which can't be satisfied in a
+           virtual environment, then it will create a virtual environment
+           named ``ghide``, use git to download the sources to a directory
+           named ``~/Local/github/Ghini/ghini.desktop``, and connect this
+           git checkout to the ``ghini-1.0`` branch (this you can consider a
+           production line), it then builds ghini, downloading all remaining
+           dependencies in the virtual environment, and finally it creates a
+           startup script. If you have ``sudo`` permissions, it will be
+           placed in ``/usr/local/bin``, otherwise in your ``~/bin``
+           folder. Again if you
+
+.. topic:: beginner's note
+           
+           To run a script, first make sure you note down the name of the
+           directory to which you have downloaded the script, then you open
+           a terminal window and in that window you type `bash` followed by
+           a space and the complete name of the script including directory
+           name, and hit on the enter key.
 
 #. Download the `devinstall.sh` script and run it::
 
      https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.sh
 
    Please note that the script will not help you install any extra database
-   connector. This you will do in a later step.
-
-.. note:: (technical) You can study the script to see what steps if runs for
-          you. In short it will install dependencies which can't be
-          satisfied in a virtual environment, then it will create a virtual
-          environment named ``ghide``, use git to download the sources to a
-          directory named ``~/Local/github/Ghini/ghini.desktop``, and
-          connect this git checkout to the ``ghini-1.0`` branch (this you
-          can consider a production line), it then builds ghini, downloading
-          all remaining dependencies in the virtual environment, and finally
-          it creates a startup script. If you have ``sudo`` permissions, it
-          will be placed in ``/usr/local/bin``, otherwise in your ``~/bin``
-          folder. Again if you 
-
-.. note:: (beginner) To run a script, first make sure you note down the name
-          of the directory to which you have downloaded the script, then you
-          open a terminal window and in that window you type `bash` followed
-          by a space and the complete name of the script including directory
-          name, and hit on the enter key.
+   connector. This is not strictly necessary and you can do it at any later step.
 
    If the script ends without error, you can now start ghini::
 
@@ -73,7 +79,7 @@ Installing on Linux
      source ~/.virtualenvs/ghide/bin/activate
      pip install -U psycopg2
 
-   You might need solve dependencies. How to do so, depends on which Linux
+   You might need solve dependencies. How to do so, depends on which GNU/Linux
    flavour you are using. Check with your distribution documentation.
 
 .. rubric:: Next...
@@ -83,16 +89,12 @@ Installing on Linux
 Installing on MacOSX
 --------------------
 
-Being MacOSX a unix environment, most things will work the same as on Linux
+Being MacOSX a unix environment, most things will work the same as on GNU/Linux
 (sort of).
 
-One difficulty is that there are many more versions of MacOSX out
-there than one would want to support, and only the current and its
-immediately preceding release are kept up-to-date by Apple-the-firm.
-
 Last time we tested, some of the dependencies could not be installed on
-MacOSX 10.5 and we assume similar problems would present themselves on older
-OSX versions.  Ghini has been successfully tested with 10.7 and 10.9.
+MacOSX 10.5 and we assume similar problems would also show on older
+OSX versions.  Ghini has been successfully tested with 10.7, 10.9 and 10.12.
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
@@ -101,7 +103,7 @@ environment, but which are missing in a off-the-shelf mac:
    supported on your mac.
 #. package manager: homebrew (tigerbrew for older OSX versions).
 
-with the above installed, run::
+with the above installed, open a terminal window and run::
 
     brew doctor
 
@@ -118,8 +120,20 @@ then install the remaining dependencies::
 
 follow all instructions on how to activate what you have installed.
 
-the rest is just as on a normal unix machine, and we have a `devinstall.sh`
-script for it. Read the above Linux instructions, follow them, enjoy.
+.. topic:: Mac running OSX 10.12 —Sierra—
+
+           On OSX 10.12, ``brew`` reports that ``gettext`` is already
+           installed, but then it won't let us find it. A solution is to run
+           the following line::
+
+             brew link gettext --force
+
+           Before we can run ``devinstall.sh`` as on GNU/Linux, we still
+           need installing a couple of python packages, globally. Do this::
+   
+             sudo pip install virtualenv lxml
+
+The rest is just as on a normal unix machine. Read the above GNU/Linux instructions, follow them, enjoy.
 
 .. rubric:: Next...
 
@@ -130,14 +144,14 @@ Installing on Windows
 
 The current maintainer of ghini.desktop has no interest in learning how to
 produce Windows installers, so the Windows installation is here reduced to
-the same installation procedure as on Unix (Linux and MacOSX).
+the same installation procedure as on Unix (GNU/Linux and MacOSX).
 
 Please report any trouble. Help with packaging will be very welcome, in
 particular by other Windows users.
 
 The steps described here instruct you on how to install Git, Gtk, Python,
 and the python database connectors. With this environment correctly set up,
-the Ghini installation procedure runs as on Linux. The concluding steps are
+the Ghini installation procedure runs as on GNU/Linux. The concluding steps are
 again Windows specific.
 
 .. note:: Ghini has been tested with and is known to work on W-XP, W-7 and
@@ -287,7 +301,7 @@ Troubleshooting
 #.  any error related to lxml.
 
     In order to be able to compile lxml, you have to install a C compiler
-    (on Linux this would be the ``gcc`` package) and Cython (a Python
+    (on GNU/Linux this would be the ``gcc`` package) and Cython (a Python
     specialization, that gets compiled into C code. Note: Cython is not
     CPython).
 

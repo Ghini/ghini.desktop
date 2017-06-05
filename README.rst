@@ -49,6 +49,15 @@ very alpha quality thing which still did not formalize.
 
 Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
 
+Windows, in a hurry
+---------------------
+
+Are you a Windows user and are in a hurry to run ghini.desktop? Download and install in the given order
+`Git <https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/Git-2.10.0-32-bit.exe>`_, `Python <https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi>`_, `pylxml <https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe>`_, `psycopg <http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe>`_, `pygtk <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi>`_, 
+then download and run `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.bat>`_ and keep `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/ghini-update.bat>`_ for later reference.
+
+Or also read the rest.
+
 Requirements
 ------------
 ghini.desktop requires the following packages to run.
@@ -73,7 +82,7 @@ Further info
 ------------
 
 The complete documentation for ghini.desktop is to be found at
-http://bauble.readthedocs.org. It includes detailed and up-to-date
+http://ghini.readthedocs.io. It includes detailed and up-to-date
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 

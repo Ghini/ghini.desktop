@@ -201,6 +201,8 @@ def use_desktop(desktop):
         return "GNOME"
     elif (desktop or detected) == "XFCE":
         return "XFCE"
+    elif (desktop or detected) == "LXDE":
+        return "LXDE"
     elif (desktop or detected) == "Mac OS X":
         return "Mac OS X"
     elif (desktop or detected) == "X11":
@@ -257,14 +259,8 @@ def open(url, desktop=None, wait=0, dialog_on_error=False):
         # NOTE: This returns None in current implementations.
         return os.startfile(url)
 
-    elif desktop_in_use == "KDE":
-        cmd = ["kfmclient", "exec", url]
-
-    elif desktop_in_use == "GNOME":
+    elif desktop_in_use in ["KDE", "GNOME", "LXDE", "XFCE"]:
         cmd = ["xdg-open", url]
-
-    elif desktop_in_use == "XFCE":
-        cmd = ["exo-open", url]
 
     elif desktop_in_use == "Mac OS X":
         cmd = ["open", url]
@@ -273,8 +269,7 @@ def open(url, desktop=None, wait=0, dialog_on_error=False):
         cmd = [os.environ["BROWSER"], url]
 
     if not cmd:
-        # if can't detect the desktop environment then see if xdg-open
-        # is available
+        # can't detect the desktop environment. maybe xdg-open is available.
         exe = utils.which('xdg-open')
         if exe:
             cmd = [exe, url]

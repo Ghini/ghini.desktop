@@ -50,6 +50,12 @@ prop_type_values = {u'Seed': _("Seed"),
                     u'UnrootedCutting': _('Unrooted cutting'),
                     u'Other': _('Other')}
 
+prop_type_results = {
+    u'Seed': u'SEDL',
+    u'UnrootedCutting': u'RCUT',
+    u'Other': u'UNKN',
+}
+
 
 class PlantPropagation(db.Base):
     """
@@ -89,23 +95,29 @@ class Propagation(db.Base):
         cascade='all,delete-orphan', uselist=False,
         backref=backref('propagation', uselist=False))
 
-    def _get_details(self):
-        if self.prop_type == 'Seed':
-            return self._seed
-        elif self.prop_type == 'UnrootedCutting':
-            return self._cutting
-        elif self.notes:
-            return self.notes
-        else:
-            raise NotImplementedError
+    @property
+    def accessions(self):
+        if not self.used_source:
+            return []
+        accessions = []
+        session = object_session(self.used_source[0].accession)
+        for us in self.used_source:
+            if us.accession not in session.new:
+                accessions.append(us.accession)
+        return sorted(accessions)
 
-    #def _set_details(self, details):
-    #    return self._details
+    def get_summary(self, partial=False):
+        """compute a textual summary for this propagation
 
-    details = property(_get_details)
+        a full description contains all fields, in `key:value;` format, plus
+        a prefix telling us whether the resulting material of the
+        propagation was added as accessed in the collection.
+        
+        partial==1 means we only want to get the list of resulting
+        accessions.
 
-    def get_summary(self):
-        """
+        partial==2 means we do not want the list of resulting accessions.
+
         """
         date_format = prefs.prefs[prefs.date_format_pref]
 
@@ -114,10 +126,19 @@ class Propagation(db.Base):
                 return date.strftime(date_format)
             return date
 
-        s = str(self)
+        values = []
+        accession_codes = []
+        
+        if self.used_source and partial != 2:
+            values = [_('used in: %s') % acc.code for acc in self.accessions]
+            accession_codes = [acc.code for acc in self.accessions]
+
+        if partial == 1:
+            return ';'.join(accession_codes)
+
         if self.prop_type == u'UnrootedCutting':
             c = self._cutting
-            values = []
+            values.append(_('Cutting'))
             if c.cutting_type is not None:
                 values.append(_('Cutting type: %s') %
                               cutting_type_values[c.cutting_type])
@@ -157,11 +178,9 @@ class Propagation(db.Base):
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)
-            s = ', '.join(values)
         elif self.prop_type == u'Seed':
-            s = str(self)
             seed = self._seed
-            values = []
+            values.append(_('Seed'))
             if seed.pretreatment:
                 values.append(_('Pretreatment: %s') % seed.pretreatment)
             if seed.nseeds:
@@ -187,9 +206,13 @@ class Propagation(db.Base):
             date_planted = get_date(seed.date_planted)
             if date_planted:
                 values.append(_('Date planted: %s') % date_planted)
-            s = ', '.join(values)
         elif self.notes:
-            s = utils.utf8(self.notes)
+            values.append(_('Other'))
+            values.append(utils.utf8(self.notes))
+        else:
+            values.append(str(self))
+
+        s = '; '.join(values)
 
         return s
 
@@ -902,12 +925,6 @@ class SourcePropagationPresenter(PropagationPresenter):
         # the PropagationPresenter.on_prop_type_changed or it won't work
         view.widgets.prop_type_combo.get_model().append([None, ''])
 
-        # create a temporary Propagation that we'll connect to the
-        # source when the prop_type_combo changes
-        # self.source = model
-        # if not self.source.propagation:
-        #     self.source.propagation = Propagation()
-        #     view.widgets.prop_details_box.props.visible=False
         self._dirty = False
         super(SourcePropagationPresenter, self).__init__(model, view)
 

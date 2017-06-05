@@ -117,7 +117,7 @@ class SplashInfoBox(pluginmgr.View):
         utils.make_label_clickable(
             self.widgets.splash_ngenuse,
             lambda *a: bauble.gui.send_command(
-                'genus where not species = Empty'))
+                'genus where species.accessions.id!=0'))
 
         utils.make_label_clickable(
             self.widgets.splash_nspctot,

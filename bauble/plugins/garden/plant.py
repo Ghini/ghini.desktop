@@ -58,13 +58,26 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
     select_in_search_results, Action
 import bauble.view as view
 
-# TODO: do a magic attribute on plant_id that checks if a plant id
-# already exists with the accession number, this probably won't work
-# though sense the acc_id may not be set when setting the plant_id
-
 # TODO: might be worthwhile to have a label or textview next to the
 # location combo that shows the description of the currently selected
 # location
+
+# TODO: no internet, I'm writing the issue here, please remove as soon as
+# possible, and open the issue on github.
+#
+# One user story includes reviewing the quantity of plantings, and
+# consequently splitting plantings with quantities that exceed some
+# reasonable threshold. So what you would do is to (1) look for »plant where
+# accession.species.id = xxx and quantity > yyy«, (2) —editing one plant at
+# a time— remove a quantity value and put it in a new planting at a
+# different location.
+#
+# the interface should help the user in this task. I would add a 'SPLIT'
+# button next to the plant quantity. activating it would open a window, the
+# user would insert the amount of plants to be separated, and the
+# destination location. press OK and come back to the current plant, where
+# the quantity has been reduced by the amount just specified.
+#
 
 plant_delimiter_key = u'plant_delimiter'
 default_plant_delimiter = u'.'
@@ -395,7 +408,7 @@ class PlantStatus(db.Base):
     #container_id = Column(Integer)
 
 
-acc_type_values = {u'Plant': _('Plant'),
+acc_type_values = {u'Plant': _('Planting'),
                    u'Seed': _('Seed/Spore'),
                    u'Vegetative': _('Vegetative Part'),
                    u'Tissue': _('Tissue Culture'),
@@ -620,7 +633,7 @@ from bauble.plugins.garden.accession import Accession
 class PlantEditorView(GenericEditorView):
 
     _tooltips = {
-        'plant_code_entry': _('The plant code must be a unique code for '
+        'plant_code_entry': _('The planting code must be a unique code for '
                               'the accession.  You may also use ranges '
                               'like 1,2,7 or 1-3 to create multiple '
                               'plants.'),
@@ -628,7 +641,7 @@ class PlantEditorView(GenericEditorView):
                              'of completions.  To add an accession use the '
                              'Accession editor.'),
         'plant_loc_comboentry': _(
-            'The location of the plant in your collection.'),
+            'The location of the planting in your collection.'),
         'plant_acc_type_combo': _('The type of the plant material.\n\n'
                                   'Possible values: %s') % (
             ', '.join(acc_type_values.values())),
@@ -639,7 +652,9 @@ class PlantEditorView(GenericEditorView):
         'pad_cancel_button': _('Cancel your changes.'),
         'pad_ok_button': _('Save your changes.'),
         'pad_next_button': _(
-            'Save your changes changes and add another plant.')
+            'Save your changes and add another plant.'),
+        'pad_nextaccession_button': _(
+            'Save your changes and add another accession.'),
         }
 
     def __init__(self, parent=None):
@@ -790,6 +805,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
+        self.view.connect('split_planting_button', 'clicked',
+                          self.on_split_clicked)
 
     def dirty(self):
         return (self.pictures_presenter.dirty() or
@@ -883,6 +900,33 @@ class PlantEditorPresenter(GenericEditorPresenter):
             .set_model_attr(field, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
+
+    def on_split_clicked(self, button):
+        # mostrar `view` que pida el número de plantas que se desplazan a cual location.
+        # si se seleccionó OK:
+        #     crear nueva `Planting`
+        #     asociar a la misma accession
+        #     añadir a la base de datos
+        #     decrementar el `quantity` de la planting activa
+        glade_path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                  'plant_editor.glade')
+        view = GenericEditorView(
+            glade_path,
+            parent=self.view.get_window(),
+            root_widget_name='split_planting_dialog')
+        presenter = SplitPlantingPresenter(view, self.model)
+        result = presenter.start()
+        if result == gtk.RESPONSE_OK:
+            split_plant = Plant()
+            split_plant.code = presenter.plant_code
+            split_plant.accession = self.model.accession
+            split_plant.quantity = presenter.quantity
+            split_plant.location = presenter.location
+            self.session.add(split_plant)
+            value = self.model.quantity - presenter.quantity
+            self.view.widget_set_value('plant_quantity_entry', value)
+        else:
+            pass
 
     def on_loc_button_clicked(self, button, cmd=None):
         location = self.model.location
@@ -1321,6 +1365,10 @@ class ChangesExpander(InfoExpander):
         self.vbox.show_all()
 
 
+def label_size_allocate(widget, rect):
+    widget.set_size_request(rect.width, -1)
+
+
 class PropagationExpander(InfoExpander):
     """
     Propagation Expander
@@ -1330,7 +1378,7 @@ class PropagationExpander(InfoExpander):
         """
         """
         super(PropagationExpander, self).__init__(_('Propagations'), widgets)
-        self.vbox.set_spacing(3)
+        self.vbox.set_spacing(4)
 
     def update(self, row):
         sensitive = True
@@ -1338,16 +1386,44 @@ class PropagationExpander(InfoExpander):
             sensitive = False
         self.props.expanded = sensitive
         self.props.sensitive = sensitive
-
         self.vbox.foreach(self.vbox.remove)
         format = prefs.prefs[prefs.date_format_pref]
         for prop in row.propagations:
-            s = '<b>%s</b>: %s' % (prop.date.strftime(format),
-                                   prop.get_summary())
+            # (h1 (v1 (date_lbl)) (v2 (eventbox (accession_lbl)) (label)))
+            h1 = gtk.HBox()
+            h1.set_spacing(3)
+            self.vbox.pack_start(h1)
+
+            v1 = gtk.VBox()
+            v2 = gtk.VBox()
+            h1.pack_start(v1)
+            h1.pack_start(v2)
+
+            date_lbl = gtk.Label()
+            v1.pack_start(date_lbl)
+            date_lbl.set_markup("<b>%s</b>" % prop.date.strftime(format))
+            date_lbl.set_alignment(0.0, 0.0)
+
+            for acc in prop.accessions:
+                accession_lbl = gtk.Label()
+                eventbox = gtk.EventBox()
+                eventbox.add(accession_lbl)
+                v2.pack_start(eventbox)
+                accession_lbl.set_alignment(0.0, 0.0)
+                accession_lbl.set_text(acc.code)
+
+                def on_clicked(widget, event, obj):
+                    select_in_search_results(obj)
+
+                utils.make_label_clickable(accession_lbl, on_clicked, acc)
+
             label = gtk.Label()
-            label.set_markup(s)
+            v2.pack_start(label)
+
+            label.set_text(prop.get_summary(partial=2))
             label.props.wrap = True
-            label.set_alignment(0.0, 0.5)
+            label.set_alignment(0.0, 0.0)
+            label.connect("size-allocate", label_size_allocate)
             self.vbox.pack_start(label)
         self.vbox.show_all()
 
@@ -1401,3 +1477,28 @@ class PlantInfoBox(InfoBox):
             self.links.update(row)
 
         self.props.update(row)
+
+
+class SplitPlantingPresenter(GenericEditorPresenter):
+    widget_to_field_map = {'split_planting_quantity': 'quantity',
+                           'split_planting_location': 'location',
+                           'split_planting_code': 'plant_code',
+                           }
+    view_accept_buttons = ['split_planting_ok', 'split_planting_cancel', ]
+
+    def __init__(self, view, planting_to_split):
+        self.quantity = 1
+        self.location = None
+        self.plant_code = get_next_code(planting_to_split.accession)
+        super(SplitPlantingPresenter, self).__init__(
+            model=self, view=view, refresh_view=True, session=object_session(planting_to_split))
+        self.planting_to_split = planting_to_split
+
+        from bauble.plugins.garden import init_location_comboentry
+        from functools import partial
+
+        def on_location_select(location):
+            self.location=location
+        init_location_comboentry(self, view.widgets.split_planting_comboentry,
+                                 on_location_select)
+

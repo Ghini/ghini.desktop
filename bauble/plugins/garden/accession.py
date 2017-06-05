@@ -137,16 +137,21 @@ def generic_taxon_add_action(model, view, presenter, top_presenter,
     """
 
     from bauble.plugins.plants.species import edit_species
-    if edit_species(parent_view=view.get_window()):
-        logger.debug('new taxon added from within VerificationBox')
+    committed = edit_species(parent_view=view.get_window(), is_dependent_window=True)
+    if committed:
+        if isinstance(committed, list):
+            committed = committed[0]
+        logger.debug('new taxon added from within AccessionEditor')
         # add the new taxon to the session and start using it
-        presenter.session.add(editor.model)
-        taxon_entry.set_text("%s" % editor.model)
+        presenter.session.add(committed)
+        taxon_entry.set_text("%s" % committed)
         presenter.remove_problem(
             hash(gtk.Buildable.get_name(taxon_entry)), None)
-        setattr(model, 'species', editor.model)
+        setattr(model, 'species', committed)
         presenter._dirty = True
         top_presenter.refresh_sensitivity()
+    else:
+        logger.debug('new taxon not added after request from AccessionEditor')
 
 
 def edit_callback(accessions):
@@ -221,7 +226,7 @@ ver_level_descriptions = \
           'named plants.'),
      2: _('The name of the record determined by a taxonomist or by other '
           'competent persons using herbarium and/or library and/or '
-          ' documented living material.'),
+          'documented living material.'),
      3: _('The name of the plant determined by taxonomist engaged in '
           'systematic revision of the group.'),
      4: _('The record is part of type gathering or propagated from type '
@@ -293,9 +298,30 @@ class Verification(db.Base):
     notes = Column(UnicodeText)
 
 
-# TODO: auto add parent voucher if accession is a propagule of an
-# existing accession and that parent accession has vouchers...or at
-# least display them in the Voucher tab and Infobox
+# TODO: I have no internet, so I write this here. please remove this note
+# and add the text as new issues as soon as possible.
+#
+# First of all a ghini-1.1 issue: being 'Accession' an abstract concept, you
+# don't make a Voucher of an Accession, you make a Voucher of a Plant. As
+# with Photos, in the Accession Infobox you want to see all Vouchers of all
+# Plantings belonging to the Accession.
+#
+# 2: imagine you go on expedition and collect vouchers as well as seeds, or
+# stekken:nl. You will have vouchers of the parent plant plant, but the
+# parent plant will not be in your collection. This justifies requiring the
+# ability to add a Voucher to a Plant and mark it as Voucher of its parent
+# plant. On the other hand though, if the parent plant *is* in your
+# collection and the link is correctly represented in a Propagation, any
+# 'parent plant voucher' will conflict with the vouchers associated to the
+# parent plant. Maybe this can be solved by disabling the whole
+# parent_voucher panel in the case of plants resulting of a garden
+# propagation.
+#
+# 3: Infobox (Accession AND Plant) are to show parent plant information as a
+# link to the parent plant, or as the name of the parent plant voucher. At
+# the moment this is only partially the case for
+
+
 herbarium_codes = {}
 
 
@@ -307,13 +333,11 @@ class Voucher(db.Base):
       herbarium: :class:`sqlalchemy.types.Unicode`
         The name of the herbarium.
       code: :class:`sqlalchemy.types.Unicode`
-        The herbarium code.
+        The herbarium code for the voucher.
       parent_material: :class:`sqlalchemy.types.Boolean`
-        Is this voucher the parent material of the accession.  E.g did
-        the seed for the accession from come the plant used to make
-        this voucher.
+        Is this voucher relative to the parent material of the accession.
       accession_id: :class:`sqlalchemy.types.Integer`
-        A foreign key to :class:`Accession`
+        Foreign key to the :class:`Accession` .
 
 
     """
@@ -410,7 +434,7 @@ recvd_type_values = {
     u'DIVI': _('Division'),
     u'GRAF': _('Graft'),
     u'LAYE': _('Layer'),
-    u'PLNT': _('Plant'),
+    u'PLNT': _('Planting'),
     u'PSBU': _('Pseudobulb'),
     u'RCUT': _('Rooted cutting'),
     u'RHIZ': _('Rhizome'),
@@ -676,6 +700,18 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         return first + suffix, second
 
     @property
+    def parent_plant(self):
+        try:
+            return self.source.plant_propagation.plant
+        except AttributeError:
+            return None
+    
+    @property
+    def propagations(self):
+        import operator
+        return reduce(operator.add, [p.propagations for p in self.plants], [])
+
+    @property
     def pictures(self):
         import operator
         return reduce(operator.add, [p.pictures for p in self.plants], [])
@@ -862,9 +898,9 @@ class AccessionEditorView(editor.GenericEditorView):
                                'should be considered private.'),
         'acc_cancel_button': _('Cancel your changes.'),
         'acc_ok_button': _('Save your changes.'),
-        'acc_ok_and_add_button': _('Save your changes changes and add a '
+        'acc_ok_and_add_button': _('Save your changes and add a '
                                    'plant to this accession.'),
-        'acc_next_button': _('Save your changes changes and add another '
+        'acc_next_button': _('Save your changes and add another '
                              'accession.'),
 
         'sources_code_entry': "ITF2 - E7 - Donor's Accession Identifier - donacc",
@@ -1628,17 +1664,17 @@ class SourcePresenter(editor.GenericEditorPresenter):
         entry.set_completion(completion)
 
         def update_visible():
-            visible = dict(source_sw=False,
-                           source_garden_prop_box=False,
-                           source_none_label=False)
+            widget_visibility = dict(source_sw=False,
+                                     source_garden_prop_box=False,
+                                     source_none_label=False)
             if entry.props.text == self.garden_prop_str:
-                visible['source_garden_prop_box'] = True
+                widget_visibility['source_garden_prop_box'] = True
             elif not self.model.source or not self.model.source.source_detail:
-                visible['source_none_label'] = True
+                widget_visibility['source_none_label'] = True
             else:
                 #self.model.source.source_detail = value
-                visible['source_sw'] = True
-            for widget, value in visible.iteritems():
+                widget_visibility['source_sw'] = True
+            for widget, value in widget_visibility.iteritems():
                 self.view.widgets[widget].props.visible = value
             self.view.widgets.source_alignment.props.sensitive = True
 
@@ -2477,6 +2513,11 @@ class GeneralAccessionExpander(InfoExpander):
         def on_species_clicked(*args):
             select_in_search_results(self.current_obj.species)
         utils.make_label_clickable(self.widgets.name_data, on_species_clicked)
+
+        def on_parent_plant_clicked(*args):
+            select_in_search_results(self.current_obj.source.plant_propagation.plant)
+        utils.make_label_clickable(self.widgets.parent_plant_data,
+                                   on_parent_plant_clicked)
 
         def on_nplants_clicked(*args):
             cmd = 'plant where accession.code="%s"' % self.current_obj.code

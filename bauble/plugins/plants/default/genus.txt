@@ -24600,7 +24600,6 @@
 24646,"Redowskia","Cham. & Schltdl.",130
 24647,"Skottsbergiella","Boelcke",130
 24648,"Skottsbergiella","Epling",265
-24649,"Solms-Laubachia","Muschl.",130
 24650,"Stigmatella","Eig",130
 24651,"Synstemonanthus","Botsch.",130
 24652,"Texiera","Jaub. & Spach",130
@@ -25137,7 +25136,6 @@
 25232,"Distomomischus","Dulac",214
 25233,"Doellochloa","Kuntze",214
 25234,"Donacium","Fr.",214
-25235,"Drake-Brockmania","Stapf",214
 25236,"Drymonaetes","Fourr.",214
 25237,"x Dupontopoa","Prob.",214
 25238,"Echinalysium","Trin.",214
