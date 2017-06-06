@@ -2149,7 +2149,7 @@ msgid "Private"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:38
-msgid "Progagation Type"
+msgid "Propagation Type"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:8

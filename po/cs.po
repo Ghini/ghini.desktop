@@ -2161,7 +2161,7 @@ msgid "Private"
 msgstr "Soukromé"
 
 #: bauble/plugins/garden/prop_editor.glade:38
-msgid "Progagation Type"
+msgid "Propagation Type"
 msgstr "Typ rozmnožování"
 
 #: bauble/plugins/garden/prop_editor.glade:8
