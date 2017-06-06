@@ -34,6 +34,7 @@ in :mod:`bauble`
 import os
 import locale
 import gettext
+import gtk.glade
 import bauble.paths as paths
 from bauble import version_tuple
 
@@ -44,7 +45,7 @@ bauble.gettext_windows.setup_env()
 
 __all__ = ["_"]
 
-TEXT_DOMAIN = 'bauble-%s' % '.'.join(version_tuple[0:2])
+TEXT_DOMAIN = 'ghini-%s' % '.'.join(version_tuple[0:2])
 
 #
 # most of the following code was adapted from:
@@ -72,15 +73,17 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
-gettext.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
-gettext.textdomain(TEXT_DOMAIN)
+for module in locale, gtk.glade:
+    module.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
+    module.textdomain(TEXT_DOMAIN)
+    
 # Get the language to use
 lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
                            fallback=True)
 # install the language, map _() (which we marked our strings to
 # translate with) to self.lang.gettext() which will translate them.
-_ = gettext.gettext
+_ = locale.gettext
 
 # register the gettext function for the whole interpreter as "_"
 import __builtin__
-__builtin__._ = gettext.gettext
+__builtin__._ = locale.gettext

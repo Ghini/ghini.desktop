@@ -235,7 +235,6 @@ class BuilderLoader(object):
             return cls.builders[filename]
         b = gtk.Builder()
         b.add_from_file(filename)
-        b.set_translation_domain('bauble')
         cls.builders[filename] = b
         return b
 

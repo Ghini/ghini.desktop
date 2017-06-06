@@ -479,11 +479,11 @@ msgstr "<b>Usuarios</b>"
 
 #: bauble/plugins/plants/species_editor.glade:894
 msgid "<b>Vernacular Names</b>"
-msgstr "<b> vernáculo </b>"
+msgstr "<b> Nombres comunes </b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2717
 msgid "<b>Voucher of Accession</b>"
-msgstr "<b>Voucher dela accesión:</b>"
+msgstr "<b>Voucher de la accesión:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2849
 msgid "<b>Voucher of parent material</b>"
@@ -495,19 +495,19 @@ msgstr "<b>zona de alto riesgo</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:956
 msgid "<b>in use</b>"
-msgstr ""
+msgstr "<b>en uso</b>"
 
 #: bauble/plugins/imex/select_export.glade:492
 msgid "<b>options</b>"
-msgstr ""
+msgstr "<b>opciones</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:943
 msgid "<b>total</b>"
-msgstr ""
+msgstr "<b>total</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1555
 msgid "<b>unused</b>"
-msgstr ""
+msgstr "<b>sin usar</b>"
 
 #: bauble/plugins/plants/stored_queries.glade:147
 #: bauble/plugins/plants/stored_queries.glade:170
@@ -590,7 +590,7 @@ msgstr "Accesión"
 
 #: bauble/plugins/garden/acc_editor.glade:16
 msgid "Accession Code Formats"
-msgstr ""
+msgstr "Formato de los códigos de accesión"
 
 #: bauble/plugins/garden/acc_editor.glade:639
 msgid "Accession ID"
@@ -732,7 +732,7 @@ msgstr "¿Está seguro de que quiere eliminar la especie <i>%s</i>?"
 
 #: bauble/plugins/plants/species_editor.py:798
 msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
-msgstr "¿Está seguro que desea eliminar el nombre vernáculo <b>%s</b>?"
+msgstr "¿Está seguro que desea eliminar el nombre común <b>%s</b>?"
 
 #: bauble/plugins/garden/accession.py:1326
 msgid "Are you sure you want to remove this verification?"
@@ -2518,7 +2518,7 @@ msgstr ""
 "Código de Contacto e Institución estén rellenados."
 
 #: bauble/plugins/garden/acc_editor.glade:2563
-#: bauble/plugins/garden/accession.py:2610
+#: ../bauble/plugins/garden/accession.py:2610
 msgid "Source"
 msgstr "Origen"
 
@@ -2576,7 +2576,7 @@ msgstr "Sinónimos de la especie"
 
 #: bauble/plugins/garden/plant_editor.glade:268
 msgid "Split"
-msgstr ""
+msgstr "Separar"
 
 #: bauble/plugins/garden/accession.py:446
 msgid "Spore"
@@ -2592,7 +2592,7 @@ msgstr "Miembro del personal"
 
 #: bauble/plugins/plants/taxonomy_check.glade:350
 msgid "Status"
-msgstr ""
+msgstr "Estado"
 
 #: bauble/plugins/garden/plant.py:283
 msgid "Stolen"
@@ -2614,7 +2614,7 @@ msgstr "Tabela"
 
 #: bauble/plugins/tag/__init__.py:598
 msgid "Tag Selection"
-msgstr "Selección de etiqueta"
+msgstr "Etiquetar la selección"
 
 #: bauble/plugins/tag/tag.glade:150 bauble/plugins/tag/__init__.py:624
 #: bauble/plugins/tag/__init__.py:647
@@ -2623,7 +2623,7 @@ msgstr "Etiquetas"
 
 #: bauble/plugins/plants/taxonomy_check.py:276
 msgid "Taxonomy check"
-msgstr ""
+msgstr "Verífica taxonómica"
 
 #: bauble/plugins/garden/institution.glade:194
 msgid "Technical contact"
@@ -3209,11 +3209,11 @@ msgstr "Verificador"
 
 #: bauble/plugins/plants/species.py:182
 msgid "Vernacular Names"
-msgstr "Nmbres vernáculos"
+msgstr "Nombres comunes"
 
 #: bauble/plugins/plants/species_editor.py:1088
 msgid "Vernacular names"
-msgstr "Nombres vernáculos"
+msgstr "Nombres comunes"
 
 #: bauble/bauble.glade:515
 msgid "Version"
