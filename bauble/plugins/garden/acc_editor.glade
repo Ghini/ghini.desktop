@@ -127,7 +127,7 @@
   </object>
   <object class="GtkDialog" id="accession_dialog">
     <property name="can_focus">False</property>
-    <property name="title">Accession Editor</property>
+    <property name="title" translatable="yes">Accession Editor</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="destroy_with_parent">True</property>
@@ -2510,7 +2510,7 @@
                                         <property name="headers_clickable">False</property>
                                         <child>
                                           <object class="GtkTreeViewColumn" id="prop_toggle_column">
-                                            <property name="title">Source</property>
+                                            <property name="title" translatable="yes">Source</property>
                                             <child>
                                               <object class="GtkCellRendererToggle" id="prop_toggle_cell">
                                                 <property name="radio">True</property>
@@ -2520,7 +2520,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkTreeViewColumn" id="prop_summary_column">
-                                            <property name="title">Propagation</property>
+                                            <property name="title" translatable="yes">Propagation</property>
                                             <child>
                                               <object class="GtkCellRendererText" id="prop_summary_cell"/>
                                             </child>
@@ -2677,7 +2677,7 @@
                                     <property name="search_column">0</property>
                                     <child>
                                       <object class="GtkTreeViewColumn" id="voucher_herb_column">
-                                        <property name="title">Herbarium</property>
+                                        <property name="title" translatable="yes">Herbarium</property>
                                         <child>
                                           <object class="GtkCellRendererText" id="voucher_herb_cell"/>
                                           <attributes>
@@ -2688,7 +2688,7 @@
                                     </child>
                                     <child>
                                       <object class="GtkTreeViewColumn" id="voucher_code_column">
-                                        <property name="title">Voucher</property>
+                                        <property name="title" translatable="yes">Voucher</property>
                                         <child>
                                           <object class="GtkCellRendererText" id="voucher_code_cell"/>
                                         </child>
@@ -2812,7 +2812,7 @@
                                     <property name="search_column">0</property>
                                     <child>
                                       <object class="GtkTreeViewColumn" id="parent_voucher_herb_column">
-                                        <property name="title">Herbarium</property>
+                                        <property name="title" translatable="yes">Herbarium</property>
                                         <child>
                                           <object class="GtkCellRendererText" id="parent_voucher_herb_cell"/>
                                         </child>
@@ -2820,7 +2820,7 @@
                                     </child>
                                     <child>
                                       <object class="GtkTreeViewColumn" id="parent_voucher_code_column">
-                                        <property name="title">Voucher</property>
+                                        <property name="title" translatable="yes">Voucher</property>
                                         <child>
                                           <object class="GtkCellRendererText" id="parent_voucher_code_cell"/>
                                         </child>
