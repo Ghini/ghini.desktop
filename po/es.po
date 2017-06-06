@@ -619,7 +619,7 @@ msgstr "Añadir"
 
 #: bauble/plugins/plants/species_editor.glade:54
 msgid "Add Accessions"
-msgstr "Añadir adhesiones"
+msgstr "Añadir accesiones"
 
 #: bauble/plugins/plants/family_editor.glade:299
 msgid "Add Genera"
