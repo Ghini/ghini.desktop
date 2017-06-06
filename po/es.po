@@ -64,9 +64,9 @@ msgid ""
 "\n"
 "Are you sure you want to remove accession <b>%(acc_code)s</b>?"
 msgstr ""
-"%(num_plants)s plantas dependen de esta adquisición: <b>%(plant_codes)s</b>\n"
+"%(num_plants)s plantas dependen de esta accesión: <b>%(plant_codes)s</b>\n"
 "\n"
-"¿Seguro que quiere borrar la adquisición <b>%(acc_code)s</b>?"
+"¿Seguro que quiere borrar la accesión <b>%(acc_code)s</b>?"
 
 #: bauble/plugins/garden/accession.py:2558
 msgid "%(quantity)s in %(location)s"
@@ -165,11 +165,11 @@ msgstr "<b>N.º de taxones:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:147
 msgid "<b>Accession Status:</b>"
-msgstr "<b>Estado de adquisición:</b>"
+msgstr "<b>Estado de accesión:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:133
 msgid "<b>Accession Type:</b>"
-msgstr "<b>Tipo de adquisición:</b>"
+msgstr "<b>Tipo de accesión:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:889
 msgid "<b>Accession</b>"
@@ -214,7 +214,7 @@ msgstr "<b>Confirma la nueva constraseña</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:507
 msgid "<b>Contact:</b>"
-msgstr ""
+msgstr "<b>Contacto:</b>"
 
 #: bauble/plugins/garden/plant_editor.glade:763
 msgid "<b>Current change</b>"
@@ -586,7 +586,7 @@ msgstr "Nombre aceptado"
 #: bauble/plugins/report/xsl/__init__.py:87
 #: bauble/plugins/report/xsl/__init__.py:430
 msgid "Accession"
-msgstr "Adquisición"
+msgstr "Accesión"
 
 #: bauble/plugins/garden/acc_editor.glade:16
 msgid "Accession Code Formats"
@@ -594,7 +594,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:639
 msgid "Accession ID"
-msgstr "ID de la accessión"
+msgstr "ID de la accesión"
 
 #: bauble/plugins/garden/accession.py:367
 msgid "Accession not of wild source"
@@ -706,7 +706,7 @@ msgstr "¿Seguro que quiere borrar %s?"
 
 #: bauble/plugins/garden/accession.py:186
 msgid "Are you sure you want to remove accession <b>%s</b>?"
-msgstr "¿Seguro que quiere borrar la adquisición <b>%s</b>?"
+msgstr "¿Seguro que quiere borrar la accesión <b>%s</b>?"
 
 #: bauble/plugins/plants/family.py:84
 msgid "Are you sure you want to remove the family <i>%s</i>?"
@@ -927,7 +927,7 @@ msgstr "Detalles de la conexión"
 #: bauble/plugins/garden/acc_editor.glade:1326
 #: bauble/plugins/garden/__init__.py:122
 msgid "Contact"
-msgstr ""
+msgstr "Contacto"
 
 #: bauble/plugins/garden/acc_editor.glade:2992
 msgid "Contact (Donor) Editor"
@@ -2477,7 +2477,7 @@ msgstr "Seleccione una Región"
 
 #: bauble/plugins/garden/acc_editor.glade:1402
 msgid "Select a contact"
-msgstr ""
+msgstr "Selecciones un contacto"
 
 #: bauble/plugins/imex/csv_.py:595 bauble/plugins/imex/xml.py:74
 msgid "Select a directory"
@@ -2685,7 +2685,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:873
 msgid "The accession ID must be a unique code"
-msgstr "El identificador de adquisición no puede estar repetido"
+msgstr "El identificador de accesión no puede estar repetido"
 
 #: bauble/plugins/garden/plant.py:640
 msgid ""
@@ -2697,7 +2697,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:883
 msgid "The amount of plant material at the time it was accessioned."
-msgstr "La cantidad de material vegetal al momento de la accessión."
+msgstr "La cantidad de material vegetal al momento de la accesión."
 
 #: bauble/plugins/plants/species_editor.py:1094
 msgid "The awards this species have been given"
@@ -2729,7 +2729,7 @@ msgstr "Se ha conectado a una base de datos vacía."
 
 #: bauble/plugins/garden/accession.py:879
 msgid "The date this species was accessioned."
-msgstr "La fecha de adquisición de esta especie."
+msgstr "La fecha de accesión de esta especie."
 
 #: bauble/plugins/garden/accession.py:880
 msgid "The date this species was received."
@@ -2913,7 +2913,7 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
-"El origen o la fuente de esta adquisición. \n"
+"El origen o la fuente de esta accesión. \n"
 "\n"
 "Posibles valores: %s"
 
@@ -3026,7 +3026,7 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:585
 msgid ""
 "There are no accessions in the search results.  Please try another search."
-msgstr "No se encontró ninguna adquisición. Inténtelo con otra búsqueda."
+msgstr "No se encontró ninguna accesión. Inténtelo con otra búsqueda."
 
 #: bauble/plugins/report/xsl/__init__.py:563
 msgid "There are no plants in the search results.  Please try another search."
