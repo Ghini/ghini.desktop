@@ -34,7 +34,6 @@ in :mod:`bauble`
 import os
 import locale
 import gettext
-import gtk.glade
 import bauble.paths as paths
 from bauble import version_tuple
 
@@ -73,7 +72,12 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
-for module in locale, gtk.glade:
+try:
+    import gtk.glade as gtkglade
+except ImportError:
+    gtkglade = locale
+
+for module in locale, gtkglade:
     module.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
     module.textdomain(TEXT_DOMAIN)
     
