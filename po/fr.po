@@ -228,7 +228,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:171
 msgid "<b>Date accessioned:</b>"
-msgstr ""
+msgstr "<b>Date de accès:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:791
 msgid "<b>Date collected:</b>"
@@ -704,7 +704,7 @@ msgstr "Êtes-vous sûr(e) d'ôter/effacer «%s» ?"
 
 #: bauble/plugins/garden/accession.py:186
 msgid "Are you sure you want to remove accession <b>%s</b>?"
-msgstr "Êtes-vous sûr(e) de supprimer l'acquisition <b>%s</b>?"
+msgstr "Êtes-vous sûr(e) de supprimer l'accès <b>%s</b>?"
 
 #: bauble/plugins/plants/family.py:84
 msgid "Are you sure you want to remove the family <i>%s</i>?"
@@ -819,7 +819,7 @@ msgstr ""
 
 #: bauble/plugins/report/__init__.py:165
 msgid "Can't get accessions from a %s"
-msgstr "Impossible d'obtenir l'adhésion d'un %s"
+msgstr "Impossible d'obtenir l'accès d'un %s"
 
 #: bauble/plugins/report/__init__.py:125
 msgid "Can't get plants from a %s"
@@ -1685,7 +1685,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:885
 msgid "Indicates whether this accession record should be considered private."
 msgstr ""
-"Indique si l'adhésion de ce dossier devrait être considéré comme privé."
+"Indique si cette accès doit être considéré comme privé."
 
 #: bauble/plugins/garden/plant.py:350
 msgid "Indistinguishable Mass"
@@ -2673,7 +2673,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:861
 msgid "The accession ID must be a unique code"
-msgstr "L'ID d'adhésion doit avoir un code unique"
+msgstr "Chaque accès doit avoir un code unique"
 
 #: bauble/plugins/garden/plant.py:640
 msgid ""
@@ -2716,7 +2716,7 @@ msgstr "La base de données à laquelle vous vous avez connecté est vide."
 
 #: bauble/plugins/garden/accession.py:867
 msgid "The date this species was accessioned."
-msgstr "La date de cette espèce a été ajoutée."
+msgstr "La date de cette espèce a été accèdé."
 
 #: bauble/plugins/garden/accession.py:868
 msgid "The date this species was received."
@@ -3314,7 +3314,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species.py:114
 msgid "_Add accession"
-msgstr ""
+msgstr "_Ajouter accès"
 
 #: bauble/plugins/plants/family.py:103
 msgid "_Add genus"
@@ -3391,12 +3391,12 @@ msgstr "_parse_lat_lon() -- format incorrect: %s"
 
 #: bauble/plugins/garden/acc_editor.glade:92
 msgid "accession code format"
-msgstr ""
+msgstr "le format des codes d'accès"
 
 #: bauble/plugins/imex/select_export.glade:119
 #, fuzzy
 msgid "accessions"
-msgstr "Acquisition"
+msgstr "accès"
 
 #: bauble/bauble.glade:177
 msgid "activate query builder"
