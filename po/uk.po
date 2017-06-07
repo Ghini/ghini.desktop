@@ -3208,12 +3208,12 @@ msgstr "Версія"
 #: bauble/plugins/garden/acc_editor.glade:2691
 #: bauble/plugins/garden/acc_editor.glade:2823
 msgid "Voucher"
-msgstr ""
+msgstr "Ваучер"
 
 #: bauble/plugins/garden/acc_editor.glade:2919
 #: bauble/plugins/garden/accession.py:2726
 msgid "Vouchers"
-msgstr "Гарант"
+msgstr "Ваучери"
 
 #: bauble/plugins/plants/species_model.py:206
 #, fuzzy
