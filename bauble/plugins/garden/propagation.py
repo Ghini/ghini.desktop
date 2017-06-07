@@ -130,7 +130,7 @@ class Propagation(db.Base):
         accession_codes = []
         
         if self.used_source and partial != 2:
-            values = [_('used in') + ':%s' % acc.code for acc in self.accessions]
+            values = [_('used in') + ': %s' % acc.code for acc in self.accessions]
             accession_codes = [acc.code for acc in self.accessions]
 
         if partial == 1:
@@ -140,41 +140,41 @@ class Propagation(db.Base):
             c = self._cutting
             values.append(_('Cutting'))
             if c.cutting_type is not None:
-                values.append(_('Cutting type') + ':%s' %
+                values.append(_('Cutting type') + ': %s' %
                               cutting_type_values[c.cutting_type])
             if c.length:
                 values.append(_('Length: %(length)s%(unit)s') %
                               dict(length=c.length,
                                    unit=length_unit_values[c.length_unit]))
             if c.tip:
-                values.append(_('Tip') + ':%s' % tip_values[c.tip])
+                values.append(_('Tip') + ': %s' % tip_values[c.tip])
             if c.leaves:
-                s = _('Leaves') + ':%s' % leaves_values[c.leaves]
+                s = _('Leaves') + ': %s' % leaves_values[c.leaves]
                 if c.leaves == u'Removed' and c.leaves_reduced_pct:
                     s.append('(%s%%)' % c.leaves_reduced_pct)
                 values.append(s)
             if c.flower_buds:
-                values.append(_('Flower buds') + ':%s' %
+                values.append(_('Flower buds') + ': %s' %
                               flower_buds_values[c.flower_buds])
             if c.wound is not None:
-                values.append(_('Wounded') + ':%s' % wound_values[c.wound])
+                values.append(_('Wounded') + ': %s' % wound_values[c.wound])
             if c.fungicide:
-                values.append(_('Fungal soak') + ':%s' % c.fungicide)
+                values.append(_('Fungal soak') + ': %s' % c.fungicide)
             if c.hormone:
-                values.append(_('Hormone treatment') + ':%s' % c.hormone)
+                values.append(_('Hormone treatment') + ': %s' % c.hormone)
             if c.bottom_heat_temp:
                 values.append(
                     _('Bottom heat: %(temp)s%(unit)s') %
                     dict(temp=c.bottom_heat_temp,
                          unit=bottom_heat_unit_values[c.bottom_heat_unit]))
             if c.container:
-                values.append(_('Container') + ':%s' % c.container)
+                values.append(_('Container') + ': %s' % c.container)
             if c.media:
-                values.append(_('Media') + ':%s' % c.media)
+                values.append(_('Media') + ': %s' % c.media)
             if c.location:
-                values.append(_('Location') + ':%s' % c.location)
+                values.append(_('Location') + ': %s' % c.location)
             if c.cover:
-                values.append(_('Cover') + ':%s' % c.cover)
+                values.append(_('Cover') + ': %s' % c.cover)
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)
@@ -182,30 +182,30 @@ class Propagation(db.Base):
             seed = self._seed
             values.append(_('Seed'))
             if seed.pretreatment:
-                values.append(_('Pretreatment') + ':%s' % seed.pretreatment)
+                values.append(_('Pretreatment') + ': %s' % seed.pretreatment)
             if seed.nseeds:
-                values.append(_('# of seeds') + ':%s' % seed.nseeds)
+                values.append(_('# of seeds') + ': %s' % seed.nseeds)
             date_sown = get_date(seed.date_sown)
             if date_sown:
                 values.append(_('Date sown') + ': %s' % date_sown)
             if seed.container:
-                values.append(_('Container') + ':%s' % seed.container)
+                values.append(_('Container') + ': %s' % seed.container)
             if seed.media:
-                values.append(_('Media') + ':%s' % seed.media)
+                values.append(_('Media') + ': %s' % seed.media)
             if seed.covered:
-                values.append(_('Covered') + ':%s' % seed.covered)
+                values.append(_('Covered') + ': %s' % seed.covered)
             if seed.location:
-                values.append(_('Location') + ':%s' % seed.location)
+                values.append(_('Location') + ': %s' % seed.location)
             germ_date = get_date(seed.germ_date)
             if germ_date:
-                values.append(_('Germination date') + ':%s' % germ_date)
+                values.append(_('Germination date') + ': %s' % germ_date)
             if seed.nseedlings:
-                values.append(_('# of seedlings') + ':%s' % seed.nseedlings)
+                values.append(_('# of seedlings') + ': %s' % seed.nseedlings)
             if seed.germ_pct:
                 values.append(_('Germination rate') + ': %s%%' % seed.germ_pct)
             date_planted = get_date(seed.date_planted)
             if date_planted:
-                values.append(_('Date planted') + ':%s' % date_planted)
+                values.append(_('Date planted') + ': %s' % date_planted)
         elif self.notes:
             values.append(_('Other'))
             values.append(utils.utf8(self.notes))
