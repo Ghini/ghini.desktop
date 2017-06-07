@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-06 14:39-0500\n"
+"POT-Creation-Date: 2017-06-06 20:19-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/bauble/master/ru/"
@@ -36,15 +36,12 @@ msgid "# Germinated"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:203
-msgid "# of seedlings: %s"
+msgid "# of seedlings"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1152
-msgid "# of seeds"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:187
-msgid "# of seeds: %s"
+msgid "# of seeds"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1393
@@ -593,6 +590,10 @@ msgstr "Вступление"
 msgid "Accession Code Formats"
 msgstr ""
 
+#: bauble/plugins/garden/acc_editor.glade:130
+msgid "Accession Editor"
+msgstr ""
+
 #: bauble/plugins/garden/acc_editor.glade:639
 msgid "Accession ID"
 msgstr ""
@@ -931,12 +932,9 @@ msgstr "Имя контактного лица"
 
 #: bauble/plugins/garden/prop_editor.glade:513
 #: bauble/plugins/garden/prop_editor.glade:984
-msgid "Container"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:171
 #: bauble/plugins/garden/propagation.py:192
-msgid "Container: %s"
+msgid "Container"
 msgstr ""
 
 #: bauble/ui.py:439
@@ -1043,15 +1041,12 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:619
+#: bauble/plugins/garden/propagation.py:177
 msgid "Cover"
 msgstr ""
 
-#: bauble/plugins/garden/propagation.py:177
-msgid "Cover: %s"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:196
-msgid "Covered: %s"
+msgid "Covered"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:648
@@ -1094,12 +1089,9 @@ msgid "Cutting length"
 msgstr "Длина обрезки"
 
 #: bauble/plugins/garden/prop_editor.glade:335
+#: bauble/plugins/garden/propagation.py:143
 msgid "Cutting type"
 msgstr "Тип обрезки"
-
-#: bauble/plugins/garden/propagation.py:143
-msgid "Cutting type: %s"
-msgstr ""
 
 #: bauble/connmgr.py:530
 msgid "DBMS host name"
@@ -1143,20 +1135,14 @@ msgid "Date of Change"
 msgstr "Дата изменения"
 
 #: bauble/plugins/garden/prop_editor.glade:1356
+#: bauble/plugins/garden/propagation.py:208
 msgid "Date planted"
 msgstr "Дата посадки"
 
-#: bauble/plugins/garden/propagation.py:208
-msgid "Date planted: %s"
-msgstr "Дата посадки: %s"
-
 #: bauble/plugins/garden/prop_editor.glade:1188
+#: bauble/plugins/garden/propagation.py:190
 msgid "Date sown"
 msgstr "Дата посева"
-
-#: bauble/plugins/garden/propagation.py:190
-msgid "Date sown: %s"
-msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:779
 msgid "Dates"
@@ -1177,7 +1163,7 @@ msgstr "Удалено, год гибели неизвестен"
 msgid "Description"
 msgstr "Описание"
 
-#: bauble/utils/__init__.py:665
+#: bauble/utils/__init__.py:664
 msgid "Details"
 msgstr "Подробности"
 
@@ -1413,12 +1399,9 @@ msgid "Filename:"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:370
+#: bauble/plugins/garden/propagation.py:157
 msgid "Flower buds"
 msgstr "Бутоны"
-
-#: bauble/plugins/garden/propagation.py:157
-msgid "Flower buds: %s"
-msgstr ""
 
 #: bauble/plugins/garden/plant.py:357
 msgid "Flowering"
@@ -1440,7 +1423,7 @@ msgid "Fungal"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:162
-msgid "Fungal soak: %s"
+msgid "Fungal soak"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2011
@@ -1482,7 +1465,7 @@ msgid "Genus Window"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:201
-msgid "Germination date: %s"
+msgid "Germination date"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1008
@@ -1490,7 +1473,7 @@ msgid "Germination media"
 msgstr "Среда проращивания"
 
 #: bauble/plugins/garden/propagation.py:205
-msgid "Germination rate: %s%%"
+msgid "Germination rate"
 msgstr ""
 
 #: bauble/prefs.py:234
@@ -1592,12 +1575,17 @@ msgstr ""
 msgid "Habitat description"
 msgstr ""
 
+#: bauble/plugins/garden/acc_editor.glade:2680
+#: bauble/plugins/garden/acc_editor.glade:2815
+msgid "Herbarium"
+msgstr ""
+
 #: bauble/plugins/garden/prop_editor.glade:704
 msgid "Hormone"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:164
-msgid "Hormone treatment: %s"
+msgid "Hormone treatment"
 msgstr ""
 
 #: bauble/plugins/garden/source.py:169
@@ -1745,15 +1733,12 @@ msgid "Least Concern (LC)"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:257
+#: bauble/plugins/garden/propagation.py:152
 msgid "Leaves"
 msgstr "Листья"
 
 #: bauble/plugins/garden/prop_editor.glade:283
 msgid "Leaves reduced by"
-msgstr ""
-
-#: bauble/plugins/garden/propagation.py:152
-msgid "Leaves: %s"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:146
@@ -1781,6 +1766,8 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:539
 #: bauble/plugins/garden/prop_editor.glade:1032
 #: bauble/plugins/garden/__init__.py:121
+#: bauble/plugins/garden/propagation.py:175
+#: bauble/plugins/garden/propagation.py:198
 msgid "Location"
 msgstr ""
 
@@ -1790,11 +1777,6 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1023
 msgid "Location 2"
-msgstr ""
-
-#: bauble/plugins/garden/propagation.py:175
-#: bauble/plugins/garden/propagation.py:198
-msgid "Location: %s"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2120
@@ -1825,13 +1807,13 @@ msgstr "MapperSearch.add_meta(): аргумент default_columns должен �
 msgid "Matched binomial"
 msgstr ""
 
-#: bauble/plugins/garden/prop_editor.glade:475
-msgid "Media/Compost"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:173
 #: bauble/plugins/garden/propagation.py:194
-msgid "Media: %s"
+msgid "Media"
+msgstr ""
+
+#: bauble/plugins/garden/prop_editor.glade:475
+msgid "Media/Compost"
 msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:192
@@ -2108,11 +2090,8 @@ msgid "Preferences"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1095
-msgid "Pretreatment"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:185
-msgid "Pretreatment: %s"
+msgid "Pretreatment"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:3429
@@ -2121,6 +2100,10 @@ msgstr "Предыдущий таксон"
 
 #: bauble/plugins/garden/acc_editor.glade:1153
 msgid "Private"
+msgstr ""
+
+#: bauble/plugins/garden/acc_editor.glade:2523
+msgid "Propagation"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:8
@@ -2458,7 +2441,7 @@ msgstr "Выберите файл..."
 msgid "Select a stylesheet"
 msgstr "Выберите таблицу стилей"
 
-#: bauble/utils/__init__.py:1305
+#: bauble/utils/__init__.py:1304
 msgid "Show details"
 msgstr "Показать детали"
 
@@ -2484,6 +2467,7 @@ msgstr ""
 "Пожалуйста проверьте заполнение полей: Имя, Технические контакты, "
 "Электронная почта, Контакты и Код Организации."
 
+#: bauble/plugins/garden/acc_editor.glade:2513
 #: bauble/plugins/garden/acc_editor.glade:2563
 #: bauble/plugins/garden/accession.py:2610
 msgid "Source"
@@ -2995,18 +2979,15 @@ msgid "Timestamp"
 msgstr "Метка времени"
 
 #: bauble/plugins/garden/prop_editor.glade:358
-msgid "Tip"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:150
-msgid "Tip: %s"
+msgid "Tip"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:414
 msgid "Tissue Culture"
 msgstr ""
 
-#: bauble/utils/__init__.py:815
+#: bauble/utils/__init__.py:814
 msgid "Today's date"
 msgstr "Сегодняшняя дата"
 
@@ -3137,6 +3118,11 @@ msgstr "Народные названия"
 msgid "Version"
 msgstr "Версия"
 
+#: bauble/plugins/garden/acc_editor.glade:2691
+#: bauble/plugins/garden/acc_editor.glade:2823
+msgid "Voucher"
+msgstr ""
+
 #: bauble/plugins/garden/acc_editor.glade:2919
 #: bauble/plugins/garden/accession.py:2726
 msgid "Vouchers"
@@ -3179,11 +3165,8 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:384
-msgid "Wounded"
-msgstr ""
-
 #: bauble/plugins/garden/propagation.py:160
-msgid "Wounded: %s"
+msgid "Wounded"
 msgstr ""
 
 #: bauble/plugins/users/ui.glade:177
@@ -3544,7 +3527,7 @@ msgstr ""
 msgid "next"
 msgstr ""
 
-#: bauble/utils/__init__.py:266 bauble/utils/__init__.py:279
+#: bauble/utils/__init__.py:265 bauble/utils/__init__.py:278
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
@@ -3668,7 +3651,7 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:133
-msgid "used in: %s"
+msgid "used in"
 msgstr ""
 
 #: bauble/connmgr.py:524
@@ -3752,6 +3735,9 @@ msgstr "°F"
 
 #~ msgid "Could not login to PicasaWeb account."
 #~ msgstr "Не удалось войти в учётную запись PicasaWeb."
+
+#~ msgid "Date planted: %s"
+#~ msgstr "Дата посадки: %s"
 
 #~ msgid "Enter a tag name"
 #~ msgstr "Введите имя тега"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-06 14:39-0500\n"
+"POT-Creation-Date: 2017-06-06 20:19-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -33,16 +33,13 @@ msgid "# Germinated"
 msgstr "Antal som grott"
 
 #: bauble/plugins/garden/propagation.py:203
-msgid "# of seedlings: %s"
-msgstr "Antal fröplantor: %s"
+msgid "# of seedlings"
+msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1152
+#: bauble/plugins/garden/propagation.py:187
 msgid "# of seeds"
 msgstr "Antal frön"
-
-#: bauble/plugins/garden/propagation.py:187
-msgid "# of seeds: %s"
-msgstr "Antal frön: %s"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
@@ -594,6 +591,10 @@ msgstr "Accession"
 msgid "Accession Code Formats"
 msgstr ""
 
+#: bauble/plugins/garden/acc_editor.glade:130
+msgid "Accession Editor"
+msgstr ""
+
 #: bauble/plugins/garden/acc_editor.glade:639
 msgid "Accession ID"
 msgstr "Accessions-ID"
@@ -943,13 +944,10 @@ msgstr "Kontaktnamn"
 
 #: bauble/plugins/garden/prop_editor.glade:513
 #: bauble/plugins/garden/prop_editor.glade:984
-msgid "Container"
-msgstr "Behållare"
-
 #: bauble/plugins/garden/propagation.py:171
 #: bauble/plugins/garden/propagation.py:192
-msgid "Container: %s"
-msgstr "Behållare: %s"
+msgid "Container"
+msgstr "Behållare"
 
 #: bauble/ui.py:439
 msgid "Contents"
@@ -1069,16 +1067,13 @@ msgstr ""
 "%(exception)s"
 
 #: bauble/plugins/garden/prop_editor.glade:619
+#: bauble/plugins/garden/propagation.py:177
 msgid "Cover"
 msgstr "Täckning"
 
-#: bauble/plugins/garden/propagation.py:177
-msgid "Cover: %s"
-msgstr "Täckning: %s"
-
 #: bauble/plugins/garden/propagation.py:196
-msgid "Covered: %s"
-msgstr "Täckt: %s"
+msgid "Covered"
+msgstr ""
 
 #: bauble/plugins/garden/plant.py:648
 msgid "Create a new location."
@@ -1120,12 +1115,9 @@ msgid "Cutting length"
 msgstr "Sticklinglängd"
 
 #: bauble/plugins/garden/prop_editor.glade:335
+#: bauble/plugins/garden/propagation.py:143
 msgid "Cutting type"
 msgstr "Sticklingtyp"
-
-#: bauble/plugins/garden/propagation.py:143
-msgid "Cutting type: %s"
-msgstr "Sticklingtyp: %s"
 
 #: bauble/connmgr.py:530
 msgid "DBMS host name"
@@ -1169,20 +1161,14 @@ msgid "Date of Change"
 msgstr "Ändringsdatum"
 
 #: bauble/plugins/garden/prop_editor.glade:1356
+#: bauble/plugins/garden/propagation.py:208
 msgid "Date planted"
 msgstr "Planteringsdatum"
 
-#: bauble/plugins/garden/propagation.py:208
-msgid "Date planted: %s"
-msgstr "Planteringsdatum: %s"
-
 #: bauble/plugins/garden/prop_editor.glade:1188
+#: bauble/plugins/garden/propagation.py:190
 msgid "Date sown"
 msgstr "Såningsdatum"
-
-#: bauble/plugins/garden/propagation.py:190
-msgid "Date sown: %s"
-msgstr "Såningsdatum: %s"
 
 #: bauble/plugins/garden/prop_editor.glade:779
 msgid "Dates"
@@ -1203,7 +1189,7 @@ msgstr "Borttagen, dödsår okänt"
 msgid "Description"
 msgstr "Beskrivning"
 
-#: bauble/utils/__init__.py:665
+#: bauble/utils/__init__.py:664
 msgid "Details"
 msgstr "Information"
 
@@ -1440,12 +1426,9 @@ msgid "Filename:"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:370
+#: bauble/plugins/garden/propagation.py:157
 msgid "Flower buds"
 msgstr "Blomknoppar"
-
-#: bauble/plugins/garden/propagation.py:157
-msgid "Flower buds: %s"
-msgstr "Blomknoppar: %s"
 
 #: bauble/plugins/garden/plant.py:357
 msgid "Flowering"
@@ -1470,8 +1453,8 @@ msgid "Fungal"
 msgstr "Mykorrhiza"
 
 #: bauble/plugins/garden/propagation.py:162
-msgid "Fungal soak: %s"
-msgstr "Mykorrhizabehandling: %s"
+msgid "Fungal soak"
+msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2011
 msgid "GPS Datum"
@@ -1512,16 +1495,16 @@ msgid "Genus Window"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:201
-msgid "Germination date: %s"
-msgstr "Groningsdatum: %s"
+msgid "Germination date"
+msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1008
 msgid "Germination media"
 msgstr "Groningsmedium"
 
 #: bauble/plugins/garden/propagation.py:205
-msgid "Germination rate: %s%%"
-msgstr "Grobarhet: %s %%"
+msgid "Germination rate"
+msgstr ""
 
 #: bauble/prefs.py:234
 msgid ""
@@ -1622,13 +1605,18 @@ msgstr "Växtsätt/växtform"
 msgid "Habitat description"
 msgstr "Habitatbeskrivning"
 
+#: bauble/plugins/garden/acc_editor.glade:2680
+#: bauble/plugins/garden/acc_editor.glade:2815
+msgid "Herbarium"
+msgstr ""
+
 #: bauble/plugins/garden/prop_editor.glade:704
 msgid "Hormone"
 msgstr "Hormon"
 
 #: bauble/plugins/garden/propagation.py:164
-msgid "Hormone treatment: %s"
-msgstr "Hormonbehandling: %s"
+msgid "Hormone treatment"
+msgstr ""
 
 #: bauble/plugins/garden/source.py:169
 msgid "Horticultural Association/Garden Club"
@@ -1783,16 +1771,13 @@ msgid "Least Concern (LC)"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:257
+#: bauble/plugins/garden/propagation.py:152
 msgid "Leaves"
 msgstr "Blad"
 
 #: bauble/plugins/garden/prop_editor.glade:283
 msgid "Leaves reduced by"
 msgstr "Blad reducerade med"
-
-#: bauble/plugins/garden/propagation.py:152
-msgid "Leaves: %s"
-msgstr "Blad: %s"
 
 #: bauble/plugins/garden/propagation.py:146
 msgid "Length: %(length)s%(unit)s"
@@ -1819,6 +1804,8 @@ msgstr "Lokal"
 #: bauble/plugins/garden/prop_editor.glade:539
 #: bauble/plugins/garden/prop_editor.glade:1032
 #: bauble/plugins/garden/__init__.py:121
+#: bauble/plugins/garden/propagation.py:175
+#: bauble/plugins/garden/propagation.py:198
 msgid "Location"
 msgstr "Plats"
 
@@ -1829,11 +1816,6 @@ msgstr "Plats 1"
 #: bauble/plugins/garden/acc_editor.glade:1023
 msgid "Location 2"
 msgstr "Plats 2"
-
-#: bauble/plugins/garden/propagation.py:175
-#: bauble/plugins/garden/propagation.py:198
-msgid "Location: %s"
-msgstr "Plats: %s"
 
 #: bauble/plugins/garden/acc_editor.glade:2120
 msgid "Longitude"
@@ -1863,14 +1845,14 @@ msgstr "MapperSearch.add_meta(): argumentet default_columns måste vara lista"
 msgid "Matched binomial"
 msgstr ""
 
+#: bauble/plugins/garden/propagation.py:173
+#: bauble/plugins/garden/propagation.py:194
+msgid "Media"
+msgstr ""
+
 #: bauble/plugins/garden/prop_editor.glade:475
 msgid "Media/Compost"
 msgstr "Medium/Kompost"
-
-#: bauble/plugins/garden/propagation.py:173
-#: bauble/plugins/garden/propagation.py:194
-msgid "Media: %s"
-msgstr "Medium: %s"
 
 #: bauble/plugins/garden/plant_editor.glade:192
 msgid "Memorial"
@@ -2153,12 +2135,9 @@ msgid "Preferences"
 msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1095
+#: bauble/plugins/garden/propagation.py:185
 msgid "Pretreatment"
 msgstr "Förbehandling"
-
-#: bauble/plugins/garden/propagation.py:185
-msgid "Pretreatment: %s"
-msgstr "Förbehandling: %s"
 
 #: bauble/plugins/garden/acc_editor.glade:3429
 msgid "Previous taxon"
@@ -2167,6 +2146,10 @@ msgstr "Föregående taxon"
 #: bauble/plugins/garden/acc_editor.glade:1153
 msgid "Private"
 msgstr "Privat"
+
+#: bauble/plugins/garden/acc_editor.glade:2523
+msgid "Propagation"
+msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:8
 msgid "Propagation Editor"
@@ -2502,7 +2485,7 @@ msgstr "Välj en fil…"
 msgid "Select a stylesheet"
 msgstr "Välj en formatmall"
 
-#: bauble/utils/__init__.py:1305
+#: bauble/utils/__init__.py:1304
 msgid "Show details"
 msgstr "Visa information"
 
@@ -2528,6 +2511,7 @@ msgstr ""
 "ofullständig. Säkerställ att fälten Namn, Teknisk kontakt, E-post Kontakt "
 "och Institutionskod är ifyllda."
 
+#: bauble/plugins/garden/acc_editor.glade:2513
 #: bauble/plugins/garden/acc_editor.glade:2563
 #: bauble/plugins/garden/accession.py:2610
 msgid "Source"
@@ -3091,18 +3075,15 @@ msgid "Timestamp"
 msgstr "Tidsstämpel"
 
 #: bauble/plugins/garden/prop_editor.glade:358
+#: bauble/plugins/garden/propagation.py:150
 msgid "Tip"
 msgstr "Skott"
-
-#: bauble/plugins/garden/propagation.py:150
-msgid "Tip: %s"
-msgstr "Skott: %s"
 
 #: bauble/plugins/garden/plant.py:414
 msgid "Tissue Culture"
 msgstr "Vävnadskultur"
 
-#: bauble/utils/__init__.py:815
+#: bauble/utils/__init__.py:814
 msgid "Today's date"
 msgstr "Dagens datum"
 
@@ -3233,6 +3214,11 @@ msgstr "Trivialnamn"
 msgid "Version"
 msgstr "Version"
 
+#: bauble/plugins/garden/acc_editor.glade:2691
+#: bauble/plugins/garden/acc_editor.glade:2823
+msgid "Voucher"
+msgstr ""
+
 #: bauble/plugins/garden/acc_editor.glade:2919
 #: bauble/plugins/garden/accession.py:2726
 msgid "Vouchers"
@@ -3279,12 +3265,9 @@ msgstr ""
 "befintlig data att förloras!</i>"
 
 #: bauble/plugins/garden/prop_editor.glade:384
+#: bauble/plugins/garden/propagation.py:160
 msgid "Wounded"
 msgstr "Skadad"
-
-#: bauble/plugins/garden/propagation.py:160
-msgid "Wounded: %s"
-msgstr "Skadad: %s"
 
 #: bauble/plugins/users/ui.glade:177
 msgid "Write"
@@ -3649,7 +3632,7 @@ msgstr ""
 msgid "next"
 msgstr ""
 
-#: bauble/utils/__init__.py:266 bauble/utils/__init__.py:279
+#: bauble/utils/__init__.py:265 bauble/utils/__init__.py:278
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
@@ -3773,7 +3756,7 @@ msgid ""
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:133
-msgid "used in: %s"
+msgid "used in"
 msgstr ""
 
 #: bauble/connmgr.py:524
@@ -3799,6 +3782,12 @@ msgstr "°C"
 #: bauble/plugins/garden/propagation.py:260
 msgid "°F"
 msgstr "°F"
+
+#~ msgid "# of seedlings: %s"
+#~ msgstr "Antal fröplantor: %s"
+
+#~ msgid "# of seeds: %s"
+#~ msgstr "Antal frön: %s"
 
 #~ msgid "%"
 #~ msgstr "%"
@@ -3858,6 +3847,9 @@ msgstr "°F"
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Välj en fil att exportera till…"
 
+#~ msgid "Container: %s"
+#~ msgstr "Behållare: %s"
+
 #~ msgid "Copyright © Belize Botanic Gardens"
 #~ msgstr "Copyright © Belize Botanic Gardens"
 
@@ -3885,6 +3877,21 @@ msgstr "°F"
 #~ msgid "Could not login to PicasaWeb account."
 #~ msgstr "Det gick inte att logga in på PicasaWeb-kontot."
 
+#~ msgid "Cover: %s"
+#~ msgstr "Täckning: %s"
+
+#~ msgid "Covered: %s"
+#~ msgstr "Täckt: %s"
+
+#~ msgid "Cutting type: %s"
+#~ msgstr "Sticklingtyp: %s"
+
+#~ msgid "Date planted: %s"
+#~ msgstr "Planteringsdatum: %s"
+
+#~ msgid "Date sown: %s"
+#~ msgstr "Såningsdatum: %s"
+
 #~ msgid "Enter a tag name"
 #~ msgstr "Ange ett taggnamn"
 
@@ -3894,8 +3901,20 @@ msgstr "°F"
 #~ msgid "Filename: "
 #~ msgstr "Filnamn: "
 
+#~ msgid "Flower buds: %s"
+#~ msgstr "Blomknoppar: %s"
+
+#~ msgid "Fungal soak: %s"
+#~ msgstr "Mykorrhizabehandling: %s"
+
 #~ msgid "Genus "
 #~ msgstr "Släkte "
+
+#~ msgid "Germination date: %s"
+#~ msgstr "Groningsdatum: %s"
+
+#~ msgid "Germination rate: %s%%"
+#~ msgstr "Grobarhet: %s %%"
 
 #~ msgid "Ghini"
 #~ msgstr "Ghini"
@@ -3903,11 +3922,23 @@ msgstr "°F"
 #~ msgid "Ghini - Picasa Settings"
 #~ msgstr "Ghini - Inställningar för Picasa"
 
+#~ msgid "Hormone treatment: %s"
+#~ msgstr "Hormonbehandling: %s"
+
 #~ msgid "Images"
 #~ msgstr "Bilder"
 
 #~ msgid "Institution Name"
 #~ msgstr "Institutionsnamn"
+
+#~ msgid "Leaves: %s"
+#~ msgstr "Blad: %s"
+
+#~ msgid "Location: %s"
+#~ msgstr "Plats: %s"
+
+#~ msgid "Media: %s"
+#~ msgstr "Medium: %s"
 
 #~ msgid "Name "
 #~ msgstr "Namn "
@@ -3947,6 +3978,9 @@ msgstr "°F"
 
 #~ msgid "Please choose a user name for this connection"
 #~ msgstr "Välj ett användarnamn för denna anslutning"
+
+#~ msgid "Pretreatment: %s"
+#~ msgstr "Förbehandling: %s"
 
 #, fuzzy
 #~ msgid "Propagule of cultivated (wild) plant"
@@ -4020,11 +4054,17 @@ msgstr "°F"
 #~ "Växtkoden måste vara en unik kod för accessionen. Du kan även skapa "
 #~ "intervall, t.ex. 1,2,7 eller 1-3, för att skapa flera växter."
 
+#~ msgid "Tip: %s"
+#~ msgstr "Skott: %s"
+
 #~ msgid "Use default filename"
 #~ msgstr "Använd standardfilnamn"
 
 #~ msgid "Wild"
 #~ msgstr "Vild"
+
+#~ msgid "Wounded: %s"
+#~ msgstr "Skadad: %s"
 
 #~ msgid ""
 #~ "You don't have any connections in your connection list.\n"
