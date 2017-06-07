@@ -496,9 +496,10 @@ class PropagationTests(GardenTestCase):
                 specifically = PropSeed(**default_seed_values)
             elif pt == u'UnrootedCutting':
                 specifically = PropCutting(**default_cutting_values)
+            else:
+                specifically = type('FooBar', (object,), {})()
             specifically.propagation = prop
         self.session.commit()
-        
 
     def tearDown(self):
         self.session.query(Plant).delete()
@@ -506,6 +507,77 @@ class PropagationTests(GardenTestCase):
         self.session.query(Accession).delete()
         self.session.commit()
         super(PropagationTests, self).tearDown()
+
+    def test_propagation_cutting_quantity_new_zero(self):
+        self.add_plants([u'1'])
+        prop = Propagation()
+        prop.prop_type = u'UnrootedCutting'
+        prop.plant = self.plants[0]
+        spec = PropCutting(cutting_type=u'Nodal')
+        spec.propagation = prop
+        self.session.commit()
+        self.assertEquals(prop.accessible_quantity, 0)
+        prop = Propagation()
+        prop.prop_type = u'UnrootedCutting'
+        prop.plant = self.plants[0]
+        spec = PropCutting(cutting_type=u'Nodal', rooted_pct=0)
+        spec.propagation = prop
+        self.session.commit()
+        self.assertEquals(prop.accessible_quantity, 0)
+
+    def test_propagation_seed_quantity_new_zero(self):
+        self.add_plants([u'1'])
+        prop = Propagation()
+        prop.prop_type = u'Seed'
+        prop.plant = self.plants[0]
+        spec = PropSeed(nseeds=30, date_sown=datetime.date(2017, 1, 1))
+        spec.propagation = prop
+        self.session.commit()
+        self.assertEquals(prop.accessible_quantity, 0)
+        prop = Propagation()
+        prop.prop_type = u'Seed'
+        prop.plant = self.plants[0]
+        spec = PropSeed(nseeds=30, date_sown=datetime.date(2017, 1, 1), nseedlings=0)
+        spec.propagation = prop
+        self.session.commit()
+        self.assertEquals(prop.accessible_quantity, 0)
+
+    def test_propagation_seed_unaccessed_quantity(self):
+        self.add_plants([u'1'])
+        prop = Propagation()
+        prop.prop_type = u'Seed'
+        prop.plant = self.plants[0]
+        seed = PropSeed(**default_seed_values)
+        seed.propagation = prop
+        self.session.commit()
+        summary = prop.get_summary()
+        self.assertEquals(prop.accessible_quantity, 23)
+
+    def test_propagation_cutting_accessed_remaining_quantity(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Seed'])
+        accession2 = self.create(Accession, species=self.species, code=u'2', quantity_recvd=10)
+        source2 = self.create(Source, plant_propagation=self.plants[0].propagations[0])
+        accession2.source = source2
+        self.session.commit()
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.accessible_quantity, 13)
+
+    def test_propagation_other_unaccessed_remaining_quantity_1(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Other'])
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.accessible_quantity, 1)
+
+    def test_propagation_other_accessed_remaining_quantity_1(self):
+        self.add_plants([u'1'])
+        self.add_propagations([u'Other'])
+        accession2 = self.create(Accession, species=self.species, code=u'2', quantity_recvd=10)
+        source2 = self.create(Source, plant_propagation=self.plants[0].propagations[0])
+        accession2.source = source2
+        self.session.commit()
+        prop = self.plants[0].propagations[0]
+        self.assertEquals(prop.accessible_quantity, 1)
 
     def test_accession_propagations_is_union_of_plant_propagations(self):
         self.add_plants([u'1', u'2'])

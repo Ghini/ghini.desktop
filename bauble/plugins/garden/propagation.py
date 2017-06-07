@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2017 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # propagation module
 #
@@ -106,6 +106,22 @@ class Propagation(db.Base):
                 accessions.append(us.accession)
         return sorted(accessions)
 
+    @property
+    def accessible_quantity(self):
+        quantity = None
+        if self.prop_type == u'UnrootedCutting':
+            if self._cutting is not None:
+                quantity = self._cutting.rooted_pct
+        elif self.prop_type == u'Seed':
+            if self._seed is not None:
+                quantity = self._seed.nseedlings
+        else:  # Propagation of Unknown type
+            return 1  # let user grab one at a time, in any case
+        if quantity is None:
+            quantity = 0    
+        removethis = sum(a.quantity_recvd for a in self.accessions)
+        return max(quantity - removethis, 0)
+    
     def get_summary(self, partial=False):
         """compute a textual summary for this propagation
 
