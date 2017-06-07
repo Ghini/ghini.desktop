@@ -915,7 +915,7 @@ msgstr "Значения, разделённые запятыми"
 
 #: bauble/connmgr.glade:578
 msgid "Connection Details"
-msgstr ""
+msgstr "Сведения о подключении"
 
 #: bauble/plugins/garden/acc_editor.glade:1326
 #: bauble/plugins/garden/__init__.py:122
@@ -943,7 +943,7 @@ msgstr "Содержание"
 
 #: bauble/ui.py:750
 msgid "Copyright © by its contributors."
-msgstr ""
+msgstr "Copyright © ее участниками."
 
 #: bauble/plugins/garden/accession.py:433
 msgid "Corm"
