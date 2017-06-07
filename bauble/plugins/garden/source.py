@@ -833,6 +833,9 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                 acc_view.widget_set_value(
                     'acc_species_entry', 
                     utils.utf8(prop.plant.accession.species))
+                acc_view.widget_set_value(
+                    'acc_quantity_recvd_entry', 
+                    utils.utf8(prop.accessible_quantity))
                 from bauble.plugins.garden.accession import recvd_type_values
                 from bauble.plugins.garden.propagation import prop_type_results
                 acc_view.widget_set_value(

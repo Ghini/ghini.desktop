@@ -108,6 +108,7 @@ class Propagation(db.Base):
 
     @property
     def accessible_quantity(self):
+        "the resulting product minus the already accessed material"
         quantity = None
         if self.prop_type == u'UnrootedCutting':
             if self._cutting is not None:
