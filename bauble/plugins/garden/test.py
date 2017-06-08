@@ -1276,7 +1276,6 @@ class AccessionTests(GardenTestCase):
                             code=u'1')
         ## create a propagation without a related seed/cutting
         prop = self.create(Propagation, prop_type=u'Seed')
-        prop._seed = self.create(PropSeed, nseeds=2, date_sown=testing_today, nseedlings=2)
         plant.propagations.append(prop)
         ## commit all the above to the database
         self.session.commit()

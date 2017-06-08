@@ -108,15 +108,22 @@ class Propagation(db.Base):
 
     @property
     def accessible_quantity(self):
-        "the resulting product minus the already accessed material"
+        """the resulting product minus the already accessed material
+
+        return 1 if the propagation is not completely specified.
+
+        """
         quantity = None
+        incomplete = True
         if self.prop_type == u'UnrootedCutting':
-            if self._cutting is not None:
+            incomplete = self._cutting is None  # cutting without fields
+            if not incomplete:
                 quantity = self._cutting.rooted_pct
         elif self.prop_type == u'Seed':
-            if self._seed is not None:
+            incomplete = self._seed is None  # seed without fields
+            if not incomplete:
                 quantity = self._seed.nseedlings
-        else:  # Propagation of Unknown type
+        if incomplete:
             return 1  # let user grab one at a time, in any case
         if quantity is None:
             quantity = 0    
