@@ -234,7 +234,7 @@ class Propagation(db.Base):
         return s
 
 
-class PropRooted(db.Base):
+class PropCuttingRooted(db.Base):
     """
     Rooting dates for cutting
     """
@@ -332,8 +332,8 @@ class PropCutting(db.Base):
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
 
-    rooted = relation('PropRooted', cascade='all,delete-orphan',
-                      primaryjoin='PropCutting.id==PropRooted.cutting_id',
+    rooted = relation('PropCuttingRooted', cascade='all,delete-orphan',
+                      primaryjoin='PropCutting.id==PropCuttingRooted.cutting_id',
                       backref=backref('cutting', uselist=False))
 
 
@@ -670,7 +670,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         """
         """
         tree = self.view.widgets.rooted_treeview
-        rooted = PropRooted()
+        rooted = PropCuttingRooted()
         rooted.cutting = self.model
         rooted.date = utils.today_str()
         model = tree.get_model()

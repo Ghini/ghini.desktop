@@ -44,7 +44,7 @@ from bauble.plugins.garden.source import Source, Collection, SourceDetail, \
 from bauble.plugins.garden.plant import Plant, PlantNote, \
     PlantChange, PlantEditor, is_code_unique, branch_callback
 from bauble.plugins.garden.location import Location, LocationEditor
-from bauble.plugins.garden.propagation import Propagation, PropRooted, \
+from bauble.plugins.garden.propagation import Propagation, PropCuttingRooted, \
     PropCutting, PropSeed, PropagationEditor
 from bauble.plugins.plants.geography import Geography
 from bauble.plugins.plants.family import Family
@@ -605,7 +605,7 @@ class PropagationTests(GardenTestCase):
         prop.plant = self.plants[0]
         cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
-        rooted = PropRooted()
+        rooted = PropCuttingRooted()
         rooted.cutting = cutting
         self.session.commit()
         summary = prop.get_summary()
@@ -708,7 +708,7 @@ class PropagationTests(GardenTestCase):
         prop.accession = self.accession
         cutting = PropCutting(**default_cutting_values)
         cutting.propagation = prop
-        rooted = PropRooted()
+        rooted = PropCuttingRooted()
         rooted.cutting = cutting
         self.session.add(rooted)
         self.session.commit()
@@ -724,7 +724,7 @@ class PropagationTests(GardenTestCase):
         prop._cutting = None
         self.session.commit()
         self.assert_(not self.session.query(PropCutting).get(cutting_id))
-        self.assert_(not self.session.query(PropRooted).get(rooted_id))
+        self.assert_(not self.session.query(PropCuttingRooted).get(rooted_id))
 
     def test_accession_links_to_parent_plant(self):
         '''we can reach the parent plant from an accession'''
