@@ -599,6 +599,37 @@ class CuttingPresenter(editor.GenericEditorPresenter):
             self.model.length_unit = u'mm'
             self.model.bottom_heat_unit = u'C'
 
+        # the liststore for rooted cuttings contains PropCuttingRooted
+        # objects, not just their fields, so we cannot define it in the
+        # glade file.
+        rooted_liststore = gtk.ListStore(object)
+        self.view.widgets.rooted_treeview.set_model(rooted_liststore)
+
+        from functools import partial
+        def rooted_cell_data_func(attr_name, column, cell, rooted_liststore, treeiter):
+            # extract attr from the object and show it in the cell
+            v = rooted_liststore[treeiter][0]
+            cell.set_property('text', getattr(v, attr_name))
+
+        def on_rooted_cell_edited(attr_name, cell, path, new_text):
+            # update object if field was modified, refresh sensitivity
+            rooted = rooted_liststore[path][0]
+            if getattr(rooted, attr_name) == new_text:
+                return  # didn't change
+            setattr(rooted, attr_name, utils.utf8(new_text))
+            self._dirty = True
+            self.parent_ref().refresh_sensitivity()
+
+        sfw = self.view.widgets
+        for cell, column, attr_name in [
+                (sfw.rooted_date_cell, sfw.rooted_date_column, 'date'),
+                (sfw.rooted_quantity_cell, sfw.rooted_quantity_column, 'quantity')]:
+            cell.props.editable = True
+            self.view.connect(
+                cell, 'edited', partial(on_rooted_cell_edited, attr_name))
+            column.set_cell_data_func(
+                cell, partial(rooted_cell_data_func, attr_name))
+
         self.refresh_view()
 
         self.assign_simple_handler('cutting_type_combo', 'cutting_type')
@@ -630,26 +661,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_rooted_pct_entry',
                                    'rooted_pct')
 
-        model = gtk.ListStore(object)
-        self.view.widgets.rooted_treeview.set_model(model)
-
-        def _rooted_data_func(column, cell, model, treeiter, prop):
-            v = model[treeiter][0]
-            cell.set_property('text', getattr(v, prop))
-
-        cell = self.view.widgets.rooted_date_cell
-        cell.props.editable = True
-        self.view.connect(cell, 'edited', self.on_rooted_cell_edited, 'date')
-        self.view.widgets.rooted_date_column.\
-            set_cell_data_func(cell, _rooted_data_func, 'date')
-
-        cell = self.view.widgets.rooted_quantity_cell
-        cell.props.editable = True
-        self.view.connect(cell, 'edited', self.on_rooted_cell_edited,
-                          'quantity')
-        self.view.widgets.rooted_quantity_column.\
-            set_cell_data_func(cell, _rooted_data_func, 'quantity')
-
         self.view.connect('rooted_add_button', "clicked",
                           self.on_rooted_add_clicked)
         self.view.connect('rooted_remove_button', "clicked",
@@ -661,15 +672,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
     def set_model_attr(self, field, value, validator=None):
         #debug('%s = %s' % (field, value))
         super(CuttingPresenter, self).set_model_attr(field, value, validator)
-        self._dirty = True
-        self.parent_ref().refresh_sensitivity()
-
-    def on_rooted_cell_edited(self, cell, path, new_text, prop):
-        treemodel = self.view.widgets.rooted_treeview.get_model()
-        rooted = treemodel[path][0]
-        if getattr(rooted, prop) == new_text:
-            return  # didn't change
-        setattr(rooted, prop, utils.utf8(new_text))
         self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
@@ -700,10 +702,14 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.parent_ref().refresh_sensitivity()
 
     def refresh_view(self):
+        # TODO: not so sure. is this a 'refresh', or a 'init' view?
         for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
-            #debug('%s: %s' % (widget, value))
             self.view.widget_set_value(widget, value)
+        rooted_liststore = self.view.widgets.rooted_treeview.get_model()
+        rooted_liststore.clear()
+        for rooted in self.model.rooted:
+            rooted_liststore.append([rooted])
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
