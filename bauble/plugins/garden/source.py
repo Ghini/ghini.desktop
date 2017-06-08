@@ -117,7 +117,7 @@ source_detail_context_menu = [source_detail_edit_action,
 
 
 class Source(db.Base):
-    """connected 1-1 to Accession. 
+    """connected 1-1 to Accession.
 
     Source objects have the function to add fields to one Accession.  From
     an Accession, to access the fields added here you obviously still need
@@ -831,10 +831,10 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                 prop = treeview.get_model()[path][0]
                 acc_view = self.parent_ref().view
                 acc_view.widget_set_value(
-                    'acc_species_entry', 
+                    'acc_species_entry',
                     utils.utf8(prop.plant.accession.species))
                 acc_view.widget_set_value(
-                    'acc_quantity_recvd_entry', 
+                    'acc_quantity_recvd_entry',
                     utils.utf8(prop.accessible_quantity))
                 from bauble.plugins.garden.accession import recvd_type_values
                 from bauble.plugins.garden.propagation import prop_type_results
@@ -870,7 +870,15 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                     filter(utils.ilike(Accession.code, u'%s%%' % text)).\
                     filter(Accession.id != self.model.accession.id).\
                     order_by(Accession.code, Plant.code)
-            return query
+            result = []
+            for plant in query:
+                has_accessible = False
+                for propagation in plant.propagations:
+                    if propagation.accessible_quantity > 0:
+                        has_accessible = True
+                if has_accessible:
+                    result.append(plant)
+            return result
 
         def on_select(value):
             logger.debug('on select: %s' % value)
@@ -884,6 +892,8 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             utils.clear_model(treeview)
             model = gtk.ListStore(object)
             for propagation in value.propagations:
+                if propagation.accessible_quantity == 0:
+                    continue
                 model.append([propagation])
             treeview.set_model(model)
             treeview.props.sensitive = True

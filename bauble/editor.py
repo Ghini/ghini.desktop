@@ -1496,16 +1496,17 @@ class GenericEditorPresenter(object):
 
     def assign_completions_handler(self, widget, get_completions,
                                    on_select=lambda v: v):
-        """
-        Dynamically handle completions on a gtk.Entry.
+        """Dynamically handle completions on a gtk.Entry.
 
         :param widget: a gtk.Entry instance or widget name
 
-        :param get_completions: the method to call when a list of
-          completions is requested, returns a list of completions
+        :param get_completions: the callable to invoke when a list of
+          completions is requested, accepts the string typed, returns an
+          iterable of completions
 
         :param on_select: callback for when a value is selected from
           the list of completions
+
         """
 
         logger.debug('assign_completions_handler %s' % widget)
@@ -1533,7 +1534,6 @@ class GenericEditorPresenter(object):
 
             key_length = widget.get_completion().props.minimum_key_length
             values = get_completions(text[:key_length])
-            ##values = get_completions(text)
             logger.debug('completions to add: %s' % str([i for i in values]))
             gobject.idle_add(idle_callback, values)
 

@@ -120,7 +120,7 @@ class Propagation(db.Base):
             return 1  # let user grab one at a time, in any case
         if quantity is None:
             quantity = 0    
-        removethis = sum(a.quantity_recvd for a in self.accessions)
+        removethis = sum((a.quantity_recvd or 0) for a in self.accessions)
         return max(quantity - removethis, 0)
     
     def get_summary(self, partial=False):
@@ -328,12 +328,12 @@ class PropCutting(db.Base):
                                          translations=bottom_heat_unit_values),
                               nullable=True)
     rooted_pct = Column(Integer, autoincrement=False)
-    #aftercare = Column(UnicodeText) # same as propgation.notes
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
 
     rooted = relation('PropRooted', cascade='all,delete-orphan',
+                      primaryjoin='PropCutting.id==PropRooted.cutting_id',
                       backref=backref('cutting', uselist=False))
 
 
@@ -670,10 +670,10 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         """
         """
         tree = self.view.widgets.rooted_treeview
-        model = tree.get_model()
         rooted = PropRooted()
         rooted.cutting = self.model
         rooted.date = utils.today_str()
+        model = tree.get_model()
         treeiter = model.insert(0, [rooted])
         path = model.get_path(treeiter)
         column = tree.get_column(0)
@@ -794,10 +794,9 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
 
 class PropagationPresenter(editor.ChildPresenter):
-    """
-    PropagationPresenter is not used directly but is extended by
-    SeedPropagationPresenter, CuttingPropagationPresenter and
+    """PropagationPresenter is extended by SourcePropagationPresenter and
     PropagationEditorPresenter.
+
     """
     widget_to_field_map = {'prop_type_combo': 'prop_type',
                            'prop_date_entry': 'date',
