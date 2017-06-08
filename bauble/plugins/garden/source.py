@@ -862,6 +862,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                                     plant_cell_data_func, minimum_key_length=1)
 
         def plant_get_completions(text):
+            logger.debug('in PropagationChooserPresenter:plant_get_completions')
             from bauble.plugins.garden.accession import Accession
             from bauble.plugins.garden.plant import Plant
             query = self.session.query(Plant).\

@@ -127,7 +127,7 @@ test_data_table_control = ((Accession, accession_test_data),
                            (Plant, plant_test_data),
                            (Geography, geography_test_data),
                            (Collection, collection_test_data))
-
+testing_today = datetime.date(2017, 1, 1)
 
 def setUp_data():
     """
@@ -453,10 +453,9 @@ class PlantTests(GardenTestCase):
         new_plant = self.session.query(Plant).filter(
             Plant.code != u'1').first()
         self.session.refresh(plant)
-        assert plant.quantity == quantity - new_plant.quantity, \
-            "%s == %s - %s" % (plant.quantity, quantity, new_plant.quantity)
-        assert new_plant.changes[0].quantity == new_plant.quantity, \
-            "%s == %s" % (new_plant.changes[0].quantity, new_plant.quantity)
+        self.assertEquals(plant.quantity, quantity - new_plant.quantity)
+        self.assertEquals(new_plant.changes[0].quantity, new_plant.quantity)
+
 
     def test_is_code_unique(self):
         """
@@ -1270,19 +1269,21 @@ class AccessionTests(GardenTestCase):
 
     def test_accession_source_editor(self, accession=None):
         ## create an accession, a location, a plant
-        acc = self.create(Accession, species=self.species, code=u'parent')
-        plant = self.create(Plant, accession=acc, quantity=1,
+        parent = self.create(Accession, species=self.species, code=u'parent',
+                             quantity_recvd=1)
+        plant = self.create(Plant, accession=parent, quantity=1,
                             location=Location(name=u'site', code=u'STE'),
                             code=u'1')
         ## create a propagation without a related seed/cutting
         prop = self.create(Propagation, prop_type=u'Seed')
+        prop._seed = self.create(PropSeed, nseeds=2, date_sown=testing_today, nseedlings=2)
         plant.propagations.append(prop)
         ## commit all the above to the database
         self.session.commit()
+        self.assertTrue(prop.id > 0)  # we got a valid id after the commit
         plant_prop_id = prop.id
-        self.assertTrue(plant_prop_id > 0)  # we got a valid id after the commit
 
-        acc = Accession(code=u'code', species=self.species)
+        acc = Accession(code=u'code', species=self.species, quantity_recvd=2)
         self.editor = AccessionEditor(acc)
         # normally called by editor.presenter.start() but we don't call it here
         self.editor.presenter.source_presenter.start()
@@ -1310,7 +1311,7 @@ class AccessionTests(GardenTestCase):
 
         # assert that the propagations were added to the treeview
         treeview = widgets.source_prop_treeview
-        self.assertTrue(treeview.get_model() is not None)
+        self.assertTrue(treeview.get_model())
 
         # select the first/only propagation in the treeview
         toggle_cell = widgets.prop_toggle_cell.emit('toggled', 0)
@@ -1323,9 +1324,15 @@ class AccessionTests(GardenTestCase):
         # open a separate session and make sure everything committed
         session = db.Session()
         acc = session.query(Accession).filter_by(code=u'code')[0]
+        self.assertTrue(acc is not None)
+        logger.debug(acc.id)
         parent = session.query(Accession).filter_by(code=u'parent')[0]
         self.assertTrue(parent is not None)
-        assert acc.source.plant_propagation_id == plant_prop_id
+        logger.debug(parent.id)
+        logger.debug("acc plants : %s" % [str(i) for i in acc.plants])
+        logger.debug("parent plants : %s" % [str(i) for i in parent.plants])
+        logger.debug(acc.source.__dict__)
+        self.assertEquals(acc.source.plant_propagation_id, plant_prop_id)
 
     def test_accession_editor(self):
         raise SkipTest('Problem cannot be found in presenter')
