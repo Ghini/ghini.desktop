@@ -1348,7 +1348,9 @@ class ChangesExpander(InfoExpander):
                 s = _('<i>Branched from %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(change.parent_plant))
                 label = gtk.Label()
-                label.set_alignment(0, .5)
+                label.props.wrap = True
+                label.connect("size-allocate", label_size_allocate)
+                label.set_alignment(0.0, 0.0)
                 label.set_markup(s)
                 eb = gtk.EventBox()
                 eb.add(label)
