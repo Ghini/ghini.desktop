@@ -894,7 +894,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:578
 msgid "Connection Details"
-msgstr ""
+msgstr "تفاصيل الاتصال"
 
 #: bauble/plugins/garden/acc_editor.glade:1326
 #: bauble/plugins/garden/__init__.py:122

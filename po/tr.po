@@ -26,11 +26,11 @@ msgstr ""
 
 #: bauble/btypes.py:82
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr ""
+msgstr "\"%(value)s\" Enum.values içinde yok: %(all_values)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
-msgstr ""
+msgstr "# Çimlenmiş"
 
 #: bauble/plugins/garden/propagation.py:203
 msgid "# of seedlings"
@@ -39,11 +39,11 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:187
 msgid "# of seeds"
-msgstr ""
+msgstr "# tohumlar"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
-msgstr ""
+msgstr "% Çimlenmiş"
 
 #: bauble/plugins/garden/accession.py:695
 msgid "%(1)s plant groups in %(2)s location(s)"
@@ -51,7 +51,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:462
 msgid "%(group)s Group"
-msgstr ""
+msgstr "%(group)s Grup"
 
 #: bauble/plugins/garden/accession.py:181
 msgid ""
@@ -90,7 +90,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:448
 msgid "(%(group)s Group)"
-msgstr ""
+msgstr "(%(group)s Grup)"
 
 #: bauble/view.py:796
 msgid "** Error: %s"
@@ -176,9 +176,8 @@ msgid "<b>Awards:</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:683
-#, fuzzy
 msgid "<b>CITES:</b>"
-msgstr "<b>No (ID):</b>"
+msgstr "<b>CITES:</b>"
 
 #: bauble/plugins/garden/plant_editor.glade:869
 msgid "<b>Change history</b>"
@@ -2020,7 +2019,7 @@ msgstr ""
 
 #: bauble/bauble.glade:537
 msgid "Plugins"
-msgstr ""
+msgstr "Eklentiler"
 
 #: bauble/plugins/garden/plant.py:348
 msgid "Poor"
@@ -2032,7 +2031,7 @@ msgstr ""
 
 #: bauble/bauble.glade:474
 msgid "Preferences"
-msgstr ""
+msgstr "Tercihler"
 
 #: bauble/plugins/garden/prop_editor.glade:1095
 #: bauble/plugins/garden/propagation.py:185
@@ -2910,7 +2909,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:3092
 msgid "Type"
-msgstr ""
+msgstr "Tür"
 
 #: bauble/plugins/garden/acc_editor.glade:539
 msgid "Type of material"
