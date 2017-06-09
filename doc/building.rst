@@ -351,9 +351,10 @@ And at the end of the process you want to update the statistics::
 Structure of user interface
 ------------------------------------
 
-The user interface is built according to the Model-View-Presenter
-architectural pattern.  In theory, but also in the practice of all new parts
-of the software:
+The user interface is built according to the **Model** — **View** —
+**Presenter** architectural pattern.  For much of the interface, **Model**
+is a SQLAlchemy database object, but we also have interface elements where
+there is no corresponding database model.  In general:
 
 * The **view** is described as part of a **glade** file. This includes the
   signal-callback associations. The base class is ``GenericEditorView``
@@ -361,27 +362,41 @@ of the software:
   passing it the **glade** file name and the root widget name, then handle
   the instance to the **presenter** constructor.
 
-* The **model** simply follows the sqlalchemy practices. The **presenter**
-  continuously updates it according to changes in the **view**. The
-  **presenter** commits all **model** updates to the database if the
-  **view** is closed successfully, or rolls them back if the **view** is
-  canceled.
+  Make sure every ``action-widget`` element in the ``action-widgets``
+  section has a valid ``response`` value.  Keep the following values in
+  mind:
 
+  * GTK_RESPONSE_REJECT, -2
+  * GTK_RESPONSE_ACCEPT, -3
+  * GTK_RESPONSE_DELETE_EVENT, -4
+  * GTK_RESPONSE_OK, -5
+  * GTK_RESPONSE_CANCEL, -6
+  * GTK_RESPONSE_YES, -8
+
+* The **model** is just an object with known attributes.
+    
 * The subclassed **presenter** defines and implements:
 
-  * ``widget_to_field_map``, the association from widget name to name of
-    model attribute,
+  * ``widget_to_field_map``, a dictionary associating widget names to name
+    of model attributes,
   * ``view_accept_buttons``, the list of widget names which, if
     activated by the user, mean that the view should be closed,
   * all needed callbacks,
   * optionally, it plays the **model** role, too.
 
+  The **presenter** continuously updates the **model** according to changes
+  in the **view**. The **presenter** commits all **model** updates to the
+  database if the **view** is closed successfully, or rolls them back if the
+  **view** is canceled.
+
 A well behaved **presenter** uses the **view** api to query the values
 inserted by the user or to forcibly set widget statuses. Please do not learn
 from the practice in our older presenters, most of which directly handle
-widgets, something that prevents us from writing unit tests.
+fields of ``view.widgets``, something that prevents us from writing unit
+tests.
 
-There is no way to unit test a subclassed view, so please don't subclass views.
+There is no easy way to unit test a subclassed view, so please don't
+subclass views.
 
 The base class for the presenter, ``GenericEditorPresenter`` defined in
 ``bauble.editor``, implements many useful generic callbacks.
