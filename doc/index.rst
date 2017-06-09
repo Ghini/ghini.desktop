@@ -63,9 +63,7 @@ Ghini Development
 .. toctree::
    :maxdepth: 2
 
-   devdl
    building
-   extending
    api
 
 Supporting Ghini
