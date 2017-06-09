@@ -139,7 +139,7 @@ msgstr "--"
 #: bauble/plugins/plants/infoboxes.glade:334
 #: bauble/plugins/plants/infoboxes.glade:670
 msgid "<b># of Accessions:</b>"
-msgstr "<b>N.º de adquisiciones:</b>"
+msgstr "<b>N.º de accesiones:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:87
 msgid "<b># of Genera:</b>"
@@ -174,7 +174,7 @@ msgstr "<b>Accesión</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:971
 msgid "<b>Accessions:</b>"
-msgstr ""
+msgstr "<b>Accesiones:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:698
 msgid "<b>Awards:</b>"
@@ -255,7 +255,7 @@ msgstr "<b>Elevación:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:928
 msgid "<b>Families:</b>"
-msgstr ""
+msgstr "<b>Familias:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:1185
 msgid "<b>Flags</b>"
@@ -271,7 +271,7 @@ msgstr "<b>Dato GPS</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:911
 msgid "<b>Genera:</b>"
-msgstr ""
+msgstr "<b>Géneros:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:1436
 msgid "<b>Germination data</b>"
@@ -316,7 +316,7 @@ msgstr "<b>Latitud:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:416
 msgid "<b>Living Plants:</b>"
-msgstr "<b> plantas vivas: </b>"
+msgstr "<b>Plantas Vivas:</b>"
 
 #: bauble/plugins/garden/acc_editor.glade:2306
 msgid "<b>Location Details</b>"
@@ -329,7 +329,7 @@ msgstr "<b>Ubicación:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1005
 msgid "<b>Locations:</b>"
-msgstr ""
+msgstr "<b>Ubicaciones:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:864
 msgid "<b>Longitude:</b>"
@@ -362,7 +362,7 @@ msgstr "<b>Grupos de Plantas:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:988
 msgid "<b>Plants:</b>"
-msgstr ""
+msgstr "<b>Plantas:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:308
 msgid "<b>Private:</b>"
@@ -422,11 +422,11 @@ msgstr "<b>Fuente de identificación:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:1223
 msgid "<b>Sowing data</b>"
-msgstr "<b> Datos de siembra </b>"
+msgstr "<b>Datos de siembra</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:894
 msgid "<b>Species:</b>"
-msgstr ""
+msgstr "<b>Especies:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
@@ -1248,7 +1248,7 @@ msgstr "Modificar"
 
 #: bauble/plugins/plants/stored_queries.py:189
 msgid "Edit stored queries"
-msgstr ""
+msgstr "Editar búsquedas"
 
 #: bauble/plugins/garden/plant.py:649
 msgid "Edit the selected location."
@@ -3514,7 +3514,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:1751
 msgid "edit stored queries"
-msgstr ""
+msgstr "editar búsquedas"
 
 #: bauble/plugins/garden/institution.glade:291
 msgid "enable automatic bug reporting"
@@ -3692,7 +3692,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:1367
 msgid "stored queries"
-msgstr ""
+msgstr "búsquedas"
 
 #: bauble/plugins/plants/species_model.py:67
 msgid "subf."
