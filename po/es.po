@@ -3471,7 +3471,7 @@ msgstr ""
 
 #: bauble/plugins/plants/stored_queries.glade:413
 msgid "click on query button and edit the associated values"
-msgstr "presione un botón de búsqeda y revise los valores asociados"
+msgstr "seleccione un botón de búsqeda y revise los valores asociados"
 
 #: bauble/plugins/plants/species_editor.py:189
 msgid ""
