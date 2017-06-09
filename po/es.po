@@ -3447,11 +3447,11 @@ msgstr "otros objetos que se refieren a la selección"
 #: bauble/plugins/plants/taxonomy_check.glade:419
 #: bauble/plugins/plants/taxonomy_check.glade:583
 msgid "back to previous screen"
-msgstr ""
+msgstr "vuelve a la pantalla anterior"
 
 #: bauble/bauble.glade:135
 msgid "back to startup screen"
-msgstr ""
+msgstr "vuelve a la pantalla inicial"
 
 #: bauble/plugins/garden/plant.py:989
 msgid "branch_mode requires a model"
@@ -3471,7 +3471,7 @@ msgstr ""
 
 #: bauble/plugins/plants/stored_queries.glade:413
 msgid "click on query button and edit the associated values"
-msgstr ""
+msgstr "presione un botón de búsqeda y revise los valores asociados"
 
 #: bauble/plugins/plants/species_editor.py:189
 msgid ""
