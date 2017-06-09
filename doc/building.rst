@@ -356,26 +356,31 @@ The user interface is built according to the **Model** — **View** —
 is a SQLAlchemy database object, but we also have interface elements where
 there is no corresponding database model.  In general:
 
-* The **View** is described as part of a **glade** file. This includes the
-  signal-callback and ListStore-TreeView associations. Just reuse the base
-  class ``GenericEditorView`` defined in ``bauble.editor``. Create an
-  instance of this generic class, pass it the **glade** file name and the
-  root widget name, then hand the instance over to the **presenter**
-  constructor.
+* The **View** is described as part of a **glade** file. This should include
+  the signal-callback and ListStore-TreeView associations. Just reuse the
+  base class ``GenericEditorView`` defined in ``bauble.editor``. When you
+  create your instance of this generic class, pass it the **glade** file
+  name and the root widget name, then hand this instance over to the
+  **presenter** constructor.
 
-  Make sure every ``action-widget`` element in the ``action-widgets``
-  section has a valid ``response`` value.  Keep the following values in
-  mind:
+  In the glade file, in the ``action-widgets`` section closing your
+  GtkDialog object description, make sure every ``action-widget`` element
+  has a valid ``response`` value.  Use `valid GtkResponseType values
+  http://gtk.php.net/manual/en/html/gtk/gtk.enum.responsetype.html`_, for
+  example:
 
-  * GTK_RESPONSE_REJECT, -2
-  * GTK_RESPONSE_ACCEPT, -3
-  * GTK_RESPONSE_DELETE_EVENT, -4
   * GTK_RESPONSE_OK, -5
   * GTK_RESPONSE_CANCEL, -6
   * GTK_RESPONSE_YES, -8
+  * GTK_RESPONSE_NO, -9
 
-* The **Model** is just an object with known attributes.
-    
+  There is no easy way to unit test a subclassed view, so please don't
+  subclass views.
+
+* The **Model** is just an object with known attributes. In this
+  interaction, the **model** is just a passive data container, it does
+  nothing more than to let the **presenter** modify it.
+
 * The subclassed **Presenter** defines and implements:
 
   * ``widget_to_field_map``, a dictionary associating widget names to name
@@ -397,9 +402,6 @@ inserted by the user or to forcibly set widget statuses. Please do not learn
 from the practice of our misbehaving presenters, some of which directly
 handle fields of ``view.widgets``. By doing so, these presenters prevents us
 from writing unit tests.
-
-There is no easy way to unit test a subclassed view, so please also don't
-subclass views.
 
 The base class for the presenter, ``GenericEditorPresenter`` defined in
 ``bauble.editor``, implements many useful generic callbacks.
