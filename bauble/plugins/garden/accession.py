@@ -54,7 +54,7 @@ from bauble.error import check
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
     Propagation
-from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
+from bauble.plugins.garden.source import Contact, edit_contact, \
     Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
@@ -1427,7 +1427,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         def on_select(source):
             if not source:
                 self.model.source = None
-            elif isinstance(source, SourceDetail):
+            elif isinstance(source, Contact):
                 self.model.source = self.source
                 self.model.source.source_detail = source
             elif source == self.garden_prop_str:
@@ -1584,11 +1584,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def on_new_source_button_clicked(self, *args):
         """
-        Opens a new SourceDetailEditor when clicked and repopulates the
-        source combo if a new SourceDetail is created.
+        Opens a new ContactEditor when clicked and repopulates the
+        source combo if a new Contact is created.
         """
-        e = SourceDetailEditor(parent=self.view.get_window())
-        committed = e.start()
+        committed = edit_contact(parent=self.view.get_window())
         new_detail = None
         if committed:
             new_detail = committed[0]
@@ -1609,7 +1608,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
-        map(lambda x: model.append([x]), self.session.query(SourceDetail))
+        map(lambda x: model.append([x]), self.session.query(Contact))
         combo.set_model(model)
         combo.child.get_completion().set_model(model)
 
@@ -1654,7 +1653,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             value = model[treeiter][0]
             # allows completions of source details by their ID
             if utils.utf8(value).lower().startswith(key.lower()) or \
-                    (isinstance(value, SourceDetail) and
+                    (isinstance(value, Contact) and
                      str(value.id).startswith(key)):
                 return True
             return False
@@ -1706,7 +1705,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             def _cmp(row, data):
                 val = row[0]
                 if (utils.utf8(val) == data or
-                        (isinstance(val, SourceDetail) and val.id == data)):
+                        (isinstance(val, Contact) and val.id == data)):
                     return True
                 else:
                     return False

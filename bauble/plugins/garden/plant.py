@@ -62,23 +62,6 @@ import bauble.view as view
 # location combo that shows the description of the currently selected
 # location
 
-# TODO: no internet, I'm writing the issue here, please remove as soon as
-# possible, and open the issue on github.
-#
-# One user story includes reviewing the quantity of plantings, and
-# consequently splitting plantings with quantities that exceed some
-# reasonable threshold. So what you would do is to (1) look for »plant where
-# accession.species.id = xxx and quantity > yyy«, (2) —editing one plant at
-# a time— remove a quantity value and put it in a new planting at a
-# different location.
-#
-# the interface should help the user in this task. I would add a 'SPLIT'
-# button next to the plant quantity. activating it would open a window, the
-# user would insert the amount of plants to be separated, and the
-# destination location. press OK and come back to the current plant, where
-# the quantity has been reduced by the amount just specified.
-#
-
 plant_delimiter_key = u'plant_delimiter'
 default_plant_delimiter = u'.'
 

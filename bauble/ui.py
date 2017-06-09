@@ -591,8 +591,14 @@ class GUI(object):
             view = self.get_view()
             if isinstance(view, SearchView):
                 expanded_rows = view.get_expanded_rows()
+            # editor_cls can be a class, of which we get an instance, and we
+            # invoke the `start` method of this instance. or it is a
+            # callable, then we just use its return value and we are done.
             editor = editor_cls()
-            committed = editor.start()
+            try:
+                committed = editor.start()
+            except:
+                committed, editor = editor, None
             if committed is not None and isinstance(view, SearchView):
                 view.results_view.collapse_all()
                 view.expand_to_all_refs(expanded_rows)
@@ -602,6 +608,9 @@ class GUI(object):
                                          gtk.MESSAGE_ERROR)
             logger.error('bauble.gui.on_insert_menu_item_activate():\n %s'
                          % traceback.format_exc())
+            return
+
+        if editor is None:
             return
 
         presenter_cls = view_cls = None

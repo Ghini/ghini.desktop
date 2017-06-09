@@ -39,8 +39,8 @@ from bauble.plugins.garden.plant import PlantEditor, PlantNote, \
     Plant, PlantSearch, PlantInfoBox, plant_context_menu, \
     plant_delimiter_key, default_plant_delimiter
 from bauble.plugins.garden.source import (
-    Source, SourceDetail, SourceDetailEditor,
-    SourceDetailInfoBox, source_detail_context_menu,
+    Source, edit_contact, Contact, ContactPresenter,
+    ContactInfoBox, source_detail_context_menu,
     Collection, collection_context_menu)
 from bauble.plugins.garden.institution import (
     Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
@@ -90,17 +90,17 @@ class GardenPlugin(pluginmgr.Plugin):
             context_menu=plant_context_menu)
 
         mapper_search.add_meta(('contact', 'contacts', 'person', 'org',
-                                'source'), SourceDetail, ['name'])
+                                'source'), Contact, ['name'])
 
         def sd_kids(detail):
             session = object_session(detail)
             results = session.query(Accession).join(Source).\
-                join(SourceDetail).options(eagerload('species')).\
-                filter(SourceDetail.id == detail.id).all()
+                join(Contact).options(eagerload('species')).\
+                filter(Contact.id == detail.id).all()
             return results
-        SearchView.row_meta[SourceDetail].set(
+        SearchView.row_meta[Contact].set(
             children=sd_kids,
-            infobox=SourceDetailInfoBox,
+            infobox=ContactInfoBox,
             context_menu=source_detail_context_menu)
 
         mapper_search.add_meta(('collection', 'col', 'coll'),
@@ -119,7 +119,7 @@ class GardenPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
             bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
-            bauble.gui.add_to_insert_menu(SourceDetailEditor, _('Contact'))
+            bauble.gui.add_to_insert_menu(edit_contact, _('Contact'))
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta

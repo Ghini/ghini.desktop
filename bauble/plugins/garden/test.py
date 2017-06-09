@@ -39,8 +39,8 @@ import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     AccessionNote, Voucher, SourcePresenter, Verification, dms_to_decimal, \
     latitude_to_dms, longitude_to_dms
-from bauble.plugins.garden.source import Source, Collection, SourceDetail, \
-    SourceDetailEditor, CollectionPresenter
+from bauble.plugins.garden.source import Source, Collection, Contact, \
+    edit_contact, CollectionPresenter
 from bauble.plugins.garden.plant import Plant, PlantNote, \
     PlantChange, PlantEditor, is_code_unique, branch_callback
 from bauble.plugins.garden.location import Location, LocationEditor
@@ -210,7 +210,7 @@ class GardenTestCase(BaubleTestCase):
 
 
 ''' - there is no "Contact" class, is there?
-- no, it's called SourceDetail and it's defined in source.py
+- no, it's called Contact and it's defined in source.py
 
 class ContactTests(GardenTestCase):
 
@@ -1010,7 +1010,7 @@ class SourceTests(GardenTestCase):
         plant.propagations.append(Propagation(prop_type=u'Seed'))
         self.session.commit()
 
-        source.source_detail = SourceDetail()
+        source.source_detail = Contact()
         source.source_detail.name = u'name'
         source.sources_code = u'1'
         source.collection = Collection(locale=u'locale')
@@ -1032,14 +1032,14 @@ class SourceTests(GardenTestCase):
         self.assert_(not self.session.query(Collection).get(coll_id))
         self.assert_(not self.session.query(Propagation).get(prop_id))
 
-        # the SourceDetail and plant Propagation shouldn't be deleted
+        # the Contact and plant Propagation shouldn't be deleted
         # since they are independent of the source
         self.assert_(self.session.query(Propagation).get(plant_prop_id))
-        self.assert_(self.session.query(SourceDetail).get(source_detail_id))
+        self.assert_(self.session.query(Contact).get(source_detail_id))
 
     def test_details_editor(self):
         raise SkipTest('separate view from presenter, then test presenter')
-        e = SourceDetailEditor()
+        e = ContactEditor()
         e.start()
 
 
@@ -1403,7 +1403,7 @@ class AccessionTests(GardenTestCase):
         seed.propagation = prop
         plant.propagations.append(prop)
 
-        source_detail = SourceDetail(name=u'Test Source',
+        source_detail = Contact(name=u'Test Source',
                                      source_type=u'Expedition')
         source = Source(sources_code=u'22')
         source.source_detail = source_detail
