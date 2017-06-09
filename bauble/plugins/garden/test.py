@@ -210,6 +210,7 @@ class GardenTestCase(BaubleTestCase):
 
 
 ''' - there is no "Contact" class, is there?
+- no, it's called SourceDetail and it's defined in source.py
 
 class ContactTests(GardenTestCase):
 
