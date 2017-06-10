@@ -179,7 +179,7 @@ class VernacularExpander(InfoExpander):
     :param widgets:
     '''
     def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Vernacular Names"), widgets)
+        InfoExpander.__init__(self, _("Vernacular names"), widgets)
         vernacular_box = self.widgets.sp_vernacular_box
         self.widgets.remove_parent(vernacular_box)
         self.vbox.pack_start(vernacular_box)
