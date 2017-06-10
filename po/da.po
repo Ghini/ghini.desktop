@@ -3053,11 +3053,11 @@ msgstr ""
 
 #: bauble/plugins/plants/species.py:182
 msgid "Vernacular Names"
-msgstr "Lokalt navn"
+msgstr "Lokalt navne"
 
 #: bauble/plugins/plants/species_editor.py:1088
 msgid "Vernacular names"
-msgstr "Slægtsnavne"
+msgstr "Lokalt navne"
 
 #: bauble/bauble.glade:515
 msgid "Version"

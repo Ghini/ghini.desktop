@@ -3176,11 +3176,11 @@ msgstr ""
 
 #: bauble/plugins/plants/species.py:182
 msgid "Vernacular Names"
-msgstr "Nomi Vernacolari"
+msgstr "Nomi vernacolari"
 
 #: bauble/plugins/plants/species_editor.py:1088
 msgid "Vernacular names"
-msgstr "Nomi in lingua corrente"
+msgstr "Nomi vernacolari"
 
 #: bauble/bauble.glade:515
 msgid "Version"

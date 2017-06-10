@@ -3196,7 +3196,7 @@ msgstr "Verificador"
 
 #: bauble/plugins/plants/species.py:182
 msgid "Vernacular Names"
-msgstr "Nomes Vernaculares"
+msgstr "Nomes vernaculares"
 
 #: bauble/plugins/plants/species_editor.py:1088
 msgid "Vernacular names"
