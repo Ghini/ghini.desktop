@@ -369,8 +369,8 @@ class GenericEditorView(object):
             self.__attached_signals.append((signaller, handler_id))
 
     def set_accept_buttons_sensitive(self, sensitive):
-        '''
-        set the sensitivity of all the accept/ok buttons
+        '''set the sensitivity of all the accept/ok buttons
+
         '''
         for wname in self.accept_buttons:
             getattr(self.widgets, wname).set_sensitive(sensitive)

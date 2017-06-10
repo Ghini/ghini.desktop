@@ -758,6 +758,12 @@ def source_detail_edit_callback(details, parent=None):
     model = details[0]
     presenter = ContactPresenter(model, view)
     result = presenter.start()
+    if result == gtk.RESPONSE_OK:
+        if presenter.is_dirty():
+            try:
+                presenter.commit_changes()
+            except:
+                presenter.session.rollback()
     return result is not None
 
 
@@ -823,10 +829,14 @@ class ContactPresenter(editor.GenericEditorPresenter):
                            'source_type_combo': 'source_type',
                            'source_desc_textview': 'description',
                            }
+    view_accept_buttons = ['sd_ok_button']
 
     def __init__(self, model, view):
         view.init_translatable_combo('source_type_combo', source_type_values)
         super(ContactPresenter, self).__init__(model, view, refresh_view=True)
+
+    def on_textbuffer_changed_description(self, widget, value=None, attr=None):
+        return self.on_textbuffer_changed(widget, value, attr='description')
 
     
 class GeneralSourceDetailExpander(view.InfoExpander):
