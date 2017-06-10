@@ -100,8 +100,8 @@
                     <child type="label">
                       <object class="GtkLabel" id="label2">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Users&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Users</property>
+                        <attributes><attribute name="weight" value="bold"/></attributes>
                       </object>
                     </child>
                   </object>
@@ -203,8 +203,8 @@
                     <child type="label">
                       <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Permissions&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
+                        <property name="label" translatable="yes">Permissions</property>
+                        <attributes><attribute name="weight" value="bold"/></attributes>
                       </object>
                     </child>
                   </object>
@@ -325,8 +325,8 @@
                 <child type="label">
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;New password&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="label" translatable="yes">New password</property>
+                    <attributes><attribute name="weight" value="bold"/></attributes>
                   </object>
                 </child>
               </object>
@@ -359,8 +359,8 @@
                 <child type="label">
                   <object class="GtkLabel" id="label5">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Confirm new password&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="label" translatable="yes">Confirm new password</property>
+                    <attributes><attribute name="weight" value="bold"/></attributes>
                   </object>
                 </child>
               </object>

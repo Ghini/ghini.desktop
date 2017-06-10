@@ -695,8 +695,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;GPS Datum&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">GPS Datum</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="top_attach">3</property>
@@ -726,8 +726,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Elevation:&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Elevation:</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="top_attach">4</property>
@@ -757,8 +757,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Collector:&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Collector:</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="top_attach">5</property>
@@ -788,8 +788,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Date collected:&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Date collected:</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="top_attach">6</property>
@@ -818,8 +818,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Collection ID:&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Collection ID:</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="top_attach">7</property>
@@ -833,8 +833,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Location:&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Location:</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="x_options">GTK_FILL</property>
@@ -846,8 +846,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Latitude:&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Latitude:</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="top_attach">1</property>
@@ -861,8 +861,8 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">1</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Longitude:&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Longitude:</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                           <packing>
                             <property name="top_attach">2</property>
@@ -957,8 +957,8 @@
                           <object class="GtkLabel" id="habitat_label">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Habitat&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Habitat</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                         </child>
                       </object>
@@ -1001,8 +1001,8 @@
                           <object class="GtkLabel" id="notes_label">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Notes&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Notes</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                         </child>
                       </object>
@@ -1020,8 +1020,8 @@
               <object class="GtkLabel" id="label5">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">&lt;b&gt;Collection&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
+                <property name="label" translatable="yes">Collection</property>
+                <attributes><attribute name="weight" value="bold"/></attributes>
               </object>
             </child>
           </object>
