@@ -750,7 +750,7 @@ def edit_contact(parent=None):
 
 def source_detail_edit_callback(details, parent=None):
     glade_path = os.path.join(paths.lib_dir(), "plugins", "garden",
-                              "acc_editor.glade")
+                              "contact.glade")
     view = editor.GenericEditorView(
         glade_path,
         parent=parent,
@@ -825,6 +825,7 @@ class ContactPresenter(editor.GenericEditorPresenter):
                            }
 
     def __init__(self, model, view):
+        view.init_translatable_combo('source_type_combo', source_type_values)
         super(ContactPresenter, self).__init__(model, view, refresh_view=True)
 
     

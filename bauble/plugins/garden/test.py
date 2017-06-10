@@ -40,7 +40,7 @@ from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     AccessionNote, Voucher, SourcePresenter, Verification, dms_to_decimal, \
     latitude_to_dms, longitude_to_dms
 from bauble.plugins.garden.source import Source, Collection, Contact, \
-    edit_contact, CollectionPresenter
+    edit_contact, CollectionPresenter, ContactPresenter
 from bauble.plugins.garden.plant import Plant, PlantNote, \
     PlantChange, PlantEditor, is_code_unique, branch_callback
 from bauble.plugins.garden.location import Location, LocationEditor
@@ -2197,3 +2197,26 @@ class GlobalFunctionsTests(GardenTestCase):
     def test_mergevalues_both_empty(self):
         'if both are empty, return the empty string'
         self.assertEquals(mergevalues(None, None, '%s|%s'), '')
+
+
+
+class ContactPresenterTests(BaubleTestCase):
+
+    def test_create_presenter(self):
+        from bauble.editor import MockView
+        view = MockView()
+        m = Contact()
+        presenter = ContactPresenter(m, view)
+        self.assertEquals(presenter.view, view)
+        self.assertEquals(id(presenter.model), id(m))
+        self.assertTrue(presenter.session is not None)
+
+    def test_liststore_is_initialized(self):
+        from bauble.editor import MockView
+        view = MockView(combos={'source_type_combo': []})
+        m = Contact(name='name', source_type='Expedition', description='desc')
+        presenter = ContactPresenter(m, view)
+        self.assertEquals(presenter.view.widget_get_text('source_name_entry'), 'name')
+        self.assertEquals(presenter.view.widget_get_text('source_type_combo'), 'Expedition')
+        self.assertEquals(presenter.view.widget_get_text('source_desc_textview'), 'desc')
+        

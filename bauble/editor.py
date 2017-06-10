@@ -787,6 +787,11 @@ class MockView:
             setattr(self, name, value)
         self.boxes = set()
 
+    def init_translatable_combo(self, *args):
+        self.invoked.append('init_translatable_combo')
+        self.invoked_detailed.append((self.invoked[-1], args))
+        pass
+
     def get_selection(self):
         'fakes main UI search result - selection'
         return self.selection
@@ -1042,19 +1047,22 @@ class GenericEditorPresenter(object):
         self.running_threads = []
         self.owns_session = False
         self.session = session
+
         if session is None:
             try:
                 self.session = object_session(model)
-            except UnmappedInstanceError:
+            except Exception, e:
+                logger.debug("GenericEditorPresenter::__init__ - %s, %s" % (type(e), e))
+                
+            if self.session is None:  # object_session gave None without error
                 if db.Session is not None:
                     self.session = db.Session()
                     self.owns_session = True
-                    self.session.add(model)
+                    #self.session.add(model)
                 else:
+                    logger.debug('db.Session was None, I cannot get a session.')
                     self.session = None
 
-        #logger.debug("session, model, view = %s, %s, %s"
-        #             % (self.session, model, view))
         if view:
             view.accept_buttons = self.view_accept_buttons
             if model and refresh_view:
