@@ -1049,6 +1049,7 @@ class GenericEditorPresenter(object):
                 if db.Session is not None:
                     self.session = db.Session()
                     self.owns_session = True
+                    self.session.add(model)
                 else:
                     self.session = None
 
