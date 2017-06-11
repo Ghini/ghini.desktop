@@ -813,7 +813,7 @@ class Contact(db.Base):
         '''
         safe = utils.xml_safe
         return (
-            str(self),
+            utils.utf8(self.name),
             safe(self.source_type or ''))
 
 

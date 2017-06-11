@@ -209,56 +209,6 @@ class GardenTestCase(BaubleTestCase):
         return obj
 
 
-''' - there is no "Contact" class, is there?
-- no, it's called Contact and it's defined in source.py
-
-class ContactTests(GardenTestCase):
-
-    def __init__(self, *args):
-        super(ContactTests, self).__init__(*args)
-
-    def test_delete(self):
-        acc = self.create(Accession, species=self.species, code=u'1')
-        contact = Contact(name=u'name')
-        donation = Donation()
-        donation.contact = contact
-        acc.source = donation
-        self.session.commit()
-        self.session.close()
-        # test that we can't delete a contact if it has corresponding
-        # donations
-        import bauble
-        session = db.Session()
-        contact = session.query(Contact).filter_by(name=u'name').one()
-
-        # shouldn't be allowed to delete contact if it has donations, what
-        # is happening here is that when deleting the contact the
-        # corresponding donations.contact_id's are being be set to null
-        # which isn't allowed by the scheme....is this the best we can do?
-        # or can we get some sort of error when creating a dangling
-        # reference
-
-        session.delete(contact)
-        self.assertRaises(DBAPIError, session.commit)
-
-    def itest_contact_editor(self):
-        """
-        Interactively test the ContactEditor
-        """
-        raise SkipTest('separate view from presenter, then test presenter')
-        loc = self.create(Contact, name=u'some contact')
-        editor = ContactEditor(model=loc)
-        editor.start()
-        del editor
-        assert utils.gc_objects_by_type('ContactEditor') == [], \
-            'ContactEditor not deleted'
-        assert utils.gc_objects_by_type('ContactEditorPresenter') == [], \
-            'ContactEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('ContactEditorView') == [], \
-            'ContactEditorView not deleted'
-'''
-
-
 class PlantTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -2199,6 +2149,41 @@ class GlobalFunctionsTests(GardenTestCase):
         self.assertEquals(mergevalues(None, None, '%s|%s'), '')
 
 
+class ContactTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(ContactTests, self).__init__(*args)
+
+    def test_delete(self):
+
+        # In theory, we'd rather not be allowed to delete contact if it
+        # being referred to as the source for an accession.  However, this
+        # just works.  As long as the trouble is theoretic we accept it.
+
+        acc = self.create(Accession, species=self.species, code=u'2001.0001')
+        contact = Contact(name=u'name')
+        source = Source()
+        source.source_detail = contact
+        acc.source = source
+        self.session.commit()
+        self.session.close()
+        
+        # we can delete a contact even if used as source
+        session = db.Session()
+        contact = session.query(Contact).filter_by(name=u'name').one()
+        session.delete(contact)
+        session.commit()
+
+        # the source field in the accession got removed
+        session = db.Session()
+        acc = session.query(Accession).filter_by(code=u'2001.0001').one()
+        self.assertEquals(acc.source, None)
+
+    def test_representation_of_contact(self):
+        contact = Contact(name=u'name')
+        self.assertEquals("%s" % contact, u'name')
+        self.assertEquals(contact.search_view_markup_pair(), (u'name', u''))
+        
 
 class ContactPresenterTests(BaubleTestCase):
 
