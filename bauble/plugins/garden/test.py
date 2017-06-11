@@ -987,11 +987,6 @@ class SourceTests(GardenTestCase):
         self.assert_(self.session.query(Propagation).get(plant_prop_id))
         self.assert_(self.session.query(Contact).get(source_detail_id))
 
-    def test_details_editor(self):
-        raise SkipTest('separate view from presenter, then test presenter')
-        e = ContactEditor()
-        e.start()
-
 
 class AccessionQualifiedTaxon(GardenTestCase):
 
