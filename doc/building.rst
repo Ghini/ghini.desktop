@@ -425,7 +425,17 @@ there is no corresponding database model.  In general:
      presenters prevents us from writing unit tests.
 
 The base class for the presenter, ``GenericEditorPresenter`` defined in
-``bauble.editor``, implements many useful generic callbacks.
+``bauble.editor``, implements many useful generic callbacks.  There is a
+``MockView`` class, that you can use when writing tests for your presenters.
+
+Examples
+^^^^^^^^^^^^^
+
+``Contact`` and ``ContactPresenter`` are implemented following the above
+lines.  The view is defined in the ``contact.glade`` file.
+
+A good example of Presenter/View pattern (no model) is given by the
+connection manager.
 
 We use the same architectural pattern for non-database interaction, by
 setting the presenter also as model. We do this, for example, for the JSON
@@ -433,9 +443,6 @@ export dialog box. The following command will give you a list of
 ``GenericEditorView`` instantiations::
 
   grep -nHr -e GenericEditorView\( bauble
-
-An other good example of Presenter/View pattern (no model) is given by the
-connection manager.
 
 Extending Ghini with Plugins
 -----------------------------
