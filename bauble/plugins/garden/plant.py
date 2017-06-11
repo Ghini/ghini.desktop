@@ -973,9 +973,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
             elif object_session(model) and model in object_session(model).new:
                 raise CheckConditionError(_("cannot branch a new plant"))
 
-        # TODO: shouldn't allow branching plants with quantity < 2
-        # TODO: shouldn't allow changing the accession code in branch_mode
-
         if model is None:
             model = Plant()
 
