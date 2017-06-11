@@ -40,7 +40,7 @@ from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     AccessionNote, Voucher, SourcePresenter, Verification, dms_to_decimal, \
     latitude_to_dms, longitude_to_dms
 from bauble.plugins.garden.source import Source, Collection, Contact, \
-    edit_contact, CollectionPresenter, ContactPresenter
+    create_contact, CollectionPresenter, ContactPresenter
 from bauble.plugins.garden.plant import Plant, PlantNote, \
     PlantChange, PlantEditor, is_code_unique, branch_callback
 from bauble.plugins.garden.location import Location, LocationEditor
@@ -1479,31 +1479,29 @@ class LocationTests(GardenTestCase):
             'LocationEditorView not deleted'
 
 
-# class CollectionTests(GardenTestCase):
+class CollectionTests(GardenTestCase):
 
-#     def __init__(self, *args):
-#         super(CollectionTests, self).__init__(*args)
+    def __init__(self, *args):
+        super(CollectionTests, self).__init__(*args)
 
-#     def setUp(self):
-#         super(CollectionTests, self).setUp()
+    def setUp(self):
+        super(CollectionTests, self).setUp()
 
-#     def tearDown(self):
-#         super(CollectionTests, self).tearDown()
+    def tearDown(self):
+        super(CollectionTests, self).tearDown()
 
-#     def test_accession_prop(self):
-#         """
-#         Test Collection.accession property
-#         """
-#         acc = Accession(code=u'1', species=self.species)
-#         collection = Collection(locale=u'some locale')
-#         self.session.add_all((acc, collection))
+    def test_collection_search_view_markup_pair(self):
+        """Test Collection.accession property
 
-#         self.assert_(acc.source is None)
-#         collection.accession = acc
-#         self.assert_(acc._collection == collection, acc._collection)
-#         self.assert_(acc.source_type == 'Collection')
-#         self.assert_(acc.source == collection)
-#         self.session.commit()
+        """
+        acc = Accession(code=u'2001.0002', species=self.species)
+        acc.source = Source()
+        collection = Collection(locale=u'some location')
+        acc.source.collection = collection
+        self.assertEquals(
+            collection.search_view_markup_pair(),
+            (u'2001.0002 - <small>Echinocactus grusonii</small>',
+             u'Collection at some location'))
 
 
 class InstitutionTests(GardenTestCase):
