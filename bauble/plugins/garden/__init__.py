@@ -126,7 +126,7 @@ class GardenPlugin(pluginmgr.Plugin):
         meta.get_default(plant_delimiter_key, default_plant_delimiter)
 
         institution = Institution()
-        if not institution.name:
+        if bauble.gui is not None and not institution.name:
             start_institution_editor()
 
 

@@ -2185,14 +2185,26 @@ class ContactTests(GardenTestCase):
 
 class ContactPresenterTests(BaubleTestCase):
 
-    def test_create_presenter(self):
+    def test_create_presenter_automatic_session(self):
         from bauble.editor import MockView
         view = MockView()
         m = Contact()
         presenter = ContactPresenter(m, view)
         self.assertEquals(presenter.view, view)
-        self.assertEquals(id(presenter.model), id(m))
         self.assertTrue(presenter.session is not None)
+        # model might have been re-instantiated to fit presenter.session
+
+    def test_create_presenter(self):
+        from bauble.editor import MockView
+        view = MockView()
+        m = Contact()
+        s = db.Session()
+        s.add(m)
+        presenter = ContactPresenter(m, view)
+        self.assertEquals(presenter.view, view)
+        self.assertTrue(presenter.session is not None)
+        # m belongs to s; presenter.model is the same object
+        self.assertEquals(id(presenter.model), id(m))
 
     def test_liststore_is_initialized(self):
         from bauble.editor import MockView

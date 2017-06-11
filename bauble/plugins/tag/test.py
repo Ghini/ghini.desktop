@@ -170,7 +170,7 @@ class TagPresenterTests(BaubleTestCase):
         presenter = TagEditorPresenter(model, view)
         view.widget_set_value('tag_name_entry', u'1234')
         presenter.on_text_entry_changed('tag_name_entry')
-        self.assertEquals(model.tag, u'1234')
+        self.assertEquals(presenter.model.tag, u'1234')
 
     def test_when_user_inserts_existing_name_warning_ok_deactivated(self):
         session = db.Session()
@@ -209,7 +209,7 @@ class TagPresenterTests(BaubleTestCase):
         self.assertTrue(not view.sensitive)  # not changed
         view.widget_set_value('tag_name_entry', u'1234')
         presenter.on_text_entry_changed('tag_name_entry')
-        self.assertEquals(model.tag, u'1234')
+        self.assertEquals(presenter.model.tag, u'1234')
         self.assertTrue(view.sensitive)  # changed
 
     def test_when_user_edits_description_description_is_memorized(self):

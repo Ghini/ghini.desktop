@@ -1061,7 +1061,8 @@ class GenericEditorPresenter(object):
                 if db.Session is not None:
                     self.session = db.Session()
                     self.owns_session = True
-                    #self.session.add(model)
+                    if isinstance(model, db.Base):
+                        self.model = model = self.session.merge(model)
                 else:
                     logger.debug('db.Session was None, I cannot get a session.')
                     self.session = None
