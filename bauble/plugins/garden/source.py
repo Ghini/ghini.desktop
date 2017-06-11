@@ -743,9 +743,10 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 # Contact / SourceDetails / Donor
 #
 
-def edit_contact(parent=None):
+def create_contact(parent=None):
     model = Contact()
-    return source_detail_edit_callback([model], parent)
+    source_detail_edit_callback([model], parent)
+    return [model]
 
 
 def source_detail_edit_callback(details, parent=None):
@@ -813,7 +814,7 @@ class Contact(db.Base):
         '''
         safe = utils.xml_safe
         return (
-            utils.utf8(self.name),
+            safe(self.name),
             safe(self.source_type or ''))
 
 

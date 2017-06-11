@@ -594,11 +594,12 @@ class GUI(object):
             # editor_cls can be a class, of which we get an instance, and we
             # invoke the `start` method of this instance. or it is a
             # callable, then we just use its return value and we are done.
-            editor = editor_cls()
-            try:
+            if isinstance(editor_cls, type(lambda x:x)):
+                editor = None
+                committed = editor_cls()
+            else:
+                editor = editor_cls()
                 committed = editor.start()
-            except:
-                committed, editor = editor, None
             if committed is not None and isinstance(view, SearchView):
                 view.results_view.collapse_all()
                 view.expand_to_all_refs(expanded_rows)

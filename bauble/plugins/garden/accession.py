@@ -54,7 +54,7 @@ from bauble.error import check
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
     Propagation
-from bauble.plugins.garden.source import Contact, edit_contact, \
+from bauble.plugins.garden.source import Contact, create_contact, \
     Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
@@ -1587,7 +1587,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         Opens a new ContactEditor when clicked and repopulates the
         source combo if a new Contact is created.
         """
-        committed = edit_contact(parent=self.view.get_window())
+        committed = create_contact(parent=self.view.get_window())
         new_detail = None
         if committed:
             new_detail = committed[0]
