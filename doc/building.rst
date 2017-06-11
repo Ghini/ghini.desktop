@@ -366,7 +366,7 @@ there is no corresponding database model.  In general:
   In the glade file, in the ``action-widgets`` section closing your
   GtkDialog object description, make sure every ``action-widget`` element
   has a valid ``response`` value.  Use `valid GtkResponseType values
-  http://gtk.php.net/manual/en/html/gtk/gtk.enum.responsetype.html`_, for
+  <http://gtk.php.net/manual/en/html/gtk/gtk.enum.responsetype.html>`_, for
   example:
 
   * GTK_RESPONSE_OK, -5
@@ -375,7 +375,24 @@ there is no corresponding database model.  In general:
   * GTK_RESPONSE_NO, -9
 
   There is no easy way to unit test a subclassed view, so please don't
-  subclass views.
+  subclass views, there's really no need to.
+
+  In the glade file, every input widget should define which handler is
+  activated on which signal.  The generic Presenter class offers generic
+  callbacks which cover the most common cases.
+
+  * GtkEntry (one-line text entry) will handle the ``changed`` signal, with
+    either ``on_text_entry_changed`` or ``on_unique_text_entry_changed``.
+  * GtkTextView: associate it to a GtkTextBuffer. To handle the ``changed``
+    signal on the GtkTextBuffer, we have to define a handler which invokes
+    the generic ``on_textbuffer_changed``, the only role for this function
+    is to pass our generic handler the name of the model attribute that
+    receives the change. This is a workaroud for an `unresolved bug in GTK
+    <http://stackoverflow.com/questions/32106765/>`_.
+  * GtkComboBox with translated texts can't be easily handled from the glade
+    file, so we don't even try.  Use the ``init_translatable_combo`` method
+    of the generic ``GenericEditorView`` class, but please invoke it from
+    the **presenter**.
 
 * The **Model** is just an object with known attributes. In this
   interaction, the **model** is just a passive data container, it does
@@ -394,14 +411,18 @@ there is no corresponding database model.  In general:
   in the **view**. If the **model** corresponds to a database object, the
   **presenter** commits all **model** updates to the database when the
   **view** is closed successfully, or rolls them back if the **view** is
-  canceled. If the **model** is something else, then the **presenter** will
-  do something else.
+  canceled. (this behaviour is influenced by the parameter ``do_commit``)
 
-A well behaved **presenter** uses the **view** api to query the values
-inserted by the user or to forcibly set widget statuses. Please do not learn
-from the practice of our misbehaving presenters, some of which directly
-handle fields of ``view.widgets``. By doing so, these presenters prevents us
-from writing unit tests.
+  If the **model** is something else, then the **presenter** will do
+  something else.
+
+  .. note::
+     
+     A well behaved **presenter** uses the **view** api to query the values
+     inserted by the user or to forcibly set widget statuses. Please do not
+     learn from the practice of our misbehaving presenters, some of which
+     directly handle fields of ``view.widgets``. By doing so, these
+     presenters prevents us from writing unit tests.
 
 The base class for the presenter, ``GenericEditorPresenter`` defined in
 ``bauble.editor``, implements many useful generic callbacks.
