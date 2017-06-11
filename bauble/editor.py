@@ -1039,11 +1039,14 @@ class GenericEditorPresenter(object):
     PROBLEM_DUPLICATE = random()
     PROBLEM_EMPTY = random()
 
-    def __init__(self, model, view, refresh_view=False, session=None):
+    def __init__(self, model, view, refresh_view=False, session=None,
+                 do_commit=False, committing_results=[gtk.RESPONSE_OK]):
         self.model = model
         self.view = view
         self.problems = set()
         self._dirty = False
+        self.is_committing_presenter = do_commit
+        self.committing_results = committing_results
         self.running_threads = []
         self.owns_session = False
         self.session = session
@@ -1624,10 +1627,14 @@ class GenericEditorPresenter(object):
         self.view.connect(completion, 'match-selected', on_match_select)
 
     def start(self):
-        """
-        run the dialog associated to the view
+        """run the dialog associated to the view
+
         """
         result = self.view.get_window().run()
+        if (self.is_committing_presenter
+            and result in self.committing_results
+            and self._dirty):
+            self.commit_changes()
         self.cleanup()
         return result
 
