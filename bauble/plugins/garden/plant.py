@@ -316,7 +316,7 @@ class PlantChange(db.Base):
     parent_plant = relation(
         'Plant', uselist=False,
         primaryjoin='PlantChange.parent_plant_id == Plant.id',
-        backref=backref('branches', cascade='delete-orphan'))
+        backref=backref('branches', cascade='delete, delete-orphan'))
 
     from_location = relation(
         'Location', primaryjoin='PlantChange.from_location_id == Location.id')
