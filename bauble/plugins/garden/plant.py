@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2017 Mario Frasca <mario@anche.no>.
 #
 # This file is part of bauble.classic.
 #
@@ -316,7 +316,7 @@ class PlantChange(db.Base):
     parent_plant = relation(
         'Plant', uselist=False,
         primaryjoin='PlantChange.parent_plant_id == Plant.id',
-        backref=backref('branches', cascade='all, delete-orphan'))
+        backref=backref('branches', cascade='delete-orphan'))
 
     from_location = relation(
         'Location', primaryjoin='PlantChange.from_location_id == Location.id')
@@ -509,9 +509,9 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         return "%s%s%s" % (self.accession, self.delimiter, self.code)
 
     def duplicate(self, code=None, session=None):
-        """
-        Return a Plant that is a duplicate of this Plant with attached
-        notes, changes and propagations.
+        """Return a Plant that is a flat (not deep) duplicate of self. For notes,
+        changes and propagations, you should refer to the original plant.
+
         """
         plant = Plant()
         if not session:
@@ -519,37 +519,13 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             if session:
                 session.add(plant)
 
-        ignore = ('id', 'changes', 'notes', 'propagations')
+        ignore = ('id', 'code', 'changes', 'notes', 'propagations')
         properties = filter(lambda p: p.key not in ignore,
                             object_mapper(self).iterate_properties)
         for prop in properties:
             setattr(plant, prop.key, getattr(self, prop.key))
         plant.code = code
 
-        # duplicate notes
-        for note in self.notes:
-            new_note = PlantNote()
-            for prop in object_mapper(note).iterate_properties:
-                setattr(new_note, prop.key, getattr(note, prop.key))
-            new_note.id = None
-            new_note.plant = plant
-
-        # duplicate changes
-        for change in self.changes:
-            new_change = PlantChange()
-            for prop in object_mapper(change).iterate_properties:
-                setattr(new_change, prop.key, getattr(change, prop.key))
-            new_change.id = None
-            new_change.plant = plant
-
-        # duplicate propagations
-        for propagation in self.propagations:
-            new_propagation = PlantPropagation()
-            for prop in object_mapper(propagation).iterate_properties:
-                setattr(new_propagation, prop.key,
-                        getattr(propagation, prop.key))
-            new_propagation.id = None
-            new_propagation.plant = plant
         return plant
 
     def markup(self):
@@ -679,6 +655,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                            }
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
+    PROBLEM_INVALID_QUANTITY = str(random())
 
     def __init__(self, model, view):
         '''
@@ -693,8 +670,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # if the model is in session.new then it might be a branched
         # plant so don't store it....is this hacky?
         self._original_quantity = None
+        self.lower_quantity_limit = 0
+        self.upper_quantity_limit = float('inf')
         if model not in self.session.new:
             self._original_quantity = self.model.quantity
+            self.lower_quantity_limit = 1
         self._dirty = False
 
         # set default values for acc_type
@@ -792,9 +772,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_split_clicked)
 
     def dirty(self):
-        return (self.pictures_presenter.dirty() or
-                self.notes_presenter.dirty() or
-                self.prop_presenter.dirty() or
+        return (self.pictures_presenter.is_dirty() or
+                self.notes_presenter.is_dirty() or
+                self.prop_presenter.is_dirty() or
                 self._dirty)
 
     def on_date_entry_changed(self, entry, *args):
@@ -803,20 +783,23 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def on_quantity_changed(self, entry, *args):
         value = entry.props.text
         try:
-            value = abs(int(value))
+            value = int(value)
         except ValueError, e:
             logger.debug(e)
             value = None
         self.set_model_attr('quantity', value)
+        if value < self.lower_quantity_limit or value >= self.upper_quantity_limit:
+            self.add_problem(self.PROBLEM_INVALID_QUANTITY, entry)
+        else:
+            self.remove_problem(self.PROBLEM_INVALID_QUANTITY, entry)
+        self.refresh_sensitivity()
         if value is None:
-            self.refresh_sensitivity()
             return
         if self._original_quantity:
             self.change.quantity = \
                 abs(self._original_quantity-self.model.quantity)
         else:
             self.change.quantity = self.model.quantity
-        self.refresh_sensitivity()
 
     def on_plant_code_entry_changed(self, entry, *args):
         """
@@ -857,7 +840,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                       self.model.code is not None,
                       self.model.location is not None,
                       self.model.quantity is not None,
-                      self.dirty(),
+                      self.is_dirty(),
                       len(self.problems) == 0))
         logger.debug(self.problems)
 
@@ -873,7 +856,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                      self.model.code is not None and
                      self.model.location is not None and
                      self.model.quantity is not None) \
-            and self.dirty() and len(self.problems) == 0
+            and self.is_dirty() and len(self.problems) == 0
         self.view.widgets.pad_ok_button.set_sensitive(sensitive)
         self.view.widgets.pad_next_button.set_sensitive(sensitive)
 
@@ -908,6 +891,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.session.add(split_plant)
             value = self.model.quantity - presenter.quantity
             self.view.widget_set_value('plant_quantity_entry', value)
+            # TODO #194 - decide whether to remove this or that. in any
+            # case, this does not memorize changes neither in orig_plant nor
+            # in split_plant.
         else:
             pass
 
@@ -947,10 +933,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def cleanup(self):
         super(PlantEditorPresenter, self).cleanup()
         msg_box_parent = self.view.widgets.message_box_parent
-        map(msg_box_parent.remove,  msg_box_parent.get_children())
+        map(msg_box_parent.remove, msg_box_parent.get_children())
         # the entry is made not editable for branch mode
         self.view.widgets.plant_acc_entry.props.editable = True
-
+        self.view.get_window().props.title = _('Plant Editor')
+        self.view.widgets.split_planting_button.props.visible = True
+        
     def start(self):
         return self.view.start()
 
@@ -978,14 +966,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
         self.branched_plant = None
         if branch_mode:
-            # duplicate the model so we can branch from it without
-            # destroying the first
-            self.branched_plant = model
-            model = self.branched_plant.duplicate(code=None)
+            # we work on 'model', we keep the original at 'branched_plant'.
+            self.branched_plant, model = model, model.duplicate(code=None)
+            model.quantity = 1
 
         super(PlantEditor, self).__init__(model, parent)
 
-        if self.branched_plant:
+        if self.branched_plant and self.branched_plant not in self.session:
             # make a copy of the branched plant for this session
             self.branched_plant = self.session.merge(self.branched_plant)
 
@@ -997,6 +984,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
         view = PlantEditorView(parent=self.parent)
         self.presenter = PlantEditorPresenter(self.model, view)
+        if self.branched_plant:
+            self.presenter.upper_quantity_limit = self.branched_plant.quantity
+            self.presenter.view.widgets.split_planting_button.props.visible = False
 
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
@@ -1018,11 +1008,23 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 and not self.branched_plant:
             change = self.presenter.change
             if self.branched_plant:
-                # branch mode
                 self.branched_plant.quantity -= self.model.quantity
+                # in branch_mode, we have two views on the same changes,
+                # from the new (model) plant, and from the previous
+                # (branched) plant
+                ######################################################
+                change.plant = self.model
                 change.parent_plant = self.branched_plant
-                if not change.to_location:
-                    change.to_location = self.model.location
+                change.quantity = self.model.quantity
+                change.to_location = self.model.location
+                change.from_location = self.branched_plant.location
+                ######################################################
+                change = PlantChange()
+                self.session.add(change)
+                change.plant = self.branched_plant
+                change.quantity = self.model.quantity
+                change.to_location = self.model.location
+                change.from_location = self.branched_plant.location
             elif change.quantity is None \
                     or (change.quantity == self.model.quantity and
                         change.from_location == self.model.location and
@@ -1055,6 +1057,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         # the plant code is not a range....it's a small price to pay
         plants = []
         mapper = object_mapper(self.model)
+
         # TODO: precompute the _created and _last_updated attributes
         # in case we have to create lots of plants. it won't be too slow
 
@@ -1093,7 +1096,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                if self.presenter.dirty():
+                if self.presenter.is_dirty():
                     # commit_changes() will append the commited plants
                     # to self._committed
                     self.commit_changes()
@@ -1113,14 +1116,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
-        elif (self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg)) \
-                or not self.presenter.dirty():
+        elif (self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg)) \
+                or not self.presenter.is_dirty():
             self.session.rollback()
             return True
         else:
             return False
 
-#        # respond to responses
+        # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
