@@ -883,17 +883,15 @@ class PlantEditorPresenter(GenericEditorPresenter):
         presenter = SplitPlantingPresenter(view, self.model)
         result = presenter.start()
         if result == gtk.RESPONSE_OK:
-            split_plant = Plant()
-            split_plant.code = presenter.plant_code
-            split_plant.accession = self.model.accession
+            split_plant = self.model.duplicate()
             split_plant.quantity = presenter.quantity
             split_plant.location = presenter.location
             self.session.add(split_plant)
             value = self.model.quantity - presenter.quantity
             self.view.widget_set_value('plant_quantity_entry', value)
-            # TODO #194 - decide whether to remove this or that. in any
-            # case, this does not memorize changes neither in orig_plant nor
-            # in split_plant.
+            move_quantity_between_plants(from_plant=self.model,
+                                         to_plant=split_plant)
+            # TODO #194 - decide whether to remove this or that.
         else:
             pass
 
@@ -941,6 +939,29 @@ class PlantEditorPresenter(GenericEditorPresenter):
         
     def start(self):
         return self.view.start()
+
+
+def move_quantity_between_plants(from_plant, to_plant, to_plant_change=None):
+    ######################################################
+    s = object_session(to_plant)
+    if to_plant_change is None:
+        to_plant_change = PlantChange()
+        s.add(to_plant_change)
+    from_plant_change = PlantChange()
+    s.add(from_plant_change)
+    ######################################################
+    from_plant.quantity -= to_plant.quantity
+    ######################################################
+    to_plant_change.plant = to_plant
+    to_plant_change.parent_plant = from_plant
+    to_plant_change.quantity = to_plant.quantity
+    to_plant_change.to_location = to_plant.location
+    to_plant_change.from_location = from_plant.location
+    ######################################################
+    from_plant_change.plant = from_plant
+    from_plant_change.quantity = to_plant.quantity
+    from_plant_change.to_location = to_plant.location
+    from_plant_change.from_location = from_plant.location
 
 
 class PlantEditor(GenericModelViewPresenterEditor):
@@ -1000,6 +1021,11 @@ class PlantEditor(GenericModelViewPresenterEditor):
         else:
             view.widgets.plant_code_entry.grab_focus()
 
+    def compute_plant_split_changes(self):
+        move_quantity_between_plants(from_plant=self.branched_plant,
+                                     to_plant=self.model,
+                                     to_plant_change=self.presenter.change)
+
     def commit_changes(self):
         """
         """
@@ -1008,33 +1034,12 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 and not self.branched_plant:
             change = self.presenter.change
             if self.branched_plant:
-                self.branched_plant.quantity -= self.model.quantity
-                # in branch_mode, we have two views on the same changes,
-                # from the new (model) plant, and from the previous
-                # (branched) plant
-                ######################################################
-                change.plant = self.model
-                change.parent_plant = self.branched_plant
-                change.quantity = self.model.quantity
-                change.to_location = self.model.location
-                change.from_location = self.branched_plant.location
-                ######################################################
-                change = PlantChange()
-                self.session.add(change)
-                change.plant = self.branched_plant
-                change.quantity = self.model.quantity
-                change.to_location = self.model.location
-                change.from_location = self.branched_plant.location
+                self.compute_plant_split_changes()
             elif change.quantity is None \
                     or (change.quantity == self.model.quantity and
                         change.from_location == self.model.location and
                         change.quantity == self.presenter._original_quantity):
-                # if the quantity and location haven't changed then
-                # don't save the change
-                # UPDATE:
-                # TODO: why save the change, what if we want to indicate
-                # a change even if the quantity and location hasn't
-                # changed?
+                # if quantity and location haven't changed, nothing changed.
                 utils.delete_or_expunge(change)
                 self.model.change = None
             else:

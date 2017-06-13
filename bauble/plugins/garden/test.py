@@ -347,6 +347,32 @@ class PlantTests(GardenTestCase):
         editor = PlantEditor(model=p)
         editor.start()
 
+    def test_double_change(self):
+        plant = Plant(accession=self.accession, code=u'11', location=self.location, quantity=10)
+        loc2a = Location(name=u'site2a', code=u'2a')
+        self.session.add_all([plant, loc2a])
+        self.session.flush()
+        editor = PlantEditor(model=plant, branch_mode=True)
+        loc2a = object_session(editor.branched_plant).query(Location).filter(Location.code == u'2a').one()
+        editor.branched_plant.location = loc2a
+        update_gui()
+        editor.model.quantity = 3
+        editor.compute_plant_split_changes()
+
+        self.assertEquals(editor.branched_plant.quantity, 7)
+        change = editor.branched_plant.changes[0]
+        self.assertEquals(change.plant, editor.branched_plant)
+        self.assertEquals(change.quantity, editor.model.quantity)
+        self.assertEquals(change.to_location, editor.model.location)
+        self.assertEquals(change.from_location, editor.branched_plant.location)
+
+        self.assertEquals(editor.model.quantity, 3)
+        change = editor.model.changes[0]
+        self.assertEquals(change.plant, editor.model)
+        self.assertEquals(change.quantity, editor.model.quantity)
+        self.assertEquals(change.to_location, editor.model.location)
+        self.assertEquals(change.from_location, editor.branched_plant.location)
+
     def test_branch_editor(self):
         import gtk
 
