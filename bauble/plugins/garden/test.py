@@ -267,11 +267,19 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
     def test_search_view_markup_pair(self):
+        # living plant
         p = Plant(accession=self.accession, location=self.location, code=u'2',
                   quantity=52)
         self.session.add(p)
         self.assertEquals(p.search_view_markup_pair(),
                           (u'1.2 <span foreground="#555555" size="small" weight="light">- 52 alive in (STE) site</span>',
+                           u'<i>Echinocactus</i> <i>grusonii</i>'))
+        # dead plant
+        p = Plant(accession=self.accession, location=self.location, code=u'2',
+                  quantity=0)
+        self.session.add(p)
+        self.assertEquals(p.search_view_markup_pair(),
+                          (u'<span foreground="#9900ff">1.2</span>',
                            u'<i>Echinocactus</i> <i>grusonii</i>'))
 
     def test_bulk_plant_editor(self):
