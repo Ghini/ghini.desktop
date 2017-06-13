@@ -649,7 +649,7 @@ class PropagationTests(GardenTestCase):
 
     def test_accession_without_parent_plant(self):
         self.assertEquals(self.accession.parent_plant, None)
-            
+
     def test_cutting_property(self):
         self.add_plants([u'1'])
         prop = Propagation()
@@ -1952,7 +1952,7 @@ class PlantSearchTest(GardenTestCase):
         super(PlantSearchTest, self).setUp()
         setUp_data()
 
-    def test_searchbyplantcode(self):
+    def test_searchbyplantcode_unquoted(self):
         mapper_search = search.get_strategy('PlantSearch')
 
         results = mapper_search.search('1.1.1', self.session)
@@ -1971,6 +1971,39 @@ class PlantSearchTest(GardenTestCase):
         p = results.pop()
         ex = self.session.query(Plant).filter(Plant.id == 3).first()
         self.assertEqual(p, ex)
+
+    def test_searchbyplantcode_quoted(self):
+        mapper_search = search.get_strategy('PlantSearch')
+
+        results = mapper_search.search('"1.1.1"', self.session)
+        self.assertEquals(len(results), 1)
+        p = results.pop()
+        ex = self.session.query(Plant).filter(Plant.id == 1).first()
+        self.assertEqual(p, ex)
+        results = mapper_search.search("'1.2.1'", self.session)
+        logger.debug(results)
+        self.assertEquals(len(results), 1)
+        p = results.pop()
+        ex = self.session.query(Plant).filter(Plant.id == 2).first()
+        self.assertEqual(p, ex)
+        results = mapper_search.search('\'1.2.2\'', self.session)
+        self.assertEquals(len(results), 1)
+        p = results.pop()
+        ex = self.session.query(Plant).filter(Plant.id == 3).first()
+        self.assertEqual(p, ex)
+
+    def test_searchbyplantcode_invalid_value(self):
+        mapper_search = search.get_strategy('PlantSearch')
+
+        results = mapper_search.search('1.11', self.session)
+        self.assertEquals(len(results), 0)
+        print self.handler.messages
+        self.assertEquals(self.handler.messages['debug'], [
+            'text is not quoted, should strategy apply?', u'ac: 1, pl: 11'])
+        results = mapper_search.search("'121'", self.session)
+        self.assertEquals(len(results), 0)
+        self.assertEquals(self.handler.messages['debug'][2:], [
+            "delimiter not found, can't split the code"])
 
     def test_searchbyaccessioncode(self):
         mapper_search = search.get_strategy('MapperSearch')
@@ -2160,7 +2193,7 @@ class ContactTests(GardenTestCase):
         acc.source = source
         self.session.commit()
         self.session.close()
-        
+
         # we can delete a contact even if used as source
         session = db.Session()
         contact = session.query(Contact).filter_by(name=u'name').one()
@@ -2176,7 +2209,7 @@ class ContactTests(GardenTestCase):
         contact = Contact(name=u'name')
         self.assertEquals("%s" % contact, u'name')
         self.assertEquals(contact.search_view_markup_pair(), (u'name', u''))
-        
+
 
 class ContactPresenterTests(BaubleTestCase):
 
@@ -2209,4 +2242,3 @@ class ContactPresenterTests(BaubleTestCase):
         self.assertEquals(presenter.view.widget_get_text('source_name_entry'), 'name')
         self.assertEquals(presenter.view.widget_get_text('source_type_combo'), 'Expedition')
         self.assertEquals(presenter.view.widget_get_text('source_desc_textview'), 'desc')
-        

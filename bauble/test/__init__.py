@@ -79,18 +79,41 @@ def check_dupids(filename):
     return list(duplicates)
 
 
+class MockLoggingHandler(logging.Handler):
+    """Mock logging handler to check for expected logs."""
+
+    def __init__(self, *args, **kwargs):
+        self.reset()
+        logging.Handler.__init__(self, *args, **kwargs)
+
+    def emit(self, record):
+        self.messages[record.levelname.lower()].append(record.getMessage())
+
+    def reset(self):
+        self.messages = {
+            'debug': [],
+            'info': [],
+            'warning': [],
+            'error': [],
+            'critical': [],
+        }
+
+        
 class BaubleTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(BaubleTestCase, self).__init__(*args, **kwargs)
         prefs.testing = True
+        self.handler = MockLoggingHandler()
 
     def setUp(self):
         assert uri is not None, "The database URI is not set"
         init_bauble(uri)
         self.session = db.Session()
+        logging.getLogger().addHandler(self.handler)
 
     def tearDown(self):
+        logging.getLogger().removeHandler(self.handler)
         self.session.close()
         db.metadata.drop_all(bind=db.engine)
         bauble.pluginmgr.commands.clear()
