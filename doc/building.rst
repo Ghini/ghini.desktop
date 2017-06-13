@@ -336,6 +336,26 @@ With this action, the value returned by ``remove_callback`` should be
 have a look at commit 734f5bb9feffc2f4bd22578fcee1802c8682ca83 for the other
 two test functions.
 
+Testing logging
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Our ``bauble.test.BaubleTestCase`` objects use handlers of the class
+``bauble.test.MockLoggingHandler``.  Every time an individual unit test is
+started, the ``setUp`` method will create a new ``handler`` and associate it
+to the root logger.  The ``tearDown`` method takes care of removing it.
+
+You can check for presence of specific logging messages in
+``self.handler.messages``. ``messages`` is a dictionary, initially empty,
+with two levels of indexation. First the name of the logger issuing the
+logging record, then the name of the level of the logging record. Keys are
+created when needed. Values hold lists of messages, formatted according to
+whatever formatter you associate to the handler, defaulting to
+``logging.Formatter("%(message)s")``.
+
+You can explicitly empty the collected messages by invoking
+``self.handler.clear()``.
+
+
 Putting all together
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

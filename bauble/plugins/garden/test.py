@@ -1957,6 +1957,8 @@ class PlantSearchTest(GardenTestCase):
 
         results = mapper_search.search('1.1.1', self.session)
         self.assertEquals(len(results), 1)
+        self.assertEquals(self.handler.messages['bauble.plugins.garden.plant']['debug'][0],
+            'text is not quoted, should strategy apply?')
         p = results.pop()
         ex = self.session.query(Plant).filter(Plant.id == 1).first()
         self.assertEqual(p, ex)
@@ -1992,17 +1994,17 @@ class PlantSearchTest(GardenTestCase):
         ex = self.session.query(Plant).filter(Plant.id == 3).first()
         self.assertEqual(p, ex)
 
-    def test_searchbyplantcode_invalid_value(self):
+    def test_searchbyplantcode_invalid_values(self):
         mapper_search = search.get_strategy('PlantSearch')
 
         results = mapper_search.search('1.11', self.session)
         self.assertEquals(len(results), 0)
-        print self.handler.messages
-        self.assertEquals(self.handler.messages['debug'], [
-            'text is not quoted, should strategy apply?', u'ac: 1, pl: 11'])
+        self.assertEquals(self.handler.messages['bauble.plugins.garden.plant']['debug'], [
+            'text is not quoted, should strategy apply?', 'ac: 1, pl: 11'])
+        self.handler.reset()
         results = mapper_search.search("'121'", self.session)
         self.assertEquals(len(results), 0)
-        self.assertEquals(self.handler.messages['debug'][2:], [
+        self.assertEquals(self.handler.messages['bauble.plugins.garden.plant']['debug'], [
             "delimiter not found, can't split the code"])
 
     def test_searchbyaccessioncode(self):

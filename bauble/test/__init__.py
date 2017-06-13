@@ -87,16 +87,13 @@ class MockLoggingHandler(logging.Handler):
         logging.Handler.__init__(self, *args, **kwargs)
 
     def emit(self, record):
-        self.messages[record.levelname.lower()].append(record.getMessage())
+        received = self.messages.setdefault(
+            record.name, {}).setdefault(
+                record.levelname.lower(), [])
+        received.append(self.format(record))
 
     def reset(self):
-        self.messages = {
-            'debug': [],
-            'info': [],
-            'warning': [],
-            'error': [],
-            'critical': [],
-        }
+        self.messages = {}
 
         
 class BaubleTestCase(unittest.TestCase):
@@ -104,12 +101,12 @@ class BaubleTestCase(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(BaubleTestCase, self).__init__(*args, **kwargs)
         prefs.testing = True
-        self.handler = MockLoggingHandler()
 
     def setUp(self):
         assert uri is not None, "The database URI is not set"
         init_bauble(uri)
         self.session = db.Session()
+        self.handler = MockLoggingHandler()
         logging.getLogger().addHandler(self.handler)
 
     def tearDown(self):
