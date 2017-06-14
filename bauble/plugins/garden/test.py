@@ -1654,7 +1654,6 @@ class InstitutionPresenterTests(GardenTestCase):
         self.assertTrue(view.widget_get_sensitive('inst_register'))
 
     def test_when_user_registers_info_is_logged(self):
-        raise SkipTest('please do not send stuff to sentry while testing')
         from bauble.utils import desktop
         from bauble.test import mockfunc
         from functools import partial
@@ -1666,8 +1665,11 @@ class InstitutionPresenterTests(GardenTestCase):
         o = Institution()
         p = InstitutionPresenter(o, view)
         p.on_inst_register_clicked()
-        self.assertTrue(('desktop.open', 'mailto:bauble@anche.no') in
-                        self.invoked)
+        self.assertEquals(self.handler.messages['bauble.registrations']['info'],
+                          ["[('fax', None), ('address', None), ('name', ''), "
+                           "('contact', None), ('technical_contact', None), "
+                           "('abbreviation', None), ('code', None), "
+                           "('tel', None), ('email', '')]"])
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]
