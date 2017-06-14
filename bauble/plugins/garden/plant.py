@@ -73,8 +73,8 @@ def edit_callback(plants):
 
 def branch_callback(plants):
     if plants[0].quantity <= 1:
-        msg = _("Not enough plants to branch.  A plant should have at least "
-                "a quantity of 2 before it can be branched")
+        msg = _("Not enough plants to split.  A plant should have at least "
+                "a quantity of 2 before it can be divided")
         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         return
 
@@ -108,7 +108,7 @@ def remove_callback(plants):
 edit_action = Action('plant_edit', _('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e', multiselect=True)
 
-branch_action = Action('plant_branch', _('_Branch'), callback=branch_callback,
+branch_action = Action('plant_branch', _('_Split'), callback=branch_callback,
                        accelerator='<ctrl>b')
 
 remove_action = Action('plant_remove', _('_Delete'), callback=remove_callback,
@@ -951,7 +951,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             if model is None:
                 raise CheckConditionError(_("branch_mode requires a model"))
             elif object_session(model) and model in object_session(model).new:
-                raise CheckConditionError(_("cannot branch a new plant"))
+                raise CheckConditionError(_("cannot split a new plant"))
 
         if model is None:
             model = Plant()
@@ -1141,10 +1141,10 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if self.branched_plant:
             # set title if in branch mode
             self.presenter.view.get_window().props.title += \
-                utils.utf8(' - %s' % _('Branch Mode'))
+                utils.utf8(' - %s' % _('Split Mode'))
             message_box_parent = self.presenter.view.widgets.message_box_parent
             map(message_box_parent.remove, message_box_parent.get_children())
-            msg = _('Branching from %(plant_code)s.  The quantity will '
+            msg = _('Splitting from %(plant_code)s.  The quantity will '
                     'be subtracted from %(plant_code)s') \
                 % {'plant_code': str(self.branched_plant)}
             box = self.presenter.view.add_message_box(utils.MESSAGE_BOX_INFO)
@@ -1312,7 +1312,7 @@ class ChangesExpander(InfoExpander):
                               xoptions=gtk.FILL)
             current_row += 1
             if change.parent_plant:
-                s = _('<i>Divided from %(plant)s</i>') % \
+                s = _('<i>Split from %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(change.parent_plant))
                 label = gtk.Label()
                 label.set_alignment(0.0, 0.0)
@@ -1329,7 +1329,7 @@ class ChangesExpander(InfoExpander):
                                            change.parent_plant)
                 current_row += 1
             if divided_plant:
-                s = _('<i>Divided as %(plant)s</i>') % \
+                s = _('<i>Split as %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(divided_plant))
                 label = gtk.Label()
                 label.set_alignment(0.0, 0.0)
