@@ -1315,8 +1315,6 @@ class ChangesExpander(InfoExpander):
                 s = _('<i>Divided from %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(change.parent_plant))
                 label = gtk.Label()
-                label.props.wrap = True
-                label.connect("size-allocate", label_size_allocate)
                 label.set_alignment(0.0, 0.0)
                 label.set_markup(s)
                 eb = gtk.EventBox()
@@ -1334,8 +1332,6 @@ class ChangesExpander(InfoExpander):
                 s = _('<i>Divided as %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(divided_plant))
                 label = gtk.Label()
-                label.props.wrap = True
-                label.connect("size-allocate", label_size_allocate)
                 label.set_alignment(0.0, 0.0)
                 label.set_markup(s)
                 eb = gtk.EventBox()
