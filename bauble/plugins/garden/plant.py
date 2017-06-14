@@ -519,7 +519,7 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             if session:
                 session.add(plant)
 
-        ignore = ('id', 'code', 'changes', 'notes', 'propagations')
+        ignore = ('id', 'code', 'changes', 'notes', 'propagations', '_created')
         properties = filter(lambda p: p.key not in ignore,
                             object_mapper(self).iterate_properties)
         for prop in properties:
@@ -1276,6 +1276,15 @@ class ChangesExpander(InfoExpander):
                 return 1
 
         for change in sorted(row.changes, cmp=_cmp, reverse=True):
+            try:
+                seconds, divided_plant = min(
+                    [(abs((i.plant._created - change.date).total_seconds()), i.plant)
+                     for i in row.branches])
+                if seconds > 3:
+                    divided_plant = None
+            except:
+                divided_plant = None
+            
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
             label.set_alignment(0, 0)
@@ -1303,7 +1312,7 @@ class ChangesExpander(InfoExpander):
                               xoptions=gtk.FILL)
             current_row += 1
             if change.parent_plant:
-                s = _('<i>Branched from %(plant)s</i>') % \
+                s = _('<i>Divided from %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(change.parent_plant))
                 label = gtk.Label()
                 label.props.wrap = True
@@ -1320,6 +1329,24 @@ class ChangesExpander(InfoExpander):
 
                 utils.make_label_clickable(label, on_clicked,
                                            change.parent_plant)
+                current_row += 1
+            if divided_plant:
+                s = _('<i>Divided as %(plant)s</i>') % \
+                    dict(plant=utils.xml_safe(divided_plant))
+                label = gtk.Label()
+                label.props.wrap = True
+                label.connect("size-allocate", label_size_allocate)
+                label.set_alignment(0.0, 0.0)
+                label.set_markup(s)
+                eb = gtk.EventBox()
+                eb.add(label)
+                self.table.attach(eb, 1, 2, current_row, current_row+1,
+                                  xoptions=gtk.FILL)
+
+                def on_clicked(widget, event, parent):
+                    select_in_search_results(parent)
+
+                utils.make_label_clickable(label, on_clicked, divided_plant)
                 current_row += 1
 
         self.vbox.show_all()
