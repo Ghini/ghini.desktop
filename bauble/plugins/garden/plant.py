@@ -669,12 +669,13 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # if the model is in session.new then it might be a branched
         # plant so don't store it....is this hacky?
-        self._original_quantity = None
-        self.lower_quantity_limit = 0
         self.upper_quantity_limit = float('inf')
-        if model not in self.session.new:
-            self._original_quantity = self.model.quantity
+        if model in self.session.new:
+            self._original_quantity = None
             self.lower_quantity_limit = 1
+        else:
+            self._original_quantity = self.model.quantity
+            self.lower_quantity_limit = 0
         self._dirty = False
 
         # set default values for acc_type
@@ -768,8 +769,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
-        self.view.connect('split_planting_button', 'clicked',
-                          self.on_split_clicked)
 
     def dirty(self):
         return (self.pictures_presenter.is_dirty() or
@@ -859,6 +858,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             and self.is_dirty() and len(self.problems) == 0
         self.view.widgets.pad_ok_button.set_sensitive(sensitive)
         self.view.widgets.pad_next_button.set_sensitive(sensitive)
+        self.view.widgets.split_planting_button.props.visible = False
 
     def set_model_attr(self, field, value, validator=None):
         logger.debug('set_model_attr(%s, %s)' % (field, value))
@@ -866,34 +866,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             .set_model_attr(field, value, validator)
         self._dirty = True
         self.refresh_sensitivity()
-
-    def on_split_clicked(self, button):
-        # mostrar `view` que pida el número de plantas que se desplazan a cual location.
-        # si se seleccionó OK:
-        #     crear nueva `Planting`
-        #     asociar a la misma accession
-        #     añadir a la base de datos
-        #     decrementar el `quantity` de la planting activa
-        glade_path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                  'plant_editor.glade')
-        view = GenericEditorView(
-            glade_path,
-            parent=self.view.get_window(),
-            root_widget_name='split_planting_dialog')
-        presenter = SplitPlantingPresenter(view, self.model)
-        result = presenter.start()
-        if result == gtk.RESPONSE_OK:
-            split_plant = self.model.duplicate()
-            split_plant.quantity = presenter.quantity
-            split_plant.location = presenter.location
-            self.session.add(split_plant)
-            value = self.model.quantity - presenter.quantity
-            self.view.widget_set_value('plant_quantity_entry', value)
-            move_quantity_between_plants(from_plant=self.model,
-                                         to_plant=split_plant)
-            # TODO #194 - decide whether to remove this or that.
-        else:
-            pass
 
     def on_loc_button_clicked(self, button, cmd=None):
         location = self.model.location
@@ -935,7 +907,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # the entry is made not editable for branch mode
         self.view.widgets.plant_acc_entry.props.editable = True
         self.view.get_window().props.title = _('Plant Editor')
-        self.view.widgets.split_planting_button.props.visible = True
         
     def start(self):
         return self.view.start()
@@ -1007,7 +978,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         self.presenter = PlantEditorPresenter(self.model, view)
         if self.branched_plant:
             self.presenter.upper_quantity_limit = self.branched_plant.quantity
-            self.presenter.view.widgets.split_planting_button.props.visible = False
 
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
@@ -1467,28 +1437,3 @@ class PlantInfoBox(InfoBox):
             self.links.update(row)
 
         self.props.update(row)
-
-
-class SplitPlantingPresenter(GenericEditorPresenter):
-    widget_to_field_map = {'split_planting_quantity': 'quantity',
-                           'split_planting_location': 'location',
-                           'split_planting_code': 'plant_code',
-                           }
-    view_accept_buttons = ['split_planting_ok', 'split_planting_cancel', ]
-
-    def __init__(self, view, planting_to_split):
-        self.quantity = 1
-        self.location = None
-        self.plant_code = get_next_code(planting_to_split.accession)
-        super(SplitPlantingPresenter, self).__init__(
-            model=self, view=view, refresh_view=True, session=object_session(planting_to_split))
-        self.planting_to_split = planting_to_split
-
-        from bauble.plugins.garden import init_location_comboentry
-        from functools import partial
-
-        def on_location_select(location):
-            self.location=location
-        init_location_comboentry(self, view.widgets.split_planting_comboentry,
-                                 on_location_select)
-
