@@ -949,7 +949,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         '''
         if branch_mode:
             if model is None:
-                raise CheckConditionError(_("branch_mode requires a model"))
+                raise CheckConditionError("branch_mode requires a model")
             elif object_session(model) and model in object_session(model).new:
                 raise CheckConditionError(_("cannot split a new plant"))
 
