@@ -850,7 +850,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             v = model[treeiter][0]
             cell.set_property('text', v.name)
             # just added so change the background color to indicate it's new
-#            if not v.isinstance:
             if v.id is None:  # hasn't been committed
                 cell.set_property('foreground', 'blue')
             else:

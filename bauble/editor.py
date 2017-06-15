@@ -1243,7 +1243,11 @@ class GenericEditorPresenter(object):
         if value is None:
             value = self.view.widget_get_active(widget)
             self.view.widget_set_inconsistent(widget, False)
-        self.__set_model_attr(attr, value)
+        if attr is not None:
+            self.__set_model_attr(attr, value)
+        else:
+            logging.debug("presenter %s does not know widget %s" % (
+                self.__class__.__name__, self.__get_widget_name(widget)))
 
     on_chkbx_toggled = on_check_toggled
 
