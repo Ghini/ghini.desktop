@@ -63,7 +63,7 @@ msgid ""
 msgstr ""
 "%(num_plants)s plantas dependen de esta accesión: <b>%(plant_codes)s</b>\n"
 "\n"
-"¿Seguro que quiere borrar la accesión <b>%(acc_code)s</b>?"
+"¿Seguro que desea eliminar la accesión <b>%(acc_code)s</b>?"
 
 #: bauble/plugins/garden/accession.py:2556
 msgid "%(quantity)s in %(location)s"
@@ -545,7 +545,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:193
 msgid "Are you sure you want to delete the tag \"%s\"?"
-msgstr "¿Seguro que quiere borrar la etiqueta «%s»?"
+msgstr "¿Seguro que desea eliminar la etiqueta «%s»?"
 
 #: bauble/plugins/garden/accession.py:2335 bauble/plugins/garden/plant.py:1071
 #: bauble/plugins/plants/genus.py:778
@@ -557,6 +557,8 @@ msgid ""
 "Are you sure you want to remove\n"
 "this propagation trial?"
 msgstr ""
+"¿Seguro que desea eliminar\n"
+"el ensayo de propagación?"
 
 #: bauble/connmgr.py:341
 msgid ""
@@ -565,7 +567,7 @@ msgid ""
 "<i>Note: This only removes the connection to the database and does not "
 "affect the database or its data</i>"
 msgstr ""
-"¿Seguro que quiere borrar «%s»?\n"
+"¿Seguro que desea eliminar «%s»?\n"
 "\n"
 "<i>Aviso: Esta acción sólo borra la conexión con la base de datos, sin "
 "afectar a la propia base ni a los datos</i>"
@@ -585,11 +587,11 @@ msgstr ""
 #: bauble/plugins/garden/location.py:70 bauble/plugins/garden/source.py:768
 #: bauble/plugins/tag/__init__.py:84
 msgid "Are you sure you want to remove %s?"
-msgstr "¿Seguro que quiere borrar %s?"
+msgstr "¿Seguro que desea eliminar %s?"
 
 #: bauble/plugins/garden/accession.py:185
 msgid "Are you sure you want to remove accession <b>%s</b>?"
-msgstr "¿Seguro que quiere borrar la accesión <b>%s</b>?"
+msgstr "¿Seguro que desea eliminar la accesión <b>%s</b>?"
 
 #: bauble/plugins/plants/family.py:84
 msgid "Are you sure you want to remove the family <i>%s</i>?"
@@ -2612,12 +2614,12 @@ msgid ""
 "<i>Would you like to drop the table in the database first. You will lose the "
 "data in your database if you do this?</i>"
 msgstr ""
-"En la base de datos ya hay una tabla <b>%s</b>, que podría contener dados. "
-"Si una fila del archivo importado tuviera el mismo identificador que una "
-"fila de la base de datos, la importación no se realizaría correctamente.\n"
+"En la base de datos ya hay una tabla <b>%s</b>, que podría contener datos. "
+"Si una linea del archivo importado tuviera el mismo identificador de una "
+"linea ya presente en la base de datos, la importación no se realizaría correctamente.\n"
 "\n"
-"<i>¿Quiere borrar la tabla de la base de datos antes? Si lo hace, perderá "
-"los datos que haya en la base de datos.</i>"
+"<i>¿Está de acuerdo con eliminar todo contenido de la tabla de la base de datos, "
+"antes de realizar la importación?</i>"
 
 #: bauble/plugins/abcd/__init__.py:407
 msgid "The <i>lxml</i> package is required for the ABCD plugin"
@@ -3012,6 +3014,10 @@ msgid ""
 "\n"
 "Are you sure you want to remove it?"
 msgstr ""
+"Esta propagación ha resultado en %s plantas.\n"
+"Por eso, ya está lista para ser accesionada.\n"
+"\n"
+"¿Está seguro que desea eliminarla?"
 
 #: bauble/plugins/garden/propagation.py:483
 msgid ""
@@ -3020,6 +3026,10 @@ msgid ""
 "\n"
 "You cannot remove it."
 msgstr ""
+"Esta propagación ya está asociada\n"
+"a %s accesiones.\n"
+"\n"
+"¡No es posible eliminarla!"
 
 #: bauble/plugins/garden/propagation.py:479
 msgid ""
@@ -3028,6 +3038,10 @@ msgid ""
 "\n"
 "You cannot remove it."
 msgstr ""
+"Esta propagación ya está asociada\n"
+"a la accesión %s.\n"
+"\n"
+"¡No es posible eliminarla!"
 
 #: bauble/view.py:817
 msgid ""
