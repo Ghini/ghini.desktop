@@ -170,7 +170,6 @@ def add_plants_callback(accessions):
 
 
 def remove_callback(accessions):
-    # TODO: allow this method to remove multiple accessions
     acc = accessions[0]
     if len(acc.plants) > 0:
         safe = utils.xml_safe
