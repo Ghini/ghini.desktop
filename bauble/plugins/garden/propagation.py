@@ -126,17 +126,17 @@ class Propagation(db.Base):
         if incomplete:
             return 1  # let user grab one at a time, in any case
         if quantity is None:
-            quantity = 0    
+            quantity = 0
         removethis = sum((a.quantity_recvd or 0) for a in self.accessions)
         return max(quantity - removethis, 0)
-    
+
     def get_summary(self, partial=False):
         """compute a textual summary for this propagation
 
         a full description contains all fields, in `key:value;` format, plus
         a prefix telling us whether the resulting material of the
         propagation was added as accessed in the collection.
-        
+
         partial==1 means we only want to get the list of resulting
         accessions.
 
@@ -152,7 +152,7 @@ class Propagation(db.Base):
 
         values = []
         accession_codes = []
-        
+
         if self.used_source and partial != 2:
             values = [_('used in') + ': %s' % acc.code for acc in self.accessions]
             accession_codes = [acc.code for acc in self.accessions]
@@ -462,6 +462,29 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         button_box.pack_start(button, expand=False, fill=False)
 
         def on_remove_clicked(button, propagation, box):
+            count = len(propagation.accessions)
+            potential = propagation.accessible_quantity
+            if count == 0:
+                if potential:
+                    msg = _("This propagation has produced %s plants.\n"
+                            "It can already be accessioned.\n\n"
+                            "Are you sure you want to remove it?") % potential
+                else:
+                    msg = _("Are you sure you want to remove\n"
+                            "this propagation trial?")
+                if not utils.yes_no_dialog(msg):
+                    return False
+            else:
+                if count == 1:
+                    msg = _("This propagation is referred to\n"
+                            "by accession %s.\n\n"
+                            "You cannot remove it.") % propagation.accessions[0]
+                elif count > 1:
+                    msg = _("This propagation is referred to\n"
+                            "by %s accessions.\n\n"
+                            "You cannot remove it.") % count
+                utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+                return False
             self.model.propagations.remove(propagation)
             self.view.widgets.prop_tab_box.remove(box)
             self._dirty = True
