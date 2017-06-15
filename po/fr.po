@@ -2970,13 +2970,12 @@ msgid ""
 msgstr ""
 
 #: bauble/db.py:37
-#, fuzzy
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
-"Cette version de Ghini requiert SQLAlchemy 0.5.0 or supérieur. Veuillez "
+"Cette version de Ghini requiert SQLAlchemy 0.6 or supérieur. Veuillez "
 "télécharger et installer une nouvelle version de SQLAlchemy depuis http://"
 "www.sqlalchemy.org ou contactez votre administrateur système."
 
