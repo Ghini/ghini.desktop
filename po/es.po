@@ -1537,7 +1537,7 @@ msgstr "Calificador de ID"
 
 #: bauble/plugins/garden/acc_editor.glade:686
 msgid "ID format"
-msgstr ""
+msgstr "Formato del ID"
 
 #: bauble/view.py:158
 msgid "ID:"
