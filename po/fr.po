@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2015-10-08 21:12+0200\n"
+"PO-Revision-Date: 2017-06-16 14:41+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: French <https://hosted.weblate.org/projects/bauble/master/fr/"
-">\n"
+"Language-Team: French "
+"<https://hosted.weblate.org/projects/ghini/desktop-11/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 2.5-dev\n"
+"X-Generator: Weblate 2.15-dev\n"
 "X-Launchpad-Export-Date: 2012-01-27 05:40+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -40,7 +40,7 @@ msgstr "nombre de plants : %s"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 msgid "# of seeds"
-msgstr "# de graines"
+msgstr "nombre de graines"
 
 #: bauble/plugins/garden/propagation.py:168
 msgid "# of seeds: %s"
@@ -111,15 +111,15 @@ msgstr ""
 
 #: bauble/view.py:796
 msgid "** Error: %s"
-msgstr "** Erreur: %s"
+msgstr "** Erreur : %s"
 
 #: bauble/__init__.py:210
 msgid "** Error: could not import gtk and/or gobject"
-msgstr "** Erreur: Ne peut importer gtk et/ou gobject"
+msgstr "** Erreur : Ne peut importer gtk et/ou gobject"
 
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
-msgstr "** Erreur: Ghini doit être exécuté dans un environnement fenêtré."
+msgstr "** Erreur : Ghini doit être exécuté dans un environnement fenêtré."
 
 #: bauble/plugins/plants/itf2.py:57
 msgid "+ - graft chimera"
@@ -599,7 +599,7 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:87
 #: bauble/plugins/report/xsl/__init__.py:427
 msgid "Accession"
-msgstr "Acquisition"
+msgstr "Accès"
 
 #: bauble/plugins/garden/acc_editor.glade:24
 msgid "Accession Code Formats"
