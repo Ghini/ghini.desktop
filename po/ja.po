@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 14:26-0500\n"
+"POT-Creation-Date: 2017-06-15 20:52-0500\n"
 "PO-Revision-Date: 2015-09-17 00:14+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
@@ -106,6 +106,7 @@ msgstr ""
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
 
+#: bauble/plugins/tag/tag.glade:22 bauble/plugins/tag/tag.glade:39
 #: bauble/plugins/plants/infoboxes.glade:1031
 #: bauble/plugins/plants/infoboxes.glade:1063
 #: bauble/plugins/plants/infoboxes.glade:1093
@@ -127,7 +128,7 @@ msgstr ""
 msgid "-"
 msgstr ""
 
-#: bauble/plugins/tag/tag.glade:276
+#: bauble/plugins/tag/tag.glade:365
 msgid "--"
 msgstr ""
 
@@ -893,6 +894,10 @@ msgid ""
 "%(exception)s"
 msgstr ""
 
+#: bauble/plugins/tag/tag.glade:67
+msgid "Count and link"
+msgstr ""
+
 #: bauble/plugins/garden/prop_editor.glade:619
 #: bauble/plugins/garden/propagation.py:201
 msgid "Cover"
@@ -1018,7 +1023,7 @@ msgid "Deleted, yr. dead. unknown"
 msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:171
-#: bauble/plugins/garden/contact.glade:73 bauble/plugins/tag/tag.glade:85
+#: bauble/plugins/garden/contact.glade:73 bauble/plugins/tag/tag.glade:176
 #: bauble/plugins/garden/location.py:493
 msgid "Description"
 msgstr ""
@@ -1303,7 +1308,7 @@ msgstr ""
 #: bauble/plugins/garden/location.py:462 bauble/plugins/garden/plant.py:1177
 #: bauble/plugins/garden/source.py:845 bauble/plugins/plants/family.py:706
 #: bauble/plugins/plants/genus.py:858 bauble/plugins/plants/species.py:283
-#: bauble/plugins/plants/species.py:442
+#: bauble/plugins/plants/species.py:442 bauble/plugins/tag/__init__.py:640
 msgid "General"
 msgstr ""
 
@@ -1552,7 +1557,7 @@ msgid ""
 "<i>Would you like to continue?</i>"
 msgstr ""
 
-#: bauble/plugins/tag/tag.glade:289
+#: bauble/plugins/tag/tag.glade:378
 msgid "Item(s)"
 msgstr ""
 
@@ -1710,7 +1715,7 @@ msgstr ""
 
 #: bauble/pictures.glade:76 bauble/plugins/garden/loc_editor.glade:190
 #: bauble/plugins/garden/contact.glade:159
-#: bauble/plugins/garden/acc_editor.glade:228 bauble/plugins/tag/tag.glade:72
+#: bauble/plugins/garden/acc_editor.glade:228 bauble/plugins/tag/tag.glade:163
 #: bauble/notes.glade:323 bauble/bauble.glade:444 bauble/bauble.glade:504
 msgid "Name"
 msgstr ""
@@ -1723,7 +1728,7 @@ msgstr ""
 msgid "Near Threatened (NT)"
 msgstr ""
 
-#: bauble/plugins/tag/tag.glade:199
+#: bauble/plugins/tag/tag.glade:289
 msgid "New Tag"
 msgstr ""
 
@@ -2453,8 +2458,12 @@ msgstr ""
 msgid "Tag Selection"
 msgstr ""
 
-#: bauble/plugins/tag/tag.glade:150 bauble/plugins/tag/tag.glade:339
-#: bauble/plugins/tag/__init__.py:624 bauble/plugins/tag/__init__.py:647
+#: bauble/plugins/tag/tag.glade:82
+msgid "Tagged type"
+msgstr ""
+
+#: bauble/plugins/tag/tag.glade:241 bauble/plugins/tag/tag.glade:430
+#: bauble/plugins/tag/__init__.py:624 bauble/plugins/tag/__init__.py:715
 msgid "Tags"
 msgstr ""
 
@@ -3471,6 +3480,18 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:173
 msgid "synonym of %s"
+msgstr ""
+
+#: bauble/plugins/tag/__init__.py:363
+msgid "tagging %(1)s objects of %(2)s different types"
+msgstr ""
+
+#: bauble/plugins/tag/__init__.py:357
+msgid "tagging %(1)s objects of type %(2)s"
+msgstr ""
+
+#: bauble/plugins/tag/__init__.py:361
+msgid "tagging nothing"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:101

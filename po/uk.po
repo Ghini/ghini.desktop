@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-15 14:26-0500\n"
+"POT-Creation-Date: 2017-06-15 20:52-0500\n"
 "PO-Revision-Date: 2017-06-04 19:03+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/bauble/master/"
@@ -111,6 +111,7 @@ msgstr "**Помилка: не може імпортувати gtk і/або gob
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Помилка: Ghini повинна бути запущена в віконному середовищі."
 
+#: bauble/plugins/tag/tag.glade:22 bauble/plugins/tag/tag.glade:39
 #: bauble/plugins/plants/infoboxes.glade:1031
 #: bauble/plugins/plants/infoboxes.glade:1063
 #: bauble/plugins/plants/infoboxes.glade:1093
@@ -132,7 +133,7 @@ msgstr "**Помилка: Ghini повинна бути запущена в ві
 msgid "-"
 msgstr ""
 
-#: bauble/plugins/tag/tag.glade:276
+#: bauble/plugins/tag/tag.glade:365
 msgid "--"
 msgstr "--"
 
@@ -949,6 +950,10 @@ msgstr ""
 "\n"
 "%(exception)s"
 
+#: bauble/plugins/tag/tag.glade:67
+msgid "Count and link"
+msgstr ""
+
 #: bauble/plugins/garden/prop_editor.glade:619
 #: bauble/plugins/garden/propagation.py:201
 msgid "Cover"
@@ -1078,7 +1083,7 @@ msgid "Deleted, yr. dead. unknown"
 msgstr "Видаляється, рік. мертвий. невідомий"
 
 #: bauble/plugins/garden/loc_editor.glade:171
-#: bauble/plugins/garden/contact.glade:73 bauble/plugins/tag/tag.glade:85
+#: bauble/plugins/garden/contact.glade:73 bauble/plugins/tag/tag.glade:176
 #: bauble/plugins/garden/location.py:493
 msgid "Description"
 msgstr "Опис"
@@ -1380,7 +1385,7 @@ msgstr "Банк генів"
 #: bauble/plugins/garden/location.py:462 bauble/plugins/garden/plant.py:1177
 #: bauble/plugins/garden/source.py:845 bauble/plugins/plants/family.py:706
 #: bauble/plugins/plants/genus.py:858 bauble/plugins/plants/species.py:283
-#: bauble/plugins/plants/species.py:442
+#: bauble/plugins/plants/species.py:442 bauble/plugins/tag/__init__.py:640
 msgid "General"
 msgstr "Загальні"
 
@@ -1656,7 +1661,7 @@ msgstr ""
 "\n"
 "<i>Ви хочете продовжити?</i>"
 
-#: bauble/plugins/tag/tag.glade:289
+#: bauble/plugins/tag/tag.glade:378
 msgid "Item(s)"
 msgstr ""
 
@@ -1817,7 +1822,7 @@ msgstr "Муніципальний відділ"
 
 #: bauble/pictures.glade:76 bauble/plugins/garden/loc_editor.glade:190
 #: bauble/plugins/garden/contact.glade:159
-#: bauble/plugins/garden/acc_editor.glade:228 bauble/plugins/tag/tag.glade:72
+#: bauble/plugins/garden/acc_editor.glade:228 bauble/plugins/tag/tag.glade:163
 #: bauble/notes.glade:323 bauble/bauble.glade:444 bauble/bauble.glade:504
 msgid "Name"
 msgstr "Ім'я"
@@ -1830,7 +1835,7 @@ msgstr "Національний"
 msgid "Near Threatened (NT)"
 msgstr "Поблизу загрози зникнення (NT)"
 
-#: bauble/plugins/tag/tag.glade:199
+#: bauble/plugins/tag/tag.glade:289
 msgid "New Tag"
 msgstr "Новий тег"
 
@@ -2571,8 +2576,12 @@ msgstr "Таблиця"
 msgid "Tag Selection"
 msgstr "Тег виділення"
 
-#: bauble/plugins/tag/tag.glade:150 bauble/plugins/tag/tag.glade:339
-#: bauble/plugins/tag/__init__.py:624 bauble/plugins/tag/__init__.py:647
+#: bauble/plugins/tag/tag.glade:82
+msgid "Tagged type"
+msgstr ""
+
+#: bauble/plugins/tag/tag.glade:241 bauble/plugins/tag/tag.glade:430
+#: bauble/plugins/tag/__init__.py:624 bauble/plugins/tag/__init__.py:715
 msgid "Tags"
 msgstr "Теги"
 
@@ -3716,6 +3725,18 @@ msgstr "subvar"
 
 #: bauble/plugins/plants/species_model.py:173
 msgid "synonym of %s"
+msgstr ""
+
+#: bauble/plugins/tag/__init__.py:363
+msgid "tagging %(1)s objects of %(2)s different types"
+msgstr ""
+
+#: bauble/plugins/tag/__init__.py:357
+msgid "tagging %(1)s objects of type %(2)s"
+msgstr ""
+
+#: bauble/plugins/tag/__init__.py:361
+msgid "tagging nothing"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:101
