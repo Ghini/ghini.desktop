@@ -72,6 +72,29 @@ class TagTests(BaubleTestCase):
         tag = Tag(tag=name)
         self.assertEquals(str(tag), name)
 
+    def test_create_named_empty_tag(self):
+        name = u'name123'
+        r = self.session.query(Tag).filter_by(tag=name).all()
+        self.assertEquals(len(r), 0)
+        tag_plugin.create_named_empty_tag(name)
+        r = self.session.query(Tag).filter_by(tag=name).all()
+        self.assertEquals(len(r), 1)
+        t0 = r[0]
+        self.assertEquals(t0.tag, name)
+        tag_plugin.create_named_empty_tag(name)
+        t1 = self.session.query(Tag).filter_by(tag=name).one()
+        self.assertEquals(t0, t1)
+
+    def test_tag_nothing(self):
+        t = Tag(tag=u'some_tag', description=u'description')
+        self.session.add(t)
+        self.session.flush()
+        t.tag_objects([])
+        self.assertEquals(t.objects, [])
+        self.assertEquals(t.search_view_markup_pair(),
+                          (u'some_tag - <span weight="light">tagging nothing</span>',
+                           '(Tag) - <span weight="light">description</span>'))
+
     def test_tag_objects(self):
         family2 = Family(family=u'family2')
         self.session.add(family2)
