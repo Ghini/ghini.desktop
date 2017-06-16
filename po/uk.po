@@ -8,15 +8,18 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2015-07-12 18:49-0500\n"
-"Last-Translator: Rax <Unknown>\n"
-"Language-Team: Ukrainian <uk@li.org>\n"
+"PO-Revision-Date: 2017-06-16 14:21+0000\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"Language-Team: Ukrainian "
+"<https://hosted.weblate.org/projects/ghini/desktop-11/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 2.15-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:23+0000\n"
-"X-Generator: Poedit 1.5.4\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
 "X-Poedit-SearchPath-1: bauble/utils\n"
@@ -26,11 +29,11 @@ msgstr ""
 
 #: bauble/btypes.py:82
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr ""
+msgstr "\"%(value)s\" не в Enum.values: %(all_values)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
-msgstr ""
+msgstr "# Проросло"
 
 #: bauble/plugins/garden/propagation.py:184
 msgid "# of seedlings: %s"
@@ -38,7 +41,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 msgid "# of seeds"
-msgstr ""
+msgstr "# насіння"
 
 #: bauble/plugins/garden/propagation.py:168
 msgid "# of seeds: %s"
@@ -46,7 +49,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
-msgstr ""
+msgstr "% Проросло"
 
 #: bauble/plugins/garden/accession.py:672
 msgid "%(1)s plant groups in %(2)s location(s)"
@@ -54,7 +57,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:452
 msgid "%(group)s Group"
-msgstr ""
+msgstr "%(group)s Група"
 
 #: bauble/plugins/garden/accession.py:179
 msgid ""
@@ -62,18 +65,22 @@ msgid ""
 "\n"
 "Are you sure you want to remove accession <b>%(acc_code)s</b>?"
 msgstr ""
+"%(num_plants)s рослини залежать від цього приєднання: <b>%(plant_codes)s</b>"
+"\n"
+"\n"
+"Ви впевнені, що хочете видалити приєднання <b>%(acc_code)s</b>?"
 
 #: bauble/plugins/garden/accession.py:2539
 msgid "%(quantity)s in %(location)s"
-msgstr ""
+msgstr "%(quantity)s в %(location)s"
 
 #: bauble/editor.py:1911
 msgid "%(user)s on %(date)s"
-msgstr ""
+msgstr "%(user)s в %(date)s"
 
 #: bauble/plugins/report/__init__.py:410
 msgid "%s already exists"
-msgstr ""
+msgstr "%s вже існує"
 
 #: bauble/plugins/plants/species_editor.py:214
 msgid ""
@@ -89,7 +96,7 @@ msgstr ""
 
 #: bauble/pluginmgr.py:620
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
-msgstr ""
+msgstr "%s.plugin не є екземпляром pluginmgr.Plugin"
 
 #: bauble/plugins/plants/itf2.py:172
 msgid "'Female', defined as plants that do not produce functional male flowers"
@@ -101,15 +108,15 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:438
 msgid "(%(group)s Group)"
-msgstr ""
+msgstr "(%(group)s Група)"
 
 #: bauble/view.py:796
 msgid "** Error: %s"
-msgstr ""
+msgstr "** Помилка: %s"
 
 #: bauble/__init__.py:210
 msgid "** Error: could not import gtk and/or gobject"
-msgstr ""
+msgstr "**Помилка: не може імпортувати gtk і/або gobject"
 
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
@@ -149,21 +156,21 @@ msgstr ""
 #: bauble/plugins/plants/infoboxes.glade:334
 #: bauble/plugins/plants/infoboxes.glade:670
 msgid "<b># of Accessions:</b>"
-msgstr ""
+msgstr "<b># Приєднань:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:87
 msgid "<b># of Genera:</b>"
-msgstr ""
+msgstr "<b># Родів:</b>"
 
 #: bauble/plugins/garden/loc_infobox.glade:35
 #: bauble/plugins/plants/infoboxes.glade:319
 #: bauble/plugins/plants/infoboxes.glade:655
 msgid "<b># of Plants:</b>"
-msgstr ""
+msgstr "<b># Рослин:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:42
 msgid "<b># of Plants</b>"
-msgstr ""
+msgstr "<b># Рослин</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:72
 #: bauble/plugins/plants/infoboxes.glade:306
