@@ -28,8 +28,10 @@ from nose import SkipTest
 import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
 from bauble.plugins.tag import Tag, TagEditorPresenter, TagInfoBox
-from bauble.test import BaubleTestCase, check_dupids
+from bauble.test import BaubleTestCase, check_dupids, mockfunc
 from bauble.editor import GenericEditorView
+import bauble.utils as utils
+from functools import partial
 
 
 def test_duplicate_ids():
@@ -154,6 +156,64 @@ class TagTests(BaubleTestCase):
         self.assertEquals(t2.search_view_markup_pair(),
                           ('test2 - <span weight="light">tagging 2 objects of 2 different types: Family, Tag</span>',
                            '(Tag) - <span weight="light"></span>'))
+
+    def test_remove_callback_no_confirm(self):
+        # T_0
+        f5 = Tag(tag=u'Arecaceae')
+        self.session.add(f5)
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=False)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.tag import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
+                         'remove Tag: Arecaceae?')
+                        in self.invoked)
+        self.assertEquals(result, None)
+        q = self.session.query(Tag).filter_by(tag=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [f5])
+
+    def test_remove_callback_confirm(self):
+        # T_0
+        f5 = Tag(tag=u'Arecaceae')
+        self.session.add(f5)
+        self.session.flush()
+        self.invoked = []
+        save_status = tag_plugin._reset_tags_menu
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        tag_plugin._reset_tags_menu = partial(
+            mockfunc, name='_reset_tags_menu', caller=self)
+        from bauble.plugins.tag import remove_callback
+        result = remove_callback([f5])
+        tag_plugin._reset_tags_menu = save_status
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertTrue('_reset_tags_menu' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
+                         'remove Tag: Arecaceae?')
+                        in self.invoked)
+        self.assertEquals(result, True)
+        q = self.session.query(Tag).filter_by(tag=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [])
 
 
 import bauble.db as db
