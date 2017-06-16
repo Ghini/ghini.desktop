@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # __init__.py -- tag plugin
 #
@@ -47,15 +47,11 @@ import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.search as search
 import bauble.utils as utils
-from bauble.view import SearchView, Action
+from bauble.view import InfoBox, InfoExpander, SearchView, Action
+
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
 
-
-# TODO: is it  possible to add to a context menu for any object that shows a
-# submenu of all the tags on an object
-
-# TODO: the unicode usage here needs to be reviewed
 
 def edit_callback(tags):
     tag = tags[0]
@@ -318,15 +314,13 @@ class Tag(db.Base):
         """
         session = object_session(self)
 
-        # filter out any None values from the query which can happen if
-        # you tag something and then delete it from the datebase
-
-        # TODO: the missing tagged objects should probably be removed from
-        # the database
         r = [session.query(mapper).filter_by(id=obj_id).first()
              for mapper, obj_id in _get_tagged_object_pairs(self)]
-        r = [i for i in r if i is not None]
-        return r
+
+        # if `self` was tagging objects that have been later removed from
+        # the database, those reference here become `None`. we filter them
+        # out, but what about we remove the reference pair?
+        return [i for i in r if i is not None]
 
     @classmethod
     def attached_to(cls, obj):
@@ -354,13 +348,13 @@ class Tag(db.Base):
         objects = self.objects
         classes = set(type(o) for o in objects)
         if len(classes) == 1:
-            fine_prints = "tagging %(1)s objects of type %(2)s" % {
+            fine_prints = _("tagging %(1)s objects of type %(2)s") % {
                 '1': len(objects),
                 '2': classes.pop().__name__}
         elif len(classes) == 0:
-            fine_prints = "tagging nothing"
+            fine_prints = _("tagging nothing")
         else:
-            fine_prints = "tagging %(1)s objects of %(2)s different types" % {
+            fine_prints = _("tagging %(1)s objects of %(2)s different types") % {
                 '1': len(objects),
                 '2': len(classes)}
             if len(classes) < 4:
@@ -391,22 +385,12 @@ class TaggedObj(db.Base):
     # columns
     obj_id = Column(Integer, autoincrement=False)
     obj_class = Column(String(128))
-    # # TODO: can class names be unicode, i.e. should obj_class be unicode
     tag_id = Column(Integer, ForeignKey('tag.id'))
 
     def __str__(self):
         return '%s: %s' % (self.obj_class, self.obj_id)
 
 
-# TODO: maybe we shouldn't remove the obj from the tag if we can't
-# find it, it doesn't really hurt to have it there and in case the
-# table isn't available at the moment doesn't mean it won't be there
-# later, e.g. if some object is tagged but then that plugin gets
-# disabled by a user then the tag could still exist for that object to
-# other users who have that plugin enabled.
-
-# TODO: provide another function that returns (table, id) pairs that
-# this function can use so that we can expose that functionality
 def _get_tagged_object_pairs(tag):
     """
     :param tag: a Tag instance
@@ -463,9 +447,6 @@ def untag_objects(name, objs):
     :param objs: The list of objects to untag.
     :type objs: list
     """
-    # TODO: should we loop through objects in a tag to delete
-    # the TaggedObject or should we delete tags is they match
-    # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
     name = utils.utf8(name)
     if not objs:
         create_named_empty_tag(name)
@@ -534,11 +515,6 @@ def get_tag_ids(objs):
     Return a list of tag id's for tags associated with obj, only returns those
     tag ids that are common between all the objs
     """
-    # TODO: this function does intersection in the most
-    # straightforward way and could probably do with some optimization
-    #clause = lambda x: and_(TaggedObj.obj_class==_classname(x),
-    #                        TaggedObj.obj_id==x.id)
-    #ors = or_(*map(clause, objs))
     if not objs:
         return []
     session = object_session(objs[0])
@@ -557,10 +533,6 @@ def get_tag_ids(objs):
 
 def _on_add_tag_activated(*args):
     # get the selection from the search view
-    # TODO: would be better if we could set the sensitivity of the menu
-    # item depending on if something was selected in the search view, this
-    # means we need to add more hooks to the search view or include the
-    # tag plugin into the search view
     view = bauble.gui.get_view()
     if isinstance(view, SearchView):
         values = view.get_selected_values()
@@ -603,8 +575,6 @@ def _reset_tags_menu():
                                       gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
     tags_menu.append(add_tag_menu_item)
 
-    #manage_tag_item = gtk.MenuItem('Manage Tags')
-    #tags_menu.append(manage_tag_item)
     tags_menu.append(gtk.SeparatorMenuItem())
     session = db.Session()
     query = session.query(Tag)
@@ -628,6 +598,73 @@ def _reset_tags_menu():
         _tags_menu_item.show_all()
     session.close()
 
+class GeneralTagExpander(InfoExpander):
+    """
+    generic information about an accession like
+    number of clones, provenance type, wild provenance type, speciess
+    """
+
+    def __init__(self, widgets):
+        '''
+        '''
+        super(GeneralTagExpander, self).__init__(_("General"), widgets)
+        general_box = self.widgets.general_box
+        self.widgets.general_window.remove(general_box)
+        self.vbox.pack_start(general_box)
+        self.table_cells = []
+
+    def update(self, row):
+        on_label_clicked = lambda l, e, x: bauble.gui.send_command(x)
+        self.current_obj = row
+        self.widget_set_value('ib_name_label', row.tag)
+        self.widget_set_value('ib_description_label', row.description)
+        objects = row.objects
+        classes = set(type(o) for o in objects)
+        row_no = 1
+        table = self.widgets.tag_ib_general_table
+        for w in self.table_cells:
+            table.remove(w)
+        self.table_cells = []
+        for c in classes:
+            obj_ids = [str(o.id) for o in objects if isinstance(o, c)]
+            lab = gtk.Label()
+            lab.set_alignment(0, .5)
+            lab.set_text(c.__name__)
+            table.attach(lab, 0, 1, row_no, row_no + 1)
+            
+            eb = gtk.EventBox()
+            leb = gtk.Label()
+            leb.set_alignment(0, .5)
+            eb.add(leb)
+            table.attach(eb, 1, 2, row_no, row_no + 1)
+            leb.set_text(" %s " % len(obj_ids))
+            utils.make_label_clickable(
+                leb, on_label_clicked,
+                '%s where id in %s' % (c.__name__.lower(), ', '.join(obj_ids)))
+
+            self.table_cells.append(lab)
+            self.table_cells.append(eb)
+
+            row_no += 1
+        table.show_all()
+
+
+class TagInfoBox(InfoBox):
+    """
+    - general info
+    - source
+    """
+    def __init__(self):
+        super(TagInfoBox, self).__init__()
+        filename = os.path.join(paths.lib_dir(), "plugins", "tag",
+                                "tag.glade")
+        self.widgets = utils.load_widgets(filename)
+        self.general = GeneralTagExpander(self.widgets)
+        self.add_expander(self.general)
+
+    def update(self, row):
+        self.general.update(row)
+
 
 class TagPlugin(pluginmgr.Plugin):
 
@@ -637,8 +674,10 @@ class TagPlugin(pluginmgr.Plugin):
         from functools import partial
         mapper_search = search.get_strategy('MapperSearch')
         mapper_search.add_meta(('tag', 'tags'), Tag, ['tag'])
-        SearchView.row_meta[Tag].set(children=partial(db.natsort, 'objects'),
-                                     context_menu=tag_context_menu)
+        SearchView.row_meta[Tag].set(
+            children=partial(db.natsort, 'objects'),
+            infobox=TagInfoBox,
+            context_menu=tag_context_menu)
         SearchView.bottom_info[Tag] = {
             'page_widget': 'taginfo_scrolledwindow',
             'fields_used': ['tag', 'description'],
