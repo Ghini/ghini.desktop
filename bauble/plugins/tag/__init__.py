@@ -266,6 +266,9 @@ class Tag(db.Base):
     _objects = relation('TaggedObj', cascade='all, delete-orphan',
                         backref='tag')
 
+    __my_own_timestamp = None
+    __last_objects = None
+    
     def __str__(self):
         try:
             return str(self.tag)
@@ -275,8 +278,17 @@ class Tag(db.Base):
     def markup(self):
         return '%s Tag' % self.tag
 
-    __my_own_timestamp = None
-    __last_objects = None
+    def tag_objects(self, objects):
+        session = object_session(self)
+        for obj in objects:
+            cls = and_(TaggedObj.obj_class == _classname(obj),
+                       TaggedObj.obj_id == obj.id,
+                       TaggedObj.tag_id == self.id)
+            ntagged = session.query(TaggedObj).filter(cls).count()
+            if ntagged == 0:
+                tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
+                                       tag=self)
+                session.add(tagged_obj)
 
     @property
     def objects(self):
@@ -472,9 +484,8 @@ _classname = lambda x: unicode('%s.%s', 'utf-8') % (
     type(x).__module__, type(x).__name__)
 
 
-def tag_objects(name, objs):
-    """
-    Tag a list of objects.
+def tag_objects(name, objects):
+    """create or retrieve a tag, use it to tag list of objects
 
     :param name: The tag name, if it's a str object then it will be
       converted to unicode() using the default encoding. If a tag with
@@ -484,27 +495,17 @@ def tag_objects(name, objs):
     :type obj: list
     """
     name = utils.utf8(name)
-    if not objs:
+    if not objects:
         create_named_empty_tag(name)
         return
-    session = object_session(objs[0])
+    session = object_session(objects[0])
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:
         logger.debug("%s - %s" % (type(e), e))
         tag = Tag(tag=name)
         session.add(tag)
-    for obj in objs:
-        cls = and_(TaggedObj.obj_class == _classname(obj),
-                   TaggedObj.obj_id == obj.id,
-                   TaggedObj.tag_id == tag.id)
-        ntagged = session.query(TaggedObj).filter(cls).count()
-        if ntagged == 0:
-            tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
-                                   tag=tag)
-            session.add(tagged_obj)
-    # if a new tag is created with the name parameter it is always saved
-    # regardless of whether the objects are tagged
+    tag.tag_objects(objects)
     session.commit()
 
 
@@ -540,12 +541,6 @@ def _on_add_tag_activated(*args):
             msg = _('Nothing selected')
             utils.message_dialog(msg)
             return
-        # right now we can only tag a single item at a time, if we did
-        # the f-spot style quick tagging then it would be easier to handle
-        # multiple tags at a time, we could do it we would just have to find
-        # the common tags for each of the selected items and then select them
-        # but grey them out so you can see that some of the items have that
-        # tag but not all of them
         tagitem = TagItemGUI(values)
         tagitem.start()
         view.update_bottom_notebook()
@@ -598,6 +593,7 @@ def _reset_tags_menu():
         _tags_menu_item.show_all()
     session.close()
 
+
 class GeneralTagExpander(InfoExpander):
     """
     generic information about an accession like
@@ -631,7 +627,7 @@ class GeneralTagExpander(InfoExpander):
             lab.set_alignment(0, .5)
             lab.set_text(c.__name__)
             table.attach(lab, 0, 1, row_no, row_no + 1)
-            
+
             eb = gtk.EventBox()
             leb = gtk.Label()
             leb.set_alignment(0, .5)

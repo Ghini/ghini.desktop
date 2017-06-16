@@ -27,7 +27,7 @@ from nose import SkipTest
 
 import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
-from bauble.plugins.tag import Tag, TagEditorPresenter
+from bauble.plugins.tag import Tag, TagEditorPresenter, TagInfoBox
 from bauble.test import BaubleTestCase, check_dupids
 from bauble.editor import GenericEditorView
 
@@ -270,3 +270,36 @@ class AttachedToTests(BaubleTestCase):
         for t in tags:
             tag_plugin.tag_objects(t, [fam])
         self.assertEquals(Tag.attached_to(fam), tags)
+
+
+class TagInfoBoxTest(BaubleTestCase):
+    def test_can_create_infobox(self):
+        ib = TagInfoBox()
+
+    def test_update_infobox_from_empty_tag(self):
+        t = Tag(tag=u'name', description=u'description')
+        ib = TagInfoBox()
+        ib.update(t)
+        self.assertEquals(ib.widgets.ib_description_label.get_text(), t.description)
+        self.assertEquals(ib.widgets.ib_name_label.get_text(), t.tag)
+        self.assertEquals(ib.general.table_cells, [])
+
+    def test_update_infobox_from_empty_tag(self):
+        t = Tag(tag=u'name', description=u'description')
+        x = Tag(tag=u'objectx', description=u'none')
+        y = Tag(tag=u'objecty', description=u'none')
+        z = Tag(tag=u'objectz', description=u'none')
+        self.session.add_all([t, x, y, z])
+        self.session.commit()
+        t.tag_objects([x, y, z])
+        ib = TagInfoBox()
+        self.assertEquals(ib.general.table_cells, [])
+        ib.update(t)
+        self.assertEquals(ib.widgets.ib_description_label.get_text(), t.description)
+        self.assertEquals(ib.widgets.ib_name_label.get_text(), t.tag)
+        self.assertEquals(len(ib.general.table_cells), 2)
+        self.assertEquals(ib.general.table_cells[0].get_text(), u'Tag')
+        import gtk
+        self.assertEquals(type(ib.general.table_cells[1]), gtk.EventBox)
+        label = ib.general.table_cells[1].get_children()[0]
+        self.assertEquals(label.get_text(), ' 3 ')
