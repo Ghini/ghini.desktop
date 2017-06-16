@@ -68,7 +68,7 @@ class TagTests(BaubleTestCase):
         """
         name = u'test'
         tag = Tag(tag=name)
-        self.assert_(str(tag) == name)
+        self.assertEquals(str(tag), name)
 
     def test_tag_objects(self):
         family2 = Family(family=u'family2')
@@ -108,23 +108,53 @@ class TagTests(BaubleTestCase):
         tag_plugin.tag_objects('test2', [self.family])
 
         # test we only return the ids the objects have in common
-        #sel = select([tag_table.c.id], tag_table.c.tag==u'test')
         results = self.session.query(Tag.id).filter_by(tag=u'test')
         test_id = [r[0] for r in results]
         # should only return id for "test"
         ids = tag_plugin.get_tag_ids([self.family, family2])
-        self.assert_(ids == test_id, '%s==%s' % (ids, test_id))
+        self.assertEquals(ids, test_id)
 
         # test that we return multiple tag ids if the objs share tags
         tag_plugin.tag_objects('test2', [family2])
-        #sel = select([tag_table.c.id], or_(tag_table.c.tag==u'test',
-        #                                   tag_table.c.tag==u'test2'))
         results = self.session.query(Tag.id).filter(or_(Tag.tag == u'test',
                                                         Tag.tag == u'test2'))
         test_id = sorted([r[0] for r in results])
         # should return ids for both test and test2
         ids = sorted(tag_plugin.get_tag_ids([self.family, family2]))
-        self.assert_(ids == test_id, '%s == %s' % (ids, test_id))
+        self.assertEquals(ids, test_id)
+
+    def test_is_tagging(self):
+        family2 = Family(family=u'family2')
+        t1 = Tag(tag=u'test1')
+        self.session.add_all([family2, t1])
+        self.session.flush()
+        self.assertFalse(t1.is_tagging(family2))
+        self.assertFalse(t1.is_tagging(self.family))
+        t1.tag_objects([self.family])
+        self.session.flush()
+        self.assertFalse(t1.is_tagging(family2))
+        self.assertTrue(t1.is_tagging(self.family))
+
+    def test_search_view_markup_pair(self):
+        family2 = Family(family=u'family2')
+        t1 = Tag(tag=u'test1')
+        t2 = Tag(tag=u'test2')
+        self.session.add_all([family2, t1, t2])
+        self.session.flush()
+        t1.tag_objects([self.family, family2])
+        t2.tag_objects([self.family])
+        self.assertEquals(t1.search_view_markup_pair(),
+                          ('test1 - <span weight="light">tagging 2 objects of type Family</span>',
+                           '(Tag) - <span weight="light"></span>'))
+        self.assertEquals(t2.search_view_markup_pair(),
+                          ('test2 - <span weight="light">tagging 1 objects of type Family</span>',
+                           '(Tag) - <span weight="light"></span>'))
+        t2.tag_objects([t1])
+        self.session.flush()
+        self.assertEquals(t2.search_view_markup_pair(),
+                          ('test2 - <span weight="light">tagging 2 objects of 2 different types: Family, Tag</span>',
+                           '(Tag) - <span weight="light"></span>'))
+
 
 import bauble.db as db
 
@@ -284,7 +314,7 @@ class TagInfoBoxTest(BaubleTestCase):
         self.assertEquals(ib.widgets.ib_name_label.get_text(), t.tag)
         self.assertEquals(ib.general.table_cells, [])
 
-    def test_update_infobox_from_empty_tag(self):
+    def test_update_infobox_from_tagging_tag(self):
         t = Tag(tag=u'name', description=u'description')
         x = Tag(tag=u'objectx', description=u'none')
         y = Tag(tag=u'objecty', description=u'none')

@@ -371,7 +371,7 @@ class Tag(db.Base):
                 '2': len(classes)}
             if len(classes) < 4:
                 fine_prints += ': ' + (', '.join(
-                    t.__name__ for t in classes))
+                    sorted(t.__name__ for t in classes)))
         first = '%s - <span weight="light">%s</span>' % (
             utils.xml_safe(self), fine_prints)
         second = '(%s) - <span weight="light">%s</span>' % (
@@ -445,7 +445,7 @@ def create_named_empty_tag(name):
         logger.debug("%s - %s" % (type(e), e))
         tag = Tag(tag=name)
         session.add(tag)
-    session.commit()
+        session.commit()
     session.close()
     return
 
