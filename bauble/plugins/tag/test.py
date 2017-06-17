@@ -54,7 +54,7 @@ class TagMenuTests(BaubleTestCase):
         self.assertEquals(len(m.get_children()), 1)
         self.assertEquals(m.get_children()[0].get_label(), _('Tag Selection'))
 
-    def test_one_tags(self):
+    def test_one_tag(self):
         tagname = u'some_tag'
         t = Tag(tag=tagname, description=u'description')
         self.session.add(t)
@@ -65,7 +65,7 @@ class TagMenuTests(BaubleTestCase):
         self.assertTrue(m.get_children()[1], gtk.SeparatorMenuItem)
         self.assertEquals(m.get_children()[2].get_label(), tagname)
 
-    def test_one_tags(self):
+    def test_more_tags(self):
         tagname = u'%s-some_tag'
         t1 = Tag(tag=tagname % 1, description=u'description')
         t2 = Tag(tag=tagname % 3, description=u'description')
