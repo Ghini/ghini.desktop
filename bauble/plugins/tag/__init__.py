@@ -268,7 +268,7 @@ class Tag(db.Base):
 
     __my_own_timestamp = None
     __last_objects = None
-    
+
     def __str__(self):
         try:
             return str(self.tag)
@@ -557,22 +557,24 @@ def _tag_menu_item_activated(widget, tag_name):
     if isinstance(view, SearchView):
         view.results_view.expand_to_path('0')
 
-_tags_menu_item = None
 
-
-def _reset_tags_menu():
+def _build_tags_menu():
+    """build tags gtk.Menu based on current data
+    """
     tags_menu = gtk.Menu()
     add_tag_menu_item = gtk.MenuItem(_('Tag Selection'))
     add_tag_menu_item.connect('activate', _on_add_tag_activated)
-    accel_group = gtk.AccelGroup()
-    bauble.gui.window.add_accel_group(accel_group)
-    add_tag_menu_item.add_accelerator('activate', accel_group, ord('T'),
-                                      gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+    if bauble.gui:
+        accel_group = gtk.AccelGroup()
+        bauble.gui.window.add_accel_group(accel_group)
+        add_tag_menu_item.add_accelerator('activate', accel_group, ord('T'),
+                                          gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
     tags_menu.append(add_tag_menu_item)
 
-    tags_menu.append(gtk.SeparatorMenuItem())
     session = db.Session()
-    query = session.query(Tag)
+    query = session.query(Tag).order_by(Tag.tag)
+    if query.first():
+        tags_menu.append(gtk.SeparatorMenuItem())
     try:
         for tag in query:
             item = gtk.MenuItem(tag.tag, use_underline=False)
@@ -583,15 +585,27 @@ def _reset_tags_menu():
         msg = _('Could not create the tags menus')
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
-
-    global _tags_menu_item
-    if _tags_menu_item is None:
-        _tags_menu_item = bauble.gui.add_menu(_("Tags"), tags_menu)
-    else:
-        _tags_menu_item.remove_submenu()
-        _tags_menu_item.set_submenu(tags_menu)
-        _tags_menu_item.show_all()
     session.close()
+    return tags_menu
+
+
+class _reset_tags_menu_functor:
+    def __init__(self):
+        self.menu_item = None
+
+    def __call__(self):
+        """initialize or replace Tags menu in main menu
+        """
+        tags_menu = _build_tags_menu()
+        if self.menu_item is None:
+            self.menu_item = bauble.gui.add_menu(_("Tags"), tags_menu)
+        else:
+            self.menu_item.remove_submenu()
+            self.menu_item.set_submenu(tags_menu)
+            self.menu_item.show_all()
+
+
+_reset_tags_menu =_reset_tags_menu_functor()
 
 
 class GeneralTagExpander(InfoExpander):
