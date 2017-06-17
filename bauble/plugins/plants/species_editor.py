@@ -1116,10 +1116,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.notebook.set_current_page(0)
         self.restore_state()
         self.boxes = set()
-        w = self.get_window()
-        w.set_geometry_hints(
-            max_width=gtk.gdk.screen_get_default().get_width())
-        w.set_position(gtk.WIN_POS_NONE)
 
     def get_window(self):
         '''
