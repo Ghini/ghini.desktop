@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
 #
-# types.py
+# Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+# Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
 #
 # This file is part of ghini.desktop.
 #
@@ -15,6 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
+#
+# types.py
+#
 
 import dateutil.parser as date_parser
 import sqlalchemy.types as types
