@@ -56,22 +56,74 @@ match the name Maxillaria. In this case the domain is gen, the
 operator is = and the value is Maxillaria.
 
 The search string ``gen like max%`` would return all the genera whose
-names start with "Max". In this case the domain again is gen, the
-operator is like, which allows for "fuzzy" searching and the value is
-max%. The percent sign is used as a wild card so if you search for
-max% then it search for all value that start with max. If you search
-for %max it searches for all values that end in max. The string %max%a
+names start with "Max". In this case the domain again is ``gen``, the
+operator is ``like``, which allows for "fuzzy" searching and the value is
+``max%``. The percent sign is used as a wild card so if you search for
+``max%`` then it search for all value that start with max. If you search
+for ``%max`` it searches for all values that end in max. The string ``%max%a``
 would search for all value that contain max and end in a.
 
-For more information about the different search domain and their short-hand
-aliases, see search-domains_ .
+Within a domain, the expression is tested against some of its fields, namely:
 
-If expression are invalid they are usually used as search by value
-searchs. For example the search string ``gen=`` will execute a search by
-value for the string gen and the search string ``gen like`` will search
-for the string gen and the string like.  
+=============================  ============  =================
+domain                         result type   field
+=============================  ============  =================
+family, fam                    Family        epithet
+genus, gen                     Genus         epithet
+species, sp                    Species       epithet **×**
+vernacular, common, vern       Species       name
+geography                      Geography     name
+accession, acc                 Accession     code
+plant, plants                  Plant         code **×**
+location, loc                  Location      code, name
+contact, person, org, source   Contact       name
+collection, col, coll          Collection    locale
+tag, tags                      Tag           name
+=============================  ============  =================
 
 
+**×** Searching by expression in plants and species is generally going to
+be of limited use. A species epithet means very little without the
+corresponding genus, likewise a plant code is unique only within the
+accession to which the plant belongs. You ask for ``plant like 1`` and you
+get all plants with code ``1`` within *any* accession.
+
+.. note::
+
+   I give a query, it takes a huge time to compute, and it returns with an
+   unreasonably long result.
+   If the given strings do not form a valid expression, Ghini will fall back
+   to *search by value*. For example the search string ``gen=`` will execute
+   a search by value for the string ``gen`` and the search string ``gen
+   like`` will search for the string ``gen`` and the string ``like``.
+
+Binomial search
++++++++++++++++
+
+You can also perform a search in the database if you know the species, just
+by placing a few initial letters of genus and species epithets in the search
+engine, correctly capitalized, i.e.: **Genus epithet** with one leading capital
+letter, **Species epithet** all lowercase.
+
+This way you can perform the search::
+  
+  So ha
+
+These would be the initials for Solanum hayesii, or Solanum havanense.
+
+Binomial search comes to compensate the limited usefulness of the above
+search by expression when trying to look for a species.
+
+It is the correct capitalization **Xxxx xxxx** that informs the
+software of your intention to perform a binomial search.  The software's
+second guess will be a search by value, which will possibly result in far
+more matches than you had expected.
+
+The similar request ``so ha`` will return, in a fresh install, over 3000
+objects, starting at Family "Acalyp(**ha**)ceae", ending at Geography
+"Western (**So**)uth America".
+
+   
 Search by Query
 +++++++++++++++
 
@@ -79,50 +131,28 @@ Queries allow the most control over searching. With queries you can
 search across relations, specific columns and join search using
 boolean operators like AND and OR.
 
-An example of a query would be::
+A few examples:
+
+* plantings of family Fabaceae in location Block 10::
 
     plant where accession.species.genus.family=Fabaceae and location.site="Block 10"
 
-This query would return all the plants whose family are Fabaceae and
-are located in Block 10.
+* Which locations contain no plants::
 
-Searching with queries usually requires some knowledge of the Ghini
-internals and database table layouts.  
+    location where plants = Empty
 
-A couple of useful examples:
+* Which accessions are associated to a species of known binomial name::
 
-* Which locations are in use::
+  accession where species.genus.genus=Mangifera and species.sp=indica
 
-    location where plants.id!=0
+* what accessions did we propagate last year::
+        
+    accession where plants.propagations._created between |datetime|2016,1,1| and |datetime|2017,1,1|
 
-* Which genera are associated to at least one accession::
+Searching with queries requires some knowledge of a little syntax and an
+idea of the extensive Ghini database table structure. Both you acquire with
+practice, and with the help of the Query Builder.
 
-    genus where species.accession.id!=0
-
-.. _search-domains:
-
-Domains 
-+++++++ 
-
-The following are the common search domain and the columns they search
-by default. The default columns are used when searching by value and
-expression. The queries do not use the default columns.
-
-
-:Domains:
-    family, fam: Search :class:`bauble.plugins.plants.Family`
-
-    genus, gen: Search :class:`bauble.plugins.plants.Genus`
-
-    species, sp: Search :class:`bauble.plugins.plants.Species`
-    
-    geography: Search :class:`bauble.plugins.plants.Geography`
-
-    acc: Search :class:`bauble.plugins.garden.Accession`
-
-    plant: Search :class:`bauble.plugins.garden.Plant`
-
-    location, loc: Search :class:`bauble.plugins.garden.Location`
 
 The Query Builder
 =================
