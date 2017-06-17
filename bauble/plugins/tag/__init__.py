@@ -467,15 +467,16 @@ def untag_objects(name, objs):
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except Exception, e:
-        logger.info("%s - %s" % (type(e), e))
-        logger.debug(traceback.format_exc())
+        logger.info("Can't remove non existing tag from non-empty list of objects"
+                    "%s - %s" % (type(e), e))
         return
-    same = lambda x, y: x.obj_class == _classname(y) and x.obj_id == y.id
-    for obj in objs:
-        for kid in tag._objects:
-            if same(kid, obj):
-                o = session.query(type(kid)).filter_by(id=kid.id).one()
-                session.delete(o)
+    # same = lambda item, y: item.obj_class == _classname(y) and item.obj_id == y.id
+    objs = set((_classname(y), y.id) for y in objs)
+    for item in tag._objects:
+        if (item.obj_class, item.obj_id) not in objs:
+            continue
+        o = session.query(TaggedObj).filter_by(id=item.id).one()
+        session.delete(o)
     session.commit()
 
 

@@ -151,7 +151,17 @@ class TagTests(BaubleTestCase):
         self.assertEquals(tag.objects, [self.family, family2])
 
         #
-        # now untag everything
+        # first untag one, then both
+        #
+        tag_plugin.untag_objects('test', [self.family])
+
+        # get object by tag
+        tag = self.session.query(Tag).filter_by(tag=u'test').one()
+        tagged_objs = tag.objects
+        self.assertEquals(tagged_objs, [family2])
+
+        #
+        # first untag one, then both
         #
         tag_plugin.untag_objects('test', [self.family, family2])
 
