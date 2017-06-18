@@ -33,19 +33,6 @@ one or more of its fields contain one or more of the search strings.
 You don't specify the search domain, all are included.  Within each search
 domain, the values are tested against one or more fields:
 
-.. sidebar:: × Primary Keys ×
-
-             A species epithet means very little without the
-             corresponding genus, likewise a plant code is unique only
-             within the accession to which the plant belongs.
-
-             In database theory terminology, epithet and code are not
-             primary keys for respectively species and planting.
-
-             Search by value works this around and you can find plantings by
-             their complete planting code, which includes the accession
-             code. For species, we have introduced the **binomial search**.
-
 =============================  ============  =====================
 search domain overview
 ------------------------------------------------------------------
@@ -72,6 +59,22 @@ search for ``Block 10`` then Ghini will search for the strings Block and 10
 and return all the results that match either of these strings. If you want
 to search for Block 10 as one whole string then you should quote the string
 like ``"Block 10"``.
+
+.. admonition:: ×
+
+                Primary Keys
+
+                A species epithet means very little without the
+                corresponding genus, likewise a plant code is unique only
+                within the accession to which the plant belongs.
+
+                In database theory terminology, epithet and code are not
+                primary keys for respectively species and planting.
+
+                Search by value works this around and you can find plantings
+                by their complete planting code, which includes the
+                accession code. For species, we have introduced the
+                **binomial search**.
 
 
 Search by Expression
