@@ -1,5 +1,5 @@
-Statements
-==============
+Mission & Vision
+==================
 
 Here we state who we are, what we think of our work, what you can expect of
 this project.

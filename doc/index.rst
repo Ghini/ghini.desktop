@@ -19,9 +19,8 @@ Statements
 .. toctree::
    :maxdepth: 1
 
-   peptalk
-   statements
    goal
+   statements
 
 Installing Ghini
 =================
