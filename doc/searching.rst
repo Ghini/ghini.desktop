@@ -229,36 +229,39 @@ Query Grammar
 
 For those who don't fear a bit of formal precision, this is top-part of the
 grammar implemented by the Query Search Strategy, here given in BNF.  Some
-grammatical categories are informally defined; a few are left to your
-imagination; literals are included in single quotes; the grammar is mostly
-case insensitive, unless otherwise stated::
+grammatical categories are informally defined; any missing ones are left to
+your fertile imagination; literals are included in single quotes; the
+grammar is mostly case insensitive, unless otherwise stated::
 
     query ::= domain 'WHERE' complex_expression
+
+    domain ::= #( one of our search domains )
     complex_expression ::= single_expression
                          | single_expression 'AND' complex_expression
                          | single_expression 'OR' complex_expression
-  
+                         ;  
     single_expression ::= bool_expression
                         | 'NOT' bool_expression
-    bool_expression ::= identifier binop value
-                      | identifier binop_set value_list
+                        ;
+    bool_expression ::= field_name binop value
+                      | field_name set_binop value_list
                       | aggregated binop value
-                      | identifier 'BETWEEN' value 'AND' value
+                      | field_name 'BETWEEN' value 'AND' value
                       | '(' complex_expression ')'
-
-    identifier ::= [a-z][a-z0-9_]*
-    aggregated ::= aggregating_func '(' identifier ')'
+                      ;
+    field_name ::= #( path to reach a database field or connected table )
+    aggregated ::= aggregating_func '(' field_name ')'
     aggregating_func ::= 'SUM'
                        | 'MIN'
                        | 'MAX'
                        | 'COUNT'
-
+                       ;
     value ::= typed_value 
             | numeric_value
             | none_token
             | empty_token
             | string_value
-
+            ;
     typed_value ::= '|' type_name '|' value_list '|'
     numeric_value ::== #( just a number )
     none_token ::= 'None'    #( case sensitive )
@@ -271,9 +274,7 @@ case insensitive, unless otherwise stated::
 
     value_list ::= value ',' value_list
                  | value
-
-    domain ::= #( one of our search domains )
-
+                 ;
     binop ::= '=' 
             | '==' 
             | '!=' 
@@ -290,6 +291,5 @@ case insensitive, unless otherwise stated::
             | 'ICONTAINS' 
             | 'IHAS' 
             | 'IS'
-    binop_set ::= 'IN'
-
-
+            ;
+    set_binop ::= 'IN'
