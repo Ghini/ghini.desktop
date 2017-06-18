@@ -36,17 +36,6 @@ from bauble.test import BaubleTestCase
 prefs.testing = True
 
 
-class Results(object):
-    def __init__(self):
-        self.results = {}
-
-    def callback(self, *args, **kwargs):
-        self.results['args'] = args
-        self.results['kwargs'] = kwargs
-
-
-parse_results = Results()
-
 parser = search.SearchParser()
 
 
@@ -208,13 +197,7 @@ class SearchParserTests(unittest.TestCase):
         # these should be invalid
         strings = ['test test', '"test', "test'", '$', ]
         for s in strings:
-            try:
-                results = parser.value.parseString(s, parseAll=True)
-            except ParseException:
-                pass
-            else:
-                self.fail('ParseException not raised: "%s" - %s'
-                          % (s, results))
+            self.assertRaises(ParseException, parser.value.parseString, s, parseAll=True)
 
     def test_needs_join(self):
         "check the join steps"
