@@ -12,15 +12,16 @@ for you. The results of Ghini searches are listed in the main window.
 Search Strategies
 =================
 
-Three are three types of search strategies available in Ghini. Considering
+Three are four types of search strategies available in Ghini. Considering
 the search stragety types available in Ghini, sorted in increasing
-complexity: you can search by value, expression or query.
+complexity: you can search by value, binomial name, expression or query.
 
 Searching by query, the most complex and powerful, is assisted by the Query
 Builder, described below.
 
-All searches are case insensitive so searching for Maxillaria and
-maxillaria will return the same results.
+All searches —with the notable exception of the binomial name search— are
+case insensitive.  Searching for Maxillaria and maxillaria will return the
+same results.
 
 
 Search by Value
@@ -157,10 +158,14 @@ practice, and with the help of the Query Builder.
 The Query Builder
 =================
 
-The Query Builder helps you build complex search queries through a
-point and click interface.  To open the Query Builder click the to the
-left of the search entry or select :menuselection:`Tools-->Query
+The Query Builder helps you build complex search queries through a point and
+click interface.  To open the Query Builder click the |querybuilder| icon to
+the left of the search entry or select :menuselection:`Tools-->Query
 Builder` from the menu.
+
+.. |querybuilder| image:: querybuilder.png
+   :align: middle
+   :width: 18
 
 The Query Builder composes a query that will be understood by the Query
 Search Strategy described above. You can use the Query Builder to get a
