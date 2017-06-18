@@ -58,8 +58,9 @@ often.
 larger issues
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When facing a single larger issue, create a branch tag, and follow the
-workflow described at
+When facing a single larger issue, create a branch tag at the tip of a main
+development line (e.g.: ``ghini-1.0-dev``), and follow the workflow
+described at
 
 https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging
 
@@ -69,10 +70,12 @@ in short::
     git checkout -b issue-xxxx
     git push origin issue-xxxx
 
-work on the new branch. When ready, go to github, merge the branch with
-master, solve conflicts where necessary, delete the temporary branch.
+Work on the new temporary branch. When ready, go to github, merge the branch
+with the main development line from which you branched, solve conflicts
+where necessary, delete the temporary branch.
 
-when ready for publication, merge master into the production line.
+When ready for publication, merge the development line into the
+corresponding production line.
 
 Updating the set of translatable strings
 -------------------------------------------------------------

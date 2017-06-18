@@ -61,8 +61,8 @@ Open a shell terminal window, and follow these instructions.
 
      ~/bin/ghini -u
 
-   The same script you can use to switch to a different production line, but
-   at the moment there's only `ghini-1.0`.
+   The same script you can use to switch to a different production line.
+   At the moment it's just `ghini-1.0` and `ghini-1.1`.
 
 #. on Unity, open a terminal, start ghini, its icon will show up in the
    launcher, you can now `lock to launcher` it.
