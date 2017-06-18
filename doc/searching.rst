@@ -153,7 +153,7 @@ Please contact the authors if you want more information, or if you volunteer
 to document this more thoroughly.  In the meanwhile you may start
 familiarizing yourself with the core structure of Ghini's database.
 
-.. figure:: images/schemas/ghini-10.png
+.. figure:: images/schemas/ghini-10.svg
 
    **core structure of Ghini's database**
 
