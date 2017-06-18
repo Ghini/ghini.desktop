@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-17 20:21-0500\n"
+"POT-Creation-Date: 2017-06-18 16:38-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -755,11 +755,11 @@ msgstr "Välj en fil att exportera till…"
 msgid "Choose a file..."
 msgstr "Välj en fil..."
 
-#: bauble/search.py:1000
+#: bauble/search.py:1029
 msgid "Choose a property..."
 msgstr "Välj en egenskap…"
 
-#: bauble/search.py:1153
+#: bauble/search.py:1182
 msgid "Choose a search domain..."
 msgstr "Välj en sökdomän…"
 
@@ -1135,7 +1135,7 @@ msgstr "Vill du spara dina ändringar till %s?"
 msgid "Do you want to save your changes?"
 msgstr "Vill du spara dina ändringar?"
 
-#: bauble/search.py:825
+#: bauble/search.py:854
 msgid "Domain Properties"
 msgstr "Domänegenskaper"
 
@@ -1290,7 +1290,7 @@ msgstr ""
 "\n"
 "<i>Vill du fortsätta?</i>"
 
-#: bauble/search.py:1158
+#: bauble/search.py:1187
 msgid "Expressions"
 msgstr "Uttryck"
 
@@ -1778,11 +1778,11 @@ msgstr "Mako"
 msgid "Male"
 msgstr "Hanplanta"
 
-#: bauble/search.py:747
+#: bauble/search.py:776
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
 msgstr "MapperSearch.add_meta(): argumentet default_columns kan inte vara tomt"
 
-#: bauble/search.py:744
+#: bauble/search.py:773
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
 msgstr "MapperSearch.add_meta(): argumentet default_columns måste vara lista"
 
@@ -2135,7 +2135,7 @@ msgstr ""
 msgid "Properties"
 msgstr "Egenskaper"
 
-#: bauble/search.py:819
+#: bauble/search.py:848
 msgid "Property"
 msgstr "Egenskap"
 
@@ -2166,7 +2166,7 @@ msgstr "Attributnivå"
 msgid "Quantity"
 msgstr "Kvantitet"
 
-#: bauble/search.py:1135
+#: bauble/search.py:1164
 msgid "Query Builder"
 msgstr "Frågeverktyg"
 
@@ -2338,7 +2338,7 @@ msgstr "Sök i BGCI"
 msgid "Search Botanic Gardens Conservation International"
 msgstr "Sök i Botanic Gardens Conservation International"
 
-#: bauble/search.py:807 bauble/search.py:1147
+#: bauble/search.py:836 bauble/search.py:1176
 msgid "Search Domain"
 msgstr "Sökdomän"
 
@@ -3158,7 +3158,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/search.py:447
+#: bauble/search.py:476
 msgid "Unknown search domain: %s"
 msgstr "Okänd sökdomän: %s"
 

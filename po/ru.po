@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-17 20:21-0500\n"
+"POT-Creation-Date: 2017-06-18 16:38-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/bauble/master/ru/"
@@ -746,11 +746,11 @@ msgstr "Выберите файл для экспорта..."
 msgid "Choose a file..."
 msgstr "Выберите файл..."
 
-#: bauble/search.py:1000
+#: bauble/search.py:1029
 msgid "Choose a property..."
 msgstr ""
 
-#: bauble/search.py:1153
+#: bauble/search.py:1182
 msgid "Choose a search domain..."
 msgstr ""
 
@@ -1111,7 +1111,7 @@ msgstr "Хотите ли вы сохранить изменения в %s?"
 msgid "Do you want to save your changes?"
 msgstr "Хотите ли вы сохранить изменения?"
 
-#: bauble/search.py:825
+#: bauble/search.py:854
 msgid "Domain Properties"
 msgstr ""
 
@@ -1265,7 +1265,7 @@ msgstr ""
 "\n"
 "<i>Хотите продолжить?</i>"
 
-#: bauble/search.py:1158
+#: bauble/search.py:1187
 msgid "Expressions"
 msgstr "Выражения"
 
@@ -1742,11 +1742,11 @@ msgstr ""
 msgid "Male"
 msgstr ""
 
-#: bauble/search.py:747
+#: bauble/search.py:776
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
 msgstr "MapperSearch.add_meta(): аргумент default_columns не может быть пуст"
 
-#: bauble/search.py:744
+#: bauble/search.py:773
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
 msgstr "MapperSearch.add_meta(): аргумент default_columns должен быть списком"
 
@@ -2092,7 +2092,7 @@ msgstr ""
 msgid "Properties"
 msgstr "Свойства"
 
-#: bauble/search.py:819
+#: bauble/search.py:848
 msgid "Property"
 msgstr ""
 
@@ -2123,7 +2123,7 @@ msgstr ""
 msgid "Quantity"
 msgstr "Количество"
 
-#: bauble/search.py:1135
+#: bauble/search.py:1164
 msgid "Query Builder"
 msgstr "Построитель запросов"
 
@@ -2295,7 +2295,7 @@ msgstr "Поиск в BGCI"
 msgid "Search Botanic Gardens Conservation International"
 msgstr "Поиск в Поиск в Международной Ассоциации Ботанических Садов (BGCI)"
 
-#: bauble/search.py:807 bauble/search.py:1147
+#: bauble/search.py:836 bauble/search.py:1176
 msgid "Search Domain"
 msgstr ""
 
@@ -3062,7 +3062,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/search.py:447
+#: bauble/search.py:476
 msgid "Unknown search domain: %s"
 msgstr "Неизвестный поисковый домен: %s"
 
