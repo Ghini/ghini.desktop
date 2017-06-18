@@ -12,49 +12,72 @@ for you. The results of Ghini searches are listed in the main window.
 Search Strategies
 =================
 
-Three are four types of search strategies available in Ghini. Considering
-the search stragety types available in Ghini, sorted in increasing
-complexity: you can search by value, binomial name, expression or query.
+Ghini offers four distinct search strategies:
 
-Searching by query, the most complex and powerful, is assisted by the Query
-Builder, described below.
+* by value — in all domains;
+* by expression — in a few implicit fields in one explicit domain;
+* by query — in one domain; 
+* by binomial name — only searches the Species domain.
 
-All searches —with the notable exception of the binomial name search— are
-case insensitive.  Searching for Maxillaria and maxillaria will return the
-same results.
+All search strategies —with the notable exception of the binomial name
+search— are case insensitive.
 
 
 Search by Value
-+++++++++++++++
++++++++++++++++++++++++++++++++++++
 
-Search by value is the simplest way to search. You just type in a
-string and see what matches. Which fields/columns are search for your
-string depends on how the different plugins are configured. For
-example, by default the PlantPlugin search the family name, the genus
-name, the species and infraspecific species names, vernacular names
-and geography. So if you want to search in the notes field of any of
-these types then searching by value is not the search you're looking
-for.
+Search by value is the simplest way to search. You enter one or more strings
+and see what matches. The result includes objects of any type (domain) where
+one or more of its fields contain one or more of the search strings.
+
+You don't specify the search domain, all are included.  Within each search
+domain, the values are tested against one or more fields:
+
+=============================  ============  =====================
+search domain overview
+------------------------------------------------------------------
+name and shorthands            result type   field
+=============================  ============  =====================
+family, fam                    Family        epithet (family)
+genus, gen                     Genus         epithet (genus)
+species, sp                    Species       epithet (sp) **×**
+vernacular, common, vern       Species       name
+geography, geo                 Geography     name
+accession, acc                 Accession     code
+plant, plants                  Plant         code **×**
+location, loc                  Location      code, name
+contact, person, org, source   Contact       name
+collection, col, coll          Collection    locale
+tag, tags                      Tag           name
+=============================  ============  =====================
+
+.. note:: **×** A species epithet means very little without the
+          corresponding genus, likewise a plant code is unique only within
+          the accession to which the plant belongs. You ask for ``plant like
+          1`` and you get all plants with code ``1`` within *any* accession.
 
 Examples of searching by value would be: Maxillaria, Acanth,
-2008.1234, 2003.2.1
+2008.1234, 2003.2.1, indica.
 
-Search string are separated by spaces. For example if you enter the
-search string ``Block 10`` then Ghini will search for the strings Block
-and 10 and return all the results that match either of these
-strings. If you want to search for Block 10 as a while string then you
-should quote the string like ``"Block 10"``.  
+Unless explicitly quoted, spaces separate search strings. For example if you
+search for ``Block 10`` then Ghini will search for the strings Block and 10
+and return all the results that match either of these strings. If you want
+to search for Block 10 as one whole string then you should quote the string
+like ``"Block 10"``.
 
 
 Search by Expression
-++++++++++++++++++++
+++++++++++++++++++++++++++++++++++++++++
 
-Searching with expression gives you a little more control over what
-you are searching for. It can narrow the search down to a specific
-domain. Expression consist of a domain, an operator and a value. For
-example the search: ``gen=Maxillaria`` would return all the genera that
-match the name Maxillaria. In this case the domain is gen, the
-operator is = and the value is Maxillaria.
+Searching with expression gives you a little more control over what you are
+searching for. It narrows the search down to a specific domain. Expression
+consist of a **domain**, an **operator** and a **value**. For example the
+search: ``gen=Maxillaria`` would return all the genera that match the name
+Maxillaria. In this case the **domain** is ``gen``, the **operator** is
+``=`` and the **value** is ``Maxillaria``.
+
+The above search domain overview table tells you which fields are implicitly
+matched when you explicitly name the search domain.
 
 The search string ``gen like max%`` would return all the genera whose
 names start with "Max". In this case the domain again is ``gen``, the
@@ -63,31 +86,6 @@ operator is ``like``, which allows for "fuzzy" searching and the value is
 ``max%`` then it search for all value that start with max. If you search
 for ``%max`` it searches for all values that end in max. The string ``%max%a``
 would search for all value that contain max and end in a.
-
-Within a domain, the expression is tested against some of its fields, namely:
-
-=============================  ============  =================
-domain                         result type   field
-=============================  ============  =================
-family, fam                    Family        epithet
-genus, gen                     Genus         epithet
-species, sp                    Species       epithet **×**
-vernacular, common, vern       Species       name
-geography                      Geography     name
-accession, acc                 Accession     code
-plant, plants                  Plant         code **×**
-location, loc                  Location      code, name
-contact, person, org, source   Contact       name
-collection, col, coll          Collection    locale
-tag, tags                      Tag           name
-=============================  ============  =================
-
-
-**×** Searching by expression in plants and species is generally going to
-be of limited use. A species epithet means very little without the
-corresponding genus, likewise a plant code is unique only within the
-accession to which the plant belongs. You ask for ``plant like 1`` and you
-get all plants with code ``1`` within *any* accession.
 
 .. note::
 
@@ -99,7 +97,7 @@ get all plants with code ``1`` within *any* accession.
    like`` will search for the string ``gen`` and the string ``like``.
 
 Binomial search
-+++++++++++++++
++++++++++++++++++++++++++++++++++++
 
 You can also perform a search in the database if you know the species, just
 by placing a few initial letters of genus and species epithets in the search
@@ -126,7 +124,7 @@ objects, starting at Family "Acalyp(**ha**)ceae", ending at Geography
 
    
 Search by Query
-+++++++++++++++
++++++++++++++++++++++++++++++++++++
 
 Queries allow the most control over searching. With queries you can
 search across relations, specific columns and join search using
