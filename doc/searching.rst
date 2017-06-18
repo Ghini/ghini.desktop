@@ -16,7 +16,7 @@ Ghini offers four distinct search strategies:
 
 * by value — in all domains;
 * by expression — in a few implicit fields in one explicit domain;
-* by query — in one domain; 
+* by query — in one domain;
 * by binomial name — only searches the Species domain.
 
 All search strategies —with the notable exception of the binomial name
@@ -37,23 +37,23 @@ The following table helps you understand the results and guides you in
 formulating your searches.
 
 =============================  =====================  ============
-search domain overview                                            
+search domain overview
 ------------------------------------------------------------------
-name and shorthands            field                  result type 
+name and shorthands            field                  result type
 =============================  =====================  ============
-family, fam                    epithet (family)       Family      
-genus, gen                     epithet (genus)        Genus       
-species, sp                    epithet (sp) **×**     Species     
-vernacular, common, vern       name                   Species     
-geography, geo                 name                   Geography   
-accession, acc                 code                   Accession   
-planting, plant                code **×**             Plant       
-location, loc                  code, name             Location    
-contact, person, org, source   name                   Contact     
-collection, col, coll          locale                 Collection  
-tag, tags                      name                   Tag         
+family, fam                    epithet (family)       Family
+genus, gen                     epithet (genus)        Genus
+species, sp                    epithet (sp) **×**     Species
+vernacular, common, vern       name                   Species
+geography, geo                 name                   Geography
+accession, acc                 code                   Accession
+planting, plant                code **×**             Plant
+location, loc                  code, name             Location
+contact, person, org, source   name                   Contact
+collection, col, coll          locale                 Collection
+tag, tags                      name                   Tag
 =============================  =====================  ============
-              
+
 Examples of searching by value would be: Maxillaria, Acanth,
 2008.1234, 2003.2.1, indica.
 
@@ -140,7 +140,7 @@ The similar request ``so ha`` will return, in a fresh install, over 3000
 objects, starting at Family "Acalyp(**ha**)ceae", ending at Geography
 "Western (**So**)uth America".
 
-   
+
 Search by Query
 +++++++++++++++++++++++++++++++++++
 
@@ -161,19 +161,23 @@ A few examples:
 
 * plantings of family Fabaceae in location Block 10::
 
-    plant WHERE accession.species.genus.family=Fabaceae AND location.site="Block 10"
+    plant WHERE accession.species.genus.family.family=Fabaceae AND location.description="Block 10"
 
 * locations that contain no plants::
 
     location WHERE plants = Empty
 
-* accessions associated to a species of known binomial name::
+* accessions associated to a species of known binomial name (e.g.: Mangifera indica)::
 
     accession WHERE species.genus.genus=Mangifera AND species.sp=indica
 
 * accessions we propagated in the year 2016::
-        
+
     accession WHERE plants.propagations._created BETWEEN |datetime|2016,1,1| AND |datetime|2017,1,1|
+
+* accessions we modified in the last three days::
+
+    accession WHERE _last_updated>|datetime|-3|
 
 Searching with queries requires some knowledge of a little syntax and an
 idea of the extensive Ghini database table structure. Both you acquire with
@@ -199,7 +203,7 @@ that you might prefer if you are a fast typer.
 
 After opening the Query Builder you must select a search domain.  The
 search domain will determine the type of data that is returned and the
-properties that you can search.  
+properties that you can search.
 
 .. image:: images/screenshots/qb-choose_domain.png
 
@@ -210,7 +214,7 @@ properties/columns are the same but not always.
 Once a search domain is selected you can then select a property of the
 domain to compare values to.  The search operator can then be changed
 for how you want to make the search comparison.  Finally you must
-enter a value to compare to the search property.  
+enter a value to compare to the search property.
 
 .. image:: images/screenshots/qb-choose_property.png
 
@@ -239,7 +243,7 @@ grammar is mostly case insensitive, unless otherwise stated::
     complex_expression ::= single_expression
                          | single_expression 'AND' complex_expression
                          | single_expression 'OR' complex_expression
-                         ;  
+                         ;
     single_expression ::= bool_expression
                         | 'NOT' bool_expression
                         ;
@@ -256,7 +260,7 @@ grammar is mostly case insensitive, unless otherwise stated::
                        | 'MAX'
                        | 'COUNT'
                        ;
-    value ::= typed_value 
+    value ::= typed_value
             | numeric_value
             | none_token
             | empty_token
@@ -275,15 +279,15 @@ grammar is mostly case insensitive, unless otherwise stated::
     value_list ::= value ',' value_list
                  | value
                  ;
-    binop ::= '=' 
-            | '==' 
-            | '!=' 
-            | '<>' 
-            | '<' 
-            | '<=' 
-            | '>' 
-            | '>=' 
-            | 'LIKE' 
-            | 'CONTAINS' 
+    binop ::= '='
+            | '=='
+            | '!='
+            | '<>'
+            | '<'
+            | '<='
+            | '>'
+            | '>='
+            | 'LIKE'
+            | 'CONTAINS'
             ;
     set_binop ::= 'IN'
