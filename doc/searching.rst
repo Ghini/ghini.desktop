@@ -30,26 +30,29 @@ Search by value is the simplest way to search. You enter one or more strings
 and see what matches. The result includes objects of any type (domain) where
 one or more of its fields contain one or more of the search strings.
 
-You don't specify the search domain, all are included.  Within each search
-domain, the values are tested against one or more fields:
+You don't specify the search domain, all are included, nor do you indicate
+which fields you want to match, this is implicit in the search domain.
 
-=============================  ============  =====================
-search domain overview
+The following table helps you understand the results and guides you in
+formulating your searches.
+
+=============================  =====================  ============
+search domain overview                                            
 ------------------------------------------------------------------
-name and shorthands            result type   field
-=============================  ============  =====================
-family, fam                    Family        epithet (family)
-genus, gen                     Genus         epithet (genus)
-species, sp                    Species       epithet (sp) **×**
-vernacular, common, vern       Species       name
-geography, geo                 Geography     name
-accession, acc                 Accession     code
-plant, plants                  Plant         code **×**
-location, loc                  Location      code, name
-contact, person, org, source   Contact       name
-collection, col, coll          Collection    locale
-tag, tags                      Tag           name
-=============================  ============  =====================
+name and shorthands            field                  result type 
+=============================  =====================  ============
+family, fam                    epithet (family)       Family      
+genus, gen                     epithet (genus)        Genus       
+species, sp                    epithet (sp) **×**     Species     
+vernacular, common, vern       name                   Species     
+geography, geo                 name                   Geography   
+accession, acc                 code                   Accession   
+planting, plant                code **×**             Plant       
+location, loc                  code, name             Location    
+contact, person, org, source   name                   Contact     
+collection, col, coll          locale                 Collection  
+tag, tags                      name                   Tag         
+=============================  =====================  ============
               
 Examples of searching by value would be: Maxillaria, Acanth,
 2008.1234, 2003.2.1, indica.
@@ -60,52 +63,58 @@ and return all the results that match either of these strings. If you want
 to search for Block 10 as one whole string then you should quote the string
 like ``"Block 10"``.
 
-.. admonition:: ×
+.. admonition:: × Composite Primary Keys
+   :class: note
 
-                Primary Keys
+                A **species** epithet means little without the corresponding
+                genus, likewise a **planting** code is unique only within
+                the accession to which it belongs.  In database theory
+                terminology, epithet and code are not sufficient to form a
+                **primary key** for respectively species and planting.
+                These domains need a **composite** primary key.
 
-                A species epithet means very little without the
-                corresponding genus, likewise a plant code is unique only
-                within the accession to which the plant belongs.
-
-                In database theory terminology, epithet and code are not
-                primary keys for respectively species and planting.
-
-                Search by value works this around and you can find plantings
-                by their complete planting code, which includes the
-                accession code. For species, we have introduced the
-                **binomial search**.
+                Search by value lets you look for **plantings** by their
+                complete planting code, which includes the accession code.
+                Taken together, Accession code and Planting code do provide
+                a **composite primary key** for plantings.  For **species**,
+                we have introduced the binomial search, described below.
 
 
 Search by Expression
 ++++++++++++++++++++++++++++++++++++++++
 
 Searching with expression gives you a little more control over what you are
-searching for. It narrows the search down to a specific domain. Expression
-consist of a **domain**, an **operator** and a **value**. For example the
+searching for. You narrow the search down to a specific domain, the software
+defines which fields to search within the domain you specified.
+
+An expression is built as ``<domain> <operator> <value>``. For example the
 search: ``gen=Maxillaria`` would return all the genera that match the name
-Maxillaria. In this case the **domain** is ``gen``, the **operator** is
-``=`` and the **value** is ``Maxillaria``.
+Maxillaria. In this case the domain is ``gen``, the operator is ``=`` and
+the value is ``Maxillaria``.
 
-The above search domain overview table tells you which fields are implicitly
-matched when you explicitly name the search domain.
+The above search domain overview table tells you the names of the search
+domains, and, per search domain, which fields are searched.
 
-The search string ``gen like max%`` would return all the genera whose
-names start with "Max". In this case the domain again is ``gen``, the
-operator is ``like``, which allows for "fuzzy" searching and the value is
-``max%``. The percent sign is used as a wild card so if you search for
-``max%`` then it search for all value that start with max. If you search
-for ``%max`` it searches for all values that end in max. The string ``%max%a``
-would search for all value that contain max and end in a.
+The search string ``loc like block%`` would return all the Locations for
+which name or code start with "block".  In this case the domain is ``loc``
+(a shorthand for ``location``), the operator is ``like`` (this comes from
+SQL and allows for "fuzzy" searching), the value is ``block%``, the
+implicitly matched fields are ``name`` and ``code``.  The percent sign is
+used as a wild card so if you search for ``block%`` then it searches for all
+values that start with max.  If you search for ``%10`` it searches for all
+values that end in ``10``.  The string ``%ck%10`` would search for all value
+that contain ``ck`` and end in ``10``.
 
-.. note::
+.. admonition:: When a query takes ages to complete
+   :class: note
 
-   I give a query, it takes a huge time to compute, and it returns with an
-   unreasonably long result.
-   If the given strings do not form a valid expression, Ghini will fall back
-   to *search by value*. For example the search string ``gen=`` will execute
-   a search by value for the string ``gen`` and the search string ``gen
-   like`` will search for the string ``gen`` and the string ``like``.
+   You give a query, it takes time to compute, the result contains
+   unreasonably many entries.  This happens when you intend to use a
+   strategy, but your strings do not form a valid expression.  In this case
+   Ghini falls back to *search by value*. For example the search string
+   ``gen lik maxillaria`` will search for the strings ``gen``, ``lik``, and
+   ``maxillaria``, returning all that match at least one of the three
+   criteria.
 
 Binomial search
 +++++++++++++++++++++++++++++++++++
@@ -137,27 +146,31 @@ objects, starting at Family "Acalyp(**ha**)ceae", ending at Geography
 Search by Query
 +++++++++++++++++++++++++++++++++++
 
-Queries allow the most control over searching. With queries you can
-search across relations, specific columns and join search using
-boolean operators like AND and OR.
+Queries allow the most control over searching. With queries you can search
+across relations, specific columns, combine search criteria using boolean
+operators like and(&&), or(||), not(!), enclose them in parentheses, and
+more.
+
+Please contact the authors if you want more information, or if you volunteer
+to document this more thoroughly.
 
 A few examples:
 
 * plantings of family Fabaceae in location Block 10::
 
-    plant where accession.species.genus.family=Fabaceae and location.site="Block 10"
+    plant WHERE accession.species.genus.family=Fabaceae AND location.site="Block 10"
 
-* Which locations contain no plants::
+* locations that contain no plants::
 
-    location where plants = Empty
+    location WHERE plants = Empty
 
-* Which accessions are associated to a species of known binomial name::
+* accessions associated to a species of known binomial name::
 
-  accession where species.genus.genus=Mangifera and species.sp=indica
+    accession WHERE species.genus.genus=Mangifera AND species.sp=indica
 
-* what accessions did we propagate last year::
+* accessions we propagated in the year 2016::
         
-    accession where plants.propagations._created between |datetime|2016,1,1| and |datetime|2017,1,1|
+    accession WHERE plants.propagations._created BETWEEN |datetime|2016,1,1| AND |datetime|2017,1,1|
 
 Searching with queries requires some knowledge of a little syntax and an
 idea of the extensive Ghini database table structure. Both you acquire with
