@@ -161,7 +161,7 @@ A few examples:
 
 * plantings of family Fabaceae in location Block 10::
 
-    plant WHERE accession.species.genus.family.family=Fabaceae AND location.description="Block 10"
+    plant WHERE accession.species.genus.family.epithet=Fabaceae AND location.description="Block 10"
 
 * locations that contain no plants::
 
@@ -169,7 +169,7 @@ A few examples:
 
 * accessions associated to a species of known binomial name (e.g.: Mangifera indica)::
 
-    accession WHERE species.genus.genus=Mangifera AND species.sp=indica
+    accession WHERE species.genus.epithet=Mangifera AND species.epithet=indica
 
 * accessions we propagated in the year 2016::
 
