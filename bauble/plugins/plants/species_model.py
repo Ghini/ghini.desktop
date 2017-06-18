@@ -28,7 +28,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
     UnicodeText, func, UniqueConstraint
-from sqlalchemy.orm import relation, backref
+from sqlalchemy.orm import relation, backref, synonym
 import bauble.db as db
 import bauble.error as error
 import bauble.utils as utils
@@ -270,6 +270,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     # columns
     sp = Column(Unicode(64), index=True)
+    epithet = synonym('sp')
     sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
     sp_author = Column(Unicode(128))
     hybrid = Column(Boolean, default=False)

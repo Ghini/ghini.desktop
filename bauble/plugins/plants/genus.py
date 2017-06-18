@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy import (
     Column, Unicode, Integer, ForeignKey, UnicodeText, String,
     UniqueConstraint, func, and_)
-from sqlalchemy.orm import relation, backref, validates
+from sqlalchemy.orm import relation, backref, validates, synonym
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -202,6 +202,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     # columns
     genus = Column(String(64), nullable=False, index=True)
+    epithet = synonym('genus')
 
     # use '' instead of None so that the constraints will work propertly
     author = Column(Unicode(255), default=u'')

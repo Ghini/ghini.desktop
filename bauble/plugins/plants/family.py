@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
     UnicodeText, func, and_, UniqueConstraint, String
-from sqlalchemy.orm import relation, backref, validates
+from sqlalchemy.orm import relation, backref, validates, synonym
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -165,6 +165,7 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 
     # columns
     family = Column(String(45), nullable=False, index=True)
+    epithet = synonym('family')
 
     # we use the blank string here instead of None so that the
     # contraints will work properly,
