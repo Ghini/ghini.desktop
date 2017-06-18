@@ -150,7 +150,12 @@ operators like and(&&), or(||), not(!), enclose them in parentheses, and
 more.
 
 Please contact the authors if you want more information, or if you volunteer
-to document this more thoroughly.
+to document this more thoroughly.  In the meanwhile you may start
+familiarizing yourself with the core structure of Ghini's database.
+
+.. figure:: images/schemas/ghini-10.png
+
+   **core structure of Ghini's database**
 
 A few examples:
 
@@ -218,3 +223,73 @@ property name choose how the properties will be combined in the search
 query.
 
 When you are done building your query click OK to perform the search.
+
+Query Grammar
+==================
+
+For those who don't fear a bit of formal precision, this is top-part of the
+grammar implemented by the Query Search Strategy, here given in BNF.  Some
+grammatical categories are informally defined; a few are left to your
+imagination; literals are included in single quotes; the grammar is mostly
+case insensitive, unless otherwise stated::
+
+    query ::= domain 'WHERE' complex_expression
+    complex_expressions ::= single_expression
+                        | single_expression 'AND' complex_expression
+                        | single_expression 'OR' complex_expression
+  
+    single_expression ::= bool_expression
+                        | 'NOT' bool_expressions
+    bool_expression ::= identifier binop value
+                      | identifier binop_set value_list
+                      | aggregated binop value
+                      | identifier 'BETWEEN' value 'AND' value
+                      | '(' query_expression ')'
+
+    identifier ::= [a-z][a-z0-9_]*
+    aggregated ::= aggregating_func '(' identifier ')'
+    aggregating_func ::= 'SUM'
+                       | 'MIN'
+                       | 'MAX'
+                       | 'COUNT'
+
+    value ::= typed_value 
+            | numeric_value
+            | none_token
+            | empty_token
+            | string_value
+
+    typed_value ::= '|' type_name '|' value_list '|'
+    numeric_value ::== #( just a number )
+    none_token ::= 'None'    #( case sensitive )
+    empty_token ::= 'Empty'  #( case sensitive )
+    string_value = quoted_string | unquoted_string
+
+    type_name ::= 'datetime'  #( only one for the time being )
+    quoted_string ::= '"' unquoted_string '"'
+    unquoted_string ::=  #( alphanumeric and more )
+
+    value_list ::= value ',' value_list
+                 | value
+
+    domain ::= #( one of our search domains )
+
+    binop ::= '=' 
+            | '==' 
+            | '!=' 
+            | '<>' 
+            | '<' 
+            | '<=' 
+            | '>' 
+            | '>=' 
+            | 'NOT' 
+            | 'LIKE' 
+            | 'CONTAINS' 
+            | 'HAS' 
+            | 'ILIKE' 
+            | 'ICONTAINS' 
+            | 'IHAS' 
+            | 'IS'
+    binop_set ::= 'IN'
+
+
