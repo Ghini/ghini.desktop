@@ -1393,7 +1393,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'Cattleya'})
         self.assertEquals(gen.hybrid_marker, u'')
-        self.assertEquals(gen.epithet, u'Cattleya')
+        self.assertEquals(gen.hybrid_epithet, u'Cattleya')
 
     def test_intergeneric_hybrid_mult(self):
         gen = Genus.retrieve_or_create(
@@ -1402,7 +1402,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'×Brassocattleya'})
         self.assertEquals(gen.hybrid_marker, u'×')
-        self.assertEquals(gen.epithet, u'Brassocattleya')
+        self.assertEquals(gen.hybrid_epithet, u'Brassocattleya')
 
     def test_intergeneric_hybrid_x_becomes_mult(self):
         gen = Genus.retrieve_or_create(
@@ -1411,7 +1411,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'xVascostylis'})
         self.assertEquals(gen.hybrid_marker, u'×')
-        self.assertEquals(gen.epithet, u'Vascostylis')
+        self.assertEquals(gen.hybrid_epithet, u'Vascostylis')
 
     def test_hybrid_formula_H(self):
         gen = Genus.retrieve_or_create(
@@ -1420,7 +1420,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'Miltonia × Odontoglossum × Cochlioda'})
         self.assertEquals(gen.hybrid_marker, u'H')
-        self.assertEquals(gen.epithet, u'Miltonia × Odontoglossum × Cochlioda')
+        self.assertEquals(gen.hybrid_epithet, u'Miltonia × Odontoglossum × Cochlioda')
 
     def test_intergeneric_graft_hybrid_plus(self):
         gen = Genus.retrieve_or_create(
@@ -1429,7 +1429,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'+Crataegomespilus'})
         self.assertEquals(gen.hybrid_marker, u'+')
-        self.assertEquals(gen.epithet, u'Crataegomespilus')
+        self.assertEquals(gen.hybrid_epithet, u'Crataegomespilus')
 
 
 class SpeciesInfraspecificProp(PlantTestCase):

@@ -178,7 +178,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
         return cites_notes[0]
 
     @property
-    def epithet(self):
+    def hybrid_epithet(self):
         '''strip the leading char if it is an hybrid marker
         '''
         if self.genus[0] in [u'x', u'×']:
