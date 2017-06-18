@@ -286,9 +286,5 @@ grammar is mostly case insensitive, unless otherwise stated::
             | 'LIKE' 
             | 'CONTAINS' 
             | 'HAS' 
-            | 'ILIKE' 
-            | 'ICONTAINS' 
-            | 'IHAS' 
-            | 'IS'
             ;
     set_binop ::= 'IN'
