@@ -268,7 +268,7 @@ grammar is mostly case insensitive, unless otherwise stated::
     empty_token ::= 'Empty'  #( case sensitive )
     string_value = quoted_string | unquoted_string
 
-    type_name ::= 'datetime'  #( only one for the time being )
+    type_name ::= 'datetime' | 'bool' ;  #( only ones for the time being )
     quoted_string ::= '"' unquoted_string '"'
     unquoted_string ::=  #( alphanumeric and more )
 

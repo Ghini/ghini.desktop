@@ -112,12 +112,41 @@ class NumericToken(ValueABC):
     def __repr__(self):
         return "%s" % (self.value)
 
+def smartdatetime(year_or_offset, *args):
+    """return either datetime.datetime, or a day with given offset.
 
+    When given only one argument, it is interpreted as an offset for
+    timedelta, and it is added to datetime.today().  If given more
+    arguments, it just behaves as datetime.datetime.
+
+    """
+    from datetime import datetime, timedelta
+    if not args:
+        return (datetime.today()
+                .replace(hour=0, minute=0, second=0, microsecond=0)
+                + timedelta(year_or_offset))
+    else:
+        return datetime(year_or_offset, *args)
+
+def smartboolean(*args):
+    """translate args into boolean value
+
+    Result is True whenever first argument is not numerically zero nor
+    literally 'false'.  No arguments cause error.
+
+    """
+    if len(args) == 1:
+        try:
+            return float(args[0]) != 0.0
+        except:
+            return args[0].lower() != 'false'
+    return True
+    
+    
 class TypedValueToken(ValueABC):
     ## |<name>|<paramlist>|
-    from datetime import datetime
-    constructor = {'datetime': (datetime, int),
-                   'now': (datetime.now, id),
+    constructor = {'datetime': (smartdatetime, int),
+                   'bool': (smartboolean, str),
                    }
 
     def __init__(self, t):

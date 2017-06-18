@@ -119,13 +119,60 @@ class SearchParserTests(unittest.TestCase):
         results = parser.value.parseString('123.1')
         self.assertEquals(results.value.express(), 123.1)
 
-    def test_datetime_token(self):
+    def test_bool_typed_no_arguments(self):
+        "bool syntax needs at least one argument"
+
+        self.assertRaises(ParseException, parser.value.parseString, '|bool||')
+
+    def test_bool_typed_values(self):
+        "recognizes bool syntax"
+
+        results = parser.value.parseString('|bool|0|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        results = parser.value.parseString('|bool|0.0|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        results = parser.value.parseString('|bool|false|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        results = parser.value.parseString('|bool|FalsE|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        for i in ['True', 'true', 'TRUE', '"anything not false"', '"1"', '1', '1.1']:
+            results = parser.value.parseString('|bool|%s|' % i)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), True)
+
+        for i in ['True', 'true', 'TRUE', '"anything not false"', '"1"', '1', '1.1']:
+            results = parser.value.parseString('|bool|abc, %s, 3|' % i)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), True)
+
+    def test_datetime_typed_values(self):
         "recognizes datetime syntax"
 
         from datetime import datetime
         results = parser.value.parseString('|datetime|1970,1,1|')
         self.assertEquals(results.getName(), 'value')
         self.assertEquals(results.value.express(), datetime(1970, 1, 1))
+
+    def test_datetime_typed_values_offset(self):
+        "recognizes datetime offset syntax"
+
+        from datetime import datetime, timedelta
+        today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+        yesterday = today - timedelta(1)
+        results = parser.value.parseString('|datetime|0|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), today)
+        results = parser.value.parseString('|datetime|-1|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), yesterday)
 
     def test_value_token(self):
         "value should only return the first string or raise a parse exception"
@@ -218,15 +265,9 @@ class SearchParserTests(unittest.TestCase):
             self.assertEquals(str(results), str(expected))
 
         # these should be invalid
-        strings = ['"test', "test'", "'test tes2"]
+        strings = ['"test', "test'", "'test tes2", "1,2,3 4 5"]
         for s in strings:
-            try:
-                results = parser.value_list.parseString(s, parseAll=True)
-            except ParseException:
-                pass
-            else:
-                self.fail('ParseException not raised: "%s" - %s'
-                          % (s, results))
+            self.assertRaises(ParseException, parser.value_list.parseString, s, parseAll=True)
 
 
 class SearchTests(BaubleTestCase):
