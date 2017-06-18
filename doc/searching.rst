@@ -124,9 +124,7 @@ by placing a few initial letters of genus and species epithets in the search
 engine, correctly capitalized, i.e.: **Genus epithet** with one leading capital
 letter, **Species epithet** all lowercase.
 
-This way you can perform the search::
-  
-  So ha
+This way you can perform the search ``So ha``.
 
 These would be the initials for Solanum hayesii, or Solanum havanense.
 
