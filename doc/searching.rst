@@ -283,7 +283,6 @@ grammar is mostly case insensitive, unless otherwise stated::
             | '<=' 
             | '>' 
             | '>=' 
-            | 'NOT' 
             | 'LIKE' 
             | 'CONTAINS' 
             | 'HAS' 
