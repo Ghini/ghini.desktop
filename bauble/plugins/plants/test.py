@@ -643,6 +643,17 @@ class GenusTests(PlantTestCase):
         assert utils.gc_objects_by_type('GenusEditorView') == [], \
             'GenusEditorView not deleted'
 
+    def test_can_use_epithet_field(self):
+        family = Family(epithet=u'family')
+        genus = Genus(family=family, genus=u'genus')
+        self.session.add_all([family, genus])
+        self.session.commit()
+        g1 = self.session.query(Genus).filter(Genus.epithet=='genus').one()
+        g2 = self.session.query(Genus).filter(Genus.genus=='genus').one()
+        self.assertEquals(g1, g2)
+        self.assertEquals(g1.genus, 'genus')
+        self.assertEquals(g2.epithet, 'genus')
+        
 
 class GenusSynonymyTests(PlantTestCase):
 
