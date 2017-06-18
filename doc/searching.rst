@@ -234,17 +234,17 @@ imagination; literals are included in single quotes; the grammar is mostly
 case insensitive, unless otherwise stated::
 
     query ::= domain 'WHERE' complex_expression
-    complex_expressions ::= single_expression
-                        | single_expression 'AND' complex_expression
-                        | single_expression 'OR' complex_expression
+    complex_expression ::= single_expression
+                         | single_expression 'AND' complex_expression
+                         | single_expression 'OR' complex_expression
   
     single_expression ::= bool_expression
-                        | 'NOT' bool_expressions
+                        | 'NOT' bool_expression
     bool_expression ::= identifier binop value
                       | identifier binop_set value_list
                       | aggregated binop value
                       | identifier 'BETWEEN' value 'AND' value
-                      | '(' query_expression ')'
+                      | '(' complex_expression ')'
 
     identifier ::= [a-z][a-z0-9_]*
     aggregated ::= aggregating_func '(' identifier ')'
