@@ -40,7 +40,7 @@ an activity«.
 Data and algorithms within Ghini have been designed to represent the
 physical space and the dynamic of a botanic garden.
 
-.. figure:: images/schemas/ghini-10.png
+.. figure:: images/schemas/ghini-10.svg
 
    **core structure of Ghini's database**
 
@@ -86,15 +86,16 @@ documentation.
               longa* (a plant ``Species``) from our neighbour (the
               ``Contact`` source). Since it was the first acquisition of the
               year, we named them 2007.0001 (we gave them a single unique
-              ``Accession`` code) and we planted them all together at one
-              ``Location`` as a single ``Planting`` with quantity 5.
+              ``Accession`` code, with quantity 5) and we planted them all
+              together at one ``Location`` as a single ``Planting``, also
+              with quantity 5.
 
            #. At the time of writing, nine years later, ``Accession``
               2007.0001 has 6 distinct ``Plantings``, each at a different
               ``Locations`` in our garden, obtained vegetatively (asexually)
               from the original 5 plants. Our only intervention was
               splitting, moving, and of course writing this information in
-              the database.
+              the database. Total plant quantity is above 40.
 
            #. New ``Plantings`` obtained by (assisted) sexual ``Propagation``
               come in our database under different ``Accession`` codes, where
