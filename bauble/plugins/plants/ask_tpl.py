@@ -39,12 +39,11 @@ class AskTPL(threading.Thread):
                      self.name, self.running and self.running.name)
         if self.running is not None:
             if self.running.binomial == binomial:
-                logger.debug("%s has same query as %s, do not start %s",
-                             self.name, self.running.name, self.name)
+                logger.debug('already requesting %s, ignoring repeated request', binomial)
                 binomial = None
             else:
-                logger.debug("%s has other query than %s, stop %s",
-                             self.name, self.running.name, self.running.name)
+                logger.debug("running different request (%s), stopping it, starting %s",
+                             self.running.binomial, binomial)
                 self.running.stop()
         if binomial:
             self.__class__.running = self
