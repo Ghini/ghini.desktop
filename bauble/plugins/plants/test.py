@@ -1115,36 +1115,6 @@ class GeographyTests(PlantTestCase):
         self.session.flush()
         self.assertEquals(sp1.distribution_str(), 'Mexico Central, Western Canada')
 
-# TODO: maybe the following could be in a seperate file called
-# profile.py or something that would profile everything in the plants
-# module
-
-#def main():
-#    from optparse import OptionParser
-#    parser = OptionParser()
-#    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-#                      help='verbose output')
-#    parser.add_option('-p', '--profile', dest='profile', action='store_true',
-#                      help='print run times')
-#    options, args = parser.parse_args()
-#
-#    import profile
-#    import time
-#    if options.profile:
-#        t1 = time.time()
-#        #profile.run('test_speciesStr()')
-#        profile.run('profile()')
-#        t2 = time.time()
-#        print 'time: %s' % (t2-t1)
-#    else:
-#        print 'starting tests...'
-#        test_speciesStr(options.verbose)
-#        print 'done.'
-#
-#
-#if __name__ == '__main__':
-#    main()
-
 
 class FromAndToDictTest(PlantTestCase):
     """tests the retrieve_or_create and the as_dict methods

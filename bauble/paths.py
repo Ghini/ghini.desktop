@@ -138,11 +138,3 @@ def appdata_dir():
         raise Exception('Could not get path for user settings: '
                         'unsupported platform')
     return os.path.abspath(d)
-
-
-if __name__ == '__main__':
-    print 'main: %s' % main_dir()
-    print 'lib: %s' % lib_dir()
-    print 'locale: %s' % locale_dir()
-    print 'application: %s' % appdata_dir()
-    print 'user: %s' % user_dir()

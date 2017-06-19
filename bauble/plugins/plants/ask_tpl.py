@@ -154,16 +154,3 @@ def what_to_do_with_it(found, accepted):
         logger.info("invalid reference in tpl.")
     if accepted:
         logger.info("%s - is its accepted form", citation(accepted))
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
-    while True:
-        binomial = raw_input()
-        if not binomial:
-            if AskTPL.running is not None:
-                AskTPL.running.stop()
-            break
-
-        AskTPL(binomial, what_to_do_with_it, timeout=2).start()
