@@ -1005,10 +1005,10 @@ class SpeciesTests(PlantTestCase):
         sp3 = create_tmp_sp(53)
         sp4 = create_tmp_sp(54)
         self.session.commit()
-        self.assertEquals(sp1.accepted, sp1)
-        self.assertEquals(sp2.accepted, sp2) 
-        self.assertEquals(sp3.accepted, sp3) 
-        self.assertEquals(sp4.accepted, sp4)
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, None) 
+        self.assertEquals(sp3.accepted, None) 
+        self.assertEquals(sp4.accepted, None)
 
     def test_synonyms_and_accepted_properties(self):
         def create_tmp_sp(id):
@@ -1035,15 +1035,15 @@ class SpeciesTests(PlantTestCase):
         print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
         self.assertEquals([i.epithet for i in sp4.synonyms], [sp2.epithet])
         self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
-        self.assertEquals(sp1.accepted.epithet, sp1.epithet)
-        self.assertEquals(sp2.accepted.epithet, sp4.epithet) 
-        self.assertEquals(sp3.accepted.epithet, sp1.epithet) 
-        self.assertEquals(sp4.accepted.epithet, sp4.epithet)
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, sp4) 
+        self.assertEquals(sp3.accepted, sp1) 
+        self.assertEquals(sp4.accepted, None)
         sp2.accepted = sp4  # does not change anything
-        self.assertEquals(sp1.accepted.epithet, sp1.epithet)
-        self.assertEquals(sp2.accepted.epithet, sp4.epithet) 
-        self.assertEquals(sp3.accepted.epithet, sp1.epithet) 
-        self.assertEquals(sp4.accepted.epithet, sp4.epithet)
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, sp4) 
+        self.assertEquals(sp3.accepted, sp1) 
+        self.assertEquals(sp4.accepted, None)
 
 
 class GeographyTests(PlantTestCase):
