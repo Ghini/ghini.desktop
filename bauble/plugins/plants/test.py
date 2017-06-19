@@ -1005,12 +1005,7 @@ class GeographyTests(PlantTestCase):
         self.family = Family(family=u'family')
         self.genus = Genus(genus=u'genus', family=self.family)
         self.session.add_all([self.family, self.genus])
-        self.session.commit()
-
-    def tearDown(self):
-        super(GeographyTests, self).tearDown()
-
-    def test_get_species(self):
+        self.session.flush()
         # import default geography data
         import bauble.paths as paths
         filename = os.path.join(paths.lib_dir(), "plugins", "plants",
@@ -1018,7 +1013,12 @@ class GeographyTests(PlantTestCase):
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
         importer.start([filename], force=True)
+        self.session.commit()
 
+    def tearDown(self):
+        super(GeographyTests, self).tearDown()
+
+    def test_get_species(self):
         mexico_id = 53
         mexico_central_id = 267
         oaxaca_id = 665
@@ -1052,6 +1052,17 @@ class GeographyTests(PlantTestCase):
         species = get_species_in_geography(north_america)
         self.assert_([s.id for s in species] == [sp1.id, sp2.id, sp3.id])
 
+    def test_species_distribution_str(self):
+        # create a some species
+        sp1 = Species(genus=self.genus, sp=u'sp1')
+        dist = SpeciesDistribution(geography_id=267)
+        sp1.distribution.append(dist)
+        self.session.flush()
+        self.assertEquals(sp1.distribution_str(), 'Mexico Central')
+        dist = SpeciesDistribution(geography_id=45)
+        sp1.distribution.append(dist)
+        self.session.flush()
+        self.assertEquals(sp1.distribution_str(), 'Mexico Central, Western Canada')
 
 # TODO: maybe the following could be in a seperate file called
 # profile.py or something that would profile everything in the plants
