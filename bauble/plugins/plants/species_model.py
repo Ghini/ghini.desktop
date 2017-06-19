@@ -510,7 +510,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return None
         syn = session.query(SpeciesSynonym).filter(
             SpeciesSynonym.synonym_id == self.id).first()
-        accepted = syn and syn.species
+        accepted = syn and syn.species or self
         return accepted
 
     @accepted.setter
@@ -526,10 +526,15 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         if not session:
             logger.warn('species:accepted.setter - object not in session')
             return
-        session.query(SpeciesSynonym).filter(
-            SpeciesSynonym.synonym_id == self.id).delete()
-        session.commit()
-        value.synonyms.append(self)
+        previous_synonymy_link = session.query(SpeciesSynonym).filter(
+            SpeciesSynonym.synonym_id == self.id).first()
+        if previous_synonymy_link:
+            a = session.query(Species).filter(Species.id==previous_synonymy_link.species_id).one()
+            a.synonyms.remove(self)
+        session.flush()
+        if value != self:
+            value.synonyms.append(self)
+        session.flush()
 
     def has_accessions(self):
         '''true if species is linked to at least one accession

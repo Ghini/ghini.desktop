@@ -921,7 +921,7 @@ class SpeciesTests(PlantTestCase):
         sp.default_vernacular_name = vn2
         self.session.commit()
 
-    def test_synonyms(self):
+    def test_synonyms_low_level(self):
         """
         Test the Species.synonyms property
         """
@@ -993,6 +993,57 @@ class SpeciesTests(PlantTestCase):
         assert sp2 not in sp1.synonyms
 
         self.session.expunge_all()
+
+    def test_no_synonyms_means_itself_accepted(self):
+        def create_tmp_sp(id):
+            sp = Species(id=id, epithet=u"sp%02d"%id, genus_id=1)
+            self.session.add(sp)
+            return sp
+
+        sp1 = create_tmp_sp(51)
+        sp2 = create_tmp_sp(52)
+        sp3 = create_tmp_sp(53)
+        sp4 = create_tmp_sp(54)
+        self.session.commit()
+        self.assertEquals(sp1.accepted, sp1)
+        self.assertEquals(sp2.accepted, sp2) 
+        self.assertEquals(sp3.accepted, sp3) 
+        self.assertEquals(sp4.accepted, sp4)
+
+    def test_synonyms_and_accepted_properties(self):
+        def create_tmp_sp(id):
+            sp = Species(id=id, epithet=u"sp%02d"%id, genus_id=1)
+            self.session.add(sp)
+            return sp
+
+        # equivalence classes after changes
+        sp1 = create_tmp_sp(41)
+        sp2 = create_tmp_sp(42)
+        sp3 = create_tmp_sp(43)
+        sp4 = create_tmp_sp(44)  # (1), (2), (3), (4)
+        sp3.accepted = sp1  # (1 3), (2), (4)
+        self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
+        sp1.synonyms.append(sp2)  # (1 3 2), (4)
+        self.session.flush()
+        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
+        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        self.assertEquals(sp2.accepted.epithet, sp1.epithet)  # just added
+        self.assertEquals(sp3.accepted.epithet, sp1.epithet)  # no change
+        sp2.accepted = sp4  # (1 3), (4 2)
+        self.session.flush()
+        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
+        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        self.assertEquals([i.epithet for i in sp4.synonyms], [sp2.epithet])
+        self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
+        self.assertEquals(sp1.accepted.epithet, sp1.epithet)
+        self.assertEquals(sp2.accepted.epithet, sp4.epithet) 
+        self.assertEquals(sp3.accepted.epithet, sp1.epithet) 
+        self.assertEquals(sp4.accepted.epithet, sp4.epithet)
+        sp2.accepted = sp4  # does not change anything
+        self.assertEquals(sp1.accepted.epithet, sp1.epithet)
+        self.assertEquals(sp2.accepted.epithet, sp4.epithet) 
+        self.assertEquals(sp3.accepted.epithet, sp1.epithet) 
+        self.assertEquals(sp4.accepted.epithet, sp4.epithet)
 
 
 class GeographyTests(PlantTestCase):
