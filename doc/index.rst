@@ -1,7 +1,7 @@
 Documentation for Ghini 1.0
 ############################
 
-.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=bauble-1.0
+.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0-dev
 .. image:: https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg
 .. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=master 
 
