@@ -146,8 +146,8 @@ Search by Query
 
 Queries allow the most control over searching. With queries you can search
 across relations, specific columns, combine search criteria using boolean
-operators like and(&&), or(||), not(!), enclose them in parentheses, and
-more.
+operators like ``and``, ``or``, ``not`` (and their shorthands ``&&``,
+``||``, ``!``), enclose them in parentheses, and more.
 
 Please contact the authors if you want more information, or if you volunteer
 to document this more thoroughly.  In the meanwhile you may start
