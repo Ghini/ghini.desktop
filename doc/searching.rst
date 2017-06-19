@@ -187,72 +187,67 @@ practice, and with the help of the Query Builder.
 The Query Builder
 =================
 
-The Query Builder helps you build complex search queries through a point and
-click interface.  To open the Query Builder click the |querybuilder| icon to
-the left of the search entry or select :menuselection:`Tools-->Query
-Builder` from the menu.
+Ghini offers a Query Builder, that helps you build complex search queries
+through a point and click interface.  To open the Query Builder click the
+|querybuilder| icon to the left of the search entry or select
+:menuselection:`Tools-->Query Builder` from the menu.
 
 .. |querybuilder| image:: querybuilder.png
    :align: middle
    :width: 18
 
-The Query Builder composes a query that will be understood by the Query
-Search Strategy described above. You can use the Query Builder to get a
-feeling of correct queries before you start typing them by hand, something
-that you might prefer if you are a fast typer.
+A window will show up, which will lead you through all steps necessary to
+construct a correct query that is understood by Ghini's Query Search
+Strategy.
 
-After opening the Query Builder you must select a search domain.  The
-search domain will determine the type of data that is returned and the
-properties that you can search.
-
-.. image:: images/screenshots/qb-choose_domain.png
-
-The search domain is similar to a table in the database and the properties
-would be the columns on the table.  Often the table/domain and
-properties/columns are the same but not always.
-
-Once a search domain is selected you can then select a property of the
-domain to compare values to.  The search operator can then be changed
-for how you want to make the search comparison.  Finally you must
-enter a value to compare to the search property.
+.. figure:: images/screenshots/qb-choose_domain.png
+   :align: left
 
 .. image:: images/screenshots/qb-choose_property.png
+                                                                          
+First of all you indicate the search domain, this will allow the Query
+Builder complete its graphical user interface, then you add as many logical
+clauses as you need, connecting them with a ``and`` or ``or`` binary
+operator.
 
-If the search property you have selected can only have specific values then
-a list of possible values will be provided for you to choose from.
+Each clause is formed of three parts: a property that can be reached from
+the starting search domain, a comparison operator that you select from the
+drop-down list, a value that you can either type or select from the list of
+valid values for the field.
 
-If multiple search properties are necessary then clicking on the plus
-sign will add more search properties.  Select And/Or next to the
-property name choose how the properties will be combined in the search
-query.
+Add as many search properties as you need, by clicking on the plus sign.
+Select and/or next to the property name to choose how the clauses will be
+combined in the search query.
 
 When you are done building your query click OK to perform the search.
+  
 
 Query Grammar
 ==================
 
-For those who don't fear a bit of formal precision, this is top-part of the
-grammar implemented by the Query Search Strategy, here given in BNF.  Some
-grammatical categories are informally defined; any missing ones are left to
-your fertile imagination; literals are included in single quotes; the
-grammar is mostly case insensitive, unless otherwise stated::
+For those who don't fear a bit of formal precision, the following BNF code
+gives you a rather precise idea of the grammar implemented by the Query
+Search Strategy.  Some grammatical categories are informally defined; any
+missing ones are left to your fertile imagination; literals are included in
+single quotes; the grammar is mostly case insensitive, unless otherwise
+stated::
 
-    query ::= domain 'WHERE' complex_expression
+    query ::= domain 'WHERE' expression
 
     domain ::= #( one of our search domains )
-    complex_expression ::= single_expression
-                         | single_expression 'AND' complex_expression
-                         | single_expression 'OR' complex_expression
-                         ;
-    single_expression ::= bool_expression
-                        | 'NOT' bool_expression
-                        ;
-    bool_expression ::= field_name binop value
-                      | field_name set_binop value_list
-                      | aggregated binop value
-                      | field_name 'BETWEEN' value 'AND' value
-                      | '(' complex_expression ')'
-                      ;
+    expression ::= signed_clause
+                 | signed_clause 'AND' expression
+                 | signed_clause 'OR' expression
+                 ;
+    signed_clause ::= clause
+                    | 'NOT' clause  #( not available in Query Builder)
+                    ;
+    clause ::= field_name binop value  #( available in Query Builder)
+             | field_name set_binop value_list
+             | aggregated binop value
+             | field_name 'BETWEEN' value 'AND' value
+             | '(' expression ')'
+             ;
     field_name ::= #( path to reach a database field or connected table )
     aggregated ::= aggregating_func '(' field_name ')'
     aggregating_func ::= 'SUM'
@@ -291,3 +286,39 @@ grammar is mostly case insensitive, unless otherwise stated::
             | 'CONTAINS'
             ;
     set_binop ::= 'IN'
+
+
+Please be aware that Ghini's Query language is quite a bit more complex than
+what the Query Builder can produce: Queries you can build with the Query
+Builder form a proper subset of the queries recognized by the software::
+
+    query ::= domain 'WHERE' expression
+
+    domain ::= #( one of our search domains )
+    expression ::= clause
+                 | clause 'AND' expression
+                 | clause 'OR' expression
+                 ;
+    clause ::= field_name binop value
+             ;
+    field_name ::= #( path to reach a database field or connected table )
+    value ::= numeric_value
+            | string_value
+            ;
+    numeric_value ::== #( just a number )
+    string_value = quoted_string | unquoted_string ;
+
+    quoted_string ::= '"' unquoted_string '"'
+    unquoted_string ::=  #( alphanumeric and more )
+
+    binop ::= '='
+            | '=='
+            | '!='
+            | '<>'
+            | '<'
+            | '<='
+            | '>'
+            | '>='
+            | 'LIKE'
+            | 'CONTAINS'
+            ;
