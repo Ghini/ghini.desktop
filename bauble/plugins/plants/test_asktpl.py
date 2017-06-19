@@ -27,7 +27,8 @@ import requests
 def requests_get(x, timeout=None):
     answers = {'http://www.theplantlist.org/tpl1.1/search?q=Mangifera indica&csv=true': 'ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,Nomenclatural status from original data source,Confidence level,Source,Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\nkew-2362842,A,Anacardiaceae,,Mangifera,,"indica",,"","L.",Accepted,,M,WCSP (in review),,69913-1,"Sp. Pl.","200","","1753",\n',
                'http://www.theplantlist.org/tpl1.1/search?q=Iris florentina&csv=true': 'ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,Nomenclatural status from original data source,Confidence level,Source,Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\nkew-321828,A,Iridaceae,,Iris,×,"florentina",,"","L.",Synonym,,H,iPlants,321828,438598-1,"Syst. Nat. ed. 10","2: 863","","1759",kew-321867\ntro-16602596,A,Iridaceae,,Iris,,"florentina",,"","L.",Unresolved,,L,TRO,16602596,,"Syst. Nat. (ed. 10)","863","863","",\nkew-329134,A,Iridaceae,,Iris,×,"florentina",var.,"albicans","(Lange) Baker",Synonym,,L,iPlants,329134,,"J. Linn. Soc., Bot.","16: 146","","1877",kew-321543\nkew-350225,A,Iridaceae,,Iris,×,"florentina",subsp.,"albicans","(Lange) K.Richt.",Synonym,,L,iPlants,350225,,"Pl. Eur.","1: 255","","1890",kew-321543\nkew-329155,A,Iridaceae,,Iris,×,"florentina",var.,"illyrica","(Tomm. ex Vis.) Fiori",Synonym,,L,iPlants,329155,,"Nuov. Fl. Italia","1: 299","","1923",kew-329154\nkew-329192,A,Iridaceae,,Iris,×,"florentina",var.,"madonna","(Dykes) L.H.Bailey",Synonym,,L,iPlants,329192,,"Cycl. Amer. Hort.","2: 1672","","1933",kew-321543\nkew-341075,A,Iridaceae,,Iris,×,"florentina",var.,"pallida","Nyman",Synonym,,L,iPlants,341075,,"Consp. Fl. Eur.","700","","1882",kew-321867\n',
-               'http://www.theplantlist.org/tpl1.1/search?q=kew-321867&csv=true': 'ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,Nomenclatural status from original data source,Confidence level,Source,Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\nkew-321867,A,Iridaceae,,Iris,×,"germanica",,"","L.",Accepted,,H,iPlants,321867,438637-1,"Sp. Pl.","38","","1753",\n'
+               'http://www.theplantlist.org/tpl1.1/search?q=kew-321867&csv=true': 'ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,Nomenclatural status from original data source,Confidence level,Source,Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\nkew-321867,A,Iridaceae,,Iris,×,"germanica",,"","L.",Accepted,,H,iPlants,321867,438637-1,"Sp. Pl.","38","","1753",\n',
+               'http://www.theplantlist.org/tpl1.1/search?q=Manducaria italica&csv=true': 'ID,Major group,Family,Genus hybrid marker,Genus,Species hybrid marker,Species,Infraspecific rank,Infraspecific epithet,Authorship,Taxonomic status in TPL,Nomenclatural status from original data source,Confidence level,Source,Source id,IPNI id,Publication,Collation,Page,Date,Accepted ID\n',
     }
     result = type('FooBar', (object,), {})()
     result.text = answers.get(x, "")
@@ -54,3 +55,10 @@ class TestOne(BaubleTestCase):
         self.assertEquals(len(infolog), 2)
         self.assertEquals(infolog[0], 'Iris \xc3\x97florentina L. (Iridaceae)')
         self.assertEquals(infolog[1], 'Iris \xc3\x97germanica L. (Iridaceae) - is its accepted form')
+
+    def test_empty_answer(self):
+        binomial = 'Manducaria italica'
+        AskTPL(binomial, what_to_do_with_it, timeout=2).run()
+        infolog = self.handler.messages['bauble.plugins.plants.ask_tpl']['info']
+        self.assertEquals(len(infolog), 1)
+        self.assertEquals(infolog[0], 'nothing matches')
