@@ -1669,7 +1669,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:704
 msgid "Label distribution"
-msgstr ""
+msgstr "Distribuzione per l'etichetta"
 
 #: bauble/view.py:185
 msgid "Last updated:"

@@ -1674,7 +1674,7 @@ msgstr "JSON"
 
 #: bauble/plugins/plants/species_editor.glade:704
 msgid "Label distribution"
-msgstr "Distribución de etiquetas"
+msgstr "Distribución en la etiquetas"
 
 #: bauble/view.py:185
 msgid "Last updated:"
