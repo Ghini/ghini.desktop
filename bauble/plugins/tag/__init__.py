@@ -536,19 +536,20 @@ def get_tag_ids(objs):
 def _on_add_tag_activated(*args):
     # get the selection from the search view
     view = bauble.gui.get_view()
-    if isinstance(view, SearchView):
+    try:
         values = view.get_selected_values()
-        if len(values) == 0:
-            msg = _('Nothing selected')
-            utils.message_dialog(msg)
-            return
-        tagitem = TagItemGUI(values)
-        tagitem.start()
-        view.update_bottom_notebook()
-    else:
+    except AttributeError:
         msg = _('In order to tag an item you must first search for '
                 'something and select one of the results.')
         bauble.gui.show_message_box(msg)
+        return
+    if len(values) == 0:
+        msg = _('Nothing selected')
+        utils.message_dialog(msg)
+        return
+    tagitem = TagItemGUI(values)
+    tagitem.start()
+    view.update_bottom_notebook()
 
 
 def _tag_menu_item_activated(widget, tag_name):

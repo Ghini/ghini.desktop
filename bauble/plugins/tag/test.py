@@ -29,7 +29,7 @@ import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
 from bauble.plugins.tag import Tag, TagEditorPresenter, TagInfoBox
 from bauble.test import BaubleTestCase, check_dupids, mockfunc
-from bauble.editor import GenericEditorView
+from bauble.editor import GenericEditorView, MockView
 import bauble.utils as utils
 from functools import partial
 import gtk
@@ -460,3 +460,42 @@ class TagInfoBoxTest(BaubleTestCase):
         self.assertEquals(type(ib.general.table_cells[1]), gtk.EventBox)
         label = ib.general.table_cells[1].get_children()[0]
         self.assertEquals(label.get_text(), ' 3 ')
+
+
+class TagCallbackTest(BaubleTestCase):
+    def test_on_add_tag_activated_wrong_view(self):
+        class FakeGui:
+            def __init__(self):
+                self.invoked = []
+            def get_view(self):
+                return MockView(selection=[])
+            def show_message_box(self, *args, **kwargs):
+                self.invoked.append((args, kwargs))
+                pass
+        import bauble
+        bauble.gui = localgui = FakeGui()
+        tag_plugin._on_add_tag_activated()
+        reload(bauble)
+        self.assertEquals(localgui.invoked[0],
+                          (('In order to tag an item you must first search for something and select one of the results.', ), {}))
+
+    def test_on_add_tag_activated_search_view_empty_selection(self):
+        class FakeGui:
+            def __init__(self):
+                self.invoked = []
+            def get_view(self):
+                view = MockView()
+                view.get_selected_values = lambda: []
+                return view
+            def show_message_box(self, *args, **kwargs):
+                self.invoked.append((args, kwargs))
+                pass
+        import bauble
+        bauble.gui = localgui = FakeGui()
+        utils.message_dialog = bauble.gui.show_message_box
+        tag_plugin._on_add_tag_activated()
+        reload(bauble)
+        reload(utils)
+        self.assertEquals(localgui.invoked[0],
+                          (('Nothing selected', ), {}))
+
