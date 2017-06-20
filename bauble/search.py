@@ -143,8 +143,8 @@ def smartboolean(*args):
         except:
             return args[0].lower() != 'false'
     return True
-    
-    
+
+
 class TypedValueToken(ValueABC):
     ## |<name>|<paramlist>|
     constructor = {'datetime': (smartdatetime, int),
@@ -1010,13 +1010,10 @@ class ExpressionRow(object):
     """
     """
 
-    def __init__(self, query_builder, remove_callback, row_number=None):
+    def __init__(self, query_builder, remove_callback, row_number):
         self.table = query_builder.view.widgets.expressions_table
         self.presenter = query_builder
-        self.menu_item_selected = False
-        if row_number is None:
-            # assume we want the row appended to the end of the table
-            row_number = self.table.props.n_rows
+        self.menu_item_activated = False
 
         self.and_or_combo = None
         if row_number != 1:
@@ -1120,8 +1117,9 @@ class ExpressionRow(object):
         Returns a tuple of the and_or_combo, prop_button, cond_combo,
         value_widget, and remove_button widgets.
         """
-        return self.and_or_combo, self.prop_button, self.cond_combo, \
-            self.value_widget, self.remove_button
+        return (i for i in (self.and_or_combo, self.prop_button, self.cond_combo,
+                            self.value_widget, self.remove_button)
+                if i)
 
     def get_expression(self):
         """
@@ -1167,6 +1165,7 @@ class QueryBuilder(GenericEditorPresenter):
         self.expression_rows = []
         self.mapper = None
         self.domain = None
+        self.table_row_count = 0
         self.domain_map = MapperSearch.get_domain_classes().copy()
 
         self.view.widgets.domain_combo.set_active(-1)
@@ -1188,7 +1187,7 @@ class QueryBuilder(GenericEditorPresenter):
         index = self.view.widgets.domain_combo.get_active()
         if index == -1:
             return
-        
+
         self.domain = self.view.widgets.domain_liststore[index][0]
 
         # remove all clauses, they became useless in new domain
@@ -1196,7 +1195,7 @@ class QueryBuilder(GenericEditorPresenter):
         map(table.remove, table.get_children())
         del self.expression_rows[:]
         # initialize view at 1 clause, however invalid
-        self.view.widgets.expressions_table.props.n_rows = 1
+        self.table_row_count = 0
         self.on_add_clause()
         self.view.widgets.expressions_table.show_all()
         # let user add more clauses
@@ -1227,18 +1226,22 @@ class QueryBuilder(GenericEditorPresenter):
         """
         Remove a row from the expressions table.
         """
+        print "removing one", self.table_row_count
         map(self.view.widgets.expressions_table.remove, row.get_widgets())
-        self.view.widgets.expressions_table.props.n_rows -= 1
+        self.table_row_count -= 1
         self.expression_rows.remove(row)
+        self.view.widgets.expressions_table.resize(self.table_row_count, 5)
         del row
 
     def on_add_clause(self, *args):
         """
         Add a row to the expressions table.
         """
+        print "adding one", self.table_row_count
         domain = self.domain_map[self.domain]
         self.mapper = class_mapper(domain)
-        row = ExpressionRow(self, self.remove_expression_row)
+        self.table_row_count += 1
+        row = ExpressionRow(self, self.remove_expression_row, self.table_row_count)
         self.expression_rows.append(row)
         self.view.widgets.expressions_table.show_all()
 
@@ -1246,13 +1249,15 @@ class QueryBuilder(GenericEditorPresenter):
         return self.view.start()
 
     @property
-    def clauses(self):
-        return [i.get_expression() for i in self.expression_rows]    
+    def valid_clauses(self):
+        return [i.get_expression()
+                for i in self.expression_rows
+                if i.get_expression()]
 
     def get_query(self):
         """
         Return query expression string.
         """
 
-        query = [self.domain, 'where'] + ["%s" % row for row in self.clauses]
+        query = [self.domain, 'where'] + self.valid_clauses
         return ' '.join(query)

@@ -303,7 +303,6 @@ class GUI(object):
             root_widget_name='main_dialog')
         qb = search.QueryBuilder(view)
         response = qb.start()
-        print response
         if response == gtk.RESPONSE_OK:
             query = qb.get_query()
             self.widgets.main_comboentry.child.set_text(query)
