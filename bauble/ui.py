@@ -40,6 +40,8 @@ import bauble.search as search
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 from bauble.view import SearchView
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
 
 
 class DefaultView(pluginmgr.View):
@@ -294,8 +296,15 @@ class GUI(object):
         bauble.command_handler(cmd, arg)
 
     def on_query_button_clicked(self, widget):
-        qb = search.QueryBuilder()
-        if qb.start() == gtk.RESPONSE_OK:
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
+        response = qb.start()
+        print response
+        if response == gtk.RESPONSE_OK:
             query = qb.get_query()
             self.widgets.main_comboentry.child.set_text(query)
             self.widgets.go_button.emit("clicked")

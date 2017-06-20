@@ -39,6 +39,8 @@ import bauble
 from bauble.error import check
 import bauble.utils as utils
 from bauble.i18n import _
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
 
 
 def search(text, session=None):
@@ -1009,9 +1011,8 @@ class ExpressionRow(object):
     """
 
     def __init__(self, query_builder, remove_callback, row_number=None):
-        self.mapper = weakref.proxy(query_builder.mapper)
-        self.table = weakref.proxy(query_builder.expressions_table)
-        self.dialog = weakref.proxy(query_builder)
+        self.table = query_builder.view.widgets.expressions_table
+        self.presenter = query_builder
         self.menu_item_selected = False
         if row_number is None:
             # assume we want the row appended to the end of the table
@@ -1032,7 +1033,7 @@ class ExpressionRow(object):
         def on_prop_button_clicked(button, event, menu):
             menu.popup(None, None, None, event.button, event.time)
 
-        self.schema_menu = SchemaMenu(self.mapper,
+        self.schema_menu = SchemaMenu(self.presenter.mapper,
                                       self.on_schema_menu_activated,
                                       self.relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
@@ -1067,7 +1068,7 @@ class ExpressionRow(object):
         Call the QueryBuilder.validate() for this row.
         Set the sensitivity of the gtk.RESPONSE_OK button on the QueryBuilder.
         """
-        self.dialog.validate()
+        self.presenter.validate()
 
     def on_schema_menu_activated(self, menuitem, path, prop):
         """
@@ -1106,7 +1107,7 @@ class ExpressionRow(object):
 
         self.table.attach(self.value_widget, left, right, top, bottom)
         self.table.show_all()
-        self.dialog.validate()
+        self.presenter.validate()
 
     def relation_filter(self, prop):
         if isinstance(prop, ColumnProperty) and \
@@ -1155,67 +1156,42 @@ class ExpressionRow(object):
         return result
 
 
-class QueryBuilder(gtk.Dialog):
+class QueryBuilder(GenericEditorPresenter):
 
-    def __init__(self, parent=None):
-        """
-        """
-        super(QueryBuilder, self).__init__(
-            title=_("Query Builder"), parent=parent,
-            flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                     gtk.STOCK_OK, gtk.RESPONSE_OK))
+    view_accept_buttons = ['cancel_button', 'confirm_button']
 
-        self.vbox.props.spacing = 15
+    def __init__(self, view=None):
+        GenericEditorPresenter.__init__(
+            self, model=self, view=view, refresh_view=True)
+
         self.expression_rows = []
         self.mapper = None
-        self._first_choice = True
-        self.set_response_sensitive(gtk.RESPONSE_OK, False)
+        self.domain = None
         self.domain_map = MapperSearch.get_domain_classes().copy()
 
-        frame = gtk.Frame(_("Search Domain"))
-        self.vbox.pack_start(frame, expand=False, fill=False)
-        self.domain_combo = gtk.combo_box_new_text()
-        frame.add(self.domain_combo)
+        self.view.widgets.domain_liststore.clear()
         for key in sorted(self.domain_map.keys()):
-            self.domain_combo.append_text(key)
-        self.domain_combo.insert_text(0, _("Choose a search domain..."))
-        self.domain_combo.set_active(0)
-
-        self.domain_combo.connect('changed', self.on_domain_combo_changed)
-
-        frame = gtk.Frame(_("Expressions"))
-        self.expressions_table = gtk.Table()
-        self.expressions_table.props.column_spacing = 10
-        frame.add(self.expressions_table)
-        self.vbox.pack_start(frame, expand=False, fill=False)
-
-        # add button to add additional expression rows
-        self.add_button = gtk.Button()
-        self.add_button.props.sensitive = False
-        img = gtk.image_new_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_BUTTON)
-        self.add_button.props.image = img
-        self.add_button.connect("clicked", lambda w: self.add_expression_row())
-        align = gtk.Alignment(0, 0, 0, 0)
-        align.add(self.add_button)
-        self.vbox.pack_end(align, fill=False, expand=False)
+            self.view.widgets.domain_liststore.append([key])
+        self.view.widgets.add_clause_button.props.sensitive = False
 
     def on_domain_combo_changed(self, *args):
         """
         Change the search domain.  Resets the expression table and
         deletes all the expression rows.
         """
-        if self._first_choice:
-            self.domain_combo.remove_text(0)
-            self._first_choice = False
+        index = self.view.widgets.domain_combo.get_active()
+        self.domain = self.view.widgets.domain_liststore[index][0]
 
-        for kid in self.expressions_table.get_children():
-            self.expressions_table.remove(kid)
-        self.expressions_table.props.n_rows = 1
+        # remove all clauses, they became useless in new domain
+        table = self.view.widgets.expressions_table
+        map(table.remove, table.get_children())
         del self.expression_rows[:]
-        self.add_button.props.sensitive = True
-        self.add_expression_row()
-        self.expressions_table.show_all()
+        # initialize view at 1 clause, however invalid
+        self.view.widgets.expressions_table.props.n_rows = 1
+        self.on_add_clause()
+        self.view.widgets.expressions_table.show_all()
+        # let user add more clauses
+        self.view.widgets.add_clause_button.props.sensitive = True
 
     def validate(self):
         """
@@ -1235,44 +1211,38 @@ class QueryBuilder(gtk.Dialog):
                 valid = False
                 break
 
-        self.set_response_sensitive(gtk.RESPONSE_OK, valid)
         return valid
 
     def remove_expression_row(self, row):
         """
         Remove a row from the expressions table.
         """
-        map(self.expressions_table.remove, row.get_widgets())
-        self.expressions_table.props.n_rows -= 1
+        map(self.view.widgets.expressions_table.remove, row.get_widgets())
+        self.view.widgets.expressions_table.props.n_rows -= 1
         self.expression_rows.remove(row)
         del row
 
-    def add_expression_row(self):
+    def on_add_clause(self, *args):
         """
         Add a row to the expressions table.
         """
-        domain = self.domain_map[self.domain_combo.get_active_text()]
+        domain = self.domain_map[self.domain]
         self.mapper = class_mapper(domain)
         row = ExpressionRow(self, self.remove_expression_row)
-        self.set_response_sensitive(gtk.RESPONSE_OK, False)
         self.expression_rows.append(row)
-        self.expressions_table.show_all()
+        self.view.widgets.expressions_table.show_all()
 
     def start(self):
-        self.vbox.show_all()
-        response = self.run()
-        self.hide()
-        return response
+        return self.view.start()
+
+    @property
+    def clauses(self):
+        return [i.get_expression() for i in self.expression_rows]    
 
     def get_query(self):
         """
         Return query expression string.
         """
 
-        domain = self.domain_combo.get_active_text()
-        query = [domain, 'where']
-        for row in self.expression_rows:
-            expr = row.get_expression()
-            if expr:
-                query.append(expr)
+        query = [self.domain, 'where'] + ["%s" % row for row in self.clauses]
         return ' '.join(query)
