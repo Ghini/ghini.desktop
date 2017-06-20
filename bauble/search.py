@@ -1162,17 +1162,23 @@ class QueryBuilder(GenericEditorPresenter):
 
     def __init__(self, view=None):
         GenericEditorPresenter.__init__(
-            self, model=self, view=view, refresh_view=True)
+            self, model=self, view=view, refresh_view=False)
 
         self.expression_rows = []
         self.mapper = None
         self.domain = None
         self.domain_map = MapperSearch.get_domain_classes().copy()
 
+        self.view.widgets.domain_combo.set_active(-1)
+
+        table = self.view.widgets.expressions_table
+        map(table.remove, table.get_children())
+
         self.view.widgets.domain_liststore.clear()
         for key in sorted(self.domain_map.keys()):
             self.view.widgets.domain_liststore.append([key])
         self.view.widgets.add_clause_button.props.sensitive = False
+        self.refresh_view()
 
     def on_domain_combo_changed(self, *args):
         """
@@ -1180,6 +1186,9 @@ class QueryBuilder(GenericEditorPresenter):
         deletes all the expression rows.
         """
         index = self.view.widgets.domain_combo.get_active()
+        if index == -1:
+            return
+        
         self.domain = self.view.widgets.domain_liststore[index][0]
 
         # remove all clauses, they became useless in new domain
@@ -1211,6 +1220,7 @@ class QueryBuilder(GenericEditorPresenter):
                 valid = False
                 break
 
+        self.view.widgets.confirm_button.props.sensitive = valid
         return valid
 
     def remove_expression_row(self, row):
