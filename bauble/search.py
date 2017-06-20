@@ -1011,7 +1011,7 @@ class ExpressionRow(object):
     """
 
     def __init__(self, query_builder, remove_callback, row_number):
-        self.table = query_builder.view.widgets.expressions_table
+        self.table = weakref.proxy(query_builder.view.widgets.expressions_table)
         self.presenter = query_builder
         self.menu_item_activated = False
 
