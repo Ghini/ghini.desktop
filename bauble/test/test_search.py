@@ -31,7 +31,9 @@ from pyparsing import ParseException
 
 import bauble.db as db
 import bauble.search as search
+from bauble.editor import MockView, GenericEditorView
 from bauble import prefs
+from bauble import paths
 from bauble.test import BaubleTestCase
 prefs.testing = True
 
@@ -923,10 +925,22 @@ class BinomialSearchTests(BaubleTestCase):
 class QueryBuilderTests(BaubleTestCase):
 
     def test_cancreatequerybuilder(self):
-        search.QueryBuilder()
+        import os
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        search.QueryBuilder(view)
 
     def test_emptyisinvalid(self):
-        qb = search.QueryBuilder()
+        import os
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
         self.assertFalse(qb.validate())
 
 
