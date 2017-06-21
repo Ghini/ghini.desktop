@@ -61,10 +61,12 @@ its links to other database objects lets us better understand the structure:
   ``Accession`` consistently connects all its ``Plantings`` to the
   ``Species``.
 
-  An ``Accession`` may be obtained from an external ``Contact``, or be the
-  result of a garden ``Propagation``.  This information is optional.  A
-  successful ``Propagation`` trial can only result in one accession (0..1),
-  while a ``Contact`` may provide multiple ``Accessions`` (0..n).
+  ``Propagations`` and ``Contacts`` provide plant material for the garden;
+  this information is optional and smaller collectors might prefer to leave this aside.
+  A ``Propagation`` trial may be unsuccessful, most of the time it will result
+  in exactly one accession, but it may also produce slightly different taxa,
+  so the database allows for zero  or more ``Accessions`` per ``Propagation`` (0..n).
+  Also a ``Contact`` may provide zero or more ``Accessions`` (0..n).
 
   Specialists may formulate their opinion about the ``Species`` to which an
   ``Accession`` belongs, by providing a ``Verification``, signing it, and
