@@ -1011,7 +1011,7 @@ class ExpressionRow(object):
     """
 
     def __init__(self, query_builder, remove_callback, row_number):
-        self.table = weakref.proxy(query_builder.view.widgets.expressions_table)
+        self.table = query_builder.view.widgets.expressions_table
         self.presenter = query_builder
         self.menu_item_activated = False
 
@@ -1227,7 +1227,7 @@ class QueryBuilder(GenericEditorPresenter):
         Remove a row from the expressions table.
         """
         print "removing one", self.table_row_count
-        map(self.view.widgets.expressions_table.remove, row.get_widgets())
+        [i.destroy() for i in row.get_widgets()]
         self.table_row_count -= 1
         self.expression_rows.remove(row)
         self.view.widgets.expressions_table.resize(self.table_row_count, 5)
