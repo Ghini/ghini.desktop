@@ -1226,18 +1226,15 @@ class QueryBuilder(GenericEditorPresenter):
         """
         Remove a row from the expressions table.
         """
-        print "removing one", self.table_row_count
         [i.destroy() for i in row.get_widgets()]
         self.table_row_count -= 1
         self.expression_rows.remove(row)
         self.view.widgets.expressions_table.resize(self.table_row_count, 5)
-        del row
 
     def on_add_clause(self, *args):
         """
         Add a row to the expressions table.
         """
-        print "adding one", self.table_row_count
         domain = self.domain_map[self.domain]
         self.mapper = class_mapper(domain)
         self.table_row_count += 1

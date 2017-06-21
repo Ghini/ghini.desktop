@@ -307,7 +307,8 @@ class GUI(object):
             query = qb.get_query()
             self.widgets.main_comboentry.child.set_text(query)
             self.widgets.go_button.emit("clicked")
-
+        qb.cleanup()
+            
     def add_to_history(self, text, index=0):
         """
         add text to history, if text is already in the history then set its
