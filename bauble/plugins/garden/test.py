@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015,2017 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import datetime
@@ -2288,3 +2288,19 @@ class ContactPresenterTests(BaubleTestCase):
         self.assertEquals(presenter.view.widget_get_text('source_name_entry'), 'name')
         self.assertEquals(presenter.view.widget_get_text('source_type_combo'), 'Expedition')
         self.assertEquals(presenter.view.widget_get_text('source_desc_textview'), 'desc')
+
+
+import bauble.search
+class BaubleSearchSearchTest(BaubleTestCase):
+    def test_search_search_uses_Plant_Search(self):
+        bauble.search.search("genus like %", self.session)
+        self.assertTrue('SearchStrategy "genus like %"(PlantSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("12.11.13", self.session)
+        self.assertTrue('SearchStrategy "12.11.13"(PlantSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("So ha", self.session)
+        self.assertTrue('SearchStrategy "So ha"(PlantSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])

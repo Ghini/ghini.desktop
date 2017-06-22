@@ -266,6 +266,9 @@ class Tag(db.Base):
     _objects = relation('TaggedObj', cascade='all, delete-orphan',
                         backref='tag')
 
+    __my_own_timestamp = None
+    __last_objects = None
+
     def __str__(self):
         try:
             return str(self.tag)
@@ -275,8 +278,17 @@ class Tag(db.Base):
     def markup(self):
         return '%s Tag' % self.tag
 
-    __my_own_timestamp = None
-    __last_objects = None
+    def tag_objects(self, objects):
+        session = object_session(self)
+        for obj in objects:
+            cls = and_(TaggedObj.obj_class == _classname(obj),
+                       TaggedObj.obj_id == obj.id,
+                       TaggedObj.tag_id == self.id)
+            ntagged = session.query(TaggedObj).filter(cls).count()
+            if ntagged == 0:
+                tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
+                                       tag=self)
+                session.add(tagged_obj)
 
     @property
     def objects(self):
@@ -359,7 +371,7 @@ class Tag(db.Base):
                 '2': len(classes)}
             if len(classes) < 4:
                 fine_prints += ': ' + (', '.join(
-                    t.__name__ for t in classes))
+                    sorted(t.__name__ for t in classes)))
         first = '%s - <span weight="light">%s</span>' % (
             utils.xml_safe(self), fine_prints)
         second = '(%s) - <span weight="light">%s</span>' % (
@@ -433,7 +445,7 @@ def create_named_empty_tag(name):
         logger.debug("%s - %s" % (type(e), e))
         tag = Tag(tag=name)
         session.add(tag)
-    session.commit()
+        session.commit()
     session.close()
     return
 
@@ -455,15 +467,16 @@ def untag_objects(name, objs):
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except Exception, e:
-        logger.info("%s - %s" % (type(e), e))
-        logger.debug(traceback.format_exc())
+        logger.info("Can't remove non existing tag from non-empty list of objects"
+                    "%s - %s" % (type(e), e))
         return
-    same = lambda x, y: x.obj_class == _classname(y) and x.obj_id == y.id
-    for obj in objs:
-        for kid in tag._objects:
-            if same(kid, obj):
-                o = session.query(type(kid)).filter_by(id=kid.id).one()
-                session.delete(o)
+    # same = lambda item, y: item.obj_class == _classname(y) and item.obj_id == y.id
+    objs = set((_classname(y), y.id) for y in objs)
+    for item in tag._objects:
+        if (item.obj_class, item.obj_id) not in objs:
+            continue
+        o = session.query(TaggedObj).filter_by(id=item.id).one()
+        session.delete(o)
     session.commit()
 
 
@@ -472,9 +485,8 @@ _classname = lambda x: unicode('%s.%s', 'utf-8') % (
     type(x).__module__, type(x).__name__)
 
 
-def tag_objects(name, objs):
-    """
-    Tag a list of objects.
+def tag_objects(name, objects):
+    """create or retrieve a tag, use it to tag list of objects
 
     :param name: The tag name, if it's a str object then it will be
       converted to unicode() using the default encoding. If a tag with
@@ -484,27 +496,17 @@ def tag_objects(name, objs):
     :type obj: list
     """
     name = utils.utf8(name)
-    if not objs:
+    if not objects:
         create_named_empty_tag(name)
         return
-    session = object_session(objs[0])
+    session = object_session(objects[0])
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:
         logger.debug("%s - %s" % (type(e), e))
         tag = Tag(tag=name)
         session.add(tag)
-    for obj in objs:
-        cls = and_(TaggedObj.obj_class == _classname(obj),
-                   TaggedObj.obj_id == obj.id,
-                   TaggedObj.tag_id == tag.id)
-        ntagged = session.query(TaggedObj).filter(cls).count()
-        if ntagged == 0:
-            tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
-                                   tag=tag)
-            session.add(tagged_obj)
-    # if a new tag is created with the name parameter it is always saved
-    # regardless of whether the objects are tagged
+    tag.tag_objects(objects)
     session.commit()
 
 
@@ -534,25 +536,20 @@ def get_tag_ids(objs):
 def _on_add_tag_activated(*args):
     # get the selection from the search view
     view = bauble.gui.get_view()
-    if isinstance(view, SearchView):
+    try:
         values = view.get_selected_values()
-        if len(values) == 0:
-            msg = _('Nothing selected')
-            utils.message_dialog(msg)
-            return
-        # right now we can only tag a single item at a time, if we did
-        # the f-spot style quick tagging then it would be easier to handle
-        # multiple tags at a time, we could do it we would just have to find
-        # the common tags for each of the selected items and then select them
-        # but grey them out so you can see that some of the items have that
-        # tag but not all of them
-        tagitem = TagItemGUI(values)
-        tagitem.start()
-        view.update_bottom_notebook()
-    else:
+    except AttributeError:
         msg = _('In order to tag an item you must first search for '
                 'something and select one of the results.')
         bauble.gui.show_message_box(msg)
+        return
+    if len(values) == 0:
+        msg = _('Nothing selected')
+        utils.message_dialog(msg)
+        return
+    tagitem = TagItemGUI(values)
+    tagitem.start()
+    view.update_bottom_notebook()
 
 
 def _tag_menu_item_activated(widget, tag_name):
@@ -562,22 +559,24 @@ def _tag_menu_item_activated(widget, tag_name):
     if isinstance(view, SearchView):
         view.results_view.expand_to_path('0')
 
-_tags_menu_item = None
 
-
-def _reset_tags_menu():
+def _build_tags_menu():
+    """build tags gtk.Menu based on current data
+    """
     tags_menu = gtk.Menu()
     add_tag_menu_item = gtk.MenuItem(_('Tag Selection'))
     add_tag_menu_item.connect('activate', _on_add_tag_activated)
-    accel_group = gtk.AccelGroup()
-    bauble.gui.window.add_accel_group(accel_group)
-    add_tag_menu_item.add_accelerator('activate', accel_group, ord('T'),
-                                      gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+    if bauble.gui:
+        accel_group = gtk.AccelGroup()
+        bauble.gui.window.add_accel_group(accel_group)
+        add_tag_menu_item.add_accelerator('activate', accel_group, ord('T'),
+                                          gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
     tags_menu.append(add_tag_menu_item)
 
-    tags_menu.append(gtk.SeparatorMenuItem())
     session = db.Session()
-    query = session.query(Tag)
+    query = session.query(Tag).order_by(Tag.tag)
+    if query.first():
+        tags_menu.append(gtk.SeparatorMenuItem())
     try:
         for tag in query:
             item = gtk.MenuItem(tag.tag, use_underline=False)
@@ -588,15 +587,28 @@ def _reset_tags_menu():
         msg = _('Could not create the tags menus')
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
-
-    global _tags_menu_item
-    if _tags_menu_item is None:
-        _tags_menu_item = bauble.gui.add_menu(_("Tags"), tags_menu)
-    else:
-        _tags_menu_item.remove_submenu()
-        _tags_menu_item.set_submenu(tags_menu)
-        _tags_menu_item.show_all()
     session.close()
+    return tags_menu
+
+
+class _reset_tags_menu_functor:
+    def __init__(self):
+        self.menu_item = None
+
+    def __call__(self):
+        """initialize or replace Tags menu in main menu
+        """
+        tags_menu = _build_tags_menu()
+        if self.menu_item is None:
+            self.menu_item = bauble.gui.add_menu(_("Tags"), tags_menu)
+        else:
+            self.menu_item.remove_submenu()
+            self.menu_item.set_submenu(tags_menu)
+            self.menu_item.show_all()
+
+
+_reset_tags_menu =_reset_tags_menu_functor()
+
 
 class GeneralTagExpander(InfoExpander):
     """
@@ -631,7 +643,7 @@ class GeneralTagExpander(InfoExpander):
             lab.set_alignment(0, .5)
             lab.set_text(c.__name__)
             table.attach(lab, 0, 1, row_no, row_no + 1)
-            
+
             eb = gtk.EventBox()
             leb = gtk.Label()
             leb.set_alignment(0, .5)

@@ -3,20 +3,20 @@
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 import os
 
@@ -27,9 +27,12 @@ from nose import SkipTest
 
 import bauble.plugins.tag as tag_plugin
 from bauble.plugins.plants import Family
-from bauble.plugins.tag import Tag, TagEditorPresenter
-from bauble.test import BaubleTestCase, check_dupids
-from bauble.editor import GenericEditorView
+from bauble.plugins.tag import Tag, TagEditorPresenter, TagInfoBox
+from bauble.test import BaubleTestCase, check_dupids, mockfunc
+from bauble.editor import GenericEditorView, MockView
+import bauble.utils as utils
+from functools import partial
+import gtk
 
 
 def test_duplicate_ids():
@@ -42,6 +45,40 @@ def test_duplicate_ids():
     files = glob.glob(os.path.join(head, '*.glade'))
     for f in files:
         assert(not check_dupids(f))
+
+
+class TagMenuTests(BaubleTestCase):
+    def test_no_tags(self):
+        m = tag_plugin._build_tags_menu()
+        self.assertTrue(isinstance(m, gtk.Menu))
+        self.assertEquals(len(m.get_children()), 1)
+        self.assertEquals(m.get_children()[0].get_label(), _('Tag Selection'))
+
+    def test_one_tag(self):
+        tagname = u'some_tag'
+        t = Tag(tag=tagname, description=u'description')
+        self.session.add(t)
+        self.session.flush()
+        m = tag_plugin._build_tags_menu()
+        self.assertTrue(isinstance(m, gtk.Menu))
+        self.assertEquals(len(m.get_children()), 3)
+        self.assertTrue(m.get_children()[1], gtk.SeparatorMenuItem)
+        self.assertEquals(m.get_children()[2].get_label(), tagname)
+
+    def test_more_tags(self):
+        tagname = u'%s-some_tag'
+        t1 = Tag(tag=tagname % 1, description=u'description')
+        t2 = Tag(tag=tagname % 3, description=u'description')
+        t3 = Tag(tag=tagname % 2, description=u'description')
+        t4 = Tag(tag=tagname % 0, description=u'description')
+        t5 = Tag(tag=tagname % 4, description=u'description')
+        self.session.add_all([t1, t2, t3, t4, t5])
+        self.session.flush()
+        m = tag_plugin._build_tags_menu()
+        self.assertTrue(isinstance(m, gtk.Menu))
+        self.assertEquals(len(m.get_children()), 7)
+        for i in range(5):
+            self.assertEquals(m.get_children()[i + 2].get_label(), tagname % i)
 
 
 class TagTests(BaubleTestCase):
@@ -68,7 +105,30 @@ class TagTests(BaubleTestCase):
         """
         name = u'test'
         tag = Tag(tag=name)
-        self.assert_(str(tag) == name)
+        self.assertEquals(str(tag), name)
+
+    def test_create_named_empty_tag(self):
+        name = u'name123'
+        r = self.session.query(Tag).filter_by(tag=name).all()
+        self.assertEquals(len(r), 0)
+        tag_plugin.create_named_empty_tag(name)
+        r = self.session.query(Tag).filter_by(tag=name).all()
+        self.assertEquals(len(r), 1)
+        t0 = r[0]
+        self.assertEquals(t0.tag, name)
+        tag_plugin.create_named_empty_tag(name)
+        t1 = self.session.query(Tag).filter_by(tag=name).one()
+        self.assertEquals(t0, t1)
+
+    def test_tag_nothing(self):
+        t = Tag(tag=u'some_tag', description=u'description')
+        self.session.add(t)
+        self.session.flush()
+        t.tag_objects([])
+        self.assertEquals(t.objects, [])
+        self.assertEquals(t.search_view_markup_pair(),
+                          (u'some_tag - <span weight="light">tagging nothing</span>',
+                           '(Tag) - <span weight="light">description</span>'))
 
     def test_tag_objects(self):
         family2 = Family(family=u'family2')
@@ -91,7 +151,17 @@ class TagTests(BaubleTestCase):
         self.assertEquals(tag.objects, [self.family, family2])
 
         #
-        # now untag everything
+        # first untag one, then both
+        #
+        tag_plugin.untag_objects('test', [self.family])
+
+        # get object by tag
+        tag = self.session.query(Tag).filter_by(tag=u'test').one()
+        tagged_objs = tag.objects
+        self.assertEquals(tagged_objs, [family2])
+
+        #
+        # first untag one, then both
         #
         tag_plugin.untag_objects('test', [self.family, family2])
 
@@ -108,23 +178,111 @@ class TagTests(BaubleTestCase):
         tag_plugin.tag_objects('test2', [self.family])
 
         # test we only return the ids the objects have in common
-        #sel = select([tag_table.c.id], tag_table.c.tag==u'test')
         results = self.session.query(Tag.id).filter_by(tag=u'test')
         test_id = [r[0] for r in results]
         # should only return id for "test"
         ids = tag_plugin.get_tag_ids([self.family, family2])
-        self.assert_(ids == test_id, '%s==%s' % (ids, test_id))
+        self.assertEquals(ids, test_id)
 
         # test that we return multiple tag ids if the objs share tags
         tag_plugin.tag_objects('test2', [family2])
-        #sel = select([tag_table.c.id], or_(tag_table.c.tag==u'test',
-        #                                   tag_table.c.tag==u'test2'))
         results = self.session.query(Tag.id).filter(or_(Tag.tag == u'test',
                                                         Tag.tag == u'test2'))
         test_id = sorted([r[0] for r in results])
         # should return ids for both test and test2
         ids = sorted(tag_plugin.get_tag_ids([self.family, family2]))
-        self.assert_(ids == test_id, '%s == %s' % (ids, test_id))
+        self.assertEquals(ids, test_id)
+
+    def test_is_tagging(self):
+        family2 = Family(family=u'family2')
+        t1 = Tag(tag=u'test1')
+        self.session.add_all([family2, t1])
+        self.session.flush()
+        self.assertFalse(t1.is_tagging(family2))
+        self.assertFalse(t1.is_tagging(self.family))
+        t1.tag_objects([self.family])
+        self.session.flush()
+        self.assertFalse(t1.is_tagging(family2))
+        self.assertTrue(t1.is_tagging(self.family))
+
+    def test_search_view_markup_pair(self):
+        family2 = Family(family=u'family2')
+        t1 = Tag(tag=u'test1')
+        t2 = Tag(tag=u'test2')
+        self.session.add_all([family2, t1, t2])
+        self.session.flush()
+        t1.tag_objects([self.family, family2])
+        t2.tag_objects([self.family])
+        self.assertEquals(t1.search_view_markup_pair(),
+                          ('test1 - <span weight="light">tagging 2 objects of type Family</span>',
+                           '(Tag) - <span weight="light"></span>'))
+        self.assertEquals(t2.search_view_markup_pair(),
+                          ('test2 - <span weight="light">tagging 1 objects of type Family</span>',
+                           '(Tag) - <span weight="light"></span>'))
+        t2.tag_objects([t1])
+        self.session.flush()
+        self.assertEquals(t2.search_view_markup_pair(),
+                          ('test2 - <span weight="light">tagging 2 objects of 2 different types: Family, Tag</span>',
+                           '(Tag) - <span weight="light"></span>'))
+
+    def test_remove_callback_no_confirm(self):
+        # T_0
+        f5 = Tag(tag=u'Arecaceae')
+        self.session.add(f5)
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=False)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.tag import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
+                         'remove Tag: Arecaceae?')
+                        in self.invoked)
+        self.assertEquals(result, None)
+        q = self.session.query(Tag).filter_by(tag=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [f5])
+
+    def test_remove_callback_confirm(self):
+        # T_0
+        f5 = Tag(tag=u'Arecaceae')
+        self.session.add(f5)
+        self.session.flush()
+        self.invoked = []
+        save_status = tag_plugin._reset_tags_menu
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        tag_plugin._reset_tags_menu = partial(
+            mockfunc, name='_reset_tags_menu', caller=self)
+        from bauble.plugins.tag import remove_callback
+        result = remove_callback([f5])
+        tag_plugin._reset_tags_menu = save_status
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertTrue('_reset_tags_menu' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
+                         'remove Tag: Arecaceae?')
+                        in self.invoked)
+        self.assertEquals(result, True)
+        q = self.session.query(Tag).filter_by(tag=u"Arecaceae")
+        matching = q.all()
+        self.assertEquals(matching, [])
+
 
 import bauble.db as db
 
@@ -270,3 +428,74 @@ class AttachedToTests(BaubleTestCase):
         for t in tags:
             tag_plugin.tag_objects(t, [fam])
         self.assertEquals(Tag.attached_to(fam), tags)
+
+
+class TagInfoBoxTest(BaubleTestCase):
+    def test_can_create_infobox(self):
+        ib = TagInfoBox()
+
+    def test_update_infobox_from_empty_tag(self):
+        t = Tag(tag=u'name', description=u'description')
+        ib = TagInfoBox()
+        ib.update(t)
+        self.assertEquals(ib.widgets.ib_description_label.get_text(), t.description)
+        self.assertEquals(ib.widgets.ib_name_label.get_text(), t.tag)
+        self.assertEquals(ib.general.table_cells, [])
+
+    def test_update_infobox_from_tagging_tag(self):
+        t = Tag(tag=u'name', description=u'description')
+        x = Tag(tag=u'objectx', description=u'none')
+        y = Tag(tag=u'objecty', description=u'none')
+        z = Tag(tag=u'objectz', description=u'none')
+        self.session.add_all([t, x, y, z])
+        self.session.commit()
+        t.tag_objects([x, y, z])
+        ib = TagInfoBox()
+        self.assertEquals(ib.general.table_cells, [])
+        ib.update(t)
+        self.assertEquals(ib.widgets.ib_description_label.get_text(), t.description)
+        self.assertEquals(ib.widgets.ib_name_label.get_text(), t.tag)
+        self.assertEquals(len(ib.general.table_cells), 2)
+        self.assertEquals(ib.general.table_cells[0].get_text(), u'Tag')
+        self.assertEquals(type(ib.general.table_cells[1]), gtk.EventBox)
+        label = ib.general.table_cells[1].get_children()[0]
+        self.assertEquals(label.get_text(), ' 3 ')
+
+
+class TagCallbackTest(BaubleTestCase):
+    def test_on_add_tag_activated_wrong_view(self):
+        class FakeGui:
+            def __init__(self):
+                self.invoked = []
+            def get_view(self):
+                return MockView(selection=[])
+            def show_message_box(self, *args, **kwargs):
+                self.invoked.append((args, kwargs))
+                pass
+        import bauble
+        bauble.gui = localgui = FakeGui()
+        tag_plugin._on_add_tag_activated()
+        reload(bauble)
+        self.assertEquals(localgui.invoked[0],
+                          (('In order to tag an item you must first search for something and select one of the results.', ), {}))
+
+    def test_on_add_tag_activated_search_view_empty_selection(self):
+        class FakeGui:
+            def __init__(self):
+                self.invoked = []
+            def get_view(self):
+                view = MockView()
+                view.get_selected_values = lambda: []
+                return view
+            def show_message_box(self, *args, **kwargs):
+                self.invoked.append((args, kwargs))
+                pass
+        import bauble
+        bauble.gui = localgui = FakeGui()
+        utils.message_dialog = bauble.gui.show_message_box
+        tag_plugin._on_add_tag_activated()
+        reload(bauble)
+        reload(utils)
+        self.assertEquals(localgui.invoked[0],
+                          (('Nothing selected', ), {}))
+

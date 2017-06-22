@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2012-2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Species table definition
 #
@@ -1116,10 +1116,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.notebook.set_current_page(0)
         self.restore_state()
         self.boxes = set()
-        w = self.get_window()
-        w.set_geometry_hints(
-            max_width=gtk.gdk.screen_get_default().get_width())
-        w.set_position(gtk.WIN_POS_NONE)
 
     def get_window(self):
         '''

@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Genera table module
 #
@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy import (
     Column, Unicode, Integer, ForeignKey, UnicodeText, String,
     UniqueConstraint, func, and_)
-from sqlalchemy.orm import relation, backref, validates
+from sqlalchemy.orm import relation, backref, validates, synonym
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -178,7 +178,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
         return cites_notes[0]
 
     @property
-    def epithet(self):
+    def hybrid_epithet(self):
         '''strip the leading char if it is an hybrid marker
         '''
         if self.genus[0] in [u'x', u'×']:
@@ -202,6 +202,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     # columns
     genus = Column(String(64), nullable=False, index=True)
+    epithet = synonym('genus')
 
     # use '' instead of None so that the constraints will work propertly
     author = Column(Unicode(255), default=u'')
