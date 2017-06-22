@@ -1159,6 +1159,7 @@ class ExpressionRow(object):
 class QueryBuilder(GenericEditorPresenter):
 
     view_accept_buttons = ['cancel_button', 'confirm_button']
+    default_size = None
 
     def __init__(self, view=None):
         GenericEditorPresenter.__init__(
@@ -1245,6 +1246,10 @@ class QueryBuilder(GenericEditorPresenter):
         self.view.widgets.expressions_table.show_all()
 
     def start(self):
+        if self.default_size is None:
+            self.__class__.default_size = self.view.widgets.main_dialog.get_size()
+        else:
+            self.view.widgets.main_dialog.resize(*self.default_size)
         return self.view.start()
 
     @property
