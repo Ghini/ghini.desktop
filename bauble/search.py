@@ -46,13 +46,14 @@ from bauble.editor import (
 def search(text, session=None):
     results = set()
     for strategy in _search_strategies.values():
-        logger.debug("applying search strategy %s" % strategy)
+        logger.debug("applying search strategy %s from module %s" %
+                     (type(strategy).__name__, type(strategy).__module__))
         results.update(strategy.search(text, session))
     return list(results)
 
 
 class NoneToken(object):
-    def __init__(self, t):
+    def __init__(self, t=None):
         pass
 
     def __repr__(self):
@@ -117,7 +118,7 @@ class NumericToken(ValueABC):
 def smartdatetime(year_or_offset, *args):
     """return either datetime.datetime, or a day with given offset.
 
-    When given only one argument, it is interpreted as an offset for
+    When given only one argument, this is interpreted as an offset for
     timedelta, and it is added to datetime.today().  If given more
     arguments, it just behaves as datetime.datetime.
 
@@ -727,7 +728,7 @@ class SearchStrategy(object):
         Return an iterator that iterates over mapped classes retrieved
         from the search.
         '''
-        logger.debug('SearchStrategy "%s" %s)' % (text, session))
+        logger.debug('SearchStrategy "%s"(%s)' % (text, self.__class__.__name__))
         pass
 
 
@@ -800,6 +801,7 @@ class MapperSearch(SearchStrategy):
         have been processed or it is possible that some database backends
         could cause deadlocks.
         """
+        super(MapperSearch, self).search(text, session)
         self._session = session
 
         self._results.clear()

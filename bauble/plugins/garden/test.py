@@ -2288,3 +2288,19 @@ class ContactPresenterTests(BaubleTestCase):
         self.assertEquals(presenter.view.widget_get_text('source_name_entry'), 'name')
         self.assertEquals(presenter.view.widget_get_text('source_type_combo'), 'Expedition')
         self.assertEquals(presenter.view.widget_get_text('source_desc_textview'), 'desc')
+
+
+import bauble.search
+class BaubleSearchSearchTest(BaubleTestCase):
+    def test_search_search_uses_Plant_Search(self):
+        bauble.search.search("genus like %", self.session)
+        self.assertTrue('SearchStrategy "genus like %"(PlantSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("12.11.13", self.session)
+        self.assertTrue('SearchStrategy "12.11.13"(PlantSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("So ha", self.session)
+        self.assertTrue('SearchStrategy "So ha"(PlantSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])

@@ -1094,6 +1094,16 @@ class EmptySetEqualityTest(unittest.TestCase):
         self.assertFalse(et1 == '')
         self.assertFalse(et1 == set([1, 2, 3]))
 
+    def test_EmptyToken_representation(self):
+        et1 = search.EmptyToken()
+        self.assertEquals("%s" % et1, "Empty")
+        self.assertEquals(et1.express(), set())
+
+    def test_NoneToken_representation(self):
+        nt1 = search.NoneToken()
+        self.assertEquals("%s" % nt1, "(None<NoneType>)")
+        self.assertEquals(nt1.express(), None)
+
 
 class AggregatingFunctions(BaubleTestCase):
     def __init__(self, *args):
@@ -1159,3 +1169,18 @@ class AggregatingFunctions(BaubleTestCase):
         self.assertEqual(
             str(results.statement),
             "SELECT * FROM genus WHERE ((count species.id) == 2.0)")
+
+
+class BaubleSearchSearchTest(BaubleTestCase):
+    def test_search_search_uses_Mapper_Search(self):
+        search.search("genus like %", self.session)
+        self.assertTrue('SearchStrategy "genus like %"(MapperSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        search.search("12.11.13", self.session)
+        self.assertTrue('SearchStrategy "12.11.13"(MapperSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        search.search("So ha", self.session)
+        self.assertTrue('SearchStrategy "So ha"(MapperSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])

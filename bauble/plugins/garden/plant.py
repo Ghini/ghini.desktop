@@ -177,6 +177,7 @@ class PlantSearch(SearchStrategy):
 
         special search strategy, can't be obtained in MapperSearch
         """
+        super(PlantSearch, self).search(text, session)
 
         if text[0] == text[-1] and text[0] in ['"', "'"]:
             text = text[1:-1]
