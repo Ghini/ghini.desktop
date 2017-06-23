@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-18 16:38-0500\n"
-"PO-Revision-Date: 2017-06-16 14:25+0000\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
-"es/>\n"
+"PO-Revision-Date: 2017-06-23 20:57+0000\n"
+"Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -36,7 +36,7 @@ msgstr "# Germinadas"
 
 #: bauble/plugins/garden/propagation.py:227
 msgid "# of seedlings"
-msgstr ""
+msgstr "# de plántulas"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
@@ -49,7 +49,7 @@ msgstr "% Germinadas"
 
 #: bauble/plugins/garden/accession.py:694
 msgid "%(1)s plant groups in %(2)s location(s)"
-msgstr ""
+msgstr "%(1)s grupos de plantas en %(2)s ubicación(es)"
 
 #: bauble/plugins/plants/species_model.py:462
 msgid "%(group)s Group"
@@ -82,8 +82,11 @@ msgid ""
 "%s is the accepted taxon for your data.\n"
 "Do you want to add it?"
 msgstr ""
+"%s taxón aceptado para sus datos.\n"
+"¿Desea agregar?"
 
 #: bauble/plugins/plants/species_editor.py:165
+#, fuzzy
 msgid ""
 "%s is the closest match for your data.\n"
 "Do you want to accept it?"
@@ -129,7 +132,7 @@ msgstr "**Error: Ghini debe ejecutarse en un entorno de ventanas."
 #: bauble/plugins/plants/infoboxes.glade:1730
 #: bauble/plugins/plants/infoboxes.glade:1785
 msgid "-"
-msgstr ""
+msgstr "-"
 
 #: bauble/plugins/tag/tag.glade:365
 msgid "--"
@@ -402,7 +405,7 @@ msgstr "<b>sin usar</b>"
 #: bauble/plugins/plants/stored_queries.py:129
 #: bauble/plugins/plants/stored_queries.py:164
 msgid "<empty>"
-msgstr ""
+msgstr "<vacío>"
 
 #: bauble/plugins/garden/plant.py:1332
 msgid "<i>Split as %(plant)s</i>"
@@ -468,7 +471,7 @@ msgstr "Formato de los códigos de accesión"
 
 #: bauble/plugins/garden/acc_editor.glade:13
 msgid "Accession Editor"
-msgstr ""
+msgstr "Editor de accesión"
 
 #: bauble/plugins/garden/acc_editor.glade:519
 msgid "Accession ID"
@@ -476,11 +479,11 @@ msgstr "ID de la accesión"
 
 #: bauble/plugins/garden/accession.py:366
 msgid "Accession not of wild source"
-msgstr ""
+msgstr "Accesión no es de origen salvaje"
 
 #: bauble/plugins/garden/accession.py:364
 msgid "Accession of wild source"
-msgstr ""
+msgstr "Accesión de origen salvaje"
 
 #: bauble/plugins/garden/acc_editor.glade:2089
 msgid "Accuracy"
@@ -661,7 +664,7 @@ msgstr "Planta con forma de bola y arpillera"
 
 #: bauble/plugins/garden/accession.py:427
 msgid "Bare root plant"
-msgstr ""
+msgstr "Planta de raíz desnuda"
 
 #: bauble/plugins/garden/source.py:127
 msgid "Botanic Garden or Arboretum"
@@ -677,7 +680,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:428
 msgid "Bud cutting"
-msgstr ""
+msgstr "Corte de brotes"
 
 #: bauble/plugins/garden/accession.py:429
 msgid "Budded"
@@ -685,7 +688,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:310
 msgid "Bug reporting"
-msgstr ""
+msgstr "informe de errores"
 
 #: bauble/plugins/garden/accession.py:430
 msgid "Bulb"
@@ -693,7 +696,7 @@ msgstr "Bulbo"
 
 #: bauble/plugins/garden/accession.py:450
 msgid "Bulbil"
-msgstr ""
+msgstr "bulbo"
 
 #: bauble/plugins/imex/csv_.py:606
 msgid ""
@@ -717,7 +720,7 @@ msgstr "No se pueden obtener especies de %s"
 
 #: bauble/plugins/plants/taxonomy_check.glade:693
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: bauble/plugins/plants/species_editor.py:1094
 msgid "Cancel your changes"
@@ -739,7 +742,7 @@ msgstr "Cambia la contraseña"
 
 #: bauble/plugins/garden/plant_editor.glade:869
 msgid "Change history"
-msgstr ""
+msgstr "Historial de cambios"
 
 #: bauble/plugins/garden/plant.py:1242
 msgid "Changes"
@@ -770,7 +773,7 @@ msgstr "Elija el archivo(s) a importar ..."
 
 #: bauble/plugins/garden/accession.py:431
 msgid "Clump"
-msgstr ""
+msgstr "Grupo"
 
 #: bauble/plugins/garden/loc_editor.glade:228
 msgid "Code"
@@ -788,7 +791,7 @@ msgstr "ID de la Colecta"
 
 #: bauble/plugins/garden/acc_infobox.glade:821
 msgid "Collection ID:"
-msgstr ""
+msgstr "ID de la colección:"
 
 #: bauble/plugins/garden/acc_editor.glade:1631
 msgid "Collection Notes"
@@ -804,7 +807,7 @@ msgstr "Colector"
 
 #: bauble/plugins/garden/acc_infobox.glade:760
 msgid "Collector:"
-msgstr ""
+msgstr "Colector:"
 
 #: bauble/plugins/imex/csv_.py:702 bauble/plugins/imex/csv_.py:720
 msgid "Comma Separated Value"
@@ -812,7 +815,7 @@ msgstr "Valor separado por coma"
 
 #: bauble/plugins/users/ui.glade:362
 msgid "Confirm new password"
-msgstr ""
+msgstr "Confirmar la contraseña"
 
 #: bauble/connmgr.glade:578
 msgid "Connection Details"
@@ -825,7 +828,7 @@ msgstr "Contacto"
 
 #: bauble/plugins/garden/contact.glade:11
 msgid "Contact (Donor) Editor"
-msgstr ""
+msgstr "Editor de contacto (donante)"
 
 #: bauble/plugins/garden/institution.glade:158
 msgid "Contact name"
@@ -2041,6 +2044,25 @@ msgid ""
 "1. load the TNRS results file\n"
 "2. continue to 'next' screen"
 msgstr ""
+"Por favor interactuar con la página http://tnrs.iplantcollaborative.org "
+"(TNRS)\n"
+"\n"
+"En esta ventana:\n"
+"1. utilice el botón 'copiar' para copiar la selección en el portapapeles\n"
+"2. utilice el botón \"examinar\" para abrir la página web TNRS\n"
+"\n"
+"En esta página usted debe:\n"
+"1. copiar el contenido del portapapeles en el campo de texto\n"
+"2. haga clic en submit list\n"
+"3. espere hasta que se complete la solicitud\n"
+"4. haga clic en download results \n"
+"5. cambiar el formato de descarga\n"
+"6. observe el nombre del archivo a descargar\n"
+"7. haga clic en OK\n"
+"\n"
+"De regreso a la ventana debe:\n"
+"1. cargar el archivo de resultados de la TNRS\n"
+"2. continué en la pantalla \"siguiente\""
 
 #: bauble/__init__.py:213
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
@@ -3799,7 +3821,7 @@ msgstr "verificado como %(species)s "
 
 #: bauble/plugins/plants/species_editor.py:159
 msgid "your data finely matches ThePlantList.org"
-msgstr ""
+msgstr "los datos coincide con ThePlantList.org"
 
 #: bauble/plugins/garden/propagation.py:285
 msgid "°C"
