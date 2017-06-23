@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-18 16:38-0500\n"
-"PO-Revision-Date: 2017-06-23 20:57+0000\n"
+"PO-Revision-Date: 2017-06-23 22:05+0000\n"
 "Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/es/>\n"
@@ -851,7 +851,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:432
 msgid "Corm"
-msgstr ""
+msgstr "Cormo"
 
 #: bauble/ui.py:664
 msgid ""
@@ -977,7 +977,7 @@ msgstr "Crea una nueva ubicación."
 
 #: bauble/plugins/garden/plant.py:609
 msgid "Create a new propagation record for this plant."
-msgstr ""
+msgstr "Crear un nuevo registro de propagación de esta planta."
 
 #: bauble/plugins/plants/species_model.py:204
 msgid "Critically Endangered (CR)"
@@ -1005,10 +1005,12 @@ msgid ""
 "%s\n"
 "Please specify and try again."
 msgstr ""
+"La conexión actual no especifica los campos: %s por favor especificar e "
+"inténtelo de nuevo."
 
 #: bauble/plugins/garden/propagation.py:165
 msgid "Cutting"
-msgstr ""
+msgstr "Corte"
 
 #: bauble/plugins/garden/prop_editor.glade:206
 msgid "Cutting length"
@@ -1053,7 +1055,7 @@ msgstr "Fecha de recepción"
 
 #: bauble/plugins/garden/acc_infobox.glade:791
 msgid "Date collected:"
-msgstr ""
+msgstr "Fecha de colecta:"
 
 #: bauble/view.py:176
 msgid "Date created:"
