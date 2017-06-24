@@ -1028,7 +1028,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1060,7 +1060,7 @@
                       <object class="GtkLabel" id="splash_nspcuse">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1090,7 +1090,7 @@
                       <object class="GtkLabel" id="splash_naccuse">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1120,7 +1120,7 @@
                       <object class="GtkLabel" id="splash_nplttot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1150,7 +1150,7 @@
                       <object class="GtkLabel" id="splash_nacctot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1180,7 +1180,7 @@
                       <object class="GtkLabel" id="splash_npltuse">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1210,7 +1210,7 @@
                       <object class="GtkLabel" id="splash_nlocuse">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1240,7 +1240,7 @@
                       <object class="GtkLabel" id="splash_nfamuse">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1270,7 +1270,7 @@
                       <object class="GtkLabel" id="splash_ngenuse">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1301,7 +1301,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1331,7 +1331,7 @@
                       <object class="GtkLabel" id="splash_nspctot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1576,7 +1576,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1607,7 +1607,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1637,7 +1637,7 @@
                       <object class="GtkLabel" id="splash_nspcnot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1667,7 +1667,7 @@
                       <object class="GtkLabel" id="splash_naccnot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1697,7 +1697,7 @@
                       <object class="GtkLabel" id="splash_npltnot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1727,7 +1727,7 @@
                       <object class="GtkLabel" id="splash_nlocnot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
@@ -1782,7 +1782,7 @@
                       <object class="GtkLabel" id="splash_nloctot">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">-</property>
+                        <property name="label" translatable="no">-</property>
                         <attributes>
                           <attribute name="weight" value="bold"/>
                         </attributes>
