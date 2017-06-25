@@ -49,11 +49,11 @@ msgstr "percentuale germinata"
 
 #: bauble/plugins/garden/accession.py:694
 msgid "%(1)s plant groups in %(2)s location(s)"
-msgstr ""
+msgstr "%(1)s gruppi di piante in %(2)s ubicazioni"
 
 #: bauble/plugins/plants/species_model.py:463
 msgid "%(group)s Group"
-msgstr "%(group)s Gruppo"
+msgstr "%(group)s Gruppi"
 
 #: bauble/plugins/garden/accession.py:180
 msgid ""
@@ -82,13 +82,13 @@ msgstr "%s esiste già"
 msgid ""
 "%s is the accepted taxon for your data.\n"
 "Do you want to add it?"
-msgstr ""
+msgstr "%s è il taxon accettato per il tuo dati. \nVuoi aggiungerlo?"
 
 #: bauble/plugins/plants/species_editor.py:165
 msgid ""
 "%s is the closest match for your data.\n"
 "Do you want to accept it?"
-msgstr ""
+msgstr "%s è la corrispondenza più vicina per il tuo dati. \nVuoi accettarlo?"
 
 #: bauble/pluginmgr.py:620
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
@@ -171,7 +171,7 @@ msgstr "<b>Contatto:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:440
 msgid "<b>Cutting treatment</b>"
-msgstr ""
+msgstr "<b>Trattamento di taglio</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:171
 msgid "<b>Date accessioned:</b>"
@@ -187,7 +187,7 @@ msgstr "<b>Descrizione:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:788
 msgid "<b>Distribution for label:</b>"
-msgstr ""
+msgstr "<b>Distribuzione per etichetta:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:754
 msgid "<b>Distribution:</b>"
@@ -280,15 +280,15 @@ msgstr "<b>Tributario</b>"
 
 #: bauble/plugins/plants/taxonomy_check.glade:644
 msgid "<b>Review log report</b>"
-msgstr ""
+msgstr "<b>Rivedi il rapporto del giornale</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:944
 msgid "<b>Rooted plants</b>"
-msgstr ""
+msgstr "<b>Piante radicate</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:660
 msgid "<b>Rooting conditions</b>"
-msgstr ""
+msgstr "<b>Condizioni di radicazione</b>"
 
 #: bauble/plugins/report/report.glade:187
 msgid "<b>Settings</b>"
@@ -324,7 +324,7 @@ msgstr "<b>Modello</b>"
 
 #: bauble/plugins/plants/taxonomy_check.glade:523
 msgid "<b>Tick Off</b>"
-msgstr ""
+msgstr "<b>Spuntare</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:248
 msgid "<b>Type of material:</b>"
@@ -386,11 +386,11 @@ msgstr "<vuota>"
 
 #: bauble/plugins/garden/plant.py:1333
 msgid "<i>Split as %(plant)s</i>"
-msgstr ""
+msgstr "<i>Divisa come % (pianta) s</i>"
 
 #: bauble/plugins/garden/plant.py:1316
 msgid "<i>Split from %(plant)s</i>"
-msgstr ""
+msgstr "<i>Divisa da % (pianta) s</i>"
 
 #: bauble/plugins/plants/family.py:354
 msgid ""
@@ -445,11 +445,11 @@ msgstr "Accessione"
 
 #: bauble/plugins/garden/acc_editor.glade:2871
 msgid "Accession Code Formats"
-msgstr ""
+msgstr "Formati codici accessione"
 
 #: bauble/plugins/garden/acc_editor.glade:13
 msgid "Accession Editor"
-msgstr ""
+msgstr "Editore Accessioni"
 
 #: bauble/plugins/garden/acc_editor.glade:519
 msgid "Accession ID"
@@ -3751,3 +3751,4 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:284
 msgid "°F"
 msgstr ""
+
