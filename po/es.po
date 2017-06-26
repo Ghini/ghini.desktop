@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2017-06-24 22:00+0000\n"
-"Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
+"PO-Revision-Date: 2017-06-26 21:25+0000\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/ghini/desktop-11/es/>\n"
 "Language: es\n"
@@ -796,7 +796,7 @@ msgstr "Autor/a"
 
 #: bauble/plugins/plants/taxonomy_check.glade:339
 msgid "Authorship"
-msgstr ""
+msgstr "Autoría"
 
 #: bauble/plugins/plants/species_editor.glade:934
 msgid "Awards"
@@ -843,7 +843,7 @@ msgstr "Corte de brotes"
 
 #: bauble/plugins/garden/accession.py:409
 msgid "Budded"
-msgstr ""
+msgstr "Con brotes"
 
 #: bauble/plugins/garden/institution.glade:310
 msgid "Bug reporting"
@@ -1266,7 +1266,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:266
 msgid "Discarded"
-msgstr ""
+msgstr "Descartada"
 
 #: bauble/plugins/garden/plant.py:281
 msgid "Discarded seedling in nursery"
@@ -1501,7 +1501,7 @@ msgstr "Feminina"
 
 #: bauble/connmgr.glade:261
 msgid "Filename:"
-msgstr ""
+msgstr "Nombre fichero:"
 
 #: bauble/plugins/garden/prop_editor.glade:370
 msgid "Flower buds"
@@ -1517,7 +1517,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:343
 msgid "Flowering"
-msgstr ""
+msgstr "En floración"
 
 #: bauble/plugins/report/__init__.py:387
 msgid "Formatter Name"
@@ -1700,7 +1700,7 @@ msgstr "Bueno/a"
 
 #: bauble/plugins/garden/accession.py:414
 msgid "Graft"
-msgstr ""
+msgstr "Injerto"
 
 #: bauble/plugins/users/ui.glade:233
 msgid "Groups"
@@ -1917,7 +1917,7 @@ msgstr "Latitud"
 
 #: bauble/plugins/garden/accession.py:415
 msgid "Layer"
-msgstr ""
+msgstr "Capa"
 
 #: bauble/plugins/plants/species_model.py:217
 msgid "Least Concern (LC)"
@@ -2349,7 +2349,7 @@ msgstr "Polvo"
 
 #: bauble/bauble.glade:474
 msgid "Preferences"
-msgstr ""
+msgstr "Preferencias"
 
 #: bauble/plugins/garden/prop_editor.glade:1095
 msgid "Pretreatment"
@@ -2398,7 +2398,7 @@ msgstr "Procedencia"
 
 #: bauble/plugins/garden/accession.py:417
 msgid "Pseudobulb"
-msgstr ""
+msgstr "Pseudobulbo"
 
 #: bauble/plugins/garden/accession.py:347
 msgid "Purchase or gift"
@@ -2431,11 +2431,11 @@ msgstr "Rango"
 
 #: bauble/plugins/users/ui.glade:165
 msgid "Read"
-msgstr ""
+msgstr "Leer"
 
 #: bauble/plugins/garden/plant_editor.glade:693
 msgid "Reason"
-msgstr ""
+msgstr "Razón"
 
 #: bauble/plugins/garden/acc_editor.glade:3467
 msgid "Reference"
@@ -2451,13 +2451,13 @@ msgstr "Localmente extinta (RE)"
 
 #: bauble/plugins/garden/institution.glade:266
 msgid "Register"
-msgstr ""
+msgstr "Registrarse"
 
 #: bauble/plugins/garden/propagation.py:214
 #: bauble/plugins/garden/propagation.py:219
 #: bauble/plugins/garden/propagation.py:223
 msgid "Removed"
-msgstr ""
+msgstr "Eliminada"
 
 #: bauble/plugins/report/__init__.py:592
 msgid "Report"
@@ -2485,7 +2485,7 @@ msgstr "Rizoma"
 
 #: bauble/plugins/garden/plant.py:349
 msgid "Ripe"
-msgstr ""
+msgstr "Maduro"
 
 #: bauble/plugins/garden/accession.py:421
 msgid "Root"
@@ -2634,9 +2634,8 @@ msgid "Search Tropicos"
 msgstr "Busqueda por Dominio"
 
 #: bauble/plugins/plants/genus.py:980 bauble/plugins/plants/species.py:425
-#, fuzzy
 msgid "Search Tropicos (MissouriBG) online database"
-msgstr "Buscar en la base de dato TPL"
+msgstr "Buscar en la base de dato Tropicos (MissouriBG)"
 
 #: bauble/plugins/plants/species.py:421
 msgid "Search Wikipedia"
@@ -2836,7 +2835,7 @@ msgstr "Etiquetas"
 
 #: bauble/plugins/herbarium/accession.glade:942
 msgid "Taxon"
-msgstr ""
+msgstr "Taxón"
 
 #: bauble/plugins/plants/taxonomy_check.py:276
 msgid "Taxonomy check"
@@ -3425,7 +3424,7 @@ msgstr "Dominio de búsqueda desconocido: %s"
 
 #: bauble/plugins/garden/plant.py:348
 msgid "Unripe"
-msgstr ""
+msgstr "Inmaduro"
 
 #: bauble/plugins/garden/accession.py:429
 #: bauble/plugins/garden/propagation.py:50
@@ -3450,7 +3449,7 @@ msgstr "Usuarios"
 
 #: bauble/bauble.glade:455
 msgid "Value"
-msgstr ""
+msgstr "Valor"
 
 #: bauble/bauble.glade:83
 msgid "Values"
@@ -3497,7 +3496,6 @@ msgid "Vouchers"
 msgstr "Vouchers"
 
 #: bauble/plugins/plants/species_model.py:215
-#, fuzzy
 msgid "Vulnerable (VU)"
 msgstr "Vulnerable (VU)"
 
@@ -3912,7 +3910,7 @@ msgstr ""
 
 #: bauble/plugins/plants/stored_queries.glade:74
 msgid "label"
-msgstr ""
+msgstr "texto"
 
 #: bauble/plugins/garden/propagation.py:241
 msgid "mm"
@@ -3942,7 +3940,7 @@ msgstr ""
 #: bauble/plugins/plants/taxonomy_check.glade:218
 #: bauble/plugins/plants/taxonomy_check.glade:479
 msgid "next"
-msgstr ""
+msgstr "siguiente"
 
 #: bauble/utils/__init__.py:266 bauble/utils/__init__.py:279
 msgid "no widget named \"%(widget_name)s\" in glade file"
@@ -3984,7 +3982,7 @@ msgstr "confirme el juntar la locación %(1)s en la %(2)s"
 #: bauble/plugins/plants/taxonomy_check.glade:442
 #: bauble/plugins/plants/taxonomy_check.glade:606
 msgid "prev"
-msgstr ""
+msgstr "anterior"
 
 #: bauble/bauble.glade:156
 msgid "previous view"
@@ -4060,7 +4058,7 @@ msgstr "a"
 
 #: bauble/plugins/plants/stored_queries.glade:109
 msgid "tooltip"
-msgstr ""
+msgstr "sugerencia"
 
 #: bauble/view.py:435
 msgid "top level count: %s"
