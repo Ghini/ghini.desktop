@@ -3592,7 +3592,7 @@ msgstr "seguente"
 
 #: bauble/utils/__init__.py:265 bauble/utils/__init__.py:278
 msgid "no widget named \"%(widget_name)s\" in glade file"
-msgstr "nessun widget chiamato \ "(widget_name) % s \" nel file glade"
+msgstr "nessun widget chiamato \"%(widget_name)s \" nel file glade"
 
 #: bauble/editor.py:1447
 msgid "no widget with name %s"
