@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-23 16:04-0500\n"
-"PO-Revision-Date: 2017-06-26 08:54-0500\n"
-"Last-Translator: Mario Frasca <mario@anche.no>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
-"es/>\n"
+"PO-Revision-Date: 2017-06-26 21:25+0000\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 1.6.10\n"
+"X-Generator: Weblate 2.15-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 
 #: bauble/btypes.py:87
@@ -626,7 +626,7 @@ msgstr "Autor/a"
 
 #: bauble/plugins/plants/taxonomy_check.glade:339
 msgid "Authorship"
-msgstr ""
+msgstr "Autoría"
 
 #: bauble/plugins/plants/species_editor.glade:764
 msgid "Awards"
@@ -659,7 +659,7 @@ msgstr "Corte de brotes"
 
 #: bauble/plugins/garden/accession.py:429
 msgid "Budded"
-msgstr ""
+msgstr "Con brotes"
 
 #: bauble/plugins/garden/institution.glade:310
 msgid "Bug reporting"
@@ -744,7 +744,7 @@ msgstr "Elija el archivo(s) a importar ..."
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
-msgstr ""
+msgstr "Cláusulas"
 
 #: bauble/plugins/garden/accession.py:431
 msgid "Clump"
@@ -944,7 +944,7 @@ msgstr "Carátula"
 
 #: bauble/plugins/garden/propagation.py:220
 msgid "Covered"
-msgstr ""
+msgstr "Cubierto"
 
 #: bauble/plugins/garden/plant.py:608
 msgid "Create a new location."
@@ -1079,7 +1079,7 @@ msgstr "No ha germinado"
 
 #: bauble/plugins/garden/plant.py:264
 msgid "Discarded"
-msgstr ""
+msgstr "Descartada"
 
 #: bauble/plugins/garden/plant.py:279
 msgid "Discarded seedling in nursery"
@@ -1145,7 +1145,7 @@ msgstr "Editar la ubicación seleccionada."
 
 #: bauble/plugins/garden/acc_infobox.glade:729
 msgid "Elevation:"
-msgstr ""
+msgstr "Elevación:"
 
 #: bauble/plugins/garden/institution.glade:230
 msgid "Email"
@@ -1306,7 +1306,7 @@ msgstr "Feminina"
 
 #: bauble/connmgr.glade:261
 msgid "Filename:"
-msgstr ""
+msgstr "Nombre fichero:"
 
 #: bauble/plugins/garden/acc_editor.glade:1063
 msgid "Flags"
@@ -1319,7 +1319,7 @@ msgstr "Brotes de flor"
 
 #: bauble/plugins/garden/plant.py:341
 msgid "Flowering"
-msgstr ""
+msgstr "En floración"
 
 #: bauble/plugins/report/__init__.py:387
 msgid "Formatter Name"
@@ -1476,7 +1476,7 @@ msgstr "Bueno/a"
 
 #: bauble/plugins/garden/accession.py:434
 msgid "Graft"
-msgstr ""
+msgstr "Injerto"
 
 #: bauble/plugins/users/ui.glade:233
 msgid "Groups"
@@ -1488,7 +1488,7 @@ msgstr "Hábito"
 
 #: bauble/plugins/garden/acc_infobox.glade:960
 msgid "Habitat"
-msgstr ""
+msgstr "Hábitat"
 
 #: bauble/plugins/garden/acc_editor.glade:1946
 msgid "Habitat description"
@@ -1497,7 +1497,7 @@ msgstr "Descripción del hábitat"
 #: bauble/plugins/garden/acc_editor.glade:2556
 #: bauble/plugins/garden/acc_editor.glade:2691
 msgid "Herbarium"
-msgstr ""
+msgstr "Herbario"
 
 #: bauble/plugins/garden/prop_editor.glade:704
 msgid "Hormone"
@@ -1641,7 +1641,7 @@ msgstr ""
 
 #: bauble/plugins/tag/tag.glade:378
 msgid "Item(s)"
-msgstr ""
+msgstr "Elemento(s)"
 
 #: bauble/plugins/imex/iojson.py:287 bauble/plugins/imex/iojson.py:307
 msgid "JSON"
@@ -1661,11 +1661,11 @@ msgstr "Latitud"
 
 #: bauble/plugins/garden/acc_infobox.glade:849
 msgid "Latitude:"
-msgstr ""
+msgstr "Latitud:"
 
 #: bauble/plugins/garden/accession.py:435
 msgid "Layer"
-msgstr ""
+msgstr "Capa"
 
 #: bauble/plugins/plants/species_model.py:208
 msgid "Least Concern (LC)"
@@ -1724,7 +1724,7 @@ msgstr "Detalles de la Ubicacion"
 
 #: bauble/plugins/garden/acc_infobox.glade:836
 msgid "Location:"
-msgstr ""
+msgstr "Ubicación:"
 
 #: bauble/plugins/garden/acc_editor.glade:2021
 msgid "Longitude"
@@ -1732,7 +1732,7 @@ msgstr "Longitud"
 
 #: bauble/plugins/garden/acc_infobox.glade:864
 msgid "Longitude:"
-msgstr ""
+msgstr "Longitud:"
 
 #: bauble/plugins/garden/plant.py:266
 msgid "Lost, whereabouts unknown"
@@ -1949,7 +1949,7 @@ msgstr "Porcentage de enraizamiento"
 
 #: bauble/plugins/users/ui.glade:206
 msgid "Permissions"
-msgstr ""
+msgstr "Permisos"
 
 #: bauble/pictures_view.glade:10
 msgid "Picture Viewer"
@@ -2079,7 +2079,7 @@ msgstr "Polvo"
 
 #: bauble/bauble.glade:474
 msgid "Preferences"
-msgstr ""
+msgstr "Preferencias"
 
 #: bauble/plugins/garden/prop_editor.glade:1095
 #: bauble/plugins/garden/propagation.py:209
@@ -2096,7 +2096,7 @@ msgstr "Privado"
 
 #: bauble/plugins/garden/acc_editor.glade:2400
 msgid "Propagation"
-msgstr ""
+msgstr "Propagación"
 
 #: bauble/plugins/garden/prop_editor.glade:8
 msgid "Propagation Editor"
@@ -2134,7 +2134,7 @@ msgstr "Procedencia"
 
 #: bauble/plugins/garden/accession.py:437
 msgid "Pseudobulb"
-msgstr ""
+msgstr "Pseudobulbo"
 
 #: bauble/plugins/garden/accession.py:367
 msgid "Purchase or gift"
@@ -2172,11 +2172,11 @@ msgstr "Rango"
 
 #: bauble/plugins/users/ui.glade:165
 msgid "Read"
-msgstr ""
+msgstr "Leer"
 
 #: bauble/plugins/garden/plant_editor.glade:680
 msgid "Reason"
-msgstr ""
+msgstr "Razón"
 
 #: bauble/plugins/garden/acc_editor.glade:3306
 msgid "Reference"
@@ -2192,13 +2192,13 @@ msgstr "Localmente extinta (RE)"
 
 #: bauble/plugins/garden/institution.glade:266
 msgid "Register"
-msgstr ""
+msgstr "Registrarse"
 
 #: bauble/plugins/garden/propagation.py:261
 #: bauble/plugins/garden/propagation.py:266
 #: bauble/plugins/garden/propagation.py:270
 msgid "Removed"
-msgstr ""
+msgstr "Eliminada"
 
 #: bauble/plugins/report/__init__.py:592
 msgid "Report"
@@ -2226,7 +2226,7 @@ msgstr "Rizoma"
 
 #: bauble/plugins/garden/plant.py:347
 msgid "Ripe"
-msgstr ""
+msgstr "Maduro"
 
 #: bauble/plugins/garden/accession.py:441
 msgid "Root"
@@ -2370,9 +2370,8 @@ msgid "Search Tropicos"
 msgstr "Busqueda en Tropicos"
 
 #: bauble/plugins/plants/genus.py:1018 bauble/plugins/plants/species.py:421
-#, fuzzy
 msgid "Search Tropicos (MissouriBG) online database"
-msgstr "Buscar en la base de dato TPL"
+msgstr "Buscar en la base de dato Tropicos (MissouriBG)"
 
 #: bauble/plugins/plants/species.py:417
 msgid "Search Wikipedia"
@@ -2590,7 +2589,7 @@ msgstr "Etiquetas"
 
 #: bauble/plugins/garden/acc_editor.glade:377
 msgid "Taxon"
-msgstr ""
+msgstr "Taxón"
 
 #: bauble/plugins/plants/taxonomy_check.py:276
 msgid "Taxonomy check"
@@ -3171,7 +3170,7 @@ msgstr "Dominio de búsqueda desconocido: %s"
 
 #: bauble/plugins/garden/plant.py:346
 msgid "Unripe"
-msgstr ""
+msgstr "Inmaduro"
 
 #: bauble/plugins/garden/accession.py:449
 #: bauble/plugins/garden/propagation.py:50
@@ -3197,7 +3196,7 @@ msgstr "Usuarios"
 
 #: bauble/bauble.glade:455
 msgid "Value"
-msgstr ""
+msgstr "Valor"
 
 #: bauble/bauble.glade:83
 msgid "Values"
@@ -3250,7 +3249,6 @@ msgid "Vouchers"
 msgstr "Vouchers"
 
 #: bauble/plugins/plants/species_model.py:206
-#, fuzzy
 msgid "Vulnerable (VU)"
 msgstr "Vulnerable (VU)"
 
@@ -3630,7 +3628,7 @@ msgstr ""
 
 #: bauble/plugins/plants/stored_queries.glade:74
 msgid "label"
-msgstr ""
+msgstr "texto"
 
 #: bauble/plugins/garden/propagation.py:288
 msgid "mm"
@@ -3656,7 +3654,7 @@ msgstr ""
 #: bauble/plugins/plants/taxonomy_check.glade:218
 #: bauble/plugins/plants/taxonomy_check.glade:479
 msgid "next"
-msgstr ""
+msgstr "siguiente"
 
 #: bauble/utils/__init__.py:265 bauble/utils/__init__.py:278
 msgid "no widget named \"%(widget_name)s\" in glade file"
@@ -3690,7 +3688,7 @@ msgstr "confirme el juntar la locación %(1)s en la %(2)s"
 #: bauble/plugins/plants/taxonomy_check.glade:442
 #: bauble/plugins/plants/taxonomy_check.glade:606
 msgid "prev"
-msgstr ""
+msgstr "anterior"
 
 #: bauble/bauble.glade:156
 msgid "previous view"
@@ -3770,7 +3768,7 @@ msgstr "a"
 
 #: bauble/plugins/plants/stored_queries.glade:109
 msgid "tooltip"
-msgstr ""
+msgstr "sugerencia"
 
 #: bauble/view.py:435
 msgid "top level count: %s"
