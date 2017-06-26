@@ -148,7 +148,7 @@ msgstr "<b>Accessietype:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:971
 msgid "<b>Accessions:</b>"
-msgstr ""
+msgstr "<b>Accessies:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:698
 msgid "<b>Awards:</b>"
@@ -200,7 +200,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:911
 msgid "<b>Genera:</b>"
-msgstr ""
+msgstr "<b>Geslachten:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:1436
 msgid "<b>Germination data</b>"
@@ -241,7 +241,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:571
 msgid "<b>Parent Plant:</b>"
-msgstr "<b>Ouder Plant:</b>"
+msgstr "<b>Moederplant:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:103
 msgid "<b>Plant Groups:</b>"
@@ -249,7 +249,7 @@ msgstr "<b>Plantengroepen:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:988
 msgid "<b>Plants:</b>"
-msgstr ""
+msgstr "<b>Planten:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:308
 msgid "<b>Private:</b>"
@@ -353,7 +353,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:1555
 msgid "<b>unused</b>"
-msgstr ""
+msgstr "<b>ongebruikt</b>"
 
 #: bauble/plugins/plants/stored_queries.glade:147
 #: bauble/plugins/plants/stored_queries.glade:170
@@ -379,7 +379,7 @@ msgstr ""
 #: bauble/plugins/plants/stored_queries.py:129
 #: bauble/plugins/plants/stored_queries.py:164
 msgid "<empty>"
-msgstr ""
+msgstr "<leeg>"
 
 #: bauble/plugins/garden/plant.py:1333
 msgid "<i>Split as %(plant)s</i>"
@@ -421,7 +421,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:86
 msgid "Abbreviation"
-msgstr ""
+msgstr "Afkorting"
 
 #: bauble/ui.py:464
 msgid "About"
@@ -779,7 +779,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:578
 msgid "Connection Details"
-msgstr ""
+msgstr "Verbindingsdetails"
 
 #: bauble/plugins/garden/acc_editor.glade:1208
 #: bauble/plugins/garden/__init__.py:122
@@ -819,7 +819,7 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
-"Kan geen nieuwe database aanmaken.\n"
+"Kan deze nieuwe database niet aanmaken.\n"
 "\n"
 "%s"
 
@@ -1249,7 +1249,7 @@ msgstr ""
 #: bauble/plugins/plants/family_editor.glade:230
 #: bauble/plugins/plants/__init__.py:366
 msgid "Family"
-msgstr ""
+msgstr "Familie"
 
 #: bauble/plugins/plants/family_editor.glade:6
 msgid "Family Editor"
@@ -1269,7 +1269,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:261
 msgid "Filename:"
-msgstr ""
+msgstr "Bestandsnaam:"
 
 #: bauble/plugins/garden/acc_editor.glade:1063
 msgid "Flags"
@@ -1332,7 +1332,7 @@ msgstr "Algemeen"
 #: bauble/plugins/plants/__init__.py:367
 #: bauble/plugins/plants/species_editor.py:1080
 msgid "Genus"
-msgstr ""
+msgstr "Geslacht"
 
 #: bauble/plugins/plants/genus_editor.glade:6
 msgid "Genus Editor"
@@ -1536,19 +1536,19 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:228
 msgid "Institution"
-msgstr ""
+msgstr "Instelling"
 
 #: bauble/plugins/garden/institution.glade:12
 msgid "Institution Editor"
-msgstr ""
+msgstr "Instellingseditor"
 
 #: bauble/plugins/garden/institution.glade:54
 msgid "Institution Name *"
-msgstr ""
+msgstr "Instellingsnaam"
 
 #: bauble/plugins/garden/institution.glade:122
 msgid "Institutional code"
-msgstr ""
+msgstr "Instellingscode"
 
 #: bauble/plugins/garden/accession.py:368
 #: bauble/plugins/garden/accession.py:400
@@ -2388,11 +2388,11 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:88
 #: bauble/plugins/report/xsl/__init__.py:430
 msgid "Species"
-msgstr ""
+msgstr "Soort"
 
 #: bauble/plugins/plants/species_editor.glade:7
 msgid "Species Editor"
-msgstr ""
+msgstr "Soort editor"
 
 #: bauble/plugins/plants/infoboxes.glade:461
 msgid "Species Window"
@@ -2505,7 +2505,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:340
 msgid "Telephone"
-msgstr ""
+msgstr "Telefoon"
 
 #: bauble/pluginmgr.py:245
 msgid ""
@@ -3003,7 +3003,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:243
 msgid "Use default locations"
-msgstr ""
+msgstr "Gebruik standaardlocaties"
 
 #: bauble/pictures.glade:307 bauble/notes.glade:33 bauble/bauble.glade:61
 msgid "User"
@@ -3011,16 +3011,16 @@ msgstr "Gebruiker"
 
 #: bauble/connmgr.glade:410
 msgid "User: "
-msgstr ""
+msgstr "Gebruiker: "
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
 msgid "Users"
-msgstr ""
+msgstr "Gebruikers"
 
 #: bauble/bauble.glade:455
 msgid "Value"
-msgstr ""
+msgstr "Waarde"
 
 #: bauble/bauble.glade:83
 msgid "Values"
