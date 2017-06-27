@@ -2556,11 +2556,11 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:567 bauble/plugins/tag/test.py:55
 msgid "Tag Selection"
-msgstr "Sélection de tag"
+msgstr "Marquer la sélection"
 
 #: bauble/plugins/tag/tag.glade:82
 msgid "Tagged type"
-msgstr "Marqué"
+msgstr "Type marqué"
 
 #: bauble/plugins/tag/tag.glade:241 bauble/plugins/tag/tag.glade:430
 #: bauble/plugins/tag/__init__.py:603 bauble/plugins/tag/__init__.py:698
