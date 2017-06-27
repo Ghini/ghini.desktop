@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 16:04-0500\n"
+"POT-Creation-Date: 2017-06-27 07:37-0500\n"
 "PO-Revision-Date: 2015-09-17 00:14+0200\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
@@ -307,10 +307,6 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
-msgstr ""
-
-#: bauble/plugins/plants/taxonomy_check.glade:262
-msgid "<b>TNRSapp</b>"
 msgstr ""
 
 #: bauble/plugins/report/mako/gui.glade:31
@@ -2422,6 +2418,10 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:954 bauble/plugins/plants/genus.py:972
 #: bauble/plugins/plants/species.py:215 bauble/plugins/plants/species.py:236
 msgid "Synonyms"
+msgstr ""
+
+#: bauble/plugins/plants/taxonomy_check.glade:262
+msgid "TNRSapp - Taxonomic Name Resolution Service"
 msgstr ""
 
 #: bauble/bauble.glade:72

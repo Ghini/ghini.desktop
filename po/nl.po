@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 16:04-0500\n"
+"POT-Creation-Date: 2017-06-27 07:37-0500\n"
 "PO-Revision-Date: 2017-06-26 11:46-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/bauble/master/nl/"
@@ -309,10 +309,6 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
-msgstr ""
-
-#: bauble/plugins/plants/taxonomy_check.glade:262
-msgid "<b>TNRSapp</b>"
 msgstr ""
 
 #: bauble/plugins/report/mako/gui.glade:31
@@ -2474,6 +2470,10 @@ msgstr ""
 msgid "Synonyms"
 msgstr "Synoniemen"
 
+#: bauble/plugins/plants/taxonomy_check.glade:262
+msgid "TNRSapp - Taxonomic Name Resolution Service"
+msgstr ""
+
 #: bauble/bauble.glade:72
 msgid "Table"
 msgstr ""
@@ -2680,7 +2680,8 @@ msgid ""
 "The genus <i>%(genus)s</i> has %(num_species)s species.  Are you sure you "
 "want to remove it?"
 msgstr ""
-"Het geslacht <i>%(genus)s</i> heeft %(num_species)s soorten. Weet u het zeker dat u %(genus)s wilt verwijderen?"
+"Het geslacht <i>%(genus)s</i> heeft %(num_species)s soorten. Weet u het "
+"zeker dat u %(genus)s wilt verwijderen?"
 
 #: bauble/plugins/plants/genus.py:412
 msgid "The genus name"
@@ -2716,18 +2717,24 @@ msgstr ""
 msgid ""
 "The name of the plant determined by taxonomist engaged in systematic "
 "revision of the group."
-msgstr "De naam van de plant zoals door een taxonoom bepaald, die zich bezighoudt met een systematische herziening van de groep."
+msgstr ""
+"De naam van de plant zoals door een taxonoom bepaald, die zich bezighoudt "
+"met een systematische herziening van de groep."
 
 #: bauble/plugins/garden/accession.py:226
 msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or documented living material."
-msgstr "De naam van de record bepaald door een taxonoom of door andere deskundige, gebruik makend van herbarium en/of bibliotheek en/of gedocumenteerd levend materiaal."
+msgstr ""
+"De naam van de record bepaald door een taxonoom of door andere deskundige, "
+"gebruik makend van herbarium en/of bibliotheek en/of gedocumenteerd levend "
+"materiaal."
 
 #: bauble/plugins/garden/accession.py:224
 msgid ""
 "The name of the record determined by comparison with other named plants."
-msgstr "De naam van de record bepaald door vergelijking met andere plantbepalingen"
+msgstr ""
+"De naam van de record bepaald door vergelijking met andere plantbepalingen"
 
 #: bauble/plugins/garden/accession.py:223
 msgid "The name of the record has not been checked by any authority."
@@ -2801,7 +2808,9 @@ msgstr ""
 msgid ""
 "The species <i>%(species)s</i> has %(num_accessions)s accessions.  Are you "
 "sure you want remove it?"
-msgstr "Soort <i>%(species)s</i> heeft %(num_accessions)s accessies. Wilt u het echt verwijderen?"
+msgstr ""
+"Soort <i>%(species)s</i> heeft %(num_accessions)s accessies. Wilt u het echt "
+"verwijderen?"
 
 #: bauble/plugins/garden/accession.py:869
 msgid ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 16:04-0500\n"
+"POT-Creation-Date: 2017-06-27 07:37-0500\n"
 "PO-Revision-Date: 2017-06-22 19:13+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/ghini/"
@@ -316,10 +316,6 @@ msgstr "<b>Види:</b>"
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
 msgstr "<b>Таблиця стилів</b>"
-
-#: bauble/plugins/plants/taxonomy_check.glade:262
-msgid "<b>TNRSapp</b>"
-msgstr "<b>TNRSapp</b>"
 
 #: bauble/plugins/report/mako/gui.glade:31
 msgid "<b>Template</b>"
@@ -2563,6 +2559,10 @@ msgstr "Знищено жарою"
 msgid "Synonyms"
 msgstr "Синоніми"
 
+#: bauble/plugins/plants/taxonomy_check.glade:262
+msgid "TNRSapp - Taxonomic Name Resolution Service"
+msgstr ""
+
 #: bauble/bauble.glade:72
 msgid "Table"
 msgstr "Таблиця"
@@ -3897,6 +3897,9 @@ msgstr "°F"
 
 #~ msgid "<b>Synonyms</b>"
 #~ msgstr "<b>Синоніми</b>"
+
+#~ msgid "<b>TNRSapp</b>"
+#~ msgstr "<b>TNRSapp</b>"
 
 #~ msgid "<b>Tags</b>"
 #~ msgstr "<b>Теги</b>"

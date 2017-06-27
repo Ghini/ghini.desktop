@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 16:04-0500\n"
+"POT-Creation-Date: 2017-06-27 07:37-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Translate it <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -305,10 +305,6 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
-msgstr ""
-
-#: bauble/plugins/plants/taxonomy_check.glade:262
-msgid "<b>TNRSapp</b>"
 msgstr ""
 
 #: bauble/plugins/report/mako/gui.glade:31
@@ -2449,6 +2445,10 @@ msgstr ""
 #: bauble/plugins/plants/species.py:215 bauble/plugins/plants/species.py:236
 msgid "Synonyms"
 msgstr "Eş Anlamlılar"
+
+#: bauble/plugins/plants/taxonomy_check.glade:262
+msgid "TNRSapp - Taxonomic Name Resolution Service"
+msgstr ""
 
 #: bauble/bauble.glade:72
 msgid "Table"

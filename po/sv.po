@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-23 16:04-0500\n"
+"POT-Creation-Date: 2017-06-27 07:37-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -311,10 +311,6 @@ msgstr ""
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
 msgstr "<b>Formatmall</b>"
-
-#: bauble/plugins/plants/taxonomy_check.glade:262
-msgid "<b>TNRSapp</b>"
-msgstr ""
 
 #: bauble/plugins/report/mako/gui.glade:31
 msgid "<b>Template</b>"
@@ -2555,6 +2551,10 @@ msgstr "Dog under sommaren"
 #: bauble/plugins/plants/species.py:215 bauble/plugins/plants/species.py:236
 msgid "Synonyms"
 msgstr "Synonymer"
+
+#: bauble/plugins/plants/taxonomy_check.glade:262
+msgid "TNRSapp - Taxonomic Name Resolution Service"
+msgstr ""
 
 #: bauble/bauble.glade:72
 msgid "Table"
