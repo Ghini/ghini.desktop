@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 07:37-0500\n"
+"POT-Creation-Date: 2017-06-27 12:04-0500\n"
 "PO-Revision-Date: 2017-06-22 19:13+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/ghini/"
@@ -3514,12 +3514,9 @@ msgid "copy"
 msgstr "копіювати"
 
 #: bauble/plugins/plants/taxonomy_check.glade:115
+#: bauble/plugins/plants/taxonomy_check.glade:126
 msgid "copy result selection to clipboard"
 msgstr "копіювати вибраний результат в буфер обміну"
-
-#: bauble/plugins/plants/taxonomy_check.glade:126
-msgid "copy results selection to clipboard"
-msgstr "копіювати вибрані результати в буфер обміну"
 
 #: bauble/view.py:383 bauble/view.py:844
 msgid "counting results"
@@ -3951,6 +3948,9 @@ msgstr "°F"
 
 #~ msgid "Wild"
 #~ msgstr "Дикоростучі"
+
+#~ msgid "copy results selection to clipboard"
+#~ msgstr "копіювати вибрані результати в буфер обміну"
 
 #~ msgid "http://bauble.wikidot.com"
 #~ msgstr "http://bauble.wikidot.com"

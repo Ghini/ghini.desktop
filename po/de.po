@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 07:37-0500\n"
+"POT-Creation-Date: 2017-06-27 12:04-0500\n"
 "PO-Revision-Date: 2015-07-12 18:47-0500\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/bauble/master/de/"
@@ -3415,11 +3415,8 @@ msgid "copy"
 msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:115
-msgid "copy result selection to clipboard"
-msgstr ""
-
 #: bauble/plugins/plants/taxonomy_check.glade:126
-msgid "copy results selection to clipboard"
+msgid "copy result selection to clipboard"
 msgstr ""
 
 #: bauble/view.py:383 bauble/view.py:844

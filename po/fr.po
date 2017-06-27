@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 07:37-0500\n"
+"POT-Creation-Date: 2017-06-27 12:04-0500\n"
 "PO-Revision-Date: 2017-06-26 08:25-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -3518,12 +3518,9 @@ msgid "copy"
 msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:115
-msgid "copy result selection to clipboard"
-msgstr "résultat copier la sélection dans le presse-papiers"
-
 #: bauble/plugins/plants/taxonomy_check.glade:126
-msgid "copy results selection to clipboard"
-msgstr "sélection de résultats de copie dans le presse-papiers"
+msgid "copy result selection to clipboard"
+msgstr "copier la sélection des résultats dans le presse-papiers"
 
 #: bauble/view.py:383 bauble/view.py:844
 msgid "counting results"
@@ -3816,3 +3813,6 @@ msgstr ""
 
 #~ msgid "Do you want to save your changes to %s ?"
 #~ msgstr "Voulez-vous sauvegarder vos modifications sur %s?"
+
+#~ msgid "copy results selection to clipboard"
+#~ msgstr "sélection de résultats de copie dans le presse-papiers"

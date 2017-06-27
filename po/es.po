@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 07:37-0500\n"
+"POT-Creation-Date: 2017-06-27 12:04-0500\n"
 "PO-Revision-Date: 2017-06-26 21:25+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -3523,12 +3523,9 @@ msgid "copy"
 msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:115
-msgid "copy result selection to clipboard"
-msgstr "selección de resultados de copia al portapapeles"
-
 #: bauble/plugins/plants/taxonomy_check.glade:126
-msgid "copy results selection to clipboard"
-msgstr "selección de resultados de copia al portapapeles"
+msgid "copy result selection to clipboard"
+msgstr "copia la selección de resultados al portapapeles"
 
 #: bauble/view.py:383 bauble/view.py:844
 msgid "counting results"
@@ -3536,7 +3533,7 @@ msgstr "cuenta de resultados"
 
 #: bauble/plugins/imex/select_export.glade:442
 msgid "create if not in database"
-msgstr "Si no en base de datos"
+msgstr "crear si inexistente"
 
 #: bauble/plugins/plants/species_model.py:68
 #, fuzzy
@@ -3561,7 +3558,7 @@ msgstr "endémica"
 
 #: bauble/bauble.glade:206
 msgid "enter here your query or command"
-msgstr "Ingrese aquí su consulta o comando"
+msgstr "ingrese aquí su consulta o comando"
 
 #: bauble/bauble.glade:225
 msgid "execute the query"
@@ -3569,7 +3566,7 @@ msgstr "ejecutar la consulta"
 
 #: bauble/plugins/imex/select_export.glade:169
 msgid "export based on:"
-msgstr "El experto se ha basado en:"
+msgstr "esporgación basada en:"
 
 #: bauble/plugins/imex/select_export.glade:268
 msgid "export includes:"
@@ -3635,7 +3632,7 @@ msgstr "mm"
 
 #: bauble/plugins/garden/accession.py:2417
 msgid "model must have both latitude and longitude or neither"
-msgstr "el modelo debe tener tanto la latitud como la longitud o ninguno"
+msgstr "el modelo debe tener ó ambas latitud y longitud ó ni la una ni la otra"
 
 #: bauble/plugins/plants/species_model.py:224
 msgid "native"
@@ -3661,7 +3658,7 @@ msgstr "ningún widget llamado \"%(widget_name)s\" en archivo de glade"
 
 #: bauble/editor.py:1447
 msgid "no widget with name %s"
-msgstr "ningún artilugio con el nombre %s"
+msgstr "ningún widget de nombre %s"
 
 #: bauble/plugins/plants/species.py:417
 msgid "open the wikipedia page about this species"
@@ -3691,7 +3688,7 @@ msgstr "anterior"
 
 #: bauble/bauble.glade:156
 msgid "previous view"
-msgstr "Vista anterior"
+msgstr "vista anterior"
 
 #: bauble/plugins/imex/select_export.glade:246
 msgid "private objects"
@@ -3703,15 +3700,15 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:252
 msgid "querying the plant list"
-msgstr "consulta la lista de plantas"
+msgstr "consulta «the plant list»"
 
 #: bauble/plugins/garden/institution.glade:485
 msgid "save and close"
-msgstr "Save and Close"
+msgstr "save and close"
 
 #: bauble/plugins/plants/taxonomy_check.glade:78
 msgid "select TNRS results"
-msgstr "Seleccione TNRS resultados"
+msgstr "seleccione resultados TNRS"
 
 #: bauble/plugins/imex/select_export.glade:84
 msgid "selection"
@@ -3723,7 +3720,7 @@ msgstr "tamaño de resultado no homogéneo: %s"
 
 #: bauble/plugins/plants/taxonomy_check.glade:161
 msgid "start TNRS lookup"
-msgstr "Iniciar búsqueda TNRS"
+msgstr "iniciar búsqueda TNRS"
 
 #: bauble/plugins/plants/infoboxes.glade:1367
 msgid "stored queries"
@@ -3739,7 +3736,7 @@ msgstr "subsp."
 
 #: bauble/plugins/plants/species_model.py:65
 msgid "subvar"
-msgstr "Sub - Variedad"
+msgstr "subvariedad"
 
 #: bauble/plugins/plants/species_model.py:173
 msgid "synonym of %s"
@@ -3747,15 +3744,15 @@ msgstr "sinónimos de %s"
 
 #: bauble/plugins/tag/__init__.py:369
 msgid "tagging %(1)s objects of %(2)s different types"
-msgstr "etiquetado %(1)s objetos de %(2)s tipos diferentes"
+msgstr "etiquetando %(1)s objetos de %(2)s tipos diferentes"
 
 #: bauble/plugins/tag/__init__.py:363
 msgid "tagging %(1)s objects of type %(2)s"
-msgstr "etiquetado %(1)s objetos de tipo %(2)s"
+msgstr "etiquetando %(1)s objetos de tipo %(2)s"
 
 #: bauble/plugins/tag/__init__.py:367
 msgid "tagging nothing"
-msgstr "etiquetado nada"
+msgstr "etiquetando nada"
 
 #: bauble/plugins/imex/select_export.glade:101
 msgid "taxa"
@@ -3775,7 +3772,7 @@ msgstr "cuenta de nivel superior: %s"
 
 #: bauble/plugins/imex/select_export.glade:459
 msgid "update existing objects"
-msgstr "actualización de objetos existentes"
+msgstr "actualizar objetos existentes"
 
 #: bauble/plugins/plants/taxonomy_check.glade:304
 msgid "use"
@@ -3792,7 +3789,7 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:157
 msgid "used in"
-msgstr "Usado en"
+msgstr "usado en"
 
 #: bauble/connmgr.py:524
 msgid "user name"
@@ -3800,7 +3797,7 @@ msgstr "nombre de usuario"
 
 #: bauble/plugins/plants/species_model.py:64
 msgid "var."
-msgstr "Variedad"
+msgstr "variedad"
 
 #: bauble/plugins/garden/accession.py:1379
 msgid "verified as %(species)s "
@@ -3817,3 +3814,6 @@ msgstr "°C"
 #: bauble/plugins/garden/propagation.py:284
 msgid "°F"
 msgstr "°F"
+
+#~ msgid "copy results selection to clipboard"
+#~ msgstr "copia la selección de resultados al portapapeles"

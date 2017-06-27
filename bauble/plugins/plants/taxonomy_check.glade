@@ -123,7 +123,7 @@
                                       <object class="GtkImage" id="image4">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="tooltip_text" translatable="yes">copy results selection to clipboard</property>
+                                        <property name="tooltip_text" translatable="yes">copy result selection to clipboard</property>
                                         <property name="stock">gtk-copy</property>
                                       </object>
                                       <packing>

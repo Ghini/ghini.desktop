@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 07:37-0500\n"
+"POT-Creation-Date: 2017-06-27 12:04-0500\n"
 "PO-Revision-Date: 2017-06-23 20:10+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -2841,8 +2841,8 @@ msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or documented living material."
 msgstr ""
-"Il nome del record determinato da tassonomo o da altra persona "
-"competente utilizzando erbario e/o biblioteca e/o documentato materiale vivo."
+"Il nome del record determinato da tassonomo o da altra persona competente "
+"utilizzando erbario e/o biblioteca e/o documentato materiale vivo."
 
 #: bauble/plugins/garden/accession.py:224
 msgid ""
@@ -3514,11 +3514,8 @@ msgid "copy"
 msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:115
-msgid "copy result selection to clipboard"
-msgstr "Copia la selezione negli Appunti"
-
 #: bauble/plugins/plants/taxonomy_check.glade:126
-msgid "copy results selection to clipboard"
+msgid "copy result selection to clipboard"
 msgstr "Copia la selezione negli Appunti"
 
 #: bauble/view.py:383 bauble/view.py:844
@@ -3809,3 +3806,6 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:284
 msgid "°F"
 msgstr ""
+
+#~ msgid "copy results selection to clipboard"
+#~ msgstr "Copia la selezione negli Appunti"
