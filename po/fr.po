@@ -225,7 +225,7 @@ msgstr "<b>Plantes vivantes :</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:162
 msgid "<b>Location:</b>"
-msgstr "<b>Localisation :</b>"
+msgstr "<b>Emplacement :</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1005
 msgid "<b>Locations:</b>"
@@ -511,7 +511,7 @@ msgid ""
 "Any information that might be relevant to the location such as where it is "
 "or what's its purpose"
 msgstr ""
-"Toute information pertinente concernant la localisation telle que où elle se "
+"Toute information pertinente concernant l'emplacement telle que où elle se "
 "situe ou qu'elle était le but"
 
 #: bauble/plugins/tag/__init__.py:189
@@ -1702,7 +1702,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:199
 #: bauble/plugins/garden/propagation.py:222
 msgid "Location"
-msgstr "Localisation"
+msgstr "Emplacement"
 
 #: bauble/plugins/garden/acc_editor.glade:805
 msgid "Location 1"
@@ -1718,7 +1718,7 @@ msgstr "Détails de l’emplacement"
 
 #: bauble/plugins/garden/acc_infobox.glade:836
 msgid "Location:"
-msgstr ""
+msgstr "Emplacement :"
 
 #: bauble/plugins/garden/acc_editor.glade:2021
 msgid "Longitude"
@@ -2024,7 +2024,7 @@ msgstr "Veuillez vous assurer que GTK_ROOT\\bin est dans votre variable PATH."
 #: bauble/plugins/garden/location.py:66
 msgid "Please remove the plants from <b>%(location)s</b> before deleting it."
 msgstr ""
-"Enlevez les plantes de <b>%(location)s</b> avant de supprimer la location."
+"Enlevez les plantes de <b>%(location)s</b> avant de supprimer l'emplacement."
 
 #: bauble/plugins/report/xsl/__init__.py:539
 msgid "Please select a a renderer"
@@ -2812,7 +2812,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:603
 msgid "The location of the planting in your collection."
-msgstr "La localisation de la plante dans votre collection."
+msgstr "L'emplacement de la plante dans votre collection."
 
 #: bauble/plugins/garden/institution.py:205
 msgid "The mailing address of the institition."
