@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:04-0500\n"
+"POT-Creation-Date: 2017-06-27 12:09-0500\n"
 "PO-Revision-Date: 2017-06-26 21:25+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -107,10 +107,6 @@ msgstr "** Error: No se pudo importar gtk o gobject"
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Error: Ghini debe ejecutarse en un entorno de ventanas."
-
-#: bauble/plugins/tag/tag.glade:365
-msgid "--"
-msgstr "--"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -3814,6 +3810,9 @@ msgstr "°C"
 #: bauble/plugins/garden/propagation.py:284
 msgid "°F"
 msgstr "°F"
+
+#~ msgid "--"
+#~ msgstr "--"
 
 #~ msgid "copy results selection to clipboard"
 #~ msgstr "copia la selección de resultados al portapapeles"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:04-0500\n"
+"POT-Creation-Date: 2017-06-27 12:09-0500\n"
 "PO-Revision-Date: 2017-06-26 11:46-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/bauble/master/nl/"
@@ -107,10 +107,6 @@ msgstr "** Fout: kon gtk en/of gobject niet importeren"
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "** Fout: Ghini moet in een grafische omgeving uitgevoerd worden."
-
-#: bauble/plugins/tag/tag.glade:365
-msgid "--"
-msgstr "--"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -3641,6 +3637,9 @@ msgstr ""
 #~ "Druk op OK toets om door te gaan.\n"
 #~ "\n"
 #~ "%s"
+
+#~ msgid "--"
+#~ msgstr "--"
 
 #~ msgid "<b>Plugins</b>"
 #~ msgstr "<b>Plugins</b>"

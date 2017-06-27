@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:04-0500\n"
+"POT-Creation-Date: 2017-06-27 12:09-0500\n"
 "PO-Revision-Date: 2017-06-23 21:09+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
@@ -114,10 +114,6 @@ msgstr "** Erro: não foi possível importar gtk e/ou gobject"
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
 "**Erro: O Ghini deve ser executado em um ambiente gráfico (com janelas)."
-
-#: bauble/plugins/tag/tag.glade:365
-msgid "--"
-msgstr "--"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -3809,6 +3805,9 @@ msgstr "ºF"
 #~ "Pressione OK para continuar.\n"
 #~ "\n"
 #~ "%s"
+
+#~ msgid "--"
+#~ msgstr "--"
 
 #~ msgid "<b>Accession</b>"
 #~ msgstr "<b>Referência</b>"

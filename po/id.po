@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:04-0500\n"
+"POT-Creation-Date: 2017-06-27 12:09-0500\n"
 "PO-Revision-Date: 2015-09-16 07:05+0200\n"
 "Last-Translator: Raja Ritonga <stupidenemy23@gmail.com>\n"
 "Language-Team: Indonesian <https://hosted.weblate.org/projects/bauble/master/"
@@ -105,10 +105,6 @@ msgstr ""
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
-
-#: bauble/plugins/tag/tag.glade:365
-msgid "--"
-msgstr "--"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -3563,6 +3559,9 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:284
 msgid "°F"
 msgstr ""
+
+#~ msgid "--"
+#~ msgstr "--"
 
 #~ msgid "<b>Collection ID:</b>"
 #~ msgstr "<b>ID Koleksi:</b>"

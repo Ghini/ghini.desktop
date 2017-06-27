@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:04-0500\n"
+"POT-Creation-Date: 2017-06-27 12:09-0500\n"
 "PO-Revision-Date: 2015-07-12 18:48-0500\n"
 "Last-Translator: pCsOrI <pcsori@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/bauble/master/ko/"
@@ -104,10 +104,6 @@ msgstr ""
 
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
-msgstr ""
-
-#: bauble/plugins/tag/tag.glade:365
-msgid "--"
 msgstr ""
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59

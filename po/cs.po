@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:04-0500\n"
+"POT-Creation-Date: 2017-06-27 12:09-0500\n"
 "PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
@@ -108,10 +108,6 @@ msgstr "** Chyba: nelze importovat gtk a/nebo gobjekt"
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Chyba: Ghini musí být spouštěn v režimu do okna."
-
-#: bauble/plugins/tag/tag.glade:365
-msgid "--"
-msgstr "--"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -3793,6 +3789,9 @@ msgstr "°F"
 
 #~ msgid "+/-"
 #~ msgstr "+/-"
+
+#~ msgid "--"
+#~ msgstr "--"
 
 #~ msgid "<b>Accession</b>"
 #~ msgstr "<b>Sbírka</b>"
