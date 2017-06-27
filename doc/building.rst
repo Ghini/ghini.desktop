@@ -83,27 +83,80 @@ Updating the set of translatable strings
 From time to time, during the process of updating the software, you will be
 adding or modifying strings in the python sources, in the documentation, in
 the glade sources. Most of our strings are translatable, and are offered to
-weblate for people to contribute, in the form of several ``.po``
-files. These ``po`` files receive contributions from weblate, and offer
-lines without translation from new lines of code.
+weblate for people to contribute, in the form of several ``.po`` files.
 
-We have organized the translation of ghini as two separate repositories in
-github, each repository being associated to sections of the same project on
-weblate. Translation of the software is in ghini.desktop, the software
-project, while translation of the documentation —itself part of the
-software— is in a separate project, ghini.desktop-docs.i18n.
+A ``po`` is mostly composed of pairs of text portions, original and
+translation, and is specific to a target language. When a translator adds a
+translation on weblate, this reaches our repository on github. When a
+programmer adds a string to the software, this reaches weblate as "to be
+translated".
 
-To update the ``po`` files relative to the software, you run a script from
-the project root dir::
+Weblate hosts the `Ghini <https://hosted.weblate.org/projects/ghini/>`_
+project. Within this project we have components, each of which corresponds
+to a branch of a repository on github. Each component accepts translations
+in several languages.
+
+=============== =========================== ==================
+component       repository                  branch
+=============== =========================== ==================
+desktop-1.0     ghini.desktop               ghini-1.0-dev
+desktop-1.1     ghini.desktop               ghini-1.1-dev
+docs-1.0        ghini.desktop-docs.i18n     ghini-1.0-dev
+docs-1.1        ghini.desktop-docs.i18n     ghini-1.1-dev
+web-1.2         ghini.web                   master
+=============== =========================== ==================
+
+To update the ``po`` files relative to the *software*, you set the working
+directory to the root of your checkout of *ghini.desktop*, and you run the
+script::
 
   ./scripts/i18n.sh
 
-This will update your ``po`` files, something you need commit and push to
-github.
+To update the ``po`` files relative to the *documentation*, you set the
+working directory to the root of your checkout of *ghini.desktop-docs.i18n*,
+and you run the script::
 
-We haven't yet defined a workflow for publishing translated documentation on
-readthedocs. If you have experience with it please have a go at it. Thank
-you in advance.
+  ./doc/runme.sh
+
+When you run either of the above mentioned scripts, chances are you need to
+commit *all* ``po`` files in the project. You may want to review the changes
+before committing them to the respository. This is most important when you
+perform a marginal correction to a string, like removing a typo.
+
+`Our documentation <https://readthedocs.org/projects/ghini/>`_ on
+readthedocs has an original English version, and several translations. We
+just follow the `description of localisation
+<http://docs.readthedocs.io/en/latest/localization.html>`_, there's nothing
+that we invented ourselves here.
+
+Readthedocs checks the project's *Language* setting, and invokes
+``sphinx-intl`` to produce the formatted documentation in the target
+language. With the default configuration —which we did not alter—
+``sphinx-intl`` expects one ``po`` file per source document, named as the
+source document, and that they all reside in the directory
+``local/$(LANG)/LC_MESSAGES/``.
+
+On the other hand, Weblate (and ourselves) prefers a single ``po`` file per
+language, and keeps them all in the same ``/po`` directory, just as we do
+for the software project: ``/po/$(LANG).po``.
+
+In order not to repeat information, and to let both systems work their
+natural way, we have two sets of symbolic links (git honors them).
+
+To summarise: when a file in the documentation is updated, the ``runme.sh``
+script will:
+
+1. copy the ``rst`` files from the software to the documentation;
+2. create a new ``pot`` file for each of the documentation files;
+3. merge all ``pot`` files into one ``doc.pot``;
+4. use the updated ``doc.pot`` to update all ``doc.po`` files (one per language);
+5. create all symbolic links:
+      
+   a. those expected by ``sphinx-intl`` in ``/local/$(LANG)/LC_MESSAGES/``
+   b. those used by weblate in ``/po/$(LANG).po``
+
+We could definitely write the above in a Makefile, or even better include it
+in ``/doc/Makefile``. Who knows, maybe we will do that.
 
 
 Adding missing unit tests
@@ -567,6 +620,7 @@ normal development workflow
 * update the i18n files (run ``./scripts/i18n.sh``).
 * whenever possible, translate the new strings you put in code or glade
   files.
+* when you change strings, please make sure that old translations get re-used.
 * commit your changes.
 * push to github.
 * open a pull request.
