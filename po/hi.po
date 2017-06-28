@@ -1,7 +1,7 @@
-# Hindi translation for ghini
+# Hindi translation for ghini.desktop
 # Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
-# This file is distributed under the same license as the bauble package.
-# Mario Frasca <mario@anche.no>
+# This file is distributed under the same license as the ghini.desktop
+# Mario Frasca <mario@anche.no>, 2017
 #
 msgid ""
 msgstr ""

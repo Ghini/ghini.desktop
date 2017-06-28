@@ -1,7 +1,8 @@
-# Vietnamese translations for PACKAGE package.
+# Vietnamese translations for PACKAGE ghini.desktop
 # Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# This file is distributed under the same license as the ghini.desktop
 # Automatically generated, 2015.
+# Mario Frasca <mario@anche.no>, 2015-2017
 #
 msgid ""
 msgstr ""

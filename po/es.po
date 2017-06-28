@@ -1,6 +1,6 @@
 # Spanish translation for ghini.desktop
 # Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
-# This file is distributed under the same license as ghini.desktop.
+# This file is distributed under the same license as ghini.desktop
 # Brett Adams <brettadams@fastmail.us>, 2011.
 # Mario Frasca <mario@anche.no>, 2014-2017
 #
