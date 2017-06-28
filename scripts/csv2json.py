@@ -30,10 +30,9 @@ binomial_key = 'binomial'
 habit_key = 'hábito'
 origin_key = 'Procedencia'
 easting_key, northing_key, altitude_key = 'easting', 'northing', 'altitud'
-code_key = 'code'
 utm_slice = 18
 
-accession_code_def = "2016.%04d"
+accession_code_def = "2016.%(code)04d"
 
 vernacular_keys = [
     {'key': 'vernacular', 'lang': 'es'},
@@ -86,9 +85,6 @@ for r in csv.reader(open(input_file_name)):
     else:
         skipped += 1
         continue
-    if code_key != 'code':
-        obj['code'] = obj[code_key]
-        del obj[code_key]
     if easting_key in obj and northing_key in obj:
         obj['lat'], obj['lon'] = staale.utm_to_latlon(utm_slice, float(obj[easting_key]), float(obj[northing_key]))
     k.append(obj)
