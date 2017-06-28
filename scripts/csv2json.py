@@ -1,5 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+#
+# Copyright 2016 Mario Frasca <mario@anche.no>.
+#
+# This file is part of ghini.desktop.
+#
+# ghini.desktop is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ghini.desktop is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 import csv
 import json
@@ -9,24 +26,33 @@ k = []
 #header = ['No', 'NOMBRE CIENTIFICO', 'FAMILIA', 'Nombre común', 'Uso Actual y Potencial', 'Importancia ecológica', 'Ecosistema', 'Habito', 'Procedencia']
 header = ['code', 'vernacular', 'binomial', 'dap', 'altura', 'hábito', 'altitud', 'easting', 'northing', 'ecosistema', 'observaciones']
 
-vernacular_key = 'vernacular'
-vernacular_lang = 'es'
 binomial_key = 'binomial'
 habit_key = 'hábito'
 origin_key = 'Procedencia'
 easting_key, northing_key, altitude_key = 'easting', 'northing', 'altitud'
 code_key = 'code'
-height_key = 'altura'
-dbh_key = 'dap'
-dbh_category = "{dap:2016-11}"
+utm_slice = 18
 
-note_keys = [
-#    {'key': 'Uso Actual y Potencial', 'category': 'use', 'applies_to': 'species'},
-#    {'key': 'Importancia ecológica', 'category': 'relevance', 'applies_to': 'species'},
-#    {'key': 'Ecosistema', 'category': 'ecosystem', 'applies_to': 'species'},
-    {'key': 'ecosistema', 'category': 'ecosystem', 'applies_to': 'species'},
-    {'key': 'observaciones', 'category': 'generic', 'applies_to': 'plant'},
+accession_code_def = "2016.%04d"
+
+vernacular_keys = [
+    {'key': 'vernacular', 'lang': 'es'},
 ]
+
+note_defs = {
+    'species': [{'key': 'Uso Actual y Potencial', 'category': 'use', 'applies_to': 'species'},
+                {'key': 'Importancia ecológica', 'category': 'relevance', 'applies_to': 'species'},
+                {'key': 'Ecosistema', 'category': 'ecosystem', 'applies_to': 'species'},
+                {'key': 'ecosistema', 'category': 'ecosystem', 'applies_to': 'species'}, ],
+    'plant': [{'key': 'observaciones', 'category': 'generic', 'applies_to': 'plant'},
+              {'key': 'dap', 'category': '{dap:2016-11}', 'applies_to': 'plant'},
+              {'key': 'altura', 'category': '{alt:2016-11}', 'applies_to': 'plant'}, ],
+}
+
+formatted_note_defs = {
+    'plant': [ {'keys': [], 'value': "%(lat)s\t%(lon)s", 'applies_to': 'plant', 'category': '{coords}'}, ],
+}
+
 
 #input_file_name = '/tmp/species.csv'
 input_file_name = '/tmp/plants.csv'
@@ -63,16 +89,20 @@ for r in csv.reader(open(input_file_name)):
     if code_key != 'code':
         obj['code'] = obj[code_key]
         del obj[code_key]
+    if easting_key in obj and northing_key in obj:
+        obj['lat'], obj['lon'] = staale.utm_to_latlon(utm_slice, float(obj[easting_key]), float(obj[northing_key]))
     k.append(obj)
 
 print count, skipped
+
+# first produce the taxomomy
 
 for obj in k:
     sp_id = (obj['genus'], obj['species-epithet'], obj['authorship'])
     species[sp_id] = obj
     species_notes[sp_id] = []
-    for d in note_keys:
-        if d['applies_to'] == 'species' and obj[d['key']]:
+    for d in note_defs['species']:
+        if obj[d['key']]:
             for value in obj[d['key']].split('-'):
                 species_notes[sp_id].append({"object": "species_note",
                                              "species": "%(genus)s %(species-epithet)s" % obj,
@@ -95,28 +125,40 @@ for sp_id in sorted(species.keys()):
     obj['rank'] = 'species'
     obj['ht-rank'] = 'genus'
     result.append(obj)
-    if orig.get(vernacular_key):
-        result.append({'object': 'vernacular_name',
-                       'species': "%(genus)s %(species-epithet)s" % orig,
-                       'name': orig[vernacular_key],
-                       'language': vernacular_lang,
+    for vernacular_def in vernacular_keys:
+        if orig.get(vernacular_def['key']):
+            result.append({'object': 'vernacular_name',
+                           'species': "%(genus)s %(species-epithet)s" % orig,
+                           'name': orig[vernacular_def['key']],
+                           'language': vernacular_def['lang'],
                        })
     result.extend(species_notes[(orig['genus'], orig['species-epithet'], orig['authorship'])])
+
+# now just a single fake location
 
 location = {"code": "000", "description": "", "name": "lot 1", "object": "location"}
 result.append(location)
 
-def accession_code(obj):
-    code = '%(code)s' % obj
-    code_len = len(code)
-    return "2016.0000"[:-code_len] + code
+def make_accession_code(obj):
+    def smart_int(v):
+        try:
+            return int(v)
+        except:
+            return 0
+    obj = dict((k, smart_int(v)) for (k, v) in obj.items())
+    return accession_code_def % obj
+
+# now accessions, plants, and relative notes.
 
 for obj in k:
-    code = accession_code(obj)
+    code = make_accession_code(obj)
+    location_id = obj.get(location_key, '000')
     accession = {"code": code, "object": "accession", "species": "%(genus)s %(species-epithet)s" % obj}
     result.append(accession)
-    plant = {"acc_type": "Plant", "accession": code, "code": "1", "location": "000", "object": "plant", "quantity": 1}
+    plant = {"acc_type": "Plant", "accession": code, "code": "1", "location": location_id, "object": "plant", "quantity": 1}
     result.append(plant)
+    for note_def in note_defs['plant']:
+        pass
     if height_key in obj:
         note = {"category": "{alt:2016-11}", "note": obj['altura'], "object": "plant_note", "plant": code + ".1"}
         result.append(note)
@@ -124,7 +166,6 @@ for obj in k:
         note = {"category": dbh_category, "note": obj[dbh_key], "object": "plant_note", "plant": code + ".1" % obj}
         result.append(note)
     if easting_key in obj and northing_key in obj:
-        obj['lat'], obj['lon'] = staale.utm_to_latlon(18, float(obj[easting_key]), float(obj[northing_key]))
         note =  {"category": "{coords}", "note": "%(lat)s\t%(lon)s" % obj, "object": "plant_note", "plant": code + ".1" % obj}
         result.append(note)
 
