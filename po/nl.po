@@ -27,7 +27,7 @@ msgstr "»%(value)s« niet in Enum.values: %(all_values)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
-msgstr ""
+msgstr "# gekiemd"
 
 #: bauble/plugins/garden/propagation.py:227
 msgid "# of seedlings"
@@ -36,7 +36,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
 msgid "# of seeds"
-msgstr ""
+msgstr "# zaden"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
@@ -113,26 +113,26 @@ msgstr "** Fout: Ghini moet in een grafische omgeving uitgevoerd worden."
 #: bauble/plugins/plants/infoboxes.glade:334
 #: bauble/plugins/plants/infoboxes.glade:670
 msgid "<b># of Accessions:</b>"
-msgstr ""
+msgstr "<b># accessies:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:87
 msgid "<b># of Genera:</b>"
-msgstr ""
+msgstr "<b># Geslachten:</b>"
 
 #: bauble/plugins/garden/loc_infobox.glade:35
 #: bauble/plugins/plants/infoboxes.glade:319
 #: bauble/plugins/plants/infoboxes.glade:655
 msgid "<b># of Plants:</b>"
-msgstr ""
+msgstr "<b># planten:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:42
 msgid "<b># of Plants</b>"
-msgstr ""
+msgstr "<b># planten:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:72
 #: bauble/plugins/plants/infoboxes.glade:306
 msgid "<b># of Taxa:</b>"
-msgstr ""
+msgstr "<b># taxa:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:147
 msgid "<b>Accession Status:</b>"
@@ -160,7 +160,7 @@ msgstr "Chemische behandeling"
 
 #: bauble/plugins/garden/acc_infobox.glade:507
 msgid "<b>Contact:</b>"
-msgstr ""
+msgstr "<b>Contakt:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:440
 msgid "<b>Cutting treatment</b>"
@@ -168,7 +168,7 @@ msgstr "<b>Stekbehandeling</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:171
 msgid "<b>Date accessioned:</b>"
-msgstr "<b>Datum accessioned:</b>"
+msgstr "<b>Opnamedatum:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:186
 msgid "<b>Date received:</b>"
@@ -176,7 +176,7 @@ msgstr "<b>Ontvangstdatum:</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:87
 msgid "<b>Description:</b>"
-msgstr ""
+msgstr "<b>Beschrijving</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:788
 msgid "<b>Distribution for label:</b>"
@@ -184,7 +184,7 @@ msgstr "<b>Distributie voor label:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:754
 msgid "<b>Distribution:</b>"
-msgstr ""
+msgstr "<b>Distributie:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:928
 msgid "<b>Families:</b>"
@@ -213,11 +213,11 @@ msgstr "<b>Inbegrepen privégegevens</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:369
 msgid "<b>Intended Location 2:</b>"
-msgstr "<b>Beoogde locatie 2:</b>"
+msgstr "<b>Beoogde plaatsing 2:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:400
 msgid "<b>Intended Location:</b>"
-msgstr "<b>Beoogde Locatie:</b>"
+msgstr "<b>Beoogde plaatsing:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:416
 msgid "<b>Living Plants:</b>"
@@ -225,7 +225,7 @@ msgstr "<b>Levende planten:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:162
 msgid "<b>Location:</b>"
-msgstr ""
+msgstr "<b>Plaats:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1005
 msgid "<b>Locations:</b>"
@@ -233,7 +233,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_infobox.glade:193
 msgid "<b>Memorial:</b>"
-msgstr ""
+msgstr "<b>Plaatsen:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:571
 msgid "<b>Parent Plant:</b>"
@@ -511,8 +511,8 @@ msgid ""
 "Any information that might be relevant to the location such as where it is "
 "or what's its purpose"
 msgstr ""
-"Elke informatie die relevant kan zijn met betrekking tot de locatie, zoals "
-"waar het ligt of wat zijn doel is."
+"Elke informatie die relevant kan zijn met betrekking tot de plaats in de "
+"tuin, zoals waar het ligt of wat zijn doel is."
 
 #: bauble/plugins/tag/__init__.py:189
 msgid "Are you sure you want to delete the tag \"%s\"?"
@@ -914,7 +914,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:608
 msgid "Create a new location."
-msgstr "Nieuwe locatie aanmaken"
+msgstr "Nieuwe plaatsing aanmaken"
 
 #: bauble/plugins/garden/plant.py:610
 msgid "Create a new propagation record for this plant."
@@ -922,7 +922,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:204
 msgid "Critically Endangered (CR)"
-msgstr ""
+msgstr "Critisch bedreigd (CR)"
 
 #: bauble/plugins/plants/species_editor.glade:385
 msgid "Cultivar Group"
@@ -982,7 +982,7 @@ msgstr "Datum"
 
 #: bauble/plugins/garden/acc_editor.glade:572
 msgid "Date Accessioned"
-msgstr ""
+msgstr "Opnamedatum"
 
 #: bauble/plugins/garden/prop_editor.glade:1253
 msgid "Date Germinated"
@@ -1117,7 +1117,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:205
 msgid "Endangered (EN)"
-msgstr ""
+msgstr "Bedreigd (EN)"
 
 #: bauble/connmgr.py:360
 msgid "Enter a connection name"
@@ -1226,11 +1226,11 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:201
 msgid "Extinct (EX)"
-msgstr ""
+msgstr "Uitgestorven (EX)"
 
 #: bauble/plugins/plants/species_model.py:202
 msgid "Extinct Wild (EW)"
-msgstr ""
+msgstr "Uitgestorven in de natuur (EW)"
 
 #: bauble/plugins/garden/plant.py:331
 msgid "Fair"
@@ -1554,7 +1554,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:996
 msgid "Intended Locations"
-msgstr ""
+msgstr "Beoogde plaatsen"
 
 #: bauble/plugins/garden/propagation.py:257
 msgid "Internodal"
@@ -1603,11 +1603,11 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:257
 #: bauble/plugins/garden/propagation.py:176
 msgid "Leaves"
-msgstr ""
+msgstr "Bladeren"
 
 #: bauble/plugins/garden/prop_editor.glade:283
 msgid "Leaves reduced by"
-msgstr ""
+msgstr "Bladreductie met"
 
 #: bauble/plugins/garden/propagation.py:170
 msgid "Length: %(length)s%(unit)s"
@@ -1615,7 +1615,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:3270
 msgid "Level"
-msgstr ""
+msgstr "Niveau"
 
 #: bauble/view.py:337
 msgid "Links"
@@ -1623,9 +1623,9 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:280
 msgid "Liquid"
-msgstr ""
+msgstr "Vloeibaar"
 
-#: bauble/plugins/garden/acc_editor.glade:1652
+#: ../bauble/plugins/garden/acc_editor.glade:1652
 msgid "Locale"
 msgstr ""
 
@@ -1637,31 +1637,31 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:199
 #: bauble/plugins/garden/propagation.py:222
 msgid "Location"
-msgstr ""
+msgstr "Plaats"
 
 #: bauble/plugins/garden/acc_editor.glade:805
 msgid "Location 1"
-msgstr ""
+msgstr "Plaats 1"
 
 #: bauble/plugins/garden/acc_editor.glade:901
 msgid "Location 2"
-msgstr ""
+msgstr "Plaats 2"
 
 #: bauble/plugins/garden/acc_editor.glade:2179
 msgid "Location Details"
-msgstr ""
+msgstr "Plaatsdetails"
 
 #: bauble/plugins/garden/acc_infobox.glade:836
 msgid "Location:"
-msgstr ""
+msgstr "Plaats:"
 
 #: bauble/plugins/garden/acc_editor.glade:2021
 msgid "Longitude"
-msgstr ""
+msgstr "Breedtegraad"
 
 #: bauble/plugins/garden/acc_infobox.glade:864
 msgid "Longitude:"
-msgstr ""
+msgstr "Hoogtegraad:"
 
 #: bauble/plugins/garden/plant.py:266
 msgid "Lost, whereabouts unknown"
@@ -1808,7 +1808,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:210
 msgid "Not Evaluated (NE)"
-msgstr ""
+msgstr "Niet geëvalueerd (NE)"
 
 #: bauble/plugins/garden/plant.py:76
 msgid ""
@@ -2088,7 +2088,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:203
 msgid "Regionally Extinct (RE)"
-msgstr ""
+msgstr "Locaal uitgestorven (RE)"
 
 #: bauble/plugins/garden/institution.glade:266
 msgid "Register"
@@ -2554,7 +2554,7 @@ msgstr ""
 
 #: bauble/plugins/garden/accession.py:882
 msgid "The amount of plant material at the time it was accessioned."
-msgstr ""
+msgstr "Hoeveelheid plantmateriaal bij opname."
 
 #: bauble/plugins/plants/species_editor.py:1093
 msgid "The awards this species have been given"
@@ -2583,7 +2583,7 @@ msgstr "De database waarmee u verbinding heeft is leeg."
 
 #: bauble/plugins/garden/accession.py:878
 msgid "The date this species was accessioned."
-msgstr ""
+msgstr "Datum deze soort werd opgenomen"
 
 #: bauble/plugins/garden/accession.py:879
 msgid "The date this species was received."
@@ -2818,15 +2818,15 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:193
 msgid "The standard abbreviation of the institution."
-msgstr ""
+msgstr "Standaardafkorting voor de instelling"
 
 #: bauble/plugins/garden/institution.py:203
 msgid "The telephone number of the institution."
-msgstr ""
+msgstr "Instellingstelefoonnummer"
 
 #: bauble/plugins/garden/accession.py:880
 msgid "The type of the accessioned material."
-msgstr ""
+msgstr "Type opgenomen materieel"
 
 #: bauble/plugins/garden/plant.py:605
 msgid ""
@@ -3078,7 +3078,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:206
 msgid "Vulnerable (VU)"
-msgstr ""
+msgstr "Kwetsbaar (VU)"
 
 #: bauble/plugins/garden/acc_editor.glade:2133
 msgid "West"
