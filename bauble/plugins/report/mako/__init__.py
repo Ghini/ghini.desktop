@@ -76,7 +76,7 @@ class MakoFormatterPlugin(FormatterPlugin):
     author to validate the type of the values and act accordingly if not.
     """
 
-    title = _('Mako')
+    title = 'Mako'
 
     @classmethod
     def install(cls, import_defaults=True):
