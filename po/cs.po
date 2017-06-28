@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:09-0500\n"
+"POT-Creation-Date: 2017-06-28 08:24-0500\n"
 "PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
@@ -1731,10 +1731,6 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:266
 msgid "Lost, whereabouts unknown"
 msgstr "Ztracena, umístění neznámé"
-
-#: bauble/plugins/report/mako/__init__.py:79
-msgid "Mako"
-msgstr "Mako"
 
 #: bauble/plugins/garden/plant.py:355
 msgid "Male"
@@ -4005,6 +4001,9 @@ msgstr "°F"
 
 #~ msgid "Location: %s"
 #~ msgstr "Umístění: %s"
+
+#~ msgid "Mako"
+#~ msgstr "Mako"
 
 #~ msgid "Media: %s"
 #~ msgstr "Médium: %s"

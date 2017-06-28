@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:09-0500\n"
+"POT-Creation-Date: 2017-06-28 08:24-0500\n"
 "PO-Revision-Date: 2015-12-29 03:04+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/"
@@ -1693,10 +1693,6 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:266
 msgid "Lost, whereabouts unknown"
-msgstr ""
-
-#: bauble/plugins/report/mako/__init__.py:79
-msgid "Mako"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:355

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:09-0500\n"
+"POT-Creation-Date: 2017-06-28 08:24-0500\n"
 "PO-Revision-Date: 2017-06-26 11:46-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/bauble/master/nl/"
@@ -1625,7 +1625,7 @@ msgstr ""
 msgid "Liquid"
 msgstr "Vloeibaar"
 
-#: ../bauble/plugins/garden/acc_editor.glade:1652
+#: bauble/plugins/garden/acc_editor.glade:1652
 msgid "Locale"
 msgstr ""
 
@@ -1665,10 +1665,6 @@ msgstr "Hoogtegraad:"
 
 #: bauble/plugins/garden/plant.py:266
 msgid "Lost, whereabouts unknown"
-msgstr ""
-
-#: bauble/plugins/report/mako/__init__.py:79
-msgid "Mako"
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:355
@@ -1745,11 +1741,11 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade:328
 msgid "New password"
-msgstr ""
+msgstr "Nieuw wachtwoord"
 
 #: bauble/plugins/garden/plant_editor.glade:1086
 msgid "New plant code"
-msgstr ""
+msgstr "Nieuwe plantcode"
 
 #: bauble/plugins/garden/acc_editor.glade:3193
 msgid "New taxon"
@@ -1760,20 +1756,20 @@ msgstr ""
 #: bauble/plugins/plants/family_editor.glade:343
 #: bauble/plugins/plants/species_editor.glade:100
 msgid "Next"
-msgstr ""
+msgstr "Volgende"
 
 #: bauble/plugins/garden/propagation.py:274
 #: bauble/plugins/garden/propagation.py:282
 msgid "No"
-msgstr ""
+msgstr "Niet"
 
 #: bauble/__init__.py:164
 msgid "No command handler for %s"
-msgstr ""
+msgstr "Geen handler voor %s"
 
 #: bauble/__init__.py:162
 msgid "No default handler registered"
-msgstr ""
+msgstr "Geen defaulthandler geregistreerd"
 
 #: bauble/plugins/report/__init__.py:511
 msgid "No formatter plugins defined"
@@ -1786,7 +1782,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:150
 msgid "No match found on ThePlantList.org"
-msgstr ""
+msgstr "Geen match bij ThePlantList.org gevonden"
 
 #: bauble/plugins/garden/propagation.py:256
 msgid "Nodal"
@@ -1800,7 +1796,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2116
 msgid "North"
-msgstr ""
+msgstr "Noord"
 
 #: bauble/plugins/garden/source.py:510
 msgid "North/South radio buttons in a confused state"
@@ -1829,7 +1825,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:547
 msgid "Nothing selected"
-msgstr ""
+msgstr "Niets geselecteerd"
 
 #: bauble/plugins/garden/source.py:133
 msgid "Nursery/Commercial"
@@ -1841,7 +1837,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:342
 msgid "Old Flowers"
-msgstr ""
+msgstr "Oude bloemen"
 
 #: bauble/ui.py:453
 msgid "Open the log-file"
@@ -1857,11 +1853,11 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:258
 #: bauble/plugins/garden/source.py:135
 msgid "Other"
-msgstr ""
+msgstr "Overig"
 
 #: bauble/connmgr.glade:422
 msgid "Password: "
-msgstr ""
+msgstr "Wachtwoord:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1878,7 +1874,7 @@ msgstr ""
 #: bauble/plugins/garden/plant_editor.glade:983
 #: bauble/plugins/plants/species_editor.glade:1159
 msgid "Pictures"
-msgstr ""
+msgstr "Beelden"
 
 #: bauble/connmgr.py:545
 msgid "Pictures root name occupied by non directory."
@@ -1898,7 +1894,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:155
 msgid "Plant material"
-msgstr ""
+msgstr "Plantmaterieel"
 
 #: bauble/plugins/report/xsl/__init__.py:86
 #: bauble/plugins/report/xsl/__init__.py:430
@@ -1979,7 +1975,7 @@ msgstr ""
 
 #: bauble/bauble.glade:474
 msgid "Preferences"
-msgstr ""
+msgstr "Voorkeuren"
 
 #: bauble/plugins/garden/prop_editor.glade:1095
 #: bauble/plugins/garden/propagation.py:209
@@ -3602,7 +3598,7 @@ msgstr ""
 
 #: bauble/connmgr.py:524
 msgid "user name"
-msgstr ""
+msgstr "gebruikersnaam"
 
 #: bauble/plugins/plants/species_model.py:64
 msgid "var."
@@ -3614,7 +3610,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:159
 msgid "your data finely matches ThePlantList.org"
-msgstr ""
+msgstr "je gegevens matchen precies ThePlantList.org"
 
 #: bauble/plugins/garden/propagation.py:285
 msgid "°C"

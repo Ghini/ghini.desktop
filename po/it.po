@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-27 12:09-0500\n"
+"POT-Creation-Date: 2017-06-28 08:24-0500\n"
 "PO-Revision-Date: 2017-06-23 20:10+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -1737,10 +1737,6 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:266
 msgid "Lost, whereabouts unknown"
 msgstr "Persa, non si sa dove sia"
-
-#: bauble/plugins/report/mako/__init__.py:79
-msgid "Mako"
-msgstr ""
 
 #: bauble/plugins/garden/plant.py:355
 msgid "Male"
