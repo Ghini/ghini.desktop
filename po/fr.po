@@ -168,7 +168,7 @@ msgstr "<b>Traitement de coupe</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:171
 msgid "<b>Date accessioned:</b>"
-msgstr "<b>Date de accès :</b>"
+msgstr "<b>Date d'accès :</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:186
 msgid "<b>Date received:</b>"
@@ -2682,7 +2682,7 @@ msgstr "La base de données à laquelle vous vous avez connecté est vide."
 
 #: bauble/plugins/garden/accession.py:878
 msgid "The date this species was accessioned."
-msgstr "La date de cette espèce a été accèdé."
+msgstr "La date de que cette espèce a été répertorié."
 
 #: bauble/plugins/garden/accession.py:879
 msgid "The date this species was received."
@@ -2954,7 +2954,7 @@ msgstr "Numéro de téléphone de l'institution."
 
 #: bauble/plugins/garden/accession.py:880
 msgid "The type of the accessioned material."
-msgstr "Le type du matériau aliéné."
+msgstr "Le type du matériau répertorié."
 
 #: bauble/plugins/garden/plant.py:605
 msgid ""
@@ -3013,7 +3013,7 @@ msgid ""
 "Are you sure you want to remove it?"
 msgstr ""
 "Cette propagation a produit %s plantes. \n"
-"Elles peuvent déjà être accedées.\n"
+"Elles peuvent déjà être répertorié.\n"
 "\n"
 "Vous êtes sûr que vous voulez la supprimer?"
 
