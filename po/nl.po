@@ -1913,7 +1913,7 @@ msgstr ""
 
 #: bauble/connmgr.py:496
 msgid "Please choose a name for this connection"
-msgstr ""
+msgstr "Kies een naam voor de verbinding"
 
 #: bauble/plugins/plants/taxonomy_check.glade:794
 msgid ""
@@ -1959,7 +1959,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:127
 msgid "Please specify an institution name for this database."
-msgstr ""
+msgstr "Gelieve een instellingsnaam voor deze database geven."
 
 #: bauble/bauble.glade:537
 msgid "Plugins"
@@ -3511,7 +3511,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:485
 msgid "save and close"
-msgstr ""
+msgstr "sla op en sluit"
 
 #: bauble/plugins/plants/taxonomy_check.glade:78
 msgid "select TNRS results"
@@ -3519,11 +3519,11 @@ msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:84
 msgid "selection"
-msgstr ""
+msgstr "selectie"
 
 #: bauble/view.py:852
 msgid "size of non homogeneous result: %s"
-msgstr ""
+msgstr "grootte niet homogeen resultaat: %s"
 
 #: bauble/plugins/plants/taxonomy_check.glade:161
 msgid "start TNRS lookup"
@@ -3531,7 +3531,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:1367
 msgid "stored queries"
-msgstr ""
+msgstr "bewaarde queries"
 
 #: bauble/plugins/plants/species_model.py:67
 msgid "subf."
@@ -3579,7 +3579,7 @@ msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:459
 msgid "update existing objects"
-msgstr ""
+msgstr "ververs bestaande objecten"
 
 #: bauble/plugins/plants/taxonomy_check.glade:304
 msgid "use"
@@ -3591,6 +3591,8 @@ msgid ""
 "use this data and\n"
 "continue to next screen"
 msgstr ""
+"gebruik deze gegevens en\n"
+"ga door met het volgende scherm"
 
 #: bauble/plugins/garden/propagation.py:157
 msgid "used in"
