@@ -155,9 +155,8 @@ msgid "<b>Awards:</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:683
-#, fuzzy
 msgid "<b>CITES:</b>"
-msgstr "<b>ID:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
@@ -472,7 +471,7 @@ msgstr ""
 
 #: bauble/plugins/plants/family_editor.glade:299
 msgid "Add Genera"
-msgstr ""
+msgstr "Gattung hinzufügen"
 
 #: bauble/plugins/plants/genus_editor.glade:359
 msgid "Add Species"
@@ -3276,16 +3275,16 @@ msgstr ""
 
 #: bauble/plugins/plants/family.py:103
 msgid "_Add genus"
-msgstr ""
+msgstr "Gattung hinzufügen"
 
 #: bauble/plugins/garden/accession.py:205 bauble/plugins/garden/location.py:87
 #: bauble/plugins/garden/source.py:70
 msgid "_Add plants"
-msgstr ""
+msgstr "Planzen hinzufügen"
 
 #: bauble/plugins/plants/genus.py:112
 msgid "_Add species"
-msgstr ""
+msgstr "Spezies hinzufügen"
 
 #: bauble/ui.py:440
 msgid "_Copy"
@@ -3588,7 +3587,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:485
 msgid "save and close"
-msgstr ""
+msgstr "speichern und schließen"
 
 #: bauble/plugins/plants/taxonomy_check.glade:78
 msgid "select TNRS results"

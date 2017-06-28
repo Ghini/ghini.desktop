@@ -156,7 +156,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
-msgstr "Chemische behandeling"
+msgstr "<b>Chemische behandeling</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:507
 msgid "<b>Contact:</b>"
@@ -229,11 +229,11 @@ msgstr "<b>Plaats:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1005
 msgid "<b>Locations:</b>"
-msgstr ""
+msgstr "<b>Plaatsen:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:193
 msgid "<b>Memorial:</b>"
-msgstr "<b>Plaatsen:</b>"
+msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:571
 msgid "<b>Parent Plant:</b>"
@@ -265,7 +265,7 @@ msgstr "<b>Ontvangen hoeveelheid:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:219
 msgid "<b>Quantity:</b>"
-msgstr ""
+msgstr "<b>Hoeveelheid:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:60
 msgid "<b>Renderer</b>"
@@ -285,7 +285,7 @@ msgstr "<b>Wortelingsomstandigheden</b>"
 
 #: bauble/plugins/report/report.glade:187
 msgid "<b>Settings</b>"
-msgstr ""
+msgstr "<b>Instellingen</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:104
 msgid "<b>Source type</b>"
@@ -299,9 +299,9 @@ msgstr "<b>Bron-ID:</b>"
 msgid "<b>Sowing data</b>"
 msgstr "<b>Zaaidatum</b>"
 
-#: bauble/plugins/plants/infoboxes.glade:894
+#: ../bauble/plugins/plants/infoboxes.glade:894
 msgid "<b>Species:</b>"
-msgstr ""
+msgstr "<b>Soorten:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
@@ -341,7 +341,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:943
 msgid "<b>total</b>"
-msgstr ""
+msgstr "<b>totaal</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1555
 msgid "<b>unused</b>"
