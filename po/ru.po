@@ -30,7 +30,7 @@ msgstr ""
 
 #: bauble/btypes.py:87
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr ""
+msgstr "«%(value)s» не в Enum.values: %(all_values)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
@@ -47,22 +47,22 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
-msgstr ""
+msgstr "Прорастание семян"
 
 #: bauble/plugins/garden/accession.py:694
 msgid "%(1)s plant groups in %(2)s location(s)"
-msgstr ""
+msgstr "%(1)s групп растений в %(2)s гео-место(с)"
 
 #: bauble/plugins/plants/species_model.py:463
 msgid "%(group)s Group"
-msgstr ""
+msgstr "%(group)s группа"
 
 #: bauble/plugins/garden/accession.py:180
 msgid ""
 "%(num_plants)s plants depend on this accession: <b>%(plant_codes)s</b>\n"
 "\n"
 "Are you sure you want to remove accession <b>%(acc_code)s</b>?"
-msgstr ""
+msgstr "%(num_plants)s растений зависит это присоединение: \n\nAre <b>%(plant_codes)s</b>вы уверены, что вы хотите удалить присоединения <b>%(acc_code)s</b>?"
 
 #: bauble/plugins/garden/accession.py:2556
 msgid "%(quantity)s in %(location)s"
@@ -70,7 +70,7 @@ msgstr "%(quantity)s в %(location)s"
 
 #: bauble/editor.py:1900
 msgid "%(user)s on %(date)s"
-msgstr ""
+msgstr "%(user)s в %(date)s"
 
 #: bauble/plugins/report/__init__.py:410
 msgid "%s already exists"
@@ -80,7 +80,7 @@ msgstr "%s уже существует"
 msgid ""
 "%s is the accepted taxon for your data.\n"
 "Do you want to add it?"
-msgstr ""
+msgstr "%s является признанным taxon для ваших данных. \n ли вы добавить его?"
 
 #: bauble/plugins/plants/species_editor.py:165
 msgid ""
@@ -90,11 +90,11 @@ msgstr ""
 
 #: bauble/pluginmgr.py:620
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
-msgstr ""
+msgstr "%s.plugin не является экземпляром pluginmgr.Плагин"
 
 #: bauble/plugins/plants/species_model.py:449
 msgid "(%(group)s Group)"
-msgstr ""
+msgstr "(группа %(group)s)"
 
 #: bauble/view.py:796
 msgid "** Error: %s"
@@ -102,11 +102,11 @@ msgstr "** Ошибка: %s"
 
 #: bauble/__init__.py:210
 msgid "** Error: could not import gtk and/or gobject"
-msgstr ""
+msgstr "** Ошибка: не удалось импортировать gtk и/или gobject"
 
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
-msgstr ""
+msgstr "** Ошибка: Ghini должны запускаться в среде оконный."
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -136,11 +136,11 @@ msgstr "<b># таксонов:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:147
 msgid "<b>Accession Status:</b>"
-msgstr ""
+msgstr "<b>Статус присоединения:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:133
 msgid "<b>Accession Type:</b>"
-msgstr ""
+msgstr "<b>Тип присоединения:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:971
 msgid "<b>Accessions:</b>"
@@ -153,11 +153,11 @@ msgstr ""
 #: bauble/plugins/plants/infoboxes.glade:683
 #, fuzzy
 msgid "<b>CITES:</b>"
-msgstr "<b>ID:</b>"
+msgstr "<b>CITES:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
-msgstr ""
+msgstr "химия терапия"
 
 #: bauble/plugins/garden/acc_infobox.glade:507
 msgid "<b>Contact:</b>"
@@ -169,11 +169,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:171
 msgid "<b>Date accessioned:</b>"
-msgstr ""
+msgstr "<b>Дата присоединились:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:186
 msgid "<b>Date received:</b>"
-msgstr ""
+msgstr "<b>Дата получения:</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:87
 msgid "<b>Description:</b>"
@@ -181,7 +181,7 @@ msgstr "<b>Описание:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:788
 msgid "<b>Distribution for label:</b>"
-msgstr ""
+msgstr "<b>Распределение для лейбла:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:754
 msgid "<b>Distribution:</b>"
@@ -189,7 +189,7 @@ msgstr "<b>Распространение:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:928
 msgid "<b>Families:</b>"
-msgstr ""
+msgstr "<b>Семействы:</b>"
 
 #: bauble/plugins/report/report.glade:164
 msgid "<b>Formatter</b>"
@@ -197,11 +197,11 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:911
 msgid "<b>Genera:</b>"
-msgstr ""
+msgstr "<b>роды:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:1436
 msgid "<b>Germination data</b>"
-msgstr ""
+msgstr "<b>Всхожесть данных</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:713
 msgid "<b>Habit:</b>"
@@ -210,19 +210,19 @@ msgstr ""
 #: bauble/plugins/report/xsl/gui.glade:149
 #: bauble/plugins/report/mako/gui.glade:58
 msgid "<b>Include data marked as private</b>"
-msgstr ""
+msgstr "<b>Включать данные, помеченные как частные</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:369
 msgid "<b>Intended Location 2:</b>"
-msgstr ""
+msgstr "<b>Предполагаемое место 2:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:400
 msgid "<b>Intended Location:</b>"
-msgstr ""
+msgstr "<b>Нужное место:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:416
 msgid "<b>Living Plants:</b>"
-msgstr ""
+msgstr "<b>Живые растения:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:162
 msgid "<b>Location:</b>"
@@ -238,11 +238,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:571
 msgid "<b>Parent Plant:</b>"
-msgstr ""
+msgstr "<b>Завод родителя:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:103
 msgid "<b>Plant Groups:</b>"
-msgstr ""
+msgstr "<b>Завод группы:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:988
 msgid "<b>Plants:</b>"
@@ -262,7 +262,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:233
 msgid "<b>Quantity received:</b>"
-msgstr ""
+msgstr "Полученное количество:"
 
 #: bauble/plugins/garden/plant_infobox.glade:219
 msgid "<b>Quantity:</b>"
@@ -274,15 +274,15 @@ msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:644
 msgid "<b>Review log report</b>"
-msgstr ""
+msgstr "<b>Обзор журнала отчета</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:944
 msgid "<b>Rooted plants</b>"
-msgstr ""
+msgstr "<b>Корни растения</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:660
 msgid "<b>Rooting conditions</b>"
-msgstr ""
+msgstr "<b>Укоренение условия</b>"
 
 #: bauble/plugins/report/report.glade:187
 msgid "<b>Settings</b>"
@@ -290,11 +290,11 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade:104
 msgid "<b>Source type</b>"
-msgstr ""
+msgstr "<b>Тип потока</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:520
 msgid "<b>Source's ID:</b>"
-msgstr ""
+msgstr "<b>Идентификатор источника:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:1223
 msgid "<b>Sowing data</b>"
@@ -3322,9 +3322,8 @@ msgid "accession code format"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:119
-#, fuzzy
 msgid "accessions"
-msgstr "Вступление"
+msgstr ""
 
 #: bauble/bauble.glade:177
 msgid "activate query builder"
