@@ -36,6 +36,8 @@ which fields you want to match, this is implicit in the search domain.
 The following table helps you understand the results and guides you in
 formulating your searches.
 
+.. _search-domains:
+
 =============================  =====================  ============
 search domain overview
 ------------------------------------------------------------------
