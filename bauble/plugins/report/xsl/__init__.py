@@ -366,7 +366,7 @@ class SettingsBoxPresenter(object):
 
 
 # TODO: could make this look more a gtk.FileChooserButton but make it
-# an hbox and adding the seperator and file icon
+# an hbox and adding the separator and file icon
 class FileChooserButton(gtk.Button):
     """
     Create our own basic FileChooserButton to work around the issue that

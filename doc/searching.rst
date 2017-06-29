@@ -36,6 +36,8 @@ which fields you want to match, this is implicit in the search domain.
 The following table helps you understand the results and guides you in
 formulating your searches.
 
+.. _search-domains:
+
 =============================  =====================  ============
 search domain overview
 ------------------------------------------------------------------
@@ -220,7 +222,32 @@ Select and/or next to the property name to choose how the clauses will be
 combined in the search query.
 
 When you are done building your query click OK to perform the search.
-  
+
+At this point the Query Builder writes the query in the search entry, and
+executes it. You may now edit the string as if you had typed it
+yourself. Notice how the left hand side values are interpreted by the query
+builder and enclosed in single quotes if recognized as strings, left alone
+if they look like numbers or the two reserved words ``None`` and
+``Empty``. You may edit the query and insert quotes if you need them, eg if
+you need to literally look for the string ``Empty``.
+
+``None`` is the value of an empty field. It is not the same as the zero
+lenght string ``''`` nor the numeric ``0`` nor the boolean ``False`` nor the
+set ``Empty``, it indicates that the field has no value at all.
+
+``Empty`` is the empty set. Being it a set, it can be matched against sets
+(eg: plants of an accession, or accessions of a species), not against
+elements (eg: quantity of a plant or description of a location). However,
+the Query Builder does not let you choose a left hand side value stopping at
+a set, it expects you to select a field. Choose just any field: at the
+moment of producing the query, when the Query Builder meets a clause with
+right hand side value the literal string ``Empty``, it will drop the field
+name and let you compare the set on the left with ``Empty`` on the right.
+
+We have no literals ``False`` and ``True``. These are typed values, and the
+Query Builder does not know how to produce them. Instead of ``False`` type
+``0``, and instead of ``True`` type ``1``.
+
 
 Query Grammar
 ==================
