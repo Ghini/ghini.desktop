@@ -9,10 +9,10 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-28 08:24-0500\n"
-"PO-Revision-Date: 2017-06-23 20:10+0000\n"
+"PO-Revision-Date: 2017-06-29 18:59+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
-"it/>\n"
+"Language-Team: Italian "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -438,7 +438,7 @@ msgstr "Nome accettato"
 #: bauble/plugins/report/xsl/__init__.py:87
 #: bauble/plugins/report/xsl/__init__.py:430
 msgid "Accession"
-msgstr "Accessione"
+msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2871
 msgid "Accession Code Formats"
@@ -797,7 +797,7 @@ msgstr "Dettagli della connessione"
 #: bauble/plugins/garden/acc_editor.glade:1208
 #: bauble/plugins/garden/__init__.py:122
 msgid "Contact"
-msgstr "Contatto"
+msgstr ""
 
 #: bauble/plugins/garden/contact.glade:11
 msgid "Contact (Donor) Editor"
@@ -1708,7 +1708,7 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:199
 #: bauble/plugins/garden/propagation.py:222
 msgid "Location"
-msgstr "Ubicazione"
+msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:805
 msgid "Location 1"
@@ -1946,7 +1946,7 @@ msgstr "percentuale radicata"
 
 #: bauble/plugins/users/ui.glade:206
 msgid "Permissions"
-msgstr ""
+msgstr "Permessi"
 
 #: bauble/pictures_view.glade:10
 msgid "Picture Viewer"
