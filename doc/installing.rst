@@ -182,7 +182,7 @@ The installation steps on Windows:
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
    ``vi``) from::
 
-   https://git-scm.com/download/win
+     https://git-scm.com/download/win
    
    `Direct link to download git`_
 
@@ -193,7 +193,7 @@ The installation steps on Windows:
 
 #. download and install Python 2.x (32bit) from::
 
-   http://www.python.org
+     http://www.python.org
 
    `Direct link to download Python`_
 
@@ -208,7 +208,7 @@ The installation steps on Windows:
 #. download ``pygtk`` from the following source. (this requires 32bit
    python). be sure you download the "all in one" version::
 
-   http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
+     http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
    `Direct link to download PyGTK`_
 

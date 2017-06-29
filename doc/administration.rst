@@ -17,7 +17,7 @@ In Windows it is somewhere in your ``AppData`` directory, most likely in
 ``AppData\Roaming\Bauble``. Do keep in mind that Windows does its best to
 hide the ``AppData`` directory structure to normal users. 
 
-The fastest way to open it is with the file explorer: type ``%APPDATA%` and
+The fastest way to open it is with the file explorer: type ``%APPDATA%`` and
 hit enter.
 
 MySQL

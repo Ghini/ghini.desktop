@@ -23,7 +23,7 @@ previously exported from Ghini. It is possible to import any CSV file
 but that is more advanced that this doc will cover.
 
 To import CSV files into Ghini select
-:menuselection:`Tools-->Export-->Comma Seperated Values` from the
+:menuselection:`Tools-->Export-->Comma Separated Values` from the
 menu.
 
 After clicking OK on the dialog that ask if you are sure you know what
@@ -35,7 +35,7 @@ Exporting to CSV
 ----------------
 
 To export the Ghini data to CSV select
-:menuselection:`Tools-->Export-->Comma Seperated Values` from the menu.
+:menuselection:`Tools-->Export-->Comma Separated Values` from the menu.
 
 This tool will ask you to select a directory to export the CSV data.
 All of the tables in Ghini will be exported to files in the format
