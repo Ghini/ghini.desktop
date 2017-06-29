@@ -4,20 +4,28 @@ Installation
 ghini.desktop is a cross-platform program and it will run on unix machines
 like GNU/Linux and MacOSX, as well as on Windows.
 
-To install Ghini first requires that you install its dependencies that
-cannot be installed automatically.  These include virtualenv, PyGTK
-and pip. Python and GTK+, you probably already have. As long as you have
-these packages installed then Ghini should be able to install the rest of
-its dependencies by itself.
+Ghini is maintained by very few people, who focus on enhancing its
+functional parts, more than on writing fancy installers. Instead of several
+native installers we offer a single cross-platform installation procedure.
+This has a few big advantages which you will learn to appreciate as we go.
 
-.. note:: If you follow these installation steps, you will end with Ghini
-          running within a Python virtual environment, all Python
-          dependencies installed locally, non conflicting with any other
-          Python program you may have on your system.
+The installation is based on running a script.
 
-          if you later choose to remove Ghini, you simply remove the
-          virtual environment, which is a directory, with all of its
-          content.
+* The GNU/Linux script takes care of everything, from dependecies to
+  installation for all users.
+* The Windows script needs you to first install a couple things.
+* On MacOSX we use the same script as on GNU/Linux. Since OSX has no default
+  package manager, we install one and we use it before we start the script.
+
+Following our installation procedure, you will end with Ghini running within
+a Python virtual environment, all Python dependencies installed locally, non
+conflicting with any other Python program you may have on your system.
+
+Dependencies that don't fit in a Python virtual environment are: Python,
+virtualenv, GTK+, and PyGTK. Their installation varies per platform.
+
+If you later choose to remove Ghini, you simply remove the virtual
+environment, which is a directory, with all of its content.
 
 Installing on GNU/Linux
 --------------------------
@@ -51,7 +59,7 @@ Open a shell terminal window, and follow these instructions.
      https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.sh
 
    Please note that the script will not help you install any extra database
-   connector. This is not strictly necessary and you can do it at any later step.
+   connector. This is not strictly necessary and you can do it at any later moment.
 
    If the script ends without error, you can now start ghini::
 
