@@ -96,15 +96,15 @@ project. Within this project we have components, each of which corresponds
 to a branch of a repository on github. Each component accepts translations
 in several languages.
 
-=============== =========================== ==================
-component       repository                  branch
-=============== =========================== ==================
-desktop-1.0     ghini.desktop               ghini-1.0-dev
-desktop-1.1     ghini.desktop               ghini-1.1-dev
-docs-1.0        ghini.desktop-docs.i18n     ghini-1.0-dev
-docs-1.1        ghini.desktop-docs.i18n     ghini-1.1-dev
-web-1.2         ghini.web                   master
-=============== =========================== ==================
+================== =========================== ==================
+component          repository                  branch
+================== =========================== ==================
+Desktop 1.0        ghini.desktop               ghini-1.0-dev
+Desktop 1.1        ghini.desktop               ghini-1.1-dev
+Documentation 1.0  ghini.desktop-docs.i18n     ghini-1.0-dev
+Documentation 1.1  ghini.desktop-docs.i18n     ghini-1.1-dev
+Web 1.2            ghini.web                   master
+================== =========================== ==================
 
 To update the ``po`` files relative to the *software*, you set the working
 directory to the root of your checkout of *ghini.desktop*, and you run the
