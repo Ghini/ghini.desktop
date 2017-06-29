@@ -3,7 +3,7 @@ Importing and Exporting Data
 
 Although Ghini can be extended through plugins to support alternate
 import and export formats, by default it can only import and export
-comma seperated values files or CSV.
+comma separated values files or CSV.
 
 There is some support for exporting to the Access for Biological
 Collections Data it is limited.

@@ -259,7 +259,7 @@ def init(force=False):
                 traceback.format_exc(),
                 gtk.MESSAGE_ERROR)
 
-    # register the plugin commands seperately from the plugin initialization
+    # register the plugin commands separately from the plugin initialization
     for plugin in ordered:
         if plugin.commands in (None, []):
             continue
