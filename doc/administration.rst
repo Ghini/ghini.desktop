@@ -2,7 +2,7 @@ Database Administration
 --------------------------
 
 If you are using a real DBMS to hold your botanic data, then you need do
-something about database administration. While database adnimistration is
+something about database administration. While database administration is
 far beyond the scope of this document, we make our users aware of it.
 
 SQLite
