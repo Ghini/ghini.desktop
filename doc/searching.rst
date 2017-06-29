@@ -233,14 +233,14 @@ you need to literally look for the string ``Empty``.
 lenght string ``''`` nor the numeric ``0`` nor the boolean ``False`` nor the
 set ``Empty``, it indicates that the field has no value at all.
 
-``Empty`` is the empty set. Being it a set, it can be matched against sets,
-not against elements (eg: plants of an accession, or accessions of a
-contact, not quantity of a plant or description of a location). However, the
-Query Builder does not let you choose a left hand side value stopping at a
-set, it expects you to select a field. Choose just any field: at the moment
-of producing the query, examining a clause with right hand side value the
-literal string ``Empty``, the Query Builder will drop the field name and let
-you compare the set on the left with Empty on the right.
+``Empty`` is the empty set. Being it a set, it can be matched against sets
+(eg: plants of an accession, or accessions of a species), not against
+elements (eg: quantity of a plant or description of a location). However,
+the Query Builder does not let you choose a left hand side value stopping at
+a set, it expects you to select a field. Choose just any field: at the
+moment of producing the query, when the Query Builder meets a clause with
+right hand side value the literal string ``Empty``, it will drop the field
+name and let you compare the set on the left with ``Empty`` on the right.
 
 We have no literals ``False`` and ``True``. These are typed values, and the
 Query Builder does not know how to produce them. Instead of ``False`` type
