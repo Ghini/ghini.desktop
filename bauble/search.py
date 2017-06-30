@@ -1298,13 +1298,12 @@ class QueryBuilder(GenericEditorPresenter):
             row = self.expression_rows[-1]
             if clause.connector:
                 row.and_or_combo.set_active({'and': 0, 'or': 1}[clause.connector])
-            # in the following forced callback invocation, the third
-            # parameter should be a database table property. this has to be
-            # inferred from clause.field. if this property is an
-            # enumeration, the callback builds a combobox and we must set
-            # the value choosing from it. otherwise the callback just puts a
-            # textentry, which is what it now does in all cases. it still
-            # works, but it's not nice.
+
+            # the part about the value is a bit more complex: where the
+            # clause.field leads to an enumerated property, on_add_clause
+            # associates a gkt.ComboBox to it, otherwise a gtk.Entry.
+            # To set the value of a gkt.ComboBox we match one of its
+            # items. To set the value of a gkt.Entry we need set_text.
             cls = self.domain_map[parsed.domain]
             mapper = None
             for target in clause.field.split('.'):

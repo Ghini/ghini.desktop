@@ -17,14 +17,11 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
-# just playing around, the goal of this file is that it can parse the
-# language produced by the Query Builder, and that we offer the current
-# active query back to the Query Builder, so it can let the user start from there.
-
+# help parsing the language produced by the Query Builder, so that we can
+# offer the current active query back to the Query Builder, and the
+# QueryBuilder will be able to start from there
+#
 # if the query does not follow the grammar, start from scratch.
-
-# actually, we do not pass the QB a string, but an object that can parse the
-# string, and that is able to populate the QB view.
 
 from pyparsing import (Word, alphas, alphanums, delimitedList, Group,
                        alphas8bit, removeQuotes, quotedString, Regex, oneOf,
