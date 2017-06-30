@@ -1,9 +1,9 @@
 Documentation for Ghini 1.0
 ############################
 
-.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=bauble-1.0
-.. image:: https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg
-.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=master 
+.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0-dev
+.. image:: https://hosted.weblate.org/widgets/ghini/-/svg-badge.svg
+.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=ghini-1.0-dev
 
 Ghini is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
@@ -19,9 +19,8 @@ Statements
 .. toctree::
    :maxdepth: 1
 
-   peptalk
-   statements
    goal
+   statements
 
 Installing Ghini
 =================
@@ -63,9 +62,7 @@ Ghini Development
 .. toctree::
    :maxdepth: 2
 
-   devdl
    building
-   extending
    api
 
 Supporting Ghini

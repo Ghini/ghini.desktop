@@ -2,7 +2,7 @@
 i don't quite know what these mean, is it that Trisiola has two parent 
 synonyms?, if that is the case I would suspect they would have different 
 authors at least but it seems like these names may have been recycled as some 
-point and they are both synonyms for seperate names
+point and they are both synonyms for separate names
 
 so i removed them from Genus.txt
 

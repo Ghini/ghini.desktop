@@ -3,20 +3,20 @@
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # i18n.py
 #
@@ -44,7 +44,7 @@ bauble.gettext_windows.setup_env()
 
 __all__ = ["_"]
 
-TEXT_DOMAIN = 'bauble-%s' % '.'.join(version_tuple[0:2])
+TEXT_DOMAIN = 'ghini-%s' % '.'.join(version_tuple[0:2])
 
 #
 # most of the following code was adapted from:
@@ -72,15 +72,22 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
-gettext.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
-gettext.textdomain(TEXT_DOMAIN)
+try:
+    import gtk.glade as gtkglade
+except ImportError:
+    gtkglade = locale
+
+for module in locale, gtkglade:
+    module.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
+    module.textdomain(TEXT_DOMAIN)
+    
 # Get the language to use
 lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
                            fallback=True)
 # install the language, map _() (which we marked our strings to
 # translate with) to self.lang.gettext() which will translate them.
-_ = gettext.gettext
+_ = locale.gettext
 
 # register the gettext function for the whole interpreter as "_"
 import __builtin__
-__builtin__._ = gettext.gettext
+__builtin__._ = locale.gettext

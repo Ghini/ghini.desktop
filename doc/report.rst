@@ -27,7 +27,7 @@ The template generator will use the same file extension as the
 template which should indicate the type of output the template with
 create.  For example, to generate an HTML page from your template you
 should name the template something like `report.html`.  If the template
-will generate a comma seperated value file you should name the
+will generate a comma separated value file you should name the
 template `report.csv`.
 
 The template will receive a variable called `values` which will

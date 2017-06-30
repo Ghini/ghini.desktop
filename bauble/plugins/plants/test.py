@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: test for the Plant plugin
 #
@@ -643,6 +643,17 @@ class GenusTests(PlantTestCase):
         assert utils.gc_objects_by_type('GenusEditorView') == [], \
             'GenusEditorView not deleted'
 
+    def test_can_use_epithet_field(self):
+        family = Family(epithet=u'family')
+        genus = Genus(family=family, genus=u'genus')
+        self.session.add_all([family, genus])
+        self.session.commit()
+        g1 = self.session.query(Genus).filter(Genus.epithet=='genus').one()
+        g2 = self.session.query(Genus).filter(Genus.genus=='genus').one()
+        self.assertEquals(g1, g2)
+        self.assertEquals(g1.genus, 'genus')
+        self.assertEquals(g2.epithet, 'genus')
+        
 
 class GenusSynonymyTests(PlantTestCase):
 
@@ -910,7 +921,7 @@ class SpeciesTests(PlantTestCase):
         sp.default_vernacular_name = vn2
         self.session.commit()
 
-    def test_synonyms(self):
+    def test_synonyms_low_level(self):
         """
         Test the Species.synonyms property
         """
@@ -983,6 +994,57 @@ class SpeciesTests(PlantTestCase):
 
         self.session.expunge_all()
 
+    def test_no_synonyms_means_itself_accepted(self):
+        def create_tmp_sp(id):
+            sp = Species(id=id, epithet=u"sp%02d"%id, genus_id=1)
+            self.session.add(sp)
+            return sp
+
+        sp1 = create_tmp_sp(51)
+        sp2 = create_tmp_sp(52)
+        sp3 = create_tmp_sp(53)
+        sp4 = create_tmp_sp(54)
+        self.session.commit()
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, None) 
+        self.assertEquals(sp3.accepted, None) 
+        self.assertEquals(sp4.accepted, None)
+
+    def test_synonyms_and_accepted_properties(self):
+        def create_tmp_sp(id):
+            sp = Species(id=id, epithet=u"sp%02d"%id, genus_id=1)
+            self.session.add(sp)
+            return sp
+
+        # equivalence classes after changes
+        sp1 = create_tmp_sp(41)
+        sp2 = create_tmp_sp(42)
+        sp3 = create_tmp_sp(43)
+        sp4 = create_tmp_sp(44)  # (1), (2), (3), (4)
+        sp3.accepted = sp1  # (1 3), (2), (4)
+        self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
+        sp1.synonyms.append(sp2)  # (1 3 2), (4)
+        self.session.flush()
+        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
+        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        self.assertEquals(sp2.accepted.epithet, sp1.epithet)  # just added
+        self.assertEquals(sp3.accepted.epithet, sp1.epithet)  # no change
+        sp2.accepted = sp4  # (1 3), (4 2)
+        self.session.flush()
+        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
+        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        self.assertEquals([i.epithet for i in sp4.synonyms], [sp2.epithet])
+        self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, sp4) 
+        self.assertEquals(sp3.accepted, sp1) 
+        self.assertEquals(sp4.accepted, None)
+        sp2.accepted = sp4  # does not change anything
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, sp4) 
+        self.assertEquals(sp3.accepted, sp1) 
+        self.assertEquals(sp4.accepted, None)
+
 
 class GeographyTests(PlantTestCase):
 
@@ -994,12 +1056,7 @@ class GeographyTests(PlantTestCase):
         self.family = Family(family=u'family')
         self.genus = Genus(genus=u'genus', family=self.family)
         self.session.add_all([self.family, self.genus])
-        self.session.commit()
-
-    def tearDown(self):
-        super(GeographyTests, self).tearDown()
-
-    def test_get_species(self):
+        self.session.flush()
         # import default geography data
         import bauble.paths as paths
         filename = os.path.join(paths.lib_dir(), "plugins", "plants",
@@ -1007,7 +1064,12 @@ class GeographyTests(PlantTestCase):
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
         importer.start([filename], force=True)
+        self.session.commit()
 
+    def tearDown(self):
+        super(GeographyTests, self).tearDown()
+
+    def test_get_species(self):
         mexico_id = 53
         mexico_central_id = 267
         oaxaca_id = 665
@@ -1041,36 +1103,17 @@ class GeographyTests(PlantTestCase):
         species = get_species_in_geography(north_america)
         self.assert_([s.id for s in species] == [sp1.id, sp2.id, sp3.id])
 
-
-# TODO: maybe the following could be in a seperate file called
-# profile.py or something that would profile everything in the plants
-# module
-
-#def main():
-#    from optparse import OptionParser
-#    parser = OptionParser()
-#    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-#                      help='verbose output')
-#    parser.add_option('-p', '--profile', dest='profile', action='store_true',
-#                      help='print run times')
-#    options, args = parser.parse_args()
-#
-#    import profile
-#    import time
-#    if options.profile:
-#        t1 = time.time()
-#        #profile.run('test_speciesStr()')
-#        profile.run('profile()')
-#        t2 = time.time()
-#        print 'time: %s' % (t2-t1)
-#    else:
-#        print 'starting tests...'
-#        test_speciesStr(options.verbose)
-#        print 'done.'
-#
-#
-#if __name__ == '__main__':
-#    main()
+    def test_species_distribution_str(self):
+        # create a some species
+        sp1 = Species(genus=self.genus, sp=u'sp1')
+        dist = SpeciesDistribution(geography_id=267)
+        sp1.distribution.append(dist)
+        self.session.flush()
+        self.assertEquals(sp1.distribution_str(), 'Mexico Central')
+        dist = SpeciesDistribution(geography_id=45)
+        sp1.distribution.append(dist)
+        self.session.flush()
+        self.assertEquals(sp1.distribution_str(), 'Mexico Central, Western Canada')
 
 
 class FromAndToDictTest(PlantTestCase):
@@ -1382,7 +1425,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'Cattleya'})
         self.assertEquals(gen.hybrid_marker, u'')
-        self.assertEquals(gen.epithet, u'Cattleya')
+        self.assertEquals(gen.hybrid_epithet, u'Cattleya')
 
     def test_intergeneric_hybrid_mult(self):
         gen = Genus.retrieve_or_create(
@@ -1391,7 +1434,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'×Brassocattleya'})
         self.assertEquals(gen.hybrid_marker, u'×')
-        self.assertEquals(gen.epithet, u'Brassocattleya')
+        self.assertEquals(gen.hybrid_epithet, u'Brassocattleya')
 
     def test_intergeneric_hybrid_x_becomes_mult(self):
         gen = Genus.retrieve_or_create(
@@ -1400,7 +1443,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'xVascostylis'})
         self.assertEquals(gen.hybrid_marker, u'×')
-        self.assertEquals(gen.epithet, u'Vascostylis')
+        self.assertEquals(gen.hybrid_epithet, u'Vascostylis')
 
     def test_hybrid_formula_H(self):
         gen = Genus.retrieve_or_create(
@@ -1409,7 +1452,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'Miltonia × Odontoglossum × Cochlioda'})
         self.assertEquals(gen.hybrid_marker, u'H')
-        self.assertEquals(gen.epithet, u'Miltonia × Odontoglossum × Cochlioda')
+        self.assertEquals(gen.hybrid_epithet, u'Miltonia × Odontoglossum × Cochlioda')
 
     def test_intergeneric_graft_hybrid_plus(self):
         gen = Genus.retrieve_or_create(
@@ -1418,7 +1461,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'+Crataegomespilus'})
         self.assertEquals(gen.hybrid_marker, u'+')
-        self.assertEquals(gen.epithet, u'Crataegomespilus')
+        self.assertEquals(gen.hybrid_epithet, u'Crataegomespilus')
 
 
 class SpeciesInfraspecificProp(PlantTestCase):
@@ -1779,3 +1822,18 @@ class GlobalFunctionsTest(PlantTestCase):
     def test_vernname_get_kids(self):
         vName = self.session.query(VernacularName).filter_by(id=1).one()
         self.assertEquals(partial(db.natsort, 'species.accessions')(vName), [])
+
+import bauble.search
+class BaubleSearchSearchTest(BaubleTestCase):
+    def test_search_search_uses_Synonym_Search(self):
+        bauble.search.search("genus like %", self.session)
+        self.assertTrue('SearchStrategy "genus like %"(SynonymSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("12.11.13", self.session)
+        self.assertTrue('SearchStrategy "12.11.13"(SynonymSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("So ha", self.session)
+        self.assertTrue('SearchStrategy "So ha"(SynonymSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])

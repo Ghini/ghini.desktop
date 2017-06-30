@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: a collection of functions and abstract classes for creating
 # editors for Ghini data
@@ -369,8 +369,8 @@ class GenericEditorView(object):
             self.__attached_signals.append((signaller, handler_id))
 
     def set_accept_buttons_sensitive(self, sensitive):
-        '''
-        set the sensitivity of all the accept/ok buttons
+        '''set the sensitivity of all the accept/ok buttons
+
         '''
         for wname in self.accept_buttons:
             getattr(self.widgets, wname).set_sensitive(sensitive)
@@ -787,6 +787,11 @@ class MockView:
             setattr(self, name, value)
         self.boxes = set()
 
+    def init_translatable_combo(self, *args):
+        self.invoked.append('init_translatable_combo')
+        self.invoked_detailed.append((self.invoked[-1], args))
+        pass
+
     def get_selection(self):
         'fakes main UI search result - selection'
         return self.selection
@@ -1034,26 +1039,34 @@ class GenericEditorPresenter(object):
     PROBLEM_DUPLICATE = random()
     PROBLEM_EMPTY = random()
 
-    def __init__(self, model, view, refresh_view=False, session=None):
+    def __init__(self, model, view, refresh_view=False, session=None,
+                 do_commit=False, committing_results=[gtk.RESPONSE_OK]):
         self.model = model
         self.view = view
         self.problems = set()
         self._dirty = False
+        self.is_committing_presenter = do_commit
+        self.committing_results = committing_results
         self.running_threads = []
         self.owns_session = False
         self.session = session
+
         if session is None:
             try:
                 self.session = object_session(model)
-            except UnmappedInstanceError:
+            except Exception, e:
+                logger.debug("GenericEditorPresenter::__init__ - %s, %s" % (type(e), e))
+                
+            if self.session is None:  # object_session gave None without error
                 if db.Session is not None:
                     self.session = db.Session()
                     self.owns_session = True
+                    if isinstance(model, db.Base):
+                        self.model = model = self.session.merge(model)
                 else:
+                    logger.debug('db.Session was None, I cannot get a session.')
                     self.session = None
 
-        #logger.debug("session, model, view = %s, %s, %s"
-        #             % (self.session, model, view))
         if view:
             view.accept_buttons = self.view_accept_buttons
             if model and refresh_view:
@@ -1230,7 +1243,11 @@ class GenericEditorPresenter(object):
         if value is None:
             value = self.view.widget_get_active(widget)
             self.view.widget_set_inconsistent(widget, False)
-        self.__set_model_attr(attr, value)
+        if attr is not None:
+            self.__set_model_attr(attr, value)
+        else:
+            logging.debug("presenter %s does not know widget %s" % (
+                self.__class__.__name__, self.__get_widget_name(widget)))
 
     on_chkbx_toggled = on_check_toggled
 
@@ -1496,16 +1513,17 @@ class GenericEditorPresenter(object):
 
     def assign_completions_handler(self, widget, get_completions,
                                    on_select=lambda v: v):
-        """
-        Dynamically handle completions on a gtk.Entry.
+        """Dynamically handle completions on a gtk.Entry.
 
         :param widget: a gtk.Entry instance or widget name
 
-        :param get_completions: the method to call when a list of
-          completions is requested, returns a list of completions
+        :param get_completions: the callable to invoke when a list of
+          completions is requested, accepts the string typed, returns an
+          iterable of completions
 
         :param on_select: callback for when a value is selected from
           the list of completions
+
         """
 
         logger.debug('assign_completions_handler %s' % widget)
@@ -1533,7 +1551,6 @@ class GenericEditorPresenter(object):
 
             key_length = widget.get_completion().props.minimum_key_length
             values = get_completions(text[:key_length])
-            ##values = get_completions(text)
             logger.debug('completions to add: %s' % str([i for i in values]))
             gobject.idle_add(idle_callback, values)
 
@@ -1615,10 +1632,14 @@ class GenericEditorPresenter(object):
         self.view.connect(completion, 'match-selected', on_match_select)
 
     def start(self):
-        """
-        run the dialog associated to the view
+        """run the dialog associated to the view
+
         """
         result = self.view.get_window().run()
+        if (self.is_committing_presenter
+            and result in self.committing_results
+            and self._dirty):
+            self.commit_changes()
         self.cleanup()
         return result
 

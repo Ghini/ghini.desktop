@@ -184,9 +184,8 @@ When you associate a picture to a plant, the file is copied in the
 
 As of Ghini-1.0.62, Pictures are not kept in the database. To ensure
 pictures are available on all terminals where you have installed and
-configured Ghini, you can use a file sharing service like Copy or
-Dropbox. The personal choice of the writer of this document is to use Copy,
-because it offers much more space and because of its "Fair Storage" policy.
+configured Ghini, you can use a network drive, or a file sharing service
+like Tresorit or Dropbox.
 
 Remember that you have configured the pictures root folder when you
 specified the details of your database connection. Again, you should make

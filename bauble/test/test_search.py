@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # test_search.py
 #
@@ -31,21 +31,12 @@ from pyparsing import ParseException
 
 import bauble.db as db
 import bauble.search as search
+from bauble.editor import MockView, GenericEditorView
 from bauble import prefs
+from bauble import paths
 from bauble.test import BaubleTestCase
 prefs.testing = True
 
-
-class Results(object):
-    def __init__(self):
-        self.results = {}
-
-    def callback(self, *args, **kwargs):
-        self.results['args'] = args
-        self.results['kwargs'] = kwargs
-
-
-parse_results = Results()
 
 parser = search.SearchParser()
 
@@ -119,13 +110,60 @@ class SearchParserTests(unittest.TestCase):
         results = parser.value.parseString('123.1')
         self.assertEquals(results.value.express(), 123.1)
 
-    def test_datetime_token(self):
+    def test_bool_typed_no_arguments(self):
+        "bool syntax needs at least one argument"
+
+        self.assertRaises(ParseException, parser.value.parseString, '|bool||')
+
+    def test_bool_typed_values(self):
+        "recognizes bool syntax"
+
+        results = parser.value.parseString('|bool|0|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        results = parser.value.parseString('|bool|0.0|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        results = parser.value.parseString('|bool|false|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        results = parser.value.parseString('|bool|FalsE|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), False)
+
+        for i in ['True', 'true', 'TRUE', '"anything not false"', '"1"', '1', '1.1']:
+            results = parser.value.parseString('|bool|%s|' % i)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), True)
+
+        for i in ['True', 'true', 'TRUE', '"anything not false"', '"1"', '1', '1.1']:
+            results = parser.value.parseString('|bool|abc, %s, 3|' % i)
+            self.assertEquals(results.getName(), 'value')
+            self.assertEquals(results.value.express(), True)
+
+    def test_datetime_typed_values(self):
         "recognizes datetime syntax"
 
         from datetime import datetime
         results = parser.value.parseString('|datetime|1970,1,1|')
         self.assertEquals(results.getName(), 'value')
         self.assertEquals(results.value.express(), datetime(1970, 1, 1))
+
+    def test_datetime_typed_values_offset(self):
+        "recognizes datetime offset syntax"
+
+        from datetime import datetime, timedelta
+        today = datetime.today().replace(hour=0, minute=0, second=0, microsecond=0)
+        yesterday = today - timedelta(1)
+        results = parser.value.parseString('|datetime|0|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), today)
+        results = parser.value.parseString('|datetime|-1|')
+        self.assertEquals(results.getName(), 'value')
+        self.assertEquals(results.value.express(), yesterday)
 
     def test_value_token(self):
         "value should only return the first string or raise a parse exception"
@@ -161,13 +199,7 @@ class SearchParserTests(unittest.TestCase):
         # these should be invalid
         strings = ['test test', '"test', "test'", '$', ]
         for s in strings:
-            try:
-                results = parser.value.parseString(s, parseAll=True)
-            except ParseException:
-                pass
-            else:
-                self.fail('ParseException not raised: "%s" - %s'
-                          % (s, results))
+            self.assertRaises(ParseException, parser.value.parseString, s, parseAll=True)
 
     def test_needs_join(self):
         "check the join steps"
@@ -218,15 +250,9 @@ class SearchParserTests(unittest.TestCase):
             self.assertEquals(str(results), str(expected))
 
         # these should be invalid
-        strings = ['"test', "test'", "'test tes2"]
+        strings = ['"test', "test'", "'test tes2", "1,2,3 4 5"]
         for s in strings:
-            try:
-                results = parser.value_list.parseString(s, parseAll=True)
-            except ParseException:
-                pass
-            else:
-                self.fail('ParseException not raised: "%s" - %s'
-                          % (s, results))
+            self.assertRaises(ParseException, parser.value_list.parseString, s, parseAll=True)
 
 
 class SearchTests(BaubleTestCase):
@@ -899,11 +925,45 @@ class BinomialSearchTests(BaubleTestCase):
 class QueryBuilderTests(BaubleTestCase):
 
     def test_cancreatequerybuilder(self):
-        search.QueryBuilder()
+        import os
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        search.QueryBuilder(view)
 
     def test_emptyisinvalid(self):
-        qb = search.QueryBuilder()
+        import os
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
         self.assertFalse(qb.validate())
+
+    def test_cansetquery(self):
+        import os
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
+        qb.set_query('plant where id=0 or id=1 or id>10')
+        self.assertEquals(len(qb.expression_rows), 3)
+
+    def test_cansetenumquery(self):
+        import os
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
+        qb.set_query("accession where recvd_type = 'BBIL'")
+        self.assertEquals(len(qb.expression_rows), 1)
 
 
 class BuildingSQLStatements(BaubleTestCase):
@@ -1056,6 +1116,16 @@ class EmptySetEqualityTest(unittest.TestCase):
         self.assertFalse(et1 == '')
         self.assertFalse(et1 == set([1, 2, 3]))
 
+    def test_EmptyToken_representation(self):
+        et1 = search.EmptyToken()
+        self.assertEquals("%s" % et1, "Empty")
+        self.assertEquals(et1.express(), set())
+
+    def test_NoneToken_representation(self):
+        nt1 = search.NoneToken()
+        self.assertEquals("%s" % nt1, "(None<NoneType>)")
+        self.assertEquals(nt1.express(), None)
+
 
 class AggregatingFunctions(BaubleTestCase):
     def __init__(self, *args):
@@ -1121,3 +1191,18 @@ class AggregatingFunctions(BaubleTestCase):
         self.assertEqual(
             str(results.statement),
             "SELECT * FROM genus WHERE ((count species.id) == 2.0)")
+
+
+class BaubleSearchSearchTest(BaubleTestCase):
+    def test_search_search_uses_Mapper_Search(self):
+        search.search("genus like %", self.session)
+        self.assertTrue('SearchStrategy "genus like %"(MapperSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        search.search("12.11.13", self.session)
+        self.assertTrue('SearchStrategy "12.11.13"(MapperSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        search.search("So ha", self.session)
+        self.assertTrue('SearchStrategy "So ha"(MapperSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])

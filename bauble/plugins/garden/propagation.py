@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2017 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # propagation module
 #
@@ -106,13 +106,37 @@ class Propagation(db.Base):
                 accessions.append(us.accession)
         return sorted(accessions)
 
+    @property
+    def accessible_quantity(self):
+        """the resulting product minus the already accessed material
+
+        return 1 if the propagation is not completely specified.
+
+        """
+        quantity = None
+        incomplete = True
+        if self.prop_type == u'UnrootedCutting':
+            incomplete = self._cutting is None  # cutting without fields
+            if not incomplete:
+                quantity = self._cutting.rooted_pct
+        elif self.prop_type == u'Seed':
+            incomplete = self._seed is None  # seed without fields
+            if not incomplete:
+                quantity = self._seed.nseedlings
+        if incomplete:
+            return 1  # let user grab one at a time, in any case
+        if quantity is None:
+            quantity = 0
+        removethis = sum((a.quantity_recvd or 0) for a in self.accessions)
+        return max(quantity - removethis, 0)
+
     def get_summary(self, partial=False):
         """compute a textual summary for this propagation
 
         a full description contains all fields, in `key:value;` format, plus
         a prefix telling us whether the resulting material of the
         propagation was added as accessed in the collection.
-        
+
         partial==1 means we only want to get the list of resulting
         accessions.
 
@@ -128,9 +152,9 @@ class Propagation(db.Base):
 
         values = []
         accession_codes = []
-        
+
         if self.used_source and partial != 2:
-            values = [_('used in: %s') % acc.code for acc in self.accessions]
+            values = [_('used in') + ': %s' % acc.code for acc in self.accessions]
             accession_codes = [acc.code for acc in self.accessions]
 
         if partial == 1:
@@ -140,41 +164,41 @@ class Propagation(db.Base):
             c = self._cutting
             values.append(_('Cutting'))
             if c.cutting_type is not None:
-                values.append(_('Cutting type: %s') %
+                values.append(_('Cutting type') + ': %s' %
                               cutting_type_values[c.cutting_type])
             if c.length:
                 values.append(_('Length: %(length)s%(unit)s') %
                               dict(length=c.length,
                                    unit=length_unit_values[c.length_unit]))
             if c.tip:
-                values.append(_('Tip: %s') % tip_values[c.tip])
+                values.append(_('Tip') + ': %s' % tip_values[c.tip])
             if c.leaves:
-                s = _('Leaves: %s') % leaves_values[c.leaves]
+                s = _('Leaves') + ': %s' % leaves_values[c.leaves]
                 if c.leaves == u'Removed' and c.leaves_reduced_pct:
                     s.append('(%s%%)' % c.leaves_reduced_pct)
                 values.append(s)
             if c.flower_buds:
-                values.append(_('Flower buds: %s') %
+                values.append(_('Flower buds') + ': %s' %
                               flower_buds_values[c.flower_buds])
             if c.wound is not None:
-                values.append(_('Wounded: %s') % wound_values[c.wound])
+                values.append(_('Wounded') + ': %s' % wound_values[c.wound])
             if c.fungicide:
-                values.append(_('Fungal soak: %s') % c.fungicide)
+                values.append(_('Fungal soak') + ': %s' % c.fungicide)
             if c.hormone:
-                values.append(_('Hormone treatment: %s') % c.hormone)
+                values.append(_('Hormone treatment') + ': %s' % c.hormone)
             if c.bottom_heat_temp:
                 values.append(
                     _('Bottom heat: %(temp)s%(unit)s') %
                     dict(temp=c.bottom_heat_temp,
                          unit=bottom_heat_unit_values[c.bottom_heat_unit]))
             if c.container:
-                values.append(_('Container: %s') % c.container)
+                values.append(_('Container') + ': %s' % c.container)
             if c.media:
-                values.append(_('Media: %s') % c.media)
+                values.append(_('Media') + ': %s' % c.media)
             if c.location:
-                values.append(_('Location: %s') % c.location)
+                values.append(_('Location') + ': %s' % c.location)
             if c.cover:
-                values.append(_('Cover: %s') % c.cover)
+                values.append(_('Cover') + ': %s' % c.cover)
 
             if c.rooted_pct:
                 values.append(_('Rooted: %s%%') % c.rooted_pct)
@@ -182,30 +206,30 @@ class Propagation(db.Base):
             seed = self._seed
             values.append(_('Seed'))
             if seed.pretreatment:
-                values.append(_('Pretreatment: %s') % seed.pretreatment)
+                values.append(_('Pretreatment') + ': %s' % seed.pretreatment)
             if seed.nseeds:
-                values.append(_('# of seeds: %s') % seed.nseeds)
+                values.append(_('# of seeds') + ': %s' % seed.nseeds)
             date_sown = get_date(seed.date_sown)
             if date_sown:
-                values.append(_('Date sown: %s') % date_sown)
+                values.append(_('Date sown') + ': %s' % date_sown)
             if seed.container:
-                values.append(_('Container: %s') % seed.container)
+                values.append(_('Container') + ': %s' % seed.container)
             if seed.media:
-                values.append(_('Media: %s') % seed.media)
+                values.append(_('Media') + ': %s' % seed.media)
             if seed.covered:
-                values.append(_('Covered: %s') % seed.covered)
+                values.append(_('Covered') + ': %s' % seed.covered)
             if seed.location:
-                values.append(_('Location: %s') % seed.location)
+                values.append(_('Location') + ': %s' % seed.location)
             germ_date = get_date(seed.germ_date)
             if germ_date:
-                values.append(_('Germination date: %s') % germ_date)
+                values.append(_('Germination date') + ': %s' % germ_date)
             if seed.nseedlings:
-                values.append(_('# of seedlings: %s') % seed.nseedlings)
+                values.append(_('# of seedlings') + ': %s' % seed.nseedlings)
             if seed.germ_pct:
-                values.append(_('Germination rate: %s%%') % seed.germ_pct)
+                values.append(_('Germination rate') + ': %s%%' % seed.germ_pct)
             date_planted = get_date(seed.date_planted)
             if date_planted:
-                values.append(_('Date planted: %s') % date_planted)
+                values.append(_('Date planted') + ': %s' % date_planted)
         elif self.notes:
             values.append(_('Other'))
             values.append(utils.utf8(self.notes))
@@ -217,7 +241,7 @@ class Propagation(db.Base):
         return s
 
 
-class PropRooted(db.Base):
+class PropCuttingRooted(db.Base):
     """
     Rooting dates for cutting
     """
@@ -311,12 +335,12 @@ class PropCutting(db.Base):
                                          translations=bottom_heat_unit_values),
                               nullable=True)
     rooted_pct = Column(Integer, autoincrement=False)
-    #aftercare = Column(UnicodeText) # same as propgation.notes
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
 
-    rooted = relation('PropRooted', cascade='all,delete-orphan',
+    rooted = relation('PropCuttingRooted', cascade='all,delete-orphan',
+                      primaryjoin='PropCutting.id==PropCuttingRooted.cutting_id',
                       backref=backref('cutting', uselist=False))
 
 
@@ -412,14 +436,13 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         expander = gtk.Expander()
         hbox.pack_start(expander, expand=True, fill=True)
 
-        label_alignment = gtk.Alignment()
-        label_alignment.props.bottom_padding = 10
-        expander.add(label_alignment)
-
+        from bauble.plugins.garden.plant import label_size_allocate
         label = gtk.Label(propagation.get_summary())
         label.props.wrap = True
-        label.set_alignment(0.1, 0.5)
-        label_alignment.add(label)
+        label.set_alignment(0, 0)
+        label.set_padding(0, 2)
+        label.connect("size-allocate", label_size_allocate)
+        expander.add(label)
 
         def on_edit_clicked(button, prop, label):
             editor = PropagationEditor(model=prop,
@@ -439,6 +462,29 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         button_box.pack_start(button, expand=False, fill=False)
 
         def on_remove_clicked(button, propagation, box):
+            count = len(propagation.accessions)
+            potential = propagation.accessible_quantity
+            if count == 0:
+                if potential:
+                    msg = _("This propagation has produced %s plants.\n"
+                            "It can already be accessioned.\n\n"
+                            "Are you sure you want to remove it?") % potential
+                else:
+                    msg = _("Are you sure you want to remove\n"
+                            "this propagation trial?")
+                if not utils.yes_no_dialog(msg):
+                    return False
+            else:
+                if count == 1:
+                    msg = _("This propagation is referred to\n"
+                            "by accession %s.\n\n"
+                            "You cannot remove it.") % propagation.accessions[0]
+                elif count > 1:
+                    msg = _("This propagation is referred to\n"
+                            "by %s accessions.\n\n"
+                            "You cannot remove it.") % count
+                utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+                return False
             self.model.propagations.remove(propagation)
             self.view.widgets.prop_tab_box.remove(box)
             self._dirty = True
@@ -575,6 +621,37 @@ class CuttingPresenter(editor.GenericEditorPresenter):
             self.model.length_unit = u'mm'
             self.model.bottom_heat_unit = u'C'
 
+        # the liststore for rooted cuttings contains PropCuttingRooted
+        # objects, not just their fields, so we cannot define it in the
+        # glade file.
+        rooted_liststore = gtk.ListStore(object)
+        self.view.widgets.rooted_treeview.set_model(rooted_liststore)
+
+        from functools import partial
+        def rooted_cell_data_func(attr_name, column, cell, rooted_liststore, treeiter):
+            # extract attr from the object and show it in the cell
+            v = rooted_liststore[treeiter][0]
+            cell.set_property('text', getattr(v, attr_name))
+
+        def on_rooted_cell_edited(attr_name, cell, path, new_text):
+            # update object if field was modified, refresh sensitivity
+            rooted = rooted_liststore[path][0]
+            if getattr(rooted, attr_name) == new_text:
+                return  # didn't change
+            setattr(rooted, attr_name, utils.utf8(new_text))
+            self._dirty = True
+            self.parent_ref().refresh_sensitivity()
+
+        sfw = self.view.widgets
+        for cell, column, attr_name in [
+                (sfw.rooted_date_cell, sfw.rooted_date_column, 'date'),
+                (sfw.rooted_quantity_cell, sfw.rooted_quantity_column, 'quantity')]:
+            cell.props.editable = True
+            self.view.connect(
+                cell, 'edited', partial(on_rooted_cell_edited, attr_name))
+            column.set_cell_data_func(
+                cell, partial(rooted_cell_data_func, attr_name))
+
         self.refresh_view()
 
         self.assign_simple_handler('cutting_type_combo', 'cutting_type')
@@ -606,26 +683,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_rooted_pct_entry',
                                    'rooted_pct')
 
-        model = gtk.ListStore(object)
-        self.view.widgets.rooted_treeview.set_model(model)
-
-        def _rooted_data_func(column, cell, model, treeiter, prop):
-            v = model[treeiter][0]
-            cell.set_property('text', getattr(v, prop))
-
-        cell = self.view.widgets.rooted_date_cell
-        cell.props.editable = True
-        self.view.connect(cell, 'edited', self.on_rooted_cell_edited, 'date')
-        self.view.widgets.rooted_date_column.\
-            set_cell_data_func(cell, _rooted_data_func, 'date')
-
-        cell = self.view.widgets.rooted_quantity_cell
-        cell.props.editable = True
-        self.view.connect(cell, 'edited', self.on_rooted_cell_edited,
-                          'quantity')
-        self.view.widgets.rooted_quantity_column.\
-            set_cell_data_func(cell, _rooted_data_func, 'quantity')
-
         self.view.connect('rooted_add_button', "clicked",
                           self.on_rooted_add_clicked)
         self.view.connect('rooted_remove_button', "clicked",
@@ -640,23 +697,14 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self._dirty = True
         self.parent_ref().refresh_sensitivity()
 
-    def on_rooted_cell_edited(self, cell, path, new_text, prop):
-        treemodel = self.view.widgets.rooted_treeview.get_model()
-        rooted = treemodel[path][0]
-        if getattr(rooted, prop) == new_text:
-            return  # didn't change
-        setattr(rooted, prop, utils.utf8(new_text))
-        self._dirty = True
-        self.parent_ref().refresh_sensitivity()
-
     def on_rooted_add_clicked(self, button, *args):
         """
         """
         tree = self.view.widgets.rooted_treeview
-        model = tree.get_model()
-        rooted = PropRooted()
+        rooted = PropCuttingRooted()
         rooted.cutting = self.model
         rooted.date = utils.today_str()
+        model = tree.get_model()
         treeiter = model.insert(0, [rooted])
         path = model.get_path(treeiter)
         column = tree.get_column(0)
@@ -676,10 +724,14 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.parent_ref().refresh_sensitivity()
 
     def refresh_view(self):
+        # TODO: not so sure. is this a 'refresh', or a 'init' view?
         for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
-            #debug('%s: %s' % (widget, value))
             self.view.widget_set_value(widget, value)
+        rooted_liststore = self.view.widgets.rooted_treeview.get_model()
+        rooted_liststore.clear()
+        for rooted in self.model.rooted:
+            rooted_liststore.append([rooted])
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
@@ -777,10 +829,9 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
 
 class PropagationPresenter(editor.ChildPresenter):
-    """
-    PropagationPresenter is not used directly but is extended by
-    SeedPropagationPresenter, CuttingPropagationPresenter and
+    """PropagationPresenter is extended by SourcePropagationPresenter and
     PropagationEditorPresenter.
+
     """
     widget_to_field_map = {'prop_type_combo': 'prop_type',
                            'prop_date_entry': 'date',

@@ -40,6 +40,8 @@ import bauble.search as search
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 from bauble.view import SearchView
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
 
 
 class DefaultView(pluginmgr.View):
@@ -294,12 +296,20 @@ class GUI(object):
         bauble.command_handler(cmd, arg)
 
     def on_query_button_clicked(self, widget):
-        qb = search.QueryBuilder()
-        if qb.start() == gtk.RESPONSE_OK:
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
+        qb.set_query(self.widgets.main_comboentry.child.get_text())
+        response = qb.start()
+        if response == gtk.RESPONSE_OK:
             query = qb.get_query()
             self.widgets.main_comboentry.child.set_text(query)
             self.widgets.go_button.emit("clicked")
-
+        qb.cleanup()
+            
     def add_to_history(self, text, index=0):
         """
         add text to history, if text is already in the history then set its
@@ -591,8 +601,15 @@ class GUI(object):
             view = self.get_view()
             if isinstance(view, SearchView):
                 expanded_rows = view.get_expanded_rows()
-            editor = editor_cls()
-            committed = editor.start()
+            # editor_cls can be a class, of which we get an instance, and we
+            # invoke the `start` method of this instance. or it is a
+            # callable, then we just use its return value and we are done.
+            if isinstance(editor_cls, type(lambda x:x)):
+                editor = None
+                committed = editor_cls()
+            else:
+                editor = editor_cls()
+                committed = editor.start()
             if committed is not None and isinstance(view, SearchView):
                 view.results_view.collapse_all()
                 view.expand_to_all_refs(expanded_rows)
@@ -602,6 +619,9 @@ class GUI(object):
                                          gtk.MESSAGE_ERROR)
             logger.error('bauble.gui.on_insert_menu_item_activate():\n %s'
                          % traceback.format_exc())
+            return
+
+        if editor is None:
             return
 
         presenter_cls = view_cls = None

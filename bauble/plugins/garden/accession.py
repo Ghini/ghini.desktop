@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # accessions module
 #
@@ -54,7 +54,7 @@ from bauble.error import check
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
     Propagation
-from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
+from bauble.plugins.garden.source import Contact, create_contact, \
     Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
@@ -170,7 +170,6 @@ def add_plants_callback(accessions):
 
 
 def remove_callback(accessions):
-    # TODO: allow this method to remove multiple accessions
     acc = accessions[0]
     if len(acc.plants) > 0:
         safe = utils.xml_safe
@@ -1427,7 +1426,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         def on_select(source):
             if not source:
                 self.model.source = None
-            elif isinstance(source, SourceDetail):
+            elif isinstance(source, Contact):
                 self.model.source = self.source
                 self.model.source.source_detail = source
             elif source == self.garden_prop_str:
@@ -1584,11 +1583,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def on_new_source_button_clicked(self, *args):
         """
-        Opens a new SourceDetailEditor when clicked and repopulates the
-        source combo if a new SourceDetail is created.
+        Opens a new ContactEditor when clicked and repopulates the
+        source combo if a new Contact is created.
         """
-        e = SourceDetailEditor(parent=self.view.get_window())
-        committed = e.start()
+        committed = create_contact(parent=self.view.get_window())
         new_detail = None
         if committed:
             new_detail = committed[0]
@@ -1609,7 +1607,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
-        map(lambda x: model.append([x]), self.session.query(SourceDetail))
+        map(lambda x: model.append([x]), self.session.query(Contact))
         combo.set_model(model)
         combo.child.get_completion().set_model(model)
 
@@ -1654,7 +1652,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             value = model[treeiter][0]
             # allows completions of source details by their ID
             if utils.utf8(value).lower().startswith(key.lower()) or \
-                    (isinstance(value, SourceDetail) and
+                    (isinstance(value, Contact) and
                      str(value.id).startswith(key)):
                 return True
             return False
@@ -1706,7 +1704,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             def _cmp(row, data):
                 val = row[0]
                 if (utils.utf8(val) == data or
-                        (isinstance(val, SourceDetail) and val.id == data)):
+                        (isinstance(val, Contact) and val.id == data)):
                     return True
                 else:
                     return False

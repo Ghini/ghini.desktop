@@ -760,8 +760,8 @@
                           <object class="GtkLabel" id="label5">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Current change&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Current change</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                         </child>
                       </object>
@@ -866,8 +866,8 @@
                           <object class="GtkLabel" id="label12">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Change history&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Change history</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                         </child>
                       </object>

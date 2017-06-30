@@ -3,20 +3,20 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # Description: edit and store information about the institution in the bauble
 # meta
@@ -136,17 +136,25 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self.view.widget_set_sensitive(
             'inst_register', self.email_regexp.match(value or ''))
 
+    def get_sentry_handler(self):
+        from bauble import prefs
+        if prefs.testing:
+            from bauble.test import MockLoggingHandler
+            return MockLoggingHandler()
+        else:
+            from raven import Client
+            from raven.handlers.logging import SentryHandler
+            sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
+                                   '00268114ed47460b94ce2b1b0b2a4a20@'
+                                   'app.getsentry.com/45704')
+            return SentryHandler(sentry_client)
+
     def on_inst_register_clicked(self, *args, **kwargs):
         '''send the registration data as sentry info log message
         '''
 
         # create the handler first
-        from raven import Client
-        from raven.handlers.logging import SentryHandler
-        sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
-                               '00268114ed47460b94ce2b1b0b2a4a20@'
-                               'app.getsentry.com/45704')
-        handler = SentryHandler(sentry_client)
+        handler = self.get_sentry_handler()
         handler.setLevel(logging.INFO)
 
         # the registration logger gets the above handler

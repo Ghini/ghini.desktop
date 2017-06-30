@@ -40,9 +40,10 @@ echo 'ok'
 #------------------------------------------------------------------------
 # finally update all internationalization files
 #------------------------------------------------------------------------
-echo -n 'finally update all internationalization files ... '
-for po in $(find po -name \*.po)
+echo -n 'finally update all internationalization files [ '
+for po in $(find po -name \*.po | sort)
 do
+    echo -n "$(basename $po .po), "
     msgmerge -UNqs $po pot/messages.pot
 done
-echo 'ok'
+echo '. ] ok'

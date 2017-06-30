@@ -267,8 +267,8 @@
                         <child type="label">
                           <object class="GtkLabel" id="label4">
                             <property name="visible">True</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Synonyms&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Synonyms</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
                           </object>
                         </child>
                       </object>
