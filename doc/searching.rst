@@ -43,17 +43,17 @@ search domain overview
 ------------------------------------------------------------------
 name and shorthands            field                  result type
 =============================  =====================  ============
-family, fam                    epithet (family)       Family
-genus, gen                     epithet (genus)        Genus
-species, sp                    epithet (sp) **×**     Species
-vernacular, common, vern       name                   Species
-geography, geo                 name                   Geography
-accession, acc                 code                   Accession
-planting, plant                code **×**             Plant
-location, loc                  code, name             Location
-contact, person, org, source   name                   Contact
-collection, col, coll          locale                 Collection
-tag, tags                      name                   Tag
+family, fam                    epithet (family)       ``Family``
+genus, gen                     epithet (genus)        ``Genus``
+species, sp                    epithet (sp) **×**     ``Species``
+vernacular, common, vern       name                   ``Species``
+geography, geo                 name                   ``Geography``
+accession, acc                 code                   ``Accession``
+planting, plant                code **×**             ``Plant``
+location, loc                  code, name             ``Location``
+contact, person, org, source   name                   ``Contact``
+collection, col, coll          locale                 ``Collection``
+tag, tags                      name                   ``Tag``
 =============================  =====================  ============
 
 Examples of searching by value would be: Maxillaria, Acanth,
