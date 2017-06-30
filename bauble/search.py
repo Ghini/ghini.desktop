@@ -41,6 +41,7 @@ import bauble.utils as utils
 from bauble.i18n import _
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
+from querybuilderparser import BuiltQuery
 
 
 def search(text, session=None):
@@ -1265,3 +1266,22 @@ class QueryBuilder(GenericEditorPresenter):
 
         query = [self.domain, 'where'] + self.valid_clauses
         return ' '.join(query)
+
+    def set_query(self, q):
+        parsed = BuiltQuery(q)
+        if not parsed.is_valid:
+            return
+        
+        # locate domain in list of valid domains
+        try:
+            index = sorted(self.domain_map.keys()).index(parsed.domain)
+        except ValueError, e:
+            logger.debug('cannot restore query, %s(%s)' % (type(e), e))
+            return
+        # and set the domain_combo correspondently
+        self.view.widgets.domain_combo.set_active(index)
+
+        # now scan all clauses, one ExpressionRow per clause
+        for clause in parsed.clauses:
+            if clause.connector:
+                self.on_add_clause()

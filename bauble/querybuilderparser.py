@@ -49,9 +49,13 @@ class BuiltQuery(object):
     query = Word(alphas) + CaselessLiteral("WHERE") + expression
 
     def __init__(self, s):
-        self.string = s
-        self.parsed = self.query.parseString(s)
+        self.parsed = None
         self.__clauses = None
+        try:
+            self.parsed = self.query.parseString(s)
+            self.is_valid = True
+        except:
+            self.is_valid = False
         
     @property
     def clauses(self):

@@ -71,3 +71,11 @@ class QBP(BaubleTestCase):
         self.assertEquals(query.clauses[1].operator, 'like')
         self.assertEquals(query.clauses[0].value, 'Inga')
         self.assertEquals(query.clauses[1].value, '2010%')
+
+    def test_is_none_if_wrong(self):
+        query = BuiltQuery("'species WHERE genus.epithet=Inga")
+        self.assertEquals(query.is_valid, False)
+        query = BuiltQuery("species like %")
+        self.assertEquals(query.is_valid, False)
+        query = BuiltQuery("Inga")
+        self.assertEquals(query.is_valid, False)
