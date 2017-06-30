@@ -959,12 +959,22 @@ class SchemaMenu(gtk.Menu):
         submenu.show_all()
 
     def _get_prop_menuitems(self, mapper):
-        items = []
+        # When looping over iterate_properties leave out properties that
+        # start with underscore since they are considered private.  Separate
+        # properties in column_properties and relation_properties
+
         column_properties = sorted(
             filter(lambda x: isinstance(x, ColumnProperty)
                    and not x.key.startswith('_'),
                    mapper.iterate_properties),
             key=lambda k: k.key)
+        relation_properties = sorted(
+            filter(lambda x: isinstance(x, RelationProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
+
+        items = []
 
         for prop in column_properties:
             if not self.relation_filter(prop):
@@ -973,21 +983,12 @@ class SchemaMenu(gtk.Menu):
             item.connect('activate', self.on_activate, prop)
             items.append(item)
 
-        # filter out properties that start with underscore since they
-        # are considered private
-        relation_properties = sorted(
-            filter(lambda x: isinstance(x, RelationProperty)
-                   and not x.key.startswith('_'),
-                   mapper.iterate_properties),
-            key=lambda k: k.key)
         for prop in relation_properties:
-            if not self.relation_filter(prop):
-                continue
             item = gtk.MenuItem(prop.key, use_underline=False)
-            items.append(item)
             submenu = gtk.Menu()
             item.set_submenu(submenu)
             item.connect('select', self.on_select, prop)
+            items.append(item)
         return items
 
 
@@ -1304,6 +1305,20 @@ class QueryBuilder(GenericEditorPresenter):
             # the value choosing from it. otherwise the callback just puts a
             # textentry, which is what it now does in all cases. it still
             # works, but it's not nice.
-            row.on_schema_menu_activated(None, clause.field, None)
-            row.value_widget.set_text(clause.value)
+            cls = self.domain_map[parsed.domain]
+            mapper = None
+            for target in clause.field.split('.'):
+                if mapper is None:
+                    mapper = class_mapper(cls)
+                else:
+                    mapper = prop.mapper
+                prop = mapper.get_property(target)
+            row.on_schema_menu_activated(None, clause.field, prop)
+            if isinstance(row.value_widget, gtk.Entry):
+                row.value_widget.set_text(clause.value)
+            elif isinstance(row.value_widget, gtk.ComboBox):
+                for item in row.value_widget.props.model:
+                    if item[0] == clause.value:
+                        row.value_widget.set_active_iter(item.iter)
+                        break
             row.cond_combo.set_active(row.conditions.index(clause.operator))

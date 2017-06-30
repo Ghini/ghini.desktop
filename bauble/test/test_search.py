@@ -954,6 +954,17 @@ class QueryBuilderTests(BaubleTestCase):
         qb.set_query('plant where id=0 or id=1 or id>10')
         self.assertEquals(len(qb.expression_rows), 3)
 
+    def test_cansetenumquery(self):
+        import os
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
+        qb.set_query("accession where recvd_type = 'BBIL'")
+        self.assertEquals(len(qb.expression_rows), 1)
+
 
 class BuildingSQLStatements(BaubleTestCase):
     import bauble.search
