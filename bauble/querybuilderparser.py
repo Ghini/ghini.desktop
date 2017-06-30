@@ -43,10 +43,10 @@ class BuiltQuery(object):
     string_value = (quotedString.setParseAction(removeQuotes) | unquoted_string)
     fieldname = Group(delimitedList(Word(alphas+'_', alphanums+'_'), '.'))
     value = (numeric_value | string_value)
-    binop = oneOf('= == != <> < <= > >= has like contains')
+    binop = oneOf('= == != <> < <= > >= has like contains', caseless=True)
     clause = fieldname + binop + value
     expression = Group(clause) + ZeroOrMore(Group( AND_ + clause | OR_ + clause))
-    query = Word(alphas) + CaselessLiteral("WHERE") + expression
+    query = Word(alphas) + CaselessLiteral("where") + expression
 
     def __init__(self, s):
         self.parsed = None

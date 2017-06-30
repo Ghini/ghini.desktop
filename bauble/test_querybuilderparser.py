@@ -24,7 +24,7 @@ class QBP(BaubleTestCase):
         query = BuiltQuery('plant WHERE accession.species.genus.family.epithet=Fabaceae AND location.description="Block 10" and quantity > 0 and quantity == 0')
         self.assertEquals(len(query.parsed), 6)
         self.assertEquals(query.parsed[0], 'plant')
-        self.assertEquals(query.parsed[1], 'WHERE')
+        self.assertEquals(query.parsed[1], 'where')
         self.assertEquals(len(query.parsed[2]), 3)
         for i in (3, 4, 5):
             self.assertEquals(query.parsed[i][0], 'AND')
@@ -34,7 +34,7 @@ class QBP(BaubleTestCase):
         query = BuiltQuery('plant WHERE accession.species.genus.family.epithet=Fabaceae OR location.description="Block 10" or quantity > 0 or quantity == 0')
         self.assertEquals(len(query.parsed), 6)
         self.assertEquals(query.parsed[0], 'plant')
-        self.assertEquals(query.parsed[1], 'WHERE')
+        self.assertEquals(query.parsed[1], 'where')
         self.assertEquals(len(query.parsed[2]), 3)
         for i in (3, 4, 5):
             self.assertEquals(query.parsed[i][0], 'OR')
@@ -79,3 +79,21 @@ class QBP(BaubleTestCase):
         self.assertEquals(query.is_valid, False)
         query = BuiltQuery("Inga")
         self.assertEquals(query.is_valid, False)
+
+    def test_is_case_insensitive(self):
+        for s in ["species Where genus.epithet=Inga and accessions.code like '2010%'",
+                  "species WHERE genus.epithet=Inga and accessions.code Like '2010%'",
+                  "species Where genus.epithet=Inga and accessions.code LIKE '2010%'",
+                  "species Where genus.epithet=Inga AND accessions.code like '2010%'",
+                  "species WHERE genus.epithet=Inga AND accessions.code LIKE '2010%'", ]:
+            query = BuiltQuery(s)
+            self.assertEquals(len(query.clauses), 2)
+            self.assertEquals(query.clauses[0].connector, None)
+            self.assertEquals(query.clauses[1].connector, 'AND')
+            self.assertEquals(query.clauses[0].field, 'genus.epithet')
+            self.assertEquals(query.clauses[1].field, 'accessions.code')
+            self.assertEquals(query.clauses[0].operator, '=')
+            self.assertEquals(query.clauses[1].operator, 'like')
+            self.assertEquals(query.clauses[0].value, 'Inga')
+            self.assertEquals(query.clauses[1].value, '2010%')
+        
