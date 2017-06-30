@@ -1013,6 +1013,8 @@ class ExpressionRow(object):
     """
     """
 
+    conditions = ['=', '!=', '<', '<=', '>', '>=', 'like', 'contains']
+
     def __init__(self, query_builder, remove_callback, row_number):
         self.table = query_builder.view.widgets.expressions_table
         self.presenter = query_builder
@@ -1041,8 +1043,7 @@ class ExpressionRow(object):
         self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
-        conditions = ['=', '!=', '<', '<=', '>', '>=', 'like', 'contains']
-        map(self.cond_combo.append_text, conditions)
+        map(self.cond_combo.append_text, self.conditions)
         self.cond_combo.set_active(0)
         self.table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
 
@@ -1085,7 +1086,11 @@ class ExpressionRow(object):
         self.table.remove(self.value_widget)
 
         # change the widget depending on the type of the selected property
-        if isinstance(prop.columns[0].type, bauble.btypes.Enum):
+        try:
+            proptype = prop.columns[0].type
+        except:
+            proptype = None
+        if isinstance(proptype, bauble.btypes.Enum):
             self.value_widget = gtk.ComboBox()
             cell = gtk.CellRendererText()
             self.value_widget.pack_start(cell, True)
@@ -1188,7 +1193,10 @@ class QueryBuilder(GenericEditorPresenter):
         Change the search domain.  Resets the expression table and
         deletes all the expression rows.
         """
-        index = self.view.widgets.domain_combo.get_active()
+        try:
+            index = self.view.widgets.domain_combo.get_active()
+        except AttributeError:
+            return
         if index == -1:
             return
 
@@ -1270,6 +1278,7 @@ class QueryBuilder(GenericEditorPresenter):
     def set_query(self, q):
         parsed = BuiltQuery(q)
         if not parsed.is_valid:
+            logger.debug('cannot restore query, invalid')
             return
         
         # locate domain in list of valid domains
@@ -1285,3 +1294,15 @@ class QueryBuilder(GenericEditorPresenter):
         for clause in parsed.clauses:
             if clause.connector:
                 self.on_add_clause()
+            row = self.expression_rows[-1]
+            if clause.connector:
+                row.and_or_combo.set_active({'AND': 0, 'OR': 1}[clause.connector])
+            # in the following forced callback invocation, the third
+            # parameter should be a database table property. this has to be
+            # inferred from clause.field. if this property is an
+            # enumeration, the callback builds a combobox and we must set
+            # the value choosing from it. otherwise the callback just puts a
+            # textentry, which is what it now does in all cases.
+            row.on_schema_menu_activated(None, clause.field, None)
+            row.value_widget.set_text(clause.value)
+            row.cond_combo.set_active(row.conditions.index(clause.operator))
