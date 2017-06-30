@@ -27,7 +27,7 @@ class QBP(BaubleTestCase):
         self.assertEquals(query.parsed[1], 'where')
         self.assertEquals(len(query.parsed[2]), 3)
         for i in (3, 4, 5):
-            self.assertEquals(query.parsed[i][0], 'AND')
+            self.assertEquals(query.parsed[i][0], 'and')
             self.assertEquals(len(query.parsed[i]), 4)
 
     def test_or_clauses(self):
@@ -37,7 +37,7 @@ class QBP(BaubleTestCase):
         self.assertEquals(query.parsed[1], 'where')
         self.assertEquals(len(query.parsed[2]), 3)
         for i in (3, 4, 5):
-            self.assertEquals(query.parsed[i][0], 'OR')
+            self.assertEquals(query.parsed[i][0], 'or')
             self.assertEquals(len(query.parsed[i]), 4)
 
     def test_has_clauses(self):
@@ -54,7 +54,7 @@ class QBP(BaubleTestCase):
         query = BuiltQuery('genus WHERE epithet=Inga or family.epithet=Poaceae')
         self.assertEquals(len(query.clauses), 2)
         self.assertEquals(query.clauses[0].connector, None)
-        self.assertEquals(query.clauses[1].connector, 'OR')
+        self.assertEquals(query.clauses[1].connector, 'or')
         self.assertEquals(query.clauses[0].field, 'epithet')
         self.assertEquals(query.clauses[1].field, 'family.epithet')
         self.assertEquals(query.clauses[0].operator, '=')
@@ -64,7 +64,7 @@ class QBP(BaubleTestCase):
         query = BuiltQuery("species WHERE genus.epithet=Inga and accessions.code like '2010%'")
         self.assertEquals(len(query.clauses), 2)
         self.assertEquals(query.clauses[0].connector, None)
-        self.assertEquals(query.clauses[1].connector, 'AND')
+        self.assertEquals(query.clauses[1].connector, 'and')
         self.assertEquals(query.clauses[0].field, 'genus.epithet')
         self.assertEquals(query.clauses[1].field, 'accessions.code')
         self.assertEquals(query.clauses[0].operator, '=')
@@ -89,7 +89,7 @@ class QBP(BaubleTestCase):
             query = BuiltQuery(s)
             self.assertEquals(len(query.clauses), 2)
             self.assertEquals(query.clauses[0].connector, None)
-            self.assertEquals(query.clauses[1].connector, 'AND')
+            self.assertEquals(query.clauses[1].connector, 'and')
             self.assertEquals(query.clauses[0].field, 'genus.epithet')
             self.assertEquals(query.clauses[1].field, 'accessions.code')
             self.assertEquals(query.clauses[0].operator, '=')

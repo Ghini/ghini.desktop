@@ -35,8 +35,8 @@ class BuiltQuery(object):
 
     wordStart, wordEnd = WordStart(), WordEnd()
 
-    AND_ = wordStart + CaselessLiteral('AND') + wordEnd
-    OR_ = wordStart + CaselessLiteral('OR') + wordEnd
+    AND_ = wordStart + CaselessLiteral('and') + wordEnd
+    OR_ = wordStart + CaselessLiteral('or') + wordEnd
 
     numeric_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?')
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')

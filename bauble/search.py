@@ -1296,13 +1296,14 @@ class QueryBuilder(GenericEditorPresenter):
                 self.on_add_clause()
             row = self.expression_rows[-1]
             if clause.connector:
-                row.and_or_combo.set_active({'AND': 0, 'OR': 1}[clause.connector])
+                row.and_or_combo.set_active({'and': 0, 'or': 1}[clause.connector])
             # in the following forced callback invocation, the third
             # parameter should be a database table property. this has to be
             # inferred from clause.field. if this property is an
             # enumeration, the callback builds a combobox and we must set
             # the value choosing from it. otherwise the callback just puts a
-            # textentry, which is what it now does in all cases.
+            # textentry, which is what it now does in all cases. it still
+            # works, but it's not nice.
             row.on_schema_menu_activated(None, clause.field, None)
             row.value_widget.set_text(clause.value)
             row.cond_combo.set_active(row.conditions.index(clause.operator))
