@@ -39,3 +39,35 @@ class QBP(BaubleTestCase):
         for i in (3, 4, 5):
             self.assertEquals(query.parsed[i][0], 'OR')
             self.assertEquals(len(query.parsed[i]), 4)
+
+    def test_has_clauses(self):
+        query = BuiltQuery('genus WHERE epithet=Inga')
+        self.assertEquals(len(query.clauses), 1)
+        query = BuiltQuery('genus WHERE epithet=Inga or epithet=Iris')
+        self.assertEquals(len(query.clauses), 2)
+
+    def test_has_domain(self):
+        query = BuiltQuery('plant WHERE accession.species.genus.epithet=Inga')
+        self.assertEquals(query.domain, 'plant')
+
+    def test_clauses_have_fields(self):
+        query = BuiltQuery('genus WHERE epithet=Inga or family.epithet=Poaceae')
+        self.assertEquals(len(query.clauses), 2)
+        self.assertEquals(query.clauses[0].connector, None)
+        self.assertEquals(query.clauses[1].connector, 'OR')
+        self.assertEquals(query.clauses[0].field, 'epithet')
+        self.assertEquals(query.clauses[1].field, 'family.epithet')
+        self.assertEquals(query.clauses[0].operator, '=')
+        self.assertEquals(query.clauses[1].operator, '=')
+        self.assertEquals(query.clauses[0].value, 'Inga')
+        self.assertEquals(query.clauses[1].value, 'Poaceae')
+        query = BuiltQuery("species WHERE genus.epithet=Inga and accessions.code like '2010%'")
+        self.assertEquals(len(query.clauses), 2)
+        self.assertEquals(query.clauses[0].connector, None)
+        self.assertEquals(query.clauses[1].connector, 'AND')
+        self.assertEquals(query.clauses[0].field, 'genus.epithet')
+        self.assertEquals(query.clauses[1].field, 'accessions.code')
+        self.assertEquals(query.clauses[0].operator, '=')
+        self.assertEquals(query.clauses[1].operator, 'like')
+        self.assertEquals(query.clauses[0].value, 'Inga')
+        self.assertEquals(query.clauses[1].value, '2010%')

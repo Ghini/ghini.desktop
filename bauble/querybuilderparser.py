@@ -51,4 +51,19 @@ class BuiltQuery(object):
     def __init__(self, s):
         self.string = s
         self.parsed = self.query.parseString(s)
+        self.__clauses = None
+        
+    @property
+    def clauses(self):
+        if not self.__clauses:
+            self.__clauses = [type('FooBar', (object,),
+                                   dict(connector=len(i)==4 and i[0] or None,
+                                        field='.'.join(i[-3]),
+                                        operator=i[-2],
+                                        value=i[-1]))()
+                              for i in [k for k in self.parsed][2:]]
+        return self.__clauses
 
+    @property
+    def domain(self):
+        return self.parsed[0]
