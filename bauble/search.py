@@ -1304,14 +1304,12 @@ class QueryBuilder(GenericEditorPresenter):
             # associates a gkt.ComboBox to it, otherwise a gtk.Entry.
             # To set the value of a gkt.ComboBox we match one of its
             # items. To set the value of a gkt.Entry we need set_text.
+            steps = clause.field.split('.')
             cls = self.domain_map[parsed.domain]
-            mapper = None
-            for target in clause.field.split('.'):
-                if mapper is None:
-                    mapper = class_mapper(cls)
-                else:
-                    mapper = prop.mapper
-                prop = mapper.get_property(target)
+            mapper = class_mapper(cls)
+            for target in steps[:-1]:
+                mapper = mapper.get_property(target).mapper
+            prop = mapper.get_property(steps[-1])
             row.on_schema_menu_activated(None, clause.field, prop)
             if isinstance(row.value_widget, gtk.Entry):
                 row.value_widget.set_text(clause.value)
