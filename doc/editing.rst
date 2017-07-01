@@ -126,36 +126,37 @@ species and open a new blank species editor.
 Accessions
 ----------
 
-The Accession editor allows us to add an accession to a species.  In
-Ghini an accession represents a group of plants or clones.  The
-accession would refer maybe a group of seed or cuttings from a
-species.  A plant would be an individual from that accesssion, i.e. a
-specific plant in a specific location.
+The Accession editor allows us to add an accession to a species.  In Ghini
+an accession represents a group of plants or clones that are of the same
+taxon, are of the same propagule type (or treatment), were received from the
+same source, were received at the same time.
 
 Accession Source
-^^^^^^^^^^^^^^^^
+""""""""""""""""
 The source of the accessions lets you add more information about where
 this accession came from.  At the moment the type of the source can be
 either a Collection or a Donation.
-
 
 Collection
 """"""""""
 A Collection.
 
-
 Donation
 """"""""
 A Donation.
+
 
 .. _editing-plant:
 
 Plant
 -----
-The Plant editor.
+
+A ``Plant`` in the Ghini database describes an individual plant in your
+collection. A plant belongs to an accession, and it has a specific location.
 
 Creating multiple plants
 ^^^^^^^^^^^^^^^^^^^^^^^^
+
 You can create multiple Plants by using ranges in the code entry.
 This is only allowed when creating new plants and it is not possible
 when editing existing Plants in the database.
