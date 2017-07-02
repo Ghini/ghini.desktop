@@ -13,7 +13,7 @@ to the needs of a couple of other users who asked him. Brett made Bauble a
 commons, by releasing it under a GPL license.
 
 After some years of stagnation Mario Frasca took responsibility of updating
-Bauble, rebranded it to Ghini, in honour of Luca Ghini, started adocating,
+Bauble, rebranded it to Ghini, in honour of Luca Ghini, started advocating,
 travelling, distributing, developing, documenting it, and it is now Mario
 Frasca writing this, enhancing the software, looking for users, requesting
 feedback...

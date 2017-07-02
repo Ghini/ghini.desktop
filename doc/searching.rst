@@ -103,7 +103,7 @@ which name or code start with "block".  In this case the domain is ``loc``
 SQL and allows for "fuzzy" searching), the value is ``block%``, the
 implicitly matched fields are ``name`` and ``code``.  The percent sign is
 used as a wild card so if you search for ``block%`` then it searches for all
-values that start with max.  If you search for ``%10`` it searches for all
+values that start with ``block``.  If you search for ``%10`` it searches for all
 values that end in ``10``.  The string ``%ck%10`` would search for all value
 that contain ``ck`` and end in ``10``.
 
