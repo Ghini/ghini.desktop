@@ -4,6 +4,11 @@ Installation
 ghini.desktop is a cross-platform program and it will run on unix machines
 like GNU/Linux and MacOSX, as well as on Windows.
 
+.. topic:: one-liner for hurried Linux users.
+
+           Download and run `the installation script <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
+           You may read the documentation later.
+
 Ghini is maintained by very few people, who focus on enhancing its
 functional parts, more than on writing fancy installers. Instead of several
 native installers we offer a single cross-platform installation procedure.
@@ -12,7 +17,7 @@ This has a few big advantages which you will learn to appreciate as we go.
 The installation is based on running a script.
 
 * The GNU/Linux script takes care of everything, from dependecies to
-  installation for all users.
+  installation for users in the ``ghini`` group.
 * The Windows script needs you to first install a couple things.
 * On MacOSX we use the same script as on GNU/Linux. Since OSX has no default
   package manager, we install one and we use it before we start the script.
@@ -31,28 +36,6 @@ Installing on GNU/Linux
 --------------------------
 
 Open a shell terminal window, and follow these instructions.
-
-.. topic:: technical note
-
-           You can study the script to see what steps if runs for you. In
-           short it will install dependencies which can't be satisfied in a
-           virtual environment, then it will create a virtual environment
-           named ``ghide``, use git to download the sources to a directory
-           named ``~/Local/github/Ghini/ghini.desktop``, and connect this
-           git checkout to the ``ghini-1.0`` branch (this you can consider a
-           production line), it then builds ghini, downloading all remaining
-           dependencies in the virtual environment, and finally it creates a
-           startup script. If you have ``sudo`` permissions, it will be
-           placed in ``/usr/local/bin``, otherwise in your ``~/bin``
-           folder. Again if you
-
-.. topic:: beginner's note
-           
-           To run a script, first make sure you note down the name of the
-           directory to which you have downloaded the script, then you open
-           a terminal window and in that window you type `bash` followed by
-           a space and the complete name of the script including directory
-           name, and hit on the enter key.
 
 #. Download the `devinstall.sh` script and run it::
 
@@ -89,6 +72,28 @@ Open a shell terminal window, and follow these instructions.
 
    You might need solve dependencies. How to do so, depends on which GNU/Linux
    flavour you are using. Check with your distribution documentation.
+
+.. topic:: beginner's note
+           
+           To run a script, first make sure you note down the name of the
+           directory to which you have downloaded the script, then you open
+           a terminal window and in that window you type `bash` followed by
+           a space and the complete name of the script including directory
+           name, and hit on the enter key.
+
+.. topic:: technical note
+
+           You can study the script to see what steps if runs for you. In
+           short it will install dependencies which can't be satisfied in a
+           virtual environment, then it will create a virtual environment
+           named ``ghide``, use git to download the sources to a directory
+           named ``~/Local/github/Ghini/ghini.desktop``, and connect this
+           git checkout to the ``ghini-1.0`` branch (this you can consider a
+           production line), it then builds ghini, downloading all remaining
+           dependencies in the virtual environment, and finally it creates a
+           startup script. If you have ``sudo`` permissions, it will be
+           placed in ``/usr/local/bin``, otherwise in your ``~/bin``
+           folder. Again if you
 
 .. rubric:: Next...
 
