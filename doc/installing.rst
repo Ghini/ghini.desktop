@@ -4,7 +4,7 @@ Installation
 ghini.desktop is a cross-platform program and it will run on unix machines
 like GNU/Linux and MacOSX, as well as on Windows.
 
-.. topic:: one-liner for hurried Linux users.
+.. admonition:: one-liner for hurried Linux users.
    :class: note
 
            Download and run `the installation script <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
@@ -74,7 +74,7 @@ Open a shell terminal window, and follow these instructions.
    You might need solve dependencies. How to do so, depends on which GNU/Linux
    flavour you are using. Check with your distribution documentation.
 
-.. topic:: beginner's note
+.. admonition:: beginner's note
    :class: note
            
            To run a script, first make sure you note down the name of the
@@ -83,7 +83,7 @@ Open a shell terminal window, and follow these instructions.
            a space and the complete name of the script including directory
            name, and hit on the enter key.
 
-.. topic:: technical note
+.. admonition:: technical note
    :class: note
 
            You can study the script to see what steps if runs for you. In
@@ -136,7 +136,8 @@ then install the remaining dependencies::
 
 follow all instructions on how to activate what you have installed.
 
-.. topic:: Mac running OSX 10.12 —Sierra—
+.. admonition:: Mac running OSX 10.12 —Sierra—
+   :class: note
 
            On OSX 10.12, ``brew`` reports that ``gettext`` is already
            installed, but then it won't let us find it. A solution is to run
