@@ -56,7 +56,7 @@ Open a shell terminal window, and follow these instructions.
 
 #. Download the `devinstall.sh` script and run it::
 
-     https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.sh
+     https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh
 
    Please note that the script will not help you install any extra database
    connector. This is not strictly necessary and you can do it at any later moment.
