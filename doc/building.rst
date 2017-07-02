@@ -230,11 +230,14 @@ Locate the test script and choose the class where to put the extra unit tests.
 
 https://coveralls.io/builds/3741152/source?filename=bauble%2Fplugins%2Fplants%2Ftest.py#L273
 
-.. note:: The ``FamilyTests`` class contains a skipped test, implementing it
-          will be quite a bit of work because we need rewrite the
-          FamilyEditorPresenter, separate it from the FamilyEditorView and
-          reconsider what to do with the FamilyEditor class, which I think
-          should be removed and replaced with a single function.
+.. admonition:: what about skipped tests
+   :class: note
+
+           The ``FamilyTests`` class contains a skipped test, implementing
+           it will be quite a bit of work because we need rewrite the
+           FamilyEditorPresenter, separate it from the FamilyEditorView and
+           reconsider what to do with the FamilyEditor class, which I think
+           should be removed and replaced with a single function.
 
 writing the tests
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -266,8 +269,11 @@ When writing tests, I generally follow the pattern:
 * action, 
 * T₁ (testing the result of the action given the initial conditions)
 
-.. note:: There's a reason why unit tests are called unit tests. Please
-          never test two actions in one test.
+.. admonition:: what's in a name — unit tests
+   :class: note
+        
+           There's a reason why unit tests are called unit tests. Please
+           never test two actions in one test.
 
 So let's describe T₀ for the first test, a database holding a family without
 genera::
