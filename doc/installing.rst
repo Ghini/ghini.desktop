@@ -5,6 +5,7 @@ ghini.desktop is a cross-platform program and it will run on unix machines
 like GNU/Linux and MacOSX, as well as on Windows.
 
 .. topic:: one-liner for hurried Linux users.
+   :class: note
 
            Download and run `the installation script <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
            You may read the documentation later.
@@ -74,6 +75,7 @@ Open a shell terminal window, and follow these instructions.
    flavour you are using. Check with your distribution documentation.
 
 .. topic:: beginner's note
+   :class: note
            
            To run a script, first make sure you note down the name of the
            directory to which you have downloaded the script, then you open
@@ -82,6 +84,7 @@ Open a shell terminal window, and follow these instructions.
            name, and hit on the enter key.
 
 .. topic:: technical note
+   :class: note
 
            You can study the script to see what steps if runs for you. In
            short it will install dependencies which can't be satisfied in a
