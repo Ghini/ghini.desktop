@@ -63,7 +63,6 @@ Ghini Development
    :maxdepth: 2
 
    building
-   api
 
 Supporting Ghini
 =================
