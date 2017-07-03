@@ -34,6 +34,7 @@ class BuiltQuery(object):
 
     AND_ = wordStart + CaselessLiteral('and') + wordEnd
     OR_ = wordStart + CaselessLiteral('or') + wordEnd
+    BETWEEN_ = wordStart + CaselessLiteral('between') + wordEnd
 
     numeric_value = Regex(r'[-]?\d+(\.\d*)?([eE]\d+)?')
     unquoted_string = Word(alphanums + alphas8bit + '%.-_*;:')
@@ -42,7 +43,8 @@ class BuiltQuery(object):
     value = (numeric_value | string_value)
     binop = oneOf('= == != <> < <= > >= has like contains', caseless=True)
     clause = fieldname + binop + value
-    expression = Group(clause) + ZeroOrMore(Group( AND_ + clause | OR_ + clause))
+    unparseable_clause = (fieldname + BETWEEN_ + value + AND_ + value) | (Word(alphanums) + '(' + fieldname + ')' + binop + value)
+    expression = Group(clause) + ZeroOrMore(Group( AND_ + clause | OR_ + clause | ((OR_|AND_) + unparseable_clause).suppress()))
     query = Word(alphas) + CaselessLiteral("where") + expression
 
     def __init__(self, s):
@@ -62,7 +64,7 @@ class BuiltQuery(object):
                                         field='.'.join(i[-3]),
                                         operator=i[-2],
                                         value=i[-1]))()
-                              for i in [k for k in self.parsed][2:]]
+                              for i in [k for k in self.parsed if len(k)>0][2:]]
         return self.__clauses
 
     @property
