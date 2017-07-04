@@ -38,7 +38,7 @@ Installing on GNU/Linux
 
 Open a shell terminal window, and follow the following instructions.
 
-#. Download the `devinstall.sh` script::
+#. Download the `devinstall.sh` script:
 
      https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh
 
@@ -209,7 +209,7 @@ again Windows specific.
 The installation steps on Windows:
 
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
-   ``vi``) from::
+   ``vi``) from:
 
      https://git-scm.com/download/win
 
@@ -220,7 +220,7 @@ The installation steps on Windows:
 
    .. image:: images/screenshots/git3.png
 
-#. download and install Python 2.x (32bit) from::
+#. download and install Python 2.x (32bit) from:
 
      http://www.python.org
 
@@ -235,7 +235,7 @@ The installation steps on Windows:
    .. image:: images/screenshots/python3.png
 
 #. download ``pygtk`` from the following source. (this requires 32bit
-   python). be sure you download the "all in one" version::
+   python). be sure you download the "all in one" version:
 
      http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
 
@@ -245,22 +245,21 @@ The installation steps on Windows:
 
    .. image:: images/screenshots/pygtk1.png
 
-#. (Windows 8.x) please consider this additional step. It is possibly
-   necessary to avoid the following error on Windows 8.1 installations::
-
-    Building without Cython.
-    ERROR: 'xslt-config' is not recognized as an internal or external command,
-    operable program or batch file.
-
-   If you skip this step and can confirm you get the error, please inform us.
-
-   You can download lxml from::
+#. (Possibly necessary, maybe superfluous) install lxml, you can grab this from:
 
     https://pypi.python.org/pypi/lxml/3.4.4
 
    Remember you need the 32 bit version, for Python 2.7.
 
    `Direct link to download lxml`_
+
+   On some systems, lxml was necessary to avoid the following error::
+
+    Building without Cython.
+    ERROR: 'xslt-config' is not recognized as an internal or external command,
+    operable program or batch file.
+
+   If you skip this step and can confirm you get the error, please inform us.
 
 #. (optional) download and install a database connector other than
    ``sqlite3``.
