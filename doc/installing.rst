@@ -36,9 +36,9 @@ environment, which is a directory, with all of its content.
 Installing on GNU/Linux
 --------------------------
 
-Open a shell terminal window, and follow these instructions.
+Open a shell terminal window, and follow the following instructions.
 
-#. Download the `devinstall.sh` script and run it::
+#. Download the `devinstall.sh` script::
 
      https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh
 
