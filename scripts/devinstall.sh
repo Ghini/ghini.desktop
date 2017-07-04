@@ -78,13 +78,13 @@ mkdir -p $HOME/.virtualenvs/ghide/share
 mkdir -p $HOME/.ghini
 . $HOME/.virtualenvs/ghide/bin/activate
 
-if [ "$PG" != "" ]
+if [ ! -z $PG ]
 then
     echo 'installing postgresql adapter'
     pip install psycopg2 ;
 fi
 
-if [ "$MYSQL" != "" ]
+if [ ! -z $MYSQL ]
 then
     echo 'installing mysql adapter'
     pip install MySQL-python ;    
@@ -99,23 +99,36 @@ cat <<EOF > $HOME/bin/ghini
 GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
 . \$HOME/.virtualenvs/ghide/bin/activate
 
-BUILDANDEND=0
-while getopts us: f
+while getopts us:mp f
 do
   case \$f in
     u)  cd \$GITHOME
-        BUILDANDEND=1;;
+        BUILD=1
+        END=1
+        ;;
     s)  cd \$GITHOME
         git checkout ghini-\$OPTARG || exit 1
-        BUILDANDEND=1;;
+        BUILD=1
+        END=1
+        ;;
+    m)  pip install MySQL-python
+        END=1
+        ;;
+    p)  pip install psycopg2
+        END=1
+        ;;
   esac
 done
 
-if [ "\$BUILDANDEND" == "1" ]
+if [ ! -z "\$BUILD" ]
 then
     git pull
     python setup.py build
     python setup.py install
+fi
+
+if [ ! -z "\$END" ]
+then
     exit 1
 fi
 
