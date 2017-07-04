@@ -42,41 +42,60 @@ Open a shell terminal window, and follow these instructions.
 
      https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh
 
-   Please note that the script will not help you install any extra database
-   connector. This is not strictly necessary and you can do it at any later moment.
+#. Invoke the script from a terminal window, starting at the directory where
+   you downloaded it, like this::
 
-   If the script ends without error, you can now start ghini::
+     bash ./devinstall.sh
 
-     ~/bin/ghini
+   The script will produce quite some output, which you can safely ignore.
 
-   or update ghini to the latest released production patch::
+   .. admonition:: global installation
+      :class: note
 
-     ~/bin/ghini -u
+              When almost ready, the installation script will ask you for
+              your password.  This lets it create a ``ghini`` user group,
+              initialise it to just yourself, make the just created
+              ``ghini`` script available to the whole ``ghini`` user group.
 
-   The same script you can use to switch to a different production line.
-   At the moment it's just `ghini-1.0` and `ghini-1.1`.
+              If feeling paranoid, you can safely not give your password and
+              interrupt the script there.
 
-#. on Unity, open a terminal, start ghini, its icon will show up in the
-   launcher, you can now `lock to launcher` it.
+              Possibly the main advantage of a global installation is being
+              able to find Ghini in the application menus of your graphic
+              environment.
 
-#. If you would like to use the default `SQLite <http://sqlite.org/>`_
-   database or you don't know what this means then you can skip this step.
-   If you would like to use a database backend other than the default SQLite
-   backend then you will also need to install a database connector.
+#. You can now start ghini by invoking the ``ghini`` script::
 
-   If you would like to use a `PostgreSQL <http://www.postgresql.org>`_
-   database then activate the virtual environment and install psycopg2 with
-   the following commands::
+     ghini
 
-     source ~/.virtualenvs/ghide/bin/activate
-     pip install -U psycopg2
+   #. You use the same ``ghini`` script to update ghini to the latest
+      released production patch::
 
-   You might need solve dependencies. How to do so, depends on which GNU/Linux
-   flavour you are using. Check with your distribution documentation.
+        ~/bin/ghini -u
+
+      This is what you would do when ghini shows you something like this:
+
+      .. image:: images/new_version_available.png
+
+   #. Again the same ``ghini`` script lets you install the optional database
+      connectors: option ``-p`` is for PostgreSQL, option ``-m`` is for
+      MySQL/MariaDB, but you can also install both at the same time::
+
+        ~/bin/ghini -pm
+
+      Please beware: you might need solve dependencies. How to do so,
+      depends on which GNU/Linux flavour you are using. Check with your
+      distribution documentation.
+
+   #. You can also use the ``ghini`` script to switch to a different production
+      line.  At the moment ``1.0`` is the stable one, but you can select
+      ``1.1`` if you want to help us with its development::
+
+        ~/bin/ghini -s 1.1
 
 .. admonition:: beginner's note
    :class: note
-           
+
            To run a script, first make sure you note down the name of the
            directory to which you have downloaded the script, then you open
            a terminal window and in that window you type `bash` followed by
@@ -147,7 +166,7 @@ follow all instructions on how to activate what you have installed.
 
            Before we can run ``devinstall.sh`` as on GNU/Linux, we still
            need installing a couple of python packages, globally. Do this::
-   
+
              sudo pip install virtualenv lxml
 
 The rest is just as on a normal unix machine. Read the above GNU/Linux instructions, follow them, enjoy.
@@ -192,7 +211,7 @@ The installation steps on Windows:
    ``vi``) from::
 
      https://git-scm.com/download/win
-   
+
    `Direct link to download git`_
 
    all default options are fine, except we need git to be executable from
@@ -243,11 +262,11 @@ The installation steps on Windows:
    `Direct link to download lxml`_
 
 #. (optional) download and install a database connector other than
-   ``sqlite3``. 
+   ``sqlite3``.
 
    On Windows, it is NOT easy to install ``psycopg2`` from sources, using
    pip, so "avoid the gory details" and use a pre-compiled pagkage from:
-   
+
    http://initd.org/psycopg/docs/install.html
 
    `Direct link to download psycopg2`_
@@ -323,7 +342,7 @@ Troubleshooting
     CPython).
 
     However, It should not be necessary to compile anything, and ``pip``
-    should be able to locate the binary modules in the online libraries. 
+    should be able to locate the binary modules in the online libraries.
 
     For some reason, this is not the case on Windows 8.1.
 
