@@ -78,7 +78,17 @@ mkdir -p $HOME/.virtualenvs/ghide/share
 mkdir -p $HOME/.ghini
 . $HOME/.virtualenvs/ghide/bin/activate
 
-pip install setuptools pip --upgrade
+if [ "$PG" != "" ]
+then
+    echo 'installing postgresql adapter'
+    pip install psycopg2 ;
+fi
+
+if [ "$MYSQL" != "" ]
+then
+    echo 'installing mysql adapter'
+    pip install MySQL-python ;    
+fi
 
 python setup.py build
 python setup.py install
