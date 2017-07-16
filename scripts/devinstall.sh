@@ -36,6 +36,9 @@ if [ "$PYTHONHCOUNT" = "0" ]; then
     PROBLEMS="$PROBLEMS python-all-dev"
 fi
 
+# forget password, please.
+sudo -k
+
 if [ "$PROBLEMS" != "" ]; then
     echo 'please solve the following dependencies:'
     echo '(package names are ubuntu/debian, YMMV.)'
@@ -47,7 +50,7 @@ if [ "$PROBLEMS" != "" ]; then
         echo
         echo you are on a debian-like system, I should know how to install
         echo $PROBLEMS
-        sudo -k apt-get -y install $PROBLEMS
+        sudo apt-get -y install $PROBLEMS
         echo please re-run devinstall.sh
     fi
     exit 1
@@ -139,7 +142,7 @@ chmod +x $HOME/bin/ghini
 echo your local installation is now complete.
 echo enter your password to make Ghini available to other users.
 
-sudo -k groupadd ghini 2>/dev/null 
+sudo groupadd ghini 2>/dev/null 
 sudo usermod -a -G ghini $(whoami)
 chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide
 sudo chgrp -R ghini $HOME/.virtualenvs/ghide

@@ -3635,8 +3635,8 @@ msgid ""
 "new remote version %s available.\n"
 "continue, or exit to upgrade."
 msgstr ""
-"La versión %s está a disposición en github.\n"
-"Cancelar para parar y actualizar; o Continuar."
+"Versión %s a disposición en github.\n"
+"Cancelar para parar y actualizar."
 
 #: bauble/plugins/plants/stored_queries.glade:491
 #: bauble/plugins/plants/taxonomy_check.glade:218
