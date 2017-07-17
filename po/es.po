@@ -1954,11 +1954,11 @@ msgstr "Fotos de nombre de directorio no la raíz."
 
 #: bauble/connmgr.glade:274
 msgid "Pictures root:"
-msgstr "Raíz de cuadros:"
+msgstr "Ubicación fotos:"
 
 #: bauble/connmgr.glade:434
 msgid "Pictures root: "
-msgstr "Carpeta base para las fotos: "
+msgstr "Ubicación fotos: "
 
 #: bauble/plugins/garden/plant.py:910
 msgid "Plant Editor"
@@ -3227,11 +3227,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2593
 msgid "Voucher of Accession"
-msgstr "Cupón de adhesión"
+msgstr "Voucher de accesión"
 
 #: bauble/plugins/garden/acc_editor.glade:2725
 msgid "Voucher of parent material"
-msgstr "Vale de material parental"
+msgstr "Voucher de material parental"
 
 #: bauble/plugins/garden/acc_editor.glade:2795
 #: bauble/plugins/garden/accession.py:2724
