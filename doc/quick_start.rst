@@ -21,6 +21,9 @@ Tenemos 5 diferentes niveles, a saber (y entre parentesis un ejemplo):
       ► Accesión (006266 - conexión entre planta y especie)
         ► Planta (006266.1 - Planta física viva)
 
+Familia
+............................................................................
+      
 En esta simplificación, el nivel más alto es información taxonómica y
 representa la familia de nuestras plantas.
 
@@ -36,18 +39,27 @@ agrupados en 6 subfamilias, y 70 entre tribus y subtribus.  Aprender a
 utilizar Ghini-1.0 para información taxonómica de rango incluido entre
 familia y género está fuera del alcance de esta introducción.
 
+Género
+............................................................................
+
 El segundo nivel, también taxonómico, a disposición en Ghini-1.0 es el nivel
 del género. Todas plantas de que el género no ha sido determinado, caen en
 el género ficticio “Zzz”. Cada género pertenece a una sola familia.
 
-El tercer nivel taxonómico es el nivel de las especies. Una especie
+Especie
+............................................................................
+
+El tercer y último nivel taxonómico es el nivel de las especies. Una especie
 pertenece a un género y por lo anterior a una familia.  En cada género vamos
 a añadir la especie ficticia de epíteto “sp”, para las accesiones que no
 hayan sido mejor identificadas.
 
+Accesión
+............................................................................
+
 El cuarto nivel, y ahora estamos en el contexto de la colección, es la
 accesión. Accesión es un concepto abstracto, explicado más detalladamente en
-`goal`_. En el marco de esta introducción, una accesión es nada más sino un
+`otra parte <goal.html#accession-explained>`_. En el marco de esta introducción, una accesión es nada más sino un
 número con 6 posiciones, presente en la etiqueta de cada planta.
 
 Cada accesión es parte de una especie, esta especie es parte de un género, y
@@ -55,12 +67,18 @@ este género es parte de una familia, y en nuestra colección casi solo
 tenemos Orchidaceae. Nótese que la asociación de una accesión a una especie
 puede ser modificada, si un taxónomo considere necesaria la corrección.
 
+Planta
+............................................................................
+
 El quinto y final nivel es la planta física, la que vive en una maceta, que
 produce semillas, que puede ser vendida o morirse o multiplicarse
 asexuadamente y hasta desaparecer de la colección.
       
 *Siempre recuerda: si se cambia algo en un nivel alto, esto tiene efecto en
  todos los niveles río abajo. Por eso hay que trabajar con mucho cuidado!*
+
+Ubicación
+............................................................................
 
 Otro nivel físico es de las ubicaciones en el jardín, sea en un invernadero,
 sea en una cama al exterior.  Cada planta física pertenece en cada momento a

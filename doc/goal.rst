@@ -77,6 +77,8 @@ its links to other database objects lets us better understand the structure:
   its ``Plantings`` to a single parent ``Planting``, the seed or the
   vegetative parent.
 
+.. _Accession explained:
+  
 Even after the above explanation, new users generally still ask why they
 need pass through an ``Accession`` screen while all they want is to insert a
 ``Plant`` in the collection, and again: what is this "accession" thing
