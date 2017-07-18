@@ -150,9 +150,9 @@ ingresar nombres que desea buscar.
 
 |10000000000006090000001FA253BB9470AD4994_png|
 
-:|100000000000001C00000020F4C7873186014F2F_png|: - Con el botón en forma de casa, puede regresar de sus busquedas a la pantalla principal.
-:|100000000000001B000000207EC6F9075C9D3669_png|: - Con el botón en forma de flecha, puede regresar a su ultima búsqueda.
-:|100000000000001C0000001FB8A1F75F7A5EF877_png|: - Con el botón en forma de engranaje, puede usar el “Query Builder”, con que se puede desarollar una búsqueda más compleja en una manera más simple.
+:|100000000000001C00000020F4C7873186014F2F_png|: Con el botón en forma de casa, puede regresar de sus busquedas a la pantalla principal.
+:|100000000000001B000000207EC6F9075C9D3669_png|: Con el botón en forma de flecha, puede regresar a su ultima búsqueda.
+:|100000000000001C0000001FB8A1F75F7A5EF877_png|: Con el botón en forma de engranaje, puede usar el “Query Builder”, con que se puede desarollar una búsqueda más compleja en una manera más simple.
 
 |10000000000000E7000000DE22288666D5A0BB1B_png|
 
