@@ -40,9 +40,9 @@ y este genero con estas especies es parte de la familia Orchidaceae.  Hasta
 ahora la gran mayoria de nuestras plantas no sean identificado, por eso son
 parte de la especies “Zzz sp” en el genero “Zzz”.
 
-El cuarto nivel es la accesión o código. La accesión es el numero (con 6
+El cuarto nivel es la accesión o código. La accesión es el número (con 6
 posiciones) en la etiqueta de cada planta. Hay muchas plantas con diferentes
-numeros, pero de la misma especie. Por eso, cada accesión es parte de una
+números, pero de la misma especie. Por eso, cada accesión es parte de una
 especie, esta especie es parte de un genero, y este genero es parte de la
 familia Orchidaceae.
 
@@ -175,19 +175,19 @@ De las 511 familias de plantas, el jardín botánico solo tiene plantas de 7 fam
 De las 25394 generos de plantas, el jardín botánico solo tiene plantas de 158 generos registrados.
 
 De las 637 especies entregadas en el banco de datos, solo 623 especies
-poseen numeros (accesiones).
+poseen números (accesiones).
 
 De las 7722 accesiones, que están registrados
 para el banco de datos, solo 7675
 están en uso de
 una manera que la planta
 (en fisico)
-tiene este numero.
+tiene este número.
 
-En generalmente este numero tiene que estar siempre “in use” y “total”
+En generalmente este número tiene que estar siempre “in use” y “total”
 
 De todos las plantas registradas, todas están usando. (este
-numero siempre va a estar full “in use”, si hiciste todo bien.)
+número siempre va a estar full “in use”, si hiciste todo bien.)
 
 De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas.
 
@@ -214,11 +214,11 @@ B. Algunas veces sin causa aparente, cuando se hace una busqueda no se
 
    |10000000000002140000014D050A059AC7EE948A_png|
 
-C. Algunas veces el código en el invernadero no tiene 6 pero 5 numeros. Para
-   realizar tu busqueda solo anadir un zero que el la primera numero.
+C. Algunas veces el código en el invernadero no tiene 6 pero 5 números. Para
+   realizar tu busqueda solo anadir un zero que el la primera número.
 
 +--------------------------+----------------------------------+
-| Numero en el invernadero | Numero para entregar la busqueda |
+| Número en el invernadero | Número para entregar la busqueda |
 |                          |                                  |
 +--------------------------+----------------------------------+
 | 16489                    | “016489”                         |
@@ -230,9 +230,9 @@ C. Algunas veces el código en el invernadero no tiene 6 pero 5 numeros. Para
 
 |10000000000000200000001FDDE6CEA3E00D1E69_png|
 
-Para revisar si una planta con un numero (accesión) existe dentro del
-banco de datos, se necesita el código con 6 numeros e ingresarlo en
-el campo de entregar. Para que el sistema reconozca la busqueda, el numero
+Para revisar si una planta con un número (accesión) existe dentro del
+banco de datos, se necesita el código con 6 números e ingresarlo en
+el campo de entregar. Para que el sistema reconozca la busqueda, el número
 tiene que estar en comillas “ ”. Para confirmar la busqueda oprime “Enter” o
 haga clic a el botón de busqueda.
 
@@ -270,10 +270,10 @@ se revisen todas las plantas para poder eliminar las plantas muertas tanto del i
 
 Tome el
 código
-(con 6 numeros) de la planta muerta
+(con 6 números) de la planta muerta
 e ingreselo
 
-en el campo. Para que el sistema inicie la busqueda, el numero se tiene que escribir entre comillas “ ”. Para confirmar la busqueda oprimir “Enter” o hacer clic a el botón de busqueda.
+en el campo. Para que el sistema inicie la busqueda, el número se tiene que escribir entre comillas “ ”. Para confirmar la busqueda oprimir “Enter” o hacer clic a el botón de busqueda.
 
 A.
 Si la planta, si
@@ -283,7 +283,7 @@ se mostrara una ventana en la parte inferior con los datos de la misma.
 
 |10000000000001CF000000487F16C7F2613D9F58_png|
 
-Para eliminar este numero, hacer clic derecho.
+Para eliminar este número, hacer clic derecho.
 
 Se mostraran tres opciones:
 Edit, Add plant, Delete
@@ -291,7 +291,7 @@ Edit, Add plant, Delete
 Hacer clic en “Delete” y confirmar esta selección con “Si”.
 
 Si se buscara
-nuevamente el mismo numero,
+nuevamente el mismo número,
 no se encontraran datos:
 
 |100000000000025700000050925C1488E03E0617_png|
@@ -354,7 +354,7 @@ poder ingresar un nuevo código (accesión) se siguen los siguientes pasos
 
 :
 
-* numero de la accesión o código
+* número de la accesión o código
   (ej. invernadero 2)
 
 * nombre de la especie (opcional)
@@ -362,7 +362,7 @@ poder ingresar un nuevo código (accesión) se siguen los siguientes pasos
 Para hacer un ejemplo, en el siguiente caso, tenemos inicialmente los
 siguientes datos:
 
-Numero (accesión) que no está
+Número (accesión) que no está
 ingresado
 todavia
 –
@@ -414,7 +414,7 @@ Se abrira esta ventana
 llamada
 “accession editor”.
 
-Cambiar el numero del “Accession ID \*” al código que se le asigne a la nueva
+Cambiar el número del “Accession ID \*” al código que se le asigne a la nueva
 planta.
 
 Cambiar el “Type of material” a “Plant” (Siempre!!).
@@ -475,11 +475,11 @@ Hacer clic en “Notes” e ingresr este dato .
 
 Después, hacer clic en “Aceptar” y listo.
 
-Ahora la planta con ese nombre y numero es parte del banco de datos.
+Ahora la planta con ese nombre y número es parte del banco de datos.
 
 |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
-9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo numero
+9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo número
 --------------------------------------------------------------------------------------------
 
 Si se encuentra una planta y se identifica la especie pero no es parte del
@@ -489,7 +489,7 @@ En el siguiente ejemplo, la planta encontrada fue identificada como Lepanthes al
 
 Si no se sabe la especie, se puede ingresar con la especie “Zzz sp”
 
-Se puede asignar a la nueva planta un código o una accesión (6 numeros)
+Se puede asignar a la nueva planta un código o una accesión (6 números)
 
 Nota: los códigos o las accesiónes con reutilizables fisica y digitalmentente, después de ser borrados en el banco de datos, a causa de la muerte de la planta que lo poseia.
 
@@ -529,7 +529,7 @@ Editor”.
 
 El nombre de la especie nueva está en el campo “Name” todavia.
 
-Cambiar el numero del “Accession ID \*” a tu accesión.
+Cambiar el número del “Accession ID \*” a tu accesión.
 
 Cambiar el “Type of material” a “Plant” (Siempre!!).
 
@@ -546,7 +546,7 @@ Va a abrir el “Plant Editor”.
 Entrar
 en el “Plant Editor”.
 
-El numero (accesión) y nombre todavia está guardado.
+El número (accesión) y nombre todavia está guardado.
 
 Cambiar en
 “Quantity” a “1” (Siempre!!).
