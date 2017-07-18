@@ -38,6 +38,7 @@ Using Ghini
    :maxdepth: 2
 
    started
+   quick_guide
    searching
    editing
    propagations
