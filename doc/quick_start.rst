@@ -1,4 +1,4 @@
-Manual Banco de datos – Jardin Botanico de Quito
+Manual Banco de datos – Jardín Botánico de Quito
 ==================================================
 
 Este documento explica los conceptos basicos para manejar el banco de datos
@@ -149,19 +149,16 @@ En la parte superior de esta pantalla se puede encontrar el campo para
 ingresar nombres que desea buscar.
 
 |10000000000006090000001FA253BB9470AD4994_png|
-|100000000000001C00000020F4C7873186014F2F_png|
 
-Con el botón en forma de casa, puede regresar de sus busquedas a la pantalla
-principal.
+|100000000000001C00000020F4C7873186014F2F_png| Con el botón en forma de
+casa, puede regresar de sus busquedas a la pantalla principal.
 
-|100000000000001B000000207EC6F9075C9D3669_png|
+|100000000000001B000000207EC6F9075C9D3669_png| Con el botón en forma de
+flecha, puede regresar a su ultima busqueda.
 
-Con el botón en forma de flecha, puede regresar a su ultima busqueda.
-
-|100000000000001C0000001FB8A1F75F7A5EF877_png|
-
-Con el botón en forma de engranaje, puede usar el “Query Builder”, con que
-se puede desarollar una busqueda más compleja en una manera más simple.
+|100000000000001C0000001FB8A1F75F7A5EF877_png| Con el botón en forma de
+engranaje, puede usar el “Query Builder”, con que se puede desarollar una
+busqueda más compleja en una manera más simple.
 
 |10000000000000E7000000DE22288666D5A0BB1B_png|
 
@@ -171,11 +168,11 @@ Para buscar algo en el campo de entregar, siempre recuerde de usar comillas!
 
 |100000000000018700000173222371085C3C68FE_png|
 
-En la parte del lado se uede observar un resumen de todas las plantas registrados.
+En la parte del lado se puede observar un resumen de todas las plantas registradas.
 
-De las 511 familias de plantas, el jardin botanico solo tiene plantas de 7 familias registradas.
+De las 511 familias de plantas, el jardín botánico solo tiene plantas de 7 familias registradas.
 
-De las 25394 generos de plantas, el jardin botanico solo tiene plantas de 158 generos registrados.
+De las 25394 generos de plantas, el jardín botánico solo tiene plantas de 158 generos registrados.
 
 De las 637 especies entregadas en el banco de datos, solo 623 especies
 poseen numeros (accessiones).
@@ -432,16 +429,16 @@ Para entender las abreviaturas de las lugares de las plantas, aquí una
 lista:
 
 CAC-B
-*x*: Solo las cactáceas afuera de los orquidarios en el jardin
+*x*: Solo las cactáceas afuera de los orquidarios en el jardín
 
 CRV:
 
-IC-*xx*: orquidarios de calor en el jardin
+IC-*xx*: orquidarios de calor en el jardín
 (1A a 9C son lugares
 especificos entre del
 orquidario)
 
-IF-xx: orquidarios de frio en el jardin (1A a 5I son lugares especificos
+IF-xx: orquidarios de frio en el jardín (1A a 5I son lugares especificos
 entre del orquidario)
 
 INV1: invernadero 1 (calor)
