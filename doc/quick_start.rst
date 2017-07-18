@@ -45,8 +45,6 @@ pertenece a un género y por lo anterior a una familia.  En cada género vamos
 a añadir la especie ficticia de epíteto “sp”, para las accesiones que no
 hayan sido mejor identificadas.
 
-.. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
-
 El cuarto nivel, y ahora estamos en el contexto de la colección, es la
 accesión. Accesión es un concepto abstracto, explicado más detalladamente en
 `goal`_. En el marco de esta introducción, una accesión es nada más sino un
@@ -189,7 +187,13 @@ número siempre va a estar full “in use”, si hiciste todo bien.)
 
 De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas.
 
-**4. Errores del programa**
+3a. identificación a rango género
+---------------------------------------------------------------
+
+.. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
+
+
+4. Errores del programa
 -----------------------------------------------------------------
   
 y de los códigos en los invernaderos
@@ -257,7 +261,7 @@ La especies “Zzz sp” es solo un sostenedor del lugar, y la especie
 correcta se puede
 cambiar y actualizar.
 
-**6. Eliminar plantas muertas del banco de datos**
+6. Eliminar plantas muertas del banco de datos
 -----------------------------------------------------------------
 
 Se recomienda que
@@ -301,7 +305,7 @@ parte inferior una ventana con la siguiente frase:
 
 En ese caso no proceder a ninguna accion dentro del programa.
 
-**7. Cambiar la especies**
+7. Cambiar la especies
 -----------------------------------------------------------------
 
 (nombre de las especies)
@@ -322,7 +326,8 @@ cambiar
 cambiar
 ▼ “Quantity” a 1
 
-▼▼▼▼▼▼si nombre es correcto▼▼▼▼▼▼▼▼
+si nombre es correcto
+
 cambiar el
 ▼
 nombre del especies
@@ -338,7 +343,7 @@ cambiar
 
 |10000000000001FE0000006F90B0DF98BB2933D6_png|
 
-**8. Entregar una nueva accesión en el banco de datos**
+8. Entregar una nueva accesión en el banco de datos
 -----------------------------------------------------------------
 
 Si se encontrara una planta con un código (accesión) el cual no se encuentra ingresado en el banco de datos,
@@ -348,9 +353,7 @@ se tiene que ingresar este nuevo código
 |1000000000000257000000504EC4536B148C3228_png|
 
 Para
-poder ingresar un nuevo código (accesión) se siguen los siguientes pasos
-
-:
+poder ingresar un nuevo código (accesión) se siguen los siguientes pasos:
 
 * número de la accesión o código
   (ej. invernadero 2)
@@ -389,6 +392,7 @@ que escribirse entre comillas “ ”.
 Para abrir las especies de Dendrobium hacer clic en el triangulo gris.
 
 |1000000000000174000000C0752C792970DEFAA2_png|
+
 Los tres nombres de la especies van a
 mostrarse en la parte inferior.
 
@@ -407,10 +411,10 @@ accession, Delete
 Hago clic en “Add accession”.
 
 |10000000000002F4000002409EE0B06C300048EF_png|
-Se abrira esta ventana
 
+Se abrira esta ventana
 llamada
-“accession editor”.
+“Accession editor”.
 
 Cambiar el número del “Accession ID \*” al código que se le asigne a la nueva
 planta.
