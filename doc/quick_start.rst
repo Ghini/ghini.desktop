@@ -1,19 +1,19 @@
 Manual Banco de datos – Jardín Botánico de Quito
 ==================================================
 
-Este documento explica los conceptos basicos para manejar el banco de datos
+Este documento explica los conceptos básicos para manejar el banco de datos
 en el programa de Ghini. Este documento fue escrito en Marzo 2017. Cuando
 use el programa en el futuro, tal vez algunas cosas hayan cambiado o
 actualizado.
 
-0. Informacion del programa “Ghini”
+0. Información del programa “Ghini”
 --------------------------------------------
 
 Para trabajar con el programa “Ghini” se necesita entender el flujo del
-información. Esta es la metodologia como Ghini guarda toda la informacion de
+información. Esta es la metodología como Ghini guarda toda la información de
 las plantas en el banco de datos.
 
-Ghini tiene 5 diferentes niveles para guardar toda la informacion en el
+Ghini tiene 5 diferentes niveles para guardar toda la información en el
 jardín botánico.
 
 |10000000000001B5000001365A0946E38D28ACB1_png|
@@ -31,13 +31,13 @@ Todas las orquídeas registradas son parte de la familia Orchidaceae.
 
 El segundo nivel es el nivel del genero. Todas las orquídeas son parte de un
 genero y este genero es parte de la familia Orchidaceae.  La familia tiene
-muchos generos, pero la gran mayoria de nuestras plantas no son parte de un
+muchos géneros, pero la gran mayoría de nuestras plantas no son parte de un
 genero especifico hasta ahora, por eso es parte el genero que no existe
 “Zzz”.
 
 El tercer nivel es el nivel del especies. Una especies es parte de un genero
 y este genero con estas especies es parte de la familia Orchidaceae.  Hasta
-ahora la gran mayoria de nuestras plantas no sean identificado, por eso son
+ahora la gran mayoría de nuestras plantas no sean identificado, por eso son
 parte de la especies “Zzz sp” en el genero “Zzz”.
 
 El cuarto nivel es la accesión o código. La accesión es el número (con 6
@@ -46,7 +46,7 @@ números, pero de la misma especie. Por eso, cada accesión es parte de una
 especie, esta especie es parte de un genero, y este genero es parte de la
 familia Orchidaceae.
 
-El quinto y final nivel es la planta en fisico, en una maseta. Todos las
+El quinto y final nivel es la planta en físico, en una maceta. Todos las
 niveles arriba son construcciones para organizar este nivel, de las plantas
 en los invernaderos.
 
@@ -64,24 +64,24 @@ en los invernaderos.
 
 *Siempre recuerda que si se cambia un nivel más alto, todos los niveles de abajo se van a cambiar también. Por eso se tiene que trabajar con mucho cuidado!*
 
-**0.5 Documentacion en el internet**
+**0.5 Documentación en el internet**
 .......................................
 
 El programa “Ghini” es un programa del código abierto y libre. Este implica
-que el programa está completamente gratis y con una documentacion y ayudar
+que el programa está completamente gratis y con una documentación y ayudar
 del mantenedor.
 
-Documentacion oficial del programa, en `inglés
+Documentación oficial del programa, en `inglés
 <http://ghini.readthedocs.io/en/>`_, y en `español
 <http://ghini.readthedocs.io/es/>`_
 
-Communidad el pagina de Github:
+Comunidad el pagina de Github:
 `https://github.com/Ghini/ghini.desktop <https://github.com/Ghini/ghini.desktop>`_
 
 Pagina oficial del Ghini en Github:
 `http://ghini.github.io/ <http://ghini.github.io/>`_
 
-Dirrección
+Dirección
 del
 mantenedor
 del programa Mario Frasca:
@@ -90,10 +90,10 @@ del programa Mario Frasca:
 Forum de Ghini en Google:
 `https://groups.google.com/forum/#!forum/bauble <https://groups.google.com/forum/#!forum/bauble>`_
 
-Basic Youtube documentacion:
+Basic Youtube documentación:
 `https://www.youtube.com/watch?v=a6ZwMOh2-m8 <https://www.youtube.com/watch?v=a6ZwMOh2-m8>`_
 
-Estas paginas y su email para preguntas son muy valioso y pueden ayudarte para aprender muy rapido.
+Estas paginas y su email para preguntas son muy valioso y pueden ayudarte para aprender muy rápido.
 
 1. Abrir el banco de datos
 ------------------------------------
@@ -103,7 +103,7 @@ Estas paginas y su email para preguntas son muy valioso y pueden ayudarte para a
 |100000000000003100000031BB54CBDFA885EBAC_png|
 
 Para abrir el programa de Ghini, hacer clic en y escribir “Ghini” o hacer
-clic en el simbolo Ghini
+clic en el símbolo Ghini
 
 2. Login en el banco de datos
 -----------------------------------------------------------------
@@ -116,7 +116,7 @@ Nótese que la versión se encuentra en la parte superior. Al momento de tomar
 el pantallazo, la versión más actualizada del programa era la 1.0.62, y
 nosotros estábamos utilizando la 1.0.60.
 
-Nótese tambien, que si el programa requiere una nueva versión se la puede
+Nótese también, que si el programa requiere una nueva versión se la puede
 descargar, pues es recomendable trabajar con la versión más actual del
 mismo.
 
@@ -138,7 +138,7 @@ cualquier información en la base de datos, y necesitas saber su contraseña.
 
 |10000000000000FE00000065C64D791B5CA0099D_png|
 
-3. Informacion del banco de datos
+3. Información del banco de datos
 -----------------------------------------------------------------
 
 |100000000000063F00000383F7EAFB008DE6E4E2_png|
@@ -154,11 +154,11 @@ ingresar nombres que desea buscar.
 casa, puede regresar de sus busquedas a la pantalla principal.
 
 |100000000000001B000000207EC6F9075C9D3669_png| Con el botón en forma de
-flecha, puede regresar a su ultima busqueda.
+flecha, puede regresar a su ultima búsqueda.
 
 |100000000000001C0000001FB8A1F75F7A5EF877_png| Con el botón en forma de
 engranaje, puede usar el “Query Builder”, con que se puede desarollar una
-busqueda más compleja en una manera más simple.
+búsqueda más compleja en una manera más simple.
 
 |10000000000000E7000000DE22288666D5A0BB1B_png|
 
@@ -193,7 +193,7 @@ De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas
 
 **4. Errores del programa**
 -----------------------------------------------------------------
-   
+  
 y de los códigos en los invernaderos
 
 A. Para el banco de datos de funcionar, el programa se necesite una red con
@@ -205,9 +205,9 @@ A. Para el banco de datos de funcionar, el programa se necesite una red con
 
    |100000000000020B000000FBCAB1860DB92DF14A_png|
 
-B. Algunas veces sin causa aparente, cuando se hace una busqueda no se
+B. Algunas veces sin causa aparente, cuando se hace una búsqueda no se
    ejecuta por completo y puede mostrarse una ventana con un mensaje. En
-   este caso solo se tiene que intentar realizar la misma busqueda
+   este caso solo se tiene que intentar realizar la misma búsqueda
    nuevamente.
 
    Un ejemplo de una ventana de un mensaje error:
@@ -215,10 +215,10 @@ B. Algunas veces sin causa aparente, cuando se hace una busqueda no se
    |10000000000002140000014D050A059AC7EE948A_png|
 
 C. Algunas veces el código en el invernadero no tiene 6 pero 5 números. Para
-   realizar tu busqueda solo anadir un zero que el la primera número.
+   realizar tu búsqueda solo anadir un zero que el la primera número.
 
 +--------------------------+----------------------------------+
-| Número en el invernadero | Número para entregar la busqueda |
+| Número en el invernadero | Número para entregar la búsqueda |
 |                          |                                  |
 +--------------------------+----------------------------------+
 | 16489                    | “016489”                         |
@@ -232,9 +232,9 @@ C. Algunas veces el código en el invernadero no tiene 6 pero 5 números. Para
 
 Para revisar si una planta con un número (accesión) existe dentro del
 banco de datos, se necesita el código con 6 números e ingresarlo en
-el campo de entregar. Para que el sistema reconozca la busqueda, el número
-tiene que estar en comillas “ ”. Para confirmar la busqueda oprime “Enter” o
-haga clic a el botón de busqueda.
+el campo de entregar. Para que el sistema reconozca la búsqueda, el número
+tiene que estar en comillas “ ”. Para confirmar la búsqueda oprime “Enter” o
+haga clic a el botón de búsqueda.
 
 Si la planta se encuentra en el banco de datos, se mostrara una ventana en
 la parte inferior con los datos de la planta.
@@ -273,7 +273,7 @@ código
 (con 6 números) de la planta muerta
 e ingreselo
 
-en el campo. Para que el sistema inicie la busqueda, el número se tiene que escribir entre comillas “ ”. Para confirmar la busqueda oprimir “Enter” o hacer clic a el botón de busqueda.
+en el campo. Para que el sistema inicie la búsqueda, el número se tiene que escribir entre comillas “ ”. Para confirmar la búsqueda oprimir “Enter” o hacer clic a el botón de búsqueda.
 
 A.
 Si la planta, si
@@ -364,7 +364,7 @@ siguientes datos:
 
 Número (accesión) que no está
 ingresado
-todavia
+todavía
 –
 008440
 
@@ -381,7 +381,7 @@ Invernadero 1 (calor)
 
 Para ingresar la accesión o el código, buscar la especie o el genero en el
 campo de entregar (en el caso que no saber el nombre de la especie buscar
-por “Zzz sp”).  Para que el sistema realice la busqueda, la especie tiene
+por “Zzz sp”).  Para que el sistema realice la búsqueda, la especie tiene
 que escribirse entre comillas “ ”.
 
 |1000000000000181000000477149EC5BD0AE7C2D_png|
@@ -455,7 +455,7 @@ Se abrira la ventana llamada
 
 |10000000000001FC0000018F4B27179B9456E1CF_png|
 
-El código (accesión) y nombre todavia están guardados.
+El código (accesión) y nombre todavía están guardados.
 
 Cambiar el “Quantity” a “1” (Siempre!!).
 
@@ -517,9 +517,9 @@ ya que se selecciona delete se borraran todos los datos pertenecientes a la espe
 
 Al añadir el nombre de una especie nueva siempre escribir todo con minusculas, además asegurarse de que el nombre cientifico esté bien escrito.
 
-Es obligatorio añadir tambien el nombre del autor, y para eso se necesita buscar la nueva especie en el banco de datos online llamado Tropicos (http://tropicos.org/)
+Es obligatorio añadir también el nombre del autor, y para eso se necesita buscar la nueva especie en el banco de datos online llamado Tropicos (http://tropicos.org/)
 
-Si no se puede añadir la especie, porque la especie todavia existe, el fondo
+Si no se puede añadir la especie, porque la especie todavía existe, el fondo
 del campo de “Species” va a estar rojo.
 
 Hacer clic en “Add accession”.  Se va a abrir la ventana llamada “Accession
@@ -527,7 +527,7 @@ Editor”.
 
 |10000000000002F8000002432C9DDC622203371C_png|
 
-El nombre de la especie nueva está en el campo “Name” todavia.
+El nombre de la especie nueva está en el campo “Name” todavía.
 
 Cambiar el número del “Accession ID \*” a tu accesión.
 
@@ -546,7 +546,7 @@ Va a abrir el “Plant Editor”.
 Entrar
 en el “Plant Editor”.
 
-El número (accesión) y nombre todavia está guardado.
+El número (accesión) y nombre todavía está guardado.
 
 Cambiar en
 “Quantity” a “1” (Siempre!!).
@@ -569,13 +569,13 @@ lugar diferente al que está registrado en el banco de datos, se tiene que cambi
 En este ejemplo
 se
 encontró
-que la planta de species “Acineta sp.”con la accesión “012142”, está en el Invernadero 1, pero está guardado en el banco de datos en ICAlm3.
+que la planta de especies “Acineta sp.”con la accesión “012142”, está en el Invernadero 1, pero está guardado en el banco de datos en ICAlm3.
 
 Ahora
 se debe cambiar
 el lugar de esta planta en el banco de datos.
 
-*▼Informacion entregado▼  ▼informacion*
+*▼Información entregado▼  ▼información*
 
 *guardado ▼*
 
@@ -611,7 +611,7 @@ solo Location1
 
 ►
 
-Hace clic a “Aceptar”, para guardar la informacion.
+Hace clic a “Aceptar”, para guardar la información.
 
 Después hace clic derecho con el raton, la planta (abajo, fondo blanco en el
 foto). Las siguientes tres opciones se mostraran: “Edit, Branch, Delete” va
@@ -633,7 +633,7 @@ o solo Location
 
 ►
 
-Hace clic en “Aceptar”, para guardar la informacion y listo
+Hace clic en “Aceptar”, para guardar la información y listo
 
 después puedes verificar que la positon “Location” está cambiada.
 
@@ -646,12 +646,12 @@ ultima vez.
 
 *▼ Aquí! ▼*
 
-11. Decargar informacion sobre el banco de datos por una informe
+11. Decargar información sobre el banco de datos por una informe
 -----------------------------------------------------------------
 
 Cada año el jardín botánico tiene que entregar una informe
 (informe anual de manejo y mantenimiento de colección de orquideas)
-que tiene la informacion del banco de datos y sobre eso las plantas registradas.
+que tiene la información del banco de datos y sobre eso las plantas registradas.
 
 Para realizar eso, solo se pone esto en el campo de entregar en el banco de
 datos::
@@ -664,7 +664,7 @@ or::
 
 (tienes que adaptarse el año)
 
-Después esta busqueda, tiene que esperar un
+Después esta búsqueda, tiene que esperar un
 momento
 para que el programa puede
 arrojar
