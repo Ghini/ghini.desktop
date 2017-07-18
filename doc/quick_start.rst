@@ -9,101 +9,99 @@ actualizado.
 0. Información del programa “Ghini”
 --------------------------------------------
 
-Para trabajar con el programa “Ghini” se necesita entender el flujo del
-información. Esta es la metodología como Ghini guarda toda la información de
-las plantas en el banco de datos.
+Para trabajar con el programa “Ghini” se necesita entender el flujo de la
+información. Simplificando al extremo, podemos mirar así a
+como Ghini guarda la información de la colección de un jardín botánico:
 
-Ghini tiene 5 diferentes niveles para guardar toda la información en el
-jardín botánico.
-
-|10000000000001B5000001365A0946E38D28ACB1_png|
-
-El nivel más alto (primer nivel) es el nivel de la familia de las
-plantas. En teoría podemos guardar todas las plantas de todas las familias
-en el jardín botánico en este banco de datos. Pero
-la familia más importante para nosotros es la familia Orchidaceae, las
-orquídeas.
-
-Pero actualmente tenemos plantas de 7 familias registrad as en este banco de
-datos (primer nivel) .
-
-Todas las orquídeas registradas son parte de la familia Orchidaceae.
-
-El segundo nivel es el nivel del genero. Todas las orquídeas son parte de un
-genero y este genero es parte de la familia Orchidaceae.  La familia tiene
-muchos géneros, pero la gran mayoría de nuestras plantas no son parte de un
-genero especifico hasta ahora, por eso es parte el genero que no existe
-“Zzz”.
-
-El tercer nivel es el nivel del especies. Una especies es parte de un genero
-y este genero con estas especies es parte de la familia Orchidaceae.  Hasta
-ahora la gran mayoría de nuestras plantas no sean identificado, por eso son
-parte de la especies “Zzz sp” en el genero “Zzz”.
-
-El cuarto nivel es la accesión o código. La accesión es el número (con 6
-posiciones) en la etiqueta de cada planta. Hay muchas plantas con diferentes
-números, pero de la misma especie. Por eso, cada accesión es parte de una
-especie, esta especie es parte de un genero, y este genero es parte de la
-familia Orchidaceae.
-
-El quinto y final nivel es la planta en físico, en una maceta. Todos las
-niveles arriba son construcciones para organizar este nivel, de las plantas
-en los invernaderos.
-
-**Resumen:**
+Tenemos 5 diferentes niveles, a saber (y entre parentesis un ejemplo):
 
 ► Familia (Orchidaceae)
+  ► Género (Masdevallia)
+    ► Especie (Masdevallia angulata)
+      ► Accesión (006266 - conexión entre planta y especie)
+        ► Planta (006266.1 - Planta física viva)
 
-► Genero (p.ej. Masdevallia)
+En esta simplificación, el nivel más alto es información taxonómica y
+representa la familia de nuestras plantas.
 
-► Especies (p.ej. Masdevallia angulata)
+.. figure:: images/10000000000001B5000001365A0946E38D28ACB1.png
 
-► Accesión (p.ej. 006266)
+Por supuesto que podemos guardar plantas de cualquier familia botánica, sin
+embargo actualmente tenemos plantas de tan sólo 7 familias registradas en
+este banco de datos, y con diferencia la mayor parte queda en la familia
+Orchidaceae.
 
-► Planta (p.ej. Planta en invernadero 2 con una flor rojo)
+La familia Orchidaceae tiene demasiado géneros —más que 4000— que están
+agrupados en 6 subfamilias, y 70 entre tribus y subtribus.  Aprender a
+utilizar Ghini-1.0 para información taxonómica de rango incluido entre
+familia y género está fuera del alcance de esta introducción.
 
-*Siempre recuerda que si se cambia un nivel más alto, todos los niveles de abajo se van a cambiar también. Por eso se tiene que trabajar con mucho cuidado!*
+El segundo nivel, también taxonómico, a disposición en Ghini-1.0 es el nivel
+del género. Todas plantas de que el género no ha sido determinado, caen en
+el género ficticio “Zzz”. Cada género pertenece a una sola familia.
+
+El tercer nivel taxonómico es el nivel de las especies. Una especie
+pertenece a un género y por lo anterior a una familia.  En cada género vamos
+a añadir la especie ficticia de epíteto “sp”, para las accesiones que no
+hayan sido mejor identificadas.
+
+.. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
+
+El cuarto nivel, y ahora estamos en el contexto de la colección, es la
+accesión. Accesión es un concepto abstracto, explicado más detalladamente en
+`goal`_. En el marco de esta introducción, una accesión es nada más sino un
+número con 6 posiciones, presente en la etiqueta de cada planta.
+
+Cada accesión es parte de una especie, esta especie es parte de un género, y
+este género es parte de una familia, y en nuestra colección casi solo
+tenemos Orchidaceae. Nótese que la asociación de una accesión a una especie
+puede ser modificada, si un taxónomo considere necesaria la corrección.
+
+El quinto y final nivel es la planta física, la que vive en una maceta, que
+produce semillas, que puede ser vendida o morirse o multiplicarse
+asexuadamente y hasta desaparecer de la colección.
+      
+*Siempre recuerda: si se cambia algo en un nivel alto, esto tiene efecto en
+ todos los niveles río abajo. Por eso hay que trabajar con mucho cuidado!*
+
+Otro nivel físico es de las ubicaciones en el jardín, sea en un invernadero,
+sea en una cama al exterior.  Cada planta física pertenece en cada momento a
+una ubicación, pero esta asociación puede cambiar según las necesidades
+expositivas.
 
 **0.5 Documentación en el internet**
 .......................................
 
-El programa “Ghini” es un programa del código abierto y libre. Este implica
-que el programa está completamente gratis y con una documentación y ayudar
-del mantenedor.
+El programa “Ghini” es un programa distribuido bajo la `licencia GNU GPL
+<https://es.wikipedia.org/wiki/GNU_General_Public_License>`_. Esto sí
+implica que el programa es completamente gratis, pero quizás sean los
+siguientes los dos aspectos fundamentales de la GNU GPL: Ghini hoy es
+software libre; Ghini está legalmente protegido de cualquier futuro intento
+de apropiación.
 
 Documentación oficial del programa, en `inglés
 <http://ghini.readthedocs.io/en/>`_, y en `español
 <http://ghini.readthedocs.io/es/>`_
 
-Comunidad el pagina de Github:
-`https://github.com/Ghini/ghini.desktop <https://github.com/Ghini/ghini.desktop>`_
+El `código de Ghini <https://github.com/Ghini/ghini.desktop>`_ se encuentra en github.
 
-Pagina oficial del Ghini en Github:
-`http://ghini.github.io/ <http://ghini.github.io/>`_
+Una `introducción al programa <http://ghini.github.io/>`_, con enlaces, comentarios, historia.
 
-Dirección
-del
-mantenedor
-del programa Mario Frasca:
-`mario@anche.no <mailto:mario@anche.no>`_
+Correo internet del mantenedor del programa, `Mario Frasca
+<mailto:mario@anche.no>`_
 
-Forum de Ghini en Google:
-`https://groups.google.com/forum/#!forum/bauble <https://groups.google.com/forum/#!forum/bauble>`_
+También hay un `forum google <https://groups.google.com/forum/#!forum/bauble>`_.
 
-Basic Youtube documentación:
-`https://www.youtube.com/watch?v=a6ZwMOh2-m8 <https://www.youtube.com/watch?v=a6ZwMOh2-m8>`_
+`Documentación audiovisual <https://www.youtube.com/watch?v=a6ZwMOh2-m8>`_, en youtube.
 
 Estas paginas y su email para preguntas son muy valioso y pueden ayudarte para aprender muy rápido.
 
 1. Abrir el banco de datos
 ------------------------------------
 
-|10000000000000300000002F89E0224ADF9EC09E_png|
-
-|100000000000003100000031BB54CBDFA885EBAC_png|
-
-Para abrir el programa de Ghini, hacer clic en y escribir “Ghini” o hacer
-clic en el símbolo Ghini
+Para abrir el programa de Ghini, hacer clic en
+|10000000000000300000002F89E0224ADF9EC09E_png| y escribir “Ghini” o hacer
+clic en el símbolo Ghini |100000000000003100000031BB54CBDFA885EBAC_png|.
 
 2. Login en el banco de datos
 -----------------------------------------------------------------
@@ -128,7 +126,9 @@ Todas las plantas registradas son guardadas en la base de datos.
 En esta ventana no se ingresa ningún dato, solo hacer clic en “Conectar”
 para continuar a la próxima ventana.
 
-Si quieres ver los detalles de la conexión, haz clic en el triangulo |1000000000000012000000136C4E92DF7BEB33CC_png| al lado de 'Connection Details':
+Si quieres ver los detalles de la conexión, haz clic en el triangulo
+|1000000000000012000000136C4E92DF7BEB33CC_png| al lado de 'Connection
+Details':
 
 |100000000000012F000001A611615FB62F2D003B_png|
 
@@ -150,15 +150,9 @@ ingresar nombres que desea buscar.
 
 |10000000000006090000001FA253BB9470AD4994_png|
 
-|100000000000001C00000020F4C7873186014F2F_png| Con el botón en forma de
-casa, puede regresar de sus busquedas a la pantalla principal.
-
-|100000000000001B000000207EC6F9075C9D3669_png| Con el botón en forma de
-flecha, puede regresar a su ultima búsqueda.
-
-|100000000000001C0000001FB8A1F75F7A5EF877_png| Con el botón en forma de
-engranaje, puede usar el “Query Builder”, con que se puede desarollar una
-búsqueda más compleja en una manera más simple.
+:|100000000000001C00000020F4C7873186014F2F_png|: - Con el botón en forma de casa, puede regresar de sus busquedas a la pantalla principal.
+:|100000000000001B000000207EC6F9075C9D3669_png|: - Con el botón en forma de flecha, puede regresar a su ultima búsqueda.
+:|100000000000001C0000001FB8A1F75F7A5EF877_png|: - Con el botón en forma de engranaje, puede usar el “Query Builder”, con que se puede desarollar una búsqueda más compleja en una manera más simple.
 
 |10000000000000E7000000DE22288666D5A0BB1B_png|
 
@@ -172,7 +166,7 @@ En la parte del lado se puede observar un resumen de todas las plantas registrad
 
 De las 511 familias de plantas, el jardín botánico solo tiene plantas de 7 familias registradas.
 
-De las 25394 generos de plantas, el jardín botánico solo tiene plantas de 158 generos registrados.
+De las 25394 géneros de plantas, el jardín botánico solo tiene plantas de 158 géneros registrados.
 
 De las 637 especies entregadas en el banco de datos, solo 623 especies
 poseen números (accesiones).
@@ -379,7 +373,7 @@ se encuentra
 –
 Invernadero 1 (calor)
 
-Para ingresar la accesión o el código, buscar la especie o el genero en el
+Para ingresar la accesión o el código, buscar la especie o el género en el
 campo de entregar (en el caso que no saber el nombre de la especie buscar
 por “Zzz sp”).  Para que el sistema realice la búsqueda, la especie tiene
 que escribirse entre comillas “ ”.
@@ -500,7 +494,7 @@ Si se reutiliza un código o una accesión, recuerde verificar que no se encuent
 |1000000000000152000001B12C2FDE60BD2B710B_png|
 
 Se encontro que la planta de ejemplo es de especie *Lepanthes alopex*,
-si se busca en el banco de datos el genero lepanhtes y se nota que dentro de este genero no está registrada esta especie. Se tendra que añadir como una nueva especie.
+si se busca en el banco de datos el género lepanhtes y se nota que dentro de este género no está registrada esta especie. Se tendra que añadir como una nueva especie.
 
 Para añadir una nueva especie, dar clic derecho sobre la especie Lepanthes (sombreada de rojo) y se mostraran las siguientes opciones:
 
@@ -671,8 +665,8 @@ arrojar
 los resultados.
 
 .. |10000000000006090000001FA253BB9470AD4994_png| image:: images/10000000000006090000001FA253BB9470AD4994.png
-    :width: 17cm
-    :height: 0.34cm
+    :width: 470px
+    :height: 31px
 
 .. |1000000000000257000000504EC4536B148C3228_png| image:: images/1000000000000257000000504EC4536B148C3228.png
     :width: 12.157cm
@@ -711,8 +705,8 @@ los resultados.
     :height: 6.641cm
 
 .. |100000000000001C0000001FB8A1F75F7A5EF877_png| image:: images/100000000000001C0000001FB8A1F75F7A5EF877.png
-    :width: 0.741cm
-    :height: 0.82cm
+    :width: 20px
+    :height: 20px
 
 .. |1000000000000293000001C3EC6A9DC0A1D0CA68_png| image:: images/1000000000000293000001C3EC6A9DC0A1D0CA68.png
     :width: 7.489cm
@@ -763,16 +757,12 @@ los resultados.
     :height: 2.672cm
 
 .. |100000000000063F00000383F7EAFB008DE6E4E2_png| image:: images/100000000000063F00000383F7EAFB008DE6E4E2.png
-    :width: 17cm
-    :height: 9.557cm
+    :width: 492px
+    :height: 373px
 
 .. |10000000000001FC0000018808F152DBEDDAA04B_png| image:: images/10000000000001FC0000018808F152DBEDDAA04B.png
     :width: 6.966cm
     :height: 5.375cm
-
-.. |10000000000001B5000001365A0946E38D28ACB1_png| image:: images/10000000000001B5000001365A0946E38D28ACB1.png
-    :width: 5.824cm
-    :height: 4.133cm
 
 .. |10000000000002D800000060D6575EB671D3EE00_png| image:: images/10000000000002D800000060D6575EB671D3EE00.png
     :width: 9.777cm
@@ -835,8 +825,8 @@ los resultados.
     :height: 1.533cm
 
 .. |100000000000001B000000207EC6F9075C9D3669_png| image:: images/100000000000001B000000207EC6F9075C9D3669.png
-    :width: 0.714cm
-    :height: 0.847cm
+    :width: 20px
+    :height: 20px
 
 .. |10000000000002F6000002418FFC04A01AA401D9_png| image:: images/10000000000002F6000002418FFC04A01AA401D9.png
     :width: 8.105cm
@@ -851,8 +841,8 @@ los resultados.
     :height: 6.184cm
 
 .. |100000000000001C00000020F4C7873186014F2F_png| image:: images/100000000000001C00000020F4C7873186014F2F.png
-    :width: 0.741cm
-    :height: 0.847cm
+    :width: 20px
+    :height: 20px
 
 .. |100000000000022A000000458A066B65AA124983_png| image:: images/100000000000022A000000458A066B65AA124983.png
     :width: 14.658cm
