@@ -1583,7 +1583,7 @@ msgstr "Individual"
 
 #: bauble/plugins/plants/species_editor.glade:552
 msgid "Infraspecific parts"
-msgstr "Infraespecíficos de piezas"
+msgstr "Información infraespecífica"
 
 #: bauble/plugins/garden/institution.py:228
 msgid "Institution"
@@ -2504,7 +2504,7 @@ msgstr "Nombre de la especie"
 #: bauble/plugins/plants/species_editor.glade:418
 #: bauble/plugins/plants/species_editor.py:1085
 msgid "Species qualifier"
-msgstr "Diferenciador de especie"
+msgstr "Cualificación"
 
 #: bauble/plugins/plants/species_editor.py:1088
 msgid "Species synonyms"
