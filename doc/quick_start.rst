@@ -40,9 +40,9 @@ y este genero con estas especies es parte de la familia Orchidaceae.  Hasta
 ahora la gran mayoria de nuestras plantas no sean identificado, por eso son
 parte de la especies “Zzz sp” en el genero “Zzz”.
 
-El cuarto nivel es la accession o codigo. La accession es el numero (con 6
+El cuarto nivel es la accesión o código. La accesión es el numero (con 6
 posiciones) en la etiqueta de cada planta. Hay muchas plantas con diferentes
-numeros, pero de la misma especie. Por eso, cada accession es parte de una
+numeros, pero de la misma especie. Por eso, cada accesión es parte de una
 especie, esta especie es parte de un genero, y este genero es parte de la
 familia Orchidaceae.
 
@@ -58,7 +58,7 @@ en los invernaderos.
 
 ► Especies (p.ej. Masdevallia angulata)
 
-► Accession (p.ej. 006266)
+► Accesión (p.ej. 006266)
 
 ► Planta (p.ej. Planta en invernadero 2 con una flor rojo)
 
@@ -175,9 +175,9 @@ De las 511 familias de plantas, el jardín botánico solo tiene plantas de 7 fam
 De las 25394 generos de plantas, el jardín botánico solo tiene plantas de 158 generos registrados.
 
 De las 637 especies entregadas en el banco de datos, solo 623 especies
-poseen numeros (accessiones).
+poseen numeros (accesiones).
 
-De las 7722 accessiones, que están registrados
+De las 7722 accesiones, que están registrados
 para el banco de datos, solo 7675
 están en uso de
 una manera que la planta
@@ -194,7 +194,7 @@ De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas
 **4. Errores del programa**
 -----------------------------------------------------------------
    
-y de los codigos en los invernaderos
+y de los códigos en los invernaderos
 
 A. Para el banco de datos de funcionar, el programa se necesite una red con
    el internet. Algunas veces cuando intentas de hacer login en el banco de
@@ -214,7 +214,7 @@ B. Algunas veces sin causa aparente, cuando se hace una busqueda no se
 
    |10000000000002140000014D050A059AC7EE948A_png|
 
-C. Algunas veces el codigo en el invernadero no tiene 6 pero 5 numeros. Para
+C. Algunas veces el código en el invernadero no tiene 6 pero 5 numeros. Para
    realizar tu busqueda solo anadir un zero que el la primera numero.
 
 +--------------------------+----------------------------------+
@@ -225,14 +225,13 @@ C. Algunas veces el codigo en el invernadero no tiene 6 pero 5 numeros. Para
 |                          |                                  |
 +--------------------------+----------------------------------+
 
-**5. Revisar, si plantas**
+5. Buscar plantas en la base de datos
 -----------------------------------------------------------------
-las plantas están registradas dentro del banco de datos o no.
 
 |10000000000000200000001FDDE6CEA3E00D1E69_png|
 
-Para revisar si una planta con un numero (accession) si existe dentro del
-banco de datos, se tiene que tener el codigo con 6 numeros e ingresarlo en
+Para revisar si una planta con un numero (accesión) existe dentro del
+banco de datos, se necesita el código con 6 numeros e ingresarlo en
 el campo de entregar. Para que el sistema reconozca la busqueda, el numero
 tiene que estar en comillas “ ”. Para confirmar la busqueda oprime “Enter” o
 haga clic a el botón de busqueda.
@@ -270,7 +269,7 @@ semana,
 se revisen todas las plantas para poder eliminar las plantas muertas tanto del invernadero como del banco de datos.
 
 Tome el
-codigo
+código
 (con 6 numeros) de la planta muerta
 e ingreselo
 
@@ -341,21 +340,21 @@ cambiar
 
 |10000000000001FE0000006F90B0DF98BB2933D6_png|
 
-**8. Entregar una nueva accession en el banco de datos**
+**8. Entregar una nueva accesión en el banco de datos**
 -----------------------------------------------------------------
 
-Si se encontrara una planta con un codigo (accesión) el cual no se encuentra ingresado en el banco de datos,
-se tiene que ingresar este nuevo codigo
-(accession) en el banco de datos.
+Si se encontrara una planta con un código (accesión) el cual no se encuentra ingresado en el banco de datos,
+se tiene que ingresar este nuevo código
+(accesión) en el banco de datos.
 
 |1000000000000257000000504EC4536B148C3228_png|
 
 Para
-poder ingresar un nuevo codigo (accesión) se siguen los siguientes pasos
+poder ingresar un nuevo código (accesión) se siguen los siguientes pasos
 
 :
 
-* numero de la accession o codigo
+* numero de la accesión o código
   (ej. invernadero 2)
 
 * nombre de la especie (opcional)
@@ -363,7 +362,7 @@ poder ingresar un nuevo codigo (accesión) se siguen los siguientes pasos
 Para hacer un ejemplo, en el siguiente caso, tenemos inicialmente los
 siguientes datos:
 
-Numero (accession) que no está
+Numero (accesión) que no está
 ingresado
 todavia
 –
@@ -380,7 +379,7 @@ se encuentra
 –
 Invernadero 1 (calor)
 
-Para ingresar la accession o el codigo, buscar la especie o el genero en el
+Para ingresar la accesión o el código, buscar la especie o el genero en el
 campo de entregar (en el caso que no saber el nombre de la especie buscar
 por “Zzz sp”).  Para que el sistema realice la busqueda, la especie tiene
 que escribirse entre comillas “ ”.
@@ -415,7 +414,7 @@ Se abrira esta ventana
 llamada
 “accession editor”.
 
-Cambiar el numero del “Accession ID \*” al codigo que se le asigne a la nueva
+Cambiar el numero del “Accession ID \*” al código que se le asigne a la nueva
 planta.
 
 Cambiar el “Type of material” a “Plant” (Siempre!!).
@@ -456,7 +455,7 @@ Se abrira la ventana llamada
 
 |10000000000001FC0000018F4B27179B9456E1CF_png|
 
-El codigo (accession) y nombre todavia están guardados.
+El código (accesión) y nombre todavia están guardados.
 
 Cambiar el “Quantity” a “1” (Siempre!!).
 
@@ -484,19 +483,19 @@ Ahora la planta con ese nombre y numero es parte del banco de datos.
 --------------------------------------------------------------------------------------------
 
 Si se encuentra una planta y se identifica la especie pero no es parte del
-banco de datos y tampo posee un codigo.
+banco de datos y tampo posee un código.
 
 En el siguiente ejemplo, la planta encontrada fue identificada como Lepanthes alopex.
 
 Si no se sabe la especie, se puede ingresar con la especie “Zzz sp”
 
-Se puede asignar a la nueva planta un codigo o una accesión (6 numeros)
+Se puede asignar a la nueva planta un código o una accesión (6 numeros)
 
-Nota: los codigos o las accesiónes con reutilizables fisica y digitalmentente, después de ser borrados en el banco de datos, a causa de la muerte de la planta que lo poseia.
+Nota: los códigos o las accesiónes con reutilizables fisica y digitalmentente, después de ser borrados en el banco de datos, a causa de la muerte de la planta que lo poseia.
 
 |100000000000016400000045749C9F8ECA72440A_png|
 
-Si se reutiliza un codigo o una accesión, recuerde verificar que no se encuentre en el banco de datos.
+Si se reutiliza un código o una accesión, recuerde verificar que no se encuentre en el banco de datos.
 
 |1000000000000152000001B12C2FDE60BD2B710B_png|
 
@@ -530,7 +529,7 @@ Editor”.
 
 El nombre de la especie nueva está en el campo “Name” todavia.
 
-Cambiar el numero del “Accession ID \*” a tu accession.
+Cambiar el numero del “Accession ID \*” a tu accesión.
 
 Cambiar el “Type of material” a “Plant” (Siempre!!).
 
@@ -547,7 +546,7 @@ Va a abrir el “Plant Editor”.
 Entrar
 en el “Plant Editor”.
 
-El numero (accession) y nombre todavia está guardado.
+El numero (accesión) y nombre todavia está guardado.
 
 Cambiar en
 “Quantity” a “1” (Siempre!!).
@@ -564,13 +563,13 @@ en
 **10. Cambiar el lugar de una planta en el banco de datos**
 -----------------------------------------------------------------
 
-Si se encuentra una planta con una accession en un
+Si se encuentra una planta con una accesión en un
 lugar diferente al que está registrado en el banco de datos, se tiene que cambiar el lugar.
 
 En este ejemplo
 se
 encontró
-que la planta de species “Acineta sp.”con la accession “012142”, está en el Invernadero 1, pero está guardado en el banco de datos en ICAlm3.
+que la planta de species “Acineta sp.”con la accesión “012142”, está en el Invernadero 1, pero está guardado en el banco de datos en ICAlm3.
 
 Ahora
 se debe cambiar
@@ -584,10 +583,10 @@ el lugar de esta planta en el banco de datos.
 
 Para cambiar el lugar
 se tiene que
-cambiar el lugar de la accession primero, y después el lugar de la planta.
+cambiar el lugar de la accesión primero, y después el lugar de la planta.
 
 Primero hacer
-clic derecho con el raton a la accession (sombreado
+clic derecho con el raton a la accesión (sombreado
 rojo en
 la
 foto). Luego se mostraran las
@@ -640,7 +639,7 @@ después puedes verificar que la positon “Location” está cambiada.
 
 Dice “Living Plants: 1 in INV1” & “Intended Location: (INV1)
 
-Tambien se puede ver en “Properties” cuando esta accession fue cambiada la
+Tambien se puede ver en “Properties” cuando esta accesión fue cambiada la
 ultima vez.
 
 |1000000000000608000002D2BA2D181475D5AD7B_png|
