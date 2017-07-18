@@ -75,8 +75,7 @@ El quinto y final nivel es la planta física, la que vive en una maceta, que
 produce semillas, que puede ser vendida o morirse o multiplicarse
 asexuadamente y hasta desaparecer de la colección.
       
-*Siempre recuerda: si se cambia algo en un nivel alto, esto tiene efecto en
- todos los niveles río abajo. Por eso hay que trabajar con mucho cuidado!*
+*Siempre recuerda: si se cambia algo en un nivel alto, esto tiene efecto en todos los niveles río abajo. Por eso hay que trabajar con mucho cuidado!*
 
 Ubicación
 ............................................................................
