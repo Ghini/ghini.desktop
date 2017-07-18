@@ -1,13 +1,15 @@
-*Manual Banco de datos – Jardin Botanico de Quito*
+Manual Banco de datos – Jardin Botanico de Quito
+==================================================
 
 Este documento explica los conceptos basicos para manejar el banco de datos
 en el programa de Ghini. Este documento fue escrito en Marzo 2017. Cuando
-use el programa en el futuro, tal vez algunas cosas ha yan cambiado o
+use el programa en el futuro, tal vez algunas cosas hayan cambiado o
 actualizado.
 
-**0. Informacion del programa “Ghini”**
+0. Informacion del programa “Ghini”
+--------------------------------------------
 
-Para trabajar con el programa “Ghini” se necesite entender el flujo del
+Para trabajar con el programa “Ghini” se necesita entender el flujo del
 información. Esta es la metodologia como Ghini guarda toda la informacion de
 las plantas en el banco de datos.
 
@@ -19,7 +21,6 @@ jardín botánico.
 El nivel más alto (primer nivel) es el nivel de la familia de las
 plantas. En teoría podemos guardar todas las plantas de todas las familias
 en el jardín botánico en este banco de datos. Pero
-
 la familia más importante para nosotros es la familia Orchidaceae, las
 orquídeas.
 
@@ -61,19 +62,18 @@ en los invernaderos.
 
 ► Planta (p.ej. Planta en invernadero 2 con una flor rojo)
 
-*Siempre recuerda que si se cambia un nivel mas alto, todos los niveles de abajo se van a cambiar también. Por eso se tiene que trabajar con mucho cuidado!*
+*Siempre recuerda que si se cambia un nivel más alto, todos los niveles de abajo se van a cambiar también. Por eso se tiene que trabajar con mucho cuidado!*
 
 **0.5 Documentacion en el internet**
+.......................................
 
 El programa “Ghini” es un programa del código abierto y libre. Este implica
 que el programa está completamente gratis y con una documentacion y ayudar
 del mantenedor.
 
-Documentacion oficial del programa (en inglés):
-`http://ghini.readthedocs.io/en/ <http://ghini.readthedocs.io/en/>`_
-
-Documentacion oficial del programa (en español):
-`http://ghini.readthedocs.io/es/ <http://ghini.readthedocs.io/es/>`_
+Documentacion oficial del programa, en `inglés
+<http://ghini.readthedocs.io/en/>`_, y en `español
+<http://ghini.readthedocs.io/es/>`_
 
 Communidad el pagina de Github:
 `https://github.com/Ghini/ghini.desktop <https://github.com/Ghini/ghini.desktop>`_
@@ -95,7 +95,8 @@ Basic Youtube documentacion:
 
 Estas paginas y su email para preguntas son muy valioso y pueden ayudarte para aprender muy rapido.
 
-**1. Abrir el banco de datos**
+1. Abrir el banco de datos
+------------------------------------
 
 |10000000000000300000002F89E0224ADF9EC09E_png|
 
@@ -104,39 +105,41 @@ Estas paginas y su email para preguntas son muy valioso y pueden ayudarte para a
 Para abrir el programa de Ghini, hacer clic en y escribir “Ghini” o hacer
 clic en el simbolo Ghini
 
-**2. Login en el banco de datos**
+2. Login en el banco de datos
+-----------------------------------------------------------------
 
 Cuando se abre Ghini, se mostrara la siguiente ventana.
 
 |10000000000001290000011FEE16D735EB3DBF66_png|
 
-Notese que la version se encuentra en la parte superior. La version del
-programa actual es Ghini 1.0.64.
+Nótese que la versión se encuentra en la parte superior. Al momento de tomar
+el pantallazo, la versión más actualizada del programa era la 1.0.62, y
+nosotros estábamos utilizando la 1.0.60.
 
-Notese tambien, que si el programa requiere una nueva version se la puede
-descargar, es recomendable trabajar con la version mas actual del mismo.
+Nótese tambien, que si el programa requiere una nueva versión se la puede
+descargar, pues es recomendable trabajar con la versión más actual del
+mismo.
 
-En el parte posterior se puede ver el nombre de nuestro banco de datos.
-Llamado “BD-JBQ”.
+En el parte posterior se puede ver el nombre de la conexión a nuestra base
+de datos.  Llamamos la conexión “BD-JBQ”.
 
-Todas las plantas registradas son guardadas en este archivo.
+Todas las plantas registradas son guardadas en la base de datos.
 
-**NUNCA CAMBIAR EL NOMBRE DEL ARCHIVO!**
+En esta ventana no se ingresa ningún dato, solo hacer clic en “Conectar”
+para continuar a la próxima ventana.
+
+Si quieres ver los detalles de la conexión, haz clic en el triangulo |1000000000000012000000136C4E92DF7BEB33CC_png| al lado de 'Connection Details':
 
 |100000000000012F000001A611615FB62F2D003B_png|
 
-En esta ventana no se ingresa ningun dato, solo hacer clic en “Conectar”
-para continuar a la proxima ventana.
-
-|1000000000000012000000136C4E92DF7BEB33CC_png|
-
-Si quieres ver los “connection details” solo hacer clic en
-
-Esta ventana te pregunta por la contraseña.
+Como puedes ver, estamos conectándonos a una base de datos PostgreSQL, con
+el usuario ``bauble``. Este usuario tiene autorización completa a modificar
+cualquier información en la base de datos, y necesitas saber su contraseña.
 
 |10000000000000FE00000065C64D791B5CA0099D_png|
 
-**3. Informacion del banco de datos**
+3. Informacion del banco de datos
+-----------------------------------------------------------------
 
 |100000000000063F00000383F7EAFB008DE6E4E2_png|
 
@@ -148,17 +151,17 @@ ingresar nombres que desea buscar.
 |10000000000006090000001FA253BB9470AD4994_png|
 |100000000000001C00000020F4C7873186014F2F_png|
 
-Con el boton en forma de casa, puede regresar de sus busquedas a la pantalla
+Con el botón en forma de casa, puede regresar de sus busquedas a la pantalla
 principal.
 
 |100000000000001B000000207EC6F9075C9D3669_png|
 
-Con el boton en forma de flecha, puede regresar a su ultima busqueda.
+Con el botón en forma de flecha, puede regresar a su ultima busqueda.
 
 |100000000000001C0000001FB8A1F75F7A5EF877_png|
 
-Con el boton en forma de engranaje, puede usar el “Query Builder”, con que
-se puede desarollar una busqueda mas compleja en una manera mas simple.
+Con el botón en forma de engranaje, puede usar el “Query Builder”, con que
+se puede desarollar una busqueda más compleja en una manera más simple.
 
 |10000000000000E7000000DE22288666D5A0BB1B_png|
 
@@ -177,21 +180,22 @@ De las 25394 generos de plantas, el jardin botanico solo tiene plantas de 158 ge
 De las 637 especies entregadas en el banco de datos, solo 623 especies
 poseen numeros (accessiones).
 
-De las 7722 accessiones, que estan registrados
+De las 7722 accessiones, que están registrados
 para el banco de datos, solo 7675
-estan en uso de
+están en uso de
 una manera que la planta
 (en fisico)
 tiene este numero.
 
 En generalmente este numero tiene que estar siempre “in use” y “total”
 
-De todos las plantas registradas, todas estan usando. (este
+De todos las plantas registradas, todas están usando. (este
 numero siempre va a estar full “in use”, si hiciste todo bien.)
 
 De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas.
 
 **4. Errores del programa**
+-----------------------------------------------------------------
    
 y de los codigos en los invernaderos
 
@@ -225,7 +229,8 @@ C. Algunas veces el codigo en el invernadero no tiene 6 pero 5 numeros. Para
 +--------------------------+----------------------------------+
 
 **5. Revisar, si plantas**
-las plantas estan registradas dentro del banco de datos o no.
+-----------------------------------------------------------------
+las plantas están registradas dentro del banco de datos o no.
 
 |10000000000000200000001FDDE6CEA3E00D1E69_png|
 
@@ -233,7 +238,7 @@ Para revisar si una planta con un numero (accession) si existe dentro del
 banco de datos, se tiene que tener el codigo con 6 numeros e ingresarlo en
 el campo de entregar. Para que el sistema reconozca la busqueda, el numero
 tiene que estar en comillas “ ”. Para confirmar la busqueda oprime “Enter” o
-haga clic a el boton de busqueda.
+haga clic a el botón de busqueda.
 
 Si la planta se encuentra en el banco de datos, se mostrara una ventana en
 la parte inferior con los datos de la planta.
@@ -259,6 +264,7 @@ correcta se puede
 cambiar y actualizar.
 
 **6. Eliminar plantas muertas del banco de datos**
+-----------------------------------------------------------------
 
 Se recomienda que
 una vez
@@ -271,7 +277,7 @@ codigo
 (con 6 numeros) de la planta muerta
 e ingreselo
 
-en el campo. Para que el sistema inicie la busqueda, el numero se tiene que escribir entre comillas “ ”. Para confirmar la busqueda oprimir “Enter” o hacer clic a el boton de busqueda.
+en el campo. Para que el sistema inicie la busqueda, el numero se tiene que escribir entre comillas “ ”. Para confirmar la busqueda oprimir “Enter” o hacer clic a el botón de busqueda.
 
 A.
 Si la planta, si
@@ -281,49 +287,34 @@ se mostrara una ventana en la parte inferior con los datos de la misma.
 
 |10000000000001CF000000487F16C7F2613D9F58_png|
 
-Para eliminar este numero, hace
-r
-clic
-derecho.
+Para eliminar este numero, hacer clic derecho.
 
 Se mostraran tres opciones:
 Edit, Add plant, Delete
 
-Hace
-r
-clic
-en
-“
-Delete”
-y confirmar esta sele
-c
-cion con “Si”.
+Hacer clic en “Delete” y confirmar esta selección con “Si”.
 
 Si se buscara
 nuevamente el mismo numero,
-no se encontraran datos
-:
+no se encontraran datos:
 
 |100000000000025700000050925C1488E03E0617_png|
 
-B.
-Si la planta no
-se encuentra
-en el banco de datos,
-se mostrara en la parte inferior una ventana con la siguiente frase:
+B.  Si la planta no se encuentra en el banco de datos, se mostrara en la
+parte inferior una ventana con la siguiente frase:
 
-“Couldn t find anything for search.”
+“Couldn't find anything for search.”
 
-En ese
-caso no proceder a ninguna accion dentro del programa.
+En ese caso no proceder a ninguna accion dentro del programa.
 
 **7. Cambiar la especies**
+-----------------------------------------------------------------
 
 (nombre de las especies)
 de una planta en el banco de datos
 
-Si
-se indificase una planta, se puede cambiar el nombre de la planta, si esta planta antes poseia el nombre “Zzz sp.”
+Si se indificase una planta, se puede cambiar el nombre de la planta, si
+esta planta antes poseía el nombre “Zzz sp.”
 
 |10000000000002210000006F5DB278661D3E4122_png|
 
@@ -354,15 +345,16 @@ cambiar
 |10000000000001FE0000006F90B0DF98BB2933D6_png|
 
 **8. Entregar una nueva accession en el banco de datos**
+-----------------------------------------------------------------
 
-Si se encontrara una planta con un codigo (accesion) el cual no se encuentra ingresado en el banco de datos,
+Si se encontrara una planta con un codigo (accesión) el cual no se encuentra ingresado en el banco de datos,
 se tiene que ingresar este nuevo codigo
 (accession) en el banco de datos.
 
 |1000000000000257000000504EC4536B148C3228_png|
 
 Para
-poder ingresar un nuevo codigo (accesion) se siguen los siguientes pasos
+poder ingresar un nuevo codigo (accesión) se siguen los siguientes pasos
 
 :
 
@@ -374,7 +366,7 @@ poder ingresar un nuevo codigo (accesion) se siguen los siguientes pasos
 Para hacer un ejemplo, en el siguiente caso, tenemos inicialmente los
 siguientes datos:
 
-Numero (accession) que no esta
+Numero (accession) que no está
 ingresado
 todavia
 –
@@ -426,7 +418,7 @@ Se abrira esta ventana
 llamada
 “accession editor”.
 
-Cambiar el numero del “Accession ID *” al codigo que se le asigne a la nueva
+Cambiar el numero del “Accession ID \*” al codigo que se le asigne a la nueva
 planta.
 
 Cambiar el “Type of material” a “Plant” (Siempre!!).
@@ -460,14 +452,14 @@ INV3: invernadero 3 (calor)
 
 |10000000000002F900000241C5DB1B4F082036B6_png|
 
-Despues de que estos 4 campos esten editados, hacer clic en “Add plants”.
+Después de que estos 4 campos estén editados, hacer clic en “Add plants”.
 
 Se abrira la ventana llamada
 “Plant Editor”.
 
 |10000000000001FC0000018F4B27179B9456E1CF_png|
 
-El codigo (accession) y nombre todavia estan guardados.
+El codigo (accession) y nombre todavia están guardados.
 
 Cambiar el “Quantity” a “1” (Siempre!!).
 
@@ -477,24 +469,22 @@ en el Accession editor antes!).
 
 |10000000000001FE0000018B06FC9E8A824B1FF3_png|
 
-Despues de que estos 4 campos estan editados, se quiere ingresar el dato,
+Después de que estos 4 campos están editados, se quiere ingresar el dato,
 que el hibrido de este Dendrobium se llama “Emma White”.
 
 Hacer clic en “Notes” e ingresr este dato .
 
 |10000000000001FF0000018ADAD9076709514282_png|
 |100000000000020000000189AEBD77174C6E5272_png|
-** **
 
-**>**
-
-Despues, hacer clic en “Aceptar” y listo.
+Después, hacer clic en “Aceptar” y listo.
 
 Ahora la planta con ese nombre y numero es parte del banco de datos.
 
 |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
-**9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo numero**
+9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo numero
+--------------------------------------------------------------------------------------------
 
 Si se encuentra una planta y se identifica la especie pero no es parte del
 banco de datos y tampo posee un codigo.
@@ -503,18 +493,18 @@ En el siguiente ejemplo, la planta encontrada fue identificada como Lepanthes al
 
 Si no se sabe la especie, se puede ingresar con la especie “Zzz sp”
 
-Se puede asignar a la nueva planta un codigo o una accesion (6 numeros)
+Se puede asignar a la nueva planta un codigo o una accesión (6 numeros)
 
-Nota: los codigos o las accesiones con reutilizables fisica y digitalmentente, despues de ser borrados en el banco de datos, a causa de la muerte de la planta que lo poseia.
+Nota: los codigos o las accesiónes con reutilizables fisica y digitalmentente, después de ser borrados en el banco de datos, a causa de la muerte de la planta que lo poseia.
 
 |100000000000016400000045749C9F8ECA72440A_png|
 
-Si se reutiliza un codigo o una accesion, recuerde verificar que no se encuentre en el banco de datos.
+Si se reutiliza un codigo o una accesión, recuerde verificar que no se encuentre en el banco de datos.
 
 |1000000000000152000001B12C2FDE60BD2B710B_png|
 
 Se encontro que la planta de ejemplo es de especie *Lepanthes alopex*,
-si se busca en el banco de datos el genero lepanhtes y se nota que dentro de este genero no esta registrada esta especie. Se tendra que añadir como una nueva especie.
+si se busca en el banco de datos el genero lepanhtes y se nota que dentro de este genero no está registrada esta especie. Se tendra que añadir como una nueva especie.
 
 Para añadir una nueva especie, dar clic derecho sobre la especie Lepanthes (sombreada de rojo) y se mostraran las siguientes opciones:
 
@@ -529,7 +519,7 @@ ya que se selecciona delete se borraran todos los datos pertenecientes a la espe
 
 >
 
-Al añadir el nombre de una especie nueva siempre escribir todo con minusculas, ademas asegurarse de que el nombre cientifico este bien escrito.
+Al añadir el nombre de una especie nueva siempre escribir todo con minusculas, además asegurarse de que el nombre cientifico esté bien escrito.
 
 Es obligatorio añadir tambien el nombre del autor, y para eso se necesita buscar la nueva especie en el banco de datos online llamado Tropicos (http://tropicos.org/)
 
@@ -541,10 +531,9 @@ Editor”.
 
 |10000000000002F8000002432C9DDC622203371C_png|
 
-El nombre de la especie nueva esta en el campo “Name” todavia.
+El nombre de la especie nueva está en el campo “Name” todavia.
 
-Cambiar el numero del “Accession
-ID *” a tu accession.
+Cambiar el numero del “Accession ID \*” a tu accession.
 
 Cambiar el “Type of material” a “Plant” (Siempre!!).
 
@@ -561,7 +550,7 @@ Va a abrir el “Plant Editor”.
 Entrar
 en el “Plant Editor”.
 
-El numero (accession) y nombre todavia esta guardado.
+El numero (accession) y nombre todavia está guardado.
 
 Cambiar en
 “Quantity” a “1” (Siempre!!).
@@ -576,14 +565,15 @@ en
 “Aceptar”.
 
 **10. Cambiar el lugar de una planta en el banco de datos**
+-----------------------------------------------------------------
 
 Si se encuentra una planta con una accession en un
-lugar diferente al que esta registrado en el banco de datos, se tiene que cambiar el lugar.
+lugar diferente al que está registrado en el banco de datos, se tiene que cambiar el lugar.
 
 En este ejemplo
 se
 encontró
-que la planta de species “Acineta sp.”con la accession “012142”, esta en el Invernadero 1, pero esta guardado en el banco de datos en ICAlm3.
+que la planta de species “Acineta sp.”con la accession “012142”, está en el Invernadero 1, pero está guardado en el banco de datos en ICAlm3.
 
 Ahora
 se debe cambiar
@@ -597,7 +587,7 @@ el lugar de esta planta en el banco de datos.
 
 Para cambiar el lugar
 se tiene que
-cambiar el lugar de la accession primero, y despues el lugar de la planta.
+cambiar el lugar de la accession primero, y después el lugar de la planta.
 
 Primero hacer
 clic derecho con el raton a la accession (sombreado
@@ -627,7 +617,7 @@ solo Location1
 
 Hace clic a “Aceptar”, para guardar la informacion.
 
-Despues hace clic derecho con el raton, la planta (abajo, fondo blanco en el
+Después hace clic derecho con el raton, la planta (abajo, fondo blanco en el
 foto). Las siguientes tres opciones se mostraran: “Edit, Branch, Delete” va
 a abrir. Hacer clic en “Edit”.  La ventana de “Plant Editor” va abrirse.
 
@@ -649,7 +639,7 @@ o solo Location
 
 Hace clic en “Aceptar”, para guardar la informacion y listo
 
-despues puedes verificar que la positon “Location” esta cambiada.
+después puedes verificar que la positon “Location” está cambiada.
 
 Dice “Living Plants: 1 in INV1” & “Intended Location: (INV1)
 
@@ -660,30 +650,26 @@ ultima vez.
 
 *▼ Aquí! ▼*
 
-**11. Decargar informacion sobre el banco de datos por una informe**
+11. Decargar informacion sobre el banco de datos por una informe
+-----------------------------------------------------------------
 
 Cada año el jardín botánico tiene que entregar una informe
 (informe anual de manejo y mantenimiento de colección de orquideas)
 que tiene la informacion del banco de datos y sobre eso las plantas registradas.
 
 Para realizar eso, solo se pone esto en el campo de entregar en el banco de
-datos:
+datos::
 
-“genus where species accessions_created between
-|
-datetime
-|2017,1,1| and |datetime|2018,1,1|”
+  genus where species.accessions._created between |datetime|2017,1,1| and |datetime|2018,1,1|
 
-or
+or::
 
-“accession where_created between |
-datetime
-|2017,1,1| and |datetime|2018,1,1|”
+  accession where _created between |datetime|2017,1,1| and |datetime|2018,1,1|
 
 (tienes que adaptarse el año)
 
-Despues esta busqueda, tiene que esperar un
-momemto
+Después esta busqueda, tiene que esperar un
+momento
 para que el programa puede
 arrojar
 los resultados.
