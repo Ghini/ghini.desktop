@@ -59,8 +59,9 @@ Accesión
 
 El cuarto nivel, y ahora estamos en el contexto de la colección, es la
 accesión. Accesión es un concepto abstracto, explicado más detalladamente en
-`otra parte <goal.html#accession-explained>`_. En el marco de esta introducción, una accesión es nada más sino un
-número con 6 posiciones, presente en la etiqueta de cada planta.
+`otra sección <goal.html#accession-explained>`_ de la documentación. En el
+marco de esta introducción, una accesión es nada más sino un número con 6
+posiciones, presente en la etiqueta de cada planta.
 
 Cada accesión es parte de una especie, esta especie es parte de un género, y
 este género es parte de una familia, y en nuestra colección casi solo
