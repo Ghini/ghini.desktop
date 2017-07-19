@@ -857,5 +857,3 @@ los resultados.
     :height: 2.533cm
 
 .. |dontpanic_png| image:: images/dontpanic.png
-    :height: 14pt
-    :align: middle
