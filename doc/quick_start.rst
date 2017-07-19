@@ -13,13 +13,14 @@ Para trabajar con el programa “Ghini” se necesita entender el flujo de la
 información. Simplificando al extremo, podemos mirar así a
 como Ghini guarda la información de la colección de un jardín botánico:
 
-Tenemos 5 diferentes niveles, a saber (y entre parentesis un ejemplo):
+Tenemos 6 diferentes niveles, a saber (y entre parentesis un ejemplo):
 
 ► Familia (Orchidaceae)
   ► Género (Masdevallia)
     ► Especie (Masdevallia angulata)
       ► Accesión (006266 - conexión entre planta y especie)
         ► Planta (006266.1 - Planta física viva)
+► Ubicación (INV1: invernadero 1)
 
 Familia
 ............................................................................
@@ -27,17 +28,19 @@ Familia
 En esta simplificación, el nivel más alto es información taxonómica y
 representa la familia de nuestras plantas.
 
-.. figure:: images/10000000000001B5000001365A0946E38D28ACB1.png
-
 Por supuesto que podemos guardar plantas de cualquier familia botánica, sin
-embargo actualmente tenemos plantas de tan sólo 7 familias registradas en
-este banco de datos, y con diferencia la mayor parte queda en la familia
+embargo actualmente tenemos plantas de tan sólo 7 familias registradas en el
+banco de datos, y con diferencia la mayor parte queda en la familia
 Orchidaceae.
 
-La familia Orchidaceae tiene demasiado géneros —más que 4000— que están
-agrupados en 6 subfamilias, y 70 entre tribus y subtribus.  Aprender a
-utilizar Ghini-1.0 para información taxonómica de rango incluido entre
-familia y género está fuera del alcance de esta introducción.
+(Subfamilias, Tribus, Subtribus)
+............................................................................
+
+La familia Orchidaceae tiene demasiado géneros, según Dressler son algo
+como 850. Para no perderse en tanta variedad, se prefiere dividir la familia
+en 5 subfamilias, 22 tribus, 70 subtribus.  Explicar como utilizar Ghini-1.0
+para información taxonómica de rango incluido entre familia y género está
+fuera del alcance de esta introducción.
 
 Género
 ............................................................................
@@ -83,7 +86,13 @@ Ubicación
 Otro nivel físico es de las ubicaciones en el jardín, sea en un invernadero,
 sea en una cama al exterior.  Cada planta física pertenece en cada momento a
 una ubicación, pero esta asociación puede cambiar según las necesidades
-expositivas.
+expositivas o de cuidado de las plantas.
+
+Como dicho, esta es una hipersimplificación de la real estructura de la base
+de datos. una impresión más estructurada, aunque siempre reducida, sería:
+
+Más detalles están en la sección 
+`software para jardines botánicos <goal.html#botanic-garden-software>`_
 
 **0.5 Documentación en el internet**
 .......................................
@@ -291,9 +300,7 @@ se revisen todas las plantas para poder eliminar las plantas muertas tanto del i
 Tome el
 código
 (con 6 números) de la planta muerta
-e ingreselo
-
-en el campo. Para que el sistema inicie la búsqueda, el número se tiene que escribir entre comillas “ ”. Para confirmar la búsqueda oprimir “Enter” o hacer clic a el botón de búsqueda.
+e ingreselo en el campo. Para que el sistema inicie la búsqueda, el número se tiene que escribir entre comillas “ ”. Para confirmar la búsqueda oprimir “Enter” o hacer clic a el botón de búsqueda.
 
 A.
 Si la planta, si
