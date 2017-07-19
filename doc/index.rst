@@ -52,7 +52,6 @@ Cookbook
    :maxdepth: 2
 
    use_cases
-   use_cases-jbq
    
 
 Administration
