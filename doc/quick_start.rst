@@ -6,6 +6,9 @@ April 2015. Since that time, we have accumulated experience with the
 program, and we are ourselves in need to document it, in order to secure the
 knowledge to the institution. We are happy to share it.
 
+Introduction
+---------------------------
+
 We often have volunteers, who only work at the garden for a very short
 time. It was with them in mind, that we have developed a `hypersimplified
 view <goal.html#hypersimplified-view>`_ to the ghini database structure.
@@ -114,42 +117,18 @@ de datos. una impresión más estructurada, aunque siempre reducida, sería:
 Más detalles están en la sección 
 `software para jardines botánicos <goal.html#botanic-garden-software>`_
 
-**0.5 Documentación en el internet**
-.......................................
-
-El programa “Ghini” es un programa distribuido bajo la `licencia GNU GPL
-<https://es.wikipedia.org/wiki/GNU_General_Public_License>`_. Esto sí
-implica que el programa es completamente gratis, pero quizás sean los
-siguientes los dos aspectos fundamentales de la GNU GPL: Ghini hoy es
-software libre; Ghini está legalmente protegido de cualquier futuro intento
-de apropiación.
-
-Documentación oficial del programa, en `inglés
-<http://ghini.readthedocs.io/en/>`_, y en `español
-<http://ghini.readthedocs.io/es/>`_
-
-El `código de Ghini <https://github.com/Ghini/ghini.desktop>`_ se encuentra en github.
-
-Una `introducción al programa <http://ghini.github.io/>`_, con enlaces, comentarios, historia.
-
-Correo internet del mantenedor del programa, `Mario Frasca
-<mailto:mario@anche.no>`_
-
-También hay un `forum google <https://groups.google.com/forum/#!forum/bauble>`_.
-
-`Documentación audiovisual <https://www.youtube.com/watch?v=a6ZwMOh2-m8>`_, en youtube.
-
-Estas paginas y su email para preguntas son muy valioso y pueden ayudarte para aprender muy rápido.
+Use Cases
+---------------------------
 
 1. Abrir el banco de datos
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Para abrir el programa de Ghini, hacer clic en
 |10000000000000300000002F89E0224ADF9EC09E_png| y escribir “Ghini” o hacer
 clic en el símbolo Ghini |100000000000003100000031BB54CBDFA885EBAC_png|.
 
 2. Login en el banco de datos
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Cuando se abre Ghini, se mostrara la siguiente ventana.
 
@@ -184,7 +163,7 @@ cualquier información en la base de datos, y necesitas saber su contraseña.
 |10000000000000FE00000065C64D791B5CA0099D_png|
 
 3. Información del banco de datos
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |100000000000063F00000383F7EAFB008DE6E4E2_png|
 
@@ -235,13 +214,13 @@ número siempre va a estar full “in use”, si hiciste todo bien.)
 De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas.
 
 3a. identificación a rango género
----------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
 
 
 4. Errores del programa
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   
 y de los códigos en los invernaderos
 
@@ -275,7 +254,7 @@ C. Algunas veces el código en el invernadero no tiene 6 pero 5 números. Para
 +--------------------------+----------------------------------+
 
 5. Buscar plantas en la base de datos
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |10000000000000200000001FDDE6CEA3E00D1E69_png|
 
@@ -309,7 +288,7 @@ correcta se puede
 cambiar y actualizar.
 
 6. Eliminar plantas muertas del banco de datos
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Se recomienda que
 una vez
@@ -351,7 +330,7 @@ parte inferior una ventana con la siguiente frase:
 En ese caso no proceder a ninguna accion dentro del programa.
 
 7. Cambiar la especies
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 (nombre de las especies)
 de una planta en el banco de datos
@@ -389,7 +368,7 @@ cambiar
 |10000000000001FE0000006F90B0DF98BB2933D6_png|
 
 8. Entregar una nueva accesión en el banco de datos
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Si se encontrara una planta con un código (accesión) el cual no se encuentra ingresado en el banco de datos,
 se tiene que ingresar este nuevo código
@@ -527,7 +506,7 @@ Ahora la planta con ese nombre y número es parte del banco de datos.
 |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
 9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo número
---------------------------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Si se encuentra una planta y se identifica la especie pero no es parte del
 banco de datos y tampo posee un código.
@@ -607,8 +586,8 @@ clic
 en
 “Aceptar”.
 
-**10. Cambiar el lugar de una planta en el banco de datos**
------------------------------------------------------------------
+10. Cambiar el lugar de una planta en el banco de datos
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Si se encuentra una planta con una accesión en un
 lugar diferente al que está registrado en el banco de datos, se tiene que cambiar el lugar.
@@ -694,7 +673,7 @@ ultima vez.
 *▼ Aquí! ▼*
 
 11. Decargar información sobre el banco de datos por una informe
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Cada año el jardín botánico tiene que entregar una informe
 (informe anual de manejo y mantenimiento de colección de orquideas)
