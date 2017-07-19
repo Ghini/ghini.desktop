@@ -1,26 +1,46 @@
-Manual Banco de datos – Jardín Botánico de Quito
+Use Cases – Jardín Botánico de Quito
 ==================================================
 
-Este documento explica los conceptos básicos para manejar el banco de datos
-en el programa de Ghini. Este documento fue escrito en Marzo 2017. Cuando
-use el programa en el futuro, tal vez algunas cosas hayan cambiado o
-actualizado.
+At the JBQ, Jardín Botánico de Quito, we have adopted the Ghini software in
+April 2015. Since that time, we have accumulated experience with the
+program, and we are ourselves in need to document it, in order to secure the
+knowledge to the institution. We are happy to share it.
 
-0. Información del programa “Ghini”
---------------------------------------------
+We often have volunteers, who only work at the garden for a very short
+time. It was with them in mind, that we have developed a `hypersimplified
+view <goal.html#hypersimplified-view>`_ to the ghini database structure.
 
-Para trabajar con el programa “Ghini” se necesita entender el flujo de la
-información. Simplificando al extremo, podemos mirar así a
-como Ghini guarda la información de la colección de un jardín botánico:
+============================================= =============================================
+.. figure:: images/family-to-accession.png    .. figure:: images/location-to-plant.png
+============================================= =============================================
 
-Tenemos 6 diferentes niveles, a saber (y entre parentesis un ejemplo):
+At the JBQ, we work most of all with orchids, family Orchidaceae, one of the
+largest plant families, with no less than 850 genera, organized in
+approximately 70 subtribes, 22 tribes, 5 subfamilies. How we represent this
+information is not obvious and needs be explained.
 
-► Familia (Orchidaceae)
-  ► Género (Masdevallia)
-    ► Especie (Masdevallia angulata)
-      ► Accesión (006266 - conexión entre planta y especie)
-        ► Planta (006266.1 - Planta física viva)
-► Ubicación (INV1: invernadero 1)
+Our workflow includes moving plants around in the garden, keep track of
+current locations and history of movements.
+
+We have many plants which are still only partially identified, at rank
+genus, sometimes not even. This also needs be explained.
+
+As plants enter the flowering stage, we can review their identification
+directly, or we take pictures of details of the flower, hoping that a
+visiting specialist could help completing the identification.
+
+Sometimes we have groups of plants accessed separately but clearly belonging
+to the same species, even if we are not able to indicate it with
+confidence. Ghini helps us here, too.
+
+Obviously we keep increasing our collection, with plants coming from
+commercial sources, or from expeditions to remote areas of our country, or
+we receive plants which were prevented from being illegally exported. These
+plants may be relative to species not yet represented in our collection.
+
+Regularly, we need producing reports about our collection, that the
+Ecuadorian Environment Ministery (MAE) requires and that justify the very
+existence of the garden.
 
 Familia
 ............................................................................
