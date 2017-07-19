@@ -31,14 +31,13 @@ Installing Ghini
    installing
 
 
-Using Ghini
+Using Guide
 ============
 
 .. toctree::
    :maxdepth: 2
 
    started
-   quick_guide
    searching
    editing
    propagations
@@ -47,6 +46,14 @@ Using Ghini
    imex
    users
 
+Cookbook
+==============
+.. toctree::
+   :maxdepth: 2
+
+   use_cases
+   use_cases-jbq
+   
 
 Administration
 ==============
