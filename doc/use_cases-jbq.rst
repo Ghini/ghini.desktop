@@ -9,11 +9,6 @@ knowledge to the institution. We are happy to share it.
 Overview
 ---------------------------
 
-This page presents a list of use cases. If you're looking for straight,
-practical information, you are at the right place. If you prefer a thorough
-presentation of the software and database structure, check the section
-`software for botanical gardens <goal.html#botanic-garden-software>`_
-
 - At the JBQ, we work most of all with orchids, family Orchidaceae, one of
   the largest plant families, with no less than 850 genera, organized in
   approximately 70 subtribes, 22 tribes, 5 subfamilies. How we represent
