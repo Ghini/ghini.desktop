@@ -10,26 +10,28 @@ Overview
 ---------------------------
 
 - At the JBQ, we work most of all with orchids, family Orchidaceae, one of
-  the largest plant families, with no less than 850 genera, organized in
-  approximately 70 subtribes, 22 tribes, 5 subfamilies. How we represent
-  this information is not obvious and needs be explained.
+  the largest plant families, with no less than 850 genera, organized
+  —according to Dressler— in approximately 70 subtribes, 22 tribes, 5
+  subfamilies.  How we represent this information is not obvious and needs
+  be explained.
 
-  The taxonomy of the Orchidaceae family is continuously being
-  reviewed. Genera get added, refused, reorganized, recognized as synonyms,
-  some taxonomists prefer grouping species or genera in a new way, others
-  split them again and differently. All this sounds very specialistic, but
-  it's part of our daily routine, and it can all be stored in our Ghini
-  database.
+  The taxonomy of the Orchidaceae family is continuously being reviewed.
+  Genera get added, refused, reorganized, recognized as synonyms, some
+  taxonomists prefer grouping species or genera in a new way, others split
+  them again and differently, botanists of different nationalities may have
+  different views on the matter.  All this sounds very complex and
+  specialistic, but it's part of our daily routine, and it can all be stored
+  in our Ghini database.
 
-  In particular subtribus information is relevant when it comes to
-  attempting propagations and hybridizing.
+  In particular subtribe information is relevant when it comes to attempting
+  propagations and hybridizing.
 
 - At the opposite complexity extreme, we often have volunteers who only work
   at the garden for a very short time. It was with them in mind that we have
   developed a `hypersimplified view <goal.html#hypersimplified-view>`_ to
   the ghini database structure.
 
-  In a nutshell, the two figures show all we need here.
+  The two figures here show all that's needed by our temporary workforce.
 
   +---------------------------------------------+---------------------------------------------+
   | Taxonomy & Collection                       | Garden                                      |
@@ -69,7 +71,10 @@ Overview
   below it, species and accessions, and synonymies.
 
 - At times, the program gives error messages, which are not really relevant,
-  be prepared to see them and just don't panic.
+  but may be surprising. |dontpanic_png| and report to the developers.
+
+- When contacting the developers, they will definitely ask for technical
+  information, or at least to see a screenshot.  Help them help you.
 
 1. Abrir el banco de datos
 ----------------------------------------------------------------------------
@@ -851,3 +856,6 @@ los resultados.
     :width: 11.642cm
     :height: 2.533cm
 
+.. |dontpanic_png| image:: images/dontpanic.png
+    :height: 20px
+    :align: middle
