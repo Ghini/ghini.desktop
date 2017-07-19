@@ -57,7 +57,7 @@ Regularly, we need producing reports about our collection, that the
 Ecuadorian Environment Ministery (MAE) requires and that justify the very
 existence of the garden.
 
-Use Cases - expanded
+Use Cases - case by case
 ---------------------------
 
 1. Abrir el banco de datos
@@ -183,7 +183,7 @@ B. Algunas veces sin causa aparente, cuando se hace una búsqueda no se
    |10000000000002140000014D050A059AC7EE948A_png|
 
 C. Algunas veces el código en el invernadero no tiene 6 pero 5 números. Para
-   realizar tu búsqueda solo anadir un zero que el la primera número.
+   realizar tu búsqueda solo añadir un cero que el la primera número.
 
 +--------------------------+----------------------------------+
 | Número en el invernadero | Número para entregar la búsqueda |
