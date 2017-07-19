@@ -1,4 +1,4 @@
-Use Cases – Jardín Botánico de Quito
+Jardín Botánico de Quito
 ==================================================
 
 At the JBQ, Jardín Botánico de Quito, we have adopted the Ghini software in
