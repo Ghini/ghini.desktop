@@ -40,10 +40,6 @@ presentation of the software and database structure, check the section
   | Taxonomy & Collection                       | Garden                                      |
   +=============================================+=============================================+
   |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
-  |                                             |                                             |
-  |                                             |…                                            |
-  |                                             |                                             |
-  |                                             |…                                            |
   +---------------------------------------------+---------------------------------------------+
 
 - Our workflow includes moving plants around in the garden, keep track of
