@@ -29,8 +29,8 @@ presentation of the software and database structure, check the section
   In particular subtribus information is relevant when it comes to
   attempting propagations and hybridizing.
 
-- At the opposite extreme, we often have volunteers, who only work at the
-  garden for a very short time. It was with them in mind, that we have
+- At the opposite complexity extreme, we often have volunteers who only work
+  at the garden for a very short time. It was with them in mind that we have
   developed a `hypersimplified view <goal.html#hypersimplified-view>`_ to
   the ghini database structure.
 
@@ -40,6 +40,10 @@ presentation of the software and database structure, check the section
   | Taxonomy & Collection                       | Garden                                      |
   +=============================================+=============================================+
   |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
+  |                                             |                                             |
+  |                                             |…                                            |
+  |                                             |                                             |
+  |                                             |…                                            |
   +---------------------------------------------+---------------------------------------------+
 
 - Our workflow includes moving plants around in the garden, keep track of
@@ -462,7 +466,7 @@ Ahora la planta con ese nombre y número es parte del banco de datos.
 |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
 9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo número
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 
 Si se encuentra una planta y se identifica la especie pero no es parte del
 banco de datos y tampo posee un código.
