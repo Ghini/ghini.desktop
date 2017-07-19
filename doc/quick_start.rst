@@ -6,68 +6,75 @@ April 2015. Since that time, we have accumulated experience with the
 program, and we are ourselves in need to document it, in order to secure the
 knowledge to the institution. We are happy to share it.
 
-Introduction
+Overview
 ---------------------------
 
-We often have volunteers, who only work at the garden for a very short
-time. It was with them in mind, that we have developed a `hypersimplified
-view <goal.html#hypersimplified-view>`_ to the ghini database structure.
+This page presents a list of use cases. If you're looking for straight,
+practical information, you are at the right place. If you prefer a thorough
+presentation of the software and database structure, check the section
+`software for botanical gardens <goal.html#botanic-garden-software>`_
 
-+---------------------------------------------+---------------------------------------------+
-| Taxonomy & Collection                       | Garden                                      |
-+=============================================+=============================================+
-|.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
-|                                             +---------------------------------------------+
-|                                             |                                             |
-+---------------------------------------------+---------------------------------------------+
+- At the JBQ, we work most of all with orchids, family Orchidaceae, one of
+  the largest plant families, with no less than 850 genera, organized in
+  approximately 70 subtribes, 22 tribes, 5 subfamilies. How we represent
+  this information is not obvious and needs be explained.
 
-This page only presents a list of use cases. for a quite complete overview
-of the software and database structure, check the section `software for
-botanical gardens <goal.html#botanic-garden-software>`_
+  The taxonomy of the Orchidaceae family is continuously being
+  reviewed. Genera get added, refused, reorganized, recognized as synonyms,
+  some taxonomists prefer grouping species or genera in a new way, others
+  split them again and differently. All this sounds very specialistic, but
+  it's part of our daily routine, and it can all be stored in our Ghini
+  database.
 
-Use Cases - overview
---------------------------------
+  In particular subtribus information is relevant when it comes to
+  attempting propagations and hybridizing.
 
-At the JBQ, we work most of all with orchids, family Orchidaceae, one of the
-largest plant families, with no less than 850 genera, organized in
-approximately 70 subtribes, 22 tribes, 5 subfamilies. How we represent this
-information is not obvious and needs be explained.
+- At the opposite extreme, we often have volunteers, who only work at the
+  garden for a very short time. It was with them in mind, that we have
+  developed a `hypersimplified view <goal.html#hypersimplified-view>`_ to
+  the ghini database structure.
 
-Our workflow includes moving plants around in the garden, keep track of
-current locations and history of movements.
+  In a nutshell, the two figures show all we need here.
 
-We have many plants which are still only partially identified, at rank
-genus, sometimes not even. This also needs be explained.
+  +---------------------------------------------+---------------------------------------------+
+  | Taxonomy & Collection                       | Garden                                      |
+  +=============================================+=============================================+
+  |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
+  +---------------------------------------------+---------------------------------------------+
 
-As plants enter the flowering stage, we can review their identification
-directly, or we take pictures of details of the flower, hoping that a
-visiting specialist could help completing the identification.
+- Our workflow includes moving plants around in the garden, keep track of
+  current locations and history of movements.
 
-Sometimes we have groups of plants accessed separately but clearly belonging
-to the same species, even if we are not able to indicate it with
-confidence. Ghini helps us here, too.
+- We have many plants which are still only partially identified, at rank
+  genus, sometimes not even. This also needs be explained.
 
-Obviously we keep increasing our collection, with plants coming from
-commercial sources, or collected them from the wild, seldom from expeditions
-to remote areas of our country, or we receive plants which were illegally
-collected.  These plants may be relative to species not yet represented in
-our collection.
+- As plants enter the flowering stage, we can review their identification
+  directly, or we take pictures of details of the flower, hoping that a
+  visiting specialist could help completing the identification.
 
-Extreme dinamism of Orchid family. Genera get added, recognized, refused.
+- Sometimes we have groups of plants accessed separately but clearly
+  belonging to the same species, even if we are not able to indicate its
+  binomial name with confidence. Ghini helps us here, too.
 
-Tribe information is relevant when it comes to attempting propagations and hybridizing.
+- Obviously we keep increasing our collection, with plants coming from
+  commercial sources, or collected from the wild, more rarely coming from
+  expeditions to remote areas of our country, or we receive plants which
+  were illegally collected.
 
-Regularly, we need producing reports about our collection, that the
-Ecuadorian Environment Ministery (MAE) requires and that justify the very
-existence of the garden.
+- New plants may be relative to species not yet represented in our
+  collection. Adding a new species in the database is part of the daily
+  routine, too.
 
-A serious situation happened once, and we absolutely want to prevent it from
-happening again: a user deleted a genus, with everything that was below it,
-species and accessions, and synonymies. recovering from the mistake was a
-lot of work.
+- Regularly, we need producing reports about our collection, that the
+  Ecuadorian Environment Ministery (MAE) requires and that justify the very
+  existence of the garden.
 
-At times, the program gives error messages, which are not really relevant,
-be prepared to see them and just don't panic.
+- A serious situation happened once, and we absolutely want to prevent it
+  from happening again: a user deleted a genus, with everything that was
+  below it, species and accessions, and synonymies.
+
+- At times, the program gives error messages, which are not really relevant,
+  be prepared to see them and just don't panic.
 
 Use Cases - case by case
 ---------------------------
