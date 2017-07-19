@@ -23,21 +23,22 @@ Overview
   specialistic, but it's part of our daily routine, and it can all be stored
   in our Ghini database.
 
-  In particular subtribe information is relevant when it comes to attempting
-  propagations and hybridizing.
-
 - At the opposite complexity extreme, we often have volunteers who only work
   at the garden for a very short time. It was with them in mind that we have
-  developed a `hypersimplified view <goal.html#hypersimplified-view>`_ to
+  developed a `hypersimplified view <goal.html#hypersimplified-view>`_ on
   the ghini database structure.
 
-  The two figures here show all that's needed by our temporary workforce.
+  The two figures here show all that our temporary collaborators need to know.
 
   +---------------------------------------------+---------------------------------------------+
   | Taxonomy & Collection                       | Garden                                      |
   +=============================================+=============================================+
   |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
   +---------------------------------------------+---------------------------------------------+
+
+- We work on GNU/Linux, a platform that many users don't master, and our
+  database is inside of a remote database management system. This implies
+  steps that are not obvious to the casual end user.
 
 - Our workflow includes moving plants around in the garden, keep track of
   current locations and history of movements.
