@@ -13,9 +13,13 @@ We often have volunteers, who only work at the garden for a very short
 time. It was with them in mind, that we have developed a `hypersimplified
 view <goal.html#hypersimplified-view>`_ to the ghini database structure.
 
-============================================= =============================================
-.. figure:: images/family-to-accession.png    .. figure:: images/location-to-plant.png
-============================================= =============================================
++---------------------------------------------+---------------------------------------------+
+| Taxonomy & Collection                       | Garden                                      |
++=============================================+=============================================+
+|.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
+|                                             +---------------------------------------------+
+|                                             |                                             |
++---------------------------------------------+---------------------------------------------+
 
 This page only presents a list of use cases. for a quite complete overview
 of the software and database structure, check the section `software for
@@ -56,6 +60,14 @@ Tribe information is relevant when it comes to attempting propagations and hybri
 Regularly, we need producing reports about our collection, that the
 Ecuadorian Environment Ministery (MAE) requires and that justify the very
 existence of the garden.
+
+A serious situation happened once, and we absolutely want to prevent it from
+happening again: a user deleted a genus, with everything that was below it,
+species and accessions, and synonymies. recovering from the mistake was a
+lot of work.
+
+At times, the program gives error messages, which are not really relevant,
+be prepared to see them and just don't panic.
 
 Use Cases - case by case
 ---------------------------
