@@ -17,6 +17,13 @@ view <goal.html#hypersimplified-view>`_ to the ghini database structure.
 .. figure:: images/family-to-accession.png    .. figure:: images/location-to-plant.png
 ============================================= =============================================
 
+This page only presents a list of use cases. for a quite complete overview
+of the software and database structure, check the section `software for
+botanical gardens <goal.html#botanic-garden-software>`_
+
+Use Cases - overview
+--------------------------------
+
 At the JBQ, we work most of all with orchids, family Orchidaceae, one of the
 largest plant families, with no less than 850 genera, organized in
 approximately 70 subtribes, 22 tribes, 5 subfamilies. How we represent this
@@ -37,87 +44,20 @@ to the same species, even if we are not able to indicate it with
 confidence. Ghini helps us here, too.
 
 Obviously we keep increasing our collection, with plants coming from
-commercial sources, or from expeditions to remote areas of our country, or
-we receive plants which were prevented from being illegally exported. These
-plants may be relative to species not yet represented in our collection.
+commercial sources, or collected them from the wild, seldom from expeditions
+to remote areas of our country, or we receive plants which were illegally
+collected.  These plants may be relative to species not yet represented in
+our collection.
+
+Extreme dinamism of Orchid family. Genera get added, recognized, refused.
+
+Tribe information is relevant when it comes to attempting propagations and hybridizing.
 
 Regularly, we need producing reports about our collection, that the
 Ecuadorian Environment Ministery (MAE) requires and that justify the very
 existence of the garden.
 
-Familia
-............................................................................
-      
-En esta simplificación, el nivel más alto es información taxonómica y
-representa la familia de nuestras plantas.
-
-Por supuesto que podemos guardar plantas de cualquier familia botánica, sin
-embargo actualmente tenemos plantas de tan sólo 7 familias registradas en el
-banco de datos, y con diferencia la mayor parte queda en la familia
-Orchidaceae.
-
-(Subfamilias, Tribus, Subtribus)
-............................................................................
-
-La familia Orchidaceae tiene demasiado géneros, según Dressler son algo
-como 850. Para no perderse en tanta variedad, se prefiere dividir la familia
-en 5 subfamilias, 22 tribus, 70 subtribus.  Explicar como utilizar Ghini-1.0
-para información taxonómica de rango incluido entre familia y género está
-fuera del alcance de esta introducción.
-
-Género
-............................................................................
-
-El segundo nivel, también taxonómico, a disposición en Ghini-1.0 es el nivel
-del género. Todas plantas de que el género no ha sido determinado, caen en
-el género ficticio “Zzz”. Cada género pertenece a una sola familia.
-
-Especie
-............................................................................
-
-El tercer y último nivel taxonómico es el nivel de las especies. Una especie
-pertenece a un género y por lo anterior a una familia.  En cada género vamos
-a añadir la especie ficticia de epíteto “sp”, para las accesiones que no
-hayan sido mejor identificadas.
-
-Accesión
-............................................................................
-
-El cuarto nivel, y ahora estamos en el contexto de la colección, es la
-accesión. Accesión es un concepto abstracto, explicado más detalladamente en
-`otra sección <goal.html#accession-explained>`_ de la documentación. En el
-marco de esta introducción, una accesión es nada más sino un número con 6
-posiciones, presente en la etiqueta de cada planta.
-
-Cada accesión es parte de una especie, esta especie es parte de un género, y
-este género es parte de una familia, y en nuestra colección casi solo
-tenemos Orchidaceae. Nótese que la asociación de una accesión a una especie
-puede ser modificada, si un taxónomo considere necesaria la corrección.
-
-Planta
-............................................................................
-
-El quinto y final nivel es la planta física, la que vive en una maceta, que
-produce semillas, que puede ser vendida o morirse o multiplicarse
-asexuadamente y hasta desaparecer de la colección.
-      
-*Siempre recuerda: si se cambia algo en un nivel alto, esto tiene efecto en todos los niveles río abajo. Por eso hay que trabajar con mucho cuidado!*
-
-Ubicación
-............................................................................
-
-Otro nivel físico es de las ubicaciones en el jardín, sea en un invernadero,
-sea en una cama al exterior.  Cada planta física pertenece en cada momento a
-una ubicación, pero esta asociación puede cambiar según las necesidades
-expositivas o de cuidado de las plantas.
-
-Como dicho, esta es una hipersimplificación de la real estructura de la base
-de datos. una impresión más estructurada, aunque siempre reducida, sería:
-
-Más detalles están en la sección 
-`software para jardines botánicos <goal.html#botanic-garden-software>`_
-
-Use Cases
+Use Cases - expanded
 ---------------------------
 
 1. Abrir el banco de datos
