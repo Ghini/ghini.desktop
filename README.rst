@@ -1,9 +1,15 @@
 Ghini
 ======
 
-.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg
-.. image:: https://img.shields.io/pypi/v/bauble.svg
-.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github
+.. |travis| image:: https://travis-ci.org/Ghini/ghini.desktop.svg
+.. |pypi| image:: https://img.shields.io/pypi/v/bauble.svg
+.. |coveralls| image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github
+
+======== ======== ============
+travis   pypi     coveralls
+======== ======== ============
+|travis| |pypi|   |coveralls|
+======== ======== ============
 
 =========== =========== =========== =========== =========== =========== =========== =========== 
 Spanish     Portuguese  French      German      Dutch       Italian     Tchech      Sweedish
