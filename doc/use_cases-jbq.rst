@@ -97,20 +97,19 @@ if a newer version is available.
 ============================================== ==============================================
 
 Nótese que la versión se encuentra en la parte superior. Al momento de tomar
-el pantallazo, la versión más actualizada del programa era la 1.0.62, y
-nosotros estábamos utilizando la 1.0.60.
+el pantallazo, la versión más actualizada del programa era la 1.0.64, y
+nosotros estábamos utilizando la 1.0.63.
 
-Nótese también, que si el programa requiere una nueva versión se la puede
-descargar, pues es recomendable trabajar con la versión más actual del
-mismo.
+The update procedure is simple, we're not explaining here again.
 
-The update procedure is simple, but please look it up in the docs.
+Nótese también, siempre es recomendable trabajar con la última versión del
+software.
 
 Choose the database connection
 ----------------------------------------------------------------------------
 
 Our data security policy prescribes three different user profiles, each of
-them will require you to insert a password.
+them will require you to insert a (different) password.
 
 full permission (BD-JBQ)
   only qualified personnel get this kind of access.
@@ -129,17 +128,16 @@ password corresponding to the connection you selected.
 
 |10000000000000FE00000065C64D791B5CA0099D_png|
 
-Si quieres ver los detalles de la conexión, haz clic en el triangulo
-|1000000000000012000000136C4E92DF7BEB33CC_png| al lado de 'Connection
-Details'. The connection window will expand to something like this:
+Si quieres averiguar los detalles de la conexión, haz clic en el símbolo ▶
+al lado de 'Connection Details', ese cambiará en ▼, y la ventana de conexión
+se mostrará como una de las siguientes:
 
 ============================================== ============================================== ==============================================
 |100000000000012F000001A611615FB62F2D003B_png| |100000000000012F000001A611615FB62F2D003D_png| |100000000000012F000001A611615FB62F2D003C_png|
 ============================================== ============================================== ==============================================
 
-Como puedes ver, estamos conectándonos a una base de datos PostgreSQL, con
-el usuario ``bauble``. Este usuario tiene autorización completa a modificar
-cualquier información en la base de datos.
+Como puedes ver, estamos conectándonos al mismo servidor de bases de datos,
+cada conexión se apoya a la misma base de datos, pero con usuario diferente.
 
 3. Información del banco de datos
 ----------------------------------------------------------------------------
@@ -742,10 +740,6 @@ los resultados.
     :width: 7.893cm
     :height: 6.024cm
 
-.. |1000000000000012000000136C4E92DF7BEB33CC_png| image:: images/1000000000000012000000136C4E92DF7BEB33CC.png
-    :width: 0.723cm
-    :height: 0.764cm
-
 .. |100000000000025700000050925C1488E03E0617_png| image:: images/100000000000025700000050925C1488E03E0617.png
     :width: 12.157cm
     :height: 1.625cm
@@ -892,4 +886,3 @@ los resultados.
 .. |loose_png| image:: images/windows-key.png
    :width: 28px
    :height: 28px
-
