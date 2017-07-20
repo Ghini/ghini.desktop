@@ -56,8 +56,9 @@ place where the current maintainer Mario Frasca has completed his studies in
 computer science.
 
 Within the Ghini organization, you will find 'ghini.desktop', this program,
-'ghini.github.io', the sources for the ghini website, 'ghini.geoweb', a very
-very alpha quality thing which still did not formalize.
+'ghini.github.io', the sources for the ghini website, 'ghini.web', showcased 
+at http://gardens.ghini.me, and ghini.tour, a collection of settings for 
+building audio guides to gardens.
 
 Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
 
