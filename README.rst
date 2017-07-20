@@ -71,26 +71,6 @@ then download and run `devinstall.bat <https://raw.githubusercontent.com/Ghini/g
 
 Or also read the rest.
 
-Requirements
-------------
-ghini.desktop requires the following packages to run.
-
-* Python (travis-ci checks Bauble against Python 2.6 and 2.7)
-* SQLAlchemy (>= 0.6.0, at least up to 1.0.3)
-* pygtk (>= 2.12, at least up to 2.24)
-* PyGObject (>= 2.11.1, at least up to 2.28.6)
-* lxml (>= 2.0)
-
-each of the following database connectors is optional, but at least one is needed:
-
-* pysqlite >= 2.3.2
-* psycopg2 >= 2.0.5 
-* mysql-python >= 1.2.1 
-
-To use the formatter plugin you will also need to install an
-XSL->PDF renderer. For a free renderer check out Apache FOP
-(>=.92beta) at http://xmlgraphics.apache.org/fop/
-
 Further info
 ------------
 
