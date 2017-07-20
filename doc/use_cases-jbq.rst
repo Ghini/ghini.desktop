@@ -77,19 +77,24 @@ Overview
 - When contacting the developers, they will definitely ask for technical
   information, or at least to see a screenshot.  Help them help you.
 
-1. Abrir el banco de datos
+Starting a program in Linux
 ----------------------------------------------------------------------------
 
-Para abrir el programa de Ghini, hacer clic en
-|10000000000000300000002F89E0224ADF9EC09E_png| y escribir “Ghini” o hacer
-clic en el símbolo Ghini |100000000000003100000031BB54CBDFA885EBAC_png|.
+to start a program given its name, hit the |loose_png| key next to Alt, or
+click on |10000000000000300000002F89E0224ADF9EC09E_png|, then start typing
+the name of the program, in our case “Ghini” or just click on the program
+symbol |100000000000003100000031BB54CBDFA885EBAC_png|, appearing near the
+left margin of your display.
 
-2. Login en el banco de datos
-----------------------------------------------------------------------------
+should we update the program
+-------------------------------------
 
-Cuando se abre Ghini, se mostrara la siguiente ventana.
+The first window presented by Ghini looks like this, if up to date, or that,
+if a newer version is available.
 
-|10000000000001290000011FEE16D735EB3DBF66_png|
+============================================== ==============================================
+|10000000000001290000011FEE16D735EB3DBF67_png| |10000000000001290000011FEE16D735EB3DBF66_png|
+============================================== ==============================================
 
 Nótese que la versión se encuentra en la parte superior. Al momento de tomar
 el pantallazo, la versión más actualizada del programa era la 1.0.62, y
@@ -98,6 +103,11 @@ nosotros estábamos utilizando la 1.0.60.
 Nótese también, que si el programa requiere una nueva versión se la puede
 descargar, pues es recomendable trabajar con la versión más actual del
 mismo.
+
+The update procedure is simple, but please look it up in the docs.
+
+Login en el banco de datos
+----------------------------------------------------------------------------
 
 En el parte posterior se puede ver el nombre de la conexión a nuestra base
 de datos.  Llamamos la conexión “BD-JBQ”.
@@ -666,8 +676,8 @@ los resultados.
     :height: 5.674cm
 
 .. |100000000000003100000031BB54CBDFA885EBAC_png| image:: images/100000000000003100000031BB54CBDFA885EBAC.png
-    :width: 0.993cm
-    :height: 0.993cm
+    :width: 38px
+    :height: 38px
 
 .. |10000000000006060000019593F061B072210692_png| image:: images/10000000000006060000019593F061B072210692.png
     :width: 16.274cm
@@ -684,6 +694,9 @@ los resultados.
 .. |10000000000001290000011FEE16D735EB3DBF66_png| image:: images/10000000000001290000011FEE16D735EB3DBF66.png
     :width: 6.832cm
     :height: 6.602cm
+
+.. |10000000000001290000011FEE16D735EB3DBF67_png| image:: images/10000000000001290000011FEE16D735EB3DBF67.png
+    :width: 6.832cm
 
 .. |10000000000001D5000000C7CF644BA0B1AB3FFF_png| image:: images/10000000000001D5000000C7CF644BA0B1AB3FFF.png
     :width: 10.148cm
@@ -806,8 +819,8 @@ los resultados.
     :height: 5.874cm
 
 .. |10000000000000300000002F89E0224ADF9EC09E_png| image:: images/10000000000000300000002F89E0224ADF9EC09E.png
-    :width: 0.864cm
-    :height: 0.847cm
+    :width: 38px
+    :height: 38px
 
 .. |10000000000001CF000000487F16C7F2613D9F58_png| image:: images/10000000000001CF000000487F16C7F2613D9F58.png
     :width: 9.857cm
@@ -858,3 +871,8 @@ los resultados.
     :height: 2.533cm
 
 .. |dontpanic_png| image:: images/dontpanic.png
+
+.. |loose_png| image:: images/windows-key.png
+   :width: 28px
+   :height: 28px
+
