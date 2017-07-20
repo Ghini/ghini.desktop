@@ -86,7 +86,7 @@ the name of the program, in our case “Ghini” or just click on the program
 symbol |100000000000003100000031BB54CBDFA885EBAC_png|, appearing near the
 left margin of your display.
 
-should we update the program
+When to update the program
 -------------------------------------
 
 The first window presented by Ghini looks like this, if up to date, or that,
@@ -106,28 +106,40 @@ mismo.
 
 The update procedure is simple, but please look it up in the docs.
 
-Login en el banco de datos
+Choose the database connection
 ----------------------------------------------------------------------------
 
-En el parte posterior se puede ver el nombre de la conexión a nuestra base
-de datos.  Llamamos la conexión “BD-JBQ”.
+Our data security policy prescribes three different user profiles, each of
+them will require you to insert a password.
 
-Todas las plantas registradas son guardadas en la base de datos.
+full permission (BD-JBQ)
+  only qualified personnel get this kind of access.
+
+insert and update (BD-JBQ-limitado)
+  We use this one for those users who come help us for a
+  limited time, and who did not get a complete introduction to database
+  concepts. It is meant to prevent costly mistakes.
+
+read only (BD-JBQ-lectura)
+  it can be shared with anyone visiting the garden
 
 En esta ventana no se ingresa ningún dato, solo hacer clic en “Conectar”
-para continuar a la próxima ventana.
+para continuar a la próxima ventana. The software will ask you for the
+password corresponding to the connection you selected.
+
+|10000000000000FE00000065C64D791B5CA0099D_png|
 
 Si quieres ver los detalles de la conexión, haz clic en el triangulo
 |1000000000000012000000136C4E92DF7BEB33CC_png| al lado de 'Connection
-Details':
+Details'. The connection window will expand to something like this:
 
-|100000000000012F000001A611615FB62F2D003B_png|
+============================================== ============================================== ==============================================
+|100000000000012F000001A611615FB62F2D003B_png| |100000000000012F000001A611615FB62F2D003D_png| |100000000000012F000001A611615FB62F2D003C_png|
+============================================== ============================================== ==============================================
 
 Como puedes ver, estamos conectándonos a una base de datos PostgreSQL, con
 el usuario ``bauble``. Este usuario tiene autorización completa a modificar
-cualquier información en la base de datos, y necesitas saber su contraseña.
-
-|10000000000000FE00000065C64D791B5CA0099D_png|
+cualquier información en la base de datos.
 
 3. Información del banco de datos
 ----------------------------------------------------------------------------
@@ -788,7 +800,12 @@ los resultados.
 
 .. |100000000000012F000001A611615FB62F2D003B_png| image:: images/100000000000012F000001A611615FB62F2D003B.png
     :width: 5.741cm
-    :height: 7.996cm
+
+.. |100000000000012F000001A611615FB62F2D003C_png| image:: images/100000000000012F000001A611615FB62F2D003C.png
+    :width: 5.741cm
+
+.. |100000000000012F000001A611615FB62F2D003D_png| image:: images/100000000000012F000001A611615FB62F2D003D.png
+    :width: 5.741cm
 
 .. |1000000000000293000001C423766E7D365A1489_png| image:: images/1000000000000293000001C423766E7D365A1489.png
     :width: 7.258cm
