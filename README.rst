@@ -3,16 +3,22 @@ Ghini
 
 .. image:: https://travis-ci.org/Ghini/ghini.desktop.svg
 .. image:: https://img.shields.io/pypi/v/bauble.svg
-.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github
+.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github
 
-.. image:: https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/fr/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/de/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/nl/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/it/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/cs/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/sv/svg-badge.svg
+=========== =========== =========== =========== =========== =========== =========== =========== 
+Spanish     Portuguese  French      German      Dutch       Italian     Tchech      Sweedish
+=========== =========== =========== =========== =========== =========== =========== ===========
+|trans-es|  |trans-pt|  |trans-fr|  |trans-de|  |trans-nl|  |trans-it|  |trans-cs|  |trans-sv|  
+=========== =========== =========== =========== =========== =========== =========== ===========
+
+.. |trans-es| image:: https://hosted.weblate.org/widgets/ghini/es/svg-badge.svg
+.. |trans-pt| image:: https://hosted.weblate.org/widgets/ghini/pt_BR/svg-badge.svg
+.. |trans-fr| image:: https://hosted.weblate.org/widgets/ghini/fr/svg-badge.svg
+.. |trans-de| image:: https://hosted.weblate.org/widgets/ghini/de/svg-badge.svg
+.. |trans-nl| image:: https://hosted.weblate.org/widgets/ghini/nl/svg-badge.svg
+.. |trans-it| image:: https://hosted.weblate.org/widgets/ghini/it/svg-badge.svg
+.. |trans-cs| image:: https://hosted.weblate.org/widgets/ghini/cs/svg-badge.svg
+.. |trans-sv| image:: https://hosted.weblate.org/widgets/ghini/sv/svg-badge.svg
 
 what is Ghini (desktop)
 ------------------------
