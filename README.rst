@@ -1,18 +1,30 @@
 Ghini
 ======
 
-.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg
-.. image:: https://img.shields.io/pypi/v/bauble.svg
-.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github
+.. |travis| image:: https://travis-ci.org/Ghini/ghini.desktop.svg
+.. |pypi| image:: https://img.shields.io/pypi/v/bauble.svg
+.. |coveralls| image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github
 
-.. image:: https://hosted.weblate.org/widgets/bauble/es/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/pt_BR/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/fr/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/de/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/nl/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/it/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/cs/svg-badge.svg
-.. image:: https://hosted.weblate.org/widgets/bauble/sv/svg-badge.svg
+======== ======== ============
+travis   pypi     coveralls
+======== ======== ============
+|travis| |pypi|   |coveralls|
+======== ======== ============
+
+=========== =========== =========== =========== =========== =========== =========== =========== 
+Spanish     Portuguese  French      German      Dutch       Italian     Tchech      Sweedish
+=========== =========== =========== =========== =========== =========== =========== ===========
+|trans-es|  |trans-pt|  |trans-fr|  |trans-de|  |trans-nl|  |trans-it|  |trans-cs|  |trans-sv|  
+=========== =========== =========== =========== =========== =========== =========== ===========
+
+.. |trans-es| image:: https://hosted.weblate.org/widgets/ghini/es/svg-badge.svg
+.. |trans-pt| image:: https://hosted.weblate.org/widgets/ghini/pt_BR/svg-badge.svg
+.. |trans-fr| image:: https://hosted.weblate.org/widgets/ghini/fr/svg-badge.svg
+.. |trans-de| image:: https://hosted.weblate.org/widgets/ghini/de/svg-badge.svg
+.. |trans-nl| image:: https://hosted.weblate.org/widgets/ghini/nl/svg-badge.svg
+.. |trans-it| image:: https://hosted.weblate.org/widgets/ghini/it/svg-badge.svg
+.. |trans-cs| image:: https://hosted.weblate.org/widgets/ghini/cs/svg-badge.svg
+.. |trans-sv| image:: https://hosted.weblate.org/widgets/ghini/sv/svg-badge.svg
 
 what is Ghini (desktop)
 ------------------------
@@ -44,8 +56,9 @@ place where the current maintainer Mario Frasca has completed his studies in
 computer science.
 
 Within the Ghini organization, you will find 'ghini.desktop', this program,
-'ghini.github.io', the sources for the ghini website, 'ghini.geoweb', a very
-very alpha quality thing which still did not formalize.
+'ghini.github.io', the sources for the ghini website, 'ghini.web', showcased 
+at http://gardens.ghini.me, and ghini.tour, a collection of settings for 
+building audio guides to gardens.
 
 Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
 
@@ -57,26 +70,6 @@ Are you a Windows user and are in a hurry to run ghini.desktop? Download and ins
 then download and run `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.bat>`_ and keep `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/ghini-update.bat>`_ for later reference.
 
 Or also read the rest.
-
-Requirements
-------------
-ghini.desktop requires the following packages to run.
-
-* Python (travis-ci checks Bauble against Python 2.6 and 2.7)
-* SQLAlchemy (>= 0.6.0, at least up to 1.0.3)
-* pygtk (>= 2.12, at least up to 2.24)
-* PyGObject (>= 2.11.1, at least up to 2.28.6)
-* lxml (>= 2.0)
-
-each of the following database connectors is optional, but at least one is needed:
-
-* pysqlite >= 2.3.2
-* psycopg2 >= 2.0.5 
-* mysql-python >= 1.2.1 
-
-To use the formatter plugin you will also need to install an
-XSL->PDF renderer. For a free renderer check out Apache FOP
-(>=.92beta) at http://xmlgraphics.apache.org/fop/
 
 Further info
 ------------
