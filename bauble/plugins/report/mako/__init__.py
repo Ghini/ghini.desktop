@@ -40,6 +40,141 @@ import bauble.utils as utils
 import bauble.utils.desktop as desktop
 
 
+font = {
+    u'!': 20, u'A': 36, u'a': 31, u'á': 31, u'Á': 38,
+    u'"': 23, u'B': 34, u'b': 32, u'à': 31, u'À': 38,
+    u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
+    u'$': 32, u'D': 39, u'd': 31, u'å': 31, u'Å': 38,
+    u'%': 50, u'E': 32, u'e': 30, u'ä': 31, u'Ä': 38,
+    u'&': 46, u'F': 29, u'f': 18, u'ã': 31, u'Ã': 38, u'æ': 31, u'Æ': 38,
+    u"'": 13, u'G': 39, u'g': 31, u'ç': 28, u'Ç': 35,
+    u'(': 22, u'H': 38, u'h': 32, u'ð': 31, u'Ð': 39,
+    u')': 23, u'I': 11, u'i': 11, u'é': 30, u'É': 32,
+    u'*': 32, u'J': 22, u'j': 11, u'è': 30, u'È': 31,
+    u'+': 41, u'K': 35, u'k': 29, u'ê': 30, u'Ê': 32,
+    u',': 18, u'L': 28, u'l': 11, u'ë': 29, u'Ë': 32,
+    u'-': 41, u'M': 39, u'm': 52, u'í': 11, u'Í': 11, u'ì': 11, u'Ì': 11,
+    u'.': 18, u'N': 37, u'n': 31, u'î': 11, u'Î': 11,
+    u'/': 23, u'O': 40, u'o': 31, u'ï': 11, u'Ï': 11,
+    u'0': 32, u'P': 31, u'p': 32, u'ñ': 30, u'Ñ': 37,
+    u'1': 32, u'Q': 39, u'q': 32, u'ó': 31, u'Ó': 40,
+    u'2': 32, u'R': 35, u'r': 22, u'ò': 31, u'Ò': 40,
+    u'3': 32, u'S': 34, u's': 27, u'ô': 31, u'Ô': 40,
+    u'4': 32, u'T': 29, u't': 18, u'ö': 31, u'Ö': 40,
+    u'5': 32, u'U': 37, u'u': 32, u'õ': 31, u'Õ': 40,
+    u'6': 32, u'V': 36, u'v': 27, u'ø': 31, u'Ø': 40,
+    u'7': 32, u'W': 49, u'w': 41, u'ú': 32, u'Ú': 37,
+    u'8': 32, u'X': 34, u'x': 29, u'ù': 31, u'Ù': 36,
+    u'9': 32, u'Y': 31, u'y': 27, u'û': 32, u'Û': 37,
+    u':': 18, u'Z': 34, u'z': 26, u'ü': 32, u'Ü': 37,
+    u';': 18, u'[': 23, u'{': 32, u'ý': 29, u'Ý': 30,
+    u'<': 41, u'\\': 23, u'|': 23, u'ÿ': 30, u'Ÿ': 31,
+    u'=': 41, u']': 23, u'}': 32, u'ń': 31, u'Ń': 38,
+    u'>': 41, u'^': 40, u'~': 41, u'ł': 15, u'Ł': 27,
+    u'?': 27, u'_': 32, u' ': 18, u'č': 26, u'Č': 35,
+    u'@': 50, u'`': 32, u'×': 26, u'š': 26, u'Š': 35,
+    }
+
+
+def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
+    """compute the `use` elements to be added and the width of the result
+
+    the returned value is a 3-tuple, where the first element is the
+    string to be added to the svg, second and third element are the next
+    insertion point if you want to continue the text on the same line
+    with different attributes.
+    """
+    result_list = []
+    totalwidth = 0
+    if not s:
+        return '', x, y
+    for i in s:
+        if i not in font:
+            i = u'?'
+        glyph_wid = font[i] / 2.0
+        glyph_ref = "s%d-u%04x" % (strokes, ord(i))
+        result_list.append(
+            '<use transform="translate(%s,0)" xlink:href="#%s"/>' %
+            (totalwidth, glyph_ref))
+        totalwidth += glyph_wid
+    if align_right:
+        x -= totalwidth * size
+    italic_text = italic and 'matrix(1,0,-0.1,1,2,0)' or ''
+    result_list.insert(
+        0, (('<g transform="translate(%s, %s)scale(%s)'+italic_text+'">')
+            % (x, y, size)))
+    result_list.append('</g>')
+    result = "\n".join(result_list)
+    return result, x+totalwidth*size, y
+
+
+def add_code39(x, y, s, unit=1, height=10):
+    result_list = []
+    current_x = x
+    if not s:
+        return '', x, y
+    s = '!' + s + '!'
+    for i in s:
+        if i not in Code39.MAP.keys():
+            i = u' '
+        print i
+        result_list.append(Code39.letter(i, height, translate=(current_x, y)))
+        current_x += 16
+    result_list.insert(
+        0, ('<g transform="scale(%s)">' % unit))
+    result_list.append('</g>')
+    return ''.join(result_list), current_x - unit, y
+
+
+class Code39:
+    # Class for encoding as Code39 barcode.
+    
+    # Every symbol gets encoded as a sequence of 5 black bars separated by 4
+    # white spaces. Bars and spaces may be thin (one unit), or thick (three
+    # units). A thin white space separates the sequences. All barcodes start
+    # and end with a single special symbol (we call it '!') which isn't
+    # included in the 45 encodable characters.
+
+    # we only need the 13 chars ' !.0123456789', and they all contain 9
+    # black units and 6 white units, plus the final separator. this makes
+    # things a lot easier.
+
+    MAP = {'!': 'b   b bbb bbb b',
+           '.': 'bbb   b b bbb b',
+           '1': 'bbb b   b b bbb',
+           '0': 'b b   bbb bbb b',
+           '3': 'bbb bbb   b b b',
+           '2': 'b bbb   b b bbb',
+           '5': 'bbb b   bbb b b',
+           '4': 'b b   bbb b bbb',
+           '7': 'b b   b bbb bbb',
+           '6': 'b bbb   bbb b b',
+           '9': 'b bbb   b bbb b',
+           '8': 'bbb b   b bbb b',
+           ' ': 'b   bbb b bbb b',
+    }
+
+    @classmethod
+    def path(cls, letter, height):
+        format = ('M %(0)s,0 %(0)s,H M %(1)s,H %(1)s,0 '
+                  'M %(2)s,0 %(2)s,H M %(3)s,H %(3)s,0 '
+                  'M %(4)s,0 %(4)s,H M %(5)s,H %(5)s,0 '
+                  'M %(6)s,0 %(6)s,H M %(7)s,H %(7)s,0 '
+                  'M %(8)s,0 %(8)s,H'
+                  ).replace('H', str(height))
+        blacks = [i for i, x in enumerate(cls.MAP[letter]) if x=='b']
+        d = dict(zip((str(i) for i in range(10)), blacks))
+        return format % d
+
+    @classmethod
+    def letter(cls, letter, height, translate=None):
+        if translate is not None:
+            transform_text = 'transform="translate(%s,%s)" ' % translate
+        else:
+            transform_text = ''
+        return '<path ' + transform_text + 'd="%s" style="stroke:#0000ff;stroke-width:1"/>' % cls.path(letter, height)
+
+
 class MakoFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
