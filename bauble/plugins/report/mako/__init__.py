@@ -76,8 +76,10 @@ font = {
     }
 
 
-def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
+def add_text(x, y, s, size, align=0, italic=False, strokes=1):
     """compute the `use` elements to be added and the width of the result
+
+    align 0: left; align 1: right; align 0.5: centre
 
     the returned value is a 3-tuple, where the first element is the
     string to be added to the svg, second and third element are the next
@@ -97,8 +99,8 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
             '<use transform="translate(%s,0)" xlink:href="#%s"/>' %
             (totalwidth, glyph_ref))
         totalwidth += glyph_wid
-    if align_right:
-        x -= totalwidth * size
+    if align != 0:
+        x -= align * (totalwidth * size)
     italic_text = italic and 'matrix(1,0,-0.1,1,2,0)' or ''
     result_list.insert(
         0, (('<g transform="translate(%s, %s)scale(%s)'+italic_text+'">')
@@ -108,22 +110,23 @@ def add_text(x, y, s, size, align_right=False, italic=False, strokes=1):
     return result, x+totalwidth*size, y
 
 
-def add_code39(x, y, s, unit=1, height=10):
+def add_code39(x, y, s, unit=1, height=10, align=0):
     result_list = []
-    current_x = x
+    cumulative_x = 0
     if not s:
         return '', x, y
     s = '!' + s + '!'
     for i in s:
         if i not in Code39.MAP.keys():
             i = u' '
-        print i
-        result_list.append(Code39.letter(i, height, translate=(current_x, y)))
-        current_x += 16
+        result_list.append(Code39.letter(i, height, translate=(cumulative_x, 0)))
+        cumulative_x += 16
+    cumulative_x -= 1
+    shift = -align * cumulative_x
     result_list.insert(
-        0, ('<g transform="scale(%s)">' % unit))
+        0, ('<g transform="translate(%s,%s)scale(%s)translate(%s,0)">' % (x, y, unit, shift)))
     result_list.append('</g>')
-    return ''.join(result_list), current_x - unit, y
+    return ''.join(result_list), x + cumulative_x + shift, y
 
 
 class Code39:
