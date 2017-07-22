@@ -124,7 +124,7 @@ def add_code39(x, y, s, unit=1, height=10, align=0):
     cumulative_x -= 1
     shift = -align * cumulative_x
     result_list.insert(
-        0, ('<g transform="translate(%s,%s)scale(%s)translate(%s,0)">' % (x, y, unit, shift)))
+        0, ('<g transform="translate(%s,%s)scale(%s,1)translate(%s,0)">' % (x, y, unit, shift)))
     result_list.append('</g>')
     return ''.join(result_list), x + cumulative_x + shift, y
 
