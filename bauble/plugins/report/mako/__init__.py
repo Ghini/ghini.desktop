@@ -143,28 +143,61 @@ class Code39:
     # things a lot easier.
 
     MAP = {'!': 'b   b bbb bbb b',
+           '7': 'b b   b bbb bbb',
+           '-': 'b   b b bbb bbb',
+           '4': 'b b   bbb b bbb',
+           'X': 'b   b bbb b bbb',
+           '0': 'b b   bbb bbb b',
            '.': 'bbb   b b bbb b',
            '1': 'bbb b   b b bbb',
-           '0': 'b b   bbb bbb b',
            '3': 'bbb bbb   b b b',
            '2': 'b bbb   b b bbb',
            '5': 'bbb b   bbb b b',
-           '4': 'b b   bbb b bbb',
-           '7': 'b b   b bbb bbb',
            '6': 'b bbb   bbb b b',
            '9': 'b bbb   b bbb b',
            '8': 'bbb b   b bbb b',
            ' ': 'b   bbb b bbb b',
+           '.': 'bbb   b b bbb b',
+           'A': 'bbb b b   b bbb',
+           'C': 'bbb bbb b   b b',
+           'B': 'b bbb b   b bbb',
+           'E': 'bbb b bbb   b b',
+           'D': 'b b bbb   b bbb',
+           'G': 'b b b   bbb bbb',
+           'F': 'b bbb bbb   b b',
+           'I': 'b bbb b   bbb b',
+           'H': 'bbb b b   bbb b',
+           'K': 'bbb b b b   bbb',
+           'J': 'b b bbb   bbb b',
+           'M': 'bbb bbb b b   b',
+           'L': 'b bbb b b   bbb',
+           'O': 'bbb b bbb b   b',
+           'N': 'b b bbb b   bbb',
+           'Q': 'b b b bbb   bbb',
+           'P': 'b bbb bbb b   b',
+           'S': 'b bbb b bbb   b',
+           'R': 'bbb b b bbb   b',
+           'U': 'bbb   b b b bbb',
+           'T': 'b b bbb bbb   b',
+           'W': 'bbb   bbb b b b',
+           'V': 'b   bbb b b bbb',
+           'Y': 'bbb   b bbb b b',
+           'Z': 'b   bbb bbb b b',
+           '%': 'b b   b   b   b',
+           '$': 'b   b   b   b b',
+           '+': 'b   b b   b   b',
+           '/': 'b   b   b b   b',
     }
-
     @classmethod
     def path(cls, letter, height):
         format = ('M %(0)s,0 %(0)s,H M %(1)s,H %(1)s,0 '
                   'M %(2)s,0 %(2)s,H M %(3)s,H %(3)s,0 '
-                  'M %(4)s,0 %(4)s,H M %(5)s,H %(5)s,0 '
-                  'M %(6)s,0 %(6)s,H M %(7)s,H %(7)s,0 '
-                  'M %(8)s,0 %(8)s,H'
-                  ).replace('H', str(height))
+                  'M %(4)s,0 %(4)s,H')
+        if not letter in '%$+/':
+             format += (' M %(5)s,H %(5)s,0 '
+                        'M %(6)s,0 %(6)s,H M %(7)s,H %(7)s,0 '
+                        'M %(8)s,0 %(8)s,H')
+        format = format.replace('H', str(height))
         blacks = [i for i, x in enumerate(cls.MAP[letter]) if x=='b']
         d = dict(zip((str(i) for i in range(10)), blacks))
         return format % d
