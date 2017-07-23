@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2017-06-22 19:18+0000\n"
+"PO-Revision-Date: 2017-07-23 11:31+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian "
 "<https://hosted.weblate.org/projects/ghini/desktop-11/uk/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
 "4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2.15-dev\n"
+"X-Generator: Weblate 2.16-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:23+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -3339,12 +3339,10 @@ msgid "Timestamp"
 msgstr "Часова мітка"
 
 #: bauble/plugins/garden/prop_editor.glade:358
-#, fuzzy
 msgid "Tip"
 msgstr "Верхівка"
 
 #: bauble/plugins/garden/propagation.py:129
-#, fuzzy
 msgid "Tip: %s"
 msgstr "Верхівка: %s"
 
@@ -3513,7 +3511,7 @@ msgstr "Захід"
 
 #: bauble/plugins/plants/family.py:332
 msgid "Whether or not the family is considered a complex or aggregate."
-msgstr ""
+msgstr "Чи вважається сім'я складною або сукупною."
 
 #: bauble/plugins/plants/itf2.py:43
 msgid "Whole plant"
