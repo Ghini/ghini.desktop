@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-28 08:24-0500\n"
-"PO-Revision-Date: 2017-07-23 11:16+0000\n"
+"PO-Revision-Date: 2017-07-28 15:30+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/uk/>\n"
@@ -738,7 +738,6 @@ msgid "Choose file(s) to import..."
 msgstr "Виберіть файл(и) для імпорту..."
 
 #: bauble/querybuilder.glade:134
-#, fuzzy
 msgid "Clauses"
 msgstr "Положення"
 
