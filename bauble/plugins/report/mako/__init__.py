@@ -110,7 +110,7 @@ def add_text(x, y, s, size, align=0, italic=False, strokes=1):
     return result, x+totalwidth*size, y
 
 
-def add_code39(x, y, s, unit=1, height=10, align=0):
+def add_code39(x, y, s, unit=1, height=10, align=0, colour='#0000ff'):
     result_list = []
     cumulative_x = 0
     if not s:
@@ -119,7 +119,7 @@ def add_code39(x, y, s, unit=1, height=10, align=0):
     for i in s:
         if i not in Code39.MAP.keys():
             i = u' '
-        result_list.append(Code39.letter(i, height, translate=(cumulative_x, 0)))
+        result_list.append(Code39.letter(i, height, translate=(cumulative_x, 0), colour=colour))
         cumulative_x += 16
     cumulative_x -= 1
     shift = -align * cumulative_x
@@ -203,12 +203,16 @@ class Code39:
         return format % d
 
     @classmethod
-    def letter(cls, letter, height, translate=None):
+    def letter(cls, letter, height, translate=None, colour='#0000ff'):
         if translate is not None:
-            transform_text = 'transform="translate(%s,%s)" ' % translate
+            transform_text = ' transform="translate(%s,%s)"' % translate
         else:
             transform_text = ''
-        return '<path ' + transform_text + 'd="%s" style="stroke:#0000ff;stroke-width:1"/>' % cls.path(letter, height)
+        return '<path%(transform)s d="%(path)s" style="stroke:%(colour)s;stroke-width:1"/>' % {
+            'transform': transform_text,
+            'path': cls.path(letter, height),
+            'colour': colour,
+        }
 
 
 class MakoFormatterSettingsBox(SettingsBox):
