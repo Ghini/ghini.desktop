@@ -273,9 +273,10 @@ The installation steps on Windows:
 
    .. image:: images/screenshots/sys32cmd-1.png
 
-   this will pull the ``ghini.desktop`` repository on github to your home
-   directory, under ``Local\github\Ghini``, checkout the ``ghini-1.0``
-   production line, create a virtual environment and install ghini into it.
+   Running ``devinstall.bat`` will pull the ``ghini.desktop`` repository from
+   github to your home directory, under ``Local\github\Ghini``, checkout the
+   ``ghini-1.0`` production line, create a virtual environment and install
+   ghini into it.
 
    you can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
@@ -306,13 +307,12 @@ The installation steps on Windows:
    newer ghini release within your chosen production line.
 
    any time you want to update your installation, just start the command
-   prompt and run ``ghini-update.bat``
+   prompt and run ``ghini-update.bat``, it will hardly take one minute.
 
-If you would like to generate and print PDF reports using Ghini's
-default report generator then you will need to download and install
-`Apache FOP <http://xmlgraphics.apache.org/fop/>`_. After extracting
-the FOP archive you will need to include the directory you extracted
-to in your PATH.
+If you would like to generate and print PDF reports using Ghini's default
+report generator then you will need to download and install `Apache FOP
+<http://xmlgraphics.apache.org/fop/>`_.  After extracting the FOP archive
+you will need to include the directory you extracted to in your PATH.
 
 .. rubric:: Next...
 
