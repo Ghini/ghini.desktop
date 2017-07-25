@@ -4,11 +4,21 @@ Installation
 ghini.desktop is a cross-platform program and it will run on unix machines
 like GNU/Linux and MacOSX, as well as on Windows.
 
-.. admonition:: one-liner for hurried Linux users.
+.. admonition:: one-liner for hurried users.
    :class: note
 
-           Download and run `the installation script <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
+           Linux users just download and run `the installation script
+           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
            You may read the documentation later.
+
+           Windows users, start downloading all external dependencies (`git
+           <Direct link to download git_>`_, `Python <Direct link to
+           download Python_>`_, `lxml <Direct link to download lxml_>`_,
+           `PyGTK <Direct link to download PyGTK_>`_, `psycopg2 <Direct link
+           to download psycopg2_>`_), read the instructions in the
+           meanwhile.
+
+           Mac users are never in a hurry, are they?
 
 Ghini is maintained by very few people, who focus on enhancing its
 functional parts, more than on writing fancy installers. Instead of several
@@ -213,7 +223,7 @@ The installation steps on Windows:
 
      https://git-scm.com/download/win
 
-   `Direct link to download git`_
+   `Direct link to git`_
 
    all default options are fine, except we need git to be executable from
    the command prompt:
@@ -275,9 +285,15 @@ The installation steps on Windows:
 
    hey, this is Windows, you need to reboot for changes to take effect!
 
-#. download and run (from ``\system32\cmd.exe``) the batch file:
+#. download (right click, save as) and run (from |windows-cmd|) the batch file:
 
-    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.bat
+   https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.bat
+   
+   .. image:: images/windows-save_link_as.png
+
+   .. image:: images/windows-save_as_type.png
+
+   .. |windows-cmd| image:: images/windows-cmd.png
 
    right before you hit the enter key to run the script, your screen might
    look like something like this:
