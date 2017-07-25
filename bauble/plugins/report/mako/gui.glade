@@ -96,9 +96,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="mako_options_box">
+          <object class="GtkTable" id="mako_options_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="n_columns">2</property>
+            <child>
+              <placeholder/>
+            </child>
             <child>
               <placeholder/>
             </child>

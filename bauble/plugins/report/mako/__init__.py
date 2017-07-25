@@ -261,11 +261,12 @@ class MakoFormatterSettingsBox(SettingsBox):
                                    for i in f.readlines()])
         option_fields = [i.groups() for i in option_lines]
         from bauble.plugins.report import options
+        current_row = 0
         # populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:
             row = gtk.HBox()
             label = gtk.Label(fname.replace('_', ' ') + _(':'))
-            label.set_alignment(0, 0)
+            label.set_alignment(0, 0.5)
             entry = gtk.Entry()
             options.setdefault(fname, fdefault)
             entry.set_text(options[fname])
@@ -273,13 +274,16 @@ class MakoFormatterSettingsBox(SettingsBox):
             # entry updates the corresponding item in report.options
             entry.connect('changed', self.set_option, fname)
             self.defaults.append((entry, fdefault))
-            row.pack_start(label)
-            row.pack_end(entry)
-            options_box.pack_start(row)
+            options_box.attach(label, 0, 1, current_row, current_row+1,
+                               xoptions=gtk.FILL)
+            options_box.attach(entry, 1, 2, current_row, current_row+1,
+                               xoptions=gtk.FILL)
+            current_row += 1
         if self.defaults:
             button = gtk.Button(_('Reset to defaults'))
             button.connect('clicked', self.reset_options)
-            options_box.pack_start(button)
+            options_box.attach(button, 0, 2, current_row, current_row+1,
+                               xoptions=gtk.FILL)
         options_box.show_all()
 
     def reset_options(self, widget):
