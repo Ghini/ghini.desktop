@@ -317,8 +317,12 @@ for key, value in defaults.items():
     <path d="M 0,0 49,0 49,15 0,15 z" style="fill:none;stroke:#ff0000;stroke-width:0.1" />
 <% full_code = v.accession.code + (v.code != '1' and '.' + v.code or '') %>\
 <% unit = v.code != '1' and 0.265 or 0.33 %>\
-<% text, x, y = add_text(24.5, 8.5, full_code, 0.3, align=0.5) %>\
+<% text, x, y = add_text(3, 8.5, full_code + ' ', 0.3, align=0) %>\
     ${text}
+% if options['extra_text']:
+<% text, x, y = add_text(x, 7, options['extra_text'], 0.15, align=0) %>\
+    ${text}
+% endif
 <% text, x, y = add_code39(24.5, 10, full_code, unit=unit, height=4, align=0.5, colour=options['colour']) %>\
     ${text}
   </g>

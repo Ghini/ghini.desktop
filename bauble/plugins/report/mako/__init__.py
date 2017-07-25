@@ -258,6 +258,7 @@ class MakoFormatterSettingsBox(SettingsBox):
                                   [self.pattern.match(i.strip())
                                    for i in f.readlines()])
         option_fields = [i.groups() for i in option_lines]
+        from bauble.plugins.report import options
         # populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:
             row = gtk.HBox()
@@ -270,6 +271,8 @@ class MakoFormatterSettingsBox(SettingsBox):
             row.pack_start(label)
             row.pack_end(entry)
             options_box.pack_start(row)
+            if fdefault:
+                options[fname] = fdefault
         options_box.show_all()
 
     def set_option(self, widget, fname):
