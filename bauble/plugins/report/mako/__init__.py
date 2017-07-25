@@ -227,6 +227,12 @@ class MakoFormatterSettingsBox(SettingsBox):
         self.settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
         self.pack_start(self.settings_box)
+        self.widgets.template_chooser.connect('file-set', self.on_file_set)
+        import re
+        self.pattern = re.compile("^## OPTION ([a-z_]*): \("
+                                  "type: ([a-z_]*), "
+                                  "default: '(.*)', "
+                                  "tooltip: '(.*)'\)$")
 
     def get_settings(self):
         """
@@ -235,10 +241,40 @@ class MakoFormatterSettingsBox(SettingsBox):
                 'private': self.widgets.private_check.get_active()}
 
     def update(self, settings):
-        if 'template' in settings and settings['template']:
+        if settings.get('template'):
             self.widgets.template_chooser.set_filename(settings['template'])
+            self.on_file_set()
         if 'private' in settings:
             self.widgets.private_check.set_active(settings['private'])
+
+    def on_file_set(self, *args, **kwargs):
+        options_box = self.widgets.mako_options_box
+        # empty the options box
+        map(options_box.remove, options_box.get_children())
+        # which options does the template accept? (can be None)
+        with open(self.widgets.template_chooser.get_filename()) as f:
+            # scan the header filtering lines starting with # OPTION
+            option_lines = filter(None,
+                                  [self.pattern.match(i.strip())
+                                   for i in f.readlines()])
+        option_fields = [i.groups() for i in option_lines]
+        # populate the options box
+        for fname, ftype, fdefault, ftooltip in option_fields:
+            row = gtk.HBox()
+            label = gtk.Label(fname.replace('_', ' '))
+            entry = gtk.Entry()
+            entry.set_text(fdefault)
+            entry.set_tooltip_text(ftooltip)
+            # entry updates the corresponding item in report.options
+            entry.connect('changed', self.set_option, fname)
+            row.pack_start(label)
+            row.pack_end(entry)
+            options_box.pack_start(row)
+        options_box.show_all()
+
+    def set_option(self, widget, fname):
+        from bauble.plugins.report import options
+        options[fname] = widget.get_text()
 
 
 _settings_box = MakoFormatterSettingsBox()
