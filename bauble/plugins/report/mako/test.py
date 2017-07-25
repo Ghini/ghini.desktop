@@ -164,15 +164,15 @@ class SvgProductionTest(BaubleTestCase):
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(-90)">\n'
-                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
-                          '</g>')
-        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
         self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(-90)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
-        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(-180)">\n'
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(180)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 
@@ -183,17 +183,17 @@ class SvgProductionTest(BaubleTestCase):
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=90)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
-        self.assertEquals(g, '<g transform="translate(0.0, -15.5)scale(2)rotate(-90)">\n'
+        self.assertEquals(g, '<g transform="translate(0.0, -15.5)scale(2)rotate(90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
-        self.assertEquals(g, '<g transform="translate(0.0, 15.5)scale(2)rotate(90)">\n'
+        self.assertEquals(g, '<g transform="translate(0.0, 15.5)scale(2)rotate(-90)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
         g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=180)
         g = g.replace('-0.0', '0.0')  # ignore sign on zero
-        self.assertEquals(g, '<g transform="translate(15.5, 0.0)scale(2)rotate(-180)">\n'
+        self.assertEquals(g, '<g transform="translate(15.5, 0.0)scale(2)rotate(180)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 

@@ -330,7 +330,7 @@ else:
 <% text, x, y = add_text(x, 8.5, full_code, 0.27, align=0.7, strokes=2) %>\
     ${text}
 % if options['extra_text']:
-<% text, _, y = add_text(x + 4, 5.75, options['extra_text'], 0.12, align=0.5, rotate=90) %>\
+<% text, _, y = add_text(x + 4, 5.75, options['extra_text'], 0.12, align=0.5, rotate=-90) %>\
     ${text}
 % endif
 <% text, x, y = add_code39(24.5, 10, full_code, unit=unit, height=4, align=0.5, colour=options['colour']) %>\

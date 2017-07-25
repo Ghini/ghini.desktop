@@ -105,7 +105,7 @@ def add_text(x, y, s, size, align=0, italic=False, strokes=1, rotate=0):
         x -= (totalwidth * size) * align * math.cos(radians)
         y -= (totalwidth * size) * align * math.sin(radians)
     italic_text = italic and 'matrix(1,0,-0.1,1,2,0)' or ''
-    rotate_text = rotate and ('rotate(%s)' % -rotate) or ''
+    rotate_text = rotate and ('rotate(%s)' % rotate) or ''
     # we can't do the following before having placed all glyphs
     result_list.insert(
         0, (('<g transform="translate(%s, %s)scale(%s)' + italic_text + rotate_text + '">')
