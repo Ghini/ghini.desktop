@@ -189,13 +189,6 @@ The rest is just as on a normal unix machine. Read the above GNU/Linux instructi
 Installing on Windows
 ---------------------
 
-The current maintainer of ghini.desktop has no interest in learning how to
-produce Windows installers, so the Windows installation is here reduced to
-the same installation procedure as on Unix (GNU/Linux and MacOSX).
-
-Please report any trouble. Help with packaging will be very welcome, in
-particular by other Windows users.
-
 The steps described here instruct you on how to install Git, Gtk, Python,
 and the python database connectors. With this environment correctly set up,
 the Ghini installation procedure runs as on GNU/Linux. The concluding steps are
@@ -205,7 +198,7 @@ again Windows specific.
    W-10. Although it should work fine on other versions Windows it has not
    been thoroughly tested.
 
-.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/Git-2.10.0-32-bit.exe
+.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.13.3.windows.1/Git-2.13.3-32-bit.exe
 .. _Direct link to download Python: https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
 .. _Direct link to download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
 .. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
