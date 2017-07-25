@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 import os
 import shutil
 import tempfile
+import math
 
 import gtk
 
@@ -99,16 +100,21 @@ def add_text(x, y, s, size, align=0, italic=False, strokes=1, rotate=0):
             '<use transform="translate(%s,0)" xlink:href="#%s"/>' %
             (totalwidth, glyph_ref))
         totalwidth += glyph_wid
+    radians = rotate / 180.0 * math.pi
     if align != 0:
-        x -= align * (totalwidth * size)
+        x -= (totalwidth * size) * align * math.cos(radians)
+        y -= (totalwidth * size) * align * math.sin(radians)
     italic_text = italic and 'matrix(1,0,-0.1,1,2,0)' or ''
     rotate_text = rotate and ('rotate(%s)' % -rotate) or ''
+    # we can't do the following before having placed all glyphs
     result_list.insert(
-        0, (('<g transform="translate(%s, %s)scale(%s)'+italic_text+rotate_text+'">')
-            % (x, y, size)))
+        0, (('<g transform="translate(%s, %s)scale(%s)' + italic_text + rotate_text + '">')
+            % (round(x, 6), round(y, 6), size)))
     result_list.append('</g>')
     result = "\n".join(result_list)
-    return result, x+totalwidth*size, y
+    return (result,
+            x + totalwidth * size * math.cos(radians),
+            y + totalwidth * size * math.sin(radians))
 
 
 def add_code39(x, y, s, unit=1, height=10, align=0, colour='#0000ff'):
