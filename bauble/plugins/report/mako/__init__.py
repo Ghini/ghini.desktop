@@ -76,7 +76,7 @@ font = {
     }
 
 
-def add_text(x, y, s, size, align=0, italic=False, strokes=1):
+def add_text(x, y, s, size, align=0, italic=False, strokes=1, rotate=0):
     """compute the `use` elements to be added and the width of the result
 
     align 0: left; align 1: right; align 0.5: centre
@@ -103,8 +103,8 @@ def add_text(x, y, s, size, align=0, italic=False, strokes=1):
         x -= align * (totalwidth * size)
     italic_text = italic and 'matrix(1,0,-0.1,1,2,0)' or ''
     result_list.insert(
-        0, (('<g transform="translate(%s, %s)scale(%s)'+italic_text+'">')
-            % (x, y, size)))
+        0, (('<g transform="translate(%s, %s)scale(%s)'+italic_text+'rotate(%s)">')
+            % (x, y, size, -rotate)))
     result_list.append('</g>')
     result = "\n".join(result_list)
     return result, x+totalwidth*size, y
@@ -264,7 +264,8 @@ class MakoFormatterSettingsBox(SettingsBox):
         # populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:
             row = gtk.HBox()
-            label = gtk.Label(fname.replace('_', ' '))
+            label = gtk.Label(fname.replace('_', ' ') + _(':'))
+            label.set_alignment(0, 0)
             entry = gtk.Entry()
             options.setdefault(fname, fdefault)
             entry.set_text(options[fname])

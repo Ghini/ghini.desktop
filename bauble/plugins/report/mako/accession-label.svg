@@ -43,7 +43,12 @@ for key, value in defaults.items():
     options.setdefault(key, value)
 
 if options['accession_format'] != '':
-    enumeration = enumerate([options['accession_format'] % i for i in range(int(options['accession_first']), int(options['accession_last']) + 1)])
+    format = options['accession_format']
+    start = unicode(format.rstrip('#'))
+    if start != format:
+        digits = len(format) - len(start)
+        format = start + '%%0%dd' % digits
+    enumeration = enumerate([format % i for i in range(int(options['accession_first']), int(options['accession_last']) + 1)])
 else:
     enumeration = enumerate([p.accession.code + (p.code != '1' and '.' + p.code or '') for p in get_plants_pertinent_to(values)])
 
@@ -321,10 +326,11 @@ else:
   <g transform="scale(3.543)translate(7,14)translate(${xpos*49},${ypos*15})">
     <path d="M 0,0 49,0 49,15 0,15 z" style="fill:none;stroke:#ff0000;stroke-width:0.1" />
 <% unit = 2.65 / len(full_code + '!!') %>\
-<% text, x, y = add_text(3, 8.5, full_code + ' ', 0.3, align=0) %>\
+<% x = options['extra_text'] and 30 or 31.6 %>\
+<% text, x, y = add_text(x, 8.5, full_code, 0.3, align=0.7) %>\
     ${text}
 % if options['extra_text']:
-<% text, x, y = add_text(x, 7, options['extra_text'], 0.15, align=0) %>\
+<% text, x, y = add_text(x + 4, 8.5, options['extra_text'], 0.12, align=0, rotate=90) %>\
     ${text}
 % endif
 <% text, x, y = add_code39(24.5, 10, full_code, unit=unit, height=4, align=0.5, colour=options['colour']) %>\
