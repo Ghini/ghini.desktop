@@ -131,7 +131,7 @@ def add_code39(x, y, s, unit=1, height=10, align=0, colour='#0000ff'):
 
 class Code39:
     # Class for encoding as Code39 barcode.
-    
+
     # Every symbol gets encoded as a sequence of 5 black bars separated by 4
     # white spaces. Bars and spaces may be thin (one unit), or thick (three
     # units). A thin white space separates the sequences. All barcodes start
@@ -233,6 +233,7 @@ class MakoFormatterSettingsBox(SettingsBox):
         self.widgets.remove_parent(self.widgets.settings_box)
         self.pack_start(self.settings_box)
         self.widgets.template_chooser.connect('file-set', self.on_file_set)
+        self.defaults = []
 
     def get_settings(self):
         """
@@ -248,7 +249,7 @@ class MakoFormatterSettingsBox(SettingsBox):
             self.widgets.private_check.set_active(settings['private'])
 
     def on_file_set(self, *args, **kwargs):
-        print 'in on_file_set'
+        self.defaults = []
         options_box = self.widgets.mako_options_box
         # empty the options box
         map(options_box.remove, options_box.get_children())
@@ -270,10 +271,19 @@ class MakoFormatterSettingsBox(SettingsBox):
             entry.set_tooltip_text(ftooltip)
             # entry updates the corresponding item in report.options
             entry.connect('changed', self.set_option, fname)
+            self.defaults.append((entry, fdefault))
             row.pack_start(label)
             row.pack_end(entry)
             options_box.pack_start(row)
+        if self.defaults:
+            button = gtk.Button(_('Reset to defaults'))
+            button.connect('clicked', self.reset_options)
+            options_box.pack_start(button)
         options_box.show_all()
+
+    def reset_options(self, widget):
+        for entry, text in self.defaults:
+            entry.set_text(text)
 
     def set_option(self, widget, fname):
         from bauble.plugins.report import options
