@@ -216,6 +216,11 @@ class Code39:
 
 
 class MakoFormatterSettingsBox(SettingsBox):
+    import re
+    pattern = re.compile("^## OPTION ([a-z_]*): \("
+                         "type: ([a-z_]*), "
+                         "default: '(.*)', "
+                         "tooltip: '(.*)'\)$")
 
     def __init__(self, report_dialog=None, *args):
         super(MakoFormatterSettingsBox, self).__init__(*args)
@@ -228,11 +233,6 @@ class MakoFormatterSettingsBox(SettingsBox):
         self.widgets.remove_parent(self.widgets.settings_box)
         self.pack_start(self.settings_box)
         self.widgets.template_chooser.connect('file-set', self.on_file_set)
-        import re
-        self.pattern = re.compile("^## OPTION ([a-z_]*): \("
-                                  "type: ([a-z_]*), "
-                                  "default: '(.*)', "
-                                  "tooltip: '(.*)'\)$")
 
     def get_settings(self):
         """
@@ -248,6 +248,7 @@ class MakoFormatterSettingsBox(SettingsBox):
             self.widgets.private_check.set_active(settings['private'])
 
     def on_file_set(self, *args, **kwargs):
+        print 'in on_file_set'
         options_box = self.widgets.mako_options_box
         # empty the options box
         map(options_box.remove, options_box.get_children())
@@ -264,15 +265,14 @@ class MakoFormatterSettingsBox(SettingsBox):
             row = gtk.HBox()
             label = gtk.Label(fname.replace('_', ' '))
             entry = gtk.Entry()
-            entry.set_text(fdefault)
+            options.setdefault(fname, fdefault)
+            entry.set_text(options[fname])
             entry.set_tooltip_text(ftooltip)
             # entry updates the corresponding item in report.options
             entry.connect('changed', self.set_option, fname)
             row.pack_start(label)
             row.pack_end(entry)
             options_box.pack_start(row)
-            if fdefault:
-                options[fname] = fdefault
         options_box.show_all()
 
     def set_option(self, widget, fname):
