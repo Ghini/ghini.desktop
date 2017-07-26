@@ -18,8 +18,33 @@ technical
 
   ..  admonition:: Details
       :class: toggle
-            
-         To save the world with only seconds to spare do the following:
+
+         to start a program given its name, hit the |loose_png| key next to Alt, or
+         click on |10000000000000300000002F89E0224ADF9EC09E_png|, then start typing
+         the name of the program, in our case “Ghini” or just click on the program
+         symbol |100000000000003100000031BB54CBDFA885EBAC_png|, appearing near the
+         left margin of your display.
+
+- Understanding when to update
+
+  ..  admonition:: Details
+      :class: toggle
+
+         The first window presented by Ghini looks like this, if up to date, or that,
+         if a newer version is available.
+
+         ============================================== ==============================================
+         |10000000000001290000011FEE16D735EB3DBF67_png| |10000000000001290000011FEE16D735EB3DBF66_png|
+         ============================================== ==============================================
+
+         Nótese que la versión se encuentra en la parte superior. Al momento de tomar
+         el pantallazo, la versión más actualizada del programa era la 1.0.64, y
+         nosotros estábamos utilizando la 1.0.63.
+
+         The update procedure is simple, we're not explaining here again.
+
+         Nótese también, siempre es recomendable trabajar con la última versión del
+         software.
 
 - We often have volunteers who only work at the garden for a very short
   time. It was with them in mind that we have developed a `hypersimplified
@@ -35,16 +60,114 @@ technical
          +=============================================+=============================================+
          |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
          +---------------------------------------------+---------------------------------------------+
-  
+
+- Recovering from an error condition
+
+  ..  admonition:: network problems
+      :class: toggle
+
+         In order to work, the program needs a stable network connection to
+         the database server. It can happen: you start the program, and it
+         can't connect to our database server. You would then get a rather
+         explicit but very badly typeset error message.
+
+         |100000000000020B000000FBCAB1860DB92DF14A_png|
+
+         Just ignore it and try again. 
+
+  ..  admonition:: failing search
+      :class: toggle
+
+         Algunas veces sin causa aparente, cuando se hace una búsqueda no se
+         ejecuta por completo y puede mostrarse una ventana con un mensaje. En
+         este caso solo se tiene que intentar realizar la misma búsqueda
+         nuevamente.
+
+         Un ejemplo de una ventana de un mensaje error:
+
+         |10000000000002140000014D050A059AC7EE948A_png|
+
+  ..  admonition:: I'm sure it's there!
+      :class: toggle
+
+         Algunas veces el código de accesión no tiene 6 sino 5 números, o
+         sea que el código empieza con cero, y este cero no está en la
+         etiqueta pero sí en la base de datos. Para realizar tu búsqueda
+         solo falta añadir el cero.
+
+         +-----------------------+------------------------+
+         | Número en la etiqueta | Texto para la búsqueda |
+         |                       |                        |
+         +-----------------------+------------------------+
+         | 16489                 | “016489”               |
+         |                       |                        |
+         +-----------------------+------------------------+
+
+         Please note: when you look for a plant code, not an accession, the
+         leading zero becomes optional, so in the above example it's maybe
+         easier to type ``16489.1``.
+         
 - A serious situation happened once, and we absolutely want to prevent it
   from happening again: a user deleted a genus, with everything that was
   below it, species and accessions, and synonymies.
 
+  ..  admonition:: solving it with user permissions
+      :class: toggle
+
+         We haven't yet conclusively decided how to solve this one. One way
+         would be to have different connection profiles, associated to
+         different database users, each user with all needed permissions.
+
+         full permission (BD-JBQ)
+           only qualified personnel get this kind of access.
+
+         insert and update (BD-JBQ-limitado)
+           We use this one for those users who come help us for a
+           limited time, and who did not get a complete introduction to database
+           concepts. It is meant to prevent costly mistakes.
+
+         read only (BD-JBQ-lectura)
+           it can be shared with anyone visiting the garden
+
+         You select the connection at startup, and the software asks you
+         for the password corresponding to the connection you selected.
+
+         |10000000000000FE00000065C64D791B5CA0099D_png|
+
+         Si quieres averiguar los detalles de la conexión, haz clic en el símbolo ▶
+         al lado de 'Connection Details', ese cambiará en ▼, y la ventana de conexión
+         se mostrará como una de las siguientes:
+
+         ============================================== ============================================== ==============================================
+         |100000000000012F000001A611615FB62F2D003B_png| |100000000000012F000001A611615FB62F2D003D_png| |100000000000012F000001A611615FB62F2D003C_png|
+         ============================================== ============================================== ==============================================
+
+         Como puedes ver, estamos conectándonos al mismo servidor de bases de datos,
+         cada conexión se apoya a la misma base de datos, pero con usuario diferente.
+
+  ..  admonition:: thinking further about it
+      :class: toggle
+
+         On the other hand, we are questioning if it is at all appropriate,
+         letting any user delete something at such high level as a family,
+         or a genus, or, for that matters, of anything connected to
+         accessions in the collection.
+
+         The ghini way to question the software features, is by opening a
+         `corresponding issue
+         <https://github.com/Ghini/ghini.desktop/issues/218>`_.
+
 - At times, the program gives error messages, which are not really relevant,
   but may be surprising. |dontpanic_png| and report to the developers.
 
+  ..  admonition:: Details
+      :class: toggle
+
 - When contacting the developers, they will definitely ask for technical
   information, or at least to see a screenshot.  Help them help you.
+
+  ..  admonition:: Details
+      :class: toggle
 
 taxonomy
 ^^^^^^^^^^^^^^^^^^^^  
@@ -54,6 +177,9 @@ taxonomy
   —according to Dressler— in approximately 70 subtribes, 22 tribes, 5
   subfamilies.  How we represent this information is not obvious and needs
   be explained.
+
+  ..  admonition:: Details
+      :class: toggle
 
   The taxonomy of the Orchidaceae family is continuously being reviewed.
   Genera get added, refused, reorganized, recognized as synonyms, some
@@ -66,13 +192,45 @@ taxonomy
 - We have many plants which are still only partially identified, at rank
   genus, sometimes not even. This also needs be explained.
 
+  ..  admonition:: Details
+      :class: toggle
+
+- Editing the Accession identification - the Species details
+
+  ..  admonition:: Details
+      :class: toggle
+
+         there's two quite different scenarios here.
+
+         - one is the identification of a single accession, which had been associated
+           to a "generic" species, something like “*Zzz* sp” or “*Vanda* sp”;
+
+           in this case, when the plant species becomes known, we change the
+           association in the accession, selecting a different species.
+
+         - a different case is when we have a whole batch of accessions, all
+           obviously the same species, but we haven't been able to identify it. In
+           this case, we associate the accessions with an incompletely specified
+           species, something like “*Zzz* sp-59”, preferably adding the taxonomist's
+           name, who made the association.
+
+           in this case, when the species gets identified (and it could even be a
+           species nova), we directly edit the species, so all accessions that refer
+           to it get the change.
+
 - Sometimes we have groups of plants accessed separately but clearly
   belonging to the same species, even if we are not able to indicate its
   binomial name with confidence. Ghini helps us here, too.
 
+  ..  admonition:: Details
+      :class: toggle
+
 - New plants may be relative to species not yet represented in our
   collection. Adding a new species in the database is part of the daily
   routine, too.
+
+  ..  admonition:: Details
+      :class: toggle
 
 - We sometimes can't identify a taxon at rank genus, but we do manage to be
   more precise than just "it's an orchid". Quite often we are able to
@@ -80,91 +238,73 @@ taxonomy
   software does not let us store ranks which are intermediate between family
   and genus, but we have produced workarounds for this.
 
+  ..  admonition:: Details
+      :class: toggle
+
 Let the database fit the garden
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - Our workflow includes moving plants around in the garden, keep track of
   current locations and history of movements.
 
+  ..  admonition:: Details
+      :class: toggle
+
 - As plants enter the flowering stage, we can review their identification
   directly, or we take pictures of details of the flower, hoping that a
   visiting specialist could help completing the identification.
+
+  ..  admonition:: Details
+      :class: toggle
 
 - Obviously we keep increasing our collection, with plants coming from
   commercial sources, or collected from the wild, more rarely coming from
   expeditions to remote areas of our country, or we receive plants which
   were illegally collected.
 
+  ..  admonition:: Details
+      :class: toggle
+
 - When we physically associate a label to a plant, there's always the chance
   that something happens either to the plant (it may die) or to the label
   (it may become unreadable), or to the association (they may be
   separated). We have software-aided protocols for these events.
 
+  ..  admonition:: we find a dead plant
+      :class: toggle
+
+         Whenever a plant is found dead, we collect its label and put it in a box
+         next to the main data insertion terminal, the box is marked “dead plants”.
+
+         Definitely at least once a week, the box is emptied and the database is
+         updated with this information.
+
+         Dead plants aren't *removed* from the database, they stay there but get a
+         **quantity** zero. if the cause of death is known, this is also written in
+         the dabase.
+
+         Please once again remember that a **Plant** is not an **Accession** and
+         please remember we do not remove objects from the database, we just add to
+         their history.
+
+         Insert the complete plant code (something like ``012345.1``, or
+         ``2017.0001.3``, and you don't need leading zeros nor quotes), right click
+         on the corresponding row, and click on **edit**. change the quantity to 0,
+         fill in the reason and preferably also the date of change.
+
+  ..  admonition:: we find a plant without a label
+      :class: toggle
+
+         This is unfortunate, but happens. what we do is to put a new label to the
+         plant, and to clearly state that the label is a replacement of an original
+         one.  We then handle the case as if it was a new accession, plus we clearly mark 
+
 - Regularly, we need producing reports about our collection that the
   Ecuadorian Environment Ministery (MAE) requires and that justify the very
   existence of the garden.
 
-Technical / Starting a program in Linux
-----------------------------------------------------------------------------
-
-to start a program given its name, hit the |loose_png| key next to Alt, or
-click on |10000000000000300000002F89E0224ADF9EC09E_png|, then start typing
-the name of the program, in our case “Ghini” or just click on the program
-symbol |100000000000003100000031BB54CBDFA885EBAC_png|, appearing near the
-left margin of your display.
-
-Technical / When to update the program
--------------------------------------
-
-The first window presented by Ghini looks like this, if up to date, or that,
-if a newer version is available.
-
-============================================== ==============================================
-|10000000000001290000011FEE16D735EB3DBF67_png| |10000000000001290000011FEE16D735EB3DBF66_png|
-============================================== ==============================================
-
-Nótese que la versión se encuentra en la parte superior. Al momento de tomar
-el pantallazo, la versión más actualizada del programa era la 1.0.64, y
-nosotros estábamos utilizando la 1.0.63.
-
-The update procedure is simple, we're not explaining here again.
-
-Nótese también, siempre es recomendable trabajar con la última versión del
-software.
-
-Technical / Choose the database connection
-----------------------------------------------------------------------------
-
-Our data security policy prescribes three different user profiles, each of
-them will require you to insert a (different) password.
-
-full permission (BD-JBQ)
-  only qualified personnel get this kind of access.
-
-insert and update (BD-JBQ-limitado)
-  We use this one for those users who come help us for a
-  limited time, and who did not get a complete introduction to database
-  concepts. It is meant to prevent costly mistakes.
-
-read only (BD-JBQ-lectura)
-  it can be shared with anyone visiting the garden
-
-En esta ventana no se ingresa ningún dato, solo hacer clic en “Conectar”
-para continuar a la próxima ventana. The software will ask you for the
-password corresponding to the connection you selected.
-
-|10000000000000FE00000065C64D791B5CA0099D_png|
-
-Si quieres averiguar los detalles de la conexión, haz clic en el símbolo ▶
-al lado de 'Connection Details', ese cambiará en ▼, y la ventana de conexión
-se mostrará como una de las siguientes:
-
-============================================== ============================================== ==============================================
-|100000000000012F000001A611615FB62F2D003B_png| |100000000000012F000001A611615FB62F2D003D_png| |100000000000012F000001A611615FB62F2D003C_png|
-============================================== ============================================== ==============================================
-
-Como puedes ver, estamos conectándonos al mismo servidor de bases de datos,
-cada conexión se apoya a la misma base de datos, pero con usuario diferente.
+  ..  admonition:: Details
+      :class: toggle
 
 Información del banco de datos
 ----------------------------------------------------------------------------
@@ -222,39 +362,6 @@ identificación a rango género
 
 .. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
 
-
-Errores del programa y de los códigos en los invernaderos
-----------------------------------------------------------------------------
-  
-A. Para el banco de datos de funcionar, el programa se necesite una red con
-   el internet. Algunas veces cuando intentas de hacer login en el banco de
-   datos, el programa no puede conectarse con el internet y va a darte esta
-   ventana con un mensaje error.
-
-   En este caso solo se tiene que intentar realizar el mismo login nuevamente.
-
-   |100000000000020B000000FBCAB1860DB92DF14A_png|
-
-B. Algunas veces sin causa aparente, cuando se hace una búsqueda no se
-   ejecuta por completo y puede mostrarse una ventana con un mensaje. En
-   este caso solo se tiene que intentar realizar la misma búsqueda
-   nuevamente.
-
-   Un ejemplo de una ventana de un mensaje error:
-
-   |10000000000002140000014D050A059AC7EE948A_png|
-
-C. Algunas veces el código en el invernadero no tiene 6 pero 5 números. Para
-   realizar tu búsqueda solo añadir un cero que el la primera número.
-
-+--------------------------+----------------------------------+
-| Número en el invernadero | Número para entregar la búsqueda |
-|                          |                                  |
-+--------------------------+----------------------------------+
-| 16489                    | “016489”                         |
-|                          |                                  |
-+--------------------------+----------------------------------+
-
 5. Buscar plantas en la base de datos
 ----------------------------------------------------------------------------
 
@@ -288,57 +395,7 @@ nombre de la especies
 La especies “Zzz sp” es solo un sostenedor del lugar, y la especie
 correcta se puede
 cambiar y actualizar.
-
-6. What to do when you find a dead plant
-----------------------------------------------------------------------------
-
-Whenever a plant is found dead, we collect its label and put it in a box
-next to the main data insertion terminal, the box is marked “dead plants”.
-
-Definitely at least once a week, the box is emptied and the database is
-updated with this information.
-
-Dead plants aren't *removed* from the database, they stay there but get a
-**quantity** zero. if the cause of death is known, this is also written in
-the dabase.
-
-Please once again remember that a **Plant** is not an **Accession** and
-please remember we do not remove objects from the database, we just add to
-their history.
-
-Insert the complete plant code (something like ``012345.1``, or
-``2017.0001.3``, and you don't need leading zeros nor quotes), right click
-on the corresponding row, and click on **edit**. change the quantity to 0,
-fill in the reason and preferably also the date of change.
-
-6. What to do when you find a plant without a label
-----------------------------------------------------------------------------
-
-This is unfortunate, but happens. what we do is to put a new label to the
-plant, and to clearly state that the label is a replacement of an original
-one.  We then handle the case as if it was a new accession, plus we clearly mark 
    
-
-7. Cambiar la especies
-----------------------------------------------------------------------------
-
-there's two quite different scenarios here.
-
-- one is the identification of a single accession, which had been associated
-  to a "generic" species, something like “*Zzz* sp” or “*Vanda* sp”;
-
-  in this case, when the plant species becomes known, we change the
-  association in the accession, selecting a different species.
-
-- a different case is when we have a whole batch of accessions, all
-  obviously the same species, but we haven't been able to identify it. In
-  this case, we associate the accessions with an incompletely specified
-  species, something like “*Zzz* sp-59”, preferably adding the taxonomist's
-  name, who made the association.
-
-  in this case, when the species gets identified (and it could even be a
-  species nova), we directly edit the species, so all accessions that refer
-  to it get the change.
 
 8. Entregar una nueva accesión en el banco de datos
 ----------------------------------------------------------------------------
