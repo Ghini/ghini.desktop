@@ -61,7 +61,8 @@ technical
          |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
          +---------------------------------------------+---------------------------------------------+
 
-- Recovering from an error condition
+- At times, the program gives error messages, which are not really relevant,
+  but may be surprising. |dontpanic_png|, retry, or report to the developers.
 
   ..  admonition:: network problems
       :class: toggle
@@ -156,12 +157,6 @@ technical
          The ghini way to question the software features, is by opening a
          `corresponding issue
          <https://github.com/Ghini/ghini.desktop/issues/218>`_.
-
-- At times, the program gives error messages, which are not really relevant,
-  but may be surprising. |dontpanic_png| and report to the developers.
-
-  ..  admonition:: Details
-      :class: toggle
 
 - When contacting the developers, they will definitely ask for technical
   information, or at least to see a screenshot.  Help them help you.
