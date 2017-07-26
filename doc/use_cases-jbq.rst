@@ -67,6 +67,11 @@ Overview
   Ecuadorian Environment Ministery (MAE) requires and that justify the very
   existence of the garden.
 
+- When we physically associate a label to a plant, there's always the chance
+  that something happens either to the plant (it may die) or to the label
+  (it may become unreadable), or to the association (they may be
+  separated). We have software-aided protocols for these events.
+  
 - A serious situation happened once, and we absolutely want to prevent it
   from happening again: a user deleted a genus, with everything that was
   below it, species and accessions, and synonymies.
@@ -77,7 +82,7 @@ Overview
 - When contacting the developers, they will definitely ask for technical
   information, or at least to see a screenshot.  Help them help you.
 
-Starting a program in Linux
+Technical / Starting a program in Linux
 ----------------------------------------------------------------------------
 
 to start a program given its name, hit the |loose_png| key next to Alt, or
@@ -86,7 +91,7 @@ the name of the program, in our case “Ghini” or just click on the program
 symbol |100000000000003100000031BB54CBDFA885EBAC_png|, appearing near the
 left margin of your display.
 
-When to update the program
+Technical / When to update the program
 -------------------------------------
 
 The first window presented by Ghini looks like this, if up to date, or that,
@@ -105,7 +110,7 @@ The update procedure is simple, we're not explaining here again.
 Nótese también, siempre es recomendable trabajar con la última versión del
 software.
 
-Choose the database connection
+Technical / Choose the database connection
 ----------------------------------------------------------------------------
 
 Our data security policy prescribes three different user profiles, each of
@@ -139,7 +144,7 @@ se mostrará como una de las siguientes:
 Como puedes ver, estamos conectándonos al mismo servidor de bases de datos,
 cada conexión se apoya a la misma base de datos, pero con usuario diferente.
 
-3. Información del banco de datos
+Información del banco de datos
 ----------------------------------------------------------------------------
 
 |100000000000063F00000383F7EAFB008DE6E4E2_png|
@@ -190,17 +195,15 @@ número siempre va a estar full “in use”, si hiciste todo bien.)
 
 De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas.
 
-3a. identificación a rango género
+identificación a rango género
 ----------------------------------------------------------------------------
 
 .. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
 
 
-4. Errores del programa
+Errores del programa y de los códigos en los invernaderos
 ----------------------------------------------------------------------------
   
-y de los códigos en los invernaderos
-
 A. Para el banco de datos de funcionar, el programa se necesite una red con
    el internet. Algunas veces cuando intentas de hacer login en el banco de
    datos, el programa no puede conectarse con el internet y va a darte esta
@@ -264,85 +267,48 @@ La especies “Zzz sp” es solo un sostenedor del lugar, y la especie
 correcta se puede
 cambiar y actualizar.
 
-6. Eliminar plantas muertas del banco de datos
+6. What to do when you find a dead plant
 ----------------------------------------------------------------------------
 
-Se recomienda que
-una vez
-a la
-semana,
-se revisen todas las plantas para poder eliminar las plantas muertas tanto del invernadero como del banco de datos.
+Whenever a plant is found dead, we collect its label and put it in a box
+next to the main data insertion terminal, the box is marked “dead plants”.
 
-Tome el
-código
-(con 6 números) de la planta muerta
-e ingreselo en el campo. Para que el sistema inicie la búsqueda, el número se tiene que escribir entre comillas “ ”. Para confirmar la búsqueda oprimir “Enter” o hacer clic a el botón de búsqueda.
+Definitely at least once a week, the box is emptied and the database is
+updated with this information.
 
-A.
-Si la planta, si
-se encuentra
-en el banco de datos,
-se mostrara una ventana en la parte inferior con los datos de la misma.
+Dead plants aren't *removed* from the database, they stay there but get a
+**quantity** zero. if the cause of death is known, this is also written in
+the dabase.
 
-|10000000000001CF000000487F16C7F2613D9F58_png|
+Please once again remember that a **Plant** is not an **Accession** and
+please remember we do not remove objects from the database, we just add to
+their history.
 
-Para eliminar este número, hacer clic derecho.
-
-Se mostraran tres opciones:
-Edit, Add plant, Delete
-
-Hacer clic en “Delete” y confirmar esta selección con “Si”.
-
-Si se buscara
-nuevamente el mismo número,
-no se encontraran datos:
-
-|100000000000025700000050925C1488E03E0617_png|
-
-B.  Si la planta no se encuentra en el banco de datos, se mostrara en la
-parte inferior una ventana con la siguiente frase:
-
-“Couldn't find anything for search.”
-
-En ese caso no proceder a ninguna accion dentro del programa.
+Insert the complete plant code (something like ``012345.1``, or
+``2017.0001.3``, and you don't need leading zeros nor quotes), right click
+on the corresponding row, and click on **edit**. change the quantity to 0,
+fill in the reason and preferably also the date of change.
 
 7. Cambiar la especies
 ----------------------------------------------------------------------------
 
-(nombre de las especies)
-de una planta en el banco de datos
+there's two quite different scenarios here.
 
-Si se indificase una planta, se puede cambiar el nombre de la planta, si
-esta planta antes poseía el nombre “Zzz sp.”
+- one is the identification of a single accession, which had been associated
+  to a "generic" species, something like “*Zzz* sp” or “*Vanda* sp”;
 
-|10000000000002210000006F5DB278661D3E4122_png|
+  in this case, when the plant species becomes known, we change the
+  association in the accession, selecting a different species.
 
-|10000000000002F6000002418FFC04A01AA401D9_png|
+- a different case is when we have a whole batch of accessions, all
+  obviously the same species, but we haven't been able to identify it. In
+  this case, we associate the accessions with an incompletely specified
+  species, something like “*Zzz* sp-59”, preferably adding the taxonomist's
+  name, who made the association.
 
-|10000000000002D800000060D6575EB671D3EE00_png|
-
-cambiar
-▼ “Type of material”
-
-cambiar
-▼ “Quantity” a 1
-
-si nombre es correcto
-
-cambiar el
-▼
-nombre del especies
-
-|10000000000002D600000063D9253419CBC84114_png|
-
-cambiar
-▼ Location 1
-
-▼
-
-|10000000000002F8000002441BD2C4C420A3E971_png|
-
-|10000000000001FE0000006F90B0DF98BB2933D6_png|
+  in this case, when the species gets identified (and it could even be a
+  species nova), we directly edit the species, so all accessions that refer
+  to it get the change.
 
 8. Entregar una nueva accesión en el banco de datos
 ----------------------------------------------------------------------------
