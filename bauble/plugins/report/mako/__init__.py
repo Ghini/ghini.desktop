@@ -221,6 +221,28 @@ class Code39:
             'colour': colour,
         }
 
+    
+class add_qr_functor:
+    import pyqrcode
+    def __init__(self):
+        import StringIO
+        import re
+        self.buffer = StringIO.StringIO()
+        self.pattern = re.compile('<svg.*>(<path.*>)</svg>')
+
+    def __call__(self, x, y, text, scale=1):
+        qr = self.pyqrcode.create(text)
+        self.buffer.truncate(0)
+        qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
+        match = self.pattern.match(self.buffer.getvalue())
+        result_list = [match.group(1)]
+        if x != 0 or y != 0:
+            result_list.insert(0, '<g transform="translate(%s,%s)">' % (x, y))
+            result_list.append('</g>')
+        return '\n'.join(result_list)
+
+add_qr = add_qr_functor()
+    
 
 class MakoFormatterSettingsBox(SettingsBox):
     import re
