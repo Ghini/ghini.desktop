@@ -289,6 +289,14 @@ Insert the complete plant code (something like ``012345.1``, or
 on the corresponding row, and click on **edit**. change the quantity to 0,
 fill in the reason and preferably also the date of change.
 
+6. What to do when you find a plant without a label
+----------------------------------------------------------------------------
+
+This is unfortunate, but happens. what we do is to put a new label to the
+plant, and to clearly state that the label is a replacement of an original
+one.  We then handle the case as if it was a new accession, plus we clearly mark 
+   
+
 7. Cambiar la especies
 ----------------------------------------------------------------------------
 
