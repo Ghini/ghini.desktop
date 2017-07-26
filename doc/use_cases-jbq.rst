@@ -9,6 +9,40 @@ knowledge to the institution. We are happy to share it.
 Overview
 ---------------------------
 
+technical
+^^^^^^^^^^^^^^^^^^^^
+
+- We work on GNU/Linux, a platform that many users don't master, and our
+  database is inside of a remote database management system. This implies
+  steps that are not obvious to the casual end user.
+
+- We often have volunteers who only work at the garden for a very short
+  time. It was with them in mind that we have developed a `hypersimplified
+  view <goal.html#hypersimplified-view>`_ on the ghini database structure.
+
+  .. rst-class:: html-toggle
+
+     The two figures here show all that our temporary collaborators need to know.
+
+     +---------------------------------------------+---------------------------------------------+
+     | Taxonomy & Collection                       | Garden                                      |
+     +=============================================+=============================================+
+     |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
+     +---------------------------------------------+---------------------------------------------+
+  
+- A serious situation happened once, and we absolutely want to prevent it
+  from happening again: a user deleted a genus, with everything that was
+  below it, species and accessions, and synonymies.
+
+- At times, the program gives error messages, which are not really relevant,
+  but may be surprising. |dontpanic_png| and report to the developers.
+
+- When contacting the developers, they will definitely ask for technical
+  information, or at least to see a screenshot.  Help them help you.
+
+taxonomy
+^^^^^^^^^^^^^^^^^^^^  
+
 - At the JBQ, we work most of all with orchids, family Orchidaceae, one of
   the largest plant families, with no less than 850 genera, organized
   —according to Dressler— in approximately 70 subtribes, 22 tribes, 5
@@ -23,64 +57,46 @@ Overview
   specialistic, but it's part of our daily routine, and it can all be stored
   in our Ghini database.
 
-- At the opposite complexity extreme, we often have volunteers who only work
-  at the garden for a very short time. It was with them in mind that we have
-  developed a `hypersimplified view <goal.html#hypersimplified-view>`_ on
-  the ghini database structure.
-
-  The two figures here show all that our temporary collaborators need to know.
-
-  +---------------------------------------------+---------------------------------------------+
-  | Taxonomy & Collection                       | Garden                                      |
-  +=============================================+=============================================+
-  |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
-  +---------------------------------------------+---------------------------------------------+
-
-- We work on GNU/Linux, a platform that many users don't master, and our
-  database is inside of a remote database management system. This implies
-  steps that are not obvious to the casual end user.
-
-- Our workflow includes moving plants around in the garden, keep track of
-  current locations and history of movements.
-
 - We have many plants which are still only partially identified, at rank
   genus, sometimes not even. This also needs be explained.
-
-- As plants enter the flowering stage, we can review their identification
-  directly, or we take pictures of details of the flower, hoping that a
-  visiting specialist could help completing the identification.
 
 - Sometimes we have groups of plants accessed separately but clearly
   belonging to the same species, even if we are not able to indicate its
   binomial name with confidence. Ghini helps us here, too.
+
+- New plants may be relative to species not yet represented in our
+  collection. Adding a new species in the database is part of the daily
+  routine, too.
+
+- We sometimes can't identify a taxon at rank genus, but we do manage to be
+  more precise than just "it's an orchid". Quite often we are able to
+  indicate the tribe, this is useful when you want to produce hybrids. The
+  software does not let us store ranks which are intermediate between family
+  and genus, but we have produced workarounds for this.
+
+Let the database fit the garden
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- Our workflow includes moving plants around in the garden, keep track of
+  current locations and history of movements.
+
+- As plants enter the flowering stage, we can review their identification
+  directly, or we take pictures of details of the flower, hoping that a
+  visiting specialist could help completing the identification.
 
 - Obviously we keep increasing our collection, with plants coming from
   commercial sources, or collected from the wild, more rarely coming from
   expeditions to remote areas of our country, or we receive plants which
   were illegally collected.
 
-- New plants may be relative to species not yet represented in our
-  collection. Adding a new species in the database is part of the daily
-  routine, too.
-
-- Regularly, we need producing reports about our collection, that the
-  Ecuadorian Environment Ministery (MAE) requires and that justify the very
-  existence of the garden.
-
 - When we physically associate a label to a plant, there's always the chance
   that something happens either to the plant (it may die) or to the label
   (it may become unreadable), or to the association (they may be
   separated). We have software-aided protocols for these events.
-  
-- A serious situation happened once, and we absolutely want to prevent it
-  from happening again: a user deleted a genus, with everything that was
-  below it, species and accessions, and synonymies.
 
-- At times, the program gives error messages, which are not really relevant,
-  but may be surprising. |dontpanic_png| and report to the developers.
-
-- When contacting the developers, they will definitely ask for technical
-  information, or at least to see a screenshot.  Help them help you.
+- Regularly, we need producing reports about our collection that the
+  Ecuadorian Environment Ministery (MAE) requires and that justify the very
+  existence of the garden.
 
 Technical / Starting a program in Linux
 ----------------------------------------------------------------------------
