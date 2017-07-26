@@ -12,17 +12,14 @@ Overview
 technical
 ^^^^^^^^^^^^^^^^^^^^
 
-GNU/Linux
-.............
-.. rst-class:: html-toggle
-
-  We work on GNU/Linux, a platform that many users don't master, and our
+- We work on GNU/Linux, a platform that many users don't master, and our
   database is inside of a remote database management system. This implies
   steps that are not obvious to the casual end user.
 
-Volunteers
-.............
-.. rst-class:: html-toggle
+..  admonition:: Solution
+    :class: toggle
+            
+       To save the world with only seconds to spare do the following:
 
 - We often have volunteers who only work at the garden for a very short
   time. It was with them in mind that we have developed a `hypersimplified
