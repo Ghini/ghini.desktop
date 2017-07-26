@@ -1,12 +1,12 @@
-.toggle .header {
+.toggle .admonition-title {
     display: block;
     clear: both;
 }
 
-.toggle .header:after {
+.toggle .admonition-title:after {
     content: " ▼";
 }
 
-.toggle .header.open:after {
+.toggle .admonition-title.open:after {
     content: " ▲";
 }
