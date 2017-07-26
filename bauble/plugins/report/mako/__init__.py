@@ -225,14 +225,15 @@ class Code39:
 class add_qr_functor:
     import pyqrcode
     def __init__(self):
-        import StringIO
+        import io
         import re
-        self.buffer = StringIO.StringIO()
+        self.buffer = io.BytesIO()
         self.pattern = re.compile('<svg.*>(<path.*>)</svg>')
 
     def __call__(self, x, y, text, scale=1):
         qr = self.pyqrcode.create(text)
         self.buffer.truncate(0)
+        self.buffer.seek(0)
         qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
         match = self.pattern.match(self.buffer.getvalue())
         result_list = [match.group(1)]
