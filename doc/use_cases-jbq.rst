@@ -16,22 +16,25 @@ technical
   database is inside of a remote database management system. This implies
   steps that are not obvious to the casual end user.
 
-..  admonition:: Solution
-    :class: toggle
+  ..  admonition:: Details
+      :class: toggle
             
-       To save the world with only seconds to spare do the following:
+         To save the world with only seconds to spare do the following:
 
 - We often have volunteers who only work at the garden for a very short
   time. It was with them in mind that we have developed a `hypersimplified
   view <goal.html#hypersimplified-view>`_ on the ghini database structure.
 
-  The two figures here show all that our temporary collaborators need to know.
+  ..  admonition:: Details
+      :class: toggle
 
-  +---------------------------------------------+---------------------------------------------+
-  | Taxonomy & Collection                       | Garden                                      |
-  +=============================================+=============================================+
-  |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
-  +---------------------------------------------+---------------------------------------------+
+         The two figures here show all that our temporary collaborators need to know.
+
+         +---------------------------------------------+---------------------------------------------+
+         | Taxonomy & Collection                       | Garden                                      |
+         +=============================================+=============================================+
+         |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
+         +---------------------------------------------+---------------------------------------------+
   
 - A serious situation happened once, and we absolutely want to prevent it
   from happening again: a user deleted a genus, with everything that was
