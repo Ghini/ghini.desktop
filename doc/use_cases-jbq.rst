@@ -114,7 +114,7 @@ technical
 
          |100000000000020B000000FBCAB1860DB92DF14A_png|
 
-         Just ignore it and try again. 
+         Just ignore it and try again.
 
   ..  admonition:: search fails with error
       :class: toggle
@@ -134,7 +134,7 @@ technical
          Accession codes starting with zero and composed of just numbers, as
          for example ``016489`` are considered by the software as numbers,
          so if you don't enclose the search string in quotes, any leading 0
-         will be stripped and the value will not be found.  
+         will be stripped and the value will not be found.
 
          Try again, but enclose your search string in single or double
          quotes.
@@ -150,7 +150,7 @@ technical
          Please note: when you look for a Plant code, not an Accession, the
          leading zero becomes optional, so in the above example it's maybe
          easier to type ``16489.1``.
-         
+
 - A serious situation happened once, and we absolutely want to prevent it
   from happening again: a user deleted a genus, with everything that was
   below it, species and accessions, and synonymies.
@@ -228,7 +228,7 @@ technical
          An other option is to activate the sentry handler. It will notify
          our sentry server of any serious situations in the software.  If
          you registered, the developers will know how to contact you if
-         necessary.  
+         necessary.
 
          To the healthy paranoid: we're not monitoring what you're doing,
          we're monitoring how our software works.  You can always opt out.
@@ -239,7 +239,7 @@ technical
          the other value.
 
 taxonomy
-^^^^^^^^^^^^^^^^^^^^  
+^^^^^^^^^^^^^^^^^^^^
 
 - introduction
 
@@ -297,7 +297,7 @@ taxonomy
          digital collection, we follow this suggested practice.
 
 - identifying at a rank that is not allowed by the software (eg: Subtribe, or Subfamily)
-                     
+
   ..  admonition:: subtribe
       :class: toggle
 
@@ -328,7 +328,7 @@ taxonomy
 
          We are very much looking forward to seeing that `issue-9
          <https://github.com/Bauble/bauble.classic/issues/9>`_ solved!
-                     
+
   ..  admonition:: subfamily, tribe
       :class: toggle
 
@@ -349,7 +349,7 @@ taxonomy
          something like “*Zzz* sp” or “*Vanda* sp”;
 
          In this case, when the plant species becomes known, we change the
-         association in the accession, selecting a different species. 
+         association in the accession, selecting a different species.
 
          .. figure:: images/accession-vanda_sp.png
 
@@ -386,6 +386,208 @@ taxonomy
 Let the database fit the garden
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- A never-ending task is reviewing what we have in the garden and
+  have it match what we have in the database.
+
+  ..  admonition:: Details
+      :class: toggle
+
+         When we adopted ghini, we imported into it all that was properly
+         described in a filemaker database. That database focused solely on
+         Orchids and even so it was far from complete.  In practice, we
+         still meet labeled plants in the garden which have never been
+         inserted in the database.
+
+         From time to time, we manage to get resources to review the garden,
+         comparing it to the collection in the database, and the main
+         activity is to insert accession codes to the database, take
+         pictures of the plant in question, and note its location, all tasks
+         that are described in the remainder of this section.
+
+- Naming convention in garden locations
+
+  ..  admonition:: Details
+      :class: toggle
+
+         CAC-B
+         *x*: Solo las cactáceas afuera de los orquidarios en el jardín
+
+         CRV:
+
+         IC-*xx*: orquidarios de calor en el jardín
+         (1A a 9C son lugares
+         especificos entre del
+         orquidario)
+
+         IF-xx: orquidarios de frío en el jardín (1A a 5I son lugares específicos
+         dentro del orquidario)
+
+         INV1: invernadero 1 (calor)
+
+         INV2: invernadero 2 (frío)
+
+         INV3: invernadero 3 (calor)
+
+- Adding an Accession for a Plant
+
+  ..  admonition:: existing plant, found in the garden with its own label
+      :class: toggle
+
+         This activity starts with a plant, which was found at a specific
+         garden location, an accession label, and the knowledge that the
+         accession code is not in the database.
+
+         .. image:: images/plant.png
+
+         .. image:: images/target.png
+
+         .. image:: images/accession-008440.png
+
+         |1000000000000257000000504EC4536B148C3228_png|
+
+         For this example, let's assume we are going to insert this
+         information in the database.
+
+         ========== ============================ ========================
+         Accession  Species                      Location
+         ========== ============================ ========================
+         008440     *Dendrobium* ×'Emma White'   Invernadero 1 (calor)
+         ========== ============================ ========================
+
+         We go straight into the Accession Editor, start typing the species
+         name in the corresponding field.  Luckly, the species was already
+         in the database, otherwise we would use the **Add** button next to
+         the entry field.
+
+         .. image:: images/accession-select_taxon.png
+
+         We select the correct species, and we fill in a couple more fields,
+         leaving the rest to the default values:
+
+         ============= ================= ========= =============
+         Accession ID  Type of Material  Quantity  Provenance
+         ============= ================= ========= =============
+         008440        Plant             1         Unknown
+         ============= ================= ========= =============
+
+         After this, we continue to the Plant editor, by clicking on **Add
+         Plants**.
+
+         We do not fill in the Accession's "**Intended Locations**", because
+         we don't know what was the original intention when the plant was
+         first acquired.
+
+         In the Plant Editor, we insert the Quantity and the Location.  And
+         we're done.
+
+  ..  admonition:: new plant
+      :class: toggle
+
+         This activity starts with a new Plant, just acquired from a known
+         Source, a plant label, and an intended Location in the garden.
+
+         We mostly do the same as for the case that a plant is found in the
+         garden, there are two differences: (1) we know the source of the
+         plant; (2) acquiring this plant was a planned action, and we intend
+         to place it at a specific location in the garden.
+
+         Again, we go straight into the Accession Editor, start typing the
+         species and we either select if from the completion list or we add
+         it on the fly.
+
+         ============= ================= ========= ============
+         Accession ID  Type of Material  Quantity  Source
+         ============= ================= ========= ============
+         033724        Plant             1         specified
+         ============= ================= ========= ============
+
+         After this, we continue to the Plant editor, by clicking on **Add
+         Plants**.
+
+         In the Plant Editor, we insert the Quantity and the Location.
+
+         Please note that the plant may be initially placed in a greenhouse,
+         before it reaches its intended location in the garden.
+
+  ..  admonition:: existing plant, found in the garden without its label
+      :class: toggle
+
+         this is described in the next section.
+
+- When we physically associate a label to a plant, there's always the chance
+  that something happens either to the plant (it may die) or to the label
+  (it may become unreadable), or to the association (they may be
+  separated). We have software-aided protocols for these events.
+
+  ..  admonition:: we find a dead plant
+      :class: toggle
+
+         Whenever a plant is found dead, we collect its label and put it in a box
+         next to the main data insertion terminal, the box is marked “dead plants”.
+
+         Definitely at least once a week, the box is emptied and the database is
+         updated with this information.
+
+         Dead plants aren't *removed* from the database, they stay there but get a
+         **quantity** zero. If the cause of death is known, this is also written in
+         the database.
+
+         Please once again remember that a **Plant** is not an **Accession** and
+         please remember we do not remove objects from the database, we just add to
+         their history.
+
+         Insert the complete plant code (something like ``012345.1``, or
+         ``2017.0001.3``, and you don't need leading zeros nor quotes), right click
+         on the corresponding row, and click on **edit**. change the quantity to 0,
+         fill in the reason and preferably also the date of change.
+
+  ..  admonition:: we find a plant without a label
+      :class: toggle
+
+         This is unfortunate, but it just regularly happens. What we do is
+         to put a new label to the plant, and to clearly state that the
+         label is a replacement of an original one.  We then handle the case
+         as if it was a new accession, plus we add a note to the accession,
+         category “label”, text “relabeled”.
+
+         We work with plastified paper labels, prepare them in batches of 72
+         (what fits on a A4 sheet), and keep them in a dedicated box.
+
+  ..  admonition:: refreshing plant labels
+      :class: toggle
+
+         Sometimes we refresh the labels, for example all that is in a
+         greenhouse, or maybe just a set of plants because their labels risk
+         becoming unreadable.
+
+         In the first case it's easy selecting all plants in the Location,
+         we just type the location name, or give the search ``location like
+         <location name>``.
+
+         The second case it's a bit trickier.  What we do is to create a
+         temporary **Tag**, and use it to tag all plants that were found in
+         need for a new label.
+
+         Given the selection, we start the report tool, using the mako
+         ``accession-label.svg`` template.  We reset its options to default
+         values, and since we're using a simple printer, we set the colour
+         to ``black`` instead of ``blue``, which is meant for engraving.
+
+  ..  admonition:: preparing labels for non-database plants
+      :class: toggle
+
+         To prepare the batch of 72 labels, we use a mako report template,
+         named accession-label.svg.  This template accepts parameters, this
+         is an example that would produce labels from 025801 all the way
+         to 025872.
+
+         .. image:: images/label-batch_72.png
+
+         Labels come for us in two flavours: (1) either new plants just
+         being acquired by the garden; (2) or plants in the garden, found
+         without a label. We disinguish the two cases by adding a 'ret'
+         extra text for relabeled plants.
+
 - Our workflow includes moving plants around in the garden, keep track of
   current locations and history of movements.
 
@@ -406,40 +608,6 @@ Let the database fit the garden
 
   ..  admonition:: Details
       :class: toggle
-
-- When we physically associate a label to a plant, there's always the chance
-  that something happens either to the plant (it may die) or to the label
-  (it may become unreadable), or to the association (they may be
-  separated). We have software-aided protocols for these events.
-
-  ..  admonition:: we find a dead plant
-      :class: toggle
-
-         Whenever a plant is found dead, we collect its label and put it in a box
-         next to the main data insertion terminal, the box is marked “dead plants”.
-
-         Definitely at least once a week, the box is emptied and the database is
-         updated with this information.
-
-         Dead plants aren't *removed* from the database, they stay there but get a
-         **quantity** zero. If the cause of death is known, this is also written in
-         the dabase.
-
-         Please once again remember that a **Plant** is not an **Accession** and
-         please remember we do not remove objects from the database, we just add to
-         their history.
-
-         Insert the complete plant code (something like ``012345.1``, or
-         ``2017.0001.3``, and you don't need leading zeros nor quotes), right click
-         on the corresponding row, and click on **edit**. change the quantity to 0,
-         fill in the reason and preferably also the date of change.
-
-  ..  admonition:: we find a plant without a label
-      :class: toggle
-
-         This is unfortunate, but happens. What we do is to put a new label to the
-         plant, and to clearly state that the label is a replacement of an original
-         one.  We then handle the case as if it was a new accession, plus we clearly mark 
 
 - Regularly, we need producing reports about our collection that the
   Ecuadorian Environment Ministery (MAE) requires and that justify the very
@@ -505,80 +673,25 @@ nombre de la especies
 La especies “Zzz sp” es solo un sostenedor del lugar, y la especie
 correcta se puede
 cambiar y actualizar.
-   
+
 
 8. Entregar una nueva accesión en el banco de datos
 ----------------------------------------------------------------------------
 
-Si se encontrara una planta con un código (accesión) el cual no se encuentra ingresado en el banco de datos,
-se tiene que ingresar este nuevo código
-(accesión) en el banco de datos.
-
 |1000000000000257000000504EC4536B148C3228_png|
 
-Para
-poder ingresar un nuevo código (accesión) se siguen los siguientes pasos:
+In this concrete example, we are going to insert this information in the
+database.
 
-* número de la accesión o código
-  (ej. invernadero 2)
+========== ============================ ========================
+Accession  Species                      Location
+========== ============================ ========================
+008440     *Dendrobium* ×'Emma White'   Invernadero 1 (calor)
+========== ============================ ========================
 
-* nombre de la especie (opcional)
-
-Para hacer un ejemplo, en el siguiente caso, tenemos inicialmente los
-siguientes datos:
-
-Número (accesión) que no está
-ingresado
-todavía
-–
-008440
-
-Nombre de la especies que quiero
-ingresar
-
-–
-Dendrobium Hybrido (Emma White)
-
-Lugar donde la planta
-se encuentra
-–
-Invernadero 1 (calor)
-
-Para ingresar la accesión o el código, buscar la especie o el género en el
-campo de entregar (en el caso que no saber el nombre de la especie buscar
-por “Zzz sp”).  Para que el sistema realice la búsqueda, la especie tiene
-que escribirse entre comillas “ ”.
-
-|1000000000000181000000477149EC5BD0AE7C2D_png|
-
-|100000000000001C000000223E57C07B2AA8A9E0_png|
-
-Para abrir las especies de Dendrobium hacer clic en el triangulo gris.
-
-|1000000000000174000000C0752C792970DEFAA2_png|
-
-Los tres nombres de la especies van a
-mostrarse en la parte inferior.
-
-- Dendrobium cruentum,
-- Dendrobium hibrido,
-- Dendrobium sp.
-
-Dado que la especie en este ejemplo
-es un hibrido, hacer
-clic
-derecho.
-
-Se mostraran estas tres: Edit, Add
-accession, Delete
-
-Hago clic en “Add accession”.
-
-|10000000000002F4000002409EE0B06C300048EF_png|
-
-Se abrira esta ventana
-llamada
-“Accession editor”.
+We go straight into the Accession Editor, start typing the species name in
+the corresponding field.  Luckly, the species was already in the database,
+otherwise we would use the **Add** button next to the entry field.
 
 Cambiar el número del “Accession ID \*” al código que se le asigne a la nueva
 planta.
@@ -587,30 +700,8 @@ Cambiar el “Type of material” a “Plant” (Siempre!!).
 
 Cambiar el “Quantity” a “1” (Siempre!!).
 
-Cambiar el lugar de la planta a “Intended Locations” a “Location 1”
-el nombre del lugar.
-
 Para entender las abreviaturas de las lugares de las plantas, aquí una
 lista:
-
-CAC-B
-*x*: Solo las cactáceas afuera de los orquidarios en el jardín
-
-CRV:
-
-IC-*xx*: orquidarios de calor en el jardín
-(1A a 9C son lugares
-especificos entre del
-orquidario)
-
-IF-xx: orquidarios de frio en el jardín (1A a 5I son lugares especificos
-entre del orquidario)
-
-INV1: invernadero 1 (calor)
-
-INV2: invernadero 2 (frio)
-
-INV3: invernadero 3 (calor)
 
 |10000000000002F900000241C5DB1B4F082036B6_png|
 
@@ -657,24 +748,17 @@ Si no se sabe la especie, se puede ingresar con la especie “Zzz sp”
 
 Se puede asignar a la nueva planta un código o una accesión (6 números)
 
-Nota: los códigos o las accesiónes con reutilizables fisica y digitalmentente, después de ser borrados en el banco de datos, a causa de la muerte de la planta que lo poseia.
-
-|100000000000016400000045749C9F8ECA72440A_png|
-
-Si se reutiliza un código o una accesión, recuerde verificar que no se encuentre en el banco de datos.
-
 |1000000000000152000001B12C2FDE60BD2B710B_png|
 
 Se encontro que la planta de ejemplo es de especie *Lepanthes alopex*,
 si se busca en el banco de datos el género lepanhtes y se nota que dentro de este género no está registrada esta especie. Se tendra que añadir como una nueva especie.
 
-Para añadir una nueva especie, dar clic derecho sobre la especie Lepanthes (sombreada de rojo) y se mostraran las siguientes opciones:
+Para añadir una nueva especie, dar clic derecho sobre el género Lepanthes (sombreado de rojo) y se mostraran las siguientes opciones:
 
 Edit, Add species, Delete
 
-Nunca selecionar “Delete”!!!
-
-ya que se selecciona delete se borraran todos los datos pertenecientes a la especie.
+Nunca selecionar “Delete”!!! ya que si selecciona delete se borraran todos
+los datos pertenecientes a todas especies en el género.
 
 |1000000000000293000001C3EC6A9DC0A1D0CA68_png|
 |1000000000000293000001C423766E7D365A1489_png|
@@ -736,8 +820,8 @@ For example, the plant belonging to accession “012142”, species “*Acineta*
 sp”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
 
 All we do is find the Plant in the database and update its information.  We
-do not changed anything in the initial Accession information, just the
-current Plant information.
+do not chang anything in the initial Accession information, just the current
+Plant information.
 
 We type the accession code in the search entry field, with quotes, hit
 enter. The search results now shows the accession, and it tells us how many
@@ -759,8 +843,6 @@ ultima vez.
     :height: 31px
 
 .. |1000000000000257000000504EC4536B148C3228_png| image:: images/1000000000000257000000504EC4536B148C3228.png
-    :width: 12.157cm
-    :height: 1.625cm
 
 .. |10000000000002F8000002432C9DDC622203371C_png| image:: images/10000000000002F8000002432C9DDC622203371C.png
     :width: 7.447cm
@@ -895,8 +977,6 @@ ultima vez.
     :height: 12.06cm
 
 .. |1000000000000608000002D2BA2D181475D5AD7B_png| image:: images/1000000000000608000002D2BA2D181475D5AD7B.png
-    :width: 17cm
-    :height: 7.948cm
 
 .. |100000000000018700000173222371085C3C68FE_png| image:: images/100000000000018700000173222371085C3C68FE.png
     :width: 8.26cm
