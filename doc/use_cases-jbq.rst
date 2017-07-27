@@ -67,9 +67,8 @@ technical
          |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
          +---------------------------------------------+---------------------------------------------+
 
-- At times, the program gives error messages, which might be spurious,
-  irrelevant, or surprising. |dontpanic_png|, retry, or report to the
-  developers.
+- At times, the program gives error messages. |dontpanic_png|, retry, or
+  report to the developers.
 
   ..  admonition:: network problems
       :class: toggle
