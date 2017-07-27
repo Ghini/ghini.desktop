@@ -6,9 +6,6 @@ April 2015. Since that time, we have accumulated experience with the
 program, and we are ourselves in need to document it, in order to secure the
 knowledge to the institution. We are happy to share it.
 
-Overview
----------------------------
-
 technical
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -16,7 +13,7 @@ technical
   database is inside of a remote database management system. This implies
   steps that are not obvious to the casual end user.
 
-  ..  admonition:: Details
+  ..  admonition:: how to start a program
       :class: toggle
 
          to start a program given its name, hit the |loose_png| key next to Alt, or
@@ -25,26 +22,35 @@ technical
          symbol |100000000000003100000031BB54CBDFA885EBAC_png|, appearing near the
          left margin of your display.
 
+  ..  admonition:: database server
+      :class: toggle
+
+         We chose for a centralised PostgreSQL database server. this way we
+         are protected from concurrent conflicting changes, and all changes
+         are simultaneously available on all ghini clients.  We did need to
+         outsource database server management.
+
 - Understanding when to update
 
   ..  admonition:: Details
       :class: toggle
 
-         The first window presented by Ghini looks like this, if up to date, or that,
-         if a newer version is available.
+         The first window presented by Ghini looks like this. Normally, you
+         don't need do anything in this window, just press enter and get
+         into the main program screen.
+
+         Occasionally, at the top of the screen an information text will
+         appear, telling you that a newer version is available on-line.
 
          ============================================== ==============================================
          |10000000000001290000011FEE16D735EB3DBF67_png| |10000000000001290000011FEE16D735EB3DBF66_png|
          ============================================== ==============================================
 
-         Nótese que la versión se encuentra en la parte superior. Al momento de tomar
-         el pantallazo, la versión más actualizada del programa era la 1.0.64, y
-         nosotros estábamos utilizando la 1.0.63.
+         The update procedure is simple, and it depends on the operating
+         system you use, we're not explaining here again.
 
-         The update procedure is simple, we're not explaining here again.
-
-         Nótese también, siempre es recomendable trabajar con la última versión del
-         software.
+         It is generally a good idea updating the software.  If in doubt,
+         contact the author, or write to the group.
 
 - We often have volunteers who only work at the garden for a very short
   time. It was with them in mind that we have developed a `hypersimplified
@@ -61,8 +67,9 @@ technical
          |.. figure:: images/family-to-accession.png   |.. figure:: images/location-to-plant.png     |
          +---------------------------------------------+---------------------------------------------+
 
-- At times, the program gives error messages, which are not really relevant,
-  but may be surprising. |dontpanic_png|, retry, or report to the developers.
+- At times, the program gives error messages, which might be spurious,
+  irrelevant, or surprising. |dontpanic_png|, retry, or report to the
+  developers.
 
   ..  admonition:: network problems
       :class: toggle
@@ -76,7 +83,7 @@ technical
 
          Just ignore it and try again. 
 
-  ..  admonition:: failing search
+  ..  admonition:: search fails with error
       :class: toggle
 
          Algunas veces sin causa aparente, cuando se hace una búsqueda no se
@@ -88,13 +95,16 @@ technical
 
          |10000000000002140000014D050A059AC7EE948A_png|
 
-  ..  admonition:: I'm sure it's there!
+  ..  admonition:: search does not return something I just inserted
       :class: toggle
 
-         Algunas veces el código de accesión no tiene 6 sino 5 números, o
-         sea que el código empieza con cero, y este cero no está en la
-         etiqueta pero sí en la base de datos. Para realizar tu búsqueda
-         solo falta añadir el cero.
+         Accession codes starting with zero and composed of just numbers, as
+         for example ``016489`` are considered by the software as numbers,
+         so if you don't enclose the search string in quotes, any leading 0
+         will be stripped and the value will not be found.  
+
+         Try again, but enclose your search string in single or double
+         quotes.
 
          +-----------------------+------------------------+
          | Número en la etiqueta | Texto para la búsqueda |
@@ -104,7 +114,7 @@ technical
          |                       |                        |
          +-----------------------+------------------------+
 
-         Please note: when you look for a plant code, not an accession, the
+         Please note: when you look for a Plant code, not an Accession, the
          leading zero becomes optional, so in the above example it's maybe
          easier to type ``16489.1``.
          
@@ -161,8 +171,39 @@ technical
 - When contacting the developers, they will definitely ask for technical
   information, or at least to see a screenshot.  Help them help you.
 
-  ..  admonition:: Details
+  ..  admonition:: Taking a screenshot
       :class: toggle
+
+         On Linux there are three ways to create a screenshot, all involve
+         hitting the 'PrtSc' key.  The most practical one is possibly
+         hitting the 'PrtSc' key in combination with Ctrl and Shift. this
+         will start an interactive screen copy tool. You select a rectangle
+         and the area is copied in the clipboard.  Paste it in the email
+         you're writing, or in the chat line where the developers are trying
+         to help you.
+
+  ..  admonition:: where are the logs
+      :class: toggle
+
+         Ghini continuously saves a very informative log file, in the
+         ``~/.bauble/bauble.log`` file.  Don't bother opening it, just send
+         it over.  It contains loads of technical information.
+
+  ..  admonition:: continous unmanned alerting
+      :class: toggle
+
+         An other option is to activate the sentry handler. It will notify
+         our sentry server of any serious situations in the software.  If
+         you registered, the developers will know how to contact you if
+         necessary.  
+
+         To the healthy paranoid: we're not monitoring what you're doing,
+         we're monitoring how our software works.  You can always opt out.
+
+         You activate the Sentry handler in the ``:prefs`` page: look for
+         the row with name ``bauble.use_sentry_handler``, if the value is
+         not what you wish, double click on the line and it will change to
+         the other value.
 
 taxonomy
 ^^^^^^^^^^^^^^^^^^^^  
@@ -176,13 +217,13 @@ taxonomy
   ..  admonition:: Details
       :class: toggle
 
-  The taxonomy of the Orchidaceae family is continuously being reviewed.
-  Genera get added, refused, reorganized, recognized as synonyms, some
-  taxonomists prefer grouping species or genera in a new way, others split
-  them again and differently, botanists of different nationalities may have
-  different views on the matter.  All this sounds very complex and
-  specialistic, but it's part of our daily routine, and it can all be stored
-  in our Ghini database.
+         The taxonomy of the Orchidaceae family is continuously being reviewed.
+         Genera get added, refused, reorganized, recognized as synonyms, some
+         taxonomists prefer grouping species or genera in a new way, others split
+         them again and differently, botanists of different nationalities may have
+         different views on the matter.  All this sounds very complex and
+         specialistic, but it's part of our daily routine, and it can all be stored
+         in our Ghini database.
 
 - We have many plants which are still only partially identified, at rank
   genus, sometimes not even. This also needs be explained.
@@ -227,14 +268,48 @@ taxonomy
   ..  admonition:: Details
       :class: toggle
 
-- We sometimes can't identify a taxon at rank genus, but we do manage to be
-  more precise than just "it's an orchid". Quite often we are able to
-  indicate the tribe, this is useful when you want to produce hybrids. The
-  software does not let us store ranks which are intermediate between family
-  and genus, but we have produced workarounds for this.
+- identificación a rango género o familia
 
   ..  admonition:: Details
       :class: toggle
+
+         .. figure:: images/zzz-explained.svg
+
+         .. figure:: images/genus_sp-explained.svg
+
+         .. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
+
+- identificación a rango tribus
+                     
+  ..  admonition:: Details
+      :class: toggle
+
+         We sometimes can't identify a taxon at rank genus, but we do manage
+         to be more precise than just "it's an orchid". Quite often we are
+         able to indicate the tribe, this is useful when you want to produce
+         hybrids.
+
+         The software does not let us store ranks which are intermediate
+         between family and genus, so we need to invent something, and this
+         is what we do:
+
+         We insert a fictive genus, naming it as the tribe, prefixing it
+         with 'Zzy-', like in this example:
+
+         .. figure:: images/tribe_sp-explained.svg
+
+         This Zzy-Vandeae is some genus in the Vandeae tribe.
+
+         In order to be able to select genera by tribe, we also add a note
+         to the Zzy-Vandeae fictive genus as well as for all real genera in
+         that tribe, category tribus, value the tribe name.
+
+         This allows for queries like:
+
+         ``genus where notes.note=Vandeae``
+
+         We are very much looking forward to seeing that `issue-9
+         <https://github.com/Bauble/bauble.classic/issues/9>`_ solved!
 
 Let the database fit the garden
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -351,11 +426,6 @@ De todos las plantas registradas, todas están usando. (este
 número siempre va a estar full “in use”, si hiciste todo bien.)
 
 De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas.
-
-identificación a rango género
-----------------------------------------------------------------------------
-
-.. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
 
 5. Buscar plantas en la base de datos
 ----------------------------------------------------------------------------
