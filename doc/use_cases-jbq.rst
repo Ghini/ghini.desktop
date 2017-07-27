@@ -432,6 +432,15 @@ Let the database fit the garden
 
 - Adding an Accession for a Plant
 
+  Obviously we keep increasing our collection, with plants coming from
+  commercial sources, or collected from the wild, more rarely coming from
+  expeditions to remote areas of our country, or we receive plants which
+  were illegally collected.
+
+  Sometimes we have to add plants to the digital collection, just because we
+  have them physically, found in the garden, with or without its label, but
+  without their digital counterpart.
+
   ..  admonition:: existing plant, found in the garden with its own label
       :class: toggle
 
@@ -518,7 +527,9 @@ Let the database fit the garden
   ..  admonition:: existing plant, found in the garden without its label
       :class: toggle
 
-         this is described in the next section.
+         When this happens, we can't be sure the plant had never been in the
+         collection, so we act as if we were re-labeling the plant. This is
+         described in the next section.
 
 - When we physically associate a label to a plant, there's always the chance
   that something happens either to the plant (it may die) or to the label
@@ -550,14 +561,20 @@ Let the database fit the garden
   ..  admonition:: we find a plant without a label
       :class: toggle
 
-         This is unfortunate, but it just regularly happens. What we do is
-         to put a new label to the plant, and to clearly state that the
-         label is a replacement of an original one.  We then handle the case
-         as if it was a new accession, plus we add a note to the accession,
-         category “label”, text “relabeled”.
+         we can't be sure the plant had been in the collection or not.  We
+         assume it was, and that its label was lost.
+
+         Losing a plant label is unfortunate, but it just regularly happens.
+         What we do is to put a new label to the plant, and to clearly state
+         that the label is a replacement of an original one.  We then handle
+         the case as if it was a new accession, plus we add a note to the
+         accession, category “label”, text “relabeled”.
 
          We work with plastified paper labels, prepare them in batches of 72
          (what fits on a A4 sheet), and keep them in a dedicated box.
+
+         Just tie the new label to the plant, and proceed as one of the
+         above cases.
 
 - producing or reproducing labels
 
@@ -605,14 +622,6 @@ Let the database fit the garden
 - As plants enter the flowering stage, we can review their identification
   directly, or we take pictures of details of the flower, hoping that a
   visiting specialist could help completing the identification.
-
-  ..  admonition:: Details
-      :class: toggle
-
-- Obviously we keep increasing our collection, with plants coming from
-  commercial sources, or collected from the wild, more rarely coming from
-  expeditions to remote areas of our country, or we receive plants which
-  were illegally collected.
 
   ..  admonition:: Details
       :class: toggle
