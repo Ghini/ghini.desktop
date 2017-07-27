@@ -409,22 +409,26 @@ Let the database fit the garden
   ..  admonition:: Details
       :class: toggle
 
-         CAC-B
-         *x*: Solo las cactáceas afuera de los orquidearios en el jardín
-
-         CRV:
-
-         IC-*xx*: orquidearios de calor en el jardín (1A a 9C son lugares
-         especificos entre del orquideario)
-
-         IF-xx: orquidearios de frío en el jardín (1A a 5I son lugares
-         específicos dentro del orquideario)
-
-         INV1: invernadero 1 (calor)
-
-         INV2: invernadero 2 (frío)
-
-         INV3: invernadero 3 (calor)
+         ========== ======================================================
+         code       description
+         ========== ======================================================
+         CAC-B *x*  Solo las cactáceas afuera de los orquidearios en 
+                    el jardín
+         ---------- ------------------------------------------------------
+         CRV:       Nepenthaceae exibition
+         ---------- ------------------------------------------------------
+         IC-*xx*:   orquidearios de calor en el jardín (1A a 9C son 
+                    lugares especificos entre del orquideario)
+         ---------- ------------------------------------------------------
+         IF-xx:     orquidearios de frío en el jardín (1A a 5I son
+                    lugares específicos dentro del orquideario)
+         ---------- ------------------------------------------------------
+         INV1:      invernadero 1 (calor)
+         ---------- ------------------------------------------------------
+         INV2:      invernadero 2 (frío)
+         ---------- ------------------------------------------------------
+         INV3:      invernadero 3 (calor)
+         ========== ======================================================
 
 - Adding an Accession for a Plant
 
@@ -477,6 +481,10 @@ Let the database fit the garden
 
          In the Plant Editor, we insert the Quantity and the Location.  And
          we're done.
+
+         The plant is now part of the database:
+
+         |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
   ..  admonition:: new plant
       :class: toggle
@@ -550,6 +558,8 @@ Let the database fit the garden
 
          We work with plastified paper labels, prepare them in batches of 72
          (what fits on a A4 sheet), and keep them in a dedicated box.
+
+- producing or reproducing labels
 
   ..  admonition:: refreshing plant labels
       :class: toggle
@@ -661,78 +671,8 @@ inferior una ventana con el siguiente mensaje
 
 |10000000000001FA0000004653A7D7D565338235_png|
 
-Nota al margen: La mayoria de las plantas ingresadas son del typo con el
-nombre de la especies
-
-“Zzz sp”.
-
-|100000000000022A000000458A066B65AA124983_png|
-
-La especies “Zzz sp” es solo un sostenedor del lugar, y la especie
-correcta se puede
-cambiar y actualizar.
 
 
-8. Entregar una nueva accesión en el banco de datos
-----------------------------------------------------------------------------
-
-|1000000000000257000000504EC4536B148C3228_png|
-
-In this concrete example, we are going to insert this information in the
-database.
-
-========== ============================ ========================
-Accession  Species                      Location
-========== ============================ ========================
-008440     *Dendrobium* ×'Emma White'   Invernadero 1 (calor)
-========== ============================ ========================
-
-We go straight into the Accession Editor, start typing the species name in
-the corresponding field.  Luckly, the species was already in the database,
-otherwise we would use the **Add** button next to the entry field.
-
-Cambiar el número del “Accession ID \*” al código que se le asigne a la nueva
-planta.
-
-Cambiar el “Type of material” a “Plant” (Siempre!!).
-
-Cambiar el “Quantity” a “1” (Siempre!!).
-
-Para entender las abreviaturas de las lugares de las plantas, aquí una
-lista:
-
-|10000000000002F900000241C5DB1B4F082036B6_png|
-
-Después de que estos 4 campos estén editados, hacer clic en “Add plants”.
-
-Se abrira la ventana llamada
-“Plant Editor”.
-
-|10000000000001FC0000018F4B27179B9456E1CF_png|
-
-El código (accesión) y nombre todavía están guardados.
-
-Cambiar el “Quantity” a “1” (Siempre!!).
-
-Cambiar el “Location” al nombre del lugar (Siempre el mismo
-que se ingreso
-en el Accession editor antes!).
-
-|10000000000001FE0000018B06FC9E8A824B1FF3_png|
-
-Después de que estos 4 campos están editados, se quiere ingresar el dato,
-que el hibrido de este Dendrobium se llama “Emma White”.
-
-Hacer clic en “Notes” e ingresr este dato .
-
-|10000000000001FF0000018ADAD9076709514282_png|
-|100000000000020000000189AEBD77174C6E5272_png|
-
-Después, hacer clic en “Aceptar” y listo.
-
-Ahora la planta con ese nombre y número es parte del banco de datos.
-
-|10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
 9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo número
 --------------------------------------------------------------------------------------
