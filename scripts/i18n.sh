@@ -47,3 +47,9 @@ do
     msgmerge -UNqs $po pot/messages.pot
 done
 echo '. ] ok'
+
+
+echo "press enter to continue with the docs, or ^C to stop here"
+read
+../ghini.desktop-docs.i18n/doc/runme.sh
+
