@@ -25,7 +25,7 @@ technical
   ..  admonition:: database server
       :class: toggle
 
-         We chose for a centralised PostgreSQL database server. this way we
+         We chose for a centralised PostgreSQL database server. This way we
          are protected from concurrent conflicting changes, and all changes
          are simultaneously available on all ghini clients.  We did need to
          outsource database server management.
@@ -176,7 +176,7 @@ technical
 
          On Linux there are three ways to create a screenshot, all involve
          hitting the 'PrtSc' key.  The most practical one is possibly
-         hitting the 'PrtSc' key in combination with Ctrl and Shift. this
+         hitting the 'PrtSc' key in combination with Ctrl and Shift. This
          will start an interactive screen copy tool. You select a rectangle
          and the area is copied in the clipboard.  Paste it in the email
          you're writing, or in the chat line where the developers are trying
@@ -225,91 +225,129 @@ taxonomy
          specialistic, but it's part of our daily routine, and it can all be stored
          in our Ghini database.
 
-- We have many plants which are still only partially identified, at rank
-  genus, sometimes not even. This also needs be explained.
+- identifying at rank Genus, or Family
 
   ..  admonition:: Details
       :class: toggle
 
-- Editing the Accession identification - the Species details
+         Ghini-1.0 prescribes that an accession is identified at rank
+         species, in all cases. The current maintainer acknowledges that
+         this is a mistake, coming from the early Bauble days, and which
+         Ghini-1.0 has in common with other botanic software. Until this is
+         fixed, we rely on established practices.
 
-  ..  admonition:: Details
-      :class: toggle
+         If an accession is identified at rank genus, we add a fictive
+         species in that genus, we don't specify its species epithet (we
+         don't know that) and we add an unranked epithet in the
+         infraspecific information section, like this:
 
-         there's two quite different scenarios here.
+         .. figure:: images/genus_sp-editing.png
 
-         - one is the identification of a single accession, which had been associated
-           to a "generic" species, something like “*Zzz* sp” or “*Vanda* sp”;
-
-           in this case, when the plant species becomes known, we change the
-           association in the accession, selecting a different species.
-
-         - a different case is when we have a whole batch of accessions, all
-           obviously the same species, but we haven't been able to identify it. In
-           this case, we associate the accessions with an incompletely specified
-           species, something like “*Zzz* sp-59”, preferably adding the taxonomist's
-           name, who made the association.
-
-           in this case, when the species gets identified (and it could even be a
-           species nova), we directly edit the species, so all accessions that refer
-           to it get the change.
-
-- Sometimes we have groups of plants accessed separately but clearly
-  belonging to the same species, even if we are not able to indicate its
-  binomial name with confidence. Ghini helps us here, too.
-
-  ..  admonition:: Details
-      :class: toggle
-
-- New plants may be relative to species not yet represented in our
-  collection. Adding a new species in the database is part of the daily
-  routine, too.
-
-  ..  admonition:: Details
-      :class: toggle
-
-- identificación a rango género o familia
-
-  ..  admonition:: Details
-      :class: toggle
-
-         .. figure:: images/zzz-explained.svg
+         When displayed in a search result, it shows like this:
 
          .. figure:: images/genus_sp-explained.svg
 
-         .. figure:: images/10000000000001B5000001365A0946E38D28ACB3.png
+         If an accession is only identified at rank family, we need a
+         fictive genus, to which we can add the fictive species. Since our
+         garden is primarily focusing on Orchidaceae, we use the very short
+         name **Zzz** for the fictive genus within the family, like this:
 
-- identificación a rango tribus
+         .. figure:: images/zzz-explained.svg
+
+         The current maintaner suggests to use the prefix **Zzz-** and
+         behind the prefix to write the family name, possibly removing the
+         trailing **e**.  Removal of the trailing **e** is useful in order
+         not to get results that include genus names when you as for stuff
+         ending in **aceae**.  In practice, we have a **Zzz** genus in the
+         Orchidaceae family, and in the other 6 families represented in our
+         digital collection, we follow this suggested practice.
+
+- identifying at a rank that is not allowed by the software (eg: Subtribe, or Subfamily)
                      
-  ..  admonition:: Details
+  ..  admonition:: subtribe
       :class: toggle
 
          We sometimes can't identify a taxon at rank genus, but we do manage
          to be more precise than just "it's an orchid". Quite often we are
-         able to indicate the tribe, this is useful when you want to produce
+         able to indicate the subtribe, this is useful when you want to produce
          hybrids.
 
          The software does not let us store ranks which are intermediate
          between family and genus, so we need to invent something, and this
          is what we do:
 
-         We insert a fictive genus, naming it as the tribe, prefixing it
-         with 'Zzy-', like in this example:
+         We insert a fictive genus, naming it as the subtribe, prefixing it
+         with 'Zzx-', like in this example:
 
          .. figure:: images/tribe_sp-explained.svg
 
-         This Zzy-Vandeae is some genus in the Vandeae tribe.
+         This Zzx-Laeliinae is some genus in the Laeliinae subtribe.
 
-         In order to be able to select genera by tribe, we also add a note
-         to the Zzy-Vandeae fictive genus as well as for all real genera in
-         that tribe, category tribus, value the tribe name.
+         In order to be able to select genera by subtribe, we also add a
+         note to the Zzx-Laeliinae fictive genus as well as for all real
+         genera in that subtribe, note category subtribus, note value the
+         subtribe name.
 
          This allows for queries like:
 
-         ``genus where notes.note=Vandeae``
+         ``genus where notes.note=Laeliinae``
 
          We are very much looking forward to seeing that `issue-9
          <https://github.com/Bauble/bauble.classic/issues/9>`_ solved!
+                     
+  ..  admonition:: subfamily, tribe
+      :class: toggle
+
+         Just as we reserved the prefix Zzx- for subtribe, we reserve the
+         prefixes Zzy- for tribe, Zzw- for subfamily.
+
+         In praticular, the subfamily information is relevant, because there
+         are subfamilies within the Orchidaceae family which are not further
+         separated.
+
+- Editing the Accession identification - the Species details
+
+  ..  admonition:: placeholder species for individual accessions
+      :class: toggle
+
+         Scenario one describes the identification of a single accession,
+         which had been associated to a "generic", placeholder species,
+         something like “*Zzz* sp” or “*Vanda* sp”;
+
+         In this case, when the plant species becomes known, we change the
+         association in the accession, selecting a different species. 
+
+         .. figure:: images/accession-vanda_sp.png
+
+         We do not edit the species, because there might be totally
+         unrelated accessions connected to the same placeholder species.
+
+  ..  admonition:: unknown species for multiple accessions
+      :class: toggle
+
+         A different case is when we have a whole batch of accessions, all
+         obviously the same species, but we haven't been able to identify it. In
+         this case, we associate the accessions with an incompletely specified
+         species, something like “*Zzz* sp-59”, preferably adding the taxonomist's
+         name, who made the association.
+
+         A species like “*Vanda* sp-018599” is not a placeholder species,
+         it is a very concrete species, which we haven't yet identified.
+
+         .. figure:: images/genus_sp_author-editing.png
+
+         In this case, when the species gets identified (and it could even be a
+         species nova), we directly edit the species, so all accessions that refer
+         to it get the change.
+
+- A new plants is relative to a species not yet in our collection.
+
+  ..  admonition:: Details
+      :class: toggle
+
+         We start this from the Accession window and it's very simple, just
+         click on the **+** next to the species name, we get into the
+         Species window,
 
 Let the database fit the garden
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -350,7 +388,7 @@ Let the database fit the garden
          updated with this information.
 
          Dead plants aren't *removed* from the database, they stay there but get a
-         **quantity** zero. if the cause of death is known, this is also written in
+         **quantity** zero. If the cause of death is known, this is also written in
          the dabase.
 
          Please once again remember that a **Plant** is not an **Accession** and
@@ -365,7 +403,7 @@ Let the database fit the garden
   ..  admonition:: we find a plant without a label
       :class: toggle
 
-         This is unfortunate, but happens. what we do is to put a new label to the
+         This is unfortunate, but happens. What we do is to put a new label to the
          plant, and to clearly state that the label is a replacement of an original
          one.  We then handle the case as if it was a new accession, plus we clearly mark 
 
