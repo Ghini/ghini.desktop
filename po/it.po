@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-25 17:09-0500\n"
+"POT-Creation-Date: 2017-07-27 16:47-0500\n"
 "PO-Revision-Date: 2017-06-29 18:59+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -115,7 +115,7 @@ msgstr "** Errore: non è stato possibile importare gtk e/o gobject"
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Errore: Ghini deve essere eseguito in un ambiente grafico."
 
-#: bauble/plugins/report/mako/__init__.py:275
+#: bauble/plugins/report/mako/__init__.py:298
 msgid ":"
 msgstr ""
 
@@ -911,7 +911,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/report/mako/__init__.py:384
+#: bauble/plugins/report/mako/__init__.py:407
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -2040,7 +2040,7 @@ msgstr "Per piacere seleziona un tributario"
 msgid "Please select a stylesheet."
 msgstr "Per piacere seleziona un foglio di stile"
 
-#: bauble/plugins/report/mako/__init__.py:366
+#: bauble/plugins/report/mako/__init__.py:389
 msgid "Please select a template."
 msgstr "Scegli un modello."
 
@@ -2199,7 +2199,7 @@ msgstr ""
 msgid "Research/Field Station"
 msgstr "Ricerca/Field Station"
 
-#: bauble/plugins/report/mako/__init__.py:290
+#: bauble/plugins/report/mako/__init__.py:313
 msgid "Reset to defaults"
 msgstr "Valori iniziali"
 
@@ -3265,7 +3265,7 @@ msgstr "Morte invernale"
 msgid "Would you like the cancel the current tasks?"
 msgstr "Vorresti cancellare i compiti correnti?"
 
-#: bauble/__init__.py:348
+#: bauble/__init__.py:347
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
