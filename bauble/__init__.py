@@ -317,8 +317,7 @@ dbengine.html#create-engine-url-arguments>`_
                 open_exc = e
                 # break
             except Exception, e:
-                msg = _("Could not open connection.\n\n%s") % \
-                    utils.xml_safe(repr(e))
+                msg = _("Could not open connection.\n\n%s") % e
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 uri = None
