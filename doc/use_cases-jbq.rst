@@ -52,6 +52,40 @@ technical
          It is generally a good idea updating the software.  If in doubt,
          contact the author, or write to the group.
 
+- understanding ghini initial screen
+
+  ..  admonition:: Details
+      :class: toggle
+
+         At the moment of writing, our initial screen looked like this:
+
+         |100000000000063F00000383F7EAFB008DE6E4E2_png|
+
+         En la parte del lado se puede observar un resumen de todas las plantas registradas.
+
+         |100000000000018700000173222371085C3C68FE_png|
+
+         The lower half of the right hand side contains a set of stored
+         queries.  While you can edit them to your liking, our hints include
+         selecting those accessions that have not been identified at rank
+         species.  And one for the database history.
+
+         |100000000000018700000173222371085C3C68FF_png|
+
+         En la parte superior de esta pantalla se puede encontrar el campo para
+         ingresar nombres que desea buscar.
+
+         |10000000000006090000001FA253BB9470AD4994_png|
+
+         - Con el botón |100000000000001C00000020F4C7873186014F2F_png|, en forma de
+           casa, puede regresar de sus busquedas a la pantalla principal.
+         - Con el botón |100000000000001B000000207EC6F9075C9D3669_png|, en forma de
+           flecha, puede regresar a su ultima búsqueda.
+         - Con el botón |100000000000001C0000001FB8A1F75F7A5EF877_png|, en forma de
+           engranaje, puede usar el “Query Builder”, con que se puede desarollar una
+           búsqueda más compleja en una manera más simple.
+
+
 - We often have volunteers who only work at the garden for a very short
   time. It was with them in mind that we have developed a `hypersimplified
   view <goal.html#hypersimplified-view>`_ on the ghini database structure.
@@ -207,21 +241,23 @@ technical
 taxonomy
 ^^^^^^^^^^^^^^^^^^^^  
 
-..  admonition:: Orchidaceae taxonomic complexity
-    :class: toggle
+- introduction
 
-       At the JBQ, we work most of all with orchids, family Orchidaceae, one of the
-       largest plant families, with no less than 850 genera, organized —according
-       to Dressler— in approximately 70 subtribes, 22 tribes, 5 subfamilies.  How
-       we represent this information is not obvious and needs be explained.
+  ..  admonition:: Orchidaceae taxonomic complexity
+      :class: toggle
 
-       The taxonomy of the Orchidaceae family is continuously being reviewed.
-       Genera get added, refused, reorganized, recognized as synonyms, some
-       taxonomists prefer grouping species or genera in a new way, others split
-       them again and differently, botanists of different nationalities may have
-       different views on the matter.  All this sounds very complex and
-       specialistic, but it's part of our daily routine, and it can all be stored
-       in our Ghini database.
+         At the JBQ, we work most of all with orchids, family Orchidaceae, one of the
+         largest plant families, with no less than 850 genera, organized —according
+         to Dressler— in approximately 70 subtribes, 22 tribes, 5 subfamilies.  How
+         we represent this information is not obvious and needs be explained.
+
+         The taxonomy of the Orchidaceae family is continuously being reviewed.
+         Genera get added, refused, reorganized, recognized as synonyms, some
+         taxonomists prefer grouping species or genera in a new way, others split
+         them again and differently, botanists of different nationalities may have
+         different views on the matter.  All this sounds very complex and
+         specialistic, but it's part of our daily routine, and it can all be stored
+         in our Ghini database.
 
 - identifying at rank Genus, or Family
 
@@ -433,31 +469,6 @@ Let the database fit the garden
 
 Información del banco de datos
 ----------------------------------------------------------------------------
-
-|100000000000063F00000383F7EAFB008DE6E4E2_png|
-
-Ahora se encuentra dentro del programa.
-
-En la parte del lado se puede observar un resumen de todas las plantas registradas.
-
-|100000000000018700000173222371085C3C68FE_png|
-
-En la parte superior de esta pantalla se puede encontrar el campo para
-ingresar nombres que desea buscar.
-
-|10000000000006090000001FA253BB9470AD4994_png|
-
-- Con el botón |100000000000001C00000020F4C7873186014F2F_png|, en forma de
-  casa, puede regresar de sus busquedas a la pantalla principal.
-- Con el botón |100000000000001B000000207EC6F9075C9D3669_png|, en forma de
-  flecha, puede regresar a su ultima búsqueda.
-- Con el botón |100000000000001C0000001FB8A1F75F7A5EF877_png|, en forma de
-  engranaje, puede usar el “Query Builder”, con que se puede desarollar una
-  búsqueda más compleja en una manera más simple.
-
-|10000000000000E7000000DE22288666D5A0BB1B_png|
-
-|10000000000000AA0000001F983BAA81B6054550_png|
 
 Para buscar algo en el campo de entregar, siempre recuerde de usar comillas!
 
@@ -889,7 +900,9 @@ ultima vez.
 
 .. |100000000000018700000173222371085C3C68FE_png| image:: images/100000000000018700000173222371085C3C68FE.png
     :width: 8.26cm
-    :height: 7.837cm
+
+.. |100000000000018700000173222371085C3C68FF_png| image:: images/100000000000018700000173222371085C3C68FF.png
+    :width: 8.26cm
 
 .. |10000000000001FF0000018ADAD9076709514282_png| image:: images/10000000000001FF0000018ADAD9076709514282.png
     :width: 8.181cm
