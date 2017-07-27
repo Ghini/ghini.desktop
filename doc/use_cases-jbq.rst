@@ -410,17 +410,15 @@ Let the database fit the garden
       :class: toggle
 
          CAC-B
-         *x*: Solo las cactáceas afuera de los orquidarios en el jardín
+         *x*: Solo las cactáceas afuera de los orquidearios en el jardín
 
          CRV:
 
-         IC-*xx*: orquidarios de calor en el jardín
-         (1A a 9C son lugares
-         especificos entre del
-         orquidario)
+         IC-*xx*: orquidearios de calor en el jardín (1A a 9C son lugares
+         especificos entre del orquideario)
 
-         IF-xx: orquidarios de frío en el jardín (1A a 5I son lugares específicos
-         dentro del orquidario)
+         IF-xx: orquidearios de frío en el jardín (1A a 5I son lugares
+         específicos dentro del orquideario)
 
          INV1: invernadero 1 (calor)
 
