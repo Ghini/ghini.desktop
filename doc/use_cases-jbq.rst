@@ -207,22 +207,21 @@ technical
 taxonomy
 ^^^^^^^^^^^^^^^^^^^^  
 
-- At the JBQ, we work most of all with orchids, family Orchidaceae, one of
-  the largest plant families, with no less than 850 genera, organized
-  —according to Dressler— in approximately 70 subtribes, 22 tribes, 5
-  subfamilies.  How we represent this information is not obvious and needs
-  be explained.
+..  admonition:: Orchidaceae taxonomic complexity
+    :class: toggle
 
-  ..  admonition:: Details
-      :class: toggle
+       At the JBQ, we work most of all with orchids, family Orchidaceae, one of the
+       largest plant families, with no less than 850 genera, organized —according
+       to Dressler— in approximately 70 subtribes, 22 tribes, 5 subfamilies.  How
+       we represent this information is not obvious and needs be explained.
 
-         The taxonomy of the Orchidaceae family is continuously being reviewed.
-         Genera get added, refused, reorganized, recognized as synonyms, some
-         taxonomists prefer grouping species or genera in a new way, others split
-         them again and differently, botanists of different nationalities may have
-         different views on the matter.  All this sounds very complex and
-         specialistic, but it's part of our daily routine, and it can all be stored
-         in our Ghini database.
+       The taxonomy of the Orchidaceae family is continuously being reviewed.
+       Genera get added, refused, reorganized, recognized as synonyms, some
+       taxonomists prefer grouping species or genera in a new way, others split
+       them again and differently, botanists of different nationalities may have
+       different views on the matter.  All this sounds very complex and
+       specialistic, but it's part of our daily routine, and it can all be stored
+       in our Ghini database.
 
 - identifying at rank Genus, or Family
 
@@ -341,12 +340,12 @@ taxonomy
 
 - A new plants is relative to a species not yet in our collection.
 
-  ..  admonition:: Details
+  ..  admonition:: last minute species
       :class: toggle
 
          We start this from the Accession window and it's very simple, just
          click on the **+** next to the species name, we get into the
-         Species window,
+         Species window.
 
 Let the database fit the garden
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -413,12 +412,35 @@ Let the database fit the garden
   ..  admonition:: Details
       :class: toggle
 
+         Cada año el jardín botánico tiene que entregar un informe (informe
+         anual de manejo y mantenimiento de colección de orquideas) que
+         tiene la información del banco de datos y sobre eso las plantas
+         registradas.
+
+         Para realizar eso, solo se pone esto en el campo de entregar en el
+         banco de datos::
+
+           genus where species.accessions._created between |datetime|2017,1,1| and |datetime|2018,1,1|
+
+         or::
+
+           accession where _created between |datetime|2017,1,1| and |datetime|2018,1,1|
+
+         (tienes que adaptarse el año)
+
+         Having selected the database objects which we want in the report,
+         we start the report tool, which acts on the selection.
+
 Información del banco de datos
 ----------------------------------------------------------------------------
 
 |100000000000063F00000383F7EAFB008DE6E4E2_png|
 
 Ahora se encuentra dentro del programa.
+
+En la parte del lado se puede observar un resumen de todas las plantas registradas.
+
+|100000000000018700000173222371085C3C68FE_png|
 
 En la parte superior de esta pantalla se puede encontrar el campo para
 ingresar nombres que desea buscar.
@@ -438,31 +460,6 @@ ingresar nombres que desea buscar.
 |10000000000000AA0000001F983BAA81B6054550_png|
 
 Para buscar algo en el campo de entregar, siempre recuerde de usar comillas!
-
-|100000000000018700000173222371085C3C68FE_png|
-
-En la parte del lado se puede observar un resumen de todas las plantas registradas.
-
-De las 511 familias de plantas, el jardín botánico solo tiene plantas de 7 familias registradas.
-
-De las 25394 géneros de plantas, el jardín botánico solo tiene plantas de 158 géneros registrados.
-
-De las 637 especies entregadas en el banco de datos, solo 623 especies
-poseen números (accesiones).
-
-De las 7722 accesiones, que están registrados
-para el banco de datos, solo 7675
-están en uso de
-una manera que la planta
-(en fisico)
-tiene este número.
-
-En generalmente este número tiene que estar siempre “in use” y “total”
-
-De todos las plantas registradas, todas están usando. (este
-número siempre va a estar full “in use”, si hiciste todo bien.)
-
-De las 170 diferentes locaciones registrados, solo 163 tienen plantas ingresadas.
 
 5. Buscar plantas en la base de datos
 ----------------------------------------------------------------------------
@@ -721,112 +718,30 @@ en
 10. Cambiar el lugar de una planta en el banco de datos
 ----------------------------------------------------------------------------
 
-Si se encuentra una planta con una accesión en un
-lugar diferente al que está registrado en el banco de datos, se tiene que cambiar el lugar.
+While revising the garden, we find a plant at a location that is not what
+the database says.  We update the database information.
 
-En este ejemplo
-se
-encontró
-que la planta de especies “Acineta sp.”con la accesión “012142”, está en el Invernadero 1, pero está guardado en el banco de datos en ICAlm3.
+For example, the plant belonging to accession “012142”, species “*Acineta*
+sp”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
 
-Ahora
-se debe cambiar
-el lugar de esta planta en el banco de datos.
+All we do is find the Plant in the database and update its information.  We
+do not changed anything in the initial Accession information, just the
+current Plant information.
 
-*▼Información entregado▼  ▼información*
+We type the accession code in the search entry field, with quotes, hit
+enter. The search results now shows the accession, and it tells us how many
+plants belong to it.  Click on the squared **+** in the results row, so we
+now also see a row for the plant belonging to the accession.
 
-*guardado ▼*
+Right click on the Plant row, the three options will show: “Edit, Split,
+Delete”, select Edit, you land in the Plant Editor.
 
-|10000000000006060000019593F061B072210692_png|
-
-Para cambiar el lugar
-se tiene que
-cambiar el lugar de la accesión primero, y después el lugar de la planta.
-
-Primero hacer
-clic derecho con el raton a la accesión (sombreado
-rojo en
-la
-foto). Luego se mostraran las
-tres opciones: “Edit, Add
-plants, Delete” . Hacer
-clic
-en
-“Edit”. El “Accession Editor” va abrirse.
-
-|10000000000002F40000023FAB6C820BDCD352F2_png|
-|10000000000002F800000244F5DF43FE222813B5_png|
-
-►
-
-*Cambiar:*
-
-Accession ID, Type of material y Quantity, Location1
-
-o
-
-solo Location1
-
-►
-
-Hace clic a “Aceptar”, para guardar la información.
-
-Después hace clic derecho con el raton, la planta (abajo, fondo blanco en el
-foto). Las siguientes tres opciones se mostraran: “Edit, Branch, Delete” va
-a abrir. Hacer clic en “Edit”.  La ventana de “Plant Editor” va abrirse.
-
-|10000000000001FC0000018990A54A65E0BC26C2_png|
-|10000000000001FC0000018808F152DBEDDAA04B_png|
-
-►
-
-*Cambiar:*
-
-Accession
-type, Quantity,
-y
-Location
-
-o solo Location
-
-►
-
-Hace clic en “Aceptar”, para guardar la información y listo
-
-después puedes verificar que la positon “Location” está cambiada.
-
-Dice “Living Plants: 1 in INV1” & “Intended Location: (INV1)
+Just correct the Location field, and click on OK.
 
 Tambien se puede ver en “Properties” cuando esta accesión fue cambiada la
 ultima vez.
 
 |1000000000000608000002D2BA2D181475D5AD7B_png|
-
-*▼ Aquí! ▼*
-
-11. Decargar información sobre el banco de datos por una informe
-----------------------------------------------------------------------------
-
-Cada año el jardín botánico tiene que entregar una informe
-(informe anual de manejo y mantenimiento de colección de orquideas)
-que tiene la información del banco de datos y sobre eso las plantas registradas.
-
-Para realizar eso, solo se pone esto en el campo de entregar en el banco de
-datos::
-
-  genus where species.accessions._created between |datetime|2017,1,1| and |datetime|2018,1,1|
-
-or::
-
-  accession where _created between |datetime|2017,1,1| and |datetime|2018,1,1|
-
-(tienes que adaptarse el año)
-
-Después esta búsqueda, tiene que esperar un
-momento
-para que el programa puede
-arrojar
-los resultados.
 
 .. |10000000000006090000001FA253BB9470AD4994_png| image:: images/10000000000006090000001FA253BB9470AD4994.png
     :width: 470px
