@@ -292,7 +292,7 @@ taxonomy
 
          .. figure:: images/zzz-explained.svg
 
-         The current maintaner suggests to use the prefix **Zzz-** and
+         The current maintainer suggests to use the prefix **Zzz-** and
          behind the prefix to write the family name, possibly removing the
          trailing **e**.  Removal of the trailing **e** is useful in order
          not to get results that include genus names when you as for stuff
