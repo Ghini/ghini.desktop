@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 import os
 import shutil
 import tempfile
+import math
 
 import gtk
 
@@ -76,7 +77,7 @@ font = {
     }
 
 
-def add_text(x, y, s, size, align=0, italic=False, strokes=1):
+def add_text(x, y, s, size, align=0, italic=False, strokes=1, rotate=0):
     """compute the `use` elements to be added and the width of the result
 
     align 0: left; align 1: right; align 0.5: centre
@@ -99,18 +100,24 @@ def add_text(x, y, s, size, align=0, italic=False, strokes=1):
             '<use transform="translate(%s,0)" xlink:href="#%s"/>' %
             (totalwidth, glyph_ref))
         totalwidth += glyph_wid
+    radians = rotate / 180.0 * math.pi
     if align != 0:
-        x -= align * (totalwidth * size)
+        x -= (totalwidth * size) * align * math.cos(radians)
+        y -= (totalwidth * size) * align * math.sin(radians)
     italic_text = italic and 'matrix(1,0,-0.1,1,2,0)' or ''
+    rotate_text = rotate and ('rotate(%s)' % rotate) or ''
+    # we can't do the following before having placed all glyphs
     result_list.insert(
-        0, (('<g transform="translate(%s, %s)scale(%s)'+italic_text+'">')
-            % (x, y, size)))
+        0, (('<g transform="translate(%s, %s)scale(%s)' + italic_text + rotate_text + '">')
+            % (round(x, 6), round(y, 6), size)))
     result_list.append('</g>')
     result = "\n".join(result_list)
-    return result, x+totalwidth*size, y
+    return (result,
+            x + totalwidth * size * math.cos(radians),
+            y + totalwidth * size * math.sin(radians))
 
 
-def add_code39(x, y, s, unit=1, height=10, align=0):
+def add_code39(x, y, s, unit=1, height=10, align=0, colour='#0000ff'):
     result_list = []
     cumulative_x = 0
     if not s:
@@ -119,7 +126,7 @@ def add_code39(x, y, s, unit=1, height=10, align=0):
     for i in s:
         if i not in Code39.MAP.keys():
             i = u' '
-        result_list.append(Code39.letter(i, height, translate=(cumulative_x, 0)))
+        result_list.append(Code39.letter(i, height, translate=(cumulative_x, 0), colour=colour))
         cumulative_x += 16
     cumulative_x -= 1
     shift = -align * cumulative_x
@@ -131,7 +138,7 @@ def add_code39(x, y, s, unit=1, height=10, align=0):
 
 class Code39:
     # Class for encoding as Code39 barcode.
-    
+
     # Every symbol gets encoded as a sequence of 5 black bars separated by 4
     # white spaces. Bars and spaces may be thin (one unit), or thick (three
     # units). A thin white space separates the sequences. All barcodes start
@@ -203,15 +210,47 @@ class Code39:
         return format % d
 
     @classmethod
-    def letter(cls, letter, height, translate=None):
+    def letter(cls, letter, height, translate=None, colour='#0000ff'):
         if translate is not None:
-            transform_text = 'transform="translate(%s,%s)" ' % translate
+            transform_text = ' transform="translate(%s,%s)"' % translate
         else:
             transform_text = ''
-        return '<path ' + transform_text + 'd="%s" style="stroke:#0000ff;stroke-width:1"/>' % cls.path(letter, height)
+        return '<path%(transform)s d="%(path)s" style="stroke:%(colour)s;stroke-width:1"/>' % {
+            'transform': transform_text,
+            'path': cls.path(letter, height),
+            'colour': colour,
+        }
 
+    
+class add_qr_functor:
+    import pyqrcode
+    def __init__(self):
+        import io
+        import re
+        self.buffer = io.BytesIO()
+        self.pattern = re.compile('<svg.*>(<path.*>)</svg>')
+
+    def __call__(self, x, y, text, scale=1):
+        qr = self.pyqrcode.create(text)
+        self.buffer.truncate(0)
+        self.buffer.seek(0)
+        qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
+        match = self.pattern.match(self.buffer.getvalue())
+        result_list = [match.group(1)]
+        if x != 0 or y != 0:
+            result_list.insert(0, '<g transform="translate(%s,%s)">' % (x, y))
+            result_list.append('</g>')
+        return '\n'.join(result_list)
+
+add_qr = add_qr_functor()
+    
 
 class MakoFormatterSettingsBox(SettingsBox):
+    import re
+    pattern = re.compile("^## OPTION ([a-z_]*): \("
+                         "type: ([a-z_]*), "
+                         "default: '(.*)', "
+                         "tooltip: '(.*)'\)$")
 
     def __init__(self, report_dialog=None, *args):
         super(MakoFormatterSettingsBox, self).__init__(*args)
@@ -223,6 +262,8 @@ class MakoFormatterSettingsBox(SettingsBox):
         self.settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
         self.pack_start(self.settings_box)
+        self.widgets.template_chooser.connect('file-set', self.on_file_set)
+        self.defaults = []
 
     def get_settings(self):
         """
@@ -231,10 +272,57 @@ class MakoFormatterSettingsBox(SettingsBox):
                 'private': self.widgets.private_check.get_active()}
 
     def update(self, settings):
-        if 'template' in settings and settings['template']:
+        if settings.get('template'):
             self.widgets.template_chooser.set_filename(settings['template'])
+            self.on_file_set()
         if 'private' in settings:
             self.widgets.private_check.set_active(settings['private'])
+
+    def on_file_set(self, *args, **kwargs):
+        self.defaults = []
+        options_box = self.widgets.mako_options_box
+        # empty the options box
+        map(options_box.remove, options_box.get_children())
+        # which options does the template accept? (can be None)
+        with open(self.widgets.template_chooser.get_filename()) as f:
+            # scan the header filtering lines starting with # OPTION
+            option_lines = filter(None,
+                                  [self.pattern.match(i.strip())
+                                   for i in f.readlines()])
+        option_fields = [i.groups() for i in option_lines]
+        from bauble.plugins.report import options
+        current_row = 0
+        # populate the options box
+        for fname, ftype, fdefault, ftooltip in option_fields:
+            row = gtk.HBox()
+            label = gtk.Label(fname.replace('_', ' ') + _(':'))
+            label.set_alignment(0, 0.5)
+            entry = gtk.Entry()
+            options.setdefault(fname, fdefault)
+            entry.set_text(options[fname])
+            entry.set_tooltip_text(ftooltip)
+            # entry updates the corresponding item in report.options
+            entry.connect('changed', self.set_option, fname)
+            self.defaults.append((entry, fdefault))
+            options_box.attach(label, 0, 1, current_row, current_row+1,
+                               xoptions=gtk.FILL)
+            options_box.attach(entry, 1, 2, current_row, current_row+1,
+                               xoptions=gtk.FILL)
+            current_row += 1
+        if self.defaults:
+            button = gtk.Button(_('Reset to defaults'))
+            button.connect('clicked', self.reset_options)
+            options_box.attach(button, 0, 2, current_row, current_row+1,
+                               xoptions=gtk.FILL)
+        options_box.show_all()
+
+    def reset_options(self, widget):
+        for entry, text in self.defaults:
+            entry.set_text(text)
+
+    def set_option(self, widget, fname):
+        from bauble.plugins.report import options
+        options[fname] = widget.get_text()
 
 
 _settings_box = MakoFormatterSettingsBox()

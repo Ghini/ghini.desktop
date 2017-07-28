@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-28 08:24-0500\n"
+"POT-Creation-Date: 2017-07-27 16:47-0500\n"
 "PO-Revision-Date: 2015-07-12 18:48-0500\n"
 "Last-Translator: pCsOrI <pcsori@gmail.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/bauble/master/ko/"
@@ -71,7 +71,7 @@ msgstr ""
 msgid "%(user)s on %(date)s"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:410
+#: bauble/plugins/report/__init__.py:400
 msgid "%s already exists"
 msgstr ""
 
@@ -105,6 +105,10 @@ msgstr ""
 
 #: bauble/__init__.py:266
 msgid "**Error: Ghini must be run in a windowed environment."
+msgstr ""
+
+#: bauble/plugins/report/mako/__init__.py:298
+msgid ":"
 msgstr ""
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
@@ -206,7 +210,7 @@ msgid "<b>Habit:</b>"
 msgstr ""
 
 #: bauble/plugins/report/xsl/gui.glade:149
-#: bauble/plugins/report/mako/gui.glade:58
+#: bauble/plugins/report/mako/gui.glade:67
 msgid "<b>Include data marked as private</b>"
 msgstr ""
 
@@ -306,7 +310,7 @@ msgstr ""
 msgid "<b>Stylesheet</b>"
 msgstr ""
 
-#: bauble/plugins/report/mako/gui.glade:31
+#: bauble/plugins/report/mako/gui.glade:38
 msgid "<b>Template</b>"
 msgstr ""
 
@@ -404,7 +408,7 @@ msgstr ""
 msgid "Abbreviation"
 msgstr ""
 
-#: bauble/ui.py:464
+#: bauble/ui.py:465
 msgid "About"
 msgstr ""
 
@@ -640,15 +644,15 @@ msgid ""
 "%s"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:165
+#: bauble/plugins/report/__init__.py:155
 msgid "Can't get accessions from a %s"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:125
+#: bauble/plugins/report/__init__.py:115
 msgid "Can't get plants from a %s"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:208
+#: bauble/plugins/report/__init__.py:198
 msgid "Can't get species from a %s"
 msgstr ""
 
@@ -693,7 +697,7 @@ msgstr ""
 msgid "Choose a file..."
 msgstr ""
 
-#: bauble/search.py:1029
+#: bauble/search.py:1033
 msgid "Choose a property..."
 msgstr ""
 
@@ -775,11 +779,11 @@ msgstr ""
 msgid "Container"
 msgstr ""
 
-#: bauble/ui.py:448
+#: bauble/ui.py:449
 msgid "Contents"
 msgstr ""
 
-#: bauble/ui.py:769
+#: bauble/ui.py:770
 msgid "Copyright © by its contributors."
 msgstr ""
 
@@ -787,7 +791,7 @@ msgstr ""
 msgid "Corm"
 msgstr ""
 
-#: bauble/ui.py:673
+#: bauble/ui.py:674
 msgid ""
 "Could not create a new database.\n"
 "\n"
@@ -850,7 +854,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: bauble/plugins/report/mako/__init__.py:148
+#: bauble/plugins/report/mako/__init__.py:407
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -1047,7 +1051,7 @@ msgstr ""
 msgid "Do you want to save your changes?"
 msgstr ""
 
-#: bauble/search.py:858
+#: bauble/search.py:859
 msgid "Domain Properties"
 msgstr ""
 
@@ -1092,7 +1096,7 @@ msgstr ""
 msgid "Enter a connection name"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:393
+#: bauble/plugins/report/__init__.py:383
 msgid "Enter a name for the new formatter"
 msgstr ""
 
@@ -1239,11 +1243,11 @@ msgstr ""
 msgid "Flowering"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:387
+#: bauble/plugins/report/__init__.py:377
 msgid "Formatter Name"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:632
+#: bauble/plugins/report/__init__.py:622
 msgid ""
 "Formatting Error\n"
 "\n"
@@ -1317,7 +1321,7 @@ msgid ""
 " %s"
 msgstr ""
 
-#: bauble/ui.py:456
+#: bauble/ui.py:457
 msgid "Ghini development website"
 msgstr ""
 
@@ -1349,11 +1353,11 @@ msgid ""
 "%s"
 msgstr ""
 
-#: bauble/ui.py:462
+#: bauble/ui.py:463
 msgid "Ghini forum"
 msgstr ""
 
-#: bauble/ui.py:459
+#: bauble/ui.py:460
 msgid "Ghini wiki"
 msgstr ""
 
@@ -1630,11 +1634,11 @@ msgstr ""
 msgid "Male"
 msgstr ""
 
-#: bauble/search.py:779
+#: bauble/search.py:780
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
 msgstr ""
 
-#: bauble/search.py:776
+#: bauble/search.py:777
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
 msgstr ""
 
@@ -1730,11 +1734,11 @@ msgstr ""
 msgid "No default handler registered"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:511
+#: bauble/plugins/report/__init__.py:501
 msgid "No formatter plugins defined"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:545
+#: bauble/plugins/report/__init__.py:535
 msgid ""
 "No formatters found. To create a new formatter click the \"New\" button."
 msgstr ""
@@ -1798,7 +1802,7 @@ msgstr ""
 msgid "Old Flowers"
 msgstr ""
 
-#: bauble/ui.py:453
+#: bauble/ui.py:454
 msgid "Open the log-file"
 msgstr ""
 
@@ -1912,7 +1916,7 @@ msgstr ""
 msgid "Please select a stylesheet."
 msgstr ""
 
-#: bauble/plugins/report/mako/__init__.py:130
+#: bauble/plugins/report/mako/__init__.py:389
 msgid "Please select a template."
 msgstr ""
 
@@ -1978,7 +1982,7 @@ msgstr ""
 msgid "Properties"
 msgstr ""
 
-#: bauble/search.py:852
+#: bauble/search.py:853
 msgid "Property"
 msgstr ""
 
@@ -2055,11 +2059,11 @@ msgstr ""
 msgid "Removed"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:592
+#: bauble/plugins/report/__init__.py:582
 msgid "Report"
 msgstr ""
 
-#: bauble/ui.py:450
+#: bauble/ui.py:451
 msgid "Report a bug"
 msgstr ""
 
@@ -2069,6 +2073,10 @@ msgstr ""
 
 #: bauble/plugins/garden/source.py:128
 msgid "Research/Field Station"
+msgstr ""
+
+#: bauble/plugins/report/mako/__init__.py:313
+msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
@@ -2179,7 +2187,7 @@ msgstr ""
 msgid "Search Botanic Gardens Conservation International"
 msgstr ""
 
-#: bauble/querybuilder.glade:97 bauble/search.py:840
+#: bauble/querybuilder.glade:97 bauble/search.py:841
 #, fuzzy
 msgid "Search Domain"
 msgstr "검색"
@@ -2230,8 +2238,8 @@ msgstr ""
 msgid "Search Wikipedia"
 msgstr ""
 
-#: bauble/editor.py:306 bauble/plugins/report/__init__.py:602
-#: bauble/plugins/report/__init__.py:607
+#: bauble/editor.py:306 bauble/plugins/report/__init__.py:592
+#: bauble/plugins/report/__init__.py:597
 msgid "Search for something first."
 msgstr ""
 
@@ -2906,7 +2914,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: bauble/search.py:479
+#: bauble/search.py:480
 msgid "Unknown search domain: %s"
 msgstr ""
 "Ghini이 사용자 환경 설정을 저장할 수 없습니다.\n"
@@ -3017,11 +3025,11 @@ msgstr ""
 msgid "Winter kill"
 msgstr ""
 
-#: bauble/ui.py:790
+#: bauble/ui.py:791
 msgid "Would you like the cancel the current tasks?"
 msgstr ""
 
-#: bauble/__init__.py:348
+#: bauble/__init__.py:347
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
@@ -3121,11 +3129,11 @@ msgstr ""
 msgid "_Add species"
 msgstr ""
 
-#: bauble/ui.py:440
+#: bauble/ui.py:441
 msgid "_Copy"
 msgstr ""
 
-#: bauble/ui.py:438
+#: bauble/ui.py:439
 msgid "_Cut"
 msgstr ""
 
@@ -3141,31 +3149,31 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:108 bauble/plugins/garden/source.py:66
 #: bauble/plugins/garden/source.py:785 bauble/plugins/plants/family.py:101
 #: bauble/plugins/plants/genus.py:110 bauble/plugins/plants/species.py:111
-#: bauble/plugins/tag/__init__.py:98 bauble/ui.py:437
+#: bauble/plugins/tag/__init__.py:98 bauble/ui.py:438
 msgid "_Edit"
 msgstr ""
 
-#: bauble/ui.py:430
+#: bauble/ui.py:431
 msgid "_File"
 msgstr ""
 
-#: bauble/ui.py:446
+#: bauble/ui.py:447
 msgid "_Help"
 msgstr ""
 
-#: bauble/ui.py:444
+#: bauble/ui.py:445
 msgid "_Insert"
 msgstr ""
 
-#: bauble/ui.py:433
+#: bauble/ui.py:434
 msgid "_Open"
 msgstr ""
 
-#: bauble/ui.py:442
+#: bauble/ui.py:443
 msgid "_Paste"
 msgstr ""
 
-#: bauble/ui.py:435
+#: bauble/ui.py:436
 msgid "_Quit"
 msgstr ""
 
@@ -3173,7 +3181,7 @@ msgstr ""
 msgid "_Split"
 msgstr ""
 
-#: bauble/ui.py:445
+#: bauble/ui.py:446
 msgid "_Tools"
 msgstr ""
 
@@ -3301,11 +3309,11 @@ msgstr ""
 msgid "general_window"
 msgstr ""
 
-#: bauble/ui.py:318
+#: bauble/ui.py:319
 msgid "history size must be greater than zero and less than the history size"
 msgstr ""
 
-#: bauble/ui.py:765
+#: bauble/ui.py:766
 msgid "http://ghini.github.io"
 msgstr ""
 

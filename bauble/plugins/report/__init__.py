@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2017 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -60,19 +60,9 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
-# _paths = {}
 
-# def add_path(parent, descendant, query):
-#     """
-#     Register a query that will give all of the descendants under parent
-
-#     e.g. add_path(Family, Species) would register a query to retrieve
-#     all of the Species under a family
-#     """
-#     if parent not in _paths:
-#         _paths[parent] = {descendent: query}
-#     else descendant not in _paths[parent]:
-#         _paths[parent][descendent] = query
+# to be populated by the dialog box, with fields mentioned in the template
+options = {}
 
 
 def _get_pertinent_objects(cls, get_query_func, objs, session):

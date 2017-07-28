@@ -35,7 +35,7 @@ from bauble.plugins.plants import Family, Genus, Species, \
 from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.report.mako import MakoFormatterPlugin
 
-from bauble.plugins.report.mako import add_text, Code39, add_code39
+from bauble.plugins.report.mako import add_text, Code39, add_code39, add_qr
 
 class MakoFormatterTests(BaubleTestCase):
 
@@ -99,7 +99,7 @@ class SvgProductionTest(BaubleTestCase):
         g, x, y = add_text(0, 0, 'a', 2)
         self.assertEquals(y, 0)
         self.assertEquals(x, 31)
-        self.assertEquals(g, '<g transform="translate(0, 0)scale(2)">\n'
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
                           '</g>')
 
@@ -107,7 +107,7 @@ class SvgProductionTest(BaubleTestCase):
         g, x, y = add_text(0, 0, u'áà', 2)
         self.assertEquals(y, 0)
         self.assertEquals(x, 62)
-        self.assertEquals(g, '<g transform="translate(0, 0)scale(2)">\n'
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u00e1"/>\n'
                           '<use transform="translate(15.5,0)" xlink:href="#s1-u00e0"/>\n'
                           '</g>')
@@ -116,7 +116,7 @@ class SvgProductionTest(BaubleTestCase):
         g, x, y = add_text(0, 0, u'áà', 2, align=1)
         self.assertEquals(y, 0)
         self.assertEquals(x, 0)
-        self.assertEquals(g, '<g transform="translate(-62.0, 0)scale(2)">\n'
+        self.assertEquals(g, '<g transform="translate(-62.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u00e1"/>\n'
                           '<use transform="translate(15.5,0)" xlink:href="#s1-u00e0"/>\n'
                           '</g>')
@@ -125,11 +125,80 @@ class SvgProductionTest(BaubleTestCase):
         g, x, y = add_text(0, 0, u'áà', 2, align=0.5)
         self.assertEquals(y, 0)
         self.assertEquals(x, 31.0)
-        self.assertEquals(g, '<g transform="translate(-31.0, 0)scale(2)">\n'
+        self.assertEquals(g, '<g transform="translate(-31.0, 0.0)scale(2)">\n'
                           '<use transform="translate(0,0)" xlink:href="#s1-u00e1"/>\n'
                           '<use transform="translate(15.5,0)" xlink:href="#s1-u00e0"/>\n'
                           '</g>')
 
+    def test_add_text_a_rotated_endpoint(self):
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=0)
+        self.assertAlmostEquals(y, 0)
+        self.assertAlmostEquals(x, 31)
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
+        self.assertAlmostEquals(y, 31)
+        self.assertAlmostEquals(x, 0)
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
+        self.assertAlmostEquals(y, -31)
+        self.assertAlmostEquals(x, 0)
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
+        self.assertAlmostEquals(y, 0)
+        self.assertAlmostEquals(x, -31)
+
+    def test_add_text_a_rotated_aligned_endpoint(self):
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=0)
+        self.assertAlmostEquals(y, 0)
+        self.assertAlmostEquals(x, 15.5)
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=90)
+        self.assertAlmostEquals(y, 15.5)
+        self.assertAlmostEquals(x, 0)
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
+        self.assertAlmostEquals(y, -15.5)
+        self.assertAlmostEquals(x, 0)
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=180)
+        self.assertAlmostEquals(y, 0)
+        self.assertAlmostEquals(x, -15.5)
+
+    def test_add_text_a_rotated_glyph(self):
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=0)
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=90)
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(90)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=-90)
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(-90)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+        g, x, y = add_text(0, 0, 'a', 2, align=0, rotate=180)
+        self.assertEquals(g, '<g transform="translate(0.0, 0.0)scale(2)rotate(180)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+
+    def test_add_text_a_rotated_aligned_glyph(self):
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=0)
+        self.assertEquals(g, '<g transform="translate(-15.5, 0.0)scale(2)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=90)
+        g = g.replace('-0.0', '0.0')  # ignore sign on zero
+        self.assertEquals(g, '<g transform="translate(0.0, -15.5)scale(2)rotate(90)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=-90)
+        g = g.replace('-0.0', '0.0')  # ignore sign on zero
+        self.assertEquals(g, '<g transform="translate(0.0, 15.5)scale(2)rotate(-90)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+        g, x, y = add_text(0, 0, 'a', 2, align=0.5, rotate=180)
+        g = g.replace('-0.0', '0.0')  # ignore sign on zero
+        self.assertEquals(g, '<g transform="translate(15.5, 0.0)scale(2)rotate(180)">\n'
+                          '<use transform="translate(0,0)" xlink:href="#s1-u0061"/>\n'
+                          '</g>')
+
+
+class Code39Tests(BaubleTestCase):
     def test_code39_path_0(self):
         # 0123456789abcde
         # | |   ||| ||| |
@@ -212,3 +281,20 @@ class SvgProductionTest(BaubleTestCase):
         self.assertEquals(y, 0)
         self.assertEquals(g, '<g transform="translate(0,0)scale(1,1)translate(0,0)"><path transform="translate(0,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(16,0)" d="M 0,0 0,7 M 1,7 1,0 M 2,0 2,7 M 4,7 4,0 M 5,0 5,7 M 6,7 6,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(32,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(48,0)" d="M 0,0 0,7 M 4,7 4,0 M 8,0 8,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(64,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 8,7 8,0 M 9,0 9,7 M 10,7 10,0 M 12,0 12,7 M 13,7 13,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(80,0)" d="M 0,0 0,7 M 2,7 2,0 M 6,0 6,7 M 10,7 10,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/><path transform="translate(96,0)" d="M 0,0 0,7 M 4,7 4,0 M 6,0 6,7 M 7,7 7,0 M 8,0 8,7 M 10,7 10,0 M 11,0 11,7 M 12,7 12,0 M 14,0 14,7" style="stroke:#0000ff;stroke-width:1"/></g>')
         self.assertEquals(x, 111)
+
+
+class QRCodeTests(BaubleTestCase):
+    path = '<path stroke="#000" class="pyqrline" d="M0 0.5h7m1 0h3m1 0h1m1 0h7m-21 1h1m5 0h1m2 0h2m3 0h1m5 0h1m-21 1h1m1 0h3m1 0h1m3 0h1m3 0h1m1 0h3m1 0h1m-21 1h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1m-21 1h1m1 0h3m1 0h1m3 0h2m2 0h1m1 0h3m1 0h1m-21 1h1m5 0h1m2 0h1m1 0h1m2 0h1m5 0h1m-21 1h7m1 0h1m1 0h1m1 0h1m1 0h7m-12 1h1m2 0h1m-11 1h1m1 0h3m1 0h2m3 0h1m3 0h1m2 0h1m-18 1h2m2 0h2m3 0h1m1 0h2m3 0h2m-21 1h5m1 0h1m1 0h1m3 0h4m1 0h4m-21 1h4m1 0h1m2 0h2m1 0h2m2 0h2m2 0h1m-20 1h2m3 0h2m1 0h3m4 0h1m1 0h1m1 0h2m-13 1h1m1 0h3m4 0h1m2 0h1m-21 1h7m2 0h2m5 0h2m1 0h2m-21 1h1m5 0h1m1 0h3m1 0h1m1 0h1m4 0h1m-20 1h1m1 0h3m1 0h1m1 0h1m1 0h2m2 0h1m1 0h2m1 0h2m-21 1h1m1 0h3m1 0h1m2 0h1m4 0h2m3 0h1m-20 1h1m1 0h3m1 0h1m1 0h1m3 0h2m1 0h1m2 0h1m1 0h1m-21 1h1m5 0h1m2 0h3m1 0h5m1 0h1m-20 1h7m3 0h1m2 0h3m2 0h3"/>'
+    def test_can_get_qr_as_string(self):
+        g = add_qr(0, 0, 'test')
+        parts = g.split('\n')
+        self.assertEquals(len(parts), 1)
+        self.assertEquals(parts[0], self.path)
+
+    def test_can_get_qr_as_string_translated(self):
+        g = add_qr(30, 10, 'test')
+        parts = g.split('\n')
+        self.assertEquals(len(parts), 3)
+        self.assertEquals(parts[0], '<g transform="translate(30,10)">')
+        self.assertEquals(parts[1], self.path)
+        self.assertEquals(parts[2], '</g>')

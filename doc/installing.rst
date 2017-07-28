@@ -4,11 +4,21 @@ Installation
 ghini.desktop is a cross-platform program and it will run on unix machines
 like GNU/Linux and MacOSX, as well as on Windows.
 
-.. admonition:: one-liner for hurried Linux users.
+.. admonition:: one-liner for hurried users.
    :class: note
 
-           Download and run `the installation script <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
+           Linux users just download and run `the installation script
+           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
            You may read the documentation later.
+
+           Windows users, start downloading all external dependencies (`git
+           <Direct link to download git_>`_, `Python <Direct link to
+           download Python_>`_, `lxml <Direct link to download lxml_>`_,
+           `PyGTK <Direct link to download PyGTK_>`_, `psycopg2 <Direct link
+           to download psycopg2_>`_), read the instructions in the
+           meanwhile.
+
+           Mac users are never in a hurry, are they?
 
 Ghini is maintained by very few people, who focus on enhancing its
 functional parts, more than on writing fancy installers. Instead of several
@@ -179,28 +189,16 @@ The rest is just as on a normal unix machine. Read the above GNU/Linux instructi
 Installing on Windows
 ---------------------
 
-The current maintainer of ghini.desktop has no interest in learning how to
-produce Windows installers, so the Windows installation is here reduced to
-the same installation procedure as on Unix (GNU/Linux and MacOSX).
-
-Please report any trouble. Help with packaging will be very welcome, in
-particular by other Windows users.
-
 The steps described here instruct you on how to install Git, Gtk, Python,
 and the python database connectors. With this environment correctly set up,
 the Ghini installation procedure runs as on GNU/Linux. The concluding steps are
 again Windows specific.
 
-.. note:: Ghini has been tested with and is known to work on W-XP, W-7 and
-   W-8. Although it should work fine on other versions Windows it has not
+.. note:: Ghini has been tested with and is known to work on W-XP, W-7 up to
+   W-10. Although it should work fine on other versions Windows it has not
    been thoroughly tested.
 
-.. note:: Direct download links are given for all needed components. They
-          have been tested in September 2015, but things change with
-          time. If any of the direct download links stops working, please
-          ring the bell, so we can update the information here.
-
-.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/Git-2.10.0-32-bit.exe
+.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.13.3.windows.1/Git-2.13.3-32-bit.exe
 .. _Direct link to download Python: https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
 .. _Direct link to download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
 .. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
@@ -209,92 +207,92 @@ again Windows specific.
 The installation steps on Windows:
 
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
-   ``vi``) from:
-
-     https://git-scm.com/download/win
-
-   `Direct link to download git`_
+   ``vi``). Grab it from `the Git download area <https://git-scm.com/download/win>`_.
 
    all default options are fine, except we need git to be executable from
    the command prompt:
 
    .. image:: images/screenshots/git3.png
 
-#. download and install Python 2.x (32bit) from:
+#. download and install Python 2.x (32bit). Grab it from the `Python
+   official site <http://www.python.org>`_.
 
-     http://www.python.org
-
-   `Direct link to download Python`_
-
-   Ghini has been developed and tested using Python 2.x.  It will
-   definitely **not** run on Python 3.x.  If you are interested in helping
-   port to Python 3.x, please contact the Ghini maintainers.
-
-   when installing Python, do put Python in the PATH:
+   When installing Python, do put Python in the PATH:
 
    .. image:: images/screenshots/python3.png
 
-#. download ``pygtk`` from the following source. (this requires 32bit
-   python). be sure you download the "all in one" version:
+#. download ``pygtk`` from `the official source
+   <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/>`_. (this requires
+   32bit python). be sure you download the "all in one" version.
 
-     http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
-
-   `Direct link to download PyGTK`_
-
-   make a complete install, selecting everything:
+   Make a complete install, selecting everything:
 
    .. image:: images/screenshots/pygtk1.png
 
-#. (Possibly necessary, maybe superfluous) install lxml, you can grab this from:
-
-    https://pypi.python.org/pypi/lxml/3.4.4
+#. (Possibly necessary, maybe superfluous) install lxml, you can grab this
+   from `the pypi archives <https://pypi.python.org/pypi/lxml/3.4.4>`_
 
    Remember you need the 32 bit version, for Python 2.7.
 
-   `Direct link to download lxml`_
+   .. note
+      On some systems, lxml was necessary to avoid the following error::
 
-   On some systems, lxml was necessary to avoid the following error::
+        Building without Cython.
+        ERROR: 'xslt-config' is not recognized as an internal or external command,
+        operable program or batch file.
 
-    Building without Cython.
-    ERROR: 'xslt-config' is not recognized as an internal or external command,
-    operable program or batch file.
+      If you skip this step and can confirm you get the error, please inform us.
 
-   If you skip this step and can confirm you get the error, please inform us.
-
-#. (optional) download and install a database connector other than
+#. (definitely optional) download and install a database connector other than
    ``sqlite3``.
 
-   On Windows, it is NOT easy to install ``psycopg2`` from sources, using
-   pip, so "avoid the gory details" and use a pre-compiled pagkage from:
-
-   http://initd.org/psycopg/docs/install.html
-
-   `Direct link to download psycopg2`_
+   If you plan using PostgreSQL, the best Windows binary library for Python is
+   `psycopg and is Made in Italy <http://initd.org/psycopg/docs/install.html>`_.
+   
 
 #. **REBOOT**
 
    hey, this is Windows, you need to reboot for changes to take effect!
 
-#. download and run (from ``\system32\cmd.exe``) the batch file:
+#. We're done with the dependecies, now we can download and run the batch file:
 
-    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.bat
+   `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.bat>`_
 
-   right before you hit the enter key to run the script, your screen might
-   look like something like this:
+   Please don't just follow the above link.  Instead: right click, save link as...
+
+   .. image:: images/windows-save_link_as.png
+
+   Also make sure you don't let Windows convert the script to a text document.
+
+   .. image:: images/windows-save_as_type.png
+
+   Now **Open** the script to run it.  Please note: in the below image, we
+   have saved the file twice, once letting Windows convert it to a text
+   document, and again as a Windows Batch File.  Opening the batch file will
+   run the script.  Opening the text document will show you the code of the
+   batch file, which isn't going to lead us anywhere.
+
+   .. image:: images/windows-bat_vs_txt.png
+
+   If you installed everything as described here, the first thing you should
+   see when you start the installation script is a window like this, and
+   your computer will be busy during a couple of minutes, showing you what
+   it is doing.
 
    .. image:: images/screenshots/sys32cmd-1.png
 
-   this will pull the ``ghini.desktop`` repository on github to your home
-   directory, under ``Local\github\Ghini``, checkout the ``ghini-1.0``
-   production line, create a virtual environment and install ghini into it.
+   Running ``devinstall.bat`` will pull the ``ghini.desktop`` repository from
+   github to your home directory, under ``Local\github\Ghini``, checkout the
+   ``ghini-1.0`` production line, create a virtual environment and install
+   ghini into it.
 
-   you can also run ``devinstall.bat`` passing it as argument the numerical
+   You can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
 
-   this is the last installation step that depends, heavily, on a working
+   This is the last installation step that depends, heavily, on a working
    internet connection.
 
-   the operation can take several minutes to complete, depending on the
+   The operation can take several minutes to complete, depending on the
    speed of your internet connection.
 
 #. the last installation step creates the Ghini group and shortcuts in the
@@ -317,13 +315,12 @@ The installation steps on Windows:
    newer ghini release within your chosen production line.
 
    any time you want to update your installation, just start the command
-   prompt and run ``ghini-update.bat``
+   prompt and run ``ghini-update.bat``, it will hardly take one minute.
 
-If you would like to generate and print PDF reports using Ghini's
-default report generator then you will need to download and install
-`Apache FOP <http://xmlgraphics.apache.org/fop/>`_. After extracting
-the FOP archive you will need to include the directory you extracted
-to in your PATH.
+If you would like to generate and print PDF reports using Ghini's default
+report generator then you will need to download and install `Apache FOP
+<http://xmlgraphics.apache.org/fop/>`_.  After extracting the FOP archive
+you will need to include the directory you extracted to in your PATH.
 
 .. rubric:: Next...
 
