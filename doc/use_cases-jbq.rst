@@ -143,11 +143,9 @@ technical
          quotes.
 
          +-----------------------+------------------------+
-         | Número en la etiqueta | Texto para la búsqueda |
-         |                       |                        |
+         | Number on the label   | corresponding search   |
          +-----------------------+------------------------+
-         | 16489                 | “016489”               |
-         |                       |                        |
+         | 16489                 | '016489'               |
          +-----------------------+------------------------+
 
          Please note: when you look for a Plant code, not an Accession, the
@@ -614,7 +612,7 @@ Let the database fit the garden
 
          Labels come for us in two flavours: (1) either new plants just
          being acquired by the garden; (2) or plants in the garden, found
-         without a label. We disinguish the two cases by adding a 'ret'
+         without a label. We distinguish the two cases by adding a 'ret'
          extra text for relabeled plants.
 
 - Our workflow includes moving plants around in the garden, keep track of
