@@ -1,7 +1,7 @@
-Jardín Botánico de Quito
+Quito Botanical Garden
 ==================================================
 
-At the JBQ, Jardín Botánico de Quito, we have adopted the Ghini software in
+At the JBQ, Quito Botanical Garden, we have adopted the Ghini software in
 April 2015. Since that time, we have accumulated experience with the
 program, and we are ourselves in need to document it, in order to secure the
 knowledge to the institution. We are happy to share it.
@@ -61,7 +61,9 @@ technical
 
          |100000000000063F00000383F7EAFB008DE6E4E2_png|
 
-         En la parte del lado se puede observar un resumen de todas las plantas registradas.
+         The table in the right half of the screen presents a summary of all
+         the registered plants can be observed.  Each entry printed in bold
+         is a link to the query selecting the corresponding objects.
 
          |100000000000018700000173222371085C3C68FE_png|
 
@@ -72,18 +74,19 @@ technical
 
          |100000000000018700000173222371085C3C68FF_png|
 
-         En la parte superior de esta pantalla se puede encontrar el campo para
-         ingresar nombres que desea buscar.
+         At the top of this screen you can find the field in which you would
+         enter your searches.
 
          |10000000000006090000001FA253BB9470AD4994_png|
 
-         - Con el botón |100000000000001C00000020F4C7873186014F2F_png|, en forma de
-           casa, puede regresar de sus busquedas a la pantalla principal.
-         - Con el botón |100000000000001B000000207EC6F9075C9D3669_png|, en forma de
-           flecha, puede regresar a su ultima búsqueda.
-         - Con el botón |100000000000001C0000001FB8A1F75F7A5EF877_png|, en forma de
-           engranaje, puede usar el “Query Builder”, con que se puede desarollar una
-           búsqueda más compleja en una manera más simple.
+         - With the |100000000000001C00000020F4C7873186014F2F_png| button,
+           in the form of a house, you can return from your searches to the
+           main screen.
+         - With the |100000000000001B000000207EC6F9075C9D3669_png| button,
+           in the form of an arrow, you can return to your last search.
+         - With the |100000000000001C0000001FB8A1F75F7A5EF877_png| button,
+           in the form of a gear, you can start the "Query Builder", which
+           helps you compose complex searchs in a simple, graphical way.
 
 
 - We often have volunteers who only work at the garden for a very short
@@ -119,12 +122,12 @@ technical
   ..  admonition:: search fails with error
       :class: toggle
 
-         Algunas veces sin causa aparente, cuando se hace una búsqueda no se
-         ejecuta por completo y puede mostrarse una ventana con un mensaje. En
-         este caso solo se tiene que intentar realizar la misma búsqueda
-         nuevamente.
+         Sometimes and without any apparent cause, a search will not run
+         successfully, and a window with an error message will be
+         displayed. In this case you only have to try to perform the same
+         search again.
 
-         Un ejemplo de una ventana de un mensaje error:
+         An example of such an error message:
 
          |10000000000002140000014D050A059AC7EE948A_png|
 
@@ -178,16 +181,17 @@ technical
 
          |10000000000000FE00000065C64D791B5CA0099D_png|
 
-         Si quieres averiguar los detalles de la conexión, haz clic en el símbolo ▶
-         al lado de 'Connection Details', ese cambiará en ▼, y la ventana de conexión
-         se mostrará como una de las siguientes:
+         If you want to review the details of the connection, click on the ▶
+         next to 'Connection Details', it will change to ▼, and the
+         connection window will be displayed as one of the following:
 
          ============================================== ============================================== ==============================================
          |100000000000012F000001A611615FB62F2D003B_png| |100000000000012F000001A611615FB62F2D003D_png| |100000000000012F000001A611615FB62F2D003C_png|
          ============================================== ============================================== ==============================================
 
-         Como puedes ver, estamos conectándonos al mismo servidor de bases de datos,
-         cada conexión se apoya a la misma base de datos, pero con usuario diferente.
+         As you can see, we are connecting to the same database server, each
+         connection uses the same database on the server, but with different
+         user.
 
   ..  admonition:: thinking further about it
       :class: toggle
@@ -633,29 +637,23 @@ Let the database fit the garden
   ..  admonition:: Details
       :class: toggle
 
-         Cada año el jardín botánico tiene que entregar un informe (informe
-         anual de manejo y mantenimiento de colección de orquideas) que
-         tiene la información del banco de datos y sobre eso las plantas
-         registradas.
+         Each year the botanic garden has to submit a report (annual report
+         of management and maintenance of orchids collection) complying to
+         the requirements of the Ecuadorian Ministry of the Environment.
 
-         Para realizar eso, solo se pone esto en el campo de entregar en el
-         banco de datos::
-
-           genus where species.accessions._created between |datetime|2017,1,1| and |datetime|2018,1,1|
-
-         or::
+         To this end, we start selecting the plants we have to include in the report. It might be all acquisition in the past year::
 
            accession where _created between |datetime|2017,1,1| and |datetime|2018,1,1|
 
-         (tienes que adaptarse el año)
+         or all plants within a location, or all plants belonging to a
+         species, or just everything (but this will take time)::
+
+           plant where location = 'abc'
+           plant where accession.species.epithet='muricata' and accession.species.genus.epithet='Annona'
+           plant like %
 
          Having selected the database objects which we want in the report,
          we start the report tool, which acts on the selection.
-
-Información del banco de datos
-----------------------------------------------------------------------------
-
-Para buscar algo en el campo de entregar, siempre recuerde de usar comillas!
 
 5. Buscar plantas en la base de datos
 ----------------------------------------------------------------------------
