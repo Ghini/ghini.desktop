@@ -266,10 +266,18 @@ The installation steps on Windows:
 
    .. image:: images/windows-save_as_type.png
 
-   .. |windows-cmd| image:: images/windows-cmd.png
+   Now **Open** the script to run it.  Please note: in the below image, we
+   have saved the file twice, once letting Windows convert it to a text
+   document, and again as a Windows Batch File.  Opening the batch file will
+   run the script.  Opening the text document will show you the code of the
+   batch file, which isn't going to lead us anywhere.
 
-   Now start |windows-cmd| to run the script.  Right before you hit the enter
-   key to run the script, your screen might look like something like this:
+   .. image:: images/windows-bat_vs_txt.png
+
+   If you installed everything as described here, the first thing you should
+   see when you start the installation script is a window like this, and
+   your computer will be busy during a couple of minutes, showing you what
+   it is doing.
 
    .. image:: images/screenshots/sys32cmd-1.png
 
@@ -278,13 +286,13 @@ The installation steps on Windows:
    ``ghini-1.0`` production line, create a virtual environment and install
    ghini into it.
 
-   you can also run ``devinstall.bat`` passing it as argument the numerical
+   You can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
 
-   this is the last installation step that depends, heavily, on a working
+   This is the last installation step that depends, heavily, on a working
    internet connection.
 
-   the operation can take several minutes to complete, depending on the
+   The operation can take several minutes to complete, depending on the
    speed of your internet connection.
 
 #. the last installation step creates the Ghini group and shortcuts in the
