@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2017-06-26 21:25+0000\n"
+"PO-Revision-Date: 2017-07-28 16:56+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/ghini/desktop-11/es/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.15-dev\n"
+"X-Generator: Weblate 2.16-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -2734,7 +2734,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:2527
 #: bauble/plugins/garden/accession.py:2588
 msgid "Source"
-msgstr "Origen"
+msgstr "Fuente"
 
 #: bauble/plugins/garden/acc_editor.glade:1412
 msgid "Source's ID"
@@ -3824,7 +3824,7 @@ msgstr ""
 
 #: bauble/plugins/tag/tag.glade:458
 msgid "description"
-msgstr ""
+msgstr "descripción"
 
 #: bauble/plugins/plants/infoboxes.glade:1751
 msgid "edit stored queries"
