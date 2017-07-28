@@ -499,7 +499,7 @@ Let the database fit the garden
 
          |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
-  ..  admonition:: new plant
+  ..  admonition:: new plant entering the garden
       :class: toggle
 
          This activity starts with a new Plant, just acquired from a known
