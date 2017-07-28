@@ -326,7 +326,7 @@ else:
   <g transform="scale(3.543)translate(7,14)translate(${xpos*49},${ypos*15})">
     <path d="M 0,0 49,0 49,15 0,15 z" style="fill:none;stroke:#ff0000;stroke-width:0.1" />
 <% unit = 2.65 / len(full_code + '!!') %>\
-<% text, x, y = add_text(33, 7.5, full_code, 0.22, align=1, strokes=2) %>\
+<% text, x, y = add_text(33, 7.5, full_code, 0.20, align=1, strokes=2) %>\
     ${text}
 % if options['extra_text']:
 <% text, _, y = add_text(33, 13, options['extra_text'], 0.12, align=1) %>\
