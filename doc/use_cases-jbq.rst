@@ -1082,7 +1082,7 @@ ultima vez.
 
 .. |dontpanic_png| image:: images/dontpanic.png
 
-.. |green_ball| image:: images/green_ball.png
+.. |green_ball| image:: images/green_ball.jpg
 
 .. |loose_png| image:: images/windows-key.png
    :width: 28px
