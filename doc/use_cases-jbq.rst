@@ -698,8 +698,7 @@ search field
 
 and you hope to see your result in the search result view.
 
-
-  ..  admonition:: search in order to edit
+  ..  admonition:: search in order to edit (plant or accession)
       :class: toggle
 
          When searching in order to edit, you want to be very specific, and select as
@@ -710,7 +709,7 @@ and you hope to see your result in the search result view.
 
          .. image:: images/plant-017701-not_found.png
 
-         For example, plant ``007701.1`` is in the database:
+         Other example, plant ``007701.1`` is in the database:
 
          .. image:: images/plant-007701-found.png
 
@@ -723,6 +722,9 @@ and you hope to see your result in the search result view.
 
          .. image:: images/plant-007701-accession.png
 
+         We now have both Plant or Accession in the search result view and
+         we can now edit either or both.
+
   ..  admonition:: search in order to report
       :class: toggle
 
@@ -730,10 +732,45 @@ and you hope to see your result in the search result view.
          specific (you don't want to report about irrelevant objects) and
          broad (you don't want to report about a single object).
 
-         The best way to achieve this is to work with **Tags**.
+         Sometimes the report itself suggests the query, as for example: all
+         plants in greenhouse 3; or: all plants belonging to endangered
+         species (we store this information in a note associated to the
+         species); or: all plants added to the collection this year; ::
 
+           plant where location.code = INV3
+           plant where accession.species.notes.note="endangered"
+           plant where accession._created > |datetime|2017,1,1|
 
+         Otherwise a flexible way to achieve this is to work with **Tags**.
 
+  ..  admonition:: using **Tags** as enhanced searching
+      :class: toggle
+
+         Sometimes we have to take the same action on objects of the same
+         type, but we don't manage to quickly think of a search query that
+         would group all that we need and exclude all we do not need.
+
+         This is one possible use of **Tags**.  We start with a selection,
+         we tag all objects in the selection under a new temporary
+         tag. Let's say we call it "temporary".
+
+         We continue searching and adding objects to the temporary tag until
+         the tag identifies all that we need.
+
+         Finally from the Tags menu we select the one we just created (in
+         our example this corresponds to the search ``tag="temporary"``) and
+         we can invoke the report.
+
+         When we're done with a temporary tag, there's no point in leaving
+         it around, so we just delete it.
+
+         .. image:: images/tag-delete.png
+
+  ..  admonition:: be aware of the available search strategies
+      :class: toggle
+
+         This is nicely documented, "più non dimandare" and `read the docs
+         <searching.html>`_.
 
 9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo número
 --------------------------------------------------------------------------------------
