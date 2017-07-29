@@ -652,8 +652,45 @@ Let the database fit the garden
 - Our workflow includes moving plants around in the garden, keep track of
   current locations and history of movements.
 
-  ..  admonition:: Details
+  ..  admonition:: ex-post correction
       :class: toggle
+
+         While revising the garden, we find a plant at a location that is not what
+         the database says.  We update the database information.
+
+         For example, the plant belonging to accession “012142”, species “*Acineta*
+         sp”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
+
+         All we do is find the Plant in the database and update its information.  We
+         do not chang anything in the initial Accession information, just the current
+         Plant information.
+
+         We type the accession code in the search entry field, with quotes, hit
+         enter. The search results now shows the accession, and it tells us how many
+         plants belong to it.  Click on the squared **+** in the results row, so we
+         now also see a row for the plant belonging to the accession.
+
+         Right click on the Plant row, the three options will show: “Edit, Split,
+         Delete”, select Edit, you land in the Plant Editor.
+
+         Just correct the Location field, and click on OK.
+
+         Tambien se puede ver en “Properties” cuando esta accesión fue cambiada la
+         ultima vez.
+
+         |1000000000000608000002D2BA2D181475D5AD7B_png|
+
+  ..  admonition:: planned action
+      :class: toggle
+
+         The action starts by moving the plants around, and collecting the
+         plant code either on paper, or in our mobile app, if we had one.
+
+         We then go to the desktop terminal and revise all plants one by one
+         changing their location in the database.
+
+         If we had a mobile app, we would just upload the info to the server
+         and we would be done.
 
 - As plants enter the flowering stage, we can review their identification
   directly, or we take pictures of details of the flower, hoping that a
@@ -848,31 +885,6 @@ en
 
 10. Cambiar el lugar de una planta en el banco de datos
 ----------------------------------------------------------------------------
-
-While revising the garden, we find a plant at a location that is not what
-the database says.  We update the database information.
-
-For example, the plant belonging to accession “012142”, species “*Acineta*
-sp”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
-
-All we do is find the Plant in the database and update its information.  We
-do not chang anything in the initial Accession information, just the current
-Plant information.
-
-We type the accession code in the search entry field, with quotes, hit
-enter. The search results now shows the accession, and it tells us how many
-plants belong to it.  Click on the squared **+** in the results row, so we
-now also see a row for the plant belonging to the accession.
-
-Right click on the Plant row, the three options will show: “Edit, Split,
-Delete”, select Edit, you land in the Plant Editor.
-
-Just correct the Location field, and click on OK.
-
-Tambien se puede ver en “Properties” cuando esta accesión fue cambiada la
-ultima vez.
-
-|1000000000000608000002D2BA2D181475D5AD7B_png|
 
 .. |10000000000006090000001FA253BB9470AD4994_png| image:: images/10000000000006090000001FA253BB9470AD4994.png
     :width: 470px
