@@ -39,12 +39,12 @@ technical
          don't need do anything in this window, just press enter and get
          into the main program screen.
 
+         |10000000000001290000011FEE16D735EB3DBF67_png| 
+
          Occasionally, at the top of the screen an information text will
          appear, telling you that a newer version is available on-line.
 
-         ============================================== ==============================================
-         |10000000000001290000011FEE16D735EB3DBF67_png| |10000000000001290000011FEE16D735EB3DBF66_png|
-         ============================================== ==============================================
+         |10000000000001290000011FEE16D735EB3DBF66_png|
 
          The update procedure is simple, and it depends on the operating
          system you use, we're not explaining here again.
