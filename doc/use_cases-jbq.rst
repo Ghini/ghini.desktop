@@ -531,7 +531,7 @@ Let the database fit the garden
 
          |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
-  ..  admonition:: new plant entering the garden
+  ..  admonition:: new accession: plant just entering the garden
       :class: toggle
 
          This activity starts with a new Plant, just acquired from a known
@@ -564,8 +564,9 @@ Let the database fit the garden
       :class: toggle
 
          When this happens, we can't be sure the plant had never been in the
-         collection, so we act as if we were re-labeling the plant. This is
-         described in the next section.
+         collection, so we act as if we were re-labeling the plant.  This is
+         discussed in the next section, but we fall back to the case of a
+         new accession.
 
 - When we physically associate a label to a plant, there's always the chance
   that something happens either to the plant (it may die) or to the label
@@ -597,20 +598,15 @@ Let the database fit the garden
   ..  admonition:: we find a plant without a label
       :class: toggle
 
-         we can't be sure the plant had been in the collection or not.  We
-         assume it was, and that its label was lost.
+         We can't be sure the plant had ever been in the collection or not.
+         We assume it had, and that its label was lost.
 
-         Losing a plant label is unfortunate, but it just regularly happens.
+         Losing a plant label is unfortunate, but it just sometimes happens.
          What we do is to put a new label to the plant, and to clearly state
-         that the label is a replacement of an original one.  We then handle
-         the case as if it was a new accession, plus we add a note to the
-         accession, category “label”, text “relabeled”.
+         that the label is a replacement of an original one.  
 
-         We work with plastified paper labels, prepare them in batches of 72
-         (what fits on a A4 sheet), and keep them in a dedicated box.
-
-         Just tie the new label to the plant, and proceed as one of the
-         above cases.
+         We then handle the case as if it was a new accession, plus we add a
+         note to the accession, category “label”, text “relabeled”.
 
 - producing or reproducing labels
 
@@ -638,9 +634,9 @@ Let the database fit the garden
       :class: toggle
 
          To prepare the batch of 72 labels, we use a mako report template,
-         named accession-label.svg.  This template accepts parameters, this
-         is an example that would produce labels from 025801 all the way
-         to 025872.
+         named ``accession-label.svg``.  This template accepts parameters,
+         this is an example that would produce labels from 025801 all the
+         way to 025872.
 
          .. image:: images/label-batch_72.png
 
@@ -648,6 +644,8 @@ Let the database fit the garden
          being acquired by the garden; (2) or plants in the garden, found
          without a label. We distinguish the two cases by adding a 'ret'
          extra text for relabeled plants.
+
+         We keep two boxes with labels of the two types, ready to be used.
 
 - Our workflow includes moving plants around in the garden, keep track of
   current locations and history of movements.
@@ -809,79 +807,6 @@ and you hope to see your result in the search result view.
          This is nicely documented, "più non dimandare" and `read the docs
          <searching.html>`_.
 
-9. Añadir un nuevo nombre de una especie al banco de datos y añadir un nuevo número
---------------------------------------------------------------------------------------
-
-Si se encuentra una planta y se identifica la especie pero no es parte del
-banco de datos y tampo posee un código.
-
-En el siguiente ejemplo, la planta encontrada fue identificada como Lepanthes alopex.
-
-Si no se sabe la especie, se puede ingresar con la especie “Zzz sp”
-
-Se puede asignar a la nueva planta un código o una accesión (6 números)
-
-|1000000000000152000001B12C2FDE60BD2B710B_png|
-
-Se encontro que la planta de ejemplo es de especie *Lepanthes alopex*,
-si se busca en el banco de datos el género lepanhtes y se nota que dentro de este género no está registrada esta especie. Se tendra que añadir como una nueva especie.
-
-Para añadir una nueva especie, dar clic derecho sobre el género Lepanthes (sombreado de rojo) y se mostraran las siguientes opciones:
-
-Edit, Add species, Delete
-
-Nunca selecionar “Delete”!!! ya que si selecciona delete se borraran todos
-los datos pertenecientes a todas especies en el género.
-
-|1000000000000293000001C3EC6A9DC0A1D0CA68_png|
-|1000000000000293000001C423766E7D365A1489_png|
-
->
-
-Al añadir el nombre de una especie nueva siempre escribir todo con minusculas, además asegurarse de que el nombre cientifico esté bien escrito.
-
-Es obligatorio añadir también el nombre del autor, y para eso se necesita buscar la nueva especie en el banco de datos online llamado Tropicos (http://tropicos.org/)
-
-Si no se puede añadir la especie, porque la especie todavía existe, el fondo
-del campo de “Species” va a estar rojo.
-
-Hacer clic en “Add accession”.  Se va a abrir la ventana llamada “Accession
-Editor”.
-
-|10000000000002F8000002432C9DDC622203371C_png|
-
-El nombre de la especie nueva está en el campo “Name” todavía.
-
-Cambiar el número del “Accession ID \*” a tu accesión.
-
-Cambiar el “Type of material” a “Plant” (Siempre!!).
-
-Cambiar el “Quantity” a “1” (Siempre!!).
-
-Cambiar el lugar de la planta a “Intended Locations” a “Location 1” al nombre del lugar.
-
-Hace clic a “Add plants”.
-
-Va a abrir el “Plant Editor”.
-
-|10000000000001FC00000188EA514D5068AE7449_png|
-
-Entrar
-en el “Plant Editor”.
-
-El número (accesión) y nombre todavía está guardado.
-
-Cambiar en
-“Quantity” a “1” (Siempre!!).
-
-Cambiar en
-“Location”
-al nombre del lugar (Siempre el mismo que entregado en el Accession editor antes!).
-
-Hacer
-clic
-en
-“Aceptar”.
 
 .. |10000000000006090000001FA253BB9470AD4994_png| image:: images/10000000000006090000001FA253BB9470AD4994.png
     :width: 470px
