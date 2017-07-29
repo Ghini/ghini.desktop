@@ -883,9 +883,6 @@ clic
 en
 “Aceptar”.
 
-10. Cambiar el lugar de una planta en el banco de datos
-----------------------------------------------------------------------------
-
 .. |10000000000006090000001FA253BB9470AD4994_png| image:: images/10000000000006090000001FA253BB9470AD4994.png
     :width: 470px
     :height: 31px
