@@ -54,12 +54,19 @@ technical
 
 - understanding ghini initial screen
 
-  ..  admonition:: Details
+  ..  admonition:: complete screen
       :class: toggle
 
          At the moment of writing, our initial screen looked like this:
 
          |100000000000063F00000383F7EAFB008DE6E4E2_png|
+
+         Apart from the main application menu, Ghini offers three special
+         interface sections with information and tools to explore the
+         database.
+
+  ..  admonition:: numeric overview
+      :class: toggle
 
          The table in the right half of the screen presents a summary of all
          the registered plants can be observed.  Each entry printed in bold
@@ -67,12 +74,18 @@ technical
 
          |100000000000018700000173222371085C3C68FE_png|
 
+  ..  admonition:: stored queries
+      :class: toggle
+
          The lower half of the right hand side contains a set of stored
          queries.  While you can edit them to your liking, our hints include
          selecting those accessions that have not been identified at rank
          species.  And one for the database history.
 
          |100000000000018700000173222371085C3C68FF_png|
+
+  ..  admonition:: query and action buttons
+      :class: toggle
 
          At the top of this screen you can find the field in which you would
          enter your searches.
