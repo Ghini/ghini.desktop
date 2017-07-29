@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-07-27 16:47-0500\n"
-"PO-Revision-Date: 2017-07-28 16:56+0000\n"
+"PO-Revision-Date: 2017-07-29 21:59+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/es/>\n"
@@ -3724,7 +3724,7 @@ msgstr "iniciar búsqueda TNRS"
 
 #: bauble/plugins/plants/infoboxes.glade:1367
 msgid "stored queries"
-msgstr "búsquedas"
+msgstr "consultas almacenadas"
 
 #: bauble/plugins/plants/species_model.py:67
 msgid "subf."
