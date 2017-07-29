@@ -123,6 +123,18 @@ commit *all* ``po`` files in the project. You may want to review the changes
 before committing them to the respository. This is most important when you
 perform a marginal correction to a string, like removing a typo.
 
+Something that happens: running into a conflict. Solving conflicts is not
+difficult once you know how to do that. First of all, add weblate as remote::
+
+  git remote add weblate-doc10 https://hosted.weblate.org/git/ghini/documentation-10/
+
+Then make sure we are in the correct repository, on the correct branch,
+update the remote, merge with it::
+
+  git checkout ghini-1.0-dev
+  git remote update
+  git merge weblate-doc10/ghini-1.0-dev
+
 `Our documentation <https://readthedocs.org/projects/ghini/>`_ on
 readthedocs has an original English version, and several translations. We
 just follow the `description of localisation
