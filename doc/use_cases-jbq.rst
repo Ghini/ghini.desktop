@@ -143,11 +143,9 @@ technical
          quotes.
 
          +-----------------------+------------------------+
-         | Número en la etiqueta | Texto para la búsqueda |
-         |                       |                        |
+         | Number on the label   | corresponding search   |
          +-----------------------+------------------------+
-         | 16489                 | “016489”               |
-         |                       |                        |
+         | 16489                 | '016489'               |
          +-----------------------+------------------------+
 
          Please note: when you look for a Plant code, not an Accession, the
@@ -292,7 +290,7 @@ taxonomy
 
          .. figure:: images/zzz-explained.svg
 
-         The current maintaner suggests to use the prefix **Zzz-** and
+         The current maintainer suggests to use the prefix **Zzz-** and
          behind the prefix to write the family name, possibly removing the
          trailing **e**.  Removal of the trailing **e** is useful in order
          not to get results that include genus names when you as for stuff
@@ -386,6 +384,40 @@ taxonomy
          We start this from the Accession window and it's very simple, just
          click on the **+** next to the species name, we get into the
          Species window.
+
+- Adding a species and using online taxonomic services
+
+  ..  admonition:: adding a new species — the plant list.
+      :class: toggle
+
+         We start the obvious way: type the genus epithet, possibly select
+         it from the completion list, then type the species epithet, or at
+         least your best guess.
+
+         .. image:: images/tpl-1-best_guess.png     
+
+         Next to the species epithet field there's a small button,
+         |green_ball|, which connects us to the plant list.  Click on it, a
+         message area appears at the top of the window.
+
+         .. image:: images/tpl-2-querying.png     
+
+         Depending on the speed of your internet connection, but also on how
+         close your best guess is to a correct published name, the top area
+         will change to something like this:
+
+         .. image:: images/tpl-3-results.png     
+
+         Accept the hint and it will be as if you had typed the data yourself.
+
+         .. image:: images/tpl-4-accepted.png     
+
+  ..  admonition:: reviewing a whole selection — TNRS.
+      :class: toggle
+
+         This is described in the manual, it's extremely useful, don't
+         forget about it.
+
 
 Let the database fit the garden
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -499,7 +531,7 @@ Let the database fit the garden
 
          |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
-  ..  admonition:: new plant
+  ..  admonition:: new plant entering the garden
       :class: toggle
 
          This activity starts with a new Plant, just acquired from a known
@@ -614,7 +646,7 @@ Let the database fit the garden
 
          Labels come for us in two flavours: (1) either new plants just
          being acquired by the garden; (2) or plants in the garden, found
-         without a label. We disinguish the two cases by adding a 'ret'
+         without a label. We distinguish the two cases by adding a 'ret'
          extra text for relabeled plants.
 
 - Our workflow includes moving plants around in the garden, keep track of
@@ -655,28 +687,50 @@ Let the database fit the garden
          Having selected the database objects which we want in the report,
          we start the report tool, which acts on the selection.
 
-5. Buscar plantas en la base de datos
-----------------------------------------------------------------------------
+Searching the database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-|10000000000000200000001FDDE6CEA3E00D1E69_png|
+You search the database in order to edit the data further, or because you
+want to produce a report. Anyway you start with typing something in the
+search field
 
-Para revisar si una planta con un número (accesión) existe dentro del
-banco de datos, se necesita el código con 6 números e ingresarlo en
-el campo de entregar. Para que el sistema reconozca la búsqueda, el número
-tiene que estar en comillas “ ”. Para confirmar la búsqueda oprime “Enter” o
-haga clic a el botón de búsqueda.
+|10000000000006090000001FA253BB9470AD4994_png|
 
-Si la planta se encuentra en el banco de datos, se mostrara una ventana en
-la parte inferior con los datos de la planta.
+and you hope to see your result in the search result view.
 
-|100000000000028900000046F4A2086237E713D3_png|
 
-Si la planta no se encuentra en el banco de datos, se mostrara en la parte
-inferior una ventana con el siguiente mensaje
+  ..  admonition:: search in order to edit
+      :class: toggle
 
-“Couldn’t find anything for search.”
+         When searching in order to edit, you want to be very specific, and select as
+         few objects as possible. The most fine-tuned search is the one based on
+         plant number: you know the code, you get one object.
 
-|10000000000001FA0000004653A7D7D565338235_png|
+         If your plant is not there, the screen would look like this:
+
+         .. image:: images/plant-017701-not_found.png
+
+         For example, plant ``007701.1`` is in the database:
+
+         .. image:: images/plant-007701-found.png
+
+         All fields with a darker background in the infobox on the right
+         hand side are hyperlinks to other objects in the database. Clicking
+         on them will either replace the text in the search field and
+         execute the query, or will simply add the object to the results.
+
+         Clicking on the accession does the latter.
+
+         .. image:: images/plant-007701-accession.png
+
+  ..  admonition:: search in order to report
+      :class: toggle
+
+         When searching in order to create a report, you want to be both
+         specific (you don't want to report about irrelevant objects) and
+         broad (you don't want to report about a single object).
+
+         The best way to achieve this is to work with **Tags**.
 
 
 
@@ -990,6 +1044,8 @@ ultima vez.
     :height: 2.533cm
 
 .. |dontpanic_png| image:: images/dontpanic.png
+
+.. |green_ball| image:: images/green_ball.png
 
 .. |loose_png| image:: images/windows-key.png
    :width: 28px
