@@ -39,12 +39,12 @@ technical
          don't need do anything in this window, just press enter and get
          into the main program screen.
 
+         |10000000000001290000011FEE16D735EB3DBF67_png| 
+
          Occasionally, at the top of the screen an information text will
          appear, telling you that a newer version is available on-line.
 
-         ============================================== ==============================================
-         |10000000000001290000011FEE16D735EB3DBF67_png| |10000000000001290000011FEE16D735EB3DBF66_png|
-         ============================================== ==============================================
+         |10000000000001290000011FEE16D735EB3DBF66_png|
 
          The update procedure is simple, and it depends on the operating
          system you use, we're not explaining here again.
@@ -686,10 +686,15 @@ Let the database fit the garden
 
          Just correct the Location field, and click on OK.
 
-         Tambien se puede ver en “Properties” cuando esta accesión fue cambiada la
-         ultima vez.
+         The InfoBox contains information about the last change to the
+         object:
 
          |1000000000000608000002D2BA2D181475D5AD7B_png|
+
+         For plants, even more interesting, it builds a history of changes,
+         list that includes Location changes, or Quantity changes.
+
+         .. image:: images/1000000000000608000002D2BA2D181475D5AD7C.png
 
   ..  admonition:: planned action
       :class: toggle

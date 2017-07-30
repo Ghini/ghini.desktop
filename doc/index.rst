@@ -31,8 +31,8 @@ Installing Ghini
    installing
 
 
-Using Guide
-============
+User's Guide
+=============
 
 .. toctree::
    :maxdepth: 2
@@ -55,7 +55,7 @@ Cookbook
    
 
 Administration
-==============
+===============
 
 .. toctree::
    :maxdepth: 2
