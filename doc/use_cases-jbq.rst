@@ -686,10 +686,15 @@ Let the database fit the garden
 
          Just correct the Location field, and click on OK.
 
-         Tambien se puede ver en “Properties” cuando esta accesión fue cambiada la
-         ultima vez.
+         The InfoBox contains information about the last change to the
+         object:
 
          |1000000000000608000002D2BA2D181475D5AD7B_png|
+
+         For plants, even more interesting, it builds a history of changes,
+         list that includes Location changes, or Quantity changes.
+
+         .. image:: images/1000000000000608000002D2BA2D181475D5AD7C.png
 
   ..  admonition:: planned action
       :class: toggle
