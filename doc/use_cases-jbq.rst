@@ -276,7 +276,7 @@ taxonomy
 
 - identifying at rank Genus, or Family
 
-  ..  admonition:: Details
+  ..  admonition:: rank genus
       :class: toggle
 
          Ghini-1.0 prescribes that an accession is identified at rank
@@ -296,6 +296,9 @@ taxonomy
 
          .. figure:: images/genus_sp-explained.svg
 
+  ..  admonition:: rank family
+      :class: toggle
+
          If an accession is only identified at rank family, we need a
          fictive genus, to which we can add the fictive species. Since our
          garden is primarily focusing on Orchidaceae, we use the very short
@@ -310,6 +313,10 @@ taxonomy
          ending in **aceae**.  In practice, we have a **Zzz** genus in the
          Orchidaceae family, and in the other 6 families represented in our
          digital collection, we follow this suggested practice.
+
+         Remember: our **Zzz** genus is a fictive genus in the
+         **Orchidaceae** family, do not use it as unspecified genus in other
+         families.
 
 - identifying at a rank that is not allowed by the software (eg: Subtribe, or Subfamily)
 
