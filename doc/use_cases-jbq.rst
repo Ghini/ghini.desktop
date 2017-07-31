@@ -276,7 +276,7 @@ taxonomy
 
 - identifying at rank Genus, or Family
 
-  ..  admonition:: rank genus
+  ..  admonition:: at rank genus
       :class: toggle
 
          Ghini-1.0 prescribes that an accession is identified at rank
@@ -296,7 +296,7 @@ taxonomy
 
          .. figure:: images/genus_sp-explained.svg
 
-  ..  admonition:: rank family
+  ..  admonition:: at rank family
       :class: toggle
 
          If an accession is only identified at rank family, we need a
@@ -320,7 +320,7 @@ taxonomy
 
 - identifying at a rank that is not allowed by the software (eg: Subtribe, or Subfamily)
 
-  ..  admonition:: subtribe
+  ..  admonition:: at rank subtribe
       :class: toggle
 
          We sometimes can't identify a taxon at rank genus, but we do manage
@@ -351,7 +351,7 @@ taxonomy
          We are very much looking forward to seeing that `issue-9
          <https://github.com/Bauble/bauble.classic/issues/9>`_ solved!
 
-  ..  admonition:: subfamily, tribe
+  ..  admonition:: at rank subfamily, tribe
       :class: toggle
 
          Just as we reserved the prefix Zzx- for subtribe, we reserve the
