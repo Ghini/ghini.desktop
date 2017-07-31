@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2015-12-29 03:04+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/bauble/master/pl/"
@@ -980,8 +980,8 @@ msgid "Data Deficient (DD)"
 msgstr ""
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "Baza danych: "
+msgid "Database:"
+msgstr "Baza danych:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1478,7 +1478,7 @@ msgid "Horticultural Association/Garden Club"
 msgstr ""
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
+msgid "Host:"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:208
@@ -1892,8 +1892,8 @@ msgid "Other"
 msgstr ""
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Hasło: "
+msgid "Password:"
+msgstr "Hasło:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1916,12 +1916,8 @@ msgstr ""
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
-msgstr ""
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:910
@@ -3048,8 +3044,8 @@ msgid "User"
 msgstr "Użytkownik"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Użytkownik: "
+msgid "User:"
+msgstr "Użytkownik:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3772,6 +3768,9 @@ msgstr ""
 #~ msgid "Could not login to PicasaWeb account."
 #~ msgstr "Nie można zalogować się do konta PicasaWeb."
 
+#~ msgid "Database: "
+#~ msgstr "Baza danych: "
+
 #~ msgid "Enter a tag name"
 #~ msgstr "Wprowadź nazwę etykiety"
 
@@ -3797,6 +3796,9 @@ msgstr ""
 
 #~ msgid "No images"
 #~ msgstr "Brak zdjęć"
+
+#~ msgid "Password: "
+#~ msgstr "Hasło: "
 
 #~ msgid "Plant"
 #~ msgstr "Roślina"
@@ -3833,6 +3835,9 @@ msgstr ""
 
 #~ msgid "Use default filename"
 #~ msgstr "Użyj domyślnej nazwy pliku"
+
+#~ msgid "User: "
+#~ msgstr "Użytkownik: "
 
 #~ msgid "Vernacular Names"
 #~ msgstr "Nazwy potoczne"

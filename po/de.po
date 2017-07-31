@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2017-07-18 15:26+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -983,8 +983,8 @@ msgid "Data Deficient (DD)"
 msgstr ""
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "Datenbank: "
+msgid "Database:"
+msgstr "Datenbank:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1493,8 +1493,8 @@ msgid "Horticultural Association/Garden Club"
 msgstr ""
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
-msgstr "Host: "
+msgid "Host:"
+msgstr "Host:"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1920,8 +1920,8 @@ msgid "Other"
 msgstr ""
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Passwort: "
+msgid "Password:"
+msgstr "Passwort:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1944,12 +1944,8 @@ msgstr ""
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
-msgstr ""
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:910
@@ -3090,8 +3086,8 @@ msgid "User"
 msgstr ""
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Benutzer: "
+msgid "User:"
+msgstr "Benutzer:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3815,6 +3811,9 @@ msgstr ""
 #~ msgid "Could not login to PicasaWeb account."
 #~ msgstr "Konnte nicht bei PicasWeb account einloggen."
 
+#~ msgid "Database: "
+#~ msgstr "Datenbank: "
+
 #~ msgid "Enter a tag name"
 #~ msgstr "Geben Sie den Namen für den Tag ein"
 
@@ -3831,6 +3830,9 @@ msgstr ""
 
 #~ msgid "Ghini"
 #~ msgstr "Ghini"
+
+#~ msgid "Host: "
+#~ msgstr "Host: "
 
 #~ msgid "Images"
 #~ msgstr "Bilder"
@@ -3849,6 +3851,9 @@ msgstr ""
 
 #~ msgid "No images"
 #~ msgstr "Keine Bilder"
+
+#~ msgid "Password: "
+#~ msgstr "Passwort: "
 
 #~ msgid "Plant"
 #~ msgstr "Pflanze"
@@ -3870,6 +3875,9 @@ msgstr ""
 
 #~ msgid "Use default filename"
 #~ msgstr "Benutze Standard Dateiname"
+
+#~ msgid "User: "
+#~ msgstr "Benutzer: "
 
 #~ msgid "Vernacular Names"
 #~ msgstr "Trivialname"

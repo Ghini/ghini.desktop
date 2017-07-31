@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2017-07-16 12:38+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -997,8 +997,8 @@ msgid "Data Deficient (DD)"
 msgstr "Déficit de données (DD)"
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "Base de données : "
+msgid "Database:"
+msgstr "Base de données :"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1508,8 +1508,8 @@ msgid "Horticultural Association/Garden Club"
 msgstr "Association Horticoles / Garden Club"
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
-msgstr "Hôte : "
+msgid "Host:"
+msgstr "Hôte :"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1936,8 +1936,8 @@ msgid "Other"
 msgstr "Autre"
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Mot de passe : "
+msgid "Password:"
+msgstr "Mot de passe :"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1960,12 +1960,8 @@ msgstr ""
 msgid "Pictures root name occupied by non directory."
 msgstr "Photos des racines nom occupé par autre directory."
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
-msgstr "Racine de photos :"
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
 msgstr "Racine de photos :"
 
 #: bauble/plugins/garden/plant.py:910
@@ -3175,8 +3171,8 @@ msgid "User"
 msgstr "Utilisateur"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Utilisateur : "
+msgid "User:"
+msgstr "Utilisateur :"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3814,8 +3810,23 @@ msgstr ""
 #~ msgid "--"
 #~ msgstr "--"
 
+#~ msgid "Database: "
+#~ msgstr "Base de données : "
+
 #~ msgid "Do you want to save your changes to %s ?"
 #~ msgstr "Voulez-vous sauvegarder vos modifications sur %s?"
+
+#~ msgid "Host: "
+#~ msgstr "Hôte : "
+
+#~ msgid "Password: "
+#~ msgstr "Mot de passe : "
+
+#~ msgid "Pictures root: "
+#~ msgstr "Racine de photos :"
+
+#~ msgid "User: "
+#~ msgstr "Utilisateur : "
 
 #~ msgid "copy results selection to clipboard"
 #~ msgstr "sélection de résultats de copie dans le presse-papiers"

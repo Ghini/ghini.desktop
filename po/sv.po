@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -1000,8 +1000,8 @@ msgid "Data Deficient (DD)"
 msgstr ""
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "Databas: "
+msgid "Database:"
+msgstr "Databas:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1511,8 +1511,8 @@ msgid "Horticultural Association/Garden Club"
 msgstr "Hortikulturell organisation/Trädgårdsförening"
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
-msgstr "Värd: "
+msgid "Host:"
+msgstr "Värd:"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1937,8 +1937,8 @@ msgid "Other"
 msgstr "Annan"
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Lösenord: "
+msgid "Password:"
+msgstr "Lösenord:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1961,12 +1961,8 @@ msgstr ""
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
-msgstr ""
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:910
@@ -3155,8 +3151,8 @@ msgid "User"
 msgstr "Användare"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Användare: "
+msgid "User:"
+msgstr "Användare:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3982,6 +3978,9 @@ msgstr "°F"
 #~ msgid "Cutting type: %s"
 #~ msgstr "Sticklingtyp: %s"
 
+#~ msgid "Database: "
+#~ msgstr "Databas: "
+
 #~ msgid "Date planted: %s"
 #~ msgstr "Planteringsdatum: %s"
 
@@ -4024,6 +4023,9 @@ msgstr "°F"
 #~ msgid "Hormone treatment: %s"
 #~ msgstr "Hormonbehandling: %s"
 
+#~ msgid "Host: "
+#~ msgstr "Värd: "
+
 #~ msgid "Images"
 #~ msgstr "Bilder"
 
@@ -4065,6 +4067,9 @@ msgstr "°F"
 
 #~ msgid "Password"
 #~ msgstr "Lösenord"
+
+#~ msgid "Password: "
+#~ msgstr "Lösenord: "
 
 #~ msgid "Picasa"
 #~ msgstr "Picasa"
@@ -4158,6 +4163,9 @@ msgstr "°F"
 
 #~ msgid "Use default filename"
 #~ msgstr "Använd standardfilnamn"
+
+#~ msgid "User: "
+#~ msgstr "Användare: "
 
 #~ msgid "Vernacular Names"
 #~ msgstr "Trivialnamn"

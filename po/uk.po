@@ -8,17 +8,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2017-07-28 15:39+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
-"Language-Team: Ukrainian "
-"<https://hosted.weblate.org/projects/ghini/desktop-10/uk/>\n"
+"Language-Team: Ukrainian <https://hosted.weblate.org/projects/ghini/"
+"desktop-10/uk/>\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
-"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 2.16-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:23+0000\n"
 "X-Poedit-Basepath: ../\n"
@@ -1003,8 +1003,8 @@ msgid "Data Deficient (DD)"
 msgstr "Даних недостатньо (DD)"
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "База даних: "
+msgid "Database:"
+msgstr "База даних:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1510,8 +1510,8 @@ msgid "Horticultural Association/Garden Club"
 msgstr "Садівнича Асоціація/Садовий Клуб"
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
-msgstr "Хост: "
+msgid "Host:"
+msgstr "Хост:"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1933,8 +1933,8 @@ msgid "Other"
 msgstr "Інше"
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Пароль: "
+msgid "Password:"
+msgstr "Пароль:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1957,13 +1957,9 @@ msgstr "Зображення"
 msgid "Pictures root name occupied by non directory."
 msgstr "Ім'я зображень кореня не зайнято в каталозі."
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
 msgstr "Зображення коріння:"
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
-msgstr "Зображення коріння: "
 
 #: bauble/plugins/garden/plant.py:910
 msgid "Plant Editor"
@@ -3176,8 +3172,8 @@ msgid "User"
 msgstr "Користувач"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Користувач: "
+msgid "User:"
+msgstr "Користувач:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3922,11 +3918,23 @@ msgstr "°F"
 #~ msgid "Choose a search domain..."
 #~ msgstr "Вибрати пошукову область ..."
 
+#~ msgid "Database: "
+#~ msgstr "База даних: "
+
 #~ msgid "Expressions"
 #~ msgstr "Вирази"
 
+#~ msgid "Host: "
+#~ msgstr "Хост: "
+
 #~ msgid "Mako"
 #~ msgstr "Mako"
+
+#~ msgid "Password: "
+#~ msgstr "Пароль: "
+
+#~ msgid "Pictures root: "
+#~ msgstr "Зображення коріння: "
 
 #~ msgid "Plant Species Editor"
 #~ msgstr "Редактор видів рослин"
@@ -3948,6 +3956,9 @@ msgstr "°F"
 
 #~ msgid "Source's code"
 #~ msgstr "Код джерела"
+
+#~ msgid "User: "
+#~ msgstr "Користувач: "
 
 #~ msgid "Vernacular Names"
 #~ msgstr "Народні назви"

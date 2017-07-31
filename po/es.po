@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2017-07-29 21:59+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Spanish "
-"<https://hosted.weblate.org/projects/ghini/desktop-10/es/>\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
+"es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1001,8 +1001,8 @@ msgid "Data Deficient (DD)"
 msgstr "Faltan datos (DD)"
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "Base de datos: "
+msgid "Database:"
+msgstr "Base de datos:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1508,8 +1508,8 @@ msgid "Horticultural Association/Garden Club"
 msgstr "Asociación Hortícolas / Club de Jardinería"
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
-msgstr "Anfitrión: "
+msgid "Host:"
+msgstr "Anfitrión:"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1932,8 +1932,8 @@ msgid "Other"
 msgstr "Otros"
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Contraseña: "
+msgid "Password:"
+msgstr "Contraseña:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1956,13 +1956,9 @@ msgstr "Fotos"
 msgid "Pictures root name occupied by non directory."
 msgstr "Fotos de nombre de directorio no la raíz."
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
 msgstr "Ubicación fotos:"
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
-msgstr "Ubicación fotos: "
 
 #: bauble/plugins/garden/plant.py:910
 msgid "Plant Editor"
@@ -3185,8 +3181,8 @@ msgid "User"
 msgstr "Usuario"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Usuario: "
+msgid "User:"
+msgstr "Usuario:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3818,8 +3814,23 @@ msgstr "°F"
 #~ msgid "--"
 #~ msgstr "--"
 
+#~ msgid "Database: "
+#~ msgstr "Base de datos: "
+
+#~ msgid "Host: "
+#~ msgstr "Anfitrión: "
+
 #~ msgid "Mako"
 #~ msgstr "Mako"
+
+#~ msgid "Password: "
+#~ msgstr "Contraseña: "
+
+#~ msgid "Pictures root: "
+#~ msgstr "Ubicación fotos: "
+
+#~ msgid "User: "
+#~ msgstr "Usuario: "
 
 #~ msgid "copy results selection to clipboard"
 #~ msgstr "copia la selección de resultados al portapapeles"

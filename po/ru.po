@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/bauble/master/ru/"
@@ -982,8 +982,8 @@ msgid "Data Deficient (DD)"
 msgstr ""
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "База данных: "
+msgid "Database:"
+msgstr "База данных:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1489,8 +1489,8 @@ msgid "Horticultural Association/Garden Club"
 msgstr ""
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
-msgstr "Хост: "
+msgid "Host:"
+msgstr "Хост:"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1900,8 +1900,8 @@ msgid "Other"
 msgstr "Другое"
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Пароль: "
+msgid "Password:"
+msgstr "Пароль:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1924,12 +1924,8 @@ msgstr ""
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
-msgstr ""
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:910
@@ -3065,8 +3061,8 @@ msgid "User"
 msgstr "Пользователь"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Юзер: "
+msgid "User:"
+msgstr "Юзер:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3792,6 +3788,9 @@ msgstr "°F"
 #~ msgid "Could not login to PicasaWeb account."
 #~ msgstr "Не удалось войти в учётную запись PicasaWeb."
 
+#~ msgid "Database: "
+#~ msgstr "База данных: "
+
 #~ msgid "Date planted: %s"
 #~ msgstr "Дата посадки: %s"
 
@@ -3818,6 +3817,9 @@ msgstr "°F"
 #~ msgid "Ghini - Picasa Settings"
 #~ msgstr "Ghini - настройки Picasa"
 
+#~ msgid "Host: "
+#~ msgstr "Хост: "
+
 #~ msgid "Images"
 #~ msgstr "Изображения"
 
@@ -3835,6 +3837,9 @@ msgstr "°F"
 
 #~ msgid "Password"
 #~ msgstr "Пароль"
+
+#~ msgid "Password: "
+#~ msgstr "Пароль: "
 
 #~ msgid "Picasa"
 #~ msgstr "Picasa"
@@ -3870,6 +3875,9 @@ msgstr "°F"
 
 #~ msgid "Use default filename"
 #~ msgstr "Использовать имя файла по умолчанию"
+
+#~ msgid "User: "
+#~ msgstr "Юзер: "
 
 #~ msgid "Vernacular Names"
 #~ msgstr "Народные названия"

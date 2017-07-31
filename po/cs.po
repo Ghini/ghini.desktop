@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
@@ -996,8 +996,8 @@ msgid "Data Deficient (DD)"
 msgstr ""
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
-msgstr "Databáze: "
+msgid "Database:"
+msgstr "Databáze:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -1508,8 +1508,8 @@ msgid "Horticultural Association/Garden Club"
 msgstr "Zahradnická asociace/klub"
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
-msgstr "Hostitel: "
+msgid "Host:"
+msgstr "Hostitel:"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1933,8 +1933,8 @@ msgid "Other"
 msgstr "Jiné"
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
-msgstr "Heslo: "
+msgid "Password:"
+msgstr "Heslo:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1957,12 +1957,8 @@ msgstr ""
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
-msgstr ""
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:910
@@ -3134,8 +3130,8 @@ msgid "User"
 msgstr "Uživatel"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Uživatel: "
+msgid "User:"
+msgstr "Uživatel:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3957,6 +3953,9 @@ msgstr "°F"
 #~ msgid "Cutting type: %s"
 #~ msgstr "Typ řezu: %s"
 
+#~ msgid "Database: "
+#~ msgstr "Databáze: "
+
 #~ msgid "Date planted: %s"
 #~ msgstr "Datum zasazení: %s"
 
@@ -3999,6 +3998,9 @@ msgstr "°F"
 #~ msgid "Hormone treatment: %s"
 #~ msgstr "Hormonální léčba: %s"
 
+#~ msgid "Host: "
+#~ msgstr "Hostitel: "
+
 #~ msgid "Images"
 #~ msgstr "Obrázky"
 
@@ -4039,6 +4041,9 @@ msgstr "°F"
 
 #~ msgid "Password"
 #~ msgstr "Heslo"
+
+#~ msgid "Password: "
+#~ msgstr "Heslo: "
 
 #~ msgid "Picasa"
 #~ msgstr "Picasa"
@@ -4134,6 +4139,9 @@ msgstr "°F"
 
 #~ msgid "Use default filename"
 #~ msgstr "Použít výchozí název souboru"
+
+#~ msgid "User: "
+#~ msgstr "Uživatel: "
 
 #~ msgid "Vernacular Names"
 #~ msgstr "Lidové názvy"

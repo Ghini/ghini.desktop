@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"POT-Creation-Date: 2017-07-31 16:31-0500\n"
 "PO-Revision-Date: 2017-06-26 11:46-0500\n"
 "Last-Translator: Mario Frasca <mario@anche.no>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/bauble/master/nl/"
@@ -973,7 +973,7 @@ msgid "Data Deficient (DD)"
 msgstr ""
 
 #: bauble/connmgr.glade:390
-msgid "Database: "
+msgid "Database:"
 msgstr ""
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
@@ -1456,7 +1456,7 @@ msgid "Horticultural Association/Garden Club"
 msgstr ""
 
 #: bauble/connmgr.glade:398
-msgid "Host: "
+msgid "Host:"
 msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:208
@@ -1860,7 +1860,7 @@ msgid "Other"
 msgstr "Overig"
 
 #: bauble/connmgr.glade:422
-msgid "Password: "
+msgid "Password:"
 msgstr "Wachtwoord:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
@@ -1884,12 +1884,8 @@ msgstr "Beelden"
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274
+#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
 msgid "Pictures root:"
-msgstr ""
-
-#: bauble/connmgr.glade:434
-msgid "Pictures root: "
 msgstr ""
 
 #: bauble/plugins/garden/plant.py:910
@@ -3019,8 +3015,8 @@ msgid "User"
 msgstr "Gebruiker"
 
 #: bauble/connmgr.glade:410
-msgid "User: "
-msgstr "Gebruiker: "
+msgid "User:"
+msgstr "Gebruiker:"
 
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
 #: bauble/plugins/users/__init__.py:724
@@ -3663,6 +3659,9 @@ msgstr ""
 #~ msgid "Names"
 #~ msgstr "Namen"
 
+#~ msgid "Password: "
+#~ msgstr "Wachtwoord:"
+
 #~ msgid "Plant"
 #~ msgstr "Plant"
 
@@ -3671,6 +3670,9 @@ msgstr ""
 
 #~ msgid "The location of the plant in your collection."
 #~ msgstr "De locatie van de plant in uw collectie."
+
+#~ msgid "User: "
+#~ msgstr "Gebruiker: "
 
 #~ msgid "_New"
 #~ msgstr "_Nieuw"
