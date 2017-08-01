@@ -247,7 +247,7 @@ def get_location_query(obj, session):
                           type(obj).__name__)
 
 
-def get_location_pertinent_to(objs, session=None):
+def get_locations_pertinent_to(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
