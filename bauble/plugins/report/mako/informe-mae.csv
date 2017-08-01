@@ -236,13 +236,14 @@ subtribusd = {
         subtribus = subtribusd.get(genus, '')
         tribus = tribusd[subtribus]
         subfamilia = subfamiliad[tribus]
-    no_ic = ([n.note for n in v.accession.notes if n.category == 'factura'] + [''])[0]
+    no_ic = ([n.note for n in v.accession.notes if n.category == 'No.IC'] + [''])[0]
     no_factura = ([n.note for n in v.accession.notes if n.category == 'factura'] + [''])[0]
-    no_acta = ([n.note for n in v.accession.notes if n.category == 'factura'] + [''])[0]
+    no_acta = ([n.note for n in v.accession.notes if n.category == 'No.Acta'] + [''])[0]
     anotaciones = '; '.join([n.note for n in v.accession.notes if n.category == 'anotaciones'])
+    egreso = ''
 %>\
-i	\
-e	\
+${v.accession._created}	\
+${egreso}	\
 ${code}	\
 ${genus}	\
 ${species_epithet}	\
