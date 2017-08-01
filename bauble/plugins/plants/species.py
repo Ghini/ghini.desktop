@@ -79,8 +79,10 @@ def remove_callback(values):
     safe_str = utils.xml_safe(str(species))
     if nacc > 0:
         msg = _('The species <i>%(species)s</i> has %(num_accessions)s '
-                'accessions.  Are you sure you want remove it?') \
+                'accessions.  You cannot remove a Species with Accessions.') \
             % dict(species=safe_str, num_accessions=nacc)
+        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        return
     else:
         msg = _("Are you sure you want to remove the species <i>%s</i>?") \
             % safe_str

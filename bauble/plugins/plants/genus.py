@@ -89,8 +89,10 @@ def remove_callback(genera):
     safe_str = utils.xml_safe(str(genus))
     if nsp > 0:
         msg = (_('The genus <i>%(genus)s</i> has %(num_species)s species.  '
-                 'Are you sure you want to remove it?')
+                 'You cannot remove a genus with species.')
                % dict(genus=safe_str, num_species=nsp))
+        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        return
     else:
         msg = (_("Are you sure you want to remove the genus <i>%s</i>?")
                % safe_str)
