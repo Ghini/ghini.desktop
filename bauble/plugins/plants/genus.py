@@ -91,7 +91,7 @@ def remove_callback(genera):
         msg = (_('The genus <i>%(1)s</i> has %(2)s species.'
                  '\n\n') % {'1': safe_str, '2': nsp} +
                _('You cannot remove a genus with species.'))
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
         return
     else:
         msg = (_("Are you sure you want to remove the genus <i>%s</i>?")

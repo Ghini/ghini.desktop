@@ -81,7 +81,7 @@ def remove_callback(values):
         msg = (_('The species <i>%(1)s</i> has %(2)s accessions.'
                  '\n\n') % {'1': safe_str, '2': nacc} +
                _('You cannot remove a species with accessions.'))
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
         return
     else:
         msg = _("Are you sure you want to remove the species <i>%s</i>?") \
