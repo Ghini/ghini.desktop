@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-31 16:31-0500\n"
-"PO-Revision-Date: 2017-07-29 21:59+0000\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
-"es/>\n"
+"POT-Creation-Date: 2017-07-27 16:47-0500\n"
+"PO-Revision-Date: 2017-07-31 18:23+0000\n"
+"Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
+"Language-Team: Spanish "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -629,9 +629,8 @@ msgid "Awards"
 msgstr "Premios"
 
 #: bauble/plugins/garden/accession.py:426
-#, fuzzy
 msgid "Balled & burlapped plant"
-msgstr "Planta con forma de bola y arpillera"
+msgstr "Planta enmarañada y achaparrada"
 
 #: bauble/plugins/garden/accession.py:427
 msgid "Bare root plant"
@@ -1306,7 +1305,7 @@ msgstr "Nombre fichero:"
 
 #: bauble/plugins/garden/acc_editor.glade:1063
 msgid "Flags"
-msgstr ""
+msgstr "Banderas"
 
 #: bauble/plugins/garden/prop_editor.glade:370
 #: bauble/plugins/garden/propagation.py:181
@@ -1754,7 +1753,7 @@ msgstr "Emparejado de la binomial"
 #: bauble/plugins/garden/propagation.py:197
 #: bauble/plugins/garden/propagation.py:218
 msgid "Media"
-msgstr ""
+msgstr "Medios de comunicación"
 
 #: bauble/plugins/garden/prop_editor.glade:475
 msgid "Media/Compost"
