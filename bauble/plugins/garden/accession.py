@@ -176,9 +176,9 @@ def remove_callback(accessions):
         plants = [str(plant) for plant in acc.plants]
         values = dict(num_plants=len(acc.plants),
                       plant_codes=safe(', '.join(plants)))
-        msg = _('%(num_plants)s plants depend on this accession: '
-                '<b>%(plant_codes)s</b>\n\n'
-                'You cannot remove an accession with plants.') % values
+        msg = (_('%(num_plants)s plants depend on this accession: '
+                 '<b>%(plant_codes)s</b>\n\n') % values + 
+               _('You cannot remove an accession with plants.'))
         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         return
     else:
