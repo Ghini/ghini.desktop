@@ -170,9 +170,6 @@ def get_accessions_pertinent_to(objs, session=None):
 def get_species_query(obj, session):
     """
     """
-    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
-    # so that if we want to union() the statements together later it
-    # will work properly
     q = session.query(Species).order_by(None)
     if isinstance(obj, Family):
         return q.join('genus', 'family').\
@@ -208,6 +205,29 @@ def get_species_pertinent_to(objs, session=None):
     """
     return sorted(
         _get_pertinent_objects(Species, get_species_query, objs, session),
+        key=str)
+
+
+def get_location_query(obj, session):
+    """
+    """
+    q = session.query(Location).order_by(None)
+    if isinstance(obj, Location):
+        return q.filter_by(id=obj.id)
+    else:
+        raise BaubleError(_("Can't get species from a %s") %
+                          type(obj).__name__)
+
+
+def get_locations_pertinent_to(objs, session=None):
+    """
+    :param objs: an instance of a mapped object
+    :param session: the session to use for the queries
+
+    Return all the species found in objs.
+    """
+    return sorted(
+        _get_pertinent_objects(Location, get_location_query, objs, session),
         key=str)
 
 
