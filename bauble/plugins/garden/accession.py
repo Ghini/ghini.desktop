@@ -179,13 +179,13 @@ def remove_callback(accessions):
         msg = (_('%(num_plants)s plants depend on this accession: '
                  '<b>%(plant_codes)s</b>\n\n') % values + 
                _('You cannot remove an accession with plants.'))
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
         return
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
             utils.xml_safe(unicode(acc))
     if not utils.yes_no_dialog(msg):
-        return False
+        return
     try:
         session = db.Session()
         obj = session.query(Accession).get(acc.id)
