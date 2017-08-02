@@ -30,6 +30,36 @@ technical
          are simultaneously available on all ghini clients.  We did need to
          outsource database server management.
 
+  ..  admonition:: adding a new user
+      :class: toggle
+
+         Ghini keeps track of the user performing all sort of edits to the
+         database, and at the garden, apart from the stable users, we have
+         all sorts of temporary users writing to the database, that we
+         decided we would let Ghini help us keep track of database events.
+
+         Adding a new user is a task taking less than a minute, and can be
+         done either graphically, or from the command line.
+
+         Hit the |loose_png| key, then start typing ``users``, something
+         like this will appear on your screen:
+
+         .. image:: images/config-users.png
+
+         Activate the program, unlock the user data, create a new user
+         account, define the password and write it down on a piece of paper
+         you hand over to the person.
+
+         You can achieve the same, possibly faster, from the command line.
+         For example we add user 'Marta López', account 'mlopez', by
+         invoking the command and entering your password (to unlock user
+         data), then all information as required, or leaving it blank:
+
+         ``sudo adduser mlopez``
+
+         We do not use account names like "voluntario", because such
+         accounts do not help us associate the name to the person.
+
 - Understanding when to update
 
   ..  admonition:: Details
