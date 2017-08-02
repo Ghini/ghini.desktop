@@ -72,6 +72,9 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
+if sys.platform == 'win32':
+    locale = gettext
+
 try:
     import gtk.glade as gtkglade
 except ImportError:
@@ -80,7 +83,7 @@ except ImportError:
 for module in locale, gtkglade:
     module.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
     module.textdomain(TEXT_DOMAIN)
-    
+
 # Get the language to use
 lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
                            fallback=True)
