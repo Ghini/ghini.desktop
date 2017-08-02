@@ -72,6 +72,7 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
+import sys
 if sys.platform == 'win32':
     locale = gettext
 
