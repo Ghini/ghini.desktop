@@ -1,0 +1,93 @@
+
+Plantas Muertas
+^^^^^^^^^^^^^^^^^^^^
+
+Los especimenes de la colección del JBQ que se han muerto deben ser modificadas 
+en la base de datos,NO BORRADAS, puesto que la información que se recoja sobre
+las razones de muerte es importante. Además, el código de accesión al ser  
+único e irrepetible dentro de nuestra base de datos debe ser modificado y éste no puede 
+volver a ser utilizado. En Ghini, debemos ingresar el código de accesión de la planta 
+muerta en el buscador. Luego seleccionar editar en la pestaña de la planta. 
+
+Se debe modificar la cantidad de plantas a cero, y modificar en la sección 
+‘cambio de corriente’ la razón a MUERTA y luego modificamos la fecha, al 
+día de la modificación.
+                                    |Mod_acc_muerta.png|
+                                    
+El color de la planta accesionada en la base se tornará morada, 
+así si se realiza una búsqueda general, facilmente podremos reconocer las que ya no estan 
+presentes en nuestra colección.
+
+              |cambio_color_planta_muerta.png|   |lista sp_con-muer.png|
+
+Procedencia de los especímenes 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+En el JBQ ingresan nuevas orquídeas frecuentemente. Éstas podrían tener diversos orígenes:
+compra, donaciones, decomisionadas, rescatadas o colectadas en expediciones de investigación.
+Para cada una de estas categorías se deben modificar los siguientes campos en la accesión de 
+la planta. En la sección general existe la pestaña de procedencia donde se encuentran las opciones
+a modificar, como: 
+
+                                        |procedencia_.png|
+                                        
+En el caso de ser una planta de Origen Salvaje deberemos modificar también en la opción 
+‘Si es Salvaje’, las casillas disponibles que se desplegan incluyen varios orígenes. 
+Luego debemos ir a la pestaña ‘Origen’ en la accesión de la planta.
+Aquí podremos especificar datos como Localidad, donde se incluye información específica
+de la región de colecta o precedencia del especímen, ID del colector e inclusive notas 
+específicas; y del mismo modo la información de georeferenciación.
+
+                                          |origen_loc_.png|
+                                          
+En la opción contacto también podemos colocar información acerca de quién regalo o dono una planta,
+o si esta fue comprada, especificando el nombre de la empresa.
+Si hasta aquí todavía no hemos completado toda la información que se debe llenar, nos dirigeremos 
+a la pestaña ‘Notas’, y aquí se debe colocar la información faltante, siempre identificando quién 
+realizó la modificación en conjunto con la fecha de modificación.  
+
+
+                                             |notas.png|
+                                             
+Generar reportes de la base de datos
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+En el JBQ debemos entregar informes de los avances de actividades y modificaciones, además de un listado 
+de especies accesadas a la base de datos para el Ministerio de Ambiente del Ecuador (MAE).  Ghini genera 
+reportes que nos proporcionan esta información. Para esto debemos primero seleccionar la escala con la cual 
+generaremos el reporte.
+
+ ..  admonition:: Ejemplo
+      :class: toggle
+       Por ejemplo, si nos interesa ver solo la información generada en uno de los invernaderos,
+       
+                                          |loc_inv1.png|
+                                          
+       Se realiza la búsqueda específica de esta localidad y se seleccionará la opción 
+       Herramientas del menú general, en la opción de Informe. Aquí se desplegará la siguiente ventana:
+
+                                      |op_info_for_mako.png|
+                                      
+                                      
+                                      
+El formato para la generación del informe ya tiene un formato predeterminado en Mako, y esta asignada una 
+plantilla en CSV. Al generar el reporte aplastando aceptar, se desplegará una ventana en excel, que 
+generará el informe en un formato conocido para todos.De ser necesario modificar la escala del informe 
+solo debemos modificar el campo de búsqueda.
+
+
+Traspasos de especímenes dentro del JBQ 
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+El JBQ cuenta con dos orquidearios de exhibición, donde son mostradas algunas de las especies que se tienen 
+en los invernaderos. Todo el tiempo se escogen indivíduos que se encuentren en condiciones óptimas
+( generalmente con flor), con esto el flujo de cambio de especímenes asiende de 4-5 cambios semanales. Se 
+lleva un registro de los individuos que han sido movidos, de esta lista, en la base de datos debe actualizarse
+esta información todo el tiempo.
+Para realizar esto, solo debemos ingresar el número de accesión a modificar, seleccionar la planta y realizar 
+el cambio en ‘Ubicación’, luego colocar la razón por la cual se realizó el cambio, en donde se desplegará una 
+serie de opciones por las cuales se modificó la ubicación de la planta.
+
+                                        
+                                    
+                                                
