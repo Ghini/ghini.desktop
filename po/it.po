@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2017-07-30 13:22+0000\n"
+"PO-Revision-Date: 2017-08-03 14:14+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian "
 "<https://hosted.weblate.org/projects/ghini/desktop-11/it/>\n"
@@ -603,7 +603,7 @@ msgstr "Nome accettato"
 #: bauble/plugins/report/xsl/__init__.py:87
 #: bauble/plugins/report/xsl/__init__.py:427
 msgid "Accession"
-msgstr ""
+msgstr "Accessione"
 
 #: bauble/plugins/garden/acc_editor.glade:24
 msgid "Accession Code Formats"
@@ -611,7 +611,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:721
 msgid "Accession ID"
-msgstr "ID dell'accessione"
+msgstr "ID delle Accessioni"
 
 #: bauble/plugins/garden/accession.py:346 bauble/plugins/plants/itf2.py:100
 msgid "Accession not of wild source"
@@ -1953,7 +1953,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1032
 #: bauble/plugins/garden/__init__.py:121
 msgid "Location"
-msgstr ""
+msgstr "Collocazione"
 
 #: bauble/plugins/garden/propagation.py:154
 #: bauble/plugins/garden/propagation.py:179
