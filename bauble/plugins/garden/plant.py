@@ -300,7 +300,7 @@ class PlantChange(db.Base):
 
     # the name of the person who made the change
     person = Column(Unicode(64))
-    """The name of the person who made the change"""
+
     quantity = Column(Integer, autoincrement=False, nullable=False)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 

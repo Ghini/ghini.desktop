@@ -7,6 +7,8 @@ and we hope that this page will convince you about it.
 
 This page shows how Ghini makes software meet the needs of a botanic garden.
 
+If you already know, and all you want is to do something practical, check our `user-contributed recipes <use_cases.html>`_.
+
 Botanic Garden
 --------------------------------------------------------
 
@@ -28,6 +30,8 @@ makes us call the garden a botanic garden.
 
    **collection related activities in the garden**
 
+.. _botanic garden software:
+   
 Botanic Garden Software
 -----------------------------------------------
 
@@ -44,8 +48,19 @@ physical space and the dynamic of a botanic garden.
 
    **core structure of Ghini's database**
 
+In the above figure, a simplified view on the database, the highlighted
+blocks are those relative to objects you definitely need insert in the
+database.
+
+We distinguish three main sections in the database.  Start reading the graph
+from the right hand side, with the relevant **Taxonomy** information, then
+step to administering your **Collection**, and finally consider the physical
+**Garden**.
+
 The central element in Ghini's point of view is the ``Accession``. Following
 its links to other database objects lets us better understand the structure:
+
+**Accession links Planting to Species**
 
   An ``Accession`` represents the action of receiving plant material in
   the garden. As such, ``Accession`` is an abstract concept, it links
@@ -61,6 +76,8 @@ its links to other database objects lets us better understand the structure:
   ``Accession`` consistently connects all its ``Plantings`` to the
   ``Species``.
 
+**Accession at the base of the history of your plants**
+
   ``Propagations`` and ``Contacts`` provide plant material for the garden;
   this information is optional and smaller collectors might prefer to leave this aside.
   A ``Propagation`` trial may be unsuccessful, most of the time it will result
@@ -68,15 +85,21 @@ its links to other database objects lets us better understand the structure:
   so the database allows for zero  or more ``Accessions`` per ``Propagation`` (0..n).
   Also a ``Contact`` may provide zero or more ``Accessions`` (0..n).
 
+**Accession and Verification opinions**
+
   Specialists may formulate their opinion about the ``Species`` to which an
   ``Accession`` belongs, by providing a ``Verification``, signing it, and
   stating the applicable level of confidence.
+
+**Accessing your own Propagations**
 
   If an ``Accession`` was obtained in the garden nursery from a successful
   ``Propagation``, the ``Propagation`` links the ``Accession`` and all of
   its ``Plantings`` to a single parent ``Planting``, the seed or the
   vegetative parent.
 
+.. _accession explained:
+  
 Even after the above explanation, new users generally still ask why they
 need pass through an ``Accession`` screen while all they want is to insert a
 ``Plant`` in the collection, and again: what is this "accession" thing
@@ -126,9 +149,27 @@ the possibility to keep information about ``Plantings`` that have been
 removed from the collection, help justify the presence of the ``Accession``
 abstraction level.
 
+Hypersimplified view
 -----------------------------------------------
 
-Our User Stories section contains details about the above, and more.
+People using Ghini only sporadically may prefer ignoring the database
+structure and look at it as two nested sequences of objects, each element of
+the sequence being necessary to add element at the next level.
+
+In order to get down to an Accession, you will need four levels, as in this
+example:
+
+.. figure:: images/family-to-accession.png
+
+A quite complete set of Families and Genera are inserted in your database at
+the moment Ghini initializes it. So all you need is adding Species and
+Accessions, in this order.
+
+When placing a physical Plant (relative to an Accession) somewhere in the
+garden, you need to describe this "somewhere" digitally, as a Location in
+the garden.
+
+.. figure:: images/location-to-plant.png
 
 -----------------------------------------------
 

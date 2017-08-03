@@ -206,17 +206,54 @@ subtribusd = {
 % for v in get_plants_pertinent_to(values):
 <%
     genus = v.accession.species.genus.genus
-    if genus.startswith('Zzz-'):
-        genus = ''
     species_epithet = v.accession.species.sp
     if species_epithet == 'sp':
         species_epithet = ''
-    subtribus = subtribusd.get(genus, '')
+    if genus.startswith('Zzx-'):
+        genus = ''
+        subtribus = genus[4:]
+        tribus = tribusd[subtribus]
+        subfamilia = subfamiliad[tribus]
+    elif genus.startswith('Zzy-'):
+        genus = ''
+        subtribus = ''
+        tribus = genus[4:]
+        subfamilia = subfamiliad[tribus]
+    elif genus.startswith('Zzw-'):
+        genus = ''
+        subtribus = ''
+        tribus = ''
+        subfamilia = genus[4:]
+    elif genus.startswith('Zzz'):
+        genus = ''
+        subtribus = ''
+        tribus = ''
+        subfamilia = ''
+    else:
+        subtribus = subtribusd.get(genus, '')
+        tribus = tribusd[subtribus]
+        subfamilia = subfamiliad[tribus]
     cites = v.accession.species.cites or ''
     doc_number = ([n.note for n in v.accession.notes if n.category == 'factura'] + [''])[0]
     if doc_number != '':
         doc_type = 'factura'
     else:
         doc_type = ''
-%>${v}	${v.accession.species.genus.family}	${subfamiliad[tribusd[subtribus]]}	${tribusd[subtribus]}	${subtribus}	${genus}	${species_epithet}	${v.accession.species.sp_author or ''}	${v.accession._created.isoformat()[:10]}	${cites}			${doc_type}	${doc_number}	${v.location.code}		${v.accession.species.habit or ''}
+%>${v}	\
+${v.accession.species.genus.family}	\
+${subfamiliad[tribusd[subtribus]]}	\
+${tribusd[subtribus]}	\
+${subtribus}	\
+${genus}	\
+${species_epithet}	\
+${v.accession.species.sp_author or ''}	\
+${v.accession._created.isoformat()[:10]}	\
+${cites}	\
+	\
+	\
+${doc_type}	\
+${doc_number}	\
+${v.location.code}	\
+	\
+${v.accession.species.habit or ''}
 % endfor

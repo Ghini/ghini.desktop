@@ -126,36 +126,55 @@ species and open a new blank species editor.
 Accessions
 ----------
 
-The Accession editor allows us to add an accession to a species.  In
-Ghini an accession represents a group of plants or clones.  The
-accession would refer maybe a group of seed or cuttings from a
-species.  A plant would be an individual from that accesssion, i.e. a
-specific plant in a specific location.
+The Accession editor allows us to add an accession to a species.  In Ghini
+an accession represents a group of plants or clones that are of the same
+taxon, are of the same propagule type (or treatment), were received from the
+same source, were received at the same time.
+
+Choose the Taxon name, add one if you forgot to do that in advance.
+
+You may note uncertainty in identification by adding an identification
+qualifier, at the proper rank, so you can for example have a plant initially
+identified as *Iris* cf. *florentina* by choosing *Iris florentina* in the
+taxon name, identification qualifier 'cf.', qualified rank 'species'.
+
+Type the Accession ID, preferably also the Quantity received.
+
 
 Accession Source
-^^^^^^^^^^^^^^^^
-The source of the accessions lets you add more information about where
-this accession came from.  At the moment the type of the source can be
-either a Collection or a Donation.
+""""""""""""""""
 
+The source of the accessions lets you add more information about where this
+accession came from.  Select a Contact from the drop-down list, or choose
+"Garden Propagation", which is placed as a default first item in the list of
+contacts.
 
-Collection
-""""""""""
-A Collection.
+A Garden Propagation is the result of successful Propagation.
 
+When accessing material from a Garden Propagation, you would initially leave
+the first tab alone (General) and start from the second tab (Source).
+Select as Contact "Garden Propagation", indicate which plant is the parent
+plant and choose among the still not completely accessed propagations the
+one you intend to add as an accession in your database.
 
-Donation
-""""""""
-A Donation.
+Once you select a propagation, the software will set several fields in the
+General tab, which you can now review.  The Taxon (maybe you managed to
+obtain something slightly different than the parent plant). The Initial
+quantity (in case not all plants go in the same accession). The Type of
+Material, inferred from the propagation type.
+
 
 .. _editing-plant:
 
 Plant
 -----
-The Plant editor.
+
+A ``Plant`` in the Ghini database describes an individual plant in your
+collection. A plant belongs to an accession, and it has a specific location.
 
 Creating multiple plants
-^^^^^^^^^^^^^^^^^^^^^^^^
+"""""""""""""""""""""""""
+
 You can create multiple Plants by using ranges in the code entry.
 This is only allowed when creating new plants and it is not possible
 when editing existing Plants in the database.
@@ -171,7 +190,7 @@ plants that are created.
 .. _plant-pictures:
 
 Pictures
-^^^^^^^^
+""""""""""""
 
 Just as almost all objects in the Ghini database can have *Notes*
 associated to them, Plants can have *Pictures*: next to the tab for Notes,
@@ -199,10 +218,11 @@ plants in the highlighted accession are displayed in the pictures pane.
 
 Locations
 ---------
+
 The Location editor
 
 danger zone
-^^^^^^^^^^^
+""""""""""""""""""""
 
 The location editor contains an initially hidden section named *danger
 zone*. The widgets contained in this section allow the user to merge the

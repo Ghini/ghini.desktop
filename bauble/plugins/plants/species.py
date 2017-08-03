@@ -78,9 +78,11 @@ def remove_callback(values):
     nacc = session.query(Accession).filter_by(species_id=species.id).count()
     safe_str = utils.xml_safe(str(species))
     if nacc > 0:
-        msg = _('The species <i>%(species)s</i> has %(num_accessions)s '
-                'accessions.  Are you sure you want remove it?') \
-            % dict(species=safe_str, num_accessions=nacc)
+        msg = (_('The species <i>%(1)s</i> has %(2)s accessions.'
+                 '\n\n') % {'1': safe_str, '2': nacc} +
+               _('You cannot remove a species with accessions.'))
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        return
     else:
         msg = _("Are you sure you want to remove the species <i>%s</i>?") \
             % safe_str

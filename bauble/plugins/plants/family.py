@@ -77,9 +77,11 @@ def remove_callback(families):
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
     safe_str = utils.xml_safe(str(family))
     if ngen > 0:
-        msg = _('The family <i>%(family)s</i> has %(num_genera)s genera.  Are '
-                'you sure you want to remove it?') % dict(family=safe_str,
-                                                          num_genera=ngen)
+        msg = (_('The family <i>%(1)s</i> has %(2)s genera.'
+                 '\n\n') % {'1': safe_str, '2': ngen} +
+               _('You cannot remove a family with genera.'))
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        return
     else:
         msg = _("Are you sure you want to remove the family <i>%s</i>?") \
             % safe_str

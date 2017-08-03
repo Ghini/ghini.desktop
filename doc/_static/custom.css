@@ -1,0 +1,12 @@
+.toggle .admonition-title {
+    display: block;
+    clear: both;
+}
+
+.toggle .admonition-title:after {
+    content: " ▼";
+}
+
+.toggle .admonition-title.open:after {
+    content: " ▲";
+}

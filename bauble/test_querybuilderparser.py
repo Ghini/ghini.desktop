@@ -18,6 +18,7 @@
 
 from querybuilderparser import BuiltQuery
 from bauble.test import BaubleTestCase
+from nose import SkipTest
 
 class QBP(BaubleTestCase):
     def test_and_clauses(self):
@@ -96,4 +97,22 @@ class QBP(BaubleTestCase):
             self.assertEquals(query.clauses[1].operator, 'like')
             self.assertEquals(query.clauses[0].value, 'Inga')
             self.assertEquals(query.clauses[1].value, '2010%')
-        
+
+    def test_is_only_usable_clauses(self):
+        # valid query, but not for the query builder
+        query = BuiltQuery("species WHERE genus.epithet=Inga or count(accessions.id)>4")
+        print query.parsed
+        self.assertEquals(query.is_valid, True)
+        self.assertEquals(len(query.clauses), 1)
+        query = BuiltQuery("species WHERE a=1 or count(accessions.id)>4 or genus.epithet=Inga")
+        print query, query.clauses
+        self.assertEquals(query.is_valid, True)
+        self.assertEquals(len(query.clauses), 2)
+
+    def test_be_able_to_skip_first_query_if_invalid(self):
+        # valid query, but not for the query builder
+        raise SkipTest("we can't do that without rewriting the grammar")
+        query = BuiltQuery("species WHERE count(accessions.id)>4 or genus.epithet=Inga")
+        print query, query.clauses
+        self.assertEquals(query.is_valid, True)
+        self.assertEquals(len(query.clauses), 1)

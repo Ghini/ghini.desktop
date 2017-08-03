@@ -261,7 +261,6 @@ class StandalonePluginMgrTests(unittest.TestCase):
             DependsOnFailingInitPlugin.__name__] = DependsOnFailingInitPlugin()
         bauble.pluginmgr.init(force=True)
         self.assertTrue(self.invoked)
-        # self.assertFalse(FailingInitPlugin.initialized)  # irrelevant
         self.assertFalse(DependsOnFailingInitPlugin.initialized)
         utils.message_details_dialog = old_dialog
 

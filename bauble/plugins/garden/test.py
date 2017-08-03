@@ -34,7 +34,7 @@ from sqlalchemy.orm import object_session
 
 #import bauble
 import bauble.db as db
-from bauble.test import BaubleTestCase, update_gui, check_dupids
+from bauble.test import BaubleTestCase, update_gui, check_dupids, mockfunc
 import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     AccessionNote, Voucher, SourcePresenter, Verification, dms_to_decimal, \
@@ -53,6 +53,8 @@ from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution, InstitutionPresenter
 from bauble import prefs
+
+from functools import partial
 
 from bauble.meta import BaubleMeta
 
@@ -1406,6 +1408,104 @@ class AccessionTests(GardenTestCase):
             logger.debug(traceback.format_exc(0))
             logger.debug(e)
 
+    def test_remove_callback_no_plants_no_confirm(self):
+        # T_0
+        added = []
+        added.append(Family(family=u'Caricaceae'))
+        added.append(Genus(epithet=u'Carica', family=added[-1]))
+        added.append(Species(epithet=u'papaya', genus=added[-1]))
+        added.append(Accession(code=u'010101', species=added[-1]))
+        sp, acc = added[-2:]
+        self.session.add_all(added)
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(mockfunc, name='yes_no_dialog', caller=self, result=False)
+        utils.message_details_dialog = partial(mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.garden.accession import remove_callback
+        result = remove_callback([acc])
+        self.session.flush()
+
+        # effect
+        self.assertFalse('message_details_dialog' in [f for (f, m) in self.invoked])
+        print self.invoked
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove accession <b>010101</b>?')
+                        in self.invoked)
+        self.assertEquals(result, None)
+        q = self.session.query(Accession).filter_by(code=u'010101', species=sp)
+        matching = q.all()
+        self.assertEquals(matching, [acc])
+
+    def test_remove_callback_no_accessions_confirm(self):
+        # T_0
+        added = []
+        added.append(Family(family=u'Caricaceae'))
+        added.append(Genus(epithet=u'Carica', family=added[-1]))
+        added.append(Species(epithet=u'papaya', genus=added[-1]))
+        added.append(Accession(code=u'010101', species=added[-1]))
+        sp, acc = added[-2:]
+        self.session.add_all(added)
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.garden.accession import remove_callback
+        result = remove_callback([acc])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove accession <b>010101</b>?')
+                        in self.invoked)
+
+        self.assertEquals(result, True)
+        q = self.session.query(Species).filter_by(sp=u"Carica")
+        matching = q.all()
+        self.assertEquals(matching, [])
+
+    def test_remove_callback_with_accessions_cant_cascade(self):
+        # T_0
+        added = []
+        added.append(Location(code=u'INV99'))
+        added.append(Family(family=u'Caricaceae'))
+        added.append(Genus(epithet=u'Carica', family=added[-1]))
+        added.append(Species(epithet=u'papaya', genus=added[-1]))
+        added.append(Accession(code=u'010101', species=added[-1]))
+        added.append(Plant(code=u'1', accession=added[-1], quantity=1, location=added[0]))
+        sp, acc, plant = added[-3:]
+        self.session.add_all(added)
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(mockfunc, name='yes_no_dialog', caller=self, result=True)
+        utils.message_dialog = partial(mockfunc, name='message_dialog', caller=self, result=True)
+        utils.message_details_dialog = partial(mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.garden.accession import remove_callback
+        result = remove_callback([acc])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('message_dialog', u'1 plants depend on this accession: <b>010101.1</b>\n\n'
+                         'You cannot remove an accession with plants.')
+                        in self.invoked)
+        q = self.session.query(Accession).filter_by(species=sp)
+        matching = q.all()
+        self.assertEquals(matching, [acc])
+        q = self.session.query(Plant).filter_by(accession=acc)
+        matching = q.all()
+        self.assertEquals(matching, [plant])
+
 
 class VerificationTests(GardenTestCase):
 
@@ -1693,31 +1793,23 @@ UTM = 3  # Datum(wgs84/nad83 or nad27), UTM Zone, Easting, Northing
 
 from decimal import Decimal
 dec = Decimal
-conversion_test_data = (((('N', 17, 21, dec(59)),  # dms
-                          ('W', 89, 1, 41)),
-                         ((dec(17), dec('21.98333333')),  # deg min_dec
-                          (dec(-89), dec('1.68333333'))),
+conversion_test_data = (((('N', 17, 21, dec(59)), ('W', 89, 1, 41)),  # dms
+                         ((dec(17), dec('21.98333333')), (dec(-89), dec('1.68333333'))),  # deg min_dec
                          (dec('17.366389'), dec('-89.028056')),  # dec deg
                          (('wgs84', 16, 284513, 1921226))),  # utm
                         \
-                        ((('S', 50, 19, dec('32.59')),  # dms
-                          ('W', 74, 2, dec('11.6'))),
-                         ((dec(-50), dec('19.543166')),  # deg min_dec
-                          (dec(-74), dec('2.193333'))),
+                        ((('S', 50, 19, dec('32.59')), ('W', 74, 2, dec('11.6'))),  # dms
+                         ((dec(-50), dec('19.543166')), (dec(-74), dec('2.193333'))),  # deg min_dec
                          (dec('-50.325719'), dec('-74.036556')),  # dec deg
                          (('wgs84', 18, 568579, 568579)),
                          (('nad27', 18, 568581, 4424928))),
                         \
-                        ((('N', 9, 0, dec('4.593384')),
-                          ('W', 78, 3, dec('28.527984'))),
-                         ((9, dec('0.0765564')),
-                          (-78, dec('3.4754664'))),
+                        ((('N', 9, 0, dec('4.593384')), ('W', 78, 3, dec('28.527984'))),
+                         ((9, dec('0.0765564')), (-78, dec('3.4754664'))),
                          (dec('9.00127594'), dec('-78.05792444'))),
                         \
-                        ((('N', 49, 10, 28),
-                          ('W', 121, 40, 39)),
-                         ((49, dec('10.470')),
-                          (-121, dec('40.650'))),
+                        ((('N', 49, 10, 28), ('W', 121, 40, 39)),
+                         ((49, dec('10.470')), (-121, dec('40.650'))),
                          (dec('49.174444'), dec('-121.6775')))
                         )
 

@@ -36,6 +36,9 @@ if [ "$PYTHONHCOUNT" = "0" ]; then
     PROBLEMS="$PROBLEMS python-all-dev"
 fi
 
+# forget password, please.
+sudo -k
+
 if [ "$PROBLEMS" != "" ]; then
     echo 'please solve the following dependencies:'
     echo '(package names are ubuntu/debian, YMMV.)'
@@ -47,7 +50,7 @@ if [ "$PROBLEMS" != "" ]; then
         echo
         echo you are on a debian-like system, I should know how to install
         echo $PROBLEMS
-        sudo -k apt-get -y install $PROBLEMS
+        sudo apt-get -y install $PROBLEMS
         echo please re-run devinstall.sh
     fi
     exit 1
@@ -78,13 +81,13 @@ mkdir -p $HOME/.virtualenvs/ghide/share
 mkdir -p $HOME/.ghini
 . $HOME/.virtualenvs/ghide/bin/activate
 
-if [ "$PG" != "" ]
+if [ ! -z $PG ]
 then
     echo 'installing postgresql adapter'
     pip install psycopg2 ;
 fi
 
-if [ "$MYSQL" != "" ]
+if [ ! -z $MYSQL ]
 then
     echo 'installing mysql adapter'
     pip install MySQL-python ;    
@@ -99,23 +102,36 @@ cat <<EOF > $HOME/bin/ghini
 GITHOME=$HOME/Local/github/Ghini/ghini.desktop/
 . \$HOME/.virtualenvs/ghide/bin/activate
 
-BUILDANDEND=0
-while getopts us: f
+while getopts us:mp f
 do
   case \$f in
     u)  cd \$GITHOME
-        BUILDANDEND=1;;
+        BUILD=1
+        END=1
+        ;;
     s)  cd \$GITHOME
         git checkout ghini-\$OPTARG || exit 1
-        BUILDANDEND=1;;
+        BUILD=1
+        END=1
+        ;;
+    m)  pip install MySQL-python
+        END=1
+        ;;
+    p)  pip install psycopg2
+        END=1
+        ;;
   esac
 done
 
-if [ "\$BUILDANDEND" == "1" ]
+if [ ! -z "\$BUILD" ]
 then
     git pull
     python setup.py build
     python setup.py install
+fi
+
+if [ ! -z "\$END" ]
+then
     exit 1
 fi
 
@@ -126,7 +142,7 @@ chmod +x $HOME/bin/ghini
 echo your local installation is now complete.
 echo enter your password to make Ghini available to other users.
 
-sudo -k groupadd ghini 2>/dev/null 
+sudo groupadd ghini 2>/dev/null 
 sudo usermod -a -G ghini $(whoami)
 chmod -R g-w+rX,o-rwx $HOME/.virtualenvs/ghide
 sudo chgrp -R ghini $HOME/.virtualenvs/ghide

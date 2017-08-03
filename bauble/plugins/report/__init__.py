@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2017 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -60,19 +60,9 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
-# _paths = {}
 
-# def add_path(parent, descendant, query):
-#     """
-#     Register a query that will give all of the descendants under parent
-
-#     e.g. add_path(Family, Species) would register a query to retrieve
-#     all of the Species under a family
-#     """
-#     if parent not in _paths:
-#         _paths[parent] = {descendent: query}
-#     else descendant not in _paths[parent]:
-#         _paths[parent][descendent] = query
+# to be populated by the dialog box, with fields mentioned in the template
+options = {}
 
 
 def _get_pertinent_objects(cls, get_query_func, objs, session):
@@ -180,9 +170,6 @@ def get_accessions_pertinent_to(objs, session=None):
 def get_species_query(obj, session):
     """
     """
-    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
-    # so that if we want to union() the statements together later it
-    # will work properly
     q = session.query(Species).order_by(None)
     if isinstance(obj, Family):
         return q.join('genus', 'family').\
@@ -218,6 +205,29 @@ def get_species_pertinent_to(objs, session=None):
     """
     return sorted(
         _get_pertinent_objects(Species, get_species_query, objs, session),
+        key=str)
+
+
+def get_location_query(obj, session):
+    """
+    """
+    q = session.query(Location).order_by(None)
+    if isinstance(obj, Location):
+        return q.filter_by(id=obj.id)
+    else:
+        raise BaubleError(_("Can't get species from a %s") %
+                          type(obj).__name__)
+
+
+def get_locations_pertinent_to(objs, session=None):
+    """
+    :param objs: an instance of a mapped object
+    :param session: the session to use for the queries
+
+    Return all the species found in objs.
+    """
+    return sorted(
+        _get_pertinent_objects(Location, get_location_query, objs, session),
         key=str)
 
 

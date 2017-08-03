@@ -123,6 +123,6 @@ class BaubleTestCase(unittest.TestCase):
             self.assertTrue(item is None)
 
 
-def mockfunc(msg=None, name=None, caller=None, result=False):
+def mockfunc(msg=None, name=None, caller=None, result=False, *args, **kwargs):
     caller.invoked.append((name, msg))
     return result
