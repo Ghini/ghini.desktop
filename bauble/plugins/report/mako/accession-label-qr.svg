@@ -332,7 +332,7 @@ else:
 <% text, _, y = add_text(33, 13, options['extra_text'], 0.12, align=1) %>\
     ${text}
 % endif
-<% text = add_qr(34.5, 1, full_code, scale=0.62) %>\
+<% text = add_qr(35, 1, full_code, side=13) %>\
     ${text}
   </g>
 <% xpos += 1 %>\

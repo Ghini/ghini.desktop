@@ -645,6 +645,12 @@ Let the database fit the garden
          on the corresponding row, and click on **edit**. change the quantity to 0,
          fill in the reason and preferably also the date of change.
 
+         If you need add any details about the plant death, please use a
+         **note**, and re-use the note category "death_cause".
+
+         Plants with **quantity** zero are shown with a different colour in
+         the results view.  This helps distinguish them from live plants.
+
   ..  admonition:: we find a plant without a label
       :class: toggle
 
@@ -697,8 +703,25 @@ Let the database fit the garden
 
          We keep two boxes with labels of the two types, ready to be used.
 
-- Our workflow includes moving plants around in the garden, keep track of
-  current locations and history of movements.
+- Our garden has two exposition greenhouses, and several warm and cold
+  greenhouses where we keep the largest part of our collection.  Plants are
+  moved to the exposition when flowering and back to the "warehouse" when
+  less interesting for the exposition. For each plant in our collection we
+  need to know its current locations and history of movements.
+
+  ..  admonition:: planned action
+      :class: toggle
+
+         The action starts by moving the plants around, and collecting the
+         plant code either on paper, or in our mobile app, if we had one.
+
+         We then go to the desktop terminal and revise all plants one by one
+         changing their location in the database.  It is important that the
+         date of the location change is correctly memorized, because this
+         tells us how long a plant stays in the exposition.
+
+         If we had a mobile app, we would just upload the info to the server
+         and we would be done.
 
   ..  admonition:: ex-post correction
       :class: toggle
@@ -732,18 +755,6 @@ Let the database fit the garden
          list that includes Location changes, or Quantity changes.
 
          .. image:: images/1000000000000608000002D2BA2D181475D5AD7C.png
-
-  ..  admonition:: planned action
-      :class: toggle
-
-         The action starts by moving the plants around, and collecting the
-         plant code either on paper, or in our mobile app, if we had one.
-
-         We then go to the desktop terminal and revise all plants one by one
-         changing their location in the database.
-
-         If we had a mobile app, we would just upload the info to the server
-         and we would be done.
 
 - As plants enter the flowering stage, we can review their identification
   directly, or we take pictures of details of the flower, hoping that a
