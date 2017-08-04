@@ -240,9 +240,10 @@ subtribusd = {
     no_factura = ([n.note for n in v.accession.notes if n.category == 'factura'] + [''])[0]
     no_acta = ([n.note for n in v.accession.notes if n.category == 'No.Acta'] + [''])[0]
     anotaciones = '; '.join([n.note for n in v.accession.notes if n.category == 'anotaciones'])
-    egreso = ''
+    ingreso = v.accession._created
+    egreso = v.date_of_death or ''
 %>\
-${v.accession._created}	\
+${ingreso}	\
 ${egreso}	\
 ${code}	\
 ${genus}	\
