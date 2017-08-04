@@ -451,7 +451,6 @@ class PlantTests(GardenTestCase):
         self.assertEquals(plant.quantity, quantity - new_plant.quantity)
         self.assertEquals(new_plant.changes[0].quantity, new_plant.quantity)
 
-
     def test_is_code_unique(self):
         """
         Test bauble.plugins.garden.plant.is_code_unique()
@@ -460,6 +459,19 @@ class PlantTests(GardenTestCase):
         self.assert_(is_code_unique(self.plant, '01'))
         self.assertFalse(is_code_unique(self.plant, '1-2'))
         self.assertFalse(is_code_unique(self.plant, '01-2'))
+
+    def test_living_plant_has_no_date_of_death(self):
+        self.assertEquals(self.plant.date_of_death, None)
+
+    def test_setting_quantity_to_zero_defines_date_of_death(self):
+        self.change = PlantChange()
+        self.session.add(self.change)
+        self.change.plant = self.plant
+        self.change.from_location = self.plant.location
+        self.change.quantity = self.plant.quantity
+        self.plant.quantity = 0
+        self.session.flush()
+        self.assertNotEquals(self.plant.date_of_death, None)
 
 
 class PropagationTests(GardenTestCase):
@@ -2386,13 +2398,13 @@ import bauble.search
 class BaubleSearchSearchTest(BaubleTestCase):
     def test_search_search_uses_Plant_Search(self):
         bauble.search.search("genus like %", self.session)
-        self.assertTrue('SearchStrategy "genus like %"(PlantSearch)' in 
+        self.assertTrue('SearchStrategy "genus like %"(PlantSearch)' in
                    self.handler.messages['bauble.search']['debug'])
         self.handler.reset()
         bauble.search.search("12.11.13", self.session)
-        self.assertTrue('SearchStrategy "12.11.13"(PlantSearch)' in 
+        self.assertTrue('SearchStrategy "12.11.13"(PlantSearch)' in
                    self.handler.messages['bauble.search']['debug'])
         self.handler.reset()
         bauble.search.search("So ha", self.session)
-        self.assertTrue('SearchStrategy "So ha"(PlantSearch)' in 
+        self.assertTrue('SearchStrategy "So ha"(PlantSearch)' in
                    self.handler.messages['bauble.search']['debug'])

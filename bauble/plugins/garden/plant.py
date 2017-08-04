@@ -502,6 +502,15 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 plant_delimiter_key, default_plant_delimiter).value
         return cls._delimiter
 
+    @property
+    def date_of_death(self):
+        if self.quantity != 0:
+            return None
+        try:
+            return max([i.date for i in self.changes])
+        except ValueError:
+            return None
+
     def _get_delimiter(self):
         return Plant.get_delimiter()
     delimiter = property(lambda self: self._get_delimiter())
@@ -923,7 +932,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # the entry is made not editable for branch mode
         self.view.widgets.plant_acc_entry.props.editable = True
         self.view.get_window().props.title = _('Plant Editor')
-        
+
     def start(self):
         return self.view.start()
 
@@ -1300,7 +1309,7 @@ class ChangesExpander(InfoExpander):
                     divided_plant = None
             except:
                 divided_plant = None
-            
+
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
             label.set_alignment(0, 0)
