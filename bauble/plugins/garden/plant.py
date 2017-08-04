@@ -770,6 +770,21 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
+        if self.model.quantity == 0:
+            self.view.widgets.plant_notebook.set_sensitive(False)
+            msg = _('This plant is marked with quantity zero. \n'
+                    'In practice, it is not any more part of the collection. \n'
+                    'Are you sure you want to edit it anyway?')
+            box = None
+            def on_response(button, response):
+                self.view.remove_box(box)
+                if response:
+                    self.view.widgets.plant_notebook.set_sensitive(True)
+            box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
+            box.message = msg
+            box.on_response = on_response
+            box.show()
+            self.view.add_box(box)
 
     def dirty(self):
         return (self.pictures_presenter.is_dirty() or
