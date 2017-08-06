@@ -1138,14 +1138,13 @@ def mem(size="rss"):
 # http://www.bitformation.com/art/python_toposort.html
 #
 def topological_sort(items, partial_order):
-    """
-    Perform topological sort.
+    """Perform topological sort.
 
     :param items: a list of items to be sorted.
 
-    :param partial_order: a list of pairs. If pair (a,b) is in it, it
-        means that item a should appear before item b. Returns a list of
-        the items in one of the possible orders, or None if partial_order
+    :param partial_order: a list of pairs. If pair (a,b) is in it, it means
+        that item 'a' should appear before item 'b'. Returns a list of the
+        items in one of the possible orders, or None if partial_order
         contains a loop.
 
     """
@@ -1160,7 +1159,8 @@ def topological_sort(items, partial_order):
         Add an arc to a graph. Can create multiple arcs. The end nodes must
         already exist.
         """
-        graph[fromnode].append(tonode)
+        graph.setdefault(fromnode, [0]).append(tonode)
+        graph.setdefault(tonode, [0])
         # Update the count of incoming arcs in tonode.
         graph[tonode][0] = graph[tonode][0] + 1
 
