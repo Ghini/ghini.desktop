@@ -542,20 +542,6 @@ class CSVImporter(Importer):
                                          traceback.format_exc(),
                                          type=gtk.MESSAGE_ERROR)
 
-# TODO: we don't use the progress dialog any more but we'll leave this
-# around to remind us when we support cancelling via the progress statusbar
-#
-#     def _cancel_import(self, *args):
-#         '''
-#         called by the progress dialog to cancel the current import
-#         '''
-#         msg = _('Are you sure you want to cancel importing?\n\n<i>All '
-#                 'changes so far will be rolled back.</i>')
-#         self.__pause = True
-#         if utils.yes_no_dialog(msg, parent=self.__progress_dialog):
-#             self.__cancel = True
-##         self.__pause = False
-
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
             """
@@ -613,10 +599,7 @@ class CSVExporter(object):
             logger.debug(e)
 
     def __export_task(self, path):
-#        if not os.path.exists(path):
-#            raise ValueError("CSVExporter: path does not exist.\n" + path)
         filename_template = os.path.join(path, "%s.txt")
-#        timeout = tasklet.WaitForTimeout(12)
         steps_so_far = 0
         ntables = 0
         for table in db.metadata.sorted_tables:
