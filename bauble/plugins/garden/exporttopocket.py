@@ -28,35 +28,44 @@ from bauble import db
 from bauble import pluginmgr
 from bauble.i18n import _
 
+import gtk
+import os
+
 
 def create_pocket(filename):
     create_sql = ['''\
 CREATE TABLE "android_metadata" (
-	"locale"	TEXT DEFAULT 'en_US'
-);''', '''\
-INSERT INTO "android_metadata" VALUES('en_US');''', '''\
+ "locale"       TEXT DEFAULT 'en_US'
+);
+''', '''\
+INSERT INTO "android_metadata" VALUES('en_US');
+''', '''\
 CREATE TABLE "species" (
-	"_id"	INTEGER,
-	"family"	TEXT,
-	"genus"	TEXT,
-	"epithet"	TEXT,
-	"sub-rank"	TEXT,
-	"sub-epithet"	TEXT,
-	"author"	TEXT,
-	PRIMARY KEY(_id)
-);''', '''\
+  "_id"          INTEGER,
+  "family"       TEXT,
+  "genus"        TEXT,
+  "epithet"      TEXT,
+  "sub-rank"     TEXT,
+  "sub-epithet"  TEXT,
+  "author"       TEXT,
+  PRIMARY KEY(_id)
+);
+''', '''\
 CREATE TABLE "accession" (
-	"_id"	INTEGER,
-	"code"	TEXT,
-	"species_id"	INTEGER,
-	"source"	TEXT,
-	PRIMARY KEY(_id)
-);''', '''\
+  "_id"          INTEGER,
+  "code"         TEXT,
+  "species_id"   INTEGER,
+  "source"       TEXT,
+  "start_date"   TEXT,
+  PRIMARY KEY(_id)
+);
+''', '''\
 CREATE TABLE "plant" (
-	"_id"	INTEGER,
-	"accession_id"	INTEGER,
-	"code"	TEXT
-);''','''\
+  "_id"          INTEGER,
+  "accession_id" INTEGER,
+  "code"         TEXT
+  "end_date"     TEXT,
+);
 ''']
     import sqlite3
     cn = sqlite3.connect(filename)
@@ -64,6 +73,7 @@ CREATE TABLE "plant" (
     for statement in create_sql:
         cr.execute(statement)
     cn.commit()
+
 
 def export_to_pocket(filename, include_private=True):
     from bauble.plugins.plants import Species
@@ -85,32 +95,32 @@ def export_to_pocket(filename, include_private=True):
     import sqlite3
     cn = sqlite3.connect(filename)
     cr = cn.cursor()
-    for s in species:
+    for i in species:
         try:
             cr.execute('INSERT INTO "species" '
                    '(_id, family, genus, epithet, "sub-rank", "sub-epithet", author) '
                    'VALUES (?, ?, ?, ?, ?, ?, ?);',
-                   (s.id, s.genus.family.epithet, s.genus.epithet, s.epithet,
-                    s.infraspecific_rank, s.infraspecific_epithet,
-                    s.infraspecific_author or s.sp_author or ''))
+                   (i.id, i.genus.family.epithet, i.genus.epithet, i.epithet,
+                    i.infraspecific_rank, i.infraspecific_epithet,
+                    i.infraspecific_author or i.sp_author or ''))
         except Exception, e:
-            print type(e), e, s.id
-    for a in accessions:
+            log.info("error exporting species %s: %s %s" % (i.id, type(e), e))
+    for i in accessions:
         try:
             cr.execute('INSERT INTO "accession" '
                    '(_id, code, species_id, source) '
                    'VALUES (?, ?, ?, ?);',
-                   (a.id, a.code, a.species_id, ''))
+                   (i.id, i.code, i.species_id, ''))
         except Exception, e:
-            print type(e), e, a.id
-    for p in plants:
+            log.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
+    for i in plants:
         try:
             cr.execute('INSERT INTO "plant" '
                    '(_id, accession_id, code) '
                    'VALUES (?, ?, ?);',
-                   (p.id, p.accession_id, "." + p.code))
+                   (i.id, i.accession_id, "." + i.code))
         except Exception, e:
-            print type(e), e, p.id
+            log.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
     cn.commit()
     session.close()
     return True
@@ -122,6 +132,13 @@ class ExportToPocketTool(pluginmgr.Tool):
 
     @classmethod
     def start(self):
-        pocket = '/tmp/pocket.db'
-        create_pocket(pocket)
-        export_to_pocket(pocket)
+        d = gtk.FileChooserDialog(_("Choose a file to export to..."), None,
+                                  gtk.FILE_CHOOSER_ACTION_SAVE,
+                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        if d.run() == gtk.RESPONSE_ACCEPT:
+            pocket = d.get_filename()
+            os.unlink(pocket)
+            create_pocket(pocket)
+            export_to_pocket(pocket)
+        d.destroy()
