@@ -559,11 +559,9 @@ class CSVImporter(Importer):
                                     gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
         fc.set_select_multiple(True)
         fc.connect("selection-changed", on_selection_changed)
-        r = fc.run()
-        if r != gtk.RESPONSE_ACCEPT:
-            fc.destroy()
-            return None
-        filenames = fc.get_filenames()
+        filenames = None
+        if fc.run() == gtk.RESPONSE_ACCEPT:
+            filenames = fc.get_filenames()
         fc.destroy()
         return filenames
 
