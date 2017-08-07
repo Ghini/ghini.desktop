@@ -335,11 +335,11 @@ class ABCDExporter(object):
                                       gtk.FILE_CHOOSER_ACTION_SAVE,
                                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                        gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-            response = d.run()
-            filename = d.get_filename()
+            filename = None
+            if d.run() == gtk.RESPONSE_ACCEPT:
+                filename = d.get_filename()
             d.destroy()
-            if response != gtk.RESPONSE_ACCEPT or filename is None:
-                return
+            return filename
 
         if plants:
             nplants = len(plants)
