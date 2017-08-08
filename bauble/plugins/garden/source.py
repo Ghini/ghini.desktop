@@ -830,6 +830,7 @@ class ContactPresenter(editor.GenericEditorPresenter):
         view.init_translatable_combo('source_type_combo', source_type_values)
         super(ContactPresenter, self).__init__(model, view, refresh_view=True,
                                                do_commit=True)
+        view.set_accept_buttons_sensitive(False)
 
     def on_textbuffer_changed_description(self, widget, value=None, attr=None):
         return self.on_textbuffer_changed(widget, value, attr='description')

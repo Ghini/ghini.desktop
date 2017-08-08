@@ -1210,6 +1210,10 @@ class GenericEditorPresenter(object):
         if value is None:
             value = widget.props.text
             value = value and utils.utf8(value) or None
+        if not value:
+            self.add_problem(self.PROBLEM_EMPTY, widget)
+        else:
+            self.remove_problem(self.PROBLEM_EMPTY, widget)
         if getattr(self.model, attr) == value:
             return
         logger.debug("on_unique_text_entry_changed(%s, %s) - %s → %s"
