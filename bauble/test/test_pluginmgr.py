@@ -293,7 +293,7 @@ class StandalonePluginMgrTests(unittest.TestCase):
         self.assert_(A.installed and B.installed and C.installed)
 
     def test_dependencies_BA(self):
-        "test that loading B will also load A"
+        "test that loading B will also load A but not C"
 
         pA = A()
         pB = B()
@@ -301,14 +301,22 @@ class StandalonePluginMgrTests(unittest.TestCase):
         bauble.pluginmgr.plugins[B.__name__] = pB
         bauble.pluginmgr.plugins[A.__name__] = pA
         bauble.pluginmgr.plugins[C.__name__] = pC
+        self.assertFalse(C.installed)
+        self.assertFalse(B.installed)
+        self.assertFalse(A.installed)
         db.open(uri, verify=False)
         db.create(False)
+        # the creation of the database installed all plugins, so we manually
+        # reset everything, just to make sure we really test the logic
+        C.installed = B.installed = A.installed = False
         ## should try to load the A plugin
-        self.assertRaises(KeyError,
-                          bauble.pluginmgr.install, (pB, ), force=True)
+        bauble.pluginmgr.install((pB, ), force=True)
+        self.assertTrue(B.installed)
+        self.assertTrue(A.installed)
+        # self.assertFalse(C.installed)
 
-    def test_dependencies_CA(self):
-        "test that loading C will also load A"
+    def test_dependencies_CBA(self):
+        "test that loading C will load B and consequently A"
 
         pA = A()
         pB = B()
@@ -316,11 +324,19 @@ class StandalonePluginMgrTests(unittest.TestCase):
         bauble.pluginmgr.plugins[B.__name__] = pB
         bauble.pluginmgr.plugins[A.__name__] = pA
         bauble.pluginmgr.plugins[C.__name__] = pC
+        self.assertFalse(C.installed)
+        self.assertFalse(B.installed)
+        self.assertFalse(A.installed)
         db.open(uri, verify=False)
         db.create(False)
+        # the creation of the database installed all plugins, so we manually
+        # reset everything, just to make sure we really test the logic
+        C.installed = B.installed = A.installed = False
         ## should try to load the A plugin
-        self.assertRaises(KeyError,
-                          bauble.pluginmgr.install, (pC, ), force=True)
+        bauble.pluginmgr.install((pC, ), force=True)
+        self.assertTrue(C.installed)
+        self.assertTrue(B.installed)
+        self.assertTrue(A.installed)
 
 
 class PluginRegistryTests(BaubleTestCase):

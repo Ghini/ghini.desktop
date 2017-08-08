@@ -1133,19 +1133,21 @@ def mem(size="rss"):
                         (os.getpid(), size)).read())
 
 
-#
-# This implementation of topological sort was taken directly from...
-# http://www.bitformation.com/art/python_toposort.html
-#
 def topological_sort(items, partial_order):
-    """Perform topological sort.
+    """return list of nodes sorted by dependencies
 
     :param items: a list of items to be sorted.
 
-    :param partial_order: a list of pairs. If pair (a,b) is in it, it means
-        that item 'a' should appear before item 'b'. Returns a list of the
-        items in one of the possible orders, or None if partial_order
-        contains a loop.
+    :param partial_order: a list of pairs. If pair ('a', 'b') is in it, it
+        means that 'a' should not appear after 'b'.
+
+    Returns a list of the items in one of the possible orders, or None if
+    partial_order contains a loop.
+
+    We want a minimum list satisfying the requirements, and the partial
+    ordering states dependencies, but they may list more nodes than
+    necessary in the solution. for example, whatever dependencies are given,
+    if you start from the emtpy items list, the empty list is the solution.
 
     """
 
@@ -1162,7 +1164,7 @@ def topological_sort(items, partial_order):
         graph.setdefault(fromnode, [0]).append(tonode)
         graph.setdefault(tonode, [0])
         # Update the count of incoming arcs in tonode.
-        graph[tonode][0] = graph[tonode][0] + 1
+        graph[tonode][0] += 1
 
     # step 1 - create a directed graph with an arc a->b for each input
     # pair (a,b).
@@ -1171,11 +1173,12 @@ def topological_sort(items, partial_order):
     # of the node. /list/'s 1st item is the count of incoming arcs, and
     # the rest are the destinations of the outgoing arcs. For example:
     # {'a':[0,'b','c'], 'b':[1], 'c':[1]}
-    # represents the graph: c <-- a --> b
+    # represents the graph: a --> b, a --> c
     # The graph may contain loops and multiple arcs.
-    # Note that our representation does not contain reference loops to
-    # cause GC problems even when the represented graph contains loops,
-    # because we keep the node names rather than references to the nodes.
+
+    # (ABCDE, (AB, BC, BD)) becomes:
+    # {a: [0, b], b: [1, c, d], c: [1], d: [1], e: [0]}
+    # requesting B and E from the above should result in including all except A, and prepending C and D to B.
 
     graph = {}
     for v in items:
