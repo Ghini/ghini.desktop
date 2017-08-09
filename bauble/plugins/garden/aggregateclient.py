@@ -22,6 +22,8 @@ from requests.auth import HTTPDigestAuth
 import requests
 import xml.etree.ElementTree as ET
 
+import re
+
 def get_submissions(host, form_id, user, pw):
     base_format = 'https://%(host)s/view/%(api)s?formId=%(form_id)s'
     submission_format = '[@version=null and @uiVersion=null]/%(group_name)s[@key=%(uuid)s]'
@@ -30,8 +32,10 @@ def get_submissions(host, form_id, user, pw):
                                          'api': 'submissionList',
                                          'host': host},
                           auth=auth)
+    if not result.ok:
+        return
     root = ET.fromstring(result.text)
-    idlist, cursor = root
+    idlist = root[0]
     result = []
     for uuid in [i.text for i in idlist]:
         url = (base_format % {'form_id': form_id,
@@ -41,7 +45,18 @@ def get_submissions(host, form_id, user, pw):
                                     'uuid': uuid})
         reply = requests.get(url, auth=auth)
         root = ET.fromstring(reply.text)
-        data, = root
-        form, = data
-        result.append(dict([(i.tag.replace('{http://opendatakit.org/submissions}', ''), i.text) for i in form]))
+        data = root[0]  # media may follow
+        form = data[0]
+        d = dict([(re.sub(r'{.*}(.*)', r'\1', i.tag), i.text) for i in form])
+        for key in d.keys():
+            if not key.endswith('_repeat'):
+                continue
+            del d[key]
+            prefix = key[:-7]
+            d[prefix] = [i[0].text for i in form if i.tag.endswith(key)]
+        d['media'] = {}
+        for i, media_element in enumerate(root[1:]):
+            filename, hash, url = media_element
+            d['media'][filename.text] = (url.text, hash.text)
+        result.append(d)
     return result
