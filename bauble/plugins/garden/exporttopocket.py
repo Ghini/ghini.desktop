@@ -143,7 +143,8 @@ class ExportToPocketTool(pluginmgr.Tool):
                                    gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         if d.run() == gtk.RESPONSE_ACCEPT:
             pocket = d.get_filename()
-            os.unlink(pocket)
+            if os.path.isfile(pocket):
+                os.unlink(pocket)
             create_pocket(pocket)
             export_to_pocket(pocket)
         d.destroy()
