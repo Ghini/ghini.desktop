@@ -301,8 +301,10 @@ The installation steps on Windows:
    it is right in your HOME folder, and has been created at the previous
    step.
 
-   right-click on it, select run as administrator, confirm you want it to
-   make changes to your computer. These changes are in the Start Menu only:
+   .. image:: images/windows-run_as_administrator.png
+
+   Right-click on it, select run as administrator, confirm you want it to
+   make changes to your computer.  These changes are in the Start Menu only:
    create the Ghini group, place the Ghini shortcut.
 
 #. download the batch file you will use to stay up-to-date with the

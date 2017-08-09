@@ -120,6 +120,7 @@
               <object class="GtkComboBox" id="source_type_combo">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <signal name="changed" handler="on_combo_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="left_attach">1</property>

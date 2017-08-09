@@ -298,3 +298,22 @@ class QRCodeTests(BaubleTestCase):
         self.assertEquals(parts[0], '<g transform="translate(30,10)">')
         self.assertEquals(parts[1], self.path)
         self.assertEquals(parts[2], '</g>')
+
+    def test_can_get_qr_as_string_translated_framed(self):
+        g = add_qr(30, 10, 'http://ghini.readthedocs.io/en/ghini-1.0-dev/', side=30)
+        parts = g.split('\n')
+        self.assertEquals(len(parts), 3)
+        self.assertEquals(parts[0], '<g transform="translate(30,10)scale(0.731707317073)">')
+        self.assertEquals(parts[2], '</g>')
+
+        g = add_qr(30, 10, '2014.0018.2', side=30)
+        parts = g.split('\n')
+        self.assertEquals(len(parts), 3)
+        self.assertEquals(parts[0], '<g transform="translate(30,10)scale(1.2)">')
+        self.assertEquals(parts[2], '</g>')
+
+        g = add_qr(30, 10, '2014.0018', side=30)
+        parts = g.split('\n')
+        self.assertEquals(len(parts), 3)
+        self.assertEquals(parts[0], '<g transform="translate(30,10)scale(1.42857142857)">')
+        self.assertEquals(parts[2], '</g>')

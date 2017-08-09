@@ -502,6 +502,15 @@ class Plant(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 plant_delimiter_key, default_plant_delimiter).value
         return cls._delimiter
 
+    @property
+    def date_of_death(self):
+        if self.quantity != 0:
+            return None
+        try:
+            return max([i.date for i in self.changes])
+        except ValueError:
+            return None
+
     def _get_delimiter(self):
         return Plant.get_delimiter()
     delimiter = property(lambda self: self._get_delimiter())
@@ -770,6 +779,21 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
+        if self.model.quantity == 0:
+            self.view.widgets.plant_notebook.set_sensitive(False)
+            msg = _('This plant is marked with quantity zero. \n'
+                    'In practice, it is not any more part of the collection. \n'
+                    'Are you sure you want to edit it anyway?')
+            box = None
+            def on_response(button, response):
+                self.view.remove_box(box)
+                if response:
+                    self.view.widgets.plant_notebook.set_sensitive(True)
+            box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
+            box.message = msg
+            box.on_response = on_response
+            box.show()
+            self.view.add_box(box)
 
     def dirty(self):
         return (self.pictures_presenter.is_dirty() or
@@ -908,7 +932,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # the entry is made not editable for branch mode
         self.view.widgets.plant_acc_entry.props.editable = True
         self.view.get_window().props.title = _('Plant Editor')
-        
+
     def start(self):
         return self.view.start()
 
@@ -1285,7 +1309,7 @@ class ChangesExpander(InfoExpander):
                     divided_plant = None
             except:
                 divided_plant = None
-            
+
             date = change.date.strftime(date_format)
             label = gtk.Label('%s:' % date)
             label.set_alignment(0, 0)

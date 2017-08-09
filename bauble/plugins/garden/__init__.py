@@ -44,6 +44,7 @@ from bauble.plugins.garden.source import (
     Collection, collection_context_menu)
 from bauble.plugins.garden.institution import (
     Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
+from bauble.plugins.garden.exporttopocket import ExportToPocketTool
 
 #from bauble.plugins.garden.propagation import *
 import bauble.search as search
@@ -57,7 +58,7 @@ import re
 class GardenPlugin(pluginmgr.Plugin):
 
     depends = ["PlantsPlugin"]
-    tools = [InstitutionTool]
+    tools = [InstitutionTool, ExportToPocketTool]
     commands = [InstitutionCommand]
 
     @classmethod
