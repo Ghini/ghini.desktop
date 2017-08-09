@@ -63,8 +63,9 @@ CREATE TABLE "accession" (
 CREATE TABLE "plant" (
   "_id"          INTEGER,
   "accession_id" INTEGER,
-  "code"         TEXT
+  "code"         TEXT,
   "end_date"     TEXT,
+  PRIMARY KEY(_id)
 );
 ''']
     import sqlite3
@@ -107,10 +108,14 @@ def export_to_pocket(filename, include_private=True):
             log.info("error exporting species %s: %s %s" % (i.id, type(e), e))
     for i in accessions:
         try:
+            try:
+                source_name = i.source.source_detail.name or ''
+            except AttributeError:
+                source_name = ''
             cr.execute('INSERT INTO "accession" '
                    '(_id, code, species_id, source) '
                    'VALUES (?, ?, ?, ?);',
-                   (i.id, i.code, i.species_id, ''))
+                   (i.id, i.code, i.species_id, source_name))
         except Exception, e:
             log.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
     for i in plants:
