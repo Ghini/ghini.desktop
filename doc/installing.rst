@@ -87,6 +87,11 @@ Open a shell terminal window, and follow the following instructions.
 
       .. image:: images/new_version_available.png
 
+   #. Users of the global installation will also type ``ghini`` to invoke
+      the program, but they will get to a different script, located in
+      ``/usr/local/bin``. This globally available ``ghini`` script cannot be
+      used to update a ghini installation.
+
    #. Again the same ``ghini`` script lets you install the optional database
       connectors: option ``-p`` is for PostgreSQL, option ``-m`` is for
       MySQL/MariaDB, but you can also install both at the same time::
