@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-04 10:35-0500\n"
+"POT-Creation-Date: 2017-08-10 09:02-0500\n"
 "PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
@@ -68,7 +68,7 @@ msgstr ""
 msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s v %(location)s"
 
-#: bauble/editor.py:1900
+#: bauble/editor.py:1904
 msgid "%(user)s on %(date)s"
 msgstr "%(user)s %(date)s"
 
@@ -88,7 +88,7 @@ msgid ""
 "Do you want to accept it?"
 msgstr ""
 
-#: bauble/pluginmgr.py:620
+#: bauble/pluginmgr.py:625
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
 msgstr "%s.plugin není instance pluginmgr.Plugin"
 
@@ -379,11 +379,11 @@ msgstr ""
 msgid "<empty>"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1348
+#: bauble/plugins/garden/plant.py:1357
 msgid "<i>Split as %(plant)s</i>"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1331
+#: bauble/plugins/garden/plant.py:1340
 msgid "<i>Split from %(plant)s</i>"
 msgstr "<i>Větveno z %(plant)s</i>"
 
@@ -430,7 +430,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:521
 #: bauble/plugins/garden/acc_editor.glade:766
-#: bauble/plugins/garden/__init__.py:119
+#: bauble/plugins/garden/__init__.py:120
 #: bauble/plugins/report/xsl/__init__.py:87
 #: bauble/plugins/report/xsl/__init__.py:430
 msgid "Accession"
@@ -502,7 +502,7 @@ msgstr "Správce"
 msgid "Air layer"
 msgstr "Vzduchová vrstva"
 
-#: bauble/plugins/garden/plant.py:1235
+#: bauble/plugins/garden/plant.py:1244
 msgid "Alive"
 msgstr "Naživu"
 
@@ -522,7 +522,7 @@ msgstr ""
 msgid "Are you sure you want to delete the tag \"%s\"?"
 msgstr "Jste si jisti, že chcete smazat značku \"%s\"?"
 
-#: bauble/plugins/garden/accession.py:2335 bauble/plugins/garden/plant.py:1087
+#: bauble/plugins/garden/accession.py:2335 bauble/plugins/garden/plant.py:1096
 #: bauble/plugins/plants/genus.py:781
 msgid "Are you sure you want to lose your changes?"
 msgstr "Opravdu chcete ztratit tyto změny?"
@@ -666,7 +666,7 @@ msgstr "Cibule"
 msgid "Bulbil"
 msgstr "Malá cibulka"
 
-#: bauble/plugins/imex/csv_.py:606
+#: bauble/plugins/imex/csv_.py:590
 msgid ""
 "CSVExporter: path does not exist.\n"
 "%s"
@@ -694,7 +694,7 @@ msgstr ""
 msgid "Cancel your changes"
 msgstr "Zrušit Vaše změny"
 
-#: bauble/plugins/garden/accession.py:898 bauble/plugins/garden/plant.py:612
+#: bauble/plugins/garden/accession.py:898 bauble/plugins/garden/plant.py:621
 #: bauble/plugins/plants/family.py:360 bauble/plugins/plants/genus.py:421
 msgid "Cancel your changes."
 msgstr "Zrušit Vaše změny."
@@ -712,16 +712,17 @@ msgstr "Změnit heslo"
 msgid "Change history"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1258
+#: bauble/plugins/garden/plant.py:1267
 msgid "Changes"
 msgstr "Změny"
 
 #: bauble/plugins/abcd/__init__.py:334
+#: bauble/plugins/garden/exporttopocket.py:140
 msgid "Choose a file to export to..."
 msgstr "Zvolte soubor do kterého exportovat..."
 
 #: bauble/connmgr.py:235 bauble/connmgr.py:245 bauble/connmgr.py:255
-#: bauble/editor.py:2002 bauble/editor.py:2009
+#: bauble/editor.py:2006 bauble/editor.py:2013
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
 msgid "Choose a file..."
@@ -731,7 +732,7 @@ msgstr "Zvolte soubor..."
 msgid "Choose a property..."
 msgstr "Zvolte vlastnost..."
 
-#: bauble/plugins/imex/csv_.py:569
+#: bauble/plugins/imex/csv_.py:555
 msgid "Choose file(s) to import..."
 msgstr "Zvolte soubor(y) pro importování..."
 
@@ -778,7 +779,7 @@ msgstr "Sběratel"
 msgid "Collector:"
 msgstr ""
 
-#: bauble/plugins/imex/csv_.py:702 bauble/plugins/imex/csv_.py:720
+#: bauble/plugins/imex/csv_.py:683 bauble/plugins/imex/csv_.py:701
 msgid "Comma Separated Value"
 msgstr "Čárkou oddělené hodnoty"
 
@@ -791,7 +792,7 @@ msgid "Connection Details"
 msgstr "Podrobnosti spojení"
 
 #: bauble/plugins/garden/acc_editor.glade:1208
-#: bauble/plugins/garden/__init__.py:122
+#: bauble/plugins/garden/__init__.py:123
 msgid "Contact"
 msgstr ""
 
@@ -856,7 +857,7 @@ msgid ""
 msgstr ""
 "Nelze najít příkaz \"%(exe)s\" pro spuštění vykreslovače %(renderer_name)s."
 
-#: bauble/pluginmgr.py:583
+#: bauble/pluginmgr.py:588
 msgid ""
 "Could not import the %(module)s module.\n"
 "\n"
@@ -937,11 +938,11 @@ msgstr "Kryt"
 msgid "Covered"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:608
+#: bauble/plugins/garden/plant.py:617
 msgid "Create a new location."
 msgstr "Vytvořit nové umístění."
 
-#: bauble/plugins/garden/plant.py:610
+#: bauble/plugins/garden/plant.py:619
 msgid "Create a new propagation record for this plant."
 msgstr "Vytvořit nový záznam šíření pro tuto rostlinu."
 
@@ -1045,7 +1046,7 @@ msgid "Dates"
 msgstr "Data"
 
 #: bauble/plugins/garden/plant.py:263 bauble/plugins/garden/plant.py:336
-#: bauble/plugins/garden/plant.py:1237
+#: bauble/plugins/garden/plant.py:1246
 msgid "Dead"
 msgstr "Mrtvá"
 
@@ -1129,7 +1130,7 @@ msgstr "Úpravy"
 msgid "Edit stored queries"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:609
+#: bauble/plugins/garden/plant.py:618
 msgid "Edit the selected location."
 msgstr "Upravit vybrané umístění."
 
@@ -1178,7 +1179,7 @@ msgid "Epithet"
 msgstr "Epiteton"
 
 #: bauble/plugins/garden/accession.py:2350
-#: bauble/plugins/garden/location.py:398 bauble/plugins/garden/plant.py:1097
+#: bauble/plugins/garden/location.py:398 bauble/plugins/garden/plant.py:1106
 #: bauble/plugins/garden/propagation.py:1137
 #: bauble/plugins/plants/family.py:640 bauble/plugins/plants/genus.py:788
 #: bauble/plugins/plants/species_editor.py:1249
@@ -1239,7 +1240,8 @@ msgstr "Výborná"
 msgid "Expedition"
 msgstr "Expedice"
 
-#: bauble/plugins/abcd/__init__.py:389 bauble/plugins/imex/csv_.py:719
+#: bauble/plugins/abcd/__init__.py:389
+#: bauble/plugins/garden/exporttopocket.py:135 bauble/plugins/imex/csv_.py:700
 #: bauble/plugins/imex/iojson.py:306 bauble/plugins/imex/xml.py:143
 msgid "Export"
 msgstr "Export"
@@ -1249,7 +1251,7 @@ msgstr "Export"
 msgid "Export To JSON"
 msgstr "Export"
 
-#: bauble/plugins/imex/csv_.py:626
+#: bauble/plugins/imex/csv_.py:607
 msgid ""
 "Export file <b>%(filename)s</b> for <b>%(table)s</b> table already exists.\n"
 "\n"
@@ -1351,8 +1353,8 @@ msgstr "Genová banka"
 #: bauble/plugins/garden/acc_editor.glade:1188
 #: bauble/plugins/plants/genus_editor.glade:284
 #: bauble/plugins/garden/accession.py:2504
-#: bauble/plugins/garden/location.py:462 bauble/plugins/garden/plant.py:1193
-#: bauble/plugins/garden/source.py:845 bauble/plugins/plants/family.py:709
+#: bauble/plugins/garden/location.py:462 bauble/plugins/garden/plant.py:1202
+#: bauble/plugins/garden/source.py:846 bauble/plugins/plants/family.py:709
 #: bauble/plugins/plants/genus.py:861 bauble/plugins/plants/species.py:285
 #: bauble/plugins/plants/species.py:444 bauble/plugins/tag/__init__.py:622
 msgid "General"
@@ -1533,7 +1535,7 @@ msgstr "Pokud id_qual je aff. nebo cf. pak je vyžadován id_qual_rank. %s "
 msgid "Immature"
 msgstr "Nedospělé"
 
-#: bauble/plugins/imex/csv_.py:701 bauble/plugins/imex/iojson.py:286
+#: bauble/plugins/imex/csv_.py:682 bauble/plugins/imex/iojson.py:286
 msgid "Import"
 msgstr "Import"
 
@@ -1623,7 +1625,7 @@ msgstr ""
 msgid "Internodal"
 msgstr "Meziuzlové"
 
-#: bauble/plugins/imex/csv_.py:710
+#: bauble/plugins/imex/csv_.py:691
 msgid ""
 "It is possible that importing data into this database could destroy or "
 "corrupt your existing data.\n"
@@ -1701,7 +1703,7 @@ msgstr "Místo"
 #: bauble/plugins/garden/plant_editor.glade:1112
 #: bauble/plugins/garden/prop_editor.glade:539
 #: bauble/plugins/garden/prop_editor.glade:1032
-#: bauble/plugins/garden/__init__.py:121
+#: bauble/plugins/garden/__init__.py:122
 #: bauble/plugins/garden/propagation.py:199
 #: bauble/plugins/garden/propagation.py:222
 msgid "Location"
@@ -1791,7 +1793,7 @@ msgid "Municipal department"
 msgstr "Městský odbor"
 
 #: bauble/pictures.glade:76 bauble/plugins/garden/loc_editor.glade:190
-#: bauble/plugins/garden/contact.glade:159
+#: bauble/plugins/garden/contact.glade:160
 #: bauble/plugins/garden/acc_editor.glade:228 bauble/plugins/tag/tag.glade:163
 #: bauble/notes.glade:323 bauble/bauble.glade:444 bauble/bauble.glade:504
 msgid "Name"
@@ -1959,7 +1961,7 @@ msgstr ""
 msgid "Pictures root:"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:925
+#: bauble/plugins/garden/plant.py:934
 msgid "Plant Editor"
 msgstr ""
 
@@ -1973,7 +1975,7 @@ msgid "Plant/Clone"
 msgstr "Rostlina/Klon"
 
 #: bauble/plugins/garden/acc_editor.glade:2343
-#: bauble/plugins/garden/__init__.py:120
+#: bauble/plugins/garden/__init__.py:121
 #: bauble/plugins/garden/accession.py:436 bauble/plugins/garden/plant.py:395
 msgid "Planting"
 msgstr "Rostlina"
@@ -2078,7 +2080,7 @@ msgid "Propagation of Source Material"
 msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:937
-#: bauble/plugins/garden/plant.py:1379
+#: bauble/plugins/garden/plant.py:1388
 msgid "Propagations"
 msgstr "Šíření"
 
@@ -2251,7 +2253,7 @@ msgstr "Uložit Vaše změny a přidat druh do tohoto rodu."
 msgid "Save your changes and add an accession to this species"
 msgstr "Uložit Vaše změny a přidat přírůstek k tomuto druhu"
 
-#: bauble/plugins/garden/accession.py:902 bauble/plugins/garden/plant.py:616
+#: bauble/plugins/garden/accession.py:902 bauble/plugins/garden/plant.py:625
 msgid "Save your changes and add another accession."
 msgstr "Uložit Vaše změny a přidat další přírůstek."
 
@@ -2263,7 +2265,7 @@ msgstr "Uložit Vaše změny a přidat další rodinu."
 msgid "Save your changes and add another genus."
 msgstr "Uložit Vaše změny a přidat jiný rod."
 
-#: bauble/plugins/garden/plant.py:614
+#: bauble/plugins/garden/plant.py:623
 msgid "Save your changes and add another plant."
 msgstr "Uložit Vaše změny a přidat další rostlinu."
 
@@ -2271,7 +2273,7 @@ msgstr "Uložit Vaše změny a přidat další rostlinu."
 msgid "Save your changes and add another species "
 msgstr "Uložit Vaše změny a přidat nový druh "
 
-#: bauble/plugins/garden/accession.py:899 bauble/plugins/garden/plant.py:613
+#: bauble/plugins/garden/accession.py:899 bauble/plugins/garden/plant.py:622
 #: bauble/plugins/plants/family.py:361 bauble/plugins/plants/genus.py:422
 msgid "Save your changes."
 msgstr "Uložit Vaše změny."
@@ -2396,7 +2398,7 @@ msgstr "Vyberte oblast"
 msgid "Select a contact"
 msgstr ""
 
-#: bauble/plugins/imex/csv_.py:595 bauble/plugins/imex/xml.py:74
+#: bauble/plugins/imex/csv_.py:579 bauble/plugins/imex/xml.py:74
 msgid "Select a directory"
 msgstr "Zvolte adresář"
 
@@ -2408,7 +2410,7 @@ msgstr "Vyberte soubor..."
 msgid "Select a stylesheet"
 msgstr "Vyberte stylopis"
 
-#: bauble/utils/__init__.py:1304
+#: bauble/utils/__init__.py:1307
 msgid "Show details"
 msgstr "Zobrazit detaily"
 
@@ -2496,11 +2498,11 @@ msgstr "Druhová synonyma"
 msgid "Split"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:1160
+#: bauble/plugins/garden/plant.py:1169
 msgid "Split Mode"
 msgstr "Režim větvení"
 
-#: bauble/plugins/garden/plant.py:1163
+#: bauble/plugins/garden/plant.py:1172
 msgid ""
 "Splitting from %(plant_code)s.  The quantity will be subtracted from "
 "%(plant_code)s"
@@ -2629,7 +2631,7 @@ msgstr "Editor uživatelů je platný pouze v databázi PostgreSQL"
 msgid "The accession ID must be a unique code"
 msgstr "ID přírůstku musí být jedinečný kód"
 
-#: bauble/plugins/garden/plant.py:600
+#: bauble/plugins/garden/plant.py:609
 msgid ""
 "The accession must be selected from the list of completions.  To add an "
 "accession use the Accession editor."
@@ -2798,7 +2800,7 @@ msgstr "Určené umístění pro přijímaný rostlinný materiál."
 msgid "The intitution code should be unique among all institions."
 msgstr "Kód instituce by měl být mezi všemi institucemi jedinečný."
 
-#: bauble/plugins/garden/plant.py:603
+#: bauble/plugins/garden/plant.py:612
 msgid "The location of the planting in your collection."
 msgstr "Umístění rostliyn ve Vaší sbírce."
 
@@ -2865,7 +2867,7 @@ msgid ""
 "changed."
 msgstr "Hesla se neshodují. Heslo pro uživatele <b>%s</b> nebylo změněno."
 
-#: bauble/plugins/garden/plant.py:596
+#: bauble/plugins/garden/plant.py:605
 msgid ""
 "The planting code must be a unique code for the accession.  You may also use "
 "ranges like 1,2,7 or 1-3 to create multiple plants."
@@ -2881,7 +2883,7 @@ msgstr ""
 "Zásuvné moduly obsahují závislostní smyčku. To se může stát, když dva "
 "zásuvné moduly na sobě přímo či nepřímo závisejí"
 
-#: bauble/pluginmgr.py:314
+#: bauble/pluginmgr.py:317
 msgid ""
 "The plugins contain a dependency loop. This can happend if two plugins "
 "directly or indirectly rely on each other"
@@ -2935,7 +2937,7 @@ msgstr "Telefonní číslo instituce."
 msgid "The type of the accessioned material."
 msgstr "Typ získaného materiálu."
 
-#: bauble/plugins/garden/plant.py:605
+#: bauble/plugins/garden/plant.py:614
 msgid ""
 "The type of the plant material.\n"
 "\n"
@@ -2976,7 +2978,7 @@ msgid ""
 "Are you sure you want to insert it again?"
 msgstr ""
 
-#: bauble/plugins/garden/plant.py:775
+#: bauble/plugins/garden/plant.py:784
 msgid ""
 "This plant is marked with quantity zero. \n"
 "In practice, it is not any more part of the collection. \n"
@@ -3098,7 +3100,7 @@ msgid "Unknown Error."
 msgstr "Neznámá chyba."
 
 #: bauble/plugins/garden/accession.py:2355
-#: bauble/plugins/garden/location.py:404 bauble/plugins/garden/plant.py:1102
+#: bauble/plugins/garden/location.py:404 bauble/plugins/garden/plant.py:1111
 #: bauble/plugins/garden/propagation.py:1143
 #: bauble/plugins/plants/family.py:645 bauble/plugins/plants/genus.py:793
 #: bauble/plugins/plants/species_editor.py:1255
@@ -3461,7 +3463,7 @@ msgstr ""
 msgid "by %(verifier)s"
 msgstr "Ověřovatel"
 
-#: bauble/plugins/garden/plant.py:970
+#: bauble/plugins/garden/plant.py:979
 msgid "cannot split a new plant"
 msgstr "nelze větvit novou rostlinu"
 
@@ -3532,7 +3534,7 @@ msgstr ""
 msgid "export includes:"
 msgstr ""
 
-#: bauble/plugins/imex/csv_.py:651
+#: bauble/plugins/imex/csv_.py:632
 msgid "exporting %(table)s table to %(filename)s"
 msgstr "exportování tabulky %(table)s do %(filename)s"
 
@@ -3614,7 +3616,7 @@ msgstr ""
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
-#: bauble/editor.py:1447
+#: bauble/editor.py:1451
 msgid "no widget with name %s"
 msgstr "žádný ovládací prvek s názvem %s"
 
@@ -3626,7 +3628,7 @@ msgstr ""
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:1992 bauble/utils/__init__.py:130
+#: bauble/editor.py:1996 bauble/utils/__init__.py:130
 msgid "picture file %s not found."
 msgstr ""
 
@@ -3721,6 +3723,10 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1475
 msgid "to"
 msgstr "do"
+
+#: bauble/plugins/garden/exporttopocket.py:136
+msgid "to ghini.pocket"
+msgstr ""
 
 #: bauble/plugins/plants/stored_queries.glade:109
 msgid "tooltip"
