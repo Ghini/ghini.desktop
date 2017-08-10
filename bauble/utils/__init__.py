@@ -1253,28 +1253,6 @@ class GenericMessageBox(gtk.EventBox):
     def show(self):
         self.show_all()
 
-    def animate(self):
-        return
-        # TODO: this animation should be smoother
-        width, height = self.size_request()
-        self.set_size_request(width, 0)
-        import time
-        self.last_time = time.time()
-
-        def _animate_cb(final_height):
-            height = 0
-            while height < final_height:
-                width, height = self.size_request()
-                height = height + 1
-                self.set_size_request(width, height)
-                self.queue_resize()
-                while gtk.events_pending():
-                    gtk.main_iteration(False)
-            logger.debug('return False')
-            return False
-        #gobject.timeout_add(8, _animate_cb, height)
-        gobject.idle_add(_animate_cb, height)
-
 
 class MessageBox(GenericMessageBox):
     """
@@ -1287,10 +1265,9 @@ class MessageBox(GenericMessageBox):
         self.box.pack_start(self.vbox)
 
         self.label = gtk.TextView()
+        self.label.set_can_focus(False)
         self.buffer = gtk.TextBuffer()
         self.label.set_buffer(self.buffer)
-        #self.label.set_padding(8, 8)
-        #self.label.set_alignment(0, 0)
         if msg:
             self.buffer.set_text(msg)
         self.vbox.pack_start(self.label, expand=True, fill=True)
