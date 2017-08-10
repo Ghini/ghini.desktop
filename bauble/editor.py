@@ -482,6 +482,10 @@ class GenericEditorView(object):
         widget = self.__get_widget(widget)
         return widget.get_model()
 
+    def widget_grab_focus(self, widget):
+        widget = self.__get_widget(widget)
+        return widget.grab_focus()
+
     def widget_get_active(self, widget):
         widget = self.__get_widget(widget)
         return widget.get_active()
@@ -769,7 +773,7 @@ class MockView:
     '''mocking the view, but so generic that we share it among clients
     '''
     def __init__(self, **kwargs):
-        self.widgets = type('MockWidgets', (object, ), {})
+        self.widgets = type('MockWidgets', (object, ), {})()
         self.models = {}  # dictionary of list of tuples
         self.invoked = []
         self.invoked_detailed = []
@@ -928,6 +932,10 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], args))
         self.values[args[0]] = args[1]
 
+    def widget_grab_focus(self, *args):
+        self.invoked.append('widget_grab_focus')
+        self.invoked_detailed.append((self.invoked[-1], args))
+
     def widget_set_active(self, *args):
         self.invoked.append('widget_set_active')
         self.invoked_detailed.append((self.invoked[-1], args))
@@ -937,10 +945,9 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], args))
 
     def get_window(self):
-        return self.__window
         self.invoked.append('get_window')
         self.invoked_detailed.append((self.invoked[-1], []))
-        return None
+        return self.__window
 
     widget_get_active = widget_get_value
 

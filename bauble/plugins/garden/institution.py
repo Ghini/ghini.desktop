@@ -105,7 +105,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self.email_regexp = re.compile(r'.+@.+\..+')
         super(InstitutionPresenter, self).__init__(
             model, view, refresh_view=True)
-        self.view.widgets.inst_name.grab_focus()
+        self.view.widget_grab_focus('inst_name')
         self.on_non_empty_text_entry_changed('inst_name')
         self.on_email_text_entry_changed('inst_email')
 
