@@ -128,9 +128,6 @@ def get_plants_pertinent_to(objs, session=None):
 def get_accession_query(obj, session):
     """
     """
-    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
-    # so that if we want to union() the statements together later it
-    # will work properly
     q = session.query(Accession).order_by(None)
     if isinstance(obj, Family):
         return q.join('species', 'genus', 'family').\
