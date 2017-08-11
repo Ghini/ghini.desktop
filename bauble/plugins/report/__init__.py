@@ -211,8 +211,12 @@ def get_location_query(obj, session):
     q = session.query(Location).order_by(None)
     if isinstance(obj, Location):
         return q.filter_by(id=obj.id)
+    elif isinstance(obj, Plant):
+        return q.join('plants').filter_by(id=obj.id)
+    elif isinstance(obj, Accession):
+        return q.join('plants', 'accession').filter_by(id=obj.id)
     else:
-        raise BaubleError(_("Can't get species from a %s") %
+        raise BaubleError(_("Can't get Location from a %s") %
                           type(obj).__name__)
 
 

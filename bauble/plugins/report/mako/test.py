@@ -82,16 +82,18 @@ class MakoFormatterTests(BaubleTestCase):
     def tearDown(self, *args):
         super(MakoFormatterTests, self).tearDown(*args)
 
-    def test_format(self):
+    def test_format_all_templates(self):
         """
-        Test the MakoFormatterPlugin.format() runs without raising an error.
+        MakoFormatterPlugin.format() runs without raising an error for all templates.
         """
         plants = self.session.query(Plant).all()
-        filename = os.path.join(os.path.dirname(__file__), 'example.csv')
-        report = MakoFormatterPlugin.format(plants, template=filename)
-        assert(isinstance(report, basestring))
-        open('/tmp/testlabels.csv', 'w').write(report)
-        #print >>sys.stderr, report
+        td = os.path.join(os.path.dirname(__file__), 'templates')
+        for tn in os.listdir(td):
+            if tn.endswith('~'):
+                continue
+            filename = os.path.join(td, tn)
+            report = MakoFormatterPlugin.format(plants, template=filename)
+            self.assertTrue(isinstance(report, basestring))
 
 
 class SvgProductionTest(BaubleTestCase):

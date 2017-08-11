@@ -320,13 +320,13 @@ xpos = ypos = 0
 <% text_epithet, x, y = add_text(x, y, unicode(v.infraspecific_epithet), 2, italic=True, strokes=2) %>\
       <g transform="translate(${x_base},0)scale(${min(1,600.0/(x-x_base))},1)translate(-${x_base},0)">${text_rank}${text_epithet}</g>
     % elif v.sp_author:
-      <% text, x, y = add_text(min(x, 600+x_base), 140, v.sp_author, 1.25, italic=False, align_right=True) %>\
+      <% text, x, y = add_text(min(x, 600+x_base), 140, v.sp_author, 1.25, italic=False, align=1) %>\
       ${text}
     % endif
 <% text, x, y = add_text(40, 245, v.genus.family.family, 1.25) %>\
     ${text}
 <% distribution = v.label_distribution or v.distribution_str() %>\
-<% text, x, y = add_text(640, 300, distribution, 1.25, align_right=True) %>\
+<% text, x, y = add_text(640, 300, distribution, 1.25, align=1) %>\
     ${text}
 <% name = v.default_vernacular_name and v.default_vernacular_name.name or '' %>\
 <% text, x, y = add_text(40, y, name, 1.25) %>\
