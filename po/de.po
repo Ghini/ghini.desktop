@@ -663,7 +663,7 @@ msgstr ""
 
 #: bauble/plugins/report/__init__.py:219
 msgid "Can't get Location from a %s"
-msgstr ""
+msgstr "Kann Ort nicht von %s bekommen"
 
 #: bauble/plugins/report/__init__.py:152
 msgid "Can't get accessions from a %s"

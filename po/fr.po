@@ -673,19 +673,19 @@ msgstr ""
 
 #: bauble/plugins/report/__init__.py:219
 msgid "Can't get Location from a %s"
-msgstr ""
+msgstr "Impossible d'obtenir des emplacements d'un %s"
 
 #: bauble/plugins/report/__init__.py:152
 msgid "Can't get accessions from a %s"
-msgstr "Impossible d'obtenir l'accès d'un %s"
+msgstr "Impossible d'obtenir des accès d'un %s"
 
 #: bauble/plugins/report/__init__.py:115
 msgid "Can't get plants from a %s"
-msgstr "Impossible d'obtenir des plantes à partir d'un %s"
+msgstr "Impossible d'obtenir des plantes d'un %s"
 
 #: bauble/plugins/report/__init__.py:192
 msgid "Can't get species from a %s"
-msgstr "Impossible d'obtenir une espèce de %s"
+msgstr "Impossible d'obtenir des espèces d'un %s"
 
 #: bauble/plugins/plants/taxonomy_check.glade:693
 msgid "Cancel"
