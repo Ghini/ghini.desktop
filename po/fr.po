@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-10 09:02-0500\n"
+"POT-Creation-Date: 2017-08-12 14:55-0500\n"
 "PO-Revision-Date: 2017-08-01 17:16+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -62,11 +62,11 @@ msgstr ""
 msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s en %(location)s"
 
-#: bauble/editor.py:1904
+#: bauble/editor.py:1911
 msgid "%(user)s on %(date)s"
 msgstr "%(user)s sur% (date) s"
 
-#: bauble/plugins/report/__init__.py:420
+#: bauble/plugins/report/__init__.py:421
 msgid "%s already exists"
 msgstr "%s existe déjà"
 
@@ -671,7 +671,11 @@ msgstr ""
 "CSVExporter: le chemin n'existe pas.\n"
 "%s"
 
-#: bauble/plugins/report/__init__.py:155
+#: bauble/plugins/report/__init__.py:219
+msgid "Can't get Location from a %s"
+msgstr ""
+
+#: bauble/plugins/report/__init__.py:152
 msgid "Can't get accessions from a %s"
 msgstr "Impossible d'obtenir l'accès d'un %s"
 
@@ -679,7 +683,7 @@ msgstr "Impossible d'obtenir l'accès d'un %s"
 msgid "Can't get plants from a %s"
 msgstr "Impossible d'obtenir des plantes à partir d'un %s"
 
-#: bauble/plugins/report/__init__.py:195 bauble/plugins/report/__init__.py:218
+#: bauble/plugins/report/__init__.py:192
 msgid "Can't get species from a %s"
 msgstr "Impossible d'obtenir une espèce de %s"
 
@@ -719,7 +723,7 @@ msgid "Choose a file to export to..."
 msgstr "Choisissez un fichier dans lequel exporter..."
 
 #: bauble/connmgr.py:235 bauble/connmgr.py:245 bauble/connmgr.py:255
-#: bauble/editor.py:2006 bauble/editor.py:2013
+#: bauble/editor.py:2013 bauble/editor.py:2020
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
 msgid "Choose a file..."
@@ -900,7 +904,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/report/mako/__init__.py:413
+#: bauble/plugins/report/mako/__init__.py:403
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -1150,7 +1154,7 @@ msgstr "En voie de disparition (EN)"
 msgid "Enter a connection name"
 msgstr "Entrez un nom de connexion"
 
-#: bauble/plugins/report/__init__.py:403
+#: bauble/plugins/report/__init__.py:404
 msgid "Enter a name for the new formatter"
 msgstr "Entrez le nom du nouveau convertisseur"
 
@@ -1314,11 +1318,11 @@ msgstr "Boutons de fleurs"
 msgid "Flowering"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:397
+#: bauble/plugins/report/__init__.py:398
 msgid "Formatter Name"
 msgstr "Nom du formateur"
 
-#: bauble/plugins/report/__init__.py:642
+#: bauble/plugins/report/__init__.py:643
 msgid ""
 "Formatting Error\n"
 "\n"
@@ -1591,7 +1595,7 @@ msgstr ""
 msgid "Infraspecific parts"
 msgstr "Information infraspécifique"
 
-#: bauble/plugins/garden/institution.py:228
+#: bauble/plugins/garden/institution.py:229
 msgid "Institution"
 msgstr "Structure"
 
@@ -1847,11 +1851,11 @@ msgstr "Aucun gestionnaire de commande pour %s"
 msgid "No default handler registered"
 msgstr "Pas de gestionnaire par défaut enregistré"
 
-#: bauble/plugins/report/__init__.py:521
+#: bauble/plugins/report/__init__.py:522
 msgid "No formatter plugins defined"
 msgstr "Aucun plugin de conversion défini"
 
-#: bauble/plugins/report/__init__.py:555
+#: bauble/plugins/report/__init__.py:556
 msgid ""
 "No formatters found. To create a new formatter click the \"New\" button."
 msgstr ""
@@ -2030,11 +2034,11 @@ msgstr "Sélectionnez un contributeur"
 msgid "Please select a stylesheet."
 msgstr "Veuillez sélectionner une feuille de style."
 
-#: bauble/plugins/report/mako/__init__.py:395
+#: bauble/plugins/report/mako/__init__.py:385
 msgid "Please select a template."
 msgstr "Veuillez sélectionner un modèle."
 
-#: bauble/plugins/garden/institution.py:127
+#: bauble/plugins/garden/institution.py:128
 msgid "Please specify an institution name for this database."
 msgstr "Veuillez spécifier un nom pour cette base de données de l’institution."
 
@@ -2173,7 +2177,7 @@ msgstr ""
 msgid "Removed"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:602
+#: bauble/plugins/report/__init__.py:603
 msgid "Report"
 msgstr ""
 
@@ -2354,8 +2358,8 @@ msgstr "Base de données en ligne recherche Tropicos (MissouriBG)"
 msgid "Search Wikipedia"
 msgstr "Recherche Wikipedia"
 
-#: bauble/editor.py:306 bauble/plugins/report/__init__.py:612
-#: bauble/plugins/report/__init__.py:617
+#: bauble/editor.py:306 bauble/plugins/report/__init__.py:613
+#: bauble/plugins/report/__init__.py:618
 msgid "Search for something first."
 msgstr "Rechercher pour quelque chose en premier."
 
@@ -2414,7 +2418,7 @@ msgstr "Séléctionner un fichier"
 msgid "Select a stylesheet"
 msgstr "Sélectionnez une feuille de style"
 
-#: bauble/utils/__init__.py:1307
+#: bauble/utils/__init__.py:1284
 msgid "Show details"
 msgstr "Montrer les détails"
 
@@ -2696,11 +2700,11 @@ msgstr ""
 "La chaîne de distribution qui est utilisée sur l’étiquette.  Si cette entrée "
 "est vide alors la distribution des espèces est utilisée"
 
-#: bauble/plugins/garden/institution.py:202
+#: bauble/plugins/garden/institution.py:203
 msgid "The email address of the institution."
 msgstr "Courriel de l'institution."
 
-#: bauble/plugins/garden/institution.py:199
+#: bauble/plugins/garden/institution.py:200
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2742,7 +2746,7 @@ msgstr ""
 "Le qualificateur familial contribue à lever les ambiguïtés qui pourraient "
 "être associées à ce nom de famille."
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:205
 msgid "The fax number of the institution."
 msgstr "Numéro de fax de la structure."
 
@@ -2770,7 +2774,7 @@ msgstr ""
 "\n"
 "<i>Voulez-vous les installer maintenant?</i>"
 
-#: bauble/plugins/garden/institution.py:192
+#: bauble/plugins/garden/institution.py:193
 msgid "The full name of the institution."
 msgstr "Nom complet de l'institution."
 
@@ -2805,7 +2809,7 @@ msgstr "L’habitude de cette espèce"
 msgid "The intended location for plant material being accessioned."
 msgstr "L’emplacement prévu pour le matériel végétal étant répertorié."
 
-#: bauble/plugins/garden/institution.py:195
+#: bauble/plugins/garden/institution.py:196
 msgid "The intitution code should be unique among all institions."
 msgstr ""
 "Le code de l’établissement doit être unique parmi toutes les institutions."
@@ -2814,11 +2818,11 @@ msgstr ""
 msgid "The location of the planting in your collection."
 msgstr "L'emplacement de la plante dans votre collection."
 
-#: bauble/plugins/garden/institution.py:205
+#: bauble/plugins/garden/institution.py:206
 msgid "The mailing address of the institition."
 msgstr "Courriel de la structure."
 
-#: bauble/plugins/garden/institution.py:197
+#: bauble/plugins/garden/institution.py:198
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr "Nom de la personne à contacter concernant l'institution."
@@ -2944,11 +2948,11 @@ msgstr ""
 "Les espèces doivent être sélectionnés à partir de la liste des compléments. "
 "Pour ajouter une espèce utiliser l'éditeur d'espèces."
 
-#: bauble/plugins/garden/institution.py:193
+#: bauble/plugins/garden/institution.py:194
 msgid "The standard abbreviation of the institution."
 msgstr "L’abréviation standard de l’institution."
 
-#: bauble/plugins/garden/institution.py:203
+#: bauble/plugins/garden/institution.py:204
 msgid "The telephone number of the institution."
 msgstr "Numéro de téléphone de l'institution."
 
@@ -3672,7 +3676,7 @@ msgstr ""
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr "aucun widget nommé «%(widget_name)s» dans le dossier de la clairière"
 
-#: bauble/editor.py:1451
+#: bauble/editor.py:1458
 msgid "no widget with name %s"
 msgstr "aucun objet graphique du nom de %s"
 
@@ -3684,7 +3688,7 @@ msgstr "Ouvrez la page de wikipedia sur cette espèce"
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:1996 bauble/utils/__init__.py:130
+#: bauble/editor.py:2003 bauble/utils/__init__.py:130
 msgid "picture file %s not found."
 msgstr "fichier image %s introuvable."
 

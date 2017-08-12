@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-10 09:02-0500\n"
+"POT-Creation-Date: 2017-08-12 14:55-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/bauble/master/ru/"
@@ -69,11 +69,11 @@ msgstr ""
 msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s в %(location)s"
 
-#: bauble/editor.py:1904
+#: bauble/editor.py:1911
 msgid "%(user)s on %(date)s"
 msgstr "%(user)s в %(date)s"
 
-#: bauble/plugins/report/__init__.py:420
+#: bauble/plugins/report/__init__.py:421
 msgid "%s already exists"
 msgstr "%s уже существует"
 
@@ -671,7 +671,11 @@ msgstr ""
 "CSVExporter: путь не существует.\n"
 "%s"
 
-#: bauble/plugins/report/__init__.py:155
+#: bauble/plugins/report/__init__.py:219
+msgid "Can't get Location from a %s"
+msgstr ""
+
+#: bauble/plugins/report/__init__.py:152
 msgid "Can't get accessions from a %s"
 msgstr ""
 
@@ -679,7 +683,7 @@ msgstr ""
 msgid "Can't get plants from a %s"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:195 bauble/plugins/report/__init__.py:218
+#: bauble/plugins/report/__init__.py:192
 msgid "Can't get species from a %s"
 msgstr ""
 
@@ -719,7 +723,7 @@ msgid "Choose a file to export to..."
 msgstr "Выберите файл для экспорта..."
 
 #: bauble/connmgr.py:235 bauble/connmgr.py:245 bauble/connmgr.py:255
-#: bauble/editor.py:2006 bauble/editor.py:2013
+#: bauble/editor.py:2013 bauble/editor.py:2020
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
 msgid "Choose a file..."
@@ -892,7 +896,7 @@ msgid ""
 "%s"
 msgstr ""
 
-#: bauble/plugins/report/mako/__init__.py:413
+#: bauble/plugins/report/mako/__init__.py:403
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -1135,7 +1139,7 @@ msgstr ""
 msgid "Enter a connection name"
 msgstr "Введите имя соединения"
 
-#: bauble/plugins/report/__init__.py:403
+#: bauble/plugins/report/__init__.py:404
 msgid "Enter a name for the new formatter"
 msgstr ""
 
@@ -1297,11 +1301,11 @@ msgstr "Бутоны"
 msgid "Flowering"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:397
+#: bauble/plugins/report/__init__.py:398
 msgid "Formatter Name"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:642
+#: bauble/plugins/report/__init__.py:643
 msgid ""
 "Formatting Error\n"
 "\n"
@@ -1564,7 +1568,7 @@ msgstr ""
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:228
+#: bauble/plugins/garden/institution.py:229
 msgid "Institution"
 msgstr "Учреждение"
 
@@ -1814,11 +1818,11 @@ msgstr ""
 msgid "No default handler registered"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:521
+#: bauble/plugins/report/__init__.py:522
 msgid "No formatter plugins defined"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:555
+#: bauble/plugins/report/__init__.py:556
 msgid ""
 "No formatters found. To create a new formatter click the \"New\" button."
 msgstr ""
@@ -1994,11 +1998,11 @@ msgstr ""
 msgid "Please select a stylesheet."
 msgstr "Пожалуйста, выберите таблицу стилей."
 
-#: bauble/plugins/report/mako/__init__.py:395
+#: bauble/plugins/report/mako/__init__.py:385
 msgid "Please select a template."
 msgstr "Пожалуйста, выберите шаблон."
 
-#: bauble/plugins/garden/institution.py:127
+#: bauble/plugins/garden/institution.py:128
 msgid "Please specify an institution name for this database."
 msgstr ""
 
@@ -2137,7 +2141,7 @@ msgstr ""
 msgid "Removed"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:602
+#: bauble/plugins/report/__init__.py:603
 msgid "Report"
 msgstr "Отчёт"
 
@@ -2318,8 +2322,8 @@ msgstr ""
 msgid "Search Wikipedia"
 msgstr ""
 
-#: bauble/editor.py:306 bauble/plugins/report/__init__.py:612
-#: bauble/plugins/report/__init__.py:617
+#: bauble/editor.py:306 bauble/plugins/report/__init__.py:613
+#: bauble/plugins/report/__init__.py:618
 msgid "Search for something first."
 msgstr ""
 
@@ -2379,7 +2383,7 @@ msgstr "Выберите файл..."
 msgid "Select a stylesheet"
 msgstr "Выберите таблицу стилей"
 
-#: bauble/utils/__init__.py:1307
+#: bauble/utils/__init__.py:1284
 msgid "Show details"
 msgstr "Показать детали"
 
@@ -2642,11 +2646,11 @@ msgid ""
 "blank then the species distribution will be used"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:202
+#: bauble/plugins/garden/institution.py:203
 msgid "The email address of the institution."
 msgstr "Адрес электронной почты учреждения."
 
-#: bauble/plugins/garden/institution.py:199
+#: bauble/plugins/garden/institution.py:200
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2684,7 +2688,7 @@ msgid ""
 "with this family name."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:205
 msgid "The fax number of the institution."
 msgstr "Номер факса учреждения."
 
@@ -2711,7 +2715,7 @@ msgstr ""
 "\n"
 "<i>Желаете установить их сейчас?</i>"
 
-#: bauble/plugins/garden/institution.py:192
+#: bauble/plugins/garden/institution.py:193
 msgid "The full name of the institution."
 msgstr "Полное название учреждения."
 
@@ -2746,7 +2750,7 @@ msgstr ""
 msgid "The intended location for plant material being accessioned."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:195
+#: bauble/plugins/garden/institution.py:196
 msgid "The intitution code should be unique among all institions."
 msgstr "Код учреждения должен быть уникальным среди всех учреждений."
 
@@ -2754,11 +2758,11 @@ msgstr "Код учреждения должен быть уникальным �
 msgid "The location of the planting in your collection."
 msgstr "Расположение растения в вашей коллекции"
 
-#: bauble/plugins/garden/institution.py:205
+#: bauble/plugins/garden/institution.py:206
 msgid "The mailing address of the institition."
 msgstr "Почтовый адрес учреждения."
 
-#: bauble/plugins/garden/institution.py:197
+#: bauble/plugins/garden/institution.py:198
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr ""
@@ -2861,11 +2865,11 @@ msgid ""
 "use the Species editor."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:193
+#: bauble/plugins/garden/institution.py:194
 msgid "The standard abbreviation of the institution."
 msgstr "Стандартная аббревиатура для учерждения."
 
-#: bauble/plugins/garden/institution.py:203
+#: bauble/plugins/garden/institution.py:204
 msgid "The telephone number of the institution."
 msgstr "Номер телефона учреждения."
 
@@ -3539,7 +3543,7 @@ msgstr ""
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
-#: bauble/editor.py:1451
+#: bauble/editor.py:1458
 msgid "no widget with name %s"
 msgstr "виджет с именем %s не найден"
 
@@ -3551,7 +3555,7 @@ msgstr ""
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:1996 bauble/utils/__init__.py:130
+#: bauble/editor.py:2003 bauble/utils/__init__.py:130
 msgid "picture file %s not found."
 msgstr ""
 
