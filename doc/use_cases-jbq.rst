@@ -69,7 +69,7 @@ Technical
          don't need do anything in this window, just press enter and get
          into the main program screen.
 
-         |10000000000001290000011FEE16D735EB3DBF67_png| 
+         |10000000000001290000011FEE16D735EB3DBF67_png|
 
          Occasionally, at the top of the screen an information text will
          appear, telling you that a newer version is available on-line.
@@ -335,9 +335,13 @@ Taxonomy
 
          .. figure:: images/zzz-explained.svg
 
-         The current maintainer suggests to use the prefix **Zzz-**.
-         In practice, we have a **Zzz** genus in the Orchidaceae family, 
-         and in the other 6 families represented in our digital collection, 
+         The current maintainer suggests to use the prefix **Zzz-** and
+         behind the prefix to write the family name, possibly removing the
+         trailing **e**.  Removal of the trailing **e** is useful in order
+         not to get results that include genus names when you as for stuff
+         ending in **aceae**.
+         In practice, we have a **Zzz** genus in the Orchidaceae family,
+         and in the other 6 families represented in our digital collection,
          we follow this suggested practice.
 
          Remember: our **Zzz** genus is a fictive genus in the
@@ -440,23 +444,23 @@ Taxonomy
          it from the completion list, then type the species epithet, or at
          least your best guess.
 
-         .. image:: images/tpl-1-best_guess.png     
+         .. image:: images/tpl-1-best_guess.png
 
          Next to the species epithet field there's a small button,
          |green_ball|, which connects us to the plant list.  Click on it, a
          message area appears at the top of the window.
 
-         .. image:: images/tpl-2-querying.png     
+         .. image:: images/tpl-2-querying.png
 
          Depending on the speed of your internet connection, but also on how
          close your best guess is to a correct published name, the top area
          will change to something like this:
 
-         .. image:: images/tpl-3-results.png     
+         .. image:: images/tpl-3-results.png
 
          Accept the hint and it will be as if you had typed the data yourself.
 
-         .. image:: images/tpl-4-accepted.png     
+         .. image:: images/tpl-4-accepted.png
 
   ..  admonition:: Reviewing a whole selection — TNRS.
       :class: toggle
@@ -494,12 +498,12 @@ Let the database fit the garden
          ========== ======================================================
          code       description
          ========== ======================================================
-         CAC-B *x*  Solo las cactáceas afuera de los orquidearios en 
+         CAC-B *x*  Solo las cactáceas afuera de los orquidearios en
                     el jardín
          ---------- ------------------------------------------------------
          CRV:       Nepenthaceae exibition
          ---------- ------------------------------------------------------
-         IC-*xx*:   orquidearios de calor en el jardín (1A a 9C son 
+         IC-*xx*:   orquidearios de calor en el jardín (1A a 9C son
                     lugares especificos entre del orquideario)
          ---------- ------------------------------------------------------
          IF-xx:     orquidearios de frío en el jardín (1A a 5I son
@@ -655,87 +659,91 @@ Let the database fit the garden
 
          Losing a plant label is unfortunate, but it just sometimes happens.
          What we do is to put a new label to the plant, and to clearly state
-         that the label is a replacement of an original one.  
+         that the label is a replacement of an original one.
 
          We then handle the case as if it was a new accession, plus we add a
          note to the accession, category “label”, text “relabeled”.
 
 
-- Plant origin
-      
-      In this botanical garden, we receive plants from different types of 
-      origin. It could be from expeditions ( plants coming from nature, 
-      collected with legal permission from MAE (Ecuadorian Environment
-      Ministery), donated plants mostly coming as gifts from collectionist or 
-      orchid commercialization enterprises, purchased,or confiscated plants 
-      (usually comming from MAE raids around the country).
-      
+- Keeping track of different sources of plant material
+
+  ..  admonition::  What different sources we can have
+      :class: toggle
+
+         In this botanical garden, we receive plants from different types of
+         origin. It could be from expeditions (plants coming from nature,
+         collected with legal permission from MAE - Ecuadorian Environment
+         Ministery), donated plants mostly coming as gifts from
+         collectionist or orchid commercialization enterprises, purchased,
+         or confiscated plants (usually coming from MAE raids around the
+         country).
+
   ..  admonition::  If the plant comes from a wild source
       :class: toggle
-     
-     In the plant accesion we have the option "origin". When a plant comes
-     from a wild source we can specified their specific origin. We must be
-     really careful when editing the accesion origin. Due the programming 
-     language or ITF2, it should be just specified and selected this 
-     options:
-     
-     'Wild', _('Accession of wild source')
-     'Cultivated', _('Propagule(s) from a wild source plant')
-     'NotWild', _("Accession not of wild source")
-     'InsufficientData', _("Insufficient Data")
-     
-     In the case of a plant donated, it is better to put detail information 
-     just as a note in the plant accesion; in the case of a plant with an 
-     unknown origin, we select the Insufficient data option.
-     
- ..  admonition::  Using source on plant accesion
-      :class: toggle    
-     
-     In this section we can create or use a contact, witch makes reference
-     to the source location of the plant. It could be from a collecting 
-     place, specifying the region or the expedition name, or could be 
-     the name of the person or enterprise who donated an specified batch 
-     of plants.
-     
-                      |Plant Origin description.png|
-     
-     Once you choose or create the conctact information, this section 
-     deploys more options, here you can edit the specified region, where
-     you can choose the country of origin, and an specific location 
-     within the region, georeferencing information (including the GPS data), 
-     habitat description collector name. For the last one, I recommend also 
-     to write the specific data next to the collector name (eg. Luis 
-     Baquero 11/10/2016). 
+
+         In the plant accession we have the option "origin". When a plant comes
+         from a wild source we can specified their specific origin. We want to
+         comply with ITF2, and ghini-1.0 only partly respects that standard. The
+         ITF2 compying options are:
+
+         - Wild: Accession of wild source.
+         - Cultivated: Propagule(s) from a wild source plant.
+         - Not Wild: Accession not traceable to a wild source.
+         - Insufficient data
+
+         In the case of a donated plant, it is better to put detail information
+         just as a note in the plant accesion; in the case of a plant with an
+         unknown origin, we select the Insufficient data option.
+
+ ..  admonition::  Using the source tab in the accession editor
+      :class: toggle
+
+         In this section we can create or use a contact, our source of plant
+         material. It could be from an expedition to a collecting place, and
+         in this case we would specify the region and the expedition name,
+         or could be the name of the person or enterprise donating a
+         specific batch of plants.
+
+         .. image:: Plant_Origin_description.png
+
+         Once you choose or create the conctact information, this section
+         deploys more options, here you can specify the region, where you
+         can choose the country of origin, and a specific location within
+         the region, georeferencing information (including the GPS data),
+         habitat description collector name. For the last one, I recommend
+         also to write the specific data next to the collector name
+         (eg. Luis Baquero 11/10/2016).
 
  ..  admonition::  Donated, bought or confiscated plants
-      :class: toggle   
-      
-      Nevertheless, this "origin" section within the plant accession have 
-      only useful information when the plant origin comes from a expedition 
-      or specified location from donators. We handle three more categories: 
-      confiscated, purchased and donated, for this extra categories the 
-      "origin" ption do not work. 
-      In this cases, we decide to have a template. In the accesion plant 
-      "notes" we have to specify this useful information:
-      
-      "Purchased plant"
+      :class: toggle
 
-      ID: Trisetella hirtzii
-      Enterprise: Ecuagenera
-      Purchae date: 12/12/2014
+         However useful for expeditions or for donors where the main
+         information is geographic, this source tab is not very practical in
+         our remaining cases: we handle three more categories: confiscated,
+         purchased and donated, for these categories the options available in
+         the source tab do not apply: too much information and not to the point.
 
-      "Donanted plant"
+         In these cases, we work with notes. In the accession "notes" tab
+         we specify this useful information:
 
-      Donor: Dr. Maro Jiménez
-      Donation reason: Contribución científica al JBQ
-      Donation date: 20/07/2009
+         "Donated plant"
 
-      "Confiscated plant"
+         | Donor: Dr. Maro Jiménez
+         | Donation reason: Contribución científica al JBQ
+         | Donation date: 20/07/2009
 
-      ID: Catleya maxima
-      Confiscated from: "Vívero Marianitas"
-      Reason: Legally protected specie, forbidden collection and distribution. 
-      Date: 20/07/2009   
+         "Purchased plant"
+
+         | ID: *Trisetella hirtzii* Luer
+         | Enterprise: Ecuagenera
+         | Purchae date: 12/12/2014
+
+         "Confiscated plant"
+
+         | ID: *Cattleya maxima* Lindl.
+         | Confiscated from: "Vivero Riina y Mancuso"
+         | Reason: Legally protected specie, forbidden collection and distribution.
+         | Date: 20/07/2009
 
 - Producing or reproducing labels
 
@@ -847,7 +855,7 @@ Let the database fit the garden
          of management and maintenance of orchids collection) complying to
          the requirements of the Ecuadorian Ministry of the Environment.
 
-         To this end, we start selecting the plants we have to include in the report. 
+         To this end, we start selecting the plants we have to include in the report.
          It might be all acquisition in the past year::
 
            accession where _created between |datetime|2017,1,1| and |datetime|2018,1,1|
