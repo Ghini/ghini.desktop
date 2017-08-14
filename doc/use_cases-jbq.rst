@@ -6,7 +6,7 @@ April 2015. Since that time, we have accumulated experience with the
 program, and we are ourselves in need to document it, in order to secure the
 knowledge to the institution. We are happy to share it.
 
-technical
+Technical
 ^^^^^^^^^^^^^^^^^^^^
 
 - We work on GNU/Linux, a platform that many users don't master, and our
@@ -666,9 +666,10 @@ Let the database fit the garden
      Once you choose or create the conctact information, this section 
      deploys more options, here you can edit the specified region, where
      you can choose the country of origin, and an specific location 
-     within the region, georeferencing information and collector name. 
-     For the last one, I recommend also to write the specific data next 
-     to the collector name (eg. Luis Baquero 11/10/2016). 
+     within the region, georeferencing information (including the GPS data), 
+     habitat description collector name. For the last one, I recommend also 
+     to write the specific data next to the collector name (eg. Luis 
+     Baquero 11/10/2016). 
 
  ..  admonition::  Donated, bought or confiscated plants
       :class: toggle   
