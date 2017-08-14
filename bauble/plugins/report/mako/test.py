@@ -91,6 +91,8 @@ class MakoFormatterTests(BaubleTestCase):
         for tn in os.listdir(td):
             if tn.endswith('~'):
                 continue
+            if tn.startswith('__init__.'):
+                continue
             filename = os.path.join(td, tn)
             report = MakoFormatterPlugin.format(plants, template=filename)
             self.assertTrue(isinstance(report, basestring))
