@@ -729,7 +729,7 @@ Let the database fit the garden
          "Donated plant"
 
          | Donor: Dr. Maro Jiménez
-         | Donation reason: Contribución científica al JBQ
+         | Reason: Contribución científica al JBQ
          | Donation date: 20/07/2009
 
          "Purchased plant"
