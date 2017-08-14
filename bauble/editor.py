@@ -271,11 +271,13 @@ class GenericEditorView(object):
                            (type(e), e))
         chooser.destroy()
 
-    def run_entry_dialog(self, title, parent, flags, buttons):
+    def run_entry_dialog(self, title, parent, flags, buttons, visible=True):
         d = gtk.Dialog(title, parent, flags, buttons)
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250, -1)
         entry = gtk.Entry()
+        if visible is not True:
+            entry.set_visibility(False)
         entry.connect("activate",
                       lambda entry: d.response(gtk.RESPONSE_ACCEPT))
         d.vbox.pack_start(entry)
@@ -816,8 +818,7 @@ class MockView:
             reply = ''
         self.widget_set_value(target, reply)
 
-    def run_entry_dialog(self, title, parent, flags, buttons):
-        args = [title, parent, flags, buttons]
+    def run_entry_dialog(self, *args, **kwargs):
         self.invoked.append('run_entry_dialog')
         self.invoked_detailed.append((self.invoked[-1], args))
         try:
