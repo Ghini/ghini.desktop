@@ -844,6 +844,12 @@ Let the database fit the garden
   ..  admonition:: Details
       :class: toggle
 
+         We are practicing with ODK Collect, a small program running on
+         hand-held android devices.  Ghini's use of ODK Collect hasn't yet
+         frozen to a best practice.  Do have a look at the `corresponding
+         issue <https://github.com/Ghini/ghini.desktop/issues/243>`_ on
+         github.
+
 - Regularly, we need producing reports about our collection that the
   Ecuadorian Environment Ministery (MAE) requires and that justify the very
   existence of the garden.
