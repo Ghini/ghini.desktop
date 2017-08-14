@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-12 14:55-0500\n"
+"POT-Creation-Date: 2017-08-14 11:35-0500\n"
 "PO-Revision-Date: 2017-08-03 14:14+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -69,7 +69,7 @@ msgstr ""
 msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s in %(location)s"
 
-#: bauble/editor.py:1911
+#: bauble/editor.py:1912
 msgid "%(user)s on %(date)s"
 msgstr "%(user)s in data %(date)s"
 
@@ -733,7 +733,7 @@ msgid "Choose a file to export to..."
 msgstr "Seleziona un file nel quale esportare i dati..."
 
 #: bauble/connmgr.py:235 bauble/connmgr.py:245 bauble/connmgr.py:255
-#: bauble/editor.py:2013 bauble/editor.py:2020
+#: bauble/editor.py:2014 bauble/editor.py:2021
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
 msgid "Choose a file..."
@@ -978,7 +978,7 @@ msgstr "Coltivata nativa"
 msgid "Current change"
 msgstr "Cambio attuale"
 
-#: bauble/connmgr.py:532
+#: bauble/connmgr.py:533
 msgid ""
 "Current connection does not specify the fields:\n"
 "%s\n"
@@ -1001,7 +1001,7 @@ msgstr "Lunghezza della talea"
 msgid "Cutting type"
 msgstr "Tipo di taglio"
 
-#: bauble/connmgr.py:530
+#: bauble/connmgr.py:531
 msgid "DBMS host name"
 msgstr "Nome dell'host"
 
@@ -1416,7 +1416,7 @@ msgstr ""
 msgid "Ghini development website"
 msgstr "Sito web per lo sviluppo di Ghini"
 
-#: bauble/connmgr.py:514
+#: bauble/connmgr.py:515
 msgid ""
 "Ghini does not have permission to read the database file:\n"
 "\n"
@@ -1426,7 +1426,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:506
+#: bauble/connmgr.py:507
 msgid ""
 "Ghini does not have permission to read the directory:\n"
 "\n"
@@ -1436,7 +1436,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:518
+#: bauble/connmgr.py:519
 msgid ""
 "Ghini does not have permission to write to the database file:\n"
 "\n"
@@ -1446,7 +1446,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:510
+#: bauble/connmgr.py:511
 msgid ""
 "Ghini does not have permission to write to the directory:\n"
 "\n"
@@ -1965,7 +1965,7 @@ msgstr "Visualizzatore immagini"
 msgid "Pictures"
 msgstr "Fotografie"
 
-#: bauble/connmgr.py:545
+#: bauble/connmgr.py:546
 msgid "Pictures root name occupied by non directory."
 msgstr "Nome per la cartella delle immagini occupato da qualcos'altro."
 
@@ -1996,7 +1996,7 @@ msgstr "Pianta"
 msgid "Planting code"
 msgstr "Codice della pianta"
 
-#: bauble/connmgr.py:496
+#: bauble/connmgr.py:497
 msgid "Please choose a name for this connection"
 msgstr "Per piacere scegli un nome per questa connessione"
 
@@ -2362,7 +2362,7 @@ msgstr "Database online di ricerca Tropicos (MissouriBG)"
 msgid "Search Wikipedia"
 msgstr "Ricerca Wikipedia"
 
-#: bauble/editor.py:306 bauble/plugins/report/__init__.py:613
+#: bauble/editor.py:308 bauble/plugins/report/__init__.py:613
 #: bauble/plugins/report/__init__.py:618
 msgid "Search for something first."
 msgstr "Cerca prima qualcosa."
@@ -3083,7 +3083,7 @@ msgstr ""
 "SQLAlchemy da http://www.sqlalchemy.org o contatta l'amministratore di "
 "sistema."
 
-#: bauble/connmgr.py:549
+#: bauble/connmgr.py:550
 msgid "Thumbnails name occupied by non directory."
 msgstr "Nome per le miniature occupato da non directory."
 
@@ -3556,7 +3556,7 @@ msgstr "crea se non è nel database"
 msgid "cv."
 msgstr "cv."
 
-#: bauble/connmgr.py:527
+#: bauble/connmgr.py:528
 msgid "database name"
 msgstr "nome del database"
 
@@ -3673,7 +3673,7 @@ msgstr "seguente"
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr "nessun widget chiamato \"%(widget_name)s \" nel file glade"
 
-#: bauble/editor.py:1458
+#: bauble/editor.py:1459
 msgid "no widget with name %s"
 msgstr "nessun widget con nome %s"
 
@@ -3685,7 +3685,7 @@ msgstr "Aprire la pagina di wikipedia su questa specie"
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:2003 bauble/utils/__init__.py:130
+#: bauble/editor.py:2004 bauble/utils/__init__.py:130
 msgid "picture file %s not found."
 msgstr "non trovo il file della foto %s"
 
@@ -3813,7 +3813,7 @@ msgstr ""
 msgid "used in"
 msgstr "utilizzato in"
 
-#: bauble/connmgr.py:524
+#: bauble/connmgr.py:525
 msgid "user name"
 msgstr "nome utente"
 
