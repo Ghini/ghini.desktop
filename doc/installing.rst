@@ -144,8 +144,9 @@ Being MacOSX a unix environment, most things will work the same as on GNU/Linux
 (sort of).
 
 Last time we tested, some of the dependencies could not be installed on
-MacOSX 10.5 and we assume similar problems would also show on older
-OSX versions.  Ghini has been successfully tested with 10.7, 10.9 and 10.12.
+MacOSX 10.5 and we assume similar problems would also show on older OSX
+versions.  Ghini has been successfully installed on several OSX systems,
+between 10.7 and 10.12.
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
@@ -171,19 +172,24 @@ then install the remaining dependencies::
 
 follow all instructions on how to activate what you have installed.
 
-.. admonition:: Mac running OSX 10.12 —Sierra—
-   :class: note
+In particular, make sure you read and understand all reports starting with
+``If you need to have this software``.
 
-           On OSX 10.12, ``brew`` reports that ``gettext`` is already
-           installed, but then it won't let us find it. A solution is to run
-           the following line::
+You will need at least the following four lines in your ``~/.bash_profile``::
 
-             brew link gettext --force
+  export LC_ALL=en_US.UTF-8
+  export LANG=en_US.UTF-8
+  export PATH="/usr/local/opt/gettext/bin:$PATH"
+  export PATH="/usr/local/opt/python/libexec/bin:$PATH"
 
-           Before we can run ``devinstall.sh`` as on GNU/Linux, we still
-           need installing a couple of python packages, globally. Do this::
+Activate the profile by sourcing it::
 
-             sudo pip install virtualenv lxml
+  . ~/.bash_profile
+
+Before we can run ``devinstall.sh`` as on GNU/Linux, we still
+need installing a couple of python packages, globally. Do this::
+
+  sudo -H pip install virtualenv lxml
 
 The rest is just as on a normal unix machine. Read the above GNU/Linux instructions, follow them, enjoy.
 
@@ -328,42 +334,6 @@ If you would like to generate and print PDF reports using Ghini's default
 report generator then you will need to download and install `Apache FOP
 <http://xmlgraphics.apache.org/fop/>`_.  After extracting the FOP archive
 you will need to include the directory you extracted to in your PATH.
-
-.. rubric:: Next...
-
-:ref:`connecting`.
-
-.. _troubleshoot_install:
-
-Troubleshooting
----------------------------
-
-#.  any error related to lxml.
-
-    In order to be able to compile lxml, you have to install a C compiler
-    (on GNU/Linux this would be the ``gcc`` package) and Cython (a Python
-    specialization, that gets compiled into C code. Note: Cython is not
-    CPython).
-
-    However, It should not be necessary to compile anything, and ``pip``
-    should be able to locate the binary modules in the online libraries.
-
-    For some reason, this is not the case on Windows 8.1.
-
-    https://pypi.python.org/pypi/lxml/3.4.4
-
-    Please report any other trouble related to the installation of lxml.
-
-#.  Couldn't install gdata.
-
-    For some reason the Google's gdata package lists itself in the
-    Python Package Index but doesn't work properly with the
-    easy_install command.  You can download the latest gdata package
-    from:
-
-    http://code.google.com/p/gdata-python-client/downloads/list
-
-    Unzip it and run ``python setup.py installw`` in the folder you unzip it to.
 
 .. rubric:: Next...
 
