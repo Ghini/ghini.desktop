@@ -655,6 +655,24 @@ publishing to production
 * merge the changes.
 * tell the world about it: on facebook, the google group, linkedin, ...
 
+your own fork
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to keep your own fork of the project, keep in mind this is full
+force work in progress, so staying up to date will require some effort from
+your side.
+
+The best way to keep your own fork is to focus on some specific issue, work
+relatively quickly, often open pull requests for your work, make sure that
+you get it accepted.  Just follow Ghini's coding style, write unit tests,
+concise and abundant, and there should be no problem in having your work
+included in Ghini's upstream.
+
+If your fork got out of sync with Ghini's upstream: read, understand, follow
+the github guides `configuring a remote for a fork
+<https://help.github.com/articles/configuring-a-remote-for-a-fork/>`_ and
+`syncing a fork <https://help.github.com/articles/syncing-a-fork/>`_.
+
 closing step
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
