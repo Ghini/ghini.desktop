@@ -695,7 +695,7 @@ Let the database fit the garden
          just as a note in the plant accesion; in the case of a plant with an
          unknown origin, we select the Insufficient data option.
 
- ..  admonition::  Using the source tab in the accession editor
+  ..  admonition::  Using the source tab in the accession editor
       :class: toggle
 
          In this section we can create or use a contact, our source of plant
@@ -714,7 +714,7 @@ Let the database fit the garden
          also to write the specific data next to the collector name
          (eg. Luis Baquero 11/10/2016).
 
- ..  admonition::  Donated, bought or confiscated plants
+  ..  admonition::  Donated, bought or confiscated plants
       :class: toggle
 
          However useful for expeditions or for donors where the main
