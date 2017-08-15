@@ -704,7 +704,7 @@ Let the database fit the garden
          or could be the name of the person or enterprise donating a
          specific batch of plants.
 
-         .. image:: Plant_Origin_description.png
+         .. image:: images/accession-source-collection.png
 
          Once you choose or create the conctact information, this section
          deploys more options, here you can specify the region, where you
