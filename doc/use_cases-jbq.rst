@@ -841,7 +841,7 @@ Let the database fit the garden
   directly, or we take pictures of details of the flower, hoping that a
   visiting specialist could help completing the identification.
 
-  ..  admonition:: Details
+  ..  admonition:: Adding pictures
       :class: toggle
 
          We are practicing with ODK Collect, a small program running on
@@ -854,7 +854,7 @@ Let the database fit the garden
   Ecuadorian Environment Ministery (MAE) requires and that justify the very
   existence of the garden.
 
-  ..  admonition:: Details
+  ..  admonition:: Producing reports
       :class: toggle
 
          Each year the botanic garden has to submit a report (annual report
