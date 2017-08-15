@@ -711,7 +711,7 @@ Let the database fit the garden
          can choose the country of origin, and a specific location within
          the region, georeferencing information (including the GPS data),
          habitat description collector name. For the last one, I recommend
-         also to write the specific data next to the collector name
+         also to write the specific date next to the collector name
          (eg. Luis Baquero 11/10/2016).
 
   ..  admonition::  Donated, bought or confiscated plants
