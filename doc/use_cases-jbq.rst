@@ -681,10 +681,10 @@ Let the database fit the garden
   ..  admonition::  If the plant comes from a wild source
       :class: toggle
 
-         In the plant accession we have the option "origin". When a plant comes
-         from a wild source we can specified their specific origin. We want to
-         comply with ITF2, and ghini-1.0 only partly respects that standard. The
-         ITF2 compying options are:
+         The accession editor offers the option "origin" option. When a
+         plant is traceable to a wild source, we can specified its specific
+         origin. We want to comply with ITF2, and ghini-1.0 only partly
+         respects that standard. The ITF2 complying options are:
 
          - Wild: Accession of wild source.
          - Cultivated: Propagule(s) from a wild source plant.
