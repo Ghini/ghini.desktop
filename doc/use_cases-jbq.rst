@@ -340,9 +340,10 @@ Taxonomy
          trailing **e**.  Removal of the trailing **e** is useful in order
          not to get results that include genus names when you as for stuff
          ending in **aceae**.
-         In practice, we have a **Zzz** genus in the Orchidaceae family,
-         and in the other 6 families represented in our digital collection,
-         we follow this suggested practice.
+
+         Apart from the aforementioned **Zzz** genus in the Orchidaceae
+         family, we follow this suggested practice, so for example our
+         collection would include *Zzz-cactacea* or *Zzz-bromeliacea*.
 
          Remember: our **Zzz** genus is a fictive genus in the
          **Orchidaceae** family, do not use it as unspecified genus in other
