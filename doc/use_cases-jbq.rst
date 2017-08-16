@@ -725,7 +725,7 @@ Let the database fit the garden
 
          In these cases, we add a set of notes, according to the case.
 
-  ..  admonition::  Donated plants
+  ..  admonition::  — Donated plants
       :class: toggle
 
          If the plant was donated by individual, we add the individual among
@@ -738,7 +738,7 @@ Let the database fit the garden
          source-detail                       Contribución científica al JBQ
          =================================== ======================================
 
-  ..  admonition::  Bought plants
+  ..  admonition::  — Bought plants
       :class: toggle
 
          If the plant was bought, we add the previous owner among our
@@ -752,7 +752,7 @@ Let the database fit the garden
          factura                             the invoice number
          =================================== ======================================
 
-  ..  admonition::  Confiscated plants
+  ..  admonition::  — Confiscated plants
       :class: toggle
 
          If the plant was confiscated, we add the previous owner among our
