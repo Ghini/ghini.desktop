@@ -723,27 +723,48 @@ Let the database fit the garden
          purchased and donated, for these categories the options available in
          the source tab do not apply: too much information and not to the point.
 
-         In these cases, we work with notes. In the accession "notes" tab
-         we specify this useful information:
+         In these cases, we add a set of notes, according to the case.
 
-         "Donated plant"
+  ..  admonition::  Donated plants
+      :class: toggle
 
-         | Donor: Dr. Maro Jiménez
-         | Reason: Contribución científica al JBQ
-         | Donation date: 20/07/2009
+         If the plant was donated by individual, we add the individual among
+         our contacts and specify it as source, then we add the notes:
 
-         "Purchased plant"
+         =================================== ======================================
+         category                            text
+         =================================== ======================================
+         source-type                         gift
+         source-detail                       Contribución científica al JBQ
+         =================================== ======================================
 
-         | ID: *Trisetella hirtzii* Luer
-         | Enterprise: Ecuagenera
-         | Purchase date: 12/12/2014
+  ..  admonition::  Bought plants
+      :class: toggle
 
-         "Confiscated plant"
+         If the plant was bought, we add the previous owner among our
+         contacts and specify it as source, then we add the notes:
 
-         | ID: *Cattleya maxima* Lindl.
-         | Confiscated from: "Vivero Riina y Mancuso"
-         | Reason: Legally protected specie, forbidden collection and distribution.
-         | Date: 20/07/2009
+         =================================== ======================================
+         category                            text
+         =================================== ======================================
+         source-type                         purchase
+         source-detail                       optional, free text
+         factura                             the invoice number
+         =================================== ======================================
+
+  ..  admonition::  Confiscated plants
+      :class: toggle
+
+         If the plant was confiscated, we add the previous owner among our
+         contacts and specify it as source, then we add the notes:
+
+         =================================== ========================================
+         category                            text
+         =================================== ========================================
+         source-type                         confiscated
+         source-detail                       possibly, legal details, law number ...
+         =================================== ========================================
+
 
 - Producing or reproducing labels
 
