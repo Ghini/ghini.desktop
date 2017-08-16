@@ -129,11 +129,11 @@ Technical
            in the form of an arrow, you can return to your last search.
          - With the |100000000000001C0000001FB8A1F75F7A5EF877_png| button,
            in the form of a gear, you can start the "Query Builder", which
-           helps you compose complex searchs in a simple, graphical way.
+           helps you compose complex searches in a simple, graphical way.
 
 
 - We often have volunteers who only work at the garden for a very short
-  time. It was with them in mind that we have developed a `hypersimplified
+  time. It was with them in mind that we have developed a `hyper-simplified
   view <goal.html#hypersimplified-view>`_ on the ghini database structure.
 
   ..  admonition:: Details
@@ -197,7 +197,7 @@ Technical
 
 - A serious situation happened once, and we absolutely want to prevent it
   from happening again: a user deleted a genus, with everything that was
-  below it, species and accessions, and synonymies.
+  below it, species and accessions, and synonyms.
 
   ..  admonition:: Solving it with user permissions
       :class: toggle
@@ -216,7 +216,7 @@ Technical
          Read only (BD-JBQ-lectura)
            it can be shared with anyone visiting the garden
 
-         You select the connection at startup, and the software asks you
+         You select the connection at start-up, and the software asks you
          for the password corresponding to the connection you selected.
 
          |10000000000000FE00000065C64D791B5CA0099D_png|
@@ -246,12 +246,12 @@ Technical
          <https://github.com/Ghini/ghini.desktop/issues/218>`_.
 
 - When contacting the developers, they will definitely ask for technical
-  information, or at least to see a screenshot.  Help them help you.
+  information, or at least to see a screen-shot.  Help them help you.
 
-  ..  admonition:: Taking a screenshot
+  ..  admonition:: Taking a screen-shot
       :class: toggle
 
-         On Linux there are three ways to create a screenshot, all involve
+         On Linux there are three ways to create a screen-shot, all involve
          hitting the 'PrtSc' key.  The most practical one is possibly
          hitting the 'PrtSc' key in combination with Ctrl and Shift. This
          will start an interactive screen copy tool. You select a rectangle
@@ -266,7 +266,7 @@ Technical
          ``~/.bauble/bauble.log`` file.  Don't bother opening it, just send
          it over.  It contains loads of technical information.
 
-  ..  admonition:: Continous unmanned alerting
+  ..  admonition:: Continuous unmanned alerting
       :class: toggle
 
          An other option is to activate the sentry handler. It will notify
@@ -387,7 +387,7 @@ Taxonomy
          Just as we reserved the prefix Zzx- for subtribe, we reserve the
          prefixes Zzy- for tribe, Zzw- for subfamily.
 
-         In praticular, the subfamily information is relevant, because there
+         In particular, the subfamily information is relevant, because there
          are subfamilies within the Orchidaceae family which are not further
          separated.
 
@@ -552,7 +552,7 @@ Let the database fit the garden
          ========== ============================ ========================
 
          We go straight into the Accession Editor, start typing the species
-         name in the corresponding field.  Luckly, the species was already
+         name in the corresponding field.  Luckily, the species was already
          in the database, otherwise we would use the **Add** button next to
          the entry field.
 
@@ -673,8 +673,8 @@ Let the database fit the garden
          In this botanical garden, we receive plants from different types of
          origin. It could be from expeditions (plants coming from nature,
          collected with legal permission from MAE - Ecuadorian Environment
-         Ministery), donated plants mostly coming as gifts from
-         collectionist or orchid commercialization enterprises, purchased,
+         Ministry), donated plants mostly coming as gifts from
+         collectors or orchid commercialization enterprises, purchased,
          or confiscated plants (usually coming from MAE raids around the
          country).
 
@@ -692,7 +692,7 @@ Let the database fit the garden
          - Insufficient data
 
          In the case of a donated plant, it is better to put detail information
-         just as a note in the plant accesion; in the case of a plant with an
+         just as a note in the plant accession; in the case of a plant with an
          unknown origin, we select the Insufficient data option.
 
   ..  admonition::  Using the source tab in the accession editor
@@ -706,7 +706,7 @@ Let the database fit the garden
 
          .. image:: images/accession-source-collection.png
 
-         Once you choose or create the conctact information, this section
+         Once you choose or create the contact information, this section
          deploys more options, here you can specify the region, where you
          can choose the country of origin, and a specific location within
          the region, georeferencing information (including the GPS data),
@@ -736,7 +736,7 @@ Let the database fit the garden
 
          | ID: *Trisetella hirtzii* Luer
          | Enterprise: Ecuagenera
-         | Purchae date: 12/12/2014
+         | Purchase date: 12/12/2014
 
          "Confiscated plant"
 
@@ -814,7 +814,7 @@ Let the database fit the garden
          sp”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
 
          All we do is find the Plant in the database and update its information.  We
-         do not chang anything in the initial Accession information, just the current
+         do not change anything in the initial Accession information, just the current
          Plant information.
 
          We type the accession code in the search entry field, with quotes, hit
@@ -851,7 +851,7 @@ Let the database fit the garden
          github.
 
 - Regularly, we need producing reports about our collection that the
-  Ecuadorian Environment Ministery (MAE) requires and that justify the very
+  Ecuadorian Environment Ministry (MAE) requires and that justify the very
   existence of the garden.
 
   ..  admonition:: Producing reports
@@ -1059,3 +1059,5 @@ and you hope to see your result in the search result view.
 .. |loose_png| image:: images/windows-key.png
    :width: 28px
    :height: 28px
+
+..  LocalWords:  Ghini
