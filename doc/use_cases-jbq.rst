@@ -498,8 +498,8 @@ Let the database fit the garden
          ========== ======================================================
          code       description
          ========== ======================================================
-         CAC-B *x*  Solo las cactáceas afuera de los orquidearios en
-                    el jardín
+         CAC-B *x*  Reserved to cactus plants next to the orchids 
+                    exposition glasshouses.
          ---------- ------------------------------------------------------
          CRV:       Nepenthaceae exibition
          ---------- ------------------------------------------------------
