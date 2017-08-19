@@ -64,6 +64,7 @@ CREATE TABLE "plant" (
   "_id"          INTEGER,
   "accession_id" INTEGER,
   "code"         TEXT,
+  "location"     TEXT,
   "end_date"     TEXT,
   PRIMARY KEY(_id)
 );
@@ -113,17 +114,17 @@ def export_to_pocket(filename, include_private=True):
             except AttributeError:
                 source_name = ''
             cr.execute('INSERT INTO "accession" '
-                   '(_id, code, species_id, source) '
-                   'VALUES (?, ?, ?, ?);',
-                   (i.id, i.code, i.species_id, source_name))
+                       '(_id, code, species_id, source) '
+                       'VALUES (?, ?, ?, ?);',
+                       (i.id, i.code, i.species_id, source_name))
         except Exception, e:
             log.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
     for i in plants:
         try:
             cr.execute('INSERT INTO "plant" '
-                   '(_id, accession_id, code) '
-                   'VALUES (?, ?, ?);',
-                   (i.id, i.accession_id, "." + i.code))
+                       '(_id, accession_id, code, location, end_date) '
+                       'VALUES (?, ?, ?, ?, ?);',
+                       (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death))
         except Exception, e:
             log.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
     cn.commit()
