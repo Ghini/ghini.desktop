@@ -63,7 +63,7 @@ def get_submissions(host, user, pw, form_id):
     return result
 
 
-def get_image(host, user, pw, url, path):
+def get_image(user, pw, url, path):
     auth = HTTPDigestAuth(user, pw)
     pic = requests.get(url, stream=True, auth=auth)
     if pic.status_code == 200:
