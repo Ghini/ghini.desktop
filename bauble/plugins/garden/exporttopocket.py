@@ -66,6 +66,7 @@ CREATE TABLE "plant" (
   "code"         TEXT,
   "location"     TEXT,
   "end_date"     TEXT,
+  "n_of_pics"    INTEGER,
   PRIMARY KEY(_id)
 );
 ''']
@@ -106,7 +107,7 @@ def export_to_pocket(filename, include_private=True):
                     i.infraspecific_rank, i.infraspecific_epithet,
                     i.infraspecific_author or i.sp_author or ''))
         except Exception, e:
-            log.info("error exporting species %s: %s %s" % (i.id, type(e), e))
+            logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
     for i in accessions:
         try:
             try:
@@ -114,19 +115,19 @@ def export_to_pocket(filename, include_private=True):
             except AttributeError:
                 source_name = ''
             cr.execute('INSERT INTO "accession" '
-                       '(_id, code, species_id, source) '
-                       'VALUES (?, ?, ?, ?);',
-                       (i.id, i.code, i.species_id, source_name))
+                       '(_id, code, species_id, source, start_date) '
+                       'VALUES (?, ?, ?, ?, ?);',
+                       (i.id, i.code, i.species_id, source_name, i.date_accd))
         except Exception, e:
-            log.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
+            logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
     for i in plants:
         try:
             cr.execute('INSERT INTO "plant" '
-                       '(_id, accession_id, code, location, end_date) '
-                       'VALUES (?, ?, ?, ?, ?);',
-                       (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death))
+                       '(_id, accession_id, code, location, end_date, n_of_pics) '
+                       'VALUES (?, ?, ?, ?, ?, ?);',
+                       (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures)))
         except Exception, e:
-            log.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
+            logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
     cn.commit()
     session.close()
     return True
