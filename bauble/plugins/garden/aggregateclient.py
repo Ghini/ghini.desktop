@@ -24,7 +24,8 @@ import xml.etree.ElementTree as ET
 
 import re
 
-def get_submissions(host, form_id, user, pw):
+
+def get_submissions(host, user, pw, form_id):
     base_format = 'https://%(host)s/view/%(api)s?formId=%(form_id)s'
     submission_format = '[@version=null and @uiVersion=null]/%(group_name)s[@key=%(uuid)s]'
     auth = HTTPDigestAuth(user, pw)
@@ -58,5 +59,14 @@ def get_submissions(host, form_id, user, pw):
         for i, media_element in enumerate(root[1:]):
             filename, hash, url = media_element
             d['media'][filename.text] = (url.text, hash.text)
-        result.append(d)
+            result.append(d)
     return result
+
+
+def get_image(user, pw, url, path):
+    auth = HTTPDigestAuth(user, pw)
+    pic = requests.get(url, stream=True, auth=auth)
+    if pic.status_code == 200:
+        with open(path, 'wb') as f:
+            for chunk in pic.iter_content(1024):
+                f.write(chunk)

@@ -450,7 +450,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
             title,
             self.view.get_window(),
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT),
+            visible=False)
         return passwd
 
     def parameters_to_uri(self, params):

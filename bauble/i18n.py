@@ -73,7 +73,7 @@ langs += ["en"]
 # finally the 'known' list
 
 import sys
-if sys.platform == 'win32':
+if sys.platform in ['win32', 'darwin']:
     locale = gettext
 
 try:

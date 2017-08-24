@@ -126,7 +126,7 @@ def add_text(x, y, s, style, size, align_right=False):
     widths = ['[']
     totalwidth = 0
     qmark = font[style]['?']
-    for i in s:
+    for i in s or []:
         glyph_def = font[style].get(i, qmark)
         glyphs.append(glyph_def[0])
         w = int(int(glyph_def[1]) * size + 0.5)

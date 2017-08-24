@@ -24,33 +24,36 @@ import staale
 
 k = []
 #header = ['No', 'NOMBRE CIENTIFICO', 'FAMILIA', 'Nombre común', 'Uso Actual y Potencial', 'Importancia ecológica', 'Ecosistema', 'Habito', 'Procedencia']
-header = ['code', 'vernacular', 'binomial', 'dap', 'altura', 'hábito', 'altitud', 'easting', 'northing', 'ecosistema', 'observaciones']
-
-binomial_key = 'binomial'
-habit_key = 'hábito'
-origin_key = 'Procedencia'
-easting_key, northing_key, altitude_key = 'easting', 'northing', 'altitud'
-utm_slice = 18
-
-accession_code_def = "2016.%(code)04d"
-
-vernacular_keys = [
-    {'key': 'vernacular', 'lang': 'es'},
-]
+#header = ['code', 'vernacular', 'binomial', 'dap', 'altura', 'hábito', 'altitud', 'easting', 'northing', 'ecosistema', 'observaciones']
+header = ["Item", "Species", "Fecha registro", "No.Plantas", "Locale", "Contacto",
+          "N° De Autorización de Investigación:", "N° autorización de movilización",
+          "Nombre del recolector", "Latitud", "Longitud"]
 
 note_defs = {
-    'species': [{'key': 'Uso Actual y Potencial', 'category': 'use', 'applies_to': 'species'},
-                {'key': 'Importancia ecológica', 'category': 'relevance', 'applies_to': 'species'},
-                {'key': 'Ecosistema', 'category': 'ecosystem', 'applies_to': 'species'},
-                {'key': 'ecosistema', 'category': 'ecosystem', 'applies_to': 'species'}, ],
-    'plant': [{'key': 'observaciones', 'category': 'generic', 'applies_to': 'plant'},
-              {'key': 'dap', 'category': '{dap:2016-11}', 'applies_to': 'plant'},
-              {'key': 'altura', 'category': '{alt:2016-11}', 'applies_to': 'plant'}, ],
+    'species': [{'key': 'Uso Actual y Potencial', 'category': 'use'},
+                {'key': 'Importancia ecológica', 'category': 'relevance'},
+                {'key': 'Ecosistema', 'category': 'ecosystem'},
+                {'key': 'ecosistema', 'category': 'ecosystem'}, ],
+    'plant': [{'key': 'observaciones', 'category': 'generic'},
+              {'key': 'dap', 'category': '{dap:2016-11}'},
+              {'key': 'altura', 'category': '{alt:2016-11}'}, ],
 }
 
 formatted_note_defs = {
-    'plant': [ {'keys': [], 'value': "%(lat)s\t%(lon)s", 'applies_to': 'plant', 'category': '{coords}'}, ],
+    'plant': [ {'keys': [], 'value': "%(lat)s\t%(lon)s", 'category': '{coords}'}, ],
 }
+
+binomial_key = 'Species'
+habit_key = None
+origin_key = None
+easting_key, northing_key, altitude_key = 'Longitud', 'Latitud', None
+utm_slice = None
+
+accession_code_def = "%(code)06d"
+
+vernacular_keys = [
+#    {'key': 'vernacular', 'lang': 'es'},
+]
 
 
 #input_file_name = '/tmp/species.csv'
@@ -86,7 +89,10 @@ for r in csv.reader(open(input_file_name)):
         skipped += 1
         continue
     if easting_key in obj and northing_key in obj:
-        obj['lat'], obj['lon'] = staale.utm_to_latlon(utm_slice, float(obj[easting_key]), float(obj[northing_key]))
+        if utm_slice:
+            obj['lat'], obj['lon'] = staale.utm_to_latlon(utm_slice, float(obj[easting_key]), float(obj[northing_key]))
+        else:
+            obj['lat'], obj['lon'] = float(obj[northing_key]), float(obj[easting_key])
     k.append(obj)
 
 print count, skipped

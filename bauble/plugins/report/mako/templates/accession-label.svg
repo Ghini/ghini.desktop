@@ -42,7 +42,7 @@ defaults = {'colour': '#000000',
 for key, value in defaults.items():
     options.setdefault(key, value)
 
-if options['accession_format'] != '':
+if options['accession_format']:
     format = options['accession_format']
     start = unicode(format.rstrip('#'))
     if start != format:

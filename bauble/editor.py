@@ -271,11 +271,13 @@ class GenericEditorView(object):
                            (type(e), e))
         chooser.destroy()
 
-    def run_entry_dialog(self, title, parent, flags, buttons):
+    def run_entry_dialog(self, title, parent, flags, buttons, visible=True):
         d = gtk.Dialog(title, parent, flags, buttons)
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250, -1)
         entry = gtk.Entry()
+        if visible is not True:
+            entry.set_visibility(False)
         entry.connect("activate",
                       lambda entry: d.response(gtk.RESPONSE_ACCEPT))
         d.vbox.pack_start(entry)
@@ -481,6 +483,10 @@ class GenericEditorView(object):
     def widget_get_model(self, widget):
         widget = self.__get_widget(widget)
         return widget.get_model()
+
+    def widget_grab_focus(self, widget):
+        widget = self.__get_widget(widget)
+        return widget.grab_focus()
 
     def widget_get_active(self, widget):
         widget = self.__get_widget(widget)
@@ -769,7 +775,7 @@ class MockView:
     '''mocking the view, but so generic that we share it among clients
     '''
     def __init__(self, **kwargs):
-        self.widgets = type('MockWidgets', (object, ), {})
+        self.widgets = type('MockWidgets', (object, ), {})()
         self.models = {}  # dictionary of list of tuples
         self.invoked = []
         self.invoked_detailed = []
@@ -812,8 +818,7 @@ class MockView:
             reply = ''
         self.widget_set_value(target, reply)
 
-    def run_entry_dialog(self, title, parent, flags, buttons):
-        args = [title, parent, flags, buttons]
+    def run_entry_dialog(self, *args, **kwargs):
         self.invoked.append('run_entry_dialog')
         self.invoked_detailed.append((self.invoked[-1], args))
         try:
@@ -928,6 +933,10 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], args))
         self.values[args[0]] = args[1]
 
+    def widget_grab_focus(self, *args):
+        self.invoked.append('widget_grab_focus')
+        self.invoked_detailed.append((self.invoked[-1], args))
+
     def widget_set_active(self, *args):
         self.invoked.append('widget_set_active')
         self.invoked_detailed.append((self.invoked[-1], args))
@@ -937,10 +946,9 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], args))
 
     def get_window(self):
-        return self.__window
         self.invoked.append('get_window')
         self.invoked_detailed.append((self.invoked[-1], []))
-        return None
+        return self.__window
 
     widget_get_active = widget_get_value
 

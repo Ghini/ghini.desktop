@@ -62,10 +62,10 @@ its links to other database objects lets us better understand the structure:
 
 **Accession links Planting to Species**
 
-  An ``Accession`` represents the action of receiving plant material in
+  An ``Accession`` represents the action of receiving this specific plant material in
   the garden. As such, ``Accession`` is an abstract concept, it links
   physical living ``Plantings`` —groups of plants placed each at a
-  ``Location`` in the garden— to the corresponding ``Species``. An
+  ``Location`` in the garden— to the corresponding ``Species``. It is not the same as an acquisition from a source, because in a single acquisition you can access material of more than one species. In other words: a single aquisition can embark multiple accessions. An
   ``Accession`` has zero or more ``Plantings`` associated to it (0..n), and
   it is at all times connected to exactly 1 ``Species``. Each ``Planting``
   belongs to exactly one ``Accession``, each ``Species`` may have multiple

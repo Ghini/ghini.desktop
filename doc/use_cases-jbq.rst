@@ -6,23 +6,23 @@ April 2015. Since that time, we have accumulated experience with the
 program, and we are ourselves in need to document it, in order to secure the
 knowledge to the institution. We are happy to share it.
 
-technical
+Technical
 ^^^^^^^^^^^^^^^^^^^^
 
 - We work on GNU/Linux, a platform that many users don't master, and our
   database is inside of a remote database management system. This implies
   steps that are not obvious to the casual end user.
 
-  ..  admonition:: how to start a program
+  ..  admonition:: How to start a program
       :class: toggle
 
-         to start a program given its name, hit the |loose_png| key next to Alt, or
+         To start a program given its name, hit the |loose_png| key next to Alt, or
          click on |10000000000000300000002F89E0224ADF9EC09E_png|, then start typing
          the name of the program, in our case “Ghini” or just click on the program
          symbol |100000000000003100000031BB54CBDFA885EBAC_png|, appearing near the
          left margin of your display.
 
-  ..  admonition:: database server
+  ..  admonition:: Database server
       :class: toggle
 
          We chose for a centralised PostgreSQL database server. This way we
@@ -69,7 +69,7 @@ technical
          don't need do anything in this window, just press enter and get
          into the main program screen.
 
-         |10000000000001290000011FEE16D735EB3DBF67_png| 
+         |10000000000001290000011FEE16D735EB3DBF67_png|
 
          Occasionally, at the top of the screen an information text will
          appear, telling you that a newer version is available on-line.
@@ -84,7 +84,7 @@ technical
 
 - understanding ghini initial screen
 
-  ..  admonition:: complete screen
+  ..  admonition:: Complete screen
       :class: toggle
 
          At the moment of writing, our initial screen looked like this:
@@ -95,7 +95,7 @@ technical
          interface sections with information and tools to explore the
          database.
 
-  ..  admonition:: numeric overview
+  ..  admonition:: Numeric overview
       :class: toggle
 
          The table in the right half of the screen presents a summary of all
@@ -104,7 +104,7 @@ technical
 
          |100000000000018700000173222371085C3C68FE_png|
 
-  ..  admonition:: stored queries
+  ..  admonition:: Stored queries
       :class: toggle
 
          The lower half of the right hand side contains a set of stored
@@ -114,7 +114,7 @@ technical
 
          |100000000000018700000173222371085C3C68FF_png|
 
-  ..  admonition:: query and action buttons
+  ..  admonition:: Query and action buttons
       :class: toggle
 
          At the top of this screen you can find the field in which you would
@@ -129,11 +129,11 @@ technical
            in the form of an arrow, you can return to your last search.
          - With the |100000000000001C0000001FB8A1F75F7A5EF877_png| button,
            in the form of a gear, you can start the "Query Builder", which
-           helps you compose complex searchs in a simple, graphical way.
+           helps you compose complex searches in a simple, graphical way.
 
 
 - We often have volunteers who only work at the garden for a very short
-  time. It was with them in mind that we have developed a `hypersimplified
+  time. It was with them in mind that we have developed a `hyper-simplified
   view <goal.html#hypersimplified-view>`_ on the ghini database structure.
 
   ..  admonition:: Details
@@ -150,7 +150,7 @@ technical
 - At times, the program gives error messages. |dontpanic_png|, retry, or
   report to the developers.
 
-  ..  admonition:: network problems
+  ..  admonition:: Network problems
       :class: toggle
 
          In order to work, the program needs a stable network connection to
@@ -162,7 +162,7 @@ technical
 
          Just ignore it and try again.
 
-  ..  admonition:: search fails with error
+  ..  admonition:: Search fails with error
       :class: toggle
 
          Sometimes and without any apparent cause, a search will not run
@@ -174,7 +174,7 @@ technical
 
          |10000000000002140000014D050A059AC7EE948A_png|
 
-  ..  admonition:: search does not return something I just inserted
+  ..  admonition:: Search does not return something I just inserted
       :class: toggle
 
          Accession codes starting with zero and composed of just numbers, as
@@ -197,27 +197,26 @@ technical
 
 - A serious situation happened once, and we absolutely want to prevent it
   from happening again: a user deleted a genus, with everything that was
-  below it, species and accessions, and synonymies.
+  below it, species and accessions, and synonyms.
 
-  ..  admonition:: solving it with user permissions
+  ..  admonition:: Solving it with user permissions
       :class: toggle
 
-         We haven't yet conclusively decided how to solve this one. One way
-         would be to have different connection profiles, associated to
+         We propose to have different connection profiles, associated to
          different database users, each user with all needed permissions.
 
-         full permission (BD-JBQ)
-           only qualified personnel get this kind of access.
+         Full permission (BD-JBQ)
+           Only qualified personnel get this kind of access.
 
-         insert and update (BD-JBQ-limitado)
+         Insert and update (BD-JBQ-limitado)
            We use this one for those users who come help us for a
            limited time, and who did not get a complete introduction to database
            concepts. It is meant to prevent costly mistakes.
 
-         read only (BD-JBQ-lectura)
+         Read only (BD-JBQ-lectura)
            it can be shared with anyone visiting the garden
 
-         You select the connection at startup, and the software asks you
+         You select the connection at start-up, and the software asks you
          for the password corresponding to the connection you selected.
 
          |10000000000000FE00000065C64D791B5CA0099D_png|
@@ -234,7 +233,7 @@ technical
          connection uses the same database on the server, but with different
          user.
 
-  ..  admonition:: thinking further about it
+  ..  admonition:: Thinking further about it
       :class: toggle
 
          On the other hand, we are questioning if it is at all appropriate,
@@ -247,12 +246,12 @@ technical
          <https://github.com/Ghini/ghini.desktop/issues/218>`_.
 
 - When contacting the developers, they will definitely ask for technical
-  information, or at least to see a screenshot.  Help them help you.
+  information, or at least to see a screen-shot.  Help them help you.
 
-  ..  admonition:: Taking a screenshot
+  ..  admonition:: Taking a screen-shot
       :class: toggle
 
-         On Linux there are three ways to create a screenshot, all involve
+         On Linux there are three ways to create a screen-shot, all involve
          hitting the 'PrtSc' key.  The most practical one is possibly
          hitting the 'PrtSc' key in combination with Ctrl and Shift. This
          will start an interactive screen copy tool. You select a rectangle
@@ -260,14 +259,14 @@ technical
          you're writing, or in the chat line where the developers are trying
          to help you.
 
-  ..  admonition:: where are the logs
+  ..  admonition:: Where are the logs
       :class: toggle
 
          Ghini continuously saves a very informative log file, in the
          ``~/.bauble/bauble.log`` file.  Don't bother opening it, just send
          it over.  It contains loads of technical information.
 
-  ..  admonition:: continous unmanned alerting
+  ..  admonition:: Continuous unmanned alerting
       :class: toggle
 
          An other option is to activate the sentry handler. It will notify
@@ -283,10 +282,10 @@ technical
          not what you wish, double click on the line and it will change to
          the other value.
 
-taxonomy
+Taxonomy
 ^^^^^^^^^^^^^^^^^^^^
 
-- introduction
+- Introduction
 
   ..  admonition:: Orchidaceae taxonomic complexity
       :class: toggle
@@ -304,9 +303,9 @@ taxonomy
          specialistic, but it's part of our daily routine, and it can all be stored
          in our Ghini database.
 
-- identifying at rank Genus, or Family
+- Identifying at rank Genus, or Family
 
-  ..  admonition:: at rank genus
+  ..  admonition:: At rank genus
       :class: toggle
 
          Ghini-1.0 prescribes that an accession is identified at rank
@@ -326,7 +325,7 @@ taxonomy
 
          .. figure:: images/genus_sp-explained.svg
 
-  ..  admonition:: at rank family
+  ..  admonition:: At rank family
       :class: toggle
 
          If an accession is only identified at rank family, we need a
@@ -340,17 +339,19 @@ taxonomy
          behind the prefix to write the family name, possibly removing the
          trailing **e**.  Removal of the trailing **e** is useful in order
          not to get results that include genus names when you as for stuff
-         ending in **aceae**.  In practice, we have a **Zzz** genus in the
-         Orchidaceae family, and in the other 6 families represented in our
-         digital collection, we follow this suggested practice.
+         ending in **aceae**.
+
+         Apart from the aforementioned **Zzz** genus in the Orchidaceae
+         family, we follow this suggested practice, so for example our
+         collection would include *Zzz-cactacea* or *Zzz-bromeliacea*.
 
          Remember: our **Zzz** genus is a fictive genus in the
          **Orchidaceae** family, do not use it as unspecified genus in other
          families.
 
-- identifying at a rank that is not allowed by the software (eg: Subtribe, or Subfamily)
+- Identifying at a rank that is not allowed by the software (eg: Subtribe, or Subfamily)
 
-  ..  admonition:: at rank subtribe
+  ..  admonition:: At rank subtribe
       :class: toggle
 
          We sometimes can't identify a taxon at rank genus, but we do manage
@@ -381,19 +382,19 @@ taxonomy
          We are very much looking forward to seeing that `issue-9
          <https://github.com/Bauble/bauble.classic/issues/9>`_ solved!
 
-  ..  admonition:: at rank subfamily, tribe
+  ..  admonition:: At rank subfamily, tribe
       :class: toggle
 
          Just as we reserved the prefix Zzx- for subtribe, we reserve the
          prefixes Zzy- for tribe, Zzw- for subfamily.
 
-         In praticular, the subfamily information is relevant, because there
+         In particular, the subfamily information is relevant, because there
          are subfamilies within the Orchidaceae family which are not further
          separated.
 
 - Editing the Accession identification - the Species details
 
-  ..  admonition:: placeholder species for individual accessions
+  ..  admonition:: Placeholder species for individual accessions
       :class: toggle
 
          Scenario one describes the identification of a single accession,
@@ -408,7 +409,7 @@ taxonomy
          We do not edit the species, because there might be totally
          unrelated accessions connected to the same placeholder species.
 
-  ..  admonition:: unknown species for multiple accessions
+  ..  admonition:: Unknown species for multiple accessions
       :class: toggle
 
          A different case is when we have a whole batch of accessions, all
@@ -428,7 +429,7 @@ taxonomy
 
 - A new plants is relative to a species not yet in our collection.
 
-  ..  admonition:: last minute species
+  ..  admonition:: Last minute species
       :class: toggle
 
          We start this from the Accession window and it's very simple, just
@@ -437,32 +438,32 @@ taxonomy
 
 - Adding a species and using online taxonomic services
 
-  ..  admonition:: adding a new species — the plant list.
+  ..  admonition:: Adding a new species — the plant list.
       :class: toggle
 
          We start the obvious way: type the genus epithet, possibly select
          it from the completion list, then type the species epithet, or at
          least your best guess.
 
-         .. image:: images/tpl-1-best_guess.png     
+         .. image:: images/tpl-1-best_guess.png
 
          Next to the species epithet field there's a small button,
          |green_ball|, which connects us to the plant list.  Click on it, a
          message area appears at the top of the window.
 
-         .. image:: images/tpl-2-querying.png     
+         .. image:: images/tpl-2-querying.png
 
          Depending on the speed of your internet connection, but also on how
          close your best guess is to a correct published name, the top area
          will change to something like this:
 
-         .. image:: images/tpl-3-results.png     
+         .. image:: images/tpl-3-results.png
 
          Accept the hint and it will be as if you had typed the data yourself.
 
-         .. image:: images/tpl-4-accepted.png     
+         .. image:: images/tpl-4-accepted.png
 
-  ..  admonition:: reviewing a whole selection — TNRS.
+  ..  admonition:: Reviewing a whole selection — TNRS.
       :class: toggle
 
          This is described in the manual, it's extremely useful, don't
@@ -498,12 +499,12 @@ Let the database fit the garden
          ========== ======================================================
          code       description
          ========== ======================================================
-         CAC-B *x*  Solo las cactáceas afuera de los orquidearios en 
-                    el jardín
+         CAC-B *x*  Reserved to cactus plants next to the orchids 
+                    exposition glasshouses.
          ---------- ------------------------------------------------------
          CRV:       Nepenthaceae exibition
          ---------- ------------------------------------------------------
-         IC-*xx*:   orquidearios de calor en el jardín (1A a 9C son 
+         IC-*xx*:   orquidearios de calor en el jardín (1A a 9C son
                     lugares especificos entre del orquideario)
          ---------- ------------------------------------------------------
          IF-xx:     orquidearios de frío en el jardín (1A a 5I son
@@ -527,7 +528,7 @@ Let the database fit the garden
   have them physically, found in the garden, with or without its label, but
   without their digital counterpart.
 
-  ..  admonition:: existing plant, found in the garden with its own label
+  ..  admonition:: Existing plant, found in the garden with its own label
       :class: toggle
 
          This activity starts with a plant, which was found at a specific
@@ -552,7 +553,7 @@ Let the database fit the garden
          ========== ============================ ========================
 
          We go straight into the Accession Editor, start typing the species
-         name in the corresponding field.  Luckly, the species was already
+         name in the corresponding field.  Luckily, the species was already
          in the database, otherwise we would use the **Add** button next to
          the entry field.
 
@@ -581,7 +582,7 @@ Let the database fit the garden
 
          |10000000000001D5000000C7CF644BA0B1AB3FFF_png|
 
-  ..  admonition:: new accession: plant just entering the garden
+  ..  admonition:: New accession: plant just entering the garden
       :class: toggle
 
          This activity starts with a new Plant, just acquired from a known
@@ -610,7 +611,7 @@ Let the database fit the garden
          Please note that the plant may be initially placed in a greenhouse,
          before it reaches its intended location in the garden.
 
-  ..  admonition:: existing plant, found in the garden without its label
+  ..  admonition:: Existing plant, found in the garden without its label
       :class: toggle
 
          When this happens, we can't be sure the plant had never been in the
@@ -623,7 +624,7 @@ Let the database fit the garden
   (it may become unreadable), or to the association (they may be
   separated). We have software-aided protocols for these events.
 
-  ..  admonition:: we find a dead plant
+  ..  admonition:: We find a dead plant
       :class: toggle
 
          Whenever a plant is found dead, we collect its label and put it in a box
@@ -651,7 +652,7 @@ Let the database fit the garden
          Plants with **quantity** zero are shown with a different colour in
          the results view.  This helps distinguish them from live plants.
 
-  ..  admonition:: we find a plant without a label
+  ..  admonition:: We find a plant without a label
       :class: toggle
 
          We can't be sure the plant had ever been in the collection or not.
@@ -659,14 +660,116 @@ Let the database fit the garden
 
          Losing a plant label is unfortunate, but it just sometimes happens.
          What we do is to put a new label to the plant, and to clearly state
-         that the label is a replacement of an original one.  
+         that the label is a replacement of an original one.
 
          We then handle the case as if it was a new accession, plus we add a
          note to the accession, category “label”, text “relabeled”.
 
-- producing or reproducing labels
 
-  ..  admonition:: refreshing plant labels
+- Keeping track of different sources of plant material
+
+  ..  admonition::  What different sources we can have
+      :class: toggle
+
+         In this botanical garden, we receive plants from different types of
+         origin. It could be from expeditions (plants coming from nature,
+         collected with legal permission from MAE - Ecuadorian Environment
+         Ministry), donated plants mostly coming as gifts from
+         collectors or orchid commercialization enterprises, purchased,
+         or confiscated plants (usually coming from MAE raids around the
+         country).
+
+  ..  admonition::  If the plant comes from a wild source
+      :class: toggle
+
+         The accession editor offers the option "origin" option. When a
+         plant is traceable to a wild source, we can specified its specific
+         origin. We want to comply with ITF2, and ghini-1.0 only partly
+         respects that standard. The ITF2 complying options are:
+
+         - Wild: Accession of wild source.
+         - Cultivated: Propagule(s) from a wild source plant.
+         - Not Wild: Accession not traceable to a wild source.
+         - Insufficient data
+
+         In the case of a donated plant, it is better to put detail information
+         just as a note in the plant accession; in the case of a plant with an
+         unknown origin, we select the Insufficient data option.
+
+  ..  admonition::  Using the source tab in the accession editor
+      :class: toggle
+
+         In this section we can create or use a contact, our source of plant
+         material. It could be from an expedition to a collecting place, and
+         in this case we would specify the region and the expedition name,
+         or could be the name of the person or enterprise donating a
+         specific batch of plants.
+
+         .. image:: images/accession-source-collection.png
+
+         Once you choose or create the contact information, this section
+         deploys more options, here you can specify the region, where you
+         can choose the country of origin, and a specific location within
+         the region, georeferencing information (including the GPS data),
+         habitat description collector name. For the last one, I recommend
+         also to write the specific date next to the collector name
+         (eg. Luis Baquero 11/10/2016).
+
+  ..  admonition::  Donated, bought or confiscated plants
+      :class: toggle
+
+         However useful for expeditions or for donors where the main
+         information is geographic, this source tab is not very practical in
+         our remaining cases: we handle three more categories: confiscated,
+         purchased and donated, for these categories the options available in
+         the source tab do not apply: too much information and not to the point.
+
+         In these cases, we add a set of notes, according to the case.
+
+  ..  admonition::  — Donated plants
+      :class: toggle
+
+         If the plant was donated by individual, we add the individual among
+         our contacts and specify it as source, then we add the notes:
+
+         =================================== ======================================
+         category                            text
+         =================================== ======================================
+         source-type                         gift
+         source-detail                       Contribución científica al JBQ
+         =================================== ======================================
+
+  ..  admonition::  — Bought plants
+      :class: toggle
+
+         If the plant was bought, we add the previous owner among our
+         contacts and specify it as source, then we add the notes:
+
+         =================================== ======================================
+         category                            text
+         =================================== ======================================
+         source-type                         purchase
+         source-detail                       optional, free text
+         factura                             the invoice number
+         =================================== ======================================
+
+  ..  admonition::  — Confiscated plants
+      :class: toggle
+
+         If the plant was confiscated, we add the previous owner among our
+         contacts and specify it as source, then we add the notes:
+
+         =================================== ========================================
+         category                            text
+         =================================== ========================================
+         source-type                         confiscated
+         source-detail                       possibly, legal details, law number ...
+         =================================== ========================================
+
+
+- Producing or reproducing labels
+
+  ..  admonition:: Refreshing plant labels
       :class: toggle
 
          Sometimes we refresh the labels, for example all that is in a
@@ -686,7 +789,7 @@ Let the database fit the garden
          values, and since we're using a simple printer, we set the colour
          to ``black`` instead of ``blue``, which is meant for engraving.
 
-  ..  admonition:: preparing labels for non-database plants
+  ..  admonition:: Preparing labels for non-database plants
       :class: toggle
 
          To prepare the batch of 72 labels, we use a mako report template,
@@ -709,7 +812,7 @@ Let the database fit the garden
   less interesting for the exposition. For each plant in our collection we
   need to know its current locations and history of movements.
 
-  ..  admonition:: planned action
+  ..  admonition:: Planned action
       :class: toggle
 
          The action starts by moving the plants around, and collecting the
@@ -723,7 +826,7 @@ Let the database fit the garden
          If we had a mobile app, we would just upload the info to the server
          and we would be done.
 
-  ..  admonition:: ex-post correction
+  ..  admonition:: Ex-post correction
       :class: toggle
 
          While revising the garden, we find a plant at a location that is not what
@@ -733,7 +836,7 @@ Let the database fit the garden
          sp”, was found in “Invernadero 1”, while the database says it is in “ICAlm3”.
 
          All we do is find the Plant in the database and update its information.  We
-         do not chang anything in the initial Accession information, just the current
+         do not change anything in the initial Accession information, just the current
          Plant information.
 
          We type the accession code in the search entry field, with quotes, hit
@@ -760,21 +863,28 @@ Let the database fit the garden
   directly, or we take pictures of details of the flower, hoping that a
   visiting specialist could help completing the identification.
 
-  ..  admonition:: Details
+  ..  admonition:: Adding pictures
       :class: toggle
 
+         We are practicing with ODK Collect, a small program running on
+         hand-held android devices.  Ghini's use of ODK Collect hasn't yet
+         frozen to a best practice.  Do have a look at the `corresponding
+         issue <https://github.com/Ghini/ghini.desktop/issues/243>`_ on
+         github.
+
 - Regularly, we need producing reports about our collection that the
-  Ecuadorian Environment Ministery (MAE) requires and that justify the very
+  Ecuadorian Environment Ministry (MAE) requires and that justify the very
   existence of the garden.
 
-  ..  admonition:: Details
+  ..  admonition:: Producing reports
       :class: toggle
 
          Each year the botanic garden has to submit a report (annual report
          of management and maintenance of orchids collection) complying to
          the requirements of the Ecuadorian Ministry of the Environment.
 
-         To this end, we start selecting the plants we have to include in the report. It might be all acquisition in the past year::
+         To this end, we start selecting the plants we have to include in the report.
+         It might be all acquisition in the past year::
 
            accession where _created between |datetime|2017,1,1| and |datetime|2018,1,1|
 
@@ -799,7 +909,7 @@ search field
 
 and you hope to see your result in the search result view.
 
-  ..  admonition:: search in order to edit (plant or accession)
+  ..  admonition:: Search in order to edit (plant or accession)
       :class: toggle
 
          When searching in order to edit, you want to be very specific, and select as
@@ -826,7 +936,7 @@ and you hope to see your result in the search result view.
          We now have both Plant or Accession in the search result view and
          we can now edit either or both.
 
-  ..  admonition:: search in order to report
+  ..  admonition:: Search in order to report
       :class: toggle
 
          When searching in order to create a report, you want to be both
@@ -844,7 +954,7 @@ and you hope to see your result in the search result view.
 
          Otherwise a flexible way to achieve this is to work with **Tags**.
 
-  ..  admonition:: using **Tags** as enhanced searching
+  ..  admonition:: Using **Tags** as enhanced searching
       :class: toggle
 
          Sometimes we have to take the same action on objects of the same
@@ -867,7 +977,7 @@ and you hope to see your result in the search result view.
 
          .. image:: images/tag-delete.png
 
-  ..  admonition:: be aware of the available search strategies
+  ..  admonition:: Be aware of the available search strategies
       :class: toggle
 
          This is nicely documented, "più non dimandare" and `read the docs
@@ -971,3 +1081,5 @@ and you hope to see your result in the search result view.
 .. |loose_png| image:: images/windows-key.png
    :width: 28px
    :height: 28px
+
+..  LocalWords:  Ghini
