@@ -23,7 +23,11 @@ hit enter.
 MySQL
 =====
 
-Please refer to the official documentation.
+Please refer to the `official documentation <https://mariadb.com/kb/en/the-mariadb-library/documentation/>`_.
+
+Backing up and restoring databases is described in breadth and depth
+starting at `this page
+<https://mariadb.com/kb/en/the-mariadb-library/backing-up-and-restoring-databases/>`_.
 
 PostgreSQL
 ==========
