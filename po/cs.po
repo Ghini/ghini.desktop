@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-14 11:35-0500\n"
+"POT-Creation-Date: 2017-08-25 19:29-0500\n"
 "PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
@@ -721,7 +721,7 @@ msgid "Changes"
 msgstr "Změny"
 
 #: bauble/plugins/abcd/__init__.py:334
-#: bauble/plugins/garden/exporttopocket.py:140
+#: bauble/plugins/garden/exporttopocket.py:142
 msgid "Choose a file to export to..."
 msgstr "Zvolte soubor do kterého exportovat..."
 
@@ -1245,7 +1245,7 @@ msgid "Expedition"
 msgstr "Expedice"
 
 #: bauble/plugins/abcd/__init__.py:389
-#: bauble/plugins/garden/exporttopocket.py:135 bauble/plugins/imex/csv_.py:700
+#: bauble/plugins/garden/exporttopocket.py:137 bauble/plugins/imex/csv_.py:700
 #: bauble/plugins/imex/iojson.py:306 bauble/plugins/imex/xml.py:143
 msgid "Export"
 msgstr "Export"
@@ -3728,7 +3728,7 @@ msgstr ""
 msgid "to"
 msgstr "do"
 
-#: bauble/plugins/garden/exporttopocket.py:136
+#: bauble/plugins/garden/exporttopocket.py:138
 msgid "to ghini.pocket"
 msgstr ""
 

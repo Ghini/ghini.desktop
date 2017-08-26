@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-14 11:35-0500\n"
+"POT-Creation-Date: 2017-08-25 19:29-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Translate it <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -691,7 +691,7 @@ msgid "Changes"
 msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:334
-#: bauble/plugins/garden/exporttopocket.py:140
+#: bauble/plugins/garden/exporttopocket.py:142
 msgid "Choose a file to export to..."
 msgstr "Dışa aktarılacak dosyayı seçin..."
 
@@ -1191,7 +1191,7 @@ msgid "Expedition"
 msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:389
-#: bauble/plugins/garden/exporttopocket.py:135 bauble/plugins/imex/csv_.py:700
+#: bauble/plugins/garden/exporttopocket.py:137 bauble/plugins/imex/csv_.py:700
 #: bauble/plugins/imex/iojson.py:306 bauble/plugins/imex/xml.py:143
 msgid "Export"
 msgstr "Dışa aktar"
@@ -3530,7 +3530,7 @@ msgstr ""
 msgid "to"
 msgstr ""
 
-#: bauble/plugins/garden/exporttopocket.py:136
+#: bauble/plugins/garden/exporttopocket.py:138
 msgid "to ghini.pocket"
 msgstr ""
 

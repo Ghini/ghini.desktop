@@ -29,9 +29,7 @@ PostgreSQL
 ==========
 
 Please refer to the official documentation. A very thorough discussion of
-your backup options starts at `chapter_24`_.
-
-.. _chapter_24: http://www.postgresql.org/docs/9.1/static/backup.html
+your backup options starts at `chapter 24 <http://www.postgresql.org/docs/9.1/static/backup.html>`_.
 
 Ghini Configuration
 ----------------------
