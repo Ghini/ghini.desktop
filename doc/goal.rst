@@ -273,10 +273,15 @@ language agnostic
 .................
 
 The program was born in English and all its technical and user documentation
-is still only in that language, but the program itself has been translated
-and can be used in various other languages, including Spanish (86%),
-Portuguese (100%), French (42%), to name some Southern American languages,
-as well as Swedish (100%) and Czech (100%).
+is first written in that language. Both technical and user documentation use
+``gettext``, an advanced tool for semi-automatic translation.
+
+The program has been translated and can be used in various other languages,
+including Spanish (97%), French (82%), Portuguese (71%), to name some
+Southern American languages, as well as Ukrainian (100%) and Czech (71%).
+
+Translation of documentation goes a bit slower, with only Ukrainian, Spanish
+and Italian at more than 50%.
 
 platform agnostic
 .................
