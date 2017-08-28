@@ -62,7 +62,15 @@ Technical
 
 - Understanding when to update
 
-  ..  admonition:: Details
+  ..  admonition:: Updating the system
+      :class: toggle
+
+         Ubuntu updates are a lot lighter and easier than with Windows. So
+         whenever the system suggests an update, we let it do that.
+         Generally, there's no need to wait during the update nor to reboot
+         after it's done.
+
+  ..  admonition:: Updating ghini
       :class: toggle
 
          The first window presented by Ghini looks like this. Normally, you
