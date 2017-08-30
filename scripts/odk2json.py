@@ -19,6 +19,15 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+consoleHandler = logging.StreamHandler()
+logging.getLogger().addHandler(consoleHandler)
+consoleHandler.setLevel(logging.DEBUG)
+logging.getLogger().setLevel(logging.DEBUG)
+
 import bauble.plugins.garden.aggregateclient
 import os.path
 import datetime
@@ -30,12 +39,12 @@ path = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(path, 'settings.json'), 'r') as f:
     user, pw, filename, imei2user = json.load(f)
 
-r = bauble.plugins.garden.aggregateclient.get_submissions('ghini-collect.appspot.com', 'plant_form_r', user, pw)
+r = bauble.plugins.garden.aggregateclient.get_submissions(user, pw, 'ghini-collect.appspot.com', 'plant_form_r')
 objects = []
 
 for item in r:
-    accession = {"object": "accession", "private": False, "species": "Zzz sp"}
-    plant = {"object": "plant", "code": "1", "memorial": False, "quantity": 1}
+    accession = {"object": "accession"}
+    plant = {"object": "plant", "code": "1"}
     accession['code'] = item['acc_no_scan'] or item['acc_no_typed']
     plant['accession'] = accession['code']
     if item['location']:
@@ -43,8 +52,12 @@ for item in r:
     if item['species']:
         accession['species'] = item['species']
     # should create a change object, just like the Accession Editor:
-    if False:
-        datetime.datetime.strptime(item['end'][:19], '%Y-%m-%dT%H:%M:%S')
+    if True:
+        author = imei2user[item['deviceid']]
+        timestamp = datetime.datetime.strptime(item['end'][:19], '%Y-%m-%dT%H:%M:%S')
+        if author != 'Denisse':
+            logger.info("skipping user %s" % author)
+            continue
     # should import pictures:
     if False:
         for p in item['photo']:
