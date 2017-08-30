@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2004-2010 Brett Adams <brett@bauble.io>
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -60,6 +59,7 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     accession = {"object": "accession"}
     plant = {"object": "plant", "code": "1"}
     accession['code'] = item['acc_no_scan'] or item['acc_no_typed']
+    # if the plant code contains a plant code, separate it from accession code.
     plant['accession'] = accession['code']
     if item['location']:
         # correct location codes according to ILIKE matches,
@@ -91,7 +91,9 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
         accession['species'] = item['species']
         genus_epithet, species_epithet = (unicode(item['species']).split(u' ') + [u''])[:2]
         need_species = True
-    else:
+
+    else:                     # this is an existing accession
+        # if not specifying species or this species is already set, don't alter anything.
         if not item['species'] or db_accession.species.str(remove_zws=True) == item['species']:
             accession = {}
 
