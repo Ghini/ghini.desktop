@@ -41,20 +41,19 @@ def get_submissions(user, pw, host, form_id, to_skip=[]):
     for uuid in [i.text for i in idlist]:
         if uuid in to_skip:
             continue
-        url = (base_format % {'form_id': form_id,
-                              'api': 'downloadSubmission',
-                              'host': host} +
-               submission_format % {'group_name': 'plant_form',
-                                    'uuid': uuid})
         try:
-            reply = requests.get(url, auth=auth)
+            reply = requests.get((base_format % {'form_id': form_id,
+                                                 'api': 'downloadSubmission',
+                                                 'host': host} +
+                                  submission_format % {'group_name': 'plant_form',
+                                                       'uuid': uuid}), auth=auth)
         except requests.exceptions.ConnectionError, e:
             continue
         root = ET.fromstring(reply.text)
         data = root[0]  # media may follow
         form = data[0]
         item = dict([(re.sub(r'{.*}(.*)', r'\1', i.tag), i.text) for i in form])
-        item['uuid'] = uuid
+        item['meta:uuid'] = uuid
         result.append(item)
         for key in item.keys():
             if not key.endswith('_repeat'):

@@ -65,7 +65,7 @@ session = bauble.db.Session()
 
 # loop over the submissions, sorted by accession number
 for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
-    to_skip.append(item['uuid'])
+    to_skip.append(item['meta:uuid'])
     accession = {"object": "accession"}
     plant = {"object": "plant", "code": "1"}
     accession['code'] = item['acc_no_scan'] or item['acc_no_typed']
