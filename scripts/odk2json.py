@@ -27,11 +27,14 @@ logging.getLogger().addHandler(consoleHandler)
 consoleHandler.setLevel(logging.DEBUG)
 logging.getLogger().setLevel(logging.DEBUG)
 
-import bauble.plugins.garden.aggregateclient
+from bauble.plugins.garden.aggregateclient import get_submissions, get_image
 import os.path
 import datetime
 import json
 import codecs
+import os
+import uuid
+
 import bauble.db
 import bauble.utils
 
@@ -41,12 +44,18 @@ from bauble.plugins.garden import Accession
 from bauble.plugins.plants import Species
 from bauble.plugins.plants import Genus
 
-import os
 path = os.path.dirname(os.path.realpath(__file__))
-with open(os.path.join(path, 'settings.json'), 'r') as f:
-    (user, pw, filename, imei2user, dburi, to_skip) = json.load(f)
 
-r = bauble.plugins.garden.aggregateclient.get_submissions(user, pw, 'ghini-collect.appspot.com', 'plant_form_r', to_skip)
+with open(os.path.join(path, 'settings.json'), 'r') as f:
+    (user, pw, filename, imei2user, dburi, pic_path) = json.load(f)
+
+try:
+    with open(os.path.join(path, 'odk-seen.json'), 'r') as f:
+        to_skip = json.load(f)
+except:
+    to_skip = []
+
+r = get_submissions(user, pw, 'ghini-collect.appspot.com', 'plant_form_r', to_skip)
 objects = []
 species_needed = {}
 locations_needed = {}
@@ -56,6 +65,7 @@ session = bauble.db.Session()
 
 # loop over the submissions, sorted by accession number
 for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
+    to_skip.append(item['uuid'])
     accession = {"object": "accession"}
     plant = {"object": "plant", "code": "1"}
     accession['code'] = item['acc_no_scan'] or item['acc_no_typed']
@@ -87,7 +97,7 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
 
     if db_accession is None:  # this is a new accession
         plant['quantity'] = 1
-        item.setdefault('species', u'Zzz sp')
+        item['species'] = item.get('species') or u'Zzz sp'
         accession['species'] = item['species']
         genus_epithet, species_epithet = (unicode(item['species']).split(u' ') + [u''])[:2]
         need_species = True
@@ -111,16 +121,18 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
                            'ht-rank': 'genus', 'ht-epithet': genus_epithet, }
                 species_needed[(genus_epithet, species_epithet)] = species
 
-    # should create a change object, just like the Accession Editor:
-    if True:
-        author = imei2user[item['deviceid']]
-        timestamp = datetime.datetime.strptime(item['end'][:19], '%Y-%m-%dT%H:%M:%S')
+    # needed for plant_notes and the change object
+    author = imei2user[item['deviceid']]
+    timestamp = datetime.datetime.strptime(item['end'][:19], '%Y-%m-%dT%H:%M:%S')
+
     # should import pictures:
-    if False:
-        for p in item['photo']:
-            url, md5 = r[0]['media'][i]
-            path = os.path.join('home', 'mario', 'tmp', 'PlantPictures', p)
-            bauble.plugins.garden.aggregateclient.get_image(user, pw, url, path)
+    for p in item['photo']:
+        url, md5 = r[0]['media'][p]
+        pic_name = os.path.join(pic_path, str(uuid.uuid1()) + '.jpeg')
+        get_image(user, pw, url, pic_name)
+
+    # should create a change object, just like the Accession Editor
+
     if accession:
         objects.append(accession)
     objects.append(plant)
@@ -133,4 +145,10 @@ with codecs.open(filename, "wb", "utf-8") as output:
     output.write(',\n '.join(
         [json.dumps(obj, sort_keys=True)
          for obj in objects]))
+    output.write(']')
+
+with open(os.path.join(path, 'odk-seen.json'), 'w') as output:
+    output.write('[')
+    output.write(',\n '.join(
+        [json.dumps(obj) for obj in to_skip]))
     output.write(']')
