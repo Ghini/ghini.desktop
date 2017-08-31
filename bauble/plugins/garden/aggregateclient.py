@@ -54,6 +54,7 @@ def get_submissions(user, pw, host, form_id, to_skip=[]):
         data = root[0]  # media may follow
         form = data[0]
         item = dict([(re.sub(r'{.*}(.*)', r'\1', i.tag), i.text) for i in form])
+        item['uuid'] = uuid
         result.append(item)
         for key in item.keys():
             if not key.endswith('_repeat'):
