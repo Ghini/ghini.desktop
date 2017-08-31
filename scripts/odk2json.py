@@ -128,8 +128,9 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     # should import pictures:
     for p in item['photo']:
         url, md5 = r[0]['media'][p]
-        pic_name = os.path.join(pic_path, str(uuid.uuid1()) + '.jpeg')
-        get_image(user, pw, url, pic_name)
+        pic_name = str(uuid.uuid1()) + '.jpeg'
+        pic_full_name = os.path.join(pic_path, pic_name)
+        get_image(user, pw, url, pic_full_name)
 
     # should create a change object, just like the Accession Editor
 
