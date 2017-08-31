@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
 #
 # This file is part of ghini.desktop.
 #
@@ -22,6 +22,9 @@ import os
 import re
 
 import gtk
+
+import logging
+logger = logging.getLogger(__name__)
 
 from sqlalchemy import *
 from sqlalchemy.exc import *
@@ -132,7 +135,7 @@ def _create_role(name, password=None, login=False, admin=False):
             stmt += ' PASSWORD %s' % password
         conn.execute(stmt)
     except Exception, e:
-        error('users._create_role(): %s' % utils.utf8(e))
+        logger.error('users._create_role(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -161,7 +164,7 @@ def create_user(name, password=None, admin=False, groups=None):
         #debug(stmt)
         conn.execute(stmt)
     except Exception, e:
-        error('users.create_users(): %s' % utils.utf8(e))
+        logger.error('users.create_users(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -260,7 +263,7 @@ def drop(role, revoke=False):
         stmt = 'drop role %s;' % role
         conn.execute(stmt)
     except Exception, e:
-        error(e)
+        logger.error("%s %s" % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -430,7 +433,7 @@ def set_privilege(role, privilege):
                             stmt += ' with grant option'
                         conn.execute(stmt)
     except Exception, e:
-        error('users.set_privilege(): %s' % utils.utf8(e))
+        logger.error('users.set_privilege(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -464,7 +467,7 @@ def set_password(password, user=None):
         stmt = "alter role %s with encrypted password '%s'" % (user, password)
         conn.execute(stmt)
     except Exception, e:
-        error('users.set_password(): %s' % utils.utf8(e))
+        logger.error('users.set_password(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
     else:
         trans.commit()
