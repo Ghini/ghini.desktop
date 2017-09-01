@@ -132,7 +132,7 @@ def _create_role(name, password=None, login=False, admin=False):
         if admin:
             stmt += ' CREATEROLE'
         if password:
-            stmt += ' PASSWORD %s' % password
+            stmt += ' PASSWORD \'%s\'' % password
         conn.execute(stmt)
     except Exception, e:
         logger.error('users._create_role(): %s %s' % (type(e), utils.utf8(e)))
@@ -164,7 +164,7 @@ def create_user(name, password=None, admin=False, groups=None):
         #debug(stmt)
         conn.execute(stmt)
     except Exception, e:
-        logger.error('users.create_users(): %s %s' % (type(e), utils.utf8(e)))
+        logger.error('users.create_user(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -263,7 +263,7 @@ def drop(role, revoke=False):
         stmt = 'drop role %s;' % role
         conn.execute(stmt)
     except Exception, e:
-        logger.error("%s %s" % (type(e), utils.utf8(e)))
+        logger.error("users.drop(): %s %s" % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -285,9 +285,9 @@ def get_privileges(role):
 
 
 _privileges = {'read': ['connect', 'select'],
-              'write': ['connect', 'usage', 'select', 'update', 'insert',
-                        'delete', 'execute', 'trigger', 'references'],
-              'admin': ['all']}
+               'write': ['connect', 'usage', 'select', 'update', 'insert',
+                         'delete', 'execute', 'trigger', 'references'],
+               'admin': ['all']}
 
 _database_privs = ['create', 'temporary', 'temp']
 
@@ -384,10 +384,10 @@ def set_privilege(role, privilege):
             stmt = 'revoke all on table %s from %s;' % (table.name, role)
             conn.execute(stmt)
             for col in table.c:
-                    if hasattr(col, 'sequence'):
-                        stmt = 'revoke all on sequence %s from %s' % \
-                            (col.sequence.name, role)
-                        conn.execute(stmt)
+                if hasattr(col, 'sequence'):
+                    stmt = ('revoke all on sequence %s from %s'
+                            % (col.sequence.name, role))
+                    conn.execute(stmt)
 
         stmt = 'revoke all on database %s from %s' \
             % (bauble.db.engine.url.database, role)
@@ -525,7 +525,7 @@ class UsersEditor(editor.GenericEditorView):
             role = self.get_selected_user()
             active = button.get_active()
             if active and not has_privileges(role, priv):
-                #debug('grant %s to %s' % (priv, role))
+                logger.debug('grant %s to %s' % (priv, role))
                 try:
                     set_privilege(role, priv)
                 except Exception, e:
