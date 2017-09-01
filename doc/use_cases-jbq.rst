@@ -38,26 +38,19 @@ Technical
          all sorts of temporary users writing to the database, that we
          decided we would let Ghini help us keep track of database events.
 
-         Adding a new user is a task taking less than a minute, and can be
-         done either graphically, or from the command line.
+         Since we work using PostgreSQL, the users that Ghini stores in the
+         database history are the database users, not the system users.
 
-         Hit the |loose_png| key, then start typing ``users``, something
-         like this will appear on your screen:
+         Each user knows their own password, and only knows that one. Our
+         super-user, responsible for the database content, also has the
+         'bauble' fictional user password, which we only only use to create
+         other users.
 
-         .. image:: images/config-users.png
+         Ghini offers a minimum of user management, accessible from the
+         menu Tools. It is neither perfect nor complete, but it serves to
+         our needs.
 
-         Activate the program, unlock the user data, create a new user
-         account, define the password and write it down on a piece of paper
-         you hand over to the person.
-
-         You can achieve the same, possibly faster, from the command line.
-         For example we add user 'Marta López', account 'mlopez', by
-         invoking the command and entering your password (to unlock user
-         data), then all information as required, or leaving it blank:
-
-         ``sudo adduser mlopez``
-
-         We do not use account names like "voluntario", because such
+         We do not use account names like `voluntario`, because such
          accounts do not help us associate the name to the person.
 
 - Understanding when to update
