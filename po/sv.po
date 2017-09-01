@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-25 19:29-0500\n"
+"POT-Creation-Date: 2017-09-01 16:45-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -597,7 +597,7 @@ msgstr "Är du säker på att du vill ta bort trivialnamnet <b>%s</b>?"
 msgid "Are you sure you want to remove this verification?"
 msgstr "Är du säker på att du vill ta bort denna verifikation?"
 
-#: bauble/plugins/users/__init__.py:570
+#: bauble/plugins/users/__init__.py:573
 msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
 "\n"
@@ -1162,7 +1162,7 @@ msgstr "Ange ett anslutningsnamn"
 msgid "Enter a name for the new formatter"
 msgstr "Ange ett namn för den nya formateringen"
 
-#: bauble/plugins/users/__init__.py:555
+#: bauble/plugins/users/__init__.py:558
 msgid "Enter a user name"
 msgstr "Ange ett användarnamn"
 
@@ -2635,7 +2635,7 @@ msgstr ""
 "\n"
 "Möjliga värden: %s"
 
-#: bauble/plugins/users/__init__.py:487
+#: bauble/plugins/users/__init__.py:490
 msgid "The Users editor is only valid on a PostgreSQL database"
 msgstr "Användarredigeraren kan endast användas med en PostgreSQL-databas"
 
@@ -2875,11 +2875,11 @@ msgstr ""
 msgid "The part of the taxon name that the id qualifier refers to."
 msgstr "Den del av taxonnamnet som ID-attributet hänvisar till."
 
-#: bauble/plugins/users/__init__.py:632
+#: bauble/plugins/users/__init__.py:635
 msgid "The password for user <b>%s</b> has not been changed."
 msgstr "Lösenordet för användaren <b>%s</b> har inte ändrats."
 
-#: bauble/plugins/users/__init__.py:638
+#: bauble/plugins/users/__init__.py:641
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
@@ -3165,8 +3165,8 @@ msgstr "Användare"
 msgid "User:"
 msgstr "Användare:"
 
-#: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
-#: bauble/plugins/users/__init__.py:724
+#: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:513
+#: bauble/plugins/users/__init__.py:727
 msgid "Users"
 msgstr "Användare"
 
@@ -3335,7 +3335,7 @@ msgstr ""
 msgid "You cannot remove an accession with plants."
 msgstr ""
 
-#: bauble/plugins/users/__init__.py:495
+#: bauble/plugins/users/__init__.py:498
 msgid "You do not have privileges to change other user privileges"
 msgstr "Du har inte behörighet att ändra andra användares behörigheter"
 

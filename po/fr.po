@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-25 19:29-0500\n"
+"POT-Creation-Date: 2017-09-01 16:45-0500\n"
 "PO-Revision-Date: 2017-08-01 17:16+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -593,7 +593,7 @@ msgstr "Êtes-vous sûr(e) de supprimer le nom usuel <b>%s</b>?"
 msgid "Are you sure you want to remove this verification?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette vérification ?"
 
-#: bauble/plugins/users/__init__.py:570
+#: bauble/plugins/users/__init__.py:573
 msgid ""
 "Are you sure you want to remove user <b>%(name)s</b>?\n"
 "\n"
@@ -1158,7 +1158,7 @@ msgstr "Entrez un nom de connexion"
 msgid "Enter a name for the new formatter"
 msgstr "Entrez le nom du nouveau convertisseur"
 
-#: bauble/plugins/users/__init__.py:555
+#: bauble/plugins/users/__init__.py:558
 msgid "Enter a user name"
 msgstr "Entrez un nom d’utilisateur"
 
@@ -2633,7 +2633,7 @@ msgstr ""
 "\n"
 "Les valeurs possibles: %s"
 
-#: bauble/plugins/users/__init__.py:487
+#: bauble/plugins/users/__init__.py:490
 msgid "The Users editor is only valid on a PostgreSQL database"
 msgstr ""
 "L’éditeur des utilisateurs n’est valable que sur une base de données "
@@ -2877,11 +2877,11 @@ msgstr ""
 msgid "The part of the taxon name that the id qualifier refers to."
 msgstr "La partie du nom de taxon qui veut dire le qualificateur du code."
 
-#: bauble/plugins/users/__init__.py:632
+#: bauble/plugins/users/__init__.py:635
 msgid "The password for user <b>%s</b> has not been changed."
 msgstr "Le mot de passe pour l’utilisateur <b>%s</b> n’a pas été changé."
 
-#: bauble/plugins/users/__init__.py:638
+#: bauble/plugins/users/__init__.py:641
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
@@ -3188,8 +3188,8 @@ msgstr "Utilisateur"
 msgid "User:"
 msgstr "Utilisateur :"
 
-#: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:510
-#: bauble/plugins/users/__init__.py:724
+#: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:513
+#: bauble/plugins/users/__init__.py:727
 msgid "Users"
 msgstr ""
 
@@ -3359,7 +3359,7 @@ msgstr "On ne peut pas supprimer un une espèce avec des accès."
 msgid "You cannot remove an accession with plants."
 msgstr "On ne peut pas supprimer un accès avec des plantes."
 
-#: bauble/plugins/users/__init__.py:495
+#: bauble/plugins/users/__init__.py:498
 msgid "You do not have privileges to change other user privileges"
 msgstr ""
 "Vous n’avez pas de privilèges de modifier d’autres privilèges de "
