@@ -54,6 +54,7 @@ try:
         to_skip = json.load(f)
 except:
     to_skip = []
+to_skip = []
 
 r = get_submissions(user, pw, 'ghini-collect.appspot.com', 'plant_form_r', to_skip)
 objects = []
@@ -126,9 +127,13 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     timestamp = datetime.datetime.strptime(item['end'][:19], '%Y-%m-%dT%H:%M:%S')
 
     # should import pictures:
-    for p in item['photo']:
-        url, md5 = r[0]['media'][p]
-        pic_name = str(uuid.uuid1()) + '.jpeg'
+    for pic_name in item.get('photo', []):
+        try:
+            url, md5 = item['media'][pic_name]
+        except Exception, e:
+            print type(e), e
+            continue
+        pic_name = (item['acc_no_scan'] or item['acc_no_typed']) + ' ' + pic_name
         pic_full_name = os.path.join(pic_path, pic_name)
         get_image(user, pw, url, pic_full_name)
 
