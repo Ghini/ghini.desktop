@@ -665,6 +665,19 @@ class SpeciesNote(db.Base, db.Serializable):
         return result
 
     @classmethod
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
+        """return database object corresponding to keys
+        """
+        result = super(SpeciesNote, cls).retrieve_or_create(session, keys, create, update)
+        category = keys.get('category', '')
+        if (create and (category.startswith('[') and category.endswith(']') or
+                        category.startswith('<') and category.endswith('>'))):
+            result = cls(**keys)
+            session.add(result)
+        return result
+
+    @classmethod
     def retrieve(cls, session, keys):
         from genus import Genus
         genus, epithet = keys['species'].split(' ', 1)
