@@ -29,13 +29,15 @@ header = ["Item", "Species", "Fecha registro", "No.Plantas", "Locale", "Contacto
 #header = ["Numeración", "Condición fitosanitaria", "Notas"]
 
 note_defs = {
-    'species': [{'key': 'Uso Actual y Potencial', 'category': 'use'},
-                {'key': 'Importancia ecológica', 'category': 'relevance'},
-                {'key': 'Ecosistema', 'category': 'ecosystem'},
-                {'key': 'ecosistema', 'category': 'ecosystem'}, ],
+    'species': [
+        {'key': 'Uso Actual y Potencial', 'category': 'use'},
+        {'key': 'Importancia ecológica', 'category': 'relevance'},
+        {'key': 'Ecosistema', 'category': 'ecosystem'},
+        {'key': 'ecosistema', 'category': 'ecosystem'},
+    ],
     'plant': [
-#        {'key': 'observaciones', 'category': 'generic'},
         {'key': 'Condición fitosanitaria', 'category': 'state'},
+#        {'key': 'observaciones', 'category': 'generic'},
 #        {'key': 'dap', 'category': '{dap:2016-11}'},
 #        {'key': 'altura', 'category': '{alt:2016-11}'},
     ],
@@ -43,6 +45,10 @@ note_defs = {
 
 formatted_note_defs = {
 #    'plant': [ {'keys': [], 'value': "%(lat)s\t%(lon)s", 'category': '{coords}'}, ],
+}
+
+class_fields = {
+    'species': {'key': 'Uso Actual y Potencial', 'category': 'use'},
 }
 
 binomial_key = 'Species'
