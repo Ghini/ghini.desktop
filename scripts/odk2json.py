@@ -126,6 +126,10 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     author = imei2user[item['deviceid']]
     timestamp = datetime.datetime.strptime(item['end'][:19], '%Y-%m-%dT%H:%M:%S')
 
+    if accession:
+        objects.append(accession)
+    objects.append(plant)
+
     # should import pictures:
     for pic_name in item.get('photo', []):
         try:
@@ -136,12 +140,11 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
         pic_name = (item['acc_no_scan'] or item['acc_no_typed']) + ' ' + pic_name
         pic_full_name = os.path.join(pic_path, pic_name)
         get_image(user, pw, url, pic_full_name)
+        note = {'object': 'plant_note', 'plant': '%(accession)s.%(code)s' % plant, 'category': '<picture>', 'note': pic_name}
+        objects.append(note)
 
     # should create a change object, just like the Accession Editor
-
-    if accession:
-        objects.append(accession)
-    objects.append(plant)
+    pass
 
 for i in species_needed.values() + locations_needed.values():
     objects.insert(0, i)

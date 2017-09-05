@@ -193,6 +193,10 @@ need installing a couple of python packages, globally. Do this::
 
 The rest is just as on a normal unix machine. Read the above GNU/Linux instructions, follow them, enjoy.
 
+As an optional aesthetical step, consider packaging your ``~/bin/ghini``
+script in a `platypus <https://github.com/sveinbjornt/Platypus>`_
+application bundle.  The ``images`` directory contains a 128×128 icon.
+
 .. rubric:: Next...
 
 :ref:`connecting`.
