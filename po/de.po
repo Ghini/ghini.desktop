@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-09-04 16:57-0500\n"
-"PO-Revision-Date: 2017-07-18 15:26+0000\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: German <https://hosted.weblate.org/projects/ghini/desktop-10/"
-"de/>\n"
+"PO-Revision-Date: 2017-09-05 16:56+0000\n"
+"Last-Translator: JoHegg <joheggemann@gmail.com>\n"
+"Language-Team: German "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.16-dev\n"
+"X-Generator: Weblate 2.17-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:22+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -37,12 +37,12 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:227
 msgid "# of seedlings"
-msgstr ""
+msgstr "Anzahl von Setzlingen"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
 msgid "# of seeds"
-msgstr ""
+msgstr "Anzahl an Samen"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
@@ -108,7 +108,7 @@ msgstr "** Fehler: Ghini muss in einer Fensterumgebung ausgeführt werden."
 
 #: bauble/plugins/report/mako/__init__.py:304
 msgid ":"
-msgstr ""
+msgstr ":"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -158,15 +158,15 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
-msgstr ""
+msgstr "<b>Chemische Behandlung</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:507
 msgid "<b>Contact:</b>"
-msgstr ""
+msgstr "<b>Kontakt:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:440
 msgid "<b>Cutting treatment</b>"
-msgstr ""
+msgstr "<b>Behandlung durch Beschneiden</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:171
 msgid "<b>Date accessioned:</b>"
@@ -190,7 +190,7 @@ msgstr "<b>Distribution:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:928
 msgid "<b>Families:</b>"
-msgstr ""
+msgstr "<b>Familien:</b>"
 
 #: bauble/plugins/report/report.glade:164
 msgid "<b>Formatter</b>"
@@ -206,7 +206,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:713
 msgid "<b>Habit:</b>"
-msgstr ""
+msgstr "<b>Habitus:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:149
 #: bauble/plugins/report/mako/gui.glade:67
@@ -263,11 +263,11 @@ msgstr "<b>Herkunft:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:233
 msgid "<b>Quantity received:</b>"
-msgstr ""
+msgstr "<b>Stückzahl empfangen:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:219
 msgid "<b>Quantity:</b>"
-msgstr ""
+msgstr "<b>Stückzahl:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:60
 msgid "<b>Renderer</b>"
@@ -283,7 +283,7 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:660
 msgid "<b>Rooting conditions</b>"
-msgstr ""
+msgstr "<b>Verwurzlungskonditionen</b>"
 
 #: bauble/plugins/report/report.glade:187
 msgid "<b>Settings</b>"
@@ -303,7 +303,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:894
 msgid "<b>Species:</b>"
-msgstr ""
+msgstr "<b>Spezies:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
@@ -319,7 +319,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:248
 msgid "<b>Type of material:</b>"
-msgstr ""
+msgstr "<b>Art des Materials:</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:72
 msgid "<b>Type:</b>"
@@ -336,19 +336,19 @@ msgstr "<b>Renderer</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:956
 msgid "<b>in use</b>"
-msgstr ""
+msgstr "<b>in Benutzung</b>"
 
 #: bauble/plugins/imex/select_export.glade:492
 msgid "<b>options</b>"
-msgstr ""
+msgstr "<b>Optionen</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:943
 msgid "<b>total</b>"
-msgstr ""
+msgstr "<b>gesamt</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1555
 msgid "<b>unused</b>"
-msgstr ""
+msgstr "<b>unbenutzt</b>"
 
 #: bauble/plugins/plants/stored_queries.glade:147
 #: bauble/plugins/plants/stored_queries.glade:170
@@ -411,7 +411,7 @@ msgstr "ABCD"
 
 #: bauble/plugins/garden/institution.glade:86
 msgid "Abbreviation"
-msgstr ""
+msgstr "Abkürzung"
 
 #: bauble/ui.py:465
 msgid "About"
@@ -420,7 +420,7 @@ msgstr "Info"
 #: bauble/plugins/plants/family.py:833 bauble/plugins/plants/genus.py:976
 #: bauble/plugins/plants/species.py:241
 msgid "Accepted name"
-msgstr ""
+msgstr "anerkannter Name"
 
 #: bauble/plugins/garden/plant_editor.glade:521
 #: bauble/plugins/garden/acc_editor.glade:766
@@ -452,7 +452,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2089
 msgid "Accuracy"
-msgstr ""
+msgstr "Genauigkeit"
 
 #: bauble/plugins/garden/plant_editor.glade:430
 #: bauble/plugins/garden/plant_editor.glade:1235
@@ -482,11 +482,11 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:1113
 msgid "Additional info"
-msgstr ""
+msgstr "zusätzliche Information"
 
 #: bauble/plugins/garden/institution.glade:410
 msgid "Address"
-msgstr ""
+msgstr "Adresse"
 
 #: bauble/plugins/users/ui.glade:189
 msgid "Administrator"
@@ -498,11 +498,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:1257
 msgid "Alive"
-msgstr ""
+msgstr "lebend"
 
 #: bauble/plugins/garden/acc_editor.glade:1928
 msgid "Altitude/Depth"
-msgstr ""
+msgstr "Höhe/Tiefe"
 
 #: bauble/plugins/garden/location.py:190
 msgid ""
@@ -603,7 +603,7 @@ msgstr ""
 #: bauble/plugins/plants/species_editor.glade:356
 #: bauble/plugins/plants/species_editor.glade:502
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: bauble/plugins/plants/taxonomy_check.glade:339
 msgid "Authorship"
@@ -679,7 +679,7 @@ msgstr "Kann Spezies nicht von %s bekommen"
 
 #: bauble/plugins/plants/taxonomy_check.glade:693
 msgid "Cancel"
-msgstr ""
+msgstr "abbrechen"
 
 #: bauble/plugins/plants/species_editor.py:1094
 msgid "Cancel your changes"
@@ -693,19 +693,19 @@ msgstr ""
 #: bauble/pictures.glade:101 bauble/pictures.glade:336 bauble/notes.glade:57
 #: bauble/notes.glade:346
 msgid "Category"
-msgstr ""
+msgstr "Kategorie"
 
 #: bauble/plugins/users/ui.glade:220
 msgid "Change Password"
-msgstr ""
+msgstr "Password ändern"
 
 #: bauble/plugins/garden/plant_editor.glade:869
 msgid "Change history"
-msgstr ""
+msgstr "Verlauf ändern"
 
 #: bauble/plugins/garden/plant.py:1280
 msgid "Changes"
-msgstr ""
+msgstr "Änderungen"
 
 #: bauble/plugins/abcd/__init__.py:334
 #: bauble/plugins/garden/exporttopocket.py:142
@@ -737,14 +737,13 @@ msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:228
 msgid "Code"
-msgstr ""
+msgstr "Code"
 
 #: bauble/plugins/garden/acc_infobox.glade:1023
 #: bauble/plugins/garden/acc_editor.glade:2200
 #: bauble/plugins/garden/accession.py:398
-#, fuzzy
 msgid "Collection"
-msgstr "Ort"
+msgstr "Sammlung"
 
 #: bauble/plugins/garden/acc_editor.glade:1614
 msgid "Collection ID"
@@ -764,11 +763,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1598
 msgid "Collector"
-msgstr ""
+msgstr "Sammler"
 
 #: bauble/plugins/garden/acc_infobox.glade:760
 msgid "Collector:"
-msgstr ""
+msgstr "Sammler:"
 
 #: bauble/plugins/imex/csv_.py:683 bauble/plugins/imex/csv_.py:701
 msgid "Comma Separated Value"
@@ -776,7 +775,7 @@ msgstr "durch Komma getrennter Wert"
 
 #: bauble/plugins/users/ui.glade:362
 msgid "Confirm new password"
-msgstr ""
+msgstr "Neues Password bestätigen"
 
 #: bauble/connmgr.glade:578
 msgid "Connection Details"
@@ -785,7 +784,7 @@ msgstr "Verbindungsdetails"
 #: bauble/plugins/garden/acc_editor.glade:1208
 #: bauble/plugins/garden/__init__.py:123
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: bauble/plugins/garden/contact.glade:11
 msgid "Contact (Donor) Editor"
@@ -793,14 +792,14 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:158
 msgid "Contact name"
-msgstr ""
+msgstr "Kontaktname"
 
 #: bauble/plugins/garden/prop_editor.glade:513
 #: bauble/plugins/garden/prop_editor.glade:984
 #: bauble/plugins/garden/propagation.py:195
 #: bauble/plugins/garden/propagation.py:216
 msgid "Container"
-msgstr ""
+msgstr "Behälter"
 
 #: bauble/ui.py:449
 msgid "Contents"
