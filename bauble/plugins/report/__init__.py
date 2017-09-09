@@ -240,7 +240,7 @@ def get_location_query(obj, session):
     elif isinstance(obj, Location):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, Tag):
-        locs = get_locations_pertinent_to(obj.objects, session)
+        locs = get_location_pertinent_to(obj.objects, session)
         return q.filter(Location.id.in_([l.id for l in locs]))
     else:
         raise BaubleError(_("Can't get Location from a %s") %
