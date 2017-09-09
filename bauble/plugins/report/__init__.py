@@ -43,7 +43,7 @@ import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location, Source, SourceDetail
+from bauble.plugins.garden import Accession, Plant, Location, Contact
 from bauble.plugins.tag import Tag
 
 # TODO: this module should depend on PlantPlugin, GardenPlugin,
@@ -109,7 +109,7 @@ def get_plant_query(obj, session):
         return q.join('accession').filter_by(id=obj.id)
     elif isinstance(obj, Location):
         return q.filter_by(location_id=obj.id)
-    elif isinstance(obj, SourceDetail):
+    elif isinstance(obj, Contact):
         return q.join('accession', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
@@ -149,7 +149,7 @@ def get_accession_query(obj, session):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, Location):
         return q.join('plants').filter_by(location_id=obj.id)
-    elif isinstance(obj, SourceDetail):
+    elif isinstance(obj, Contact):
         return q.join('source', 'source_detail').filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         acc = get_accessions_pertinent_to(obj.objects, session)
@@ -191,7 +191,7 @@ def get_species_query(obj, session):
     elif isinstance(obj, Location):
         return q.join('accessions', 'plants', 'location').\
             filter_by(id=obj.id)
-    elif isinstance(obj, SourceDetail):
+    elif isinstance(obj, Contact):
         return q.join('accessions', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Tag):
@@ -234,7 +234,7 @@ def get_location_query(obj, session):
         return q.join('plants').filter_by(id=obj.id)
     elif isinstance(obj, Accession):
         return q.join('plants', 'accession').filter_by(id=obj.id)
-    elif isinstance(obj, SourceDetail):
+    elif isinstance(obj, Contact):
         return q.join('plants', 'accession', 'source', 'source_detail').\
                 filter_by(id=obj.id)
     elif isinstance(obj, Location):
@@ -247,7 +247,7 @@ def get_location_query(obj, session):
                           type(obj).__name__)
 
 
-def get_locations_pertinent_to(objs, session=None):
+def get_location_pertinent_to(objs, session=None):
     """
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
