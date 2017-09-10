@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2017 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -23,9 +24,9 @@ import os
 from bauble.test import BaubleTestCase, check_dupids
 from bauble.plugins.report import (
     get_species_pertinent_to, get_accessions_pertinent_to,
-    get_plants_pertinent_to)
+    get_plants_pertinent_to, get_location_pertinent_to)
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location
+from bauble.plugins.garden import Accession, Plant, Location, Source, Contact
 from bauble.plugins.tag import tag_objects, Tag
 
 
@@ -86,7 +87,10 @@ class ReportTests(ReportTestCase):
                     for a in range(2):
                         actr += 1
                         acc = Accession(id=actr, species=sp, code=u'%s' % actr)
-                        self.session.add(acc)
+                        contact = Contact(id=actr, name=u'contact%s' % actr)
+                        source = Source(id=actr, source_detail=contact,
+                                accession=acc)
+                        self.session.add_all([acc, source, contact])
                         for p in range(2):
                             pctr += 1
                             loc = Location(id=pctr, code=u'%s' % pctr,
@@ -115,6 +119,8 @@ class ReportTests(ReportTestCase):
         self.assertRaises(BaubleError, get_accessions_pertinent_to, fn)
         self.assertRaises(BaubleError, get_plants_pertinent_to, [fn])
         self.assertRaises(BaubleError, get_plants_pertinent_to, fn)
+        self.assertRaises(BaubleError, get_location_pertinent_to, [fn])
+        self.assertRaises(BaubleError, get_location_pertinent_to, fn)
 
     def test_get_species_pertinent_to_sessionless(self):
         get_ids = lambda objs: sorted([o.id for o in objs])
@@ -160,6 +166,10 @@ class ReportTests(ReportTestCase):
         accession = self.session.query(Accession).get(1)
         ids = get_ids(get_species_pertinent_to([accession], self.session))
         self.assert_(ids == [1], ids)
+
+        contact = self.session.query(Contact).get(1)
+        ids = get_ids(get_species_pertinent_to(contact, self.session))
+        self.assertTrue(ids == [1], ids)
 
         plant = self.session.query(Plant).get(1)
         ids = get_ids(get_species_pertinent_to([plant], self.session))
@@ -211,6 +221,10 @@ class ReportTests(ReportTestCase):
         accession = self.session.query(Accession).get(1)
         ids = get_ids(get_accessions_pertinent_to([accession], self.session))
         self.assert_(ids == [1], ids)
+
+        contact = self.session.query(Contact).get(1)
+        ids = get_ids(get_accessions_pertinent_to(contact, self.session))
+        self.assertTrue(ids == [1], ids)
 
         plant = self.session.query(Plant).get(1)
         ids = get_ids(get_accessions_pertinent_to([plant], self.session))
@@ -264,6 +278,10 @@ class ReportTests(ReportTestCase):
         ids = get_ids(get_plants_pertinent_to(accession, self.session))
         self.assert_(ids == range(1, 3), ids)
 
+        contact = self.session.query(Contact).get(1)
+        ids = get_ids(get_plants_pertinent_to(contact, self.session))
+        self.assertTrue(ids == range(1, 3), ids)
+
         plant = self.session.query(Plant).get(1)
         ids = get_ids(get_plants_pertinent_to(plant, self.session))
         self.assert_(ids == [1], ids)
@@ -286,4 +304,62 @@ class ReportTests(ReportTestCase):
         plants = get_plants_pertinent_to(
             [family, genus, species, accession, plant, location], self.session)
         ids = get_ids(plants)
+        self.assert_(ids == range(1, 17), ids)
+
+    def test_get_location_pertinent_to(self):
+        """
+        Test getting the locations from different types
+        """
+        get_ids = lambda objs: sorted([o.id for o in objs])
+
+        # get locations from one family
+        family = self.session.query(Family).get(1)
+        ids = get_ids(get_location_pertinent_to(family, self.session))
+        self.assert_(ids == range(1, 17), ids)
+
+        # get locations from multiple families
+        family = self.session.query(Family).get(1)
+        family2 = self.session.query(Family).get(2)
+        ids = get_ids(get_location_pertinent_to([family, family2],
+            self.session))
+        self.assert_(ids == range(1, 33), ids)
+
+        genus = self.session.query(Genus).get(1)
+        ids = get_ids(get_location_pertinent_to(genus, self.session))
+        self.assert_(ids == range(1, 9), ids)
+
+        species = self.session.query(Species).get(1)
+        ids = get_ids(get_location_pertinent_to(species, self.session))
+        self.assert_(ids == range(1, 5), ids)
+
+        vn = self.session.query(VernacularName).get(1)
+        ids = get_ids(get_location_pertinent_to(vn, self.session))
+        self.assert_(ids == range(1, 5), ids)
+
+        plant = self.session.query(Plant).get(1)
+        ids = get_ids(get_location_pertinent_to(plant, self.session))
+        self.assert_(ids == [1], ids)
+
+        accession = self.session.query(Accession).get(1)
+        ids = get_ids(get_location_pertinent_to(accession, self.session))
+        self.assert_(ids == range(1, 3), ids)
+
+        contact = self.session.query(Contact).get(1)
+        ids = get_ids(get_location_pertinent_to(contact, self.session))
+        self.assertTrue(ids == range(1, 3), ids)
+
+        location = self.session.query(Location).get(1)
+        locations = get_location_pertinent_to([location], self.session)
+        locations_ids = [l.id for l in locations]
+        self.assert_(locations_ids == [1], ids)
+
+        tag_objects('test', [family, genus])
+        tag = self.session.query(Tag).filter_by(tag=u'test').one()
+        ids = get_ids(get_location_pertinent_to(tag, self.session))
+        self.assert_(ids == range(1, 17), ids)
+
+        # now test all the objects
+        locations = get_location_pertinent_to(
+            [family, genus, species, accession, plant, location, tag], self.session)
+        ids = get_ids(locations)
         self.assert_(ids == range(1, 17), ids)
