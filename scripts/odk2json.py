@@ -54,7 +54,6 @@ try:
         to_skip = json.load(f)
 except:
     to_skip = []
-to_skip = []
 
 r = get_submissions(user, pw, 'ghini-collect.appspot.com', 'plant_form_r', to_skip)
 objects = []
