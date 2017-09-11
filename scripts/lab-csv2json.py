@@ -30,23 +30,23 @@ k = []
 #header = ['Nombre', 'N°Frascos', 'total', 'int_ppf']
 #header = ['ID accesión', 'Nombre', 'var.', 'Ubicación']
 #header = ['Item', 'Genero', 'Especie', 'Fecha registro']
-header = ['fecha', 'ubicación', 'número']
+header = ['número', 'ubicación', 'fecha', 'species']
 
 # list of formats once data lines are read
 sp_format = ',\n{"object": "taxon", "rank": "species", "epithet": "%(sp_epit)s", "ht-rank": "genus", "ht-epithet": "%(gn_epit)s"}'
-acc_format = ',\n{"object": "accession", "code": "%(acc_code)s", "species": "%(binomial)s", "date_accd": "%(date_accd)s"}'
+acc_format = ',\n{"object": "accession", "code": "%(acc_code)s", "species": "%(binomial)s"}'
 plt_format = ',\n{"object": "plant", "accession": "%(acc_code)s", "code": "%(plt_code)s", "quantity": "%(plt_qty)s", "location": "%(loc)s"}'
 
 # correspondence header → fields
 fields = {
-    'Genero': 'gn_epit',
-    'Especie': 'sp_epit',
-    'Item': 'acc_code',
-    'Fecha registro': 'date_accd',
+    'species': 'binomial',
+    'número': 'acc_code',
+    'ubicación': 'loc',
+    'Fecha': 'date_accd',
 }
 
 #input_file_name = '/tmp/species.csv'
-input_file_name = '/home/mario/Documents/JBQ-2017/lucho-2014.zzz.csv'
+input_file_name = '/home/mario/Documents/JBQ-2017/seralia-inv3.log'
 
 count = skipped = 0
 
@@ -73,10 +73,18 @@ with open("/tmp/out.json", "w") as out:
             break
         for k1, k2 in fields.items():
             obj[k2] = obj.get(k1)
-        obj['binomial'] = u'%(gn_epit)s %(sp_epit)s' % obj
+        if not obj['binomial'].strip():
+            obj['binomial'] = 'Zzz sp'
+        try:
+            obj['gn_epit'], obj['sp_epit'] = obj['binomial'].split(' ')
+        except:
+            obj['gn_epit'], obj['sp_epit'] = ('Zzz', 'sp')
         if obj['binomial'] not in species_collected:
             out.write(sp_format % obj)
             species_collected.add(obj['binomial'])
-        if obj['acc_no'] not in old_accessions:
+        if obj['acc_code'] not in old_accessions:
             out.write(acc_format % obj)
+        obj['plt_code'] = 1
+        obj['plt_qty'] = 1
+        out.write(plt_format % obj)
     out.write(']')
