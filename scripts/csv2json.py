@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 Mario Frasca <mario@anche.no>.
+# Copyright 2016,2017 Mario Frasca <mario@anche.no>.
 #
 # This file is part of ghini.desktop.
 #
@@ -25,29 +25,38 @@ import staale
 k = []
 #header = ['No', 'NOMBRE CIENTIFICO', 'FAMILIA', 'Nombre común', 'Uso Actual y Potencial', 'Importancia ecológica', 'Ecosistema', 'Habito', 'Procedencia']
 #header = ['code', 'vernacular', 'binomial', 'dap', 'altura', 'hábito', 'altitud', 'easting', 'northing', 'ecosistema', 'observaciones']
-header = ["Item", "Species", "Fecha registro", "No.Plantas", "Locale", "Contacto",
-          "N° De Autorización de Investigación:", "N° autorización de movilización",
-          "Nombre del recolector", "Latitud", "Longitud"]
+header = ["Item", "Species", "Fecha registro", "No.Plantas", "Locale", "Contacto", "N° De Autorización de Investigación:", "N° autorización de movilización", "Nombre del recolector", "Latitud", "Longitud"]
+#header = ["Numeración", "Condición fitosanitaria", "Notas"]
 
 note_defs = {
-    'species': [{'key': 'Uso Actual y Potencial', 'category': 'use'},
-                {'key': 'Importancia ecológica', 'category': 'relevance'},
-                {'key': 'Ecosistema', 'category': 'ecosystem'},
-                {'key': 'ecosistema', 'category': 'ecosystem'}, ],
-    'plant': [{'key': 'observaciones', 'category': 'generic'},
-              {'key': 'dap', 'category': '{dap:2016-11}'},
-              {'key': 'altura', 'category': '{alt:2016-11}'}, ],
+    'species': [
+        {'key': 'Uso Actual y Potencial', 'category': 'use'},
+        {'key': 'Importancia ecológica', 'category': 'relevance'},
+        {'key': 'Ecosistema', 'category': 'ecosystem'},
+        {'key': 'ecosistema', 'category': 'ecosystem'},
+    ],
+    'plant': [
+        {'key': 'Condición fitosanitaria', 'category': 'state'},
+#        {'key': 'observaciones', 'category': 'generic'},
+#        {'key': 'dap', 'category': '{dap:2016-11}'},
+#        {'key': 'altura', 'category': '{alt:2016-11}'},
+    ],
 }
 
 formatted_note_defs = {
-    'plant': [ {'keys': [], 'value': "%(lat)s\t%(lon)s", 'category': '{coords}'}, ],
+#    'plant': [ {'keys': [], 'value': "%(lat)s\t%(lon)s", 'category': '{coords}'}, ],
+}
+
+class_fields = {
+    'species': {'key': 'Uso Actual y Potencial', 'category': 'use'},
 }
 
 binomial_key = 'Species'
 habit_key = None
 origin_key = None
-easting_key, northing_key, altitude_key = 'Longitud', 'Latitud', None
+easting_key, northing_key, altitude_key = None, None, None
 utm_slice = None
+plant_quantity_key = 'No.Plantas'
 
 accession_code_def = "%(code)06d"
 

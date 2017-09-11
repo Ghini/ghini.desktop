@@ -476,6 +476,19 @@ class AccessionNote(db.Base, db.Serializable):
         return result
 
     @classmethod
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
+        """return database object corresponding to keys
+        """
+        result = super(AccessionNote, cls).retrieve_or_create(session, keys, create, update)
+        category = keys.get('category', '')
+        if (create and (category.startswith('[') and category.endswith(']') or
+                        category.startswith('<') and category.endswith('>'))):
+            result = cls(**keys)
+            session.add(result)
+        return result
+
+    @classmethod
     def retrieve(cls, session, keys):
         q = session.query(cls)
         if 'accession' in keys:
@@ -975,11 +988,8 @@ class AccessionEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def datum_match(completion, key, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         datum = completion.get_model()[treeiter][0]
         words = datum.split(' ')
         for w in words:
@@ -988,23 +998,20 @@ class AccessionEditorView(editor.GenericEditorView):
         return False
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def species_match_func(completion, key, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         species = completion.get_model()[treeiter][0]
-        if str(species).lower().startswith(key.lower()) \
-                or str(species.genus.genus).lower().startswith(key.lower()):
+        epg, eps = (species.str(remove_zws=True).lower() + ' ').split(' ')[:2]
+        key_epg, key_eps = (key.lower() + ' ').split(' ')[:2]
+        if not epg:
+            epg = str(species.genus.epithet).lower()
+        if (epg.startswith(key_epg) and eps.startswith(key_eps)):
             return True
         return False
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def species_cell_data_func(column, renderer, model, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         v = model[treeiter][0]
         renderer.set_property(
             'text', '%s (%s)' % (v.str(authors=True), v.genus.family))

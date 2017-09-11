@@ -25,7 +25,7 @@ import xml.etree.ElementTree as ET
 import re
 
 
-def get_submissions(host, user, pw, form_id):
+def get_submissions(user, pw, host, form_id, to_skip=[]):
     base_format = 'https://%(host)s/view/%(api)s?formId=%(form_id)s'
     submission_format = '[@version=null and @uiVersion=null]/%(group_name)s[@key=%(uuid)s]'
     auth = HTTPDigestAuth(user, pw)
@@ -39,27 +39,32 @@ def get_submissions(host, user, pw, form_id):
     idlist = root[0]
     result = []
     for uuid in [i.text for i in idlist]:
-        url = (base_format % {'form_id': form_id,
-                              'api': 'downloadSubmission',
-                              'host': host} +
-               submission_format % {'group_name': 'plant_form',
-                                    'uuid': uuid})
-        reply = requests.get(url, auth=auth)
+        if uuid in to_skip:
+            continue
+        try:
+            reply = requests.get((base_format % {'form_id': form_id,
+                                                 'api': 'downloadSubmission',
+                                                 'host': host} +
+                                  submission_format % {'group_name': 'plant_form',
+                                                       'uuid': uuid}), auth=auth)
+        except requests.exceptions.ConnectionError, e:
+            continue
         root = ET.fromstring(reply.text)
         data = root[0]  # media may follow
         form = data[0]
-        d = dict([(re.sub(r'{.*}(.*)', r'\1', i.tag), i.text) for i in form])
-        for key in d.keys():
+        item = dict([(re.sub(r'{.*}(.*)', r'\1', i.tag), i.text) for i in form])
+        item['meta:uuid'] = uuid
+        result.append(item)
+        for key in item.keys():
             if not key.endswith('_repeat'):
                 continue
-            del d[key]
+            del item[key]
             prefix = key[:-7]
-            d[prefix] = [i[0].text for i in form if i.tag.endswith(key)]
-        d['media'] = {}
+            item[prefix] = [i[0].text for i in form if i.tag.endswith(key)]
+        item['media'] = {}
         for i, media_element in enumerate(root[1:]):
             filename, hash, url = media_element
-            d['media'][filename.text] = (url.text, hash.text)
-            result.append(d)
+            item['media'][filename.text] = (url.text, hash.text)
     return result
 
 
