@@ -58,11 +58,13 @@ with open("/tmp/plant-pictures.txt") as f:
     for text in f.readlines():
         text = unicode(text.strip())
         acc_no = text[:6]
-        
-        q = session.query(Plant)
-        q = q.join(Accession).filter(Accession.code == acc_no)
-        if q.count() == 0:
-            # we need to add accession and plant first.
+
+        try:
+            q = session.query(Plant)
+            q = q.join(Accession).filter(Accession.code == acc_no)
+            q = q.filter(Plant.code == u'1')
+            plant = q.one()
+        except:
             try:
                 accession = session.query(Accession).filter(Accession.code == acc_no).one()
             except:
@@ -73,8 +75,6 @@ with open("/tmp/plant-pictures.txt") as f:
             session.add(plant)
             sys.stdout.write('p')
             session.flush()
-        else:
-            plant = q.first()
 
         # `plant` is the object to receive pictures, and it is in the session.
 
