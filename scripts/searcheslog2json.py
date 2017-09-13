@@ -30,7 +30,7 @@ sp_format = ',\n{"object": "taxon", "rank": "species", "epithet": "%(sp_epit)s",
 acc_format = ',\n{"object": "accession", "code": "%(acc_code)s", "species": "%(binomial)s"}'
 plt_format = ',\n{"object": "plant", "accession": "%(acc_code)s", "code": "%(plt_code)s", %(plt_qty)s"location": "%(loc)s"}'
 
-input_file_name = '/tmp/searches.log'
+input_file_name = '/tmp/searches.txt'
 
 count = skipped = 0
 
