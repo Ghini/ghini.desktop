@@ -161,7 +161,7 @@ def create_user(name, password=None, admin=False, groups=None):
         # allow the new role to connect to the database
         stmt = 'grant connect on database %s to %s' % \
             (bauble.db.engine.url.database, name)
-        #debug(stmt)
+        logger.debug(stmt)
         conn.execute(stmt)
     except Exception, e:
         logger.error('users.create_user(): %s %s' % (type(e), utils.utf8(e)))
@@ -419,7 +419,7 @@ def set_privilege(role, privilege):
                 stmt = 'grant %s on %s to %s' % (priv, table.name, role)
                 if privilege == 'admin':
                     stmt += ' with grant option'
-                #debug(stmt)
+                logger.debug(stmt)
                 conn.execute(stmt)
             for col in table.c:
                 seq_privs = filter(lambda x: x.lower() in __sequence_privs,
@@ -428,7 +428,7 @@ def set_privilege(role, privilege):
                     if hasattr(col, 'sequence'):
                         stmt = 'grant %s on sequence %s to %s' % \
                             (priv, col.sequence.name, role)
-                        #debug(stmt)
+                        logger.debug(stmt)
                         if privilege == 'admin':
                             stmt += ' with grant option'
                         conn.execute(stmt)
@@ -493,7 +493,7 @@ class UsersEditor(editor.GenericEditorView):
 
         # TODO: should allow anyone to view the priveleges but only
         # admins to change them
-        #debug(current_user())
+        logger.debug(current_user())
         if not has_privileges(current_user(), 'admin'):
             msg = _('You do not have privileges to change other '\
                         'user privileges')
@@ -672,7 +672,7 @@ class UsersEditor(editor.GenericEditorView):
         """
 
         def _set_buttons(mode):
-            #debug('%s: %s' % (role, mode))
+            logger.debug('%s: %s' % (role, mode))
             if mode:
                 self.widgets[self.buttons[mode]].set_active(True)
             not_modes = filter(lambda p: p != mode, self.buttons.keys())

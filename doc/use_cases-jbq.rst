@@ -43,15 +43,68 @@ Technical
 
          Each user knows their own password, and only knows that one. Our
          super-user, responsible for the database content, also has the
-         'bauble' fictional user password, which we only only use to create
-         other users.
+         ``bauble`` fictional user password, which we only only use to
+         create other users.
 
-         Ghini offers a minimum of user management, accessible from the
-         menu Tools. It is neither perfect nor complete, but it serves to
-         our needs.
-
-         We do not use account names like `voluntario`, because such
+         We do not use account names like ``voluntario``, because such
          accounts do not help us associate the name to the person.
+
+  ..  admonition:: — adding a new system user (linux/osx)
+      :class: toggle
+
+         Adding a system user is not strictly necessary, as ghini does not
+         use it in the logs, however, adding a system user allows for
+         separation of preferences, configured connections, search history.
+         On some of our systems we have a single shared account with several
+         configured connections, on other systems we have one account per
+         user.
+
+         On systems with one account per user, our users have a single
+         configured connection, and we hold the database password in the
+         ``/home/<account>/.pgpass`` file.  This file is only readable for
+         the ``<account>`` owner.
+
+         On systems with a shared account, the user must select their own
+         connection and type the corresponding password.
+
+         These are the steps to add system users::
+
+           sudo -k; sudo adduser test
+           sudo adduser test adm; sudo adduser test sudo
+           sudo adduser test sambashare; sudo adduser test ghini
+
+  ..  admonition:: — adding a new database user
+      :class: toggle
+
+         Ghini has a very minimal interface to user management, it only
+         works with postgresql and it very much lacks maintainance.  We have
+         opened issues that will allow us use it, for the time being we use
+         the ``create-role.sh`` script::
+
+           #!/bin/bash
+           USER=$1
+           PASSWD=$2
+           shift 2
+           cat <<EOF | psql bauble -U bauble $@
+           create role $USER with login password '$PASSWD';
+           alter role $USER with login password '$PASSWD';
+           grant all privileges on all tables in schema public to $USER;
+           grant all privileges on all sequences in schema public to $USER;
+           grant all privileges on all functions in schema public to $USER;
+           EOF
+
+         The redundant ``alter role`` following the ``create role`` lets us
+         apply the same script also for correcting existing accounts.
+
+         Our ghini database is called ``bauble``, and ``bauble`` is also the
+         name of our database super user, the only user with ``CREATEROLE``
+         privilege.
+
+         For example, the following invocation would create the user
+         ``willem`` with password ``orange``, on the ``bauble`` database
+         hosted at 192.168.5.6::
+
+           ./create-role.sh willem orange -h 192.168.5.6
 
 - Understanding when to update
 

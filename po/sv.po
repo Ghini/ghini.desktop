@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-04 16:57-0500\n"
+"POT-Creation-Date: 2017-09-12 10:54-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mikael Hiort af Ornäs <lakritslemmel@hotmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -46,7 +46,7 @@ msgstr "Antal frön"
 msgid "% Germinated"
 msgstr "Grobarhet (%)"
 
-#: bauble/plugins/garden/accession.py:707
+#: bauble/plugins/garden/accession.py:706
 msgid "%(1)s plant groups in %(2)s location(s)"
 msgstr ""
 
@@ -63,7 +63,7 @@ msgstr ""
 "b>\n"
 "\n"
 
-#: bauble/plugins/garden/accession.py:2569
+#: bauble/plugins/garden/accession.py:2562
 msgid "%(quantity)s in %(location)s"
 msgstr "%(quantity)s i %(location)s"
 
@@ -523,7 +523,7 @@ msgstr ""
 msgid "Are you sure you want to delete the tag \"%s\"?"
 msgstr "Är du säker på att du vill ta bort taggen \"%s\"?"
 
-#: bauble/plugins/garden/accession.py:2348 bauble/plugins/garden/plant.py:1109
+#: bauble/plugins/garden/accession.py:2341 bauble/plugins/garden/plant.py:1109
 #: bauble/plugins/plants/genus.py:781
 msgid "Are you sure you want to lose your changes?"
 msgstr "Är du säker på att du vill förlora alla dina ändringar?"
@@ -593,7 +593,7 @@ msgstr "Är du säker på att du vill ta bort arten <i>%s</i>?"
 msgid "Are you sure you want to remove the vernacular name <b>%s</b>?"
 msgstr "Är du säker på att du vill ta bort trivialnamnet <b>%s</b>?"
 
-#: bauble/plugins/garden/accession.py:1338
+#: bauble/plugins/garden/accession.py:1331
 msgid "Are you sure you want to remove this verification?"
 msgstr "Är du säker på att du vill ta bort denna verifikation?"
 
@@ -699,7 +699,7 @@ msgstr ""
 msgid "Cancel your changes"
 msgstr "Förkasta dina ändringar"
 
-#: bauble/plugins/garden/accession.py:911 bauble/plugins/garden/plant.py:634
+#: bauble/plugins/garden/accession.py:910 bauble/plugins/garden/plant.py:634
 #: bauble/plugins/plants/family.py:360 bauble/plugins/plants/genus.py:421
 msgid "Cancel your changes."
 msgstr "Förkasta dina ändringar."
@@ -733,7 +733,7 @@ msgstr "Välj en fil att exportera till…"
 msgid "Choose a file..."
 msgstr "Välj en fil..."
 
-#: bauble/search.py:1033
+#: bauble/search.py:1034
 msgid "Choose a property..."
 msgstr "Välj en egenskap…"
 
@@ -1113,7 +1113,7 @@ msgstr "Vill du spara dina ändringar till %s?"
 msgid "Do you want to save your changes?"
 msgstr "Vill du spara dina ändringar?"
 
-#: bauble/search.py:859
+#: bauble/search.py:860
 msgid "Domain Properties"
 msgstr "Domänegenskaper"
 
@@ -1186,7 +1186,7 @@ msgstr ""
 msgid "Epithet"
 msgstr "Epitet"
 
-#: bauble/plugins/garden/accession.py:2363
+#: bauble/plugins/garden/accession.py:2356
 #: bauble/plugins/garden/location.py:398 bauble/plugins/garden/plant.py:1119
 #: bauble/plugins/garden/propagation.py:1137
 #: bauble/plugins/plants/family.py:640 bauble/plugins/plants/genus.py:788
@@ -1348,7 +1348,7 @@ msgstr ""
 msgid "GPS Datum"
 msgstr "GPS-tid"
 
-#: bauble/plugins/garden/accession.py:1423
+#: bauble/plugins/garden/accession.py:1416
 msgid "Garden Propagation"
 msgstr "Förökning i trädgård"
 
@@ -1359,7 +1359,7 @@ msgstr "Genbank"
 #: bauble/plugins/garden/plant_editor.glade:886
 #: bauble/plugins/garden/acc_editor.glade:1188
 #: bauble/plugins/plants/genus_editor.glade:284
-#: bauble/plugins/garden/accession.py:2517
+#: bauble/plugins/garden/accession.py:2510
 #: bauble/plugins/garden/location.py:462 bauble/plugins/garden/plant.py:1215
 #: bauble/plugins/garden/source.py:846 bauble/plugins/plants/family.py:709
 #: bauble/plugins/plants/genus.py:861 bauble/plugins/plants/species.py:285
@@ -1534,7 +1534,7 @@ msgstr ""
 msgid "ID:"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:783
+#: bauble/plugins/garden/accession.py:782
 msgid "If the id_qual is aff. or cf. then id_qual_rank is required. %s "
 msgstr "Om id_qual är aff. eller cf., så krävs id_qual_rank. %s "
 
@@ -1582,7 +1582,7 @@ msgstr ""
 msgid "In vitro"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:909
+#: bauble/plugins/garden/accession.py:908
 msgid "Indicates whether this accession record should be considered private."
 msgstr ""
 "Visar om denna accessionskatalog skall betraktas som privat eller inte."
@@ -1749,11 +1749,11 @@ msgstr "Försvunnen, vistelseort okänd"
 msgid "Male"
 msgstr "Hanplanta"
 
-#: bauble/search.py:780
+#: bauble/search.py:781
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
 msgstr "MapperSearch.add_meta(): argumentet default_columns kan inte vara tomt"
 
-#: bauble/search.py:777
+#: bauble/search.py:778
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
 msgstr "MapperSearch.add_meta(): argumentet default_columns måste vara lista"
 
@@ -1935,8 +1935,7 @@ msgstr "Åtgärd"
 #: bauble/plugins/garden/plant.py:294 bauble/plugins/garden/plant.py:412
 #: bauble/plugins/garden/propagation.py:51
 #: bauble/plugins/garden/propagation.py:234
-#: bauble/plugins/garden/propagation.py:258
-#: bauble/plugins/garden/source.py:135
+#: bauble/plugins/garden/propagation.py:258 bauble/plugins/garden/source.py:135
 msgid "Other"
 msgstr "Annan"
 
@@ -1983,8 +1982,8 @@ msgid "Plant/Clone"
 msgstr "Växt/Klon"
 
 #: bauble/plugins/garden/acc_editor.glade:2343
-#: bauble/plugins/garden/__init__.py:121
-#: bauble/plugins/garden/accession.py:436 bauble/plugins/garden/plant.py:408
+#: bauble/plugins/garden/__init__.py:121 bauble/plugins/garden/accession.py:436
+#: bauble/plugins/garden/plant.py:408
 msgid "Planting"
 msgstr "Växt"
 
@@ -2102,7 +2101,7 @@ msgstr ""
 msgid "Properties"
 msgstr "Egenskaper"
 
-#: bauble/search.py:853
+#: bauble/search.py:854
 msgid "Property"
 msgstr "Egenskap"
 
@@ -2251,7 +2250,7 @@ msgstr "Spara dina ändringar"
 msgid "Save your changes and add a genus to this family."
 msgstr "Spara dina ändringar och lägg till ett släkte i den här familjen."
 
-#: bauble/plugins/garden/accession.py:913
+#: bauble/plugins/garden/accession.py:912
 msgid "Save your changes and add a plant to this accession."
 msgstr ""
 
@@ -2263,7 +2262,7 @@ msgstr "Spara dina ändringar och lägg till en art i det här släktet."
 msgid "Save your changes and add an accession to this species"
 msgstr "Spara dina ändringar och registerför arten som en accession"
 
-#: bauble/plugins/garden/accession.py:915 bauble/plugins/garden/plant.py:638
+#: bauble/plugins/garden/accession.py:914 bauble/plugins/garden/plant.py:638
 msgid "Save your changes and add another accession."
 msgstr "Spara dina ändringar och lägg till ytterligare en accession."
 
@@ -2283,7 +2282,7 @@ msgstr "Spara dina ändringar och lägg till ytterligare en växt."
 msgid "Save your changes and add another species "
 msgstr "Spara dina ändringar och lägg till ytterligare en art "
 
-#: bauble/plugins/garden/accession.py:912 bauble/plugins/garden/plant.py:635
+#: bauble/plugins/garden/accession.py:911 bauble/plugins/garden/plant.py:635
 #: bauble/plugins/plants/family.py:361 bauble/plugins/plants/genus.py:422
 msgid "Save your changes."
 msgstr "Spara dina ändringar."
@@ -2309,7 +2308,7 @@ msgstr "Sök i BGCI"
 msgid "Search Botanic Gardens Conservation International"
 msgstr "Sök i Botanic Gardens Conservation International"
 
-#: bauble/querybuilder.glade:97 bauble/search.py:841
+#: bauble/querybuilder.glade:97 bauble/search.py:842
 msgid "Search Domain"
 msgstr "Sökdomän"
 
@@ -2448,7 +2447,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2390
 #: bauble/plugins/garden/acc_editor.glade:2440
-#: bauble/plugins/garden/accession.py:2621
+#: bauble/plugins/garden/accession.py:2614
 msgid "Source"
 msgstr "Källa"
 
@@ -2625,7 +2624,7 @@ msgid ""
 msgstr ""
 "ABCD-filen skapades, men kunde inte verifieras mot standarden för ABCD."
 
-#: bauble/plugins/garden/accession.py:886
+#: bauble/plugins/garden/accession.py:885
 msgid ""
 "The ID Qualifier\n"
 "\n"
@@ -2639,7 +2638,7 @@ msgstr ""
 msgid "The Users editor is only valid on a PostgreSQL database"
 msgstr "Användarredigeraren kan endast användas med en PostgreSQL-databas"
 
-#: bauble/plugins/garden/accession.py:885
+#: bauble/plugins/garden/accession.py:884
 msgid "The accession ID must be a unique code"
 msgstr "Accessions-ID:t måste vara en unik kod"
 
@@ -2651,7 +2650,7 @@ msgstr ""
 "Accessionen måste väljas ur kompletteringslistan. För att lägga till en "
 "accession, använd Accessionsredigeraren."
 
-#: bauble/plugins/garden/accession.py:895
+#: bauble/plugins/garden/accession.py:894
 msgid "The amount of plant material at the time it was accessioned."
 msgstr "Mängden växtmaterial vid tiden för accessionsregistreringen."
 
@@ -2683,11 +2682,11 @@ msgstr ""
 msgid "The database you have connected to is empty."
 msgstr "Databasen som du har anslutit till är tom."
 
-#: bauble/plugins/garden/accession.py:891
+#: bauble/plugins/garden/accession.py:890
 msgid "The date this species was accessioned."
 msgstr "Det datum denna art accessionregistrerades."
 
-#: bauble/plugins/garden/accession.py:892
+#: bauble/plugins/garden/accession.py:891
 msgid "The date this species was received."
 msgstr "Det datum denna art mottogs."
 
@@ -2803,8 +2802,8 @@ msgstr "Släktnamn"
 msgid "The habit of this species"
 msgstr "Artens växtsätt/växtform"
 
-#: bauble/plugins/garden/accession.py:897
-#: bauble/plugins/garden/accession.py:899
+#: bauble/plugins/garden/accession.py:896
+#: bauble/plugins/garden/accession.py:898
 msgid "The intended location for plant material being accessioned."
 msgstr "Den avsedda platsen för växtmaterialet i accessionen."
 
@@ -2861,7 +2860,7 @@ msgstr ""
 msgid "The name that you will use later to refer to this location."
 msgstr "Det namn som du kommer att använda som referens till platsen."
 
-#: bauble/plugins/garden/accession.py:902
+#: bauble/plugins/garden/accession.py:901
 msgid ""
 "The origin or source of this accession.\n"
 "\n"
@@ -2871,7 +2870,7 @@ msgstr ""
 "\n"
 "Möjliga värden: %s"
 
-#: bauble/plugins/garden/accession.py:889
+#: bauble/plugins/garden/accession.py:888
 msgid "The part of the taxon name that the id qualifier refers to."
 msgstr "Den del av taxonnamnet som ID-attributet hänvisar till."
 
@@ -2919,7 +2918,7 @@ msgstr ""
 "Posten är en del av en typsamling eller har förökats ur material m.h.a. "
 "asexuella metoder."
 
-#: bauble/plugins/garden/accession.py:1861
+#: bauble/plugins/garden/accession.py:1854
 msgid ""
 "The species <b>%(synonym)s</b> is a synonym of <b>%(species)s</b>.\n"
 "\n"
@@ -2937,7 +2936,7 @@ msgstr ""
 "Arten <i>%(1)s</i> innefattar %(2)s accessioner.\n"
 "\n"
 
-#: bauble/plugins/garden/accession.py:882
+#: bauble/plugins/garden/accession.py:881
 msgid ""
 "The species must be selected from the list of completions. To add a species "
 "use the Species editor."
@@ -2953,7 +2952,7 @@ msgstr "Institutionens standardförkortning."
 msgid "The telephone number of the institution."
 msgstr "Institutionens telefonnummer."
 
-#: bauble/plugins/garden/accession.py:893
+#: bauble/plugins/garden/accession.py:892
 msgid "The type of the accessioned material."
 msgstr "Den typ av material som ingår i accessionen."
 
@@ -2967,7 +2966,7 @@ msgstr ""
 "\n"
 "Möjliga värden: %s"
 
-#: bauble/plugins/garden/accession.py:905
+#: bauble/plugins/garden/accession.py:904
 msgid ""
 "The wild status is used to clarify the provenance.\n"
 "\n"
@@ -3124,7 +3123,7 @@ msgstr "Okänd"
 msgid "Unknown Error."
 msgstr "Okänt fel."
 
-#: bauble/plugins/garden/accession.py:2368
+#: bauble/plugins/garden/accession.py:2361
 #: bauble/plugins/garden/location.py:404 bauble/plugins/garden/plant.py:1124
 #: bauble/plugins/garden/propagation.py:1143
 #: bauble/plugins/plants/family.py:645 bauble/plugins/plants/genus.py:793
@@ -3140,7 +3139,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/search.py:480
+#: bauble/search.py:481
 msgid "Unknown search domain: %s"
 msgstr "Okänd sökdomän: %s"
 
@@ -3187,7 +3186,7 @@ msgid "Vegetative spreading"
 msgstr "Vegetativ spridning"
 
 #: bauble/plugins/garden/acc_editor.glade:2517
-#: bauble/plugins/garden/accession.py:2721
+#: bauble/plugins/garden/accession.py:2714
 msgid "Verifications"
 msgstr "Verifikationer"
 
@@ -3219,7 +3218,7 @@ msgid "Voucher of parent material"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2795
-#: bauble/plugins/garden/accession.py:2737
+#: bauble/plugins/garden/accession.py:2730
 msgid "Vouchers"
 msgstr "Allegat"
 
@@ -3366,7 +3365,7 @@ msgid ""
 "can add species."
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:2402
+#: bauble/plugins/garden/accession.py:2395
 msgid ""
 "You must first add or import at least one species into the database before "
 "you can add accessions."
@@ -3485,7 +3484,7 @@ msgstr ""
 msgid "browse"
 msgstr ""
 
-#: bauble/plugins/garden/accession.py:1394
+#: bauble/plugins/garden/accession.py:1387
 #, fuzzy
 msgid "by %(verifier)s"
 msgstr "Kontrollant"
@@ -3618,7 +3617,7 @@ msgstr ""
 msgid "mm"
 msgstr "mm"
 
-#: bauble/plugins/garden/accession.py:2430
+#: bauble/plugins/garden/accession.py:2423
 msgid "model must have both latitude and longitude or neither"
 msgstr ""
 "modellen måste inbegripa både latitud och longitud eller ingen av dessa"
@@ -3791,7 +3790,7 @@ msgstr ""
 msgid "var."
 msgstr "var."
 
-#: bauble/plugins/garden/accession.py:1392
+#: bauble/plugins/garden/accession.py:1385
 msgid "verified as %(species)s "
 msgstr ""
 

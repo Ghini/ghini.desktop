@@ -545,7 +545,6 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         *date_accd*: :class:`bauble.types.Date`
             the date this accession was accessioned
 
-
         *id_qual*: :class:`bauble.types.Enum`
             The id qualifier is used to indicate uncertainty in the
             identification of this accession
