@@ -64,7 +64,7 @@ with open("/tmp/genera.txt") as f:
             genus_name, location = text.split(',')
             genus = session.query(Genus).filter(Genus.epithet == genus_name).one()
             try:
-                species = session.query(Species).filter(Species.infrasp1 == u'sp').one()
+                species = session.query(Species).filter(Species.genus == genus).filter(Species.infrasp1 == u'sp').first()
                 sys.stdout.write('+')
             except:
                 species = Species(genus=genus, sp=u'', infrasp1=u'sp')
