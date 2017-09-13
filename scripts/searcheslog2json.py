@@ -56,6 +56,7 @@ import sys
 import csv
 
 header = ['timestamp', 'loc', 'acc_code', 'binomial']
+last_loc = None
 
 input_file_name = '/tmp/searches.txt'
 
@@ -69,6 +70,10 @@ with open(input_file_name) as searches_txt:
             obj['gn_epit'], obj['sp_epit'] = obj['binomial'].split(' ')
         except:
             obj['gn_epit'], obj['sp_epit'] = ('Zzz', 'sp')
+
+        if not obj['loc']:
+            obj['loc'] = last_loc
+        last_loc = obj['loc']
 
         loc = session.query(Location).filter(Location.code == obj['loc']).one()
 
