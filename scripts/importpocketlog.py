@@ -53,7 +53,7 @@ zzz = q.one()
 
 import csv
 
-header = ['timestamp', 'loc', 'acc_code', 'binomial']
+header = ['timestamp', 'loc', 'acc_code', 'imei', 'binomial']
 last_loc = None
 
 input_file_name = '/tmp/searches.txt'
@@ -122,7 +122,6 @@ with open(input_file_name) as searches_txt:
             session.add(plant)
             session.flush()
             sys.stdout.write('p')
-
 
 print
 session.commit()
