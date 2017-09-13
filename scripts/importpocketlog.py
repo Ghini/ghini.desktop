@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright 2016,2017 Mario Frasca <mario@anche.no>.
@@ -51,8 +51,6 @@ q = session.query(Species).filter(Species.infrasp1 == u'sp')
 q = q.join(Genus).filter(Genus.epithet == u'Zzz')
 zzz = q.one()
 
-import sys
-
 import csv
 
 header = ['timestamp', 'loc', 'acc_code', 'binomial']
@@ -60,8 +58,10 @@ last_loc = None
 
 input_file_name = '/tmp/searches.txt'
 
+import sys
 with open(input_file_name) as searches_txt:
     for line_no, r in enumerate(csv.reader(searches_txt, delimiter=':')):
+        sys.stdout.flush()
         obj = dict(zip(header, [unicode(i.strip()) for i in r]))
         if len(obj) == 1:
             continue  # ignore blank lines
@@ -108,7 +108,8 @@ with open(input_file_name) as searches_txt:
             q = q.join(Accession).filter(Accession.code == obj['acc_code'])
             q = q.filter(Plant.code == u'1')
             plant = q.one()
-            plant.location = loc
+            if plant.location != loc:
+                plant.location = loc
             sys.stdout.write('.')
         except:
             try:
