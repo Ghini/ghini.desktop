@@ -63,7 +63,7 @@ with open(input_file_name) as searches_txt:
     for line_no, r in enumerate(csv.reader(searches_txt, delimiter=':')):
         sys.stdout.flush()
         obj = dict(zip(header, [unicode(i.strip()) for i in r]))
-        if len(obj) == 1:
+        if len(obj) < 3:
             continue  # ignore blank lines
         obj.setdefault('binomial', 'Zzz sp')
         try:
