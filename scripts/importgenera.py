@@ -38,8 +38,7 @@ with open(os.path.join(path, 'settings.json'), 'r') as f:
 import bauble.db
 import bauble.utils
 
-from bauble.plugins.garden import Location
-from bauble.plugins.garden import Plant, PlantNote
+from bauble.plugins.garden import Plant
 from bauble.plugins.garden import Accession
 from bauble.plugins.plants import Species
 from bauble.plugins.plants import Genus
@@ -51,7 +50,13 @@ q = session.query(Species).filter(Species.infrasp1 == u'sp')
 q = q.join(Genus).filter(Genus.epithet == u'Zzz')
 zzz = q.one()
 
+q = session.query(Species).filter(Species.epithet == u'sp')
+q = q.join(Genus).filter(Genus.epithet == u'Zzz')
+zzzsp = q.one()
+
 import sys
+conflicting = {}
+unknown = []
 
 with open("/tmp/genera.txt") as f:
     for text in f.readlines():
@@ -60,11 +65,13 @@ with open("/tmp/genera.txt") as f:
         if not text:
             continue  # skip any empty lines
 
-        try:
+        if text.find(',') != -1:
             genus_name, location = text.split(',')
             genus = session.query(Genus).filter(Genus.epithet == genus_name).one()
             try:
                 species = session.query(Species).filter(Species.genus == genus).filter(Species.infrasp1 == u'sp').first()
+                if species is None:
+                    raise Exception
                 sys.stdout.write('+')
             except:
                 species = Species(genus=genus, sp=u'', infrasp1=u'sp')
@@ -72,24 +79,27 @@ with open("/tmp/genera.txt") as f:
                 sys.stdout.write('*')
                 session.flush()
             continue  # we used the line, let's continue with the accession codes
-        except:
-            pass
 
         # `species` is the fictive identification for all following acc. codes.
 
         try:
             accession = session.query(Accession).filter(Accession.code == text).one()
         except:
+            unknown.append(text)
             sys.stdout.write('?')
             continue
 
-        if accession.species == zzz:
+        if accession.species in [zzz, zzzsp]:
             accession.species = species
             sys.stdout.write('.')
+            session.flush()
+        elif accession.species == species:
+            sys.stdout.write('.')
         else:
+            conflicting.setdefault(species.str(), []).append((accession.code, accession.species.str()))
             sys.stdout.write('!')
-            
-        session.flush()
 
 print
 session.commit()
+print conflicting
+print unknown
