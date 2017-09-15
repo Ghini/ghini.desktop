@@ -27,7 +27,7 @@
 ; Global
 Name "Ghini"
 
-!define VERSION "1.0.60" ; :bump
+!define VERSION "1.0.68" ; :bump
 !define src_dir "..\dist"
 !define PRODUCT_NAME "ghini.desktop"
 Outfile "${PRODUCT_NAME}-${VERSION}-setup.exe"
@@ -90,7 +90,7 @@ CRCCheck on
 !define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME}"
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
 !define MULTIUSER_INSTALLMODE_INSTDIR_REGISTRY_VALUENAME "InstallLocation"
-!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION   ; allow requesting for elevation... 
+!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION   ; allow requesting for elevation...
 !define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS
 
 ;--------------------------------
@@ -126,7 +126,7 @@ CRCCheck on
 ;--------------------------------
 ; include NsisMultiUser - all settings need to be set before including the NsisMultiUser.nsh header file.
 ; thanks to Richard Drizin for https://github.com/Drizin/NsisMultiUser
-!include "NsisMultiUser.nsh" 
+!include "NsisMultiUser.nsh"
 !include "MUI2.nsh"
 !include "UAC.nsh"
 !include "WordFunc.nsh"
@@ -144,7 +144,7 @@ CRCCheck on
 ; Installer
 !insertmacro MUI_PAGE_LICENSE "${src_dir}\${license_file}"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
-; this will show the 2 install options, unless it's an elevated inner process 
+; this will show the 2 install options, unless it's an elevated inner process
 ; (in that case we know we should install for all users)
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_COMPONENTS
@@ -190,20 +190,20 @@ Section "!Ghini.desktop" SecMain
 
     SectionIN 1 2
     ;SectionIN RO ; ReadOnly (user can't alter)
-    
+
     ; Install Files
     SetOutPath "$INSTDIR"
     SetOverwrite on
     ; package all files, recursively, preserving attributes
     ; assume files are in the correct places
     File /a /r "${src_dir}\*.*"
-    
+
     ; Create uninstaller
     WriteUninstaller "$INSTDIR\${UNINSTALL_FILENAME}"
 
     ; add registry keys
-	!insertmacro MULTIUSER_RegistryAddInstallInfo 
-    ; create shortcuts 
+	!insertmacro MULTIUSER_RegistryAddInstallInfo
+    ; create shortcuts
     CreateDirectory "${startmenu}"
     CreateShortcut "${startmenu}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}" \
         "" "$INSTDIR\${PROGEXE}" "" SW_SHOWNORMAL \
@@ -240,7 +240,7 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
     ClearErrors
     ; as its a download we need to inform of section size.
     AddSize 103424
-    
+
     ; Check for FOP
     nsExec::ExecToStack /TIMEOUT=9000 '"where" fop.bat'
         Pop $0  ; error level
@@ -254,7 +254,7 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
             version (including the PATH entry) first, then re-run this installer.$\r$\n$\r$\nYour current version of \
             Apache FOP was found here:$\r$\n$1" /SD IDOK
         Goto DoneFOP
-    
+
     ; Download FOP
     DownloadFOP:
         InitPluginsDir
@@ -265,7 +265,7 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
             DetailPrint "Apache FOP Download Status: $0"
             StrCmp $0 "OK" MD5checkFOP FOPFail
 
-    
+
     ; MD5 hash check
     MD5checkFOP:
         ClearErrors
@@ -279,7 +279,7 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
             FileOpen $0 "$PLUGINSDIR\fop.md5" r
             IfErrors FOPFail
             FileRead $0 $2 32
-            StrCmp $2 $1 InstalFOP 
+            StrCmp $2 $1 InstalFOP
             DetailPrint "Apache FOP MD5 check failed"
             Goto FOPFail
 
@@ -290,17 +290,17 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
         ClearErrors
         ; determine SHELL_CONTEXT
         StrCmp "$MultiUser.InstallMode" "AllUsers" AdminFOP
-        
+
             ; Current User install
             StrCpy $R0 "$LOCALAPPDATA"  ; Dont use $INSTDIR or FOP will install under Ghini.
             StrCpy $R1 "USER"
             Goto UnpackFOP
-            
+
         AdminFOP:
             ; Local Machine install
             StrCpy $R0 "$PROGRAMFILES"  ; Dont use $INSTDIR or FOP will install under Ghini.
             StrCpy $R1 "SYSTEM"
-            
+
     UnpackFOP:
     ; Unzip FOP
         nsisunz::UnzipToStack "$PLUGINSDIR\${FOP_BINZIP}" "$R0\"
@@ -314,26 +314,26 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
                 Pop $0
                 DetailPrint "Extracting  $0"
             StrCmp $0 "" 0 ZipFOP_next
-    
+
     Call AddFOPtoPATH
-    
+
     Call CheckForJRE
 
     ; $R1 = 0 if java versions are equal, 1 if newer than required, 2 if older than required, 3 if none found
     IntCmp $R1 "2" +1 DoneFOP +3
     MessageBox MB_YESNO|MB_ICONQUESTION  "The version of Java Runtime Environment found on your system is an \
             earlier version than is required by Apache FOP.  To be able to use FOP you will need to upgrade \
-            Java. $\r$\n$\r$\nJava Runtime Environment is only available directly from the Java web site. \ 
+            Java. $\r$\n$\r$\nJava Runtime Environment is only available directly from the Java web site. \
             $\r$\n$\r$\nClick YES to be directed to the Java web site after this installer is finished." \
                     /SD IDNO IDYES FWard2JRE
-                    Goto DoneFOP 
+                    Goto DoneFOP
     MessageBox MB_YESNO|MB_ICONQUESTION "No version of Java Runtime Environment, required by Apache FOP, was found \
             on your system.  To be able to use FOP you will need to install Java. $\r$\n$\r$\nJava Runtime \
             Environment is only available directly from the Java web site. $\r$\n$\r$\n$\r$\nClick YES to be \
             directed to the Java web site after this installer is finished." \
                     /SD IDNO IDYES FWard2JRE
-                    Goto DoneFOP 
-    
+                    Goto DoneFOP
+
     FWard2JRE:
         DetailPrint "forward to Java download site = true"
         StrCpy $JREFwd "true"
@@ -360,7 +360,7 @@ Section /o "MS Visual C runtime DLL (1.73MB Download)" SecMSC
     ClearErrors
     ; as its a download we need to inform of section size (Approximate only).
     AddSize 12186
-    
+
     ; Check if the correct version of the MS Visual C runtime, needed by Python programs, is already installed
     Call CheckForMSVC
         StrCmp $R1 "Success" GotMSVC
@@ -374,7 +374,7 @@ Section /o "MS Visual C runtime DLL (1.73MB Download)" SecMSC
         DetailPrint "${MSVC_FILE} Download Status: $0"
         StrCmp $0 "OK" InstalMSVC
         MessageBox MB_OK|MB_ICONEXCLAMATION "Download Error, $0 aborting MS Visual C runtime installation.$\r$\n to \
-            try again re-run this installer at a later date" /SD IDOK 
+            try again re-run this installer at a later date" /SD IDOK
     Goto DoneMSVC
 
     ; Install MS Visual C Runtime
@@ -382,14 +382,14 @@ Section /o "MS Visual C runtime DLL (1.73MB Download)" SecMSC
     InstalMSVC:
         ; run installer silently (no user input, no cancel button)
         ExecWait '"$PLUGINSDIR\${MSVC_FILE}" /qb!'
-        ; Check for successful install 
+        ; Check for successful install
         Call CheckForMSVC
             StrCmp $R1 "Success" DoneMSVC
         DetailPrint "error installing ${MSVC_DISP_NAME}"
         MessageBox MB_OK|MB_ICONEXCLAMATION "Installer Error, aborting MS Visual C runtime installation.$\r$\n to try \
-            again re-run this installer at a later date" /SD IDOK 
+            again re-run this installer at a later date" /SD IDOK
         Goto DoneMSVC
-    
+
     GotMSVC:
         DetailPrint "${MSVC_DISP_NAME} found, install cancelled"
         MessageBox MB_ICONINFORMATION "It appears you already have ${MSVC_DISP_NAME} on your system and \
@@ -427,7 +427,7 @@ Section "Uninstall" SecUnMain
     RMDir /r "$INSTDIR"
     RMDir /r "${startmenu}"
 SectionEnd
-    
+
 
 
 
@@ -455,7 +455,7 @@ LangString DESC_SecUnMain ${LANG_ENGLISH} "Removes the main component - Ghini.de
   !insertmacro MUI_DESCRIPTION_TEXT ${SecOPs} $(DESC_SecOPs)
   !insertmacro MUI_DESCRIPTION_TEXT ${SecFOP} $(DESC_SecFOP)
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMSC} $(DESC_SecMSC)
-  
+
   ; uninstaller
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUnMain} $(DESC_SecUnMain)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
@@ -472,7 +472,7 @@ LangString DESC_SecUnMain ${LANG_ENGLISH} "Removes the main component - Ghini.de
 ; Add FOP to PATH
 ;--------------------------------
 Function AddFOPtoPATH
-    
+
     ; Checking before adding FOP to PATH, this may be a reinstall?
     StrCpy $0 "$R0\fop-${FOP_VERSION}"
     StrLen $1 $0
@@ -485,7 +485,7 @@ Function AddFOPtoPATH
         StrCmp $5 $0 PathFOP_Same
         IntOp $4 $4 + 1
         IntCmp $4 $3 PathFOP_Not PathFOP_Loop PathFOP_Not
-    
+
     ; Dont add FOP to PATH
     PathFOP_Same:
         DetailPrint "fop is already in the path, not adding it again"
@@ -512,8 +512,8 @@ FunctionEnd
 ; Check for MS Visual C Runtime
 ;--------------------------------
 
-Function CheckForMSVC  
-    
+Function CheckForMSVC
+
     ClearErrors
     StrCpy $2 "0"
     SetRegView 32
@@ -525,7 +525,7 @@ Function CheckForMSVC
     MSVCMainCheck:
         Push "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${MSVC_GUID}"
         Push "SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\${MSVC_GUID}"
-        
+
     MSVCCheckNext:
         IntOp $2 $2 + 1
         IntCmp $2 "3" MSVC64Check 0 0
@@ -535,14 +535,14 @@ Function CheckForMSVC
         IfErrors MSVCCheckNext
         DetailPrint "MSVC RegStr: $1"
         StrCmp $1 "${MSVC_DISP_NAME}" FoundMSVC MSVCCheckNext
-        
+
     NoMSVC:
         StrCpy $R1 "Fail"
         return
-    
+
     FoundMSVC:
         StrCpy $R1 "Success"
-        
+
 FunctionEnd
 
 
@@ -552,8 +552,8 @@ FunctionEnd
 ; Check for Java RE
 ;--------------------------------
 
-Function CheckForJRE    
-    
+Function CheckForJRE
+
     ClearErrors
     StrCpy $2 "0"
     SetRegView 32
@@ -565,7 +565,7 @@ Function CheckForJRE
     JREMainCheck:
         Push "SOFTWARE\Wow6432Node\JavaSoft\Java Runtime Environment"
         Push "SOFTWARE\JavaSoft\Java Runtime Environment"
-        
+
     JRECheckNext:
         IntOp $2 $2 + 1
         IntCmp $2 "3" JRE64Check 0 0
@@ -576,7 +576,7 @@ Function CheckForJRE
         ${VersionCompare} $1 ${FOP_JRE} $R1
         DetailPrint "Java RE version $1 found"
         return
-        
+
     NoJRE:
         DetailPrint "No Java RE found"
         StrCpy $R1 "3"

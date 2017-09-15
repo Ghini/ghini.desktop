@@ -124,11 +124,11 @@ def bump_desktop_file(filename):
     bump_file(filename, rx)
 
 
-def bump_nsi_file(filename):
+def bump_nsi_file(filename, varname='version'):
     """
     bump NSIS installer files
     """
-    rx = '(^!define version ").*?\..*?\..*?(".*?%s.*?$)' % bump_tag
+    rx = '(^!define %s ").*?\..*?\..*?(".*?%s.*?$)' % (varname, bump_tag)
     bump_file(filename, rx)
 
 # bump and grind
@@ -136,6 +136,7 @@ bump_py_file(os.path.join(root_of_clone(), 'bauble/version.py'))
 bump_py_file(os.path.join(root_of_clone(), 'doc/conf.py'), 'release')
 bump_desktop_file(os.path.join(root_of_clone(), 'data/ghini.desktop'))
 bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build.nsi'))
+bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build-multiuser.nsi'), 'VERSION')
 
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
