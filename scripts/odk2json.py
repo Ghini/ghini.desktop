@@ -56,6 +56,9 @@ except:
     to_skip = []
 
 r = get_submissions(user, pw, 'ghini-collect.appspot.com', 'plant_form_r', to_skip)
+s = get_submissions(user, pw, 'ghini-collect.appspot.com', 'plant_form_s', to_skip)
+items = r + s
+
 objects = []
 species_needed = {}
 locations_needed = {}
@@ -64,11 +67,14 @@ bauble.db.open(dburi, True, True)
 session = bauble.db.Session()
 
 # loop over the submissions, sorted by accession number
-for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
+for item in sorted(items, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     to_skip.append(item['meta:uuid'])
     accession = {"object": "accession"}
     plant = {"object": "plant", "code": "1"}
     accession['code'] = item['acc_no_scan'] or item['acc_no_typed']
+    if not accession['code']:
+        logger.warn("can't handle submission without accession code")
+        continue
     # if the plant code contains a plant code, separate it from accession code.
     plant['accession'] = accession['code']
     if item['location']:
@@ -125,6 +131,10 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     author = imei2user[item['deviceid']]
     timestamp = datetime.datetime.strptime(item['end'][:19], '%Y-%m-%dT%H:%M:%S')
 
+    # should do something with alive or dead status (put quantity to zero).
+    if item.get('alive', '1') == '0':
+        plant['quantity'] = '0'
+
     if accession:
         objects.append(accession)
     objects.append(plant)
@@ -141,6 +151,9 @@ for item in sorted(r, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
         get_image(user, pw, url, pic_full_name)
         note = {'object': 'plant_note', 'plant': '%(accession)s.%(code)s' % plant, 'category': '<picture>', 'note': pic_name}
         objects.append(note)
+
+    # should import notes
+    pass
 
     # should create a change object, just like the Accession Editor
     pass
