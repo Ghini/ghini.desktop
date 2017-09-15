@@ -58,46 +58,50 @@ import sys
 conflicting = {}
 unknown = []
 
-with open("/tmp/genera.txt") as f:
-    for text in f.readlines():
-        sys.stdout.flush()
-        text = unicode(text.strip())
-        if not text:
-            continue  # skip any empty lines
+import fileinput, re
+for line in fileinput.input():
+    sys.stdout.flush()
+    text = unicode(line.strip())
+    if not text:
+        continue  # skip any empty lines
 
-        if text.find(',') != -1:
-            genus_name, location = text.split(',')
-            genus = session.query(Genus).filter(Genus.epithet == genus_name).one()
-            try:
-                species = session.query(Species).filter(Species.genus == genus).filter(Species.infrasp1 == u'sp').first()
-                if species is None:
-                    raise Exception
-                sys.stdout.write('+')
-            except:
-                species = Species(genus=genus, sp=u'', infrasp1=u'sp')
-                session.add(species)
-                sys.stdout.write('*')
-                session.flush()
-            continue  # we used the line, let's continue with the accession codes
+    try:
+        genus_name, location = re.split('[ ,]+', text)
+    except:
+        genus_name = location = None
 
-        # `species` is the fictive identification for all following acc. codes.
-
+    if genus_name:
+        genus = session.query(Genus).filter(Genus.epithet == genus_name).one()
         try:
-            accession = session.query(Accession).filter(Accession.code == text).one()
+            species = session.query(Species).filter(Species.genus == genus).filter(Species.infrasp1 == u'sp').first()
+            if species is None:
+                raise Exception
+            sys.stdout.write('+')
         except:
-            unknown.append(text)
-            sys.stdout.write('?')
-            continue
-
-        if accession.species in [zzz, zzzsp]:
-            accession.species = species
-            sys.stdout.write('.')
+            species = Species(genus=genus, sp=u'', infrasp1=u'sp')
+            session.add(species)
+            sys.stdout.write('*')
             session.flush()
-        elif accession.species == species:
-            sys.stdout.write('.')
-        else:
-            conflicting.setdefault(species.str(), []).append((accession.code, accession.species.str()))
-            sys.stdout.write('!')
+        continue  # we used the line, let's continue with the accession codes
+
+    # `species` is the fictive identification for all following acc. codes.
+
+    try:
+        accession = session.query(Accession).filter(Accession.code == text).one()
+    except:
+        unknown.append(text)
+        sys.stdout.write('?')
+        continue
+
+    if accession.species in [zzz, zzzsp]:
+        accession.species = species
+        sys.stdout.write(':')
+        session.flush()
+    elif accession.species == species:
+        sys.stdout.write('.')
+    else:
+        conflicting.setdefault(species.str(), []).append((accession.code, accession.species.str()))
+        sys.stdout.write('!')
 
 print
 session.commit()
