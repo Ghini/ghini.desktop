@@ -35,13 +35,6 @@ from bauble.plugins.report.mako import add_text, font, add_code39, add_qr
 
 page = 1
 xpos = ypos = 0
-defaults = {'colour': '#000000',
-            'extra_text': '',
-            'accession_format': None,
-            'accession_first': None,
-            'accession_last': None}
-for key, value in defaults.items():
-    options.setdefault(key, value)
 
 if options['accession_format']:
     format = options['accession_format']
