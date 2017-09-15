@@ -445,12 +445,10 @@ def set_privilege(role, privilege):
 def current_user():
     """Return the name of the current user.
     """
-    #return db.engine.execute('select current_user;').fetchone()[0]
     r = db.engine.execute('select current_user;')
     user = r.fetchone()[0]
     r.close()
     return user
-
 
 
 def set_password(password, user=None):
@@ -493,7 +491,7 @@ class UsersEditor(editor.GenericEditorView):
 
         # TODO: should allow anyone to view the priveleges but only
         # admins to change them
-        logger.debug(current_user())
+        logger.debug('current user is %s' % current_user())
         if not has_privileges(current_user(), 'admin'):
             msg = _('You do not have privileges to change other '\
                         'user privileges')
