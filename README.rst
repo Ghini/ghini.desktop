@@ -61,7 +61,9 @@ database in your pocket, 'ghini.github.io', the sources for the ghini
 website, 'ghini.web', showcased at http://gardens.ghini.me, and ghini.tour,
 a collection of settings for building audio guides to gardens.
 
-The Ghini family has adopted two ODK products, which help our users add or
+The Ghini family has adopted two ODK products (`collect
+<https://github.com/opendatakit/collect>`_ and `aggregate
+<https://github.com/opendatakit/aggregate>`_), which help our users add or
 correct information in the database.  Not part of the Ghini organization,
 but integrated members of the Ghini family.
 
