@@ -15,13 +15,14 @@ We hope you will enable the "sentry" errors and warnings handler. With that enab
 Ghini's development is mostly community based. I hope Ghini already matches your expectations, and in case it does not or not completely, myself and the whole ghini community will be very thankful if you would take your time to report about your experience with it.
 
 The above is one way to contribute to ghini's development. Others are:
-- contribute ideas, writing on the bauble google forum (https://groups.google.com/forum/#!forum/bauble)
-- give private feedback, writing to ghini@anche.no
-- publicly praise ghini and promote its adoption by other institutions
-- open an issue on github (https://github.com/Ghini/ghini.desktop/issues/)
-- contribute code (fork the project on github)
-- hire a developer and have a set of github issues solved, if you need them quickly.
-- let me include your garden on our (still experimental) map: gardens.ghini.me
+- contribute ideas, writing on the bauble google forum (https://groups.google.com/forum/#!forum/bauble),
+- contribute documentation, or translations (https://hosted.weblate.org/projects/ghini/),
+- give private feedback, writing to ghini@anche.no,
+- publicly praise ghini and promote its adoption by other institutions,
+- open an issue on github (https://github.com/Ghini/ghini.desktop/issues/),
+- contribute code (fork the project on github),
+- hire a developer and have a set of github issues solved, if you need them quickly,
+- let me include your garden on our (still experimental) http://gardens.ghini.me.
 
 I sincerely hope you will enjoy using the software I maintain
 
