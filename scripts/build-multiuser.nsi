@@ -3,19 +3,23 @@
 ; Written by Ross Demuth 2016,2017
 ;
 
-; Installer CLI options: /AllUsers or /CurrentUser
-;                      : /S             #Silent install
-;                      : /D=C:/...      #Set $INSTDIR
-;                      : /C=gFC         #Install Components, where:
-;                                               g = Unselect Ghini (normally always installed, used for component only installs)
-;                                               F = select Apache FOP
-;                                               C = select MS Visual C runtime
+; Command line options:
 ;
-; A silent, system wide install, in the default location, with all components would look like this:
-; >ghini.desktop-1.0.60-setup.exe /S /AllUsers /C=FC
-; If a component failed (e.g. FOP mirror is down) to install you could rerun for that component e.g.:
-; >ghini.desktop-1.0.60-setup.exe /S /AllUsers /C=gF
+; /AllUsers or /CurrentUser
+; /S		Silent install
+; /D=PATH	Set $INSTDIR
+; /C=[gFC]	Install Components, where:
+;	 g = Unselect Ghini (used for component only installs)
+;	 F = select Apache FOP
+;	 C = select MS Visual C runtime
 ;
+; EXAMPLES
+; ghini.desktop-1.0.??-setup.exe /S /AllUsers /C=FC
+; A silent, system wide install, in the default location, with all components
+;
+; ghini.desktop-1.0.??-setup.exe /S /AllUsers /C=gF
+; A component has failed to install (e.g. FOP mirror is down) so you rerun for that component only
+
 ;---
 ; Plugins, required to compile:
 ; -
@@ -30,16 +34,11 @@
 ; MD5 (http://nsis.sourceforge.net/MD5_plugin)
 ;---
 
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  GENERAL
-;----------------------------------------------------------------
 
-;--------------------------------
 ; Global
 Name "Ghini"
-
 !define VERSION "1.0.68" ; :bump
 !define src_dir "..\dist"
 !define PRODUCT_NAME "ghini.desktop"
@@ -48,22 +47,18 @@ Outfile "${PRODUCT_NAME}-${VERSION}-setup.exe"
 !define COMPANY_NAME ""
 !define license_file "LICENSE"
 !define readme "README.rst"
-
 !define startmenu "$SMPROGRAMS\${PRODUCT_NAME}"
 !define UNINSTALL_FILENAME "uninstall.exe"
 
-;--------------------------------
-; FOP - full path http://www.apache.org/dyn/closer.cgi?filename=xmlgraphics/fop/binaries/fop-2.1-bin.zip&action=download
+; FOP
 !define FOP_MIRROR "http://www.apache.org/dyn/closer.cgi?filename=xmlgraphics/fop/binaries"
 !define FOP_VERSION "2.1"
 !define FOP_BINZIP "fop-${FOP_VERSION}-bin.zip"
-; http://www-eu.apache.org/dist/xmlgraphics/fop/binaries/fop-2.1-bin.zip.md5
 !define FOP_MD5 "http://www-eu.apache.org/dist/xmlgraphics/fop/binaries/${FOP_BINZIP}.md5"
 !define FOP_JRE "1.6"
 !define JRE_WEB "https://java.com/download"
 Var JREFwd
 
-;--------------------------------
 ; Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022(.8)
 !define MSVC_GUID "{FF66E9F6-83E7-3A3E-AF14-8DE9A809A6A4}"
 !define MSVC_DISP_NAME "Microsoft Visual C++ 2008 Redistributable - x86 9.0.21022"
@@ -71,32 +66,23 @@ Var JREFwd
 !define MSVC_URL "https://download.microsoft.com/download/1/1/1/1116b75a-9ec3-481a-a3c8-1777b5381140/"
 
 
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  COMPRESSION SETTINGS
-;----------------------------------------------------------------
 
-;--------------------------------
 ; Compression
 SetCompressor /FINAL /SOLID lzma
 ; default is 8mb, setting to 64mb reduced installer size by 1+mb
 SetCompressorDictSize 64
 
-;--------------------------------
 ; Other
 SetDateSave on
 SetDatablockOptimize on
 CRCCheck on
 
 
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  SETTINGS
-;----------------------------------------------------------------
 
-;--------------------------------
 ; Multi User Settings (must come before the NsisMultiUser script)
 !define MULTIUSER_INSTALLMODE_INSTDIR "${PRODUCT_NAME}"
 !define MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY "${PRODUCT_NAME}"
@@ -106,7 +92,6 @@ CRCCheck on
 !define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION   ; allow requesting for elevation...
 !define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS
 
-;--------------------------------
 ; Modern User Interface v2 Settings
 !define MUI_ABORTWARNING
 !define MUI_UNABORTWARNING
@@ -130,15 +115,11 @@ CRCCheck on
 !define MUI_FINISHPAGE_LINK_LOCATION http://ghini.github.io/
 
 
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  SCRIPTS
-;----------------------------------------------------------------
 
-;--------------------------------
-; include NsisMultiUser - all settings need to be set before including the NsisMultiUser.nsh header file.
-; thanks to Richard Drizin for https://github.com/Drizin/NsisMultiUser
+; NsisMultiUser - all settings need to be set before including the NsisMultiUser.nsh header file.
+; thanks to Richard Drizin https://github.com/Drizin/NsisMultiUser
 !include "NsisMultiUser.nsh"
 !include "MUI2.nsh"
 !include "UAC.nsh"
@@ -146,15 +127,9 @@ CRCCheck on
 !include "FileFunc.nsh"
 
 
-
-
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  PAGES
-;----------------------------------------------------------------
 
-;--------------------------------
 ; Installer
 !insertmacro MUI_PAGE_LICENSE "${src_dir}\${license_file}"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
@@ -165,7 +140,6 @@ CRCCheck on
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
-;--------------------------------
 ; Uninstaller
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -173,11 +147,9 @@ CRCCheck on
 
 
 
-;----------------------------------------------------------------
+;------------------------------
 ;  LANGUAGES
-;----------------------------------------------------------------
 
-;--------------------------------
 ; MUIv2 macros (must be after scripts and pages)
 ; TODO add more languages?
 !insertmacro MUI_LANGUAGE English
@@ -185,25 +157,21 @@ CRCCheck on
 
 
 
-;----------------------------------------------------------------
+;------------------------------
 ;  INSTALLER SECTIONS
-;----------------------------------------------------------------
 
-;--------------------------------
 ; Install Types
 InstType "Base"
 InstType "Full"
 InstType "Components Only"
-; Custom is also be included by default
+; Custom is included by default
 
-;--------------------------------
+;----------------
 ; Main Section
-;--------------------------------
 
 Section "!Ghini.desktop" SecMain
 
     SectionIN 1 2
-    ;SectionIN RO ; ReadOnly (user can't alter)
 
     ; Install Files
     SetOutPath "$INSTDIR"
@@ -238,15 +206,13 @@ SectionEnd
 
 
 
-;------------------------------------------------
+;------------------------------
 ; +Components Group
-;------------------------------------------------
 
 SectionGroup /e "Extra Components" SecOPs
 
-;--------------------------------
+;----------------
 ; --Apache FOP
-;--------------------------------
 
 Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
 
@@ -364,9 +330,8 @@ Section /o "Apache FOP v${FOP_VERSION} (24MB Download)" SecFOP
 
 SectionEnd
 
-;--------------------------------
+;----------------
 ; --MS Visual C runtime Section
-;--------------------------------
 
 Section /o "MS Visual C runtime DLL (1.73MB Download)" SecMSC
 
@@ -418,19 +383,16 @@ SectionGroupEnd
 
 
 
-;----------------------------------------------------------------
+;------------------------------
 ;  UNINSTALLER SECTIONS
-;----------------------------------------------------------------
+;
 ; All section names prefixed by "Un" will be in the uninstaller
 ; TODO include a FOP uninstaller
 
-;--------------------------------
 ; Settings
 UninstallText "This will uninstall ${PRODUCT_NAME}."
 
-;--------------------------------
 ; Main Uninstall Section
-;--------------------------------
 
 Section "Uninstall" SecUnMain
     ; Remove registry keys
@@ -443,13 +405,9 @@ Section "Uninstall" SecUnMain
 SectionEnd
 
 
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  SECTION DESCRIPTIONS
-;----------------------------------------------------------------
 
-;--------------------------------
 ; Language Strings
 LangString DESC_SecMain ${LANG_ENGLISH} "Ghini.desktop - biodiversity collection manager - this is the main component \
                                         (required)"
@@ -462,7 +420,6 @@ LangString DESC_SecMSC ${LANG_ENGLISH} "Microsoft Visual C++ 2008 Redistributabl
 ; uninstaller
 LangString DESC_SecUnMain ${LANG_ENGLISH} "Removes the main component - Ghini.desktop."
 
-;--------------------------------
 ; Initialise Language Strings (must come after the sections)
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMain} $(DESC_SecMain)
@@ -475,16 +432,10 @@ LangString DESC_SecUnMain ${LANG_ENGLISH} "Removes the main component - Ghini.de
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
-
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  USER FUNCTIONS
-;----------------------------------------------------------------
 
-;--------------------------------
 ; Add FOP to PATH
-;--------------------------------
 Function AddFOPtoPATH
 
     ; Checking before adding FOP to PATH, this may be a reinstall?
@@ -519,13 +470,7 @@ Function AddFOPtoPATH
 
 FunctionEnd
 
-
-
-
-;--------------------------------
 ; Check for MS Visual C Runtime
-;--------------------------------
-
 Function CheckForMSVC
 
     ClearErrors
@@ -559,13 +504,7 @@ Function CheckForMSVC
 
 FunctionEnd
 
-
-
-
-;--------------------------------
 ; Check for Java RE
-;--------------------------------
-
 Function CheckForJRE
 
     ClearErrors
@@ -598,13 +537,9 @@ Function CheckForJRE
 FunctionEnd
 
 
-
-
-;----------------------------------------------------------------
+;------------------------------
 ;  CALLBACK FUNCTIONS
-;----------------------------------------------------------------
 
-;-----------------------------------------
 ; On Initializing
 Function .onInit
 	; Initialize the NsisMultiUser plugin
@@ -625,18 +560,19 @@ Function .onInit
     CLDone:
 FunctionEnd
 
+; On Initializing the uninstaller
 Function un.onInit
 	; Initialize the NsisMultiUser plugin
 	!insertmacro MULTIUSER_UNINIT
 FunctionEnd
 
+; On Closing the installer
 Function .onGUIEnd
     ; Open the Java download page on exit if user selected to do so.
     StrCmp $JREFwd "true" 0 +2
     ExecShell "open" "${JRE_WEB}"
 FunctionEnd
 
-;-----------------------------------------
 ; On verifying install dir
 Function .onVerifyInstDir
         ; MS Visual C runtime Section is only avaiable if administrator
@@ -645,7 +581,6 @@ Function .onVerifyInstDir
 	Alluser:
 FunctionEnd
 
-;-----------------------------------------
 ; On selection change
 Function .onSelChange
         ; prevent unavailable section selection due via instType change
