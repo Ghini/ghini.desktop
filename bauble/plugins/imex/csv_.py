@@ -597,7 +597,7 @@ class CSVExporter(object):
             logger.debug(e)
 
     def __export_task(self, path):
-        filename_template = os.path.join(path, "%s.csv")
+        filename_template = os.path.join(path, "%s.txt")
         steps_so_far = 0
         ntables = 0
         for table in db.metadata.sorted_tables:
