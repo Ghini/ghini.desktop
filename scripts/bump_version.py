@@ -3,6 +3,7 @@
 #
 # Copyright 2004-2010 Brett Adams <brett@bauble.io>
 # Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
