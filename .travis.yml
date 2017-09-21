@@ -9,30 +9,8 @@ before_install:
     - export VIRT_ROOT=/home/travis/virtualenv/python$TRAVIS_PYTHON_VERSION
     - export PKG_CONFIG_PATH=$VIRT_ROOT/lib/pkgconfig
     - pip install pip --upgrade
-    # PyCairo
-    - wget http://www.cairographics.org/releases/py2cairo-1.10.0.tar.bz2 --no-check-certificate
-    - tar xf py2cairo-1.10.0.tar.bz2
-    - cd py2cairo-1.10.0
-    - ./waf configure --prefix=$VIRT_ROOT > /dev/null
-    - ./waf build > /dev/null
-    - ./waf install > /dev/null
-    - cd ..
-    # PyGobject
-    - wget http://ftp.gnome.org/pub/GNOME/sources/pygobject/2.28/pygobject-2.28.6.tar.bz2
-    - tar xf pygobject-2.28.6.tar.bz2
-    - cd pygobject-2.28.6
-    - ./configure --prefix=$VIRT_ROOT --disable-introspection
-    - make
-    - make install
-    - cd ..
-    # PyGtk
-    - wget http://ftp.gnome.org/pub/GNOME/sources/pygtk/2.24/pygtk-2.24.0.tar.bz2
-    - tar xf pygtk-2.24.0.tar.bz2
-    - cd pygtk-2.24.0
-    - ./configure --prefix=$VIRT_ROOT
-    - make
-    - make install
-    - cd ..
+    - sudo apt-get -qq update
+    - sudo apt-get install gettext python-gtk2 python-lxml git python-virtualenv libxslt1-dev pkg-config libjpeg-dev build-essential python-all-dev
     # build before install
     - python setup.py -q build
 
