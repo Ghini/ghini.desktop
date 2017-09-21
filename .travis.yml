@@ -12,6 +12,10 @@ before_install:
     - sudo apt-get -qq update
     - sudo apt-get install gettext python-gtk2 python-lxml git python-virtualenv libxslt1-dev pkg-config libjpeg-dev build-essential python-all-dev
     # build before install
+    - mkdir -p /home/travis/virtualenv/
+    - virtualenv $VIRT_ROOT --system-site-packages
+    - mkdir -p $VIRT_ROOT/share
+    - . $VIRT_ROOT/bin/activate
     - python setup.py -q build
 
 install:
