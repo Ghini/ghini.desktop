@@ -15,6 +15,7 @@ before_install:
     - sudo apt-get install python-nose
     - . $VIRT_ROOT/bin/activate
     - pip install pip --upgrade
+    - pip install --upgrade gevent
     - mkdir -p $VIRT_ROOT/share
     - python setup.py -q build
 
