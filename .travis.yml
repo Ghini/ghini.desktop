@@ -6,17 +6,16 @@ python:
 
 before_install: 
     # Environment setup
-    - export VIRT_ROOT=/home/travis/virtualenv/python$TRAVIS_PYTHON_VERSION
-    - export PKG_CONFIG_PATH=$VIRT_ROOT/lib/pkgconfig
-    - pip install pip --upgrade
     - sudo apt-get -qq update
     - sudo apt-get install gettext python-gtk2 python-lxml git python-virtualenv libxslt1-dev pkg-config libjpeg-dev build-essential python-all-dev
     # build before install
     - mkdir -p /home/travis/virtualenv/
+    - export VIRT_ROOT=/home/travis/virtualenv/python$TRAVIS_PYTHON_VERSION
     - virtualenv $VIRT_ROOT --system-site-packages
     - sudo apt-get install python-nose
-    - mkdir -p $VIRT_ROOT/share
     - . $VIRT_ROOT/bin/activate
+    - pip install pip --upgrade
+    - mkdir -p $VIRT_ROOT/share
     - python setup.py -q build
 
 install:
