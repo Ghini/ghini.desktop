@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2017-07-31 17:56+0000\n"
+"PO-Revision-Date: 2017-09-24 19:48+0000\n"
 "Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/ghini/desktop-11/es/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.16-dev\n"
+"X-Generator: Weblate 2.17-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -27,8 +27,9 @@ msgstr ""
 "X-Poedit-SearchPath-4: bauble/plugins/garden\n"
 
 #: bauble/btypes.py:82
+#, fuzzy
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr "el valor \"%(value)s\" no se encuentra en Enum.values: %(all_values)s"
+msgstr "\"%(valor)\" no se encuentra en Enum.valores: %(todos los valores)"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
@@ -40,7 +41,7 @@ msgstr "N.º de plántulas: %s"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 msgid "# of seeds"
-msgstr "N.º de semillas"
+msgstr "# de semillas"
 
 #: bauble/plugins/garden/propagation.py:168
 msgid "# of seeds: %s"
@@ -89,11 +90,12 @@ msgstr ""
 "¿Desea agregar?"
 
 #: bauble/plugins/plants/species_editor.py:177
-#, fuzzy
 msgid ""
 "%s is the closest match for your data.\n"
 "Do you want to accept it?"
 msgstr ""
+"%s es la coincidencia más cercana para sus datos.\n"
+"¿Quieres aceptarlo?"
 
 #: bauble/pluginmgr.py:620
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
@@ -209,7 +211,7 @@ msgstr "<b>historia de las modificas</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
-msgstr "<b> Tratamiento químico </b>"
+msgstr "<b>Tratamiento químico</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:798
 msgid "<b>Collection ID:</b>"
@@ -3719,7 +3721,7 @@ msgstr "_parse_lat_lon() -- formato incorrecto: %s"
 
 #: bauble/plugins/garden/acc_editor.glade:98
 msgid "accession code format"
-msgstr ""
+msgstr "formato de código de accesión"
 
 #: bauble/plugins/imex/select_export.glade:119
 msgid "accessions"
