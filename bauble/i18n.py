@@ -88,10 +88,8 @@ for module in locale, gtkglade:
 # Get the language to use
 lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
                            fallback=True)
-# install the language, map _() (which we marked our strings to
-# translate with) to self.lang.gettext() which will translate them.
-_ = locale.gettext
-
-# register the gettext function for the whole interpreter as "_"
+# associate this module's as well as the global `_` functions (we marked our
+# translatable strings with it) to lang.gettext(), which translates them.
+_ = lang.gettext
 import __builtin__
-__builtin__._ = locale.gettext
+__builtin__._ = lang.gettext
