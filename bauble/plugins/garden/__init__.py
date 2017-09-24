@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.orm import object_session, eagerload
 
 import bauble
-from bauble.i18n import _
+
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView

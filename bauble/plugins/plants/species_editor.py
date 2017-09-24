@@ -37,7 +37,7 @@ from sqlalchemy.exc import DBAPIError
 
 from types import StringTypes
 import bauble
-from bauble.i18n import _
+
 from bauble.prefs import prefs
 import bauble.utils as utils
 import bauble.paths as paths

@@ -34,7 +34,6 @@ logger = logging.getLogger(__name__)
 
 import gtk
 
-from bauble.i18n import _
 import bauble
 from bauble import paths, prefs, utils
 

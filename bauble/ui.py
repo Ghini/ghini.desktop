@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 import bauble
 import bauble.db as db
-from bauble.i18n import _
+
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs

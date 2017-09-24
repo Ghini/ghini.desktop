@@ -23,7 +23,7 @@
 
 import dateutil.parser as date_parser
 import sqlalchemy.types as types
-from bauble.i18n import _
+
 
 import bauble.error as error
 

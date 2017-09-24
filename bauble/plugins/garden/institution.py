@@ -36,7 +36,7 @@ import bauble.meta as meta
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
-from bauble.i18n import _
+
 
 
 class Institution(object):

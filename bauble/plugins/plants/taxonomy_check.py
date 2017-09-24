@@ -22,7 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 from bauble import paths, pluginmgr, utils
 from bauble.plugins.plants import Species
-from bauble.i18n import _
+
 import pango
 
 

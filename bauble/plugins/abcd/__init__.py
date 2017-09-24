@@ -36,7 +36,7 @@ import bauble.paths as paths
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.garden.plant import Plant
-from bauble.i18n import _
+
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop

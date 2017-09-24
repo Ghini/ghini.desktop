@@ -38,7 +38,7 @@ RelationProperty = RelationshipProperty
 import bauble
 from bauble.error import check
 import bauble.utils as utils
-from bauble.i18n import _
+
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
 from querybuilderparser import BuiltQuery

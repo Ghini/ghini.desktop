@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 import threading
 
-from bauble.i18n import _
+
 import bauble
 from bauble.error import check
 from bauble import paths

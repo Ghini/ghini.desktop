@@ -37,7 +37,7 @@ from sqlalchemy import ColumnDefault, Boolean
 
 import bauble
 import bauble.db as db
-from bauble.i18n import _
+
 from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
