@@ -39,7 +39,7 @@ from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from bauble.i18n import _
+
 import bauble
 import bauble.db as db
 import bauble.error as error

@@ -42,7 +42,7 @@ import pango
 from sqlalchemy.orm import object_mapper, object_session
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
-from bauble.i18n import _
+
 import bauble
 import bauble.db as db
 from bauble.error import check

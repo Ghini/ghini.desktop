@@ -44,7 +44,7 @@ import bauble.paths as paths
 import bauble.editor as editor
 import bauble.prefs as prefs
 import bauble.btypes as types
-from bauble.i18n import _
+
 
 prop_type_values = {u'Seed': _("Seed"),
                     u'UnrootedCutting': _('Unrooted cutting'),

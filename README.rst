@@ -56,11 +56,22 @@ place where the current maintainer Mario Frasca has completed his studies in
 computer science.
 
 Within the Ghini organization, you will find 'ghini.desktop', this program,
-'ghini.github.io', the sources for the ghini website, 'ghini.web', showcased 
-at http://gardens.ghini.me, and ghini.tour, a collection of settings for 
-building audio guides to gardens.
+'ghini.pocket', a tiny android database viewer meant to help you take your
+database in your pocket, 'ghini.github.io', the sources for the ghini
+website, 'ghini.web', showcased at http://gardens.ghini.me, and ghini.tour,
+a collection of settings for building audio guides to gardens.
+
+The Ghini family has adopted two ODK products (`collect
+<https://github.com/opendatakit/collect>`_ and `aggregate
+<https://github.com/opendatakit/aggregate>`_), which help our users add or
+correct information in the database.  Not part of the Ghini organization,
+but integrated members of the Ghini family.
+
+|ghini-family|
 
 Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
+
+.. |ghini-family| image:: https://github.com/Ghini/ghini.desktop/raw/ghini-1.0-dev/doc/images/ghini-family.png
 
 Windows, in a hurry
 ---------------------

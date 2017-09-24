@@ -28,7 +28,7 @@ import datetime
 import os
 import re
 import bauble.error as error
-from bauble.i18n import _
+
 
 try:
     import sqlalchemy as sa

@@ -37,7 +37,7 @@ from sqlalchemy import Column, Unicode, Integer, ForeignKey,\
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import relation, backref
 
-from bauble.i18n import _
+
 import bauble.db as db
 import bauble.editor as editor
 from bauble.plugins.plants.geography import Geography, GeographyMenu

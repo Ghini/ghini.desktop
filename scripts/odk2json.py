@@ -73,7 +73,7 @@ for item in sorted(items, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
     plant = {"object": "plant", "code": "1"}
     accession['code'] = item['acc_no_scan'] or item['acc_no_typed']
     if not accession['code']:
-        logger.warn("can't handle submission without accession code")
+        logger.warn("can't handle submission %s without accession code" % str(item))
         continue
     # if the plant code contains a plant code, separate it from accession code.
     plant['accession'] = accession['code']

@@ -53,7 +53,7 @@ from bauble.plugins.report import (
 import bauble.prefs as prefs
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
-from bauble.i18n import _
+
 
 if sys.platform == "win32":
     fop_cmd = 'fop.bat'

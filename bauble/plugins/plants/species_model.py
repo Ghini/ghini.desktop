@@ -33,7 +33,7 @@ import bauble.db as db
 import bauble.error as error
 import bauble.utils as utils
 import bauble.btypes as types
-from bauble.i18n import _
+
 
 
 def _remove_zws(s):

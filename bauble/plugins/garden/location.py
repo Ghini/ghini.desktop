@@ -33,7 +33,7 @@ from sqlalchemy.orm import relation, backref, validates
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 
-from bauble.i18n import _
+
 import bauble
 import bauble.db as db
 from bauble.editor import GenericModelViewPresenterEditor, GenericEditorView, \
