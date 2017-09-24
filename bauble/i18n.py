@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+# Copyright (c) 2006 Mark Mruss http://www.learningpython.com
+# Copyright (c) 2007 Kopfgeldjaeger
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
 #
 # This file is part of ghini.desktop.

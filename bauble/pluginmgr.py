@@ -46,7 +46,7 @@ import traceback
 
 import gtk
 
-from bauble.i18n import _
+
 from sqlalchemy import Column, Unicode, select
 import sqlalchemy.orm.exc as orm_exc
 

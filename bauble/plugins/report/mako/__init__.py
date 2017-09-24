@@ -33,7 +33,7 @@ import gtk
 
 from mako.template import Template
 
-from bauble.i18n import _
+
 import bauble.db as db
 import bauble.paths as paths
 from bauble.plugins.report import FormatterPlugin, SettingsBox

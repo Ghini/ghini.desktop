@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 
 import gtk
 
-from bauble.i18n import _
+
 from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint

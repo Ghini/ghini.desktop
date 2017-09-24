@@ -23,7 +23,7 @@ import gtk
 import logging
 logger = logging.getLogger(__name__)
 
-from bauble.i18n import _
+
 import bauble.utils as utils
 import bauble.db as db
 from bauble.plugins.plants import (Familia, Genus, Species, VernacularName)

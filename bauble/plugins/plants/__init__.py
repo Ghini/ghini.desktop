@@ -70,7 +70,7 @@ import bauble.search as search
 from bauble.view import SearchView
 from bauble.ui import DefaultView
 from bauble import utils
-from bauble.i18n import _
+
 
 ## naming locally unused objects. will be imported by clients of the module
 Familia, SpeciesDistribution,

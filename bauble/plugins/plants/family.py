@@ -45,7 +45,7 @@ import bauble.utils.web as web
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
-from bauble.i18n import _
+
 
 
 def edit_callback(families):

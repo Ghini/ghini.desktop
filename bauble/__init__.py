@@ -35,7 +35,7 @@ import bauble.paths as paths
 from bauble.version import version
 version_tuple = tuple(version.split('.'))
 
-from bauble.i18n import _
+import bauble.i18n
 
 
 def pb_set_fraction(fraction):

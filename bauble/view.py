@@ -35,7 +35,7 @@ import gobject
 import pango
 import threading
 
-from bauble.i18n import _
+
 from pyparsing import ParseException
 from sqlalchemy.orm import object_session
 import sqlalchemy.exc as saexc

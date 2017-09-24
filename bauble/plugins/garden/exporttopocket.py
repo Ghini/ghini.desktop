@@ -26,7 +26,7 @@ from bauble.plugins.garden.accession import Accession
 
 from bauble import db
 from bauble import pluginmgr
-from bauble.i18n import _
+
 
 import gtk
 import os

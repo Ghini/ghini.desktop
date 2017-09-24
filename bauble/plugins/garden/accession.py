@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 import gtk
 
-from bauble.i18n import _
+
 import lxml.etree as etree
 import pango
 from sqlalchemy import and_, or_, func
