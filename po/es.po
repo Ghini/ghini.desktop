@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-09-12 10:54-0500\n"
-"PO-Revision-Date: 2017-09-24 19:48+0000\n"
-"Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
+"PO-Revision-Date: 2017-09-26 01:48+0000\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Spanish "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/es/>\n"
 "Language: es\n"
@@ -22,9 +22,8 @@ msgstr ""
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 
 #: bauble/btypes.py:87
-#, fuzzy
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr "\"%(valor)\" no se encuentra en Enum.valores: %(todos los valores)"
+msgstr "\"%(value)\" no se encuentra en Enum.values: %(all_values)"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
