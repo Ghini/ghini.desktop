@@ -54,7 +54,7 @@
 ;  GENERAL
 
 ; Global
-Name "Ghini"
+Name "ghini.desktop"
 !define VERSION "1.0.68" ; :bump
 !define src_dir "..\dist"
 !define PRODUCT_NAME "ghini.desktop"
@@ -101,6 +101,8 @@ CRCCheck on
 
 ; Multi User Settings (must come before the NsisMultiUser script)
 !define MULTIUSER_INSTALLMODE_INSTDIR "${PRODUCT_NAME}"
+; registry keys address:
+; [HKLM|HKCU]\[Software|SOFTWARE\WOW6432Node]\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}
 !define MULTIUSER_INSTALLMODE_INSTALL_REGISTRY_KEY "${PRODUCT_NAME}"
 !define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME}"
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
@@ -124,7 +126,7 @@ CRCCheck on
 !define MUI_FINISHPAGE_TEXT_REBOOT "Rebooting is recommended but not required to start using ${PRODUCT_NAME} immediately"
 !define MUI_FINISHPAGE_TEXT_REBOOTNOW "Reboot now (required before using Apache FOP option)"
 !define MUI_FINISHPAGE_REBOOTLATER_DEFAULT
-!define MUI_FINISHPAGE_RUN_TEXT "Start Ghini"
+!define MUI_FINISHPAGE_RUN_TEXT "Start ${PRODUCT_NAME}"
 !define MUI_FINISHPAGE_RUN $INSTDIR\${PROGEXE}
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 !define MUI_FINISHPAGE_LINK "Visit the Ghini home page"
@@ -200,7 +202,7 @@ Section "!Ghini.desktop" SecMain
     WriteUninstaller "$INSTDIR\${UNINSTALL_FILENAME}"
 
     ; add registry keys
-	!insertmacro MULTIUSER_RegistryAddInstallInfo
+    !insertmacro MULTIUSER_RegistryAddInstallInfo
     ; create shortcuts
     CreateDirectory "${startmenu}"
     CreateShortcut "${startmenu}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}" \

@@ -52,8 +52,7 @@ from bauble import version
 # relative path for locale files
 locale_path = os.path.join('share', 'locale')
 
-gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo",
-            "gio"]
+gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pangocairo", "gio"]
 plugins = setuptools.find_packages(
     where='bauble/plugins',
     exclude=['test', 'bauble.*.test', 'ghini.*.test'])
@@ -99,24 +98,17 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             "optimize": 2,
             "includes": py2exe_includes,
             "dll_excludes": [
-                "iconv.dll", "intl.dll",
-                "libatk-1.0-0.dll", "libgdk_pixbuf-2.0-0.dll",
-                "libgdk-win32-2.0-0.dll", "libglib-2.0-0.dll",
-                "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
-                "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll",
-                "libpango-1.0-0.dll", "libpangowin32-1.0-0.dll",
-                #"libxml2", "zlib1"
-                "DNSAPI.DLL","MSIMG32.DLL", "Secur32.dll", # windows dlls
-                "SHFOLDER.dll", "CRYPT32.dll",
-                "api-ms-win-core-processthreads-l1-1-2.dll",
-                "api-ms-win-core-sysinfo-l1-2-1.dll", 
-                "api-ms-win-core-heap-l2-1-0.dll",
-                "api-ms-win-core-delayload-l1-1-1.dll",
-                "api-ms-win-core-errorhandling-l1-1-1.dll",
-                "api-ms-win-core-profile-l1-1-0.dll",
-                "api-ms-win-core-libraryloader-l1-2-0.dll",
-                "api-ms-win-core-string-obsolete-l1-1-0.dll",
-                "api-ms-win-security-activedirectoryclient-l1-1-0.dll"]
+                # GTK, included elsewhere
+                "iconv.dll", "intl.dll", "libatk-1.0-0.dll",
+                "libgdk_pixbuf-2.0-0.dll", "libgdk-win32-2.0-0.dll",
+                "libglib-2.0-0.dll", "libgmodule-2.0-0.dll",
+                "libgobject-2.0-0.dll", "libgthread-2.0-0.dll",
+                "libgtk-win32-2.0-0.dll", "libpango-1.0-0.dll",
+                "libpangowin32-1.0-0.dll", "libxml2-2.dll",
+                # windows dlls
+                "DNSAPI.DLL","MSIMG32.DLL", "Secur32.dll", "SHFOLDER.dll",
+                "CRYPT32.dll", "MPR.dll"
+                ]
         }
     }
 
@@ -155,9 +147,10 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             if not os.path.exists(dist_gtk):
                 ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
                                                 'man', 'demo', 'aclocal',
-                                                'doc', 'include', 'emacs', 
-                                                'gettext', 'glade3', 'gtksourceview-2.0',
-                                                'info', 'intltool')
+                                                'doc', 'include', 'emacs',
+                                                'gettext', 'glade3',
+                                                'gtksourceview-2.0', 'info',
+                                                'intltool')
                 shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
             # register the pixbuf loaders
@@ -171,13 +164,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             print cmd2
             os.system(cmd1)
             os.system(cmd2)
-            
 
             # copy the the MS-Windows gtkrc to make it the default theme
             rc = '%s\\share\\themes\\MS-Windows\\gtk-2.0\\gtkrc' % dist_gtk
             dest = '%s\\etc\\gtk-2.0' % dist_gtk
             file_util.copy_file(rc, dest)
-            
+
             # copy the gnome index.theme - stops stderr messages
             gtheme = '%s\\share\\icons\\hicolor\\index.theme' % gtk_root
             dest = '%s\\share\\icons\\hicolor' % self.dist_dir
