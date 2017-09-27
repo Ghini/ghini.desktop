@@ -8,6 +8,10 @@
     content: " ▼";
 }
 
+p.toggle .admonition-title:hover {
+    color: "#f48c00";
+}
+
 .toggle .admonition-title.open:after {
     content: " ▲";
 }
