@@ -57,11 +57,12 @@ plugins = setuptools.find_packages(
     where='bauble/plugins',
     exclude=['test', 'bauble.*.test', 'ghini.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
-all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test', 'ghini.*.test'])
+all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test',
+    'ghini.*.test'])
 
 package_data = {'': ['README.rst', 'CHANGES', 'LICENSE'],
-                'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
-                           'images/*.svg', 'images/*.gif', 'images/*.ico', 'images/*.bmp']}
+        'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
+            'images/*.svg', 'images/*.gif', 'images/*.ico', 'images/*.bmp']}
 
 # ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
@@ -83,10 +84,9 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     # for a list of all packages in the sqlalchemy namespace
     sqlalchemy_includes = ['sqlalchemy.dialects.sqlite',
                            'sqlalchemy.dialects.postgresql']
-    py2exe_includes = ['sqlite3', 'lxml', 'gdata',
-                       'fibra', 'psycopg2', 'encodings', 'mako',
-                       'mako.cache', 'pygments.styles.default', 'pyparsing'] + \
-        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
+    py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2',
+            'encodings', 'mako', 'mako.cache', 'pygments.styles.default',
+            'pyparsing'] + gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
         #'console': ["scripts/ghini"],
         'windows': [{'script': 'scripts/ghini',
@@ -423,7 +423,8 @@ except ImportError:
 
 scripts = ["scripts/ghini"]
 if sys.platform == 'win32':
-    scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs", "scripts/ghini-update.bat"]
+    scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
+            "scripts/ghini-update.bat"]
 
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
