@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2012-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Ross Demuth
 #
 # This file is part of ghini.desktop.
 #
@@ -42,7 +43,7 @@ import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location
+from bauble.plugins.garden import Accession, Plant, Location, Source, Contact
 from bauble.plugins.tag import Tag
 
 # TODO: this module should depend on PlantPlugin, GardenPlugin,
@@ -108,6 +109,9 @@ def get_plant_query(obj, session):
         return q.join('accession').filter_by(id=obj.id)
     elif isinstance(obj, Location):
         return q.filter_by(location_id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('accession', 'source', 'source_detail').\
+                filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         plants = get_plants_pertinent_to(obj.objects, session)
         return q.filter(Plant.id.in_([p.id for p in plants]))
@@ -145,6 +149,8 @@ def get_accession_query(obj, session):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, Location):
         return q.join('plants').filter_by(location_id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('source', 'source_detail').filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         acc = get_accessions_pertinent_to(obj.objects, session)
         return q.filter(Accession.id.in_([a.id for a in acc]))
@@ -185,6 +191,9 @@ def get_species_query(obj, session):
     elif isinstance(obj, Location):
         return q.join('accessions', 'plants', 'location').\
             filter_by(id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('accessions', 'source', 'source_detail').\
+                filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         acc = get_species_pertinent_to(obj.objects, session)
         return q.filter(Species.id.in_([a.id for a in acc]))
@@ -215,6 +224,24 @@ def get_location_query(obj, session):
         return q.join('plants').filter_by(id=obj.id)
     elif isinstance(obj, Accession):
         return q.join('plants', 'accession').filter_by(id=obj.id)
+    elif isinstance(obj, Family):
+        return q.join('plants', 'accession', 'species', 'genus', 'family').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, Genus):
+        return q.join('plants', 'accession', 'species', 'genus').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, Species):
+        return q.join('plants', 'accession', 'species').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, VernacularName):
+        return q.join('plants', 'accession', 'species', 'vernacular_names').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('plants', 'accession', 'source', 'source_detail').\
+                filter_by(id=obj.id)
+    elif isinstance(obj, Tag):
+        locs = get_locations_pertinent_to(obj.objects, session)
+        return q.filter(Location.id.in_([l.id for l in locs]))
     else:
         raise BaubleError(_("Can't get Location from a %s") %
                           type(obj).__name__)
@@ -225,7 +252,7 @@ def get_locations_pertinent_to(objs, session=None):
     :param objs: an instance of a mapped object
     :param session: the session to use for the queries
 
-    Return all the species found in objs.
+    Return all the locations found in objs.
     """
     return sorted(
         _get_pertinent_objects(Location, get_location_query, objs, session),
@@ -394,7 +421,7 @@ class ReportToolDialogPresenter(object):
     def on_new_button_clicked(self, *args):
         # TODO: don't set the OK button as sensitive in the name dialog
         # if the name already exists
-        # TOD0: make "Enter" in the entry fire the default response
+        # TODO: make "Enter" in the entry fire the default response
         d = gtk.Dialog(_("Formatter Name"), self.view.dialog,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
