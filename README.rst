@@ -1,7 +1,7 @@
 Ghini
 ======
 
-.. |travis| image:: https://travis-ci.org/Ghini/ghini.desktop.svg
+.. |travis| image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0-dev
 .. |pypi| image:: https://img.shields.io/pypi/v/bauble.svg
 .. |coveralls| image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github
 
