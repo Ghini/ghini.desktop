@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2016, 2017 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -139,7 +140,18 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(str(self.species.genus))
 
     def get_FirstEpithet(self):
-        return utils.xml_safe(str(self.species.sp))
+        # return the species name or if there is none and it's not a cultivar,
+        # return the unranked infraspecific epithet. This is an attempt at
+        # allowing botanist tags etc. to be passed to an xsl report when there
+        # is nothing in the species field.
+        sp = self.species.sp
+        rank = self.species.infraspecific_rank
+        cv = self.species.cultivar_epithet
+        infrasp = self.species.infrasp1
+        if all(parts in (None, "") for parts in (sp, rank, cv)):
+            return utils.xml_safe(str(infrasp))
+        else:
+            return utils.xml_safe(str(sp))
 
     def get_AuthorTeam(self):
         author = self.species.sp_author
@@ -156,7 +168,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
 
     def get_InfraspecificEpithet(self):
         return utils.xml_safe(str(self.species.infraspecific_epithet))
-    
+
     def get_CultivarName(self):
         return utils.xml_safe(str(self.species.cultivar_epithet))
 
