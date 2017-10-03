@@ -62,29 +62,30 @@ def get_species(session, keys):
     else:
         keys['infrasp1'] = u''
 
-    if keys['sp_epit'] == u'sp':
+    if keys['sp_epit'] == u'':
         try:
             species = session.query(Species).filter(
                 Species.genus == genus).filter(
-                Species.infrasp1 == u'sp').one()
+                Species.infrasp1 == u'sp').first()
             if species != zzz:  # no hace falta mencionarlo
-                sys.stdout.write('+')  # encontramos
+                sys.stdout.write('+')  # encontramos fictive species
         except:
             species = Species(genus=genus, sp=u'', infrasp1=u'sp')
             session.add(species)
             session.flush()
-            sys.stdout.write('*')  # tuvimos que crear
+            sys.stdout.write('*')  # tuvimos que crear fictive species
     else:
         try:
             species = session.query(Species).filter(
                 Species.genus == genus).filter(
+                Species.infrasp1 == u'').filter(
                 Species.epithet == keys['sp_epit']).one()
-            sys.stdout.write('+')  # encontramos
+            sys.stdout.write('+')  # encontramos Species
         except:
             species = Species(genus=genus, sp=u'', epithet=keys['sp_epit'])
             session.add(species)
             session.flush()
-            sys.stdout.write('*')  # tuvimos que crear
+            sys.stdout.write('*')  # tuvimos que crear Species
     return species
 
 
