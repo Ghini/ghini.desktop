@@ -53,6 +53,59 @@ from bauble.plugins.garden import Accession
 from bauble.plugins.plants import Species
 from bauble.plugins.plants import Genus
 
+
+def get_genus(session, keys):
+    try:
+        keys['gn_epit'], keys['sp_epit'] = keys['species'].split(' ')
+    except:
+        keys['gn_epit'], keys['sp_epit'] = (u'Zzz', u'sp')
+
+    genus = session.query(Genus).filter(Genus.epithet == keys['gn_epit']).one()
+    return genus
+
+
+def get_species(session, keys):
+    if keys['sp_epit'] == u'sp':
+        keys['infrasp1'], keys['sp_epit'] = u'sp', u''
+    else:
+        keys['infrasp1'] = u''
+
+    if keys['sp_epit'] == u'sp':
+        try:
+            species = session.query(Species).filter(
+                Species.genus == genus).filter(
+                Species.infrasp1 == u'sp').one()
+            if species != zzz:  # no hace falta mencionarlo
+                sys.stdout.write('+')  # encontramos
+        except:
+            species = Species(genus=genus, sp=u'', infrasp1=u'sp')
+            session.add(species)
+            session.flush()
+            sys.stdout.write('*')  # tuvimos que crear
+    else:
+        try:
+            species = session.query(Species).filter(
+                Species.genus == genus).filter(
+                Species.epithet == keys['sp_epit']).one()
+            sys.stdout.write('+')  # encontramos
+        except:
+            species = Species(genus=genus, sp=u'', epithet=keys['sp_epit'])
+            session.add(species)
+            session.flush()
+            sys.stdout.write('*')  # tuvimos que crear
+    return species
+
+
+def get_location(session, keys):
+    try:
+        loc = session.query(Location).filter(bauble.utils.ilike(Location.code, unicode(keys['location']))).one()
+    except:
+        loc = Location(code=keys['location'].upper())
+        session.add(loc)
+        session.flush()
+    return loc
+
+
 # allow user invoke this script from any location
 
 path = os.path.dirname(os.path.realpath(__file__))
@@ -117,6 +170,7 @@ for item in sorted(items, key=lambda x: x['acc_no_scan'] or x['acc_no_typed']):
             locations_needed[plant['location']] = {'object': 'location', 'code': plant['location']}
 
     if item['species']:
+        # TODO: retrieve species from session, or add one to it.
         item['species'] = item['species'].replace('.', '')
 
         genus_epithet, species_epithet = (unicode(item['species']).split(u' ') + [u''])[:2]
