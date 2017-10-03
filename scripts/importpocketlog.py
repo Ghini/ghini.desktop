@@ -142,20 +142,20 @@ for line in fileinput.input():
         plant = q.one()
         if plant.location != loc:
             plant.location = loc
-            sys.stdout.write(':')
+            sys.stdout.write(':')  # we altered a plant location
         else:
-            sys.stdout.write('.')
+            sys.stdout.write('.')  # we confirmed a plant location
     except Exception, e:
         try:
             accession = session.query(Accession).filter(Accession.code == obj['acc_code']).one()
         except Exception, e:
             accession = Accession(species=species, code=obj['acc_code'])
             session.add(accession)
-            sys.stdout.write('a')
+            sys.stdout.write('a')  # we added a new accession
         plant = Plant(accession=accession, location=loc, quantity=1, code=u'1')
         session.add(plant)
         session.flush()
-        sys.stdout.write('p')
+        sys.stdout.write('p')  # we added a new plant
     # operación perro - mark the plant as seen today
     q = session.query(PlantNote)
     q = q.filter(PlantNote.plant == plant)
