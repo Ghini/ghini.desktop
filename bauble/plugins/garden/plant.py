@@ -808,7 +808,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             box.show()
             self.view.add_box(box)
 
-    def dirty(self):
+    def is_dirty(self):
         return (self.pictures_presenter.is_dirty() or
                 self.notes_presenter.is_dirty() or
                 self.prop_presenter.is_dirty() or
