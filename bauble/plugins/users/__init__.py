@@ -414,6 +414,7 @@ def set_privilege(role, privilege):
 
         # grant privileges on the tables and sequences
         for table in bauble.db.metadata.sorted_tables:
+            logger.debug('granting privileges on table %s' % table)
             tbl_privs = filter(lambda x: x.lower() in _table_privs, privs)
             for priv in tbl_privs:
                 stmt = 'grant %s on %s to %s' % (priv, table.name, role)
@@ -426,6 +427,7 @@ def set_privilege(role, privilege):
                                    privs)
                 for priv in seq_privs:
                     if hasattr(col, 'sequence'):
+                        logger.debug('column %s of table %s has associated sequence %s' % (col, table, col.sequance.name))
                         stmt = 'grant %s on sequence %s to %s' % \
                             (priv, col.sequence.name, role)
                         logger.debug(stmt)
