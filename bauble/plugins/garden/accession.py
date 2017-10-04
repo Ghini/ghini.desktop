@@ -1311,6 +1311,11 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self._sid = self.presenter().view.connect(
                 button, 'clicked', self.on_remove_button_clicked)
 
+            # copy to general tab
+            button = self.widgets.ver_copy_to_taxon_general
+            self._sid = self.presenter().view.connect(
+                button, 'clicked', self.on_copy_to_taxon_general_clicked)
+
             self.update_label()
 
         def on_date_entry_changed(self, entry, data=None):
@@ -1325,6 +1330,20 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             else:
                 self.presenter().remove_problem(PROBLEM, entry)
             self.set_model_attr('date', value)
+
+        def on_copy_to_taxon_general_clicked(self, button):
+            if self.model.species is None:
+                return
+            parent = self.get_parent()
+            msg = _("Are you sure you want to copy this verification to the general taxon?")
+            if not utils.yes_no_dialog(msg):
+                return
+            # copy verification species to general tab
+            if self.model.accession:
+                self.presenter().parent_ref().view.widgets.acc_species_entry.\
+                    set_text(utils.utf8(self.model.species))
+                self.presenter()._dirty = True
+                self.presenter().parent_ref().refresh_sensitivity()
 
         def on_remove_button_clicked(self, button):
             parent = self.get_parent()
