@@ -877,7 +877,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                       self.model.code is not None,
                       self.model.location is not None,
                       self.model.quantity is not None,
-                      self.dirty(),
+                      self.is_dirty(),
                       len(self.problems) == 0))
         logger.debug(self.problems)
 
@@ -893,7 +893,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                      self.model.code is not None and
                      self.model.location is not None and
                      self.model.quantity is not None) \
-            and self.dirty() and len(self.problems) == 0
+            and self.is_dirty() and len(self.problems) == 0
         self.view.widgets.pad_ok_button.set_sensitive(sensitive)
         self.view.widgets.pad_next_button.set_sensitive(sensitive)
         self.view.widgets.split_planting_button.props.visible = False
@@ -1109,7 +1109,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                if self.presenter.dirty():
+                if self.presenter.is_dirty():
                     # commit_changes() will append the commited plants
                     # to self._committed
                     self.commit_changes()
@@ -1129,8 +1129,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
-        elif (self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg)) \
-                or not self.presenter.dirty():
+        elif (self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg)) \
+                or not self.presenter.is_dirty():
             self.session.rollback()
             return True
         else:
