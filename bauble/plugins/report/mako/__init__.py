@@ -42,6 +42,7 @@ import bauble.utils.desktop as desktop
 
 
 font = {
+    '\u200b': 0,
     u'!': 20, u'A': 36, u'a': 31, u'á': 31, u'Á': 38,
     u'"': 23, u'B': 34, u'b': 32, u'à': 31, u'À': 38,
     u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
