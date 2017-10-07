@@ -1,7 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from optparse import OptionParser
+usage = 'usage: %prog [options]'
+parser = OptionParser(usage)
+parser.add_option('-f', '--from', dest='translation_from', default='en',
+                  help='the language to translate from')
+parser.add_option('-t', '--to', dest='translation_to', default='es',
+                  help='the language to translate to')
 
-translation_to = 'es'
+options, args = parser.parse_args()
+
+translation_from = options.translation_from
+translation_to = options.translation_to
 
 import sys  
 reload(sys)  
@@ -13,7 +23,7 @@ import requests
 
 def translate(s):
     try:
-        r = requests.get('http://api.mymemory.translated.net/get?q=%s&langpair=en|%s' % (s, translation_to), timeout=6)
+        r = requests.get('http://api.mymemory.translated.net/get?q=%s&langpair=%s|%s' % (s, translation_from, translation_to), timeout=6)
     except requests.exceptions.ReadTimeout, e:
         print >> sys.stderr, type(e), e
         return ""
@@ -33,7 +43,7 @@ def translate(s):
 about_to_stop = False
 
 import fileinput, re
-for line in fileinput.input():
+for line in fileinput.input(args):
     text = unicode(line.strip())
     if not text:
         if about_to_stop == True:
