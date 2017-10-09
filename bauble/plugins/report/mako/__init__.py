@@ -226,27 +226,44 @@ class Code39:
 class add_qr_functor:
     import pyqrcode
     def __init__(self):
-        import io
+        import StringIO
         import re
-        self.buffer = io.BytesIO()
-        self.pattern = re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>')
+        self.buffer = StringIO.StringIO()
+        self.pattern = {
+            'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
+            'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
+        }
 
-    def __call__(self, x, y, text, scale=1, side=None):
+    def __call__(self, x, y, text, scale=1, side=None, format='svg'):
         qr = self.pyqrcode.create(text)
         self.buffer.truncate(0)
         self.buffer.seek(0)
-        qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
-        match = self.pattern.match(self.buffer.getvalue())
+        if format == 'svg':
+            qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
+        else:
+            qr.eps(self.buffer)
+        match = self.pattern[format].match(self.buffer.getvalue())
         result_list = [match.group(2)]
         transform = []
         if x != 0 or y != 0:
-            transform.append("translate(%s,%s)" % (x, y))
+            if format == 'ps':
+                transform.append("%s %s translate" % (x, y))
+            else:
+                transform.append("translate(%s,%s)" % (x, y))
+        if format == 'ps':
+            transform.append("1 -1 scale")
         if side is not None:
             orig_side = float(match.group(1))
-            transform.append("scale(%s)" % (side / orig_side))
+            if format == 'ps':
+                transform.append("%s %s scale" % (side / orig_side, side / orig_side))
+            else:
+                transform.append("scale(%s)" % (side / orig_side))
         if transform:
-            result_list.insert(0, '<g transform="%s">' % (''.join(transform)))
-            result_list.append('</g>')
+            if format == 'ps':
+                result_list = transform + result_list
+            else:
+                result_list.insert(0, '<g transform="%s">' % (''.join(transform)))
+                result_list.append('</g>')
         return '\n'.join(result_list)
 
 add_qr = add_qr_functor()
