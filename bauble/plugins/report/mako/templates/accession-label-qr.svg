@@ -1,7 +1,6 @@
 ## -*- coding: utf-8 -*-
 ##
-## Copyright 2008-2010 Brett Adams
-## Copyright 2012-2016 Mario Frasca <mario@anche.no>.
+## Copyright 2017 Mario Frasca <mario@anche.no>.
 ##
 ## This file is part of ghini.desktop.
 ##
@@ -42,12 +41,13 @@ if options['accession_format']:
     if start != format:
         digits = len(format) - len(start)
         format = start + '%%0%dd' % digits
-    enumeration = enumerate([format % i for i in range(int(options['accession_first']), int(options['accession_last']) + 1)])
+    enumeration = enumerate([format % i for i in range(int(options['accession_first']), int(options['accession_last']) + 1), None])
 else:
-    enumeration = enumerate([p.accession.code + (p.code != '1' and '.' + p.code or '') for p in get_plants_pertinent_to(values)])
+    enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(get_plants_pertinent_to(values))]
 
 %>\
   <defs id="defs3470">
+    <path id="s2-u200b" d="" style="fill:none;stroke:${options['colour']}" />
     <path id="s2-u0020" d="" style="fill:none;stroke:${options['colour']}" />
     <path id="s2-u0021" d="m -7,-2 m 10.5844,-19.405662 0,14 1,0 m -1,-14 1,0 0,14 m -1,4 -1,1 0,1 1,1 1,0 1,-1 0,-1 -1,-1 -1,0 m 0,1 0,1 1,0 0,-1 -1,0" style="fill:none;stroke:${options['colour']}" />
     <path id="s2-u0022" d="m -7,-2 m 10.5844,-19.405662 -1,1 0,6 m 1,-6 -1,6 m 1,-7 1,1 -2,6 m 10,-7 -1,1 0,6 m 1,-6 -1,6 m 1,-7 1,1 -2,6" style="fill:none;stroke:${options['colour']}" />
@@ -143,6 +143,7 @@ else:
     <path id="s2-u007c" d="m -7,-2 m 9.5844,-23.405662 0,32" style="fill:none;stroke:${options['colour']}" />
     <path id="s2-u007d" d="m -7,-2 m 9.5844,-23.405662 7,16 -7,16" style="fill:none;stroke:${options['colour']}" />
     <path id="s2-u007e" d="m -7,-2 m 8.5844,-4.405662 0,-2 1,-3 2,-1 2,0 2,1 4,3 2,1 2,0 2,-1 1,-2 m -18,2 1,-2 2,-1 2,0 2,1 4,3 2,1 2,0 2,-1 1,-3 0,-2" style="fill:none;stroke:${options['colour']}" />
+    <path id="s2-u200b" d="" style="fill:none;stroke:${options['colour']}" />
     <path id="s1-u0020" d="" style="fill:none;stroke:${options['colour']}" />
     <path id="s1-u0021" d="m 5.6909547,-21.000616 0,14 m 0,5 -1,1 1,1 1,-1 -1,-1" style="fill:none;stroke:${options['colour']}" />
     <path id="s1-u0022" d="m 4.6909547,-21.000616 0,7 m 8.0000003,-7 0,7" style="fill:none;stroke:${options['colour']}" />
@@ -308,7 +309,7 @@ else:
 <pageSet>
 <page>
 % endif
-% for p, full_code in enumeration:
+% for p, full_code, accession in enumeration:
   % if xpos == 4:
     <% xpos = 0 %>\
     <% ypos += 1 %>\
@@ -325,8 +326,21 @@ else:
 <% text, x, y = add_text(33, 7.5, full_code, 0.20, align=1, strokes=2) %>\
     ${text}
 % if options['extra_text']:
-<% text, _, y = add_text(33, 13, options['extra_text'], 0.12, align=1) %>\
-    ${text}
+<%
+et = options['extra_text']
+if accession and et.startswith('{') and et.endswith('}'):
+    ets = accession
+    for step in et[1:-1].split('.'):
+        ets = getattr(ets, step)
+    et = str(ets)
+x_base = 1
+text, x, y = add_text(x_base, 12.5, et, 0.12, align=0, italic=True)
+%>\
+ % if (x-x_base) > 32:
+   <g transform="translate(${x_base},0)scale(${32.0/(x-x_base)},1)translate(-${x_base},0)">${text}</g>
+ % else:
+   <g transform="translate(${33 - x},0)">${text}</g>
+ % endif
 % endif
 <% text = add_qr(35, 1, full_code, side=13) %>\
     ${text}

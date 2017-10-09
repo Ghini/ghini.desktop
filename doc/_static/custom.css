@@ -1,10 +1,15 @@
 .toggle .admonition-title {
     display: block;
     clear: both;
+    cursor: pointer;
 }
 
 .toggle .admonition-title:after {
     content: " ▼";
+}
+
+.first.admonition-title:hover {
+    color: #ffff00;
 }
 
 .toggle .admonition-title.open:after {

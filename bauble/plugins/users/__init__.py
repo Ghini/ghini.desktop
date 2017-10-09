@@ -362,6 +362,18 @@ def has_privileges(role, privilege):
     return True
 
 
+def has_implicit_sequence(column):
+    # Tell me if there's an implicit sequence associated to the column, then
+    # I assume that the sequence name is <table>_<column>_seq.  Seen at
+    # https://www.programcreek.com/python/example/58771/sqlalchemy.schema.Sequence,
+    # allegedly from project tg2jython, under directory
+    # sqlalchemy60/lib/sqlalchemy/dialects/mssql, in source file base.py,
+    # simplified based on assuptions valid in ghini
+    return (column.primary_key and
+            column.autoincrement and
+            isinstance(column.type, Integer) and
+            not column.foreign_keys)
+
 
 def set_privilege(role, privilege):
     """Set the role's privileges.
@@ -414,6 +426,7 @@ def set_privilege(role, privilege):
 
         # grant privileges on the tables and sequences
         for table in bauble.db.metadata.sorted_tables:
+            logger.debug('granting privileges on table %s' % table)
             tbl_privs = filter(lambda x: x.lower() in _table_privs, privs)
             for priv in tbl_privs:
                 stmt = 'grant %s on %s to %s' % (priv, table.name, role)
@@ -425,9 +438,11 @@ def set_privilege(role, privilege):
                 seq_privs = filter(lambda x: x.lower() in __sequence_privs,
                                    privs)
                 for priv in seq_privs:
-                    if hasattr(col, 'sequence'):
+                    if has_implicit_sequence(col):
+                        sequence_name = "%s_%s_seq" % (table.name, col.name)
+                        logger.debug('column %s of table %s has associated sequence %s' % (col, table, sequence_name))
                         stmt = 'grant %s on sequence %s to %s' % \
-                            (priv, col.sequence.name, role)
+                            (priv, sequence_name, role)
                         logger.debug(stmt)
                         if privilege == 'admin':
                             stmt += ' with grant option'

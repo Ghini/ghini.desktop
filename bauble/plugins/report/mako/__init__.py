@@ -42,6 +42,7 @@ import bauble.utils.desktop as desktop
 
 
 font = {
+    '\u200b': 0,
     u'!': 20, u'A': 36, u'a': 31, u'á': 31, u'Á': 38,
     u'"': 23, u'B': 34, u'b': 32, u'à': 31, u'À': 38,
     u'#': 40, u'C': 35, u'c': 28, u'â': 31, u'Â': 38,
@@ -145,10 +146,6 @@ class Code39:
     # and end with a single special symbol (we call it '!') which isn't
     # included in the 45 encodable characters.
 
-    # we only need the 13 chars ' !.0123456789', and they all contain 9
-    # black units and 6 white units, plus the final separator. this makes
-    # things a lot easier.
-
     MAP = {'!': 'b   b bbb bbb b',
            '7': 'b b   b bbb bbb',
            '-': 'b   b b bbb bbb',
@@ -225,27 +222,44 @@ class Code39:
 class add_qr_functor:
     import pyqrcode
     def __init__(self):
-        import io
+        import StringIO
         import re
-        self.buffer = io.BytesIO()
-        self.pattern = re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>')
+        self.buffer = StringIO.StringIO()
+        self.pattern = {
+            'svg': re.compile('<svg.*height="([0-9]*)".*>(<path.*>)</svg>'),
+            'ps': re.compile('.* ([0-9]*).*(^/M.*)%%EOF.*', re.MULTILINE | re.DOTALL),
+        }
 
-    def __call__(self, x, y, text, scale=1, side=None):
+    def __call__(self, x, y, text, scale=1, side=None, format='svg'):
         qr = self.pyqrcode.create(text)
         self.buffer.truncate(0)
         self.buffer.seek(0)
-        qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
-        match = self.pattern.match(self.buffer.getvalue())
+        if format == 'svg':
+            qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
+        else:
+            qr.eps(self.buffer, quiet_zone=0)
+        match = self.pattern[format].match(self.buffer.getvalue())
         result_list = [match.group(2)]
         transform = []
         if x != 0 or y != 0:
-            transform.append("translate(%s,%s)" % (x, y))
+            if format == 'ps':
+                transform.append("%s %s translate" % (x, y))
+            else:
+                transform.append("translate(%s,%s)" % (x, y))
         if side is not None:
             orig_side = float(match.group(1))
-            transform.append("scale(%s)" % (side / orig_side))
+            if format == 'ps':
+                transform.append("%s %s scale" % (side / orig_side, side / orig_side))
+            else:
+                transform.append("scale(%s)" % (side / orig_side))
         if transform:
-            result_list.insert(0, '<g transform="%s">' % (''.join(transform)))
-            result_list.append('</g>')
+            if format == 'ps':
+                result_list = transform + result_list
+            else:
+                result_list.insert(0, '<g transform="%s">' % (''.join(transform)))
+                result_list.append('</g>')
+        if format == 'ps':
+            result_list = ['gsave'] + result_list + ["grestore"]
         return '\n'.join(result_list)
 
 add_qr = add_qr_functor()
