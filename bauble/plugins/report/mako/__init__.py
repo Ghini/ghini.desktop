@@ -146,10 +146,6 @@ class Code39:
     # and end with a single special symbol (we call it '!') which isn't
     # included in the 45 encodable characters.
 
-    # we only need the 13 chars ' !.0123456789', and they all contain 9
-    # black units and 6 white units, plus the final separator. this makes
-    # things a lot easier.
-
     MAP = {'!': 'b   b bbb bbb b',
            '7': 'b b   b bbb bbb',
            '-': 'b   b b bbb bbb',
@@ -241,7 +237,7 @@ class add_qr_functor:
         if format == 'svg':
             qr.svg(self.buffer, xmldecl=False, quiet_zone=0, scale=scale)
         else:
-            qr.eps(self.buffer)
+            qr.eps(self.buffer, quiet_zone=0)
         match = self.pattern[format].match(self.buffer.getvalue())
         result_list = [match.group(2)]
         transform = []
@@ -250,8 +246,6 @@ class add_qr_functor:
                 transform.append("%s %s translate" % (x, y))
             else:
                 transform.append("translate(%s,%s)" % (x, y))
-        if format == 'ps':
-            transform.append("1 -1 scale")
         if side is not None:
             orig_side = float(match.group(1))
             if format == 'ps':
@@ -264,6 +258,8 @@ class add_qr_functor:
             else:
                 result_list.insert(0, '<g transform="%s">' % (''.join(transform)))
                 result_list.append('</g>')
+        if format == 'ps':
+            result_list = ['gsave'] + result_list + ["grestore"]
         return '\n'.join(result_list)
 
 add_qr = add_qr_functor()

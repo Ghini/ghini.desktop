@@ -25582,24 +25582,34 @@ if v.code != '1':
   plant_code = str(v)
 else:
   plant_code = str(v.accession)
+genus_epithet = v.accession.species.genus.epithet
+if genus_epithet.startswith('Zzz'):
+  genus_epithet = ''
+elif genus_epithet.startswith('Zzx-'):
+  genus_epithet = genus_epithet[4:]
+species_epithet = v.accession.species.epithet
+if species_epithet == 'sp':
+  species_epithet = ''
 %>
 gsave
 ${xpos * 320} ${ypos * 100} translate
 0 0 0 setrgbcolor
-newpath 8 8 8 180 270 arc 1 setlinewidth stroke
-newpath 312 8 8 270 0 arc 1 setlinewidth stroke
-newpath 312 92 8 0 90 arc 1 setlinewidth stroke
-newpath 8 92 8 90 180 arc 1 setlinewidth stroke
-newpath 8 0 moveto 304 0 rlineto 1 setlinewidth stroke
-newpath 8 100 moveto 304 0 rlineto 1 setlinewidth stroke
-newpath 0 8 moveto 0 84 rlineto 1 setlinewidth stroke
-newpath 320 8 moveto 0 84 rlineto 1 setlinewidth stroke
+0.4 setlinewidth 
+newpath 0 0 moveto 8 0 rlineto stroke
+newpath 0 0 moveto 0 8 rlineto stroke
+newpath 320 100 moveto -8 0 rlineto stroke
+newpath 320 100 moveto 0 -8 rlineto stroke
+newpath 0 100 moveto 8 0 rlineto stroke
+newpath 0 100 moveto 0 -8 rlineto stroke
+newpath 320 0 moveto -8 0 rlineto stroke
+newpath 320 0 moveto 0 8 rlineto stroke
+1 setlinewidth
 ${add_qr(230, 10, plant_code, side=80.0, format='ps')}
 (VerdanaFID313HGSet2) cvn findfont 40 40 matrix scale makefont setfont
-${add_text(220, 53, plant_code, 'serif', 2.6, align=1)}
+${add_text(220, 53, plant_code, 'sans', 2.6, align=1)}
 (Verdana-ItalicFID315HGSet2) cvn findfont 20 20 matrix scale makefont setfont
-${add_text(8, 28, v.accession.species.genus.genus, 'sans', 1.3)}
-${add_text(8, 8, v.accession.species.sp, 'sans', 1.3)}
+${add_text(8, 28, genus_epithet, 'sans', 1.3)}
+${add_text(8, 8, species_epithet, 'sans', 1.3)}
 grestore
 grestore
 <% xpos += 1 %>
@@ -25610,7 +25620,7 @@ showpage
 </%text>
 <%text filter="h">
 %%Trailer
-%%BoundingBox: 0 0 340 198
+%%BoundingBox: 0 0 1280 1800
 %%Orientation: Landscape
 %%Pages: </%text>${page}<%text>
 %%EOF
