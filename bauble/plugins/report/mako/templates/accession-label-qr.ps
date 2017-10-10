@@ -23,7 +23,7 @@
 ## OPTION accession_last: (type: integer, default: '', tooltip: 'end of range.')
 ##
 <%text filter="h">%!PS-Adobe-3.0
-%%BoundingBox: (atend)
+%%BoundingBox: 0 0 595 842
 %%Creator: (Ghini)
 %%For: (ghini)
 %%CreationDate: (2016-01-15 21:34:45 )
@@ -31,7 +31,7 @@
 %%LanguageLevel: 2
 %%DocumentData: Clean7Bit
 %%Pages: (atend)
-%%Orientation: (atend)
+%%Orientation: Portrait
 %%PageOrder: Ascend
 %%EndComments
 %%BeginProlog
@@ -343,7 +343,6 @@ def 7 dict dup
 %%EndResource
 %%EndProlog
 %%BeginSetup
-%
 %%BeginResource: font LiberationSerifFID149HGSet2
 %!PS-AdobeFont-1.0-1.4587
 % Creator: SunTypeTools-TT 1.0 gelf
@@ -25540,6 +25539,7 @@ currentdict end
 %%+ font LiberationSerif-BoldFID146HGSet2
 %%+ font LiberationSerif-ItalicFID148HGSet2
 %%EndSetup
+/SCALE { 0.45 0.45 scale 21 35 translate } bind def
 </%text>
 <%
 from bauble.plugins.report import get_plants_pertinent_to
@@ -25549,13 +25549,10 @@ xpos = 0
 ypos = 17
 %>
 <%text>%%Page: </%text>${page} ${page}
-<%text>%%PageOrientation: Portrait
-%%PageBoundingBox: 18 18 1298 1818
-%%BeginPageSetup
-%
+<%text>%%BeginPageSetup
 %%EndPageSetup
 grestore
-</%text>
+</%text>\
 % for p, v in enumerate(get_plants_pertinent_to(values)):
   % if xpos == 4:
     <% xpos = 0 %>\
@@ -25565,17 +25562,13 @@ grestore
     <% page += 1 %>\
     <% xpos = 0 %>\
     <% ypos = 17 %>\
-<%text>
-showpage
+<%text>showpage
 %%PageTrailer
 %%Page: </%text>${page} ${page}<%text>
-%%PageOrientation: Portrait
-%%PageBoundingBox: 18 18 1298 1818
 %%BeginPageSetup
-%
 %%EndPageSetup
 grestore
-</%text>
+</%text>\
   % endif
 <%
 if v.code != '1':
@@ -25592,6 +25585,7 @@ if species_epithet == 'sp':
   species_epithet = ''
 %>
 gsave
+SCALE
 ${xpos * 320} ${ypos * 100} translate
 0 0 0 setrgbcolor
 0.4 setlinewidth 
@@ -25620,8 +25614,6 @@ showpage
 </%text>
 <%text filter="h">
 %%Trailer
-%%BoundingBox: 0 0 1280 1800
-%%Orientation: Landscape
 %%Pages: </%text>${page}<%text>
 %%EOF
-</%text>
+</%text>\
