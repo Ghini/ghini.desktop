@@ -227,8 +227,6 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
         from bauble import main_is_frozen
         # Don't check for new versions if we are in a py2exe environment
-        # TODO: when we there is a place for them check for new windows 
-        # installers (or patches?)
         if main_is_frozen():
             pass
         else:

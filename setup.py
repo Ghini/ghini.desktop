@@ -88,7 +88,6 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             'encodings', 'mako', 'mako.cache', 'pygments.styles.default',
             'pyparsing'] + gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
-        #'console': ["scripts/ghini"],
         'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
     py2exe_options = {
