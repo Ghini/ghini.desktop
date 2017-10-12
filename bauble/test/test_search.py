@@ -342,6 +342,14 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search('genus=g', self.session)
         self.assertEquals(len(results), 0)
 
+    def test_search_by_expression_genus_eq_everything(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        # search for genus by domain
+        results = mapper_search.search('genus=*', self.session)
+        self.assertEquals(len(results), 1)
+
     def test_search_by_expression_genus_like_nomatch(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
@@ -1145,6 +1153,14 @@ class FilterThenMatchTests(BaubleTestCase):
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([self.genus4]))
 
+    def test_can_find_non_empty_set(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where notes!=Empty"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus1, self.genus2, self.genus3]))
+
     def test_can_match_list_of_values(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
@@ -1156,6 +1172,14 @@ class FilterThenMatchTests(BaubleTestCase):
         s = "genus where notes[category='test'].note in 'olim', 'erat', 'verbum'"
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([self.genus3]))
+
+    def test_parenthesised_search(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where (notes!=Empty) and (notes=Empty)"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set())
 
 
 class ParseTypedValue(BaubleTestCase):
