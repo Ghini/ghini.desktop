@@ -340,7 +340,8 @@ class ABCDExporter(object):
             if d.run() == gtk.RESPONSE_ACCEPT:
                 filename = d.get_filename()
             d.destroy()
-            return filename
+            if not filename:
+                return
 
         if plants:
             nplants = len(plants)
