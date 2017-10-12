@@ -413,16 +413,16 @@ class SearchNotAction(UnaryLogical):
 
 class ParenthesisedQuery(object):
     def __init__(self, t):
-        self.query = t[1]
+        self.content = t[1]
 
     def __repr__(self):
-        return "(%s)" % self.query.__repr__()
+        return "(%s)" % self.content.__repr__()
 
     def evaluate(self, env):
-        return self.query.evaluate(env)
+        return self.content.evaluate(env)
 
     def needs_join(self, env):
-        return self.query.needs_join(env)
+        return self.content.needs_join(env)
 
 
 class QueryAction(object):
