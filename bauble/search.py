@@ -238,13 +238,9 @@ class FilteredIdentifierAction(object):
     def evaluate(self, env):
         """return pair (query, attribute)"""
         query = env.session.query(env.domain)
-        if len(self.steps) == 0:
-            # identifier is an attribute of the table being queried
-            cls = env.domain
-        else:
-            # identifier is an attribute of a joined table
-            query = query.join(*self.steps, aliased=True)
-            cls = query._joinpoint['_joinpoint_entity']
+        # identifier is an attribute of a joined table
+        query = query.join(*self.steps, aliased=True)
+        cls = query._joinpoint['_joinpoint_entity']
         attr = getattr(cls, self.filter_attr)
         clause = lambda x: self.operation(attr, x)
         logger.debug('filtering on %s(%s)' % (type(attr), attr))
@@ -262,10 +258,6 @@ class IdentExpression(object):
     def __init__(self, t):
         logger.debug('IdentExpression::__init__(%s)' % t)
         self.op = t[0][1]
-
-        def not_implemented_yet(x, y):
-            # raise an exception
-            raise NotImplementedError
 
         # cfr: SearchParser.binop
         # = == != <> < <= > >= not like contains has ilike icontains ihas is

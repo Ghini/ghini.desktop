@@ -1105,12 +1105,13 @@ class FilterThenMatchTests(BaubleTestCase):
         self.genus1 = Genus(family=self.family, genus=u'genus1')
         self.genus2 = Genus(family=self.family, genus=u'genus2')
         self.genus3 = Genus(family=self.family, genus=u'genus3')
+        self.genus4 = Genus(family=self.family, genus=u'genus4')
         n1 = GenusNote(category=u'commentarii', note=u'olim', genus=self.genus1)
         n2 = GenusNote(category=u'commentarii', note=u'erat', genus=self.genus1)
         n3 = GenusNote(category=u'commentarii', note=u'verbum', genus=self.genus2)
         n4 = GenusNote(category=u'test', note=u'olim', genus=self.genus3)
         n5 = GenusNote(category=u'test', note=u'verbum', genus=self.genus3)
-        self.session.add_all([self.family, self.genus1, self.genus2, self.genus3, n1, n2, n3, n4, n5])
+        self.session.add_all([self.family, self.genus1, self.genus2, self.genus3, self.genus4, n1, n2, n3, n4, n5])
         self.session.commit()
 
     def tearDown(self):
@@ -1135,6 +1136,26 @@ class FilterThenMatchTests(BaubleTestCase):
         s = "genus where notes[note='verbum'].category='commentarii'"
         results = mapper_search.search(s, self.session)
         self.assertEqual(results, set([self.genus2]))
+
+    def test_can_find_empty_set(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where notes=Empty"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus4]))
+
+    def test_can_match_list_of_values(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where notes.note in 'olim', 'erat', 'verbum'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus1, self.genus2, self.genus3]))
+
+        s = "genus where notes[category='test'].note in 'olim', 'erat', 'verbum'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus3]))
 
 
 class ParseTypedValue(BaubleTestCase):
