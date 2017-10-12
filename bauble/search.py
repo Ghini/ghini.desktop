@@ -167,13 +167,14 @@ class TypedValueToken(ValueABC):
         return "%s" % (self.value)
 
 
-class IdentifierToken(object):
+class IdentifierAction(object):
     def __init__(self, t):
-        logger.debug('IdentifierToken::__init__(%s)' % t)
-        self.value = t[0]
+        logger.debug('IdentifierAction::__init__(%s)' % t)
+        self.steps = t[0][:-2:2]
+        self.leaf = t[0][-1]
 
     def __repr__(self):
-        return '.'.join(self.value)
+        return '.'.join(self.steps + [self.leaf])
 
     def evaluate(self, env):
         """return pair (query, attribute)
@@ -182,22 +183,79 @@ class IdentifierToken(object):
         joinpoint is the one relative to the attribute, and the attribute
         itself.
         """
-
         query = env.session.query(env.domain)
-        if len(self.value) == 1:
+        if len(self.steps) == 0:
             # identifier is an attribute of the table being queried
             cls = env.domain
-        elif len(self.value) > 1:
+        else:
             # identifier is an attribute of a joined table
-            query = query.join(*self.value[:-1], aliased=True)
+            query = query.join(*self.steps, aliased=True)
             cls = query._joinpoint['_joinpoint_entity']
-        attr = getattr(cls, self.value[-1])
+        attr = getattr(cls, self.leaf)
         logger.debug('IdentifierToken for %s, %s evaluates to %s'
-                     % (cls, self.value[-1], attr))
-        return query, attr
+                     % (cls, self.leaf, attr))
+        return (query, attr)
 
     def needs_join(self, env):
-        return self.value[:-1]
+        return self.steps
+
+
+class FilteredIdentifierAction(object):
+    def __init__(self, t):
+        logger.debug('FilteredIdentifierAction::__init__(%s)' % t)
+        self.steps = t[0][:-7:2]
+        self.filter_attr = t[0][-6]
+        self.filter_op = t[0][-5]
+        self.filter_value = t[0][-4]
+        self.leaf = t[0][-1]
+
+        # cfr: SearchParser.binop
+        # = == != <> < <= > >= not like contains has ilike icontains ihas is
+        self.operation = {
+            '=': lambda x, y: x == y,
+            '==': lambda x, y: x == y,
+            'is': lambda x, y: x == y,
+            '!=': lambda x, y: x != y,
+            '<>': lambda x, y: x != y,
+            'not': lambda x, y: x != y,
+            '<': lambda x, y: x < y,
+            '<=': lambda x, y: x <= y,
+            '>': lambda x, y: x > y,
+            '>=': lambda x, y: x >= y,
+            'like': lambda x, y: utils.ilike(x, '%s' % y),
+            'contains': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'has': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'ilike': lambda x, y: utils.ilike(x, '%s' % y),
+            'icontains': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'ihas': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            }.get(self.filter_op)
+
+    def __repr__(self):
+        return "%s[%s%s%s].%s" % ('.'.join(self.steps),
+                                  self.filter_attr, self.filter_op, self.filter_value,
+                                  self.leaf)
+
+    def evaluate(self, env):
+        """return pair (query, attribute)"""
+        query = env.session.query(env.domain)
+        if len(self.steps) == 0:
+            # identifier is an attribute of the table being queried
+            cls = env.domain
+        else:
+            # identifier is an attribute of a joined table
+            query = query.join(*self.steps, aliased=True)
+            cls = query._joinpoint['_joinpoint_entity']
+        attr = getattr(cls, self.filter_attr)
+        clause = lambda x: self.operation(attr, x)
+        logger.debug('filtering on %s(%s)' % (type(attr), attr))
+        query = query.filter(clause(self.filter_value.express()))
+        attr = getattr(cls, self.leaf)
+        logger.debug('IdentifierToken for %s, %s evaluates to %s'
+                     % (cls, self.leaf, attr))
+        return (query, attr)
+
+    def needs_join(self, env):
+        return self.steps
 
 
 class IdentExpression(object):
@@ -611,7 +669,7 @@ class ValueListAction(object):
 
 from pyparsing import (
     Word, alphas8bit, removeQuotes, delimitedList, Regex,
-    OneOrMore, oneOf, alphas, alphanums, Group, Literal,
+    ZeroOrMore, OneOrMore, oneOf, alphas, alphanums, Group, Literal,
     CaselessLiteral, WordStart, WordEnd, srange,
     stringEnd, Keyword, quotedString,
     infixNotation, opAssoc, Forward)
@@ -678,8 +736,13 @@ class SearchParser(object):
                         | Literal('count'))
 
     query_expression = Forward()('filter')
-    identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),
-                                     '.')).setParseAction(IdentifierToken)
+
+    atomic_identifier = Word(alphas+'_', alphanums+'_')
+    identifier = (
+        Group(atomic_identifier + ZeroOrMore('.' + atomic_identifier) + '[' + atomic_identifier + binop + value + ']' + '.' + atomic_identifier).setParseAction(FilteredIdentifierAction)
+        | Group(atomic_identifier + ZeroOrMore('.' + atomic_identifier)).setParseAction(IdentifierAction)
+    )
+
     aggregated = (aggregating_func + Literal('(') + identifier + Literal(')')
                   ).setParseAction(AggregatingAction)
     ident_expression = (Group(identifier + binop + value
