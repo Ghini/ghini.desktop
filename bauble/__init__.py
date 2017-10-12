@@ -48,6 +48,16 @@ def pb_set_fraction(fraction):
     if gui is not None and gui.progressbar is not None:
         gui.progressbar.set_fraction(fraction)
 
+def pb_grab():
+    if gui is not None and gui.progressbar is not None:
+        gui.set_busy(True)
+        gui.progressbar.show()
+        gui.progressbar.set_fraction(0)
+
+def pb_release():
+    if gui is not None and gui.progressbar is not None:
+        gui.progressbar.hide()
+        gui.set_busy(False)
 
 def main_is_frozen():
     """
