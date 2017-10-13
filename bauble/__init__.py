@@ -2,7 +2,6 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
-# Copyright (c) 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -217,14 +216,6 @@ dbengine.html#create-engine-url-arguments>`_
     # create the user directory
     if not os.path.exists(paths.appdata_dir()):
         os.makedirs(paths.appdata_dir())
-
-    # a hack to write stderr and stdout to a file in a py2exe environment
-    # prevents failed attempts at creating ghini.exe.log
-    if main_is_frozen():
-        _stdout = os.path.join(paths.user_dir(), 'stdout.log')
-        _stderr = os.path.join(paths.user_dir(), 'stderr.log')
-        sys.stdout = open(_stdout, 'w')
-        sys.stderr = open(_stderr, 'w')
 
     # add console root handler, and file root handler, set it at the logging
     # level specified by BAUBLE_LOGGING, or at INFO level.

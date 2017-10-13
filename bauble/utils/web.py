@@ -2,7 +2,6 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2014-2017 Mario Frasca <mario@anche.no>.
-# Copyright 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -32,13 +31,7 @@ import bauble.utils.desktop as desktop
 
 
 def _open_link(func, data=None):
-    # windows generates odd characters in the uri unless its in ascii
-    import sys
-    if sys.platform == 'win32' :
-        udata=data.decode("utf-8")
-        asciidata=udata.encode("ascii","ignore")
-        desktop.open(asciidata)
-    else : desktop.open(data)
+    desktop.open(data)
 
 gtk.link_button_set_uri_hook(_open_link)
 
