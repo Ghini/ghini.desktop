@@ -342,6 +342,14 @@ class SearchTests(BaubleTestCase):
         results = mapper_search.search('genus=g', self.session)
         self.assertEquals(len(results), 0)
 
+    def test_search_by_expression_genus_eq_everything(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        # search for genus by domain
+        results = mapper_search.search('genus=*', self.session)
+        self.assertEquals(len(results), 1)
+
     def test_search_by_expression_genus_like_nomatch(self):
         mapper_search = search.get_strategy('MapperSearch')
         self.assertTrue(isinstance(mapper_search, search.MapperSearch))
@@ -1067,12 +1075,111 @@ class BuildingSQLStatements(BaubleTestCase):
         self.assertEqual(str(results.statement),
                          "SELECT * FROM species WHERE (notes.id != 0.0)")
 
-    def test_between_just_parse(self):
+    def test_between_just_parse_0(self):
         'use BETWEEN value and value'
         sp = self.SearchParser()
         results = sp.parse_string('species where id between 0 and 1')
         self.assertEqual(str(results.statement),
                          "SELECT * FROM species WHERE (BETWEEN id 0.0 1.0)")
+
+    def test_between_just_parse_1(self):
+        'use BETWEEN value and value'
+        sp = self.SearchParser()
+        results = sp.parse_string('species where step.id between 0 and 1')
+        self.assertEqual(str(results.statement),
+                         "SELECT * FROM species WHERE (BETWEEN step.id 0.0 1.0)")
+
+    def test_between_just_parse_2(self):
+        'use BETWEEN value and value'
+        sp = self.SearchParser()
+        results = sp.parse_string('species where step.step.step.step[a=1].id between 0 and 1')
+        self.assertEqual(str(results.statement),
+                         "SELECT * FROM species WHERE (BETWEEN step.step.step.step[a=1.0].id 0.0 1.0)")
+
+
+class FilterThenMatchTests(BaubleTestCase):
+    def __init__(self, *args):
+        super(FilterThenMatchTests, self).__init__(*args)
+        prefs.testing = True
+
+    def setUp(self):
+        super(FilterThenMatchTests, self).setUp()
+        db.engine.execute('delete from genus')
+        db.engine.execute('delete from family')
+        db.engine.execute('delete from genus_note')
+        from bauble.plugins.plants.family import Family
+        from bauble.plugins.plants.genus import Genus, GenusNote
+        self.family = Family(family=u'family1', qualifier=u's. lat.')
+        self.genus1 = Genus(family=self.family, genus=u'genus1')
+        self.genus2 = Genus(family=self.family, genus=u'genus2')
+        self.genus3 = Genus(family=self.family, genus=u'genus3')
+        self.genus4 = Genus(family=self.family, genus=u'genus4')
+        n1 = GenusNote(category=u'commentarii', note=u'olim', genus=self.genus1)
+        n2 = GenusNote(category=u'commentarii', note=u'erat', genus=self.genus1)
+        n3 = GenusNote(category=u'commentarii', note=u'verbum', genus=self.genus2)
+        n4 = GenusNote(category=u'test', note=u'olim', genus=self.genus3)
+        n5 = GenusNote(category=u'test', note=u'verbum', genus=self.genus3)
+        self.session.add_all([self.family, self.genus1, self.genus2, self.genus3, self.genus4, n1, n2, n3, n4, n5])
+        self.session.commit()
+
+    def tearDown(self):
+        super(FilterThenMatchTests, self).tearDown()
+
+    def test_can_filter_match_notes(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where notes.note='olim'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus1, self.genus3]))
+
+        s = "genus where notes[category='test'].note='olim'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus3]))
+
+        s = "genus where notes.category='commentarii'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus1, self.genus2]))
+
+        s = "genus where notes[note='verbum'].category='commentarii'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus2]))
+
+    def test_can_find_empty_set(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where notes=Empty"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus4]))
+
+    def test_can_find_non_empty_set(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where notes!=Empty"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus1, self.genus2, self.genus3]))
+
+    def test_can_match_list_of_values(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where notes.note in 'olim', 'erat', 'verbum'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus1, self.genus2, self.genus3]))
+
+        s = "genus where notes[category='test'].note in 'olim', 'erat', 'verbum'"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set([self.genus3]))
+
+    def test_parenthesised_search(self):
+        mapper_search = search.get_strategy('MapperSearch')
+        self.assertTrue(isinstance(mapper_search, search.MapperSearch))
+
+        s = "genus where (notes!=Empty) and (notes=Empty)"
+        results = mapper_search.search(s, self.session)
+        self.assertEqual(results, set())
 
 
 class ParseTypedValue(BaubleTestCase):

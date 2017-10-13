@@ -242,6 +242,7 @@ font = {
 }
 
 def add_text(x, y, s, style, size, align=0):
+    s = s.replace(u'\u200b', '')
     glyphs = ['<']
     widths = ['[']
     totalwidth = 0
@@ -25542,18 +25543,34 @@ currentdict end
 /SCALE { 0.45 0.45 scale 21 35 translate } bind def
 </%text>
 <%
-from bauble.plugins.report import get_plants_pertinent_to
+from bauble.plugins.report import get_plants_pertinent_to, options
 from bauble.plugins.report.mako import add_qr
 page = 1
 xpos = 0
 ypos = 17
+
+if options['accession_format']:
+    format = options['accession_format']
+    start = unicode(format.rstrip('#'))
+    if start != format:
+        digits = len(format) - len(start)
+        format = start + '%%0%dd' % digits
+    first = int(options['accession_first'])
+    enumeration = [(i - first, format % i, None) for i in range(first, int(options['accession_last']) + 1)]
+else:
+    enumeration = [(i, p.accession.code + (p.code != '1' and '.' + p.code or ''), p.accession) for (i, p) in enumerate(get_plants_pertinent_to(values))]
+
+# `enumeration` is an iterable with tuple elements like (i, code, obj),
+# where: i are sequential and start at 0; code is the plant code; obj may be
+# the accession associated to the plant
+
 %>
 <%text>%%Page: </%text>${page} ${page}
 <%text>%%BeginPageSetup
 %%EndPageSetup
 grestore
 </%text>\
-% for p, v in enumerate(get_plants_pertinent_to(values)):
+% for p, plant_code, accession in enumeration:
   % if xpos == 4:
     <% xpos = 0 %>\
     <% ypos -= 1 %>\
@@ -25571,18 +25588,27 @@ grestore
 </%text>\
   % endif
 <%
-if v.code != '1':
-  plant_code = str(v)
-else:
-  plant_code = str(v.accession)
-genus_epithet = v.accession.species.genus.epithet
-if genus_epithet.startswith('Zzz'):
-  genus_epithet = ''
-elif genus_epithet.startswith('Zzx-'):
-  genus_epithet = genus_epithet[4:]
-species_epithet = v.accession.species.epithet
-if species_epithet == 'sp':
+et = options['extra_text']
+if et:
+  if accession and et.startswith('{') and et.endswith('}'):
+    ets = accession
+    for step in et[1:-1].split('.'):
+      ets = getattr(ets, step)
+    et = str(ets)
+  genus_epithet = et
   species_epithet = ''
+else:
+  if accession is None:
+    genus_epithet = species_epithet = ''
+  else:
+    genus_epithet = accession.species.genus.epithet
+    if genus_epithet.startswith('Zzz'):
+      genus_epithet = ''
+    elif genus_epithet.startswith('Zzx-'):
+      genus_epithet = genus_epithet[4:]
+    species_epithet = accession.species.epithet
+    if species_epithet == 'sp':
+      species_epithet = ''
 %>
 gsave
 SCALE

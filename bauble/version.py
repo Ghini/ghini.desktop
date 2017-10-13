@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2014-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -21,4 +22,4 @@
 # The Ghini version.
 # major, minor, revision version tuple
 
-version = "1.0.74"  # :bump
+version = "1.0.75"  # :bump
