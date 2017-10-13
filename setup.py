@@ -58,11 +58,12 @@ plugins = setuptools.find_packages(
     exclude=['test', 'bauble.*.test', 'ghini.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test',
-    'ghini.*.test'])
+                                                 'ghini.*.test'])
 
 package_data = {'': ['README.rst', 'CHANGES', 'LICENSE'],
-        'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
-            'images/*.svg', 'images/*.gif', 'images/*.ico', 'images/*.bmp']}
+                'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
+                           'images/*.svg', 'images/*.gif', 'images/*.ico',
+                           'images/*.bmp']}
 
 # ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
@@ -85,8 +86,9 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     sqlalchemy_includes = ['sqlalchemy.dialects.sqlite',
                            'sqlalchemy.dialects.postgresql']
     py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2',
-            'encodings', 'mako', 'mako.cache', 'pygments.styles.default',
-            'pyparsing'] + gtk_pkgs + plugins_pkgs + sqlalchemy_includes
+                       'encodings', 'mako', 'mako.cache',
+                       'pygments.styles.default', 'pyparsing'] + gtk_pkgs \
+                               + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
         'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
@@ -105,7 +107,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                 "libgtk-win32-2.0-0.dll", "libpango-1.0-0.dll",
                 "libpangowin32-1.0-0.dll", "libxml2-2.dll",
                 # windows dlls
-                "DNSAPI.DLL","MSIMG32.DLL", "Secur32.dll", "SHFOLDER.dll",
+                "DNSAPI.DLL", "MSIMG32.DLL", "Secur32.dll", "SHFOLDER.dll",
                 "CRYPT32.dll", "MPR.dll"
                 ]
         }
@@ -176,8 +178,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             file_util.copy_file(gtheme, dest)
 
             # copy LICENSE to dist\share\LICENSE.ghini (for help>about)
-            file_util.copy_file("LICENSE",
-            os.path.join(self.dist_dir, 'share', 'LICENSE.ghini'))
+            file_util.copy_file("LICENSE", os.path.join(self.dist_dir, 'share',
+                                                        'LICENSE.ghini'))
 
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
@@ -423,7 +425,7 @@ except ImportError:
 scripts = ["scripts/ghini"]
 if sys.platform == 'win32':
     scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
-            "scripts/ghini-update.bat"]
+               "scripts/ghini-update.bat"]
 
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
