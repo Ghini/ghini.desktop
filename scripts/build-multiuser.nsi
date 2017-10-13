@@ -479,8 +479,8 @@ Function AddFOPtoPATH
         ; copy the script to a temp dir
         SetOutPath "$PLUGINSDIR\"
         SetOverwrite on
-        File /a "Add_to_PATH.vbs"
-        ExecWait '"$SYSDIR\wscript.exe" //E:vbscript "$PLUGINSDIR\Add_to_PATH.vbs" /path:"$R0\fop-${FOP_VERSION}\" /env:"$R1"'
+        File /a "add_to_path.vbs"
+        ExecWait '"$SYSDIR\wscript.exe" //E:vbscript "$PLUGINSDIR\add_to_path.vbs" /path:"$R0\fop-${FOP_VERSION}\" /env:"$R1"'
         DetailPrint "Apache FOP added to $R1 PATH as: $R0\fop-${FOP_VERSION}\"
         SetRebootFlag True
         DetailPrint "Reboot flag = True"
