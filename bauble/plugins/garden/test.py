@@ -2456,3 +2456,55 @@ class BaubleSearchSearchTest(BaubleTestCase):
         bauble.search.search("So ha", self.session)
         self.assertTrue('SearchStrategy "So ha"(PlantSearch)' in
                    self.handler.messages['bauble.search']['debug'])
+
+
+from bauble.plugins.garden.exporttopocket import create_pocket, export_to_pocket
+
+class TestExportToPocket(GardenTestCase):
+
+    def test_export_empty_database(self):
+        GardenTestCase.setUp(self)
+        import tempfile
+        filename = tempfile.mktemp()
+        create_pocket(filename)
+        export_to_pocket(filename)
+
+        import sqlite3
+        cn = sqlite3.connect(filename)
+        cr = cn.cursor()
+        cr.execute('select * from "species"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 0)
+        cr.execute('select * from "accession"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 0)
+        cr.execute('select * from "plant"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 0)
+
+    def test_export_two_plants(self):
+        GardenTestCase.setUp(self)
+        acc = Accession(species=self.species, code=u'010203')
+        loc = Location(code=u'123')
+        loc2 = Location(code=u'213')
+        plt1 = Plant(accession=acc, code=u'1', quantity=1, location=loc)
+        plt2 = Plant(accession=acc, code=u'2', quantity=1, location=loc)
+        self.session.add_all([acc, loc, loc2, plt1, plt2])
+        self.session.commit()
+        import tempfile
+        filename = tempfile.mktemp()
+        create_pocket(filename)
+        export_to_pocket(filename)
+
+        import sqlite3
+        cn = sqlite3.connect(filename)
+        cr = cn.cursor()
+        cr.execute('select * from "species"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 1)
+        cr.execute('select * from "accession"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 1)
+        cr.execute('select * from "plant"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 2)
