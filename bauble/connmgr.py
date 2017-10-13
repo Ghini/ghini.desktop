@@ -227,9 +227,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
         from bauble import main_is_frozen
         # Don't check for new versions if we are in a py2exe environment
-        if main_is_frozen():
-            pass
-        else:
+        if not main_is_frozen():
             from threading import Thread
             self.start_thread(Thread(target=check_and_notify_new_version,
                                  args=[self.view]))
