@@ -16,6 +16,7 @@
 '  along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 ' a simple script used by the nsis installer to prepend to the PATH
+'
 ' EXAMPLES:
 ' cscript.exe Add_to_PATH.vbs /path:"C:\TEST" /env:"USER"
 ' cscript.exe //E:vbscript Add_to_PATH.vbs /env:"SYSTEM" /path:"C:\TEST\"
