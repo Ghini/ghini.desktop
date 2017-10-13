@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -89,7 +90,7 @@ def installation_dir():
     elif sys.platform == 'win32':
         # main_dir is the location of the scripts, which is located in the
         # installation_dir:
-        d = os.path.dirname(main_dir())
+        d = main_dir()
     else:
         raise NotImplementedError('This platform does not support '
                                   'translations: %s' % sys.platform)

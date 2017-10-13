@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -223,9 +224,15 @@ class ConnMgrPresenter(GenericEditorPresenter):
         except:
             pass
 
-        from threading import Thread
-        self.start_thread(Thread(target=check_and_notify_new_version,
+        from bauble import main_is_frozen
+        # Don't check for new versions if we are in a py2exe environment
+        if main_is_frozen():
+            pass
+        else:
+            from threading import Thread
+            self.start_thread(Thread(target=check_and_notify_new_version,
                                  args=[self.view]))
+        logger.debug('main_is_frozen = %s' % (main_is_frozen()))
 
     def on_file_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('file_entry')
