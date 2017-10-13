@@ -149,17 +149,13 @@ def check_and_notify_new_version(view):
             gobject.idle_add(show_message_box)
     except urllib2.URLError:
         logger.info('connection is slow or down')
-        pass
     except ssl.SSLError, e:
         logger.info('SSLError %s while checking for newer version' % e)
-        pass
     except urllib2.HTTPError:
         logger.info('HTTPError while checking for newer version')
-        pass
     except Exception, e:
         logger.warning('unhandled %s(%s) while checking for newer version'
                        % type(e), e)
-        pass
 
 
 class ConnMgrPresenter(GenericEditorPresenter):
