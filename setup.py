@@ -87,8 +87,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                            'sqlalchemy.dialects.postgresql']
     py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2',
                        'encodings', 'mako', 'mako.cache',
-                       'pygments.styles.default', 'pyparsing'] + gtk_pkgs \
-                               + plugins_pkgs + sqlalchemy_includes
+                       'pygments.styles.default', 'pyparsing']
+    py2exe_includes += gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
         'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
