@@ -56,14 +56,14 @@
 ; Global
 Name "ghini.desktop"
 !define VERSION "1.0.68" ; :bump
-!define src_dir "..\dist"
+!define SRC_DIR "..\dist"
 !define PRODUCT_NAME "ghini.desktop"
 Outfile "${PRODUCT_NAME}-${VERSION}-setup.exe"
 !define PROGEXE "ghini.exe"
 !define COMPANY_NAME ""
-!define license_file "LICENSE"
-!define readme "README.rst"
-!define startmenu "$SMPROGRAMS\${PRODUCT_NAME}"
+!define LICENSE_FILE "LICENSE"
+!define README "README.rst"
+!define START_MENU "$SMPROGRAMS\${PRODUCT_NAME}"
 !define UNINSTALL_FILENAME "uninstall.exe"
 
 ; FOP
@@ -113,11 +113,11 @@ CRCCheck on
 ; Modern User Interface v2 Settings
 !define MUI_ABORTWARNING
 !define MUI_UNABORTWARNING
-!define MUI_ICON "${src_dir}\bauble\images\icon.ico"
-!define MUI_UNICON "${src_dir}\bauble\images\icon.ico"
+!define MUI_ICON "${SRC_DIR}\bauble\images\icon.ico"
+!define MUI_UNICON "${SRC_DIR}\bauble\images\icon.ico"
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
-!define MUI_HEADERIMAGE_UNBITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
+!define MUI_HEADERIMAGE_BITMAP "${SRC_DIR}\bauble\images\ghini_logo.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "${SRC_DIR}\bauble\images\ghini_logo.bmp"
 !define MUI_HEADERIMAGE_RIGHT
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_COMPONENTSPAGE_TEXT_COMPLIST "Or, select the optional components you wish to install: \
@@ -149,7 +149,7 @@ CRCCheck on
 ;  PAGES
 
 ; Installer
-!insertmacro MUI_PAGE_LICENSE "${src_dir}\${license_file}"
+!insertmacro MUI_PAGE_LICENSE "${SRC_DIR}\${LICENSE_FILE}"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 ; this will show the 2 install options, unless it's an elevated inner process
 ; (in that case we know we should install for all users)
@@ -196,7 +196,7 @@ Section "!Ghini.desktop" SecMain
     SetOverwrite on
     ; package all files, recursively, preserving attributes
     ; assume files are in the correct places
-    File /a /r "${src_dir}\*.*"
+    File /a /r "${SRC_DIR}\*.*"
 
     ; Create uninstaller
     WriteUninstaller "$INSTDIR\${UNINSTALL_FILENAME}"
@@ -204,8 +204,8 @@ Section "!Ghini.desktop" SecMain
     ; add registry keys
     !insertmacro MULTIUSER_RegistryAddInstallInfo
     ; create shortcuts
-    CreateDirectory "${startmenu}"
-    CreateShortcut "${startmenu}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}" \
+    CreateDirectory "${START_MENU}"
+    CreateShortcut "${START_MENU}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}" \
         "" "$INSTDIR\${PROGEXE}" "" SW_SHOWNORMAL \
         "" "Ghini biodiversity collection manager"
     ; desktop shortcut
@@ -415,11 +415,11 @@ UninstallText "This will uninstall ${PRODUCT_NAME}."
 Section "Uninstall" SecUnMain
     ; Remove registry keys
     !insertmacro MULTIUSER_RegistryRemoveInstallInfo
-    Delete "${startmenu}\*.*"
+    Delete "${START_MENU}\*.*"
     Delete "$DESKTOP\${PRODUCT_NAME}.lnk"
     SetOutPath $TEMP
     RMDir /r "$INSTDIR"
-    RMDir /r "${startmenu}"
+    RMDir /r "${START_MENU}"
 SectionEnd
 
 
