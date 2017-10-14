@@ -169,7 +169,6 @@ CRCCheck on
 ;  LANGUAGES
 
 ; MUIv2 macros (must be after scripts and pages)
-; TODO add more languages?
 !insertmacro MUI_LANGUAGE English
 
 
@@ -375,7 +374,7 @@ Section /o "MS Visual C runtime DLL (1.73MB Download)" SecMSC
     Goto DoneMSVC
 
     ; Install MS Visual C Runtime
-    ; TODO there seems to be a bug in the installer that leaves junk files in the root directory of the largest drive
+    ; there seems to be a bug in the installer that leaves junk files in the root directory of the largest drive.
     InstalMSVC:
         ; run installer silently (no user input, no cancel button)
         ExecWait '"$PLUGINSDIR\${MSVC_FILE}" /qb!'
@@ -405,7 +404,6 @@ SectionGroupEnd
 ;  UNINSTALLER SECTIONS
 ;
 ; All section names prefixed by "Un" will be in the uninstaller
-; TODO include a FOP uninstaller
 
 ; Settings
 UninstallText "This will uninstall ${PRODUCT_NAME}."
