@@ -37,7 +37,7 @@ import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
 
-from bauble.i18n import _
+
 
 
 # TODO: single file or one file per table

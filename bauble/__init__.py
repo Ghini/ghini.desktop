@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
 # Copyright (c) 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
@@ -36,7 +37,7 @@ import bauble.paths as paths
 from bauble.version import version
 version_tuple = tuple(version.split('.'))
 
-from bauble.i18n import _
+import bauble.i18n
 
 
 def pb_set_fraction(fraction):
@@ -48,6 +49,16 @@ def pb_set_fraction(fraction):
     if gui is not None and gui.progressbar is not None:
         gui.progressbar.set_fraction(fraction)
 
+def pb_grab():
+    if gui is not None and gui.progressbar is not None:
+        gui.set_busy(True)
+        gui.progressbar.show()
+        gui.progressbar.set_fraction(0)
+
+def pb_release():
+    if gui is not None and gui.progressbar is not None:
+        gui.progressbar.hide()
+        gui.set_busy(False)
 
 def main_is_frozen():
     """

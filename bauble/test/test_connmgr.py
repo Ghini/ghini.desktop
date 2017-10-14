@@ -329,6 +329,10 @@ class ConnMgrPresenterTests(BaubleTestCase):
         valid, message = presenter.check_parameters_valid(params)
         self.assertFalse(valid)
         params = copy.copy(presenter.connections['quisquis'])
+        params['db'] = ''
+        valid, message = presenter.check_parameters_valid(params)
+        self.assertFalse(valid)
+        params = copy.copy(presenter.connections['quisquis'])
         params['host'] = ''
         valid, message = presenter.check_parameters_valid(params)
         self.assertFalse(valid)

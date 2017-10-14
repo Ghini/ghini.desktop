@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015,2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -38,7 +39,7 @@ from bauble.test import BaubleTestCase, update_gui, check_dupids, mockfunc
 import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     AccessionNote, Voucher, SourcePresenter, Verification, dms_to_decimal, \
-    latitude_to_dms, longitude_to_dms
+    latitude_to_dms, longitude_to_dms, AccessionEditorView
 from bauble.plugins.garden.source import Source, Collection, Contact, \
     create_contact, CollectionPresenter, ContactPresenter
 from bauble.plugins.garden.plant import Plant, PlantNote, \
@@ -905,6 +906,53 @@ class PropagationTests(GardenTestCase):
         propagation = editor.start()
         logger.debug(propagation)
         self.assert_(propagation.accession)
+
+
+class AccessionEditorSpeciesMatchTests(GardenTestCase):
+
+    def setUp(self):
+        super(AccessionEditorSpeciesMatchTests, self).setUp()
+        self.sp3 = Species(genus=self.genus, sp=u'inexistente')
+        self.session.add_all([self.sp3])
+        self.session.commit()
+
+        class MockCompletion:
+            def __init__(self, values):
+                self.model = [[i] for i in values]
+
+            def get_model(self):
+                return self.model
+
+        self.MockCompletion = MockCompletion
+        self.completion = MockCompletion([self.species, self.sp2, self.sp3])
+
+    def test_full_name(self):
+        key = 'Echinocactus grusonii'
+        species_match_func = AccessionEditorView.species_match_func
+        self.assertTrue(species_match_func(self.completion, key, 0))
+        self.assertFalse(species_match_func(self.completion, key, 1))
+        self.assertFalse(species_match_func(self.completion, key, 2))
+
+    def test_only_full_genus(self):
+        key = 'Echinocactus'
+        species_match_func = AccessionEditorView.species_match_func
+        self.assertTrue(species_match_func(self.completion, key, 0))
+        self.assertTrue(species_match_func(self.completion, key, 1))
+        self.assertTrue(species_match_func(self.completion, key, 2))
+
+    def test_only_partial_genus(self):
+        key = 'Echinoc'
+        species_match_func = AccessionEditorView.species_match_func
+        self.assertTrue(species_match_func(self.completion, key, 0))
+        self.assertTrue(species_match_func(self.completion, key, 1))
+        self.assertTrue(species_match_func(self.completion, key, 2))
+
+    def test_only_partial_binomial(self):
+        key = 'Echi t'
+        species_match_func = AccessionEditorView.species_match_func
+        self.assertFalse(species_match_func(self.completion, key, 0))
+        self.assertTrue(species_match_func(self.completion, key, 1))
+        self.assertFalse(species_match_func(self.completion, key, 2))
 
 
 class VoucherTests(GardenTestCase):
@@ -2408,3 +2456,55 @@ class BaubleSearchSearchTest(BaubleTestCase):
         bauble.search.search("So ha", self.session)
         self.assertTrue('SearchStrategy "So ha"(PlantSearch)' in
                    self.handler.messages['bauble.search']['debug'])
+
+
+from bauble.plugins.garden.exporttopocket import create_pocket, export_to_pocket
+
+class TestExportToPocket(GardenTestCase):
+
+    def test_export_empty_database(self):
+        GardenTestCase.setUp(self)
+        import tempfile
+        filename = tempfile.mktemp()
+        create_pocket(filename)
+        export_to_pocket(filename)
+
+        import sqlite3
+        cn = sqlite3.connect(filename)
+        cr = cn.cursor()
+        cr.execute('select * from "species"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 0)
+        cr.execute('select * from "accession"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 0)
+        cr.execute('select * from "plant"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 0)
+
+    def test_export_two_plants(self):
+        GardenTestCase.setUp(self)
+        acc = Accession(species=self.species, code=u'010203')
+        loc = Location(code=u'123')
+        loc2 = Location(code=u'213')
+        plt1 = Plant(accession=acc, code=u'1', quantity=1, location=loc)
+        plt2 = Plant(accession=acc, code=u'2', quantity=1, location=loc)
+        self.session.add_all([acc, loc, loc2, plt1, plt2])
+        self.session.commit()
+        import tempfile
+        filename = tempfile.mktemp()
+        create_pocket(filename)
+        export_to_pocket(filename)
+
+        import sqlite3
+        cn = sqlite3.connect(filename)
+        cr = cn.cursor()
+        cr.execute('select * from "species"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 1)
+        cr.execute('select * from "accession"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 1)
+        cr.execute('select * from "plant"')
+        content = cr.fetchall()
+        self.assertEquals(len(content), 2)

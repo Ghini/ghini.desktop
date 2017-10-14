@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -35,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 import gtk
 
-from bauble.i18n import _
+
 import lxml.etree as etree
 import pango
 from sqlalchemy import and_, or_, func
@@ -476,6 +477,19 @@ class AccessionNote(db.Base, db.Serializable):
         return result
 
     @classmethod
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
+        """return database object corresponding to keys
+        """
+        result = super(AccessionNote, cls).retrieve_or_create(session, keys, create, update)
+        category = keys.get('category', '')
+        if (create and (category.startswith('[') and category.endswith(']') or
+                        category.startswith('<') and category.endswith('>'))):
+            result = cls(**keys)
+            session.add(result)
+        return result
+
+    @classmethod
     def retrieve(cls, session, keys):
         q = session.query(cls)
         if 'accession' in keys:
@@ -531,7 +545,6 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
         *date_accd*: :class:`bauble.types.Date`
             the date this accession was accessioned
-
 
         *id_qual*: :class:`bauble.types.Enum`
             The id qualifier is used to indicate uncertainty in the
@@ -975,11 +988,8 @@ class AccessionEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def datum_match(completion, key, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         datum = completion.get_model()[treeiter][0]
         words = datum.split(' ')
         for w in words:
@@ -988,23 +998,20 @@ class AccessionEditorView(editor.GenericEditorView):
         return False
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def species_match_func(completion, key, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         species = completion.get_model()[treeiter][0]
-        if str(species).lower().startswith(key.lower()) \
-                or str(species.genus.genus).lower().startswith(key.lower()):
+        epg, eps = (species.str(remove_zws=True).lower() + ' ').split(' ')[:2]
+        key_epg, key_eps = (key.lower() + ' ').split(' ')[:2]
+        if not epg:
+            epg = str(species.genus.epithet).lower()
+        if (epg.startswith(key_epg) and eps.startswith(key_eps)):
             return True
         return False
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def species_cell_data_func(column, renderer, model, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         v = model[treeiter][0]
         renderer.set_property(
             'text', '%s (%s)' % (v.str(authors=True), v.genus.family))
@@ -1305,6 +1312,11 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self._sid = self.presenter().view.connect(
                 button, 'clicked', self.on_remove_button_clicked)
 
+            # copy to general tab
+            button = self.widgets.ver_copy_to_taxon_general
+            self._sid = self.presenter().view.connect(
+                button, 'clicked', self.on_copy_to_taxon_general_clicked)
+
             self.update_label()
 
         def on_date_entry_changed(self, entry, data=None):
@@ -1319,6 +1331,20 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             else:
                 self.presenter().remove_problem(PROBLEM, entry)
             self.set_model_attr('date', value)
+
+        def on_copy_to_taxon_general_clicked(self, button):
+            if self.model.species is None:
+                return
+            parent = self.get_parent()
+            msg = _("Are you sure you want to copy this verification to the general taxon?")
+            if not utils.yes_no_dialog(msg):
+                return
+            # copy verification species to general tab
+            if self.model.accession:
+                self.presenter().parent_ref().view.widgets.acc_species_entry.\
+                    set_text(utils.utf8(self.model.species))
+                self.presenter()._dirty = True
+                self.presenter().parent_ref().refresh_sensitivity()
 
         def on_remove_button_clicked(self, button):
             parent = self.get_parent()

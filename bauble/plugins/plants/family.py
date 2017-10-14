@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2014-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -45,7 +46,7 @@ import bauble.utils.web as web
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
-from bauble.i18n import _
+
 
 
 def edit_callback(families):

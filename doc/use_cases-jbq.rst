@@ -38,31 +38,85 @@ Technical
          all sorts of temporary users writing to the database, that we
          decided we would let Ghini help us keep track of database events.
 
-         Adding a new user is a task taking less than a minute, and can be
-         done either graphically, or from the command line.
+         Since we work using PostgreSQL, the users that Ghini stores in the
+         database history are the database users, not the system users.
 
-         Hit the |loose_png| key, then start typing ``users``, something
-         like this will appear on your screen:
+         Each user knows their own password, and only knows that one. Our
+         super-user, responsible for the database content, also has the
+         ``bauble`` fictional user password, which we only only use to
+         create other users.
 
-         .. image:: images/config-users.png
-
-         Activate the program, unlock the user data, create a new user
-         account, define the password and write it down on a piece of paper
-         you hand over to the person.
-
-         You can achieve the same, possibly faster, from the command line.
-         For example we add user 'Marta López', account 'mlopez', by
-         invoking the command and entering your password (to unlock user
-         data), then all information as required, or leaving it blank:
-
-         ``sudo adduser mlopez``
-
-         We do not use account names like "voluntario", because such
+         We do not use account names like ``voluntario``, because such
          accounts do not help us associate the name to the person.
+
+  ..  admonition:: — adding a new system user (linux/osx)
+      :class: toggle
+
+         Adding a system user is not strictly necessary, as ghini does not
+         use it in the logs, however, adding a system user allows for
+         separation of preferences, configured connections, search history.
+         On some of our systems we have a single shared account with several
+         configured connections, on other systems we have one account per
+         user.
+
+         On systems with one account per user, our users have a single
+         configured connection, and we hold the database password in the
+         ``/home/<account>/.pgpass`` file.  This file is only readable for
+         the ``<account>`` owner.
+
+         On systems with a shared account, the user must select their own
+         connection and type the corresponding password.
+
+         These are the steps to add system users::
+
+           sudo -k; sudo adduser test
+           sudo adduser test adm; sudo adduser test sudo
+           sudo adduser test sambashare; sudo adduser test ghini
+
+  ..  admonition:: — adding a new database user
+      :class: toggle
+
+         Ghini has a very minimal interface to user management, it only
+         works with postgresql and it very much lacks maintainance.  We have
+         opened issues that will allow us use it, for the time being we use
+         the ``create-role.sh`` script::
+
+           #!/bin/bash
+           USER=$1
+           PASSWD=$2
+           shift 2
+           cat <<EOF | psql bauble -U bauble $@
+           create role $USER with login password '$PASSWD';
+           alter role $USER with login password '$PASSWD';
+           grant all privileges on all tables in schema public to $USER;
+           grant all privileges on all sequences in schema public to $USER;
+           grant all privileges on all functions in schema public to $USER;
+           EOF
+
+         The redundant ``alter role`` following the ``create role`` lets us
+         apply the same script also for correcting existing accounts.
+
+         Our ghini database is called ``bauble``, and ``bauble`` is also the
+         name of our database super user, the only user with ``CREATEROLE``
+         privilege.
+
+         For example, the following invocation would create the user
+         ``willem`` with password ``orange``, on the ``bauble`` database
+         hosted at 192.168.5.6::
+
+           ./create-role.sh willem orange -h 192.168.5.6
 
 - Understanding when to update
 
-  ..  admonition:: Details
+  ..  admonition:: Updating the system
+      :class: toggle
+
+         Ubuntu updates are a lot lighter and easier than with Windows. So
+         whenever the system suggests an update, we let it do that.
+         Generally, there's no need to wait during the update nor to reboot
+         after it's done.
+
+  ..  admonition:: Updating ghini
       :class: toggle
 
          The first window presented by Ghini looks like this. Normally, you
@@ -476,7 +530,7 @@ Let the database fit the garden
 - A never-ending task is reviewing what we have in the garden and
   have it match what we have in the database.
 
-  ..  admonition:: Details
+  ..  admonition:: Initial status and variable resources
       :class: toggle
 
          When we adopted ghini, we imported into it all that was properly
@@ -491,6 +545,53 @@ Let the database fit the garden
          pictures of the plant in question, and note its location, all tasks
          that are described in the remainder of this section.
 
+         The small Android app ghini.pocket was added to the Ghini family
+         while a Ghini programmer was here in Quito.  It helps us take a
+         snapshot of the database in our pocket while walking in the garden,
+         but it also allows for a very swift inventory procedure.
+
+  .. admonition:: Inventory procedure
+     :class: toggle
+
+        We start ghini.pocket, we write down the name of the location where
+        we will be conducting the inventory, for example (INV 1) for
+        greenhouse 1.  We enter (type or scan if the plant has bar code or
+        QR code) the accession code and we look it up in ghini.pocket.
+
+        A side effect of performing the search is that ghini.pocket writes
+        the date with time, location and the code looked for in a text file
+        that can later be imported into the database.
+
+        For a greenhouse with around 1000 plants our estimates suggest you
+        will need two days, working at relaxed pace, from 8:00 am to 5:00
+        pm.
+
+        After having imported the file generated by ghini.pocket, it is easy
+        to reveal which plants are missing. For example: If we did the
+        inventory of the INV3 from 4 to 5 September, this is the
+        corresponding search::
+
+          plant where location.code = 'INV3' and not notes.note like '2017090%'
+
+        All of these plants can be marked as dead, or lost, according to
+        garden policy.
+
+  ..  admonition:: Visualizing the need of taxonomic attention
+      :class: toggle
+
+         Our protocol includes one more detail intended to visually
+         highlight plants that need the attention of a taxonomist.
+
+         .. image:: images/taxonomic_alert.png
+
+         A plant that only appears in our data base identified at family
+         level or that wasn't yet the database receives a visual signal
+         (e.g.: a wooden or plastic stick, for ice cream or french fries), to
+         highlight that it is not identified. In this way the taxonomist in
+         charge, when making a tour of the greenhouse can quickly spot them
+         and possibly proceed to add their identification in the database.
+
+         
 - Naming convention in garden locations
 
   ..  admonition:: Details

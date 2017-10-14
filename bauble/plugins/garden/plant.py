@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -33,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 import gtk
 
-from bauble.i18n import _
+
 from sqlalchemy import and_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
@@ -220,6 +221,19 @@ class PlantNote(db.Base, db.Serializable):
         result = db.Serializable.as_dict(self)
         result['plant'] = (self.plant.accession.code +
                            Plant.get_delimiter() + self.plant.code)
+        return result
+
+    @classmethod
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
+        """return database object corresponding to keys
+        """
+        result = super(PlantNote, cls).retrieve_or_create(session, keys, create, update)
+        category = keys.get('category', '')
+        if (create and (category.startswith('[') and category.endswith(']') or
+                        category.startswith('<') and category.endswith('>'))):
+            result = cls(**keys)
+            session.add(result)
         return result
 
     @classmethod
@@ -795,7 +809,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             box.show()
             self.view.add_box(box)
 
-    def dirty(self):
+    def is_dirty(self):
         return (self.pictures_presenter.is_dirty() or
                 self.notes_presenter.is_dirty() or
                 self.prop_presenter.is_dirty() or

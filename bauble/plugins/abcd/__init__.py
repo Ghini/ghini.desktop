@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -36,7 +37,7 @@ import bauble.paths as paths
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.garden.plant import Plant
-from bauble.i18n import _
+
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
@@ -339,7 +340,8 @@ class ABCDExporter(object):
             if d.run() == gtk.RESPONSE_ACCEPT:
                 filename = d.get_filename()
             d.destroy()
-            return filename
+            if not filename:
+                return
 
         if plants:
             nplants = len(plants)

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 # Copyright 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
@@ -35,7 +36,6 @@ logger = logging.getLogger(__name__)
 
 import gtk
 
-from bauble.i18n import _
 import bauble
 from bauble import paths, prefs, utils
 
@@ -149,17 +149,13 @@ def check_and_notify_new_version(view):
             gobject.idle_add(show_message_box)
     except urllib2.URLError:
         logger.info('connection is slow or down')
-        pass
     except ssl.SSLError, e:
         logger.info('SSLError %s while checking for newer version' % e)
-        pass
     except urllib2.HTTPError:
         logger.info('HTTPError while checking for newer version')
-        pass
     except Exception, e:
         logger.warning('unhandled %s(%s) while checking for newer version'
                        % type(e), e)
-        pass
 
 
 class ConnMgrPresenter(GenericEditorPresenter):
@@ -227,9 +223,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
 
         from bauble import main_is_frozen
         # Don't check for new versions if we are in a py2exe environment
-        if main_is_frozen():
-            pass
-        else:
+        if not main_is_frozen():
             from threading import Thread
             self.start_thread(Thread(target=check_and_notify_new_version,
                                  args=[self.view]))

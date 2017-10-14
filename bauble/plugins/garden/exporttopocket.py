@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -26,9 +27,9 @@ from bauble.plugins.garden.accession import Accession
 
 from bauble import db
 from bauble import pluginmgr
-from bauble.i18n import _
 
-import gtk
+
+import gtk, gobject
 import os
 
 
@@ -80,6 +81,8 @@ CREATE TABLE "plant" (
 
 def export_to_pocket(filename, include_private=True):
     from bauble.plugins.plants import Species
+    from bauble import pb_set_fraction, pb_grab, pb_release
+    gobject.idle_add(pb_grab)
     session = db.Session()
     plant_query = (session.query(Plant)
                    .order_by(Plant.code)
@@ -98,6 +101,7 @@ def export_to_pocket(filename, include_private=True):
     import sqlite3
     cn = sqlite3.connect(filename)
     cr = cn.cursor()
+    count = 1
     for i in species:
         try:
             cr.execute('INSERT INTO "species" '
@@ -108,6 +112,9 @@ def export_to_pocket(filename, include_private=True):
                     i.infraspecific_author or i.sp_author or ''))
         except Exception, e:
             logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
+        gobject.idle_add(pb_set_fraction, 0.05 * count / len(species))
+        count += 1
+    count = 1
     for i in accessions:
         try:
             try:
@@ -120,6 +127,9 @@ def export_to_pocket(filename, include_private=True):
                        (i.id, i.code, i.species_id, source_name, i.date_accd))
         except Exception, e:
             logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
+        gobject.idle_add(pb_set_fraction, 0.05 + 0.4 * count / len(accessions))
+        count += 1
+    count = 1
     for i in plants:
         try:
             cr.execute('INSERT INTO "plant" '
@@ -128,8 +138,11 @@ def export_to_pocket(filename, include_private=True):
                        (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures)))
         except Exception, e:
             logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
+        gobject.idle_add(pb_set_fraction, 0.45 + 0.55 * count / len(plants))
+        count += 1
     cn.commit()
     session.close()
+    gobject.idle_add(pb_release)
     return True
 
 
@@ -145,8 +158,16 @@ class ExportToPocketTool(pluginmgr.Tool):
                                    gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         if d.run() == gtk.RESPONSE_ACCEPT:
             pocket = d.get_filename()
-            if os.path.isfile(pocket):
+            try:
                 os.unlink(pocket)
-            create_pocket(pocket)
-            export_to_pocket(pocket)
+            except:
+                pass
+        else:
+            pocket = None
         d.destroy()
+        if pocket:
+            create_pocket(pocket)
+            from threading import Thread
+            thread = Thread(target=export_to_pocket,
+                            args=[pocket])
+            thread.start()

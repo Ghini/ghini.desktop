@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 import bauble
 from bauble import db, meta, editor, paths, pluginmgr
-from bauble.i18n import _
+
 import os.path
 
 

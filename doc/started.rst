@@ -28,11 +28,16 @@ keeping your database in a database management system like `PostgreSQL
 both supported by Ghini.
 
 When connecting to a database server as one of the above, you have to
-manually create: at least one bauble user, the database you want bauble to
-use, and to give at lest one bauble user full permissions on its
-database. When this is done, Ghini will be able to proceed, creating the
-tables and importing the default data set.  The process is
-database-dependent and it falls beyond the scope of this manual.
+manually do the following: Create at least one user; Create your database;
+Give at least one user full permissions on your database; If you plan having
+more database users: Give one of your users the ``CREATEROLE`` privilege;
+Consider the user with the ``CREATEROLE`` privilege as a super-user, not
+meant to handle data directly; Keep your super-user credentials in a very
+safe place.
+
+When this is done, Ghini will be able to proceed, creating the tables and
+importing the default data set.  The process is database-dependent and it
+falls beyond the scope of this manual.
 
 If you already got the chills or sick at your stomach, no need to worry,
 just stick with SQLite, you do not miss on features nor performance.
@@ -100,7 +105,7 @@ needed to connect to the database of your choice.
 
 If you are connecting to an existing database you can continue to
 :ref:`editing-and-inserting-data` and subsequently
-:ref:`searching-in-bauble`, otherwise read on to the following section on
+:ref:`searching-in-ghini`, otherwise read on to the following section on
 initializing a database for Ghini.
 
 If you plan to associate pictures to plants, specify also the *pictures

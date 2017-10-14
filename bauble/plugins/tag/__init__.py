@@ -39,7 +39,7 @@ from sqlalchemy import and_
 from sqlalchemy.exc import DBAPIError, InvalidRequestError
 from sqlalchemy.orm.session import object_session
 
-from bauble.i18n import _
+
 import bauble
 import bauble.db as db
 import bauble.editor as editor

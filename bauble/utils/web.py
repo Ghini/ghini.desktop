@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 import bauble.utils.desktop as desktop
-from bauble.i18n import _
+
 
 
 def _open_link(data=None):

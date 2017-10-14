@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -37,7 +38,7 @@ from sqlalchemy import Column, Unicode, Integer, ForeignKey,\
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import relation, backref
 
-from bauble.i18n import _
+
 import bauble.db as db
 import bauble.editor as editor
 from bauble.plugins.plants.geography import Geography, GeographyMenu

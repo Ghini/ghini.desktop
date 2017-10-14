@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -37,7 +38,7 @@ from sqlalchemy import ColumnDefault, Boolean
 
 import bauble
 import bauble.db as db
-from bauble.i18n import _
+
 from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
