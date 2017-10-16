@@ -678,3 +678,14 @@ closing step
 
 * review this workflow. consider this as a guideline, to yourself and to
   your colleagues. please help make it better and matching the practice.
+
+distributing for windows
+--------------------------
+
+placeholder section
+
+* what do you need to produce a NSIS installer?
+* what dependencies you must satisfy?
+* how do you install each of them?
+* which is the command to produce the setup.exe?
+* how do you publish the installer?
