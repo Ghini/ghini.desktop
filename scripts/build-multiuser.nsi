@@ -37,7 +37,7 @@
 ; A component has failed to install (e.g. FOP mirror is down) so you rerun for that component only
 
 ;---
-; Plugins, required to compile:
+; Plugins, required to compile: (included in data\nsis)
 ; -
 ; nsExec (included in NSIS v3.0) for executing commands
 ; WordFunc.nsh (included in NSIS v3.0) for comparing versions
@@ -49,6 +49,9 @@
 ; Inetc (http://nsis.sourceforge.net/Inetc_plug-in)
 ; MD5 (http://nsis.sourceforge.net/MD5_plugin)
 ;---
+!addplugindir /x86-ansi "..\data\nsis\Plugins\x86-ansi\"
+!addplugindir /x86-unicode "..\data\nsis\Plugins\x86-unicode\"
+!addincludedir "..\data\nsis\Include\"
 
 ;------------------------------
 ;  GENERAL
@@ -139,8 +142,8 @@ CRCCheck on
 ; NsisMultiUser - all settings need to be set before including the NsisMultiUser.nsh header file.
 ; thanks to Richard Drizin https://github.com/Drizin/NsisMultiUser
 !include "NsisMultiUser.nsh"
-!include "MUI2.nsh"
 !include "UAC.nsh"
+!include "MUI2.nsh"
 !include "WordFunc.nsh"
 !include "FileFunc.nsh"
 
