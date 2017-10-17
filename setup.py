@@ -196,8 +196,9 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             pass
 
         def run(self):
-            print "**Error: Can't run this command."
-            print sys.exit(1)
+            nsis_compiler = 'makensis'
+            nsis_script = 'scripts\\build-multiuser.nsi'
+            os.system('%s %s' % (nsis_compiler, nsis_script))
 
 else:
     py2exe_options = {}
