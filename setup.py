@@ -196,9 +196,13 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             pass
 
         def run(self):
-            nsis_compiler = 'makensis'
+            # if all(parts in (None, "") for parts in (sp, rank, cv)):
+            envars = ['programw6432', 'programfiles', 'localappdata']
+            mns = 'nsis\\makensis'
+            locs = [os.path.join(os.getenv(var, 'c:\\'), mns) for var in envars]
+            makensis = [loc for loc in locs if spawn.find_executable(loc)][0]
             nsis_script = 'scripts\\build-multiuser.nsi'
-            os.system('%s %s' % (nsis_compiler, nsis_script))
+            os.system('%s %s' % (makensis, nsis_script))
 
 else:
     py2exe_options = {}
