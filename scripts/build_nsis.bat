@@ -1,7 +1,8 @@
 @echo off
 
-IF NOT EXIST %HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe\ (
+IF NOT EXIST %HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe\Scripts\activate.bat (
   ECHO creating an isolated virtual environment to build in
+  pip install virtualenv
   virtualenv --system-site-packages %HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe
 )
 
