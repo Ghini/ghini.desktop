@@ -184,9 +184,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
         # 2. run the script to update the pixbuf paths
-        # 3. tun the nsis command to create the installer
-        # 4. try to do everything silent if possible instead of using
-        # the NSIS compiler GUI
+        # 3. run the nsis command to create the installer
+        # 4. do everything silent, don't use the NSIS compiler GUI
         user_options = []
 
         def initialize_options(self):
