@@ -3,8 +3,8 @@ Building a Windows installer
 ============================
 
 For building a Windows installer you will need an installation of Windows.  The 
-method described here has been used successfully on Windows 7, 8 and 10.  Vista 
-should also work but has not been tested.
+method described here has been used successfully on Windows 7, 8 and 10.  
+Windows Vista should also work but has not been tested.
 
 
 .. admonition:: technical note
@@ -46,13 +46,6 @@ should also work but has not been tested.
       cd ghini.desktop
       git checkout ghini-1.0
 
-   .. admonition:: technical note
-      :class: note
-
-      If working in a Virtual machine this would be a good place to take 
-      a snapshot. You will be able to immediately return to this point in the 
-      process without waiting for the virtual machine to boot.
-
    .. admonition:: already installed?
       :class: note
 
@@ -70,13 +63,22 @@ should also work but has not been tested.
    This should leave a file named ``ghini.desktop-<version>-setup.exe`` in the 
    ``scripts`` folder of ghini.desktop.  This is your Windows installer.
 
+   .. admonition:: technical note
+      :class: note
+
+      If working in a virtual machine this would be a good place to take 
+      a snapshot. You will be able to immediately return to this point, where 
+      all requirements are installed and a command prompt is open at the 
+      correct place, without waiting for the virtual machine to boot.
+
    It is also worth noting that the ``dist`` folder will contain a full working 
    copy of the software in a frozen, self contained state, that can be 
-   transferred however you like and will work in place.  (e.g.  placed on a USB 
+   transferred however you like and will work in place.  (e.g. placed on a USB 
    flash drive for demonstration purposes or copied manually to ``C:\Program 
    Files``).  If all you want is this frozen copy then you will not need to 
    install NSIS and can run the above command with the '/f' switch (i.e.  
-   ``scripts\build_win.bat /f``).
+   ``scripts\build_win.bat /f``).  To start ghini.desktop double click 
+   ``ghini.exe`` in explorer or (create a shortcut to it).
 
 In future if you wish to build further installers just open a command prompt 
 and enter::
