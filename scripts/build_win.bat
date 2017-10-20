@@ -18,25 +18,23 @@ IF "%VIRTUAL_ENV%"=="" (
   )
 )
 
-ECHO clearing previous checkouts
-for /F "delims=" %%i in (
-  'dir /b %VIRTUAL_ENV%\Lib\site-packages\ghini.desktop-*egg'
-) do (
-  rmdir "%VIRTUAL_ENV%\Lib\site-packages\""%%i" /s/q 2>NUL
-)
-
 ECHO Installing dependancies
 pip install py2exe_py2
 pip install lxml
 pip install psycopg2
 pip install Pygments
 
-ECHO building and installing ghini.desktop - without eggs
-python setup.py build
+ECHO cleaning up
+python setup.py clean
+
+ECHO installing dependencies - without eggs
 python setup.py install --old-and-unmanageable
 
 ECHO building frozen distribution
 python setup.py py2exe
+
+REM Freeze only?
+if "%1"=="/f" GOTO :EOF
 
 ECHO building NSIS installer
 python setup.py nsis
