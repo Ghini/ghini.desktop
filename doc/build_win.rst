@@ -1,5 +1,6 @@
+============================
 Building a Windows installer
------------------------------
+============================
 
 For building a Windows installer you will need an installation of Windows.  The 
 method described here has been used successfully on Windows 7, 8 and 10.  Vista 
@@ -34,7 +35,7 @@ should also work but has not been tested.
 #. Download and install `NSIS v3 <http://nsis.sourceforge.net/Download>`_.  
    (Unless you only wish to freeze the code - see below)
 
-#. **Reboot**
+#. A **reboot** is recommended.
 
 #. Clone ghini.desktop to wherever you want to keep it and checkout the branch 
    you wish to build.  To do this, open a command prompt and type these 
@@ -90,6 +91,44 @@ and enter::
    If you have been using a virtual machine as descibed here you would just 
    restore the snapshot and use ``git pull`` followed by 
    ``scripts\build_win.bat``
+
+
+.. admonition:: about the installer
+   :class: note
+
+   -  The installer is capable of single user or global installs.
+
+   -  At this point in time the ghini.desktop installed this way will not check
+      or or notify you of any updated version.  You will need to check 
+      yourself.
+
+   -  The installer is capable of downloading extra components:
+
+      -  Apache FOP - If you plan on using xslt templates to produce PDFs then 
+         install FOP.  There is no uninstaller with this component.  FOP 
+         requires the Java Runtime so if you do not currently have it installed 
+         the ghini.desktop installer will let you know and can open the Oracle 
+         web site for you to download and install it from.
+
+      -  MS Visual C runtime - You most likely don't need this but if you have 
+         any trouble getting ghini.desktop to run try installing the MS Visual 
+         C runtime (rerun the installer and select this component only).
+
+   -  Can be run silently using switches (e.g. for remote deployment) where:
+
+      - ``/S`` for silent;
+
+      - ``/AllUser`` or ``/CurrentUser``
+
+      - ``/C=[gFC]`` to specify components where:
+
+            g = Deselect the main ghini.desktop component (used for component 
+            only installs)
+
+            F = select Apache FOP
+
+            C = select MS Visual C runtime
+
 
 .. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.13.3.windows.1/Git-2.13.3-32-bit.exe
 .. _Direct link to download Python: https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
