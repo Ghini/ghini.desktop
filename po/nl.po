@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2017-10-16 01:46+0000\n"
+"PO-Revision-Date: 2017-10-20 14:08+0000\n"
 "Last-Translator: Christophe Van Calster <christophevancalster@mac.com>\n"
 "Language-Team: Dutch "
 "<https://hosted.weblate.org/projects/ghini/desktop-11/nl/>\n"
@@ -268,7 +268,7 @@ msgstr "<b>Beschrijving:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:788
 msgid "<b>Distribution for label:</b>"
-msgstr ""
+msgstr "<b>Distributie voor label:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:754
 msgid "<b>Distribution:</b>"
@@ -289,7 +289,7 @@ msgstr "<b>Families:</b>"
 #: bauble/plugins/garden/acc_editor.glade:1160
 #, fuzzy
 msgid "<b>Flags</b>"
-msgstr "<b>Vlaggen</b>"
+msgstr "<b>Flags</b>"
 
 #: bauble/plugins/report/report.glade:164
 #, fuzzy
@@ -886,12 +886,10 @@ msgid "Can't get accessions from a %s"
 msgstr "Kan geen accessies van %s ophalen"
 
 #: bauble/plugins/report/__init__.py:125
-#, fuzzy
 msgid "Can't get plants from a %s"
 msgstr "Kan geen planten ophalen van een %s"
 
 #: bauble/plugins/report/__init__.py:208
-#, fuzzy
 msgid "Can't get species from a %s"
 msgstr "Kan geen soorten ophalen van een %s"
 
@@ -965,7 +963,6 @@ msgid "Collection ID"
 msgstr "Collectie ID"
 
 #: bauble/plugins/garden/acc_editor.glade:1726
-#, fuzzy
 msgid "Collection Notes"
 msgstr "Notities bij collectie"
 
