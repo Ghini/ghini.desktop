@@ -20,7 +20,7 @@ Windows Vista should also work but has not been tested.
 
    There are many similarities to the usual installation process here.  if you 
    have already installed ghini.desktop you can skip the first two steps and 
-   proceed to step 3 
+   proceed to step 4 
 
 #. Download and install the git, Python and PyGTK external dependencies as 
    outlined in the installation instructions.  You can use the direct links 
@@ -28,9 +28,6 @@ Windows Vista should also work but has not been tested.
    to download Python_>`_, `PyGTK <Direct link to download PyGTK_>`_) but 
    remember to select to put Python in the PATH and install **all** components 
    of PyGTK.
-
-#. Download and install `Microsoft Visual C++ Compiler for Python 2.7 
-   <http://aka.ms/vcpython27>`_.
 
 #. Download and install `NSIS v3 <http://nsis.sourceforge.net/Download>`_.  
    (Unless you only wish to freeze the code - see below)

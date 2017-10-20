@@ -20,7 +20,6 @@ IF "%VIRTUAL_ENV%"=="" (
 
 ECHO Installing dependancies
 pip install py2exe_py2
-pip install lxml
 pip install psycopg2
 pip install Pygments
 
@@ -28,7 +27,7 @@ ECHO cleaning up
 python setup.py clean
 
 ECHO installing dependencies - without eggs
-python setup.py install --old-and-unmanageable
+pip install .
 
 ECHO building frozen distribution
 python setup.py py2exe
