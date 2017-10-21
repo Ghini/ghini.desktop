@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2015 Mario Frasca <mario@anche.no>
-# Copyright (c) 2016 Ross Demuth <rossdemuth123@gmail.com>
+# Copyright (c) 2016,2017 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -129,6 +129,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                                    [m.replace(os.sep, '/') for m in matches]))
 
     class py2exe_cmd(_py2exe_cmd):
+        description = 'build standalone Windows executable'
         def run(self):
             # TODO: make sure we have everything installed that we need to
             # bundle e.g. sqlite, psycopg2, others...
@@ -181,34 +182,44 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             file_util.copy_file("LICENSE", os.path.join(self.dist_dir, 'share',
                                                         'LICENSE.ghini'))
 
-    class nsis_cmd(Command):
-        # 1. copy the gtk dist to the dist directory
-        # 2. run the script to update the pixbuf paths
-        # 3. run the nsis command to create the installer
-        # 4. do everything silent, don't use the NSIS compiler GUI
-        user_options = []
+    class NsisCmd(Command):
+        """Command to create a Windows NSIS installer"""
+
+        description = 'build windows NSIS installer'
+
+        user_options = [
+            ('makensis=', 'm', 'path to makensis'),
+            ('nsis-script=', 's', 'script to build installer from')
+            ]
 
         def initialize_options(self):
-            pass
-
-        def finalize_options(self):
-            pass
-
-        def run(self):
-            # if all(parts in (None, "") for parts in (sp, rank, cv)):
             envars = ['programw6432', 'programfiles', 'localappdata']
             mns = 'nsis\\makensis'
-            nsis_script = 'scripts\\build-multiuser.nsi'
             locs = [os.path.join(os.getenv(ev, 'c:\\'), mns) for ev in envars]
-            makensis = ([loc for loc in locs if spawn.find_executable(loc)] +
-                        [spawn.find_executable('makensis')])[0]
-            if not makensis:
-                msg = ('** Error: Building Ghini.desktop NSIS installer '
-                       'requires NSIS to be installed somewhere easy to find')
-                print msg
-                sys.exit(1)
-            print 'using %s to build %s' % (makensis, nsis_script)
-            os.system('"%s" %s' % (makensis, nsis_script))
+            self.makensis = (
+                [loc for loc in locs if spawn.find_executable(loc)] +
+                [spawn.find_executable('makensis')])[0]
+            self.nsis_script = 'scripts\\build-multiuser.nsi'
+
+        def finalize_options(self):
+            if self.makensis:
+                is_exe = spawn.find_executable(self.makensis) is not None
+                exe_name = os.path.split(self.makensis)[-1]
+                is_makensis = exe_name in ('makensis', 'makensis.exe')
+                if not is_exe or not is_makensis:
+                    raise Exception('makensis not found at: %s' % self.makensis)
+            else:
+                raise Exception('can not find makensis, NSIS needs to be '
+                                'installed in the default location, on the '
+                                'path or provided using --makensis=')
+
+            if not os.path.exists(self.nsis_script):
+                raise Exception('can not find nsis build script at: %s'
+                                % self.nsis_script)
+
+        def run(self):
+            print 'using %s to build %s' % (self.makensis, self.nsis_script)
+            os.system('"%s" %s' % (self.makensis, self.nsis_script))
 
 else:
     py2exe_options = {}
@@ -229,9 +240,11 @@ else:
             print sys.exit(1)
 
     class py2exe_cmd(_empty_cmd):
+        description = 'build Windows executable *ONLY AVAILABLE IN WINDOWS'
         pass
 
-    class nsis_cmd(_empty_cmd):
+    class NsisCmd(_empty_cmd):
+        description = 'build Windows NSIS installer *ONLY AVAILABLE IN WINDOWS'
         pass
 
 
@@ -442,7 +455,7 @@ if sys.platform == 'win32':
 # package_data or data_files
 setuptools.setup(name="ghini.desktop",
                  cmdclass={'build': build, 'install': install,
-                           'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
+                           'py2exe': py2exe_cmd, 'nsis': NsisCmd,
                            'docs': docs, 'clean': clean, 'run': run},
                  version=version,
                  scripts=scripts,

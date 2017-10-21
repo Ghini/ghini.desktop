@@ -26,10 +26,10 @@ pip install Pygments
 ECHO cleaning up
 python setup.py clean
 
-ECHO installing dependencies - without eggs
+ECHO installing without eggs
 pip install .
 
-ECHO building frozen distribution
+ECHO building frozen
 python setup.py py2exe
 
 REM Freeze only?

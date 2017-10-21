@@ -18,7 +18,7 @@ Windows Vista should also work but has not been tested.
 .. admonition:: already installed?
    :class: note
 
-   There are many similarities to the usual installation process here.  if you 
+   There are many similarities to the usual installation process here.  If you 
    have already installed ghini.desktop you can skip the first two steps and 
    proceed to step 4 
 
@@ -95,23 +95,22 @@ and enter::
 .. admonition:: about the installer
    :class: note
 
-   -  The installer is capable of single user or global installs.
+   -  Capable of single user or global installs.
 
-   -  At this point in time the ghini.desktop installed this way will not check
+   -  At this point in time ghini.desktop installed this way will not check
       or or notify you of any updated version.  You will need to check 
       yourself.
 
-   -  The installer is capable of downloading extra components:
+   -  Capable of downloading and installing optional extra components:
 
       -  Apache FOP - If you plan on using xslt templates to produce PDFs then 
-         install FOP.  There is no uninstaller with this component.  FOP 
-         requires the Java Runtime so if you do not currently have it installed 
-         the ghini.desktop installer will let you know and can open the Oracle 
-         web site for you to download and install it from.
+         install FOP.  FOP requires the Java Runtime. If you do not currently 
+         have it installed the installer will let you know and offer to open 
+         the Oracle web site for you to download and install it from.
 
       -  MS Visual C runtime - You most likely don't need this but if you have 
          any trouble getting ghini.desktop to run try installing the MS Visual 
-         C runtime (rerun the installer and select this component only).
+         C runtime (e.g. rerun the installer and select this component only).
 
    -  Can be run silently using switches (e.g. for remote deployment) where:
 
@@ -121,12 +120,12 @@ and enter::
 
       - ``/C=[gFC]`` to specify components where:
 
-            g = Deselect the main ghini.desktop component (used for component 
-            only installs)
+            ``g`` = Deselect the main ghini.desktop component (used for 
+            component only installs)
 
-            F = select Apache FOP
+            ``F`` = select Apache FOP
 
-            C = select MS Visual C runtime
+            ``C`` = select MS Visual C runtime
 
 
 .. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.13.3.windows.1/Git-2.13.3-32-bit.exe
