@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-09-12 10:54-0500\n"
-"PO-Revision-Date: 2017-10-15 15:57+0000\n"
+"PO-Revision-Date: 2017-10-20 14:08+0000\n"
 "Last-Translator: Christophe Van Calster <christophevancalster@mac.com>\n"
 "Language-Team: Dutch "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/nl/>\n"
@@ -775,7 +775,6 @@ msgid "Collection ID:"
 msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1631
-#, fuzzy
 msgid "Collection Notes"
 msgstr "Notities bij collectie"
 
