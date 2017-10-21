@@ -33,7 +33,11 @@ ECHO building frozen
 python setup.py py2exe
 
 REM Freeze only?
-if "%1"=="/f" GOTO :EOF
+if "%1"=="/f" GOTO SKIP_NSIS
 
 ECHO building NSIS installer
 python setup.py nsis
+GOTO :EOF
+
+:SKIP_NSIS
+copy scripts\win_gtk.bat dist

@@ -75,7 +75,12 @@ Windows Vista should also work but has not been tested.
    Files``).  If all you want is this frozen copy then you will not need to 
    install NSIS and can run the above command with the '/f' switch (i.e.  
    ``scripts\build_win.bat /f``).  To start ghini.desktop double click 
-   ``ghini.exe`` in explorer or (create a shortcut to it).
+   ``ghini.exe`` in explorer (or create a shortcut to it). If you have issues 
+   with PyGTK not displaying correctly you need to run the script 
+   ``win_gtk.bat`` from the ``dist`` folder to set up paths correctly.  Runing 
+   ``build_win /f`` will place this script in the dist folder for you.  You 
+   will only need to run this once each time the location of the folder 
+   changes.  There after ``ghini.exe`` will run as expected.
 
 In future if you wish to build further installers just open a command prompt 
 and enter::
