@@ -159,16 +159,9 @@ environment, but which are missing in a off-the-shelf mac:
        older.  We never had a problem with the lastest macOS.
 
        The problem lies with homebrew and some of the packages we rely on.
-       The messages you have to fear look like this::
+       The message you have to fear looks like this::
 
          Do not report this issue to Homebrew/brew or Homebrew/core!
-
-       and::
-
-         Error: You are using macOS 10.8.
-         We (and Apple) do not provide support for this old version.
-         You may encounter build failures or other breakages.
-         Please create pull-requests instead of filing issues.
 
        The only solution I can offer is: please update your system.
 
