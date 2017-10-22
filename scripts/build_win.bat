@@ -1,20 +1,20 @@
 @echo off
 
-IF NOT EXIST %HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe\Scripts\activate.bat (
+IF NOT EXIST "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe\Scripts\activate.bat (
   ECHO creating an isolated virtual environment to build in
   pip install virtualenv
-  virtualenv --system-site-packages %HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe
+  virtualenv --system-site-packages "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe
 )
 
 IF "%VIRTUAL_ENV%"=="" (
   ECHO Activating virtual environment to build in.
-  call %HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe\Scripts\activate.bat
+  call "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe\Scripts\activate.bat
 ) else (
   ECHO Currently using virtual environment: "%VIRTUAL_ENV%"
   IF NOT "%VIRTUAL_ENV%"=="%HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe" (
     ECHO deactivating previous virtual environment and activating one to build in
     deactivate
-    call %HOMEDRIVE%%HOMEPATH%\.virtualenvs\ghi2exe\Scripts\activate.bat
+    call "%HOMEDRIVE%%HOMEPATH%"\.virtualenvs\ghi2exe\Scripts\activate.bat
   )
 )
 
