@@ -37,7 +37,7 @@
 ; A component has failed to install (e.g. FOP mirror is down) so you rerun for that component only
 
 ;---
-; Plugins, required to compile:
+; Plugins, required to compile: (included in data\nsis)
 ; -
 ; nsExec (included in NSIS v3.0) for executing commands
 ; WordFunc.nsh (included in NSIS v3.0) for comparing versions
@@ -49,6 +49,9 @@
 ; Inetc (http://nsis.sourceforge.net/Inetc_plug-in)
 ; MD5 (http://nsis.sourceforge.net/MD5_plugin)
 ;---
+!addplugindir /x86-ansi "..\data\nsis\Plugins\x86-ansi\"
+!addplugindir /x86-unicode "..\data\nsis\Plugins\x86-unicode\"
+!addincludedir "..\data\nsis\Include\"
 
 ;------------------------------
 ;  GENERAL
@@ -56,14 +59,14 @@
 ; Global
 Name "ghini.desktop"
 !define VERSION "1.0.75" ; :bump
-!define src_dir "..\dist"
+!define SRC_DIR "..\dist"
 !define PRODUCT_NAME "ghini.desktop"
 Outfile "${PRODUCT_NAME}-${VERSION}-setup.exe"
 !define PROGEXE "ghini.exe"
 !define COMPANY_NAME ""
-!define license_file "LICENSE"
-!define readme "README.rst"
-!define startmenu "$SMPROGRAMS\${PRODUCT_NAME}"
+!define LICENSE_FILE "LICENSE"
+!define README "README.rst"
+!define START_MENU "$SMPROGRAMS\${PRODUCT_NAME}"
 !define UNINSTALL_FILENAME "uninstall.exe"
 
 ; FOP
@@ -113,11 +116,11 @@ CRCCheck on
 ; Modern User Interface v2 Settings
 !define MUI_ABORTWARNING
 !define MUI_UNABORTWARNING
-!define MUI_ICON "${src_dir}\bauble\images\icon.ico"
-!define MUI_UNICON "${src_dir}\bauble\images\icon.ico"
+!define MUI_ICON "${SRC_DIR}\bauble\images\icon.ico"
+!define MUI_UNICON "${SRC_DIR}\bauble\images\icon.ico"
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
-!define MUI_HEADERIMAGE_UNBITMAP "${src_dir}\bauble\images\ghini_logo.bmp"
+!define MUI_HEADERIMAGE_BITMAP "${SRC_DIR}\bauble\images\ghini_logo.bmp"
+!define MUI_HEADERIMAGE_UNBITMAP "${SRC_DIR}\bauble\images\ghini_logo.bmp"
 !define MUI_HEADERIMAGE_RIGHT
 !define MUI_COMPONENTSPAGE_SMALLDESC
 !define MUI_COMPONENTSPAGE_TEXT_COMPLIST "Or, select the optional components you wish to install: \
@@ -139,8 +142,8 @@ CRCCheck on
 ; NsisMultiUser - all settings need to be set before including the NsisMultiUser.nsh header file.
 ; thanks to Richard Drizin https://github.com/Drizin/NsisMultiUser
 !include "NsisMultiUser.nsh"
-!include "MUI2.nsh"
 !include "UAC.nsh"
+!include "MUI2.nsh"
 !include "WordFunc.nsh"
 !include "FileFunc.nsh"
 
@@ -149,7 +152,7 @@ CRCCheck on
 ;  PAGES
 
 ; Installer
-!insertmacro MUI_PAGE_LICENSE "${src_dir}\${license_file}"
+!insertmacro MUI_PAGE_LICENSE "${SRC_DIR}\${LICENSE_FILE}"
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 ; this will show the 2 install options, unless it's an elevated inner process
 ; (in that case we know we should install for all users)
@@ -169,7 +172,6 @@ CRCCheck on
 ;  LANGUAGES
 
 ; MUIv2 macros (must be after scripts and pages)
-; TODO add more languages?
 !insertmacro MUI_LANGUAGE English
 
 
@@ -196,7 +198,7 @@ Section "!Ghini.desktop" SecMain
     SetOverwrite on
     ; package all files, recursively, preserving attributes
     ; assume files are in the correct places
-    File /a /r "${src_dir}\*.*"
+    File /a /r "${SRC_DIR}\*.*"
 
     ; Create uninstaller
     WriteUninstaller "$INSTDIR\${UNINSTALL_FILENAME}"
@@ -204,8 +206,8 @@ Section "!Ghini.desktop" SecMain
     ; add registry keys
     !insertmacro MULTIUSER_RegistryAddInstallInfo
     ; create shortcuts
-    CreateDirectory "${startmenu}"
-    CreateShortcut "${startmenu}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}" \
+    CreateDirectory "${START_MENU}"
+    CreateShortcut "${START_MENU}\${PRODUCT_NAME}.lnk" "$INSTDIR\${PROGEXE}" \
         "" "$INSTDIR\${PROGEXE}" "" SW_SHOWNORMAL \
         "" "Ghini biodiversity collection manager"
     ; desktop shortcut
@@ -375,7 +377,7 @@ Section /o "MS Visual C runtime DLL (1.73MB Download)" SecMSC
     Goto DoneMSVC
 
     ; Install MS Visual C Runtime
-    ; TODO there seems to be a bug in the installer that leaves junk files in the root directory of the largest drive
+    ; there seems to be a bug in the installer that leaves junk files in the root directory of the largest drive.
     InstalMSVC:
         ; run installer silently (no user input, no cancel button)
         ExecWait '"$PLUGINSDIR\${MSVC_FILE}" /qb!'
@@ -405,7 +407,6 @@ SectionGroupEnd
 ;  UNINSTALLER SECTIONS
 ;
 ; All section names prefixed by "Un" will be in the uninstaller
-; TODO include a FOP uninstaller
 
 ; Settings
 UninstallText "This will uninstall ${PRODUCT_NAME}."
@@ -415,11 +416,11 @@ UninstallText "This will uninstall ${PRODUCT_NAME}."
 Section "Uninstall" SecUnMain
     ; Remove registry keys
     !insertmacro MULTIUSER_RegistryRemoveInstallInfo
-    Delete "${startmenu}\*.*"
+    Delete "${START_MENU}\*.*"
     Delete "$DESKTOP\${PRODUCT_NAME}.lnk"
     SetOutPath $TEMP
     RMDir /r "$INSTDIR"
-    RMDir /r "${startmenu}"
+    RMDir /r "${START_MENU}"
 SectionEnd
 
 
@@ -479,8 +480,8 @@ Function AddFOPtoPATH
         ; copy the script to a temp dir
         SetOutPath "$PLUGINSDIR\"
         SetOverwrite on
-        File /a "Add_to_PATH.vbs"
-        ExecWait '"$SYSDIR\wscript.exe" //E:vbscript "$PLUGINSDIR\Add_to_PATH.vbs" /path:"$R0\fop-${FOP_VERSION}\" /env:"$R1"'
+        File /a "add_to_path.vbs"
+        ExecWait '"$SYSDIR\wscript.exe" //E:vbscript "$PLUGINSDIR\add_to_path.vbs" /path:"$R0\fop-${FOP_VERSION}\" /env:"$R1"'
         DetailPrint "Apache FOP added to $R1 PATH as: $R0\fop-${FOP_VERSION}\"
         SetRebootFlag True
         DetailPrint "Reboot flag = True"
