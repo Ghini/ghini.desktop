@@ -23,7 +23,7 @@
 ## OPTION accession_last: (type: integer, default: '', tooltip: 'end of range.')
 ##
 <%text filter="h">%!PS-Adobe-3.0
-%%BoundingBox: 0 0 144 72
+%%BoundingBBox: 0 0 144 72
 %%Creator: (Ghini)
 %%For: (ghini)
 %%CreationDate: (2016-01-15 21:34:45 )
@@ -25576,6 +25576,7 @@ else:
 % for page, plant_code, accession in enumeration:
 <%text>%%Page: </%text>${page} ${page}<%text>
 %%BeginPageSetup
+%%PageBoundingBox:  0 0 144 72
 %%EndPageSetup
 grestore
 </%text>\
