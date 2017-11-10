@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-15 10:52-0500\n"
-"PO-Revision-Date: 2017-08-03 14:14+0000\n"
+"PO-Revision-Date: 2017-11-10 21:12+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
-"it/>\n"
+"Language-Team: Italian "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.16-dev\n"
+"X-Generator: Weblate 2.18-dev\n"
 "X-Launchpad-Export-Date: 2012-09-20 04:53+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -37,7 +37,7 @@ msgstr "Nº germinati"
 
 #: bauble/plugins/garden/propagation.py:227
 msgid "# of seedlings"
-msgstr ""
+msgstr "N° di semenzali"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
@@ -115,7 +115,7 @@ msgstr "**Errore: Ghini deve essere eseguito in un ambiente grafico."
 
 #: bauble/plugins/report/mako/__init__.py:319
 msgid ":"
-msgstr ""
+msgstr ":"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -160,7 +160,6 @@ msgid "<b>Awards:</b>"
 msgstr "<b>Riconoscimenti:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:683
-#, fuzzy
 msgid "<b>CITES:</b>"
 msgstr "<b>CITES:</b>"
 
@@ -464,7 +463,7 @@ msgstr "Accessione di origine selvatica"
 
 #: bauble/plugins/garden/acc_editor.glade:2089
 msgid "Accuracy"
-msgstr ""
+msgstr "Precisione"
 
 #: bauble/plugins/garden/plant_editor.glade:430
 #: bauble/plugins/garden/plant_editor.glade:1235
