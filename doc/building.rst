@@ -104,6 +104,7 @@ Desktop 1.1        ghini.desktop               ghini-1.1-dev
 Documentation 1.0  ghini.desktop-docs.i18n     ghini-1.0-dev
 Documentation 1.1  ghini.desktop-docs.i18n     ghini-1.1-dev
 Web 1.2            ghini.web                   master
+Pocket             ghini.pocket                master
 ================== =========================== ==================
 
 To update the ``po`` files relative to the *software*, you set the working
@@ -169,6 +170,47 @@ script will:
 
 We could definitely write the above in a Makefile, or even better include it
 in ``/doc/Makefile``. Who knows, maybe we will do that.
+
+Which way do the translated strings reach our users?
+-------------------------------------------------------
+
+A new translator asked the question, adding: »Is this an automated process
+from Weblate --> GIT --> Ghini Desktop installed on users computers, or does
+this require manual steps?
+
+The aswer is that the whole interaction is quite complex, and it depends on
+the component.
+
+When it comes to ``ghini.desktop``, when you do a global installation, you
+don't know which language your users will set up their environment, and a
+user can change the language configuration any time.  So what we do is to
+install the software in English together with a translation table from
+English to whatever else, in particular Italian or Hungarian. Then the GUI
+libraries (Android or GTK) know where to look for the translation strings.
+These translation tables are generated during the installation or upgrade
+process, based on the strings you see on Weblate.
+
+Before any of the above gets activated, the path followed by your
+translations is as you describe: Weblate pushes the strings to github,
+directly into the development line `ghini-1.0-dev`; I see them, if I
+understand at least the structure of that language I review them, maybe I
+look them up in wikipedia or get them translated back to Italian, Spanish or
+English by some automatic translation service; sometimes I need to solve
+conflicts arising because of changed context, not too often fortunately;
+from time to time I publish the development line `ghini-1.0-dev` to the
+production line `ghini-1.0`, and this is the moment when the new
+translations finally make it to the distributed software.
+
+users will notice a `new version available` warning and can decide to ignore
+it, or to update.
+
+For ``ghini.pocket``, there is no notification to end users, since we're not
+yet using the google app store.
+
+For ``ghini.web``, we haven't yet defined how to distribute it.
+
+For ghini's documentation, it's completely automatic, and all is handled by
+readthedocs.org.
 
 
 Adding missing unit tests
