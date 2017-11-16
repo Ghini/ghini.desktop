@@ -98,7 +98,7 @@ class XMLExporter:
         for table_name, table in db.metadata.tables.iteritems():
             if one_file:
                 tableset_el = etree.Element('tableset')
-            logger.info('exporting %s...' % table_name)
+            logger.info('exporting %s…' % table_name)
             table_el = ElementFactory(tableset_el, 'table',
                                       attrib={'name': table_name})
             results = table.select().execute().fetchall()

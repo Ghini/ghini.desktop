@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:54-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2017-11-14 13:27+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
-"Language-Team: Norwegian Bokmål "
-"<https://hosted.weblate.org/projects/ghini/desktop-10/nb_NO/>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/ghini/"
+"desktop-10/nb_NO/>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -182,7 +182,6 @@ msgid "<b>Distribution:</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:928
-#, fuzzy
 msgid "<b>Families:</b>"
 msgstr ""
 
@@ -191,7 +190,6 @@ msgid "<b>Formatter</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:911
-#, fuzzy
 msgid "<b>Genera:</b>"
 msgstr ""
 
@@ -689,23 +687,26 @@ msgid "Changes"
 msgstr "Endringer"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Velg ei fil å eksportere til…"
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
+msgid "Choose a file…"
 msgstr "Velg ei fil…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
+msgid "Choose a property…"
 msgstr "Velg en egenskap…"
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
+msgid "Choose file(s) to import…"
 msgstr ""
 
 #: bauble/querybuilder.glade:134
@@ -2080,7 +2081,7 @@ msgid "Reset to defaults"
 msgstr "Tilbakestill til forvalg"
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
+msgid "Retrieving %s search results…"
 msgstr "Henter %s søkeresultater…"
 
 #: bauble/plugins/garden/accession.py:440
@@ -2289,7 +2290,7 @@ msgid "Select a directory"
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
+msgid "Select a file…"
 msgstr "Velg fil…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
@@ -3554,3 +3555,15 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:284
 msgid "°F"
 msgstr ""
+
+#~ msgid "Choose a file..."
+#~ msgstr "Velg ei fil…"
+
+#~ msgid "Choose a property..."
+#~ msgstr "Velg en egenskap…"
+
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Henter %s søkeresultater…"
+
+#~ msgid "Select a file..."
+#~ msgstr "Velg fil…"

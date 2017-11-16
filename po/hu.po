@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2017-11-15 16:46+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
-"Language-Team: Hungarian "
-"<https://hosted.weblate.org/projects/ghini/desktop-10/hu/>\n"
+"Language-Team: Hungarian <https://hosted.weblate.org/projects/ghini/"
+"desktop-10/hu/>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -62,8 +62,8 @@ msgid ""
 "%(num_plants)s plants depend on this accession: <b>%(plant_codes)s</b>\n"
 "\n"
 msgstr ""
-"%(num_plants)s db növény-egyed tartozik ehhez a beszerzéshez: "
-"<b>%(plant_codes)s</b>\n"
+"%(num_plants)s db növény-egyed tartozik ehhez a beszerzéshez: <b>"
+"%(plant_codes)s</b>\n"
 "\n"
 
 #: bauble/plugins/garden/accession.py:2582
@@ -565,8 +565,8 @@ msgid ""
 "\n"
 "<i>Note: This will not remove the genus from the database.</i>"
 msgstr ""
-"%(genus)s: Biztosan törölni kívánja, mint az aktuális nemzetség szinonímáját?"
-"\n"
+"%(genus)s: Biztosan törölni kívánja, mint az aktuális nemzetség "
+"szinonímáját?\n"
 "\n"
 "<i>Megjegyzés: Ezzel a nemzetség nem fog törlődni az adatbázisból.</i>"
 
@@ -735,23 +735,26 @@ msgid "Changes"
 msgstr "Módosítások"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Adja meg az exportálandó file nevét ..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
+msgid "Choose a file…"
 msgstr "Válasszon fájlt…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Válasszon egy tulajdonságot ..."
+msgid "Choose a property…"
+msgstr "Válasszon egy tulajdonságot…"
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
+msgid "Choose file(s) to import…"
 msgstr ""
 
 #: bauble/querybuilder.glade:134
@@ -1278,8 +1281,8 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
-"Az export file (<b>%(filename)s</b>) a <b>%(table)s</b> táblához már létezik."
-"\n"
+"Az export file (<b>%(filename)s</b>) a <b>%(table)s</b> táblához már "
+"létezik.\n"
 "\n"
 "<i>Kívánja folytatni?</i>"
 
@@ -2027,8 +2030,8 @@ msgstr "Ellenőrizze, hogy a GTK_ROOT\\bin megtalálható-e a PATH-ban!"
 #: bauble/plugins/garden/location.py:66
 msgid "Please remove the plants from <b>%(location)s</b> before deleting it."
 msgstr ""
-"A helyszín törlése előtt törölni kell a hozzá rendelt növényeket: "
-"<b>%(location)s</b>."
+"A helyszín törlése előtt törölni kell a hozzá rendelt növényeket: <b>"
+"%(location)s</b>."
 
 #: bauble/plugins/report/xsl/__init__.py:539
 msgid "Please select a a renderer"
@@ -2202,8 +2205,8 @@ msgid "Reset to defaults"
 msgstr "Alapértelmezett értékek visszaállítása"
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "%s találat lekérése..."
+msgid "Retrieving %s search results…"
+msgstr "%s találat lekérése…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2411,7 +2414,7 @@ msgid "Select a directory"
 msgstr "Válasszon ki egy könyvtárat"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
+msgid "Select a file…"
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:385
@@ -3780,6 +3783,12 @@ msgstr ""
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Válasszon fájlt…"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Válasszon fájlt…"
+
+#~ msgid "Choose a property..."
+#~ msgstr "Válasszon egy tulajdonságot ..."
+
 #~ msgid "Copyright © Belize Botanic Gardens"
 #~ msgstr "Copyright © Belize Botanic Gardens"
 
@@ -3806,6 +3815,9 @@ msgstr ""
 
 #~ msgid "Password: "
 #~ msgstr "Jelszó: "
+
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "%s találat lekérése..."
 
 #~ msgid "Search Google"
 #~ msgstr "Google keresés"

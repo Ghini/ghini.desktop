@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2017-07-04 03:08+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
@@ -731,24 +731,27 @@ msgid "Changes"
 msgstr "Alterações"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Escolher um arquivo de destino para exportação..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Escolher um arquivo..."
+msgid "Choose a file…"
+msgstr "Escolher um arquivo…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Escolher uma propriedade..."
+msgid "Choose a property…"
+msgstr "Escolher uma propriedade…"
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Escolher arquivo a ser importado..."
+msgid "Choose file(s) to import…"
+msgstr "Escolher arquivo a ser importado…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2209,8 +2212,8 @@ msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "Obtendo %s resultados da busca..."
+msgid "Retrieving %s search results…"
+msgstr "Obtendo %s resultados da busca…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2422,8 +2425,8 @@ msgid "Select a directory"
 msgstr "Selecionar um diretório"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
-msgstr "Selecionar um arquivo..."
+msgid "Select a file…"
+msgstr "Selecionar um arquivo…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
@@ -3967,8 +3970,17 @@ msgstr "ºF"
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Escolher um arquivo de destino para exportação..."
 
+#~ msgid "Choose a file..."
+#~ msgstr "Escolher um arquivo..."
+
+#~ msgid "Choose a property..."
+#~ msgstr "Escolher uma propriedade..."
+
 #~ msgid "Choose a search domain..."
 #~ msgstr "Escolher um domínio de pesquisa..."
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Escolher arquivo a ser importado..."
 
 #~ msgid "Container: %s"
 #~ msgstr "Recipiente: %s"
@@ -4126,6 +4138,9 @@ msgstr "ºF"
 #~ msgid "Propagule of cultivated (wild) plant"
 #~ msgstr "Propágulos de planta selvagem cultivada"
 
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Obtendo %s resultados da busca..."
+
 #~ msgid "Save your changes and add a planting to this accession."
 #~ msgstr "Salvar as alterações e adicionar uma planta a essa referência."
 
@@ -4158,6 +4173,9 @@ msgstr "ºF"
 
 #~ msgid "Search Google"
 #~ msgstr "Pesquisar no Google"
+
+#~ msgid "Select a file..."
+#~ msgstr "Selecionar um arquivo..."
 
 #~ msgid "Select a source"
 #~ msgstr "Selecione uma fonte"

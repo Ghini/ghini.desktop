@@ -1087,7 +1087,7 @@ class ExpressionRow(object):
             self.table.attach(self.and_or_combo, 0, 1,
                               row_number, row_number + 1)
 
-        self.prop_button = gtk.Button(_('Choose a property...'))
+        self.prop_button = gtk.Button(_('Choose a property…'))
         self.prop_button.props.use_underline = False
 
         def on_prop_button_clicked(button, event, menu):

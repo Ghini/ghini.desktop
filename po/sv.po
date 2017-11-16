@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2017-11-16 02:10+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Swedish "
-"<https://hosted.weblate.org/projects/ghini/desktop-10/sv/>\n"
+"Language-Team: Swedish <https://hosted.weblate.org/projects/ghini/desktop-10/"
+"sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -727,24 +727,27 @@ msgid "Changes"
 msgstr "Ändringar"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Välj en fil att exportera till…"
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Välj en fil..."
+msgid "Choose a file…"
+msgstr "Välj en fil…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Välj en egenskap…"
+msgid "Choose a property…"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Välj fil(er) att importera..."
+msgid "Choose file(s) to import…"
+msgstr "Välj fil(er) att importera…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2203,7 +2206,7 @@ msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
+msgid "Retrieving %s search results…"
 msgstr "Hämtar %s sökresultat…"
 
 #: bauble/plugins/garden/accession.py:440
@@ -2414,7 +2417,7 @@ msgid "Select a directory"
 msgstr "Välj en mapp"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
+msgid "Select a file…"
 msgstr "Välj en fil…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
@@ -3973,8 +3976,17 @@ msgstr "°F"
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Välj en fil att exportera till…"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Välj en fil..."
+
+#~ msgid "Choose a property..."
+#~ msgstr "Välj en egenskap…"
+
 #~ msgid "Choose a search domain..."
 #~ msgstr "Välj en sökdomän…"
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Välj fil(er) att importera..."
 
 #~ msgid "Container: %s"
 #~ msgstr "Behållare: %s"
@@ -4127,6 +4139,9 @@ msgstr "°F"
 #~ msgid "Propagule of cultivated (wild) plant"
 #~ msgstr "Avkomma från odlad vildplanta"
 
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Hämtar %s sökresultat…"
+
 #~ msgid "Save your changes and add a planting to this accession."
 #~ msgstr "Spara dina ändringar och lägg till en växt i denna accession."
 
@@ -4159,6 +4174,9 @@ msgstr "°F"
 
 #~ msgid "Search Google"
 #~ msgstr "Sök på Google"
+
+#~ msgid "Select a file..."
+#~ msgstr "Välj en fil…"
 
 #~ msgid "Select a source"
 #~ msgstr "Välj en källa"

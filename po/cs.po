@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
@@ -725,24 +725,27 @@ msgid "Changes"
 msgstr "Změny"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Zvolte soubor do kterého exportovat..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Zvolte soubor..."
+msgid "Choose a file…"
+msgstr "Zvolte soubor…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Zvolte vlastnost..."
+msgid "Choose a property…"
+msgstr "Zvolte vlastnost…"
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Zvolte soubor(y) pro importování..."
+msgid "Choose file(s) to import…"
+msgstr "Zvolte soubor(y) pro importování…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2197,8 +2200,8 @@ msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "Načítání %s výsledků vyhledávání..."
+msgid "Retrieving %s search results…"
+msgstr "Načítání %s výsledků vyhledávání…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2410,8 +2413,8 @@ msgid "Select a directory"
 msgstr "Zvolte adresář"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
-msgstr "Vyberte soubor..."
+msgid "Select a file…"
+msgstr "Vyberte soubor…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
@@ -3956,8 +3959,17 @@ msgstr "°F"
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Zvolte soubor do kterého exportovat..."
 
+#~ msgid "Choose a file..."
+#~ msgstr "Zvolte soubor..."
+
+#~ msgid "Choose a property..."
+#~ msgstr "Zvolte vlastnost..."
+
 #~ msgid "Choose a search domain..."
 #~ msgstr "Zvolte doménu hledání..."
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Zvolte soubor(y) pro importování..."
 
 #~ msgid "Container: %s"
 #~ msgstr "Kontejner: %s"
@@ -4111,6 +4123,9 @@ msgstr "°F"
 #~ msgid "Propagule of cultivated (wild) plant"
 #~ msgstr "Propagule vypěstované divoké rostliny"
 
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Načítání %s výsledků vyhledávání..."
+
 #~ msgid "Save your changes and add a planting to this accession."
 #~ msgstr "Uložit Vaše změny a přidat tuto rostlinu do tohoto přírůstku."
 
@@ -4143,6 +4158,9 @@ msgstr "°F"
 
 #~ msgid "Search Google"
 #~ msgstr "Vyhledávání Google"
+
+#~ msgid "Select a file..."
+#~ msgstr "Vyberte soubor..."
 
 #~ msgid "Select a source"
 #~ msgstr "Vyberte zdroj"

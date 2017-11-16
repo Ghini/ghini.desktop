@@ -302,7 +302,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     </child>
                                     <child>
                                       <object class="GtkButton" id="file_btnbrowse">
-                                        <property name="label">...</property>
+                                        <property name="label">…</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
@@ -348,7 +348,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     </child>
                                     <child>
                                       <object class="GtkButton" id="pictureroot_btnbrowse">
-                                        <property name="label">...</property>
+                                        <property name="label">…</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>
@@ -533,7 +533,7 @@ Click on &lt;b&gt;Add&lt;/b&gt; to create a new connection.</property>
                                     </child>
                                     <child>
                                       <object class="GtkButton" id="pictureroot2_btnbrowse">
-                                        <property name="label">...</property>
+                                        <property name="label">…</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">True</property>

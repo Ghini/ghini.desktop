@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-22 13:46-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2017-11-14 13:26+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
-"Language-Team: Dutch "
-"<https://hosted.weblate.org/projects/ghini/desktop-10/nl/>\n"
+"Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
+"nl/>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -729,24 +729,27 @@ msgid "Changes"
 msgstr "Aanpassingen"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Exporteren naar..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Kies een bestand..."
+msgid "Choose a file…"
+msgstr "Kies een bestand…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Kies een eigenschap..."
+msgid "Choose a property…"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Selecteer bestand(en) om te importeren..."
+msgid "Choose file(s) to import…"
+msgstr "Selecteer bestand(en) om te importeren"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -1792,8 +1795,8 @@ msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
 msgstr ""
-"Meer dan één bestand gegeven om te importeren in tabel <b>%(table_name)s</b>:"
-" %(file_name)s, (file_name2)s"
+"Meer dan één bestand gegeven om te importeren in tabel <b>%(table_name)s</"
+"b>: %(file_name)s, (file_name2)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1451
 msgid "Moved from"
@@ -2214,8 +2217,8 @@ msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "Ophalen van %s zoekresultaten..."
+msgid "Retrieving %s search results…"
+msgstr "Ophalen van %s zoekresultaten…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2427,8 +2430,8 @@ msgid "Select a directory"
 msgstr "Kies een map"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
-msgstr "Selecteer een bestand..."
+msgid "Select a file…"
+msgstr "Selecteer een bestand…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
@@ -3212,7 +3215,6 @@ msgid "Would you like the cancel the current tasks?"
 msgstr "Wilt u de de huidige taken annuleren?"
 
 #: bauble/__init__.py:367
-#, fuzzy
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
@@ -3783,6 +3785,15 @@ msgstr ""
 #~ msgid "<b>Preferences</b>"
 #~ msgstr "<b>Voorkeuren</b>"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Kies een bestand..."
+
+#~ msgid "Choose a property..."
+#~ msgstr "Kies een eigenschap..."
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Selecteer bestand(en) om te importeren..."
+
 #~ msgid "Copyright © Belize Botanic Gardens"
 #~ msgstr "Copyright © Belize Botanic Gardens"
 
@@ -3799,8 +3810,14 @@ msgstr ""
 #~ msgid "Plant"
 #~ msgstr "Plant"
 
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Ophalen van %s zoekresultaten..."
+
 #~ msgid "Search Google"
 #~ msgstr "Zoek met Google"
+
+#~ msgid "Select a file..."
+#~ msgstr "Selecteer een bestand..."
 
 #~ msgid ""
 #~ "The genus <i>%(genus)s</i> has %(num_species)s species.  Are you sure you "
