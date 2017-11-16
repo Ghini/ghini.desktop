@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-15 10:52-0500\n"
-"PO-Revision-Date: 2017-11-14 12:47+0000\n"
+"PO-Revision-Date: 2017-11-15 16:46+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
 "Language-Team: Hungarian "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/hu/>\n"
@@ -2867,12 +2867,16 @@ msgid ""
 "The plugins contain a dependency loop. This can happen if two plugins "
 "directly or indirectly rely on each other"
 msgstr ""
+"Körkörös függőség a plugin-ek között. Ez olyankor fordul elő, ha két plugin "
+"közvetlen vagy közvetett módon függ egymástól."
 
 #: bauble/pluginmgr.py:318
 msgid ""
 "The plugins contain a dependency loop. This can happend if two plugins "
 "directly or indirectly rely on each other"
 msgstr ""
+"Körkörös függőség a plugin-ek között. Ez olyankor fordul elő, ha két plugin "
+"közvetlen vagy közvetett módon függ egymástól."
 
 #: bauble/plugins/garden/accession.py:232
 msgid ""
@@ -2886,12 +2890,17 @@ msgid ""
 "\n"
 "Would you like to choose <b>%(species)s</b> instead?"
 msgstr ""
+"A <b>%(synonym)s</b> fajnév szinonímája a <b>%(species)s</b> fajnak.\n"
+"\n"
+"Kívánja inkább a <b>%(species)s</b> nevet választani?"
 
 #: bauble/plugins/plants/species.py:82
 msgid ""
 "The species <i>%(1)s</i> has %(2)s accessions.\n"
 "\n"
 msgstr ""
+"A <i>%(1)s</i> fajhoz %(2)s beszerzés tartozik.\n"
+"\n"
 
 #: bauble/plugins/garden/accession.py:882
 msgid ""
@@ -2901,11 +2910,11 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:195
 msgid "The standard abbreviation of the institution."
-msgstr ""
+msgstr "Az intézmény hivatalos rövidítése."
 
 #: bauble/plugins/garden/institution.py:205
 msgid "The telephone number of the institution."
-msgstr ""
+msgstr "Az intézmény telefonszáma."
 
 #: bauble/plugins/garden/accession.py:893
 msgid "The type of the accessioned material."
@@ -2928,15 +2937,15 @@ msgstr ""
 #: bauble/plugins/report/xsl/__init__.py:585
 msgid ""
 "There are no accessions in the search results.  Please try another search."
-msgstr ""
+msgstr "Nincs találat a beszerzések között. Próbáljon másik keresést!"
 
 #: bauble/plugins/report/xsl/__init__.py:563
 msgid "There are no plants in the search results.  Please try another search."
-msgstr ""
+msgstr "Nincs találat a növények között. Próbáljon másik keresést!"
 
 #: bauble/plugins/report/xsl/__init__.py:575
 msgid "There are no species in the search results.  Please try another search."
-msgstr ""
+msgstr "Nincs találat a fajok között. Próbáljon másik keresést!"
 
 #: bauble/plugins/plants/species_editor.py:470
 msgid ""
@@ -2944,6 +2953,9 @@ msgid ""
 "\n"
 "Are you sure you want to insert it again?"
 msgstr ""
+"Ez a binominális név már szerepel a gyűjteményében: %s.\n"
+"\n"
+"Egészen biztos, hogy ismételten rögzíteni kívánja?"
 
 #: bauble/plugins/garden/plant.py:798
 msgid ""
@@ -2951,6 +2963,9 @@ msgid ""
 "In practice, it is not any more part of the collection. \n"
 "Are you sure you want to edit it anyway?"
 msgstr ""
+"Ezen növény darabszáma nulla. \n"
+"Gyakorlatilag tehát már nem szerepel a gyűjteményben. \n"
+"Ennek tudatában is szerkeszteni kívánja?"
 
 #: bauble/plugins/garden/propagation.py:469
 msgid ""
@@ -2959,6 +2974,10 @@ msgid ""
 "\n"
 "Are you sure you want to remove it?"
 msgstr ""
+"Ez a szaporítás %s db növényt eredményezett.\n"
+"Most már rögzíthető hozzá beszerzés.\n"
+"\n"
+"Biztosan szeretné törölni?"
 
 #: bauble/plugins/garden/propagation.py:483
 msgid ""
@@ -2967,6 +2986,10 @@ msgid ""
 "\n"
 "You cannot remove it."
 msgstr ""
+"Erre a szaporításra\n"
+"%s db beszerzés hivatkozik.\n"
+"\n"
+"Nem törölhető."
 
 #: bauble/plugins/garden/propagation.py:479
 msgid ""
@@ -2975,12 +2998,18 @@ msgid ""
 "\n"
 "You cannot remove it."
 msgstr ""
+"Erre a szaporításra\n"
+"%s db beszerzés hivatkozik.\n"
+"\n"
+"Nem törölhető."
 
 #: bauble/view.py:817
 msgid ""
 "This query returned %s results.  It may take a long time to get all the "
 "data. Are you sure you want to continue?"
 msgstr ""
+"A lekérdezés %s db találatot eredményezett. Az összes adat betöltése hosszú "
+"időbe telhet. Kívánja folytatni?"
 
 #: bauble/plugins/plants/species_editor.py:915
 msgid ""
@@ -2988,6 +3017,9 @@ msgid ""
 "default. The first vernacular name in the list has been automatically "
 "selected."
 msgstr ""
+"Ehhez a fajhoz tartoznak nemzeti nyelvű nevek, de egyik sincs megjelölve "
+"alapértelmezettként. A listában elsőként szereplő név automatikusan "
+"kiválasztásra került."
 
 #: bauble/db.py:38
 msgid ""
@@ -2995,6 +3027,10 @@ msgid ""
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
+"A Ghini ezen verziója az SQLAlchemy 0.6 vagy újabb verzióját igényli. Az ön "
+"által használt verzió: %s. Töltsön le és telepítsen egy frissebb verziót a "
+"http://www.sqlalchemy.org weboldalról, vagy vegye fel a kapcsolatot a "
+"rendszergazdával!"
 
 #: bauble/connmgr.py:551
 msgid "Thumbnails name occupied by non directory."
