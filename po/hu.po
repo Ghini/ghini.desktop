@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-06-03 11:27-0500\n"
-"PO-Revision-Date: 2017-11-15 16:46+0000\n"
+"PO-Revision-Date: 2017-11-19 19:46+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
 "Language-Team: Hungarian "
 "<https://hosted.weblate.org/projects/ghini/desktop-11/hu/>\n"
@@ -2732,7 +2732,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:461
 msgid "Species Window"
-msgstr ""
+msgstr "Faj ablak"
 
 #: bauble/plugins/plants/species_editor.py:1157
 msgid "Species author"
@@ -2743,8 +2743,9 @@ msgid "Species distribution"
 msgstr "Faj elterjedése"
 
 #: bauble/plugins/plants/species_editor.py:1156
+#, fuzzy
 msgid "Species epithet"
-msgstr ""
+msgstr "Fajnév"
 
 #: bauble/plugins/plants/species_editor.py:1158
 msgid "Species hybrid flag"
@@ -2768,7 +2769,7 @@ msgstr "Előtelep"
 
 #: bauble/plugins/garden/source.py:157
 msgid "Staff member"
-msgstr ""
+msgstr "Munkatárs"
 
 #: bauble/plugins/plants/itf2.py:139
 msgid "Staff of this botanic garden"
@@ -2994,7 +2995,7 @@ msgstr "Családnév."
 
 #: bauble/plugins/garden/institution.py:196
 msgid "The fax number of the institution."
-msgstr ""
+msgstr "Az intézmény fax száma."
 
 #: bauble/pluginmgr.py:214
 msgid ""
@@ -3002,6 +3003,10 @@ msgid ""
 "\n"
 "%(plugins)s"
 msgstr ""
+"Az alábbi plugin-ek szerepelnek a registry-ben, de nem sikerült betölteni "
+"őket:\n"
+"\n"
+"%(plugins)s"
 
 #: bauble/pluginmgr.py:195
 msgid ""
@@ -3011,10 +3016,15 @@ msgid ""
 "\n"
 "<i>Would you like to install them now?</i>"
 msgstr ""
+"Az alábbi plugin-ek nem találhatók a plugin registry-ben:\n"
+"\n"
+"<b>%s</b>\n"
+"\n"
+"<i>Szeretné őket most telepíteni?</i>"
 
 #: bauble/plugins/garden/institution.py:184
 msgid "The full name of the institution."
-msgstr ""
+msgstr "Az intézmény teljes neve."
 
 #: bauble/plugins/plants/species_editor.py:294
 msgid ""
@@ -3022,6 +3032,10 @@ msgid ""
 "\n"
 "Would you like to choose <b>%(genus)s</b> instead?"
 msgstr ""
+"A <b>%(synonym)s</b> nemzetségnév a <b>%(genus)s</b> nemzetség szinonim neve."
+"\n"
+"\n"
+"Kívánja inkább a <b>%(genus)s</b> nemzetséget választani helyette?"
 
 #: bauble/plugins/plants/genus.py:92
 msgid ""
@@ -3031,7 +3045,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:369
 msgid "The genus name"
-msgstr ""
+msgstr "Nemzetségnév"
 
 #: bauble/plugins/plants/species_editor.py:1167
 msgid "The habit of this species"
@@ -3039,7 +3053,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:187
 msgid "The intitution code should be unique among all institions."
-msgstr ""
+msgstr "Az intézménykódnak egyedinek kell lennie."
 
 #: bauble/plugins/garden/plant.py:633
 msgid "The location of the plant in your collection."
@@ -3047,12 +3061,12 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:197
 msgid "The mailing address of the institition."
-msgstr ""
+msgstr "Az intézmény postacíme."
 
 #: bauble/plugins/garden/institution.py:189
 msgid ""
 "The name of the person to contact for information related to the institution."
-msgstr ""
+msgstr "Kontakt személy az intézménynél."
 
 #: bauble/plugins/garden/accession.py:228
 msgid ""
@@ -3100,7 +3114,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:370
 msgid "The name or abbreviation of the author that published this genus"
-msgstr ""
+msgstr "A nemzetséget publikáló auktor neve vagy rövidítése"
 
 #: bauble/plugins/garden/location.py:204
 msgid "The name that you will use later to refer to this location."
@@ -3119,13 +3133,14 @@ msgstr ""
 
 #: bauble/plugins/users/__init__.py:632
 msgid "The password for user <b>%s</b> has not been changed."
-msgstr ""
+msgstr "A <b>%s</b> felhasználó jelszava nem változott."
 
 #: bauble/plugins/users/__init__.py:638
 msgid ""
 "The passwords do not match.  The password for user <b>%s</b> has not been "
 "changed."
 msgstr ""
+"A jelszavak különböznek. A <b>%s</b> felhasználó jelszava nem lett módosítva."
 
 #: bauble/plugins/garden/plant.py:626
 msgid ""
