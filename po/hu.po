@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-16 16:11-0500\n"
-"PO-Revision-Date: 2017-11-29 13:47+0000\n"
+"PO-Revision-Date: 2017-12-01 12:47+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
 "Language-Team: Hungarian "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/hu/>\n"
@@ -191,7 +191,7 @@ msgstr "<b>Leírás:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:788
 msgid "<b>Distribution for label:</b>"
-msgstr ""
+msgstr "<b>Elterjedés (címkére):</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:754
 msgid "<b>Distribution:</b>"
@@ -348,8 +348,9 @@ msgid "<b>in use</b>"
 msgstr "<b>használatban</b>"
 
 #: bauble/plugins/imex/select_export.glade:492
+#, fuzzy
 msgid "<b>options</b>"
-msgstr ""
+msgstr "lehetőségek"
 
 #: bauble/plugins/plants/infoboxes.glade:943
 msgid "<b>total</b>"
@@ -740,7 +741,7 @@ msgstr "Adja meg az exportálandó file nevét ..."
 
 #: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to…"
-msgstr ""
+msgstr "Adja meg a file nevet az exportáláshoz …"
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
@@ -755,7 +756,7 @@ msgstr "Válasszon egy tulajdonságot…"
 
 #: bauble/plugins/imex/csv_.py:556
 msgid "Choose file(s) to import…"
-msgstr ""
+msgstr "Válassza ki az importálandó file(oka)t …"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -767,7 +768,7 @@ msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:228
 msgid "Code"
-msgstr ""
+msgstr "Kód"
 
 #: bauble/plugins/garden/acc_infobox.glade:1023
 #: bauble/plugins/garden/acc_editor.glade:2200
@@ -777,15 +778,16 @@ msgstr "Gyűjtemény"
 
 #: bauble/plugins/garden/acc_editor.glade:1614
 msgid "Collection ID"
-msgstr ""
+msgstr "Gyűjtés azonosító"
 
 #: bauble/plugins/garden/acc_infobox.glade:821
 msgid "Collection ID:"
-msgstr ""
+msgstr "Gyűjtés azonosító:"
 
 #: bauble/plugins/garden/acc_editor.glade:1631
+#, fuzzy
 msgid "Collection Notes"
-msgstr ""
+msgstr "Gyűjtés megjegyzések"
 
 #: bauble/plugins/garden/source.py:244
 msgid "Collection at %s"
@@ -793,23 +795,23 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1598
 msgid "Collector"
-msgstr ""
+msgstr "Gyűjtő"
 
 #: bauble/plugins/garden/acc_infobox.glade:760
 msgid "Collector:"
-msgstr ""
+msgstr "Gyűjtő:"
 
 #: bauble/plugins/imex/csv_.py:684 bauble/plugins/imex/csv_.py:702
 msgid "Comma Separated Value"
-msgstr ""
+msgstr "Vesszővel határolt értékek (CSV)"
 
 #: bauble/plugins/users/ui.glade:362
 msgid "Confirm new password"
-msgstr ""
+msgstr "Erősítse meg az új jelszót"
 
 #: bauble/connmgr.glade:578
 msgid "Connection Details"
-msgstr ""
+msgstr "Kapcsolat részletek"
 
 #: bauble/plugins/garden/acc_editor.glade:1208
 #: bauble/plugins/garden/__init__.py:124
@@ -829,7 +831,7 @@ msgstr "Kapcsolattartó"
 #: bauble/plugins/garden/propagation.py:195
 #: bauble/plugins/garden/propagation.py:216
 msgid "Container"
-msgstr ""
+msgstr "Konténer"
 
 #: bauble/ui.py:449
 msgid "Contents"
@@ -981,8 +983,9 @@ msgid "Cultivar group"
 msgstr "Fajtacsoport"
 
 #: bauble/plugins/garden/accession.py:392
+#, fuzzy
 msgid "Cultivated native"
-msgstr ""
+msgstr "Bennszülött (termesztésből)"
 
 #: bauble/plugins/garden/plant_editor.glade:763
 msgid "Current change"
@@ -994,6 +997,9 @@ msgid ""
 "%s\n"
 "Please specify and try again."
 msgstr ""
+"A jelenlegi kapcsolat nem tartalmazza a következő mezőket:\n"
+"%s\n"
+"Adja meg, és próbálja újból!"
 
 #: bauble/plugins/garden/propagation.py:165
 msgid "Cutting"
@@ -1095,8 +1101,9 @@ msgid "Discarded"
 msgstr "Eltávolítva"
 
 #: bauble/plugins/garden/plant.py:293
+#, fuzzy
 msgid "Discarded seedling in nursery"
-msgstr ""
+msgstr "A magvetés a kertészetben megsemmisítve"
 
 #: bauble/plugins/garden/plant.py:279
 msgid "Discarded, weedy"
@@ -1405,7 +1412,7 @@ msgstr "Csírázás dátuma"
 
 #: bauble/plugins/garden/prop_editor.glade:1008
 msgid "Germination media"
-msgstr ""
+msgstr "Csírázási közeg"
 
 #: bauble/plugins/garden/propagation.py:229
 msgid "Germination rate"
@@ -1665,11 +1672,11 @@ msgstr "Tétel(ek)"
 
 #: bauble/plugins/imex/iojson.py:287 bauble/plugins/imex/iojson.py:307
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: bauble/plugins/plants/species_editor.glade:704
 msgid "Label distribution"
-msgstr ""
+msgstr "Elterjedés (a címkén)"
 
 #: bauble/view.py:185
 msgid "Last updated:"
@@ -1702,11 +1709,11 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:170
 msgid "Length: %(length)s%(unit)s"
-msgstr ""
+msgstr "Hossz: %(length)s%(unit)s"
 
 #: bauble/plugins/garden/acc_editor.glade:3270
 msgid "Level"
-msgstr ""
+msgstr "Szint"
 
 #: bauble/view.py:337
 msgid "Links"
@@ -1764,11 +1771,12 @@ msgstr "Hímnemű"
 
 #: bauble/search.py:837
 msgid "MapperSearch.add_meta(): default_columns argument cannot be empty"
-msgstr ""
+msgstr "MapperSearch.add_meta(): default_columns érték nem lehet üres"
 
 #: bauble/search.py:834
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
 msgstr ""
+"MapperSearch.add_meta(): a default_columns értéknek egy listának kell lennie"
 
 #: bauble/plugins/plants/taxonomy_check.glade:328
 msgid "Matched binomial"
@@ -1777,11 +1785,11 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:197
 #: bauble/plugins/garden/propagation.py:218
 msgid "Media"
-msgstr ""
+msgstr "Közegek"
 
 #: bauble/plugins/garden/prop_editor.glade:475
 msgid "Media/Compost"
-msgstr ""
+msgstr "Közegek/Komposzt"
 
 #: bauble/plugins/garden/plant_editor.glade:192
 msgid "Memorial"
@@ -1789,13 +1797,15 @@ msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:290
 msgid "Merge into:"
-msgstr ""
+msgstr "Beolvasztás ide:"
 
 #: bauble/plugins/imex/csv_.py:275
 msgid ""
 "More than one file given to import into table <b>%(table_name)s</b>: "
 "%(file_name)s, (file_name2)s"
 msgstr ""
+"A <b>%(table_name)s</b> táblába importáláshoz egynél több filenév lett "
+"megadva: %(file_name)s, (file_name2)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1451
 msgid "Moved from"
@@ -1806,6 +1816,8 @@ msgid ""
 "Moving a quantity of plantings to a different location creates a new "
 "planting within the same accession."
 msgstr ""
+"Egy kiültetés más helyre telepítésekor egy új kiültetés jön létre ugyanahhoz "
+"a beszerzéshez."
 
 #: bauble/plugins/garden/source.py:133
 msgid "Municipal department"
@@ -1855,16 +1867,19 @@ msgid "No"
 msgstr "Nem"
 
 #: bauble/__init__.py:176
+#, fuzzy
 msgid "No command handler for %s"
-msgstr ""
+msgstr "No command handler for %s"
 
 #: bauble/__init__.py:174
+#, fuzzy
 msgid "No default handler registered"
-msgstr ""
+msgstr "No default handler registered"
 
 #: bauble/plugins/report/__init__.py:550
+#, fuzzy
 msgid "No formatter plugins defined"
-msgstr ""
+msgstr "No formatter plugins defined"
 
 #: bauble/plugins/report/__init__.py:584
 msgid ""
@@ -1924,7 +1939,7 @@ msgstr "Kertészet/Kereskedelmi"
 
 #: bauble/plugins/plants/taxonomy_check.glade:736
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: bauble/plugins/garden/plant.py:356
 msgid "Old Flowers"
@@ -1936,14 +1951,14 @@ msgstr "Naplófájl megnyitása"
 
 #: bauble/bauble.glade:50
 msgid "Operation"
-msgstr ""
+msgstr "Művelet"
 
 #: bauble/plugins/garden/plant.py:295 bauble/plugins/garden/plant.py:413
 #: bauble/plugins/garden/propagation.py:51
 #: bauble/plugins/garden/propagation.py:234
 #: bauble/plugins/garden/propagation.py:258 bauble/plugins/garden/source.py:136
 msgid "Other"
-msgstr ""
+msgstr "Másik"
 
 #: bauble/connmgr.glade:422
 msgid "Password:"
@@ -2051,7 +2066,7 @@ msgstr "Válasszon intézménynevet ehhez az adatbázishoz!"
 
 #: bauble/bauble.glade:537
 msgid "Plugins"
-msgstr ""
+msgstr "Plugin-ek"
 
 #: bauble/plugins/garden/plant.py:346
 msgid "Poor"
@@ -2059,7 +2074,7 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:281
 msgid "Powder"
-msgstr ""
+msgstr "Por"
 
 #: bauble/bauble.glade:474
 msgid "Preferences"
@@ -2076,7 +2091,7 @@ msgstr "Előző taxon"
 
 #: bauble/plugins/garden/acc_editor.glade:1032
 msgid "Private"
-msgstr ""
+msgstr "Privát"
 
 #: bauble/plugins/garden/acc_editor.glade:2400
 msgid "Propagation"
@@ -2555,7 +2570,7 @@ msgstr "Szinonimák"
 
 #: bauble/plugins/plants/taxonomy_check.glade:262
 msgid "TNRSapp - Taxonomic Name Resolution Service"
-msgstr ""
+msgstr "TNRSapp - Taxonomic Name Resolution Service"
 
 #: bauble/bauble.glade:72
 msgid "Table"
@@ -2830,21 +2845,27 @@ msgid ""
 "The name of the plant determined by taxonomist engaged in systematic "
 "revision of the group."
 msgstr ""
+"A növénynek az adott növénycsoport szisztematikus revíziójával megbízott "
+"taxonómus által meghatározott neve."
 
 #: bauble/plugins/garden/accession.py:227
 msgid ""
 "The name of the record determined by a taxonomist or by other competent "
 "persons using herbarium and/or library and/or documented living material."
 msgstr ""
+"A tételnek taxonómus vagy más kompetens személy által, herbárium, "
+"szakirodalom vagy dokumentált élő anyag alapján meghatározott neve."
 
 #: bauble/plugins/garden/accession.py:225
 msgid ""
 "The name of the record determined by comparison with other named plants."
 msgstr ""
+"A tételnek más, meghatározott (névvel rendelkező) növényekkel való "
+"összehasonlítás révén meghatározott neve."
 
 #: bauble/plugins/garden/accession.py:224
 msgid "The name of the record has not been checked by any authority."
-msgstr ""
+msgstr "A tétel nevét semmilyen szakember nem ellenőrizte."
 
 #: bauble/plugins/plants/genus.py:416
 msgid "The name or abbreviation of the author that published this genus"
@@ -2852,7 +2873,7 @@ msgstr "A nemzetséget publikáló auktor neve vagy rövidítése"
 
 #: bauble/plugins/garden/location.py:188
 msgid "The name that you will use later to refer to this location."
-msgstr ""
+msgstr "A későbbiekben ezen a néven fog hivatkozni erre a helyszínre."
 
 #: bauble/plugins/garden/accession.py:902
 msgid ""
@@ -2860,6 +2881,9 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
+"Ezen beszerzés eredete vagy forrása.\n"
+"\n"
+"Lehetséges értékek: %s"
 
 #: bauble/plugins/garden/accession.py:889
 msgid "The part of the taxon name that the id qualifier refers to."
@@ -2881,6 +2905,8 @@ msgid ""
 "The planting code must be a unique code for the accession.  You may also use "
 "ranges like 1,2,7 or 1-3 to create multiple plants."
 msgstr ""
+"A beszerzéshez tartozó kiültetési kódnak egyedinek kell lennie. Tartományok "
+"megadásával (pl.: 1,2,7 vagy 1-3) több növény is létrehozható."
 
 #: bauble/pluginmgr.py:231
 msgid ""
@@ -2923,10 +2949,13 @@ msgstr ""
 "\n"
 
 #: bauble/plugins/garden/accession.py:882
+#, fuzzy
 msgid ""
 "The species must be selected from the list of completions. To add a species "
 "use the Species editor."
 msgstr ""
+"The species must be selected from the list of completions. Új fajt a Faj "
+"szerkesztővel tud rögzíteni."
 
 #: bauble/plugins/garden/institution.py:195
 msgid "The standard abbreviation of the institution."
@@ -2938,7 +2967,7 @@ msgstr "Az intézmény telefonszáma."
 
 #: bauble/plugins/garden/accession.py:893
 msgid "The type of the accessioned material."
-msgstr ""
+msgstr "A beszerzett anyag típusa."
 
 #: bauble/plugins/garden/plant.py:628
 msgid ""
@@ -2946,6 +2975,9 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
+"A növényi anyag típusa.\n"
+"\n"
+"Lehetséges értékek: %s"
 
 #: bauble/plugins/garden/accession.py:905
 msgid ""
@@ -2953,6 +2985,9 @@ msgid ""
 "\n"
 "Possible values: %s"
 msgstr ""
+"A \"vad\" státusz a származás pontosítására szolgál.\n"
+"\n"
+"Lehetséges értékek: %s"
 
 #: bauble/plugins/report/xsl/__init__.py:585
 msgid ""
@@ -3058,7 +3093,7 @@ msgstr ""
 
 #: bauble/bauble.glade:39
 msgid "Timestamp"
-msgstr ""
+msgstr "Időbélyeg"
 
 #: bauble/plugins/garden/prop_editor.glade:358
 #: bauble/plugins/garden/propagation.py:174
@@ -3067,11 +3102,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:412
 msgid "Tissue Culture"
-msgstr ""
+msgstr "Szövettenyészet"
 
 #: bauble/utils/__init__.py:815
 msgid "Today's date"
-msgstr ""
+msgstr "Mai dátum"
 
 #: bauble/plugins/garden/plant.py:290
 msgid "Transfered to Totem Field"
@@ -3079,7 +3114,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:286
 msgid "Transferred to another acc.no."
-msgstr ""
+msgstr "Másik beszerzési számra átkönyvelve."
 
 #: bauble/plugins/garden/accession.py:448
 msgid "Tuber"
@@ -3087,11 +3122,11 @@ msgstr ""
 
 #: bauble/plugins/garden/contact.glade:110
 msgid "Type"
-msgstr ""
+msgstr "Típus"
 
 #: bauble/plugins/garden/acc_editor.glade:419
 msgid "Type of material"
-msgstr ""
+msgstr "Anyag típusa"
 
 #: bauble/connmgr.glade:205 bauble/view.py:167
 msgid "Type:"
@@ -3102,8 +3137,9 @@ msgid "Unable to Locate"
 msgstr ""
 
 #: bauble/plugins/garden/source.py:131
+#, fuzzy
 msgid "University Department"
-msgstr ""
+msgstr "Egyetemi tanszék"
 
 #: bauble/plugins/garden/accession.py:370
 #: bauble/plugins/garden/accession.py:402
@@ -3111,7 +3147,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:421
 #: bauble/plugins/garden/accession.py:449 bauble/plugins/garden/source.py:137
 msgid "Unknown"
-msgstr ""
+msgstr "Ismeretlen"
 
 #: bauble/plugins/imex/csv_.py:251
 msgid "Unknown Error."
@@ -3122,12 +3158,16 @@ msgstr "Ismeretlen Hiba."
 #: bauble/plugins/garden/propagation.py:1143
 #: bauble/plugins/plants/family.py:646 bauble/plugins/plants/genus.py:794
 #: bauble/plugins/plants/species_editor.py:1255
+#, fuzzy
 msgid ""
 "Unknown error when committing changes. See the details for more "
 "information.\n"
 "\n"
 "%s"
 msgstr ""
+"Ismeretlen hiba a változások mentésekor. További részletek:\n"
+"\n"
+"%s"
 
 #: bauble/search.py:532
 msgid "Unknown search domain: %s"
@@ -3135,20 +3175,20 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:360
 msgid "Unripe"
-msgstr ""
+msgstr "Éretlen"
 
 #: bauble/plugins/garden/accession.py:450
 #: bauble/plugins/garden/propagation.py:50
 msgid "Unrooted cutting"
-msgstr ""
+msgstr "Nem gyökeres dugvány"
 
 #: bauble/connmgr.glade:243
 msgid "Use default locations"
-msgstr ""
+msgstr "Alapértelmezett helyszínek használata"
 
 #: bauble/pictures.glade:307 bauble/notes.glade:33 bauble/bauble.glade:61
 msgid "User"
-msgstr ""
+msgstr "Felhasználó"
 
 #: bauble/connmgr.glade:410
 msgid "User:"
@@ -3157,11 +3197,11 @@ msgstr "Felhasználó:"
 #: bauble/plugins/users/ui.glade:103 bauble/plugins/users/__init__.py:527
 #: bauble/plugins/users/__init__.py:741
 msgid "Users"
-msgstr ""
+msgstr "Felhasználók"
 
 #: bauble/bauble.glade:455
 msgid "Value"
-msgstr ""
+msgstr "Érték"
 
 #: bauble/bauble.glade:83
 msgid "Values"
@@ -3169,7 +3209,7 @@ msgstr "Értékek"
 
 #: bauble/plugins/garden/plant.py:411
 msgid "Vegetative Part"
-msgstr ""
+msgstr "Vegetatív rész"
 
 #: bauble/plugins/garden/accession.py:452
 msgid "Vegetative spreading"
@@ -3178,17 +3218,17 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:2517
 #: bauble/plugins/garden/accession.py:2734
 msgid "Verifications"
-msgstr ""
+msgstr "Megerősítések"
 
 #: bauble/plugins/garden/acc_editor.glade:3157
 msgid "Verifier"
-msgstr ""
+msgstr "Jóváhagyó"
 
 #: bauble/plugins/plants/species_editor.glade:890
 #: bauble/plugins/plants/species.py:185
 #: bauble/plugins/plants/species_editor.py:1087
 msgid "Vernacular names"
-msgstr ""
+msgstr "Nemzeti nevek"
 
 #: bauble/bauble.glade:515
 msgid "Version"
@@ -3214,23 +3254,26 @@ msgstr ""
 
 #: bauble/plugins/plants/species_model.py:207
 msgid "Vulnerable (VU)"
-msgstr ""
+msgstr "Sebezhető (VU)"
 
 #: bauble/plugins/garden/acc_editor.glade:2133
 msgid "West"
 msgstr "Nyugat"
 
 #: bauble/plugins/garden/accession.py:387
+#, fuzzy
 msgid "Wild native"
-msgstr ""
+msgstr "Vad bennszülött"
 
 #: bauble/plugins/garden/accession.py:389
+#, fuzzy
 msgid "Wild non-native"
-msgstr ""
+msgstr "Vad nem bennszülött"
 
 #: bauble/plugins/garden/acc_editor.glade:1112
+#, fuzzy
 msgid "Wild status"
-msgstr ""
+msgstr "Vad státusz"
 
 #: bauble/plugins/garden/plant.py:282
 msgid "Winter kill"
@@ -3238,7 +3281,7 @@ msgstr ""
 
 #: bauble/ui.py:791
 msgid "Would you like the cancel the current tasks?"
-msgstr ""
+msgstr "Kívánja megszakítani az aktuális műveleteket?"
 
 #: bauble/__init__.py:367
 msgid ""
@@ -3247,6 +3290,11 @@ msgid ""
 "<i>Warning: If there is already a database at this connection any existing "
 "data will be destroyed!</i>"
 msgstr ""
+"Szeretne egy új Ghini adatbázist létrehozni a jelenlegi adatkapcsolat "
+"definícióhoz?\n"
+"\n"
+"<i>Figyelmeztetés: Ha a kapcsolathoz már tartozik adatbázis, minden abban "
+"tárolt adat elvész!</i>"
 
 #: bauble/plugins/garden/prop_editor.glade:384
 #: bauble/plugins/garden/propagation.py:184
@@ -3255,15 +3303,15 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade:177
 msgid "Write"
-msgstr ""
+msgstr "Írás"
 
 #: bauble/plugins/imex/xml.py:144
 msgid "XML"
-msgstr ""
+msgstr "XML"
 
 #: bauble/plugins/report/xsl/__init__.py:491
 msgid "XSL"
-msgstr ""
+msgstr "XSL"
 
 #: bauble/plugins/imex/iojson.py:202
 msgid ""
@@ -3272,6 +3320,10 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"%(nplants)s db objektumot exportál JSON formátumban. Ezen adatmennyiség "
+"exportja több percet is igényelhet.  \n"
+"\n"
+"<i>Kívánja folytatni?</i>"
 
 #: bauble/plugins/abcd/__init__.py:352
 msgid ""
@@ -3280,6 +3332,10 @@ msgid ""
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
+"%(nplants)s db objektumot exportál ABCD formátumban. Ezen adatmennyiség "
+"exportja több percet is igényelhet.  \n"
+"\n"
+"<i>Kívánja folytatni?</i>"
 
 #: bauble/db.py:432
 msgid ""
@@ -3289,26 +3345,30 @@ msgid ""
 "Some things might not work as or some of your data may become unexpectedly "
 "corrupted."
 msgstr ""
+"Ön a Ghini program %(version)s verzióját használja, míg az adatbázis, "
+"amelyhez csatlakozott, a program %(db_version)s verziójával készült\n"
+"\n"
+"Bizonyos műveletek esetleg nem fognak működni, vagy az adatai sérülhetnek."
 
 #: bauble/plugins/plants/family.py:83
 msgid "You cannot remove a family with genera."
-msgstr ""
+msgstr "Olyan család, amelyhez nemzetségek tartoznak, nem törölhető."
 
 #: bauble/plugins/plants/genus.py:94
 msgid "You cannot remove a genus with species."
-msgstr ""
+msgstr "Olyan nemzetség, amelyhez fajok tartoznak, nem törölhető."
 
 #: bauble/plugins/plants/species.py:84
 msgid "You cannot remove a species with accessions."
-msgstr ""
+msgstr "Olyan faj, amelyhez beszerzések tartoznak, nem törölhető."
 
 #: bauble/plugins/garden/accession.py:182
 msgid "You cannot remove an accession with plants."
-msgstr ""
+msgstr "Olyan beszerzés, amelyhez növények tartoznak, nem törölhető."
 
 #: bauble/plugins/users/__init__.py:512
 msgid "You do not have privileges to change other user privileges"
-msgstr ""
+msgstr "Nem jogosult más felhasználó jogosultságait módosítani"
 
 #: bauble/connmgr.glade:177
 msgid ""
