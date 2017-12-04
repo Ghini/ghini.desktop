@@ -149,4 +149,4 @@ bump_file(os.path.join(root_of_clone(), 'scripts/installer.cfg'), rx)
 print
 print 'git commit -m "bumping to %s" bauble/version.py doc/conf.py'\
     ' data/ghini.desktop scripts/build.nsi packages/builddeb.sh' \
-    ' scripts/installer.cfg' % version
+    ' scripts/installer.cfg scripts/build-multiuser.nsi' % version
