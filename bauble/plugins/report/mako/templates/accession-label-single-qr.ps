@@ -23,7 +23,7 @@
 ## OPTION accession_last: (type: integer, default: '', tooltip: 'end of range.')
 ##
 <%text filter="h">%!PS-Adobe-3.0
-%%BoundingBox: 0 0 595 842
+%%BoundingBBox: 0 0 144 72
 %%Creator: (Ghini)
 %%For: (ghini)
 %%CreationDate: (2016-01-15 21:34:45 )
@@ -25550,14 +25550,12 @@ currentdict end
 %%+ font LiberationSerif-BoldFID146HGSet2
 %%+ font LiberationSerif-ItalicFID148HGSet2
 %%EndSetup
-/SCALE { 0.45 0.45 scale 21 35 translate } bind def
+/SCALE { 0.45 0.45 scale 0 30 translate } bind def
 </%text>
 <%
 from bauble.plugins.report import get_plants_pertinent_to, options
 from bauble.plugins.report.mako import add_qr
 page = 1
-xpos = 0
-ypos = 17
 
 if options['accession_format']:
     format = options['accession_format']
@@ -25575,28 +25573,13 @@ else:
 # the accession associated to the plant
 
 %>
-<%text>%%Page: </%text>${page} ${page}
-<%text>%%BeginPageSetup
-%%EndPageSetup
-grestore
-</%text>\
-% for p, plant_code, accession in enumeration:
-  % if xpos == 4:
-    <% xpos = 0 %>\
-    <% ypos -= 1 %>\
-  % endif
-  % if ypos < 0:
-    <% page += 1 %>\
-    <% xpos = 0 %>\
-    <% ypos = 17 %>\
-<%text>showpage
-%%PageTrailer
-%%Page: </%text>${page} ${page}<%text>
+% for page, plant_code, accession in enumeration:
+<%text>%%Page: </%text>${page} ${page}<%text>
 %%BeginPageSetup
+%%PageBoundingBox:  0 0 144 72
 %%EndPageSetup
 grestore
 </%text>\
-  % endif
 <%
 et = options['extra_text']
 if et:
@@ -25622,7 +25605,6 @@ else:
 %>
 gsave
 SCALE
-${xpos * 320} ${ypos * 100} translate
 0 0 0 setrgbcolor
 0.4 setlinewidth 
 newpath 0 0 moveto 8 0 rlineto stroke
@@ -25642,12 +25624,11 @@ ${add_text(8, 28, genus_epithet, 'sans', 1.3)}
 ${add_text(8, 8, species_epithet, 'sans', 1.3)}
 grestore
 grestore
-<% xpos += 1 %>
-% endfor
-showpage
 <%text filter="h">
+showpage
 %%PageTrailer
 </%text>
+% endfor
 <%text filter="h">
 %%Trailer
 %%Pages: </%text>${page}<%text>

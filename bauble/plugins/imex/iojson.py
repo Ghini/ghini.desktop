@@ -162,7 +162,7 @@ class JSONExporter(editor.GenericEditorPresenter):
 
     def on_btnbrowse_clicked(self, button):
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -245,7 +245,7 @@ class JSONImporter(editor.GenericEditorPresenter):
 
     def on_btnbrowse_clicked(self, button):
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_OPEN,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),

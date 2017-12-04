@@ -140,13 +140,8 @@ Open a shell terminal window, and follow the following instructions.
 Installing on MacOSX
 --------------------
 
-Being MacOSX a unix environment, most things will work the same as on GNU/Linux
+Being macOS a unix environment, most things will work the same as on GNU/Linux
 (sort of).
-
-Last time we tested, some of the dependencies could not be installed on
-MacOSX 10.5 and we assume similar problems would also show on older OSX
-versions.  Ghini has been successfully installed on several OSX systems,
-between 10.7 and 10.12.
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
@@ -155,7 +150,26 @@ environment, but which are missing in a off-the-shelf mac:
    supported on your mac.
 #. package manager: homebrew (tigerbrew for older OSX versions).
 
-with the above installed, open a terminal window and run::
+..  admonition:: Installation on older macOS.
+    :class: toggle
+
+       Every time we tested, we could only solve all dependencies on the two
+       or three most recent macOS versions.  In April 2015 this excluded
+       macOS 10.6 and older.  In September 2017 this excluded macOS 10.8 and
+       older.  We never had a problem with the lastest macOS.
+
+       The problem lies with homebrew and some of the packages we rely on.
+       The message you have to fear looks like this::
+
+         Do not report this issue to Homebrew/brew or Homebrew/core!
+
+       The only solution I can offer is: please update your system.
+
+       On the bright side, if at any time in the past you did install
+       ghini.desktop on your older and now unsupported macOS, you will
+       always be able to update ghini.desktop to the latest version.
+
+With the above installed, open a terminal window and run::
 
     brew doctor
 
@@ -263,7 +277,7 @@ The installation steps on Windows:
 
    If you plan using PostgreSQL, the best Windows binary library for Python is
    `psycopg and is Made in Italy <http://initd.org/psycopg/docs/install.html>`_.
-   
+
 
 #. **REBOOT**
 

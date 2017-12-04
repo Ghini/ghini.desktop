@@ -1,34 +1,28 @@
-# Japanese translation for ghini.desktop
-# Copyright (c) 2011 Rosetta Contributors and Canonical Ltd 2011
+# Chinese translations for PACKAGE ghini.desktop
+# Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the ghini.desktop
-# Mario Frasca <mario@anche.no>, 2014
+# Automatically generated, 2015.
+# Mario Frasca <mario@anche.no>, 2015-2017
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: bauble\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-16 16:11-0500\n"
-"PO-Revision-Date: 2015-09-17 00:14+0200\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Spanish <https://hosted.weblate.org/projects/bauble/master/es/"
-">\n"
-"Language: es\n"
+"PO-Revision-Date: 2017-11-14 13:27+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/ghini/"
+"desktop-10/nb_NO/>\n"
+"Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.4-dev\n"
-"X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
-"X-Poedit-Basepath: ../\n"
-"X-Poedit-SearchPath-0: bauble\n"
-"X-Poedit-SearchPath-1: bauble/utils\n"
-"X-Poedit-SearchPath-2: bauble/plugins\n"
-"X-Poedit-SearchPath-3: bauble/plugins/plants\n"
-"X-Poedit-SearchPath-4: bauble/plugins/garden\n"
+"X-Generator: Weblate 2.18-dev\n"
 
 #: bauble/btypes.py:87
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
-msgstr ""
+msgstr "\"%(value)s\" finnes ikke i Enum.values: %(all_values)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
@@ -41,7 +35,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
 msgid "# of seeds"
-msgstr ""
+msgstr "Antall frø"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
@@ -71,7 +65,7 @@ msgstr ""
 
 #: bauble/plugins/report/__init__.py:449
 msgid "%s already exists"
-msgstr ""
+msgstr "%s finnes allerede"
 
 #: bauble/plugins/plants/species_editor.py:202
 msgid ""
@@ -95,7 +89,7 @@ msgstr ""
 
 #: bauble/view.py:796
 msgid "** Error: %s"
-msgstr ""
+msgstr "** Feil: %s"
 
 #: bauble/__init__.py:222
 msgid "** Error: could not import gtk and/or gobject"
@@ -107,7 +101,7 @@ msgstr ""
 
 #: bauble/plugins/report/mako/__init__.py:319
 msgid ":"
-msgstr ""
+msgstr ":"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -149,7 +143,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:698
 msgid "<b>Awards:</b>"
-msgstr ""
+msgstr "<b>Priser:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:683
 msgid "<b>CITES:</b>"
@@ -157,11 +151,11 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
-msgstr ""
+msgstr "<b>Kjemisk behandling</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:507
 msgid "<b>Contact:</b>"
-msgstr ""
+msgstr "<b>Kontakt:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:440
 msgid "<b>Cutting treatment</b>"
@@ -173,11 +167,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:186
 msgid "<b>Date received:</b>"
-msgstr ""
+msgstr "<b>Dato mottatt:</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:87
 msgid "<b>Description:</b>"
-msgstr ""
+msgstr "<b>Beskrivelse:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:788
 msgid "<b>Distribution for label:</b>"
@@ -214,23 +208,23 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:369
 msgid "<b>Intended Location 2:</b>"
-msgstr ""
+msgstr "<b>Avsett plass 2:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:400
 msgid "<b>Intended Location:</b>"
-msgstr ""
+msgstr "<b>Avsett plass:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:416
 msgid "<b>Living Plants:</b>"
-msgstr ""
+msgstr "<b>Levende planter:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:162
 msgid "<b>Location:</b>"
-msgstr ""
+msgstr "<b>Plassering:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:1005
 msgid "<b>Locations:</b>"
-msgstr ""
+msgstr "<b>Plasseringer:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:193
 msgid "<b>Memorial:</b>"
@@ -242,15 +236,15 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:103
 msgid "<b>Plant Groups:</b>"
-msgstr ""
+msgstr "<b>Plantegrupper:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:988
 msgid "<b>Plants:</b>"
-msgstr ""
+msgstr "<b>Planter:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:308
 msgid "<b>Private:</b>"
-msgstr ""
+msgstr "<b>Privat:</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:609
 msgid "<b>Propagation:</b>"
@@ -262,11 +256,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_infobox.glade:233
 msgid "<b>Quantity received:</b>"
-msgstr ""
+msgstr "<b>Mengde mottatt:</b>"
 
 #: bauble/plugins/garden/plant_infobox.glade:219
 msgid "<b>Quantity:</b>"
-msgstr ""
+msgstr "<b>Mengde:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:60
 msgid "<b>Renderer</b>"
@@ -286,11 +280,11 @@ msgstr ""
 
 #: bauble/plugins/report/report.glade:187
 msgid "<b>Settings</b>"
-msgstr ""
+msgstr "<b>Innstillinger</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:104
 msgid "<b>Source type</b>"
-msgstr ""
+msgstr "<b>Kildetype</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:520
 msgid "<b>Source's ID:</b>"
@@ -302,27 +296,27 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:894
 msgid "<b>Species:</b>"
-msgstr ""
+msgstr "<b>Arter:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:29
 msgid "<b>Stylesheet</b>"
-msgstr ""
+msgstr "<b>Stilark</b>"
 
 #: bauble/plugins/report/mako/gui.glade:38
 msgid "<b>Template</b>"
-msgstr ""
+msgstr "<b>Mal</b>"
 
 #: bauble/plugins/plants/taxonomy_check.glade:523
 msgid "<b>Tick Off</b>"
-msgstr ""
+msgstr "<b>Huk av</b>"
 
 #: bauble/plugins/garden/acc_infobox.glade:248
 msgid "<b>Type of material:</b>"
-msgstr ""
+msgstr "<b>Type materiale:</b>"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:72
 msgid "<b>Type:</b>"
-msgstr ""
+msgstr "<b>Type:</b>"
 
 #: bauble/plugins/report/xsl/gui.glade:122
 msgid "<b>Use author names</b>"
@@ -330,15 +324,15 @@ msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:348
 msgid "<b>danger zone</b>"
-msgstr ""
+msgstr "<b>faresone</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:956
 msgid "<b>in use</b>"
-msgstr ""
+msgstr "<b>i bruk</b>"
 
 #: bauble/plugins/imex/select_export.glade:492
 msgid "<b>options</b>"
-msgstr ""
+msgstr "<b>valg</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:943
 msgid "<b>total</b>"
@@ -346,7 +340,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:1555
 msgid "<b>unused</b>"
-msgstr ""
+msgstr "<b>ubrukt</b>"
 
 #: bauble/plugins/plants/stored_queries.glade:147
 #: bauble/plugins/plants/stored_queries.glade:170
@@ -372,7 +366,7 @@ msgstr ""
 #: bauble/plugins/plants/stored_queries.py:129
 #: bauble/plugins/plants/stored_queries.py:164
 msgid "<empty>"
-msgstr ""
+msgstr "<tom>"
 
 #: bauble/plugins/garden/plant.py:1371
 msgid "<i>Split as %(plant)s</i>"
@@ -408,12 +402,12 @@ msgstr ""
 
 #: bauble/ui.py:465
 msgid "About"
-msgstr ""
+msgstr "Om"
 
 #: bauble/plugins/plants/family.py:834 bauble/plugins/plants/genus.py:977
 #: bauble/plugins/plants/species.py:242
 msgid "Accepted name"
-msgstr ""
+msgstr "Anerkjent navn"
 
 #: bauble/plugins/garden/plant_editor.glade:521
 #: bauble/plugins/garden/acc_editor.glade:766
@@ -445,7 +439,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2089
 msgid "Accuracy"
-msgstr ""
+msgstr "Nøyaktighet"
 
 #: bauble/plugins/garden/plant_editor.glade:430
 #: bauble/plugins/garden/plant_editor.glade:1235
@@ -454,7 +448,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:968
 #: bauble/plugins/garden/acc_editor.glade:3368
 msgid "Add"
-msgstr ""
+msgstr "Legg til"
 
 #: bauble/plugins/plants/species_editor.glade:52
 msgid "Add Accessions"
@@ -466,36 +460,36 @@ msgstr ""
 
 #: bauble/plugins/plants/genus_editor.glade:359
 msgid "Add Species"
-msgstr ""
+msgstr "Legg til art"
 
 #: bauble/plugins/garden/loc_editor.glade:55
 #: bauble/plugins/garden/acc_editor.glade:58
 msgid "Add plants"
-msgstr ""
+msgstr "Legg til planter"
 
 #: bauble/plugins/plants/species_editor.glade:1113
 msgid "Additional info"
-msgstr ""
+msgstr "Ytterligere info"
 
 #: bauble/plugins/garden/institution.glade:410
 msgid "Address"
-msgstr ""
+msgstr "Adresse"
 
 #: bauble/plugins/users/ui.glade:189
 msgid "Administrator"
-msgstr ""
+msgstr "Administrator"
 
 #: bauble/plugins/garden/accession.py:426
 msgid "Air layer"
-msgstr ""
+msgstr "Luftlag"
 
 #: bauble/plugins/garden/plant.py:1258
 msgid "Alive"
-msgstr ""
+msgstr "Levende"
 
 #: bauble/plugins/garden/acc_editor.glade:1928
 msgid "Altitude/Depth"
-msgstr ""
+msgstr "Høyde/under havnivå"
 
 #: bauble/plugins/garden/location.py:190
 msgid ""
@@ -598,7 +592,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.glade:764
 msgid "Awards"
-msgstr ""
+msgstr "Priser"
 
 #: bauble/plugins/garden/accession.py:427
 msgid "Balled & burlapped plant"
@@ -614,15 +608,15 @@ msgstr ""
 
 #: bauble/plugins/garden/prop_editor.glade:573
 msgid "Bottom heat"
-msgstr ""
+msgstr "Undervarme"
 
 #: bauble/plugins/garden/propagation.py:191
 msgid "Bottom heat: %(temp)s%(unit)s"
-msgstr ""
+msgstr "Undervarme: %(temp)s%(unit)s"
 
 #: bauble/plugins/garden/accession.py:429
 msgid "Bud cutting"
-msgstr ""
+msgstr "Knoppbeskjæring"
 
 #: bauble/plugins/garden/accession.py:430
 msgid "Budded"
@@ -630,7 +624,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:310
 msgid "Bug reporting"
-msgstr ""
+msgstr "Feilrapportering"
 
 #: bauble/plugins/garden/accession.py:431
 msgid "Bulb"
@@ -664,37 +658,37 @@ msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:693
 msgid "Cancel"
-msgstr ""
+msgstr "Avbryt"
 
 #: bauble/plugins/plants/species_editor.py:1094
 msgid "Cancel your changes"
-msgstr ""
+msgstr "Forkast dine endringer"
 
 #: bauble/plugins/garden/accession.py:911 bauble/plugins/garden/plant.py:635
 #: bauble/plugins/plants/family.py:361 bauble/plugins/plants/genus.py:422
 msgid "Cancel your changes."
-msgstr ""
+msgstr "Forkast dine endringer."
 
 #: bauble/pictures.glade:101 bauble/pictures.glade:336 bauble/notes.glade:57
 #: bauble/notes.glade:346
 msgid "Category"
-msgstr ""
+msgstr "Kategori"
 
 #: bauble/plugins/users/ui.glade:220
 msgid "Change Password"
-msgstr ""
+msgstr "Endre passord"
 
 #: bauble/plugins/garden/plant_editor.glade:869
 msgid "Change history"
-msgstr ""
+msgstr "Endre historikk"
 
 #: bauble/plugins/garden/plant.py:1281
 msgid "Changes"
-msgstr ""
+msgstr "Endringer"
 
 #: bauble/plugins/abcd/__init__.py:335
 msgid "Choose a file to export to..."
-msgstr ""
+msgstr "Velg ei fil å eksportere til…"
 
 #: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to…"
@@ -705,11 +699,11 @@ msgstr ""
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
 msgid "Choose a file…"
-msgstr ""
+msgstr "Velg ei fil…"
 
 #: bauble/search.py:1090
 msgid "Choose a property…"
-msgstr ""
+msgstr "Velg en egenskap…"
 
 #: bauble/plugins/imex/csv_.py:556
 msgid "Choose file(s) to import…"
@@ -725,25 +719,25 @@ msgstr ""
 
 #: bauble/plugins/garden/loc_editor.glade:228
 msgid "Code"
-msgstr ""
+msgstr "Kode"
 
 #: bauble/plugins/garden/acc_infobox.glade:1023
 #: bauble/plugins/garden/acc_editor.glade:2200
 #: bauble/plugins/garden/accession.py:399
 msgid "Collection"
-msgstr ""
+msgstr "Samling"
 
 #: bauble/plugins/garden/acc_editor.glade:1614
 msgid "Collection ID"
-msgstr ""
+msgstr "Samlings-ID"
 
 #: bauble/plugins/garden/acc_infobox.glade:821
 msgid "Collection ID:"
-msgstr ""
+msgstr "Samlings-ID:"
 
 #: bauble/plugins/garden/acc_editor.glade:1631
 msgid "Collection Notes"
-msgstr ""
+msgstr "Samlingsnotiser"
 
 #: bauble/plugins/garden/source.py:244
 msgid "Collection at %s"
@@ -751,28 +745,28 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1598
 msgid "Collector"
-msgstr ""
+msgstr "Samler"
 
 #: bauble/plugins/garden/acc_infobox.glade:760
 msgid "Collector:"
-msgstr ""
+msgstr "Samler:"
 
 #: bauble/plugins/imex/csv_.py:684 bauble/plugins/imex/csv_.py:702
 msgid "Comma Separated Value"
-msgstr ""
+msgstr "Kommainndelt verdi"
 
 #: bauble/plugins/users/ui.glade:362
 msgid "Confirm new password"
-msgstr ""
+msgstr "Bekreft nytt passord"
 
 #: bauble/connmgr.glade:578
 msgid "Connection Details"
-msgstr "接続情報"
+msgstr "Tilkoblingsdetaljer"
 
 #: bauble/plugins/garden/acc_editor.glade:1208
 #: bauble/plugins/garden/__init__.py:124
 msgid "Contact"
-msgstr ""
+msgstr "Kontakt"
 
 #: bauble/plugins/garden/contact.glade:11
 msgid "Contact (Donor) Editor"
@@ -780,22 +774,22 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:158
 msgid "Contact name"
-msgstr ""
+msgstr "Kontaktnavn"
 
 #: bauble/plugins/garden/prop_editor.glade:513
 #: bauble/plugins/garden/prop_editor.glade:984
 #: bauble/plugins/garden/propagation.py:195
 #: bauble/plugins/garden/propagation.py:216
 msgid "Container"
-msgstr ""
+msgstr "Beholder"
 
 #: bauble/ui.py:449
 msgid "Contents"
-msgstr ""
+msgstr "Innhold"
 
 #: bauble/ui.py:770
 msgid "Copyright © by its contributors."
-msgstr ""
+msgstr "Kopirett © av dets bidragsytere."
 
 #: bauble/plugins/garden/accession.py:433
 msgid "Corm"
@@ -821,6 +815,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Kunne ikke slette.\n"
+"\n"
+"%s"
 
 #: bauble/plugins/report/xsl/__init__.py:547
 msgid ""
@@ -894,7 +891,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:631
 msgid "Create a new location."
-msgstr ""
+msgstr "Opprett en ny plassering:"
 
 #: bauble/plugins/garden/plant.py:633
 msgid "Create a new propagation record for this plant."
@@ -950,7 +947,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:390
 msgid "Database:"
-msgstr ""
+msgstr "Database:"
 
 #: bauble/pictures.glade:88 bauble/pictures.glade:424
 #: bauble/plugins/garden/prop_editor.glade:71
@@ -958,7 +955,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:3104 bauble/notes.glade:124
 #: bauble/notes.glade:334
 msgid "Date"
-msgstr ""
+msgstr "Dato"
 
 #: bauble/plugins/garden/acc_editor.glade:572
 msgid "Date Accessioned"
@@ -970,38 +967,38 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:587
 msgid "Date Received"
-msgstr ""
+msgstr "Dato mottatt"
 
 #: bauble/plugins/garden/acc_infobox.glade:791
 msgid "Date collected:"
-msgstr ""
+msgstr "Dato samlet:"
 
 #: bauble/view.py:176
 msgid "Date created:"
-msgstr ""
+msgstr "Dato opprettet:"
 
 #: bauble/plugins/garden/plant_editor.glade:691
 msgid "Date of Change"
-msgstr ""
+msgstr "Endringsdato"
 
 #: bauble/plugins/garden/prop_editor.glade:1356
 #: bauble/plugins/garden/propagation.py:232
 msgid "Date planted"
-msgstr ""
+msgstr "Plantedato"
 
 #: bauble/plugins/garden/prop_editor.glade:1188
 #: bauble/plugins/garden/propagation.py:214
 msgid "Date sown"
-msgstr ""
+msgstr "Såingsdato"
 
 #: bauble/plugins/garden/prop_editor.glade:779
 msgid "Dates"
-msgstr ""
+msgstr "Datoer"
 
 #: bauble/plugins/garden/plant.py:277 bauble/plugins/garden/plant.py:350
 #: bauble/plugins/garden/plant.py:1260
 msgid "Dead"
-msgstr ""
+msgstr "Død"
 
 #: bauble/plugins/garden/plant.py:285
 msgid "Deleted, yr. dead. unknown"
@@ -1011,11 +1008,11 @@ msgstr ""
 #: bauble/plugins/garden/contact.glade:73 bauble/plugins/tag/tag.glade:176
 #: bauble/plugins/garden/location.py:493
 msgid "Description"
-msgstr ""
+msgstr "Beskrivelse"
 
 #: bauble/utils/__init__.py:665
 msgid "Details"
-msgstr ""
+msgstr "Detaljer"
 
 #: bauble/plugins/garden/plant.py:292
 msgid "Did not germinate"
@@ -1048,7 +1045,7 @@ msgstr ""
 
 #: bauble/connmgr.py:411
 msgid "Do you want to save %s?"
-msgstr ""
+msgstr "Ønsker du å lagre %s?"
 
 #: bauble/connmgr.py:355 bauble/connmgr.py:417
 msgid "Do you want to save your changes to %s ?"
@@ -1056,7 +1053,7 @@ msgstr ""
 
 #: bauble/connmgr.py:309
 msgid "Do you want to save your changes?"
-msgstr ""
+msgstr "Ønsker du å lagre dine endringer?"
 
 #: bauble/search.py:916
 msgid "Domain Properties"
@@ -1068,7 +1065,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:2152
 msgid "East"
-msgstr ""
+msgstr "Øst"
 
 #: bauble/plugins/garden/source.py:521
 msgid "East/West radio buttons in a confused state"
@@ -1077,7 +1074,7 @@ msgstr ""
 #: bauble/plugins/garden/plant_editor.glade:482
 #: bauble/plugins/garden/plant_editor.glade:1287
 msgid "Edit"
-msgstr ""
+msgstr "Rediger"
 
 #: bauble/plugins/plants/stored_queries.py:189
 msgid "Edit stored queries"
@@ -1085,15 +1082,15 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:632
 msgid "Edit the selected location."
-msgstr ""
+msgstr "Rediger den valgte plasseringen."
 
 #: bauble/plugins/garden/acc_infobox.glade:729
 msgid "Elevation:"
-msgstr ""
+msgstr "Høyde over havet:"
 
 #: bauble/plugins/garden/institution.glade:230
 msgid "Email"
-msgstr ""
+msgstr "E-post"
 
 #: bauble/plugins/plants/species_model.py:206
 msgid "Endangered (EN)"
@@ -1113,7 +1110,7 @@ msgstr ""
 
 #: bauble/connmgr.py:444
 msgid "Enter your password"
-msgstr ""
+msgstr "Skriv inn ditt passord"
 
 #: bauble/btypes.py:56
 msgid "Enum requires a list of values"
@@ -1176,21 +1173,21 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:343
 msgid "Excellent"
-msgstr ""
+msgstr "Utmerket"
 
 #: bauble/plugins/garden/source.py:126
 msgid "Expedition"
-msgstr ""
+msgstr "Ekspedisjon"
 
 #: bauble/plugins/abcd/__init__.py:391
 #: bauble/plugins/garden/exporttopocket.py:150 bauble/plugins/imex/csv_.py:701
 #: bauble/plugins/imex/iojson.py:306 bauble/plugins/imex/xml.py:143
 msgid "Export"
-msgstr ""
+msgstr "Eksport"
 
 #: bauble/plugins/imex/select_export.glade:8
 msgid "Export To JSON"
-msgstr ""
+msgstr "Eksporter til JSON"
 
 #: bauble/plugins/imex/csv_.py:608
 msgid ""
@@ -1215,8 +1212,9 @@ msgstr ""
 #: bauble/plugins/plants/family_editor.glade:89
 #: bauble/plugins/plants/family_editor.glade:230
 #: bauble/plugins/plants/__init__.py:366
+#, fuzzy
 msgid "Family"
-msgstr ""
+msgstr "Familie"
 
 #: bauble/plugins/plants/family_editor.glade:6
 msgid "Family Editor"
@@ -1236,11 +1234,11 @@ msgstr ""
 
 #: bauble/connmgr.glade:261
 msgid "Filename:"
-msgstr ""
+msgstr "Filnavn:"
 
 #: bauble/plugins/garden/acc_editor.glade:1063
 msgid "Flags"
-msgstr ""
+msgstr "Flagg"
 
 #: bauble/plugins/garden/prop_editor.glade:370
 #: bauble/plugins/garden/propagation.py:181
@@ -1273,7 +1271,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_infobox.glade:698
 #: bauble/plugins/garden/acc_editor.glade:1912
 msgid "GPS Datum"
-msgstr ""
+msgstr "GPS-dato"
 
 #: bauble/plugins/garden/accession.py:1436
 msgid "Garden Propagation"
@@ -1281,7 +1279,7 @@ msgstr ""
 
 #: bauble/plugins/garden/source.py:127
 msgid "Gene Bank"
-msgstr ""
+msgstr "Genbank"
 
 #: bauble/plugins/garden/plant_editor.glade:886
 #: bauble/plugins/garden/acc_editor.glade:1188
@@ -1331,7 +1329,7 @@ msgstr ""
 
 #: bauble/ui.py:457
 msgid "Ghini development website"
-msgstr ""
+msgstr "Utviklingsnettside for Ghini"
 
 #: bauble/connmgr.py:516
 msgid ""
@@ -1363,11 +1361,11 @@ msgstr ""
 
 #: bauble/ui.py:463
 msgid "Ghini forum"
-msgstr ""
+msgstr "Ghini-forum"
 
 #: bauble/ui.py:460
 msgid "Ghini wiki"
-msgstr ""
+msgstr "Ghini-wiki"
 
 #: bauble/plugins/garden/plant.py:294
 msgid "Given away (specify person)"
@@ -1383,7 +1381,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:344
 msgid "Good"
-msgstr ""
+msgstr "Bra"
 
 #: bauble/plugins/garden/accession.py:435
 msgid "Graft"
@@ -1391,7 +1389,7 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade:233
 msgid "Groups"
-msgstr ""
+msgstr "Grupper"
 
 #: bauble/plugins/plants/species_editor.glade:730
 msgid "Habit"
@@ -1408,15 +1406,15 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:2556
 #: bauble/plugins/garden/acc_editor.glade:2691
 msgid "Herbarium"
-msgstr ""
+msgstr "Hebrarium"
 
 #: bauble/plugins/garden/prop_editor.glade:704
 msgid "Hormone"
-msgstr ""
+msgstr "Hormon"
 
 #: bauble/plugins/garden/propagation.py:188
 msgid "Hormone treatment"
-msgstr ""
+msgstr "Hormonbehandling"
 
 #: bauble/plugins/garden/source.py:132
 msgid "Horticultural Association/Garden Club"
@@ -1424,7 +1422,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:398
 msgid "Host:"
-msgstr ""
+msgstr "Vert:"
 
 #: bauble/plugins/plants/species_editor.glade:208
 msgid "Hybrid"
@@ -1436,11 +1434,11 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:686
 msgid "ID format"
-msgstr ""
+msgstr "ID-format:"
 
 #: bauble/view.py:158
 msgid "ID:"
-msgstr ""
+msgstr "ID:"
 
 #: bauble/plugins/garden/accession.py:783
 msgid "If the id_qual is aff. or cf. then id_qual_rank is required. %s "
@@ -1452,11 +1450,11 @@ msgstr ""
 
 #: bauble/plugins/imex/csv_.py:683 bauble/plugins/imex/iojson.py:286
 msgid "Import"
-msgstr ""
+msgstr "Importer"
 
 #: bauble/plugins/garden/accession.py:420
 msgid "Imported"
-msgstr ""
+msgstr "Importert"
 
 #: bauble/plugins/garden/accession.py:398
 msgid "Impound"
@@ -1545,7 +1543,7 @@ msgstr ""
 
 #: bauble/plugins/imex/iojson.py:287 bauble/plugins/imex/iojson.py:307
 msgid "JSON"
-msgstr ""
+msgstr "JSON"
 
 #: bauble/plugins/plants/species_editor.glade:704
 msgid "Label distribution"
@@ -1553,7 +1551,7 @@ msgstr ""
 
 #: bauble/view.py:185
 msgid "Last updated:"
-msgstr ""
+msgstr "Sist oppdatert:"
 
 #: bauble/plugins/garden/acc_editor.glade:2011
 msgid "Latitude"
@@ -1574,7 +1572,7 @@ msgstr ""
 #: bauble/plugins/garden/prop_editor.glade:257
 #: bauble/plugins/garden/propagation.py:176
 msgid "Leaves"
-msgstr ""
+msgstr "Blader"
 
 #: bauble/plugins/garden/prop_editor.glade:283
 msgid "Leaves reduced by"
@@ -1582,7 +1580,7 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:170
 msgid "Length: %(length)s%(unit)s"
-msgstr ""
+msgstr "Leengde: %(length)s%(unit)s"
 
 #: bauble/plugins/garden/acc_editor.glade:3270
 msgid "Level"
@@ -1590,15 +1588,15 @@ msgstr ""
 
 #: bauble/view.py:337
 msgid "Links"
-msgstr ""
+msgstr "Lenker"
 
 #: bauble/plugins/garden/propagation.py:280
 msgid "Liquid"
-msgstr ""
+msgstr "Veske"
 
 #: bauble/plugins/garden/acc_editor.glade:1652
 msgid "Locale"
-msgstr ""
+msgstr "Lokale"
 
 #: bauble/plugins/garden/plant_editor.glade:306
 #: bauble/plugins/garden/plant_editor.glade:1112
@@ -1608,31 +1606,31 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:199
 #: bauble/plugins/garden/propagation.py:222
 msgid "Location"
-msgstr ""
+msgstr "Plassering"
 
 #: bauble/plugins/garden/acc_editor.glade:805
 msgid "Location 1"
-msgstr ""
+msgstr "Plassering 1"
 
 #: bauble/plugins/garden/acc_editor.glade:901
 msgid "Location 2"
-msgstr ""
+msgstr "Plassering 2"
 
 #: bauble/plugins/garden/acc_editor.glade:2179
 msgid "Location Details"
-msgstr ""
+msgstr "Plasseringsdetaljer"
 
 #: bauble/plugins/garden/acc_infobox.glade:836
 msgid "Location:"
-msgstr ""
+msgstr "Plassering:"
 
 #: bauble/plugins/garden/acc_editor.glade:2021
 msgid "Longitude"
-msgstr ""
+msgstr "Lengdegrad"
 
 #: bauble/plugins/garden/acc_infobox.glade:864
 msgid "Longitude:"
-msgstr ""
+msgstr "Lengdegrad:"
 
 #: bauble/plugins/garden/plant.py:280
 msgid "Lost, whereabouts unknown"
@@ -1696,7 +1694,7 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:228 bauble/plugins/tag/tag.glade:163
 #: bauble/notes.glade:323 bauble/bauble.glade:444 bauble/bauble.glade:504
 msgid "Name"
-msgstr ""
+msgstr "Navn"
 
 #: bauble/plugins/garden/accession.py:419
 msgid "National"
@@ -1712,11 +1710,11 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade:328
 msgid "New password"
-msgstr ""
+msgstr "Nytt passord"
 
 #: bauble/plugins/garden/plant_editor.glade:1086
 msgid "New plant code"
-msgstr ""
+msgstr "Ny plantekode"
 
 #: bauble/plugins/garden/acc_editor.glade:3193
 msgid "New taxon"
@@ -1727,12 +1725,12 @@ msgstr ""
 #: bauble/plugins/plants/family_editor.glade:343
 #: bauble/plugins/plants/species_editor.glade:100
 msgid "Next"
-msgstr ""
+msgstr "Neste"
 
 #: bauble/plugins/garden/propagation.py:274
 #: bauble/plugins/garden/propagation.py:282
 msgid "No"
-msgstr ""
+msgstr "Nei"
 
 #: bauble/__init__.py:176
 msgid "No command handler for %s"
@@ -1796,7 +1794,7 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:547
 msgid "Nothing selected"
-msgstr ""
+msgstr "Ingenting valgt"
 
 #: bauble/plugins/garden/source.py:134
 msgid "Nursery/Commercial"
@@ -1827,7 +1825,7 @@ msgstr ""
 
 #: bauble/connmgr.glade:422
 msgid "Password:"
-msgstr ""
+msgstr "Passord:"
 
 #: bauble/plugins/garden/prop_editor.glade:894
 msgid "Percent rooted"
@@ -1844,7 +1842,7 @@ msgstr ""
 #: bauble/plugins/garden/plant_editor.glade:983
 #: bauble/plugins/plants/species_editor.glade:1159
 msgid "Pictures"
-msgstr ""
+msgstr "Bilder"
 
 #: bauble/connmgr.py:547
 msgid "Pictures root name occupied by non directory."
@@ -1875,7 +1873,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant_editor.glade:558
 msgid "Planting code"
-msgstr ""
+msgstr "Plantekode"
 
 #: bauble/connmgr.py:498
 msgid "Please choose a name for this connection"
@@ -1913,15 +1911,15 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:539
 msgid "Please select a a renderer"
-msgstr ""
+msgstr "Velg en opptegner"
 
 #: bauble/plugins/report/xsl/__init__.py:537
 msgid "Please select a stylesheet."
-msgstr ""
+msgstr "Velg et stilark."
 
 #: bauble/plugins/report/mako/__init__.py:400
 msgid "Please select a template."
-msgstr ""
+msgstr "Velg en mal."
 
 #: bauble/plugins/garden/institution.py:129
 msgid "Please specify an institution name for this database."
@@ -1929,7 +1927,7 @@ msgstr ""
 
 #: bauble/bauble.glade:537
 msgid "Plugins"
-msgstr ""
+msgstr "Programtillegg"
 
 #: bauble/plugins/garden/plant.py:346
 msgid "Poor"
@@ -1937,11 +1935,11 @@ msgstr ""
 
 #: bauble/plugins/garden/propagation.py:281
 msgid "Powder"
-msgstr ""
+msgstr "Pulver"
 
 #: bauble/bauble.glade:474
 msgid "Preferences"
-msgstr ""
+msgstr "Innstillinger"
 
 #: bauble/plugins/garden/prop_editor.glade:1095
 #: bauble/plugins/garden/propagation.py:209
@@ -1954,7 +1952,7 @@ msgstr ""
 
 #: bauble/plugins/garden/acc_editor.glade:1032
 msgid "Private"
-msgstr ""
+msgstr "Privat"
 
 #: bauble/plugins/garden/acc_editor.glade:2400
 msgid "Propagation"
@@ -1983,11 +1981,11 @@ msgstr ""
 
 #: bauble/view.py:152
 msgid "Properties"
-msgstr ""
+msgstr "Egenskaper"
 
 #: bauble/search.py:910
 msgid "Property"
-msgstr ""
+msgstr "Egenskap"
 
 #: bauble/plugins/garden/acc_editor.glade:1100
 #: bauble/plugins/garden/acc_editor.glade:1169
@@ -2014,7 +2012,7 @@ msgstr ""
 #: bauble/plugins/garden/plant_editor.glade:1099
 #: bauble/plugins/garden/acc_editor.glade:433
 msgid "Quantity"
-msgstr ""
+msgstr "Mengde"
 
 #: bauble/querybuilder.glade:14
 msgid "Query Builder"
@@ -2026,7 +2024,7 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:347
 msgid "Questionable"
-msgstr ""
+msgstr "Tvilsom"
 
 #: bauble/plugins/plants/species_editor.glade:484
 msgid "Rank"
@@ -2034,15 +2032,15 @@ msgstr ""
 
 #: bauble/plugins/users/ui.glade:165
 msgid "Read"
-msgstr ""
+msgstr "Les"
 
 #: bauble/plugins/garden/plant_editor.glade:680
 msgid "Reason"
-msgstr ""
+msgstr "Grunn"
 
 #: bauble/plugins/garden/acc_editor.glade:3306
 msgid "Reference"
-msgstr ""
+msgstr "Referanse"
 
 #: bauble/plugins/garden/acc_editor.glade:1704
 msgid "Region"
@@ -2060,15 +2058,15 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:266
 #: bauble/plugins/garden/propagation.py:270
 msgid "Removed"
-msgstr ""
+msgstr "Fjernet"
 
 #: bauble/plugins/report/__init__.py:631
 msgid "Report"
-msgstr ""
+msgstr "Rapport"
 
 #: bauble/ui.py:451
 msgid "Report a bug"
-msgstr ""
+msgstr "Rapporter en feil"
 
 #: bauble/plugins/garden/accession.py:400
 msgid "Rescue"
@@ -2080,11 +2078,11 @@ msgstr ""
 
 #: bauble/plugins/report/mako/__init__.py:334
 msgid "Reset to defaults"
-msgstr ""
+msgstr "Tilbakestill til forvalg"
 
 #: bauble/view.py:822
 msgid "Retrieving %s search results…"
-msgstr ""
+msgstr "Henter %s søkeresultater…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2126,7 +2124,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:1095
 msgid "Save your changes"
-msgstr ""
+msgstr "Lagre dine endringer"
 
 #: bauble/plugins/plants/family.py:363
 msgid "Save your changes and add a genus to this family."
@@ -2167,7 +2165,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:912 bauble/plugins/garden/plant.py:636
 #: bauble/plugins/plants/family.py:362 bauble/plugins/plants/genus.py:423
 msgid "Save your changes."
-msgstr ""
+msgstr "Lagre dine endringer."
 
 #: bauble/plugins/garden/accession.py:443
 msgid "Scion"
@@ -2175,7 +2173,7 @@ msgstr ""
 
 #: bauble/utils/web.py:51 bauble/utils/web.py:55
 msgid "Search"
-msgstr ""
+msgstr "Søk"
 
 #: bauble/plugins/plants/family.py:879 bauble/plugins/plants/genus.py:1017
 #: bauble/plugins/plants/species.py:419
@@ -2237,12 +2235,12 @@ msgstr ""
 
 #: bauble/plugins/plants/species.py:420
 msgid "Search Wikipedia"
-msgstr ""
+msgstr "Søk på Wikipedia"
 
 #: bauble/editor.py:309 bauble/plugins/report/__init__.py:641
 #: bauble/plugins/report/__init__.py:646
 msgid "Search for something first."
-msgstr ""
+msgstr "Søk etter noe først."
 
 #: bauble/plugins/plants/family.py:879 bauble/plugins/plants/genus.py:1017
 #: bauble/plugins/plants/species.py:419
@@ -2293,15 +2291,15 @@ msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:377
 msgid "Select a file…"
-msgstr ""
+msgstr "Velg fil…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
-msgstr ""
+msgstr "Velg stilark"
 
 #: bauble/utils/__init__.py:1285
 msgid "Show details"
-msgstr ""
+msgstr "Vis detaljer"
 
 #: bauble/plugins/users/ui.glade:121
 msgid "Show only Ghini users"
@@ -2326,15 +2324,15 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:2440
 #: bauble/plugins/garden/accession.py:2634
 msgid "Source"
-msgstr ""
+msgstr "Kilde"
 
 #: bauble/plugins/garden/acc_editor.glade:1317
 msgid "Source's ID"
-msgstr ""
+msgstr "Kildens ID"
 
 #: bauble/plugins/garden/acc_editor.glade:2100
 msgid "South"
-msgstr ""
+msgstr "Sør"
 
 #: bauble/plugins/plants/species_editor.glade:239
 #: bauble/plugins/plants/__init__.py:368
@@ -2412,11 +2410,11 @@ msgstr ""
 
 #: bauble/plugins/garden/plant.py:281
 msgid "Stolen"
-msgstr ""
+msgstr "Stjålet"
 
 #: bauble/plugins/garden/plant.py:291
 msgid "Summer Kill"
-msgstr ""
+msgstr "Døde i løpet av sommeren"
 
 #: bauble/plugins/plants/genus_editor.glade:270
 #: bauble/plugins/plants/family_editor.glade:216
@@ -2425,7 +2423,7 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:957 bauble/plugins/plants/genus.py:975
 #: bauble/plugins/plants/species.py:218 bauble/plugins/plants/species.py:239
 msgid "Synonyms"
-msgstr ""
+msgstr "Synonymer"
 
 #: bauble/plugins/plants/taxonomy_check.glade:262
 msgid "TNRSapp - Taxonomic Name Resolution Service"
@@ -2433,7 +2431,7 @@ msgstr ""
 
 #: bauble/bauble.glade:72
 msgid "Table"
-msgstr ""
+msgstr "Tabell"
 
 #: bauble/plugins/tag/__init__.py:567 bauble/plugins/tag/test.py:55
 msgid "Tag Selection"
@@ -2458,11 +2456,11 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.glade:194
 msgid "Technical contact"
-msgstr ""
+msgstr "Teknisk kontakt"
 
 #: bauble/plugins/garden/institution.glade:340
 msgid "Telephone"
-msgstr ""
+msgstr "Telefon"
 
 #: bauble/pluginmgr.py:246
 msgid ""
@@ -2517,7 +2515,7 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:1093
 msgid "The awards this species have been given"
-msgstr ""
+msgstr "Priser som har blitt tildelt denne arten"
 
 #: bauble/db.py:424
 msgid ""
@@ -2553,7 +2551,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:204
 msgid "The email address of the institution."
-msgstr ""
+msgstr "Institusjonens e-postadresse"
 
 #: bauble/plugins/garden/institution.py:201
 msgid ""
@@ -2576,11 +2574,11 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:414
 msgid "The family name"
-msgstr ""
+msgstr "Familienavnet"
 
 #: bauble/plugins/plants/family.py:353
 msgid "The family name."
-msgstr ""
+msgstr "Familienavnet."
 
 #: bauble/plugins/plants/family.py:354
 msgid ""
@@ -2590,7 +2588,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:206
 msgid "The fax number of the institution."
-msgstr ""
+msgstr "Faksnummeret tilhørende institusjonen."
 
 #: bauble/pluginmgr.py:215
 msgid ""
@@ -2610,7 +2608,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:194
 msgid "The full name of the institution."
-msgstr ""
+msgstr "Institusjonens fulle navn."
 
 #: bauble/plugins/plants/species_editor.py:282
 msgid ""
@@ -2648,7 +2646,7 @@ msgstr ""
 
 #: bauble/plugins/garden/institution.py:207
 msgid "The mailing address of the institition."
-msgstr ""
+msgstr "Institusjonens postadresse"
 
 #: bauble/plugins/garden/institution.py:199
 msgid ""
@@ -3557,3 +3555,15 @@ msgstr ""
 #: bauble/plugins/garden/propagation.py:284
 msgid "°F"
 msgstr ""
+
+#~ msgid "Choose a file..."
+#~ msgstr "Velg ei fil…"
+
+#~ msgid "Choose a property..."
+#~ msgstr "Velg en egenskap…"
+
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Henter %s søkeresultater…"
+
+#~ msgid "Select a file..."
+#~ msgstr "Velg fil…"

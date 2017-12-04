@@ -3,6 +3,7 @@
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2017 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
+# Copyright 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -148,17 +149,13 @@ def check_and_notify_new_version(view):
             gobject.idle_add(show_message_box)
     except urllib2.URLError:
         logger.info('connection is slow or down')
-        pass
     except ssl.SSLError, e:
         logger.info('SSLError %s while checking for newer version' % e)
-        pass
     except urllib2.HTTPError:
         logger.info('HTTPError while checking for newer version')
-        pass
     except Exception, e:
         logger.warning('unhandled %s(%s) while checking for newer version'
                        % type(e), e)
-        pass
 
 
 class ConnMgrPresenter(GenericEditorPresenter):
@@ -224,15 +221,19 @@ class ConnMgrPresenter(GenericEditorPresenter):
         except:
             pass
 
-        from threading import Thread
-        self.start_thread(Thread(target=check_and_notify_new_version,
+        from bauble import main_is_frozen
+        # Don't check for new versions if we are in a py2exe environment
+        if not main_is_frozen():
+            from threading import Thread
+            self.start_thread(Thread(target=check_and_notify_new_version,
                                  args=[self.view]))
+        logger.debug('main_is_frozen = %s' % (main_is_frozen()))
 
     def on_file_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('file_entry')
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -242,7 +243,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         previously = self.view.widget_get_value('pictureroot_entry')
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -252,7 +253,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         previously = self.view.widget_get_value('pictureroot2_entry')
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),

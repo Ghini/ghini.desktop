@@ -374,7 +374,7 @@ class FileChooserButton(gtk.Button):
     but doesn't revert back to the original file of the dialog is cancelled.
     """
 
-    _default_label = _("Select a file...")
+    _default_label = _("Select a file…")
 
     def __init__(self, dialog_parent):
         super(FileChooserButton, self).__init__(self._default_label)

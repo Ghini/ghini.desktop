@@ -820,7 +820,7 @@ class SearchView(pluginmgr.View):
                 if not utils.yes_no_dialog(msg):
                     return
             statusbar.push(sbcontext_id, _("Retrieving %s search "
-                                           "results...") % len(results))
+                                           "results…") % len(results))
             try:
                 # don't bother with a task if the results are small,
                 # this keeps the screen from flickering when the main
