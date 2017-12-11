@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2017-09-05 16:56+0000\n"
 "Last-Translator: JoHegg <joheggemann@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -712,24 +712,27 @@ msgid "Changes"
 msgstr "Änderungen"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Wählen Sie die Datei an, in die exportiert werden soll …"
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Datei auswählen …"
+msgid "Choose a file…"
+msgstr "Datei auswählen…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
+msgid "Choose a property…"
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Wählen Sie die Datei(en) aus, die importiert werden soll(en) …"
+msgid "Choose file(s) to import…"
+msgstr "Wählen Sie die Datei(en) aus, die importiert werden soll(en)…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2179,8 +2182,8 @@ msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "Empfange %s Suchergebnisse ..."
+msgid "Retrieving %s search results…"
+msgstr "Empfange %s Suchergebnisse…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2392,7 +2395,7 @@ msgid "Select a directory"
 msgstr "Verzeichnis wählen"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
+msgid "Select a file…"
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:385
@@ -3824,6 +3827,12 @@ msgstr ""
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Wählen Sie die Datei an, in die exportiert werden soll …"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Datei auswählen …"
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Wählen Sie die Datei(en) aus, die importiert werden soll(en) …"
+
 #~ msgid "Copyright © Belize Botanic Gardens"
 #~ msgstr "Urheberrecht © Belize Botanic Gardens"
 
@@ -3903,6 +3912,9 @@ msgstr ""
 
 #~ msgid "Please choose a user name for this connection"
 #~ msgstr "Bitte wählen Sie einen Benutzernamen für diese Verbindung"
+
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Empfange %s Suchergebnisse ..."
 
 #~ msgid "Search Google"
 #~ msgstr "Google-Suche"

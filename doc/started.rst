@@ -42,6 +42,37 @@ falls beyond the scope of this manual.
 If you already got the chills or sick at your stomach, no need to worry,
 just stick with SQLite, you do not miss on features nor performance.
 
+..  admonition:: Some more hints if you need PostgreSQL
+    :class: toggle
+
+       Start simple, don't do all at the same time. Review `the online
+       manual <https://www.postgresql.org/docs/9.4/static/index.html>`_, or
+       download and study `the offline version
+       <https://www.postgresql.org/files/documentation/pdf/9.4/postgresql-9.4-A4.pdf>`_.
+
+       As said above, create a database, a user, make this user the owner of
+       the database, decide whether you're going to need multiple users, and
+       preferably reserve a user for database and normal user creation. This
+       super-user should be your only user with ``CREATEROLE``
+       privilege.
+
+       All normal users will need all privileges on all tables and
+       sequences, something you can do from the
+       :menuselection:`Tools-->Users` menu.  If you have any difficulty,
+       please `open an issue
+       <https://github.com/Ghini/ghini.desktop/issues/new>`_ about it.
+       
+       Connect using the ``psql`` interactive terminal.  Create a
+       ``~/.pgpass`` file (read more about it in `the manual
+       <https://www.postgresql.org/docs/9.4/static/libpq-pgpass.html>`_),
+       tweak your ``pg_hba.conf`` and ``postgresql.conf`` files, until you
+       can connect using the command::
+
+         psql <mydb> --username <myuser> --no-password --host <mydbhost>
+
+       With the above setup, connecting from ghini will be an obvious task.
+
+
 .. _connecting:
 
 Connecting to a database

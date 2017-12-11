@@ -314,7 +314,7 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="btnbrowse">
-                            <property name="label">...</property>
+                            <property name="label">…</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -535,7 +535,7 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="btnbrowse1">
-                        <property name="label">...</property>
+                        <property name="label">…</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

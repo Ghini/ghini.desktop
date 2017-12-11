@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
-"PO-Revision-Date: 2017-10-15 17:50+0000\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
+"PO-Revision-Date: 2017-11-26 10:22+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian "
 "<https://hosted.weblate.org/projects/ghini/desktop-10/uk/>\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
 "4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 2.17\n"
+"X-Generator: Weblate 2.18-dev\n"
 "X-Launchpad-Export-Date: 2011-11-11 05:23+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -729,24 +729,27 @@ msgid "Changes"
 msgstr "Зміни"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Вибрати файл для експорту в ..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr "Виберіть файл для експорту до…"
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Вибрати файл..."
+msgid "Choose a file…"
+msgstr "Вибрати файл…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Вибрати властивість..."
+msgid "Choose a property…"
+msgstr "Вибрати властивість…"
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Виберіть файл(и) для імпорту..."
+msgid "Choose file(s) to import…"
+msgstr "Виберіть файл(и) для імпорту…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2213,8 +2216,8 @@ msgid "Reset to defaults"
 msgstr "Відновити за замовчуванням"
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "Отримано %s результатів пошуку..."
+msgid "Retrieving %s search results…"
+msgstr "Отримано %s результатів пошуку…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2424,8 +2427,8 @@ msgid "Select a directory"
 msgstr "Виберіть каталог"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
-msgstr "Виберіть файл..."
+msgid "Select a file…"
+msgstr "Виберіть файл…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
@@ -3961,8 +3964,17 @@ msgstr "°F"
 #~ msgid "<b>Voucher of parent material</b>"
 #~ msgstr "<b>Ваучер з основного матеріалу</b>"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Вибрати файл..."
+
+#~ msgid "Choose a property..."
+#~ msgstr "Вибрати властивість..."
+
 #~ msgid "Choose a search domain..."
 #~ msgstr "Вибрати пошукову область ..."
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Виберіть файл(и) для імпорту..."
 
 #~ msgid "Database: "
 #~ msgstr "База даних: "
@@ -3991,8 +4003,14 @@ msgstr "°F"
 #~ msgid "Propagule of cultivated (wild) plant"
 #~ msgstr "Розмноження культивованих (диких) рослин"
 
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Отримано %s результатів пошуку..."
+
 #~ msgid "Search Google"
 #~ msgstr "Пошук Google"
+
+#~ msgid "Select a file..."
+#~ msgstr "Виберіть файл..."
 
 #~ msgid "Select a source"
 #~ msgstr "Виберіть джерело"

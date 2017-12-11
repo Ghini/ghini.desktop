@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Translate it <Unknown>\n"
 "Language-Team: Turkish <tr@li.org>\n"
@@ -695,24 +695,27 @@ msgid "Changes"
 msgstr ""
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Dışa aktarılacak dosyayı seçin..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
+msgid "Choose a file…"
 msgstr ""
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
+msgid "Choose a property…"
 msgstr ""
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "İçe aktarılacak dosya(lar)ı seçin..."
+msgid "Choose file(s) to import…"
+msgstr "İçe aktarılacak dosya(lar)ı seçin…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2105,8 +2108,8 @@ msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "%s arama sonucu alınıyor..."
+msgid "Retrieving %s search results…"
+msgstr "%s arama sonucu alınıyor…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2316,7 +2319,7 @@ msgid "Select a directory"
 msgstr "Dizin seçin"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
+msgid "Select a file…"
 msgstr ""
 
 #: bauble/plugins/report/xsl/__init__.py:385
@@ -3610,6 +3613,9 @@ msgstr ""
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Dışa aktarılacak dosyayı seçin..."
 
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "İçe aktarılacak dosya(lar)ı seçin..."
+
 #~ msgid "Copyright © Belize Botanic Gardens"
 #~ msgstr "Telif Hakkı © Belize Botanic Gardens"
 
@@ -3627,6 +3633,9 @@ msgstr ""
 
 #~ msgid "No images"
 #~ msgstr "Hiç görüntü yok"
+
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "%s arama sonucu alınıyor..."
 
 #~ msgid "Search Google"
 #~ msgstr "Google'da Ara"

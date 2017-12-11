@@ -553,7 +553,7 @@ class CSVImporter(Importer):
                 return
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
-        fc = gtk.FileChooserDialog(_("Choose file(s) to import..."),
+        fc = gtk.FileChooserDialog(_("Choose file(s) to import…"),
                                    None,
                                    gtk.FILE_CHOOSER_ACTION_OPEN,
                                    (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,

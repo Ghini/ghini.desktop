@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
-"PO-Revision-Date: 2017-09-29 01:48+0000\n"
-"Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
+"PO-Revision-Date: 2017-11-14 13:27+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "es/>\n"
 "Language: es\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.17-dev\n"
+"X-Generator: Weblate 2.18-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 
 #: bauble/btypes.py:87
@@ -641,11 +641,11 @@ msgstr "Planta de raíz desnuda"
 
 #: bauble/plugins/garden/source.py:128
 msgid "Botanic Garden or Arboretum"
-msgstr "Jardín Botánico o  Arboretum"
+msgstr "Jardín Botánico o Arboretum"
 
 #: bauble/plugins/garden/prop_editor.glade:573
 msgid "Bottom heat"
-msgstr "calor del fondo"
+msgstr "Calor del fondo"
 
 #: bauble/plugins/garden/propagation.py:191
 msgid "Bottom heat: %(temp)s%(unit)s"
@@ -726,24 +726,27 @@ msgid "Changes"
 msgstr "Cambios"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Elija un archivo para exportar a..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
+msgid "Choose a file…"
 msgstr "Elija un archivo…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Escoje una propiedad..."
+msgid "Choose a property…"
+msgstr "Escoje una propiedad…"
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Elija el archivo(s) a importar ..."
+msgid "Choose file(s) to import…"
+msgstr "Elija el archivo(s) a importar…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2217,8 +2220,8 @@ msgid "Reset to defaults"
 msgstr "Valores predeterminados"
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "Obteniendo %s resultados..."
+msgid "Retrieving %s search results…"
+msgstr "Obteniendo %s resultados…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2431,8 +2434,8 @@ msgid "Select a directory"
 msgstr "Seleccione un directorio"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
-msgstr "Selecciona un archivo..."
+msgid "Select a file…"
+msgstr "Selecciona un archivo…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
@@ -3864,6 +3867,15 @@ msgstr "°F"
 #~ msgid "--"
 #~ msgstr "--"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Elija un archivo…"
+
+#~ msgid "Choose a property..."
+#~ msgstr "Escoje una propiedad..."
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Elija el archivo(s) a importar ..."
+
 #~ msgid "Database: "
 #~ msgstr "Base de datos: "
 
@@ -3878,6 +3890,12 @@ msgstr "°F"
 
 #~ msgid "Pictures root: "
 #~ msgstr "Ubicación fotos: "
+
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Obteniendo %s resultados..."
+
+#~ msgid "Select a file..."
+#~ msgstr "Selecciona un archivo..."
 
 #~ msgid ""
 #~ "The family <i>%(family)s</i> has %(num_genera)s genera.  Are you sure you "

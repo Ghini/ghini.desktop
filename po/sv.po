@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
-"PO-Revision-Date: 2017-10-02 22:48+0000\n"
-"Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
+"PO-Revision-Date: 2017-11-16 02:10+0000\n"
+"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "sv/>\n"
 "Language: sv\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.17-dev\n"
+"X-Generator: Weblate 2.18-dev\n"
 "X-Launchpad-Export-Date: 2013-01-23 05:32+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -156,9 +156,8 @@ msgid "<b>Awards:</b>"
 msgstr "<b>Priser:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:683
-#, fuzzy
 msgid "<b>CITES:</b>"
-msgstr "<b>ID:</b>"
+msgstr "<b>CITES:</b>"
 
 #: bauble/plugins/garden/prop_editor.glade:743
 msgid "<b>Chemical treatment</b>"
@@ -336,7 +335,7 @@ msgstr "<b>Använd auktorsnamn</b>"
 #: bauble/plugins/garden/loc_editor.glade:348
 #, fuzzy
 msgid "<b>danger zone</b>"
-msgstr "<b>Ändra historik</b>"
+msgstr "<b>riskområde</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:956
 msgid "<b>in use</b>"
@@ -728,24 +727,27 @@ msgid "Changes"
 msgstr "Ändringar"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Välj en fil att exportera till…"
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Välj en fil..."
+msgid "Choose a file…"
+msgstr "Välj en fil…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Välj en egenskap…"
+msgid "Choose a property…"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Välj fil(er) att importera..."
+msgid "Choose file(s) to import…"
+msgstr "Välj fil(er) att importera…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -764,7 +766,7 @@ msgstr "Kod"
 #: bauble/plugins/garden/accession.py:399
 #, fuzzy
 msgid "Collection"
-msgstr "Samlings-ID"
+msgstr "Samling"
 
 #: bauble/plugins/garden/acc_editor.glade:1614
 msgid "Collection ID"
@@ -1037,9 +1039,8 @@ msgid "Date collected:"
 msgstr ""
 
 #: bauble/view.py:176
-#, fuzzy
 msgid "Date created:"
-msgstr "<b>Skapad den:</b>"
+msgstr "Skapad datum:"
 
 #: bauble/plugins/garden/plant_editor.glade:691
 msgid "Date of Change"
@@ -1263,7 +1264,7 @@ msgstr "Exportera"
 #: bauble/plugins/imex/select_export.glade:8
 #, fuzzy
 msgid "Export To JSON"
-msgstr "Exportera"
+msgstr "Exportera till JSON"
 
 #: bauble/plugins/imex/csv_.py:608
 msgid ""
@@ -1415,7 +1416,7 @@ msgstr ""
 #: bauble/ui.py:457
 #, fuzzy
 msgid "Ghini development website"
-msgstr "Ghinis webbplats"
+msgstr "Ghini utveckling webbplats"
 
 #: bauble/connmgr.py:516
 msgid ""
@@ -1460,12 +1461,12 @@ msgstr ""
 #: bauble/ui.py:463
 #, fuzzy
 msgid "Ghini forum"
-msgstr "Ghini"
+msgstr "Ghini forum"
 
 #: bauble/ui.py:460
 #, fuzzy
 msgid "Ghini wiki"
-msgstr "Ghinis webbplats"
+msgstr "Ghini wiki"
 
 #: bauble/plugins/garden/plant.py:294
 msgid "Given away (specify person)"
@@ -1555,12 +1556,12 @@ msgstr "Importera"
 #: bauble/plugins/garden/accession.py:420
 #, fuzzy
 msgid "Imported"
-msgstr "Importera"
+msgstr "Importerade"
 
 #: bauble/plugins/garden/accession.py:398
 #, fuzzy
 msgid "Impound"
-msgstr "Importera"
+msgstr "Beslagta"
 
 #: bauble/plugins/imex/csv_.py:327
 msgid ""
@@ -1666,7 +1667,7 @@ msgstr "Utbredningstext på etikett"
 #: bauble/view.py:185
 #, fuzzy
 msgid "Last updated:"
-msgstr "<b>Senast uppdaterad:</b>"
+msgstr "Senast uppdaterad:"
 
 #: bauble/plugins/garden/acc_editor.glade:2011
 msgid "Latitude"
@@ -1816,7 +1817,7 @@ msgstr "Namn"
 #: bauble/plugins/garden/accession.py:419
 #, fuzzy
 msgid "National"
-msgstr "Plats"
+msgstr "Nationell"
 
 #: bauble/plugins/plants/species_model.py:208
 msgid "Near Threatened (NT)"
@@ -2205,7 +2206,7 @@ msgid "Reset to defaults"
 msgstr ""
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
+msgid "Retrieving %s search results…"
 msgstr "Hämtar %s sökresultat…"
 
 #: bauble/plugins/garden/accession.py:440
@@ -2344,18 +2345,16 @@ msgid "Search National Plant Germplasm System"
 msgstr "Sök i National Plant Germplasm System"
 
 #: bauble/plugins/plants/genus.py:1020 bauble/plugins/plants/species.py:423
-#, fuzzy
 msgid "Search TPL"
-msgstr "Sök i ITIS"
+msgstr "Sök i TPL"
 
 #: bauble/plugins/plants/genus.py:1020 bauble/plugins/plants/species.py:423
 msgid "Search The Plant List online database"
 msgstr ""
 
 #: bauble/plugins/plants/genus.py:1021 bauble/plugins/plants/species.py:424
-#, fuzzy
 msgid "Search Tropicos"
-msgstr "Sökdomän"
+msgstr "Sök i Tropicos"
 
 #: bauble/plugins/plants/genus.py:1021 bauble/plugins/plants/species.py:424
 msgid "Search Tropicos (MissouriBG) online database"
@@ -2418,7 +2417,7 @@ msgid "Select a directory"
 msgstr "Välj en mapp"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
+msgid "Select a file…"
 msgstr "Välj en fil…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
@@ -3054,15 +3053,14 @@ msgid ""
 msgstr ""
 
 #: bauble/db.py:38
-#, fuzzy
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
 "http://www.sqlalchemy.org or contact your system administrator."
 msgstr ""
-"Denna version av Ghini kräver SQLAlchemy 0.5.0 eller senare. Var vänlig "
-"hämta och installera en nyare version av SQLAlchemy från http://www."
-"sqlalchemy.org eller kontakta din systemadministratör."
+"Denna version av Ghini kräver SQLAlchemy 0.6 eller senare. Du använder "
+"version %s. Var vänlig hämta och installera en nyare version av SQLAlchemy "
+"från http://www.sqlalchemy.org eller kontakta din systemadministratör."
 
 #: bauble/connmgr.py:551
 msgid "Thumbnails name occupied by non directory."
@@ -3286,14 +3284,13 @@ msgid "XSL"
 msgstr "XSL"
 
 #: bauble/plugins/imex/iojson.py:202
-#, fuzzy
 msgid ""
 "You are exporting %(nplants)s objects to JSON format.  Exporting this many "
 "objects may take several minutes.  \n"
 "\n"
 "<i>Would you like to continue?</i>"
 msgstr ""
-"Du håller på att exportera %(nplants)s växter till formatet ABCD.  Export av "
+"Du håller på att exportera %(nplants)s växter till formatet JSON.  Export av "
 "så många växter kan ta flera minuter.  \n"
 "\n"
 "<i>Vill du fortsätta?</i>"
@@ -3461,9 +3458,8 @@ msgid "accession code format"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:119
-#, fuzzy
 msgid "accessions"
-msgstr "Accession"
+msgstr "referensnummer"
 
 #: bauble/bauble.glade:177
 msgid "activate query builder"
@@ -3491,9 +3487,8 @@ msgid "browse"
 msgstr ""
 
 #: bauble/plugins/garden/accession.py:1407
-#, fuzzy
 msgid "by %(verifier)s"
-msgstr "Kontrollant"
+msgstr "av %(verifier)s"
 
 #: bauble/plugins/garden/plant.py:993
 msgid "cannot split a new plant"
@@ -3631,7 +3626,7 @@ msgstr ""
 #: bauble/plugins/plants/species_model.py:225
 #, fuzzy
 msgid "native"
-msgstr "Vild inhemsk"
+msgstr "inhemsk"
 
 #: bauble/connmgr.py:137
 msgid ""
@@ -3668,7 +3663,7 @@ msgstr ""
 #: bauble/plugins/imex/select_export.glade:137
 #, fuzzy
 msgid "plants"
-msgstr "Lägg till växter"
+msgstr "växter"
 
 #: bauble/plugins/garden/location.py:276
 msgid "please confirm merging %(1)s into %(2)s"
@@ -3705,9 +3700,8 @@ msgid "select TNRS results"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:84
-#, fuzzy
 msgid "selection"
-msgstr "Taggval"
+msgstr "selektion"
 
 #: bauble/view.py:852
 msgid "size of non homogeneous result: %s"
@@ -3982,8 +3976,17 @@ msgstr "°F"
 #~ msgid "Choose a file to import from..."
 #~ msgstr "Välj en fil att exportera till…"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Välj en fil..."
+
+#~ msgid "Choose a property..."
+#~ msgstr "Välj en egenskap…"
+
 #~ msgid "Choose a search domain..."
 #~ msgstr "Välj en sökdomän…"
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Välj fil(er) att importera..."
 
 #~ msgid "Container: %s"
 #~ msgstr "Behållare: %s"
@@ -4136,6 +4139,9 @@ msgstr "°F"
 #~ msgid "Propagule of cultivated (wild) plant"
 #~ msgstr "Avkomma från odlad vildplanta"
 
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Hämtar %s sökresultat…"
+
 #~ msgid "Save your changes and add a planting to this accession."
 #~ msgstr "Spara dina ändringar och lägg till en växt i denna accession."
 
@@ -4168,6 +4174,9 @@ msgstr "°F"
 
 #~ msgid "Search Google"
 #~ msgstr "Sök på Google"
+
+#~ msgid "Select a file..."
+#~ msgstr "Välj en fil…"
 
 #~ msgid "Select a source"
 #~ msgstr "Välj en källa"

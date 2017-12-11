@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-15 10:52-0500\n"
-"PO-Revision-Date: 2017-08-03 14:14+0000\n"
+"POT-Creation-Date: 2017-11-16 16:11-0500\n"
+"PO-Revision-Date: 2017-11-10 21:12+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
 "it/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.16-dev\n"
+"X-Generator: Weblate 2.18-dev\n"
 "X-Launchpad-Export-Date: 2012-09-20 04:53+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -37,7 +37,7 @@ msgstr "Nº germinati"
 
 #: bauble/plugins/garden/propagation.py:227
 msgid "# of seedlings"
-msgstr ""
+msgstr "N° di semenzali"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
@@ -115,7 +115,7 @@ msgstr "**Errore: Ghini deve essere eseguito in un ambiente grafico."
 
 #: bauble/plugins/report/mako/__init__.py:319
 msgid ":"
-msgstr ""
+msgstr ":"
 
 #: bauble/plugins/garden/source_detail_infobox.glade:59
 #: bauble/plugins/plants/infoboxes.glade:57
@@ -160,7 +160,6 @@ msgid "<b>Awards:</b>"
 msgstr "<b>Riconoscimenti:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade:683
-#, fuzzy
 msgid "<b>CITES:</b>"
 msgstr "<b>CITES:</b>"
 
@@ -464,7 +463,7 @@ msgstr "Accessione di origine selvatica"
 
 #: bauble/plugins/garden/acc_editor.glade:2089
 msgid "Accuracy"
-msgstr ""
+msgstr "Precisione"
 
 #: bauble/plugins/garden/plant_editor.glade:430
 #: bauble/plugins/garden/plant_editor.glade:1235
@@ -732,24 +731,27 @@ msgid "Changes"
 msgstr "Modifiche"
 
 #: bauble/plugins/abcd/__init__.py:335
-#: bauble/plugins/garden/exporttopocket.py:155
 msgid "Choose a file to export to..."
 msgstr "Seleziona un file nel quale esportare i dati..."
+
+#: bauble/plugins/garden/exporttopocket.py:155
+msgid "Choose a file to export to…"
+msgstr ""
 
 #: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
 #: bauble/editor.py:2015 bauble/editor.py:2022
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
-msgid "Choose a file..."
-msgstr "Scegli un file..."
+msgid "Choose a file…"
+msgstr "Scegli un file…"
 
 #: bauble/search.py:1090
-msgid "Choose a property..."
-msgstr "Scegli una proprietà..."
+msgid "Choose a property…"
+msgstr ""
 
 #: bauble/plugins/imex/csv_.py:556
-msgid "Choose file(s) to import..."
-msgstr "Seleziona file da importare..."
+msgid "Choose file(s) to import…"
+msgstr "Seleziona file da importare…"
 
 #: bauble/querybuilder.glade:134
 msgid "Clauses"
@@ -2207,8 +2209,8 @@ msgid "Reset to defaults"
 msgstr "Valori iniziali"
 
 #: bauble/view.py:822
-msgid "Retrieving %s search results..."
-msgstr "Ottenendo %s risultati di ricerca..."
+msgid "Retrieving %s search results…"
+msgstr "Ottenendo %s risultati di ricerca…"
 
 #: bauble/plugins/garden/accession.py:440
 msgid "Rhizome"
@@ -2418,8 +2420,8 @@ msgid "Select a directory"
 msgstr "Seleziona una directory"
 
 #: bauble/plugins/report/xsl/__init__.py:377
-msgid "Select a file..."
-msgstr "Scegli un file..."
+msgid "Select a file…"
+msgstr "Scegli un file…"
 
 #: bauble/plugins/report/xsl/__init__.py:385
 msgid "Select a stylesheet"
@@ -3853,6 +3855,15 @@ msgstr ""
 #~ msgid "--"
 #~ msgstr "--"
 
+#~ msgid "Choose a file..."
+#~ msgstr "Scegli un file..."
+
+#~ msgid "Choose a property..."
+#~ msgstr "Scegli una proprietà..."
+
+#~ msgid "Choose file(s) to import..."
+#~ msgstr "Seleziona file da importare..."
+
 #~ msgid "Database: "
 #~ msgstr "Database: "
 
@@ -3864,6 +3875,12 @@ msgstr ""
 
 #~ msgid "Pictures root: "
 #~ msgstr "Cartella base per le immagini: "
+
+#~ msgid "Retrieving %s search results..."
+#~ msgstr "Ottenendo %s risultati di ricerca..."
+
+#~ msgid "Select a file..."
+#~ msgstr "Scegli un file..."
 
 #~ msgid ""
 #~ "The family <i>%(family)s</i> has %(num_genera)s genera.  Are you sure you "

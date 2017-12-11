@@ -1928,7 +1928,7 @@ class NoteBox(gtk.HBox):
             # label.props.ellipsize doesn't work properly on a
             # label in an expander we just do it ourselves here
             if len(self.model.note) > max_length:
-                label.append('%s ...' % note_str[0:max_length-1])
+                label.append('%s …' % note_str[0:max_length-1])
             else:
                 label.append(note_str)
 
@@ -2012,14 +2012,14 @@ class PictureBox(NoteBox):
         else:
             # make button hold some text
             im = gtk.Label()
-            im.set_text(_('Choose a file...'))
+            im.set_text(_('Choose a file…'))
         im.show()
         self.widgets.picture_button.add(im)
         self.widgets.picture_button.show()
 
     def on_activate_browse_button(self, widget, data=None):
         fileChooserDialog = gtk.FileChooserDialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         try:

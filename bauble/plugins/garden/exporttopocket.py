@@ -152,7 +152,7 @@ class ExportToPocketTool(pluginmgr.Tool):
 
     @classmethod
     def start(self):
-        d = gtk.FileChooserDialog(_("Choose a file to export to..."), None,
+        d = gtk.FileChooserDialog(_("Choose a file to export to…"), None,
                                   gtk.FILE_CHOOSER_ACTION_SAVE,
                                   (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                    gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
