@@ -415,7 +415,7 @@ class clean(Command):
         if os.path.exists(DOC_BUILD_PATH):
             dir_util.remove_tree(DOC_BUILD_PATH)
         # .egg info
-        egg_info_dir = 'bauble.egg-info'
+        egg_info_dir = 'ghini.desktop.egg-info'
         if os.path.exists(egg_info_dir):
             dir_util.remove_tree(egg_info_dir)
 
