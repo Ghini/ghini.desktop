@@ -17,5 +17,5 @@ git fetch --all
 tmpfile=$(mktemp /tmp/bump-commit.XXXXXX)
 scripts/bump_version.py + | tee $tmpfile
 $(tail -n 1 $tmpfile)
-rm $tmpfile
+# rm $tmpfile
 git push
