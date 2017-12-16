@@ -1,16 +1,10 @@
 #!/bin/sh
 LINE=ghini-1.0
 #### the following lines make sure you have locally all remote branches
-# git branch -r |
-#     grep -v '\->' |
-#     while read remote
-#     do
-#         git branch --track "${remote#origin/}" "$remote" 2>/dev/null
-#     done
-git fetch --all
+git remote update
 git checkout $LINE
 git merge $LINE-dev
-git commit -m "publish to 1.0"
+git commit -m "publish to $(grep :bump bauble/version.py | grep -o '[1-9]\.[0-9]\.[0-9]*')"
 git push
 git checkout $LINE-dev
 git fetch --all
