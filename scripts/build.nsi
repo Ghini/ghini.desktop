@@ -28,7 +28,7 @@
 ; general
 Name "Ghini"
 
-!define version "1.0.77" ; :bump
+!define version "1.0.78" ; :bump
 !define src_dir "../dist"
 Outfile "ghini.desktop-${version}-setup.exe"
 
