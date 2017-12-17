@@ -40,7 +40,7 @@ Windows.  The methods described here has been used successfully on Windows 7,
    components of PyGTK. (Wait for Python install to complete before installing 
    PyGTK)
 
-#. If you wish to produce an installer download and install `NSIS v2 
+#. If you wish to produce an installer download and install `NSIS v3 
    <http://nsis.sourceforge.net/Download>`_.  
 
 #. A **reboot** is recommended.
