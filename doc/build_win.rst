@@ -34,28 +34,17 @@ steps for a normal Windows :ref:`installation`.
      <http://aka.ms/vcpython27>`_ to get any of the C extensions and will need 
      a fresh virtual environment with no dependent packages installed as eggs.
 
-#. Download and install git, Python 2.7 and PyGTK external dependencies as
-   outlined in the :ref:`installation`.
+#. Download and install git, Python 2.7 and PyGTK as outlined in the generic
+   :ref:`installation` instructions.
 
 #. Additionally, download and install `NSIS v3 <http://nsis.sourceforge.net/Download>`_.
 
 #. A **reboot** is recommended.
 
-#. Clone ghini.desktop to wherever you want to keep it (replace 
-   ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Local\github\Ghini\``) 
-   and checkout a production branch (``ghini-1.0`` is recommended as 
-   used in the example).  To do this, open a command prompt and type these 
-   commands::
+   .. admonition:: we have a script that automates the remaining steps
+      :class: toggle
 
-      cd <path-to-keep-ghini>
-      git clone https://github.com/Ghini/ghini.desktop.git
-      cd ghini.desktop
-      git checkout ghini-1.0
-
-   .. admonition:: shortcut using build_win.bat
-      :class: note
-
-      A batch file is available that can complete these last few steps.  To use 
+      A batch file is available that can complete the last few steps.  To use 
       it use this command::
 
          scripts\build_win.bat
@@ -71,6 +60,17 @@ steps for a normal Windows :ref:`installation`.
       e.g. to produce an executable only and use a virtual environment in 
       a folder beside where you have ghini.desktop you could execute 
       ``scripts\build_win.bat /e ..\ghi2exe``
+
+#. Clone ghini.desktop to wherever you want to keep it (replace 
+   ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Local\github\Ghini\``) 
+   and checkout a production branch (``ghini-1.0`` is recommended as 
+   used in the example).  To do this, open a command prompt and type these 
+   commands::
+
+      cd <path-to-keep-ghini>
+      git clone https://github.com/Ghini/ghini.desktop.git
+      cd ghini.desktop
+      git checkout ghini-1.0
 
 #. Install virtualenv, create a virtual environment and activate it.  With only 
    Python 2.7 on your system (where ``<path-to-venv>`` is the path to where you 
