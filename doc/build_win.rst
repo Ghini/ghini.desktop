@@ -116,7 +116,7 @@ steps for a normal Windows :ref:`installation`.
    ``scripts`` folder.  This is your Windows installer.
 
 .. admonition:: about the installer
-   :class: note
+   :class: toggle
 
    -  Capable of single user or global installs.
 
