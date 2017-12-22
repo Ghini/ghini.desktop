@@ -1,4 +1,3 @@
-===========================================
 Building a Windows executable and installer
 ===========================================
 
@@ -6,18 +5,22 @@ For building a Windows installer or executable you will need an installation of
 Windows.  The methods described here has been used successfully on Windows 7, 
 8 and 10.  Windows Vista should also work but has not been tested.
 
+In the remainder of this section we assume you're using a Windows
+workstation.  We also assume assume you do not use it as your software
+development platform.  All steps described here are very similar to the
+steps for a normal Windows :ref:`installation`.
 
 .. admonition:: py2exe will not work with eggs
-   :class: note
+   :class: toggle
 
-   Building a windows executable with py2exe requires packages **not** be 
+   Building a Windows executable with py2exe requires packages **not** be 
    installed as eggs.  There are several methods to accomplish this, including:
 
    - Using pip to install.  The easiest method is to install into a virtual 
      environment that doesn't currently have any modules installed as eggs 
-     using ``pip install .`` as descibed below.  If you do wish to install over 
+     using ``pip install .`` as described below.  If you do wish to install over 
      the top of an install with eggs (e.g. the environment created by 
-     ``devinstall.bat``  ) you can try ``pip install -I .`` but your mileage 
+     ``devinstall.bat``) you can try ``pip install -I .`` but your mileage 
      may vary. 
 
    - By adding::
@@ -31,23 +34,16 @@ Windows.  The methods described here has been used successfully on Windows 7,
      <http://aka.ms/vcpython27>`_ to get any of the C extensions and will need 
      a fresh virtual environment with no dependent packages installed as eggs.
 
+#. Download and install git, Python 2.7 and PyGTK external dependencies as
+   outlined in the :ref:`installation`.
 
-#. Download and install git, Python 2.7 and PyGTK external dependencies as 
-   outlined in the installation instructions.  You can use the direct links 
-   provided here (`git <Direct link to download git_>`_, `Python <Direct link 
-   to download Python_>`_, `PyGTK <Direct link to download PyGTK_>`_) but 
-   remember to select the option to put Python in the PATH and install **all** 
-   components of PyGTK. (Wait for Python install to complete before installing 
-   PyGTK)
-
-#. If you wish to produce an installer download and install `NSIS v3 
-   <http://nsis.sourceforge.net/Download>`_.  
+#. Additionally, download and install `NSIS v3 <http://nsis.sourceforge.net/Download>`_.
 
 #. A **reboot** is recommended.
 
 #. Clone ghini.desktop to wherever you want to keep it (replace 
-   ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Downloads``) 
-   and checkout the branch you wish to build (``ghini-1.0`` is recommended as 
+   ``<path-to-keep-ghini>`` with the path of your choice, e.g. ``Local\github\Ghini\``) 
+   and checkout a production branch (``ghini-1.0`` is recommended as 
    used in the example).  To do this, open a command prompt and type these 
    commands::
 
@@ -119,7 +115,6 @@ Windows.  The methods described here has been used successfully on Windows 7,
    This should leave a file named ``ghini.desktop-<version>-setup.exe`` in the 
    ``scripts`` folder.  This is your Windows installer.
 
-
 .. admonition:: about the installer
    :class: note
 
@@ -155,11 +150,3 @@ Windows.  The methods described here has been used successfully on Windows 7,
             ``F`` = select Apache FOP
 
             ``C`` = select MS Visual C runtime
-
-
-.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.13.3.windows.1/Git-2.13.3-32-bit.exe
-.. _Direct link to download Python: https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
-.. _Direct link to download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
-.. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
-.. _Direct link to download psycopg2: http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe
-
