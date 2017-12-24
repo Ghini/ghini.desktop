@@ -201,7 +201,7 @@ class SplashInfoBox(pluginmgr.View):
         q = q.filter(bauble.meta.BaubleMeta.name.startswith(u'stqr_'))
         name_tooltip_query = dict(
             (int(i.name[5:]), (i.value.split(':', 2)))
-            for i in q.all())
+            for i in q.all() if i.name[4] == '_')
         ssn.close()
 
         for i in range(1, 11):
@@ -371,6 +371,21 @@ class PlantsPlugin(pluginmgr.Plugin):
             # TODO: for some reason using the cross as the hybrid
             # character doesn't work on windows
             Species.hybrid_char = 'x'
+
+        # suggest some useful defaults for stored queries
+        import bauble.meta as meta
+        session = db.Session()
+        init_marker = meta.get_default(u'stqr-initialized', 'false', session)
+        if init_marker.value == u'false':
+            init_marker.value = u'true'
+            for index, name, tooltip, query in [
+                    (9, _('history'), _('the history in this database'), ':history'),
+                    (10, _('preferences'), _('your user preferences'), ':prefs')]:
+                meta.get_default(u'stqr_%02d' % index,
+                                 "%s:%s:%s" % (name, tooltip, query),
+                                 session)
+            session.commit()
+        session.close()
 
     @classmethod
     def install(cls, import_defaults=True):
