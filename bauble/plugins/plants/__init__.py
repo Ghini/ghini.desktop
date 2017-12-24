@@ -375,14 +375,14 @@ class PlantsPlugin(pluginmgr.Plugin):
         # suggest some useful defaults for stored queries
         import bauble.meta as meta
         session = db.Session()
-        init_marker = meta.get_default(u'stqr-initialized', 'false', session)
+        init_marker = meta.get_default(u'stqr-initialized', u'false', session)
         if init_marker.value == u'false':
             init_marker.value = u'true'
             for index, name, tooltip, query in [
                     (9, _('history'), _('the history in this database'), ':history'),
                     (10, _('preferences'), _('your user preferences'), ':prefs')]:
                 meta.get_default(u'stqr_%02d' % index,
-                                 "%s:%s:%s" % (name, tooltip, query),
+                                 u"%s:%s:%s" % (name, tooltip, query),
                                  session)
             session.commit()
         session.close()

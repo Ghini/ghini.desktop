@@ -31,8 +31,13 @@ bauble.prefs.testing = True
 class StoredQueriesInitializeTests(BaubleTestCase):
     def test_initialize_model(self):
         m = StoredQueriesModel()
-        for i in range(1, 11):
+        for i in range(1, 9):
             self.assertEquals(m[i], '::')
+
+    def test_initialize_has_defaults(self):
+        m = StoredQueriesModel()
+        for i in range(9, 11):
+            self.assertNotEquals(m[i], '::')
 
 
 class StoredQueriesTests(BaubleTestCase):
@@ -71,6 +76,8 @@ class StoredQueriesTests(BaubleTestCase):
 
     def test_loop(self):
         m = StoredQueriesModel()
+        before = [i for i in m]
+
         m.page = 1
         m.label = 'l=1'
         m.tooltip = 't=1'
@@ -80,35 +87,26 @@ class StoredQueriesTests(BaubleTestCase):
         m.tooltip = 't=2'
         m.query = 'q=2'
 
-        self.assertEquals(m[1], 'l=1:t=1:q=1')
-        self.assertEquals(m[2], 'l=2:t=2:q=2')
+        after = [i for i in before]
+        after[0] = u'l=1:t=1:q=1'
+        after[1] = u'l=2:t=2:q=2'
+        self.assertEquals(m[1], after[0])
+        self.assertEquals(m[2], after[1])
         self.assertEquals(m[3], '::')
 
-        self.assertEquals([i for i in m], [u'l=1:t=1:q=1',
-                                           u'l=2:t=2:q=2',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::'])
+        self.assertEquals([i for i in m], after)
 
     def test_setgetitem(self):
         m = StoredQueriesModel()
+        before = [i for i in m]
         m[1] = 'l:t:q'
         m[4] = 'l:t:q'
-        self.assertEquals([i for i in m], [u'l:t:q',
-                                           u'::',
-                                           u'::',
-                                           u'l:t:q',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::',
-                                           u'::'])
+        after = [i for i in m]
+        for i, v in enumerate(after):
+            if i in [0, 3]:
+                self.assertEquals(after[i], 'l:t:q')
+            else:
+                self.assertEquals(after[i], before[i])
 
     def test_save(self):
         m = StoredQueriesModel()
