@@ -131,11 +131,33 @@ class TagsMenuManager:
             tags_menu.append(remove_active_tag_menu_item)
         return tags_menu
 
+    def toggle_tag(self, applying):
+        view = bauble.gui.get_view()
+        try:
+            values = view.get_selected_values()
+        except AttributeError:
+            msg = _('In order to tag or untag an item you must first search for '
+                    'something and select one of the results.')
+            bauble.gui.show_message_box(msg)
+            return
+        if len(values) == 0:
+            msg = _('Please select something in the search results.')
+            utils.message_dialog(msg)
+            return
+        if self.active_tag_name is None:
+            msg = _('Please make sure a tag is active.')
+            utils.message_dialog(msg)
+            return
+        applying(self.active_tag_name, values)
+        view.update_bottom_notebook()
+    
     def on_apply_active_tag_activated(self, *args, **kwargs):
         print "you're applying", self.active_tag_name, "to the selection"
+        self.toggle_tag(applying=tag_objects)
 
     def on_remove_active_tag_activated(self, *args, **kwargs):
         print "you're removing", self.active_tag_name, "from the selection"
+        self.toggle_tag(applying=untag_objects)
 
 
 tags_menu_manager = TagsMenuManager()
