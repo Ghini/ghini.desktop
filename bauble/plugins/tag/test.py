@@ -61,9 +61,10 @@ class TagMenuTests(BaubleTestCase):
         self.session.flush()
         m = tag_plugin.tags_menu_manager.build_menu()
         self.assertTrue(isinstance(m, gtk.Menu))
-        self.assertEquals(len(m.get_children()), 3)
+        self.assertEquals(len(m.get_children()), 6)
         self.assertTrue(m.get_children()[1], gtk.SeparatorMenuItem)
         self.assertEquals(m.get_children()[2].get_label(), tagname)
+        self.assertTrue(m.get_children()[3], gtk.SeparatorMenuItem)
 
     def test_more_tags(self):
         tagname = u'%s-some_tag'
@@ -76,7 +77,7 @@ class TagMenuTests(BaubleTestCase):
         self.session.flush()
         m = tag_plugin.tags_menu_manager.build_menu()
         self.assertTrue(isinstance(m, gtk.Menu))
-        self.assertEquals(len(m.get_children()), 7)
+        self.assertEquals(len(m.get_children()), 10)
         for i in range(5):
             self.assertEquals(m.get_children()[i + 2].get_label(), tagname % i)
 
