@@ -49,7 +49,7 @@ def test_duplicate_ids():
 
 class TagMenuTests(BaubleTestCase):
     def test_no_tags(self):
-        m = tag_plugin._build_tags_menu()
+        m = tag_plugin.tags_menu_manager.build_menu()
         self.assertTrue(isinstance(m, gtk.Menu))
         self.assertEquals(len(m.get_children()), 1)
         self.assertEquals(m.get_children()[0].get_label(), _('Tag Selection'))
@@ -59,7 +59,7 @@ class TagMenuTests(BaubleTestCase):
         t = Tag(tag=tagname, description=u'description')
         self.session.add(t)
         self.session.flush()
-        m = tag_plugin._build_tags_menu()
+        m = tag_plugin.tags_menu_manager.build_menu()
         self.assertTrue(isinstance(m, gtk.Menu))
         self.assertEquals(len(m.get_children()), 3)
         self.assertTrue(m.get_children()[1], gtk.SeparatorMenuItem)
@@ -74,7 +74,7 @@ class TagMenuTests(BaubleTestCase):
         t5 = Tag(tag=tagname % 4, description=u'description')
         self.session.add_all([t1, t2, t3, t4, t5])
         self.session.flush()
-        m = tag_plugin._build_tags_menu()
+        m = tag_plugin.tags_menu_manager.build_menu()
         self.assertTrue(isinstance(m, gtk.Menu))
         self.assertEquals(len(m.get_children()), 7)
         for i in range(5):
@@ -259,16 +259,16 @@ class TagTests(BaubleTestCase):
         self.session.add(f5)
         self.session.flush()
         self.invoked = []
-        save_status = tag_plugin._reset_tags_menu
+        save_status = tag_plugin.tags_menu_manager.reset
 
         # action
         utils.yes_no_dialog = partial(
             mockfunc, name='yes_no_dialog', caller=self, result=True)
-        tag_plugin._reset_tags_menu = partial(
+        tag_plugin.tags_menu_manager.reset = partial(
             mockfunc, name='_reset_tags_menu', caller=self)
         from bauble.plugins.tag import remove_callback
         result = remove_callback([f5])
-        tag_plugin._reset_tags_menu = save_status
+        tag_plugin.tags_menu_manager.reset = save_status
         self.session.flush()
 
         # effect
