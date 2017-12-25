@@ -89,16 +89,26 @@ class TagsMenuManager:
         tags_menu = gtk.Menu()
         add_tag_menu_item = gtk.MenuItem(_('Tag Selection'))
         add_tag_menu_item.connect('activate', _on_add_tag_activated)
+        apply_active_tag_menu_item = gtk.MenuItem(_('Apply active tag'))
+        apply_active_tag_menu_item.connect('activate', self.on_apply_active_tag_activated)
+        remove_active_tag_menu_item = gtk.MenuItem(_('Remove active tag'))
+        remove_active_tag_menu_item.connect('activate', self.on_remove_active_tag_activated)
         if bauble.gui:
             accel_group = gtk.AccelGroup()
             bauble.gui.window.add_accel_group(accel_group)
             add_tag_menu_item.add_accelerator('activate', accel_group, ord('T'),
                                               gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+            apply_active_tag_menu_item.add_accelerator('activate', accel_group, ord('Y'),
+                                                       gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+            key, mask = gtk.accelerator_parse('<Control><Shift>y')
+            remove_active_tag_menu_item.add_accelerator('activate', accel_group,
+                                                        key, mask, gtk.ACCEL_VISIBLE)
         tags_menu.append(add_tag_menu_item)
 
         session = db.Session()
         query = session.query(Tag).order_by(Tag.tag)
-        if query.first():
+        has_tags = query.first()
+        if has_tags:
             tags_menu.append(gtk.SeparatorMenuItem())
         try:
             for tag in query:
@@ -114,7 +124,18 @@ class TagsMenuManager:
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
         session.close()
+
+        if has_tags:
+            tags_menu.append(gtk.SeparatorMenuItem())
+            tags_menu.append(apply_active_tag_menu_item)
+            tags_menu.append(remove_active_tag_menu_item)
         return tags_menu
+
+    def on_apply_active_tag_activated(self, *args, **kwargs):
+        print "you're applying", self.active_tag_name, "to the selection"
+
+    def on_remove_active_tag_activated(self, *args, **kwargs):
+        print "you're removing", self.active_tag_name, "from the selection"
 
 
 tags_menu_manager = TagsMenuManager()
@@ -600,7 +621,7 @@ def get_tag_ids(objs):
     return list(s)
 
 
-def _on_add_tag_activated(*args):
+def _on_add_tag_activated(*args, **kwargs):
     # get the selection from the search view
     view = bauble.gui.get_view()
     try:
@@ -685,7 +706,6 @@ class TagInfoBox(InfoBox):
 
     def update(self, row):
         self.general.update(row)
-
 
 class TagPlugin(pluginmgr.Plugin):
 
