@@ -1121,7 +1121,7 @@ class GenericEditorPresenter(object):
             except Exception, e:
                 pass
         except Exception, e:
-            logger.warning(e)
+            logger.warning("can't commit changes: (%s) %s" % (type(e), e))
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -1745,7 +1745,7 @@ class GenericModelViewPresenterEditor(object):
             except Exception, e:
                 pass
         except Exception, e:
-            logger.warning(e)
+            logger.warning("can't commit changes: (%s) %s" % (type(e), e))
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -2006,7 +2006,7 @@ class PictureBox(NoteBox):
                 im = gtk.Label()
                 im.set_text(label)
             except Exception, e:
-                logger.warning(e)
+                logger.warning("can't commit changes: (%s) %s" % (type(e), e))
                 im = gtk.Label()
                 im.set_text(e)
         else:
@@ -2134,12 +2134,8 @@ class NotesPresenter(GenericEditorPresenter):
                 box.set_expanded(False)
                 valid_notes_count += 1
 
-        if valid_notes_count < 1:
-            self.add_note()
-
         logger.debug('notes: %s' % self.notes)
         logger.debug('children: %s' % self.box.get_children())
-        self.box.get_children()[0].set_expanded(True)  # expand first one
 
         self.widgets.notes_add_button.connect(
             'clicked', self.on_add_button_clicked)
