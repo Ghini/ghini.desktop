@@ -2175,4 +2175,6 @@ class PicturesPresenter(NotesPresenter):
         super(PicturesPresenter, self).__init__(
             presenter, notes_property, parent_container)
 
-        self.box.get_children()[0].set_expanded(False)  # expand none
+        notes = self.box.get_children()
+        if notes:
+            notes[0].set_expanded(False)  # expand none
