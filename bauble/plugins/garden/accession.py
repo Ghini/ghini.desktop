@@ -455,33 +455,18 @@ recvd_type_values = {
     }
 
 
-class AccessionNote(db.Base, db.Serializable):
-    """
-    Notes for the accession table
-    """
-    __tablename__ = 'accession_note'
-    __mapper_args__ = {'order_by': 'accession_note.date'}
+def make_note_class(name, compute_serializable_fields, ):
+    class_name = name + 'Note'
+    table_name = name.lower() + '_note'
 
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relation(
-        'Accession', uselist=False,
-        backref=backref('notes', cascade='all, delete-orphan'))
+    def is_defined(self):
+        return bool(self.user and self.category and self.note)
 
-    def as_dict(self):
-        result = db.Serializable.as_dict(self)
-        result['accession'] = self.accession.code
-        return result
-
-    @classmethod
     def retrieve_or_create(cls, session, keys,
                            create=True, update=True):
         """return database object corresponding to keys
         """
-        result = super(AccessionNote, cls).retrieve_or_create(session, keys, create, update)
+        result = super(globals()[class_name], cls).retrieve_or_create(session, keys, create, update)
         category = keys.get('category', '')
         if (create and (category.startswith('[') and category.endswith(']') or
                         category.startswith('<') and category.endswith('>'))):
@@ -489,12 +474,11 @@ class AccessionNote(db.Base, db.Serializable):
             session.add(result)
         return result
 
-    @classmethod
     def retrieve(cls, session, keys):
         q = session.query(cls)
-        if 'accession' in keys:
-            q = q.join(Accession).filter(
-                Accession.code == keys['accession'])
+        if name.lower() in keys:
+            q = q.join(globals()[name]).filter(
+                globals()[name].code == keys[name.lower()])
         if 'date' in keys:
             q = q.filter(cls.date == keys['date'])
         if 'category' in keys:
@@ -503,21 +487,114 @@ class AccessionNote(db.Base, db.Serializable):
             return q.one()
         except:
             return None
-
-    @classmethod
-    def compute_serializable_fields(cls, session, keys):
-        result = {'accession': None}
-
-        acc_keys = {}
-        acc_keys.update(keys)
-        acc_keys['code'] = keys['accession']
-        accession = Accession.retrieve_or_create(
-            session, acc_keys, create=(
-                'taxon' in acc_keys and 'rank' in acc_keys))
-
-        result['accession'] = accession
-
+    
+    def as_dict(self):
+        result = db.Serializable.as_dict(self)
+        result[name.lower()] = getattr(self, name.lower()).code
         return result
+
+    result = type(class_name, (db.Base, db.Serializable),
+                  {'__tablename__': table_name,
+                   '__mapper_args__': {'order_by': table_name + '.date'},
+
+                   'date': Column(types.Date, default=func.now()),
+                   'user': Column(Unicode(64)),
+                   'category': Column(Unicode(32)),
+                   'note': Column(UnicodeText, nullable=False),
+                   name.lower() + '_id': Column(Integer, ForeignKey(name.lower() + '.id'), nullable=False),
+                   name.lower(): relation(name, uselist=False, backref=backref(
+                       'notes', cascade='all, delete-orphan')),
+                   'retrieve': classmethod(retrieve),
+                   'retrieve_or_create': classmethod(retrieve_or_create),
+                   'compute_serializable_fields': classmethod(compute_serializable_fields),
+                   'is_defined': is_defined,
+                   'as_dict': as_dict,
+                  })
+    return result
+
+def compute_serializable_fields(cls, session, keys):
+    result = {'accession': None}
+
+    acc_keys = {}
+    acc_keys.update(keys)
+    acc_keys['code'] = keys['accession']
+    accession = Accession.retrieve_or_create(
+        session, acc_keys, create=(
+            'taxon' in acc_keys and 'rank' in acc_keys))
+
+    result['accession'] = accession
+
+    return result
+
+AccessionNote = make_note_class('Accession', compute_serializable_fields)
+
+if False:
+    class AccessionNote(db.Base, db.Serializable):
+        """
+        Notes for the accession table
+        """
+        __tablename__ = 'accession_note'
+        __mapper_args__ = {'order_by': 'accession_note.date'}
+
+        date = Column(types.Date, default=func.now())
+        user = Column(Unicode(64))
+        category = Column(Unicode(32))
+        note = Column(UnicodeText, nullable=False)
+        accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+        accession = relation(
+            'Accession', uselist=False,
+            backref=backref('notes', cascade='all, delete-orphan'))
+
+        def is_defined(self):
+            return bool(self.user and self.category and self.note)
+
+        def as_dict(self):
+            result = db.Serializable.as_dict(self)
+            result['accession'] = self.accession.code
+            return result
+
+        @classmethod
+        def retrieve_or_create(cls, session, keys,
+                               create=True, update=True):
+            """return database object corresponding to keys
+            """
+            result = super(AccessionNote, cls).retrieve_or_create(session, keys, create, update)
+            category = keys.get('category', '')
+            if (create and (category.startswith('[') and category.endswith(']') or
+                            category.startswith('<') and category.endswith('>'))):
+                result = cls(**keys)
+                session.add(result)
+            return result
+
+        @classmethod
+        def retrieve(cls, session, keys):
+            q = session.query(cls)
+            if 'accession' in keys:
+                q = q.join(Accession).filter(
+                    Accession.code == keys['accession'])
+            if 'date' in keys:
+                q = q.filter(cls.date == keys['date'])
+            if 'category' in keys:
+                q = q.filter(cls.category == keys['category'])
+            try:
+                return q.one()
+            except:
+                return None
+
+        @classmethod
+        def compute_serializable_fields(cls, session, keys):
+            result = {'accession': None}
+
+            acc_keys = {}
+            acc_keys.update(keys)
+            acc_keys['code'] = keys['accession']
+            accession = Accession.retrieve_or_create(
+                session, acc_keys, create=(
+                    'taxon' in acc_keys and 'rank' in acc_keys))
+
+            result['accession'] = accession
+
+            return result
 
 
 class Accession(db.Base, db.Serializable, db.WithNotes):
@@ -2359,6 +2436,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         handle the response from self.presenter.start() in self.start()
         '''
         not_ok_msg = _('Are you sure you want to lose your changes?')
+        for i in self.model.notes:
+            if i.note is None:
+                print i
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 if not self.presenter.validate():
