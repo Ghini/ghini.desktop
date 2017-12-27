@@ -283,19 +283,16 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 Familia = Family
 
 
-class FamilyNote(db.Base):
-    """
-    Notes for the family table
-    """
-    __tablename__ = 'family_note'
+def compute_serializable_fields(cls, session, keys):
+    result = {'family': None}
 
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
-    family = relation('Family', uselist=False,
-                      backref=backref('notes', cascade='all, delete-orphan'))
+    family_dict = {'epithet': keys['family']}
+    result['family'] = Family.retrieve_or_create(
+        session, family_keys, create=False)
+
+    return result
+
+FamilyNote = db.make_note_class('Family', compute_serializable_fields)
 
 
 class FamilySynonym(db.Base):

@@ -634,61 +634,33 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                                      if a.source and a.source.source_detail])}
 
 
-class SpeciesNote(db.Base, db.Serializable):
-    """
-    Notes for the species table
-    """
-    __tablename__ = 'species_note'
-    __mapper_args__ = {'order_by': 'species_note.date'}
+def as_dict(self):
+    result = db.Serializable.as_dict(self)
+    result['species'] = self.species.str(self.species, remove_zws=True)
+    return result
 
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
-    species = relation('Species', uselist=False,
-                       backref=backref('notes', cascade='all, delete-orphan'))
+def compute_serializable_fields(cls, session, keys):
+    logger.debug('compute_serializable_fields(session, %s)' % keys)
+    result = {}
+    genus_name, epithet = keys['species'].split(' ', 1)
+    sp_dict = {'ht-epithet': genus_name,
+               'epithet': epithet}
+    result['species'] = Species.retrieve_or_create(
+        session, sp_dict, create=False)
+    return result
 
-    def as_dict(self):
-        result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(self.species, remove_zws=True)
-        return result
+def retrieve(cls, session, keys):
+    from genus import Genus
+    genus, epithet = keys['species'].split(' ', 1)
+    try:
+        return session.query(cls).filter(
+            cls.category == keys['category']).join(Species).filter(
+            Species.sp == epithet).join(Genus).filter(
+            Genus.genus == genus).one()
+    except:
+        return None
 
-    @classmethod
-    def compute_serializable_fields(cls, session, keys):
-        logger.debug('compute_serializable_fields(session, %s)' % keys)
-        result = {}
-        genus_name, epithet = keys['species'].split(' ', 1)
-        sp_dict = {'ht-epithet': genus_name,
-                   'epithet': epithet}
-        result['species'] = Species.retrieve_or_create(
-            session, sp_dict, create=False)
-        return result
-
-    @classmethod
-    def retrieve_or_create(cls, session, keys,
-                           create=True, update=True):
-        """return database object corresponding to keys
-        """
-        result = super(SpeciesNote, cls).retrieve_or_create(session, keys, create, update)
-        category = keys.get('category', '')
-        if (create and (category.startswith('[') and category.endswith(']') or
-                        category.startswith('<') and category.endswith('>'))):
-            result = cls(**keys)
-            session.add(result)
-        return result
-
-    @classmethod
-    def retrieve(cls, session, keys):
-        from genus import Genus
-        genus, epithet = keys['species'].split(' ', 1)
-        try:
-            return session.query(cls).filter(
-                cls.category == keys['category']).join(Species).filter(
-                Species.sp == epithet).join(Genus).filter(
-                Genus.genus == genus).one()
-        except:
-            return None
+SpeciesNote = db.make_note_class('Species', compute_serializable_fields, as_dict, retrieve)
 
 
 class SpeciesSynonym(db.Base):

@@ -351,20 +351,16 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
                                      if a.source and a.source.source_detail])}
 
 
-class GenusNote(db.Base):
-    """
-    Notes for the genus table
-    """
-    __tablename__ = 'genus_note'
-    __mapper_args__ = {'order_by': 'genus_note.date'}
+def compute_serializable_fields(cls, session, keys):
+    result = {'genus': None}
 
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
-    genus = relation('Genus', uselist=False,
-                     backref=backref('notes', cascade='all, delete-orphan'))
+    genus_dict = {'epithet': keys['genus']}
+    result['genus'] = Genus.retrieve_or_create(
+        session, genus_keys, create=False)
+
+    return result
+
+GenusNote = db.make_note_class('Genus', compute_serializable_fields)
 
 
 class GenusSynonym(db.Base):

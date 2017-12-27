@@ -481,6 +481,67 @@ def verify_connection(engine, show_error_dialogs=False):
     return True
 
 
+def make_note_class(name, compute_serializable_fields, as_dict=None, retrieve=None):
+    class_name = name + 'Note'
+    table_name = name.lower() + '_note'
+
+    def is_defined(self):
+        return bool(self.user and self.category and self.note)
+
+    def retrieve_or_create(cls, session, keys,
+                           create=True, update=True):
+        """return database object corresponding to keys
+        """
+        result = super(globals()[class_name], cls).retrieve_or_create(session, keys, create, update)
+        category = keys.get('category', '')
+        if (create and (category.startswith('[') and category.endswith(']') or
+                        category.startswith('<') and category.endswith('>'))):
+            result = cls(**keys)
+            session.add(result)
+        return result
+
+    def retrieve_default(cls, session, keys):
+        q = session.query(cls)
+        if name.lower() in keys:
+            q = q.join(globals()[name]).filter(
+                globals()[name].code == keys[name.lower()])
+        if 'date' in keys:
+            q = q.filter(cls.date == keys['date'])
+        if 'category' in keys:
+            q = q.filter(cls.category == keys['category'])
+        try:
+            return q.one()
+        except:
+            return None
+    
+    def as_dict_default(self):
+        result = db.Serializable.as_dict(self)
+        result[name.lower()] = getattr(self, name.lower()).code
+        return result
+
+    as_dict = as_dict or as_dict_default
+    retrieve = retrieve or retrieve_default
+
+    result = type(class_name, (Base, Serializable),
+                  {'__tablename__': table_name,
+                   '__mapper_args__': {'order_by': table_name + '.date'},
+
+                   'date': sa.Column(types.Date, default=sa.func.now()),
+                   'user': sa.Column(sa.Unicode(64)),
+                   'category': sa.Column(sa.Unicode(32)),
+                   'note': sa.Column(sa.UnicodeText, nullable=False),
+                   name.lower() + '_id': sa.Column(sa.Integer, sa.ForeignKey(name.lower() + '.id'), nullable=False),
+                   name.lower(): sa.orm.relation(name, uselist=False, backref=sa.orm.backref(
+                       'notes', cascade='all, delete-orphan')),
+                   'retrieve': classmethod(retrieve),
+                   'retrieve_or_create': classmethod(retrieve_or_create),
+                   'compute_serializable_fields': classmethod(compute_serializable_fields),
+                   'is_defined': is_defined,
+                   'as_dict': as_dict,
+                  })
+    return result
+
+
 class WithNotes:
 
     key_pattern = re.compile(r'{[^:]+:(.*)}')
