@@ -5,12 +5,16 @@ Documentation for Ghini 1.0
 .. image:: https://hosted.weblate.org/widgets/ghini/-/svg-badge.svg
 .. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=ghini-1.0-dev
 
-Ghini is an application for managing botanical specimen collections.
-With it you can create a searchable database of plant records.
+Ghini is a suite of applications for managing botanical specimen collections.
+* With ghini.desktop you create a searchable database of plant records.
+* With ghini.pocket you review your database straight from your handheld device.
+* With ghini.web you publish part of your database on the web.
 
-It is `open <http://www.opensource.org>`_ and `free <http://www.fsf.org>`_
-and is released under the `GNU Public License
-<http://www.fsf.org/licensing/licenses/gpl.html>`_
+All Ghini software is `open <http://www.opensource.org>`_ and `free
+<http://www.fsf.org>`_. Our standalone software is released under the `GNU
+Public License <http://www.fsf.org/licensing/licenses/gpl.html>`_. Our
+client-server software follows the `GNU Affero Public License
+<http://www.fsf.org/licensing/licenses/agpl.html>`_.
 
 
 Statements
