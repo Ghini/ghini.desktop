@@ -7,9 +7,9 @@ Documentation for Ghini 1.0
 
 Ghini is a suite of applications for managing botanical specimen collections.
 
-* With ghini.desktop you create a searchable database of plant records.
-* With ghini.pocket you review your database straight from your handheld device.
-* With ghini.web you publish part of your database on the web.
+* **ghini.desktop** lets you create and query a database for all that goes on in your plant collection.
+* **ghini.pocket** puts a snapshot of your database in your handheld device.
+* **ghini.web** helps you publish part of your database on the web.
 
 All Ghini software is `open <http://www.opensource.org>`_ and `free
 <http://www.fsf.org>`_. Our standalone software is released under the `GNU
