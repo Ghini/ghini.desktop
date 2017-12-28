@@ -6,6 +6,7 @@ Documentation for Ghini 1.0
 .. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=ghini-1.0-dev
 
 Ghini is a suite of applications for managing botanical specimen collections.
+
 * With ghini.desktop you create a searchable database of plant records.
 * With ghini.pocket you review your database straight from your handheld device.
 * With ghini.web you publish part of your database on the web.
