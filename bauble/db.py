@@ -488,6 +488,9 @@ def make_note_class(name, compute_serializable_fields, as_dict=None, retrieve=No
     def is_defined(self):
         return bool(self.user and self.category and self.note)
 
+    def is_empty(self):
+        return not self.user and not self.category and not self.note
+
     def retrieve_or_create(cls, session, keys,
                            create=True, update=True):
         """return database object corresponding to keys

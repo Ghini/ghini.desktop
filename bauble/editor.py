@@ -1766,7 +1766,9 @@ class NoteBox(gtk.HBox):
         self.widgets.note_textview.set_buffer(buff)
         utils.set_widget_value(self.widgets.note_textview,
                                text or '')
-        buff.connect('changed', self.on_note_buffer_changed)
+        if not text:
+            self.presenter.add_problem(self.presenter.PROBLEM_EMPTY, self.widgets.note_textview)
+        buff.connect('changed', self.on_note_buffer_changed, self.widgets.note_textview)
 
     def __init__(self, presenter, model=None):
         super(NoteBox, self).__init__()
@@ -1891,10 +1893,13 @@ class NoteBox(gtk.HBox):
             value = None
         self.set_model_attr('category', value)
 
-    def on_note_buffer_changed(self, buff, *args):
+    def on_note_buffer_changed(self, buff, widget, *args):
         value = utils.utf8(buff.props.text)
         if not value:  # if value == ''
             value = None
+            self.presenter.add_problem(self.presenter.PROBLEM_EMPTY, widget)
+        else:
+            self.presenter.remove_problem(self.presenter.PROBLEM_EMPTY, widget)
         self.set_model_attr('note', value)
 
     def update_label(self):
