@@ -167,13 +167,16 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                      ', '.join([str(v) for v in self.vernacular_names])))
             else:
                 substring = '%s' % self.genus.family
-            trail = self.sp_author and (' <span weight="light">%s</span>' %
-                                        utils.xml_safe(self.sp_author)) or ''
+            trail = ''
             if self.accepted:
                 trail += ('<span foreground="#555555" size="small" '
                           'weight="light"> - ' + _("synonym of %s") + "</span>"
                           ) % self.accepted.markup(authors=True)
-            return self.markup(authors=False) + trail, substring
+            citation = self.markup(authors=True)
+            authorship_text = utils.xml_safe(self.sp_author)
+            if authorship_text:
+                citation = citation.replace(authorship_text, '<span weight="light">' + authorship_text + '</span>')
+            return citation + trail, substring
         except:
             return u'...', u'...'
 
@@ -379,11 +382,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return unicode(', ').join(sorted(dist))
 
     def markup(self, authors=False, genus=True):
-        '''
-        returns this object as a string with markup
+        '''returns this object as a string with markup
 
-        :param authors: flag to toggle whethe the author names should be
-        included
+        :param authors: whether the authorship should be included
+        :param genus: whether the genus name should be included
+
         '''
         return self.str(authors, markup=True, genus=genus)
 
