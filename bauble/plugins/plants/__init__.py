@@ -367,11 +367,6 @@ class PlantsPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
             bauble.gui.add_to_insert_menu(SpeciesEditorMenuItem, _('Species'))
 
-        if sys.platform == 'win32':
-            # TODO: for some reason using the cross as the hybrid
-            # character doesn't work on windows
-            Species.hybrid_char = 'x'
-
         # suggest some useful defaults for stored queries
         import bauble.meta as meta
         session = db.Session()
