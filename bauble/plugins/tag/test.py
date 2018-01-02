@@ -89,8 +89,6 @@ class TagTests(BaubleTestCase):
         import bauble.prefs
         bauble.prefs.testing = True
 
-    family_ids = [1, 2]
-
     def setUp(self):
         super(TagTests, self).setUp()
         self.family = Family(family=u'family')
@@ -170,29 +168,6 @@ class TagTests(BaubleTestCase):
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
         tagged_objs = tag.objects
         self.assertEquals(tagged_objs, [])
-
-    def test_get_tag_ids(self):
-        family2 = Family(family=u'family2')
-        self.session.add(family2)
-        self.session.flush()
-        tag_plugin.tag_objects('test', [self.family, family2])
-        tag_plugin.tag_objects('test2', [self.family])
-
-        # test we only return the ids the objects have in common
-        results = self.session.query(Tag.id).filter_by(tag=u'test')
-        test_id = [r[0] for r in results]
-        # should only return id for "test"
-        ids = tag_plugin.get_tag_ids([self.family, family2])
-        self.assertEquals(ids, test_id)
-
-        # test that we return multiple tag ids if the objs share tags
-        tag_plugin.tag_objects('test2', [family2])
-        results = self.session.query(Tag.id).filter(or_(Tag.tag == u'test',
-                                                        Tag.tag == u'test2'))
-        test_id = sorted([r[0] for r in results])
-        # should return ids for both test and test2
-        ids = sorted(tag_plugin.get_tag_ids([self.family, family2]))
-        self.assertEquals(ids, test_id)
 
     def test_is_tagging(self):
         family2 = Family(family=u'family2')
@@ -283,6 +258,72 @@ class TagTests(BaubleTestCase):
         q = self.session.query(Tag).filter_by(tag=u"Arecaceae")
         matching = q.all()
         self.assertEquals(matching, [])
+
+
+class GetTagIdsTests(BaubleTestCase):
+
+    def setUp(self):
+        super(GetTagIdsTests, self).setUp()
+        self.fam1 = Family(family=u'Fabaceae')
+        self.fam2 = Family(family=u'Poaceae')
+        self.fam3 = Family(family=u'Solanaceae')
+        self.fam4 = Family(family=u'Caricaceae')
+        self.session.add_all([self.fam1, self.fam2, self.fam3, self.fam4])
+        self.session.commit()
+        tag_plugin.tag_objects('test1', [self.fam1, self.fam2])
+        tag_plugin.tag_objects('test2', [self.fam1])
+        tag_plugin.tag_objects('test3', [self.fam2, self.fam3])
+        self.session.commit()
+
+    def tearDown(self):
+        self.session.query(Family).delete()
+        self.session.query(Tag).delete()
+        self.session.commit()
+        super(GetTagIdsTests, self).tearDown()
+
+    def test_get_tag_ids1(self):
+        s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam1, self.fam2])
+        self.assertEquals(s_all, set([1]))
+        self.assertEquals(s_some, set([2, 3]))
+
+    def test_get_tag_ids2(self):
+        s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam1])
+        self.assertEquals(s_all, set([1, 2]))
+        self.assertEquals(s_some, set([]))
+
+    def test_get_tag_ids3(self):
+        s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam2])
+        test_id = set([1, 3])
+        self.assertEquals(s_all, test_id)
+        self.assertEquals(s_some, set([]))
+
+    def test_get_tag_ids4(self):
+        s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam3])
+        test_id = set([3])
+        self.assertEquals(s_all, test_id)
+        self.assertEquals(s_some, set([]))
+
+    def test_get_tag_ids5(self):
+        s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam1, self.fam3])
+        test_id = set([])
+        self.assertEquals(s_all, test_id)
+        self.assertEquals(s_some, set([1, 2, 3]))
+
+    def test_get_tag_ids6(self):
+        s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam1, self.fam4])
+        self.assertEquals(s_all, set([]))
+        self.assertEquals(s_some, set([1, 2]))
+
+    def test_get_tag_ids7(self):
+        self.session.query(Tag).delete()
+        self.session.commit()
+        tag_plugin.tag_objects('test1', [self.fam1, self.fam4])
+        tag_plugin.tag_objects('test2', [self.fam1])
+        tag_plugin.tag_objects('test3', [self.fam2, self.fam4])
+        self.session.commit()
+        s_all, s_some, s_none = tag_plugin.get_tag_ids([self.fam1, self.fam2, self.fam3, self.fam4])
+        self.assertEquals(s_all, set([]))
+        self.assertEquals(s_some, set([1, 2, 3]))
 
 
 import bauble.db as db

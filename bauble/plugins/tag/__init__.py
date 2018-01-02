@@ -267,7 +267,7 @@ class TagItemGUI(editor.GenericEditorView):
         error_state = edit_callback([tag])
         if not error_state:
             model = self.tag_tree.get_model()
-            model.append([False, tag.tag])
+            model.append([False, tag.tag, False])
             tags_menu_manager.reset(tag)
         session.close()
 
@@ -279,6 +279,7 @@ class TagItemGUI(editor.GenericEditorView):
         model = self.tag_tree.get_model()
         iter = model.get_iter(path)
         model[iter][0] = active
+        model[iter][2] = False
         name = model[iter][1]
         if active:
             tag_objects(name, self.values)
@@ -294,6 +295,7 @@ class TagItemGUI(editor.GenericEditorView):
         renderer.set_property('activatable', True)
         toggle_column = gtk.TreeViewColumn(None, renderer)
         toggle_column.add_attribute(renderer, "active", 0)
+        toggle_column.add_attribute(renderer, "inconsistent", 2)
 
         renderer = gtk.CellRendererText()
         tag_column = gtk.TreeViewColumn(None, renderer, text=1)
@@ -345,16 +347,12 @@ class TagItemGUI(editor.GenericEditorView):
             self.tag_tree.append_column(col)
 
         # create the model
-        model = gtk.ListStore(bool, str)
-        item_tags = get_tag_ids(self.values)
-        has_tag = False
+        model = gtk.ListStore(bool, str, bool)
+        tag_all, tag_some, tag_none = get_tag_ids(self.values)
         session = db.Session()  # we need close it
         tag_query = session.query(Tag)
         for tag in tag_query:
-            if tag.id in item_tags:
-                has_tag = True
-            model.append([has_tag, tag.tag])
-            has_tag = False
+            model.append([tag.id in tag_all, tag.tag, tag.id in tag_some])
         self.tag_tree.set_model(model)
 
         self.tag_tree.add_events(gtk.gdk.KEY_RELEASE_MASK)
@@ -635,26 +633,36 @@ def tag_objects(name, objects):
 
 
 def get_tag_ids(objs):
-    """
+    """Return a 3-tuple describing which tags apply to objs.
+
+    the result tuple is composed of lists.  First list contains the id of
+    the tags that apply to all objs.  Second list contains the id of the
+    tags that apply to one or more objs, but not all.  Third list contains
+    the id of the tags that do not apply to any objs.
+
     :param objs: a list or tuple of objects
 
-    Return a list of tag id's for tags associated with obj, only returns those
-    tag ids that are common between all the objs
     """
-    if not objs:
-        return []
     session = object_session(objs[0])
-    s = set()
     tag_id_query = session.query(Tag.id).join('_objects')
+    starting_now = True
+    s_all = set()
+    s_some = set()
+    s_none = set(i[0] for i in tag_id_query)  # per default none apply
     for obj in objs:
         clause = and_(TaggedObj.obj_class == _classname(obj),
                       TaggedObj.obj_id == obj.id)
-        tags = [r[0] for r in tag_id_query.filter(clause)]
-        if len(s) == 0:
-            s.update(tags)
+        applied_tag_ids = [r[0] for r in tag_id_query.filter(clause)]
+        if starting_now:
+            s_all = set(applied_tag_ids)
+            starting_now = False
         else:
-            s.intersection_update(tags)
-    return list(s)
+            s_all.intersection_update(applied_tag_ids)
+        s_some.update(applied_tag_ids)
+        s_none.difference_update(applied_tag_ids)
+
+    s_some.difference_update(s_all)
+    return (s_all, s_some, s_none)
 
 
 def _on_add_tag_activated(*args, **kwargs):
