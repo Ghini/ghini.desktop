@@ -58,9 +58,10 @@ class TagsMenuManager:
         self.menu_item = None
         self.active_tag_name = None
 
-    def reset(self):
+    def reset(self, make_active_tag=None):
         """initialize or replace Tags menu in main menu
         """
+        self.active_tag_name = make_active_tag and make_active_tag.tag
         tags_menu = self.build_menu()
         if self.menu_item is None:
             self.menu_item = bauble.gui.add_menu(_("Tags"), tags_menu)
@@ -68,14 +69,25 @@ class TagsMenuManager:
             self.menu_item.remove_submenu()
             self.menu_item.set_submenu(tags_menu)
             self.menu_item.show_all()
+        self.show_active_tag()
+
+    def show_active_tag(self):
+        for c in self.item_list.values():
+            c.set_image(None)
+        widget = self.item_list.get(self.active_tag_name)
+        if widget:
+            image = gtk.Image()
+            image.set_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_MENU)
+            widget.set_image(image)
+            self.apply_active_tag_menu_item.set_sensitive(True)
+            self.remove_active_tag_menu_item.set_sensitive(True)
+        else:
+            self.apply_active_tag_menu_item.set_sensitive(False)
+            self.remove_active_tag_menu_item.set_sensitive(False)
 
     def item_activated(self, widget, tag_name):
         self.active_tag_name = tag_name
-        for c in tags_menu_manager.item_list:
-            c.set_image(None)
-        image = gtk.Image()
-        image.set_from_stock(gtk.STOCK_APPLY, gtk.ICON_SIZE_MENU)
-        widget.set_image(image)
+        self.show_active_tag()
         bauble.gui.send_command('tag="%s"' % tag_name)
         from bauble.view import SearchView
         view = bauble.gui.get_view()
@@ -85,24 +97,24 @@ class TagsMenuManager:
     def build_menu(self):
         """build tags gtk.Menu based on current data
         """
-        self.item_list = []
+        self.item_list = {}
         tags_menu = gtk.Menu()
         add_tag_menu_item = gtk.MenuItem(_('Tag Selection'))
         add_tag_menu_item.connect('activate', _on_add_tag_activated)
-        apply_active_tag_menu_item = gtk.MenuItem(_('Apply active tag'))
-        apply_active_tag_menu_item.connect('activate', self.on_apply_active_tag_activated)
-        remove_active_tag_menu_item = gtk.MenuItem(_('Remove active tag'))
-        remove_active_tag_menu_item.connect('activate', self.on_remove_active_tag_activated)
+        self.apply_active_tag_menu_item = gtk.MenuItem(_('Apply active tag'))
+        self.apply_active_tag_menu_item.connect('activate', self.on_apply_active_tag_activated)
+        self.remove_active_tag_menu_item = gtk.MenuItem(_('Remove active tag'))
+        self.remove_active_tag_menu_item.connect('activate', self.on_remove_active_tag_activated)
         if bauble.gui:
             accel_group = gtk.AccelGroup()
             bauble.gui.window.add_accel_group(accel_group)
             add_tag_menu_item.add_accelerator('activate', accel_group, ord('T'),
                                               gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
-            apply_active_tag_menu_item.add_accelerator('activate', accel_group, ord('Y'),
-                                                       gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+            self.apply_active_tag_menu_item.add_accelerator('activate', accel_group, ord('Y'),
+                                                            gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
             key, mask = gtk.accelerator_parse('<Control><Shift>y')
-            remove_active_tag_menu_item.add_accelerator('activate', accel_group,
-                                                        key, mask, gtk.ACCEL_VISIBLE)
+            self.remove_active_tag_menu_item.add_accelerator('activate', accel_group,
+                                                             key, mask, gtk.ACCEL_VISIBLE)
         tags_menu.append(add_tag_menu_item)
 
         session = db.Session()
@@ -115,7 +127,7 @@ class TagsMenuManager:
                 item = gtk.ImageMenuItem(tag.tag)
                 item.set_image(None)
                 item.set_always_show_image(True)
-                self.item_list.append(item)
+                self.item_list[tag.tag] = item
                 item.connect("activate", self.item_activated, tag.tag)
                 tags_menu.append(item)
         except Exception:
@@ -127,8 +139,10 @@ class TagsMenuManager:
 
         if has_tags:
             tags_menu.append(gtk.SeparatorMenuItem())
-            tags_menu.append(apply_active_tag_menu_item)
-            tags_menu.append(remove_active_tag_menu_item)
+            tags_menu.append(self.apply_active_tag_menu_item)
+            tags_menu.append(self.remove_active_tag_menu_item)
+            self.apply_active_tag_menu_item.set_sensitive(False)
+            self.remove_active_tag_menu_item.set_sensitive(False)
         return tags_menu
 
     def toggle_tag(self, applying):
@@ -152,11 +166,11 @@ class TagsMenuManager:
         view.update_bottom_notebook()
     
     def on_apply_active_tag_activated(self, *args, **kwargs):
-        print "you're applying", self.active_tag_name, "to the selection"
+        logger.debug("you're applying %s to the selection", self.active_tag_name)
         self.toggle_tag(applying=tag_objects)
 
     def on_remove_active_tag_activated(self, *args, **kwargs):
-        print "you're removing", self.active_tag_name, "from the selection"
+        logger.debug("you're removing %s from the selection", self.active_tag_name)
         self.toggle_tag(applying=untag_objects)
 
 
@@ -254,7 +268,7 @@ class TagItemGUI(editor.GenericEditorView):
         if not error_state:
             model = self.tag_tree.get_model()
             model.append([False, tag.tag])
-            tags_menu_manager.reset()
+            tags_menu_manager.reset(tag)
         session.close()
 
     def on_toggled(self, renderer, path, data=None):

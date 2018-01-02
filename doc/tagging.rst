@@ -30,18 +30,23 @@ Press Ctrl-T or select :menuselection:`Tag-->Tag Selection` from the menu,
 this activates a window where you can create new tags and apply any existing
 tag to the selection.
 
-The tag window is composed of three parts: the upper part mentions the list
-of objects in your active selection. This is the list of object of which you
-are editing the tags; the middle part has a list of all available tags, with
-a checkbox that you can activate for applying the tag to or removing the tag
-from the selection; the lower part only holds a link to new tag creation,
-and the Ok button for closing the dialog box.
+The tag window is composed of three parts:
 
-If the active selection held multiple items when opening the tag dialog box,
-then only that tags that are common to all the selected items will have a
-check next to it.  Tags that only apply to a proper subset of the active
-selection will show with an 'undecided' status.  Tags that don't apply to
-any object in the active selection will show blank.
+# The upper part mentions the list of objects in your active selection. This
+  is the list of object of which you are editing the tags;
+
+# The middle part has a list of all available tags, with a checkbox that you
+  can activate for applying the tag to or removing the tag from the
+  selection;
+
+# The lower part only holds a link to new tag creation, and the Ok button
+  for closing the dialog box.
+
+If, when opening the tag dialog box, the active selection holds multiple
+items, then only the tags that are common to all the selected items will
+have a check next to it.  Tags that only apply to a proper subset of the
+active selection will show with an 'undecided' status.  Tags that don't
+apply to any object in the active selection will show blank.
 
 The most recently created tag, or the most recently selected tag becomes the
 active tag, and it shows with a check next to it in the tags menu.
