@@ -404,7 +404,7 @@ def verify_connection(engine, show_error_dialogs=False):
         dialogs detailing the error, default=False
     :type show_error_dialogs: bool
     """
-##    debug('entered verify_connection(%s)' % show_error_dialogs)
+    logger.debug('entered verify_connection(%s)' % show_error_dialogs)
     import bauble
     if show_error_dialogs:
         try:
