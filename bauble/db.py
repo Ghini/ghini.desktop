@@ -158,10 +158,10 @@ class MapperBase(DeclarativeMeta):
         if '__tablename__' in dict_:
             cls.id = sa.Column('id', sa.Integer, primary_key=True,
                                autoincrement=True)
-            cls._created = sa.Column('_created', types.DateTime(True),
+            cls._created = sa.Column('_created', types.DateTime(timezone=True),
                                      default=sa.func.now())
             cls._last_updated = sa.Column('_last_updated',
-                                          types.DateTime(True),
+                                          types.DateTime(timezone=True),
                                           default=sa.func.now(),
                                           onupdate=sa.func.now())
             cls.__mapper_args__ = {'extension': HistoryExtension()}
