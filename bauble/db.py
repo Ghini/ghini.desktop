@@ -348,9 +348,10 @@ def create(import_defaults=True):
         meta_table.insert(bind=connection).\
             execute(name=meta.VERSION_KEY,
                     value=unicode(bauble.version)).close()
+        from dateutil.tz import tzlocal
         meta_table.insert(bind=connection).\
             execute(name=meta.CREATED_KEY,
-                    value=unicode(datetime.datetime.now())).close()
+                    value=unicode(datetime.datetime.now(tz=tzlocal()))).close()
     except GeneratorExit, e:
         # this is here in case the main windows is closed in the middle
         # of a task
@@ -455,7 +456,7 @@ def verify_connection(engine, show_error_dialogs=False):
     query = session.query  # (meta.BaubleMeta)
 
     # check that the database we connected to has a "created" timestamp
-    # in the bauble meta table
+    # in the bauble meta table.  we're not using the value though.
     result = query(meta.BaubleMeta).filter_by(name=meta.CREATED_KEY).first()
     if not result:
         session.close()
