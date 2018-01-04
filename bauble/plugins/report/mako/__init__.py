@@ -305,11 +305,15 @@ class MakoFormatterSettingsBox(SettingsBox):
         # empty the options box
         map(options_box.remove, options_box.get_children())
         # which options does the template accept? (can be None)
-        with open(self.widgets.template_chooser.get_filename()) as f:
-            # scan the header filtering lines starting with # OPTION
-            option_lines = filter(None,
-                                  [self.pattern.match(i.strip())
-                                   for i in f.readlines()])
+        try:
+            with open(self.widgets.template_chooser.get_filename()) as f:
+                # scan the header filtering lines starting with # OPTION
+                option_lines = filter(None,
+                                      [self.pattern.match(i.strip())
+                                       for i in f.readlines()])
+        except IOError:
+            option_lines = []
+
         option_fields = [i.groups() for i in option_lines]
         from bauble.plugins.report import options
         current_row = 0
