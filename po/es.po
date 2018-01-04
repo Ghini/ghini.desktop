@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-02 16:59-0500\n"
+"POT-Creation-Date: 2018-01-03 17:35-0500\n"
 "PO-Revision-Date: 2017-11-14 13:27+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -2703,7 +2703,7 @@ msgstr "La cantidad de material vegetal al momento de la accesión."
 msgid "The awards this species have been given"
 msgstr "Los premios a esta especie se han dado"
 
-#: bauble/db.py:424
+#: bauble/db.py:425
 msgid ""
 "The database you have connected to does not have a timestamp for when it was "
 "created. This usually means that there was a problem when you created the "
@@ -2713,7 +2713,7 @@ msgstr ""
 "creación. Esto suele deberse a que ocurrió un problema durante la creación "
 "de la base de datos o a que no fue creada con Ghini."
 
-#: bauble/db.py:417
+#: bauble/db.py:418
 msgid ""
 "The database you have connected to does not have the bauble meta table.  "
 "This usually means that the database is either corrupt or it was created "
@@ -2723,7 +2723,7 @@ msgstr ""
 "suele deberse a que la base de datos está dañada o a que se creó con una "
 "versión antigua de Ghini"
 
-#: bauble/db.py:413
+#: bauble/db.py:414
 msgid "The database you have connected to is empty."
 msgstr "Se ha conectado a una base de datos vacía."
 
@@ -3366,7 +3366,7 @@ msgstr ""
 "\n"
 "<i>Por favor confirmar que se quiere seguir</i>"
 
-#: bauble/db.py:432
+#: bauble/db.py:433
 msgid ""
 "You are using Ghini version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
