@@ -216,6 +216,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         'file_entry': 'filename',
         'database_entry': 'database',
         'host_entry': 'host',
+        'port_entry': 'port',
         'user_entry': 'user',
         'passwd_chkbx': 'passwd',
         'pictureroot2_entry': 'pictureroot',
@@ -225,7 +226,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
     view_accept_buttons = ['cancel_button', 'connect_button']
 
     def __init__(self, view=None):
-        self.filename = self.database = self.host = self.user = \
+        self.filename = self.database = self.host = self.port = self.user = \
             self.pictureroot = self.connection_name = \
             self.prev_connection_name = None
         self.use_defaults = True
@@ -510,7 +511,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             uri = "sqlite:///" + filename
             return uri
         subs['type'] = params['type'].lower()
-        if 'port' in params:
+        if params.get('port') is not None:
             template = "%(type)s://%(user)s@%(host)s:%(port)s/%(db)s"
         else:
             template = "%(type)s://%(user)s@%(host)s/%(db)s"
@@ -564,20 +565,20 @@ class ConnMgrPresenter(GenericEditorPresenter):
                 msg = _("Ghini does not have permission to "
                         "write to the database file:\n\n%s") % filename
         else:
-            fields = []
+            missing_fields = []
             if params["user"] == "":
                 valid = False
-                fields.append(_("user name"))
+                missing_fields.append(_("user name"))
             if params["db"] == "":
                 valid = False
-                fields.append(_("database name"))
+                missing_fields.append(_("database name"))
             if params["host"] == "":
                 valid = False
-                fields.append(_("DBMS host name"))
+                missing_fields.append(_("DBMS host name"))
             if not valid:
                 msg = _("Current connection does not specify the fields:\n"
                         "%s\n"
-                        "Please specify and try again.") % "\n".join(fields)
+                        "Please specify and try again.") % "\n".join(missing_fields)
         if not valid:
             return valid, msg
         ## now check the params['pictures']
@@ -617,6 +618,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:
             result = {'db': self.database,
                       'host': self.host,
+                      'port': self.port,
                       'user': self.user,
                       'pictures': self.pictureroot,
                       'passwd': self.passwd,
@@ -635,6 +637,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:
             self.database = params['db']
             self.host = params['host']
+            self.port = params.get('port')
             self.user = params['user']
             self.pictureroot = params.get('pictures', '')
             self.passwd = params['passwd']
