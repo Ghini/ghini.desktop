@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-03 17:35-0500\n"
+"POT-Creation-Date: 2018-01-04 15:06-0500\n"
 "PO-Revision-Date: 2017-12-01 12:47+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/ghini/"
@@ -107,15 +107,15 @@ msgstr "(%(group)s csoport)"
 msgid "** Error: %s"
 msgstr "** Hiba: %s"
 
-#: bauble/__init__.py:222
+#: bauble/__init__.py:225
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Hiba: sikertelen gtk és/vagy gobject importálás"
 
-#: bauble/__init__.py:286
+#: bauble/__init__.py:289
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Hiba: A Ghini futtatásához grafikus (ablakos) környezet szükséges."
 
-#: bauble/plugins/report/mako/__init__.py:319
+#: bauble/plugins/report/mako/__init__.py:323
 msgid ":"
 msgstr ":"
 
@@ -551,7 +551,7 @@ msgstr ""
 "Biztosan törölni szeretné\n"
 "ezt a szaporítási kísérletet?"
 
-#: bauble/connmgr.py:342
+#: bauble/connmgr.py:387
 msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
@@ -747,7 +747,7 @@ msgstr "Adja meg az exportálandó file nevét ..."
 msgid "Choose a file to export to…"
 msgstr "Adja meg a file nevet az exportáláshoz …"
 
-#: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
+#: bauble/connmgr.py:281 bauble/connmgr.py:291 bauble/connmgr.py:301
 #: bauble/editor.py:2020 bauble/editor.py:2027
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
@@ -813,7 +813,7 @@ msgstr "Vesszővel határolt értékek (CSV)"
 msgid "Confirm new password"
 msgstr "Erősítse meg az új jelszót"
 
-#: bauble/connmgr.glade:578
+#: bauble/connmgr.glade:599
 msgid "Connection Details"
 msgstr "Kapcsolat részletek"
 
@@ -920,7 +920,7 @@ msgstr ""
 "Ismeretlen ablakkezelő: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:340
+#: bauble/__init__.py:343
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -930,7 +930,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/report/mako/__init__.py:429
+#: bauble/plugins/report/mako/__init__.py:433
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -995,7 +995,7 @@ msgstr "Bennszülött (termesztésből)"
 msgid "Current change"
 msgstr "Aktuális változás"
 
-#: bauble/connmgr.py:534
+#: bauble/connmgr.py:579
 msgid ""
 "Current connection does not specify the fields:\n"
 "%s\n"
@@ -1018,7 +1018,7 @@ msgstr "A dugvány hossza"
 msgid "Cutting type"
 msgstr "A dugvány típusa"
 
-#: bauble/connmgr.py:532
+#: bauble/connmgr.py:577
 #, fuzzy
 msgid "DBMS host name"
 msgstr "DBMS host name"
@@ -1027,7 +1027,7 @@ msgstr "DBMS host name"
 msgid "Data Deficient (DD)"
 msgstr "Hiányos adatok (DD)"
 
-#: bauble/connmgr.glade:390
+#: bauble/connmgr.glade:383
 msgid "Database:"
 msgstr "Adatbázis:"
 
@@ -1126,15 +1126,15 @@ msgstr "Elterjedés"
 msgid "Division"
 msgstr ""
 
-#: bauble/connmgr.py:411
+#: bauble/connmgr.py:456
 msgid "Do you want to save %s?"
 msgstr "Menteni kívánja %s?"
 
-#: bauble/connmgr.py:355 bauble/connmgr.py:417
+#: bauble/connmgr.py:400 bauble/connmgr.py:462
 msgid "Do you want to save your changes to %s ?"
 msgstr "Menti a módosításokat a %s fájlba?"
 
-#: bauble/connmgr.py:309
+#: bauble/connmgr.py:354
 msgid "Do you want to save your changes?"
 msgstr "Menteni kívánja a változtatásait?"
 
@@ -1179,7 +1179,7 @@ msgstr "Email"
 msgid "Endangered (EN)"
 msgstr "Veszélyeztetett (EN)"
 
-#: bauble/connmgr.py:361
+#: bauble/connmgr.py:406
 msgid "Enter a connection name"
 msgstr "Adjon meg egy adatbázis-kapcsolat nevet"
 
@@ -1191,7 +1191,7 @@ msgstr "Adja meg az új formatter nevét"
 msgid "Enter a user name"
 msgstr "Adjon meg egy felhasználónevet"
 
-#: bauble/connmgr.py:444
+#: bauble/connmgr.py:489
 msgid "Enter your password"
 msgstr "Adja meg jelszavát"
 
@@ -1332,7 +1332,7 @@ msgstr "Fax"
 msgid "Female"
 msgstr "Nőnemű"
 
-#: bauble/connmgr.glade:261
+#: bauble/connmgr.glade:256
 msgid "Filename:"
 msgstr "Filenév:"
 
@@ -1438,7 +1438,7 @@ msgstr ""
 msgid "Ghini development website"
 msgstr "Ghini fejlesztési weboldal"
 
-#: bauble/connmgr.py:516
+#: bauble/connmgr.py:561
 msgid ""
 "Ghini does not have permission to read the database file:\n"
 "\n"
@@ -1448,7 +1448,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:508
+#: bauble/connmgr.py:553
 msgid ""
 "Ghini does not have permission to read the directory:\n"
 "\n"
@@ -1458,7 +1458,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:520
+#: bauble/connmgr.py:565
 msgid ""
 "Ghini does not have permission to write to the database file:\n"
 "\n"
@@ -1468,7 +1468,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:512
+#: bauble/connmgr.py:557
 msgid ""
 "Ghini does not have permission to write to the directory:\n"
 "\n"
@@ -1539,7 +1539,7 @@ msgstr "Hormonkezelés"
 msgid "Horticultural Association/Garden Club"
 msgstr "Kertészeti társaság / Kertbarát kör"
 
-#: bauble/connmgr.glade:398
+#: bauble/connmgr.glade:391
 msgid "Host:"
 msgstr ""
 
@@ -1876,12 +1876,12 @@ msgstr "Következő"
 msgid "No"
 msgstr "Nem"
 
-#: bauble/__init__.py:176
+#: bauble/__init__.py:179
 #, fuzzy
 msgid "No command handler for %s"
 msgstr "No command handler for %s"
 
-#: bauble/__init__.py:174
+#: bauble/__init__.py:177
 #, fuzzy
 msgid "No default handler registered"
 msgstr "No default handler registered"
@@ -1970,7 +1970,7 @@ msgstr "Művelet"
 msgid "Other"
 msgstr "Másik"
 
-#: bauble/connmgr.glade:422
+#: bauble/connmgr.glade:415
 msgid "Password:"
 msgstr "Jelszó:"
 
@@ -1991,11 +1991,11 @@ msgstr "Képnézegető"
 msgid "Pictures"
 msgstr "Képek"
 
-#: bauble/connmgr.py:547
+#: bauble/connmgr.py:592
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
+#: bauble/connmgr.glade:269 bauble/connmgr.glade:427
 msgid "Pictures root:"
 msgstr ""
 
@@ -2022,7 +2022,7 @@ msgstr "Kiültetés"
 msgid "Planting code"
 msgstr "Kiültetés kódja"
 
-#: bauble/connmgr.py:498
+#: bauble/connmgr.py:543
 msgid "Please choose a name for this connection"
 msgstr "Válasszon nevet ehhez az adatbázis kapcsolathoz"
 
@@ -2052,7 +2052,7 @@ msgstr ""
 msgid "Please make sure a tag is active."
 msgstr ""
 
-#: bauble/__init__.py:225
+#: bauble/__init__.py:228
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
 msgstr "Ellenőrizze, hogy a GTK_ROOT\\bin megtalálható-e a PATH-ban!"
 
@@ -2070,7 +2070,7 @@ msgstr ""
 msgid "Please select a stylesheet."
 msgstr "Válasszon stíluslapot!"
 
-#: bauble/plugins/report/mako/__init__.py:400
+#: bauble/plugins/report/mako/__init__.py:404
 msgid "Please select a template."
 msgstr "Válasszon sablont!"
 
@@ -2088,6 +2088,10 @@ msgstr "Plugin-ek"
 
 #: bauble/plugins/garden/plant.py:319
 msgid "Poor"
+msgstr ""
+
+#: bauble/connmgr.glade:554
+msgid "Port:"
 msgstr ""
 
 #: bauble/plugins/garden/propagation.py:281
@@ -2237,7 +2241,7 @@ msgstr ""
 msgid "Research/Field Station"
 msgstr ""
 
-#: bauble/plugins/report/mako/__init__.py:334
+#: bauble/plugins/report/mako/__init__.py:338
 msgid "Reset to defaults"
 msgstr "Alapértelmezett értékek visszaállítása"
 
@@ -3096,6 +3100,13 @@ msgstr ""
 "alapértelmezettként. A listában elsőként szereplő név automatikusan "
 "kiválasztásra került."
 
+#: bauble/ui.py:777
+msgid ""
+"This version installed on: %s\n"
+"Latest published version: %s\n"
+"Publication date: %s"
+msgstr ""
+
 #: bauble/db.py:38
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
@@ -3107,7 +3118,7 @@ msgstr ""
 "http://www.sqlalchemy.org weboldalról, vagy vegye fel a kapcsolatot a "
 "rendszergazdával!"
 
-#: bauble/connmgr.py:551
+#: bauble/connmgr.py:596
 msgid "Thumbnails name occupied by non directory."
 msgstr ""
 
@@ -3148,7 +3159,7 @@ msgstr "Típus"
 msgid "Type of material"
 msgstr "Anyag típusa"
 
-#: bauble/connmgr.glade:205 bauble/view.py:167
+#: bauble/connmgr.glade:201 bauble/view.py:167
 msgid "Type:"
 msgstr "Tipus:"
 
@@ -3202,7 +3213,7 @@ msgstr "Éretlen"
 msgid "Unrooted cutting"
 msgstr "Nem gyökeres dugvány"
 
-#: bauble/connmgr.glade:243
+#: bauble/connmgr.glade:239
 msgid "Use default locations"
 msgstr "Alapértelmezett helyszínek használata"
 
@@ -3210,7 +3221,7 @@ msgstr "Alapértelmezett helyszínek használata"
 msgid "User"
 msgstr "Felhasználó"
 
-#: bauble/connmgr.glade:410
+#: bauble/connmgr.glade:403
 msgid "User:"
 msgstr "Felhasználó:"
 
@@ -3299,11 +3310,11 @@ msgstr "Vad státusz"
 msgid "Winter kill"
 msgstr ""
 
-#: bauble/ui.py:791
+#: bauble/ui.py:794
 msgid "Would you like the cancel the current tasks?"
 msgstr "Kívánja megszakítani az aktuális műveleteket?"
 
-#: bauble/__init__.py:367
+#: bauble/__init__.py:370
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
@@ -3390,7 +3401,7 @@ msgstr "Olyan beszerzés, amelyhez növények tartoznak, nem törölhető."
 msgid "You do not have privileges to change other user privileges"
 msgstr "Nem jogosult más felhasználó jogosultságait módosítani"
 
-#: bauble/connmgr.glade:177
+#: bauble/connmgr.glade:173
 msgid ""
 "You don't have any connections in your connection list.\n"
 "Click on <b>Add</b> to create a new connection."
@@ -3582,7 +3593,7 @@ msgstr "létrehozás, ha nem szerepel az adatbázisban"
 msgid "cv."
 msgstr "cv."
 
-#: bauble/connmgr.py:529
+#: bauble/connmgr.py:574
 msgid "database name"
 msgstr "adatbázis neve"
 
@@ -3683,7 +3694,7 @@ msgstr ""
 msgid "native"
 msgstr "őshonos"
 
-#: bauble/connmgr.py:137
+#: bauble/connmgr.py:180
 msgid ""
 "new remote version %s available.\n"
 "continue, or exit to upgrade."
@@ -3704,6 +3715,10 @@ msgstr ""
 #: bauble/editor.py:1460
 msgid "no widget with name %s"
 msgstr "%s nevű widget nem található"
+
+#: bauble/connmgr.py:128
+msgid "not available when offline"
+msgstr ""
 
 #: bauble/plugins/plants/species.py:420
 msgid "open the wikipedia page about this species"
@@ -3850,7 +3865,7 @@ msgstr ""
 msgid "used in"
 msgstr ""
 
-#: bauble/connmgr.py:526
+#: bauble/connmgr.py:571
 msgid "user name"
 msgstr "felhasználónév"
 

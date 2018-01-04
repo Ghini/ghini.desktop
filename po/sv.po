@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-03 17:35-0500\n"
+"POT-Creation-Date: 2018-01-04 15:06-0500\n"
 "PO-Revision-Date: 2017-11-16 02:10+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -101,15 +101,15 @@ msgstr "(\"%(group)s\")"
 msgid "** Error: %s"
 msgstr "** Fel: %s"
 
-#: bauble/__init__.py:222
+#: bauble/__init__.py:225
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Fel: Det gick inte att importera gtk och/eller gobject"
 
-#: bauble/__init__.py:286
+#: bauble/__init__.py:289
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Fell: Ghini måste köras i en fönsterlägesmiljö."
 
-#: bauble/plugins/report/mako/__init__.py:319
+#: bauble/plugins/report/mako/__init__.py:323
 msgid ":"
 msgstr ""
 
@@ -543,7 +543,7 @@ msgid ""
 "this propagation trial?"
 msgstr ""
 
-#: bauble/connmgr.py:342
+#: bauble/connmgr.py:387
 msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
@@ -738,7 +738,7 @@ msgstr "Välj en fil att exportera till…"
 msgid "Choose a file to export to…"
 msgstr ""
 
-#: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
+#: bauble/connmgr.py:281 bauble/connmgr.py:291 bauble/connmgr.py:301
 #: bauble/editor.py:2020 bauble/editor.py:2027
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
@@ -804,7 +804,7 @@ msgstr "Kommateckenavgränsade värden (CSV)"
 msgid "Confirm new password"
 msgstr ""
 
-#: bauble/connmgr.glade:578
+#: bauble/connmgr.glade:599
 msgid "Connection Details"
 msgstr "Anslutningsinformation"
 
@@ -911,7 +911,7 @@ msgstr ""
 "Okänd skrivbordsmiljö: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:340
+#: bauble/__init__.py:343
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -921,7 +921,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/report/mako/__init__.py:429
+#: bauble/plugins/report/mako/__init__.py:433
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -986,7 +986,7 @@ msgstr "Odlad inhemsk"
 msgid "Current change"
 msgstr ""
 
-#: bauble/connmgr.py:534
+#: bauble/connmgr.py:579
 msgid ""
 "Current connection does not specify the fields:\n"
 "%s\n"
@@ -1006,7 +1006,7 @@ msgstr "Sticklinglängd"
 msgid "Cutting type"
 msgstr "Sticklingtyp"
 
-#: bauble/connmgr.py:532
+#: bauble/connmgr.py:577
 msgid "DBMS host name"
 msgstr ""
 
@@ -1014,7 +1014,7 @@ msgstr ""
 msgid "Data Deficient (DD)"
 msgstr ""
 
-#: bauble/connmgr.glade:390
+#: bauble/connmgr.glade:383
 msgid "Database:"
 msgstr "Databas:"
 
@@ -1112,15 +1112,15 @@ msgstr ""
 msgid "Division"
 msgstr "Delning"
 
-#: bauble/connmgr.py:411
+#: bauble/connmgr.py:456
 msgid "Do you want to save %s?"
 msgstr "Vill du spara %s?"
 
-#: bauble/connmgr.py:355 bauble/connmgr.py:417
+#: bauble/connmgr.py:400 bauble/connmgr.py:462
 msgid "Do you want to save your changes to %s ?"
 msgstr "Vill du spara dina ändringar till %s?"
 
-#: bauble/connmgr.py:309
+#: bauble/connmgr.py:354
 msgid "Do you want to save your changes?"
 msgstr "Vill du spara dina ändringar?"
 
@@ -1165,7 +1165,7 @@ msgstr "E-post"
 msgid "Endangered (EN)"
 msgstr ""
 
-#: bauble/connmgr.py:361
+#: bauble/connmgr.py:406
 msgid "Enter a connection name"
 msgstr "Ange ett anslutningsnamn"
 
@@ -1177,7 +1177,7 @@ msgstr "Ange ett namn för den nya formateringen"
 msgid "Enter a user name"
 msgstr "Ange ett användarnamn"
 
-#: bauble/connmgr.py:444
+#: bauble/connmgr.py:489
 msgid "Enter your password"
 msgstr "Ange ditt lösenord"
 
@@ -1315,7 +1315,7 @@ msgstr "Fax"
 msgid "Female"
 msgstr "Honplanta"
 
-#: bauble/connmgr.glade:261
+#: bauble/connmgr.glade:256
 msgid "Filename:"
 msgstr ""
 
@@ -1422,7 +1422,7 @@ msgstr ""
 msgid "Ghini development website"
 msgstr "Ghini utveckling webbplats"
 
-#: bauble/connmgr.py:516
+#: bauble/connmgr.py:561
 msgid ""
 "Ghini does not have permission to read the database file:\n"
 "\n"
@@ -1432,7 +1432,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:508
+#: bauble/connmgr.py:553
 msgid ""
 "Ghini does not have permission to read the directory:\n"
 "\n"
@@ -1442,7 +1442,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:520
+#: bauble/connmgr.py:565
 msgid ""
 "Ghini does not have permission to write to the database file:\n"
 "\n"
@@ -1452,7 +1452,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:512
+#: bauble/connmgr.py:557
 msgid ""
 "Ghini does not have permission to write to the directory:\n"
 "\n"
@@ -1525,7 +1525,7 @@ msgstr ""
 msgid "Horticultural Association/Garden Club"
 msgstr "Hortikulturell organisation/Trädgårdsförening"
 
-#: bauble/connmgr.glade:398
+#: bauble/connmgr.glade:391
 msgid "Host:"
 msgstr "Värd:"
 
@@ -1861,11 +1861,11 @@ msgstr "Nästa"
 msgid "No"
 msgstr "Nej"
 
-#: bauble/__init__.py:176
+#: bauble/__init__.py:179
 msgid "No command handler for %s"
 msgstr "Det finns ingen kommandohanterare för %s"
 
-#: bauble/__init__.py:174
+#: bauble/__init__.py:177
 msgid "No default handler registered"
 msgstr "Ingen standardhanterare har registrerats"
 
@@ -1956,7 +1956,7 @@ msgstr "Åtgärd"
 msgid "Other"
 msgstr "Annan"
 
-#: bauble/connmgr.glade:422
+#: bauble/connmgr.glade:415
 msgid "Password:"
 msgstr "Lösenord:"
 
@@ -1977,11 +1977,11 @@ msgstr ""
 msgid "Pictures"
 msgstr ""
 
-#: bauble/connmgr.py:547
+#: bauble/connmgr.py:592
 msgid "Pictures root name occupied by non directory."
 msgstr ""
 
-#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
+#: bauble/connmgr.glade:269 bauble/connmgr.glade:427
 msgid "Pictures root:"
 msgstr ""
 
@@ -2008,7 +2008,7 @@ msgstr "Växt"
 msgid "Planting code"
 msgstr "Växtkod"
 
-#: bauble/connmgr.py:498
+#: bauble/connmgr.py:543
 msgid "Please choose a name for this connection"
 msgstr "Välj ett namn på denna anslutning"
 
@@ -2038,7 +2038,7 @@ msgstr ""
 msgid "Please make sure a tag is active."
 msgstr ""
 
-#: bauble/__init__.py:225
+#: bauble/__init__.py:228
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
 msgstr "Säkerställ att GTK_ROOT\\bin är i din PATH."
 
@@ -2056,7 +2056,7 @@ msgstr "Välj en renderare"
 msgid "Please select a stylesheet."
 msgstr "Välj en formatmall."
 
-#: bauble/plugins/report/mako/__init__.py:400
+#: bauble/plugins/report/mako/__init__.py:404
 msgid "Please select a template."
 msgstr "Välj en mall."
 
@@ -2075,6 +2075,10 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:319
 msgid "Poor"
 msgstr "Dålig"
+
+#: bauble/connmgr.glade:554
+msgid "Port:"
+msgstr ""
 
 #: bauble/plugins/garden/propagation.py:281
 msgid "Powder"
@@ -2223,7 +2227,7 @@ msgstr ""
 msgid "Research/Field Station"
 msgstr "Forskningsstation/Fältstation"
 
-#: bauble/plugins/report/mako/__init__.py:334
+#: bauble/plugins/report/mako/__init__.py:338
 msgid "Reset to defaults"
 msgstr ""
 
@@ -3072,6 +3076,13 @@ msgid ""
 "selected."
 msgstr ""
 
+#: bauble/ui.py:777
+msgid ""
+"This version installed on: %s\n"
+"Latest published version: %s\n"
+"Publication date: %s"
+msgstr ""
+
 #: bauble/db.py:38
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
@@ -3082,7 +3093,7 @@ msgstr ""
 "version %s. Var vänlig hämta och installera en nyare version av SQLAlchemy "
 "från http://www.sqlalchemy.org eller kontakta din systemadministratör."
 
-#: bauble/connmgr.py:551
+#: bauble/connmgr.py:596
 msgid "Thumbnails name occupied by non directory."
 msgstr ""
 
@@ -3123,7 +3134,7 @@ msgstr "Typ"
 msgid "Type of material"
 msgstr "Typ av material"
 
-#: bauble/connmgr.glade:205 bauble/view.py:167
+#: bauble/connmgr.glade:201 bauble/view.py:167
 msgid "Type:"
 msgstr "Typ:"
 
@@ -3176,7 +3187,7 @@ msgstr "Omogen"
 msgid "Unrooted cutting"
 msgstr "Orotad stickling"
 
-#: bauble/connmgr.glade:243
+#: bauble/connmgr.glade:239
 msgid "Use default locations"
 msgstr ""
 
@@ -3184,7 +3195,7 @@ msgstr ""
 msgid "User"
 msgstr "Användare"
 
-#: bauble/connmgr.glade:410
+#: bauble/connmgr.glade:403
 msgid "User:"
 msgstr "Användare:"
 
@@ -3270,11 +3281,11 @@ msgstr "Vildstatus"
 msgid "Winter kill"
 msgstr "Dog under vintern"
 
-#: bauble/ui.py:791
+#: bauble/ui.py:794
 msgid "Would you like the cancel the current tasks?"
 msgstr "Vill du avbryta de aktuella aktiviteterna?"
 
-#: bauble/__init__.py:367
+#: bauble/__init__.py:370
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
@@ -3361,7 +3372,7 @@ msgstr ""
 msgid "You do not have privileges to change other user privileges"
 msgstr "Du har inte behörighet att ändra andra användares behörigheter"
 
-#: bauble/connmgr.glade:177
+#: bauble/connmgr.glade:173
 msgid ""
 "You don't have any connections in your connection list.\n"
 "Click on <b>Add</b> to create a new connection."
@@ -3549,7 +3560,7 @@ msgstr ""
 msgid "cv."
 msgstr "cv."
 
-#: bauble/connmgr.py:529
+#: bauble/connmgr.py:574
 msgid "database name"
 msgstr ""
 
@@ -3652,7 +3663,7 @@ msgstr ""
 msgid "native"
 msgstr "inhemsk"
 
-#: bauble/connmgr.py:137
+#: bauble/connmgr.py:180
 msgid ""
 "new remote version %s available.\n"
 "continue, or exit to upgrade."
@@ -3671,6 +3682,10 @@ msgstr ""
 #: bauble/editor.py:1460
 msgid "no widget with name %s"
 msgstr "det finns ingen gränssnittskomponent med namnet %s"
+
+#: bauble/connmgr.py:128
+msgid "not available when offline"
+msgstr ""
 
 #: bauble/plugins/plants/species.py:420
 msgid "open the wikipedia page about this species"
@@ -3814,7 +3829,7 @@ msgstr ""
 msgid "used in"
 msgstr ""
 
-#: bauble/connmgr.py:526
+#: bauble/connmgr.py:571
 msgid "user name"
 msgstr ""
 

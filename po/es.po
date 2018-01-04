@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-03 17:35-0500\n"
+"POT-Creation-Date: 2018-01-04 15:06-0500\n"
 "PO-Revision-Date: 2017-11-14 13:27+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -98,15 +98,15 @@ msgstr "(Grupo %(group)s)"
 msgid "** Error: %s"
 msgstr "** Error: %s"
 
-#: bauble/__init__.py:222
+#: bauble/__init__.py:225
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Error: No se pudo importar gtk o gobject"
 
-#: bauble/__init__.py:286
+#: bauble/__init__.py:289
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Error: Ghini debe ejecutarse en un entorno de ventanas."
 
-#: bauble/plugins/report/mako/__init__.py:319
+#: bauble/plugins/report/mako/__init__.py:323
 msgid ":"
 msgstr ":"
 
@@ -541,7 +541,7 @@ msgstr ""
 "¿Seguro que desea eliminar\n"
 "el ensayo de propagación?"
 
-#: bauble/connmgr.py:342
+#: bauble/connmgr.py:387
 msgid ""
 "Are you sure you want to remove \"%s\"?\n"
 "\n"
@@ -737,7 +737,7 @@ msgstr "Elija un archivo para exportar a..."
 msgid "Choose a file to export to…"
 msgstr ""
 
-#: bauble/connmgr.py:236 bauble/connmgr.py:246 bauble/connmgr.py:256
+#: bauble/connmgr.py:281 bauble/connmgr.py:291 bauble/connmgr.py:301
 #: bauble/editor.py:2020 bauble/editor.py:2027
 #: bauble/plugins/imex/iojson.py:165 bauble/plugins/imex/iojson.py:248
 #: bauble/plugins/plants/taxonomy_check.py:268
@@ -802,7 +802,7 @@ msgstr "Valor separado por coma"
 msgid "Confirm new password"
 msgstr "Confirmar la contraseña"
 
-#: bauble/connmgr.glade:578
+#: bauble/connmgr.glade:599
 msgid "Connection Details"
 msgstr "Detalles de la conexión"
 
@@ -910,7 +910,7 @@ msgstr ""
 "Entorno de escritorio desconocido: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:340
+#: bauble/__init__.py:343
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -920,7 +920,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/plugins/report/mako/__init__.py:429
+#: bauble/plugins/report/mako/__init__.py:433
 #: bauble/plugins/report/xsl/__init__.py:639
 msgid ""
 "Could not open the report with the default program. You can open the file "
@@ -984,7 +984,7 @@ msgstr "Cultivado nativo"
 msgid "Current change"
 msgstr "Cambio de la corriente"
 
-#: bauble/connmgr.py:534
+#: bauble/connmgr.py:579
 msgid ""
 "Current connection does not specify the fields:\n"
 "%s\n"
@@ -1006,7 +1006,7 @@ msgstr "Longitud de corte"
 msgid "Cutting type"
 msgstr "Tipo de corte"
 
-#: bauble/connmgr.py:532
+#: bauble/connmgr.py:577
 msgid "DBMS host name"
 msgstr "Nombre de host"
 
@@ -1014,7 +1014,7 @@ msgstr "Nombre de host"
 msgid "Data Deficient (DD)"
 msgstr "Faltan datos (DD)"
 
-#: bauble/connmgr.glade:390
+#: bauble/connmgr.glade:383
 msgid "Database:"
 msgstr "Base de datos:"
 
@@ -1112,15 +1112,15 @@ msgstr "Distribución"
 msgid "Division"
 msgstr "División"
 
-#: bauble/connmgr.py:411
+#: bauble/connmgr.py:456
 msgid "Do you want to save %s?"
 msgstr "Desea guardar %s?"
 
-#: bauble/connmgr.py:355 bauble/connmgr.py:417
+#: bauble/connmgr.py:400 bauble/connmgr.py:462
 msgid "Do you want to save your changes to %s ?"
 msgstr "Desea guardar sus cambios en %s?"
 
-#: bauble/connmgr.py:309
+#: bauble/connmgr.py:354
 msgid "Do you want to save your changes?"
 msgstr "¿Quiere guardar los cambios?"
 
@@ -1165,7 +1165,7 @@ msgstr "Correo electrónico"
 msgid "Endangered (EN)"
 msgstr "Amenazada (EN)"
 
-#: bauble/connmgr.py:361
+#: bauble/connmgr.py:406
 msgid "Enter a connection name"
 msgstr "Introduzca un nombre de conexión"
 
@@ -1177,7 +1177,7 @@ msgstr "Introduzca un nombre para el nuevo formateador"
 msgid "Enter a user name"
 msgstr "Inserte el nombre de un usuario"
 
-#: bauble/connmgr.py:444
+#: bauble/connmgr.py:489
 msgid "Enter your password"
 msgstr "Introduzca su contraseña"
 
@@ -1315,7 +1315,7 @@ msgstr "Fax"
 msgid "Female"
 msgstr "Feminina"
 
-#: bauble/connmgr.glade:261
+#: bauble/connmgr.glade:256
 msgid "Filename:"
 msgstr "Nombre fichero:"
 
@@ -1421,7 +1421,7 @@ msgstr ""
 msgid "Ghini development website"
 msgstr "Sitio web de desarrollo Ghini"
 
-#: bauble/connmgr.py:516
+#: bauble/connmgr.py:561
 msgid ""
 "Ghini does not have permission to read the database file:\n"
 "\n"
@@ -1431,7 +1431,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:508
+#: bauble/connmgr.py:553
 msgid ""
 "Ghini does not have permission to read the directory:\n"
 "\n"
@@ -1441,7 +1441,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:520
+#: bauble/connmgr.py:565
 msgid ""
 "Ghini does not have permission to write to the database file:\n"
 "\n"
@@ -1451,7 +1451,7 @@ msgstr ""
 "\n"
 "%s"
 
-#: bauble/connmgr.py:512
+#: bauble/connmgr.py:557
 msgid ""
 "Ghini does not have permission to write to the directory:\n"
 "\n"
@@ -1522,7 +1522,7 @@ msgstr "Tratamiento hormonal"
 msgid "Horticultural Association/Garden Club"
 msgstr "Asociación Hortícolas / Club de Jardinería"
 
-#: bauble/connmgr.glade:398
+#: bauble/connmgr.glade:391
 msgid "Host:"
 msgstr "Anfitrión:"
 
@@ -1856,11 +1856,11 @@ msgstr "Siguiente"
 msgid "No"
 msgstr "No"
 
-#: bauble/__init__.py:176
+#: bauble/__init__.py:179
 msgid "No command handler for %s"
 msgstr "No hay manejador de comando para %s"
 
-#: bauble/__init__.py:174
+#: bauble/__init__.py:177
 msgid "No default handler registered"
 msgstr "Manejador por defecto no registrado"
 
@@ -1952,7 +1952,7 @@ msgstr "Operación"
 msgid "Other"
 msgstr "Otros"
 
-#: bauble/connmgr.glade:422
+#: bauble/connmgr.glade:415
 msgid "Password:"
 msgstr "Contraseña:"
 
@@ -1973,11 +1973,11 @@ msgstr "Visualizador de imágenes"
 msgid "Pictures"
 msgstr "Fotos"
 
-#: bauble/connmgr.py:547
+#: bauble/connmgr.py:592
 msgid "Pictures root name occupied by non directory."
 msgstr "Fotos de nombre de directorio no la raíz."
 
-#: bauble/connmgr.glade:274 bauble/connmgr.glade:434
+#: bauble/connmgr.glade:269 bauble/connmgr.glade:427
 msgid "Pictures root:"
 msgstr "Ubicación fotos:"
 
@@ -2004,7 +2004,7 @@ msgstr "Planta"
 msgid "Planting code"
 msgstr "Codigo de planta"
 
-#: bauble/connmgr.py:498
+#: bauble/connmgr.py:543
 msgid "Please choose a name for this connection"
 msgstr "Por favor, elija un nombre para esta conexión"
 
@@ -2053,7 +2053,7 @@ msgstr ""
 msgid "Please make sure a tag is active."
 msgstr ""
 
-#: bauble/__init__.py:225
+#: bauble/__init__.py:228
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
 msgstr "Compruebe que GTK_ROOT\\bin esté en PATH."
 
@@ -2070,7 +2070,7 @@ msgstr "Por favor, seleccione el motor de renderizado"
 msgid "Please select a stylesheet."
 msgstr "Seleccione una hoja de estilo."
 
-#: bauble/plugins/report/mako/__init__.py:400
+#: bauble/plugins/report/mako/__init__.py:404
 msgid "Please select a template."
 msgstr "Por favor, seleccione una plantilla."
 
@@ -2089,6 +2089,10 @@ msgstr ""
 #: bauble/plugins/garden/plant.py:319
 msgid "Poor"
 msgstr "Malo/a"
+
+#: bauble/connmgr.glade:554
+msgid "Port:"
+msgstr ""
 
 #: bauble/plugins/garden/propagation.py:281
 msgid "Powder"
@@ -2237,7 +2241,7 @@ msgstr "Rescate"
 msgid "Research/Field Station"
 msgstr "Investigación / Estación de Campo"
 
-#: bauble/plugins/report/mako/__init__.py:334
+#: bauble/plugins/report/mako/__init__.py:338
 msgid "Reset to defaults"
 msgstr "Valores predeterminados"
 
@@ -3110,6 +3114,13 @@ msgstr ""
 "como predeterminado. El primer nombre vernáculo en la lista se ha "
 "seleccionado automáticamente."
 
+#: bauble/ui.py:777
+msgid ""
+"This version installed on: %s\n"
+"Latest published version: %s\n"
+"Publication date: %s"
+msgstr ""
+
 #: bauble/db.py:38
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
@@ -3121,7 +3132,7 @@ msgstr ""
 "de SQLAlchemy desde http://www.sqlalchemy.org o pongase en contacto con su "
 "administrador de sistemas."
 
-#: bauble/connmgr.py:551
+#: bauble/connmgr.py:596
 msgid "Thumbnails name occupied by non directory."
 msgstr "Nombre de miniaturas de directorio no."
 
@@ -3162,7 +3173,7 @@ msgstr "Tipo"
 msgid "Type of material"
 msgstr "Tipo del material"
 
-#: bauble/connmgr.glade:205 bauble/view.py:167
+#: bauble/connmgr.glade:201 bauble/view.py:167
 msgid "Type:"
 msgstr "Tipo:"
 
@@ -3214,7 +3225,7 @@ msgstr "Inmaduro"
 msgid "Unrooted cutting"
 msgstr "Corte sin raíces"
 
-#: bauble/connmgr.glade:243
+#: bauble/connmgr.glade:239
 msgid "Use default locations"
 msgstr "Utilizar ubicaciones predeterminadas"
 
@@ -3222,7 +3233,7 @@ msgstr "Utilizar ubicaciones predeterminadas"
 msgid "User"
 msgstr "Usuario"
 
-#: bauble/connmgr.glade:410
+#: bauble/connmgr.glade:403
 msgid "User:"
 msgstr "Usuario:"
 
@@ -3309,11 +3320,11 @@ msgstr "Si es Salvaje"
 msgid "Winter kill"
 msgstr "Víctima del invierno"
 
-#: bauble/ui.py:791
+#: bauble/ui.py:794
 msgid "Would you like the cancel the current tasks?"
 msgstr "¿Quiere cancelar las tareas actuales?"
 
-#: bauble/__init__.py:367
+#: bauble/__init__.py:370
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
@@ -3400,7 +3411,7 @@ msgstr "No es posible eliminar una accesión que tenga plantas."
 msgid "You do not have privileges to change other user privileges"
 msgstr "Tú no tienes privilegios para cambiar los privilegios de otro usuario"
 
-#: bauble/connmgr.glade:177
+#: bauble/connmgr.glade:173
 msgid ""
 "You don't have any connections in your connection list.\n"
 "Click on <b>Add</b> to create a new connection."
@@ -3594,7 +3605,7 @@ msgstr "crear si inexistente"
 msgid "cv."
 msgstr "cv."
 
-#: bauble/connmgr.py:529
+#: bauble/connmgr.py:574
 msgid "database name"
 msgstr "nombre de la base de datos"
 
@@ -3697,7 +3708,7 @@ msgstr "el modelo debe tener ó ambas latitud y longitud ó ni la una ni la otra
 msgid "native"
 msgstr "nativa"
 
-#: bauble/connmgr.py:137
+#: bauble/connmgr.py:180
 msgid ""
 "new remote version %s available.\n"
 "continue, or exit to upgrade."
@@ -3718,6 +3729,10 @@ msgstr "ningún widget llamado \"%(widget_name)s\" en archivo de glade"
 #: bauble/editor.py:1460
 msgid "no widget with name %s"
 msgstr "ningún widget de nombre %s"
+
+#: bauble/connmgr.py:128
+msgid "not available when offline"
+msgstr ""
 
 #: bauble/plugins/plants/species.py:420
 msgid "open the wikipedia page about this species"
@@ -3863,7 +3878,7 @@ msgstr ""
 msgid "used in"
 msgstr "usado en"
 
-#: bauble/connmgr.py:526
+#: bauble/connmgr.py:571
 msgid "user name"
 msgstr "nombre de usuario"
 
