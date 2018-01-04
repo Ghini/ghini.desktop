@@ -100,24 +100,6 @@ class Enum(types.TypeDecorator):
         return Enum(self.values, self.empty_to_none, self.strict)
 
 
-# class tzinfo(datetime.tzinfo):
-
-#     """
-#     A tzinfo object that can handle timezones in the format -HH:MM or +HH:MM
-#     """
-#     def __init__(self, name):
-#         super(tzinfo, self).__init__()
-#         self._tzname = name
-#         hours, minutes = [int(v) for v in name.split(':')]
-#         self._utcoffset = datetime.timedelta(hours=hours, minutes=minutes)
-
-#     def tzname(self):
-#         return self._tzname
-
-#     def utcoffset(self, dt):
-#         return self._utcoffset
-
-
 class DateTime(types.TypeDecorator):
     """
     A DateTime type that allows strings
