@@ -73,3 +73,6 @@ taxonomic information it refers to: unreferred to taxa will not be
 exported. *Plant* will export all living plants (some accession might not be
 included), all referred to locations and taxa.
 
+Importing a Pictures collection
+----------------------------------
+

@@ -192,12 +192,13 @@ plants that are created.
 Pictures
 """"""""""""
 
-Just as almost all objects in the Ghini database can have *Notes*
-associated to them, Plants can have *Pictures*: next to the tab for Notes,
-the Plants editor contains an extra tab called "Pictures". You can associate
-as many pictures as you might need to a plant.
+Just as almost all objects in the Ghini database can have *Notes* associated
+to them, Plants and Species can also have *Pictures*: next to the tab for
+Notes, the Plant and the Species editors contain an extra tab called
+"Pictures". You can associate as many pictures as you might need to a plant
+and to a species object.
 
-When you associate a picture to a plant, the file is copied in the
+When you associate a picture to an object, the file is copied in the
 *pictures* folder, and a miniature (500x500) is generated and copied in the
 `thumbnails` folder inside of the pictures folder.
 
@@ -211,10 +212,27 @@ specified the details of your database connection. Again, you should make
 sure that the pictures root folder is shared with your file sharing service
 of choice.
 
-When a Plant in the current selection is highlighted, its pictures are
-displayed in the pictures pane, the pane left of the information pane. When
-an accession in the selection is highlighted, any picture associated to the
-plants in the highlighted accession are displayed in the pictures pane.
+When a Plant or a Species in the current selection is highlighted, its
+pictures are displayed in the pictures pane, the pane left of the
+information pane. When an Accession in the selection is highlighted, any
+picture associated to the plants in the highlighted accession are displayed
+in the pictures pane.
+
+In Ghini-1.0, pictures are special notes, with category "<picture>", and
+text the path to the file, relative to the pictures root folder.  In the
+Notes tab, Picture notes will show as normal notes, and you can edit them
+without limitations.
+
+A Plant is a physical object, so you associate to it pictures taken of that
+individual plant, taken at any relevant development stage of the plant,
+possibly helping its identification.
+
+Species are abstract objects, so you would associate to it pictures showing
+the characteristic elements of the species, so it makes sense to associate a
+flora illustration to it. You can also do that by reference: go to the Notes
+tab, add a note and specify as category "<picture>", then in the text field
+you type the URL for the illustration of your choice.
+
 
 Locations
 ---------
