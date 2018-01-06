@@ -107,7 +107,7 @@ plant pictures either to initialize a ghini database, or for
 periodically adding to it.
 
 Use :menuselection:`Tools-->Import-->Pictures` to activate this
-import tool.  The tool is made up of several steps: parameter
+import tool.  Import goes in several steps: parameter
 definition; data revision and confirmation; the import step
 proper; finally review the import log.  At the first two steps
 you can confirm the data and go to the next step by clicking on
@@ -116,19 +116,27 @@ clicking on the ``prev`` button.  Once the import is done and
 you're reviewing the log, you can only either confirm —or abort—
 the whole transaction
 
-In the parameter definition pane you: select the directory from
-which you are to import pictures; indicate whether to import
-pictures recursively, select or create a location which will be
-used as default location for new plants, inform the tool about
-the rule you've been following when naming picture files.
+In the "parameter definition" pane you: select the directory
+from which you intend to import pictures; indicate whether to
+import pictures recursively; select or create a location which
+will be used as default location for new plants; inform the tool
+about the rule you've been following when naming picture files.
 
 .. image:: images/screenshots/import-picture-define.png
 
-In the data revision pane you are shown a table with as many
+In the "data revision" pane you are shown a table with as many
 rows as the pictures you are importing.  Each row holds as much
 information as the tool managed to extract from the picture
 name.  You can review the information, correct or confirm, and
 indicate whether or not the row should be imported.
 
 .. image:: images/screenshots/import-picture-review.png
+
+In the final "commit or rollback" pane you read the logs relative
+to your data import, and decide whether to keep them (commit
+them to the database), or undo them (rollback the transaction).
+
+When the Picture Collection importer creates or updates objects,
+it also sets a Note that you can use for selecting the objects
+involved in the import, and for reviewing if needed.
 
