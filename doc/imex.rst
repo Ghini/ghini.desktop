@@ -122,8 +122,13 @@ pictures recursively, select or create a location which will be
 used as default location for new plants, inform the tool about
 the rule you've been following when naming picture files.
 
+.. image:: images/screenshots/import-picture-define.png
+
 In the data revision pane you are shown a table with as many
 rows as the pictures you are importing.  Each row holds as much
 information as the tool managed to extract from the picture
 name.  You can review the information, correct or confirm, and
 indicate whether or not the row should be imported.
+
+.. image:: images/screenshots/import-picture-review.png
+
