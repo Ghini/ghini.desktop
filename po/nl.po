@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-06 11:35-0500\n"
+"POT-Creation-Date: 2018-01-06 15:37-0500\n"
 "PO-Revision-Date: 2017-11-14 13:26+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -106,7 +106,7 @@ msgstr "** Fout: importeren van gtk en/of gobject niet mogelijk"
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Fout: Ghini moet worden uitgevoerd in een windowed omgeving."
 
-#: bauble/plugins/garden/picture_importer.glade:165
+#: bauble/plugins/garden/picture_importer.glade:186
 msgid "..."
 msgstr ""
 
@@ -336,12 +336,16 @@ msgstr "<b>Type:</b>"
 msgid "<b>Use author names</b>"
 msgstr "<b>Gebruik auteur namen</b>"
 
+#: bauble/plugins/garden/picture_importer.glade:404
+msgid "<b>commit or rollback</b>"
+msgstr ""
+
 #: bauble/plugins/garden/loc_editor.glade:348
 msgid "<b>danger zone</b>"
 msgstr "<b>Gevarenzone</b>"
 
-#: bauble/plugins/garden/picture_importer.glade:250
-msgid "<b>define import parameters</b>"
+#: bauble/plugins/garden/picture_importer.glade:373
+msgid "<b>data revision</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:956
@@ -352,8 +356,8 @@ msgstr "<b>in gebruik</b>"
 msgid "<b>options</b>"
 msgstr "<b>opties</b>"
 
-#: bauble/plugins/garden/picture_importer.glade:362
-msgid "<b>review import details</b>"
+#: bauble/plugins/garden/picture_importer.glade:272
+msgid "<b>parameter definition</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:943
@@ -3444,7 +3448,7 @@ msgstr "_Gereedschappen"
 msgid "_parse_lat_lon() -- incorrect format: %s"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:323
+#: bauble/plugins/garden/picture_importer.glade:334
 msgid "acc.nr."
 msgstr ""
 
@@ -3477,7 +3481,7 @@ msgstr ""
 msgid "back to startup screen"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:334
+#: bauble/plugins/garden/picture_importer.glade:345
 msgid "binomial"
 msgstr ""
 
@@ -3532,11 +3536,11 @@ msgstr ""
 msgid "database name"
 msgstr "databasenaam"
 
-#: bauble/plugins/garden/picture_importer.glade:119
+#: bauble/plugins/garden/picture_importer.glade:140
 msgid "default location"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:315
+#: bauble/plugins/garden/picture_importer.glade:326
 msgid "edit"
 msgstr ""
 
@@ -3576,7 +3580,7 @@ msgstr ""
 msgid "f."
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:304
+#: bauble/plugins/garden/picture_importer.glade:315
 msgid "file name"
 msgstr ""
 
@@ -3636,7 +3640,7 @@ msgstr ""
 msgid "model must have both latitude and longitude or neither"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:133
+#: bauble/plugins/garden/picture_importer.glade:154
 msgid "name format"
 msgstr ""
 
@@ -3680,7 +3684,7 @@ msgstr ""
 msgid "picture file %s not found."
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:222
+#: bauble/plugins/garden/picture_importer.glade:243
 msgid "picture location"
 msgstr ""
 
@@ -3718,7 +3722,7 @@ msgstr ""
 msgid "querying the plant list"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:105
+#: bauble/plugins/garden/picture_importer.glade:126
 msgid "recurse"
 msgstr ""
 
@@ -3782,7 +3786,7 @@ msgstr ""
 msgid "the history in this database"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:345
+#: bauble/plugins/garden/picture_importer.glade:356
 msgid "thumbnail"
 msgstr ""
 
@@ -3806,7 +3810,7 @@ msgstr ""
 msgid "update existing objects"
 msgstr "ververs bestaande objecten"
 
-#: bauble/plugins/garden/picture_importer.glade:293
+#: bauble/plugins/garden/picture_importer.glade:304
 #: bauble/plugins/plants/taxonomy_check.glade:304
 msgid "use"
 msgstr ""

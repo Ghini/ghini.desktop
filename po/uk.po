@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-06 11:35-0500\n"
+"POT-Creation-Date: 2018-01-06 15:37-0500\n"
 "PO-Revision-Date: 2017-11-26 10:22+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/ghini/"
@@ -113,7 +113,7 @@ msgstr "**Помилка: не може імпортувати gtk і/або gob
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Помилка: Ghini повинна бути запущена в віконному середовищі."
 
-#: bauble/plugins/garden/picture_importer.glade:165
+#: bauble/plugins/garden/picture_importer.glade:186
 msgid "..."
 msgstr ""
 
@@ -340,12 +340,16 @@ msgstr "<b>Тип:</b>"
 msgid "<b>Use author names</b>"
 msgstr "<b>Використовувати імена авторів</b>"
 
+#: bauble/plugins/garden/picture_importer.glade:404
+msgid "<b>commit or rollback</b>"
+msgstr ""
+
 #: bauble/plugins/garden/loc_editor.glade:348
 msgid "<b>danger zone</b>"
 msgstr "<b>небезпечна зона</b>"
 
-#: bauble/plugins/garden/picture_importer.glade:250
-msgid "<b>define import parameters</b>"
+#: bauble/plugins/garden/picture_importer.glade:373
+msgid "<b>data revision</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:956
@@ -356,8 +360,8 @@ msgstr "<b>у використанні</b>"
 msgid "<b>options</b>"
 msgstr "<b>опції</b>"
 
-#: bauble/plugins/garden/picture_importer.glade:362
-msgid "<b>review import details</b>"
+#: bauble/plugins/garden/picture_importer.glade:272
+msgid "<b>parameter definition</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:943
@@ -3527,7 +3531,7 @@ msgstr "_Інструменти"
 msgid "_parse_lat_lon() -- incorrect format: %s"
 msgstr "_parse_lat_lon() -- невірний формат: %s"
 
-#: bauble/plugins/garden/picture_importer.glade:323
+#: bauble/plugins/garden/picture_importer.glade:334
 msgid "acc.nr."
 msgstr ""
 
@@ -3560,7 +3564,7 @@ msgstr "повернутися до попереднього вікна"
 msgid "back to startup screen"
 msgstr "назад до екрану запуску"
 
-#: bauble/plugins/garden/picture_importer.glade:334
+#: bauble/plugins/garden/picture_importer.glade:345
 msgid "binomial"
 msgstr ""
 
@@ -3617,11 +3621,11 @@ msgstr "cv."
 msgid "database name"
 msgstr "ім'я бази даних"
 
-#: bauble/plugins/garden/picture_importer.glade:119
+#: bauble/plugins/garden/picture_importer.glade:140
 msgid "default location"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:315
+#: bauble/plugins/garden/picture_importer.glade:326
 msgid "edit"
 msgstr ""
 
@@ -3661,7 +3665,7 @@ msgstr "експорт %(table)s таблиці в %(filename)s"
 msgid "f."
 msgstr "f."
 
-#: bauble/plugins/garden/picture_importer.glade:304
+#: bauble/plugins/garden/picture_importer.glade:315
 msgid "file name"
 msgstr ""
 
@@ -3721,7 +3725,7 @@ msgstr "мм"
 msgid "model must have both latitude and longitude or neither"
 msgstr "модель повинна мати широту і довготу або нічого"
 
-#: bauble/plugins/garden/picture_importer.glade:133
+#: bauble/plugins/garden/picture_importer.glade:154
 msgid "name format"
 msgstr ""
 
@@ -3767,7 +3771,7 @@ msgstr "вивід:"
 msgid "picture file %s not found."
 msgstr "файл зображення %s не знайдено."
 
-#: bauble/plugins/garden/picture_importer.glade:222
+#: bauble/plugins/garden/picture_importer.glade:243
 msgid "picture location"
 msgstr ""
 
@@ -3805,7 +3809,7 @@ msgstr "запит"
 msgid "querying the plant list"
 msgstr "створити запит списку рослин"
 
-#: bauble/plugins/garden/picture_importer.glade:105
+#: bauble/plugins/garden/picture_importer.glade:126
 msgid "recurse"
 msgstr ""
 
@@ -3869,7 +3873,7 @@ msgstr "таксон"
 msgid "the history in this database"
 msgstr ""
 
-#: bauble/plugins/garden/picture_importer.glade:345
+#: bauble/plugins/garden/picture_importer.glade:356
 msgid "thumbnail"
 msgstr ""
 
@@ -3893,7 +3897,7 @@ msgstr "найвищий рівень підрахунку: %s"
 msgid "update existing objects"
 msgstr "оновити існуючі об'єкти"
 
-#: bauble/plugins/garden/picture_importer.glade:293
+#: bauble/plugins/garden/picture_importer.glade:304
 #: bauble/plugins/plants/taxonomy_check.glade:304
 msgid "use"
 msgstr "використання"
