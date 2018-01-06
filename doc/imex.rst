@@ -101,9 +101,10 @@ For example, ``2018.0020.1 (4) Epidendrum.jpg`` would be the
 name of the fourth picture for plant number 1 within accession
 2018.0020, identified to rank genus as an Epidendrum.
 
-The functionality described here can help you using an ordered
-collection of plant pictures either to initialize a ghini
-database, but also for periodically adding to it.
+The :menuselection:`Tools-->Import-->Pictures` functionality
+here described is meant for importing an ordered collection of
+plant pictures either to initialize a ghini database, or for
+periodically adding to it.
 
 Use :menuselection:`Tools-->Import-->Pictures` to activate this
 import tool.  The tool is made up of several steps: parameter
