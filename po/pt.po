@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-01-04 15:06-0500\n"
+"POT-Creation-Date: 2018-01-06 11:35-0500\n"
 "PO-Revision-Date: 2017-07-04 03:08+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
@@ -112,6 +112,10 @@ msgstr "** Erro: não foi possível importar gtk e/ou gobject"
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
 "**Erro: O Ghini deve ser executado em um ambiente gráfico (com janelas)."
+
+#: bauble/plugins/garden/picture_importer.glade:165
+msgid "..."
+msgstr ""
 
 #: bauble/plugins/report/mako/__init__.py:323
 msgid ":"
@@ -342,12 +346,20 @@ msgstr "<b>Usar nomes de autores</b>"
 msgid "<b>danger zone</b>"
 msgstr "<b>Mudar histórico</b>"
 
+#: bauble/plugins/garden/picture_importer.glade:250
+msgid "<b>define import parameters</b>"
+msgstr ""
+
 #: bauble/plugins/plants/infoboxes.glade:956
 msgid "<b>in use</b>"
 msgstr ""
 
 #: bauble/plugins/imex/select_export.glade:492
 msgid "<b>options</b>"
+msgstr ""
+
+#: bauble/plugins/garden/picture_importer.glade:362
+msgid "<b>review import details</b>"
 msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade:943
@@ -2330,7 +2342,7 @@ msgstr "Salvar as alterações."
 msgid "Scion"
 msgstr "Rebento"
 
-#: bauble/utils/web.py:52 bauble/utils/web.py:56
+#: bauble/utils/web.py:53 bauble/utils/web.py:57
 msgid "Search"
 msgstr "Pesquisar"
 
@@ -3483,6 +3495,10 @@ msgstr "Ferramentas"
 msgid "_parse_lat_lon() -- incorrect format: %s"
 msgstr "_parse_lat_lon() -- formato incorreto: %s"
 
+#: bauble/plugins/garden/picture_importer.glade:323
+msgid "acc.nr."
+msgstr ""
+
 #: bauble/plugins/garden/acc_editor.glade:2945
 msgid "accession code format"
 msgstr ""
@@ -3511,6 +3527,10 @@ msgstr ""
 
 #: bauble/bauble.glade:135
 msgid "back to startup screen"
+msgstr ""
+
+#: bauble/plugins/garden/picture_importer.glade:334
+msgid "binomial"
 msgstr ""
 
 #: bauble/plugins/plants/taxonomy_check.glade:184
@@ -3565,6 +3585,14 @@ msgstr "cv."
 msgid "database name"
 msgstr ""
 
+#: bauble/plugins/garden/picture_importer.glade:119
+msgid "default location"
+msgstr ""
+
+#: bauble/plugins/garden/picture_importer.glade:315
+msgid "edit"
+msgstr ""
+
 #: bauble/plugins/plants/infoboxes.glade:1751
 msgid "edit stored queries"
 msgstr ""
@@ -3600,6 +3628,10 @@ msgstr "exportando a tabela %(table)s para %(filename)s"
 #: bauble/plugins/plants/species_model.py:67
 msgid "f."
 msgstr "família"
+
+#: bauble/plugins/garden/picture_importer.glade:304
+msgid "file name"
+msgstr ""
 
 #: bauble/plugins/garden/plant_infobox.glade:6
 msgid "general_window"
@@ -3658,6 +3690,10 @@ msgstr "mm"
 msgid "model must have both latitude and longitude or neither"
 msgstr "o modelo deve ter latitude e longitude ou nenhum deles"
 
+#: bauble/plugins/garden/picture_importer.glade:133
+msgid "name format"
+msgstr ""
+
 #: bauble/plugins/plants/species_model.py:228
 #, fuzzy
 msgid "native"
@@ -3699,6 +3735,10 @@ msgstr ""
 msgid "picture file %s not found."
 msgstr ""
 
+#: bauble/plugins/garden/picture_importer.glade:222
+msgid "picture location"
+msgstr ""
+
 #: bauble/plugins/imex/select_export.glade:137
 #, fuzzy
 msgid "plants"
@@ -3732,6 +3772,10 @@ msgstr ""
 
 #: bauble/plugins/plants/species_editor.py:252
 msgid "querying the plant list"
+msgstr ""
+
+#: bauble/plugins/garden/picture_importer.glade:105
+msgid "recurse"
 msgstr ""
 
 #: bauble/plugins/garden/institution.glade:485
@@ -3795,6 +3839,10 @@ msgstr ""
 msgid "the history in this database"
 msgstr ""
 
+#: bauble/plugins/garden/picture_importer.glade:345
+msgid "thumbnail"
+msgstr ""
+
 #: bauble/plugins/garden/prop_editor.glade:1475
 msgid "to"
 msgstr "para"
@@ -3815,6 +3863,7 @@ msgstr ""
 msgid "update existing objects"
 msgstr ""
 
+#: bauble/plugins/garden/picture_importer.glade:293
 #: bauble/plugins/plants/taxonomy_check.glade:304
 msgid "use"
 msgstr ""
