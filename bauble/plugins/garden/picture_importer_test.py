@@ -42,6 +42,11 @@ class DecodePartsTest(TestCase):
                                    'plant': '1',
                                    'seq': '2',
                                    'species': 'Masdevallia'})
+        result = decode_parts("2007.0001 Annona muricata.jpg")
+        self.assertEquals(result, {'accession': '2007.0001',
+                                   'plant': '1',
+                                   'seq': '1',
+                                   'species': 'Annona muricata'})
 
     def test_decode_parts_none(self):
         result = decode_parts("20x18.0020.1 (4).jpg")
@@ -97,4 +102,21 @@ class DecodePartsTest(TestCase):
                                    'plant': '1',
                                    'seq': '1220810',
                                    'species': 'Vanda'})
+
+    def test_decode_parts_custom_accession_format(self):
+        result = decode_parts("2007.01.321 Annona muricata.jpg", '####.##.###')
+        self.assertEquals(result, {'accession': '2007.01.321',
+                                   'plant': '1',
+                                   'seq': '1',
+                                   'species': 'Annona muricata'})
+        result = decode_parts("2007.01.321.2 Annona sp.jpg", '####.##.###')
+        self.assertEquals(result, {'accession': '2007.01.321',
+                                   'plant': '2',
+                                   'seq': '1',
+                                   'species': 'Annona sp'})
+        result = decode_parts("2009.01.21.2 Opuntia ficus-indica.jpg", '####.##.##')
+        self.assertEquals(result, {'accession': '2009.01.21',
+                                   'plant': '2',
+                                   'seq': '1',
+                                   'species': 'Opuntia ficus-indica'})
 

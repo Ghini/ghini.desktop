@@ -20,30 +20,24 @@
 
 import re
 
-def decode_parts(name):
-    """return the dictionary of parts in name according to pattern.
+accno_re = re.compile(r'([12][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9])(?:\.([0-9]+))?')
+species_re = re.compile(r'([A-Z][a-z]+(?: [a-z-]*)?)')
+picname_re = re.compile(r'([A-Z]+[0-9]+)')
+number_re = re.compile(r'([0-9]+)')
 
-    pattern is a string, containing elements like {name}, while the rest of
-    the string is considered literally.  the name is matched against the
-    pattern.  if it matches, a dictionary is constructed and returned, if it
-    does not match, None is returned, if an invalid pattern is given, an
-    exception is raised.
+def decode_parts(name, acc_format=None):
+    """return the dictionary of parts in name
 
-    names of parts have to be selected from a hard coded set, where also the
-    defaults are hard coded.
+    name is matched against the basic concepts in a plant description, like
+    its accession or species.  all matching parts are used to construct a
+    dictionary, which is then returned.
 
-    accession, compulsory, no default possible,
-    plant, optional, defaults to 1,
-    seq, optional, defaults to 1,
-    species, optional, defaults to Zzz
-
-    matching is case-insensitive.  a leading original picture name (a
-    sequence of letters plus a sequence of numbers) can be used to define
-    the picture sequential number.
+    accession, defaults to None,
+    plant, defaults to 1,
+    seq, defaults to 1,
+    species, defaults to Zzz
 
     """
-
-    # remove the extension
 
     # look for anything looking like (and remove it), in turn: species name,
     # accession number with optional plant number, original picture name,
@@ -54,11 +48,17 @@ def decode_parts(name):
               'seq': '1',
               'species': 'Zzz'}
 
-    for key, exp in [('species', r'([A-Z][a-z]+(?: [a-z-]*)?)'),
-                     ('accession', r'([12][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9])(:?\.([0-9]+))?'),
-                     ('seq', r'([A-Z]+[0-9]+)'),
-                     ('seq', r'([0-9]+)')]:
-        match = re.search(exp, name)
+    if acc_format is None:
+        use_accno_re = accno_re
+    else:
+        exp_str = acc_format.replace('.', '\.').replace('#', "[0-9]")
+        exp_str = "(%s)(?:\.([0-9]+))?" % exp_str
+        use_accno_re = re.compile(exp_str)
+    for key, exp in [('species', species_re),
+                     ('accession', use_accno_re),
+                     ('seq', picname_re),
+                     ('seq', number_re)]:
+        match = exp.search(name)
         if match:
             value = match.group(1)
             if not value:
@@ -67,10 +67,9 @@ def decode_parts(name):
                 value = re.sub(r'([A-Z]+0*)', '', value)
             result[key] = value
             if key == 'accession' and match.group(2):
-                result['plant'] = match.groups()[2]
-            print name, ':::', 
+                print match.groups()
+                result['plant'] = match.groups()[1]
             name = name.replace(match.group(0), '')
-        print name
     if result['accession'] is None:
         return None
     return result
