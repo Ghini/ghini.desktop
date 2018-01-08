@@ -67,7 +67,6 @@ def decode_parts(name, acc_format=None):
                 value = re.sub(r'([A-Z]+0*)', '', value)
             result[key] = value
             if key == 'accession' and match.group(2):
-                print match.groups()
                 result['plant'] = match.groups()[1]
             name = name.replace(match.group(0), '')
     if result['accession'] is None:
