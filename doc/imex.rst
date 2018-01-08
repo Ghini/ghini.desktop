@@ -114,7 +114,7 @@ you can confirm the data and go to the next step by clicking on
 the ``next`` button, or you can go back to the previous step by
 clicking on the ``prev`` button.  Once the import is done and
 you're reviewing the log, you can only either confirm —or abort—
-the whole transaction
+the whole transaction.
 
 In the "parameter definition" pane you: select the directory
 from which you intend to import pictures; indicate whether to
