@@ -18,7 +18,11 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 
+import gtk
 import re
+from bauble import pluginmgr
+
+from bauble.editor import (GenericEditorView, GenericEditorPresenter)
 
 accno_re = re.compile(r'([12][0-9][0-9][0-9]\.[0-9][0-9][0-9][0-9])(?:\.([0-9]+))?')
 species_re = re.compile(r'([A-Z][a-z]+(?: [a-z-]*)?)')
@@ -72,3 +76,78 @@ def decode_parts(name, acc_format=None):
     if result['accession'] is None:
         return None
     return result
+
+
+class PictureImporterPresenter(GenericEditorPresenter):
+    widget_to_field_map = {
+        'accno_entry': 'accno_format',
+        'filepath_entry': 'filepath',
+        'recurse_checkbox': 'recurse'}
+
+    def __init__(self, *args, **kwargs):
+        super(PictureImporterPresenter, self).__init__(*args, **kwargs)
+        self.panes = [getattr(self.view.widgets, 'box_define'),
+                      getattr(self.view.widgets, 'box_review'),
+                      getattr(self.view.widgets, 'box_log'),]
+        self.show_visible_pane()
+
+    def show_visible_pane(self):
+        for n, i in enumerate(self.panes):
+            i.set_visible(n == self.model.visible_pane)
+        self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
+        self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
+    
+    def start(self, *args, **kwargs):
+        super(PictureImporterPresenter, self).start(*args, **kwargs)
+
+    def on_picture_importer_dialog_close(self, *args, **kwargs):
+        print 'close', args, kwargs
+
+    def on_picture_importer_dialog_response(self, *args, **kwargs):
+        print 'response', args, kwargs
+
+    def on_action_prev_activate(self, *args, **kwargs):
+        self.model.visible_pane -= 1
+        self.show_visible_pane()
+
+    def on_action_next_activate(self, *args, **kwargs):
+        self.model.visible_pane += 1
+        self.show_visible_pane()
+
+    def on_action_cancel_activate(self, *args, **kwargs):
+        self.view.get_window().emit('response', gtk.RESPONSE_DELETE_EVENT)
+
+    def on_action_ok_activate(self, *args, **kwargs):
+        self.view.get_window().emit('response', gtk.RESPONSE_OK)
+
+    def on_action_browse_activate(self, *args, **kwargs):
+        print 'next', args, kwargs
+
+
+
+class PictureImporterTool(pluginmgr.Tool):
+    category = _('Import')
+    label = _('Picture Collection')
+
+    @classmethod
+    def start(self):
+        import os.path
+        from bauble import paths
+        glade_path = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                  "picture_importer.glade")
+        view = GenericEditorView(
+            glade_path,
+            parent=None,
+            root_widget_name='picture_importer_dialog')
+        model = type('Model', (object,),
+                     {'visible_pane': 0,
+                      'filepath': '',
+                      'accno_format': '####.####',
+                      'recurse': False,
+                      'default_location': None,
+                      'rows': [],
+                      'log': []})
+        presenter = PictureImporterPresenter(model, view)
+        result = presenter.start()
+        return result is not None
+

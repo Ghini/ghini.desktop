@@ -2,6 +2,21 @@
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy project-wide -->
+  <object class="GtkAction" id="action_browse">
+    <signal name="activate" handler="on_action_browse_activate" swapped="no"/>
+  </object>
+  <object class="GtkAction" id="action_cancel">
+    <signal name="activate" handler="on_action_cancel_activate" swapped="no"/>
+  </object>
+  <object class="GtkAction" id="action_next">
+    <signal name="activate" handler="on_action_next_activate" swapped="no"/>
+  </object>
+  <object class="GtkAction" id="action_ok">
+    <signal name="activate" handler="on_action_ok_activate" swapped="no"/>
+  </object>
+  <object class="GtkAction" id="action_prev">
+    <signal name="activate" handler="on_action_prev_activate" swapped="no"/>
+  </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name use_me -->
@@ -23,37 +38,83 @@
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">dialog</property>
+    <signal name="response" handler="on_picture_importer_dialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area1">
+        <child>
+          <object class="GtkHBox" id="hbox3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
+            <property name="spacing">3</property>
             <child>
-              <object class="GtkButton" id="button_prev">
-                <property name="label">gtk-media-previous</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkButton" id="button_next">
-                <property name="label">gtk-media-next</property>
+              <object class="GtkTable" id="table2">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="can_focus">False</property>
+                <property name="n_columns">4</property>
+                <property name="column_spacing">4</property>
+                <property name="homogeneous">True</property>
+                <child>
+                  <object class="GtkButton" id="button_ok">
+                    <property name="label">gtk-ok</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="related_action">action_ok</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_stock">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">3</property>
+                    <property name="right_attach">4</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_cancel">
+                    <property name="label">gtk-cancel</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="related_action">action_cancel</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_stock">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">2</property>
+                    <property name="right_attach">3</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_next">
+                    <property name="label">gtk-media-next</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="related_action">action_next</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_stock">True</property>
+                  </object>
+                  <packing>
+                    <property name="left_attach">1</property>
+                    <property name="right_attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button_prev">
+                    <property name="label">gtk-media-previous</property>
+                    <property name="use_action_appearance">False</property>
+                    <property name="related_action">action_prev</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="use_stock">True</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -62,33 +123,30 @@
                 <property name="position">1</property>
               </packing>
             </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton" id="button5">
-                <property name="label">gtk-cancel</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">2</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkButton" id="button4">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">3</property>
-              </packing>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -166,7 +224,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <child>
-                              <object class="GtkEntry" id="entry1">
+                              <object class="GtkEntry" id="filepath_entry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="invisible_char">●</property>
@@ -183,8 +241,10 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkButton" id="button3">
+                              <object class="GtkButton" id="button_browse">
                                 <property name="label" translatable="yes">...</property>
+                                <property name="use_action_appearance">False</property>
+                                <property name="related_action">action_ok</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
@@ -203,7 +263,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkCheckButton" id="checkbutton1">
+                          <object class="GtkCheckButton" id="recurse_checkbutton">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
@@ -218,7 +278,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkEntry" id="entry3">
+                          <object class="GtkEntry" id="accno_entry">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="invisible_char">●</property>
@@ -249,7 +309,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkComboBox" id="combobox1">
+                          <object class="GtkComboBox" id="location_combobox">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="has_entry">True</property>
@@ -434,11 +494,5 @@
         </child>
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">button_prev</action-widget>
-      <action-widget response="0">button5</action-widget>
-      <action-widget response="0">button4</action-widget>
-      <action-widget response="0">button_next</action-widget>
-    </action-widgets>
   </object>
 </interface>
