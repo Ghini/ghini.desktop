@@ -82,10 +82,10 @@ class PictureImporterPresenter(GenericEditorPresenter):
     widget_to_field_map = {
         'accno_entry': 'accno_format',
         'filepath_entry': 'filepath',
-        'recurse_checkbox': 'recurse'}
+        'recurse_checkbutton': 'recurse'}
 
-    def __init__(self, *args, **kwargs):
-        super(PictureImporterPresenter, self).__init__(*args, **kwargs)
+    def __init__(self, model, view, refresh_view=True, **kwargs):
+        super(PictureImporterPresenter, self).__init__(model, view, refresh_view, **kwargs)
         self.panes = [getattr(self.view.widgets, 'box_define'),
                       getattr(self.view.widgets, 'box_review'),
                       getattr(self.view.widgets, 'box_log'),]
@@ -104,6 +104,10 @@ class PictureImporterPresenter(GenericEditorPresenter):
         print 'close', args, kwargs
 
     def on_picture_importer_dialog_response(self, *args, **kwargs):
+        for i in dir(self.model):
+            if i.startswith('_'):
+                continue
+            print i, ':', getattr(self.model, i)
         print 'response', args, kwargs
 
     def on_action_prev_activate(self, *args, **kwargs):
