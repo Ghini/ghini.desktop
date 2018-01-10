@@ -17,7 +17,8 @@
   <object class="GtkAction" id="action_prev">
     <signal name="activate" handler="on_action_prev_activate" swapped="no"/>
   </object>
-  <object class="GtkListStore" id="liststore1">
+  <object class="GtkTextBuffer" id="log_buffer"/>
+  <object class="GtkListStore" id="review_liststore">
     <columns>
       <!-- column-name use_me -->
       <column type="gboolean"/>
@@ -33,7 +34,6 @@
       <column type="gboolean"/>
     </columns>
   </object>
-  <object class="GtkTextBuffer" id="log_buffer"/>
   <object class="GtkDialog" id="picture_importer_dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -246,7 +246,7 @@
                               <object class="GtkButton" id="button_browse">
                                 <property name="label" translatable="yes">...</property>
                                 <property name="use_action_appearance">False</property>
-                                <property name="related_action">action_ok</property>
+                                <property name="related_action">action_browse</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
@@ -360,7 +360,7 @@
                       <object class="GtkTreeView" id="treeview1">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="model">liststore1</property>
+                        <property name="model">review_liststore</property>
                         <property name="headers_clickable">False</property>
                         <property name="search_column">0</property>
                         <child>
