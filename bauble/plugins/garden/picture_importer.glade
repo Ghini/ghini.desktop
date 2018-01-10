@@ -38,7 +38,6 @@
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">dialog</property>
-    <signal name="delete-event" handler="on_picture_importer_dialog_delete_event" swapped="no"/>
     <signal name="response" handler="on_picture_importer_dialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
@@ -357,7 +356,7 @@
                     <property name="hscrollbar_policy">automatic</property>
                     <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <object class="GtkTreeView" id="treeview1">
+                      <object class="GtkTreeView" id="review_treeview">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="model">review_liststore</property>
@@ -367,7 +366,9 @@
                           <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                             <property name="title" translatable="yes">use</property>
                             <child>
-                              <object class="GtkCellRendererToggle" id="use_crtoggle"/>
+                              <object class="GtkCellRendererToggle" id="use_crtoggle">
+                                <signal name="toggled" handler="on_use_crtoggle_toggled" swapped="no"/>
+                              </object>
                               <attributes>
                                 <attribute name="active">0</attribute>
                               </attributes>
@@ -389,7 +390,12 @@
                           <object class="GtkTreeViewColumn" id="treeviewcolumn6">
                             <property name="title" translatable="yes">edit</property>
                             <child>
-                              <object class="GtkCellRendererToggle" id="edit_crtoggle"/>
+                              <object class="GtkCellRendererToggle" id="edit_crtoggle">
+                                <signal name="toggled" handler="on_edit_crtoggle_toggled" swapped="no"/>
+                              </object>
+                              <attributes>
+                                <attribute name="active">5</attribute>
+                              </attributes>
                             </child>
                           </object>
                         </child>

@@ -91,10 +91,18 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.panes = [getattr(self.view.widgets, 'box_define'),
                       getattr(self.view.widgets, 'box_review'),
                       getattr(self.view.widgets, 'box_log'),]
+        self.rows = self.view.widgets.review_liststore
         self.show_visible_pane()
 
     def start(self, *args, **kwargs):
         super(PictureImporterPresenter, self).start(*args, **kwargs)
+
+    def on_use_crtoggle_toggled(self, column_widget, path):
+        self.rows[path][0] = not self.rows[path][0]
+
+    def on_edit_crtoggle_toggled(self, column_widget, path):
+        self.rows[path][5] = not self.rows[path][5]
+        # and make the accession field editable
 
     def show_visible_pane(self):
         for n, i in enumerate(self.panes):
@@ -103,15 +111,8 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
         self.view.widgets.button_ok.set_sensitive(self.model.visible_pane == len(self.panes) - 1)
 
-    def on_picture_importer_dialog_close(self, *args, **kwargs):
-        print 'close', args, kwargs
-
-    def on_picture_importer_dialog_response(self, *args, **kwargs):
-        for i in dir(self.model):
-            if i.startswith('_'):
-                continue
-            print i, ':', getattr(self.model, i)
-        print 'response', args, kwargs
+    def on_picture_importer_dialog_response(self, widget, response, **kwargs):
+        print 'response', response
 
     def on_action_prev_activate(self, *args, **kwargs):
         self.model.visible_pane -= 1
@@ -122,15 +123,14 @@ class PictureImporterPresenter(GenericEditorPresenter):
             d = decode_parts(os.path.join(dirname, name), self.model.accno_format)
             if d is None:
                 continue
-            row = [False, name, d['accession'], d['species'], None, False]
+            row = [True, name, d['accession'], d['species'], None, False]
             self.model.rows.append(row)
-            self.view.widgets.review_liststore.append(row)
+            self.rows.append(row)
 
     def on_action_next_activate(self, *args, **kwargs):
         self.model.visible_pane += 1
         if self.model.visible_pane == 1:  # check what we can import
-            self.view.widgets.review_liststore.clear()
-            self.rows = []
+            self.rows.clear()
             os.path.walk(self.model.filepath, self.add_rows, None)
         elif self.model.visible_pane == 2:  # import what the user says
             pass
