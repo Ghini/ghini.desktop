@@ -20,6 +20,7 @@
 
 import gtk
 import re
+import os.path
 from bauble import pluginmgr
 
 from bauble.editor import (GenericEditorView, GenericEditorPresenter)
@@ -84,21 +85,23 @@ class PictureImporterPresenter(GenericEditorPresenter):
         'filepath_entry': 'filepath',
         'recurse_checkbutton': 'recurse'}
 
-    def __init__(self, model, view, refresh_view=True, **kwargs):
-        super(PictureImporterPresenter, self).__init__(model, view, refresh_view, **kwargs)
+    def __init__(self, model, view, **kwargs):
+        kwargs['refresh_view'] = True
+        super(PictureImporterPresenter, self).__init__(model, view, **kwargs)
         self.panes = [getattr(self.view.widgets, 'box_define'),
                       getattr(self.view.widgets, 'box_review'),
                       getattr(self.view.widgets, 'box_log'),]
         self.show_visible_pane()
+
+    def start(self, *args, **kwargs):
+        super(PictureImporterPresenter, self).start(*args, **kwargs)
 
     def show_visible_pane(self):
         for n, i in enumerate(self.panes):
             i.set_visible(n == self.model.visible_pane)
         self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
         self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
-    
-    def start(self, *args, **kwargs):
-        super(PictureImporterPresenter, self).start(*args, **kwargs)
+        self.view.widgets.button_ok.set_sensitive(self.model.visible_pane == len(self.panes) - 1)
 
     def on_picture_importer_dialog_close(self, *args, **kwargs):
         print 'close', args, kwargs
@@ -114,8 +117,23 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.model.visible_pane -= 1
         self.show_visible_pane()
 
+    def add_rows(self, arg, dirname, fnames):
+        for name in fnames:
+            d = decode_parts(os.path.join(dirname, name), self.model.accno_format)
+            if d is None:
+                continue
+            row = [False, name, d['accession'], d['species'], None, False]
+            self.model.rows.append(row)
+            self.view.widgets.review_liststore.append(row)
+
     def on_action_next_activate(self, *args, **kwargs):
         self.model.visible_pane += 1
+        if self.model.visible_pane == 1:  # check what we can import
+            self.view.widgets.review_liststore.clear()
+            self.rows = []
+            os.path.walk(self.model.filepath, self.add_rows, None)
+        elif self.model.visible_pane == 2:  # import what the user says
+            pass
         self.show_visible_pane()
 
     def on_action_cancel_activate(self, *args, **kwargs):
@@ -125,33 +143,40 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.get_window().emit('response', gtk.RESPONSE_OK)
 
     def on_action_browse_activate(self, *args, **kwargs):
-        print 'next', args, kwargs
-
+        text = _('Select pictures source directory')
+        parent = None
+        action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER
+        buttons = (_('Cancel'), gtk.RESPONSE_CANCEL, _('Ok'), gtk.RESPONSE_ACCEPT, )
+        last_folder = self.model.filepath
+        target = 'filepath_entry'
+        self.view.run_file_chooser_dialog(text, parent, action, buttons, last_folder, target)
 
 
 class PictureImporterTool(pluginmgr.Tool):
     category = _('Import')
     label = _('Picture Collection')
+    model = type('Model', (object,),
+                 {'visible_pane': 0,
+                  'filepath': '',
+                  'accno_format': '####.####',
+                  'recurse': False,
+                  'default_location': None,
+                  'rows': [],
+                  'log': []})
+    import os.path
+    from bauble import paths
+    glade_path = os.path.join(paths.lib_dir(), "plugins", "garden",
+                              "picture_importer.glade")
 
     @classmethod
-    def start(self):
-        import os.path
-        from bauble import paths
-        glade_path = os.path.join(paths.lib_dir(), "plugins", "garden",
-                                  "picture_importer.glade")
+    def start(cls):
+        cls.model.rows = []
+        cls.model.log = []
+        cls.model.visible_pane = 0
         view = GenericEditorView(
-            glade_path,
+            cls.glade_path,
             parent=None,
             root_widget_name='picture_importer_dialog')
-        model = type('Model', (object,),
-                     {'visible_pane': 0,
-                      'filepath': '',
-                      'accno_format': '####.####',
-                      'recurse': False,
-                      'default_location': None,
-                      'rows': [],
-                      'log': []})
-        presenter = PictureImporterPresenter(model, view)
+        presenter = PictureImporterPresenter(cls.model, view)
         result = presenter.start()
         return result is not None
-
