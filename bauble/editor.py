@@ -257,6 +257,15 @@ class GenericEditorView(object):
 
     def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
+        """create and run FileChooserDialog, then write result in target
+
+        this is just a bit more than a wrapper. it adds 'last_folder', a
+        string indicationg the location where to put the FileChooserDialog,
+        and 'target', an Entry widget or its name.
+
+        make sure you have a gtk.RESPONSE_ACCEPT button.
+
+        """
         chooser = gtk.FileChooserDialog(text, parent, action, buttons)
         #chooser.set_do_overwrite_confirmation(True)
         #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
