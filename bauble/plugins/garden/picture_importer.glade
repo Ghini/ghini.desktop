@@ -24,14 +24,18 @@
       <column type="gboolean"/>
       <!-- column-name filename -->
       <column type="gchararray"/>
-      <!-- column-name acc_nr -->
+      <!-- column-name accno -->
       <column type="gchararray"/>
       <!-- column-name binomial -->
       <column type="gchararray"/>
       <!-- column-name thumbnail -->
       <column type="GdkPixbuf"/>
-      <!-- column-name editable_acc_nr -->
+      <!-- column-name editable_accno -->
       <column type="gboolean"/>
+      <!-- column-name orig_accno -->
+      <column type="gchararray"/>
+      <!-- column-name edited_accno -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkDialog" id="picture_importer_dialog">
@@ -166,7 +170,7 @@
                 <property name="label_xalign">0</property>
                 <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkAlignment" id="alignment1">
+                  <object class="GtkAlignment" id="alignment_define">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
@@ -329,7 +333,7 @@
                   </object>
                 </child>
                 <child type="label">
-                  <object class="GtkLabel" id="label1">
+                  <object class="GtkLabel" id="label_define">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">&lt;b&gt;parameter definition&lt;/b&gt;</property>
@@ -350,7 +354,7 @@
                 <property name="label_xalign">0</property>
                 <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                  <object class="GtkScrolledWindow" id="scrolledwindow_review">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">automatic</property>
@@ -363,7 +367,7 @@
                         <property name="headers_clickable">False</property>
                         <property name="search_column">0</property>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                          <object class="GtkTreeViewColumn" id="use_tvc">
                             <property name="title" translatable="yes">use</property>
                             <child>
                               <object class="GtkCellRendererToggle" id="use_crtoggle">
@@ -376,7 +380,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                          <object class="GtkTreeViewColumn" id="filename_tvc">
                             <property name="title" translatable="yes">file name</property>
                             <child>
                               <object class="GtkCellRendererText" id="filename_crtext"/>
@@ -387,7 +391,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn6">
+                          <object class="GtkTreeViewColumn" id="iseditable_tvc">
                             <property name="title" translatable="yes">edit</property>
                             <child>
                               <object class="GtkCellRendererToggle" id="edit_crtoggle">
@@ -400,18 +404,21 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                          <object class="GtkTreeViewColumn" id="accno_tvc">
                             <property name="title" translatable="yes">acc.nr.</property>
                             <child>
-                              <object class="GtkCellRendererText" id="acc_nr_crtext"/>
+                              <object class="GtkCellRendererText" id="accno_crtext">
+                                <signal name="edited" handler="on_cellrenderertext_edited" swapped="no"/>
+                              </object>
                               <attributes>
+                                <attribute name="editable">5</attribute>
                                 <attribute name="text">2</attribute>
                               </attributes>
                             </child>
                           </object>
                         </child>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                          <object class="GtkTreeViewColumn" id="binomial_tvc">
                             <property name="title" translatable="yes">binomial</property>
                             <child>
                               <object class="GtkCellRendererText" id="binomial_crtext"/>
@@ -422,7 +429,7 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                          <object class="GtkTreeViewColumn" id="thumbnail_tvc">
                             <property name="title" translatable="yes">thumbnail</property>
                             <child>
                               <object class="GtkCellRendererPixbuf" id="thumbnail_crpixbuf"/>
@@ -437,7 +444,7 @@
                   </object>
                 </child>
                 <child type="label">
-                  <object class="GtkLabel" id="label6">
+                  <object class="GtkLabel" id="label_review">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">&lt;b&gt;data revision&lt;/b&gt;</property>
@@ -458,7 +465,7 @@
                 <property name="label_xalign">0</property>
                 <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkAlignment" id="alignment2">
+                  <object class="GtkAlignment" id="alignment_log">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
@@ -480,7 +487,7 @@
                   </object>
                 </child>
                 <child type="label">
-                  <object class="GtkLabel" id="label7">
+                  <object class="GtkLabel" id="label_log">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">&lt;b&gt;commit or rollback&lt;/b&gt;</property>

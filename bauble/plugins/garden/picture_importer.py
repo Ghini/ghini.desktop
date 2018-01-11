@@ -100,12 +100,18 @@ class PictureImporterPresenter(GenericEditorPresenter):
     def start(self, *args, **kwargs):
         super(PictureImporterPresenter, self).start(*args, **kwargs)
 
+    def on_cellrenderertext_edited(self, column_widget, path, new_text, *args, **kwargs):
+        self.rows[path][2] = self.rows[path][7] = new_text
+
     def on_use_crtoggle_toggled(self, column_widget, path):
         self.rows[path][0] = not self.rows[path][0]
 
     def on_edit_crtoggle_toggled(self, column_widget, path):
         self.rows[path][5] = not self.rows[path][5]
-        # and make the accession field editable
+        if not self.rows[path][5]:  # restore original
+            self.rows[path][2] = self.rows[path][6]
+        else:  # restore last edit
+            self.rows[path][2] = self.rows[path][7]
 
     def show_visible_pane(self):
         for n, i in enumerate(self.panes):
@@ -116,9 +122,6 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
     def on_picture_importer_dialog_response(self, widget, response, **kwargs):
         print 'response', response
-        print self.rows
-        for i in self.rows:
-            print [k for k in i]
 
     def on_action_prev_activate(self, *args, **kwargs):
         self.model.visible_pane -= 1
@@ -126,10 +129,18 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
     def add_rows(self, arg, dirname, fnames):
         for name in fnames:
-            d = decode_parts(os.path.join(dirname, name), self.model.accno_format)
+            d = decode_parts(name, self.model.accno_format)
             if d is None:
                 continue
-            row = [True, name, d['accession'], d['species'], None, False]
+            pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(dirname, name))
+            pixbuf = pixbuf.apply_embedded_orientation()
+            scale_x = pixbuf.get_width() / 200
+            scale_y = pixbuf.get_height() / 200
+            scale = max(scale_x, scale_y, 1)
+            x = int(pixbuf.get_width() / scale)
+            y = int(pixbuf.get_height() / scale)
+            scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+            row = [True, name, d['accession'], d['species'], scaled_buf, False, d['accession'], d['accession']]
             self.model.rows.append(row)
             self.rows.append(row)
 
