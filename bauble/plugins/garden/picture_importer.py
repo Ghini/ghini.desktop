@@ -48,6 +48,9 @@ def decode_parts(name, acc_format=None):
     # accession number with optional plant number, original picture name,
     # some other number overruling the original picture name.
 
+    #only scan name part, ignore location
+    path, name = os.path.split(name)
+
     result = {'accession': None,
               'plant': '1',
               'seq': '1',
@@ -59,8 +62,8 @@ def decode_parts(name, acc_format=None):
         exp_str = acc_format.replace('.', '\.').replace('#', "[0-9]")
         exp_str = "(%s)(?:\.([0-9]+))?" % exp_str
         use_accno_re = re.compile(exp_str)
-    for key, exp in [('species', species_re),
-                     ('accession', use_accno_re),
+    for key, exp in [('accession', use_accno_re),
+                     ('species', species_re),
                      ('seq', picname_re),
                      ('seq', number_re)]:
         match = exp.search(name)
@@ -113,6 +116,9 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
     def on_picture_importer_dialog_response(self, widget, response, **kwargs):
         print 'response', response
+        print self.rows
+        for i in self.rows:
+            print [k for k in i]
 
     def on_action_prev_activate(self, *args, **kwargs):
         self.model.visible_pane -= 1

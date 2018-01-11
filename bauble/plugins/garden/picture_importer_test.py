@@ -120,3 +120,15 @@ class DecodePartsTest(TestCase):
                                    'seq': '1',
                                    'species': 'Opuntia ficus-indica'})
 
+
+    def test_decode_parts_only_scan_name(self):
+        result = decode_parts("Location/2018.0020.1 (4) Epidendrum.jpg")
+        self.assertEquals(result, {'accession': '2018.0020',
+                                   'plant': '1',
+                                   'seq': '4',
+                                   'species': 'Epidendrum'})
+        result = decode_parts("Pictures/Masdevallia-2018.0020-2.jpg")
+        self.assertEquals(result, {'accession': '2018.0020',
+                                   'plant': '1',
+                                   'seq': '2',
+                                   'species': 'Masdevallia'})
