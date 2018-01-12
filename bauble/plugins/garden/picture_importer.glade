@@ -36,6 +36,8 @@
       <column type="gchararray"/>
       <!-- column-name edited_accno -->
       <column type="gchararray"/>
+      <!-- column-name full_filename -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkDialog" id="picture_importer_dialog">

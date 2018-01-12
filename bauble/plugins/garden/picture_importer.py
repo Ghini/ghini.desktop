@@ -18,7 +18,12 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 
+import logging
+logger = logging.getLogger(__name__)
+
 import gtk
+import threading
+import glib
 import re
 import os.path
 from bauble import pluginmgr
@@ -127,20 +132,33 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.model.visible_pane -= 1
         self.show_visible_pane()
 
+    def load_pixbufs(self):
+        # to be run in different thread - or you're blocking the gui
+        for fname, path in self.pixbufs_to_load:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(fname)
+            try:
+                pixbuf = pixbuf.apply_embedded_orientation()
+                scale_x = pixbuf.get_width() / 144
+                scale_y = pixbuf.get_height() / 144
+                scale = max(scale_x, scale_y, 1)
+                x = int(pixbuf.get_width() / scale)
+                y = int(pixbuf.get_height() / scale)
+                self.rows[path][4] = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+            except glib.GError, e:
+                logger.debug("picture %s caused glib.GError %s" %
+                             (fname, e))
+            except Exception, e:
+                logger.warning("picture %s caused Exception %s:%s" %
+                               (fname, type(e), e))
+
     def add_rows(self, arg, dirname, fnames):
         for name in fnames:
             d = decode_parts(name, self.model.accno_format)
             if d is None:
                 continue
-            pixbuf = gtk.gdk.pixbuf_new_from_file(os.path.join(dirname, name))
-            pixbuf = pixbuf.apply_embedded_orientation()
-            scale_x = pixbuf.get_width() / 200
-            scale_y = pixbuf.get_height() / 200
-            scale = max(scale_x, scale_y, 1)
-            x = int(pixbuf.get_width() / scale)
-            y = int(pixbuf.get_height() / scale)
-            scaled_buf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
-            row = [True, name, d['accession'], d['species'], scaled_buf, False, d['accession'], d['accession']]
+            #  0:use_me, 1:filename, 2:accno, 3:binomial, 4:thumbnail, 5:editable_accno, 6:orig_accno, 7:edited_accno, 8:full_filename
+            row = [True, name, d['accession'], d['species'], None, False, d['accession'], d['accession'], os.path.join(dirname, name)]
+            self.pixbufs_to_load.append((os.path.join(dirname, name), (len(self.rows), )))
             self.model.rows.append(row)
             self.rows.append(row)
 
@@ -148,9 +166,11 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.model.visible_pane += 1
         if self.model.visible_pane == 1:  # check what we can import
             self.rows.clear()
+            self.pixbufs_to_load = []
             os.path.walk(self.model.filepath, self.add_rows, None)
         elif self.model.visible_pane == 2:  # import what the user says
             pass
+        threading.Thread(target=self.load_pixbufs).start()
         self.show_visible_pane()
 
     def on_action_cancel_activate(self, *args, **kwargs):
