@@ -172,7 +172,6 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
     def on_picture_importer_dialog_response(self, widget, response, **kwargs):
         self.running = None
-        print 'response', response
 
     def on_action_prev_activate(self, *args, **kwargs):
         self.model.visible_pane -= 1
@@ -232,4 +231,8 @@ class PictureImporterTool(pluginmgr.Tool):
             root_widget_name='picture_importer_dialog')
         presenter = PictureImporterPresenter(cls.model, view)
         result = presenter.start()
-        return result is not None
+        if result == gtk.RESPONSE_OK:
+            presenter.session.commit()
+        else:
+            presenter.session.rollback()
+        return True
