@@ -198,6 +198,44 @@ class PictureImporterPresenter(GenericEditorPresenter):
     def do_import(self):  # step 2
         handler = TextBufferHandler(self.view.widgets.log_buffer)
         logger.addHandler(handler)
+        from bauble.plugins.plants import (Genus, Species)
+        from bauble.plugins.garden import (Location, Accession, Plant)
+        # make sure selected location exists
+        location = Location.retrieve_or_create(
+            self.session,
+            {'code': u'u', 'name': unicode(self.model.default_location)})
+        # iterate over liststore content
+        for row in self.review_rows:
+            if not row[self.use_me_col]:
+                continue
+            #   create or retrieve genus and species
+            epgn, epsp = unicode(row[self.binomial_col] + ' sp').split(' ')[:2]
+            genus = self.session.query(Genus).filter_by(epithet=epgn).one()
+            try:
+                species = self.session.query(Species).filter_by(genus=genus, epithet=epsp).one()
+            except:
+                species = Species(genus=genus, epithet=epsp)
+                self.session.add(species)
+                logger.info('created species %s %s' % (epgn, epsp))
+            #   create or retrieve accession (needs species)
+            code_accession, code_plant = unicode(row[self.accno_col] + '.1').split('.')[:2]
+            try:
+                accession = self.session.query(Accession).filter_by(species=species, code=code_accession).one()
+            except:
+                accession = Accession(species=species, code=code_accession, quantity_recvd=1)
+                self.session.add(accession)
+                logger.info('created accession %s for species %s %s' % (code_accession, epgn, epsp))
+            #   create or retrieve plant (needs: accession, location)
+            try:
+                plant = self.session.query(Plant).filter_by(accession=accession, code='1').one()
+            except:
+                plant = Plant(accession=accession, quantity=1, location=location, code=code_plant)
+                self.session.add(plant)
+                logger.info('created plant %s.%s' % (code_accession, code_plant))
+            #   copy picture file - possibly renaming it
+            #   add picture note
+            pass
+        logger.removeHandler(handler)
 
     def on_action_next_activate(self, *args, **kwargs):
         self.model.visible_pane += 1
