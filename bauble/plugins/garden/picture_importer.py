@@ -109,6 +109,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.accno_tvc.set_sort_column_id(2)
         self.view.widgets.binomial_tvc.set_sort_column_id(3)
         self.view.widgets.iseditable_tvc.set_sort_column_id(5)
+        self.running = None
 
     def show_visible_pane(self):
         for n, i in enumerate(self.panes):
@@ -116,10 +117,14 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
         self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
         self.view.widgets.button_ok.set_sensitive(self.model.visible_pane == len(self.panes) - 1)
+        if self.model.visible_pane != 1:
+            self.running = None
 
     def load_pixbufs(self):
         # to be run in different thread - or you're blocking the gui
         for fname, path in self.pixbufs_to_load:
+            if self.running is None:
+                return
             pixbuf = gtk.gdk.pixbuf_new_from_file(fname)
             try:
                 pixbuf = pixbuf.apply_embedded_orientation()
@@ -166,6 +171,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
             self.review_rows[path][3] = self.review_rows[path][10]
 
     def on_picture_importer_dialog_response(self, widget, response, **kwargs):
+        self.running = None
         print 'response', response
 
     def on_action_prev_activate(self, *args, **kwargs):
@@ -180,6 +186,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
             os.path.walk(self.model.filepath, self.add_rows, None)
         elif self.model.visible_pane == 2:  # import what the user says
             pass
+        self.running = True
         threading.Thread(target=self.load_pixbufs).start()
         self.show_visible_pane()
 
