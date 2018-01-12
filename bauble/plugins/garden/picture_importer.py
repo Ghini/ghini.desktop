@@ -149,7 +149,6 @@ class PictureImporterPresenter(GenericEditorPresenter):
             row = [True, name, d['accession'], d['species'], None, False, d['accession'], d['accession'],
                    os.path.join(dirname, name), d['species'], d['species']]
             self.pixbufs_to_load.append((os.path.join(dirname, name), (len(self.review_rows), )))
-            self.model.rows.append(row)
             self.review_rows.append(row)
 
     def on_cellrenderertext_edited(self, widget, path, new_text, *args, **kwargs):
@@ -222,8 +221,6 @@ class PictureImporterTool(pluginmgr.Tool):
 
     @classmethod
     def start(cls):
-        cls.model.rows = []
-        cls.model.log = []
         cls.model.visible_pane = 0
         view = GenericEditorView(
             cls.glade_path,
