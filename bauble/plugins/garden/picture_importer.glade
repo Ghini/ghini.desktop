@@ -38,6 +38,10 @@
       <column type="gchararray"/>
       <!-- column-name full_filename -->
       <column type="gchararray"/>
+      <!-- column-name orig_binomial -->
+      <column type="gchararray"/>
+      <!-- column-name edited_binomial -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkDialog" id="picture_importer_dialog">
@@ -408,6 +412,7 @@
                         <child>
                           <object class="GtkTreeViewColumn" id="accno_tvc">
                             <property name="title" translatable="yes">acc.nr.</property>
+                            <property name="clickable">True</property>
                             <child>
                               <object class="GtkCellRendererText" id="accno_crtext">
                                 <signal name="edited" handler="on_cellrenderertext_edited" swapped="no"/>
@@ -423,8 +428,11 @@
                           <object class="GtkTreeViewColumn" id="binomial_tvc">
                             <property name="title" translatable="yes">binomial</property>
                             <child>
-                              <object class="GtkCellRendererText" id="binomial_crtext"/>
+                              <object class="GtkCellRendererText" id="binomial_crtext">
+                                <signal name="edited" handler="on_cellrenderertext_edited" swapped="no"/>
+                              </object>
                               <attributes>
+                                <attribute name="editable">5</attribute>
                                 <attribute name="text">3</attribute>
                               </attributes>
                             </child>

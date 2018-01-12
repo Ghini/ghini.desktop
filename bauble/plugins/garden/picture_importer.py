@@ -99,24 +99,9 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.panes = [getattr(self.view.widgets, 'box_define'),
                       getattr(self.view.widgets, 'box_review'),
                       getattr(self.view.widgets, 'box_log'),]
-        self.rows = self.view.widgets.review_liststore
+        self.review_rows = self.view.widgets.review_liststore
         self.show_visible_pane()
-
-    def start(self, *args, **kwargs):
-        super(PictureImporterPresenter, self).start(*args, **kwargs)
-
-    def on_cellrenderertext_edited(self, column_widget, path, new_text, *args, **kwargs):
-        self.rows[path][2] = self.rows[path][7] = new_text
-
-    def on_use_crtoggle_toggled(self, column_widget, path):
-        self.rows[path][0] = not self.rows[path][0]
-
-    def on_edit_crtoggle_toggled(self, column_widget, path):
-        self.rows[path][5] = not self.rows[path][5]
-        if not self.rows[path][5]:  # restore original
-            self.rows[path][2] = self.rows[path][6]
-        else:  # restore last edit
-            self.rows[path][2] = self.rows[path][7]
+        self.view.widgets.accno_tvc.set_sort_column_id(2)
 
     def show_visible_pane(self):
         for n, i in enumerate(self.panes):
@@ -124,13 +109,6 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
         self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
         self.view.widgets.button_ok.set_sensitive(self.model.visible_pane == len(self.panes) - 1)
-
-    def on_picture_importer_dialog_response(self, widget, response, **kwargs):
-        print 'response', response
-
-    def on_action_prev_activate(self, *args, **kwargs):
-        self.model.visible_pane -= 1
-        self.show_visible_pane()
 
     def load_pixbufs(self):
         # to be run in different thread - or you're blocking the gui
@@ -143,7 +121,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 scale = max(scale_x, scale_y, 1)
                 x = int(pixbuf.get_width() / scale)
                 y = int(pixbuf.get_height() / scale)
-                self.rows[path][4] = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+                self.review_rows[path][4] = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
             except glib.GError, e:
                 logger.debug("picture %s caused glib.GError %s" %
                              (fname, e))
@@ -156,16 +134,41 @@ class PictureImporterPresenter(GenericEditorPresenter):
             d = decode_parts(name, self.model.accno_format)
             if d is None:
                 continue
-            #  0:use_me, 1:filename, 2:accno, 3:binomial, 4:thumbnail, 5:editable_accno, 6:orig_accno, 7:edited_accno, 8:full_filename
-            row = [True, name, d['accession'], d['species'], None, False, d['accession'], d['accession'], os.path.join(dirname, name)]
-            self.pixbufs_to_load.append((os.path.join(dirname, name), (len(self.rows), )))
+            #  0:use_me, 1:filename, 2:accno, 3:binomial, 4:thumbnail, 5:editable_accno, 6:orig_accno, 7:edited_accno, 8:full_filename, 9:orig_binomial, 10:edited_binomial
+            row = [True, name, d['accession'], d['species'], None, False, d['accession'], d['accession'], os.path.join(dirname, name), d['species'], d['species']]
+            self.pixbufs_to_load.append((os.path.join(dirname, name), (len(self.review_rows), )))
             self.model.rows.append(row)
-            self.rows.append(row)
+            self.review_rows.append(row)
+
+    def on_cellrenderertext_edited(self, widget, path, new_text, *args, **kwargs):
+        if widget == self.view.widgets.accno_crtext:
+            self.review_rows[path][2] = self.review_rows[path][7] = new_text
+        elif widget == self.view.widgets.binomial_crtext:
+            self.review_rows[path][3] = self.review_rows[path][10] = new_text
+
+    def on_use_crtoggle_toggled(self, column_widget, path):
+        self.review_rows[path][0] = not self.review_rows[path][0]
+
+    def on_edit_crtoggle_toggled(self, column_widget, path):
+        self.review_rows[path][5] = not self.review_rows[path][5]
+        if not self.review_rows[path][5]:  # restore original
+            self.review_rows[path][2] = self.review_rows[path][6]
+            self.review_rows[path][3] = self.review_rows[path][9]
+        else:  # restore last edit
+            self.review_rows[path][2] = self.review_rows[path][7]
+            self.review_rows[path][3] = self.review_rows[path][10]
+
+    def on_picture_importer_dialog_response(self, widget, response, **kwargs):
+        print 'response', response
+
+    def on_action_prev_activate(self, *args, **kwargs):
+        self.model.visible_pane -= 1
+        self.show_visible_pane()
 
     def on_action_next_activate(self, *args, **kwargs):
         self.model.visible_pane += 1
         if self.model.visible_pane == 1:  # check what we can import
-            self.rows.clear()
+            self.review_rows.clear()
             self.pixbufs_to_load = []
             os.path.walk(self.model.filepath, self.add_rows, None)
         elif self.model.visible_pane == 2:  # import what the user says
@@ -187,7 +190,6 @@ class PictureImporterPresenter(GenericEditorPresenter):
         last_folder = self.model.filepath
         target = 'filepath_entry'
         self.view.run_file_chooser_dialog(text, parent, action, buttons, last_folder, target)
-
 
 class PictureImporterTool(pluginmgr.Tool):
     category = _('Import')
