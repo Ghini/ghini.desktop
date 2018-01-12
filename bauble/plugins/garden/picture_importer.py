@@ -93,6 +93,9 @@ class PictureImporterPresenter(GenericEditorPresenter):
         'filepath_entry': 'filepath',
         'recurse_checkbutton': 'recurse'}
 
+    #  0:use_me, 1:filename, 2:accno, 3:binomial, 4:thumbnail, 5:iseditable,
+    #  6:orig_accno, 7:edited_accno, 8:full_filename, 9:orig_binomial,
+    #  10:edited_binomial
     def __init__(self, model, view, **kwargs):
         kwargs['refresh_view'] = True
         super(PictureImporterPresenter, self).__init__(model, view, **kwargs)
@@ -101,7 +104,11 @@ class PictureImporterPresenter(GenericEditorPresenter):
                       getattr(self.view.widgets, 'box_log'),]
         self.review_rows = self.view.widgets.review_liststore
         self.show_visible_pane()
+        self.view.widgets.use_tvc.set_sort_column_id(0)
+        self.view.widgets.filename_tvc.set_sort_column_id(1)
         self.view.widgets.accno_tvc.set_sort_column_id(2)
+        self.view.widgets.binomial_tvc.set_sort_column_id(3)
+        self.view.widgets.iseditable_tvc.set_sort_column_id(5)
 
     def show_visible_pane(self):
         for n, i in enumerate(self.panes):
@@ -134,8 +141,8 @@ class PictureImporterPresenter(GenericEditorPresenter):
             d = decode_parts(name, self.model.accno_format)
             if d is None:
                 continue
-            #  0:use_me, 1:filename, 2:accno, 3:binomial, 4:thumbnail, 5:editable_accno, 6:orig_accno, 7:edited_accno, 8:full_filename, 9:orig_binomial, 10:edited_binomial
-            row = [True, name, d['accession'], d['species'], None, False, d['accession'], d['accession'], os.path.join(dirname, name), d['species'], d['species']]
+            row = [True, name, d['accession'], d['species'], None, False, d['accession'], d['accession'],
+                   os.path.join(dirname, name), d['species'], d['species']]
             self.pixbufs_to_load.append((os.path.join(dirname, name), (len(self.review_rows), )))
             self.model.rows.append(row)
             self.review_rows.append(row)

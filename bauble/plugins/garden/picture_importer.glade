@@ -30,7 +30,7 @@
       <column type="gchararray"/>
       <!-- column-name thumbnail -->
       <column type="GdkPixbuf"/>
-      <!-- column-name editable_accno -->
+      <!-- column-name iseditable -->
       <column type="gboolean"/>
       <!-- column-name orig_accno -->
       <column type="gchararray"/>
@@ -400,7 +400,7 @@
                           <object class="GtkTreeViewColumn" id="iseditable_tvc">
                             <property name="title" translatable="yes">edit</property>
                             <child>
-                              <object class="GtkCellRendererToggle" id="edit_crtoggle">
+                              <object class="GtkCellRendererToggle" id="iseditable_crtoggle">
                                 <signal name="toggled" handler="on_edit_crtoggle_toggled" swapped="no"/>
                               </object>
                               <attributes>
