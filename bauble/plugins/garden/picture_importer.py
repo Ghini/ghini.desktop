@@ -180,7 +180,9 @@ class PictureImporterPresenter(GenericEditorPresenter):
             d = decode_parts(name, self.model.accno_format)
             if d is None:
                 continue
-            row = [True, name, d['accession'], d['species'], None, False, d['accession'], d['accession'],
+            from bauble.plugins.garden import Plant
+            complete_plant_code = d['accession'] + Plant.get_delimiter() + d['plant']
+            row = [True, name, complete_plant_code, d['species'], None, False, complete_plant_code, complete_plant_code,
                    os.path.join(dirname, name), d['species'], d['species']]
             self.pixbufs_to_load.append((os.path.join(dirname, name), (len(self.review_rows), )))
             self.review_rows.append(row)
@@ -227,37 +229,48 @@ class PictureImporterPresenter(GenericEditorPresenter):
             # get unicode strings from row
             epgn, epsp = unicode(row[binomial_col] + ' sp').split(' ')[:2]
             filename = unicode(row[filename_col])
-            code_accession, code_plant = unicode(row[accno_col] + '.1').split('.')[:2]
+            complete_plant_code = unicode(row[accno_col])
+            accession_code, plant_code = complete_plant_code.rsplit(Plant.get_delimiter(), 2)
 
             # create or retrieve genus and species
             genus = self.session.query(Genus).filter_by(epithet=epgn).one()
             try:
                 species = self.session.query(Species).filter_by(genus=genus, epithet=epsp).one()
+                logger.debug('species %s %s already in database' % (epgn, epsp))
             except NoResultFound, e:
                 species = query_session_new(self.session, Species, genus=genus, epithet=epsp)
                 if species is None:
                     species = Species(genus=genus, epithet=epsp)
                     self.session.add(species)
                     logger.info('created species %s %s' % (epgn, epsp))
+                else:
+                    logger.debug('reusing new species %s %s' % (epgn, epsp))
+
             # create or retrieve accession (needs species)
             try:
-                accession = self.session.query(Accession).filter_by(code=code_accession).one()
+                accession = self.session.query(Accession).filter_by(code=accession_code).one()
+                logger.debug('accession %s already in database' % (accession_code))
             except NoResultFound, e:
-                accession = query_session_new(self.session, Accession, species=species, code=code_accession, quantity_recvd=1)
+                accession = query_session_new(self.session, Accession, species=species, code=accession_code, quantity_recvd=1)
                 if accession is None:
-                    accession = Accession(species=species, code=code_accession, quantity_recvd=1)
+                    accession = Accession(species=species, code=accession_code, quantity_recvd=1)
                     self.session.add(accession)
-                    logger.info('created accession %s for species %s %s' % (code_accession, epgn, epsp))
+                    logger.info('created accession %s for species %s %s' % (accession_code, epgn, epsp))
+                else:
+                    logger.debug('reusing new accession %s' % (accession_code))
 
             # create or retrieve plant (needs: accession, location)
             try:
-                plant = self.session.query(Plant).filter_by(accession=accession, code='1').one()
+                plant = self.session.query(Plant).filter_by(accession=accession, code=plant_code).one()
+                logger.debug('plant %s already in database' % (complete_plant_code))
             except NoResultFound, e:
-                plant = query_session_new(self.session, Plant, accession=accession, location=location, code=code_plant)
+                plant = query_session_new(self.session, Plant, accession=accession, location=location, code=plant_code)
                 if plant is None:
-                    plant = Plant(accession=accession, quantity=1, location=location, code=code_plant)
+                    plant = Plant(accession=accession, quantity=1, location=location, code=plant_code)
                     self.session.add(plant)
-                    logger.info('created plant %s.%s' % (code_accession, code_plant))
+                    logger.info('created plant %s' % (complete_plant_code))
+                else:
+                    logger.debug('reusing new plant %s' % (complete_plant_code))
 
             # copy picture file - possibly renaming it
             utils.copy_picture_with_thumbnail(self.model.filepath, filename)
@@ -265,12 +278,15 @@ class PictureImporterPresenter(GenericEditorPresenter):
             # add picture note
             try:
                 note = self.session.query(PlantNote).filter_by(plant=plant, note=filename, category=u'<picture>').one()
+                logger.debug('picture %s already in plant %s' % (filename, complete_plant_code))
             except NoResultFound, e:
                 note = query_session_new(self.session, PlantNote, plant=plant, note=filename, category=u'<picture>')
                 if note is None:
                     note = PlantNote(plant=plant, note=filename, category=u'<picture>', user=u'initial-import')
                     self.session.add(note)
-                    logger.info('created note for %s' % filename)
+                    logger.info('picture %s added to plant %s' % (filename, complete_plant_code))
+                else:
+                    logger.debug('reusing new picture %s in plant %s' % (filename, complete_plant_code))
         logger.removeHandler(handler)
 
     def on_action_next_activate(self, *args, **kwargs):
