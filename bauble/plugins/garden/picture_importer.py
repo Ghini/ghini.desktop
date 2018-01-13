@@ -26,7 +26,8 @@ import threading
 import glib
 import re
 import os.path
-from bauble import pluginmgr
+from bauble import pluginmgr, db
+from sqlalchemy.orm.exc import NoResultFound
 
 from bauble.editor import (GenericEditorView, GenericEditorPresenter)
 
@@ -91,6 +92,7 @@ class TextBufferHandler(logging.Handler):
     def __init__(self, textbuffer, *args, **kwargs):
         super(TextBufferHandler, self).__init__(*args, **kwargs)
         self.textbuffer = textbuffer
+        self.textbuffer.delete(self.textbuffer.get_start_iter(), self.textbuffer.get_end_iter())
 
     def emit(self, record):
         msg = self.format(record)
@@ -98,23 +100,36 @@ class TextBufferHandler(logging.Handler):
         self.textbuffer.insert(self.textbuffer.get_end_iter(), "\n")
 
 
+def query_session_new(session, cls, **kwargs):
+    for i in session.new:
+        found = False
+        if type(i) == cls:
+            found = True
+            for k, v in kwargs.items():
+                if getattr(i, k) != v:
+                    found = False
+        if found:
+            return i
+
+
+use_me_col = 0
+filename_col = 1
+accno_col = 2
+binomial_col = 3
+thumbnail_col = 4
+iseditable_col = 5
+orig_accno_col = 6
+edited_accno_col = 7
+full_filename_col = 8
+orig_binomial_col = 9
+edited_binomial_col = 10
+
 class PictureImporterPresenter(GenericEditorPresenter):
     widget_to_field_map = {
         'accno_entry': 'accno_format',
         'filepath_entry': 'filepath',
         'recurse_checkbutton': 'recurse'}
 
-    use_me_col = 0
-    filename_col = 1
-    accno_col = 2
-    binomial_col = 3
-    thumbnail_col = 4
-    iseditable_col = 5
-    orig_accno_col = 6
-    edited_accno_col = 7
-    full_filename_col = 8
-    orig_binomial = 9
-    edited_binomial_col = 10
     def __init__(self, model, view, **kwargs):
         kwargs['refresh_view'] = True
         super(PictureImporterPresenter, self).__init__(model, view, **kwargs)
@@ -199,42 +214,57 @@ class PictureImporterPresenter(GenericEditorPresenter):
         handler = TextBufferHandler(self.view.widgets.log_buffer)
         logger.addHandler(handler)
         from bauble.plugins.plants import (Genus, Species)
-        from bauble.plugins.garden import (Location, Accession, Plant)
+        from bauble.plugins.garden import (Location, Accession, Plant, PlantNote)
         # make sure selected location exists
         location = Location.retrieve_or_create(
             self.session,
             {'code': u'u', 'name': unicode(self.model.default_location)})
+        local_store = {}
         # iterate over liststore content
         for row in self.review_rows:
-            if not row[self.use_me_col]:
+            if not row[use_me_col]:
                 continue
             #   create or retrieve genus and species
-            epgn, epsp = unicode(row[self.binomial_col] + ' sp').split(' ')[:2]
+            epgn, epsp = unicode(row[binomial_col] + ' sp').split(' ')[:2]
             genus = self.session.query(Genus).filter_by(epithet=epgn).one()
             try:
                 species = self.session.query(Species).filter_by(genus=genus, epithet=epsp).one()
-            except:
-                species = Species(genus=genus, epithet=epsp)
-                self.session.add(species)
-                logger.info('created species %s %s' % (epgn, epsp))
+            except NoResultFound, e:
+                species = query_session_new(self.session, Species, genus=genus, epithet=epsp)
+                if species is None:
+                    species = Species(genus=genus, epithet=epsp)
+                    self.session.add(species)
+                    logger.info('created species %s %s' % (epgn, epsp))
             #   create or retrieve accession (needs species)
-            code_accession, code_plant = unicode(row[self.accno_col] + '.1').split('.')[:2]
+            code_accession, code_plant = unicode(row[accno_col] + '.1').split('.')[:2]
             try:
-                accession = self.session.query(Accession).filter_by(species=species, code=code_accession).one()
-            except:
-                accession = Accession(species=species, code=code_accession, quantity_recvd=1)
-                self.session.add(accession)
-                logger.info('created accession %s for species %s %s' % (code_accession, epgn, epsp))
+                accession = self.session.query(Accession).filter_by(code=code_accession).one()
+            except NoResultFound, e:
+                accession = query_session_new(self.session, Accession, species=species, code=code_accession, quantity_recvd=1)
+                if accession is None:
+                    accession = Accession(species=species, code=code_accession, quantity_recvd=1)
+                    self.session.add(accession)
+                    logger.info('created accession %s for species %s %s' % (code_accession, epgn, epsp))
             #   create or retrieve plant (needs: accession, location)
             try:
                 plant = self.session.query(Plant).filter_by(accession=accession, code='1').one()
-            except:
-                plant = Plant(accession=accession, quantity=1, location=location, code=code_plant)
-                self.session.add(plant)
-                logger.info('created plant %s.%s' % (code_accession, code_plant))
+            except NoResultFound, e:
+                plant = query_session_new(self.session, Plant, accession=accession, location=location, code=code_plant)
+                if plant is None:
+                    plant = Plant(accession=accession, quantity=1, location=location, code=code_plant)
+                    self.session.add(plant)
+                    logger.info('created plant %s.%s' % (code_accession, code_plant))
             #   copy picture file - possibly renaming it
             #   add picture note
-            pass
+            filename = unicode(row[filename_col])
+            try:
+                note = self.session.query(PlantNote).filter_by(plant=plant, note=filename, category=u'<picture>').one()
+            except NoResultFound, e:
+                note = query_session_new(self.session, PlantNote, plant=plant, note=filename, category=u'<picture>')
+                if note is None:
+                    note = PlantNote(plant=plant, note=filename, category=u'<picture>', user=u'initial-import')
+                    self.session.add(note)
+                    logger.info('created note for %s' % filename)
         logger.removeHandler(handler)
 
     def on_action_next_activate(self, *args, **kwargs):
