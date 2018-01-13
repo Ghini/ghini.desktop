@@ -224,8 +224,12 @@ class PictureImporterPresenter(GenericEditorPresenter):
         for row in self.review_rows:
             if not row[use_me_col]:
                 continue
-            #   create or retrieve genus and species
+            # get unicode strings from row
             epgn, epsp = unicode(row[binomial_col] + ' sp').split(' ')[:2]
+            filename = unicode(row[filename_col])
+            code_accession, code_plant = unicode(row[accno_col] + '.1').split('.')[:2]
+
+            # create or retrieve genus and species
             genus = self.session.query(Genus).filter_by(epithet=epgn).one()
             try:
                 species = self.session.query(Species).filter_by(genus=genus, epithet=epsp).one()
@@ -235,8 +239,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
                     species = Species(genus=genus, epithet=epsp)
                     self.session.add(species)
                     logger.info('created species %s %s' % (epgn, epsp))
-            #   create or retrieve accession (needs species)
-            code_accession, code_plant = unicode(row[accno_col] + '.1').split('.')[:2]
+            # create or retrieve accession (needs species)
             try:
                 accession = self.session.query(Accession).filter_by(code=code_accession).one()
             except NoResultFound, e:
@@ -245,7 +248,8 @@ class PictureImporterPresenter(GenericEditorPresenter):
                     accession = Accession(species=species, code=code_accession, quantity_recvd=1)
                     self.session.add(accession)
                     logger.info('created accession %s for species %s %s' % (code_accession, epgn, epsp))
-            #   create or retrieve plant (needs: accession, location)
+
+            # create or retrieve plant (needs: accession, location)
             try:
                 plant = self.session.query(Plant).filter_by(accession=accession, code='1').one()
             except NoResultFound, e:
@@ -254,9 +258,11 @@ class PictureImporterPresenter(GenericEditorPresenter):
                     plant = Plant(accession=accession, quantity=1, location=location, code=code_plant)
                     self.session.add(plant)
                     logger.info('created plant %s.%s' % (code_accession, code_plant))
-            #   copy picture file - possibly renaming it
-            #   add picture note
-            filename = unicode(row[filename_col])
+
+            # copy picture file - possibly renaming it
+            utils.copy_picture_with_thumbnail(self.model.filepath, filename)
+
+            # add picture note
             try:
                 note = self.session.query(PlantNote).filter_by(plant=plant, note=filename, category=u'<picture>').one()
             except NoResultFound, e:

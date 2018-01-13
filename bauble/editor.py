@@ -2043,30 +2043,10 @@ class PictureBox(NoteBox):
             filename = fileChooserDialog.get_filename()
             if filename:
                 ## rememberl chosen location for next time
-                PictureBox.last_folder, basename = os.path.split(filename)
-                import shutil
                 ## copy file to picture_root_dir (if not yet there).
-                if not filename.startswith(
-                        prefs.prefs[prefs.picture_root_pref]):
-                    shutil.copy(
-                        filename, prefs.prefs[prefs.picture_root_pref])
-                ## make thumbnail in thumbs subdirectory
-                from PIL import Image
+                PictureBox.last_folder, basename = os.path.split(unicode(filename))
                 logger.debug('new current folder is: %s' % self.last_folder)
-                full_dest_path = os.path.join(
-                    prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
-                try:
-                    im = Image.open(filename)
-                    im.thumbnail((400, 400))
-                    logger.debug('copying %s to %s' % (filename, full_dest_path))
-                    im.save(full_dest_path)
-                except IOError, e:
-                    logger.warning("can't make thumbnail")
-                except Exception, e:
-                    logger.warning("unexpected exception making thumbnail: "
-                                   "(%s)%s" % (type(e), e))
-                ## get dirname and basename from selected file, memorize
-                ## dirname
+                utils.copy_picture_with_thumbnail(self.last_folder, basename)
                 ## make sure the category is <picture>
                 self.set_model_attr('category', u'<picture>')
                 ## store basename in note field and fire callbacks.

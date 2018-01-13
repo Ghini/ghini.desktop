@@ -92,6 +92,35 @@ class Cache:
         self.storage[key] = time.time(), value
         return value
 
+def copy_picture_with_thumbnail(path, basename=None):
+    """copy file from path to picture_root, and make thumbnail, preserving name
+
+    """
+    import os.path
+    if basename is None:
+        filename = path
+        path, basename = os.path.split(filename)
+    else:
+        filename = os.path.join(path, basename)
+    from bauble import prefs
+    if not filename.startswith(prefs.prefs[prefs.picture_root_pref]):
+        import shutil
+        shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
+    ## make thumbnail in thumbs subdirectory
+    from PIL import Image
+    full_dest_path = os.path.join(prefs.prefs[prefs.picture_root_pref],
+                                  'thumbs', basename)
+    try:
+        im = Image.open(filename)
+        im.thumbnail((400, 400))
+        logger.debug('copying %s to %s' % (filename, full_dest_path))
+        im.save(full_dest_path)
+    except IOError, e:
+        logger.warning("can't make thumbnail")
+    except Exception, e:
+        logger.warning("unexpected exception making thumbnail: "
+                       "(%s)%s" % (type(e), e))
+
 
 class ImageLoader(threading.Thread):
     cache = Cache(12)  # class-global cached results
