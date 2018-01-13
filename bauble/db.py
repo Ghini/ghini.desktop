@@ -270,13 +270,13 @@ def open(uri, verify=True, show_error_dialogs=False):
 
     # ** WARNING: this can print your passwd
     logger.debug('db.open(%s)' % uri)
-    from sqlalchemy.orm import sessionmaker
+    from sqlalchemy.orm import sessionmaker, scoped_session
     global engine
     new_engine = None
 
-    from sqlalchemy.pool import NullPool, SingletonThreadPool
+    from sqlalchemy.pool import SingletonThreadPool
     from bauble.prefs import testing
-    poolclass = testing and SingletonThreadPool or NullPool
+
     poolclass = SingletonThreadPool
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
                                   implicit_returning=False,
@@ -298,8 +298,8 @@ def open(uri, verify=True, show_error_dialogs=False):
         def temp():
             import inspect
             logger.debug('creating session %s' % str(inspect.stack()[1]))
-            return sessionmaker(bind=engine, autoflush=False)()
-        Session = sessionmaker(bind=engine, autoflush=False)
+            return scoped_session(sessionmaker(bind=engine, autoflush=False))()
+        Session = scoped_session(sessionmaker(bind=engine, autoflush=False))
         Session = temp
 
     if new_engine is not None and not verify:
