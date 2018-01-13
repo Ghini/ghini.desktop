@@ -374,6 +374,7 @@
                         <property name="search_column">0</property>
                         <child>
                           <object class="GtkTreeViewColumn" id="use_tvc">
+                            <property name="sizing">autosize</property>
                             <property name="title" translatable="yes">use</property>
                             <child>
                               <object class="GtkCellRendererToggle" id="use_crtoggle">
@@ -398,6 +399,7 @@
                         </child>
                         <child>
                           <object class="GtkTreeViewColumn" id="iseditable_tvc">
+                            <property name="sizing">autosize</property>
                             <property name="title" translatable="yes">edit</property>
                             <child>
                               <object class="GtkCellRendererToggle" id="iseditable_crtoggle">
@@ -427,6 +429,7 @@
                         <child>
                           <object class="GtkTreeViewColumn" id="binomial_tvc">
                             <property name="title" translatable="yes">binomial</property>
+                            <property name="expand">True</property>
                             <child>
                               <object class="GtkCellRendererText" id="binomial_crtext">
                                 <signal name="edited" handler="on_cellrenderertext_edited" swapped="no"/>
