@@ -136,6 +136,8 @@ In the final "commit or rollback" pane you read the logs relative
 to your data import, and decide whether to keep them (commit
 them to the database), or undo them (rollback the transaction).
 
+.. image:: images/screenshots/import-picture-log.png
+
 When the Picture Collection importer creates or updates objects,
 it also sets a Note that you can use for selecting the objects
 involved in the import, and for reviewing if needed.
