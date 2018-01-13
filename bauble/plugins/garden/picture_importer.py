@@ -26,7 +26,7 @@ import threading
 import glib
 import re
 import os.path
-from bauble import pluginmgr, db
+from bauble import pluginmgr, db, utils
 from sqlalchemy.orm.exc import NoResultFound
 
 from bauble.editor import (GenericEditorView, GenericEditorPresenter)
