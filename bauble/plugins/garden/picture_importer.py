@@ -97,7 +97,7 @@ class ListStoreHandler(logging.Handler):
     def emit(self, record):
         msg = self.format(record)
         if record.levelno < logging.INFO:
-            stock = 'gtk-info'
+            stock = 'gtk-open'
         else:
             stock = 'gtk-new'
         self.container.append([stock, msg])
