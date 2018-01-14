@@ -3,6 +3,7 @@
 # Copyright 2005-2010 Brett Adams <brett@belizebotanic.org>
 # Copyright 2015-2017 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
+# Copyright 2018 Ilja Everilä
 #
 # This file is part of ghini.desktop.
 #
@@ -110,7 +111,7 @@ class HistoryExtension(orm.MapperExtension):
     inserts, updates, and deletes made to the mapped objects are
     recorded in the `history` table.
     """
-    def _add(self, operation, mapper, instance):
+    def _add(self, operation, mapper, connection, instance):
         """
         Add a new entry to the history table.
         """
@@ -130,19 +131,20 @@ class HistoryExtension(orm.MapperExtension):
         for c in mapper.local_table.c:
             row[c.name] = utils.utf8(getattr(instance, c.name))
         table = History.__table__
-        table.insert(dict(table_name=mapper.local_table.name,
-                          table_id=instance.id, values=str(row),
-                          operation=operation, user=user,
-                          timestamp=datetime.datetime.today())).execute()
+        stmt = table.insert(dict(table_name=mapper.local_table.name,
+                                 table_id=instance.id, values=str(row),
+                                 operation=operation, user=user,
+                                 timestamp=datetime.datetime.today()))
+        connection.execute(stmt)
 
     def after_update(self, mapper, connection, instance):
-        self._add('update', mapper, instance)
+        self._add('update', mapper, connection, instance)
 
     def after_insert(self, mapper, connection, instance):
-        self._add('insert', mapper, instance)
+        self._add('insert', mapper, connection, instance)
 
     def after_delete(self, mapper, connection, instance):
-        self._add('delete', mapper, instance)
+        self._add('delete', mapper, connection, instance)
 
 
 class MapperBase(DeclarativeMeta):
