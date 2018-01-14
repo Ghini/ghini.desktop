@@ -1130,7 +1130,6 @@ class GenericEditorPresenter(object):
             except Exception, e:
                 pass
         except Exception, e:
-            logger.warning("can't commit changes: (%s) %s" % (type(e), e))
             self.session.rollback()
             self.session.add_all(objs)
             raise

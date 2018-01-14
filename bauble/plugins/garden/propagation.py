@@ -76,8 +76,6 @@ class Propagation(db.Base):
     Propagation
     """
     __tablename__ = 'propagation'
-    #recvd_as = Column(Unicode(10)) # seed, urcu, other
-    #recvd_as_other = Column(UnicodeText) # maybe this should be in the notes
     prop_type = Column(types.Enum(values=prop_type_values.keys(),
                                   translations=prop_type_values),
                        nullable=False)
@@ -239,6 +237,23 @@ class Propagation(db.Base):
         s = '; '.join(values)
 
         return s
+
+    def clean(self):
+        if self.prop_type == u'UnrootedCutting':
+            utils.delete_or_expunge(self._seed)
+            self._seed = None
+            if not self._cutting.bottom_heat_temp:
+                self._cutting.bottom_heat_unit = None
+            if not self._cutting.length:
+                self._cutting.length_unit = None
+        elif self.prop_type == u'Seed':
+            utils.delete_or_expunge(self._cutting)
+            self._cutting = None
+        else:
+            utils.delete_or_expunge(self._seed)
+            utils.delete_or_expunge(self._cutting)
+            self._seed = None
+            self._cutting = None
 
 
 class PropCuttingRooted(db.Base):
@@ -579,8 +594,9 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.session = session
         self._dirty = False
 
-        # make the model for the presenter a PropCutting instead of a
-        # Propagation
+        # instance is initialized with a Propagation instance as model, but
+        # that's just the common parts.  This instance takes care of the
+        # _cutting part of the propagation
         self.propagation = self.model
         if not self.propagation._cutting:
             self.propagation._cutting = PropCutting()
@@ -897,10 +913,7 @@ class PropagationPresenter(editor.ChildPresenter):
                         u'UnrootedCutting': self.view.widgets.cutting_box,
                         }
         for type_, box in prop_box_map.iteritems():
-            if prop_type == type_:
-                box.props.visible = True
-            else:
-                box.props.visible = False
+            box.props.visible = (prop_type == type_)
 
         self.view.widgets.notes_box.props.visible = True
         if prop_type == u'Other' or self.model.notes:
@@ -923,7 +936,7 @@ class PropagationPresenter(editor.ChildPresenter):
         """
         Set attributes on the model and update the GUI as expected.
         """
-        #debug('%s = %s' % (field, value))
+        logging.debug('%s = %s' % (field, value))
         super(PropagationPresenter, self).\
             set_model_attr(field, value, validator)
         self._dirty = True
@@ -985,7 +998,7 @@ class SourcePropagationPresenter(PropagationPresenter):
         None value in the prop_type_combo which is specific the
         SourcePropagationPresenter
         """
-        #debug('SourcePropagationPresenter.on_prop_type_changed()')
+        logger.debug('SourcePropagationPresenter.on_prop_type_changed()')
         it = combo.get_active_iter()
         prop_type = combo.get_model()[it][0]
         if not prop_type:
@@ -994,9 +1007,10 @@ class SourcePropagationPresenter(PropagationPresenter):
         else:
             super(SourcePropagationPresenter, self).\
                 on_prop_type_changed(combo, *args)
+        self._dirty = False
 
     def set_model_attr(self, attr, value, validator=None):
-        #debug('set_model_attr(%s, %s)' % (attr, value))
+        logger.debug('set_model_attr(%s, %s)' % (attr, value))
         super(SourcePropagationPresenter, self).set_model_attr(attr, value)
         self._dirty = True
         self.refresh_sensitivity()
@@ -1103,31 +1117,14 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         #     view.widgets.acc_species_entry.grab_focus()
         # else:
         #     view.widgets.acc_code_entry.grab_focus()
-
-    def clean_model(self):
-        if self.model.prop_type == u'UnrootedCutting':
-            utils.delete_or_expunge(self.model._seed)
-            self.model._seed = None
-            #del self.model._seed
-            if not self.model._cutting.bottom_heat_temp:
-                self.model._cutting.bottom_heat_unit = None
-            if not self.model._cutting.length:
-                self.model._cutting.length_unit = None
-        elif self.model.prop_type == u'Seed':
-            utils.delete_or_expunge(self.model._cutting)
-            self.model._cutting = None
-            #del self.model._cutting
-        else:
-            utils.delete_or_expunge(self.model._seed)
-            utils.delete_or_expunge(self.model._cutting)
-
+            
     def handle_response(self, response, commit=True):
         '''
         handle the response from self.presenter.start() in self.start()
         '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
         self._return = None
-        self.clean_model()
+        self.model.clean()
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 self._return = self.model

@@ -1495,9 +1495,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
         Return a union of all the problems from this presenter and
         child presenters
         """
-        return self.problems | self.collection_presenter.problems | \
-            self.prop_chooser_presenter.problems | \
-            self.source_prop_presenter.problems
+        return (self.problems | self.collection_presenter.problems |
+                self.prop_chooser_presenter.problems |
+                self.source_prop_presenter.problems)
 
     def cleanup(self):
         super(SourcePresenter, self).cleanup()
@@ -2199,9 +2199,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             elif prop and prop.prop_type == 'UnrootedCutting':
                 prop_model = prop._cutting
             else:
-                #msg = 'AccessionEditorPresenter.validate(): unknown prop_type'
-                #warning(msg)
-                return False  # raise ValueError for unknown prop_type??
+                logger.debug('AccessionEditorPresenter.validate(): unknown prop_type')
+                return True  # let user save it anyway
 
             if utils.get_invalid_columns(prop_model, prop_ignore):
                 return False
@@ -2408,23 +2407,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             model.elevation_accy = None
         return model
 
-    def _cleanup_propagation(self, propagation):
-        # TODO: this function is not ideal since it just duplicates
-        # PropagationEditor.clean_model()...we need a sensible way to
-        # share this code
-        if propagation.prop_type == u'UnrootedCutting':
-            if propagation._seed is not None:
-                utils.delete_or_expunge(propagation._seed)
-                propagation._seed = None
-            if not propagation._cutting.bottom_heat_temp:
-                propagation._cutting.bottom_heat_unit = None
-            if not propagation._cutting.length:
-                propagation._cutting.length_unit = None
-        elif propagation.prop_type == u'Seed' and \
-                propagation._cutting is not None:
-            utils.delete_or_expunge(propagation._cutting)
-            propagation._cutting = None
-
     def commit_changes(self):
         if self.model.source:
 
@@ -2433,19 +2415,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     self.presenter.source_presenter.collection)
 
             if self.model.source.propagation:
-                if not self.model.source.propagation.prop_type:
-                    # TODO: why do we have to manually delete the _cutting
-                    # and _seed relations...shouldn't they be deleted
-                    # automatically when source.propagation is set to None
-                    utils.delete_or_expunge(
-                        self.model.source.propagation._cutting)
-                    utils.delete_or_expunge(
-                        self.model.source.propagation._seed)
-                    utils.delete_or_expunge(
-                        self.model.source.propagation)
-                    self.model.source.propagation = None
-                else:
-                    self._cleanup_propagation(self.model.source.propagation)
+                self.model.source.propagation.clean()
             else:
                 utils.delete_or_expunge(
                     self.presenter.source_presenter.propagation)
