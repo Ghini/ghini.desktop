@@ -231,10 +231,16 @@ class PictureImporterPresenter(GenericEditorPresenter):
             location = self.model.location
             logger.log(11, 'location %s already in database' % (location, ))
         else:
-            location = Location(code=u'imported')
-            self.session.add(location)
-            logger.log(13, 'created new location %s' % (location, ))
-        local_store = {}
+            if self.model.location is None:
+                self.model.location = u'imported'
+            try:
+                location = self.session.query(Location).filter_by(code=unicode(self.model.location)).one()
+                logger.log(11, 'location %s already in database' % (location, ))
+            except NoResultFound, e:
+                location = Location(code=self.model.location)
+                self.session.add(location)
+                logger.log(13, 'created new location %s' % (location, ))
+
         # iterate over liststore content
         for row in self.review_rows:
             if not row[use_me_col]:
