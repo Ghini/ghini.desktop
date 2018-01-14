@@ -96,10 +96,9 @@ class ListStoreHandler(logging.Handler):
 
     def emit(self, record):
         msg = self.format(record)
-        if record.levelno < logging.INFO:
-            stock = 'gtk-open'
-        else:
-            stock = 'gtk-new'
+        stock = {11: 'gtk-open',
+                 12: 'gtk-properties',
+                 13: 'gtk-new', }[record.levelno]  
         self.container.append([stock, msg])
 
 
@@ -146,7 +145,13 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.accno_tvc.set_sort_column_id(2)
         self.view.widgets.binomial_tvc.set_sort_column_id(3)
         self.view.widgets.iseditable_tvc.set_sort_column_id(5)
-        self.running = None
+
+        from bauble.plugins.garden import init_location_comboentry, Location
+        def on_location_select(location):
+            self.model.location = location
+
+        init_location_comboentry(self, self.view.widgets.location_combobox,
+                                 on_location_select)
 
     def show_visible_pane(self):
         for n, i in enumerate(self.panes):
@@ -154,8 +159,9 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
         self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
         self.view.widgets.button_ok.set_sensitive(self.model.visible_pane == len(self.panes) - 1)
-        if self.model.visible_pane != 1:
-            self.running = None
+        self.running = None  # reset inconditionally when changing pane
+        if self.model.visible_pane == 1:
+            self.session.rollback()  # clean up session
 
     def load_pixbufs(self):
         # to be run in different thread - or you're blocking the gui
@@ -221,9 +227,13 @@ class PictureImporterPresenter(GenericEditorPresenter):
         from bauble.plugins.plants import (Genus, Species)
         from bauble.plugins.garden import (Location, Accession, Plant, PlantNote)
         # make sure selected location exists
-        location = Location.retrieve_or_create(
-            self.session,
-            {'code': u'u', 'name': unicode(self.model.default_location)})
+        if isinstance(self.model.location, Location):
+            location = self.model.location
+            logger.log(11, 'location %s already in database' % (location, ))
+        else:
+            location = Location(code=u'imported')
+            self.session.add(location)
+            logger.log(13, 'created new location %s' % (location, ))
         local_store = {}
         # iterate over liststore content
         for row in self.review_rows:
@@ -239,41 +249,41 @@ class PictureImporterPresenter(GenericEditorPresenter):
             genus = self.session.query(Genus).filter_by(epithet=epgn).one()
             try:
                 species = self.session.query(Species).filter_by(genus=genus, epithet=epsp).one()
-                logger.debug('species %s %s already in database' % (epgn, epsp))
+                logger.log(11, 'species %s %s already in database' % (epgn, epsp))
             except NoResultFound, e:
                 species = query_session_new(self.session, Species, genus=genus, epithet=epsp)
                 if species is None:
                     species = Species(genus=genus, epithet=epsp)
                     self.session.add(species)
-                    logger.info('created species %s %s' % (epgn, epsp))
+                    logger.log(13, 'created species %s %s' % (epgn, epsp))
                 else:
-                    logger.debug('reusing new species %s %s' % (epgn, epsp))
+                    logger.log(12, 'reusing new species %s %s' % (epgn, epsp))
 
             # create or retrieve accession (needs species)
             try:
                 accession = self.session.query(Accession).filter_by(code=accession_code).one()
-                logger.debug('accession %s already in database' % (accession_code))
+                logger.log(11, 'accession %s already in database' % (accession_code))
             except NoResultFound, e:
-                accession = query_session_new(self.session, Accession, species=species, code=accession_code, quantity_recvd=1)
+                accession = query_session_new(self.session, Accession, code=accession_code)
                 if accession is None:
                     accession = Accession(species=species, code=accession_code, quantity_recvd=1)
                     self.session.add(accession)
-                    logger.info('created accession %s for species %s %s' % (accession_code, epgn, epsp))
+                    logger.log(13, 'created accession %s for species %s %s' % (accession_code, epgn, epsp))
                 else:
-                    logger.debug('reusing new accession %s' % (accession_code))
+                    logger.log(12, 'reusing new accession %s' % (accession_code))
 
             # create or retrieve plant (needs: accession, location)
             try:
                 plant = self.session.query(Plant).filter_by(accession=accession, code=plant_code).one()
-                logger.debug('plant %s already in database' % (complete_plant_code))
+                logger.log(11, 'plant %s already in database' % (complete_plant_code))
             except NoResultFound, e:
-                plant = query_session_new(self.session, Plant, accession=accession, location=location, code=plant_code)
+                plant = query_session_new(self.session, Plant, accession=accession, code=plant_code)
                 if plant is None:
                     plant = Plant(accession=accession, quantity=1, location=location, code=plant_code)
                     self.session.add(plant)
-                    logger.info('created plant %s' % (complete_plant_code))
+                    logger.log(13, 'created plant %s' % (complete_plant_code))
                 else:
-                    logger.debug('reusing new plant %s' % (complete_plant_code))
+                    logger.log(12, 'reusing new plant %s' % (complete_plant_code))
 
             # copy picture file - possibly renaming it
             utils.copy_picture_with_thumbnail(self.model.filepath, filename)
@@ -281,19 +291,20 @@ class PictureImporterPresenter(GenericEditorPresenter):
             # add picture note
             try:
                 note = self.session.query(PlantNote).filter_by(plant=plant, note=filename, category=u'<picture>').one()
-                logger.debug('picture %s already in plant %s' % (filename, complete_plant_code))
+                logger.log(11, 'picture %s already in plant %s' % (filename, complete_plant_code))
             except NoResultFound, e:
                 note = query_session_new(self.session, PlantNote, plant=plant, note=filename, category=u'<picture>')
                 if note is None:
                     note = PlantNote(plant=plant, note=filename, category=u'<picture>', user=u'initial-import')
                     self.session.add(note)
-                    logger.info('picture %s added to plant %s' % (filename, complete_plant_code))
+                    logger.log(13, 'picture %s added to plant %s' % (filename, complete_plant_code))
                 else:
-                    logger.debug('reusing new picture %s in plant %s' % (filename, complete_plant_code))
+                    logger.log(12, 'reusing new picture %s in plant %s' % (filename, complete_plant_code))
         logger.removeHandler(handler)
 
     def on_action_next_activate(self, *args, **kwargs):
         self.model.visible_pane += 1
+        self.show_visible_pane()
         if self.model.visible_pane == 1:  # let user review import
             self.review_rows.clear()
             self.pixbufs_to_load = []
@@ -302,7 +313,6 @@ class PictureImporterPresenter(GenericEditorPresenter):
             threading.Thread(target=self.load_pixbufs).start()
         elif self.model.visible_pane == 2:  # import as specified
             self.do_import()
-        self.show_visible_pane()
 
     def on_action_cancel_activate(self, *args, **kwargs):
         self.view.get_window().emit('response', gtk.RESPONSE_DELETE_EVENT)
@@ -327,7 +337,7 @@ class PictureImporterTool(pluginmgr.Tool):
                   'filepath': '',
                   'accno_format': '####.####',
                   'recurse': False,
-                  'default_location': 'imported',
+                  'location': None,
                   'rows': [],
                   'log': []})
     import os.path
