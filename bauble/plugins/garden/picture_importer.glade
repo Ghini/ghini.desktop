@@ -17,7 +17,14 @@
   <object class="GtkAction" id="action_prev">
     <signal name="activate" handler="on_action_prev_activate" swapped="no"/>
   </object>
-  <object class="GtkTextBuffer" id="log_buffer"/>
+  <object class="GtkListStore" id="log_liststore">
+    <columns>
+      <!-- column-name severe -->
+      <column type="gboolean"/>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
   <object class="GtkListStore" id="review_liststore">
     <columns>
       <!-- column-name use_me -->
@@ -489,11 +496,36 @@
                         <property name="hscrollbar_policy">automatic</property>
                         <property name="vscrollbar_policy">automatic</property>
                         <child>
-                          <object class="GtkTextView" id="textview_log">
+                          <object class="GtkTreeView" id="log_treeview">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="editable">False</property>
-                            <property name="buffer">log_buffer</property>
+                            <property name="model">log_liststore</property>
+                            <property name="headers_visible">False</property>
+                            <property name="headers_clickable">False</property>
+                            <property name="search_column">0</property>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="severe_tvc">
+                                <property name="sizing">autosize</property>
+                                <property name="title" translatable="yes">hit</property>
+                                <child>
+                                  <object class="GtkCellRendererToggle" id="severe_crtoggle"/>
+                                  <attributes>
+                                    <attribute name="active">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="text_tvc">
+                                <property name="title" translatable="yes">details</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="text_crtext"/>
+                                  <attributes>
+                                    <attribute name="text">1</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
                           </object>
                         </child>
                       </object>

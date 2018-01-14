@@ -88,16 +88,15 @@ def decode_parts(name, acc_format=None):
     return result
 
 
-class TextBufferHandler(logging.Handler):
-    def __init__(self, textbuffer, *args, **kwargs):
-        super(TextBufferHandler, self).__init__(*args, **kwargs)
-        self.textbuffer = textbuffer
-        self.textbuffer.delete(self.textbuffer.get_start_iter(), self.textbuffer.get_end_iter())
+class ListStoreHandler(logging.Handler):
+    def __init__(self, container, *args, **kwargs):
+        super(ListStoreHandler, self).__init__(*args, **kwargs)
+        self.container = container
+        self.container.clear()
 
     def emit(self, record):
         msg = self.format(record)
-        self.textbuffer.insert(self.textbuffer.get_end_iter(), msg)
-        self.textbuffer.insert(self.textbuffer.get_end_iter(), "\n")
+        self.container.append([record.levelno>logging.DEBUG, msg])
 
 
 def query_session_new(session, cls, **kwargs):
@@ -213,7 +212,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.show_visible_pane()
 
     def do_import(self):  # step 2
-        handler = TextBufferHandler(self.view.widgets.log_buffer)
+        handler = ListStoreHandler(self.view.widgets.log_liststore)
         logger.addHandler(handler)
         from bauble.plugins.plants import (Genus, Species)
         from bauble.plugins.garden import (Location, Accession, Plant, PlantNote)
