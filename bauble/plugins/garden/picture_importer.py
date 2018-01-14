@@ -358,4 +358,8 @@ class PictureImporterTool(pluginmgr.Tool):
             presenter.session.commit()
         else:
             presenter.session.rollback()
+        try:
+            bauble.gui.get_view().update()
+        except Exception, e:
+            pass
         return True
