@@ -20,7 +20,7 @@
   <object class="GtkListStore" id="log_liststore">
     <columns>
       <!-- column-name severe -->
-      <column type="gboolean"/>
+      <column type="gchararray"/>
       <!-- column-name text -->
       <column type="gchararray"/>
     </columns>
@@ -508,9 +508,9 @@
                                 <property name="sizing">autosize</property>
                                 <property name="title" translatable="yes">hit</property>
                                 <child>
-                                  <object class="GtkCellRendererToggle" id="severe_crtoggle"/>
+                                  <object class="GtkCellRendererPixbuf" id="severe_crpixbuf"/>
                                   <attributes>
-                                    <attribute name="active">0</attribute>
+                                    <attribute name="stock-id">0</attribute>
                                   </attributes>
                                 </child>
                               </object>

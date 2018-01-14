@@ -96,7 +96,11 @@ class ListStoreHandler(logging.Handler):
 
     def emit(self, record):
         msg = self.format(record)
-        self.container.append([record.levelno>logging.DEBUG, msg])
+        if record.levelno < logging.INFO:
+            stock = 'gtk-info'
+        else:
+            stock = 'gtk-new'
+        self.container.append([stock, msg])
 
 
 def query_session_new(session, cls, **kwargs):
