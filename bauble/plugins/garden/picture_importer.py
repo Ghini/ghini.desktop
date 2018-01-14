@@ -365,7 +365,8 @@ class PictureImporterTool(pluginmgr.Tool):
         else:
             presenter.session.rollback()
         try:
-            bauble.gui.get_view().update()
+            from bauble import gui
+            gui.get_view().update()
         except Exception, e:
             pass
         return True
