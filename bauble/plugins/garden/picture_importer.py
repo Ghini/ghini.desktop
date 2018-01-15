@@ -158,7 +158,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
             i.set_visible(n == self.model.visible_pane)
         self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
         self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
-        self.view.widgets.button_ok.set_sensitive(self.model.visible_pane == len(self.panes) - 1)
+        self.view.widgets.button_ok.set_sensitive(False)
         self.running = None  # reset inconditionally when changing pane
         if self.model.visible_pane == 1:
             self.session.rollback()  # clean up session
@@ -217,13 +217,10 @@ class PictureImporterPresenter(GenericEditorPresenter):
     def on_picture_importer_dialog_response(self, widget, response, **kwargs):
         self.running = None
 
-    def on_action_prev_activate(self, *args, **kwargs):
-        self.model.visible_pane -= 1
-        self.show_visible_pane()
-
     def do_import(self):  # step 2
         handler = ListStoreHandler(self.view.widgets.log_liststore)
         logger.addHandler(handler)
+        self.view.widgets.log_treeview.scroll_to_point(0, 0)
         from bauble.plugins.plants import (Genus, Species)
         from bauble.plugins.garden import (Location, Accession, Plant, PlantNote)
         # make sure selected location exists
@@ -243,6 +240,9 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
         # iterate over liststore content
         for row in self.review_rows:
+            if self.running is None:
+                self.session.rollback()
+                return
             if not row[use_me_col]:
                 continue
             # get unicode strings from row
@@ -307,18 +307,31 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 else:
                     logger.log(12, 'reusing new picture %s in plant %s' % (filename, complete_plant_code))
         logger.removeHandler(handler)
+        self.view.widgets.button_ok.set_sensitive(True)
+
+    def on_action_prev_activate(self, *args, **kwargs):
+        self.model.visible_pane -= 1
+        self.show_visible_pane()
 
     def on_action_next_activate(self, *args, **kwargs):
         self.model.visible_pane += 1
         self.show_visible_pane()
         if self.model.visible_pane == 1:  # let user review import
             self.review_rows.clear()
+            self.view.widgets.review_treeview.scroll_to_point(0, 0)
             self.pixbufs_to_load = []
             os.path.walk(self.model.filepath, self.add_rows, None)
             self.running = True
             threading.Thread(target=self.load_pixbufs).start()
         elif self.model.visible_pane == 2:  # import as specified
-            self.do_import()
+            self.running = True
+            self.do_import()  # should really run in its own thread
+
+    def show_gtk_stock_icons(self):
+        'show an overview of gtk stock name/image'
+        import gtk
+        for i in gtk.stock_list_ids():
+            self.view.widgets.log_liststore.append([i, i])
 
     def on_action_cancel_activate(self, *args, **kwargs):
         self.view.get_window().emit('response', gtk.RESPONSE_DELETE_EVENT)
