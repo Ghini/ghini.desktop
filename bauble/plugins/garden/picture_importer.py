@@ -325,11 +325,12 @@ class PictureImporterPresenter(GenericEditorPresenter):
             threading.Thread(target=self.load_pixbufs).start()
         elif self.model.visible_pane == 2:  # import as specified
             self.running = True
-            self.do_import()  # should really run in its own thread
+            self.do_import()  # should run in own thread, create own session, do
+                              # all it needs to do, then wait for user to
+                              # indicate OK(Commit) or anything else(Rollback).
 
     def show_gtk_stock_icons(self):
-        'show an overview of gtk stock name/image'
-        import gtk
+        '''this is just some code to show an overview of gtk stock name/image'''
         for i in gtk.stock_list_ids():
             self.view.widgets.log_liststore.append([i, i])
 
@@ -337,6 +338,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.get_window().emit('response', gtk.RESPONSE_DELETE_EVENT)
 
     def on_action_ok_activate(self, *args, **kwargs):
+        # when we do_import in other thread, manage its completion from here
         self.view.get_window().emit('response', gtk.RESPONSE_OK)
 
     def on_action_browse_activate(self, *args, **kwargs):
