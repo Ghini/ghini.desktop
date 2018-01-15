@@ -96,8 +96,8 @@ class ListStoreHandler(logging.Handler):
 
     def emit(self, record):
         msg = self.format(record)
-        stock = {11: 'gtk-open',
-                 12: 'gtk-properties',
+        stock = {11: 'gtk-directory',
+                 12: 'gtk-file',
                  13: 'gtk-new', }[record.levelno]  
         self.container.append([stock, msg])
 
