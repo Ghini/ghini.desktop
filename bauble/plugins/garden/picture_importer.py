@@ -140,11 +140,11 @@ class PictureImporterPresenter(GenericEditorPresenter):
                       getattr(self.view.widgets, 'box_log'),]
         self.review_rows = self.view.widgets.review_liststore
         self.show_visible_pane()
-        self.view.widgets.use_tvc.set_sort_column_id(0)
-        self.view.widgets.filename_tvc.set_sort_column_id(1)
-        self.view.widgets.accno_tvc.set_sort_column_id(2)
-        self.view.widgets.binomial_tvc.set_sort_column_id(3)
-        self.view.widgets.iseditable_tvc.set_sort_column_id(5)
+        self.view.widgets.use_tvc.set_sort_column_id(use_me_col)
+        self.view.widgets.filename_tvc.set_sort_column_id(filename_col)
+        self.view.widgets.accno_tvc.set_sort_column_id(accno_col)
+        self.view.widgets.binomial_tvc.set_sort_column_id(binomial_col)
+        self.view.widgets.iseditable_tvc.set_sort_column_id(iseditable_col)
 
         from bauble.plugins.garden import init_location_comboentry, Location
         def on_location_select(location):
