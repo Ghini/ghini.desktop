@@ -22,6 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 import gtk
+import gobject
 import threading
 import glib
 import re
@@ -92,14 +93,18 @@ class ListStoreHandler(logging.Handler):
     def __init__(self, container, *args, **kwargs):
         super(ListStoreHandler, self).__init__(*args, **kwargs)
         self.container = container
-        self.container.clear()
+        def clear_once(container):
+            container.clear()
+        gobject.idle_add(clear_once, self.container)
 
     def emit(self, record):
         msg = self.format(record)
         stock = {11: 'gtk-directory',
                  12: 'gtk-file',
                  13: 'gtk-new', }[record.levelno]
-        self.container.append([stock, msg])
+        def append_once(container, row):
+            container.append(row)
+        gobject.idle_add(append_once, self.container, [stock, msg])
 
 
 def query_session_new(session, cls, **kwargs):
@@ -139,6 +144,8 @@ class PictureImporterPresenter(GenericEditorPresenter):
                       getattr(self.view.widgets, 'box_review'),
                       getattr(self.view.widgets, 'box_log'),]
         self.review_liststore = self.view.widgets.review_liststore
+        self.running_thread = None
+        self.keep_running = None
         self.show_visible_pane()
         self.view.widgets.use_tvc.set_sort_column_id(use_me_col)
         self.view.widgets.filename_tvc.set_sort_column_id(filename_col)
@@ -148,7 +155,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
         from bauble.plugins.garden import init_location_comboentry, Location
         def on_location_select(location):
-            self.model.location = location
+            self.model.location = location.code
 
         init_location_comboentry(self, self.view.widgets.location_combobox,
                                  on_location_select)
@@ -159,14 +166,20 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.view.widgets.button_prev.set_sensitive(self.model.visible_pane > 0)
         self.view.widgets.button_next.set_sensitive(self.model.visible_pane < len(self.panes) - 1)
         self.view.widgets.button_ok.set_sensitive(False)
-        self.running = None  # reset inconditionally when changing pane
+        self.should_commit = False  # reset inconditionally when changing pane
+        if self.running_thread:
+            self.keep_running = False
+            if self.running_thread.name == 'do_import':
+                self.lock.release()
+            self.running_thread.join()
+            self.running_thread = None
         if self.model.visible_pane == 1:
             self.session.rollback()  # clean up session
 
     def load_pixbufs(self):
         # to be run in different thread - or you're blocking the gui
         for fname, path in self.pixbufs_to_load:
-            if self.running is None:
+            if not self.keep_running:
                 return
             pixbuf = gtk.gdk.pixbuf_new_from_file(fname)
             try:
@@ -176,7 +189,10 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 scale = max(scale_x, scale_y, 1)
                 x = int(pixbuf.get_width() / scale)
                 y = int(pixbuf.get_height() / scale)
-                self.review_liststore[path][thumbnail_col] = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+                pixbuf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+                def set_thumbnail(store, path, col, value):
+                    store[path][col] = value
+                gobject.idle_add(set_thumbnail, self.review_liststore, path, thumbnail_col, pixbuf)
             except glib.GError, e:
                 logger.debug("picture %s caused glib.GError %s" %
                              (fname, e))
@@ -214,35 +230,28 @@ class PictureImporterPresenter(GenericEditorPresenter):
             self.review_liststore[path][accno_col] = self.review_liststore[path][edited_accno_col]
             self.review_liststore[path][binomial_col] = self.review_liststore[path][edited_binomial_col]
 
-    def on_picture_importer_dialog_response(self, widget, response, **kwargs):
-        self.running = None
-
     def do_import(self):  # step 2
+        session = db.Session()
         handler = ListStoreHandler(self.view.widgets.log_liststore)
         logger.addHandler(handler)
         self.view.widgets.log_treeview.scroll_to_point(0, 0)
         from bauble.plugins.plants import (Genus, Species)
         from bauble.plugins.garden import (Location, Accession, Plant, PlantNote)
         # make sure selected location exists
-        if isinstance(self.model.location, Location):
-            location = self.model.location
+        if self.model.location is None:
+            self.model.location = u'imported'
+        location = session.query(Location).filter_by(code=self.model.location).first()
+        if location is not None:
             logger.log(11, 'location %s already in database' % (location, ))
         else:
-            if self.model.location is None:
-                self.model.location = u'imported'
-            try:
-                location = self.session.query(Location).filter_by(code=unicode(self.model.location)).one()
-                logger.log(11, 'location %s already in database' % (location, ))
-            except NoResultFound, e:
-                location = Location(code=self.model.location)
-                self.session.add(location)
-                logger.log(13, 'created new location %s' % (location, ))
+            location = Location(code=self.model.location)
+            session.add(location)
+            logger.log(13, 'created new location %s' % (location, ))
 
         # iterate over liststore content
         for row in self.review_liststore:
-            if self.running is None:
-                self.session.rollback()
-                return
+            if not self.keep_running:
+                break
             if not row[use_me_col]:
                 continue
             # get unicode strings from row
@@ -252,41 +261,41 @@ class PictureImporterPresenter(GenericEditorPresenter):
             accession_code, plant_code = complete_plant_code.rsplit(Plant.get_delimiter(), 2)
 
             # create or retrieve genus and species
-            genus = self.session.query(Genus).filter_by(epithet=epgn).one()
-            try:
-                species = self.session.query(Species).filter_by(genus=genus, epithet=epsp).one()
+            genus = session.query(Genus).filter_by(epithet=epgn).one()
+            species = session.query(Species).filter_by(genus=genus, epithet=epsp).first()
+            if species is not None:
                 logger.log(11, 'species %s %s already in database' % (epgn, epsp))
-            except NoResultFound, e:
-                species = query_session_new(self.session, Species, genus=genus, epithet=epsp)
+            else:
+                species = query_session_new(session, Species, genus=genus, epithet=epsp)
                 if species is None:
                     species = Species(genus=genus, epithet=epsp)
-                    self.session.add(species)
+                    session.add(species)
                     logger.log(13, 'created species %s %s' % (epgn, epsp))
                 else:
                     logger.log(12, 'reusing new species %s %s' % (epgn, epsp))
 
             # create or retrieve accession (needs species)
-            try:
-                accession = self.session.query(Accession).filter_by(code=accession_code).one()
+            accession = session.query(Accession).filter_by(code=accession_code).first()
+            if accession is not None:
                 logger.log(11, 'accession %s already in database' % (accession_code))
-            except NoResultFound, e:
-                accession = query_session_new(self.session, Accession, code=accession_code)
+            else:
+                accession = query_session_new(session, Accession, code=accession_code)
                 if accession is None:
                     accession = Accession(species=species, code=accession_code, quantity_recvd=1)
-                    self.session.add(accession)
+                    session.add(accession)
                     logger.log(13, 'created accession %s for species %s %s' % (accession_code, epgn, epsp))
                 else:
                     logger.log(12, 'reusing new accession %s' % (accession_code))
 
             # create or retrieve plant (needs: accession, location)
-            try:
-                plant = self.session.query(Plant).filter_by(accession=accession, code=plant_code).one()
+            plant = session.query(Plant).filter_by(accession=accession, code=plant_code).first()
+            if plant is not None:
                 logger.log(11, 'plant %s already in database' % (complete_plant_code))
-            except NoResultFound, e:
-                plant = query_session_new(self.session, Plant, accession=accession, code=plant_code)
+            else:
+                plant = query_session_new(session, Plant, accession=accession, code=plant_code)
                 if plant is None:
                     plant = Plant(accession=accession, quantity=1, location=location, code=plant_code)
-                    self.session.add(plant)
+                    session.add(plant)
                     logger.log(13, 'created plant %s' % (complete_plant_code))
                 else:
                     logger.log(12, 'reusing new plant %s' % (complete_plant_code))
@@ -295,19 +304,28 @@ class PictureImporterPresenter(GenericEditorPresenter):
             utils.copy_picture_with_thumbnail(self.model.filepath, filename)
 
             # add picture note
-            try:
-                note = self.session.query(PlantNote).filter_by(plant=plant, note=filename, category=u'<picture>').one()
+            note = session.query(PlantNote).filter_by(plant=plant, note=filename, category=u'<picture>').first()
+            if note is not None:
                 logger.log(11, 'picture %s already in plant %s' % (filename, complete_plant_code))
-            except NoResultFound, e:
-                note = query_session_new(self.session, PlantNote, plant=plant, note=filename, category=u'<picture>')
+            else:
+                note = query_session_new(session, PlantNote, plant=plant, note=filename, category=u'<picture>')
                 if note is None:
                     note = PlantNote(plant=plant, note=filename, category=u'<picture>', user=u'initial-import')
-                    self.session.add(note)
+                    session.add(note)
                     logger.log(13, 'picture %s added to plant %s' % (filename, complete_plant_code))
                 else:
                     logger.log(12, 'reusing new picture %s in plant %s' % (filename, complete_plant_code))
         logger.removeHandler(handler)
-        self.view.widgets.button_ok.set_sensitive(True)
+        self.view.widgets.button_ok.set_sensitive(self.keep_running is True)
+        self.lock.acquire()
+        if self.should_commit:
+            session.commit()
+        else:
+            session.rollback()
+        self.lock.release()
+
+    def on_picture_importer_dialog_response(self, widget, response, **kwargs):
+        self.keep_running = None
 
     def on_action_prev_activate(self, *args, **kwargs):
         self.model.visible_pane -= 1
@@ -321,13 +339,16 @@ class PictureImporterPresenter(GenericEditorPresenter):
             self.view.widgets.review_treeview.scroll_to_point(0, 0)
             self.pixbufs_to_load = []
             os.path.walk(self.model.filepath, self.add_rows, None)
-            self.running = True
-            threading.Thread(target=self.load_pixbufs).start()
+            self.keep_running = True
+            self.running_thread = threading.Thread(target=self.load_pixbufs, name='load_pixbufs')
+            self.running_thread.start()
         elif self.model.visible_pane == 2:  # import as specified
-            self.running = True
-            self.do_import()  # should run in own thread, create own session, do
-                              # all it needs to do, then wait for user to
-                              # indicate OK(Commit) or anything else(Rollback).
+            self.keep_running = True
+            self.should_commit = False
+            self.lock = threading.Lock()
+            self.lock.acquire()
+            self.running_thread = threading.Thread(target=self.do_import, name='do_import')
+            self.running_thread.start()
 
     def show_gtk_stock_icons(self):
         '''this is just some code to show an overview of gtk stock name/image'''
@@ -335,10 +356,21 @@ class PictureImporterPresenter(GenericEditorPresenter):
             self.view.widgets.log_liststore.append([i, i])
 
     def on_action_cancel_activate(self, *args, **kwargs):
+        if self.running_thread:
+            self.keep_running = None  # any running thread will return soon
+            if self.running_thread.name == 'do_import':
+                self.lock.release()  # don't stop `do_import` at the lock
+            self.running_thread.join()
+            self.running_thread = None
         self.view.get_window().emit('response', gtk.RESPONSE_DELETE_EVENT)
 
     def on_action_ok_activate(self, *args, **kwargs):
-        # when we do_import in other thread, manage its completion from here
+        # OK is set active only in do_import.  if we're here, means that
+        # do_import has been running and is now waiting for us at the lock.
+        self.should_commit = True
+        self.lock.release()
+        self.running_thread.join()  # do_import is now committing
+        self.running_thread = None
         self.view.get_window().emit('response', gtk.RESPONSE_OK)
 
     def on_action_browse_activate(self, *args, **kwargs):
@@ -375,10 +407,6 @@ class PictureImporterTool(pluginmgr.Tool):
             root_widget_name='picture_importer_dialog')
         presenter = PictureImporterPresenter(cls.model, view)
         result = presenter.start()
-        if result == gtk.RESPONSE_OK:
-            presenter.session.commit()
-        else:
-            presenter.session.rollback()
         try:
             from bauble import gui
             gui.get_view().update()
