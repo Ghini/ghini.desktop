@@ -1074,7 +1074,7 @@ class GenericEditorPresenter(object):
                 self.session = object_session(model)
             except Exception, e:
                 logger.debug("GenericEditorPresenter::__init__ - %s, %s" % (type(e), e))
-                
+
             if self.session is None:  # object_session gave None without error
                 if db.Session is not None:
                     self.session = db.Session()
@@ -1091,9 +1091,20 @@ class GenericEditorPresenter(object):
                 self.refresh_view()
             view.connect_signals(self)
 
+            if False:
+                copy = gtk.Action('clip-copy', 'clip-copy', '', None)
+                paste = gtk.Action('clip-paste', 'clip-paste', '', None)
+                actions = gtk.ActionGroup('window-clip-actions')
+                actions.add_action_with_accel(copy, '<ctrl><shift>c')
+                actions.add_action_with_accel(paste, '<ctrl><shift>v')
+                copy.connect("activate", self.on_window_clip_copy)
+                paste.connect("activate", self.on_window_clip_paste)
+                for action in actions.list_actions():
+                    view.get_window().add_action(action)
+
     def refresh_sensitivity(self):
         logger.debug('you should implement this in your subclass')
-            
+
     def refresh_view(self):
         '''fill the values in the widgets as the field values in the model
 
@@ -1155,6 +1166,12 @@ class GenericEditorPresenter(object):
 
     def __get_widget_attr(self, widget):
         return self.widget_to_field_map.get(self.__get_widget_name(widget))
+
+    def on_window_clip_copy(self, widget, *args, **kwargs):
+        print 'on_window_clip_copy'
+
+    def on_window_clip_paste(self, widget, *args, **kwargs):
+        print 'on_window_clip_paste'
 
     def on_textbuffer_changed(self, widget, value=None, attr=None):
         """handle 'changed' signal on textbuffer widgets.
