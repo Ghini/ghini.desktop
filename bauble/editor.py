@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2018 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
@@ -1038,6 +1038,10 @@ class DontCommitException(Exception):
     pass
 
 
+gobject.signal_new("clip-copy", gtk.Widget, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+gobject.signal_new("clip-paste", gtk.Widget, gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ())
+
+
 class GenericEditorPresenter(object):
     """
     The presenter of the Model View Presenter Pattern
@@ -1056,6 +1060,7 @@ class GenericEditorPresenter(object):
 
     PROBLEM_DUPLICATE = random()
     PROBLEM_EMPTY = random()
+    clipboard_values = {}
 
     def __init__(self, model, view, refresh_view=False, session=None,
                  do_commit=False, committing_results=[gtk.RESPONSE_OK]):
@@ -1068,6 +1073,9 @@ class GenericEditorPresenter(object):
         self.running_threads = []
         self.owns_session = False
         self.session = session
+        if self.view:
+            self.view.get_window().connect("clip-copy", self.on_clipboard_copy)
+            self.view.get_window().connect("clip-paste", self.on_clipblard_paste)
 
         if session is None:
             try:
@@ -1124,7 +1132,7 @@ class GenericEditorPresenter(object):
         '''
         objs = list(self.session)
         try:
-            self.session.flush()
+            self.session.commit()
             try:
                 bauble.gui.get_view().update()
             except Exception, e:
@@ -1155,6 +1163,20 @@ class GenericEditorPresenter(object):
 
     def __get_widget_attr(self, widget):
         return self.widget_to_field_map.get(self.__get_widget_name(widget))
+
+    def on_clipboard_copy(self, widget, *args, **kwargs):
+        '''copy all view fields to the class clipboard
+        '''
+        print 'on_clipboard_copy', widget, args, kwargs
+        for w, f in self.widget_to_field_map.items():
+            self.__class__.clipboard_values[w] = getattr(self.model, f)
+
+    def on_clipblard_paste(self, widget, *args, **kwargs):
+        '''paste fields from the class clipboard into the view
+        '''
+        print 'on_clipboard_paste', widget, args, kwargs
+        for w in self.widget_to_field_map:
+            self.view.widget_set_value(w, self.clipboard_values[w])
 
     def on_textbuffer_changed(self, widget, value=None, attr=None):
         """handle 'changed' signal on textbuffer widgets.
