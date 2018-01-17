@@ -108,3 +108,6 @@ from_*.tar.gz
 settings.json
 odk-seen.json
 lab-csv2json.py
+test.py
+imex-it.rst
+ghini.py

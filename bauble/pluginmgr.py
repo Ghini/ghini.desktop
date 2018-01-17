@@ -295,7 +295,6 @@ def install(plugins_to_install, import_defaults=True, force=False):
     :type force: book
     """
 
-    print plugins_to_install, "this was initially"
     logger.debug('pluginmgr.install(%s)' % str(plugins_to_install))
     if plugins_to_install is 'all':
         to_install = plugins.values()
@@ -308,27 +307,26 @@ def install(plugins_to_install, import_defaults=True, force=False):
 
     # sort the plugins by their dependency
     depends, unmet = _create_dependency_pairs(plugins.values())
-    print depends, "the dependencies pairs"
+    logger.debug("%s - the dependencies pairs" % str(depends))
     if unmet != {}:
         logger.debug(unmet)
         raise BaubleError('unmet dependencies')
     to_install = utils.topological_sort(to_install, depends)
-    print to_install, "this is after topological sort"
+    logger.debug("%s - this is after topological sort" % str(to_install))
     if not to_install:
         raise BaubleError(_('The plugins contain a dependency loop. This '
-                            'can happend if two plugins directly or '
-                            'indirectly rely on each other'))
+                            'means that two plugins '
+                            '(possibly indirectly) rely on each other'))
 
     try:
         for p in to_install:
             logger.debug('install: %s' % p)
-            print p, "installing"
             p.install(import_defaults=import_defaults)
             # issue #28: here we make sure we don't add the plugin to the
             # registry twice but we should really update the version number
             # in the future when we accept versioned plugins (if ever)
             if not PluginRegistry.exists(p):
-                print p, "adding to registry"
+                logger.debug('%s - adding to registry' % p)
                 PluginRegistry.add(p)
     except Exception, e:
         logger.warning('bauble.pluginmgr.install(): %s' % utils.utf8(e))

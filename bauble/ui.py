@@ -774,6 +774,9 @@ class GUI(object):
                                       'LICENSE.ghini')) as f:
             license = f.read()
         about.set_license(license)  # not translated
+        about.set_comments(_('This version installed on: %s\n'
+                             'Latest published version: %s\n'
+                             'Publication date: %s') % (bauble.installation_date, bauble.release_version, bauble.release_date, ))
         about.run()
         about.destroy()
 

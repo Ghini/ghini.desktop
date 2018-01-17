@@ -34,8 +34,17 @@ import os
 import sys
 import bauble.paths as paths
 
+try:
+    import faulthandler
+    faulthandler.enable()
+except:
+    pass
+
 from bauble.version import version
 version_tuple = tuple(version.split('.'))
+release_date = None
+release_version = None
+installation_date = "1970-01-01T00:00:00Z"
 
 import bauble.i18n
 

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Ghini
-Version=1.0.77  # :bump
+Version=1.0.78  # :bump
 Comment=An application for managing botanical collections
 Terminal=False
 Icon=ghini

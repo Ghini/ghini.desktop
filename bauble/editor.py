@@ -257,6 +257,15 @@ class GenericEditorView(object):
 
     def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
+        """create and run FileChooserDialog, then write result in target
+
+        this is just a bit more than a wrapper. it adds 'last_folder', a
+        string indicationg the location where to put the FileChooserDialog,
+        and 'target', an Entry widget or its name.
+
+        make sure you have a gtk.RESPONSE_ACCEPT button.
+
+        """
         chooser = gtk.FileChooserDialog(text, parent, action, buttons)
         #chooser.set_do_overwrite_confirmation(True)
         #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
@@ -1121,7 +1130,6 @@ class GenericEditorPresenter(object):
             except Exception, e:
                 pass
         except Exception, e:
-            logger.warning(e)
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -1745,7 +1753,7 @@ class GenericModelViewPresenterEditor(object):
             except Exception, e:
                 pass
         except Exception, e:
-            logger.warning(e)
+            logger.warning("can't commit changes: (%s) %s" % (type(e), e))
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -1766,7 +1774,9 @@ class NoteBox(gtk.HBox):
         self.widgets.note_textview.set_buffer(buff)
         utils.set_widget_value(self.widgets.note_textview,
                                text or '')
-        buff.connect('changed', self.on_note_buffer_changed)
+        if not text:
+            self.presenter.add_problem(self.presenter.PROBLEM_EMPTY, self.widgets.note_textview)
+        buff.connect('changed', self.on_note_buffer_changed, self.widgets.note_textview)
 
     def __init__(self, presenter, model=None):
         super(NoteBox, self).__init__()
@@ -1891,10 +1901,13 @@ class NoteBox(gtk.HBox):
             value = None
         self.set_model_attr('category', value)
 
-    def on_note_buffer_changed(self, buff, *args):
+    def on_note_buffer_changed(self, buff, widget, *args):
         value = utils.utf8(buff.props.text)
         if not value:  # if value == ''
             value = None
+            self.presenter.add_problem(self.presenter.PROBLEM_EMPTY, widget)
+        else:
+            self.presenter.remove_problem(self.presenter.PROBLEM_EMPTY, widget)
         self.set_model_attr('note', value)
 
     def update_label(self):
@@ -2006,7 +2019,7 @@ class PictureBox(NoteBox):
                 im = gtk.Label()
                 im.set_text(label)
             except Exception, e:
-                logger.warning(e)
+                logger.warning("can't commit changes: (%s) %s" % (type(e), e))
                 im = gtk.Label()
                 im.set_text(e)
         else:
@@ -2029,30 +2042,10 @@ class PictureBox(NoteBox):
             filename = fileChooserDialog.get_filename()
             if filename:
                 ## rememberl chosen location for next time
-                PictureBox.last_folder, basename = os.path.split(filename)
-                import shutil
                 ## copy file to picture_root_dir (if not yet there).
-                if not filename.startswith(
-                        prefs.prefs[prefs.picture_root_pref]):
-                    shutil.copy(
-                        filename, prefs.prefs[prefs.picture_root_pref])
-                ## make thumbnail in thumbs subdirectory
-                from PIL import Image
+                PictureBox.last_folder, basename = os.path.split(unicode(filename))
                 logger.debug('new current folder is: %s' % self.last_folder)
-                full_dest_path = os.path.join(
-                    prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
-                try:
-                    im = Image.open(filename)
-                    im.thumbnail((400, 400))
-                    logger.debug('copying %s to %s' % (filename, full_dest_path))
-                    im.save(full_dest_path)
-                except IOError, e:
-                    logger.warning("can't make thumbnail")
-                except Exception, e:
-                    logger.warning("unexpected exception making thumbnail: "
-                                   "(%s)%s" % (type(e), e))
-                ## get dirname and basename from selected file, memorize
-                ## dirname
+                utils.copy_picture_with_thumbnail(self.last_folder, basename)
                 ## make sure the category is <picture>
                 self.set_model_attr('category', u'<picture>')
                 ## store basename in note field and fire callbacks.
@@ -2134,12 +2127,8 @@ class NotesPresenter(GenericEditorPresenter):
                 box.set_expanded(False)
                 valid_notes_count += 1
 
-        if valid_notes_count < 1:
-            self.add_note()
-
         logger.debug('notes: %s' % self.notes)
         logger.debug('children: %s' % self.box.get_children())
-        self.box.get_children()[0].set_expanded(True)  # expand first one
 
         self.widgets.notes_add_button.connect(
             'clicked', self.on_add_button_clicked)
@@ -2179,4 +2168,6 @@ class PicturesPresenter(NotesPresenter):
         super(PicturesPresenter, self).__init__(
             presenter, notes_property, parent_container)
 
-        self.box.get_children()[0].set_expanded(False)  # expand none
+        notes = self.box.get_children()
+        if notes:
+            notes[0].set_expanded(False)  # expand none

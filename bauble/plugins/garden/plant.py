@@ -30,7 +30,7 @@ from random import random
 
 import logging
 logger = logging.getLogger(__name__)
-#logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)
 
 import gtk
 
@@ -203,73 +203,46 @@ class PlantSearch(SearchStrategy):
             return []
 
 
-# TODO: what would happen if the PlantRemove.plant_id and PlantNote.plant_id
-# were out of synch.... how could we avoid these sort of cycles
-class PlantNote(db.Base, db.Serializable):
-    __tablename__ = 'plant_note'
-    __mapper_args__ = {'order_by': 'plant_note.date'}
+def as_dict(self):
+    result = db.Serializable.as_dict(self)
+    result['plant'] = (self.plant.accession.code +
+                       Plant.get_delimiter() + self.plant.code)
+    return result
 
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
-    plant = relation('Plant', uselist=False,
-                     backref=backref('notes', cascade='all, delete-orphan'))
-
-    def as_dict(self):
-        result = db.Serializable.as_dict(self)
-        result['plant'] = (self.plant.accession.code +
-                           Plant.get_delimiter() + self.plant.code)
-        return result
-
-    @classmethod
-    def retrieve_or_create(cls, session, keys,
-                           create=True, update=True):
-        """return database object corresponding to keys
-        """
-        result = super(PlantNote, cls).retrieve_or_create(session, keys, create, update)
-        category = keys.get('category', '')
-        if (create and (category.startswith('[') and category.endswith(']') or
-                        category.startswith('<') and category.endswith('>'))):
-            result = cls(**keys)
-            session.add(result)
-        return result
-
-    @classmethod
-    def retrieve(cls, session, keys):
-        q = session.query(cls)
-        if 'plant' in keys:
-            acc_code, plant_code = keys['plant'].rsplit(
-                Plant.get_delimiter(), 1)
-            q = q.join(
-                Plant).filter(Plant.code == unicode(plant_code)).join(
-                Accession).filter(Accession.code == unicode(acc_code))
-        if 'date' in keys:
-            q = q.filter(cls.date == keys['date'])
-        if 'category' in keys:
-            q = q.filter(cls.category == keys['category'])
-        try:
-            return q.one()
-        except:
-            return None
-
-    @classmethod
-    def compute_serializable_fields(cls, session, keys):
-        'plant is given as text, should be object'
-        result = {'plant': None}
-
+def retrieve(cls, session, keys):
+    q = session.query(cls)
+    if 'plant' in keys:
         acc_code, plant_code = keys['plant'].rsplit(
             Plant.get_delimiter(), 1)
-        logger.debug("acc-plant: %s-%s" % (acc_code, plant_code))
-        q = session.query(Plant).filter(
-            Plant.code == unicode(plant_code)).join(
+        q = q.join(
+            Plant).filter(Plant.code == unicode(plant_code)).join(
             Accession).filter(Accession.code == unicode(acc_code))
-        plant = q.one()
+    if 'date' in keys:
+        q = q.filter(cls.date == keys['date'])
+    if 'category' in keys:
+        q = q.filter(cls.category == keys['category'])
+    try:
+        return q.one()
+    except:
+        return None
 
-        result['plant'] = plant
+def compute_serializable_fields(cls, session, keys):
+    'plant is given as text, should be object'
+    result = {'plant': None}
 
-        return result
+    acc_code, plant_code = keys['plant'].rsplit(
+        Plant.get_delimiter(), 1)
+    logger.debug("acc-plant: %s-%s" % (acc_code, plant_code))
+    q = session.query(Plant).filter(
+        Plant.code == unicode(plant_code)).join(
+        Accession).filter(Accession.code == unicode(acc_code))
+    plant = q.one()
+
+    result['plant'] = plant
+
+    return result
+
+PlantNote = db.make_note_class('Plant', compute_serializable_fields, as_dict, retrieve)
 
 
 # TODO: some of these reasons are specific to UBC and could probably be culled.
@@ -838,6 +811,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                 abs(self._original_quantity-self.model.quantity)
         else:
             self.change.quantity = self.model.quantity
+        self.refresh_view()
 
     def on_plant_code_entry_changed(self, entry, *args):
         """
