@@ -131,6 +131,7 @@ full_filename_col = 8
 orig_binomial_col = 9
 edited_binomial_col = 10
 
+
 class PictureImporterPresenter(GenericEditorPresenter):
     widget_to_field_map = {
         'accno_entry': 'accno_format',
