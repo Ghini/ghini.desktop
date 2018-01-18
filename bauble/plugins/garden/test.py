@@ -1638,9 +1638,13 @@ class LocationTests(GardenTestCase):
         editor.session.close()
         editor.presenter.cleanup()
         return
-        # SKIPPED part, unclear what it really tests
-        del editor
 
+    def test_deleting_editor(self):
+        raise SkipTest('TODO: what is this garbage collection testing?')
+        loc = self.create(Location, name=u'some site', code=u'STE')
+        editor = LocationEditor(model=loc)
+
+        del editor
         self.assertEquals(utils.gc_objects_by_type('LocationEditor'), [],
                           'LocationEditor not deleted')
         self.assertEquals(
@@ -1648,22 +1652,6 @@ class LocationTests(GardenTestCase):
             'LocationEditorPresenter not deleted')
         self.assertEquals(utils.gc_objects_by_type('LocationEditorView'), [],
                           'LocationEditorView not deleted')
-
-    def test_editor(self):
-        """
-        Interactively test the LocationEditor
-        """
-        raise SkipTest('separate view from presenter, then test presenter')
-        loc = self.create(Location, name=u'some site', code=u'STE')
-        editor = LocationEditor(model=loc)
-        editor.start()
-        del editor
-        assert utils.gc_objects_by_type('LocationEditor') == [], \
-            'LocationEditor not deleted'
-        assert utils.gc_objects_by_type('LocationEditorPresenter') == [], \
-            'LocationEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('LocationEditorView') == [], \
-            'LocationEditorView not deleted'
 
 
 class CollectionTests(GardenTestCase):
