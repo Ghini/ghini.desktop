@@ -1051,10 +1051,11 @@ class PropagationEditorPresenter(PropagationPresenter):
             sensitive = False
 
         model = None
-        if self.model.prop_type == u'UnrootedCutting':
-            model = self.model._cutting
-        elif self.model.prop_type == u'Seed':
-            model = self.model._seed
+        if object_session(self.model):
+            if self.model.prop_type == u'UnrootedCutting':
+                model = self.model._cutting
+            elif self.model.prop_type == u'Seed':
+                model = self.model._seed
 
         if model:
             invalid = utils.get_invalid_columns(

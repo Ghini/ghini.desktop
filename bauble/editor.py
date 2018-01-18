@@ -770,6 +770,7 @@ class GenericEditorView(object):
 class MockDialog:
     def __init__(self):
         self.hidden = False
+        self.content_area = gtk.VBox()
 
     def hide(self):
         self.hidden = True
@@ -779,6 +780,12 @@ class MockDialog:
 
     def show(self):
         pass
+
+    def add_accel_group(self, group):
+        pass
+
+    def get_content_area(self):
+        return self.content_area
 
 
 class MockView:
@@ -1074,7 +1081,7 @@ class GenericEditorPresenter(object):
                 self.session = object_session(model)
             except Exception, e:
                 logger.debug("GenericEditorPresenter::__init__ - %s, %s" % (type(e), e))
-                
+
             if self.session is None:  # object_session gave None without error
                 if db.Session is not None:
                     self.session = db.Session()
@@ -1091,9 +1098,25 @@ class GenericEditorPresenter(object):
                 self.refresh_view()
             view.connect_signals(self)
 
+            actiongroup = gtk.ActionGroup('window-clip-actions')
+            accelgroup = gtk.AccelGroup()
+            fake_toolbar = gtk.Toolbar()
+            view.get_window().add_accel_group(accelgroup)
+            view.get_window().get_content_area().pack_start(fake_toolbar)
+            for shortcut, cb in (('<ctrl><shift>c', self.on_window_clip_copy),
+                                 ('<ctrl><shift>v', self.on_window_clip_paste)):
+                action = gtk.Action(shortcut, shortcut, 'clip-action', None)
+                actiongroup.add_action_with_accel(action, shortcut)
+                action.connect("activate", cb)
+                action.set_accel_group(accelgroup)
+                action.connect_accelerator()
+                toolitem = action.create_tool_item()
+                fake_toolbar.insert(toolitem, -1)
+            fake_toolbar.set_visible(False)
+
     def refresh_sensitivity(self):
         logger.debug('you should implement this in your subclass')
-            
+
     def refresh_view(self):
         '''fill the values in the widgets as the field values in the model
 
@@ -1155,6 +1178,12 @@ class GenericEditorPresenter(object):
 
     def __get_widget_attr(self, widget):
         return self.widget_to_field_map.get(self.__get_widget_name(widget))
+
+    def on_window_clip_copy(self, widget, *args, **kwargs):
+        print 'on_window_clip_copy'
+
+    def on_window_clip_paste(self, widget, *args, **kwargs):
+        print 'on_window_clip_paste'
 
     def on_textbuffer_changed(self, widget, value=None, attr=None):
         """handle 'changed' signal on textbuffer widgets.

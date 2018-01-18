@@ -335,7 +335,11 @@ class MockTagView(GenericEditorView):
         self.sensitive = False
         self.dict = {}
         self.widgets = None
+        self.window = gtk.Dialog()
 
+    def get_window(self):
+        return self.window
+        
     def is_dirty(self):
         return self._dirty
 

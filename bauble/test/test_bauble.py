@@ -278,17 +278,31 @@ class MVPTests(BaubleTestCase):
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkTextBuffer" id="tag_desc_textbuffer">
-    <signal name="changed" handler="on_tag_desc_textbuffer_changed" swapped="no"/>
-  </object>
+  <object class="GtkDialog" id="handler-defining-view"/>
 </interface>
 ''')
         ntf.flush()
         fn = ntf.name
-        view = GenericEditorView(fn)
+        view = GenericEditorView(fn, None, 'handler-defining-view')
+        presenter = HandlerDefiningPresenter(model, view)
+        natural_number_for_dialog_box = len(presenter.view._GenericEditorView__attached_signals)
+        ntf = tempfile.NamedTemporaryFile()
+        ntf.write('''\
+<interface>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkTextBuffer" id="tag_desc_textbuffer">
+    <signal name="changed" handler="on_tag_desc_textbuffer_changed" swapped="no"/>
+  </object>
+  <object class="GtkDialog" id="handler-defining-view"/>
+</interface>
+''')
+        ntf.flush()
+        fn = ntf.name
+        view = GenericEditorView(fn, None, 'handler-defining-view')
         presenter = HandlerDefiningPresenter(model, view)
         self.assertEquals(
-            len(presenter.view._GenericEditorView__attached_signals), 1)
+            len(presenter.view._GenericEditorView__attached_signals), natural_number_for_dialog_box + 1)
         presenter.on_tag_desc_textbuffer_changed()  # avoid uncounted line!
 
 
