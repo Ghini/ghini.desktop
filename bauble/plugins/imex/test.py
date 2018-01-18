@@ -690,19 +690,6 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(JSONExporter.last_folder, '/tmp')
 
 
-class MockImportView:
-    def widget_set_value(self, *args):
-        pass
-
-    def widget_get_value(self, *args):
-        pass
-
-    def connect_signals(self, *args):
-        pass
-
-    pass
-
-
 class JSONImportTests(BaubleTestCase):
 
     def setUp(self):
@@ -733,7 +720,7 @@ class JSONImportTests(BaubleTestCase):
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 0)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -748,7 +735,7 @@ class JSONImportTests(BaubleTestCase):
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 0)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -765,7 +752,7 @@ class JSONImportTests(BaubleTestCase):
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
         self.assertEquals(previously.sp_author, None)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.session.commit()
@@ -784,7 +771,7 @@ class JSONImportTests(BaubleTestCase):
             '"author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -803,7 +790,7 @@ class JSONImportTests(BaubleTestCase):
             '"id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -820,7 +807,7 @@ class JSONImportTests(BaubleTestCase):
             '"Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -845,7 +832,7 @@ class JSONImportTests(BaubleTestCase):
             '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -872,7 +859,7 @@ class JSONImportTests(BaubleTestCase):
             '"ht-epithet": "Orchidaceae", "author": "Thouars"}}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -909,7 +896,7 @@ class JSONImportTests(BaubleTestCase):
             '"rank": "genus"}}'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.session.commit()
@@ -930,7 +917,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
@@ -965,7 +952,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
@@ -999,7 +986,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\

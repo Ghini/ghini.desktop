@@ -40,7 +40,7 @@ from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText, UniqueConstraint
 from sqlalchemy.orm import relation, backref, object_mapper, validates
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, OperationalError
 
 import bauble.db as db
 from bauble.error import CheckConditionError
@@ -848,12 +848,16 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def refresh_sensitivity(self):
         logger.debug('refresh_sensitivity()')
-        logger.debug((self.model.accession is not None,
-                      self.model.code is not None,
-                      self.model.location is not None,
-                      self.model.quantity is not None,
-                      self.is_dirty(),
-                      len(self.problems) == 0))
+        try:
+            logger.debug((self.model.accession is not None,
+                          self.model.code is not None,
+                          self.model.location is not None,
+                          self.model.quantity is not None,
+                          self.is_dirty(),
+                          len(self.problems) == 0))
+        except OperationalError, e:
+            logger.debug('(%s)%s' % (type(e), e))
+            return
         logger.debug(self.problems)
 
         # TODO: because we don't call refresh_sensitivity() every time a

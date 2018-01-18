@@ -1098,24 +1098,21 @@ class GenericEditorPresenter(object):
                 self.refresh_view()
             view.connect_signals(self)
 
-            try:
-                actiongroup = gtk.ActionGroup('window-clip-actions')
-                accelgroup = gtk.AccelGroup()
-                fake_toolbar = gtk.Toolbar()
-                view.get_window().add_accel_group(accelgroup)
-                view.get_window().get_content_area().pack_start(fake_toolbar)
-                for shortcut, cb in (('<ctrl><shift>c', self.on_window_clip_copy),
-                                     ('<ctrl><shift>v', self.on_window_clip_paste)):
-                    action = gtk.Action(shortcut, shortcut, 'clip-action', None)
-                    actiongroup.add_action_with_accel(action, shortcut)
-                    action.connect("activate", cb)
-                    action.set_accel_group(accelgroup)
-                    action.connect_accelerator()
-                    toolitem = action.create_tool_item()
-                    fake_toolbar.insert(toolitem, -1)
-                fake_toolbar.set_visible(False)
-            except:
-                pass
+            actiongroup = gtk.ActionGroup('window-clip-actions')
+            accelgroup = gtk.AccelGroup()
+            fake_toolbar = gtk.Toolbar()
+            view.get_window().add_accel_group(accelgroup)
+            view.get_window().get_content_area().pack_start(fake_toolbar)
+            for shortcut, cb in (('<ctrl><shift>c', self.on_window_clip_copy),
+                                 ('<ctrl><shift>v', self.on_window_clip_paste)):
+                action = gtk.Action(shortcut, shortcut, 'clip-action', None)
+                actiongroup.add_action_with_accel(action, shortcut)
+                action.connect("activate", cb)
+                action.set_accel_group(accelgroup)
+                action.connect_accelerator()
+                toolitem = action.create_tool_item()
+                fake_toolbar.insert(toolitem, -1)
+            fake_toolbar.set_visible(False)
 
     def refresh_sensitivity(self):
         logger.debug('you should implement this in your subclass')
