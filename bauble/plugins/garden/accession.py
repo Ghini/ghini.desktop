@@ -908,7 +908,7 @@ class AccessionEditorView(editor.GenericEditorView):
         self.widgets.source_sw.set_vadjustment(adjustment)
 
         # set current page so we don't open the last one that was open
-        self.widgets.acc_notebook.set_current_page(0)
+        self.widgets.notebook.set_current_page(0)
 
     def get_window(self):
         return self.widgets.accession_dialog
