@@ -439,7 +439,8 @@ def get_widget_value(widget, index=0):
     if isinstance(widget, gtk.Label):
         return utf8(widget.get_text())
     elif isinstance(widget, gtk.TextView):
-        return utf8(widget.get_buffer().get_text())
+        textbuffer = widget.get_buffer()
+        return utf8(textbuffer.get_text(textbuffer.get_start_iter(), textbuffer.get_end_iter()))
     elif isinstance(widget, gtk.Entry):
         return utf8(widget.get_text())
     elif isinstance(widget, gtk.ComboBox):

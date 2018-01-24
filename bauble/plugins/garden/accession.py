@@ -1464,12 +1464,16 @@ class SourcePresenter(editor.GenericEditorPresenter):
         # specific to this Source and not attached to any Plant
         self.source_prop_presenter = SourcePropagationPresenter(
             self.parent_ref(), self.propagation, view, session)
+        self.source_prop_presenter.register_clipboard()
 
         # presenter that allows us to select an existing propagation
         self.prop_chooser_presenter = PropagationChooserPresenter(
             self.parent_ref(), self.source, view, session)
+
+        # collection data
         self.collection_presenter = CollectionPresenter(
             self.parent_ref(), self.collection, view, session)
+        self.collection_presenter.register_clipboard()
 
         def on_changed(entry, *args):
             text = entry.props.text
