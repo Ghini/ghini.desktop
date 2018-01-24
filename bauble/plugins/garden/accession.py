@@ -178,7 +178,7 @@ def remove_callback(accessions):
         values = dict(num_plants=len(acc.plants),
                       plant_codes=safe(', '.join(plants)))
         msg = (_('%(num_plants)s plants depend on this accession: '
-                 '<b>%(plant_codes)s</b>\n\n') % values + 
+                 '<b>%(plant_codes)s</b>\n\n') % values +
                _('You cannot remove an accession with plants.'))
         utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
         return
@@ -1732,6 +1732,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
+                           'intended_loc_create_plant_checkbutton': 'create_plant',
                            }
 
     PROBLEM_INVALID_DATE = random()
@@ -1749,6 +1750,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
         self._original_code = self.model.code
         self.current_source_box = None
+
+        model.create_plant = False
+        self.has_plants = len(model.plants) > 0
+        view.widget_set_sensitive('intended_loc_create_plant_checkbutton', not self.has_plants)
 
         # set the default code and add it to the top of the code formats
         self.populate_code_formats(model.code or '')
@@ -1914,6 +1919,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         def on_loc1_select(value):
             self.set_model_attr('intended_location', value)
+            if not self.has_plants:
+                view.widget_set_sensitive('intended_loc_create_plant_checkbutton', bool(value))
+
         init_location_comboentry(
             self, self.view.widgets.intended_loc_comboentry,
             on_loc1_select, required=False)
@@ -2315,9 +2323,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         handle the response from self.presenter.start() in self.start()
         '''
         not_ok_msg = _('Are you sure you want to lose your changes?')
-        for i in self.model.notes:
-            if i.note is None:
-                print i
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 if not self.presenter.validate():
@@ -2434,6 +2439,15 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         if self.model.id_qual is None:
             self.model.id_qual_rank = None
+
+        # should we also add a plant for this accession?
+        if self.model.create_plant:
+            logger.debug('creating plant for new accession')
+            accession = self.model
+            location = accession.intended_location
+            plant = Plant(accession=accession, code=u'1', quantity=accession.quantity_recvd, location=location)
+            self.session.add(plant)
+            
         return super(AccessionEditor, self).commit_changes()
 
 
