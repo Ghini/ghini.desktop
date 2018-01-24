@@ -1740,6 +1740,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         ;param view: an instance of AccessionEditorView
         '''
         super(AccessionEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self._dirty = False
         self.session = object_session(model)
         self._original_code = self.model.code

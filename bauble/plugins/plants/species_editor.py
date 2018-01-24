@@ -62,10 +62,12 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_spqual_combo': 'sp_qual',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
+                           'sp_habit_comboentry': 'habit',
                            }
 
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
         self._dirty = False
         self.omonym_box = None

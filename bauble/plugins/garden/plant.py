@@ -660,6 +660,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         :param view: should be an instance of PlantEditorView
         '''
         super(PlantEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code

@@ -231,6 +231,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         view: should be an instance of AccessionEditorView
         '''
         GenericEditorPresenter.__init__(self, model, view)
+        self.create_toolbar()
         self.session = object_session(model)
         self._dirty = False
 
