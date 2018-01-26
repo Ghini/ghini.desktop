@@ -488,6 +488,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         @view: should be an instance of GenusEditorView
         '''
         super(GenusEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
 
         # initialize widgets

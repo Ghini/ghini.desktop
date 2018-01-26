@@ -405,6 +405,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         :param view: should be an instance of FamilyEditorView
         '''
         super(FamilyEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
 
         # initialize widgets

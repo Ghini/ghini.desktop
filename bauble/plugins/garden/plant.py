@@ -629,7 +629,7 @@ class PlantEditorView(GenericEditorView):
         self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
         self.init_translatable_combo('reason_combo', change_reasons)
         utils.setup_date_button(self, 'plant_date_entry', 'plant_date_button')
-        self.widgets.plant_notebook.set_current_page(0)
+        self.widgets.notebook.set_current_page(0)
 
     def get_window(self):
         return self.widgets.plant_editor_dialog
@@ -660,6 +660,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         :param view: should be an instance of PlantEditorView
         '''
         super(PlantEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code
@@ -767,7 +768,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
         if self.model.quantity == 0:
-            self.view.widgets.plant_notebook.set_sensitive(False)
+            self.view.widgets.notebook.set_sensitive(False)
             msg = _('This plant is marked with quantity zero. \n'
                     'In practice, it is not any more part of the collection. \n'
                     'Are you sure you want to edit it anyway?')
@@ -775,7 +776,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             def on_response(button, response):
                 self.view.remove_box(box)
                 if response:
-                    self.view.widgets.plant_notebook.set_sensitive(True)
+                    self.view.widgets.notebook.set_sensitive(True)
             box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
             box.message = msg
             box.on_response = on_response
