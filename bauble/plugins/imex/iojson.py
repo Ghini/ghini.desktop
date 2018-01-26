@@ -33,7 +33,6 @@ from bauble.plugins.garden.location import (Location)
 import bauble.task
 from bauble import editor
 from bauble import paths
-from bauble import gui
 import json
 from bauble import pluginmgr
 from bauble import pb_set_fraction
@@ -278,6 +277,7 @@ class JSONImporter(editor.GenericEditorPresenter):
             yield
         session.commit()
         try:
+            from bauble import gui
             gui.get_view().update()
         except:
             pass
