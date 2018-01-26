@@ -24,17 +24,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-import bauble.utils as utils
-import bauble.db as db
+from bauble import utils
+from bauble import db
 from bauble.plugins.plants import (Familia, Genus, Species, VernacularName)
 from bauble.plugins.garden.plant import (Plant, PlantNote)
 from bauble.plugins.garden.accession import (Accession, AccessionNote)
 from bauble.plugins.garden.location import (Location)
 import bauble.task
-import bauble.editor as editor
-import bauble.paths as paths
+from bauble import editor
+from bauble import paths
+from bauble import gui
 import json
-import bauble.pluginmgr as pluginmgr
+from bauble import pluginmgr
 from bauble import pb_set_fraction
 
 
@@ -276,6 +277,10 @@ class JSONImporter(editor.GenericEditorPresenter):
             pb_set_fraction(float(i) / n)
             yield
         session.commit()
+        try:
+            gui.get_view().update()
+        except:
+            pass
 
 
 #
