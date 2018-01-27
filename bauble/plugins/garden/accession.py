@@ -850,6 +850,7 @@ class AccessionEditorView(editor.GenericEditorView):
                                      'material being accessioned.'),
         'intended2_loc_comboentry': _('The intended location for plant '
                                       'material being accessioned.'),
+        'intended_loc_create_plant_checkbutton': _('Immediately create a plant at this location, using all plant material.'),
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
