@@ -101,7 +101,8 @@ def remove_callback(families):
     return True
 
 
-edit_action = view.Action('family_edit', _('_Edit'), callback=edit_callback,
+edit_action = view.Action('family_edit', _('_Edit'),
+                          callback=edit_callback,
                           accelerator='<ctrl>e')
 add_species_action = view.Action('family_genus_add', _('_Add genus'),
                                  callback=add_genera_callback,

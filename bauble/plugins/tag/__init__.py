@@ -219,9 +219,11 @@ def remove_callback(tags):
     return True
 
 
-edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('acc_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
-remove_action = Action('tag_remove', _('_Delete'), callback=remove_callback,
+remove_action = Action('tag_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 tag_context_menu = [edit_action, remove_action]

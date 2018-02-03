@@ -106,13 +106,16 @@ def remove_callback(plants):
     return True
 
 
-edit_action = Action('plant_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('plant_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e', multiselect=True)
 
-branch_action = Action('plant_branch', _('_Split'), callback=branch_callback,
+branch_action = Action('plant_branch', _('_Split'),
+                       callback=branch_callback,
                        accelerator='<ctrl>b')
 
-remove_action = Action('plant_remove', _('_Delete'), callback=remove_callback,
+remove_action = Action('plant_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 plant_context_menu = [

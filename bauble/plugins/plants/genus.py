@@ -110,12 +110,14 @@ def remove_callback(genera):
     return True
 
 
-edit_action = Action('genus_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('genus_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
 add_species_action = Action('genus_sp_add', _('_Add species'),
                             callback=add_species_callback,
                             accelerator='<ctrl>k')
-remove_action = Action('genus_remove', _('_Delete'), callback=remove_callback,
+remove_action = Action('genus_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 genus_context_menu = [edit_action, add_species_action, remove_action]
