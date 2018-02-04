@@ -381,12 +381,12 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.presenter = LocationEditorPresenter(self.model, view)
 
         # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
+        self.presenter.attach_response(gtk.RESPONSE_OK, 'Return',
+                                       gtk.gdk.CONTROL_MASK)
+        self.presenter.attach_response(self.RESPONSE_OK_AND_ADD, 'k',
+                                       gtk.gdk.CONTROL_MASK)
+        self.presenter.attach_response(self.RESPONSE_NEXT, 'n',
+                                       gtk.gdk.CONTROL_MASK)
 
     def handle_response(self, response):
         '''

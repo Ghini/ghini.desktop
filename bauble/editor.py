@@ -1102,6 +1102,20 @@ class GenericEditorPresenter(object):
                 self.refresh_view()
             view.connect_signals(self)
 
+    def attach_response(self, response, keyname, mask):
+        '''force view-owned dialog response on key event
+
+        '''
+        def force_response(window, event, key, mask):
+            "force given response when key event matches keyname&mask"
+            logger.debug(gtk.gdk.keyval_name(event.keyval))
+            if event.keyval == gtk.gdk.keyval_from_name(key) \
+                    and (event.state & mask):
+                window.response(response)
+        dialog = self.view.get_window()
+        dialog.add_events(gtk.gdk.KEY_PRESS_MASK)
+        dialog.connect("key-press-event", force_response, keyname, mask)
+
     def create_toolbar(self, *args, **kwargs):
         view, model = self.view, self.model
         logging.debug('creating toolbar in content_area presenter %s' % self.__class__.__name__)
@@ -1810,18 +1824,6 @@ class GenericModelViewPresenterEditor(object):
     def __init__(self, model, parent=None):
         self.session = db.Session()
         self.model = self.session.merge(model)
-
-    def attach_response(self, dialog, response, keyname, mask):
-        '''
-        Attach a response to dialog when keyname and mask are pressed
-        '''
-        def callback(widget, event, key, mask):
-#            debug(gtk.gdk.keyval_name(event.keyval))
-            if event.keyval == gtk.gdk.keyval_from_name(key) \
-                    and (event.state & mask):
-                widget.response(response)
-        dialog.add_events(gtk.gdk.KEY_PRESS_MASK)
-        dialog.connect("key-press-event", callback, keyname, mask)
 
     def commit_changes(self):
         '''

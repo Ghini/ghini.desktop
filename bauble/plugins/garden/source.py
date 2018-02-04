@@ -790,6 +790,7 @@ source_detail_remove_action = \
     view.Action('source_detail_remove', _('_Delete'),
                 callback=source_detail_remove_callback,
                 accelerator='<ctrl>Delete', multiselect=True)
+
 source_detail_context_menu = [source_detail_edit_action,
                               source_detail_remove_action]
 
