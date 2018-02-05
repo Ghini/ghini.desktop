@@ -1104,14 +1104,6 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
 
         view = PropagationEditorView(parent=self.parent)
         self.presenter = PropagationEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.presenter.attach_response(gtk.RESPONSE_OK, 'Return',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_OK_AND_ADD, 'k',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_NEXT, 'n',
-                                       gtk.gdk.CONTROL_MASK)
             
     def handle_response(self, response, commit=True):
         '''
