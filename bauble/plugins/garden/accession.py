@@ -2308,14 +2308,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(self.model, view)
 
-        # add quick response keys
-        self.presenter.attach_response(gtk.RESPONSE_OK, 'Return',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_OK_AND_ADD, 'k',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_NEXT, 'n',
-                                       gtk.gdk.CONTROL_MASK)
-
         # set the default focus
         if self.model.species is None:
             view.widgets.acc_species_entry.grab_focus()
