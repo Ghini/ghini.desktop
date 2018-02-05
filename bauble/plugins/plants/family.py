@@ -616,14 +616,6 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
         view = FamilyEditorView(parent=self.parent)
         self.presenter = FamilyEditorPresenter(self.model, view)
 
-        # add quick response keys
-        self.presenter.attach_response(gtk.RESPONSE_OK, 'Return',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_OK_AND_ADD, 'k',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_NEXT, 'n',
-                                       gtk.gdk.CONTROL_MASK)
-
     def handle_response(self, response):
         '''
         @return: return a list if we want to tell start() to close the editor,

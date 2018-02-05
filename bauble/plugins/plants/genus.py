@@ -760,14 +760,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         view = GenusEditorView(parent=self.parent)
         self.presenter = GenusEditorPresenter(self.model, view)
 
-        # add quick response keys
-        self.presenter.attach_response(gtk.RESPONSE_OK, 'Return',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_OK_AND_ADD, 'k',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_NEXT, 'n',
-                                       gtk.gdk.CONTROL_MASK)
-
         # set default focus
         if self.model.family is None:
             view.widgets.gen_family_entry.grab_focus()

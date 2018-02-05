@@ -1112,12 +1112,6 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                                        gtk.gdk.CONTROL_MASK)
         self.presenter.attach_response(self.RESPONSE_NEXT, 'n',
                                        gtk.gdk.CONTROL_MASK)
-
-        # set the default focus
-        # if self.model.species is None:
-        #     view.widgets.acc_species_entry.grab_focus()
-        # else:
-        #     view.widgets.acc_code_entry.grab_focus()
             
     def handle_response(self, response, commit=True):
         '''

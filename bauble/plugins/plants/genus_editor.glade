@@ -347,6 +347,7 @@
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
+                <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -363,6 +364,7 @@
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
                 <property name="use_underline">True</property>
+                <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -377,6 +379,7 @@
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
+                <accelerator key="n" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                 <child>
                   <object class="GtkAlignment" id="alignment6">
                     <property name="visible">True</property>

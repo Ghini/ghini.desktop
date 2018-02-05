@@ -1218,14 +1218,6 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         ## view or the presenter?
         self.view = view
 
-        # add quick response keys
-        self.presenter.attach_response(gtk.RESPONSE_OK, 'Return',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_OK_AND_ADD, 'k',
-                                       gtk.gdk.CONTROL_MASK)
-        self.presenter.attach_response(self.RESPONSE_NEXT, 'n',
-                                       gtk.gdk.CONTROL_MASK)
-
         # set default focus
         if self.model.genus is None:
             view.widgets.sp_genus_entry.grab_focus()
