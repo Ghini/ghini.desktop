@@ -356,3 +356,17 @@ you will need to include the directory you extracted to in your PATH.
 .. rubric:: Next...
 
 :ref:`connecting`.
+
+Installing on Android
+--------------------------
+
+``ghini.desktop`` is a desktop program, obviously you don't install it on a handheld 
+device, but we do offer the option, for your Android phone or tablet, to install ``ghini.pocket``.
+
+``ghini.pocket`` is a small data viewer, it comes handy if you want to have a quick idea 
+of a plant species, its source, and date it entered the garden, just by scanning a plant label.
+
+Installation is as easy as it can be: just `look for it in Google Play
+<https://play.google.com/store/apps/details?id=me.ghini.pocket>`_, and install it.
+
+Export the data from ``ghini.desktop`` to pocket format, copy it to your device, enjoy.
