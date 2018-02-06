@@ -1053,6 +1053,25 @@ class JSONImportTests(BaubleTestCase):
         self.assertEquals(exporter.filename, '/tmp/test.json')
         self.assertEquals(JSONImporter.last_folder, '/tmp')
 
+    def test_import_contact(self):
+        ## T_0
+        # empty database
+
+        ## offer two objects for import
+        importer = JSONImporter(MockView())
+        json_string = '[{"name": "Summit", "object": "contact"}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer.filename = self.temp_path
+        importer.create = True
+        importer.update = True
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+
+        ## T_1
+        summit = self.session.query(Contact).first()
+        self.assertNotEquals(summit, None)
+
 
 class GlobalFunctionsTests(BaubleTestCase):
     'Presenter manages view and model, implements view callbacks.'
