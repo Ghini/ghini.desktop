@@ -332,7 +332,7 @@ def create(import_defaults=True):
         raise ValueError('engine is None, not connected to a database')
     import bauble
     import bauble.meta as meta
-    import bauble.pluginmgr as pluginmgr
+    from bauble import pluginmgr
     import datetime
 
     connection = engine.connect()
@@ -746,4 +746,8 @@ def class_of_object(o):
     """
 
     name = ''.join(p.capitalize() for p in o.split('_'))
-    return globals().get(name)
+    cls = globals().get(name)
+    if cls is None:
+        from bauble import pluginmgr
+        cls = pluginmgr.provided.get(name)
+    return cls

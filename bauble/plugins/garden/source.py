@@ -819,6 +819,14 @@ class Contact(db.Base, db.Serializable):
             safe(self.name),
             safe(self.source_type or ''))
 
+    @classmethod
+    def retrieve(cls, session, keys):
+        try:
+            return session.query(cls).filter(
+                cls.name == keys['name']).one()
+        except:
+            return None
+
 
 class ContactPresenter(editor.GenericEditorPresenter):
 

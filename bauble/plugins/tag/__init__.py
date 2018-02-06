@@ -754,9 +754,11 @@ class TagInfoBox(InfoBox):
         self.general.update(row)
 
 class TagPlugin(pluginmgr.Plugin):
+    provides = {'Tag': Tag}
 
     @classmethod
     def init(cls):
+        pluginmgr.provided.update(cls.provides)
         from bauble.view import SearchView
         from functools import partial
         mapper_search = search.get_strategy('MapperSearch')

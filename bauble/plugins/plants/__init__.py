@@ -47,14 +47,14 @@ import bauble.db as db
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants.family import (
-    Familia, Family, FamilyInfoBox, FamilyEditor,
+    Familia, Family, FamilyInfoBox, FamilyEditor, FamilyNote,
     family_context_menu)
 from bauble.plugins.plants.genus import (
-    Genus, GenusEditor, GenusInfoBox,
+    Genus, GenusEditor, GenusInfoBox, GenusNote,
     genus_context_menu,
     )
 from bauble.plugins.plants.species import (
-    Species, SpeciesEditorMenuItem, SpeciesInfoBox,
+    Species, SpeciesEditorMenuItem, SpeciesInfoBox, SpeciesNote,
     species_context_menu, add_accession_action,
     SynonymSearch, SpeciesDistribution,
     VernacularName, VernacularNameInfoBox,
@@ -319,9 +319,18 @@ class SplashInfoBox(pluginmgr.View):
 
 class PlantsPlugin(pluginmgr.Plugin):
     tools = [TaxonomyCheckTool, StoredQueryEditorTool]
+    provides = {'Family': Family,
+                'FamilyNote': FamilyNote,
+                'Genus': Genus,
+                'GenusNote': GenusNote,
+                'Species': Species,
+                'SpeciesNote': SpeciesNote,
+                'VernacularName': VernacularName,
+                'Geography': Geography, }
 
     @classmethod
     def init(cls):
+        pluginmgr.provided.update(cls.provides)
         if 'GardenPlugin' in pluginmgr.plugins:
             species_context_menu.insert(1, add_accession_action)
             vernname_context_menu.insert(1, add_accession_action)
