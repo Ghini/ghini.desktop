@@ -29,6 +29,7 @@ from bauble import db
 from bauble.plugins.plants import (Familia, Genus, Species, VernacularName)
 from bauble.plugins.garden.plant import (Plant, PlantNote)
 from bauble.plugins.garden.accession import (Accession, AccessionNote)
+from bauble.plugins.garden.source import (Source, Contact)
 from bauble.plugins.garden.location import (Location)
 import bauble.task
 from bauble import editor
@@ -118,6 +119,8 @@ class JSONExporter(editor.GenericEditorPresenter):
             accessionnotes = self.session.query(AccessionNote).filter(
                 AccessionNote.accession_id.in_(
                     [j.id for j in accessions])).all()
+            ## all used contacts, but please don't repeat them.
+            contacts = list(set(a.source.source_detail for a in accessions if a.source))
             # extend results with things not further used
             result.extend(locations)
             result.extend(plants)
@@ -130,6 +133,10 @@ class JSONExporter(editor.GenericEditorPresenter):
             accessionnotes = self.session.query(AccessionNote).filter(
                 AccessionNote.accession_id.in_(
                     [j.id for j in accessions])).all()
+            ## all used contacts, but please don't repeat them.
+            contacts = list(set(a.source.source_detail for a in accessions if a.source))
+        else:
+            contacts = []
 
         ## now the taxonomy, based either on all species or on the ones used
         if self.selection_based_on == 'sbo_taxa':
@@ -155,7 +162,7 @@ class JSONExporter(editor.GenericEditorPresenter):
             Familia.family).all()
 
         ## prepend the result with the taxonomic information
-        result = families + genera + species + vernacular + result
+        result = families + genera + species + vernacular + contacts + result
 
         ## done, return the result
         return result

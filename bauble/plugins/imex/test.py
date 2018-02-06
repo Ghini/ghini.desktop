@@ -31,7 +31,7 @@ from sqlalchemy import Column, Integer, Boolean
 import bauble.db as db
 from bauble.plugins.plants import (
     Familia, Family, Genus, Species, VernacularName)
-from bauble.plugins.garden import Accession, Location, Plant
+from bauble.plugins.garden import Accession, Location, Plant, Contact, Source
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
@@ -630,7 +630,6 @@ class JSONExportTests(BaubleTestCase):
         exporter.filename = self.temp_path
         exporter.run()
         result = json.load(open(self.temp_path))
-        print result
         self.assertEquals(len(result), 6)
 
     def test_export_non_private_if_sbo_plants(self):
@@ -688,6 +687,34 @@ class JSONExportTests(BaubleTestCase):
         exporter.on_text_entry_changed('filename')
         self.assertEquals(exporter.filename, '/tmp/test.json')
         self.assertEquals(JSONExporter.last_folder, '/tmp')
+
+    def test_includes_sources(self):
+
+        ## precondition
+        # Create an Accession a, then create a Source s, then assign a.source = s
+        a = self.session.query(Accession).first()
+        a.source = s = Source()
+        s.source_detail = c = Contact(name=u'Summit')
+        self.session.add_all([s, c])
+        self.session.commit()
+
+        ## action
+        exporter = JSONExporter(MockView())
+        selection = [a]
+        exporter.view.selection = None
+        exporter.selection_based_on = 'sbo_accessions'
+        exporter.include_private = True
+        exporter.filename = self.temp_path
+        exporter.run()
+
+        ## check
+        result = json.load(open(self.temp_path))
+        print result
+        contacts_from_json = [i for i in result
+                              if i['object'] == 'contact']
+        self.assertEquals(len(contacts_from_json), 1)
+        self.assertEquals(contacts_from_json[0]['language'], 'es')
+        
 
 
 class JSONImportTests(BaubleTestCase):
