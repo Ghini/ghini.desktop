@@ -713,8 +713,14 @@ class JSONExportTests(BaubleTestCase):
         contacts_from_json = [i for i in result
                               if i['object'] == 'contact']
         self.assertEquals(len(contacts_from_json), 1)
-        self.assertEquals(contacts_from_json[0]['language'], 'es')
-        
+        self.assertEquals(contacts_from_json[0]['name'], 'Summit')
+        accessions_from_json = [i for i in result
+                                if i['object'] == 'accession']
+        self.assertEquals(len(accessions_from_json), 3)
+        accessions_with_contact = [i for i in result
+                                   if i['object'] == 'accession' and i.get('contact') is not None]
+        self.assertEquals(len(accessions_with_contact), 1)
+        self.assertEquals(accessions_with_contact[0]['contact'], 'Summit')
 
 
 class JSONImportTests(BaubleTestCase):

@@ -756,6 +756,8 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     def as_dict(self):
         result = db.Serializable.as_dict(self)
         result['species'] = self.species.str(remove_zws=True, authors=False)
+        if self.source and self.source.source_detail:
+            result['contact'] = self.source.source_detail.name
         return result
 
     @classmethod

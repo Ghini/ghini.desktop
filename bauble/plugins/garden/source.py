@@ -795,7 +795,7 @@ source_detail_context_menu = [source_detail_edit_action,
                               source_detail_remove_action]
 
 
-class Contact(db.Base):
+class Contact(db.Base, db.Serializable):
     __tablename__ = 'source_detail'
     __mapper_args__ = {'order_by': 'name'}
 
