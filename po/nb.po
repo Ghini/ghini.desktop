@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-16 16:11-0500\n"
-"PO-Revision-Date: 2017-11-14 13:27+0000\n"
+"PO-Revision-Date: 2018-02-14 03:37+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
-"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/ghini/"
-"desktop-10/nb_NO/>\n"
-"Language: nb_NO\n"
+"Language-Team: Norwegian Bokmål "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/nb/>\n"
+"Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.18-dev\n"
+"X-Generator: Weblate 2.19-dev\n"
 
 #: bauble/btypes.py:87
 msgid "\"%(value)s\" not in Enum.values: %(all_values)s"
@@ -26,11 +26,12 @@ msgstr "\"%(value)s\" finnes ikke i Enum.values: %(all_values)s"
 
 #: bauble/plugins/garden/prop_editor.glade:1343
 msgid "# Germinated"
-msgstr ""
+msgstr "# Spiret"
 
 #: bauble/plugins/garden/propagation.py:227
+#, fuzzy
 msgid "# of seedlings"
-msgstr ""
+msgstr "# av spirer"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
@@ -39,15 +40,15 @@ msgstr "Antall frø"
 
 #: bauble/plugins/garden/prop_editor.glade:1393
 msgid "% Germinated"
-msgstr ""
+msgstr "% spiret"
 
 #: bauble/plugins/garden/accession.py:707
 msgid "%(1)s plant groups in %(2)s location(s)"
-msgstr ""
+msgstr "%(1)s plantegrupper på %(2)s sted(er)"
 
 #: bauble/plugins/plants/species_model.py:464
 msgid "%(group)s Group"
-msgstr ""
+msgstr "%(group)s gruppe"
 
 #: bauble/plugins/garden/accession.py:180
 msgid ""
