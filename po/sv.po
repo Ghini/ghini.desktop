@@ -9,16 +9,16 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-11-16 16:11-0500\n"
-"PO-Revision-Date: 2017-11-16 02:10+0000\n"
-"Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
-"Language-Team: Swedish <https://hosted.weblate.org/projects/ghini/desktop-10/"
-"sv/>\n"
+"PO-Revision-Date: 2018-02-14 03:37+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Swedish "
+"<https://hosted.weblate.org/projects/ghini/desktop-10/sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.18-dev\n"
+"X-Generator: Weblate 2.19-dev\n"
 "X-Launchpad-Export-Date: 2013-01-23 05:32+0000\n"
 "X-Poedit-Basepath: ../\n"
 "X-Poedit-SearchPath-0: bauble\n"
@@ -36,8 +36,9 @@ msgid "# Germinated"
 msgstr "Antal som grott"
 
 #: bauble/plugins/garden/propagation.py:227
+#, fuzzy
 msgid "# of seedlings"
-msgstr ""
+msgstr "Antal sticklingar"
 
 #: bauble/plugins/garden/prop_editor.glade:1152
 #: bauble/plugins/garden/propagation.py:211
@@ -53,6 +54,7 @@ msgid "%(1)s plant groups in %(2)s location(s)"
 msgstr ""
 
 #: bauble/plugins/plants/species_model.py:464
+#, fuzzy
 msgid "%(group)s Group"
 msgstr "\"%(group)s\""
 
