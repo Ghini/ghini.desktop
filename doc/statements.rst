@@ -65,8 +65,3 @@ necessary changes in order to grow and prosper.
 * development
 * integration with web portal
 * geographic information
-
-The Ghini family
-..............................................
-
-.. image:: images/ghini-family.png
