@@ -599,14 +599,9 @@ database server, or your internet browser and ghini.web.
 Lighter green streams are import/export actions, initiated by the user at the
 command panel of ghini.desktop, or in the ghini.tour settings page.
 
-This is the same graph, but we have named these streams:
+This is the same graph, in which all import data streams have been given an identifier.
 
 .. image:: images/ghini-family-streams.png
-
-All named streams need be formally defined in order for our developers to be
-sure we know what we are doing.  Moreover, those impacting the desktop and
-web databases require extra thought and attention from your database
-manager.
 
 .. list-table:: Stream role description
    :widths: 15 85
@@ -630,13 +625,9 @@ manager.
    * - **w2t**
      - Importing locations and points of interest from ghini.web to tour.
 
-
-Changes in database structure require synchronized release of ghini.pocket
-and ghini.desktop.
-
-At the moment it's just a script, it needs be integrated in ghini.desktop,
-this is the one that needs most care from your database manager as its
-activations impacts your main data repository.
+We formally define all named streams, so our we know we are talking about.
+Moreover, streams impacting the desktop and web databases require extra
+thought and attention from your database manager.
    
 Extending Ghini with Plugins
 -----------------------------
