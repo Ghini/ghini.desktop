@@ -614,15 +614,15 @@ databases require extra thought and attention from your database manager.
 
    * - name
      - description
-   * - d2p
+   * - **d2p**
      - This is ghini.desktop's :menuselection:`Tools-->Export-->export to pocket`.
-   * - p2d
+   * - **p2d**
      - Import from the ghini.pocket log file and pictures into the central database.
-   * - d2w
+   * - **d2w**
      - Offering a selection from your valuable garden data to a central ghini.web
        site, in order for it to become visible to online virtual visitors, and to
        offer virtual information panels to real life garden visitors.
-   * - w2t
+   * - **w2t**
      - Importing locations and points of interest from ghini.web to tour.
 
 
