@@ -590,14 +590,14 @@ Let's start by recalling the composition of the Ghini family, as shown in the di
 When we first introduced the diagram, we did not explain the reason why
 different arrows representing different data flows, had different colours:
 some are deep green, some in a lighter tint.  If you suspected this bore a
-meaning then you were quite right and the present section explains it.
+meaning then you were quite right:
 
 Deeper green streams are constant flows of data, representing the core
-activity of one of the components, eg: the interaction between ghini.desktop
-and its database server, or your internet browser querying ghini.web.
+activity of a component, eg: the interaction between ghini.desktop and its
+database server, or your internet browser and ghini.web.
 
 Lighter green streams are import/export actions, initiated by the user at the
-command panel of ghini.desktop, or in ghini.tour settings page.
+command panel of ghini.desktop, or in the ghini.tour settings page.
 
 This is the same graph, but we have named these streams:
 
@@ -616,13 +616,17 @@ manager.
    * - name
      - description
    * - **d2p**
-     - This is ghini.desktop's :menuselection:`Tools-->Export-->export to pocket`.
+     - This is ghini.desktop's :menuselection:`Tools-->Export-->export to
+       pocket`.
    * - **p2d**
-     - Import from the ghini.pocket log file and pictures into the central database.
+     - Import from the ghini.pocket log file and pictures into the central
+       database.
    * - **d2w**
-     - Offering a selection from your valuable garden data to a central ghini.web
-       site, in order for it to become visible to online virtual visitors, and to
-       offer virtual information panels to real life garden visitors.
+     - Offer a selection of your garden data to a central ghini.web site, so
+       online virtual visitors can browse it.
+   * - **g2w**
+     - Write geographic information needed by ghini.tour (ie: point of
+       interest within the garden) in the central ghini.web site.
    * - **w2t**
      - Importing locations and points of interest from ghini.web to tour.
 
