@@ -607,16 +607,23 @@ All named streams need be formally defined in order for our developers to
 know what we are doing.  Moreover, those impacting the desktop and web
 databases require extra thought and attention from your database manager.
 
-============  ====================================================================================
-stream name   description
-============  ====================================================================================
-**d2p**       This is ghini.desktop's :menuselection:`Tools-->Export-->export to pocket`.  
-**p2d**       Import from the ghini.pocket log file and pictures into the central database.
-**d2w**       Offering a selection from your valuable garden data to a central ghini.web
-              site, in order for it to become visible to online virtual visitors, and to
-              offer virtual information panels to real life garden visitors.
-**w2t**       Importing locations and points of interest from ghini.web to tour.
-============  ====================================================================================
+.. list-table:: Comparison
+   :widths: 20 10 10 15 20 
+   :header-rows: 1
+   :class: tight-table   
+
+   * - stream name
+     - description
+   * - d2p
+     - This is ghini.desktop's :menuselection:`Tools-->Export-->export to pocket`.
+   * - p2d
+     - Import from the ghini.pocket log file and pictures into the central database.
+   * - d2w
+     - Offering a selection from your valuable garden data to a central ghini.web
+       site, in order for it to become visible to online virtual visitors, and to
+       offer virtual information panels to real life garden visitors.
+   * - w2t
+     - Importing locations and points of interest from ghini.web to tour.
 
 
 Changes in database structure require synchronized release of ghini.pocket

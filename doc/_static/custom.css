@@ -15,3 +15,7 @@
 .toggle .admonition-title.open:after {
     content: " ▲";
 }
+
+.tight-table td {
+    white-space: normal !important;
+}
