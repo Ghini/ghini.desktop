@@ -580,6 +580,61 @@ export dialog box. The following command will give you a list of
 
   grep -nHr -e GenericEditorView\( bauble
 
+Data streams between software components
+-----------------------------------------------
+
+Let's start by recalling the composition of the Ghini family, as shown in the diagram:
+
+.. image:: images/ghini-family-clean.png
+
+When we first introduced this schema, we did not explain the reason of the
+different colouring of data flows, why are some in deeper green, some in a
+lighter tint.  If you suspected this bore a meaning then you were quite right
+and the present section explains it.
+
+Deeper green streams are constant flows of data, the core activity of one of
+the components, like the interaction between ghini.desktop and its database
+server, or the querying that your internet browser establishes with
+ghini.web.
+
+Ligher green streams are import/export actions, initiated by the user at the
+command panel of ghini.desktop, or in ghini.tour settings page.  This is the
+same graph, but we have named these streams:
+
+.. image:: images/ghini-family-streams.png
+
+All named streams need be formally defined in order for our developers to
+know what we are doing.  Moreover, those impacting the desktop and web
+databases require extra thought and attention from your database manager.
+
+**d2p**
+
+   This is ghini.desktop's :menuselection:`Tools-->Export-->export to
+   pocket`.  
+
+**p2d**
+
+   Import from the ghini.pocket log file and pictures into the central
+   database.  
+
+**d2w**
+
+   Offering a selection from your valuable garden data to a central
+   ghini.web site, in order for it to become visible to online virtual
+   visitors, and to offer virtual information panels to real life garden
+   visitors.
+
+**w2t**
+
+   Importing locations and points of interest from ghini.web to tour.
+
+Changes in database structure require synchronized release of ghini.pocket
+and ghini.desktop.
+
+At the moment it's just a script, it needs be integrated in ghini.desktop,
+this is the one that needs most care from your database manager as its
+activations impacts your main data repository.
+   
 Extending Ghini with Plugins
 -----------------------------
 
