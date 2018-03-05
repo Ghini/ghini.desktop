@@ -587,25 +587,26 @@ Let's start by recalling the composition of the Ghini family, as shown in the di
 
 .. image:: images/ghini-family-clean.png
 
-When we first introduced this schema, we did not explain the reason of the
-different colouring of data flows, why are some in deeper green, some in a
-lighter tint.  If you suspected this bore a meaning then you were quite right
-and the present section explains it.
+When we first introduced the diagram, we did not explain the reason why
+different arrows representing different data flows, had different colours:
+some are deep green, some in a lighter tint.  If you suspected this bore a
+meaning then you were quite right and the present section explains it.
 
-Deeper green streams are constant flows of data, the core activity of one of
-the components, like the interaction between ghini.desktop and its database
-server, or the querying that your internet browser establishes with
-ghini.web.
+Deeper green streams are constant flows of data, representing the core
+activity of one of the components, eg: the interaction between ghini.desktop
+and its database server, or your internet browser querying ghini.web.
 
-Ligher green streams are import/export actions, initiated by the user at the
-command panel of ghini.desktop, or in ghini.tour settings page.  This is the
-same graph, but we have named these streams:
+Lighter green streams are import/export actions, initiated by the user at the
+command panel of ghini.desktop, or in ghini.tour settings page.
+
+This is the same graph, but we have named these streams:
 
 .. image:: images/ghini-family-streams.png
 
-All named streams need be formally defined in order for our developers to
-know what we are doing.  Moreover, those impacting the desktop and web
-databases require extra thought and attention from your database manager.
+All named streams need be formally defined in order for our developers to be
+sure we know what we are doing.  Moreover, those impacting the desktop and
+web databases require extra thought and attention from your database
+manager.
 
 .. list-table:: Stream role description
    :widths: 15 85
