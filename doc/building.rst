@@ -607,12 +607,12 @@ All named streams need be formally defined in order for our developers to
 know what we are doing.  Moreover, those impacting the desktop and web
 databases require extra thought and attention from your database manager.
 
-.. list-table:: Comparison
-   :widths: 20 10 10 15 20 
+.. list-table:: Stream role description
+   :widths: 15 85
    :header-rows: 1
    :class: tight-table   
 
-   * - stream name
+   * - name
      - description
    * - d2p
      - This is ghini.desktop's :menuselection:`Tools-->Export-->export to pocket`.
