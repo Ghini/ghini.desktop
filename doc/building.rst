@@ -620,8 +620,9 @@ This is the same graph, in which all import data streams have been given an iden
      - Offer a selection of your garden data to a central ghini.web site, so
        online virtual visitors can browse it.
    * - **g2w**
-     - Write geographic information needed by ghini.tour (ie: point of
-       interest within the garden) in the central ghini.web site.
+     - Write geographic information about non-botanic data (ie: point of
+       interest within the garden, required by ghini.tour) in the central
+       ghini.web site.
    * - **w2t**
      - Importing locations and points of interest from ghini.web to tour.
 
