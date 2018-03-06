@@ -116,7 +116,7 @@ http://gardens.ghini.me
 ghini.tour
 -----------------------------------------------
 
-ghini.tour is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.tour`_.
+ghini.tour is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
 
 
 
