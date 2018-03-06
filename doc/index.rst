@@ -15,7 +15,7 @@ Ghini is a suite of applications for managing botanical specimen collections.
 .. image:: images/ghini-family.png
 
 The bulk of this documentation focuses on ghini.desktop.  One final chapter
-presents the rest of the Ghini family: :any:`ghini.web`, :any:`ghini.pocket`,
+presents the rest of the Ghini family: :any:`ghini.pocket`, :any:`ghini.web`,
 :any:`ghini.tour`, and the :any:`interaction among components`.
 
 All Ghini software is `open <http://www.opensource.org>`_ and `free
