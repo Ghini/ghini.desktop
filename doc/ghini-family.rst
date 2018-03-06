@@ -32,17 +32,31 @@ procedures: ghini.pocket lets you write your corrections in a log file, take
 pictures associated to the plant, and you will import this information
 straight into the database, with further minimal user intervention.
 
-The initial idea on which we based ghini.pocket is still one of its functionalities: inventory review.
+inventory review
+`````````````````````````````````
+
+The initial idea on which we based ghini.pocket is still one of its
+functionalities: inventory review.
 
 Using ghini.pocket, reviewing the inventory of a greenhouse, in particular
 if you have QR codes on plant labels, goes as fast as you can walk: simply
-enter the location code of your greenhouse, then one by one scan the plant
-codes of the plants in the greenhouse.
+enter the location code of your greenhouse, reset the log, then one by one
+scan the plant codes of the plants in the greenhouse.  No further data
+collection action is required.
 
-Later import the log in ghini.desktop.  The procedure available in
-ghini.desktop includes marking as lost/dead all plants that the database
-reports as located in the inventoried greenhouse, but were not found during
-the inventory.
+..  admonition:: inventory hint
+    :class: toggle
+
+       placeholder for inventory protocol
+
+When you're done, import the log in ghini.desktop.  The procedure available
+in ghini.desktop includes adding unknown but labelled plants in the
+database, marking as lost/dead all plants that the database reports as alive
+and present in the inventoried location, but were not found during the
+inventory.
+
+taxonomic support
+``````````````````````````````````
 
 As a bonus, ghini.pocket contains a phonetic genus search, and a quite
 complete database of botanic taxa with rank between order and genus,
@@ -79,6 +93,7 @@ first of all, copy the collected information from ghini.pocket into your compute
   adb -d pull /sdcard/Android/data/me.ghini.pocket/files/searches.txt $DIR
   adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
 
+then use ghini.desktop to import this information into your database.
 
 .. _ghini.web:
 
