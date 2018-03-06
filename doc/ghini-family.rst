@@ -27,6 +27,9 @@ Just type an accession number, or scan its QR label, and you know:
 - when it entered the garden and
 - from which source.
 
+data correction
+````````````````````````````
+  
 If by your judgement, some of the information is incorrect, or if the plant
 is flowering and you want to immediately take a picture and store it in the
 database, you do not need take notes on paper, nor follow convolute
@@ -67,18 +70,18 @@ including tribes, and synonymies.
 how to copy the snapshot into ghini.pocket
 ```````````````````````````````````````````````````
 
-ghini.pocket is not a tool for the casual user, and your garden database
-manager needs to regularly write in your Android device.
+ghini.pocket integrates closely with ghini.desktop, and it's not a tool for
+the casual nor the external user.  One task of your garden database manager
+is to regularly copy an updated database snapshot to your Android device.
 
-One option to achieve this is by enabling USB debugging on the device.  In
-perspective, this will enable ghini.desktop writing directily into the
-ghini.pocket device.
+We advise enabling USB debugging on the device.  In perspective, this will
+allow ghini.desktop writing directily into the ghini.pocket device.
 
 Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
 
   adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
 
-The above command is valid even if your phone does not have a memory card.
+The above location is valid even if your phone does not have a memory card.
 
 Other options include bluetooth, or whatever other way you normally use to
 copy regular files into your Android device.
