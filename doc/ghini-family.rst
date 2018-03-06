@@ -1,14 +1,56 @@
 the Ghini family
 ==============================
 
-.. _ghini.web:
+Let's start by recalling the composition of the Ghini family, as shown in the diagram:
 
-ghini.web
------------------------------------------------
+.. image:: images/ghini-family-clean.png
 
+You have learned how to use ghini.desktop, here we introduce the other
+members of the family, and their interaction.
+           
 .. _ghini.pocket:
 
 ghini.pocket
+-----------------------------------------------
+
+This is the single program you definitely want to use next to ghini.desktop.
+ghini.pocket puts a snapshot of your database in your pocket, it puts at the
+tip of your fingers all most relevant information about any plant in your
+garden:
+
+Just type an accession number, or scan its QR label, and you know:
+
+- the identification of the plant,
+- whether it already has pictures,
+- when it entered the garden and
+- from which source.
+
+If by your judgement, some of the information is incorrect, or if the plant
+is flowering and you want to immediately take a picture and store it in the
+database, you do not need take notes on paper, nor follow convolute
+procedures: ghini.pocket lets you write your corrections in a log file, take
+pictures associated to the plant, and you will import this information
+straight into the database, with further minimal user intervention.
+
+The initial idea on which we based ghini.pocket is still one of its functionalities: inventory review.
+
+Using ghini.pocket, reviewing the inventory of a greenhouse, in particular
+if you have QR codes on plant labels, goes as fast as you can walk: simply
+enter the location code of your greenhouse, then one by one scan the plant
+codes of the plants in the greenhouse.
+
+Later import the log in ghini.desktop.  The procedure available in
+ghini.desktop includes marking as lost/dead all plants that the database
+reports as located in the inventoried greenhouse, but were not found during
+the inventory.
+
+As a bonus, ghini.pocket contains a phonetic genus search, and a quite
+complete database of botanic taxa with rank between order and genus,
+including tribes, and synonymies.
+
+.. _ghini.web:
+
+ghini.web
 -----------------------------------------------
 
 .. _ghini.tour:
@@ -21,14 +63,9 @@ ghini.tour
 data streams between software components
 -----------------------------------------------
 
-Let's start by recalling the composition of the Ghini family, as shown in the diagram:
-
-.. image:: images/ghini-family-clean.png
-
-When we first introduced the diagram, we did not explain the reason why
-different arrows representing different data flows, had different colours:
-some are deep green, some in a lighter tint.  If you suspected this bore a
-meaning then you were quite right:
+In the diagram showing the composition of the Ghini family, the alert reader
+noticed how different arrows representing different data flows, had
+different colours: some are deep green, some have a lighter tint.
 
 Deeper green streams are constant flows of data, representing the core
 activity of a component, eg: the interaction between ghini.desktop and its
@@ -37,7 +74,8 @@ database server, or your internet browser and ghini.web.
 Lighter green streams are import/export actions, initiated by the user at the
 command panel of ghini.desktop, or in the ghini.tour settings page.
 
-This is the same graph, in which all import data streams have been given an identifier.
+This is the same graph, in which all import data streams have been given an
+identifier.
 
 .. image:: images/ghini-family-streams.png
 
