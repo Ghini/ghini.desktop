@@ -13,7 +13,9 @@ members of the family, and their interaction.
 ghini.pocket
 -----------------------------------------------
 
-This is the very first program you definitely want to use next to
+ghini.pocket is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
+
+This is absolutely the first program you definitely want to use next to
 ghini.desktop.  ghini.pocket puts a snapshot of your database in your
 pocket, it puts at the tip of your fingers all most relevant information
 about any plant in your garden:
@@ -44,7 +46,7 @@ enter the location code of your greenhouse, reset the log, then one by one
 scan the plant codes of the plants in the greenhouse.  No further data
 collection action is required.
 
-..  admonition:: inventory hint
+..  admonition:: inventory best practices
     :class: toggle
 
        placeholder for inventory protocol
@@ -72,14 +74,14 @@ One option to achieve this is by enabling USB debugging on the device.  In
 perspective, this will enable ghini.desktop writing directily into the
 ghini.pocket device.
 
-Other options include bluetooth, or whatever other way you normally use to
-copy regular files into your Android device.
-
 Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
 
   adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
 
 The above command is valid even if your phone does not have a memory card.
+
+Other options include bluetooth, or whatever other way you normally use to
+copy regular files into your Android device.
 
 how to use the inventory log
 ```````````````````````````````````````````````````
@@ -100,10 +102,20 @@ then use ghini.desktop to import this information into your database.
 ghini.web
 -----------------------------------------------
 
+ghini.web is a nodejs server.
+
+http://gardens.ghini.me
+
+
+
 .. _ghini.tour:
 
 ghini.tour
 -----------------------------------------------
+
+ghini.tour is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.tour`_.
+
+
 
 .. _interaction among components:
                
