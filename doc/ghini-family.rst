@@ -13,10 +13,10 @@ members of the family, and their interaction.
 ghini.pocket
 -----------------------------------------------
 
-This is the single program you definitely want to use next to ghini.desktop.
-ghini.pocket puts a snapshot of your database in your pocket, it puts at the
-tip of your fingers all most relevant information about any plant in your
-garden:
+This is the very first program you definitely want to use next to
+ghini.desktop.  ghini.pocket puts a snapshot of your database in your
+pocket, it puts at the tip of your fingers all most relevant information
+about any plant in your garden:
 
 Just type an accession number, or scan its QR label, and you know:
 
@@ -47,6 +47,38 @@ the inventory.
 As a bonus, ghini.pocket contains a phonetic genus search, and a quite
 complete database of botanic taxa with rank between order and genus,
 including tribes, and synonymies.
+
+how to copy the snapshot into ghini.pocket
+```````````````````````````````````````````````````
+
+ghini.pocket is not a tool for the casual user, and your garden database
+manager needs to regularly write in your Android device.
+
+One option to achieve this is by enabling USB debugging on the device.  In
+perspective, this will enable ghini.desktop writing directily into the
+ghini.pocket device.
+
+Other options include bluetooth, or whatever other way you normally use to
+copy regular files into your Android device.
+
+Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
+
+  adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
+
+The above command is valid even if your phone does not have a memory card.
+
+how to use the inventory log
+```````````````````````````````````````````````````
+
+even if we're still calling it “inventory log”, ghini.pocket's log contains
+more than just inventory corrections.
+
+first of all, copy the collected information from ghini.pocket into your computer::
+
+  export DIR=/some/directory/on/your/computer
+  adb -d pull /sdcard/Android/data/me.ghini.pocket/files/searches.txt $DIR
+  adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
+
 
 .. _ghini.web:
 
