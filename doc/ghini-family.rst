@@ -13,20 +13,16 @@ members of the family, and their interaction.
 ghini.pocket
 -----------------------------------------------
 
-This is definitely, absolutely something you want to use next to
-ghini.desktop: ghini.pocket puts a snapshot of your database in your pocket,
-it puts at the tip of your fingers all most relevant information about any
-plant in your garden:
-
-Just type an accession number, or scan its QR label, and you know:
+ghini.pocket is an Android app and you can install it from the `play store
+<https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
+ghini.pocket is definitely the tool you want to use next to ghini.desktop,
+with ghini.pocket you have a snapshot of your database in your pocket, just
+type an accession number, or scan its QR label, and you know:
 
 - the identification of the plant,
 - whether it already has pictures,
 - when it entered the garden and
 - from which source.
-
-ghini.pocket is an Android app and you can install it from the `play store
-<https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
 
 Apart from data review, you can use ghini.pocket for...
 
