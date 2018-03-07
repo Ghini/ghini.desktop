@@ -13,12 +13,10 @@ members of the family, and their interaction.
 ghini.pocket
 -----------------------------------------------
 
-ghini.pocket is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
-
-This is absolutely the first program you definitely want to use next to
-ghini.desktop.  ghini.pocket puts a snapshot of your database in your
-pocket, it puts at the tip of your fingers all most relevant information
-about any plant in your garden:
+This is definitely, absolutely something you want to use next to
+ghini.desktop: ghini.pocket puts a snapshot of your database in your pocket,
+it puts at the tip of your fingers all most relevant information about any
+plant in your garden:
 
 Just type an accession number, or scan its QR label, and you know:
 
@@ -27,78 +25,84 @@ Just type an accession number, or scan its QR label, and you know:
 - when it entered the garden and
 - from which source.
 
-data correction
-````````````````````````````
+ghini.pocket is an Android app and you can install it from the `play store
+<https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
   
-If by your judgement, some of the information is incorrect, or if the plant
-is flowering and you want to immediately take a picture and store it in the
-database, you do not need take notes on paper, nor follow convolute
-procedures: ghini.pocket lets you write your corrections in a log file, take
-pictures associated to the plant, and you will import this information
-straight into the database, with further minimal user intervention.
+..  admonition:: data correction
+    :class: toggle
 
-inventory review
-`````````````````````````````````
+       If by your judgement, some of the information is incorrect, or if the
+       plant is flowering and you want to immediately take a picture and
+       store it in the database, you do not need take notes on paper, nor
+       follow convolute procedures: ghini.pocket lets you write your
+       corrections in a log file, take pictures associated to the plant, and
+       you will import this information straight into the database, with
+       further minimal user intervention.
 
-The initial idea on which we based ghini.pocket is still one of its
-functionalities: inventory review.
+..  admonition:: inventory review
+    :class: toggle
 
-Using ghini.pocket, reviewing the inventory of a greenhouse, in particular
-if you have QR codes on plant labels, goes as fast as you can walk: simply
-enter the location code of your greenhouse, reset the log, then one by one
-scan the plant codes of the plants in the greenhouse.  No further data
-collection action is required.
+
+       The initial idea on which we based ghini.pocket is still one of its
+       functionalities: inventory review.
+
+       Using ghini.pocket, reviewing the inventory of a greenhouse, in
+       particular if you have QR codes on plant labels, goes as fast as you
+       can walk: simply enter the location code of your greenhouse, reset
+       the log, then one by one scan the plant codes of the plants in the
+       greenhouse.  No further data collection action is required.
+
+       When you're done, import the log in ghini.desktop.  The procedure
+       available in ghini.desktop includes adding unknown but labelled
+       plants in the database, marking as lost/dead all plants that the
+       database reports as alive and present in the inventoried location,
+       but were not found during the inventory.
 
 ..  admonition:: inventory best practices
     :class: toggle
 
        placeholder for inventory protocol
 
-When you're done, import the log in ghini.desktop.  The procedure available
-in ghini.desktop includes adding unknown but labelled plants in the
-database, marking as lost/dead all plants that the database reports as alive
-and present in the inventoried location, but were not found during the
-inventory.
+..  admonition:: taxonomic support
+    :class: toggle
 
-taxonomic support
-``````````````````````````````````
+       As a bonus, ghini.pocket contains a phonetic genus search, and a
+       quite complete database of botanic taxa with rank between order and
+       genus, including tribes, and synonymies.
 
-As a bonus, ghini.pocket contains a phonetic genus search, and a quite
-complete database of botanic taxa with rank between order and genus,
-including tribes, and synonymies.
+..  admonition:: how to copy the snapshot into ghini.pocket
+    :class: toggle
 
-how to copy the snapshot into ghini.pocket
-```````````````````````````````````````````````````
+       ghini.pocket integrates closely with ghini.desktop, and it's not a
+       tool for the casual nor the external user.  One task of your garden
+       database manager is to regularly copy an updated database snapshot to
+       your Android device.
 
-ghini.pocket integrates closely with ghini.desktop, and it's not a tool for
-the casual nor the external user.  One task of your garden database manager
-is to regularly copy an updated database snapshot to your Android device.
+       We advise enabling USB debugging on the device.  In perspective, this will
+       allow ghini.desktop writing directily into the ghini.pocket device.
 
-We advise enabling USB debugging on the device.  In perspective, this will
-allow ghini.desktop writing directily into the ghini.pocket device.
+       Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
 
-Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
+         adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
 
-  adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
+       The above location is valid even if your phone does not have a memory card.
 
-The above location is valid even if your phone does not have a memory card.
+       Other options include bluetooth, or whatever other way you normally use to
+       copy regular files into your Android device.
 
-Other options include bluetooth, or whatever other way you normally use to
-copy regular files into your Android device.
+..  admonition:: how to use the inventory log
+    :class: toggle
 
-how to use the inventory log
-```````````````````````````````````````````````````
+       even if we're still calling it “inventory log”, ghini.pocket's log
+       contains more than just inventory corrections.
 
-even if we're still calling it “inventory log”, ghini.pocket's log contains
-more than just inventory corrections.
+       first of all, copy the collected information from ghini.pocket into your computer::
 
-first of all, copy the collected information from ghini.pocket into your computer::
+         export DIR=/some/directory/on/your/computer
+         adb -d pull /sdcard/Android/data/me.ghini.pocket/files/searches.txt $DIR
+         adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
 
-  export DIR=/some/directory/on/your/computer
-  adb -d pull /sdcard/Android/data/me.ghini.pocket/files/searches.txt $DIR
-  adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
-
-then use ghini.desktop to import this information into your database.
+       then use ghini.desktop to import this information into your database.
 
 .. _ghini.web:
 
