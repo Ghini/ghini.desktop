@@ -27,7 +27,9 @@ Just type an accession number, or scan its QR label, and you know:
 
 ghini.pocket is an Android app and you can install it from the `play store
 <https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
-  
+
+Apart from data review, you can use ghini.pocket for...
+
 ..  admonition:: data correction
     :class: toggle
 
@@ -172,3 +174,25 @@ identifier.
 We formally define all named streams, so our we know we are talking about.
 Moreover, streams impacting the desktop and web databases require extra
 thought and attention from your database manager.
+
+..  admonition:: d2p
+    :class: toggle
+
+       
+
+..  admonition:: p2d
+    :class: toggle
+
+       
+
+..  admonition:: d2w
+    :class: toggle
+
+       
+
+..  admonition:: g2w
+    :class: toggle
+
+       
+
+       
