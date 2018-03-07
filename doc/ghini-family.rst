@@ -178,21 +178,34 @@ thought and attention from your database manager.
 ..  admonition:: d2p
     :class: toggle
 
-       
+       - export the desktop database to a pocket snapshot
+       - copy the snapshot to the handheld device
 
 ..  admonition:: p2d
     :class: toggle
 
+       - produce a log on the handheld device
+       - import the log in the desktop database
        
 
 ..  admonition:: d2w
     :class: toggle
 
+       content of this flow: garden coords, name, zoom level
        
 
 ..  admonition:: g2w
     :class: toggle
 
+       content of this flow: Points of Interest (coords, title, audio file)
        
 
+..  admonition:: w2t
+    :class: toggle
+
+       content of this flow:
+
+       - Garden (coords, name, zoom level)
+       - Points of Interest (coords, title, audio file)
+       
        
