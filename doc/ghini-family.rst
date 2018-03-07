@@ -24,13 +24,14 @@ ghini.pocket
        <https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
        ghini.pocket is definitely the tool you want to use next to
        ghini.desktop, with ghini.pocket you have a snapshot of your database
-       in your pocket, just type an accession number, or scan its QR label,
-       and you know:
+       in your pocket.
 
-       - the identification of the plant,
-       - whether it already has pictures,
-       - when it entered the garden and
-       - from which source.
+Type an accession number, or scan its QR label, and you know:
+
+- the identification of the plant,
+- whether it already has pictures,
+- when it entered the garden and
+- from which source.
 
 Apart from data review, you can use ghini.pocket for...
 
@@ -83,9 +84,15 @@ check further :any:`interaction among components`.
 ghini.web
 -----------------------------------------------
 
-ghini.web is a nodejs server.
+.. list-table::
+   :widths: 15 85
+   :header-rows: 0
+   :class: tight-table   
 
-http://gardens.ghini.me
+   * - .. image:: images/ghini-web-installed.png
+     - ghini.web is a nodejs server.
+
+       http://gardens.ghini.me
 
 check further :any:`interaction among components`.
 
