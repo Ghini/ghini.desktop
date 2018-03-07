@@ -37,47 +37,46 @@ Type an accession number, or scan its QR label, and you know:
 
 Apart from data review, you can use ghini.pocket for...
 
-..  admonition:: data correction
-    :class: toggle
+  ..  admonition:: data correction
+      :class: toggle
 
-       If by your judgement, some of the information is incorrect, or if the
-       plant is flowering and you want to immediately take a picture and
-       store it in the database, you do not need take notes on paper, nor
-       follow convolute procedures: ghini.pocket lets you write your
-       corrections in a log file, take pictures associated to the plant, and
-       you will import this information straight into the database, with
-       further minimal user intervention.
+         If by your judgement, some of the information is incorrect, or if
+         the plant is flowering and you want to immediately take a picture
+         and store it in the database, you do not need take notes on paper,
+         nor follow convolute procedures: ghini.pocket lets you write your
+         corrections in a log file, take pictures associated to the plant,
+         and you will import this information straight into the database,
+         with further minimal user intervention.
 
-..  admonition:: inventory review
-    :class: toggle
+  ..  admonition:: inventory review
+      :class: toggle
 
+         The initial idea on which we based ghini.pocket is still one of its
+         functionalities: inventory review.
 
-       The initial idea on which we based ghini.pocket is still one of its
-       functionalities: inventory review.
+         Using ghini.pocket, reviewing the inventory of a greenhouse, in
+         particular if you have QR codes on plant labels, goes as fast as
+         you can walk: simply enter the location code of your greenhouse,
+         reset the log, then one by one scan the plant codes of the plants
+         in the greenhouse.  No further data collection action is required.
 
-       Using ghini.pocket, reviewing the inventory of a greenhouse, in
-       particular if you have QR codes on plant labels, goes as fast as you
-       can walk: simply enter the location code of your greenhouse, reset
-       the log, then one by one scan the plant codes of the plants in the
-       greenhouse.  No further data collection action is required.
+         When you're done, import the log in ghini.desktop.  The procedure
+         available in ghini.desktop includes adding unknown but labelled
+         plants in the database, marking as lost/dead all plants that the
+         database reports as alive and present in the inventoried location,
+         but were not found during the inventory.
 
-       When you're done, import the log in ghini.desktop.  The procedure
-       available in ghini.desktop includes adding unknown but labelled
-       plants in the database, marking as lost/dead all plants that the
-       database reports as alive and present in the inventoried location,
-       but were not found during the inventory.
+  ..  admonition:: inventory best practices
+      :class: toggle
 
-..  admonition:: inventory best practices
-    :class: toggle
+         placeholder for inventory protocol
 
-       placeholder for inventory protocol
+  ..  admonition:: taxonomic support
+      :class: toggle
 
-..  admonition:: taxonomic support
-    :class: toggle
-
-       As a bonus, ghini.pocket contains a phonetic genus search, and a
-       quite complete database of botanic taxa with rank between order and
-       genus, including tribes, and synonymies.
+         As a bonus, ghini.pocket contains a phonetic genus search, and a
+         quite complete database of botanic taxa with rank between order and
+         genus, including tribes, and synonymies.
 
 check further :any:`interaction among components`.
 
