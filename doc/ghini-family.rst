@@ -13,16 +13,24 @@ members of the family, and their interaction.
 ghini.pocket
 -----------------------------------------------
 
-ghini.pocket is an Android app and you can install it from the `play store
-<https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
-ghini.pocket is definitely the tool you want to use next to ghini.desktop,
-with ghini.pocket you have a snapshot of your database in your pocket, just
-type an accession number, or scan its QR label, and you know:
+.. list-table::
+   :widths: 15 85
+   :header-rows: 0
+   :class: tight-table   
 
-- the identification of the plant,
-- whether it already has pictures,
-- when it entered the garden and
-- from which source.
+   * - .. image:: images/ghini-pocket-installed.png
+     - ghini.pocket is an Android app and you can install it from the `play
+       store
+       <https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
+       ghini.pocket is definitely the tool you want to use next to
+       ghini.desktop, with ghini.pocket you have a snapshot of your database
+       in your pocket, just type an accession number, or scan its QR label,
+       and you know:
+
+       - the identification of the plant,
+       - whether it already has pictures,
+       - when it entered the garden and
+       - from which source.
 
 Apart from data review, you can use ghini.pocket for...
 
@@ -87,7 +95,13 @@ check further :any:`interaction among components`.
 ghini.tour
 -----------------------------------------------
 
-ghini.tour is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
+.. list-table::
+   :widths: 15 85
+   :header-rows: 0
+   :class: tight-table   
+
+   * - .. image:: images/ghini-tour-installed.png
+     - ghini.tour is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
 
 check further :any:`interaction among components`.
 
