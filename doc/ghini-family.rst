@@ -72,39 +72,7 @@ Apart from data review, you can use ghini.pocket for...
        quite complete database of botanic taxa with rank between order and
        genus, including tribes, and synonymies.
 
-..  admonition:: how to copy the snapshot into ghini.pocket
-    :class: toggle
-
-       ghini.pocket integrates closely with ghini.desktop, and it's not a
-       tool for the casual nor the external user.  One task of your garden
-       database manager is to regularly copy an updated database snapshot to
-       your Android device.
-
-       We advise enabling USB debugging on the device.  In perspective, this will
-       allow ghini.desktop writing directily into the ghini.pocket device.
-
-       Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
-
-         adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
-
-       The above location is valid even if your phone does not have a memory card.
-
-       Other options include bluetooth, or whatever other way you normally use to
-       copy regular files into your Android device.
-
-..  admonition:: how to use the inventory log
-    :class: toggle
-
-       even if we're still calling it “inventory log”, ghini.pocket's log
-       contains more than just inventory corrections.
-
-       first of all, copy the collected information from ghini.pocket into your computer::
-
-         export DIR=/some/directory/on/your/computer
-         adb -d pull /sdcard/Android/data/me.ghini.pocket/files/searches.txt $DIR
-         adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
-
-       then use ghini.desktop to import this information into your database.
+check further :any:`interaction among components`.
 
 .. _ghini.web:
 
@@ -115,6 +83,7 @@ ghini.web is a nodejs server.
 
 http://gardens.ghini.me
 
+check further :any:`interaction among components`.
 
 
 .. _ghini.tour:
@@ -124,6 +93,7 @@ ghini.tour
 
 ghini.tour is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
 
+check further :any:`interaction among components`.
 
 
 .. _interaction among components:
@@ -175,17 +145,47 @@ We formally define all named streams, so our we know we are talking about.
 Moreover, streams impacting the desktop and web databases require extra
 thought and attention from your database manager.
 
-..  admonition:: d2p
+..  admonition:: d2p: copying a snapshot to ghini.pocket
     :class: toggle
 
        - export the desktop database to a pocket snapshot
        - copy the snapshot to the handheld device
 
-..  admonition:: p2d
+       ghini.pocket integrates closely with ghini.desktop, and it's not a
+       tool for the casual nor the external user.  One task of your garden
+       database manager is to regularly copy an updated database snapshot to
+       your Android device.
+
+       We advise enabling USB debugging on the device.  In perspective, this will
+       allow ghini.desktop writing directily into the ghini.pocket device.
+
+       Export the file from ghini.desktop, call the file pocket.db, copy it to the phone::
+
+         adb -d push /tmp/pocket.db /sdcard/Android/data/me.ghini.pocket/files/
+
+       The above location is valid even if your phone does not have a memory card.
+
+       Other options include bluetooth, or whatever other way you normally use to
+       copy regular files into your Android device.
+
+
+
+..  admonition:: p2d: using the inventory log
     :class: toggle
+
+       even if we're still calling it “inventory log”, ghini.pocket's log
+       contains more than just inventory corrections.
 
        - produce a log on the handheld device
        - import the log in the desktop database
+
+       first of all, copy the collected information from ghini.pocket into your computer::
+
+         export DIR=/some/directory/on/your/computer
+         adb -d pull /sdcard/Android/data/me.ghini.pocket/files/searches.txt $DIR
+         adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
+
+       then use ghini.desktop to import this information into your database.
        
 
 ..  admonition:: d2w
@@ -209,3 +209,6 @@ thought and attention from your database manager.
        - Points of Interest (coords, title, audio file)
        
        
+
+       
+
