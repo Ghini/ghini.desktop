@@ -19,12 +19,14 @@ ghini.pocket
    :class: tight-table   
 
    * - .. image:: images/ghini-pocket-installed.png
-     - ghini.pocket is an Android app and you can install it from the `play
+     - ghini.pocket is an Android app which you can install from the `play
        store
        <https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
-       ghini.pocket is definitely the tool you want to use next to
-       ghini.desktop, with ghini.pocket you always have the latest snapshot
-       of your database with you.
+       ghini.pocket is definitely the tool you will use most, next to
+       ghini.desktop.
+
+       With ghini.pocket you always have the latest snapshot of your
+       database with you.
 
 Type an accession number, or scan its QR label, and you know:
 
@@ -90,10 +92,13 @@ ghini.web
    :class: tight-table   
 
    * - .. image:: images/ghini-web-installed.png
-     - ghini.web is a web server, written in nodejs.  Its most visible part
-       runs at http://gardens.ghini.me and shows as a map of the world,
-       where you browse gardens and search their published collection.  It
-       also serves configuration data to ghini.tour instances.
+     - ghini.web is a web server, written in nodejs.
+
+       Its most visible part runs at http://gardens.ghini.me and shows as a
+       map of the world, where you browse gardens and search their published
+       collection.
+
+       It also serves configuration data to ghini.tour instances.
 
 check further :any:`interaction among components`.
 
