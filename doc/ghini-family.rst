@@ -204,6 +204,7 @@ identifier.
        identification and their geographic location.
 
        content of this flow:
+
        - garden: coords, name, zoom level (for initial view)
        - plants: coords, identification, zoom level (for visibility)
        - species: binomial, phonetic approximation
@@ -218,6 +219,7 @@ identifier.
        ghini.web site.
 
        content of this flow:
+
        - virtual panels: coords, title, audio file
        - photos: coords, title, picture
 
