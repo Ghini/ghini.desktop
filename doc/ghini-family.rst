@@ -132,14 +132,15 @@ data streams between software components
    :class: tight-table
 
    * - .. image:: images/ghini-streams-installed.png
-     - In the diagram showing the composition of the Ghini family, the alert
+     - This section contains technical information for database managers and
+       software developers.
+
+       In the diagram showing the composition of the Ghini family, the alert
        reader noticed how different arrows representing different data
        flows, had different colours: some are deep green, some have a
        lighter tint.
 
-       This section contains technical information for database managers and
-       software developers.
-
+       
 Deeper green streams are constant flows of data, representing the core
 activity of a component, eg: the interaction between ghini.desktop and its
 database server, or your internet browser and ghini.web.
