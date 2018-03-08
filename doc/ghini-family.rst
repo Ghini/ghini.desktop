@@ -1,5 +1,6 @@
-the Ghini family
-==============================
+==================
+ the Ghini family
+==================
 
 Let's start by recalling the composition of the Ghini family, as shown in the diagram:
 
@@ -11,10 +12,10 @@ members of the family, and their interaction.
 .. _ghini.pocket:
 
 ghini.pocket
------------------------------------------------
+============
 
 .. list-table::
-   :widths: 15 85
+   :widths: 10 90
    :header-rows: 0
    :class: tight-table   
 
@@ -28,7 +29,7 @@ ghini.pocket
        With ghini.pocket you always have the latest snapshot of your
        database with you.
 
-Type an accession number, or scan its QR label, and you know:
+Type an accession number, or scan its barcode or QR label, and you know:
 
 - the identification of the plant,
 - whether it already has pictures,
@@ -83,10 +84,10 @@ check further :any:`interaction among components`.
 .. _ghini.web:
 
 ghini.web
------------------------------------------------
+=========
 
 .. list-table::
-   :widths: 15 85
+   :widths: 10 90
    :header-rows: 0
    :class: tight-table   
 
@@ -105,15 +106,22 @@ check further :any:`interaction among components`.
 .. _ghini.tour:
 
 ghini.tour
------------------------------------------------
+==========
 
 .. list-table::
-   :widths: 15 85
+   :widths: 10 90
    :header-rows: 0
    :class: tight-table   
 
    * - .. image:: images/ghini-tour-installed.png
-     - ghini.tour is an `Android app <https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
+     - ghini.tour is an Android app which you can install from the `play
+       store
+       <https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
+
+       People visiting your garden will install ghini.tour on their phone or
+       tablet, enjoy having a map of the garden, knowing where they are, and
+       will be able to listen to audio files that you have placed as virtual
+       information panels in strategic spots in your garden.
 
 check further :any:`interaction among components`.
 
@@ -121,11 +129,18 @@ check further :any:`interaction among components`.
 .. _interaction among components:
                
 data streams between software components
------------------------------------------------
+========================================
 
-In the diagram showing the composition of the Ghini family, the alert reader
-noticed how different arrows representing different data flows, had
-different colours: some are deep green, some have a lighter tint.
+.. list-table::
+   :widths: 10 90
+   :header-rows: 0
+   :class: tight-table   
+
+   * - .. image:: images/ghini-streams-installed.png
+     - In the diagram showing the composition of the Ghini family, the alert
+       reader noticed how different arrows representing different data
+       flows, had different colours: some are deep green, some have a
+       lighter tint.
 
 Deeper green streams are constant flows of data, representing the core
 activity of a component, eg: the interaction between ghini.desktop and its
@@ -140,9 +155,10 @@ identifier.
 .. image:: images/ghini-family-streams.png
 
 .. list-table:: Stream role description
-   :widths: 15 85
+   :widths: 10 90
    :header-rows: 1
    :class: tight-table   
+   :stub-columns: 1
 
    * - name
      - description
