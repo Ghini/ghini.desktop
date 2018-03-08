@@ -20,3 +20,7 @@
     white-space: normal !important;
     vertical-align: top;
 }
+
+p {
+    margin-bottom: 12px;
+}
