@@ -129,7 +129,7 @@ data streams between software components
 .. list-table::
    :widths: 10 90
    :header-rows: 0
-   :class: tight-table
+   :class: tight-table borderless
 
    * - .. image:: images/ghini-streams-installed.png
      - This section contains technical information for database managers and

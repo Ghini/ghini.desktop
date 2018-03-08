@@ -24,3 +24,8 @@
 p {
     margin-bottom: 12px;
 }
+
+.borderless {
+    border: 0;
+    background: transparent;
+}
