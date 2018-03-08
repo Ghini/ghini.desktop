@@ -36,7 +36,7 @@ Type an accession number, or scan its barcode or QR label, and you know:
 - when it entered the garden and
 - from which source.
 
-Apart from as a quick data viewer, you can use ghini.pocket for...
+Apart as a quick data viewer, you can use ghini.pocket for...
 
   ..  admonition:: data correction
       :class: toggle
