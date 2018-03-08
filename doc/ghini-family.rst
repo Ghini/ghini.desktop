@@ -154,36 +154,7 @@ identifier.
 
 .. image:: images/ghini-family-streams.png
 
-.. list-table:: Stream role description
-   :widths: 10 90
-   :header-rows: 1
-   :class: tight-table   
-   :stub-columns: 1
-
-   * - name
-     - description
-   * - **d2p**
-     - This is ghini.desktop's :menuselection:`Tools-->Export-->export to
-       pocket`.
-   * - **p2d**
-     - Import from the ghini.pocket log file and pictures into the central
-       database.
-   * - **d2w**
-     - Offer a selection of your garden data to a central ghini.web site, so
-       online virtual visitors can browse it.  This includes plant
-       identification and their geographic location.
-   * - **g2w**
-     - Write geographic information about non-botanic data (ie: point of
-       interest within the garden, required by ghini.tour) in the central
-       ghini.web site.
-   * - **w2t**
-     - Importing locations and points of interest from ghini.web to tour.
-
-We formally define all named streams, so our we know we are talking about.
-Moreover, streams impacting the desktop and web databases require extra
-thought and attention from your database manager.
-
-..  admonition:: d2p: copying a snapshot to ghini.pocket
+..  admonition:: d2p: copy a snapshot of the desktop database to ghini.pocket
     :class: toggle
 
        - export the desktop database to a pocket snapshot
@@ -208,7 +179,7 @@ thought and attention from your database manager.
 
 
 
-..  admonition:: p2d: using the inventory log
+..  admonition:: p2d: import from the ghini.pocket log file and pictures into the central database
     :class: toggle
 
        even if we're still calling it “inventory log”, ghini.pocket's log
@@ -226,19 +197,27 @@ thought and attention from your database manager.
        then use ghini.desktop to import this information into your database.
        
 
-..  admonition:: d2w
+..  admonition:: d2w: send a selection of your garden data to ghini.web
     :class: toggle
+
+       Offer a selection of your garden data to a central ghini.web site, so
+       online virtual visitors can browse it.  This includes plant
+       identification and their geographic location.
 
        content of this flow: garden coords, name, zoom level
        
 
-..  admonition:: g2w
+..  admonition:: g2w: add geographic non-botanic data to ghini.web
     :class: toggle
+
+     - Write geographic information about non-botanic data (ie: point of
+       interest within the garden, required by ghini.tour) in the central
+       ghini.web site.
 
        content of this flow: Points of Interest (coords, title, audio file)
        
 
-..  admonition:: w2t
+..  admonition:: w2t: importing locations and POIs from ghini.web to tour
     :class: toggle
 
        content of this flow:
