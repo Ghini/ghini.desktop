@@ -142,6 +142,9 @@ data streams between software components
        flows, had different colours: some are deep green, some have a
        lighter tint.
 
+       This section contains technical information for database managers and
+       software developers.
+
 Deeper green streams are constant flows of data, representing the core
 activity of a component, eg: the interaction between ghini.desktop and its
 database server, or your internet browser and ghini.web.
