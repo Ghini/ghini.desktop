@@ -8,7 +8,7 @@ Let's start by recalling the composition of the Ghini family, as shown in the di
 
 You have learned how to use ghini.desktop, here we introduce the other
 members of the family, and their interaction.
-           
+
 .. _ghini.pocket:
 
 ghini.pocket
@@ -17,7 +17,7 @@ ghini.pocket
 .. list-table::
    :widths: 10 90
    :header-rows: 0
-   :class: tight-table   
+   :class: tight-table
 
    * - .. image:: images/ghini-pocket-installed.png
      - ghini.pocket is an Android app which you can install from the `play
@@ -36,7 +36,7 @@ Type an accession number, or scan its barcode or QR label, and you know:
 - when it entered the garden and
 - from which source.
 
-Apart from data review, you can use ghini.pocket for...
+Apart from as a quick data viewer, you can use ghini.pocket for...
 
   ..  admonition:: data correction
       :class: toggle
@@ -67,11 +67,6 @@ Apart from data review, you can use ghini.pocket for...
          database reports as alive and present in the inventoried location,
          but were not found during the inventory.
 
-  ..  admonition:: inventory best practices
-      :class: toggle
-
-         placeholder for inventory protocol
-
   ..  admonition:: taxonomic support
       :class: toggle
 
@@ -89,7 +84,7 @@ ghini.web
 .. list-table::
    :widths: 10 90
    :header-rows: 0
-   :class: tight-table   
+   :class: tight-table
 
    * - .. image:: images/ghini-web-installed.png
      - ghini.web is a web server, written in nodejs.
@@ -111,7 +106,7 @@ ghini.tour
 .. list-table::
    :widths: 10 90
    :header-rows: 0
-   :class: tight-table   
+   :class: tight-table
 
    * - .. image:: images/ghini-tour-installed.png
      - ghini.tour is an Android app which you can install from the `play
@@ -127,14 +122,14 @@ check further :any:`interaction among components`.
 
 
 .. _interaction among components:
-               
+
 data streams between software components
 ========================================
 
 .. list-table::
    :widths: 10 90
    :header-rows: 0
-   :class: tight-table   
+   :class: tight-table
 
    * - .. image:: images/ghini-streams-installed.png
      - In the diagram showing the composition of the Ghini family, the alert
@@ -198,7 +193,7 @@ identifier.
          adb -d pull -a /sdcard/Android/data/me.ghini.pocket/files/Pictures $DIR
 
        then use ghini.desktop to import this information into your database.
-       
+
 
 ..  admonition:: d2w: send a selection of your garden data to ghini.web
     :class: toggle
@@ -207,8 +202,12 @@ identifier.
        online virtual visitors can browse it.  This includes plant
        identification and their geographic location.
 
-       content of this flow: garden coords, name, zoom level
-       
+       content of this flow:
+       - garden: coords, name, zoom level (for initial view)
+       - plants: coords, identification, zoom level (for visibility)
+       - species: binomial, phonetic approximation
+
+
 
 ..  admonition:: g2w: add geographic non-botanic data to ghini.web
     :class: toggle
@@ -217,8 +216,13 @@ identifier.
        interest within the garden, required by ghini.tour) in the central
        ghini.web site.
 
-       content of this flow: Points of Interest (coords, title, audio file)
-       
+       content of this flow:
+       - virtual panels: coords, title, audio file
+       - photos: coords, title, picture
+
+       virtual panels don't necessarily have an associated photo, photos
+       don't necessarily have an associated audio file.
+
 
 ..  admonition:: w2t: importing locations and POIs from ghini.web to tour
     :class: toggle
@@ -226,9 +230,4 @@ identifier.
        content of this flow:
 
        - Garden (coords, name, zoom level)
-       - Points of Interest (coords, title, audio file)
-       
-       
-
-       
-
+       - Points of Interest (coords, title, audio file, photo)
