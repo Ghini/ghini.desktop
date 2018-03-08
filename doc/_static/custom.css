@@ -19,13 +19,13 @@
 .tight-table td {
     white-space: normal !important;
     vertical-align: top;
+    background: transparent;
 }
 
 p {
     margin-bottom: 12px;
 }
 
-.borderless {
+table.borderless  {
     border: 0;
-    background: transparent;
 }
