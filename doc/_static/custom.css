@@ -22,8 +22,11 @@
 
 .tight-table td {
     vertical-align: top;
-    background: transparent;
     border: 1px transparent;
+}
+
+.tight-table tr:nth-child(2n-1) td {
+    background: transparent;
 }
 
 p {
