@@ -14,20 +14,17 @@ members of the family, and their interaction.
 ghini.pocket
 ============
 
-.. list-table::
-   :widths: 10 90
-   :header-rows: 0
-   :class: tight-table
+.. image:: images/ghini-pocket-installed.png
+   :align: left
 
-   * - .. image:: images/ghini-pocket-installed.png
-     - ghini.pocket is an Android app which you can install from the `play
-       store
-       <https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
-       ghini.pocket is definitely the tool you will use most, next to
-       ghini.desktop.
+ghini.pocket is an Android app which you can install from the `play
+store
+<https://play.google.com/store/apps/details?id=me.ghini.pocket>`_.
+ghini.pocket is definitely the tool you will use most, next to
+ghini.desktop.
 
-       With ghini.pocket you always have the latest snapshot of your
-       database with you.
+With ghini.pocket you always have the latest snapshot of your
+database with you.
 
 Type an accession number, or scan its barcode or QR label, and you know:
 
@@ -81,19 +78,16 @@ check further :any:`interaction among components`.
 ghini.web
 =========
 
-.. list-table::
-   :widths: 10 90
-   :header-rows: 0
-   :class: tight-table
+.. image:: images/ghini-web-installed.png
+   :align: left
 
-   * - .. image:: images/ghini-web-installed.png
-     - ghini.web is a web server, written in nodejs.
+ghini.web is a web server, written in nodejs.
 
-       Its most visible part runs at http://gardens.ghini.me and shows as a
-       map of the world, where you browse gardens and search their published
-       collection.
+Its most visible part runs at http://gardens.ghini.me and shows as a
+map of the world, where you browse gardens and search their published
+collection.
 
-       It also serves configuration data to ghini.tour instances.
+It also serves configuration data to ghini.tour instances.
 
 check further :any:`interaction among components`.
 
@@ -103,20 +97,17 @@ check further :any:`interaction among components`.
 ghini.tour
 ==========
 
-.. list-table::
-   :widths: 10 90
-   :header-rows: 0
-   :class: tight-table
+.. image:: images/ghini-tour-installed.png
+   :align: left
 
-   * - .. image:: images/ghini-tour-installed.png
-     - ghini.tour is an Android app which you can install from the `play
-       store
-       <https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
+ghini.tour is an Android app which you can install from the `play
+store
+<https://play.google.com/store/apps/details?id=me.ghini.tour>`_.
 
-       People visiting your garden will install ghini.tour on their phone or
-       tablet, enjoy having a map of the garden, knowing where they are, and
-       will be able to listen to audio files that you have placed as virtual
-       information panels in strategic spots in your garden.
+People visiting your garden will install ghini.tour on their phone or
+tablet, enjoy having a map of the garden, knowing where they are, and
+will be able to listen to audio files that you have placed as virtual
+information panels in strategic spots in your garden.
 
 check further :any:`interaction among components`.
 
@@ -126,19 +117,16 @@ check further :any:`interaction among components`.
 data streams between software components
 ========================================
 
-.. list-table::
-   :widths: 10 90
-   :header-rows: 0
-   :class: tight-table borderless
+.. image:: images/ghini-streams-installed.png
+   :align: left
 
-   * - .. image:: images/ghini-streams-installed.png
-     - This section contains technical information for database managers and
-       software developers.
+This section contains technical information for database managers and
+software developers.
 
-       In the diagram showing the composition of the Ghini family, the alert
-       reader noticed how different arrows representing different data
-       flows, had different colours: some are deep green, some have a
-       lighter tint.
+In the diagram showing the composition of the Ghini family, the alert
+reader noticed how different arrows representing different data
+flows, had different colours: some are deep green, some have a
+lighter tint.
 
        
 Deeper green streams are constant flows of data, representing the core
