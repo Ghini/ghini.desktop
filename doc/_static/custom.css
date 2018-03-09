@@ -20,19 +20,7 @@
     white-space: normal !important;
 }
 
-.tight-table td {
-    vertical-align: top;
-    border: 1px transparent;
-}
-
-.tight-table tr:nth-child(2n-1) td {
-    background: transparent;
-}
-
 p {
     margin-bottom: 12px;
 }
 
-table.borderless  {
-    border: 0;
-}
