@@ -18,8 +18,12 @@
 
 .tight-table td {
     white-space: normal !important;
+}
+
+.tight-table td {
     vertical-align: top;
     background: transparent;
+    border: 1px transparent;
 }
 
 p {
