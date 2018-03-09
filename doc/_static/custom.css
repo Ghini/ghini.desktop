@@ -6,9 +6,9 @@ h1, h2, h3, h4 {
 h1:after, h2:after, h3:after, h4:after {
   content: "";
   display: inline-block;
-  width: 99%;
+  width: 81;
   vertical-align: middle;
-  border-bottom: 1px solid;
+  border-bottom: 1px solid #404040;
   margin: 0 -55% 0 .5em;
 }
 
