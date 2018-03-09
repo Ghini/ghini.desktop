@@ -117,11 +117,11 @@ check further :any:`interaction among components`.
 data streams between software components
 ========================================
 
+.. note:: This section contains technical information for database managers and
+          software developers.
+
 .. image:: images/ghini-streams-installed.png
    :align: left
-
-This section contains technical information for database managers and
-software developers.
 
 In the diagram showing the composition of the Ghini family, the alert
 reader noticed how different arrows representing different data
