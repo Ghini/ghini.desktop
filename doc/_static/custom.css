@@ -1,15 +1,6 @@
 h1, h2, h3, h4 {
-    overflow: hidden;
-    text-align: left;
-}
-
-h1:after, h2:after, h3:after, h4:after {
-  content: "";
-  display: inline-block;
-  width: 81;
-  vertical-align: middle;
-  border-bottom: 1px solid #404040;
-  margin: 0 -55% 0 .5em;
+    background-color: #f2f2f2;
+    border-bottom: 1px solid #ccc;
 }
 
 .toggle .admonition-title {

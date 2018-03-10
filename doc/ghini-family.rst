@@ -109,6 +109,16 @@ tablet, enjoy having a map of the garden, knowing where they are, and
 will be able to listen to audio files that you have placed as virtual
 information panels in strategic spots in your garden.
 
+.. admonition:: world view
+   :class: toggle
+
+      at startup, you see the world and gardens.  select a garden, and enter.
+
+.. admonition:: garden view
+   :class: toggle
+
+      when viewing at garden level, you see panels.  select a panel, and listen.
+
 check further :any:`interaction among components`.
 
 
