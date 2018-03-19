@@ -95,6 +95,7 @@ class Cache:
 def copy_picture_with_thumbnail(path, basename=None):
     """copy file from path to picture_root, and make thumbnail, preserving name
 
+    return base64 representation of thumbnail
     """
     import os.path
     if basename is None:
@@ -110,16 +111,23 @@ def copy_picture_with_thumbnail(path, basename=None):
     from PIL import Image
     full_dest_path = os.path.join(prefs.prefs[prefs.picture_root_pref],
                                   'thumbs', basename)
+    result = ""
     try:
         im = Image.open(filename)
         im.thumbnail((400, 400))
         logger.debug('copying %s to %s' % (filename, full_dest_path))
         im.save(full_dest_path)
+        from io import BytesIO
+        output = BytesIO()
+        im.save(output, format='JPEG')
+        im_data = output.getvalue()
+        result = base64.b64encode(im_data)
     except IOError, e:
         logger.warning("can't make thumbnail")
     except Exception, e:
         logger.warning("unexpected exception making thumbnail: "
                        "(%s)%s" % (type(e), e))
+    return result
 
 
 class ImageLoader(threading.Thread):
@@ -129,7 +137,11 @@ class ImageLoader(threading.Thread):
         super(ImageLoader, self).__init__(*args, **kwargs)
         self.box = box  # will hold image or label
         self.loader = gtk.gdk.PixbufLoader()
-        if (url.startswith('http://') or url.startswith('https://')):
+        self.inline_picture_marker = "|data:image/jpeg;base64,"
+        if url.find(self.inline_picture_marker) != -1:
+            self.reader_function = self.read_base64
+            self.url = url
+        elif (url.startswith('http://') or url.startswith('https://')):
             self.reader_function = self.read_global_url
             self.url = url
         else:
@@ -177,6 +189,13 @@ class ImageLoader(threading.Thread):
         self.cache.get(
             self.url, self.reader_function, on_hit=self.loader.write)
         self.loader.close()
+
+    def read_base64(self):
+        self.loader.connect("area-prepared", self.loader_notified)
+        thumb64pos = self.url.find(self.inline_picture_marker)
+        offset = thumb64pos + len(self.inline_picture_marker)
+        import base64
+        return base64.b64decode(self.url[offset:])
 
     def read_global_url(self):
         self.loader.connect("area-prepared", self.loader_notified)

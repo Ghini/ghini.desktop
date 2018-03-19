@@ -2111,13 +2111,16 @@ class PictureBox(NoteBox):
             fileChooserDialog.run()
             filename = fileChooserDialog.get_filename()
             if filename:
-                ## rememberl chosen location for next time
-                ## copy file to picture_root_dir (if not yet there).
+                ## remember chosen location for next time
                 PictureBox.last_folder, basename = os.path.split(unicode(filename))
                 logger.debug('new current folder is: %s' % self.last_folder)
-                utils.copy_picture_with_thumbnail(self.last_folder, basename)
+                ## copy file to picture_root_dir (if not yet there),
+                ## also receiving thumbnail base64
+                thumb = utils.copy_picture_with_thumbnail(self.last_folder, basename)
                 ## make sure the category is <picture>
                 self.set_model_attr('category', u'<picture>')
+                ## append thumbnail base64 to content string
+                basename = basename + "|data:image/jpeg;base64," + thumb
                 ## store basename in note field and fire callbacks.
                 self.set_model_attr('note', basename)
                 self.set_content(basename)
