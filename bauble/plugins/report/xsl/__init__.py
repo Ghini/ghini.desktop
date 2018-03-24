@@ -155,8 +155,20 @@ class SpeciesABCDAdapter(ABCDAdapter):
         return utils.xml_safe(str(self.species.infraspecific_rank))
 
     def get_InfraspecificEpithet(self):
-        return utils.xml_safe(str(self.species.infraspecific_epithet))
-    
+        infrasp = ''
+        infrasp1 = self.species.infrasp1
+        cv = self.species.cultivar_epithet
+        rank = self.species.infraspecific_rank
+        # if not a cultivar or normal infrspecific part return the unranked
+        # part.  A better solution would be to have a seperate field for
+        # additional (informal, descriptive...) parts
+        if all(part in (None, '') for part in (cv, rank)) and infrasp1:
+            infrasp = infrasp1
+        else:
+            infrasp = self.species.infraspecific_epithet
+
+        return utils.xml_safe(str(infrasp))
+
     def get_CultivarName(self):
         return utils.xml_safe(str(self.species.cultivar_epithet))
 
