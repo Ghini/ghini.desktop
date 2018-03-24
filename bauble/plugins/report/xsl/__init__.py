@@ -178,11 +178,16 @@ class SpeciesABCDAdapter(ABCDAdapter):
             return None
         notes = []
         for note in self.species.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.utf8(notes)
+            date = utils.xml_safe(note.date.isoformat())
+            user = utils.xml_safe(note.user) if note.user else ''
+            category = (utils.xml_safe_name(note.category)
+                        if note.category else '')
+            text = note.note or ''
+            notes.append(dict(date=date,
+                              user=user,
+                              category=category,
+                              text=text))
+        return notes
 
     def extra_elements(self, unit):
         # distribution isn't in the ABCD namespace so it should create an
@@ -211,21 +216,21 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def get_FullScientificNameString(self, authors=True):
         s = self.accession.species_str(authors=authors, markup=False)
         return utils.xml_safe(s)
-    
+
     def get_IdentificationQualifier(self):
         idqual=self.accession.id_qual
         if idqual is None:
             return None
         else:
             return utils.xml_safe(idqual)
-        
+
     def get_IdentificationQualifierRank(self):
         idqrank=self.accession.id_qual_rank
         if idqrank is None:
             return None
         else:
             return utils.xml_safe(idqrank)
-        
+
     def get_DateLastEdited(self):
         return utils.xml_safe(self.accession._last_updated.isoformat())
 
@@ -234,11 +239,16 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
             return None
         notes = []
         for note in self.accession.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.xml_safe(notes)
+            date = utils.xml_safe(note.date.isoformat())
+            user = utils.xml_safe(note.user) if note.user else ''
+            category = (utils.xml_safe_name(note.category)
+                        if note.category else '')
+            text = note.note or ''
+            notes.append(dict(date=date,
+                              user=user,
+                              category=category,
+                              text=text))
+        return notes
 
     def extra_elements(self, unit):
         super(AccessionABCDAdapter, self).extra_elements(unit)
@@ -332,11 +342,16 @@ class PlantABCDAdapter(AccessionABCDAdapter):
             return None
         notes = []
         for note in self.plant.notes:
-            notes.append(dict(date=utils.xml_safe(note.date.isoformat()),
-                              user=utils.xml_safe(note.user),
-                              category=utils.xml_safe(note.category),
-                              note=utils.xml_safe(note.note)))
-        return utils.xml_safe(str(notes))
+            date = utils.xml_safe(note.date.isoformat())
+            user = utils.xml_safe(note.user) if note.user else ''
+            category = (utils.xml_safe_name(note.category)
+                        if note.category else '')
+            text = note.note or ''
+            notes.append(dict(date=date,
+                              user=user,
+                              category=category,
+                              text=text))
+        return notes
 
     def extra_elements(self, unit):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')

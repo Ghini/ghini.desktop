@@ -304,8 +304,8 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ABCDElement(taxon_identified, 'InformalNameString',
                         text=vernacular_name)
         if obj.get_IdentificationQualifier():
-            ABCDElement(scientific_name, 'IdentificationQualifier', 
-                        text=obj.get_IdentificationQualifier(), 
+            ABCDElement(scientific_name, 'IdentificationQualifier',
+                        text=obj.get_IdentificationQualifier(),
                         attrib={'insertionpoint': obj.get_IdentificationQualifierRank()})
         # add all the extra non standard elements
         obj.extra_elements(unit)
@@ -317,7 +317,16 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         # EAnnotations, UnitExtension
         notes = obj.get_Notes()
         if notes:
-            ABCDElement(unit, 'Notes', text=notes)
+            # the original version that sent them all as a dictionary
+            ABCDElement(unit, 'Notes', text=utils.xml_safe(str(notes)))
+
+            # the idividual notes version.
+            note_unit = ABCDElement(unit, 'Note')
+            for note in notes:
+                ABCDElement(note_unit, note['category'], text=note['text'],
+                            attrib={'User': note['user'],
+                                    'Date': note['date']})
+
 
     if validate:
         check(validate_xml(datasets), 'ABCD data not valid')
