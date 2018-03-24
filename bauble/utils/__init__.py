@@ -919,6 +919,37 @@ def xml_safe_utf8(obj):
 
     return xml_safe(obj)
 
+def xml_safe_name(obj):
+    """
+    Return a string that conforms to W3C XML 1.0 (fifth edition) recommendation
+    for XML names
+    """
+    # make sure we have a unicode string with no spaces or surrounding
+    # parentheses
+    uni = to_unicode(obj).replace(' ', '_').strip('<{[()]}>')
+
+    start_char = (ur'[A-Z]|[:_]|[a-z]|\xc0-\xd6]|[\xd8-\xf6]|[\xf8-\xff]|'
+                  ur'[\u0100-\u02ff]|[\u0370-\u037d]|[\u037f-\u1fff]|'
+                  ur'[\u200c-\u200d]|[\u2070-\u218f]|[\u2c00-\u2fef]|'
+                  ur'[\u3001-\uD7FF]|[\uF900-\uFDCF]|[\uFDF0-\uFFFD]|'
+                  ur'[\U00010000-\U000EFFFF]')
+    name_start_char = r'(' + start_char + r')'
+    name_char = (ur'(' + start_char +
+                 ur'|[-.0-9\xb7\u0337-\u036f\u203f-\u2040])')
+    # if the first char is not a name start char insert a '_'
+    first_char = re.match(name_start_char, uni[0])
+    if first_char:
+        start_char = first_char.group()
+        uni = uni[1:]
+    else:
+        start_char = '_'
+
+    name_chars = ''.join([i for i in uni if re.match(name_char, i)])
+
+    name = start_char + name_chars
+
+    return name
+
 
 def safe_numeric(s):
     'evaluate the string as a number, or return zero'
