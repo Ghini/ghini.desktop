@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 13:09-0500\n"
+"POT-Creation-Date: 2018-03-26 08:26-0500\n"
 "PO-Revision-Date: 2017-11-26 10:22+0000\n"
 "Last-Translator: Володимир Бриняк <bardvv@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/ghini/"
@@ -850,7 +850,7 @@ msgstr "Контейнер"
 msgid "Contents"
 msgstr "Зміст"
 
-#: bauble/ui.py:770
+#: bauble/ui.py:771
 msgid "Copyright © by its contributors."
 msgstr "Copyright © by its contributors."
 
@@ -858,7 +858,7 @@ msgstr "Copyright © by its contributors."
 msgid "Corm"
 msgstr "Бульбоцибулина"
 
-#: bauble/ui.py:674
+#: bauble/ui.py:676
 msgid ""
 "Could not create a new database.\n"
 "\n"
@@ -1098,7 +1098,7 @@ msgstr "Вилучено, рік загибелі невідомий"
 msgid "Description"
 msgstr "Опис"
 
-#: bauble/utils/__init__.py:695
+#: bauble/utils/__init__.py:714
 msgid "Details"
 msgstr "Подробиці"
 
@@ -2494,7 +2494,7 @@ msgstr "Виберіть таблицю стилів"
 msgid "Select pictures source directory"
 msgstr ""
 
-#: bauble/utils/__init__.py:1315
+#: bauble/utils/__init__.py:1334
 msgid "Show details"
 msgstr "Показати подробиці"
 
@@ -3137,7 +3137,7 @@ msgstr ""
 "Цей вид має просторічні назви, але жодна з них не буде обрана за "
 "замовчуванням. Перша просторічна назва в списку була вибрано автоматично."
 
-#: bauble/ui.py:777
+#: bauble/ui.py:778
 msgid ""
 "This version installed on: %s\n"
 "Latest published version: %s\n"
@@ -3171,7 +3171,7 @@ msgstr "Верхівка"
 msgid "Tissue Culture"
 msgstr "Тканинна культура"
 
-#: bauble/utils/__init__.py:845
+#: bauble/utils/__init__.py:864
 msgid "Today's date"
 msgstr "Сьогоднішня дата"
 
@@ -3342,7 +3342,7 @@ msgstr "Дикоростучі статус"
 msgid "Winter kill"
 msgstr "Загинуло зимою"
 
-#: bauble/ui.py:794
+#: bauble/ui.py:795
 msgid "Would you like the cancel the current tasks?"
 msgstr "Ви хочете скасувати поточні завдання?"
 
@@ -3524,6 +3524,10 @@ msgstr "_Допомога"
 #: bauble/ui.py:445
 msgid "_Insert"
 msgstr "_Вставка"
+
+#: bauble/ui.py:432
+msgid "_New"
+msgstr ""
 
 #: bauble/ui.py:434
 msgid "_Open"
@@ -3711,7 +3715,7 @@ msgstr "розмір історії повинен бути більше нул�
 msgid "hit"
 msgstr ""
 
-#: bauble/ui.py:766
+#: bauble/ui.py:767
 msgid "http://ghini.github.io"
 msgstr "http://ghini.github.io"
 
@@ -3773,7 +3777,7 @@ msgstr ""
 msgid "next"
 msgstr "наступна"
 
-#: bauble/utils/__init__.py:295 bauble/utils/__init__.py:308
+#: bauble/utils/__init__.py:314 bauble/utils/__init__.py:327
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr "немає віджета з ім'ям \"%(widget_name)s\" в glade файлі"
 
@@ -3793,7 +3797,7 @@ msgstr "відкрити сторінку вікіпедії про цей ви�
 msgid "output:"
 msgstr "вивід:"
 
-#: bauble/editor.py:2088 bauble/utils/__init__.py:160
+#: bauble/editor.py:2088 bauble/utils/__init__.py:172
 msgid "picture file %s not found."
 msgstr "файл зображення %s не знайдено."
 

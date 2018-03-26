@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 13:09-0500\n"
+"POT-Creation-Date: 2018-03-26 08:26-0500\n"
 "PO-Revision-Date: 2017-12-01 12:47+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/ghini/"
@@ -858,7 +858,7 @@ msgstr "Konténer"
 msgid "Contents"
 msgstr "Tartalom"
 
-#: bauble/ui.py:770
+#: bauble/ui.py:771
 msgid "Copyright © by its contributors."
 msgstr ""
 
@@ -866,7 +866,7 @@ msgstr ""
 msgid "Corm"
 msgstr "Hagymagumó"
 
-#: bauble/ui.py:674
+#: bauble/ui.py:676
 msgid ""
 "Could not create a new database.\n"
 "\n"
@@ -1109,7 +1109,7 @@ msgstr "Törölve, pusztulás időpontja ismeretlen"
 msgid "Description"
 msgstr "Leírás"
 
-#: bauble/utils/__init__.py:695
+#: bauble/utils/__init__.py:714
 msgid "Details"
 msgstr "Részletek"
 
@@ -2496,7 +2496,7 @@ msgstr "Válasszon stíluslapot"
 msgid "Select pictures source directory"
 msgstr ""
 
-#: bauble/utils/__init__.py:1315
+#: bauble/utils/__init__.py:1334
 msgid "Show details"
 msgstr "Részletek Megjelenítése"
 
@@ -3134,7 +3134,7 @@ msgstr ""
 "alapértelmezettként. A listában elsőként szereplő név automatikusan "
 "kiválasztásra került."
 
-#: bauble/ui.py:777
+#: bauble/ui.py:778
 msgid ""
 "This version installed on: %s\n"
 "Latest published version: %s\n"
@@ -3169,7 +3169,7 @@ msgstr ""
 msgid "Tissue Culture"
 msgstr "Szövettenyészet"
 
-#: bauble/utils/__init__.py:845
+#: bauble/utils/__init__.py:864
 msgid "Today's date"
 msgstr "Mai dátum"
 
@@ -3344,7 +3344,7 @@ msgstr "Vad státusz"
 msgid "Winter kill"
 msgstr ""
 
-#: bauble/ui.py:794
+#: bauble/ui.py:795
 msgid "Would you like the cancel the current tasks?"
 msgstr "Kívánja megszakítani az aktuális műveleteket?"
 
@@ -3524,6 +3524,10 @@ msgstr "_Súgó"
 #: bauble/ui.py:445
 msgid "_Insert"
 msgstr "_Beszúr"
+
+#: bauble/ui.py:432
+msgid "_New"
+msgstr "_Új"
 
 #: bauble/ui.py:434
 msgid "_Open"
@@ -3711,7 +3715,7 @@ msgstr ""
 msgid "hit"
 msgstr ""
 
-#: bauble/ui.py:766
+#: bauble/ui.py:767
 #, fuzzy
 msgid "http://ghini.github.io"
 msgstr "http://ghini.github.io"
@@ -3774,7 +3778,7 @@ msgstr ""
 msgid "next"
 msgstr "tovább"
 
-#: bauble/utils/__init__.py:295 bauble/utils/__init__.py:308
+#: bauble/utils/__init__.py:314 bauble/utils/__init__.py:327
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
@@ -3794,7 +3798,7 @@ msgstr "A faj Wikipédia oldalának megnyitása"
 msgid "output:"
 msgstr "kimenet:"
 
-#: bauble/editor.py:2088 bauble/utils/__init__.py:160
+#: bauble/editor.py:2088 bauble/utils/__init__.py:172
 msgid "picture file %s not found."
 msgstr "A %s nevű képfájl nem található."
 
@@ -4058,9 +4062,6 @@ msgstr "°F"
 
 #~ msgid "User: "
 #~ msgstr "Felhasználó: "
-
-#~ msgid "_New"
-#~ msgstr "_Új"
 
 #~ msgid "family_window"
 #~ msgstr "család_ablak"

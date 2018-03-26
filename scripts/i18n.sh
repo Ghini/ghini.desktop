@@ -48,11 +48,14 @@ do
 done
 echo '. ] ok'
 
-
-echo "press enter to continue with the docs, or ^C to stop here"
 if [ $# -eq 0 ]
 then
+    echo "press enter to continue with the docs, or ^C to stop here"
     read
+else
+    echo "******************************************************************************"
+    echo "* continuing with the docs                                                   *"
+    echo "******************************************************************************"
 fi
 ../ghini.desktop-docs.i18n/doc/runme.sh $@
 
