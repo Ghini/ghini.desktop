@@ -635,13 +635,9 @@ class PlantEditorView(GenericEditorView):
         self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
         self.init_translatable_combo('reason_combo', change_reasons)
         utils.setup_date_button(self, 'plant_date_entry', 'plant_date_button')
-<<<<<<< HEAD
         utils.setup_date_button(self, 'plant_date_planted_entry',
                                 'plant_date_planted_button')
         self.widgets.plant_notebook.set_current_page(0)
-=======
-        self.widgets.notebook.set_current_page(0)
->>>>>>> ghini-1.0-dev
 
     def get_window(self):
         return self.widgets.plant_editor_dialog

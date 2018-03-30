@@ -461,46 +461,8 @@ recvd_type_values = {
     }
 
 
-<<<<<<< HEAD
-class AccessionNote(db.Base, db.Serializable):
-    """
-    Notes for the accession table
-    """
-    __tablename__ = 'accession_note'
-    __mapper_args__ = {'order_by': 'accession_note.date'}
-
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
-    accession = relationship(
-        'Accession', uselist=False,
-        backref=backref('notes', cascade='all, delete-orphan'))
-
-    def as_dict(self):
-        result = db.Serializable.as_dict(self)
-        result['accession'] = self.accession.code
-        return result
-
-    @classmethod
-    def retrieve(cls, session, keys):
-        q = session.query(cls)
-        if 'accession' in keys:
-            q = q.join(Accession).filter(
-                Accession.code == keys['accession'])
-        if 'date' in keys:
-            q = q.filter(cls.date == keys['date'])
-        if 'category' in keys:
-            q = q.filter(cls.category == keys['category'])
-        try:
-            return q.one()
-        except:
-            return None
-=======
 def compute_serializable_fields(cls, session, keys):
     result = {'accession': None}
->>>>>>> ghini-1.0-dev
 
     acc_keys = {}
     acc_keys.update(keys)
@@ -903,14 +865,7 @@ class AccessionEditorView(editor.GenericEditorView):
             'The type of the accessioned material.'),
         'acc_quantity_recvd_entry': _('The amount of plant material at the '
                                       'time it was accessioned.'),
-<<<<<<< HEAD
-=======
-        'intended_loc_comboentry': _('The intended location for plant '
-                                     'material being accessioned.'),
-        'intended2_loc_comboentry': _('The intended location for plant '
-                                      'material being accessioned.'),
-        'intended_loc_create_plant_checkbutton': _('Immediately create a plant at this location, using all plant material.'),
->>>>>>> ghini-1.0-dev
+        'intended_loc_create_plant_checkbutton': _('Immediately create a plant at first intended location, using all plant material.'),
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
@@ -1014,16 +969,11 @@ class AccessionEditorView(editor.GenericEditorView):
     # staticmethod ensures the AccessionEditorView gets garbage collected.
     def species_match_func(completion, key, treeiter, data=None):
         species = completion.get_model()[treeiter][0]
-<<<<<<< HEAD
-        if str(species).lower().startswith(key.lower()) \
-                or str(species.genus.epithet).lower().startswith(key.lower()):
-=======
         epg, eps = (species.str(remove_zws=True).lower() + ' ').split(' ')[:2]
         key_epg, key_eps = (key.lower() + ' ').split(' ')[:2]
         if not epg:
             epg = str(species.genus.epithet).lower()
         if (epg.startswith(key_epg) and eps.startswith(key_eps)):
->>>>>>> ghini-1.0-dev
             return True
         return False
 
@@ -1799,11 +1749,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
-<<<<<<< HEAD
                            'acc_spql_combo': 'sp_qual',
-=======
                            'intended_loc_create_plant_checkbutton': 'create_plant',
->>>>>>> ghini-1.0-dev
                            }
     combo_value_render = {'acc_spql_combo': itf2.acc_spql,
                           }
@@ -2006,24 +1953,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         from bauble.plugins.garden import init_location_comboentry
 
-<<<<<<< HEAD
-=======
-        def on_loc1_select(value):
-            self.set_model_attr('intended_location', value)
-            if not self.has_plants:
-                view.widget_set_sensitive('intended_loc_create_plant_checkbutton', bool(value))
-
-        init_location_comboentry(
-            self, self.view.widgets.intended_loc_comboentry,
-            on_loc1_select, required=False)
-
-        def on_loc2_select(value):
-            self.set_model_attr('intended2_location', value)
-        init_location_comboentry(
-            self, self.view.widgets.intended2_loc_comboentry,
-            on_loc2_select, required=False)
-
->>>>>>> ghini-1.0-dev
         self.refresh_sensitivity()
 
         if self.model not in self.session.new:

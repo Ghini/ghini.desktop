@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2005-2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
-#
-<<<<<<< HEAD
-# This file is part of ghini.desktop.
-#
-=======
 # Copyright 2008-2010 Brett Adams
 # Copyright 2014-2017 Mario Frasca <mario@anche.no>.
 # Copyright 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
->>>>>>> ghini-1.0-dev
 # ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or

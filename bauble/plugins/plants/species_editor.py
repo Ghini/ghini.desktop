@@ -65,11 +65,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_aggregate_combo': 'aggregate',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
-<<<<<<< HEAD
                            'sp_hybrid_operands_vbox2': 'hybrid_operands',
-=======
                            'sp_habit_comboentry': 'habit',
->>>>>>> ghini-1.0-dev
                            }
     combo_value_render = {'sp_aggregate_combo': itf2.aggregate,
                           'sp_hybrid_combo': itf2.hybrid_marker, }
@@ -370,7 +367,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         except Exception:
             pass
 
-<<<<<<< HEAD
     def refresh_on_hybrid_marker(self, *args):
         'alter visibility of fields if H'
 
@@ -404,11 +400,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.view.widget_set_visible('sp_isp_alignment', True)
             self.view.widget_set_visible('sp_hybrid_operands_vbox1', False)
             self.view.widget_set_visible('sp_hybrid_operands_vbox2', False)
-=======
+
     def set_visible_buttons(self, visible):
         self.view.widgets.sp_ok_and_add_button.set_visible(visible)
         self.view.widgets.sp_next_button.set_visible(visible)
->>>>>>> ghini-1.0-dev
 
     def on_sp_species_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)

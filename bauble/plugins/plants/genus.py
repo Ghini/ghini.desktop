@@ -168,39 +168,6 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
             return self.family.cites
         return cites_notes[0]
 
-<<<<<<< HEAD
-=======
-    @property
-    def hybrid_epithet(self):
-        '''strip the leading char if it is an hybrid marker
-        '''
-        if self.genus[0] in [u'x', u'×']:
-            return self.genus[1:]
-        if self.genus[0] in [u'+', u'➕']:
-            return self.genus[1:]
-        return self.genus
-
-    @property
-    def hybrid_marker(self):
-        """Intergeneric Hybrid Flag (ITF2)
-        """
-        if self.genus[0] in [u'x', u'×']:
-            return u'×'
-        if self.genus[0] in [u'+', u'➕']:
-            return u'+'
-        if self.genus.find(u'×') > 0:
-            # the genus field contains a formula
-            return u'H'
-        return u''
-
-    # columns
-    genus = Column(String(64), nullable=False, index=True)
-    epithet = synonym('genus')
-
-    # use '' instead of None so that the constraints will work propertly
-    author = Column(Unicode(255), default=u'')
-
->>>>>>> ghini-1.0-dev
     @validates('genus', 'author')
     def validate_stripping(self, key, value):
         if value is None:

@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-<<<<<<< HEAD
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
-=======
-# Copyright 2015 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
->>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -495,19 +491,14 @@ class FamilyTests(PlantTestCase):
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', u'The family <i>Arecaceae</i> has 1 genera.\n\nYou cannot remove a family with genera.')
                         in self.invoked)
-<<<<<<< HEAD
         self.assertEquals(result, None)
         q = self.session.query(Family).filter_by(epithet=u"Arecaceae")
-=======
-        q = self.session.query(Family).filter_by(family=u"Arecaceae")
->>>>>>> ghini-1.0-dev
         matching = q.all()
         self.assertEquals(matching, [f5])
         q = self.session.query(Genus).filter_by(epithet=u"Areca")
         matching = q.all()
         self.assertEquals(matching, [gf5])
 
-<<<<<<< HEAD
     def test_remove_callback_with_genera_confirm_cascade(self):
         # T_0
         f5 = Family(epithet=u'Arecaceae')
@@ -540,8 +531,6 @@ class FamilyTests(PlantTestCase):
         matching = q.all()
         self.assertEquals(matching, [])
 
-=======
->>>>>>> ghini-1.0-dev
 
 class GenusTests(PlantTestCase):
 

@@ -27,27 +27,16 @@ logger = logging.getLogger(__name__)
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
-<<<<<<< HEAD
 from functools import reduce
 from sqlalchemy import (
-    Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint,
-    Table)
-from sqlalchemy.orm import relation, backref
-=======
-from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
-    UnicodeText, func, UniqueConstraint
+    Column, Boolean, Unicode, Integer, ForeignKey, UnicodeText,
+    func, UniqueConstraint, Table)
 from sqlalchemy.orm import relation, backref, synonym
->>>>>>> ghini-1.0-dev
 import bauble.db as db
 import bauble.error as error
 import bauble.utils as utils
 import bauble.btypes as types
-<<<<<<< HEAD
-from bauble.i18n import _
 from bauble.plugins.plants import itf2
-=======
-
->>>>>>> ghini-1.0-dev
 
 
 def _remove_zws(s):
@@ -186,12 +175,8 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                      ', '.join([str(v) for v in self.vernacular_names])))
             else:
                 substring = '%s' % self.genus.family
-<<<<<<< HEAD
             trail = self.author and (' <span weight="light">%s</span>' %
                                      utils.xml_safe(self.author)) or ''
-=======
-            trail = ''
->>>>>>> ghini-1.0-dev
             if self.accepted:
                 trail += ('<span foreground="#555555" size="small" '
                           'weight="light"> - ' + _("synonym of %s") + "</span>"

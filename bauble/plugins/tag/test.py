@@ -169,16 +169,10 @@ class TagTests(BaubleTestCase):
         tagged_objs = tag.objects
         self.assertEquals(tagged_objs, [])
 
-<<<<<<< HEAD
-    def test_get_tag_ids(self):
-        family2 = Family(epithet=u'family2')
-        self.session.add(family2)
-=======
     def test_is_tagging(self):
         family2 = Family(family=u'family2')
         t1 = Tag(tag=u'test1')
         self.session.add_all([family2, t1])
->>>>>>> ghini-1.0-dev
         self.session.flush()
         self.assertFalse(t1.is_tagging(family2))
         self.assertFalse(t1.is_tagging(self.family))

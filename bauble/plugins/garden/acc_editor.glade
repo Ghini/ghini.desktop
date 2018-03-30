@@ -232,10 +232,7 @@
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-<<<<<<< HEAD
-=======
                 <accelerator key="n" signal="activate" modifiers="GDK_CONTROL_MASK"/>
->>>>>>> ghini-1.0-dev
                 <child>
                   <object class="GtkAlignment" id="next_button_align">
                     <property name="visible">True</property>
@@ -833,13 +830,7 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
-<<<<<<< HEAD
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-=======
                                                 <accelerator key="t" signal="activate" modifiers="GDK_CONTROL_MASK"/>
->>>>>>> ghini-1.0-dev
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -883,12 +874,6 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
-<<<<<<< HEAD
-                                                <child>
-                                                  <placeholder/>
-                                                </child>
-=======
->>>>>>> ghini-1.0-dev
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>

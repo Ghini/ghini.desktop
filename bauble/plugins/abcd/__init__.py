@@ -33,12 +33,6 @@ import bauble.paths as paths
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.garden.plant import Plant
-<<<<<<< HEAD
-from bauble.i18n import _
-from bauble import prefs
-=======
-
->>>>>>> ghini-1.0-dev
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop

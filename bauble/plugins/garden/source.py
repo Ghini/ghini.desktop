@@ -138,7 +138,6 @@ source_type_values = [(u'Expedition', _('Expedition')),
                       (None, '')]
 
 
-<<<<<<< HEAD
 class SourceDetail(db.Base):
     __tablename__ = 'source_detail'
     __mapper_args__ = {'order_by': 'name'}
@@ -165,7 +164,6 @@ class SourceDetail(db.Base):
             str(self),
             safe(self.source_type or ''))
 
-=======
 # TODO: should have a label next to lat/lon entry to show what value will be
 # stored in the database, might be good to include both DMS and the float
 # so the user can see both no matter what is in the entry. it could change in
@@ -174,7 +172,6 @@ class SourceDetail(db.Base):
 # same for geographic accuracy
 # TODO: should show an error if something other than a number is entered in
 # the altitude entry
->>>>>>> ghini-1.0-dev
 
 # TODO: should provide a collection type: alcohol, bark, boxed,
 # cytological, fruit, illustration, image, other, packet, pollen,

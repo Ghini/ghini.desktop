@@ -761,13 +761,8 @@ class JSONImportTests(BaubleTestCase):
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
-<<<<<<< HEAD
             Genus.epithet == u"Neogyna").all()), 0)
         importer = JSONImporter(MockImportView())
-=======
-            Genus.genus == u"Neogyna").all()), 0)
-        importer = JSONImporter(MockView())
->>>>>>> ghini-1.0-dev
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -781,13 +776,8 @@ class JSONImportTests(BaubleTestCase):
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
-<<<<<<< HEAD
             Genus.epithet == u"Neogyna").all()), 0)
-        importer = JSONImporter(MockImportView())
-=======
-            Genus.genus == u"Neogyna").all()), 0)
         importer = JSONImporter(MockView())
->>>>>>> ghini-1.0-dev
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -803,13 +793,8 @@ class JSONImportTests(BaubleTestCase):
         previously = Species.retrieve_or_create(
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
-<<<<<<< HEAD
         self.assertEquals(previously.author, u'')
-        importer = JSONImporter(MockImportView())
-=======
-        self.assertEquals(previously.sp_author, None)
         importer = JSONImporter(MockView())
->>>>>>> ghini-1.0-dev
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.session.commit()

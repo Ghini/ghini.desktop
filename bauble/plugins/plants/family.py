@@ -1,12 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-<<<<<<< HEAD
 # Copyright 2014-2016 Mario Frasca <mario@anche.no>.
-=======
-# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
->>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -35,13 +31,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
-<<<<<<< HEAD
-    UnicodeText, func, and_, UniqueConstraint
-from sqlalchemy.orm import relation, backref, validates
-=======
     UnicodeText, func, and_, UniqueConstraint, String
 from sqlalchemy.orm import relation, backref, validates, synonym
->>>>>>> ghini-1.0-dev
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -54,12 +45,7 @@ import bauble.utils as utils
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
-<<<<<<< HEAD
-from bauble.i18n import _
 from bauble.plugins.plants import itf2
-=======
-
->>>>>>> ghini-1.0-dev
 
 
 def edit_callback(families):
@@ -180,18 +166,6 @@ class Family(db.Base, db.Serializable, db.WithNotes):
             return None
         return cites_notes[0]
 
-<<<<<<< HEAD
-=======
-    # columns
-    family = Column(String(45), nullable=False, index=True)
-    epithet = synonym('family')
-
-    # we use the blank string here instead of None so that the
-    # contraints will work properly,
-    qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
-                       default=u'')
-
->>>>>>> ghini-1.0-dev
     # relations
     # `genera` relation is defined outside of `Family` class definition
     synonyms = association_proxy('_synonyms', 'synonym')

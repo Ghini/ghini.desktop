@@ -1,13 +1,9 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-<<<<<<< HEAD
-# Copyright 2012-2016 Mario Frasca <mario@anche.no>.
-=======
 # Copyright 2012-2017 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 # Copyright 2017 Ross Demuth
->>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
