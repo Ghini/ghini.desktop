@@ -1,0 +1,780 @@
+"Abola","Adans."
+25103,"Abola","Adans.",214
+
+"Abola","Lindl."
+25104,"Abola","Lindl.",345
+
+"Agyneia","L."
+24788,"Agyneia","L.",190
+
+"Agynaia","Hassk."
+
+"Anguria","Mill."
+24659,"Anguria","Mill.",133
+
+"Anguria","Jacq."
+24658,"Anguria","Jacq.",133
+
+"Antillanorchis","Garay"
+16768,"Antillanorchis","Garay",345
+
+"Asprella","Host"
+25146,"Asprella","Host",214
+
+"Asprella","Schreb."
+25145,"Asprella","Schreb.",214
+
+"Asprella","Willd."
+
+"Audibertia","Benth."
+
+"Azalea","L."
+9591,"Azalea","L.",183
+
+"Beesha","Kunth"
+25158,"Beesha","Kunth",214
+
+"Beesha","Munro"
+25159,"Beesha","Munro",214
+
+"Bellevalia","Lapeyr."
+24811,"Bellevalia","Lapeyr.",241
+
+"Bellevalia","Delile ex Endl."
+
+"Bellevalia","Scop."
+
+"Bernhardia","Willd. ex Bernh."
+20194,"Bernhardia","Willd. ex Bernh.",395
+
+"Bessera","Schult. f."
+
+"Bessera","Schult."
+24040,"Bessera","Schult.",17
+
+"Bessera","Spreng."
+24041,"Bessera","Spreng.",190
+
+"Bessera","Vell."
+
+"Borya","Montrouz. ex Beauvis."
+
+"Borya","Willd."
+24114,"Borya","Willd.",338
+
+"Borya","Labill."
+24113,"Borya","Labill.",30
+
+"Brizopyrum","Link"
+25165,"Brizopyrum","Link",214
+
+"Brizopyrum","Stapf"
+25166,"Brizopyrum","Stapf",214
+
+"Broteroa","DC."
+12796,"Broteroa","DC.",265
+
+"Broteroa","Kuntze"
+3651,"Broteroa","Kuntze",118
+
+"Broteroa","DC."
+12796,"Broteroa","DC.",265
+
+"Broteroa","Kuntze"
+3651,"Broteroa","Kuntze",118
+
+"Caldasia","Lag."
+26501,"Caldasia","Lag.",491
+
+"Caldasia","Mutis"
+
+"Caldasia","Humb. ex Willd."
+
+"Campelia","Rich."
+8338,"Campelia","Rich.",117
+
+"Camptocarpus","Decne."
+24167,"Camptocarpus","Decne.",40
+
+"Camptocarpus","K. Koch"
+
+"Cavanilla","Salisb."
+
+"Cavanilla","Thunb."
+24831,"Cavanilla","Thunb.",251
+
+"Cavanilla","Vell."
+24830,"Cavanilla","Vell.",190
+
+"Cavanilla","J.F. Gmel."
+
+"Ceramanthus","Hassk."
+24170,"Ceramanthus","Hassk.",190
+
+"Ceramanthus","(Kunze) Malme"
+24169,"Ceramanthus","(Kunze) Malme",40
+
+"Ceramanthus","Hook. f. ex Post & Kuntze"
+
+"Ceranthera","Elliott"
+25595,"Ceranthera","Elliott",265
+
+"Ceranthera","Raf."
+25596,"Ceranthera","Raf.",440
+
+"Ceranthera","P. Beauv."
+
+"Chilenia","Backeb."
+
+"Cieca","Medik."
+24842,"Cieca","Medik.",356
+
+"Cieca","Adans."
+24841,"Cieca","Adans.",190
+
+"Cincinalis","Gled."
+23949,"Cincinalis","Gled.",151
+
+"Cincinalis","Gled. ex Desv."
+23948,"Cincinalis","Gled. ex Desv.",8
+
+"Cohnia","Rchb. f."
+
+"Cohnia","Kunth"
+24014,"Cohnia","Kunth",11
+
+"Courtoisia","Nees"
+24688,"Courtoisia","Nees",143
+
+"Courtoisia","Rchb."
+24689,"Courtoisia","Rchb.",385
+
+"Courtoisia","Marchand"
+
+"Crantzia","Vell."
+
+"Crantzia","Kuntze"
+
+"Crantzia","Nutt."
+24358,"Crantzia","Nutt.",491
+
+"Crantzia","Scop."
+24357,"Crantzia","Scop.",203
+
+"Crantzia","Sw."
+24356,"Crantzia","Sw.",76
+
+"Crantzia","Vell."
+
+"Cryptanthus","Otto & A. Dietr."
+6946,"Cryptanthus","Otto & A. Dietr.",69
+
+"Cryptanthus","Osbeck"
+12759,"Cryptanthus","Osbeck",265
+
+"Cryptanthus","Nutt. ex Moq."
+
+"Cyclostigma","Hochst. ex Endl."
+
+"Cyclostigma","Klotzsch"
+
+"Cyclostigma","Phil."
+24857,"Cyclostigma","Phil.",440
+
+"Devauxia","R. Br."
+
+"Devauxia","Kunth"
+24531,"Devauxia","Kunth",214
+
+"Diplanthera","Banks & Sol. ex R. Br."
+
+"Diplanthera","Raf."
+24293,"Diplanthera","Raf.",345
+
+"Diplanthera","Schrank"
+
+"Diplanthera","Thouars"
+
+"Diplanthera","Gled."
+
+"Dombeya","Cav."
+24295,"Dombeya","Cav.",449
+
+"Dombeya","L'HÃ©r."
+
+"Dombeya","Lam."
+
+"Dondia","Adans."
+24534,"Dondia","Adans.",105
+
+"Dondia","Spreng."
+24535,"Dondia","Spreng.",491
+
+"Elaterium","Jacq."
+24669,"Elaterium","Jacq.",133
+
+"Elaterium","Mill."
+24668,"Elaterium","Mill.",133
+
+"Elutheria","L."
+
+"Elutheria","M. Roem."
+
+"Elutheria","P. Browne"
+
+"Fagelia","DC."
+
+"Fagelia","Schwencke"
+7365,"Fagelia","Schwencke",678
+
+"Ferdinanda","Lag."
+4249,"Ferdinanda","Lag.",118
+
+"Ferdinanda","Benth. & Hook. f."
+5838,"Ferdinanda","Benth. & Hook. f.",61
+
+"Ferdinanda","Lag."
+4249,"Ferdinanda","Lag.",118
+
+"Festucaria","Heist. ex Fabr."
+
+"Festucaria","Link"
+25259,"Festucaria","Link",214
+
+"Filix","Adans."
+24709,"Filix","Adans.",504
+
+"Filix","Ludw."
+24705,"Filix","Ludw.",151
+
+"Filix","Ség."
+
+"Furcaria","Boivin ex Baill."
+24883,"Furcaria","Boivin ex Baill.",190
+
+"Furcaria","Desv."
+24884,"Furcaria","Desv.",354
+
+"Furcaria","Kostel."
+
+"Gamosepalum","Hausskn."
+6309,"Gamosepalum","Hausskn.",130
+
+"Gamosepalum","Schltr."
+15833,"Gamosepalum","Schltr.",345
+
+"Gerardia","Benth."
+23905,"Gerardia","Benth.",1
+23906,"Gerardia","Benth.",433
+
+"Gerardia","L."
+
+"Gramen","Ség."
+
+"Gramen","Krause"
+25275,"Gramen","Krause",214
+
+"Gramen","W. Young"
+
+"Grislea","L."
+24545,"Grislea","L.",116
+
+"Grislea","Loefl."
+24546,"Grislea","Loefl.",294
+
+"Guidonia","Griseb."
+
+"Guidonia","P. Browne"
+
+"Guidonia","Mill."
+25045,"Guidonia","Mill.",195
+
+"Gutenbergia","Sch.Bip. ex Sch.Bip."
+
+"Gutenbergia","Walp."
+21027,"Gutenbergia","Walp.",414
+
+"Gutenbergia","Sch. Bip."
+5494,"Gutenbergia","Sch. Bip.",118
+
+"Gymnopteris","Bernh."
+23961,"Gymnopteris","Bernh.",8
+
+"Gymnopteris","C. Presl"
+
+"Hariota","Adans."
+24419,"Hariota","Adans.",79
+
+"Hariota","DC."
+24418,"Hariota","DC.",79
+
+"Harrisonia","Neck."
+
+"Harrisonia","R. Br. ex A. Juss."
+
+"Harrisonia","Hook."
+24194,"Harrisonia","Hook.",40
+
+"Harrisonia","Spreng."
+
+"Heteropteris","Fée"
+
+"Heteropteris","Kunth"
+23964,"Heteropteris","Kunth",297
+
+"Hewardia","J. Sm."
+
+"Hewardia","Hook."
+
+"Honckenya","Ehrh."
+7748,"Honckenya","Ehrh.",95
+
+"Honckenya","Bartl."
+
+"Honckenya","Willd. ex Cothen."
+
+"Honkenya","Willd. ex Cothen."
+13858,"Honkenya","Willd. ex Cothen.",298
+
+"Hypodematium","Kunze"
+26071,"Hypodematium","Kunze",504
+
+"Hypodematium","A. Rich."
+
+"Hypodematium","A. Rich."
+
+"Ischnanthus","(Engl.) Tiegh."
+13476,"Ischnanthus","(Engl.) Tiegh.",290
+
+"Ischnanthus","Roem. & Schult."
+18504,"Ischnanthus","Roem. & Schult.",214
+
+"Isolatocereus","(Backeb.) Backeb."
+7256,"Isolatocereus","(Backeb.) Backeb.",79
+
+"Johnsonia","Mill."
+
+"Johnsonia","Adans."
+24133,"Johnsonia","Adans.",310
+
+"Johnsonia","R. Br."
+
+"Johnsonia","R. Br."
+
+"Kentia","Blume"
+24101,"Kentia","Blume",29
+24102,"Kentia","Blume",349
+
+"Kentia","Adans."
+
+"Keppleria","Martius ex Endlicher"
+
+"Keppleria","Meisn."
+26409,"Keppleria","Meisn.",349
+
+"Kniphofia","Moench"
+24269,"Kniphofia","Moench",42
+
+"Kniphofia","Scop."
+24270,"Kniphofia","Scop.",116
+
+"Kniphofia","Moench"
+24269,"Kniphofia","Moench",42
+
+"Kotchubaea","Regel ex Hook. f."
+
+"Kotchubaea","Fisch. ex C. DC."
+
+"Lachnostoma","Kunth"
+2214,"Lachnostoma","Kunth",32
+
+"Lachnostoma","Hassk."
+21052,"Lachnostoma","Hassk.",414
+
+"Lachnostoma","Korth."
+
+"Lagotis","Gaertn."
+26641,"Lagotis","Gaertn.",433
+
+"Lagotis","E. Mey."
+
+"Laugeria","Vahl ex J. D. Hooker in Bentham & J. D. Hooker"
+
+"Laugeria","L."
+20897,"Laugeria","L.",414
+
+"Laurembergia","P.J. Bergius"
+
+"Laurembergia","Baill."
+10115,"Laurembergia","Baill.",190
+
+"Laxmannia","Forst. & Forst."
+
+"Laxmannia","J.R.Forst. & G.Forst."
+
+"Laxmannia","Forst."
+
+"Laxmannia","J.R. Forst. & G. Forst."
+
+"Laxmannia","S.G. Gmel. ex Trin."
+
+"Laxmannia","Schreb."
+
+"Laxmannia","R. Br."
+
+"Lecanium","C. Presl"
+
+"Lecanium","Reinw."
+25570,"Lecanium","Reinw.",388
+
+"Lecanthus","Wedd."
+25078,"Lecanthus","Wedd.",492
+
+"Lepidostemon","Hook. f. & Thomson"
+6705,"Lepidostemon","Hook. f. & Thomson",130
+
+"Lepidostemon","Hassk."
+8461,"Lepidostemon","Hassk.",121
+
+"Lepidostemon","Lem."
+
+"Leptopus","Decne."
+24924,"Leptopus","Decne.",190
+
+"Leptopus","Klotzsch & Garcke"
+24925,"Leptopus","Klotzsch & Garcke",190
+
+"Leucorchis","Blume"
+16156,"Leucorchis","Blume",345
+
+"Leucorchis","E. Mey."
+16649,"Leucorchis","E. Mey.",345
+
+"Lindleya","Nees"
+26568,"Lindleya","Nees",468
+
+"Lindleya","Kunth"
+26567,"Lindleya","Kunth",413
+
+"Lindleyella","Schltr."
+26113,"Lindleyella","Schltr.",345
+
+"Lindleyella","Rydb."
+26114,"Lindleyella","Rydb.",413
+
+"Llavea","Lag."
+23972,"Llavea","Lag.",8
+
+"Llavea","Liebm."
+23973,"Llavea","Liebm.",195
+
+"Lloydia","Benth. & Hook.f."
+
+"Lloydia","Salisb. ex Rchb."
+13322,"Lloydia","Salisb. ex Rchb.",280
+
+"Lloydia","Delile"
+18649,"Lloydia","Delile",214
+
+"Lonchitis","L."
+24712,"Lonchitis","L.",151
+
+"Lonchitis","Bubani"
+24713,"Lonchitis","Bubani",345
+
+"Lonchitis","L."
+24712,"Lonchitis","L.",151
+
+"Lophiocarpus","Turcz."
+24033,"Lophiocarpus","Turcz.",372
+
+"Lophiocarpus","(Kunth) Miq."
+24032,"Lophiocarpus","(Kunth) Miq.",16
+
+"Macraea","Hook.f."
+24568,"Macraea","Hook.f.",118
+
+"Macraea","Hook. f."
+
+"Macraea","Wight"
+24569,"Macraea","Wight",190
+
+"Macraea","Lindl."
+
+"Macrocalyx","Costantin & Poiss."
+
+"Macrocalyx","Miers ex Lindl."
+
+"Macrocalyx","Tiegh."
+25682,"Macrocalyx","Tiegh.",290
+
+"Macrocalyx","Trew"
+
+"Maughania","J. Saint-Hilaire"
+
+"Maughania","N.E. Br."
+
+"Messerschmidia","L. ex Hebenstr."
+
+"Messerschmidia","Roem. & Schult."
+24323,"Messerschmidia","Roem. & Schult.",66
+
+"Meyenia","Backeb."
+23911,"Meyenia","Backeb.",79
+
+"Meyenia","Schltdl."
+23912,"Meyenia","Schltdl.",440
+
+"Meyenia","Nees"
+23910,"Meyenia","Nees",1
+
+"Monocera","Elliott"
+24750,"Monocera","Elliott",214
+
+"Monocera","Jack"
+24749,"Monocera","Jack",174
+
+"Moorea","Lem."
+25362,"Moorea","Lem.",214
+
+"Moorea","Rolfe"
+25363,"Moorea","Rolfe",345
+
+"Nelitris","Gaertn."
+25780,"Nelitris","Gaertn.",414
+
+"Octomeria","R. Br."
+17332,"Octomeria","R. Br.",345
+
+"Octomeria","D. Don"
+
+"Octomeria","Pfeiff."
+21074,"Octomeria","Pfeiff.",414
+
+"Oetosis","Neck. ex Greene"
+26518,"Oetosis","Neck. ex Greene",500
+
+"Oetosis","Neck. ex Kuntze"
+26517,"Oetosis","Neck. ex Kuntze",388
+
+"Onychium","Kaulf."
+23984,"Onychium","Kaulf.",8
+
+"Onychium","Blume"
+23985,"Onychium","Blume",345
+
+"Onychium","Reinw."
+23986,"Onychium","Reinw.",388
+
+"Panicularia","Heist. ex Fabr."
+
+"Panicularia","Colla"
+24721,"Panicularia","Colla",155
+
+"Pentacoilanthus","Rappa & Camarrone"
+
+"Petalanthera","Nutt."
+23917,"Petalanthera","Nutt.",285
+
+"Petalanthera","Raf."
+23916,"Petalanthera","Raf.",1
+
+"Petalanthera","Nees & Mart."
+
+"Petalonema","Gilg"
+24224,"Petalonema","Gilg",309
+
+"Petalonema","Peter"
+
+"Petalonema","Schltr."
+24223,"Petalonema","Schltr.",40
+
+"Petalonema","Berk. ex Correns"
+
+"Peteria","Raf."
+21222,"Peteria","Raf.",414
+
+"Peteria","A. Gray"
+11055,"Peteria","A. Gray",273
+
+"Pilocereus","Lem."
+24447,"Pilocereus","Lem.",79
+
+"Platytaenia","Kuhn"
+23995,"Platytaenia","Kuhn",8
+
+"Platytaenia","Nevski & Vved."
+23996,"Platytaenia","Nevski & Vved.",491
+
+"Poranthera","Raf."
+24975,"Poranthera","Raf.",214
+
+"Poranthera","Rudge"
+24974,"Poranthera","Rudge",190
+
+"Psammophila","Fourr. ex Ikonn."
+
+"Psammophila","Schult."
+24517,"Psammophila","Schult.",214
+
+"Pterilis","Raf."
+26531,"Pterilis","Raf.",397
+26532,"Pterilis","Raf.",504
+
+"Rapuntium","Mill."
+7447,"Rapuntium","Mill.",84
+
+"Richea","Labill."
+
+"Richea","Kuntze"
+
+"Richea","R. Br."
+9722,"Richea","R. Br.",183
+
+"Rubeola","Hill"
+26667,"Rubeola","Hill",414
+
+"Rubeola","Mill."
+26668,"Rubeola","Mill.",414
+
+"Sagus","Gaertn."
+26426,"Sagus","Gaertn.",349
+
+"Sagus","Steck"
+26427,"Sagus","Steck",349
+
+"Salmasia","Schreb."
+24540,"Salmasia","Schreb.",107
+
+"Salmasia","Bubani"
+24541,"Salmasia","Bubani",214
+
+"Samyda","L."
+25070,"Samyda","L.",310
+
+"Samyda","Jacq."
+25069,"Samyda","Jacq.",195
+
+"Schlechterella","(Schltr.) Hoehne"
+
+"Schlechterella","K. Schum."
+
+"Siphonandra","Klotzsch"
+9676,"Siphonandra","Klotzsch",183
+
+"Siphonandra","Turcz."
+20767,"Siphonandra","Turcz.",414
+
+"Siphonia","D. Richard ex Schreber"
+
+"Siphonia","Benth."
+25000,"Siphonia","Benth.",414
+
+"Skottsbergiella","Epling"
+24648,"Skottsbergiella","Epling",265
+
+"Slackia","Griff."
+25092,"Slackia","Griff.",203
+25093,"Slackia","Griff.",349
+
+"Slackia","Griff."
+25092,"Slackia","Griff.",203
+25093,"Slackia","Griff.",349
+
+"Slackia","Griff."
+25092,"Slackia","Griff.",203
+25093,"Slackia","Griff.",349
+
+"Stenocalyx","O. Berg"
+
+"Stenocalyx","Turcz."
+25700,"Stenocalyx","Turcz.",297
+
+"Stenonia","Didr."
+25006,"Stenonia","Didr.",190
+
+"Stenonia","Baill."
+25005,"Stenonia","Baill.",190
+
+"Stilpnophyllum","Hook. f."
+21582,"Stilpnophyllum","Hook. f.",414
+
+"Sturmia","C.F. Gaertn."
+
+"Sturmia","Hoppe"
+25451,"Sturmia","Hoppe",214
+
+"Sturmia","Rchb."
+
+"Tapeinanthus","Boiss. ex Benth."
+24094,"Tapeinanthus","Boiss. ex Benth.",265
+
+"Tapeinanthus","Herb."
+24093,"Tapeinanthus","Herb.",23
+
+"Trichopodium","Lindl."
+25653,"Trichopodium","Lindl.",480
+
+"Trichopodium","C. Presl"
+
+"Triodon","DC."
+25476,"Triodon","DC.",414
+
+"Triodon","Baumg."
+25475,"Triodon","Baumg.",214
+
+"Triodon","Rich."
+
+"Tunica","Ludw."
+24519,"Tunica","Ludw.",95
+
+"Tussacia","Benth."
+25095,"Tussacia","Benth.",203
+
+"Tussacia","Rchb."
+
+"Tussacia","Klotzsch ex Beer"
+
+"Tussacia","Willd. ex Schult. & Schult. f."
+
+"Viviania","Willd. ex Less."
+
+"Viviania","Cav."
+23726,"Viviania","Cav.",980
+
+"Viviania","Willd. ex Less."
+
+"Viviania","Colla"
+
+"Viviania","Raddi"
+
+"Viviania","Raf."
+
+"Vogelia","J.F. Gmel."
+
+"Vogelia","Lam."
+24656,"Vogelia","Lam.",381
+
+"Vogelia","Medik."
+24655,"Vogelia","Medik.",130
+
+"Wibelia","G.Gaertn., B.Mey. & Scherb."
+
+"Wibelia","Roehl."
+
+"Wibelia","Bernh."
+24699,"Wibelia","Bernh.",148
+
+"Wibelia","Pers."
+
+"Wibelia","P. G. Gaertner, B. Meyer & Scherbius,"
+
+"Wintera","G. Forst."
+
+"Wintera","Murray"
+27123,"Wintera","Murray",503
+
+"Zygostelma","E. Fourn."
+
+"Zygostelma","Benth."
+24257,"Zygostelma","Benth.",40
