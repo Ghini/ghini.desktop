@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -34,12 +35,12 @@ logger = logging.getLogger(__name__)
 from sqlalchemy import (
     Column, Unicode, Integer, ForeignKey, UnicodeText, String,
     UniqueConstraint, func, and_)
-from sqlalchemy.orm import relation, backref, validates
+from sqlalchemy.orm import relation, backref, validates, synonym
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
 
-from bauble.i18n import _
+
 import bauble
 import bauble.db as db
 import bauble.error as error
@@ -89,9 +90,11 @@ def remove_callback(genera):
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
     safe_str = utils.xml_safe(str(genus))
     if nsp > 0:
-        msg = (_('The genus <i>%(genus)s</i> has %(num_species)s species.  '
-                 'Are you sure you want to remove it?')
-               % dict(genus=safe_str, num_species=nsp))
+        msg = (_('The genus <i>%(1)s</i> has %(2)s species.'
+                 '\n\n') % {'1': safe_str, '2': nsp} +
+               _('You cannot remove a genus with species.'))
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        return
     else:
         msg = (_("Are you sure you want to remove the genus <i>%s</i>?")
                % safe_str)
@@ -108,12 +111,14 @@ def remove_callback(genera):
     return True
 
 
-edit_action = Action('genus_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('genus_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
 add_species_action = Action('genus_sp_add', _('_Add species'),
                             callback=add_species_callback,
                             accelerator='<ctrl>k')
-remove_action = Action('genus_remove', _('_Delete'), callback=remove_callback,
+remove_action = Action('genus_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 genus_context_menu = [edit_action, add_species_action, remove_action]
@@ -163,6 +168,39 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
             return self.family.cites
         return cites_notes[0]
 
+<<<<<<< HEAD
+=======
+    @property
+    def hybrid_epithet(self):
+        '''strip the leading char if it is an hybrid marker
+        '''
+        if self.genus[0] in [u'x', u'×']:
+            return self.genus[1:]
+        if self.genus[0] in [u'+', u'➕']:
+            return self.genus[1:]
+        return self.genus
+
+    @property
+    def hybrid_marker(self):
+        """Intergeneric Hybrid Flag (ITF2)
+        """
+        if self.genus[0] in [u'x', u'×']:
+            return u'×'
+        if self.genus[0] in [u'+', u'➕']:
+            return u'+'
+        if self.genus.find(u'×') > 0:
+            # the genus field contains a formula
+            return u'H'
+        return u''
+
+    # columns
+    genus = Column(String(64), nullable=False, index=True)
+    epithet = synonym('genus')
+
+    # use '' instead of None so that the constraints will work propertly
+    author = Column(Unicode(255), default=u'')
+
+>>>>>>> ghini-1.0-dev
     @validates('genus', 'author')
     def validate_stripping(self, key, value):
         if value is None:
@@ -305,20 +343,16 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
                                      if a.source and a.source.source_detail])}
 
 
-class GenusNote(db.Base):
-    """
-    Notes for the genus table
-    """
-    __tablename__ = 'genus_note'
-    __mapper_args__ = {'order_by': 'genus_note.date'}
+def compute_serializable_fields(cls, session, keys):
+    result = {'genus': None}
 
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
-    genus = relation('Genus', uselist=False,
-                     backref=backref('notes', cascade='all, delete-orphan'))
+    genus_dict = {'epithet': keys['genus']}
+    result['genus'] = Genus.retrieve_or_create(
+        session, genus_keys, create=False)
+
+    return result
+
+GenusNote = db.make_note_class('Genus', compute_serializable_fields)
 
 
 class GenusSynonym(db.Base):
@@ -375,9 +409,9 @@ class GenusEditorView(editor.GenericEditorView):
                            'it to the list of synonyms.'),
         'gen_cancel_button': _('Cancel your changes.'),
         'gen_ok_button': _('Save your changes.'),
-        'gen_ok_and_add_button': _('Save your changes changes and add a '
+        'gen_ok_and_add_button': _('Save your changes and add a '
                                    'species to this genus.'),
-        'gen_next_button': _('Save your changes changes and add another '
+        'gen_next_button': _('Save your changes and add another '
                              'genus.')
     }
 
@@ -450,6 +484,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         @view: should be an instance of GenusEditorView
         '''
         super(GenusEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
 
         # initialize widgets
@@ -718,14 +753,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
 
         view = GenusEditorView(parent=self.parent)
         self.presenter = GenusEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
 
         # set default focus
         if self.model.family is None:

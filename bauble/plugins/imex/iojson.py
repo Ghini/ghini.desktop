@@ -23,18 +23,19 @@ import gtk
 import logging
 logger = logging.getLogger(__name__)
 
-from bauble.i18n import _
-import bauble.utils as utils
-import bauble.db as db
+
+from bauble import utils
+from bauble import db
 from bauble.plugins.plants import (Familia, Genus, Species, VernacularName)
 from bauble.plugins.garden.plant import (Plant, PlantNote)
 from bauble.plugins.garden.accession import (Accession, AccessionNote)
+from bauble.plugins.garden.source import (Source, Contact)
 from bauble.plugins.garden.location import (Location)
 import bauble.task
-import bauble.editor as editor
-import bauble.paths as paths
+from bauble import editor
+from bauble import paths
 import json
-import bauble.pluginmgr as pluginmgr
+from bauble import pluginmgr
 from bauble import pb_set_fraction
 
 
@@ -118,6 +119,8 @@ class JSONExporter(editor.GenericEditorPresenter):
             accessionnotes = self.session.query(AccessionNote).filter(
                 AccessionNote.accession_id.in_(
                     [j.id for j in accessions])).all()
+            ## all used contacts, but please don't repeat them.
+            contacts = list(set(a.source.source_detail for a in accessions if a.source))
             # extend results with things not further used
             result.extend(locations)
             result.extend(plants)
@@ -130,6 +133,10 @@ class JSONExporter(editor.GenericEditorPresenter):
             accessionnotes = self.session.query(AccessionNote).filter(
                 AccessionNote.accession_id.in_(
                     [j.id for j in accessions])).all()
+            ## all used contacts, but please don't repeat them.
+            contacts = list(set(a.source.source_detail for a in accessions if a.source))
+        else:
+            contacts = []
 
         ## now the taxonomy, based either on all species or on the ones used
         if self.selection_based_on == 'sbo_taxa':
@@ -155,14 +162,14 @@ class JSONExporter(editor.GenericEditorPresenter):
             Familia.epithet).all()
 
         ## prepend the result with the taxonomic information
-        result = families + genera + species + vernacular + result
+        result = families + genera + species + vernacular + contacts + result
 
         ## done, return the result
         return result
 
     def on_btnbrowse_clicked(self, button):
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -245,7 +252,7 @@ class JSONImporter(editor.GenericEditorPresenter):
 
     def on_btnbrowse_clicked(self, button):
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_OPEN,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -276,6 +283,11 @@ class JSONImporter(editor.GenericEditorPresenter):
             pb_set_fraction(float(i) / n)
             yield
         session.commit()
+        try:
+            from bauble import gui
+            gui.get_view().update()
+        except:
+            pass
 
 
 #

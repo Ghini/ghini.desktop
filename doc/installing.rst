@@ -1,77 +1,137 @@
-Introduction
------------------------
+Installation
+============
 
 ghini.desktop is a cross-platform program and it will run on unix machines
-like Linux and MacOSX, as well as on Windows.
+like GNU/Linux and MacOSX, as well as on Windows.
 
-To install Ghini first requires that you install its dependencies that
-cannot be installed automatically.  These include virtualenvwrapper, PyGTK
-and pip. Python and GTK+, you probably already have. As long as you have
-these packages installed then Ghini should be able to install the rest of
-its dependencies by itself.
+.. admonition:: one-liner for hurried users.
+   :class: note
 
-.. note:: If you follow these installation steps, you will end with Ghini
-          running within a Python virtual environment, all Python
-          dependencies installed locally, non conflicting with any other
-          Python program you may have on your system.
+           Linux users just download and run `the installation script
+           <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.sh>`_.
+           You may read the documentation later.
 
-          if you later choose to remove Ghini, you simply remove the
-          virtual environment, which is a directory, with all of its
-          content.
+           Windows users, start downloading all external dependencies (`git
+           <Direct link to download git_>`_, `Python <Direct link to
+           download Python_>`_, `lxml <Direct link to download lxml_>`_,
+           `PyGTK <Direct link to download PyGTK_>`_, `psycopg2 <Direct link
+           to download psycopg2_>`_), read the instructions in the
+           meanwhile.
 
-Installing on Linux
--------------------
+           Mac users are never in a hurry, are they?
 
-#. Download the `devinstall.sh` script and run it::
+Ghini is maintained by very few people, who focus on enhancing its
+functional parts, more than on writing fancy installers. Instead of several
+native installers we offer a single cross-platform installation procedure.
+This has a few big advantages which you will learn to appreciate as we go.
 
-     https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.sh
+The installation is based on running a script.
 
-   Please note that the script will not help you install any extra database
-   connector. This you will do in a later step.
+* The GNU/Linux script takes care of everything, from dependecies to
+  installation for users in the ``ghini`` group.
+* The Windows script needs you to first install a couple things.
+* On MacOSX we use the same script as on GNU/Linux. Since OSX has no default
+  package manager, we install one and we use it before we start the script.
 
-.. note:: (technical) You can study the script to see what steps if runs for
-          you. In short it will install dependencies which can't be
-          satisfied in a virtual environment, then it will create a virtual
-          environment named `ghide`, download the sources and connect your
-          git checkout to the `ghini-1.0` branch (this you can consider a
-          production line), it then builds ghini, downloading all remaining
-          dependencies, and finally it creates a startup script in your
-          `~/bin` folder.
+Following our installation procedure, you will end with Ghini running within
+a Python virtual environment, all Python dependencies installed locally, non
+conflicting with any other Python program you may have on your system.
 
-.. note:: (beginner) To run a script, first make sure you note down the name
-          of the directory to which you have downloaded the script, then you
-          open a terminal window and in that window you type `bash` followed
-          by a space and the complete name of the script including directory
-          name, and hit on the enter key.
+Dependencies that don't fit in a Python virtual environment are: Python,
+virtualenv, GTK+, and PyGTK. Their installation varies per platform.
 
-   If the script ends without error, you can now start ghini::
+If you later choose to remove Ghini, you simply remove the virtual
+environment, which is a directory, with all of its content.
 
-     ~/bin/ghini
+Installing on GNU/Linux
+--------------------------
 
-   or update ghini to the latest released production patch::
+Open a shell terminal window, and follow the following instructions.
 
-     ~/bin/ghini -u
+#. Download the `devinstall.sh` script:
 
-   The same script you can use to switch to a different production line, but
-   at the moment there's only `ghini-1.0`.
+     https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh
 
-#. on Unity, open a terminal, start ghini, its icon will show up in the
-   launcher, you can now `lock to launcher` it.
+#. Invoke the script from a terminal window, starting at the directory where
+   you downloaded it, like this::
 
-#. If you would like to use the default `SQLite <http://sqlite.org/>`_
-   database or you don't know what this means then you can skip this step.
-   If you would like to use a database backend other than the default SQLite
-   backend then you will also need to install a database connector.
+     bash ./devinstall.sh
 
-   If you would like to use a `PostgreSQL <http://www.postgresql.org>`_
-   database then activate the virtual environment and install psycopg2 with
-   the following commands::
+   The script will produce quite some output, which you can safely ignore.
 
-     source ~/.virtualenvs/ghide/bin/activate
-     pip install -U psycopg2
+   .. admonition:: global installation
+      :class: note
 
-   You might need solve dependencies. How to do so, depends on which Linux
-   flavour you are using. Check with your distribution documentation.
+              When almost ready, the installation script will ask you for
+              your password.  This lets it create a ``ghini`` user group,
+              initialise it to just yourself, make the just created
+              ``ghini`` script available to the whole ``ghini`` user group.
+
+              If feeling paranoid, you can safely not give your password and
+              interrupt the script there.
+
+              Possibly the main advantage of a global installation is being
+              able to find Ghini in the application menus of your graphic
+              environment.
+
+#. You can now start ghini by invoking the ``ghini`` script::
+
+     ghini
+
+   #. You use the same ``ghini`` script to update ghini to the latest
+      released production patch::
+
+        ~/bin/ghini -u
+
+      This is what you would do when ghini shows you something like this:
+
+      .. image:: images/new_version_available.png
+
+   #. Users of the global installation will also type ``ghini`` to invoke
+      the program, but they will get to a different script, located in
+      ``/usr/local/bin``. This globally available ``ghini`` script cannot be
+      used to update a ghini installation.
+
+   #. Again the same ``ghini`` script lets you install the optional database
+      connectors: option ``-p`` is for PostgreSQL, option ``-m`` is for
+      MySQL/MariaDB, but you can also install both at the same time::
+
+        ~/bin/ghini -pm
+
+      Please beware: you might need solve dependencies. How to do so,
+      depends on which GNU/Linux flavour you are using. Check with your
+      distribution documentation.
+
+   #. You can also use the ``ghini`` script to switch to a different production
+      line.  At the moment ``1.0`` is the stable one, but you can select
+      ``1.1`` if you want to help us with its development::
+
+        ~/bin/ghini -s 1.1
+
+.. admonition:: beginner's note
+   :class: note
+
+           To run a script, first make sure you note down the name of the
+           directory to which you have downloaded the script, then you open
+           a terminal window and in that window you type `bash` followed by
+           a space and the complete name of the script including directory
+           name, and hit on the enter key.
+
+.. admonition:: technical note
+   :class: note
+
+      You can study the script to see what steps if runs for you.
+
+      In short it will install dependencies which can't be satisfied in a
+      virtual environment, then it will create a virtual environment named
+      ``ghide``, use git to download the sources to a directory named
+      ``~/Local/github/Ghini/ghini.desktop``, and connect this git checkout
+      to the ``ghini-1.0`` branch (this you can consider a production line),
+      it then builds ghini, downloading all remaining dependencies in the
+      virtual environment, and finally it creates the ``ghini`` startup script.
+
+      If you have ``sudo`` permissions, it will be placed in
+      ``/usr/local/bin``, otherwise in your ``~/bin`` folder.
 
 .. rubric:: Next...
 
@@ -80,16 +140,8 @@ Installing on Linux
 Installing on MacOSX
 --------------------
 
-Being MacOSX a unix environment, most things will work the same as on Linux
+Being macOS a unix environment, most things will work the same as on GNU/Linux
 (sort of).
-
-One difficulty is that there are many more versions of MacOSX out
-there than one would want to support, and only the current and its
-immediately preceding release are kept up-to-date by Apple-the-firm.
-
-Last time we tested, some of the dependencies could not be installed on
-MacOSX 10.5 and we assume similar problems would present themselves on older
-OSX versions.  Ghini has been successfully tested with 10.7 and 10.9.
 
 First of all, you need things which are an integral part of a unix
 environment, but which are missing in a off-the-shelf mac:
@@ -98,7 +150,26 @@ environment, but which are missing in a off-the-shelf mac:
    supported on your mac.
 #. package manager: homebrew (tigerbrew for older OSX versions).
 
-with the above installed, run::
+..  admonition:: Installation on older macOS.
+    :class: toggle
+
+       Every time we tested, we could only solve all dependencies on the two
+       or three most recent macOS versions.  In April 2015 this excluded
+       macOS 10.6 and older.  In September 2017 this excluded macOS 10.8 and
+       older.  We never had a problem with the lastest macOS.
+
+       The problem lies with homebrew and some of the packages we rely on.
+       The message you have to fear looks like this::
+
+         Do not report this issue to Homebrew/brew or Homebrew/core!
+
+       The only solution I can offer is: please update your system.
+
+       On the bright side, if at any time in the past you did install
+       ghini.desktop on your older and now unsupported macOS, you will
+       always be able to update ghini.desktop to the latest version.
+
+With the above installed, open a terminal window and run::
 
     brew doctor
 
@@ -115,8 +186,30 @@ then install the remaining dependencies::
 
 follow all instructions on how to activate what you have installed.
 
-the rest is just as on a normal unix machine, and we have a `devinstall.sh`
-script for it. Read the above Linux instructions, follow them, enjoy.
+In particular, make sure you read and understand all reports starting with
+``If you need to have this software``.
+
+You will need at least the following four lines in your ``~/.bash_profile``::
+
+  export LC_ALL=en_US.UTF-8
+  export LANG=en_US.UTF-8
+  export PATH="/usr/local/opt/gettext/bin:$PATH"
+  export PATH="/usr/local/opt/python/libexec/bin:$PATH"
+
+Activate the profile by sourcing it::
+
+  . ~/.bash_profile
+
+Before we can run ``devinstall.sh`` as on GNU/Linux, we still
+need installing a couple of python packages, globally. Do this::
+
+  sudo -H pip install virtualenv lxml
+
+The rest is just as on a normal unix machine. Read the above GNU/Linux instructions, follow them, enjoy.
+
+As an optional aesthetical step, consider packaging your ``~/bin/ghini``
+script in a `platypus <https://github.com/sveinbjornt/Platypus>`_
+application bundle.  The ``images`` directory contains a 128×128 icon.
 
 .. rubric:: Next...
 
@@ -125,18 +218,12 @@ script for it. Read the above Linux instructions, follow them, enjoy.
 Installing on Windows
 ---------------------
 
-The current maintainer of ghini.desktop has no interest in learning how to
-produce Windows installers, so the Windows installation is here reduced to
-the same installation procedure as on Unix (Linux and MacOSX).
-
-Please report any trouble. Help with packaging will be very welcome, in
-particular by other Windows users.
-
 The steps described here instruct you on how to install Git, Gtk, Python,
 and the python database connectors. With this environment correctly set up,
-the Ghini installation procedure runs as on Linux. The concluding steps are
+the Ghini installation procedure runs as on GNU/Linux. The concluding steps are
 again Windows specific.
 
+<<<<<<< HEAD
 .. note:: Ghini has been installed and is known to work fine on W-XP, W-7,
    W-8 and W-10. However, Windows is not Ghini's development and test
    platform, so please report any problem you might encounter. During the
@@ -148,6 +235,13 @@ again Windows specific.
           ring the bell, so we can update the information here.
 
 .. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.9.2.windows.1/Git-2.9.2-32-bit.exe
+=======
+.. note:: Ghini has been tested with and is known to work on W-XP, W-7 up to
+   W-10. Although it should work fine on other versions Windows it has not
+   been thoroughly tested.
+
+.. _Direct link to download git: https://github.com/git-for-windows/git/releases/download/v2.13.3.windows.1/Git-2.13.3-32-bit.exe
+>>>>>>> ghini-1.0-dev
 .. _Direct link to download Python: https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi
 .. _Direct link to download lxml: https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe
 .. _Direct link to download PyGTK: http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi
@@ -156,93 +250,100 @@ again Windows specific.
 The installation steps on Windows:
 
 #. download and install ``git`` (comes with a unix-like ``sh`` and includes
-   ``vi``) from::
-
-   https://git-scm.com/download/win
-   
-   `Direct link to download git`_
+   ``vi``). Grab it from `the Git download area <https://git-scm.com/download/win>`_.
 
    all default options are fine, except we need git to be executable from
    the command prompt:
 
    .. image:: images/screenshots/git3.png
 
-#. download and install Python 2.x (32bit) from::
+#. download and install Python 2.x (32bit). Grab it from the `Python
+   official site <http://www.python.org>`_.
 
-   http://www.python.org
-
-   `Direct link to download Python`_
-
-   Ghini has been developed and tested using Python 2.x.  It will
-   definitely **not** run on Python 3.x.  If you are interested in helping
-   port to Python 3.x, please contact the Ghini maintainers.
-
-   when installing Python, do put Python in the PATH:
+   When installing Python, do put Python in the PATH:
 
    .. image:: images/screenshots/python3.png
 
-#. download ``pygtk`` from the following source. (this requires 32bit
-   python). be sure you download the "all in one" version::
+#. download ``pygtk`` from `the official source
+   <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/>`_. (this requires
+   32bit python). be sure you download the "all in one" version.
 
-   http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/
-
-   `Direct link to download PyGTK`_
-
-   make a complete install, selecting everything:
+   Make a complete install, selecting everything:
 
    .. image:: images/screenshots/pygtk1.png
 
-#. (Windows 8.x) please consider this additional step. It is possibly
-   necessary to avoid the following error on Windows 8.1 installations::
-
-    Building without Cython.
-    ERROR: 'xslt-config' is not recognized as an internal or external command,
-    operable program or batch file.
-
-   If you skip this step and can confirm you get the error, please inform us.
-
-   You can download lxml from::
-
-    https://pypi.python.org/pypi/lxml/3.6.0
+#. (Possibly necessary, maybe superfluous) install lxml, you can grab this
+   from `the pypi archives <https://pypi.python.org/pypi/lxml/3.4.4>`_
 
    Remember you need the 32 bit version, for Python 2.7.
 
-   `Direct link to download lxml`_
+   .. note
+      On some systems, lxml was necessary to avoid the following error::
 
-#. (optional) download and install a database connector other than
-   ``sqlite3``. 
+        Building without Cython.
+        ERROR: 'xslt-config' is not recognized as an internal or external command,
+        operable program or batch file.
 
-   On Windows, it is NOT easy to install ``psycopg2`` from sources, using
-   pip, so "avoid the gory details" and use a pre-compiled pagkage from:
-   
-   http://initd.org/psycopg/docs/install.html
+      If you skip this step and can confirm you get the error, please inform us.
 
-   `Direct link to download psycopg2`_
+#. (definitely optional) download and install a database connector other than
+   ``sqlite3``.
 
+   If you plan using PostgreSQL, the best Windows binary library for Python is
+   `psycopg and is Made in Italy <http://initd.org/psycopg/docs/install.html>`_.
+
+
+<<<<<<< HEAD
+    https://pypi.python.org/pypi/lxml/3.6.0
+=======
 #. **REBOOT**
+>>>>>>> ghini-1.0-dev
 
    hey, this is Windows, you need to reboot for changes to take effect!
 
-#. download and run (from ``\system32\cmd.exe``) the batch file:
+<<<<<<< HEAD
+   `Direct link to download lxml`_
+=======
+#. We're done with the dependecies, now we can download and run the batch file:
+>>>>>>> ghini-1.0-dev
 
-    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/devinstall.bat
+   `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.bat>`_
 
-   right before you hit the enter key to run the script, your screen might
-   look like something like this:
+   Please don't just follow the above link.  Instead: right click, save link as...
+
+   .. image:: images/windows-save_link_as.png
+
+   Also make sure you don't let Windows convert the script to a text document.
+
+   .. image:: images/windows-save_as_type.png
+
+   Now **Open** the script to run it.  Please note: in the below image, we
+   have saved the file twice, once letting Windows convert it to a text
+   document, and again as a Windows Batch File.  Opening the batch file will
+   run the script.  Opening the text document will show you the code of the
+   batch file, which isn't going to lead us anywhere.
+
+   .. image:: images/windows-bat_vs_txt.png
+
+   If you installed everything as described here, the first thing you should
+   see when you start the installation script is a window like this, and
+   your computer will be busy during a couple of minutes, showing you what
+   it is doing.
 
    .. image:: images/screenshots/sys32cmd-1.png
 
-   this will pull the ``ghini.desktop`` repository on github to your home
-   directory, under ``Local\github\Ghini``, checkout the ``ghini-1.0``
-   production line, create a virtual environment and install ghini into it.
+   Running ``devinstall.bat`` will pull the ``ghini.desktop`` repository from
+   github to your home directory, under ``Local\github\Ghini``, checkout the
+   ``ghini-1.0`` production line, create a virtual environment and install
+   ghini into it.
 
-   you can also run ``devinstall.bat`` passing it as argument the numerical
+   You can also run ``devinstall.bat`` passing it as argument the numerical
    part of the production line you want to follow.
 
-   this is the last installation step that depends, heavily, on a working
+   This is the last installation step that depends, heavily, on a working
    internet connection.
 
-   the operation can take several minutes to complete, depending on the
+   The operation can take several minutes to complete, depending on the
    speed of your internet connection.
 
 #. the last installation step creates the Ghini group and shortcuts in the
@@ -251,8 +352,10 @@ The installation steps on Windows:
    it is right in your HOME folder, and has been created at the previous
    step.
 
-   right-click on it, select run as administrator, confirm you want it to
-   make changes to your computer. These changes are in the Start Menu only:
+   .. image:: images/windows-run_as_administrator.png
+
+   Right-click on it, select run as administrator, confirm you want it to
+   make changes to your computer.  These changes are in the Start Menu only:
    create the Ghini group, place the Ghini shortcut.
 
 #. download the batch file you will use to stay up-to-date with the
@@ -265,50 +368,31 @@ The installation steps on Windows:
    newer ghini release within your chosen production line.
 
    any time you want to update your installation, just start the command
-   prompt and run ``ghini-update.bat``
+   prompt and run ``ghini-update.bat``, it will hardly take one minute.
 
-If you would like to generate and print PDF reports using Ghini's
-default report generator then you will need to download and install
-`Apache FOP <http://xmlgraphics.apache.org/fop/>`_. After extracting
-the FOP archive you will need to include the directory you extracted
-to in your PATH.
+If you would like to generate and print PDF reports using Ghini's default
+report generator then you will need to download and install `Apache FOP
+<http://xmlgraphics.apache.org/fop/>`_.  After extracting the FOP archive
+you will need to include the directory you extracted to in your PATH.
 
 .. rubric:: Next...
 
 :ref:`connecting`.
 
-.. _troubleshoot_install:
+Installing on Android
+--------------------------
 
-Troubleshooting
----------------------------
+``ghini.desktop`` is a desktop program, obviously you don't install it on a handheld 
+device, but we do offer the option, for your Android phone or tablet, to install ``ghini.pocket``.
 
-#.  any error related to lxml.
-
-    In order to be able to compile lxml, you have to install a C compiler
-    (on Linux this would be the ``gcc`` package) and Cython (a Python
-    specialization, that gets compiled into C code. Note: Cython is not
-    CPython).
-
-    However, It should not be necessary to compile anything, and ``pip``
-    should be able to locate the binary modules in the online libraries. 
-
-    For some reason, this is not the case on Windows 8.1.
-
+<<<<<<< HEAD
     https://pypi.python.org/pypi/lxml/3.6.0
+=======
+``ghini.pocket`` is a small data viewer, it comes handy if you want to have a quick idea 
+of a plant species, its source, and date it entered the garden, just by scanning a plant label.
+>>>>>>> ghini-1.0-dev
 
-    Please report any other trouble related to the installation of lxml.
+Installation is as easy as it can be: just `look for it in Google Play
+<https://play.google.com/store/apps/details?id=me.ghini.pocket>`_, and install it.
 
-#.  Couldn't install gdata.
-
-    For some reason the Google's gdata package lists itself in the
-    Python Package Index but doesn't work properly with the
-    easy_install command.  You can download the latest gdata package
-    from:
-
-    http://code.google.com/p/gdata-python-client/downloads/list
-
-    Unzip it and run ``python setup.py installw`` in the folder you unzip it to.
-
-.. rubric:: Next...
-
-:ref:`connecting`.
+Export the data from ``ghini.desktop`` to pocket format, copy it to your device, enjoy.

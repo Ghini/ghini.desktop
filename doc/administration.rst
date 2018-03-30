@@ -2,7 +2,7 @@ Database Administration
 --------------------------
 
 If you are using a real DBMS to hold your botanic data, then you need do
-something about database administration. While database adnimistration is
+something about database administration. While database administration is
 far beyond the scope of this document, we make our users aware of it.
 
 SQLite
@@ -17,21 +17,23 @@ In Windows it is somewhere in your ``AppData`` directory, most likely in
 ``AppData\Roaming\Bauble``. Do keep in mind that Windows does its best to
 hide the ``AppData`` directory structure to normal users. 
 
-The fastest way to open it is with the file explorer: type ``%APPDATA%` and
+The fastest way to open it is with the file explorer: type ``%APPDATA%`` and
 hit enter.
 
 MySQL
 =====
 
-Please refer to the official documentation.
+Please refer to the `official documentation <https://mariadb.com/kb/en/the-mariadb-library/documentation/>`_.
+
+Backing up and restoring databases is described in breadth and depth
+starting at `this page
+<https://mariadb.com/kb/en/the-mariadb-library/backing-up-and-restoring-databases/>`_.
 
 PostgreSQL
 ==========
 
 Please refer to the official documentation. A very thorough discussion of
-your backup options starts at `chapter_24`_.
-
-.. _chapter_24: http://www.postgresql.org/docs/9.1/static/backup.html
+your backup options starts at `chapter 24 <http://www.postgresql.org/docs/9.1/static/backup.html>`_.
 
 Ghini Configuration
 ----------------------

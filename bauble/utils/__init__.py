@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2015-2016 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -40,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 import threading
 
-from bauble.i18n import _
+
 import bauble
 from bauble.error import check
 from bauble import paths
@@ -91,6 +92,43 @@ class Cache:
         self.storage[key] = time.time(), value
         return value
 
+def copy_picture_with_thumbnail(path, basename=None):
+    """copy file from path to picture_root, and make thumbnail, preserving name
+
+    return base64 representation of thumbnail
+    """
+    import os.path
+    if basename is None:
+        filename = path
+        path, basename = os.path.split(filename)
+    else:
+        filename = os.path.join(path, basename)
+    from bauble import prefs
+    if not filename.startswith(prefs.prefs[prefs.picture_root_pref]):
+        import shutil
+        shutil.copy(filename, prefs.prefs[prefs.picture_root_pref])
+    ## make thumbnail in thumbs subdirectory
+    from PIL import Image
+    full_dest_path = os.path.join(prefs.prefs[prefs.picture_root_pref],
+                                  'thumbs', basename)
+    result = ""
+    try:
+        im = Image.open(filename)
+        im.thumbnail((400, 400))
+        logger.debug('copying %s to %s' % (filename, full_dest_path))
+        im.save(full_dest_path)
+        from io import BytesIO
+        output = BytesIO()
+        im.save(output, format='JPEG')
+        im_data = output.getvalue()
+        result = base64.b64encode(im_data)
+    except IOError, e:
+        logger.warning("can't make thumbnail")
+    except Exception, e:
+        logger.warning("unexpected exception making thumbnail: "
+                       "(%s)%s" % (type(e), e))
+    return result
+
 
 class ImageLoader(threading.Thread):
     cache = Cache(12)  # class-global cached results
@@ -99,7 +137,11 @@ class ImageLoader(threading.Thread):
         super(ImageLoader, self).__init__(*args, **kwargs)
         self.box = box  # will hold image or label
         self.loader = gtk.gdk.PixbufLoader()
-        if (url.startswith('http://') or url.startswith('https://')):
+        self.inline_picture_marker = "|data:image/jpeg;base64,"
+        if url.find(self.inline_picture_marker) != -1:
+            self.reader_function = self.read_base64
+            self.url = url
+        elif (url.startswith('http://') or url.startswith('https://')):
             self.reader_function = self.read_global_url
             self.url = url
         else:
@@ -147,6 +189,13 @@ class ImageLoader(threading.Thread):
         self.cache.get(
             self.url, self.reader_function, on_hit=self.loader.write)
         self.loader.close()
+
+    def read_base64(self):
+        self.loader.connect("area-prepared", self.loader_notified)
+        thumb64pos = self.url.find(self.inline_picture_marker)
+        offset = thumb64pos + len(self.inline_picture_marker)
+        import base64
+        return base64.b64decode(self.url[offset:])
 
     def read_global_url(self):
         self.loader.connect("area-prepared", self.loader_notified)
@@ -235,7 +284,6 @@ class BuilderLoader(object):
             return cls.builders[filename]
         b = gtk.Builder()
         b.add_from_file(filename)
-        b.set_translation_domain('bauble')
         cls.builders[filename] = b
         return b
 
@@ -410,7 +458,8 @@ def get_widget_value(widget, index=0):
     if isinstance(widget, gtk.Label):
         return utf8(widget.get_text())
     elif isinstance(widget, gtk.TextView):
-        return utf8(widget.get_buffer().get_text())
+        textbuffer = widget.get_buffer()
+        return utf8(textbuffer.get_text(textbuffer.get_start_iter(), textbuffer.get_end_iter()))
     elif isinstance(widget, gtk.Entry):
         return utf8(widget.get_text())
     elif isinstance(widget, gtk.ComboBox):
@@ -1131,20 +1180,21 @@ def mem(size="rss"):
                         (os.getpid(), size)).read())
 
 
-#
-# This implementation of topological sort was taken directly from...
-# http://www.bitformation.com/art/python_toposort.html
-#
 def topological_sort(items, partial_order):
-    """
-    Perform topological sort.
+    """return list of nodes sorted by dependencies
 
     :param items: a list of items to be sorted.
 
-    :param partial_order: a list of pairs. If pair (a,b) is in it, it
-        means that item a should appear before item b. Returns a list of
-        the items in one of the possible orders, or None if partial_order
-        contains a loop.
+    :param partial_order: a list of pairs. If pair ('a', 'b') is in it, it
+        means that 'a' should not appear after 'b'.
+
+    Returns a list of the items in one of the possible orders, or None if
+    partial_order contains a loop.
+
+    We want a minimum list satisfying the requirements, and the partial
+    ordering states dependencies, but they may list more nodes than
+    necessary in the solution. for example, whatever dependencies are given,
+    if you start from the emtpy items list, the empty list is the solution.
 
     """
 
@@ -1158,9 +1208,10 @@ def topological_sort(items, partial_order):
         Add an arc to a graph. Can create multiple arcs. The end nodes must
         already exist.
         """
-        graph[fromnode].append(tonode)
+        graph.setdefault(fromnode, [0]).append(tonode)
+        graph.setdefault(tonode, [0])
         # Update the count of incoming arcs in tonode.
-        graph[tonode][0] = graph[tonode][0] + 1
+        graph[tonode][0] += 1
 
     # step 1 - create a directed graph with an arc a->b for each input
     # pair (a,b).
@@ -1169,11 +1220,12 @@ def topological_sort(items, partial_order):
     # of the node. /list/'s 1st item is the count of incoming arcs, and
     # the rest are the destinations of the outgoing arcs. For example:
     # {'a':[0,'b','c'], 'b':[1], 'c':[1]}
-    # represents the graph: c <-- a --> b
+    # represents the graph: a --> b, a --> c
     # The graph may contain loops and multiple arcs.
-    # Note that our representation does not contain reference loops to
-    # cause GC problems even when the represented graph contains loops,
-    # because we keep the node names rather than references to the nodes.
+
+    # (ABCDE, (AB, BC, BD)) becomes:
+    # {a: [0, b], b: [1, c, d], c: [1], d: [1], e: [0]}
+    # requesting B and E from the above should result in including all except A, and prepending C and D to B.
 
     graph = {}
     for v in items:
@@ -1248,28 +1300,6 @@ class GenericMessageBox(gtk.EventBox):
     def show(self):
         self.show_all()
 
-    def animate(self):
-        return
-        # TODO: this animation should be smoother
-        width, height = self.size_request()
-        self.set_size_request(width, 0)
-        import time
-        self.last_time = time.time()
-
-        def _animate_cb(final_height):
-            height = 0
-            while height < final_height:
-                width, height = self.size_request()
-                height = height + 1
-                self.set_size_request(width, height)
-                self.queue_resize()
-                while gtk.events_pending():
-                    gtk.main_iteration(False)
-            logger.debug('return False')
-            return False
-        #gobject.timeout_add(8, _animate_cb, height)
-        gobject.idle_add(_animate_cb, height)
-
 
 class MessageBox(GenericMessageBox):
     """
@@ -1282,10 +1312,9 @@ class MessageBox(GenericMessageBox):
         self.box.pack_start(self.vbox)
 
         self.label = gtk.TextView()
+        self.label.set_can_focus(False)
         self.buffer = gtk.TextBuffer()
         self.label.set_buffer(self.buffer)
-        #self.label.set_padding(8, 8)
-        #self.label.set_alignment(0, 0)
         if msg:
             self.buffer.set_text(msg)
         self.vbox.pack_start(self.label, expand=True, fill=True)

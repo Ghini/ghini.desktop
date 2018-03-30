@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 import bauble
 import bauble.db as db
-from bauble.i18n import _
+
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
@@ -40,6 +40,8 @@ import bauble.search as search
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 from bauble.view import SearchView
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
 
 
 class DefaultView(pluginmgr.View):
@@ -294,12 +296,20 @@ class GUI(object):
         bauble.command_handler(cmd, arg)
 
     def on_query_button_clicked(self, widget):
-        qb = search.QueryBuilder()
-        if qb.start() == gtk.RESPONSE_OK:
+        gladefilepath = os.path.join(paths.lib_dir(), "querybuilder.glade")
+        view = GenericEditorView(
+            gladefilepath,
+            parent=None,
+            root_widget_name='main_dialog')
+        qb = search.QueryBuilder(view)
+        qb.set_query(self.widgets.main_comboentry.child.get_text())
+        response = qb.start()
+        if response == gtk.RESPONSE_OK:
             query = qb.get_query()
             self.widgets.main_comboentry.child.set_text(query)
             self.widgets.go_button.emit("clicked")
-
+        qb.cleanup()
+            
     def add_to_history(self, text, index=0):
         """
         add text to history, if text is already in the history then set its
@@ -419,8 +429,8 @@ class GUI(object):
         # create and addaction group for menu actions
         menu_actions = gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, _("_File")),
-                                  #("file_new", gtk.STOCK_NEW, _("_New"),
-                                  # None, None, self.on_file_menu_new),
+                                  ("file_new", gtk.STOCK_NEW, _("_New"),
+                                   None, None, self.on_file_menu_new),
                                   ("file_open", gtk.STOCK_OPEN, _("_Open"),
                                    '<ctrl>o', None, self.on_file_menu_open),
                                   ("file_quit", gtk.STOCK_QUIT, _("_Quit"),
@@ -455,6 +465,8 @@ class GUI(object):
                                   ("help_about", gtk.STOCK_ABOUT, _("About"),
                                    None, None, self.on_help_menu_about),
                                   ])
+        menu_actions.get_action('file_new').set_sensitive(False)
+        menu_actions.get_action('file_open').set_sensitive(False)
         self.ui_manager.insert_action_group(menu_actions, 0)
 
         # TODO: The menubar was made available in gtk.Builder in Gtk+
@@ -591,8 +603,15 @@ class GUI(object):
             view = self.get_view()
             if isinstance(view, SearchView):
                 expanded_rows = view.get_expanded_rows()
-            editor = editor_cls()
-            committed = editor.start()
+            # editor_cls can be a class, of which we get an instance, and we
+            # invoke the `start` method of this instance. or it is a
+            # callable, then we just use its return value and we are done.
+            if isinstance(editor_cls, type(lambda x:x)):
+                editor = None
+                committed = editor_cls()
+            else:
+                editor = editor_cls()
+                committed = editor.start()
             if committed is not None and isinstance(view, SearchView):
                 view.results_view.collapse_all()
                 view.expand_to_all_refs(expanded_rows)
@@ -602,6 +621,9 @@ class GUI(object):
                                          gtk.MESSAGE_ERROR)
             logger.error('bauble.gui.on_insert_menu_item_activate():\n %s'
                          % traceback.format_exc())
+            return
+
+        if editor is None:
             return
 
         presenter_cls = view_cls = None
@@ -662,10 +684,9 @@ class GUI(object):
         """
         Open the connection manager.
         """
-        from connmgr import ConnMgrPresenter
+        from connmgr import start_connection_manager
         default_conn = prefs[bauble.conn_default_pref]
-        cm = ConnMgrPresenter(default=default_conn)
-        name, uri = cm.start()
+        name, uri = start_connection_manager(default_conn)
         if name is None:
             return
 
@@ -714,7 +735,7 @@ class GUI(object):
             self.widgets.statusbar.pop(cid)
 
     def on_help_menu_contents(self, widget, data=None):
-        desktop.open('http://bauble.readthedocs.org/en/latest/',
+        desktop.open('http://ghini.readthedocs.io/en/latest/',
                      dialog_on_error=True)
 
     def on_help_menu_bug(self, widget, data=None):
@@ -754,6 +775,9 @@ class GUI(object):
                                       'LICENSE.ghini')) as f:
             license = f.read()
         about.set_license(license)  # not translated
+        about.set_comments(_('This version installed on: %s\n'
+                             'Latest published version: %s\n'
+                             'Publication date: %s') % (bauble.installation_date, bauble.release_version, bauble.release_date, ))
         about.run()
         about.destroy()
 

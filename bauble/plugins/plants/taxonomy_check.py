@@ -22,7 +22,7 @@ import logging
 logger = logging.getLogger(__name__)
 from bauble import paths, pluginmgr, utils
 from bauble.plugins.plants import Species
-from bauble.i18n import _
+
 import pango
 
 
@@ -265,7 +265,7 @@ class BatchTaxonomicCheckPresenter(GenericEditorPresenter):
         previously = self.view.widget_get_value('file_path_entry')
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),

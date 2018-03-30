@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
+<<<<<<< HEAD
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+=======
+# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -65,13 +70,6 @@ logging.basicConfig()
 
 
 from bauble.plugins.plants.species_model import _remove_zws as remove_zws
-
-if sys.platform == 'win32':
-    # on windows the hybrid char is set to 'x'in PlantPlugin.init but
-    # these strings are initialized before init is called so we set it
-    # here...this sort of breaks the string tests since we aren't
-    # relying on the behavior of PlantPlugin.init but what can we do?
-    Species.hybrid_char = 'x'
 
 
 family_test_data = (
@@ -176,13 +174,13 @@ species_str_map = {
     1: 'Maxillaria variabilis',
     2: 'Encyclia cochleata',
     3: 'Abrus precatorius',
-    4: 'Campyloneurum %s alapense' % Species.hybrid_char,
+    4: 'Campyloneurum %salapense' % Species.hybrid_char,
     5: 'Encyclia cochleata var. cochleata',
     6: "Encyclia cochleata 'Black Night'",
     7: 'Abrus precatorius SomethingRidiculous Group',
     8: "Abrus precatorius (SomethingRidiculous Group) 'Hot Rio Nights'",
-    9: "Maxillaria %s generalis 'Red'" % Species.hybrid_char,
-    10: ("Maxillaria %s generalis (SomeGroup Group) 'Red'"
+    9: "Maxillaria %sgeneralis 'Red'" % Species.hybrid_char,
+    10: ("Maxillaria %sgeneralis (SomeGroup Group) 'Red'"
          % Species.hybrid_char),
     11: "Maxillaria generalis agg.",
     12: "Maxillaria SomeGroup Group",
@@ -196,7 +194,7 @@ species_markup_map = {
     1: '<i>Maxillaria</i> <i>variabilis</i>',
     2: '<i>Encyclia</i> <i>cochleata</i>',
     3: '<i>Abrus</i> <i>precatorius</i>',
-    4: '<i>Campyloneurum</i> %s <i>alapense</i>' % Species.hybrid_char,
+    4: '<i>Campyloneurum</i> %s<i>alapense</i>' % Species.hybrid_char,
     5: '<i>Encyclia</i> <i>cochleata</i> var. <i>cochleata</i>',
     6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
     12: "<i>Maxillaria</i> SomeGroup Group",
@@ -209,7 +207,7 @@ species_str_authors_map = {
     1: 'Maxillaria variabilis Bateman ex Lindl.',
     2: u'Encyclia cochleata (L.) Lem\xe9e',
     3: 'Abrus precatorius L.',
-    4: u'Campyloneurum %s alapense F\xe9e' % Species.hybrid_char,
+    4: u'Campyloneurum %salapense F\xe9e' % Species.hybrid_char,
     5: u'Encyclia cochleata (L.) Lem\xe9e var. cochleata',
     6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
     7: 'Abrus precatorius L. SomethingRidiculous Group',
@@ -222,7 +220,7 @@ species_markup_authors_map = {
     1: '<i>Maxillaria</i> <i>variabilis</i> Bateman ex Lindl.',
     2: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e',
     3: '<i>Abrus</i> <i>precatorius</i> L.',
-    4: u'<i>Campyloneurum</i> %s <i>alapense</i> F\xe9e' % Species.hybrid_char,
+    4: u'<i>Campyloneurum</i> %s<i>alapense</i> F\xe9e' % Species.hybrid_char,
     5: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e var. <i>cochleata</i>',
     6: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e \'Black Night\''}
 
@@ -400,7 +398,7 @@ class FamilyTests(PlantTestCase):
 
     def test_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the FamilyEditor
         """
         raise SkipTest('Not Implemented')
         #loc = self.create(Family, name=u'some site')
@@ -472,7 +470,7 @@ class FamilyTests(PlantTestCase):
         matching = q.all()
         self.assertEquals(matching, [])
 
-    def test_remove_callback_with_genera_no_confirm(self):
+    def test_remove_callback_with_genera_cant_cascade(self):
         # T_0
         f5 = Family(epithet=u'Arecaceae')
         gf5 = Genus(family=f5, epithet=u'Areca')
@@ -482,7 +480,9 @@ class FamilyTests(PlantTestCase):
 
         # action
         utils.yes_no_dialog = partial(
-            mockfunc, name='yes_no_dialog', caller=self, result=False)
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        utils.message_dialog = partial(
+            mockfunc, name='message_dialog', caller=self, result=True)
         utils.message_details_dialog = partial(
             mockfunc, name='message_details_dialog', caller=self)
         from bauble.plugins.plants.family import remove_callback
@@ -493,17 +493,21 @@ class FamilyTests(PlantTestCase):
         print self.invoked
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
-        self.assertTrue(('yes_no_dialog', u'The family <i>Arecaceae</i> has '
-                         '1 genera.  Are you sure you want to remove it?')
+        self.assertTrue(('message_dialog', u'The family <i>Arecaceae</i> has 1 genera.\n\nYou cannot remove a family with genera.')
                         in self.invoked)
+<<<<<<< HEAD
         self.assertEquals(result, None)
         q = self.session.query(Family).filter_by(epithet=u"Arecaceae")
+=======
+        q = self.session.query(Family).filter_by(family=u"Arecaceae")
+>>>>>>> ghini-1.0-dev
         matching = q.all()
         self.assertEquals(matching, [f5])
         q = self.session.query(Genus).filter_by(epithet=u"Areca")
         matching = q.all()
         self.assertEquals(matching, [gf5])
 
+<<<<<<< HEAD
     def test_remove_callback_with_genera_confirm_cascade(self):
         # T_0
         f5 = Family(epithet=u'Arecaceae')
@@ -536,6 +540,8 @@ class FamilyTests(PlantTestCase):
         matching = q.all()
         self.assertEquals(matching, [])
 
+=======
+>>>>>>> ghini-1.0-dev
 
 class GenusTests(PlantTestCase):
 
@@ -660,7 +666,7 @@ class GenusTests(PlantTestCase):
 
     def test_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the GenusEditor
         """
         raise SkipTest('Not Implemented')
         #loc = self.create(Genus, name=u'some site')
@@ -680,6 +686,109 @@ class GenusTests(PlantTestCase):
         assert utils.gc_objects_by_type('GenusEditorView') == [], \
             'GenusEditorView not deleted'
 
+    def test_can_use_epithet_field(self):
+        family = Family(epithet=u'family')
+        genus = Genus(family=family, genus=u'genus')
+        self.session.add_all([family, genus])
+        self.session.commit()
+        g1 = self.session.query(Genus).filter(Genus.epithet=='genus').one()
+        g2 = self.session.query(Genus).filter(Genus.genus=='genus').one()
+        self.assertEquals(g1, g2)
+        self.assertEquals(g1.genus, 'genus')
+        self.assertEquals(g2.epithet, 'genus')
+
+    def test_remove_callback_no_species_no_confirm(self):
+        # T_0
+        caricaceae = Family(family=u'Caricaceae')
+        f5 = Genus(epithet=u'Carica', family=caricaceae)
+        self.session.add(caricaceae)
+        self.session.add(f5)
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=False)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.plants.genus import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
+                         'remove the genus <i>Carica</i>?')
+                        in self.invoked)
+        self.assertEquals(result, None)
+        q = self.session.query(Genus).filter_by(genus=u"Carica")
+        matching = q.all()
+        self.assertEquals(matching, [f5])
+
+    def test_remove_callback_no_species_confirm(self):
+        # T_0
+        caricaceae = Family(family=u'Caricaceae')
+        f5 = Genus(epithet=u'Carica', family=caricaceae)
+        self.session.add_all([caricaceae, f5])
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.plants.genus import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
+                         'remove the genus <i>Carica</i>?')
+                        in self.invoked)
+
+        self.assertEquals(result, True)
+        q = self.session.query(Genus).filter_by(genus=u"Carica")
+        matching = q.all()
+        self.assertEquals(matching, [])
+
+    def test_remove_callback_with_species_cant_cascade(self):
+        # T_0
+        caricaceae = Family(family=u'Caricaceae')
+        f5 = Genus(epithet=u'Carica', family=caricaceae)
+        gf5 = Species(genus=f5, sp=u'papaya')
+        self.session.add_all([caricaceae, f5, gf5])
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        utils.message_dialog = partial(
+            mockfunc, name='message_dialog', caller=self, result=True)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.plants.genus import remove_callback
+        result = remove_callback([f5])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('message_dialog', u'The genus <i>Carica</i> has 1 species.\n\nYou cannot remove a genus with species.')
+                        in self.invoked)
+        q = self.session.query(Genus).filter_by(genus=u"Carica")
+        matching = q.all()
+        self.assertEquals(matching, [f5])
+        q = self.session.query(Species).filter_by(sp=u"papaya")
+        matching = q.all()
+        self.assertEquals(matching, [gf5])
+        
 
 class GenusSynonymyTests(PlantTestCase):
 
@@ -986,7 +1095,7 @@ class SpeciesTests(PlantTestCase):
         sp.default_vernacular_name = vn2
         self.session.commit()
 
-    def test_synonyms(self):
+    def test_synonyms_low_level(self):
         """
         Test the Species.synonyms property
         """
@@ -1059,6 +1168,151 @@ class SpeciesTests(PlantTestCase):
 
         self.session.expunge_all()
 
+    def test_no_synonyms_means_itself_accepted(self):
+        def create_tmp_sp(id):
+            sp = Species(id=id, epithet=u"sp%02d"%id, genus_id=1)
+            self.session.add(sp)
+            return sp
+
+        sp1 = create_tmp_sp(51)
+        sp2 = create_tmp_sp(52)
+        sp3 = create_tmp_sp(53)
+        sp4 = create_tmp_sp(54)
+        self.session.commit()
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, None) 
+        self.assertEquals(sp3.accepted, None) 
+        self.assertEquals(sp4.accepted, None)
+
+    def test_synonyms_and_accepted_properties(self):
+        def create_tmp_sp(id):
+            sp = Species(id=id, epithet=u"sp%02d"%id, genus_id=1)
+            self.session.add(sp)
+            return sp
+
+        # equivalence classes after changes
+        sp1 = create_tmp_sp(41)
+        sp2 = create_tmp_sp(42)
+        sp3 = create_tmp_sp(43)
+        sp4 = create_tmp_sp(44)  # (1), (2), (3), (4)
+        sp3.accepted = sp1  # (1 3), (2), (4)
+        self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
+        sp1.synonyms.append(sp2)  # (1 3 2), (4)
+        self.session.flush()
+        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
+        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        self.assertEquals(sp2.accepted.epithet, sp1.epithet)  # just added
+        self.assertEquals(sp3.accepted.epithet, sp1.epithet)  # no change
+        sp2.accepted = sp4  # (1 3), (4 2)
+        self.session.flush()
+        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
+        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        self.assertEquals([i.epithet for i in sp4.synonyms], [sp2.epithet])
+        self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, sp4) 
+        self.assertEquals(sp3.accepted, sp1) 
+        self.assertEquals(sp4.accepted, None)
+        sp2.accepted = sp4  # does not change anything
+        self.assertEquals(sp1.accepted, None)
+        self.assertEquals(sp2.accepted, sp4) 
+        self.assertEquals(sp3.accepted, sp1) 
+        self.assertEquals(sp4.accepted, None)
+
+    def test_remove_callback_no_accessions_no_confirm(self):
+        # T_0
+        caricaceae = Family(family=u'Caricaceae')
+        f5 = Genus(epithet=u'Carica', family=caricaceae)
+        sp = Species(epithet=u'papaya', genus=f5)
+        self.session.add_all([caricaceae, f5, sp])
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=False)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.plants.species import remove_callback
+        result = remove_callback([sp])
+        self.session.flush()
+
+        # effect
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        print self.invoked
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove the species <i>Carica \u200bpapaya</i>?')
+                        in self.invoked)
+        self.assertEquals(result, None)
+        q = self.session.query(Species).filter_by(genus=f5, sp=u"papaya")
+        matching = q.all()
+        self.assertEquals(matching, [sp])
+
+    def test_remove_callback_no_accessions_confirm(self):
+        # T_0
+        caricaceae = Family(family=u'Caricaceae')
+        f5 = Genus(epithet=u'Carica', family=caricaceae)
+        sp = Species(epithet=u'papaya', genus=f5)
+        self.session.add_all([caricaceae, f5, sp])
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.plants.species import remove_callback
+        result = remove_callback([sp])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove the species <i>Carica \u200bpapaya</i>?')
+                        in self.invoked)
+
+        self.assertEquals(result, True)
+        q = self.session.query(Species).filter_by(sp=u"Carica")
+        matching = q.all()
+        self.assertEquals(matching, [])
+
+    def test_remove_callback_with_accessions_cant_cascade(self):
+        # T_0
+        caricaceae = Family(family=u'Caricaceae')
+        f5 = Genus(epithet=u'Carica', family=caricaceae)
+        sp = Species(epithet=u'papaya', genus=f5)
+        from bauble.plugins.garden import (Accession)
+        acc = Accession(code=u'0123456', species=sp)
+        self.session.add_all([caricaceae, f5, sp, acc])
+        self.session.flush()
+        self.invoked = []
+
+        # action
+        utils.yes_no_dialog = partial(
+            mockfunc, name='yes_no_dialog', caller=self, result=True)
+        utils.message_dialog = partial(
+            mockfunc, name='message_dialog', caller=self, result=True)
+        utils.message_details_dialog = partial(
+            mockfunc, name='message_details_dialog', caller=self)
+        from bauble.plugins.plants.species import remove_callback
+        result = remove_callback([sp])
+        self.session.flush()
+
+        # effect
+        print self.invoked
+        self.assertFalse('message_details_dialog' in
+                         [f for (f, m) in self.invoked])
+        self.assertTrue(('message_dialog', u'The species <i>Carica \u200bpapaya</i> has 1 accessions.\n\nYou cannot remove a species with accessions.')
+                        in self.invoked)
+        q = self.session.query(Species).filter_by(genus=f5, sp=u"papaya")
+        matching = q.all()
+        self.assertEquals(matching, [sp])
+        q = self.session.query(Accession).filter_by(species=sp)
+        matching = q.all()
+        self.assertEquals(matching, [acc])
+
 
 class GeographyTests(PlantTestCase):
 
@@ -1070,12 +1324,7 @@ class GeographyTests(PlantTestCase):
         self.family = Family(epithet=u'family')
         self.genus = Genus(epithet=u'genus', family=self.family)
         self.session.add_all([self.family, self.genus])
-        self.session.commit()
-
-    def tearDown(self):
-        super(GeographyTests, self).tearDown()
-
-    def test_get_species(self):
+        self.session.flush()
         # import default geography data
         import bauble.paths as paths
         filename = os.path.join(paths.lib_dir(), "plugins", "plants",
@@ -1083,7 +1332,12 @@ class GeographyTests(PlantTestCase):
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
         importer.start([filename], force=True)
+        self.session.commit()
 
+    def tearDown(self):
+        super(GeographyTests, self).tearDown()
+
+    def test_get_species(self):
         mexico_id = 53
         mexico_central_id = 267
         oaxaca_id = 665
@@ -1117,36 +1371,17 @@ class GeographyTests(PlantTestCase):
         species = get_species_in_geography(north_america)
         self.assert_([s.id for s in species] == [sp1.id, sp2.id, sp3.id])
 
-
-# TODO: maybe the following could be in a seperate file called
-# profile.py or something that would profile everything in the plants
-# module
-
-#def main():
-#    from optparse import OptionParser
-#    parser = OptionParser()
-#    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-#                      help='verbose output')
-#    parser.add_option('-p', '--profile', dest='profile', action='store_true',
-#                      help='print run times')
-#    options, args = parser.parse_args()
-#
-#    import profile
-#    import time
-#    if options.profile:
-#        t1 = time.time()
-#        #profile.run('test_speciesStr()')
-#        profile.run('profile()')
-#        t2 = time.time()
-#        print 'time: %s' % (t2-t1)
-#    else:
-#        print 'starting tests...'
-#        test_speciesStr(options.verbose)
-#        print 'done.'
-#
-#
-#if __name__ == '__main__':
-#    main()
+    def test_species_distribution_str(self):
+        # create a some species
+        sp1 = Species(genus=self.genus, sp=u'sp1')
+        dist = SpeciesDistribution(geography_id=267)
+        sp1.distribution.append(dist)
+        self.session.flush()
+        self.assertEquals(sp1.distribution_str(), 'Mexico Central')
+        dist = SpeciesDistribution(geography_id=45)
+        sp1.distribution.append(dist)
+        self.session.flush()
+        self.assertEquals(sp1.distribution_str(), 'Mexico Central, Western Canada')
 
 
 class FromAndToDictTest(PlantTestCase):
@@ -1458,7 +1693,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'Cattleya'})
         self.assertEquals(gen.hybrid_marker, u'')
-        self.assertEquals(gen.epithet, u'Cattleya')
+        self.assertEquals(gen.hybrid_epithet, u'Cattleya')
 
     def test_intergeneric_hybrid_mult(self):
         gen = Genus.retrieve_or_create(
@@ -1467,7 +1702,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'×Brassocattleya'})
         self.assertEquals(gen.hybrid_marker, u'×')
-        self.assertEquals(gen.epithet, u'Brassocattleya')
+        self.assertEquals(gen.hybrid_epithet, u'Brassocattleya')
 
     def test_intergeneric_hybrid_x_becomes_mult(self):
         gen = Genus.retrieve_or_create(
@@ -1476,7 +1711,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'xVascostylis'})
         self.assertEquals(gen.hybrid_marker, u'×')
-        self.assertEquals(gen.epithet, u'Vascostylis')
+        self.assertEquals(gen.hybrid_epithet, u'Vascostylis')
 
     def test_hybrid_formula_H(self):
         gen = Genus.retrieve_or_create(
@@ -1485,7 +1720,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'Miltonia × Odontoglossum × Cochlioda'})
         self.assertEquals(gen.hybrid_marker, u'H')
-        self.assertEquals(gen.epithet, u'Miltonia × Odontoglossum × Cochlioda')
+        self.assertEquals(gen.hybrid_epithet, u'Miltonia × Odontoglossum × Cochlioda')
 
     def test_intergeneric_graft_hybrid_plus(self):
         gen = Genus.retrieve_or_create(
@@ -1494,7 +1729,7 @@ class GenusHybridMarker_test(PlantTestCase):
                            'rank': 'genus',
                            'epithet': u'+Crataegomespilus'})
         self.assertEquals(gen.hybrid_marker, u'+')
-        self.assertEquals(gen.epithet, u'Crataegomespilus')
+        self.assertEquals(gen.hybrid_epithet, u'Crataegomespilus')
 
 
 class SpeciesInfraspecificProp(PlantTestCase):
@@ -1856,3 +2091,18 @@ class GlobalFunctionsTest(PlantTestCase):
     def test_vernname_get_kids(self):
         vName = self.session.query(VernacularName).filter_by(id=1).one()
         self.assertEquals(partial(db.natsort, 'species.accessions')(vName), [])
+
+import bauble.search
+class BaubleSearchSearchTest(BaubleTestCase):
+    def test_search_search_uses_Synonym_Search(self):
+        bauble.search.search("genus like %", self.session)
+        self.assertTrue('SearchStrategy "genus like %"(SynonymSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("12.11.13", self.session)
+        self.assertTrue('SearchStrategy "12.11.13"(SynonymSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])
+        self.handler.reset()
+        bauble.search.search("So ha", self.session)
+        self.assertTrue('SearchStrategy "So ha"(SynonymSearch)' in 
+                   self.handler.messages['bauble.search']['debug'])

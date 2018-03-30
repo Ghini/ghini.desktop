@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+<<<<<<< HEAD
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+=======
+# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -79,6 +84,23 @@ def check_dupids(filename):
     return list(duplicates)
 
 
+class MockLoggingHandler(logging.Handler):
+    """Mock logging handler to check for expected logs."""
+
+    def __init__(self, *args, **kwargs):
+        self.reset()
+        logging.Handler.__init__(self, *args, **kwargs)
+
+    def emit(self, record):
+        received = self.messages.setdefault(
+            record.name, {}).setdefault(
+                record.levelname.lower(), [])
+        received.append(self.format(record))
+
+    def reset(self):
+        self.messages = {}
+
+        
 class BaubleTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -89,8 +111,11 @@ class BaubleTestCase(unittest.TestCase):
         assert uri is not None, "The database URI is not set"
         init_bauble(uri)
         self.session = db.Session()
+        self.handler = MockLoggingHandler()
+        logging.getLogger().addHandler(self.handler)
 
     def tearDown(self):
+        logging.getLogger().removeHandler(self.handler)
         self.session.close()
         db.metadata.drop_all(bind=db.engine)
         bauble.pluginmgr.commands.clear()
@@ -103,6 +128,6 @@ class BaubleTestCase(unittest.TestCase):
             self.assertTrue(item is None)
 
 
-def mockfunc(msg=None, name=None, caller=None, result=False):
+def mockfunc(msg=None, name=None, caller=None, result=False, *args, **kwargs):
     caller.invoked.append((name, msg))
     return result

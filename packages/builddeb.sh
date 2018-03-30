@@ -3,7 +3,11 @@
 # Requires bzr, devscripts, debhelper packages
 
 TOPLEVEL=`pwd`
+<<<<<<< HEAD
 VERSION="1.1.1" # :bump
+=======
+VERSION="1.0.81" # :bump
+>>>>>>> ghini-1.0-dev
 TARBALL="bauble-$VERSION.tar.gz"
 ORIG_TARBALL="bauble_$VERSION.orig.tar.gz"
 

@@ -540,9 +540,14 @@
                         <child type="label">
                           <object class="GtkLabel" id="label4">
                             <property name="visible">True</property>
+<<<<<<< HEAD
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">&lt;b&gt;Synonyms&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
+=======
+                            <property name="label" translatable="yes">Synonyms</property>
+                            <attributes><attribute name="weight" value="bold"/></attributes>
+>>>>>>> ghini-1.0-dev
                           </object>
                         </child>
                       </object>
@@ -601,6 +606,120 @@
             <property name="position">2</property>
           </packing>
         </child>
+<<<<<<< HEAD
+=======
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area2">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="gen_cancel_button">
+                <property name="label">gtk-cancel</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="gen_ok_button">
+                <property name="label">gtk-ok</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">False</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_stock">True</property>
+                <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="gen_ok_and_add_button">
+                <property name="label" translatable="yes">Add Species</property>
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">False</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_underline">True</property>
+                <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="gen_next_button">
+                <property name="visible">True</property>
+                <property name="sensitive">False</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="receives_default">False</property>
+                <accelerator key="n" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                <child>
+                  <object class="GtkAlignment" id="alignment6">
+                    <property name="visible">True</property>
+                    <property name="xscale">0</property>
+                    <property name="yscale">0</property>
+                    <child>
+                      <object class="GtkHBox" id="hbox14">
+                        <property name="visible">True</property>
+                        <property name="spacing">2</property>
+                        <child>
+                          <object class="GtkImage" id="image3">
+                            <property name="visible">True</property>
+                            <property name="stock">gtk-go-forward</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label46">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Next</property>
+                            <property name="use_underline">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+>>>>>>> ghini-1.0-dev
       </object>
     </child>
     <action-widgets>

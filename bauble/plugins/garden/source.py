@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -37,7 +38,7 @@ from sqlalchemy import Column, Unicode, Integer, ForeignKey,\
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import relation, backref
 
-from bauble.i18n import _
+
 import bauble.db as db
 import bauble.editor as editor
 from bauble.plugins.plants.geography import Geography, GeographyMenu
@@ -50,7 +51,7 @@ from types import StringTypes
 
 def collection_edit_callback(coll):
     from bauble.plugins.garden.accession import edit_callback
-    # TODO: set the tab to the source tab on the accessio neditor
+    # TODO: set the tab to the source tab on the accession editor
     return edit_callback([coll[0].source.accession])
 
 
@@ -78,46 +79,15 @@ collection_context_menu = [collection_edit_action, collection_add_plant_action,
                            collection_remove_action]
 
 
-def source_detail_edit_callback(details):
-    detail = details[0]
-    e = SourceDetailEditor(model=detail)
-    return e.start() is not None
-
-
-def source_detail_remove_callback(details):
-    detail = details[0]
-    s = '%s: %s' % (detail.__class__.__name__, str(detail))
-    msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
-    if not utils.yes_no_dialog(msg):
-        return
-    try:
-        session = db.Session()
-        obj = session.query(SourceDetail).get(detail.id)
-        session.delete(obj)
-        session.commit()
-    except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
-        utils.message_details_dialog(msg, traceback.format_exc(),
-                                     type=gtk.MESSAGE_ERROR)
-    finally:
-        session.close()
-    return True
-
-
-source_detail_edit_action = view.Action('source_detail_edit', _('_Edit'),
-                                        callback=source_detail_edit_callback,
-                                        accelerator='<ctrl>e')
-source_detail_remove_action = \
-    view.Action('source_detail_remove', _('_Delete'),
-                callback=source_detail_remove_callback,
-                accelerator='<ctrl>Delete', multiselect=True)
-
-source_detail_context_menu = [source_detail_edit_action,
-                              source_detail_remove_action]
-
-
 class Source(db.Base):
-    """connected 1-1 to Accession, this class adds fields to Accession
+    """connected 1-1 to Accession.
+
+    Source objects have the function to add fields to one Accession.  From
+    an Accession, to access the fields added here you obviously still need
+    to go through its `.source` member.
+
+    Create an Accession a, then create a Source s, then assign a.source = s
+
     """
     __tablename__ = 'source'
     # ITF2 - E7 - Donor's Accession Identifier - donacc
@@ -126,7 +96,7 @@ class Source(db.Base):
     accession_id = Column(Integer, ForeignKey('accession.id'), unique=True)
 
     source_detail_id = Column(Integer, ForeignKey('source_detail.id'))
-    source_detail = relation('SourceDetail', uselist=False,
+    source_detail = relation('Contact', uselist=False,
                              backref=backref('sources',
                                              cascade='all, delete-orphan'))
 
@@ -135,19 +105,22 @@ class Source(db.Base):
                           backref=backref('source', uselist=False))
 
     # relation to a propagation that is specific to this Source and
-    # not attached to a Plant
+    # not attached to a Plant. 2017-06-04 : WHAT IS THIS ?
     propagation_id = Column(Integer, ForeignKey('propagation.id'))
     propagation = relation('Propagation', uselist=False, single_parent=True,
                            primaryjoin='Source.propagation_id==Propagation.id',
                            cascade='all, delete-orphan',
                            backref=backref('source', uselist=False))
 
-    # relation to a Propagation that already exists and is attached
-    # to a Plant
+    # an Accession of known Source (what we are describing here) may be in
+    # relation to a successful Plant Propagation trial. In this case, the
+    # Propagation points back to all Accessions that resulted from it, via
+    # `used_source[i].accession`. Arguably not practical.
     plant_propagation_id = Column(Integer, ForeignKey('propagation.id'))
     plant_propagation = relation(
         'Propagation', uselist=False,
-        primaryjoin='Source.plant_propagation_id==Propagation.id')
+        primaryjoin='Source.plant_propagation_id==Propagation.id',
+        backref=backref('used_source', uselist=True))
 
 
 source_type_values = [(u'Expedition', _('Expedition')),
@@ -165,6 +138,7 @@ source_type_values = [(u'Expedition', _('Expedition')),
                       (None, '')]
 
 
+<<<<<<< HEAD
 class SourceDetail(db.Base):
     __tablename__ = 'source_detail'
     __mapper_args__ = {'order_by': 'name'}
@@ -191,6 +165,16 @@ class SourceDetail(db.Base):
             str(self),
             safe(self.source_type or ''))
 
+=======
+# TODO: should have a label next to lat/lon entry to show what value will be
+# stored in the database, might be good to include both DMS and the float
+# so the user can see both no matter what is in the entry. it could change in
+# time as the user enters data in the entry
+# TODO: shouldn't allow entering altitude accuracy without entering altitude,
+# same for geographic accuracy
+# TODO: should show an error if something other than a number is entered in
+# the altitude entry
+>>>>>>> ghini-1.0-dev
 
 # TODO: should provide a collection type: alcohol, bark, boxed,
 # cytological, fruit, illustration, image, other, packet, pollen,
@@ -200,6 +184,12 @@ class SourceDetail(db.Base):
 
 # TODO: create a DMS column type to hold latitude and longitude,
 # should probably store the DMS data as a string in decimal degrees
+
+############################################################
+#
+# Collection
+#
+
 class Collection(db.Base):
     """
     :Table name: collection
@@ -282,165 +272,6 @@ class Collection(db.Base):
     def __str__(self):
         return _('Collection at %s') % (self.locale or repr(self))
 
-
-class SourceDetailEditorView(editor.GenericEditorView):
-
-    _tooltips = {
-        'source_name_entry': 'ITF2 - E.6 - <b>Donor</b> - don',
-        'source_type_combo': 'ITF2 - E.5 - <b>Donor Type Flag</b> - dont',
-        'source_desc_textview': 'additional private description for donor',
-        }
-
-    def __init__(self, parent=None):
-        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                'acc_editor.glade')
-        super(SourceDetailEditorView, self).__init__(filename, parent=parent)
-        self.set_accept_buttons_sensitive(False)
-        self.init_translatable_combo(
-            'source_type_combo', source_type_values)
-
-    def get_window(self):
-        return self.widgets.source_details_dialog
-
-    def set_accept_buttons_sensitive(self, sensitive):
-        self.widgets.sd_ok_button.set_sensitive(sensitive)
-        #self.widgets.sd_next_button.set_sensitive(sensitive)
-
-    def start(self):
-        return self.get_window().run()
-
-
-class SourceDetailEditorPresenter(editor.GenericEditorPresenter):
-
-    widget_to_field_map = {'source_name_entry': 'name',
-                           'source_type_combo': 'source_type',
-                           'source_desc_textview': 'description',
-                           }
-
-    def __init__(self, model, view):
-        super(SourceDetailEditorPresenter, self).__init__(model, view)
-        self.refresh_view()
-        validator = editor.UnicodeOrNoneValidator()
-        for widget, field in self.widget_to_field_map.iteritems():
-            self.assign_simple_handler(widget, field, validator)
-        self._dirty = False
-
-    def set_model_attr(self, field, value, validator=None):
-        super(SourceDetailEditorPresenter, self).\
-            set_model_attr(field, value, validator)
-        self._dirty = True
-        self.refresh_sensitivity()
-
-    def dirty(self):
-        return self._dirty
-
-    def refresh_sensitivity(self):
-        sensitive = False
-        if self.dirty() and self.model.name:
-            sensitive = True
-        self.view.set_accept_buttons_sensitive(sensitive)
-
-    def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():
-            logger.debug('contact refresh(%s, %s=%s)' %
-                         (widget, field, getattr(self.model, field)))
-            self.view.widget_set_value(widget, getattr(self.model, field))
-
-        self.view.widget_set_value(
-            'source_type_combo',
-            dict(source_type_values)[self.model.source_type],
-            index=1)
-
-    def start(self):
-        r = self.view.start()
-        return r
-
-
-class SourceDetailEditor(editor.GenericModelViewPresenterEditor):
-
-    RESPONSE_NEXT = 11
-    ok_responses = (RESPONSE_NEXT,)
-
-    def __init__(self, model=None, parent=None):
-        '''
-        :param model: Contact instance or None
-        :param parent: the parent window
-        '''
-        if not model:
-            model = SourceDetail()
-        super(SourceDetailEditor, self).__init__(model, parent)
-        self.parent = parent
-        self._committed = []
-
-        view = SourceDetailEditorView(parent=self.parent)
-        self.presenter = SourceDetailEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        # self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-        #                      gtk.gdk.CONTROL_MASK)
-
-    def handle_response(self, response):
-        '''
-        handle the response from self.presenter.start() in self.start()
-        '''
-        not_ok_msg = _('Are you sure you want to lose your changes?')
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
-            try:
-                if self.presenter.dirty():
-                    self.commit_changes()
-                    self._committed.append(self.model)
-            except DBAPIError, e:
-                msg = _('Error committing changes.\n\n%s') % \
-                    utils.xml_safe(e.orig)
-                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                return False
-            except Exception, e:
-                msg = _('Unknown error when committing changes. See the '
-                        'details for more information.\n\n%s') % \
-                    utils.xml_safe(e)
-                utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
-                return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                or not self.presenter.dirty():
-            self.session.rollback()
-            return True
-        else:
-            return False
-
-        # respond to responses
-        # more_committed = None
-        # if response == self.RESPONSE_NEXT:
-        #     self.presenter.cleanup()
-        #     e = ContactEditor(parent=self.parent)
-        #     more_committed = e.start()
-        # if more_committed is not None:
-        #     self._committed.append(more_committed)
-
-        return True
-
-    def start(self):
-        while True:
-            response = self.presenter.start()
-            self.presenter.view.save_state()
-            if self.handle_response(response):
-                break
-
-        self.session.close()  # cleanup session
-        self.presenter.cleanup()
-        return self._committed
-
-
-# TODO: should have a label next to lat/lon entry to show what value will be
-# stored in the database, might be good to include both DMS and the float
-# so the user can see both no matter what is in the entry. it could change in
-# time as the user enters data in the entry
-# TODO: shouldn't allow entering altitude accuracy without entering altitude,
-# same for geographic accuracy
-# TODO: should show an error if something other than a number is entered in
-# the altitude entry
 
 class CollectionPresenter(editor.ChildPresenter):
 
@@ -815,10 +646,25 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             set_cell_data_func(cell, self.toggle_cell_data_func)
 
         def on_toggled(cell, path, data=None):
+            if cell.get_sensitive() is False:
+                return
             prop = None
             if not cell.get_active():  # it's not active so we make it active
                 treeview = self.view.widgets.source_prop_treeview
                 prop = treeview.get_model()[path][0]
+                acc_view = self.parent_ref().view
+                acc_view.widget_set_value(
+                    'acc_species_entry',
+                    utils.utf8(prop.plant.accession.species))
+                acc_view.widget_set_value(
+                    'acc_quantity_recvd_entry',
+                    utils.utf8(prop.accessible_quantity))
+                from bauble.plugins.garden.accession import recvd_type_values
+                from bauble.plugins.garden.propagation import prop_type_results
+                acc_view.widget_set_value(
+                    'acc_recvd_type_comboentry',
+                    recvd_type_values[prop_type_results[prop.prop_type]],
+                    index=1)
             self.model.plant_propagation = prop
             self._dirty = True
             self.parent_ref().refresh_sensitivity()
@@ -834,18 +680,29 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' %
                                   (str(v), str(v.accession.species)))
+
         self.view.attach_completion('source_prop_plant_entry',
                                     plant_cell_data_func, minimum_key_length=1)
 
         def plant_get_completions(text):
-            # TODO: only return those plants with propagations
+            logger.debug('in PropagationChooserPresenter:plant_get_completions')
             from bauble.plugins.garden.accession import Accession
             from bauble.plugins.garden.plant import Plant
-            query = self.session.query(Plant).join('accession').\
-                filter(utils.ilike(Accession.code, u'%s%%' % text)).\
-                filter(Accession.id != self.model.accession.id).\
-                order_by(Accession.code, Plant.code)
-            return query
+            query = self.session.query(Plant).\
+                    filter(Plant.propagations.any()).\
+                    join('accession').\
+                    filter(utils.ilike(Accession.code, u'%s%%' % text)).\
+                    filter(Accession.id != self.model.accession.id).\
+                    order_by(Accession.code, Plant.code)
+            result = []
+            for plant in query:
+                has_accessible = False
+                for propagation in plant.propagations:
+                    if propagation.accessible_quantity > 0:
+                        has_accessible = True
+                if has_accessible:
+                    result.append(plant)
+            return result
 
         def on_select(value):
             logger.debug('on select: %s' % value)
@@ -859,6 +716,8 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             utils.clear_model(treeview)
             model = gtk.ListStore(object)
             for propagation in value.propagations:
+                if propagation.accessible_quantity == 0:
+                    continue
                 model.append([propagation])
             treeview.set_model(model)
             treeview.props.sensitive = True
@@ -896,23 +755,128 @@ class PropagationChooserPresenter(editor.ChildPresenter):
 
     def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
         propagation = model[treeiter][0]
-        active = False
-        if self.model.plant_propagation == propagation:
-            active = True
+        active = self.model.plant_propagation == propagation
         cell.set_active(active)
+        cell.set_sensitive(True)
 
     def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
-        prop = model[treeiter][0]
-        cell.props.text = prop.get_summary()
+        propagation = model[treeiter][0]
+        cell.props.text = propagation.get_summary()
+        cell.set_sensitive(True)
 
     def dirty(self):
         return self._dirty
 
 
-from bauble.view import InfoBox, InfoExpander
+############################################################
+#
+# Contact / SourceDetails / Donor
+#
+
+def create_contact(parent=None):
+    model = Contact()
+    source_detail_edit_callback([model], parent)
+    return [model]
 
 
-class GeneralSourceDetailExpander(InfoExpander):
+def source_detail_edit_callback(details, parent=None):
+    glade_path = os.path.join(paths.lib_dir(), "plugins", "garden",
+                              "contact.glade")
+    view = editor.GenericEditorView(
+        glade_path,
+        parent=parent,
+        root_widget_name='source_details_dialog')
+    model = details[0]
+    presenter = ContactPresenter(model, view)
+    result = presenter.start()
+    return result is not None
+
+
+def source_detail_remove_callback(details):
+    detail = details[0]
+    s = '%s: %s' % (detail.__class__.__name__, str(detail))
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
+    if not utils.yes_no_dialog(msg):
+        return
+    try:
+        session = db.Session()
+        obj = session.query(Contact).get(detail.id)
+        session.delete(obj)
+        session.commit()
+    except Exception, e:
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
+        utils.message_details_dialog(msg, traceback.format_exc(),
+                                     type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
+    return True
+
+
+source_detail_edit_action = view.Action('source_detail_edit', _('_Edit'),
+                                        callback=source_detail_edit_callback,
+                                        accelerator='<ctrl>e')
+source_detail_remove_action = \
+    view.Action('source_detail_remove', _('_Delete'),
+                callback=source_detail_remove_callback,
+                accelerator='<ctrl>Delete', multiselect=True)
+
+source_detail_context_menu = [source_detail_edit_action,
+                              source_detail_remove_action]
+
+
+class Contact(db.Base, db.Serializable):
+    __tablename__ = 'source_detail'
+    __mapper_args__ = {'order_by': 'name'}
+
+    # ITF2 - E6 - Donor
+    name = Column(Unicode(75), unique=True)
+    # extra description, not included in E6
+    description = Column(UnicodeText)
+    # ITF2 - E5 - Donor Type Flag
+    source_type = Column(types.Enum(values=[i[0] for i in source_type_values],
+                                    translations=dict(source_type_values)),
+                         default=None)
+
+    def __str__(self):
+        return utils.utf8(self.name)
+
+    def search_view_markup_pair(self):
+        '''provide the two lines describing object for SearchView row.
+        '''
+        safe = utils.xml_safe
+        return (
+            safe(self.name),
+            safe(self.source_type or ''))
+
+    @classmethod
+    def retrieve(cls, session, keys):
+        try:
+            return session.query(cls).filter(
+                cls.name == keys['name']).one()
+        except:
+            return None
+
+
+class ContactPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {'source_name_entry': 'name',
+                           'source_type_combo': 'source_type',
+                           'source_desc_textview': 'description',
+                           }
+    view_accept_buttons = ['sd_ok_button']
+
+    def __init__(self, model, view):
+        view.init_translatable_combo('source_type_combo', source_type_values)
+        super(ContactPresenter, self).__init__(model, view, refresh_view=True,
+                                               do_commit=True)
+        self.create_toolbar()
+        view.set_accept_buttons_sensitive(False)
+
+    def on_textbuffer_changed_description(self, widget, value=None, attr=None):
+        return self.on_textbuffer_changed(widget, value, attr='description')
+
+    
+class GeneralSourceDetailExpander(view.InfoExpander):
     '''
     Displays name, number of donations, address, email, fax, tel,
     type of contact
@@ -945,10 +909,10 @@ class GeneralSourceDetailExpander(InfoExpander):
         self.widget_set_value('sd_nacc_data', nacc)
 
 
-class SourceDetailInfoBox(InfoBox):
+class ContactInfoBox(view.InfoBox):
 
     def __init__(self):
-        super(SourceDetailInfoBox, self).__init__()
+        super(ContactInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "source_detail_infobox.glade")
         self.widgets = utils.load_widgets(filename)

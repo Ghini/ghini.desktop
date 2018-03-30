@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
+<<<<<<< HEAD
 # Copyright 2014-2016 Mario Frasca <mario@anche.no>.
+=======
+# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -30,8 +35,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey, \
+<<<<<<< HEAD
     UnicodeText, func, and_, UniqueConstraint
 from sqlalchemy.orm import relation, backref, validates
+=======
+    UnicodeText, func, and_, UniqueConstraint, String
+from sqlalchemy.orm import relation, backref, validates, synonym
+>>>>>>> ghini-1.0-dev
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -44,8 +54,12 @@ import bauble.utils as utils
 import bauble.btypes as types
 from bauble.prefs import prefs
 import bauble.view as view
+<<<<<<< HEAD
 from bauble.i18n import _
 from bauble.plugins.plants import itf2
+=======
+
+>>>>>>> ghini-1.0-dev
 
 
 def edit_callback(families):
@@ -77,9 +91,11 @@ def remove_callback(families):
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
     safe_str = utils.xml_safe(str(family))
     if ngen > 0:
-        msg = _('The family <i>%(family)s</i> has %(num_genera)s genera.  Are '
-                'you sure you want to remove it?') % dict(family=safe_str,
-                                                          num_genera=ngen)
+        msg = (_('The family <i>%(1)s</i> has %(2)s genera.'
+                 '\n\n') % {'1': safe_str, '2': ngen} +
+               _('You cannot remove a family with genera.'))
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        return
     else:
         msg = _("Are you sure you want to remove the family <i>%s</i>?") \
             % safe_str
@@ -98,7 +114,8 @@ def remove_callback(families):
     return True
 
 
-edit_action = view.Action('family_edit', _('_Edit'), callback=edit_callback,
+edit_action = view.Action('family_edit', _('_Edit'),
+                          callback=edit_callback,
                           accelerator='<ctrl>e')
 add_species_action = view.Action('family_genus_add', _('_Add genus'),
                                  callback=add_genera_callback,
@@ -163,6 +180,18 @@ class Family(db.Base, db.Serializable, db.WithNotes):
             return None
         return cites_notes[0]
 
+<<<<<<< HEAD
+=======
+    # columns
+    family = Column(String(45), nullable=False, index=True)
+    epithet = synonym('family')
+
+    # we use the blank string here instead of None so that the
+    # contraints will work properly,
+    qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
+                       default=u'')
+
+>>>>>>> ghini-1.0-dev
     # relations
     # `genera` relation is defined outside of `Family` class definition
     synonyms = association_proxy('_synonyms', 'synonym')
@@ -261,19 +290,16 @@ class Family(db.Base, db.Serializable, db.WithNotes):
 Familia = Family
 
 
-class FamilyNote(db.Base):
-    """
-    Notes for the family table
-    """
-    __tablename__ = 'family_note'
+def compute_serializable_fields(cls, session, keys):
+    result = {'family': None}
 
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
-    family = relation('Family', uselist=False,
-                      backref=backref('notes', cascade='all, delete-orphan'))
+    family_dict = {'epithet': keys['family']}
+    result['family'] = Family.retrieve_or_create(
+        session, family_keys, create=False)
+
+    return result
+
+FamilyNote = db.make_note_class('Family', compute_serializable_fields)
 
 
 class FamilySynonym(db.Base):
@@ -337,9 +363,9 @@ class FamilyEditorView(editor.GenericEditorView):
                            'it to the list of synonyms.'),
         'fam_cancel_button': _('Cancel your changes.'),
         'fam_ok_button': _('Save your changes.'),
-        'fam_ok_and_add_button': _('Save your changes changes and add a '
+        'fam_ok_and_add_button': _('Save your changes and add a '
                                    'genus to this family.'),
-        'fam_next_button': _('Save your changes changes and add another '
+        'fam_next_button': _('Save your changes and add another '
                              'family.')
     }
 
@@ -389,6 +415,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         :param view: should be an instance of FamilyEditorView
         '''
         super(FamilyEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
 
         # initialize widgets
@@ -596,14 +623,6 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
         view = FamilyEditorView(parent=self.parent)
         self.presenter = FamilyEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
 
     def handle_response(self, response):
         '''

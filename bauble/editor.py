@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -43,7 +44,7 @@ from sqlalchemy.orm import object_mapper, object_session
 from sqlalchemy.orm.exc import UnmappedInstanceError
 from functools import partial
 
-from bauble.i18n import _
+
 import bauble
 import bauble.db as db
 from bauble.error import check
@@ -269,6 +270,15 @@ class GenericEditorView(object):
 
     def run_file_chooser_dialog(
             self, text, parent, action, buttons, last_folder, target):
+        """create and run FileChooserDialog, then write result in target
+
+        this is just a bit more than a wrapper. it adds 'last_folder', a
+        string indicationg the location where to put the FileChooserDialog,
+        and 'target', an Entry widget or its name.
+
+        make sure you have a gtk.RESPONSE_ACCEPT button.
+
+        """
         chooser = gtk.FileChooserDialog(text, parent, action, buttons)
         #chooser.set_do_overwrite_confirmation(True)
         #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
@@ -284,11 +294,13 @@ class GenericEditorView(object):
                            (type(e), e))
         chooser.destroy()
 
-    def run_entry_dialog(self, title, parent, flags, buttons):
+    def run_entry_dialog(self, title, parent, flags, buttons, visible=True):
         d = gtk.Dialog(title, parent, flags, buttons)
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250, -1)
         entry = gtk.Entry()
+        if visible is not True:
+            entry.set_visibility(False)
         entry.connect("activate",
                       lambda entry: d.response(gtk.RESPONSE_ACCEPT))
         d.vbox.pack_start(entry)
@@ -382,8 +394,8 @@ class GenericEditorView(object):
             self.__attached_signals.append((signaller, handler_id))
 
     def set_accept_buttons_sensitive(self, sensitive):
-        '''
-        set the sensitivity of all the accept/ok buttons
+        '''set the sensitivity of all the accept/ok buttons
+
         '''
         for wname in self.accept_buttons:
             getattr(self.widgets, wname).set_sensitive(sensitive)
@@ -490,6 +502,10 @@ class GenericEditorView(object):
     def widget_get_model(self, widget):
         widget = self.__get_widget(widget)
         return widget.get_model()
+
+    def widget_grab_focus(self, widget):
+        widget = self.__get_widget(widget)
+        return widget.grab_focus()
 
     def widget_get_active(self, widget):
         widget = self.__get_widget(widget)
@@ -763,6 +779,7 @@ class GenericEditorView(object):
 class MockDialog:
     def __init__(self):
         self.hidden = False
+        self.content_area = gtk.VBox()
 
     def hide(self):
         self.hidden = True
@@ -773,12 +790,18 @@ class MockDialog:
     def show(self):
         pass
 
+    def add_accel_group(self, group):
+        pass
+
+    def get_content_area(self):
+        return self.content_area
+
 
 class MockView:
     '''mocking the view, but so generic that we share it among clients
     '''
     def __init__(self, **kwargs):
-        self.widgets = type('MockWidgets', (object, ), {})
+        self.widgets = type('MockWidgets', (object, ), {})()
         self.models = {}  # dictionary of list of tuples
         self.invoked = []
         self.invoked_detailed = []
@@ -795,6 +818,11 @@ class MockView:
         for name, value in kwargs.items():
             setattr(self, name, value)
         self.boxes = set()
+
+    def init_translatable_combo(self, *args):
+        self.invoked.append('init_translatable_combo')
+        self.invoked_detailed.append((self.invoked[-1], args))
+        pass
 
     def get_selection(self):
         'fakes main UI search result - selection'
@@ -821,8 +849,7 @@ class MockView:
             reply = ''
         self.widget_set_value(target, reply)
 
-    def run_entry_dialog(self, title, parent, flags, buttons):
-        args = [title, parent, flags, buttons]
+    def run_entry_dialog(self, *args, **kwargs):
         self.invoked.append('run_entry_dialog')
         self.invoked_detailed.append((self.invoked[-1], args))
         try:
@@ -937,6 +964,10 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], args))
         self.values[args[0]] = args[1]
 
+    def widget_grab_focus(self, *args):
+        self.invoked.append('widget_grab_focus')
+        self.invoked_detailed.append((self.invoked[-1], args))
+
     def widget_set_active(self, *args):
         self.invoked.append('widget_set_active')
         self.invoked_detailed.append((self.invoked[-1], args))
@@ -946,10 +977,9 @@ class MockView:
         self.invoked_detailed.append((self.invoked[-1], args))
 
     def get_window(self):
-        return self.__window
         self.invoked.append('get_window')
         self.invoked_detailed.append((self.invoked[-1], []))
-        return None
+        return self.__window
 
     widget_get_active = widget_get_value
 
@@ -1108,26 +1138,38 @@ class GenericEditorPresenter(object):
     PROBLEM_DUPLICATE = random()
     PROBLEM_EMPTY = random()
 
-    def __init__(self, model, view, refresh_view=False, session=None):
+    def __init__(self, model, view, refresh_view=False, session=None,
+                 do_commit=False, committing_results=[gtk.RESPONSE_OK]):
         self.model = model
         self.view = view
         self.problems = set()
         self._dirty = False
+        self.is_committing_presenter = do_commit
+        self.committing_results = committing_results
         self.running_threads = []
         self.owns_session = False
         self.session = session
+        self.clipboard_presenters = []
+        if not hasattr(self.__class__, 'clipboard'):
+            logging.debug('creating clipboard in presenter class %s' % self.__class__.__name__)
+            self.__class__.clipboard = {}
+
         if session is None:
             try:
                 self.session = object_session(model)
-            except UnmappedInstanceError:
+            except Exception, e:
+                logger.debug("GenericEditorPresenter::__init__ - %s, %s" % (type(e), e))
+
+            if self.session is None:  # object_session gave None without error
                 if db.Session is not None:
                     self.session = db.Session()
                     self.owns_session = True
+                    if isinstance(model, db.Base):
+                        self.model = model = self.session.merge(model)
                 else:
+                    logger.debug('db.Session was None, I cannot get a session.')
                     self.session = None
 
-        #logger.debug("session, model, view = %s, %s, %s"
-        #             % (self.session, model, view))
         if view:
             for wname, wdef in self.combo_value_render.items():
                 lname = wname.replace('_combo', '_liststore')
@@ -1136,6 +1178,80 @@ class GenericEditorPresenter(object):
             if model and refresh_view:
                 self.refresh_view()
             view.connect_signals(self)
+
+    def create_toolbar(self, *args, **kwargs):
+        view, model = self.view, self.model
+        logging.debug('creating toolbar in content_area presenter %s' % self.__class__.__name__)
+        actiongroup = gtk.ActionGroup('window-clip-actions')
+        accelgroup = gtk.AccelGroup()
+        fake_toolbar = gtk.Toolbar()
+        fake_toolbar.set_name('toolbar')
+        view.get_window().add_accel_group(accelgroup)
+        view.get_window().get_content_area().pack_start(fake_toolbar)
+        for shortcut, cb in (('<ctrl><shift>c', self.on_window_clip_copy),
+                             ('<ctrl><shift>v', self.on_window_clip_paste)):
+            action = gtk.Action(shortcut, shortcut, 'clip-action', None)
+            actiongroup.add_action_with_accel(action, shortcut)
+            action.connect("activate", cb)
+            action.set_accel_group(accelgroup)
+            action.connect_accelerator()
+            toolitem = action.create_tool_item()
+            fake_toolbar.insert(toolitem, -1)
+        fake_toolbar.set_visible(False)
+        self.clipboard_presenters.append(self)
+
+    def register_clipboard(self):
+        parent = self.parent_ref()
+        parent.clipboard_presenters.append(self)
+
+    def on_window_clip_copy(self, widget, *args, **kwargs):
+        try:
+            notebook = self.view.widgets['notebook']
+            current_page_no = notebook.get_current_page()
+            current_page_widget = notebook.get_nth_page(current_page_no)
+        except:
+            notebook = None
+            current_page_widget = self.view.get_window().get_content_area()
+        for presenter in self.clipboard_presenters:
+            for name in presenter.widget_to_field_map:
+                container = presenter.view.widgets[name]
+                while container.parent != notebook:
+                    if current_page_widget == container:
+                        break
+                    container = container.parent
+                if current_page_widget == container:
+                    value = presenter.view.widget_get_value(name)
+                    logger.debug('writing »%s« in clipboard %s for %s' % (value, presenter.__class__.__name__, name))
+                    presenter.clipboard[name] = value
+
+    def on_window_clip_paste(self, widget, *args, **kwargs):
+        try:
+            notebook = self.view.widgets['notebook']
+            current_page_no = notebook.get_current_page()
+            current_page_widget = notebook.get_nth_page(current_page_no)
+        except:
+            notebook = None
+            current_page_widget = self.view.get_window().get_content_area()
+        for presenter in self.clipboard_presenters:
+            for name in presenter.widget_to_field_map:
+                container = presenter.view.widgets[name]
+                while container.parent != notebook:
+                    if current_page_widget == container:
+                        break
+                    container = container.parent
+                if current_page_widget == container:
+                    if presenter.view.widget_get_value(name):
+                        logger.debug('skipping %s in clipboard %s because widget has value' % (name, presenter.__class__.__name__))
+                        continue
+                    clipboard_value = presenter.clipboard.get(name)
+                    if not clipboard_value:
+                        logger.debug('skipping %s because clipboard %s has no value' % (name, presenter.__class__.__name__))
+                        continue
+                    logger.debug('setting »%s« from clipboard %s for %s' % (clipboard_value, presenter.__class__.__name__, name))
+                    presenter.view.widget_set_value(name, clipboard_value)
+
+    def refresh_sensitivity(self):
+        logger.debug('you should implement this in your subclass')
 
     def refresh_view(self):
         '''fill the values in the widgets as the field values in the model
@@ -1173,7 +1289,6 @@ class GenericEditorPresenter(object):
             except Exception, e:
                 pass
         except Exception, e:
-            logger.warning(e)
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -1232,6 +1347,25 @@ class GenericEditorPresenter(object):
         self.__set_model_attr(attr, value)
         return value
 
+    def on_numeric_text_entry_changed(self, widget, value=None):
+        "handle 'changed' signal on numeric text entry widgets."
+
+        attr = self.__get_widget_attr(widget)
+        if attr is None:
+            return
+        value = self.view.widget_get_value(widget)
+        if value == '':
+            value = 0
+        try:
+            value = int(value)
+            logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
+                         % (widget, attr, getattr(self.model, attr), value))
+            self.__set_model_attr(attr, value)
+        except:
+            value = getattr(self.model, attr)
+            self.view.widget_set_value(widget, value)
+        return value
+
     def on_non_empty_text_entry_changed(self, widget, value=None):
         "handle 'changed' signal on compulsory text entry widgets."
 
@@ -1252,6 +1386,10 @@ class GenericEditorPresenter(object):
         if value is None:
             value = widget.props.text
             value = value and utils.utf8(value) or None
+        if not value:
+            self.add_problem(self.PROBLEM_EMPTY, widget)
+        else:
+            self.remove_problem(self.PROBLEM_EMPTY, widget)
         if getattr(self.model, attr) == value:
             return
         logger.debug("on_unique_text_entry_changed(%s, %s) - %s → %s"
@@ -1285,7 +1423,11 @@ class GenericEditorPresenter(object):
         if value is None:
             value = self.view.widget_get_active(widget)
             self.view.widget_set_inconsistent(widget, False)
-        self.__set_model_attr(attr, value)
+        if attr is not None:
+            self.__set_model_attr(attr, value)
+        else:
+            logging.debug("presenter %s does not know widget %s" % (
+                self.__class__.__name__, self.__get_widget_name(widget)))
 
     on_chkbx_toggled = on_check_toggled
 
@@ -1406,6 +1548,7 @@ class GenericEditorPresenter(object):
                      (self, problem_id, problem_widgets))
         if isinstance(problem_widgets, (tuple, list)):
             map(lambda w: self.add_problem(problem_id, w), problem_widgets)
+            return
 
         ## here single widget.
         widget = problem_widgets
@@ -1544,16 +1687,17 @@ class GenericEditorPresenter(object):
 
     def assign_completions_handler(self, widget, get_completions,
                                    on_select=lambda v: v):
-        """
-        Dynamically handle completions on a gtk.Entry.
+        """Dynamically handle completions on a gtk.Entry.
 
         :param widget: a gtk.Entry instance or widget name
 
-        :param get_completions: the method to call when a list of
-          completions is requested, returns a list of completions
+        :param get_completions: the callable to invoke when a list of
+          completions is requested, accepts the string typed, returns an
+          iterable of completions
 
         :param on_select: callback for when a value is selected from
           the list of completions
+
         """
 
         logger.debug('assign_completions_handler %s' % widget)
@@ -1563,6 +1707,7 @@ class GenericEditorPresenter(object):
 
         def add_completions(text):
             if get_completions is None:
+                logger.debug("completion model has static list")
                 # get_completions is None usually means that the
                 # completions model already has a static list of
                 # completions
@@ -1580,52 +1725,66 @@ class GenericEditorPresenter(object):
 
             key_length = widget.get_completion().props.minimum_key_length
             values = get_completions(text[:key_length])
+            logger.debug('completions to add: %s' % str([i for i in values]))
             gobject.idle_add(idle_callback, values)
 
         def on_changed(entry, *args):
             logger.debug('assign_completions_handler::on_changed %s %s'
                          % (entry, args))
             text = entry.get_text()
-            comp = entry.get_completion()
-            comp_model = comp.get_model()
-            found = []
-            if comp_model:
-                # search the tree model to see if the text in the
-                # entry matches one of the completions, if so then
-                # emit the match-selected signal, this allows us to
-                # type a match in the entry without having to select
-                # it from the popup
-                def _cmp(row, data):
-                    return utils.utf8(row[0]) == text
-                found = utils.search_tree_model(comp_model, text, _cmp)
-                if len(found) == 1:
-                    v = comp.get_model()[found[0]][0]
-                    # only auto select if the full string has been entered
-                    if text.lower() == utils.utf8(v).lower():
-                        comp.emit('match-selected', comp.get_model(), found[0])
-                    else:
-                        found = None
-
-            if text != '' and not found and PROBLEM not in self.problems:
-                self.add_problem(PROBLEM, widget)
-                on_select(None)
 
             key_length = widget.get_completion().props.minimum_key_length
-            if (not comp_model and len(text) > key_length) or \
-                    len(text) == key_length:
+            if len(text) > key_length:
+                logger.debug('recomputing completions matching %s' % text)
                 add_completions(text)
 
-            # if entry is empty select nothing and remove all problem
-            if text == '':
-                on_select(None)
-                self.remove_problem(PROBLEM, widget)
-            elif not comp_model:
-                ## completion model is not in place when object is forced
-                ## programmatically.
-                on_select(text)  # `on_select` will know how to convert the
-                                 # text into a properly typed value.
-                self.remove_problem(PROBLEM, widget)
+            def idle_callback(text):
+                logger.debug('on_changed - part two')
+                comp = entry.get_completion()
+                comp_model = comp.get_model()
+                found = []
+                if comp_model:
+                    comp_model.foreach(lambda m, p, i, ud: logger.debug("item(%s) of comp_model: %s" % (p, m[p][0])), None)
+                    # search the tree model to see if the text in the
+                    # entry matches one of the completions, if so then
+                    # emit the match-selected signal, this allows us to
+                    # type a match in the entry without having to select
+                    # it from the popup
+                    def _cmp(row, data):
+                        return utils.utf8(row[0])[:len(text)].lower() == data.lower()
+                    found = utils.search_tree_model(comp_model, text, _cmp)
+                    logger.debug("matches found in ListStore: %s" % str(found))
+                    if not found:
+                        logger.debug('nothing found, nothing to select from')
+                    elif len(found) == 1:
+                        logger.debug('one match, decide whether to select it - %s' % found[0])
+                        v = comp.get_model()[found[0]][0]
+                        # only auto select if the full string has been entered
+                        if text.lower() == utils.utf8(v).lower():
+                            comp.emit('match-selected', comp.get_model(), found[0])
+                        else:
+                            found = None
+                    else:
+                        logger.debug('multiple matches, we cannot select any - %s' % str(found))
 
+                if text != '' and not found and PROBLEM not in self.problems:
+                    self.add_problem(PROBLEM, widget)
+                    on_select(None)
+
+                # if entry is empty select nothing and remove all problem
+                if text == '':
+                    on_select(None)
+                    self.remove_problem(PROBLEM, widget)
+                elif not comp_model:
+                    ## completion model is not in place when object is forced
+                    ## programmatically.
+                    on_select(text)  # `on_select` will know how to convert the
+                                     # text into a properly typed value.
+                    self.remove_problem(PROBLEM, widget)
+                logger.debug('on_changed - part two - returning')
+
+            gobject.idle_add(idle_callback, text)
+            logger.debug('on_changed - part one - returning')
             return True
 
         def on_match_select(completion, compl_model, treeiter):
@@ -1647,10 +1806,14 @@ class GenericEditorPresenter(object):
         self.view.connect(completion, 'match-selected', on_match_select)
 
     def start(self):
-        """
-        run the dialog associated to the view
+        """run the dialog associated to the view
+
         """
         result = self.view.get_window().run()
+        if (self.is_committing_presenter
+            and result in self.committing_results
+            and self._dirty):
+            self.commit_changes()
         self.cleanup()
         return result
 
@@ -1719,18 +1882,6 @@ class GenericModelViewPresenterEditor(object):
         self.session = db.Session()
         self.model = self.session.merge(model)
 
-    def attach_response(self, dialog, response, keyname, mask):
-        '''
-        Attach a response to dialog when keyname and mask are pressed
-        '''
-        def callback(widget, event, key, mask):
-#            debug(gtk.gdk.keyval_name(event.keyval))
-            if event.keyval == gtk.gdk.keyval_from_name(key) \
-                    and (event.state & mask):
-                widget.response(response)
-        dialog.add_events(gtk.gdk.KEY_PRESS_MASK)
-        dialog.connect("key-press-event", callback, keyname, mask)
-
     def commit_changes(self):
         '''
         Commit the changes to self.session()
@@ -1743,7 +1894,7 @@ class GenericModelViewPresenterEditor(object):
             except Exception, e:
                 pass
         except Exception, e:
-            logger.warning(e)
+            logger.warning("can't commit changes: (%s) %s" % (type(e), e))
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -1764,7 +1915,9 @@ class NoteBox(gtk.HBox):
         self.widgets.note_textview.set_buffer(buff)
         utils.set_widget_value(self.widgets.note_textview,
                                text or '')
-        buff.connect('changed', self.on_note_buffer_changed)
+        if not text:
+            self.presenter.add_problem(self.presenter.PROBLEM_EMPTY, self.widgets.note_textview)
+        buff.connect('changed', self.on_note_buffer_changed, self.widgets.note_textview)
 
     def __init__(self, presenter, model=None):
         super(NoteBox, self).__init__()
@@ -1889,10 +2042,13 @@ class NoteBox(gtk.HBox):
             value = None
         self.set_model_attr('category', value)
 
-    def on_note_buffer_changed(self, buff, *args):
+    def on_note_buffer_changed(self, buff, widget, *args):
         value = utils.utf8(buff.props.text)
         if not value:  # if value == ''
             value = None
+            self.presenter.add_problem(self.presenter.PROBLEM_EMPTY, widget)
+        else:
+            self.presenter.remove_problem(self.presenter.PROBLEM_EMPTY, widget)
         self.set_model_attr('note', value)
 
     def update_label(self):
@@ -1926,7 +2082,7 @@ class NoteBox(gtk.HBox):
             # label.props.ellipsize doesn't work properly on a
             # label in an expander we just do it ourselves here
             if len(self.model.note) > max_length:
-                label.append('%s ...' % note_str[0:max_length-1])
+                label.append('%s …' % note_str[0:max_length-1])
             else:
                 label.append(note_str)
 
@@ -2004,20 +2160,20 @@ class PictureBox(NoteBox):
                 im = gtk.Label()
                 im.set_text(label)
             except Exception, e:
-                logger.warning(e)
+                logger.warning("can't commit changes: (%s) %s" % (type(e), e))
                 im = gtk.Label()
                 im.set_text(e)
         else:
             # make button hold some text
             im = gtk.Label()
-            im.set_text(_('Choose a file...'))
+            im.set_text(_('Choose a file…'))
         im.show()
         self.widgets.picture_button.add(im)
         self.widgets.picture_button.show()
 
     def on_activate_browse_button(self, widget, data=None):
         fileChooserDialog = gtk.FileChooserDialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         try:
@@ -2026,33 +2182,16 @@ class PictureBox(NoteBox):
             fileChooserDialog.run()
             filename = fileChooserDialog.get_filename()
             if filename:
-                ## rememberl chosen location for next time
-                PictureBox.last_folder, basename = os.path.split(filename)
-                import shutil
-                ## copy file to picture_root_dir (if not yet there).
-                if not filename.startswith(
-                        prefs.prefs[prefs.picture_root_pref]):
-                    shutil.copy(
-                        filename, prefs.prefs[prefs.picture_root_pref])
-                ## make thumbnail in thumbs subdirectory
-                from PIL import Image
+                ## remember chosen location for next time
+                PictureBox.last_folder, basename = os.path.split(unicode(filename))
                 logger.debug('new current folder is: %s' % self.last_folder)
-                full_dest_path = os.path.join(
-                    prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
-                try:
-                    im = Image.open(filename)
-                    im.thumbnail((400, 400))
-                    logger.debug('copying %s to %s' % (filename, full_dest_path))
-                    im.save(full_dest_path)
-                except IOError, e:
-                    logger.warning("can't make thumbnail")
-                except Exception, e:
-                    logger.warning("unexpected exception making thumbnail: "
-                                   "(%s)%s" % (type(e), e))
-                ## get dirname and basename from selected file, memorize
-                ## dirname
+                ## copy file to picture_root_dir (if not yet there),
+                ## also receiving thumbnail base64
+                thumb = utils.copy_picture_with_thumbnail(self.last_folder, basename)
                 ## make sure the category is <picture>
                 self.set_model_attr('category', u'<picture>')
+                ## append thumbnail base64 to content string
+                basename = basename + "|data:image/jpeg;base64," + thumb
                 ## store basename in note field and fire callbacks.
                 self.set_model_attr('note', basename)
                 self.set_content(basename)
@@ -2132,12 +2271,8 @@ class NotesPresenter(GenericEditorPresenter):
                 box.set_expanded(False)
                 valid_notes_count += 1
 
-        if valid_notes_count < 1:
-            self.add_note()
-
         logger.debug('notes: %s' % self.notes)
         logger.debug('children: %s' % self.box.get_children())
-        self.box.get_children()[0].set_expanded(True)  # expand first one
 
         self.widgets.notes_add_button.connect(
             'clicked', self.on_add_button_clicked)
@@ -2177,4 +2312,6 @@ class PicturesPresenter(NotesPresenter):
         super(PicturesPresenter, self).__init__(
             presenter, notes_property, parent_container)
 
-        self.box.get_children()[0].set_expanded(False)  # expand none
+        notes = self.box.get_children()
+        if notes:
+            notes[0].set_expanded(False)  # expand none

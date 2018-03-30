@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
-# Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright (c) 2006 Mark Mruss http://www.learningpython.com
+# Copyright (c) 2007 Kopfgeldjaeger
+# Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -44,7 +47,7 @@ bauble.gettext_windows.setup_env()
 
 __all__ = ["_"]
 
-TEXT_DOMAIN = 'bauble-%s' % '.'.join(version_tuple[0:2])
+TEXT_DOMAIN = 'ghini-%s' % '.'.join(version_tuple[0:2])
 
 #
 # most of the following code was adapted from:
@@ -60,9 +63,8 @@ if lang_code:
 # Now lets get all of the supported languages on the system
 language = os.environ.get('LANGUAGE', None)
 if language:
-    # langage comes back something like en_CA:en_US:en_GB:en on linuxy
-    # systems, on Win32 it's nothing, so we need to split it up into a
-    # list
+    # language comes back something like en_CA:en_US:en_GB:en on linuxy
+    # systems, on Win32 it's nothing, so we need to split it up into a list
     langs += language.split(":")
 # add on to the back of the list the translations that we know that we
 # have, our defaults"""
@@ -72,15 +74,24 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
-gettext.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
-gettext.textdomain(TEXT_DOMAIN)
+import sys
+if sys.platform in ['win32', 'darwin']:
+    locale = gettext
+
+try:
+    import gtk.glade as gtkglade
+except ImportError:
+    gtkglade = locale
+
+for module in locale, gtkglade:
+    module.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
+    module.textdomain(TEXT_DOMAIN)
+
 # Get the language to use
 lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
                            fallback=True)
-# install the language, map _() (which we marked our strings to
-# translate with) to self.lang.gettext() which will translate them.
-_ = gettext.gettext
-
-# register the gettext function for the whole interpreter as "_"
+# associate this module's as well as the global `_` functions (we marked our
+# translatable strings with it) to lang.gettext(), which translates them.
+_ = lang.gettext
 import __builtin__
-__builtin__._ = gettext.gettext
+__builtin__._ = lang.gettext

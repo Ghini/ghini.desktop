@@ -2,8 +2,17 @@
 # Copyright (c) 2005-2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
 #
+<<<<<<< HEAD
 # This file is part of ghini.desktop.
 #
+=======
+# Copyright 2008-2010 Brett Adams
+# Copyright 2014-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2016 Ross Demuth <rossdemuth123@gmail.com>
+#
+# This file is part of ghini.desktop.
+#
+>>>>>>> ghini-1.0-dev
 # ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -26,11 +35,20 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 import bauble.utils.desktop as desktop
-from bauble.i18n import _
 
 
-def _open_link(func, data=None):
-    desktop.open(data)
+
+def _open_link(data=None, *args, **kwargs):
+    """Open a web link"""
+    # windows generates odd characters in the uri unless its in ascii
+    logger.debug("_open_link received data=%s, args=%s, kwargs=%s" % (data, args, kwargs))
+    import sys
+    if sys.platform == 'win32':
+        udata = data.decode("utf-8")
+        asciidata = udata.encode("ascii", "ignore")
+        desktop.open(asciidata)
+    else:
+        desktop.open(data)
 
 gtk.link_button_set_uri_hook(_open_link)
 

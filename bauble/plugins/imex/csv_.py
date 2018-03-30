@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
+<<<<<<< HEAD
 # Copyright 2012-2016 Mario Frasca <mario@anche.no>.
+=======
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -37,7 +42,7 @@ from sqlalchemy import ColumnDefault, Boolean
 
 import bauble
 import bauble.db as db
-from bauble.i18n import _
+
 from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
@@ -556,18 +561,16 @@ class CSVImporter(Importer):
                 return
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
-        fc = gtk.FileChooserDialog(_("Choose file(s) to import..."),
+        fc = gtk.FileChooserDialog(_("Choose file(s) to import…"),
                                    None,
                                    gtk.FILE_CHOOSER_ACTION_OPEN,
                                    (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                     gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
         fc.set_select_multiple(True)
         fc.connect("selection-changed", on_selection_changed)
-        r = fc.run()
-        if r != gtk.RESPONSE_ACCEPT:
-            fc.destroy()
-            return None
-        filenames = fc.get_filenames()
+        filenames = None
+        if fc.run() == gtk.RESPONSE_ACCEPT:
+            filenames = fc.get_filenames()
         fc.destroy()
         return filenames
 

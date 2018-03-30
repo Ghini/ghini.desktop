@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
+<<<<<<< HEAD
 # Copyright 2012-2016 Mario Frasca <mario@anche.no>.
+=======
+# Copyright 2012-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
+# Copyright 2017 Ross Demuth
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -35,14 +41,14 @@ import gobject
 from sqlalchemy import union
 
 import bauble
-from bauble.i18n import _
+
 from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location
+from bauble.plugins.garden import Accession, Plant, Location, Source, Contact
 from bauble.plugins.tag import Tag
 
 # TODO: this module should depend on PlantPlugin, GardenPlugin,
@@ -60,19 +66,9 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
-# _paths = {}
 
-# def add_path(parent, descendant, query):
-#     """
-#     Register a query that will give all of the descendants under parent
-
-#     e.g. add_path(Family, Species) would register a query to retrieve
-#     all of the Species under a family
-#     """
-#     if parent not in _paths:
-#         _paths[parent] = {descendent: query}
-#     else descendant not in _paths[parent]:
-#         _paths[parent][descendent] = query
+# to be populated by the dialog box, with fields mentioned in the template
+options = {}
 
 
 def _get_pertinent_objects(cls, get_query_func, objs, session):
@@ -118,6 +114,9 @@ def get_plant_query(obj, session):
         return q.join('accession').filter_by(id=obj.id)
     elif isinstance(obj, Location):
         return q.filter_by(location_id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('accession', 'source', 'source_detail').\
+                filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         plants = get_plants_pertinent_to(obj.objects, session)
         return q.filter(Plant.id.in_([p.id for p in plants]))
@@ -138,9 +137,6 @@ def get_plants_pertinent_to(objs, session=None):
 def get_accession_query(obj, session):
     """
     """
-    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
-    # so that if we want to union() the statements together later it
-    # will work properly
     q = session.query(Accession).order_by(None)
     if isinstance(obj, Family):
         return q.join('species', 'genus', 'family').\
@@ -158,6 +154,8 @@ def get_accession_query(obj, session):
         return q.filter_by(id=obj.id)
     elif isinstance(obj, Location):
         return q.join('plants').filter_by(location_id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('source', 'source_detail').filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         acc = get_accessions_pertinent_to(obj.objects, session)
         return q.filter(Accession.id.in_([a.id for a in acc]))
@@ -180,9 +178,6 @@ def get_accessions_pertinent_to(objs, session=None):
 def get_species_query(obj, session):
     """
     """
-    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
-    # so that if we want to union() the statements together later it
-    # will work properly
     q = session.query(Species).order_by(None)
     if isinstance(obj, Family):
         return q.join('genus', 'family').\
@@ -201,6 +196,9 @@ def get_species_query(obj, session):
     elif isinstance(obj, Location):
         return q.join('accessions', 'plants', 'location').\
             filter_by(id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('accessions', 'source', 'source_detail').\
+                filter_by(id=obj.id)
     elif isinstance(obj, Tag):
         acc = get_species_pertinent_to(obj.objects, session)
         return q.filter(Species.id.in_([a.id for a in acc]))
@@ -218,6 +216,51 @@ def get_species_pertinent_to(objs, session=None):
     """
     return sorted(
         _get_pertinent_objects(Species, get_species_query, objs, session),
+        key=str)
+
+
+def get_location_query(obj, session):
+    """
+    """
+    q = session.query(Location).order_by(None)
+    if isinstance(obj, Location):
+        return q.filter_by(id=obj.id)
+    elif isinstance(obj, Plant):
+        return q.join('plants').filter_by(id=obj.id)
+    elif isinstance(obj, Accession):
+        return q.join('plants', 'accession').filter_by(id=obj.id)
+    elif isinstance(obj, Family):
+        return q.join('plants', 'accession', 'species', 'genus', 'family').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, Genus):
+        return q.join('plants', 'accession', 'species', 'genus').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, Species):
+        return q.join('plants', 'accession', 'species').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, VernacularName):
+        return q.join('plants', 'accession', 'species', 'vernacular_names').\
+            filter_by(id=obj.id)
+    elif isinstance(obj, Contact):
+        return q.join('plants', 'accession', 'source', 'source_detail').\
+                filter_by(id=obj.id)
+    elif isinstance(obj, Tag):
+        locs = get_locations_pertinent_to(obj.objects, session)
+        return q.filter(Location.id.in_([l.id for l in locs]))
+    else:
+        raise BaubleError(_("Can't get Location from a %s") %
+                          type(obj).__name__)
+
+
+def get_locations_pertinent_to(objs, session=None):
+    """
+    :param objs: an instance of a mapped object
+    :param session: the session to use for the queries
+
+    Return all the locations found in objs.
+    """
+    return sorted(
+        _get_pertinent_objects(Location, get_location_query, objs, session),
         key=str)
 
 
@@ -383,7 +426,7 @@ class ReportToolDialogPresenter(object):
     def on_new_button_clicked(self, *args):
         # TODO: don't set the OK button as sensitive in the name dialog
         # if the name already exists
-        # TOD0: make "Enter" in the entry fire the default response
+        # TODO: make "Enter" in the entry fire the default response
         d = gtk.Dialog(_("Formatter Name"), self.view.dialog,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
@@ -646,7 +689,7 @@ class ReportToolPlugin(pluginmgr.Plugin):
 
 try:
     import lxml.etree as etree
-    import lxml._elementpath  # put this here sp py2exe picks it up
+    import lxml._elementpath  # put this here so py2exe picks it up
 except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the '
                          'Report plugin')

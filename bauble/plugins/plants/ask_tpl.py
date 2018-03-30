@@ -39,12 +39,11 @@ class AskTPL(threading.Thread):
                      self.name, self.running and self.running.name)
         if self.running is not None:
             if self.running.binomial == binomial:
-                logger.debug("%s has same query as %s, do not start %s",
-                             self.name, self.running.name, self.name)
+                logger.debug('already requesting %s, ignoring repeated request', binomial)
                 binomial = None
             else:
-                logger.debug("%s has other query than %s, stop %s",
-                             self.name, self.running.name, self.running.name)
+                logger.debug("running different request (%s), stopping it, starting %s",
+                             self.running.binomial, binomial)
                 self.running.stop()
         if binomial:
             self.__class__.running = self
@@ -99,6 +98,7 @@ class AskTPL(threading.Thread):
                     item['_score_'] = seq.ratio()
 
                 found = sorted(candidates, cmp=lambda a, b: cmp(a['_score_'], b['_score_']) or cmp(b['Taxonomic status in TPL'], a['Taxonomic status in TPL']))[-1]
+                logger.debug('best match has score %s', found['_score_'])
                 if found['_score_'] < self.threshold:
                     found['_score_'] = 0
             elif candidates:
@@ -154,16 +154,3 @@ def what_to_do_with_it(found, accepted):
         logger.info("invalid reference in tpl.")
     if accepted:
         logger.info("%s - is its accepted form", citation(accepted))
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('urllib3.connectionpool').setLevel(logging.WARNING)
-    while True:
-        binomial = raw_input()
-        if not binomial:
-            if AskTPL.running is not None:
-                AskTPL.running.stop()
-            break
-
-        AskTPL(binomial, what_to_do_with_it, timeout=2).start()

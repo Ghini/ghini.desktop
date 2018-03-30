@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+<<<<<<< HEAD
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+=======
+# Copyright (c) 2012-2015 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -203,7 +208,6 @@ class UtilsDBTests(BaubleTestCase):
         self.assert_(depends == [table3])
 
 
-
 class ResetSequenceTests(BaubleTestCase):
 
     def setUp(self):
@@ -279,3 +283,35 @@ class ResetSequenceTests(BaubleTestCase):
         utils.reset_sequence(table.c.id)
         currval = self.get_currval(table.c.id)
         self.assert_(currval > rangemax, currval)
+
+from bauble.utils import topological_sort
+
+class TopologicalSortTests(unittest.TestCase):
+    def test_empty_dependencies(self):
+        r = topological_sort(['a', 'b', 'c'], [])
+        self.assertTrue('a' in r)
+        self.assertTrue('b' in r)
+        self.assertTrue('c' in r)
+
+    def test_full_dependencies(self):
+        r = topological_sort(['a', 'b', 'c'], [('a', 'b'), ('b', 'c')])
+        self.assertTrue('a' in r)
+        self.assertTrue('b' in r)
+        self.assertTrue('c' in r)
+        self.assertEquals(r.pop(), 'c')
+        self.assertEquals(r.pop(), 'b')
+        self.assertEquals(r.pop(), 'a')
+
+    def test_partial_dependencies(self):
+        r = topological_sort(['b', 'e'], [('a', 'b'), ('b', 'c'), ('b', 'd')])
+        print r
+        self.assertTrue('e' in r)
+        r.remove('e')
+        any = set([r.pop(), r.pop()])
+        self.assertEquals(any, set(['c', 'd']))
+        self.assertEquals(r.pop(), 'b')
+        #self.assertEquals(r, [])
+
+    def test_empty_input_full_dependencies(self):
+        r = topological_sort([], [('a', 'b'), ('b', 'c'), ('b', 'd')])
+        #self.assertEquals(r, [])

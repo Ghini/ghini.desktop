@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2012-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -46,7 +47,7 @@ import traceback
 
 import gtk
 
-from bauble.i18n import _
+
 from sqlalchemy import Column, Unicode, select
 import sqlalchemy.orm.exc as orm_exc
 
@@ -58,6 +59,7 @@ import bauble.utils as utils
 
 plugins = {}
 commands = {}
+provided = {}
 
 
 def register_command(handler):
@@ -247,9 +249,9 @@ def init(force=False):
                    % dict(plugin_name=plugin.__class__.__name__))
             logger.warning(msg)
         except Exception, e:
-            logger.error(e)
+            logger.error("%s: %s" % (type(e), e))
             ordered.remove(plugin)
-            logger.error(traceback.print_exc())
+            logger.debug(traceback.print_exc())
             safe = utils.xml_safe
             values = dict(entry_name=plugin.__class__.__name__,
                           exception=safe(e))
@@ -259,7 +261,7 @@ def init(force=False):
                 traceback.format_exc(),
                 gtk.MESSAGE_ERROR)
 
-    # register the plugin commands seperately from the plugin initialization
+    # register the plugin commands separately from the plugin initialization
     for plugin in ordered:
         if plugin.commands in (None, []):
             continue
@@ -305,15 +307,17 @@ def install(plugins_to_install, import_defaults=True, force=False):
         return
 
     # sort the plugins by their dependency
-    depends, unmet = _create_dependency_pairs(to_install)
+    depends, unmet = _create_dependency_pairs(plugins.values())
+    logger.debug("%s - the dependencies pairs" % str(depends))
     if unmet != {}:
         logger.debug(unmet)
         raise BaubleError('unmet dependencies')
     to_install = utils.topological_sort(to_install, depends)
+    logger.debug("%s - this is after topological sort" % str(to_install))
     if not to_install:
         raise BaubleError(_('The plugins contain a dependency loop. This '
-                            'can happend if two plugins directly or '
-                            'indirectly rely on each other'))
+                            'means that two plugins '
+                            '(possibly indirectly) rely on each other'))
 
     try:
         for p in to_install:
@@ -323,6 +327,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             # registry twice but we should really update the version number
             # in the future when we accept versioned plugins (if ever)
             if not PluginRegistry.exists(p):
+                logger.debug('%s - adding to registry' % p)
                 PluginRegistry.add(p)
     except Exception, e:
         logger.warning('bauble.pluginmgr.install(): %s' % utils.utf8(e))
@@ -417,21 +422,24 @@ class PluginRegistry(db.Base):
 
 class Plugin(object):
     """
+    commands:
+      a map of commands this plugin handled with callbacks,
+      e.g dict('cmd', lambda x: handler)
     tools:
       a list of BaubleTool classes that this plugin provides, the
       tools' category and label will be used in Ghini's "Tool" menu
     depends:
       a list of names classes that inherit from BaublePlugin that this
       plugin depends on
-    cmds:
-      a map of commands this plugin handled with callbacks,
-      e.g dict('cmd', lambda x: handler)
+    provides:
+      a dictionary name->class exported by this plugin
     description:
       a short description of the plugin
     """
     commands = []
     tools = []
     depends = []
+    provides = {}
     description = ''
     version = '0.0'
 

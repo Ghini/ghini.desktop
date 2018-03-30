@@ -37,7 +37,7 @@ from sqlalchemy.exc import DBAPIError
 
 from types import StringTypes
 import bauble
-from bauble.i18n import _
+
 from bauble.prefs import prefs
 import bauble.utils as utils
 import bauble.paths as paths
@@ -65,13 +65,18 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_aggregate_combo': 'aggregate',
                            'sp_awards_entry': 'awards',
                            'sp_label_dist_entry': 'label_distribution',
+<<<<<<< HEAD
                            'sp_hybrid_operands_vbox2': 'hybrid_operands',
+=======
+                           'sp_habit_comboentry': 'habit',
+>>>>>>> ghini-1.0-dev
                            }
     combo_value_render = {'sp_aggregate_combo': itf2.aggregate,
                           'sp_hybrid_combo': itf2.hybrid_marker, }
 
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self.session = object_session(model)
         self._dirty = False
         self.omonym_box = None
@@ -303,8 +308,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     self.set_model_attr('genus', syn.genus)
                     self.refresh_view()
                     self.refresh_fullname_label()
-                else:
-                    self.set_model_attr('genus', value)
             box = self.view.add_message_box(utils.MESSAGE_BOX_YESNO)
             box.message = msg
             box.on_response = on_response
@@ -367,6 +370,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         except Exception:
             pass
 
+<<<<<<< HEAD
     def refresh_on_hybrid_marker(self, *args):
         'alter visibility of fields if H'
 
@@ -400,6 +404,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.view.widget_set_visible('sp_isp_alignment', True)
             self.view.widget_set_visible('sp_hybrid_operands_vbox1', False)
             self.view.widget_set_visible('sp_hybrid_operands_vbox2', False)
+=======
+    def set_visible_buttons(self, visible):
+        self.view.widgets.sp_ok_and_add_button.set_visible(visible)
+        self.view.widgets.sp_next_button.set_visible(visible)
+>>>>>>> ghini-1.0-dev
 
     def on_sp_species_entry_changed(self, widget, *args):
         self.on_text_entry_changed(widget, *args)
@@ -924,7 +933,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             v = model[treeiter][0]
             cell.set_property('text', v.name)
             # just added so change the background color to indicate it's new
-#            if not v.isinstance:
             if v.id is None:  # hasn't been committed
                 cell.set_property('foreground', 'blue')
             else:
@@ -1168,9 +1176,9 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_awards_entry': _('The awards this species have been given'),
         'sp_cancel_button': _('Cancel your changes'),
         'sp_ok_button': _('Save your changes'),
-        'sp_ok_and_add_button': _('Save your changes changes and add an '
+        'sp_ok_and_add_button': _('Save your changes and add an '
                                   'accession to this species'),
-        'sp_next_button': _('Save your changes changes and add another '
+        'sp_next_button': _('Save your changes and add another '
                             'species ')
         }
 
@@ -1191,10 +1199,6 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.notebook.set_current_page(0)
         self.restore_state()
         self.boxes = set()
-        w = self.get_window()
-        w.set_geometry_hints(
-            max_width=gtk.gdk.screen_get_default().get_width())
-        w.set_position(gtk.WIN_POS_NONE)
 
     def get_window(self):
         '''
@@ -1272,7 +1276,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
 
-    def __init__(self, model=None, parent=None):
+    def __init__(self, model=None, parent=None, is_dependent_window=False):
         '''
         :param model: a species instance or None
         :param parent: the parent window or None
@@ -1287,19 +1291,12 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
 
         view = SpeciesEditorView(parent=self.parent)
         self.presenter = SpeciesEditorPresenter(self.model, view)
+        self.presenter.set_visible_buttons(not is_dependent_window)
 
         ## I do not follow this: we have a MVP model, but also an extra
         ## 'Editor' thing and is it stealing functionality from either the
         ## view or the presenter?
         self.view = view
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
 
         # set default focus
         if self.model.genus is None:
@@ -1393,8 +1390,8 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         return self._committed
 
 
-def edit_species(model=None, parent_view=None):
-    kkk = SpeciesEditorMenuItem(model, parent_view)
+def edit_species(model=None, parent_view=None, is_dependent_window=False):
+    kkk = SpeciesEditorMenuItem(model, parent_view, is_dependent_window)
     kkk.start()
     result = kkk._committed
     del kkk

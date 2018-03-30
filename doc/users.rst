@@ -1,11 +1,14 @@
 Managing Users
 ==============
 
-.. note:: The Bauble users plugin is only available on PostgreSQL
+.. note:: The Ghini users plugin is only available on PostgreSQL
    based databases.
 
-The Bauble User's Plugin will allow you to create and manage the
-permissions of users for your Bauble database.
+The Ghini Users Plugin will allow you to create and manage the
+permissions of users for your Ghini database.
+
+You must log in to your database as a user with ``CREATEROLE`` privilege in
+order to manage other users.
 
 Creating Users
 --------------
@@ -14,4 +17,4 @@ To create a new user...
 
 Permissions
 -----------
-Bauble allows read, write and execute permissions.
+Ghini allows read, write and execute permissions.

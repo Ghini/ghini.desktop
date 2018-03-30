@@ -1,14 +1,34 @@
 Ghini
 ======
 
-.. image:: https://travis-ci.org/Ghini/ghini.desktop.svg
-.. image:: https://img.shields.io/pypi/v/ghini.svg
-.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github
-  :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=master
-
 * **ghini-1.0** is stable - use this; 
 * **ghini-1.1** is testing - feedback is welcome;
 * **master** is unstable - do not open issues on this one; 
+
+.. |travis| image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0-dev
+.. |pypi| image:: https://img.shields.io/pypi/v/bauble.svg
+.. |coveralls| image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github
+
+======== ======== ============
+travis   pypi     coveralls
+======== ======== ============
+|travis| |pypi|   |coveralls|
+======== ======== ============
+
+=========== =========== =========== =========== =========== =========== =========== =========== 
+Spanish     Portuguese  French      German      Dutch       Italian     Tchech      Sweedish
+=========== =========== =========== =========== =========== =========== =========== ===========
+|trans-es|  |trans-pt|  |trans-fr|  |trans-de|  |trans-nl|  |trans-it|  |trans-cs|  |trans-sv|  
+=========== =========== =========== =========== =========== =========== =========== ===========
+
+.. |trans-es| image:: https://hosted.weblate.org/widgets/ghini/es/svg-badge.svg
+.. |trans-pt| image:: https://hosted.weblate.org/widgets/ghini/pt_BR/svg-badge.svg
+.. |trans-fr| image:: https://hosted.weblate.org/widgets/ghini/fr/svg-badge.svg
+.. |trans-de| image:: https://hosted.weblate.org/widgets/ghini/de/svg-badge.svg
+.. |trans-nl| image:: https://hosted.weblate.org/widgets/ghini/nl/svg-badge.svg
+.. |trans-it| image:: https://hosted.weblate.org/widgets/ghini/it/svg-badge.svg
+.. |trans-cs| image:: https://hosted.weblate.org/widgets/ghini/cs/svg-badge.svg
+.. |trans-sv| image:: https://hosted.weblate.org/widgets/ghini/sv/svg-badge.svg
 
 what is Ghini (desktop)
 ------------------------
@@ -41,45 +61,39 @@ organizations: Ghini and Bauble.
 
 please check the Bauble site for further details about it.
 
-Within the Ghini organization
-
-- ``ghini.desktop`` is the new name of the stable and well established
-  software previously distributed as ``bauble.classic``. ``ghini.desktop``
-  is Ghini's flagship, it is a GTK+ desktop application and it is described
-  here.
-- ``ghini.web`` is the name for the geographic and web interface to a
-  ``ghini.desktop`` PostgreSQL database.
-- ``ghini.github.io`` contains the sources for the ghini web site.
 
 The name _Ghini_ is to honour Luca Ghini, the founder of the botanical
 garden of Pisa, and Pisa is the place where the current maintainer Mario
 Frasca has completed his studies in computer science.
 
-Requirements
-------------
-ghini.desktop requires the following packages to run.
+Within the Ghini organization, you will find 'ghini.desktop', this program,
+'ghini.pocket', a tiny android database viewer meant to help you take your
+database in your pocket, 'ghini.github.io', the sources for the ghini
+website, 'ghini.web', showcased at http://gardens.ghini.me, and ghini.tour,
+a collection of settings for building audio guides to gardens.
 
-* Python (travis-ci checks Bauble against Python 2.6 and 2.7)
-* SQLAlchemy (>= 0.6.0, at least up to 1.0.3)
-* pygtk (>= 2.12, at least up to 2.24)
-* PyGObject (>= 2.11.1, at least up to 2.28.6)
-* lxml (>= 2.0)
+|ghini-family|
 
-each of the following database connectors is optional, but at least one is needed:
+Just as Bauble's flagship was bauble.classic, Ghini's flagship is ghini.desktop.
 
-* pysqlite >= 2.3.2
-* psycopg2 >= 2.0.5 
-* mysql-python >= 1.2.1 
+.. |ghini-family| image:: https://github.com/Ghini/ghini.desktop/raw/ghini-1.0-dev/doc/images/ghini-family.png
 
-To use the formatter plugin you will also need to install an
-XSL->PDF renderer. For a free renderer check out Apache FOP
-(>=.92beta) at http://xmlgraphics.apache.org/fop/
+Windows, in a hurry
+---------------------
+
+Are you a Windows user and are in a hurry to run ghini.desktop? Download and install in the given order
+`Git <https://github.com/git-for-windows/git/releases/download/v2.10.0.windows.1/Git-2.10.0-32-bit.exe>`_, `Python <https://www.python.org/ftp/python/2.7.12/python-2.7.12.msi>`_, `pylxml <https://pypi.python.org/packages/2.7/l/lxml/lxml-3.6.0.win32-py2.7.exe>`_, `psycopg <http://www.stickpeople.com/projects/python/win-psycopg/2.6.1/psycopg2-2.6.1.win32-py2.7-pg9.4.4-release.exe>`_, `pygtk <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/pygtk-all-in-one-2.24.2.win32-py2.7.msi>`_, 
+then download and run `devinstall.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/devinstall.bat>`_ and keep `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0/scripts/ghini-update.bat>`_ for later reference.
+
+Or also read the rest.
 
 Further info
 ------------
 
 The complete documentation for ghini.desktop is to be found at
-http://ghini.readthedocs.org. It includes detailed and up-to-date
+
+http://ghini.readthedocs.io. It includes detailed and up-to-date
+
 installation procedures for different platforms, troubleshooting,
 and a very thorough user manual.
 

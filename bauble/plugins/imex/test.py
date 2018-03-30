@@ -31,7 +31,7 @@ from sqlalchemy import Column, Integer, Boolean
 import bauble.db as db
 from bauble.plugins.plants import (
     Familia, Family, Genus, Species, VernacularName)
-from bauble.plugins.garden import Accession, Location, Plant
+from bauble.plugins.garden import Accession, Location, Plant, Contact, Source
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
@@ -639,7 +639,6 @@ class JSONExportTests(BaubleTestCase):
         exporter.filename = self.temp_path
         exporter.run()
         result = json.load(open(self.temp_path))
-        print result
         self.assertEquals(len(result), 6)
 
     def test_export_non_private_if_sbo_plants(self):
@@ -698,18 +697,39 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(exporter.filename, '/tmp/test.json')
         self.assertEquals(JSONExporter.last_folder, '/tmp')
 
+    def test_includes_sources(self):
 
-class MockImportView:
-    def widget_set_value(self, *args):
-        pass
+        ## precondition
+        # Create an Accession a, then create a Source s, then assign a.source = s
+        a = self.session.query(Accession).first()
+        a.source = s = Source()
+        s.source_detail = c = Contact(name=u'Summit')
+        self.session.add_all([s, c])
+        self.session.commit()
 
-    def widget_get_value(self, *args):
-        pass
+        ## action
+        exporter = JSONExporter(MockView())
+        selection = [a]
+        exporter.view.selection = None
+        exporter.selection_based_on = 'sbo_accessions'
+        exporter.include_private = True
+        exporter.filename = self.temp_path
+        exporter.run()
 
-    def connect_signals(self, *args):
-        pass
-
-    pass
+        ## check
+        result = json.load(open(self.temp_path))
+        print result
+        contacts_from_json = [i for i in result
+                              if i['object'] == 'contact']
+        self.assertEquals(len(contacts_from_json), 1)
+        self.assertEquals(contacts_from_json[0]['name'], 'Summit')
+        accessions_from_json = [i for i in result
+                                if i['object'] == 'accession']
+        self.assertEquals(len(accessions_from_json), 3)
+        accessions_with_contact = [i for i in result
+                                   if i['object'] == 'accession' and i.get('contact') is not None]
+        self.assertEquals(len(accessions_with_contact), 1)
+        self.assertEquals(accessions_with_contact[0]['contact'], 'Summit')
 
 
 class JSONImportTests(BaubleTestCase):
@@ -741,8 +761,13 @@ class JSONImportTests(BaubleTestCase):
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
+<<<<<<< HEAD
             Genus.epithet == u"Neogyna").all()), 0)
         importer = JSONImporter(MockImportView())
+=======
+            Genus.genus == u"Neogyna").all()), 0)
+        importer = JSONImporter(MockView())
+>>>>>>> ghini-1.0-dev
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -756,8 +781,13 @@ class JSONImportTests(BaubleTestCase):
         with open(self.temp_path, "w") as f:
             f.write(json_string)
         self.assertEquals(len(self.session.query(Genus).filter(
+<<<<<<< HEAD
             Genus.epithet == u"Neogyna").all()), 0)
         importer = JSONImporter(MockImportView())
+=======
+            Genus.genus == u"Neogyna").all()), 0)
+        importer = JSONImporter(MockView())
+>>>>>>> ghini-1.0-dev
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
@@ -773,8 +803,13 @@ class JSONImportTests(BaubleTestCase):
         previously = Species.retrieve_or_create(
             self.session, {'ht-epithet': u"Calopogon",
                            'epithet': u"tuberosus"})
+<<<<<<< HEAD
         self.assertEquals(previously.author, u'')
         importer = JSONImporter(MockImportView())
+=======
+        self.assertEquals(previously.sp_author, None)
+        importer = JSONImporter(MockView())
+>>>>>>> ghini-1.0-dev
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.session.commit()
@@ -793,7 +828,7 @@ class JSONImportTests(BaubleTestCase):
             '"author": "Rchb. f.", "id": 1}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -812,7 +847,7 @@ class JSONImportTests(BaubleTestCase):
             '"hybrid_marker": "", "id": 8}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -829,7 +864,7 @@ class JSONImportTests(BaubleTestCase):
             '"Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -854,7 +889,7 @@ class JSONImportTests(BaubleTestCase):
             '"familia": "Orchidaceae", "author" : "Rchb. f."}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -881,7 +916,7 @@ class JSONImportTests(BaubleTestCase):
             '"ht-epithet": "Orchidaceae", "author": "Thouars"}}]'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
 
@@ -918,7 +953,7 @@ class JSONImportTests(BaubleTestCase):
             '"rank": "genus"}}'
         with open(self.temp_path, "w") as f:
             f.write(json_string)
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         importer.filename = self.temp_path
         importer.on_btnok_clicked(None)
         self.session.commit()
@@ -939,7 +974,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
@@ -974,7 +1009,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
@@ -1008,7 +1043,7 @@ class JSONImportTests(BaubleTestCase):
         self.session.commit()
 
         ## offer two objects for import
-        importer = JSONImporter(MockImportView())
+        importer = JSONImporter(MockView())
         json_string = '[{"author": "L.", "epithet": "Anacampseros", '\
             '"ht-epithet": "Anacampserotaceae", "ht-rank": "familia", '\
             '"object": "taxon", "rank": "genus"}, {"author": "L.", '\
@@ -1041,6 +1076,25 @@ class JSONImportTests(BaubleTestCase):
         exporter.on_text_entry_changed('input_filename')
         self.assertEquals(exporter.filename, '/tmp/test.json')
         self.assertEquals(JSONImporter.last_folder, '/tmp')
+
+    def test_import_contact(self):
+        ## T_0
+        # empty database
+
+        ## offer two objects for import
+        importer = JSONImporter(MockView())
+        json_string = '[{"name": "Summit", "object": "contact"}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer.filename = self.temp_path
+        importer.create = True
+        importer.update = True
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+
+        ## T_1
+        summit = self.session.query(Contact).first()
+        self.assertNotEquals(summit, None)
 
 
 class GlobalFunctionsTests(BaubleTestCase):

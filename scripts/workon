@@ -14,4 +14,9 @@ fi
 
 venv=$(echo $branch | sed -e 's/ghini/ghide/')
 
+<<<<<<< HEAD
 $ECHO git checkout $branch && $ECHO . ~/.virtualenvs/$venv/bin/activate
+=======
+$ECHO git checkout $branch
+$ECHO . ~/.virtualenvs/$venv/bin/activate
+>>>>>>> ghini-1.0-dev

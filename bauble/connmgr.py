@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2015-2017 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
+# Copyright 2016 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -34,7 +36,6 @@ logger = logging.getLogger(__name__)
 
 import gtk
 
-from bauble.i18n import _
 import bauble
 from bauble import paths, prefs, utils
 
@@ -87,7 +88,7 @@ def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
     renderer.set_property('text', dbtype)
 
 
-def newer_version_on_github(input_stream):
+def newer_version_on_github(input_stream, force=False):
     """is there a new patch on github for this production line
 
     if the remote version is higher than the running one, return
@@ -106,7 +107,7 @@ def newer_version_on_github(input_stream):
                 logger.warning("can't parse github version.")
                 return False
             github_patch = github_version.split('.')[2]
-            if int(github_patch) > int(bauble.version_tuple[2]):
+            if force or int(github_patch) > int(bauble.version_tuple[2]):
                 return github_version
             if int(github_patch) < int(bauble.version_tuple[2]):
                 logger.info("running unreleased version")
@@ -117,6 +118,49 @@ def newer_version_on_github(input_stream):
     except ValueError:
         logger.warning('incorrect format for github version')
     return False
+
+
+def retrieve_latest_release_date():
+    ## retrieve remote information from github regarding the latest release.
+    ## this is executed in a different thread, and it will overwrite the
+    ## bauble.release_date text.
+
+    response = {'commit': {'commit': {'committer': {'date': _('not available when offline')}}}}
+    version_on_github = (
+        'https://raw.githubusercontent.com/Ghini/ghini.desktop' +
+        '/ghini-%s.%s/bauble/version.py') % bauble.version_tuple[:2]
+
+    try:
+        import urllib2
+        import ssl
+        import json
+        ## from github retrieve the date of the latest release
+        stream = urllib2.urlopen(
+            "https://api.github.com/repos/Ghini/ghini.desktop/branches/ghini-1.0",
+            timeout=5)
+        response = json.load(stream)
+        bauble.release_date = response['commit']['commit']['committer']['date']
+
+        ## from github retrieve the version number
+        github_version_stream = urllib2.urlopen(version_on_github, timeout=5)
+        bauble.release_version = newer_version_on_github(github_version_stream, force=True)
+
+        ## locally, read the installation timestamp
+        main_init_path = bauble.__file__
+        import os
+        last_modified_seconds = os.stat(main_init_path).st_mtime
+        import datetime
+        last_modified_date = datetime.datetime(1970, 1, 1) + datetime.timedelta(0, int(last_modified_seconds))
+        bauble.installation_date = last_modified_date.isoformat() + "Z"
+    except urllib2.URLError:
+        logger.info('connection is slow or down')
+    except ssl.SSLError, e:
+        logger.info('SSLError %s while checking for newer version' % e)
+    except urllib2.HTTPError:
+        logger.info('HTTPError while checking for newer version')
+    except Exception, e:
+        logger.warning('unhandled %s(%s) while checking for newer version'
+                       % (type(e), e))
 
 
 def check_and_notify_new_version(view):
@@ -148,17 +192,13 @@ def check_and_notify_new_version(view):
             gobject.idle_add(show_message_box)
     except urllib2.URLError:
         logger.info('connection is slow or down')
-        pass
     except ssl.SSLError, e:
         logger.info('SSLError %s while checking for newer version' % e)
-        pass
     except urllib2.HTTPError:
         logger.info('HTTPError while checking for newer version')
-        pass
     except Exception, e:
         logger.warning('unhandled %s(%s) while checking for newer version'
                        % type(e), e)
-        pass
 
 
 class ConnMgrPresenter(GenericEditorPresenter):
@@ -176,6 +216,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         'file_entry': 'filename',
         'database_entry': 'database',
         'host_entry': 'host',
+        'port_entry': 'port',
         'user_entry': 'user',
         'passwd_chkbx': 'passwd',
         'pictureroot2_entry': 'pictureroot',
@@ -185,9 +226,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
     view_accept_buttons = ['cancel_button', 'connect_button']
 
     def __init__(self, view=None):
-        self.filename = self.database = self.host = self.user = \
+        self.filename = self.database = self.host = self.port = self.user = \
             self.pictureroot = self.connection_name = \
-            self.prev_connection_name = ''
+            self.prev_connection_name = None
         self.use_defaults = True
         self.passwd = False
         ## following two look like overkill, since they will be initialized
@@ -224,15 +265,20 @@ class ConnMgrPresenter(GenericEditorPresenter):
         except:
             pass
 
-        from threading import Thread
-        self.start_thread(Thread(target=check_and_notify_new_version,
+        from bauble import main_is_frozen
+        # Don't check for new versions if we are in a py2exe environment
+        if not main_is_frozen():
+            from threading import Thread
+            self.start_thread(Thread(target=check_and_notify_new_version,
                                  args=[self.view]))
+            self.start_thread(Thread(target=retrieve_latest_release_date))
+        logger.debug('main_is_frozen = %s' % (main_is_frozen()))
 
     def on_file_btnbrowse_clicked(self, *args):
         previously = self.view.widget_get_value('file_entry')
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -242,7 +288,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         previously = self.view.widget_get_value('pictureroot_entry')
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -252,7 +298,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         previously = self.view.widget_get_value('pictureroot2_entry')
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
-            _("Choose a file..."), None,
+            _("Choose a file…"), None,
             action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
             buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
@@ -304,7 +350,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
                 self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
                 response == gtk.RESPONSE_DELETE_EVENT:
-            if not self.compare_prefs_to_saved(self.connection_name):
+            if not self.are_prefs_already_saved(self.connection_name):
                 msg = _("Do you want to save your changes?")
                 if self.view.run_yes_no_dialog(msg):
                     self.save_current_to_prefs()
@@ -350,7 +396,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             self.view.combobox_set_active('name_combo', 0)
 
     def on_add_button_clicked(self, *args):
-        if not self.compare_prefs_to_saved(self.prev_connection_name):
+        if not self.are_prefs_already_saved(self.prev_connection_name):
             msg = (_("Do you want to save your changes to %s ?")
                    % self.prev_connection_name)
             if self.view.run_yes_no_dialog(msg):
@@ -382,11 +428,11 @@ class ConnMgrPresenter(GenericEditorPresenter):
         prefs.prefs[bauble.conn_list_pref] = conn_dict
         prefs.prefs.save()
 
-    def compare_prefs_to_saved(self, name):
+    def are_prefs_already_saved(self, name):
+        """are current prefs already saved under given name?
+
         """
-        name is the name of the connection in the prefs
-        """
-        if name is None:  # in case no name selected, can happen on first run
+        if not name:  # no name, no need to check
             return True
         conn_dict = prefs.prefs[bauble.conn_list_pref]
         if conn_dict is None or name not in conn_dict:
@@ -412,7 +458,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
                     self.save_current_to_prefs()
                 else:
                     self.remove_connection(self.prev_connection_name)
-            elif not self.compare_prefs_to_saved(self.prev_connection_name):
+            elif not self.are_prefs_already_saved(self.prev_connection_name):
                 msg = (_("Do you want to save your changes to %s ?")
                        % self.prev_connection_name)
                 if self.view.run_yes_no_dialog(msg):
@@ -450,7 +496,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
             title,
             self.view.get_window(),
             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT),
+            visible=False)
         return passwd
 
     def parameters_to_uri(self, params):
@@ -464,7 +511,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
             uri = "sqlite:///" + filename
             return uri
         subs['type'] = params['type'].lower()
-        if 'port' in params:
+        if params.get('port') is not None:
             template = "%(type)s://%(user)s@%(host)s:%(port)s/%(db)s"
         else:
             template = "%(type)s://%(user)s@%(host)s/%(db)s"
@@ -518,20 +565,20 @@ class ConnMgrPresenter(GenericEditorPresenter):
                 msg = _("Ghini does not have permission to "
                         "write to the database file:\n\n%s") % filename
         else:
-            fields = []
+            missing_fields = []
             if params["user"] == "":
                 valid = False
-                fields.append(_("user name"))
+                missing_fields.append(_("user name"))
             if params["db"] == "":
                 valid = False
-                fields.append(_("database name"))
+                missing_fields.append(_("database name"))
             if params["host"] == "":
                 valid = False
-                fields.append(_("DBMS host name"))
+                missing_fields.append(_("DBMS host name"))
             if not valid:
                 msg = _("Current connection does not specify the fields:\n"
                         "%s\n"
-                        "Please specify and try again.") % "\n".join(fields)
+                        "Please specify and try again.") % "\n".join(missing_fields)
         if not valid:
             return valid, msg
         ## now check the params['pictures']
@@ -571,6 +618,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:
             result = {'db': self.database,
                       'host': self.host,
+                      'port': self.port,
                       'user': self.user,
                       'pictures': self.pictureroot,
                       'passwd': self.passwd,
@@ -589,6 +637,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         else:
             self.database = params['db']
             self.host = params['host']
+            self.port = params.get('port')
             self.user = params['user']
             self.pictureroot = params.get('pictures', '')
             self.passwd = params['passwd']

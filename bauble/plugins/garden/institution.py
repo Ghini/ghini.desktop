@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -36,7 +37,7 @@ import bauble.meta as meta
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
-from bauble.i18n import _
+
 
 
 class Institution(object):
@@ -105,6 +106,7 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self.email_regexp = re.compile(r'.+@.+\..+')
         super(InstitutionPresenter, self).__init__(
             model, view, refresh_view=True)
+        self.view.widget_grab_focus('inst_name')
         self.on_non_empty_text_entry_changed('inst_name')
         self.on_email_text_entry_changed('inst_email')
 
@@ -136,17 +138,25 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self.view.widget_set_sensitive(
             'inst_register', self.email_regexp.match(value or ''))
 
+    def get_sentry_handler(self):
+        from bauble import prefs
+        if prefs.testing:
+            from bauble.test import MockLoggingHandler
+            return MockLoggingHandler()
+        else:
+            from raven import Client
+            from raven.handlers.logging import SentryHandler
+            sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
+                                   '00268114ed47460b94ce2b1b0b2a4a20@'
+                                   'app.getsentry.com/45704')
+            return SentryHandler(sentry_client)
+
     def on_inst_register_clicked(self, *args, **kwargs):
         '''send the registration data as sentry info log message
         '''
 
         # create the handler first
-        from raven import Client
-        from raven.handlers.logging import SentryHandler
-        sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
-                               '00268114ed47460b94ce2b1b0b2a4a20@'
-                               'app.getsentry.com/45704')
-        handler = SentryHandler(sentry_client)
+        handler = self.get_sentry_handler()
         handler.setLevel(logging.INFO)
 
         # the registration logger gets the above handler

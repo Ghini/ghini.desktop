@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -32,8 +33,12 @@ import bauble.paths as paths
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.garden.plant import Plant
+<<<<<<< HEAD
 from bauble.i18n import _
 from bauble import prefs
+=======
+
+>>>>>>> ghini-1.0-dev
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
@@ -335,10 +340,11 @@ class ABCDExporter(object):
                                       gtk.FILE_CHOOSER_ACTION_SAVE,
                                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                        gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-            response = d.run()
-            filename = d.get_filename()
+            filename = None
+            if d.run() == gtk.RESPONSE_ACCEPT:
+                filename = d.get_filename()
             d.destroy()
-            if response != gtk.RESPONSE_ACCEPT or filename is None:
+            if not filename:
                 return
 
         if plants:
@@ -403,7 +409,7 @@ class ABCDImexPlugin(pluginmgr.Plugin):
 
 try:
     import lxml.etree as etree
-    import lxml._elementpath  # put this here sp py2exe picks it up
+    import lxml._elementpath  # put this here so py2exe picks it up
     from lxml.etree import Element, SubElement, ElementTree
 except ImportError:
     utils.message_dialog(_('The <i>lxml</i> package is required for the '

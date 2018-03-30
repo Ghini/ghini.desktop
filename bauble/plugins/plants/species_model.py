@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2012-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -26,17 +27,27 @@ logger = logging.getLogger(__name__)
 
 from sqlalchemy.ext.associationproxy import association_proxy
 
+<<<<<<< HEAD
 from functools import reduce
 from sqlalchemy import (
     Column, Unicode, Integer, ForeignKey, UnicodeText, func, UniqueConstraint,
     Table)
 from sqlalchemy.orm import relation, backref
+=======
+from sqlalchemy import Column, Boolean, Unicode, Integer, ForeignKey, \
+    UnicodeText, func, UniqueConstraint
+from sqlalchemy.orm import relation, backref, synonym
+>>>>>>> ghini-1.0-dev
 import bauble.db as db
 import bauble.error as error
 import bauble.utils as utils
 import bauble.btypes as types
+<<<<<<< HEAD
 from bauble.i18n import _
 from bauble.plugins.plants import itf2
+=======
+
+>>>>>>> ghini-1.0-dev
 
 
 def _remove_zws(s):
@@ -175,13 +186,21 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                      ', '.join([str(v) for v in self.vernacular_names])))
             else:
                 substring = '%s' % self.genus.family
+<<<<<<< HEAD
             trail = self.author and (' <span weight="light">%s</span>' %
                                      utils.xml_safe(self.author)) or ''
+=======
+            trail = ''
+>>>>>>> ghini-1.0-dev
             if self.accepted:
                 trail += ('<span foreground="#555555" size="small" '
                           'weight="light"> - ' + _("synonym of %s") + "</span>"
                           ) % self.accepted.markup(authors=True)
-            return self.markup(authors=False) + trail, substring
+            citation = self.markup(authors=True)
+            authorship_text = utils.xml_safe(self.sp_author)
+            if authorship_text:
+                citation = citation.replace(authorship_text, '<span weight="light">' + authorship_text + '</span>')
+            return citation + trail, substring
         except:
             return u'...', u'...'
 
@@ -296,6 +315,46 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 return epithet
         return u''
 
+<<<<<<< HEAD
+=======
+    # columns
+    sp = Column(Unicode(64), index=True)
+    epithet = synonym('sp')
+    sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
+    sp_author = Column(Unicode(128))
+    hybrid = Column(Boolean, default=False)
+    sp_qual = Column(types.Enum(values=['agg.', 's. lat.', 's. str.', None]),
+                     default=None)
+    cv_group = Column(Unicode(50))
+    trade_name = Column(Unicode(64))
+
+    infrasp1 = Column(Unicode(64))
+    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp1_author = Column(Unicode(64))
+
+    infrasp2 = Column(Unicode(64))
+    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp2_author = Column(Unicode(64))
+
+    infrasp3 = Column(Unicode(64))
+    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp3_author = Column(Unicode(64))
+
+    infrasp4 = Column(Unicode(64))
+    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
+                                      translations=infrasp_rank_values))
+    infrasp4_author = Column(Unicode(64))
+
+    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
+    ## the Species.genus property is defined as backref in Genus.species
+
+    label_distribution = Column(UnicodeText)
+    bc_distribution = Column(UnicodeText)
+
+>>>>>>> ghini-1.0-dev
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
     _synonyms = relation('SpeciesSynonym',
@@ -370,11 +429,11 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
             return unicode(', ').join(sorted(dist))
 
     def markup(self, authors=False, genus=True):
-        '''
-        returns this object as a string with markup
+        '''returns this object as a string with markup
 
-        :param authors: flag to toggle whethe the author names should be
-        included
+        :param authors: whether the authorship should be included
+        :param genus: whether the genus name should be included
+
         '''
         return self.str(authors, markup=True, genus=genus)
 
@@ -505,7 +564,13 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                     logger.info('cannot find specified rank %s' % e)
 
         parts = chain(binomial, infrasp_parts, tail)
+<<<<<<< HEAD
         s = utils.utf8(u' '.join(i for i in parts if i))
+=======
+        s = utils.utf8(' '.join(i for i in parts if i))
+        if self.hybrid:
+            s = s.replace('%s ' % self.hybrid_char, self.hybrid_char)
+>>>>>>> ghini-1.0-dev
         return s
 
     @property
@@ -534,10 +599,15 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
         if not session:
             logger.warn('species:accepted.setter - object not in session')
             return
-        session.query(SpeciesSynonym).filter(
-            SpeciesSynonym.synonym_id == self.id).delete()
-        session.commit()
-        value.synonyms.append(self)
+        previous_synonymy_link = session.query(SpeciesSynonym).filter(
+            SpeciesSynonym.synonym_id == self.id).first()
+        if previous_synonymy_link:
+            a = session.query(Species).filter(Species.id==previous_synonymy_link.species_id).one()
+            a.synonyms.remove(self)
+        session.flush()
+        if value != self:
+            value.synonyms.append(self)
+        session.flush()
 
     def has_accessions(self):
         '''true if species is linked to at least one accession
@@ -656,6 +726,7 @@ Species.hybrid_operands = relation(
     secondaryjoin=Species.id == hybrid_operands_table.c.parent_id)
 
 
+<<<<<<< HEAD
 class SpeciesNote(db.Base, db.Serializable):
     """
     Notes for the species table
@@ -698,6 +769,35 @@ class SpeciesNote(db.Base, db.Serializable):
                 Genus.epithet == genus).one()
         except:
             return None
+=======
+def as_dict(self):
+    result = db.Serializable.as_dict(self)
+    result['species'] = self.species.str(self.species, remove_zws=True)
+    return result
+
+def compute_serializable_fields(cls, session, keys):
+    logger.debug('compute_serializable_fields(session, %s)' % keys)
+    result = {}
+    genus_name, epithet = keys['species'].split(' ', 1)
+    sp_dict = {'ht-epithet': genus_name,
+               'epithet': epithet}
+    result['species'] = Species.retrieve_or_create(
+        session, sp_dict, create=False)
+    return result
+
+def retrieve(cls, session, keys):
+    from genus import Genus
+    genus, epithet = keys['species'].split(' ', 1)
+    try:
+        return session.query(cls).filter(
+            cls.category == keys['category']).join(Species).filter(
+            Species.sp == epithet).join(Genus).filter(
+            Genus.genus == genus).one()
+    except:
+        return None
+
+SpeciesNote = db.make_note_class('Species', compute_serializable_fields, as_dict, retrieve)
+>>>>>>> ghini-1.0-dev
 
 
 class SpeciesSynonym(db.Base):

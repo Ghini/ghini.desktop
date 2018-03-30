@@ -53,7 +53,7 @@ from bauble.plugins.report import (
 import bauble.prefs as prefs
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
-from bauble.i18n import _
+
 
 if sys.platform == "win32":
     fop_cmd = 'fop.bat'
@@ -363,7 +363,7 @@ class SettingsBoxPresenter(object):
 
 
 # TODO: could make this look more a gtk.FileChooserButton but make it
-# an hbox and adding the seperator and file icon
+# an hbox and adding the separator and file icon
 class FileChooserButton(gtk.Button):
     """
     Create our own basic FileChooserButton to work around the issue that
@@ -371,7 +371,7 @@ class FileChooserButton(gtk.Button):
     but doesn't revert back to the original file of the dialog is cancelled.
     """
 
-    _default_label = _("Select a file...")
+    _default_label = _("Select a file…")
 
     def __init__(self, dialog_parent):
         super(FileChooserButton, self).__init__(self._default_label)

@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
+<<<<<<< HEAD
 # Copyright (c) 2012-2016 Mario Frasca <mario@anche.no>
+=======
+# Copyright (c) 2012-2017 Mario Frasca <mario@anche.no>
+# Copyright 2017 Jardín Botánico de Quito
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -22,6 +27,9 @@ import os
 import re
 
 import gtk
+
+import logging
+logger = logging.getLogger(__name__)
 
 from sqlalchemy import *
 from sqlalchemy.exc import *
@@ -129,10 +137,10 @@ def _create_role(name, password=None, login=False, admin=False):
         if admin:
             stmt += ' CREATEROLE'
         if password:
-            stmt += ' PASSWORD %s' % password
+            stmt += ' PASSWORD \'%s\'' % password
         conn.execute(stmt)
     except Exception, e:
-        error('users._create_role(): %s' % utils.utf8(e))
+        logger.error('users._create_role(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -158,10 +166,10 @@ def create_user(name, password=None, admin=False, groups=None):
         # allow the new role to connect to the database
         stmt = 'grant connect on database %s to %s' % \
             (bauble.db.engine.url.database, name)
-        #debug(stmt)
+        logger.debug(stmt)
         conn.execute(stmt)
     except Exception, e:
-        error('users.create_users(): %s' % utils.utf8(e))
+        logger.error('users.create_user(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -260,7 +268,7 @@ def drop(role, revoke=False):
         stmt = 'drop role %s;' % role
         conn.execute(stmt)
     except Exception, e:
-        error(e)
+        logger.error("users.drop(): %s %s" % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -282,9 +290,9 @@ def get_privileges(role):
 
 
 _privileges = {'read': ['connect', 'select'],
-              'write': ['connect', 'usage', 'select', 'update', 'insert',
-                        'delete', 'execute', 'trigger', 'references'],
-              'admin': ['all']}
+               'write': ['connect', 'usage', 'select', 'update', 'insert',
+                         'delete', 'execute', 'trigger', 'references'],
+               'admin': ['all']}
 
 _database_privs = ['create', 'temporary', 'temp']
 
@@ -359,6 +367,18 @@ def has_privileges(role, privilege):
     return True
 
 
+def has_implicit_sequence(column):
+    # Tell me if there's an implicit sequence associated to the column, then
+    # I assume that the sequence name is <table>_<column>_seq.  Seen at
+    # https://www.programcreek.com/python/example/58771/sqlalchemy.schema.Sequence,
+    # allegedly from project tg2jython, under directory
+    # sqlalchemy60/lib/sqlalchemy/dialects/mssql, in source file base.py,
+    # simplified based on assuptions valid in ghini
+    return (column.primary_key and
+            column.autoincrement and
+            isinstance(column.type, Integer) and
+            not column.foreign_keys)
+
 
 def set_privilege(role, privilege):
     """Set the role's privileges.
@@ -381,10 +401,10 @@ def set_privilege(role, privilege):
             stmt = 'revoke all on table %s from %s;' % (table.name, role)
             conn.execute(stmt)
             for col in table.c:
-                    if hasattr(col, 'sequence'):
-                        stmt = 'revoke all on sequence %s from %s' % \
-                            (col.sequence.name, role)
-                        conn.execute(stmt)
+                if hasattr(col, 'sequence'):
+                    stmt = ('revoke all on sequence %s from %s'
+                            % (col.sequence.name, role))
+                    conn.execute(stmt)
 
         stmt = 'revoke all on database %s from %s' \
             % (bauble.db.engine.url.database, role)
@@ -411,26 +431,29 @@ def set_privilege(role, privilege):
 
         # grant privileges on the tables and sequences
         for table in bauble.db.metadata.sorted_tables:
+            logger.debug('granting privileges on table %s' % table)
             tbl_privs = filter(lambda x: x.lower() in _table_privs, privs)
             for priv in tbl_privs:
                 stmt = 'grant %s on %s to %s' % (priv, table.name, role)
                 if privilege == 'admin':
                     stmt += ' with grant option'
-                #debug(stmt)
+                logger.debug(stmt)
                 conn.execute(stmt)
             for col in table.c:
                 seq_privs = filter(lambda x: x.lower() in __sequence_privs,
                                    privs)
                 for priv in seq_privs:
-                    if hasattr(col, 'sequence'):
+                    if has_implicit_sequence(col):
+                        sequence_name = "%s_%s_seq" % (table.name, col.name)
+                        logger.debug('column %s of table %s has associated sequence %s' % (col, table, sequence_name))
                         stmt = 'grant %s on sequence %s to %s' % \
-                            (priv, col.sequence.name, role)
-                        #debug(stmt)
+                            (priv, sequence_name, role)
+                        logger.debug(stmt)
                         if privilege == 'admin':
                             stmt += ' with grant option'
                         conn.execute(stmt)
     except Exception, e:
-        error('users.set_privilege(): %s' % utils.utf8(e))
+        logger.error('users.set_privilege(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
     else:
@@ -442,12 +465,10 @@ def set_privilege(role, privilege):
 def current_user():
     """Return the name of the current user.
     """
-    #return db.engine.execute('select current_user;').fetchone()[0]
     r = db.engine.execute('select current_user;')
     user = r.fetchone()[0]
     r.close()
     return user
-
 
 
 def set_password(password, user=None):
@@ -464,7 +485,7 @@ def set_password(password, user=None):
         stmt = "alter role %s with encrypted password '%s'" % (user, password)
         conn.execute(stmt)
     except Exception, e:
-        error('users.set_password(): %s' % utils.utf8(e))
+        logger.error('users.set_password(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
     else:
         trans.commit()
@@ -490,7 +511,7 @@ class UsersEditor(editor.GenericEditorView):
 
         # TODO: should allow anyone to view the priveleges but only
         # admins to change them
-        #debug(current_user())
+        logger.debug('current user is %s' % current_user())
         if not has_privileges(current_user(), 'admin'):
             msg = _('You do not have privileges to change other '\
                         'user privileges')
@@ -522,7 +543,7 @@ class UsersEditor(editor.GenericEditorView):
             role = self.get_selected_user()
             active = button.get_active()
             if active and not has_privileges(role, priv):
-                #debug('grant %s to %s' % (priv, role))
+                logger.debug('grant %s to %s' % (priv, role))
                 try:
                     set_privilege(role, priv)
                 except Exception, e:
@@ -669,7 +690,7 @@ class UsersEditor(editor.GenericEditorView):
         """
 
         def _set_buttons(mode):
-            #debug('%s: %s' % (role, mode))
+            logger.debug('%s: %s' % (role, mode))
             if mode:
                 self.widgets[self.buttons[mode]].set_active(True)
             not_modes = filter(lambda p: p != mode, self.buttons.keys())

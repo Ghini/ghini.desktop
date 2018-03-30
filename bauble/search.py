@@ -2,6 +2,8 @@
 #
 # Copyright 2008, 2009, 2010 Brett Adams
 # Copyright 2014-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2014-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -38,19 +40,23 @@ RelationProperty = RelationshipProperty
 import bauble
 from bauble.error import check
 import bauble.utils as utils
-from bauble.i18n import _
+
+from bauble.editor import (
+    GenericEditorView, GenericEditorPresenter)
+from querybuilderparser import BuiltQuery
 
 
 def search(text, session=None):
     results = set()
     for strategy in _search_strategies.values():
-        logger.debug("applying search strategy %s" % strategy)
+        logger.debug("applying search strategy %s from module %s" %
+                     (type(strategy).__name__, type(strategy).__module__))
         results.update(strategy.search(text, session))
     return list(results)
 
 
 class NoneToken(object):
-    def __init__(self, t):
+    def __init__(self, t=None):
         pass
 
     def __repr__(self):
@@ -112,12 +118,41 @@ class NumericToken(ValueABC):
     def __repr__(self):
         return "%s" % (self.value)
 
+def smartdatetime(year_or_offset, *args):
+    """return either datetime.datetime, or a day with given offset.
+
+    When given only one argument, this is interpreted as an offset for
+    timedelta, and it is added to datetime.today().  If given more
+    arguments, it just behaves as datetime.datetime.
+
+    """
+    from datetime import datetime, timedelta
+    if not args:
+        return (datetime.today()
+                .replace(hour=0, minute=0, second=0, microsecond=0)
+                + timedelta(year_or_offset))
+    else:
+        return datetime(year_or_offset, *args)
+
+def smartboolean(*args):
+    """translate args into boolean value
+
+    Result is True whenever first argument is not numerically zero nor
+    literally 'false'.  No arguments cause error.
+
+    """
+    if len(args) == 1:
+        try:
+            return float(args[0]) != 0.0
+        except:
+            return args[0].lower() != 'false'
+    return True
+
 
 class TypedValueToken(ValueABC):
     ## |<name>|<paramlist>|
-    from datetime import datetime
-    constructor = {'datetime': (datetime, int),
-                   'now': (datetime.now, id),
+    constructor = {'datetime': (smartdatetime, int),
+                   'bool': (smartboolean, str),
                    }
 
     def __init__(self, t):
@@ -133,13 +168,14 @@ class TypedValueToken(ValueABC):
         return "%s" % (self.value)
 
 
-class IdentifierToken(object):
+class IdentifierAction(object):
     def __init__(self, t):
-        logger.debug('IdentifierToken::__init__(%s)' % t)
-        self.value = t[0]
+        logger.debug('IdentifierAction::__init__(%s)' % t)
+        self.steps = t[0][:-2:2]
+        self.leaf = t[0][-1]
 
     def __repr__(self):
-        return '.'.join(self.value)
+        return '.'.join(self.steps + [self.leaf])
 
     def evaluate(self, env):
         """return pair (query, attribute)
@@ -148,32 +184,81 @@ class IdentifierToken(object):
         joinpoint is the one relative to the attribute, and the attribute
         itself.
         """
-
         query = env.session.query(env.domain)
-        if len(self.value) == 1:
+        if len(self.steps) == 0:
             # identifier is an attribute of the table being queried
             cls = env.domain
-        elif len(self.value) > 1:
+        else:
             # identifier is an attribute of a joined table
-            query = query.join(*self.value[:-1], aliased=True)
+            query = query.join(*self.steps, aliased=True)
             cls = query._joinpoint['_joinpoint_entity']
-        attr = getattr(cls, self.value[-1])
+        attr = getattr(cls, self.leaf)
         logger.debug('IdentifierToken for %s, %s evaluates to %s'
-                     % (cls, self.value[-1], attr))
-        return query, attr
+                     % (cls, self.leaf, attr))
+        return (query, attr)
 
     def needs_join(self, env):
-        return self.value[:-1]
+        return self.steps
+
+
+class FilteredIdentifierAction(object):
+    def __init__(self, t):
+        logger.debug('FilteredIdentifierAction::__init__(%s)' % t)
+        self.steps = t[0][:-7:2]
+        self.filter_attr = t[0][-6]
+        self.filter_op = t[0][-5]
+        self.filter_value = t[0][-4]
+        self.leaf = t[0][-1]
+
+        # cfr: SearchParser.binop
+        # = == != <> < <= > >= not like contains has ilike icontains ihas is
+        self.operation = {
+            '=': lambda x, y: x == y,
+            '==': lambda x, y: x == y,
+            'is': lambda x, y: x == y,
+            '!=': lambda x, y: x != y,
+            '<>': lambda x, y: x != y,
+            'not': lambda x, y: x != y,
+            '<': lambda x, y: x < y,
+            '<=': lambda x, y: x <= y,
+            '>': lambda x, y: x > y,
+            '>=': lambda x, y: x >= y,
+            'like': lambda x, y: utils.ilike(x, '%s' % y),
+            'contains': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'has': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'ilike': lambda x, y: utils.ilike(x, '%s' % y),
+            'icontains': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            'ihas': lambda x, y: utils.ilike(x, '%%%s%%' % y),
+            }.get(self.filter_op)
+
+    def __repr__(self):
+        return "%s[%s%s%s].%s" % ('.'.join(self.steps),
+                                  self.filter_attr, self.filter_op, self.filter_value,
+                                  self.leaf)
+
+    def evaluate(self, env):
+        """return pair (query, attribute)"""
+        query = env.session.query(env.domain)
+        # identifier is an attribute of a joined table
+        query = query.join(*self.steps, aliased=True)
+        cls = query._joinpoint['_joinpoint_entity']
+        attr = getattr(cls, self.filter_attr)
+        clause = lambda x: self.operation(attr, x)
+        logger.debug('filtering on %s(%s)' % (type(attr), attr))
+        query = query.filter(clause(self.filter_value.express()))
+        attr = getattr(cls, self.leaf)
+        logger.debug('IdentifierToken for %s, %s evaluates to %s'
+                     % (cls, self.leaf, attr))
+        return (query, attr)
+
+    def needs_join(self, env):
+        return self.steps
 
 
 class IdentExpression(object):
     def __init__(self, t):
         logger.debug('IdentExpression::__init__(%s)' % t)
         self.op = t[0][1]
-
-        def not_implemented_yet(x, y):
-            # raise an exception
-            raise NotImplementedError
 
         # cfr: SearchParser.binop
         # = == != <> < <= > >= not like contains has ilike icontains ihas is
@@ -329,16 +414,16 @@ class SearchNotAction(UnaryLogical):
 
 class ParenthesisedQuery(object):
     def __init__(self, t):
-        self.query = t[1]
+        self.content = t[1]
 
     def __repr__(self):
-        return "(%s)" % self.query.__repr__()
+        return "(%s)" % self.content.__repr__()
 
     def evaluate(self, env):
-        return self.query.evaluate(env)
+        return self.content.evaluate(env)
 
     def needs_join(self, env):
-        return self.query.needs_join(env)
+        return self.content.needs_join(env)
 
 
 class QueryAction(object):
@@ -410,8 +495,9 @@ class BinomialNameAction(object):
         from bauble.plugins.plants.genus import Genus
         from bauble.plugins.plants.species import Species
         result = search_strategy._session.query(Species).filter(
-            Species.epithet.startswith(self.species_epithet)).join(Genus).filter(
-            Genus.epithet.startswith(self.genus_epithet)).all()
+            or_(Species.sp.startswith(self.species_epithet),
+                and_(self.species_epithet == u'sp', Species.infrasp1 == u'sp'))).join(Genus).filter(
+            Genus.genus.startswith(self.genus_epithet)).all()
         result = set(result)
         if None in result:
             logger.warn('removing None from result set')
@@ -576,7 +662,7 @@ class ValueListAction(object):
 
 from pyparsing import (
     Word, alphas8bit, removeQuotes, delimitedList, Regex,
-    OneOrMore, oneOf, alphas, alphanums, Group, Literal,
+    ZeroOrMore, OneOrMore, oneOf, alphas, alphanums, Group, Literal,
     CaselessLiteral, WordStart, WordEnd, srange,
     stringEnd, Keyword, quotedString,
     infixNotation, opAssoc, Forward)
@@ -643,8 +729,13 @@ class SearchParser(object):
                         | Literal('count'))
 
     query_expression = Forward()('filter')
-    identifier = Group(delimitedList(Word(alphas+'_', alphanums+'_'),
-                                     '.')).setParseAction(IdentifierToken)
+
+    atomic_identifier = Word(alphas+'_', alphanums+'_')
+    identifier = (
+        Group(atomic_identifier + ZeroOrMore('.' + atomic_identifier) + '[' + atomic_identifier + binop + value + ']' + '.' + atomic_identifier).setParseAction(FilteredIdentifierAction)
+        | Group(atomic_identifier + ZeroOrMore('.' + atomic_identifier)).setParseAction(IdentifierAction)
+    )
+
     aggregated = (aggregating_func + Literal('(') + identifier + Literal(')')
                   ).setParseAction(AggregatingAction)
     ident_expression = (Group(identifier + binop + value
@@ -696,7 +787,7 @@ class SearchStrategy(object):
         Return an iterator that iterates over mapped classes retrieved
         from the search.
         '''
-        logger.debug('SearchStrategy "%s" %s)' % (text, session))
+        logger.debug('SearchStrategy "%s"(%s)' % (text, self.__class__.__name__))
         pass
 
 
@@ -769,6 +860,7 @@ class MapperSearch(SearchStrategy):
         have been processed or it is possible that some database backends
         could cause deadlocks.
         """
+        super(MapperSearch, self).search(text, session)
         self._session = session
 
         self._results.clear()
@@ -840,12 +932,22 @@ class SchemaMenu(gtk.Menu):
         submenu.show_all()
 
     def _get_prop_menuitems(self, mapper):
-        items = []
+        # When looping over iterate_properties leave out properties that
+        # start with underscore since they are considered private.  Separate
+        # properties in column_properties and relation_properties
+
         column_properties = sorted(
             filter(lambda x: isinstance(x, ColumnProperty)
                    and not x.key.startswith('_'),
                    mapper.iterate_properties),
             key=lambda k: k.key)
+        relation_properties = sorted(
+            filter(lambda x: isinstance(x, RelationProperty)
+                   and not x.key.startswith('_'),
+                   mapper.iterate_properties),
+            key=lambda k: k.key)
+
+        items = []
 
         for prop in column_properties:
             if not self.relation_filter(prop):
@@ -854,21 +956,12 @@ class SchemaMenu(gtk.Menu):
             item.connect('activate', self.on_activate, prop)
             items.append(item)
 
-        # filter out properties that start with underscore since they
-        # are considered private
-        relation_properties = sorted(
-            filter(lambda x: isinstance(x, RelationProperty)
-                   and not x.key.startswith('_'),
-                   mapper.iterate_properties),
-            key=lambda k: k.key)
         for prop in relation_properties:
-            if not self.relation_filter(prop):
-                continue
             item = gtk.MenuItem(prop.key, use_underline=False)
-            items.append(item)
             submenu = gtk.Menu()
             item.set_submenu(submenu)
             item.connect('select', self.on_select, prop)
+            items.append(item)
         return items
 
 
@@ -894,14 +987,12 @@ class ExpressionRow(object):
     """
     """
 
-    def __init__(self, query_builder, remove_callback, row_number=None):
-        self.mapper = weakref.proxy(query_builder.mapper)
-        self.table = weakref.proxy(query_builder.expressions_table)
-        self.dialog = weakref.proxy(query_builder)
-        self.menu_item_selected = False
-        if row_number is None:
-            # assume we want the row appended to the end of the table
-            row_number = self.table.props.n_rows
+    conditions = ['=', '!=', '<', '<=', '>', '>=', 'like', 'contains']
+
+    def __init__(self, query_builder, remove_callback, row_number):
+        self.table = query_builder.view.widgets.expressions_table
+        self.presenter = query_builder
+        self.menu_item_activated = False
 
         self.and_or_combo = None
         if row_number != 1:
@@ -912,13 +1003,13 @@ class ExpressionRow(object):
             self.table.attach(self.and_or_combo, 0, 1,
                               row_number, row_number + 1)
 
-        self.prop_button = gtk.Button(_('Choose a property...'))
+        self.prop_button = gtk.Button(_('Choose a property…'))
         self.prop_button.props.use_underline = False
 
         def on_prop_button_clicked(button, event, menu):
             menu.popup(None, None, None, event.button, event.time)
 
-        self.schema_menu = SchemaMenu(self.mapper,
+        self.schema_menu = SchemaMenu(self.presenter.mapper,
                                       self.on_schema_menu_activated,
                                       self.relation_filter)
         self.prop_button.connect('button-press-event', on_prop_button_clicked,
@@ -926,8 +1017,7 @@ class ExpressionRow(object):
         self.table.attach(self.prop_button, 1, 2, row_number, row_number+1)
 
         self.cond_combo = gtk.combo_box_new_text()
-        conditions = ['=', '!=', '<', '<=', '>', '>=', 'like', 'contains']
-        map(self.cond_combo.append_text, conditions)
+        map(self.cond_combo.append_text, self.conditions)
         self.cond_combo.set_active(0)
         self.table.attach(self.cond_combo, 2, 3, row_number, row_number+1)
 
@@ -953,7 +1043,7 @@ class ExpressionRow(object):
         Call the QueryBuilder.validate() for this row.
         Set the sensitivity of the gtk.RESPONSE_OK button on the QueryBuilder.
         """
-        self.dialog.validate()
+        self.presenter.validate()
 
     def on_schema_menu_activated(self, menuitem, path, prop):
         """
@@ -970,7 +1060,11 @@ class ExpressionRow(object):
         self.table.remove(self.value_widget)
 
         # change the widget depending on the type of the selected property
-        if isinstance(prop.columns[0].type, bauble.btypes.Enum):
+        try:
+            proptype = prop.columns[0].type
+        except:
+            proptype = None
+        if isinstance(proptype, bauble.btypes.Enum):
             self.value_widget = gtk.ComboBox()
             cell = gtk.CellRendererText()
             self.value_widget.pack_start(cell, True)
@@ -992,7 +1086,7 @@ class ExpressionRow(object):
 
         self.table.attach(self.value_widget, left, right, top, bottom)
         self.table.show_all()
-        self.dialog.validate()
+        self.presenter.validate()
 
     def relation_filter(self, prop):
         if isinstance(prop, ColumnProperty) and \
@@ -1005,8 +1099,9 @@ class ExpressionRow(object):
         Returns a tuple of the and_or_combo, prop_button, cond_combo,
         value_widget, and remove_button widgets.
         """
-        return self.and_or_combo, self.prop_button, self.cond_combo, \
-            self.value_widget, self.remove_button
+        return (i for i in (self.and_or_combo, self.prop_button, self.cond_combo,
+                            self.value_widget, self.remove_button)
+                if i)
 
     def get_expression(self):
         """
@@ -1041,67 +1136,56 @@ class ExpressionRow(object):
         return result
 
 
-class QueryBuilder(gtk.Dialog):
+class QueryBuilder(GenericEditorPresenter):
 
-    def __init__(self, parent=None):
-        """
-        """
-        super(QueryBuilder, self).__init__(
-            title=_("Query Builder"), parent=parent,
-            flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                     gtk.STOCK_OK, gtk.RESPONSE_OK))
+    view_accept_buttons = ['cancel_button', 'confirm_button']
+    default_size = None
 
-        self.vbox.props.spacing = 15
+    def __init__(self, view=None):
+        GenericEditorPresenter.__init__(
+            self, model=self, view=view, refresh_view=False)
+
         self.expression_rows = []
         self.mapper = None
-        self._first_choice = True
-        self.set_response_sensitive(gtk.RESPONSE_OK, False)
+        self.domain = None
+        self.table_row_count = 0
         self.domain_map = MapperSearch.get_domain_classes().copy()
 
-        frame = gtk.Frame(_("Search Domain"))
-        self.vbox.pack_start(frame, expand=False, fill=False)
-        self.domain_combo = gtk.combo_box_new_text()
-        frame.add(self.domain_combo)
+        self.view.widgets.domain_combo.set_active(-1)
+
+        table = self.view.widgets.expressions_table
+        map(table.remove, table.get_children())
+
+        self.view.widgets.domain_liststore.clear()
         for key in sorted(self.domain_map.keys()):
-            self.domain_combo.append_text(key)
-        self.domain_combo.insert_text(0, _("Choose a search domain..."))
-        self.domain_combo.set_active(0)
-
-        self.domain_combo.connect('changed', self.on_domain_combo_changed)
-
-        frame = gtk.Frame(_("Expressions"))
-        self.expressions_table = gtk.Table()
-        self.expressions_table.props.column_spacing = 10
-        frame.add(self.expressions_table)
-        self.vbox.pack_start(frame, expand=False, fill=False)
-
-        # add button to add additional expression rows
-        self.add_button = gtk.Button()
-        self.add_button.props.sensitive = False
-        img = gtk.image_new_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_BUTTON)
-        self.add_button.props.image = img
-        self.add_button.connect("clicked", lambda w: self.add_expression_row())
-        align = gtk.Alignment(0, 0, 0, 0)
-        align.add(self.add_button)
-        self.vbox.pack_end(align, fill=False, expand=False)
+            self.view.widgets.domain_liststore.append([key])
+        self.view.widgets.add_clause_button.props.sensitive = False
+        self.refresh_view()
 
     def on_domain_combo_changed(self, *args):
         """
         Change the search domain.  Resets the expression table and
         deletes all the expression rows.
         """
-        if self._first_choice:
-            self.domain_combo.remove_text(0)
-            self._first_choice = False
+        try:
+            index = self.view.widgets.domain_combo.get_active()
+        except AttributeError:
+            return
+        if index == -1:
+            return
 
-        for kid in self.expressions_table.get_children():
-            self.expressions_table.remove(kid)
-        self.expressions_table.props.n_rows = 1
+        self.domain = self.view.widgets.domain_liststore[index][0]
+
+        # remove all clauses, they became useless in new domain
+        table = self.view.widgets.expressions_table
+        map(table.remove, table.get_children())
         del self.expression_rows[:]
-        self.add_button.props.sensitive = True
-        self.add_expression_row()
-        self.expressions_table.show_all()
+        # initialize view at 1 clause, however invalid
+        self.table_row_count = 0
+        self.on_add_clause()
+        self.view.widgets.expressions_table.show_all()
+        # let user add more clauses
+        self.view.widgets.add_clause_button.props.sensitive = True
 
     def validate(self):
         """
@@ -1121,44 +1205,90 @@ class QueryBuilder(gtk.Dialog):
                 valid = False
                 break
 
-        self.set_response_sensitive(gtk.RESPONSE_OK, valid)
+        self.view.widgets.confirm_button.props.sensitive = valid
         return valid
 
     def remove_expression_row(self, row):
         """
         Remove a row from the expressions table.
         """
-        map(self.expressions_table.remove, row.get_widgets())
-        self.expressions_table.props.n_rows -= 1
+        [i.destroy() for i in row.get_widgets()]
+        self.table_row_count -= 1
         self.expression_rows.remove(row)
-        del row
+        self.view.widgets.expressions_table.resize(self.table_row_count, 5)
 
-    def add_expression_row(self):
+    def on_add_clause(self, *args):
         """
         Add a row to the expressions table.
         """
-        domain = self.domain_map[self.domain_combo.get_active_text()]
+        domain = self.domain_map[self.domain]
         self.mapper = class_mapper(domain)
-        row = ExpressionRow(self, self.remove_expression_row)
-        self.set_response_sensitive(gtk.RESPONSE_OK, False)
+        self.table_row_count += 1
+        row = ExpressionRow(self, self.remove_expression_row, self.table_row_count)
         self.expression_rows.append(row)
-        self.expressions_table.show_all()
+        self.view.widgets.expressions_table.show_all()
 
     def start(self):
-        self.vbox.show_all()
-        response = self.run()
-        self.hide()
-        return response
+        if self.default_size is None:
+            self.__class__.default_size = self.view.widgets.main_dialog.get_size()
+        else:
+            self.view.widgets.main_dialog.resize(*self.default_size)
+        return self.view.start()
+
+    @property
+    def valid_clauses(self):
+        return [i.get_expression()
+                for i in self.expression_rows
+                if i.get_expression()]
 
     def get_query(self):
         """
         Return query expression string.
         """
 
-        domain = self.domain_combo.get_active_text()
-        query = [domain, 'where']
-        for row in self.expression_rows:
-            expr = row.get_expression()
-            if expr:
-                query.append(expr)
+        query = [self.domain, 'where'] + self.valid_clauses
         return ' '.join(query)
+
+    def set_query(self, q):
+        parsed = BuiltQuery(q)
+        if not parsed.is_valid:
+            logger.debug('cannot restore query, invalid')
+            return
+        
+        # locate domain in list of valid domains
+        try:
+            index = sorted(self.domain_map.keys()).index(parsed.domain)
+        except ValueError, e:
+            logger.debug('cannot restore query, %s(%s)' % (type(e), e))
+            return
+        # and set the domain_combo correspondently
+        self.view.widgets.domain_combo.set_active(index)
+
+        # now scan all clauses, one ExpressionRow per clause
+        for clause in parsed.clauses:
+            if clause.connector:
+                self.on_add_clause()
+            row = self.expression_rows[-1]
+            if clause.connector:
+                row.and_or_combo.set_active({'and': 0, 'or': 1}[clause.connector])
+
+            # the part about the value is a bit more complex: where the
+            # clause.field leads to an enumerated property, on_add_clause
+            # associates a gkt.ComboBox to it, otherwise a gtk.Entry.
+            # To set the value of a gkt.ComboBox we match one of its
+            # items. To set the value of a gkt.Entry we need set_text.
+            steps = clause.field.split('.')
+            cls = self.domain_map[parsed.domain]
+            mapper = class_mapper(cls)
+            for target in steps[:-1]:
+                mapper = mapper.get_property(target).mapper
+            prop = mapper.get_property(steps[-1])
+            row.on_schema_menu_activated(None, clause.field, prop)
+            if isinstance(row.value_widget, gtk.Entry):
+                row.value_widget.set_text(clause.value)
+            elif isinstance(row.value_widget, gtk.ComboBox):
+                for item in row.value_widget.props.model:
+                    if item[0] == clause.value:
+                        row.value_widget.set_active_iter(item.iter)
+                        break
+            row.cond_combo.set_active(row.conditions.index(clause.operator))

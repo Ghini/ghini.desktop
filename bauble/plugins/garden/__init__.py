@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -26,7 +27,7 @@ logger = logging.getLogger(__name__)
 from sqlalchemy.orm import object_session, eagerload
 
 import bauble
-from bauble.i18n import _
+
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
@@ -39,11 +40,13 @@ from bauble.plugins.garden.plant import PlantEditor, PlantNote, \
     Plant, PlantSearch, PlantInfoBox, plant_context_menu, \
     plant_delimiter_key, default_plant_delimiter
 from bauble.plugins.garden.source import (
-    Source, SourceDetail, SourceDetailEditor,
-    SourceDetailInfoBox, source_detail_context_menu,
+    Source, create_contact, Contact, ContactPresenter,
+    ContactInfoBox, source_detail_context_menu,
     Collection, collection_context_menu)
 from bauble.plugins.garden.institution import (
     Institution, InstitutionCommand, InstitutionTool, start_institution_editor)
+from bauble.plugins.garden.exporttopocket import ExportToPocketTool
+from bauble.plugins.garden.picture_importer import PictureImporterTool
 
 #from bauble.plugins.garden.propagation import *
 import bauble.search as search
@@ -57,8 +60,16 @@ import re
 class GardenPlugin(pluginmgr.Plugin):
 
     depends = ["PlantsPlugin"]
-    tools = [InstitutionTool]
+    tools = [InstitutionTool, ExportToPocketTool, PictureImporterTool]
     commands = [InstitutionCommand]
+    provides = {'Accession': Accession,
+                'AccessionNote': AccessionNote,
+                'Location': Location,
+                'Plant': Plant,
+                'PlantNote': PlantNote,
+                'Source': Source,
+                'Contact': Contact,
+                'Collection': Collection}
 
     @classmethod
     def install(cls, *args, **kwargs):
@@ -66,6 +77,7 @@ class GardenPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
+        pluginmgr.provided.update(cls.provides)
         from bauble.plugins.plants import Species
         mapper_search = search.get_strategy('MapperSearch')
 
@@ -82,7 +94,7 @@ class GardenPlugin(pluginmgr.Plugin):
             infobox=LocationInfoBox,
             context_menu=loc_context_menu)
 
-        mapper_search.add_meta(('plant', 'plants'), Plant, ['code'])
+        mapper_search.add_meta(('plant', 'planting'), Plant, ['code'])
         search.add_strategy(PlantSearch)  # special search value strategy
         #search.add_strategy(SpeciesSearch)  # special search value strategy
         SearchView.row_meta[Plant].set(
@@ -90,17 +102,17 @@ class GardenPlugin(pluginmgr.Plugin):
             context_menu=plant_context_menu)
 
         mapper_search.add_meta(('contact', 'contacts', 'person', 'org',
-                                'source'), SourceDetail, ['name'])
+                                'source'), Contact, ['name'])
 
         def sd_kids(detail):
             session = object_session(detail)
             results = session.query(Accession).join(Source).\
-                join(SourceDetail).options(eagerload('species')).\
-                filter(SourceDetail.id == detail.id).all()
+                join(Contact).options(eagerload('species')).\
+                filter(Contact.id == detail.id).all()
             return results
-        SearchView.row_meta[SourceDetail].set(
+        SearchView.row_meta[Contact].set(
             children=sd_kids,
-            infobox=SourceDetailInfoBox,
+            infobox=ContactInfoBox,
             context_menu=source_detail_context_menu)
 
         mapper_search.add_meta(('collection', 'col', 'coll'),
@@ -117,16 +129,16 @@ class GardenPlugin(pluginmgr.Plugin):
 
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
-            bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
+            bauble.gui.add_to_insert_menu(PlantEditor, _('Planting'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
-            bauble.gui.add_to_insert_menu(SourceDetailEditor, _('Contact'))
+            bauble.gui.add_to_insert_menu(create_contact, _('Contact'))
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
         meta.get_default(plant_delimiter_key, default_plant_delimiter)
 
         institution = Institution()
-        if not institution.name:
+        if bauble.gui is not None and not institution.name:
             start_institution_editor()
 
 
@@ -165,7 +177,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     combo.set_cell_data_func(cell, cell_data_func)
 
     model = gtk.ListStore(object)
-    locations = sorted(presenter.session.query(Location).all(),
+    locations = [''] + sorted(presenter.session.query(Location).all(),
                        key=lambda loc: utils.natsort_key(loc.code))
     map(lambda loc: model.append([loc]), locations)
     combo.set_model(model)

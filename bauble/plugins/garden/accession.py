@@ -2,6 +2,7 @@
 #
 # Copyright 2008-2010 Brett Adams
 # Copyright 2015-2016 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
 #
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 import gtk
 from functools import partial
 
-from bauble.i18n import _
+
 import lxml.etree as etree
 import pango
 from sqlalchemy import and_, or_, func
@@ -56,7 +57,7 @@ from bauble.error import check
 import bauble.paths as paths
 from bauble.plugins.garden.propagation import SourcePropagationPresenter, \
     Propagation
-from bauble.plugins.garden.source import SourceDetail, SourceDetailEditor, \
+from bauble.plugins.garden.source import Contact, create_contact, \
     Source, Collection, CollectionPresenter, PropagationChooserPresenter
 import bauble.prefs as prefs
 import bauble.btypes as types
@@ -140,16 +141,21 @@ def generic_taxon_add_action(model, view, presenter, top_presenter,
     """
 
     from bauble.plugins.plants.species import edit_species
-    if edit_species(parent_view=view.get_window()):
-        logger.debug('new taxon added from within VerificationBox')
+    committed = edit_species(parent_view=view.get_window(), is_dependent_window=True)
+    if committed:
+        if isinstance(committed, list):
+            committed = committed[0]
+        logger.debug('new taxon added from within AccessionEditor')
         # add the new taxon to the session and start using it
-        presenter.session.add(editor.model)
-        taxon_entry.set_text("%s" % editor.model)
+        presenter.session.add(committed)
+        taxon_entry.set_text("%s" % committed)
         presenter.remove_problem(
             hash(gtk.Buildable.get_name(taxon_entry)), None)
-        setattr(model, 'species', editor.model)
+        setattr(model, 'species', committed)
         presenter._dirty = True
         top_presenter.refresh_sensitivity()
+    else:
+        logger.debug('new taxon not added after request from AccessionEditor')
 
 
 def edit_callback(accessions):
@@ -168,23 +174,22 @@ def add_plants_callback(accessions):
 
 
 def remove_callback(accessions):
-    # TODO: allow this method to remove multiple accessions
     acc = accessions[0]
     if len(acc.plants) > 0:
         safe = utils.xml_safe
         plants = [str(plant) for plant in acc.plants]
         values = dict(num_plants=len(acc.plants),
-                      plant_codes=safe(', '.join(plants)),
-                      acc_code=safe(acc))
-        msg = _('%(num_plants)s plants depend on this accession: '
-                '<b>%(plant_codes)s</b>\n\n'
-                'Are you sure you want to remove accession '
-                '<b>%(acc_code)s</b>?') % values
+                      plant_codes=safe(', '.join(plants)))
+        msg = (_('%(num_plants)s plants depend on this accession: '
+                 '<b>%(plant_codes)s</b>\n\n') % values +
+               _('You cannot remove an accession with plants.'))
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        return
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
             utils.xml_safe(unicode(acc))
     if not utils.yes_no_dialog(msg):
-        return False
+        return
     try:
         session = db.Session()
         obj = session.query(Accession).get(acc.id)
@@ -199,11 +204,14 @@ def remove_callback(accessions):
     return True
 
 
-edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('acc_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
 add_plant_action = Action('acc_add', _('_Add plants'),
-                          callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('acc_remove', _('_Delete'), callback=remove_callback,
+                          callback=add_plants_callback,
+                          accelerator='<ctrl>k')
+remove_action = Action('acc_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete')
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
@@ -224,7 +232,7 @@ ver_level_descriptions = \
           'named plants.'),
      2: _('The name of the record determined by a taxonomist or by other '
           'competent persons using herbarium and/or library and/or '
-          ' documented living material.'),
+          'documented living material.'),
      3: _('The name of the plant determined by taxonomist engaged in '
           'systematic revision of the group.'),
      4: _('The record is part of type gathering or propagated from type '
@@ -296,9 +304,30 @@ class Verification(db.Base):
     notes = Column(UnicodeText)
 
 
-# TODO: auto add parent voucher if accession is a propagule of an
-# existing accession and that parent accession has vouchers...or at
-# least display them in the Voucher tab and Infobox
+# TODO: I have no internet, so I write this here. please remove this note
+# and add the text as new issues as soon as possible.
+#
+# First of all a ghini-1.1 issue: being 'Accession' an abstract concept, you
+# don't make a Voucher of an Accession, you make a Voucher of a Plant. As
+# with Photos, in the Accession Infobox you want to see all Vouchers of all
+# Plantings belonging to the Accession.
+#
+# 2: imagine you go on expedition and collect vouchers as well as seeds, or
+# stekken:nl. You will have vouchers of the parent plant plant, but the
+# parent plant will not be in your collection. This justifies requiring the
+# ability to add a Voucher to a Plant and mark it as Voucher of its parent
+# plant. On the other hand though, if the parent plant *is* in your
+# collection and the link is correctly represented in a Propagation, any
+# 'parent plant voucher' will conflict with the vouchers associated to the
+# parent plant. Maybe this can be solved by disabling the whole
+# parent_voucher panel in the case of plants resulting of a garden
+# propagation.
+#
+# 3: Infobox (Accession AND Plant) are to show parent plant information as a
+# link to the parent plant, or as the name of the parent plant voucher. At
+# the moment this is only partially the case for
+
+
 herbarium_codes = {}
 
 
@@ -310,13 +339,11 @@ class Voucher(db.Base):
       herbarium: :class:`sqlalchemy.types.Unicode`
         The name of the herbarium.
       code: :class:`sqlalchemy.types.Unicode`
-        The herbarium code.
+        The herbarium code for the voucher.
       parent_material: :class:`sqlalchemy.types.Boolean`
-        Is this voucher the parent material of the accession.  E.g did
-        the seed for the accession from come the plant used to make
-        this voucher.
+        Is this voucher relative to the parent material of the accession.
       accession_id: :class:`sqlalchemy.types.Integer`
-        A foreign key to :class:`Accession`
+        Foreign key to the :class:`Accession` .
 
 
     """
@@ -413,7 +440,7 @@ recvd_type_values = {
     u'DIVI': _('Division'),
     u'GRAF': _('Graft'),
     u'LAYE': _('Layer'),
-    u'PLNT': _('Plant'),
+    u'PLNT': _('Planting'),
     u'PSBU': _('Pseudobulb'),
     u'RCUT': _('Rooted cutting'),
     u'RHIZ': _('Rhizome'),
@@ -434,6 +461,7 @@ recvd_type_values = {
     }
 
 
+<<<<<<< HEAD
 class AccessionNote(db.Base, db.Serializable):
     """
     Notes for the accession table
@@ -469,21 +497,23 @@ class AccessionNote(db.Base, db.Serializable):
             return q.one()
         except:
             return None
+=======
+def compute_serializable_fields(cls, session, keys):
+    result = {'accession': None}
+>>>>>>> ghini-1.0-dev
 
-    @classmethod
-    def compute_serializable_fields(cls, session, keys):
-        result = {'accession': None}
+    acc_keys = {}
+    acc_keys.update(keys)
+    acc_keys['code'] = keys['accession']
+    accession = Accession.retrieve_or_create(
+        session, acc_keys, create=(
+            'taxon' in acc_keys and 'rank' in acc_keys))
 
-        acc_keys = {}
-        acc_keys.update(keys)
-        acc_keys['code'] = keys['accession']
-        accession = Accession.retrieve_or_create(
-            session, acc_keys, create=(
-                'taxon' in acc_keys and 'rank' in acc_keys))
+    result['accession'] = accession
 
-        result['accession'] = accession
+    return result
 
-        return result
+AccessionNote = db.make_note_class('Accession', compute_serializable_fields)
 
 
 class Accession(db.Base, db.Serializable, db.WithNotes):
@@ -511,7 +541,6 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
 
         *date_accd*: :class:`bauble.types.Date`
             the date this accession was accessioned
-
 
         *id_qual*: :class:`bauble.types.Enum`
             The id qualifier is used to indicate uncertainty in the
@@ -677,6 +706,18 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
         return first + suffix, second
 
     @property
+    def parent_plant(self):
+        try:
+            return self.source.plant_propagation.plant
+        except AttributeError:
+            return None
+
+    @property
+    def propagations(self):
+        import operator
+        return reduce(operator.add, [p.propagations for p in self.plants], [])
+
+    @property
     def pictures(self):
         import operator
         return reduce(operator.add, [p.pictures for p in self.plants], [])
@@ -756,6 +797,8 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     def as_dict(self):
         result = db.Serializable.as_dict(self)
         result['species'] = self.species.str(remove_zws=True, authors=False)
+        if self.source and self.source.source_detail:
+            result['contact'] = self.source.source_detail.name
         return result
 
     @classmethod
@@ -860,6 +903,14 @@ class AccessionEditorView(editor.GenericEditorView):
             'The type of the accessioned material.'),
         'acc_quantity_recvd_entry': _('The amount of plant material at the '
                                       'time it was accessioned.'),
+<<<<<<< HEAD
+=======
+        'intended_loc_comboentry': _('The intended location for plant '
+                                     'material being accessioned.'),
+        'intended2_loc_comboentry': _('The intended location for plant '
+                                      'material being accessioned.'),
+        'intended_loc_create_plant_checkbutton': _('Immediately create a plant at this location, using all plant material.'),
+>>>>>>> ghini-1.0-dev
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
@@ -872,9 +923,9 @@ class AccessionEditorView(editor.GenericEditorView):
                                'should be considered private.'),
         'acc_cancel_button': _('Cancel your changes.'),
         'acc_ok_button': _('Save your changes.'),
-        'acc_ok_and_add_button': _('Save your changes changes and add a '
+        'acc_ok_and_add_button': _('Save your changes and add a '
                                    'plant to this accession.'),
-        'acc_next_button': _('Save your changes changes and add another '
+        'acc_next_button': _('Save your changes and add another '
                              'accession.'),
 
         'sources_code_entry': "ITF2 - E7 - Donor's Accession Identifier - donacc",
@@ -918,7 +969,7 @@ class AccessionEditorView(editor.GenericEditorView):
         self.widgets.source_sw.set_vadjustment(adjustment)
 
         # set current page so we don't open the last one that was open
-        self.widgets.acc_notebook.set_current_page(0)
+        self.widgets.notebook.set_current_page(0)
 
     def get_window(self):
         return self.widgets.accession_dialog
@@ -950,11 +1001,8 @@ class AccessionEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def datum_match(completion, key, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         datum = completion.get_model()[treeiter][0]
         words = datum.split(' ')
         for w in words:
@@ -963,23 +1011,25 @@ class AccessionEditorView(editor.GenericEditorView):
         return False
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def species_match_func(completion, key, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         species = completion.get_model()[treeiter][0]
+<<<<<<< HEAD
         if str(species).lower().startswith(key.lower()) \
                 or str(species.genus.epithet).lower().startswith(key.lower()):
+=======
+        epg, eps = (species.str(remove_zws=True).lower() + ' ').split(' ')[:2]
+        key_epg, key_eps = (key.lower() + ' ').split(' ')[:2]
+        if not epg:
+            epg = str(species.genus.epithet).lower()
+        if (epg.startswith(key_epg) and eps.startswith(key_eps)):
+>>>>>>> ghini-1.0-dev
             return True
         return False
 
     @staticmethod
+    # staticmethod ensures the AccessionEditorView gets garbage collected.
     def species_cell_data_func(column, renderer, model, treeiter, data=None):
-        """
-        This method is static to ensure the AccessionEditorView gets
-        garbage collected.
-        """
         v = model[treeiter][0]
         renderer.set_property(
             'text', '%s (%s)' % (v.str(authors=True), v.genus.family))
@@ -1283,6 +1333,11 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self._sid = self.presenter().view.connect(
                 button, 'clicked', self.on_remove_button_clicked)
 
+            # copy to general tab
+            button = self.widgets.ver_copy_to_taxon_general
+            self._sid = self.presenter().view.connect(
+                button, 'clicked', self.on_copy_to_taxon_general_clicked)
+
             self.update_label()
 
         def on_date_entry_changed(self, entry, data=None):
@@ -1297,6 +1352,20 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             else:
                 self.presenter().remove_problem(PROBLEM, entry)
             self.set_model_attr('date', value)
+
+        def on_copy_to_taxon_general_clicked(self, button):
+            if self.model.species is None:
+                return
+            parent = self.get_parent()
+            msg = _("Are you sure you want to copy this verification to the general taxon?")
+            if not utils.yes_no_dialog(msg):
+                return
+            # copy verification species to general tab
+            if self.model.accession:
+                self.presenter().parent_ref().view.widgets.acc_species_entry.\
+                    set_text(utils.utf8(self.model.species))
+                self.presenter()._dirty = True
+                self.presenter().parent_ref().refresh_sensitivity()
 
         def on_remove_button_clicked(self, button):
             parent = self.get_parent()
@@ -1404,7 +1473,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         def on_select(source):
             if not source:
                 self.model.source = None
-            elif isinstance(source, SourceDetail):
+            elif isinstance(source, Contact):
                 self.model.source = self.source
                 self.model.source.source_detail = source
             elif source == self.garden_prop_str:
@@ -1464,12 +1533,16 @@ class SourcePresenter(editor.GenericEditorPresenter):
         # specific to this Source and not attached to any Plant
         self.source_prop_presenter = SourcePropagationPresenter(
             self.parent_ref(), self.propagation, view, session)
+        self.source_prop_presenter.register_clipboard()
 
         # presenter that allows us to select an existing propagation
         self.prop_chooser_presenter = PropagationChooserPresenter(
             self.parent_ref(), self.source, view, session)
+
+        # collection data
         self.collection_presenter = CollectionPresenter(
             self.parent_ref(), self.collection, view, session)
+        self.collection_presenter.register_clipboard()
 
         def on_changed(entry, *args):
             text = entry.props.text
@@ -1495,9 +1568,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
         Return a union of all the problems from this presenter and
         child presenters
         """
-        return self.problems | self.collection_presenter.problems | \
-            self.prop_chooser_presenter.problems | \
-            self.source_prop_presenter.problems
+        return (self.problems | self.collection_presenter.problems |
+                self.prop_chooser_presenter.problems |
+                self.source_prop_presenter.problems)
 
     def cleanup(self):
         super(SourcePresenter, self).cleanup()
@@ -1561,11 +1634,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
     def on_new_source_button_clicked(self, *args):
         """
-        Opens a new SourceDetailEditor when clicked and repopulates the
-        source combo if a new SourceDetail is created.
+        Opens a new ContactEditor when clicked and repopulates the
+        source combo if a new Contact is created.
         """
-        e = SourceDetailEditor(parent=self.view.get_window())
-        committed = e.start()
+        committed = create_contact(parent=self.view.get_window())
         new_detail = None
         if committed:
             new_detail = committed[0]
@@ -1586,7 +1658,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         model = gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
-        map(lambda x: model.append([x]), self.session.query(SourceDetail))
+        map(lambda x: model.append([x]), self.session.query(Contact))
         combo.set_model(model)
         combo.child.get_completion().set_model(model)
 
@@ -1631,7 +1703,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             value = model[treeiter][0]
             # allows completions of source details by their ID
             if utils.utf8(value).lower().startswith(key.lower()) or \
-                    (isinstance(value, SourceDetail) and
+                    (isinstance(value, Contact) and
                      str(value.id).startswith(key)):
                 return True
             return False
@@ -1641,17 +1713,17 @@ class SourcePresenter(editor.GenericEditorPresenter):
         entry.set_completion(completion)
 
         def update_visible():
-            visible = dict(source_sw=False,
-                           source_garden_prop_box=False,
-                           source_none_label=False)
+            widget_visibility = dict(source_sw=False,
+                                     source_garden_prop_box=False,
+                                     source_none_label=False)
             if entry.props.text == self.garden_prop_str:
-                visible['source_garden_prop_box'] = True
+                widget_visibility['source_garden_prop_box'] = True
             elif not self.model.source or not self.model.source.source_detail:
-                visible['source_none_label'] = True
+                widget_visibility['source_none_label'] = True
             else:
                 #self.model.source.source_detail = value
-                visible['source_sw'] = True
-            for widget, value in visible.iteritems():
+                widget_visibility['source_sw'] = True
+            for widget, value in widget_visibility.iteritems():
                 self.view.widgets[widget].props.visible = value
             self.view.widgets.source_alignment.props.sensitive = True
 
@@ -1683,7 +1755,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             def _cmp(row, data):
                 val = row[0]
                 if (utils.utf8(val) == data or
-                        (isinstance(val, SourceDetail) and val.id == data)):
+                        (isinstance(val, Contact) and val.id == data)):
                     return True
                 else:
                     return False
@@ -1727,7 +1799,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_private_check': 'private',
+<<<<<<< HEAD
                            'acc_spql_combo': 'sp_qual',
+=======
+                           'intended_loc_create_plant_checkbutton': 'create_plant',
+>>>>>>> ghini-1.0-dev
                            }
     combo_value_render = {'acc_spql_combo': itf2.acc_spql,
                           }
@@ -1742,10 +1818,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         ;param view: an instance of AccessionEditorView
         '''
         super(AccessionEditorPresenter, self).__init__(model, view)
+        self.create_toolbar()
         self._dirty = False
         self.session = object_session(model)
         self._original_code = self.model.code
         self.current_source_box = None
+
+        model.create_plant = False
+        self.has_plants = len(model.plants) > 0
+        view.widget_set_sensitive('intended_loc_create_plant_checkbutton', not self.has_plants)
 
         # set the default code and add it to the top of the code formats
         self.populate_code_formats(model.code or '')
@@ -1925,6 +2006,24 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         from bauble.plugins.garden import init_location_comboentry
 
+<<<<<<< HEAD
+=======
+        def on_loc1_select(value):
+            self.set_model_attr('intended_location', value)
+            if not self.has_plants:
+                view.widget_set_sensitive('intended_loc_create_plant_checkbutton', bool(value))
+
+        init_location_comboentry(
+            self, self.view.widgets.intended_loc_comboentry,
+            on_loc1_select, required=False)
+
+        def on_loc2_select(value):
+            self.set_model_attr('intended2_location', value)
+        init_location_comboentry(
+            self, self.view.widgets.intended2_loc_comboentry,
+            on_loc2_select, required=False)
+
+>>>>>>> ghini-1.0-dev
         self.refresh_sensitivity()
 
         if self.model not in self.session.new:
@@ -2205,9 +2304,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             elif prop and prop.prop_type == 'UnrootedCutting':
                 prop_model = prop._cutting
             else:
-                #msg = 'AccessionEditorPresenter.validate(): unknown prop_type'
-                #warning(msg)
-                return False  # raise ValueError for unknown prop_type??
+                logger.debug('AccessionEditorPresenter.validate(): unknown prop_type')
+                return True  # let user save it anyway
 
             if utils.get_invalid_columns(prop_model, prop_ignore):
                 return False
@@ -2303,14 +2401,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
 
         # set the default focus
         if self.model.species is None:
@@ -2417,23 +2507,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             model.elevation_accy = None
         return model
 
-    def _cleanup_propagation(self, propagation):
-        # TODO: this function is not ideal since it just duplicates
-        # PropagationEditor.clean_model()...we need a sensible way to
-        # share this code
-        if propagation.prop_type == u'UnrootedCutting':
-            if propagation._seed is not None:
-                utils.delete_or_expunge(propagation._seed)
-                propagation._seed = None
-            if not propagation._cutting.bottom_heat_temp:
-                propagation._cutting.bottom_heat_unit = None
-            if not propagation._cutting.length:
-                propagation._cutting.length_unit = None
-        elif propagation.prop_type == u'Seed' and \
-                propagation._cutting is not None:
-            utils.delete_or_expunge(propagation._cutting)
-            propagation._cutting = None
-
     def commit_changes(self):
         if self.model.source:
 
@@ -2442,19 +2515,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                     self.presenter.source_presenter.collection)
 
             if self.model.source.propagation:
-                if not self.model.source.propagation.prop_type:
-                    # TODO: why do we have to manually delete the _cutting
-                    # and _seed relations...shouldn't they be deleted
-                    # automatically when source.propagation is set to None
-                    utils.delete_or_expunge(
-                        self.model.source.propagation._cutting)
-                    utils.delete_or_expunge(
-                        self.model.source.propagation._seed)
-                    utils.delete_or_expunge(
-                        self.model.source.propagation)
-                    self.model.source.propagation = None
-                else:
-                    self._cleanup_propagation(self.model.source.propagation)
+                self.model.source.propagation.clean()
             else:
                 utils.delete_or_expunge(
                     self.presenter.source_presenter.propagation)
@@ -2468,6 +2529,15 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         if self.model.id_qual is None:
             self.model.id_qual_rank = None
+
+        # should we also add a plant for this accession?
+        if self.model.create_plant:
+            logger.debug('creating plant for new accession')
+            accession = self.model
+            location = accession.intended_location
+            plant = Plant(accession=accession, code=u'1', quantity=accession.quantity_recvd, location=location)
+            self.session.add(plant)
+            
         return super(AccessionEditor, self).commit_changes()
 
 
@@ -2499,6 +2569,11 @@ class GeneralAccessionExpander(InfoExpander):
         def on_species_clicked(*args):
             select_in_search_results(self.current_obj.species)
         utils.make_label_clickable(self.widgets.name_data, on_species_clicked)
+
+        def on_parent_plant_clicked(*args):
+            select_in_search_results(self.current_obj.source.plant_propagation.plant)
+        utils.make_label_clickable(self.widgets.parent_plant_data,
+                                   on_parent_plant_clicked)
 
         def on_nplants_clicked(*args):
             cmd = 'plant where accession.code="%s"' % self.current_obj.code

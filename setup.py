@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005,2006,2007,2008,2009 Brett Adams <brett@belizebotanic.org>
 # Copyright (c) 2015 Mario Frasca <mario@anche.no>
+# Copyright (c) 2016,2017 Ross Demuth <rossdemuth123@gmail.com>
 #
 # This file is part of ghini.desktop.
 #
@@ -51,17 +52,18 @@ from bauble import version
 # relative path for locale files
 locale_path = os.path.join('share', 'locale')
 
-gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo",
-            "gio"]
+gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pangocairo", "gio"]
 plugins = setuptools.find_packages(
     where='bauble/plugins',
     exclude=['test', 'bauble.*.test', 'ghini.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
-all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test', 'ghini.*.test'])
+all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test',
+                                                 'ghini.*.test'])
 
-package_data = {'': ['README', 'CHANGES', 'LICENSE'],
+package_data = {'': ['README.rst', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui', '*.glade', 'images/*.png', 'pixmaps/*.png',
-                           'images/*.svg', 'images/*.gif', 'images/*.ico']}
+                           'images/*.svg', 'images/*.gif', 'images/*.ico',
+                           'images/*.bmp']}
 
 # ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd',
@@ -77,32 +79,37 @@ data_files = []
 
 # setup py2exe and nsis installer
 if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
+    import py2exe
     from distutils.command.py2exe import py2exe as _py2exe_cmd
     # setuptools.find packages doesn't dig deep enough so we search
     # for a list of all packages in the sqlalchemy namespace
     sqlalchemy_includes = ['sqlalchemy.dialects.sqlite',
                            'sqlalchemy.dialects.postgresql']
-    py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata',
-                       'fibra', 'psycopg2', 'encodings', 'mako',
-                       'mako.cache'] + \
-        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
+    py2exe_includes = ['sqlite3', 'lxml', 'gdata', 'fibra', 'psycopg2',
+                       'encodings', 'mako', 'mako.cache',
+                       'pygments.styles.default', 'pyparsing']
+    py2exe_includes += gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {
-        'console': ["scripts/ghini"],
         'windows': [{'script': 'scripts/ghini',
                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
     py2exe_options = {
         "py2exe": {
-            "compressed": 1,
+            #no compression makes for better NSIS compression
+            "compressed": False,
             "optimize": 2,
             "includes": py2exe_includes,
             "dll_excludes": [
-                "iconv.dll", "intl.dll",
-                "libatk-1.0-0.dll", "libgdk_pixbuf-2.0-0.dll",
-                "libgdk-win32-2.0-0.dll", "libglib-2.0-0.dll",
-                "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
-                "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll",
-                "libpango-1.0-0.dll", "libpangowin32-1.0-0.dll",
-                "libxml2", "zlib1"]
+                # GTK, included elsewhere
+                "iconv.dll", "intl.dll", "libatk-1.0-0.dll",
+                "libgdk_pixbuf-2.0-0.dll", "libgdk-win32-2.0-0.dll",
+                "libglib-2.0-0.dll", "libgmodule-2.0-0.dll",
+                "libgobject-2.0-0.dll", "libgthread-2.0-0.dll",
+                "libgtk-win32-2.0-0.dll", "libpango-1.0-0.dll",
+                "libpangowin32-1.0-0.dll", "libxml2-2.dll",
+                # windows dlls
+                "DNSAPI.DLL", "MSIMG32.DLL", "Secur32.dll", "SHFOLDER.dll",
+                "CRYPT32.dll", "MPR.dll"
+                ]
         }
     }
 
@@ -122,6 +129,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                                    [m.replace(os.sep, '/') for m in matches]))
 
     class py2exe_cmd(_py2exe_cmd):
+        description = 'build standalone Windows executable'
         def run(self):
             # TODO: make sure we have everything installed that we need to
             # bundle e.g. sqlite, psycopg2, others...
@@ -141,38 +149,77 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             if not os.path.exists(dist_gtk):
                 ignore = shutil.ignore_patterns('src', 'gtk-doc', 'icons',
                                                 'man', 'demo', 'aclocal',
-                                                'doc', 'include')
+                                                'doc', 'include', 'emacs',
+                                                'gettext', 'glade3',
+                                                'gtksourceview-2.0', 'info',
+                                                'intltool')
                 shutil.copytree(gtk_root, dist_gtk, ignore=ignore)
 
             # register the pixbuf loaders
+            # populate loaders.cache also
             exe = '%s\\bin\\gdk-pixbuf-query-loaders.exe' % dist_gtk
-            dest = '%s\\etc\\gtk-2.0\\gdk-pixbuf.loaders' % dist_gtk
-            cmd = 'call "%s" > "%s"' % (exe, dest)
-            print cmd
-            os.system(cmd)
+            dest1 = '%s\\etc\\gtk-2.0\\gdk-pixbuf.loaders' % dist_gtk
+            dest2 = '%s\\lib\\gdk-pixbuf-2.0\\2.10.0\\loaders.cache' % dist_gtk
+            cmd1 = 'call "%s" > "%s"' % (exe, dest1)
+            cmd2 = 'call "%s" > "%s"' % (exe, dest2)
+            print cmd1
+            print cmd2
+            os.system(cmd1)
+            os.system(cmd2)
 
             # copy the the MS-Windows gtkrc to make it the default theme
             rc = '%s\\share\\themes\\MS-Windows\\gtk-2.0\\gtkrc' % dist_gtk
             dest = '%s\\etc\\gtk-2.0' % dist_gtk
             file_util.copy_file(rc, dest)
 
-    class nsis_cmd(Command):
-        # 1. copy the gtk dist to the dist directory
-        # 2. run the script to update the pixbuf paths
-        # 3. tun the nsis command to create the installer
-        # 4. try to do everything silent if possible instead of using
-        # the NSIS compiler GUI
-        user_options = []
+            # copy the gnome index.theme - stops stderr messages
+            gtheme = '%s\\share\\icons\\hicolor\\index.theme' % gtk_root
+            dest = '%s\\share\\icons\\hicolor' % self.dist_dir
+            dir_util.mkpath(dest)
+            file_util.copy_file(gtheme, dest)
+
+            # copy LICENSE to dist\share\LICENSE.ghini (for help>about)
+            file_util.copy_file("LICENSE", os.path.join(self.dist_dir, 'share',
+                                                        'LICENSE.ghini'))
+
+    class NsisCmd(Command):
+        """Command to create a Windows NSIS installer"""
+
+        description = 'build windows NSIS installer'
+
+        user_options = [
+            ('makensis=', 'm', 'path to makensis'),
+            ('nsis-script=', 's', 'script to build installer from')
+            ]
 
         def initialize_options(self):
-            pass
+            envars = ['programw6432', 'programfiles', 'localappdata']
+            mns = 'nsis\\makensis'
+            locs = [os.path.join(os.getenv(ev, 'c:\\'), mns) for ev in envars]
+            self.makensis = (
+                [loc for loc in locs if spawn.find_executable(loc)] +
+                [spawn.find_executable('makensis')])[0]
+            self.nsis_script = 'scripts\\build-multiuser.nsi'
 
         def finalize_options(self):
-            pass
+            if self.makensis:
+                is_exe = spawn.find_executable(self.makensis) is not None
+                exe_name = os.path.split(self.makensis)[-1]
+                is_makensis = exe_name in ('makensis', 'makensis.exe')
+                if not is_exe or not is_makensis:
+                    raise Exception('makensis not found at: %s' % self.makensis)
+            else:
+                raise Exception('can not find makensis, NSIS needs to be '
+                                'installed in the default location, on the '
+                                'path or provided using --makensis=')
+
+            if not os.path.exists(self.nsis_script):
+                raise Exception('can not find nsis build script at: %s'
+                                % self.nsis_script)
 
         def run(self):
-            print "**Error: Can't run this command."
-            print sys.exit(1)
+            print 'using %s to build %s' % (self.makensis, self.nsis_script)
+            os.system('"%s" %s' % (self.makensis, self.nsis_script))
 
 else:
     py2exe_options = {}
@@ -193,9 +240,11 @@ else:
             print sys.exit(1)
 
     class py2exe_cmd(_empty_cmd):
+        description = 'build Windows executable *ONLY AVAILABLE IN WINDOWS'
         pass
 
-    class nsis_cmd(_empty_cmd):
+    class NsisCmd(_empty_cmd):
+        description = 'build Windows NSIS installer *ONLY AVAILABLE IN WINDOWS'
         pass
 
 
@@ -366,7 +415,7 @@ class clean(Command):
         if os.path.exists(DOC_BUILD_PATH):
             dir_util.remove_tree(DOC_BUILD_PATH)
         # .egg info
-        egg_info_dir = 'bauble.egg-info'
+        egg_info_dir = 'ghini.desktop.egg-info'
         if os.path.exists(egg_info_dir):
             dir_util.remove_tree(egg_info_dir)
 
@@ -400,13 +449,13 @@ except ImportError:
 scripts = ["scripts/ghini"]
 if sys.platform == 'win32':
     scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
-               "scripts/ghini.lnk", "scripts/ghini-update.bat"]
+               "scripts/ghini-update.bat"]
 
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
-setuptools.setup(name="bauble",
+setuptools.setup(name="ghini.desktop",
                  cmdclass={'build': build, 'install': install,
-                           'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
+                           'py2exe': py2exe_cmd, 'nsis': NsisCmd,
                            'docs': docs, 'clean': clean, 'run': run},
                  version=version,
                  scripts=scripts,
@@ -416,9 +465,10 @@ setuptools.setup(name="bauble",
                  data_files=data_files,
                  install_requires=["SQLAlchemy==1.0.8",
                                    "GeoAlchemy2==0.3.0",
-                                   "raven==5.9.2",
+                                   "raven==6.6.0",
                                    "Pillow==2.3.0",
                                    "lxml",
+                                   "pyqrcode==1.2.1",
                                    "mako==0.9.1",
                                    "gdata==2.0.18",
                                    "requests",

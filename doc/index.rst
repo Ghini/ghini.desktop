@@ -2,16 +2,35 @@ Documentation for Ghini 1.0
 ############################
 
 .. image:: https://travis-ci.org/Ghini/ghini.desktop.svg?branch=ghini-1.0
+<<<<<<< HEAD
 .. image:: https://hosted.weblate.org/widgets/bauble/-/svg-badge.svg
 .. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=master&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=master 
 
 Ghini is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
+=======
+.. image:: https://hosted.weblate.org/widgets/ghini/-/svg-badge.svg
+.. image:: https://coveralls.io/repos/Ghini/ghini.desktop/badge.svg?branch=ghini-1.0-dev&service=github :target: https://coveralls.io/github/Ghini/ghini.desktop?branch=ghini-1.0-dev
 
-It is `open <http://www.opensource.org>`_ and `free <http://www.fsf.org>`_
-and is released under the `GNU Public License
-<http://www.fsf.org/licensing/licenses/gpl.html>`_
+Ghini is a suite of applications for managing botanical specimen collections.
+>>>>>>> ghini-1.0-dev
 
+* **ghini.desktop** lets you create and query a database representing objects and events in your plant collection.
+* **ghini.web** publishes highlights from your database on the web.
+* **ghini.pocket** puts a snapshot of your database in your handheld device.
+* **ghini.tour** assists garden visitors with a map and spoken virtual panels.
+
+.. image:: images/ghini-family.png
+
+The bulk of this documentation focuses on ghini.desktop.  One final chapter
+presents the rest of the Ghini family: :any:`ghini.pocket`, :any:`ghini.web`,
+:any:`ghini.tour`, and the :any:`interaction among components`.
+
+All Ghini software is `open <http://www.opensource.org>`_ and `free
+<http://www.fsf.org>`_. Our standalone software is released under the `GNU
+Public License <http://www.fsf.org/licensing/licenses/gpl.html>`_. Our
+client-server software follows the `GNU Affero Public License
+<http://www.fsf.org/licensing/licenses/agpl.html>`_.
 
 Statements
 ===================
@@ -19,7 +38,7 @@ Statements
 .. toctree::
    :maxdepth: 1
 
-   peptalk
+   goal
    statements
 
 Installing Ghini
@@ -31,8 +50,13 @@ Installing Ghini
    installing
 
 
+<<<<<<< HEAD
 Using Ghini
 ============
+=======
+User's Guide
+=============
+>>>>>>> ghini-1.0-dev
 
 .. toctree::
    :maxdepth: 2
@@ -40,20 +64,35 @@ Using Ghini
    started
    searching
    editing
+   propagations
    tagging
    report
    imex
    users
 
+Cookbook
+==============
+.. toctree::
+   :maxdepth: 2
+
+   use_cases
+   
 
 Administration
-==============
+===============
 
 .. toctree::
    :maxdepth: 2
 
    administration
 
+Ghini Family
+===============
+
+.. toctree::
+   :maxdepth: 2
+
+   ghini-family
 
 Ghini Development
 ==================
@@ -61,10 +100,7 @@ Ghini Development
 .. toctree::
    :maxdepth: 2
 
-   devdl
    building
-   extending
-   api
 
 Supporting Ghini
 =================

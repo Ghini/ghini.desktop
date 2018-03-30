@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 import bauble
 from bauble import db, meta, editor, paths, pluginmgr
-from bauble.i18n import _
+
 import os.path
 
 
@@ -40,6 +40,8 @@ class StoredQueriesModel(object):
         q = ssn.query(meta.BaubleMeta)
         stqrq = q.filter(meta.BaubleMeta.name.startswith(u'stqr_'))
         for item in stqrq:
+            if item.name[4] != '_':
+                continue
             index = int(item.name[5:])
             self[index] = item.value
         ssn.close()

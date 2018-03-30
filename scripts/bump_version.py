@@ -3,21 +3,22 @@
 #
 # Copyright 2004-2010 Brett Adams <brett@bauble.io>
 # Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Ross Demuth <rossdemuth123@gmail.com>
 #
-# This file is part of bauble.classic.
+# This file is part of ghini.desktop.
 #
-# bauble.classic is free software: you can redistribute it and/or modify
+# ghini.desktop is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# bauble.classic is distributed in the hope that it will be useful,
+# ghini.desktop is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with bauble.classic. If not, see <http://www.gnu.org/licenses/>.
+# along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 """
 Replace the version string in the relevant files.
@@ -124,18 +125,18 @@ def bump_desktop_file(filename):
     bump_file(filename, rx)
 
 
-def bump_nsi_file(filename):
+def bump_nsi_file(filename, varname='VERSION'):
     """
     bump NSIS installer files
     """
-    rx = '(^!define version ").*?\..*?\..*?(".*?%s.*?$)' % bump_tag
+    rx = '(^!define %s ").*?\..*?\..*?(".*?%s.*?$)' % (varname, bump_tag)
     bump_file(filename, rx)
 
 # bump and grind
 bump_py_file(os.path.join(root_of_clone(), 'bauble/version.py'))
 bump_py_file(os.path.join(root_of_clone(), 'doc/conf.py'), 'release')
 bump_desktop_file(os.path.join(root_of_clone(), 'data/ghini.desktop'))
-bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build.nsi'))
+bump_nsi_file(os.path.join(root_of_clone(), 'scripts/build-multiuser.nsi'))
 
 rx = "(^VERSION=\").*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
 bump_file(os.path.join(root_of_clone(), 'packages/builddeb.sh'), rx)
@@ -145,6 +146,6 @@ bump_file(os.path.join(root_of_clone(), 'scripts/installer.cfg'), rx)
 
 # TODO: commit the changes
 print
-print 'git commit -m "bumping to %s" bauble/version.py doc/conf.py'\
-    ' data/ghini.desktop scripts/build.nsi packages/builddeb.sh' \
-    ' scripts/installer.cfg' % version
+print 'git commit -m "bumping_to_%s" bauble/version.py doc/conf.py'\
+    ' data/ghini.desktop packages/builddeb.sh' \
+    ' scripts/installer.cfg scripts/build-multiuser.nsi' % version

@@ -1,5 +1,10 @@
-Getting Started
----------------
+Initial Configuration
+-------------------------
+
+After a successful installation, more complex organizations will need
+configure their database, and configure Ghini according to their database
+configuration. This page focuses on this task. If you don't know what this
+is about, please do read the part relative to SQLite.
 
 .. _before-you-start:
 
@@ -23,14 +28,58 @@ keeping your database in a database management system like `PostgreSQL
 both supported by Ghini.
 
 When connecting to a database server as one of the above, you have to
+<<<<<<< HEAD
 manually create: at least one ghini user, the database you want ghini to
 use, and to give at lest one ghini user full permissions on its
 database. When this is done, Ghini will be able to proceed, creating the
 tables and importing the default data set.  The process is
 database-dependent and it falls beyond the scope of this manual.
+=======
+manually do the following: Create at least one user; Create your database;
+Give at least one user full permissions on your database; If you plan having
+more database users: Give one of your users the ``CREATEROLE`` privilege;
+Consider the user with the ``CREATEROLE`` privilege as a super-user, not
+meant to handle data directly; Keep your super-user credentials in a very
+safe place.
+
+When this is done, Ghini will be able to proceed, creating the tables and
+importing the default data set.  The process is database-dependent and it
+falls beyond the scope of this manual.
+>>>>>>> ghini-1.0-dev
 
 If you already got the chills or sick at your stomach, no need to worry,
 just stick with SQLite, you do not miss on features nor performance.
+
+..  admonition:: Some more hints if you need PostgreSQL
+    :class: toggle
+
+       Start simple, don't do all at the same time. Review `the online
+       manual <https://www.postgresql.org/docs/9.4/static/index.html>`_, or
+       download and study `the offline version
+       <https://www.postgresql.org/files/documentation/pdf/9.4/postgresql-9.4-A4.pdf>`_.
+
+       As said above, create a database, a user, make this user the owner of
+       the database, decide whether you're going to need multiple users, and
+       preferably reserve a user for database and normal user creation. This
+       super-user should be your only user with ``CREATEROLE``
+       privilege.
+
+       All normal users will need all privileges on all tables and
+       sequences, something you can do from the
+       :menuselection:`Tools-->Users` menu.  If you have any difficulty,
+       please `open an issue
+       <https://github.com/Ghini/ghini.desktop/issues/new>`_ about it.
+       
+       Connect using the ``psql`` interactive terminal.  Create a
+       ``~/.pgpass`` file (read more about it in `the manual
+       <https://www.postgresql.org/docs/9.4/static/libpq-pgpass.html>`_),
+       tweak your ``pg_hba.conf`` and ``postgresql.conf`` files, until you
+       can connect using the command::
+
+         psql <mydb> --username <myuser> --no-password --host <mydbhost>
+
+       With the above setup, connecting from ghini will be an obvious task.
+
 
 .. _connecting:
 
@@ -84,7 +133,11 @@ with the same name as the connection and ``.db`` extension, and a pictures
 folder with the same name and no extension, both in ``~/.ghini`` on
 Linux/MacOSX or in ``AppData\Roaming\Ghini`` on Windows.
 
+<<<<<<< HEAD
 Still with SQLite, you might have received or downloaded a ghini database,
+=======
+Still with SQLite, you might have received or downloaded a bauble database,
+>>>>>>> ghini-1.0-dev
 and you want to connect to it. In this case you do not let Ghini use the
 default filename, but you browse in your computer to the location where you
 saved the Ghini SQLite database file.

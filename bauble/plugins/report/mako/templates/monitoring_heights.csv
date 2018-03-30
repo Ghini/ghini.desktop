@@ -1,0 +1,92 @@
+## This file is part of ghini.desktop.
+##
+## ghini.desktop is free software: you can redistribute it and/or modify
+## it under the terms of the GNU General Public License as published by
+## the Free Software Foundation, either version 3 of the License, or
+## (at your option) any later version.
+##
+## ghini.desktop is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License
+## along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
+##
+##
+## heights of plants, monitored per year.
+## accession code starts with the four digits of the planting.
+<%
+from bauble.plugins.report import get_plants_pertinent_to
+from bauble.plugins.report import get_species_pertinent_to
+planting_years = set()
+monitoring_years = set()
+##data = {}
+for p in get_plants_pertinent_to(values):
+    planting_year = p.accession.code.split('.')[0]
+    planting_years.add(planting_year)
+    try:
+        monitoring_years.update(p.height.keys())
+    except AttributeError:
+        pass
+##    data.setdefault(p.accession.species.id, {})
+##    data[p.accession.species.id].setdefault(planting_year, [])
+##    try:
+##        d = p.height
+##    except AttributeError:
+##        d = {}
+##    data[p.accession.species.id][planting_year].append(d)
+planting_years = sorted(planting_years)
+monitoring_years = sorted(monitoring_years)
+
+def smart_diameter(value):
+    if not value:
+        return ''
+    value = value.split('#')[0]
+    try:
+        value = float(value) * 113 / 335
+        return "{0:.2f}".format(value)
+    except:
+        return ''
+
+%>\
+##
+## we can finally produce the header
+Family	Genus	Species	Plant code\
+% for y in monitoring_years:
+	${y}\
+% endfor
+% for y in monitoring_years:
+	${y}\
+% endfor
+## add the notes header to the data line, close it by adding a new-line
+	notes
+##
+## now report per individual plant
+##
+% for p in get_plants_pertinent_to(values):
+${p.accession.species.genus.family.family}	\
+${p.accession.species.genus.genus}	\
+${p.accession.species.sp}	\
+${p.accession.code}.${p.code}\
+<%
+    try:
+        height = p.height
+    except AttributeError:
+        height = {}
+    try:
+        circum = p.circum
+    except AttributeError:
+        circum = {}
+    notes = [k.split('#',1)[1] for k in height.values() if k.count('#') != 0]
+    notes += [k.split('#',1)[1] for k in circum.values() if k.count('#') != 0]
+%>\
+%   for y in monitoring_years:
+	${height.get(y, '').split('#')[0]}\
+%   endfor
+%   for y in monitoring_years:
+	${smart_diameter(circum.get(y))}\
+%   endfor
+## add the notes field to the data line, close it by adding a new-line
+	${', '.join(notes)}
+% endfor

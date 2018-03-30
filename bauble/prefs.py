@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 import bauble
-from bauble.i18n import _
+
 import bauble.db as db
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr

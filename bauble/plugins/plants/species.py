@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
+<<<<<<< HEAD
 # Copyright 2012-2016 Mario Frasca <mario@anche.no>.
+=======
+# Copyright 2012-2015 Mario Frasca <mario@anche.no>.
+# Copyright 2017 Jardín Botánico de Quito
+>>>>>>> ghini-1.0-dev
 #
 # This file is part of ghini.desktop.
 #
@@ -33,7 +38,7 @@ from sqlalchemy.orm.session import object_session
 import bauble
 import bauble.paths as paths
 import bauble.db as db
-from bauble.i18n import _
+
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 import bauble.utils as utils
@@ -78,9 +83,11 @@ def remove_callback(values):
     nacc = session.query(Accession).filter_by(species_id=species.id).count()
     safe_str = utils.xml_safe(str(species))
     if nacc > 0:
-        msg = _('The species <i>%(species)s</i> has %(num_accessions)s '
-                'accessions.  Are you sure you want remove it?') \
-            % dict(species=safe_str, num_accessions=nacc)
+        msg = (_('The species <i>%(1)s</i> has %(2)s accessions.'
+                 '\n\n') % {'1': safe_str, '2': nacc} +
+               _('You cannot remove a species with accessions.'))
+        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        return
     else:
         msg = _("Are you sure you want to remove the species <i>%s</i>?") \
             % safe_str
@@ -179,7 +186,7 @@ class VernacularExpander(InfoExpander):
     :param widgets:
     '''
     def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Vernacular Names"), widgets)
+        InfoExpander.__init__(self, _("Vernacular names"), widgets)
         vernacular_box = self.widgets.sp_vernacular_box
         self.widgets.remove_parent(vernacular_box)
         self.vbox.pack_start(vernacular_box)

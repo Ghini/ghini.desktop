@@ -2,6 +2,99 @@
 <interface>
   <requires lib="gtk+" version="2.24"/>
   <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkWindow" id="general_window">
+    <property name="can_focus">False</property>
+    <property name="title">general</property>
+    <child>
+      <object class="GtkVBox" id="general_box">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">5</property>
+        <child>
+          <object class="GtkVBox" id="vbox1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="ib_name_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="no">-</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                  <attribute name="scale" value="2"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="ib_description_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="no">-</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="padding">5</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkTable" id="tag_ib_general_table">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="n_columns">2</property>
+            <property name="column_spacing">15</property>
+            <property name="row_spacing">8</property>
+            <child>
+              <object class="GtkLabel" id="link_column_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">Count and link</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="type_column_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">Tagged type</property>
+                <attributes>
+                  <attribute name="weight" value="bold"/>
+                </attributes>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkTextBuffer" id="tag_desc_textbuffer">
     <signal name="changed" handler="on_tag_desc_textbuffer_changed" swapped="no"/>
   </object>
@@ -25,7 +118,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -40,7 +132,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -167,7 +258,6 @@
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="relief">none</property>
                 <child>
                   <object class="GtkAlignment" id="alignment1">
@@ -223,7 +313,6 @@
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -273,7 +362,7 @@
                             <property name="yalign">0</property>
                             <property name="xpad">2</property>
                             <property name="ypad">2</property>
-                            <property name="label" translatable="yes">--</property>
+                            <property name="label" translatable="no">--</property>
                             <property name="wrap">True</property>
                           </object>
                         </child>
@@ -286,8 +375,10 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Item(s)&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="label" translatable="yes">Item(s)</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
                   </object>
                 </child>
               </object>
@@ -336,8 +427,10 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Tags&lt;/b&gt;</property>
-                    <property name="use_markup">True</property>
+                    <property name="label" translatable="yes">Tags</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
                   </object>
                 </child>
               </object>
