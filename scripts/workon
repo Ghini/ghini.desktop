@@ -1,12 +1,17 @@
 #!/bin/bash
 
-if [ "$1" == "" ] ; then
-  branch=master
-  venv=ghide
-else
+ECHO=
+
+if [ "$1" == "" ]
+then
+  branch=ghini-1.0-dev
+elif expr "$1" : '[0-9]\+$' >/dev/null
+then
   branch=issue-$1
-  venv=ghide-$1
+else
+  branch=ghini-$1-dev
 fi
 
-git checkout $branch
-. ~/.virtualenvs/$venv/bin/activate
+venv=$(echo $branch | sed -e 's/ghini/ghide/')
+
+$ECHO git checkout $branch && $ECHO . ~/.virtualenvs/$venv/bin/activate
