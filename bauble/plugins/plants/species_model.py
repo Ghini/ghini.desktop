@@ -300,46 +300,6 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                 return epithet
         return u''
 
-<<<<<<< HEAD
-=======
-    # columns
-    sp = Column(Unicode(64), index=True)
-    epithet = synonym('sp')
-    sp2 = Column(Unicode(64), index=True)  # in case hybrid=True
-    sp_author = Column(Unicode(128))
-    hybrid = Column(Boolean, default=False)
-    sp_qual = Column(types.Enum(values=['agg.', 's. lat.', 's. str.', None]),
-                     default=None)
-    cv_group = Column(Unicode(50))
-    trade_name = Column(Unicode(64))
-
-    infrasp1 = Column(Unicode(64))
-    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp1_author = Column(Unicode(64))
-
-    infrasp2 = Column(Unicode(64))
-    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp2_author = Column(Unicode(64))
-
-    infrasp3 = Column(Unicode(64))
-    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp3_author = Column(Unicode(64))
-
-    infrasp4 = Column(Unicode(64))
-    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys(),
-                                      translations=infrasp_rank_values))
-    infrasp4_author = Column(Unicode(64))
-
-    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
-    ## the Species.genus property is defined as backref in Genus.species
-
-    label_distribution = Column(UnicodeText)
-    bc_distribution = Column(UnicodeText)
-
->>>>>>> ghini-1.0-dev
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
     _synonyms = relation('SpeciesSynonym',
@@ -549,13 +509,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
                     logger.info('cannot find specified rank %s' % e)
 
         parts = chain(binomial, infrasp_parts, tail)
-<<<<<<< HEAD
         s = utils.utf8(u' '.join(i for i in parts if i))
-=======
-        s = utils.utf8(' '.join(i for i in parts if i))
-        if self.hybrid:
-            s = s.replace('%s ' % self.hybrid_char, self.hybrid_char)
->>>>>>> ghini-1.0-dev
         return s
 
     @property
@@ -711,50 +665,6 @@ Species.hybrid_operands = relation(
     secondaryjoin=Species.id == hybrid_operands_table.c.parent_id)
 
 
-<<<<<<< HEAD
-class SpeciesNote(db.Base, db.Serializable):
-    """
-    Notes for the species table
-    """
-    __tablename__ = 'species_note'
-    __mapper_args__ = {'order_by': 'species_note.date'}
-
-    date = Column(types.Date, default=func.now())
-    user = Column(Unicode(64))
-    category = Column(Unicode(32))
-    note = Column(UnicodeText, nullable=False)
-    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
-    species = relation('Species', uselist=False,
-                       backref=backref('notes', cascade='all, delete-orphan'))
-
-    def as_dict(self):
-        result = db.Serializable.as_dict(self)
-        result['species'] = self.species.str(remove_zws=True)
-        return result
-
-    @classmethod
-    def compute_serializable_fields(cls, session, keys):
-        logger.debug('compute_serializable_fields(session, %s)' % keys)
-        result = {}
-        genus_name, epithet = keys['species'].split(' ', 1)
-        sp_dict = {'ht-epithet': genus_name,
-                   'epithet': epithet}
-        result['species'] = Species.retrieve_or_create(
-            session, sp_dict, create=False)
-        return result
-
-    @classmethod
-    def retrieve(cls, session, keys):
-        from genus import Genus
-        genus, epithet = keys['species'].split(' ', 1)
-        try:
-            return session.query(cls).filter(
-                cls.category == keys['category']).join(Species).filter(
-                Species.epithet == epithet).join(Genus).filter(
-                Genus.epithet == genus).one()
-        except:
-            return None
-=======
 def as_dict(self):
     result = db.Serializable.as_dict(self)
     result['species'] = self.species.str(self.species, remove_zws=True)
@@ -782,7 +692,6 @@ def retrieve(cls, session, keys):
         return None
 
 SpeciesNote = db.make_note_class('Species', compute_serializable_fields, as_dict, retrieve)
->>>>>>> ghini-1.0-dev
 
 
 class SpeciesSynonym(db.Base):
