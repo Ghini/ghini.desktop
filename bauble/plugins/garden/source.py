@@ -138,32 +138,6 @@ source_type_values = [(u'Expedition', _('Expedition')),
                       (None, '')]
 
 
-class SourceDetail(db.Base):
-    __tablename__ = 'source_detail'
-    __mapper_args__ = {'order_by': 'name'}
-
-    # ITF2 - E6 - Donor
-    name = Column(Unicode(75), unique=True)
-    # extra description, not included in E6
-    description = Column(UnicodeText)
-    email = Column(Unicode(254), default=u'')
-    private = Column(Boolean, default=False)
-    # ITF2 - E5 - Donor Type Flag
-    source_type = Column(types.Enum(values=[i[0] for i in source_type_values],
-                                    translations=dict(source_type_values)),
-                         default=None)
-
-    def __str__(self):
-        return utils.utf8(self.name)
-
-    def search_view_markup_pair(self):
-        '''provide the two lines describing object for SearchView row.
-        '''
-        safe = utils.xml_safe
-        return (
-            str(self),
-            safe(self.source_type or ''))
-
 # TODO: should have a label next to lat/lon entry to show what value will be
 # stored in the database, might be good to include both DMS and the float
 # so the user can see both no matter what is in the entry. it could change in
@@ -188,44 +162,6 @@ class SourceDetail(db.Base):
 #
 
 class Collection(db.Base):
-    """
-    :Table name: collection
-
-    :Columns:
-            *collector*: :class:`sqlalchemy.types.Unicode`
-
-            *collectors_code*: :class:`sqlalchemy.types.Unicode`
-
-            *date*: :class:`sqlalchemy.types.Date`
-
-            *locale*: :class:`sqlalchemy.types.UnicodeText`
-
-            *latitude*: :class:`sqlalchemy.types.Float`
-
-            *longitude*: :class:`sqlalchemy.types.Float`
-
-            *gps_datum*: :class:`sqlalchemy.types.Unicode`
-
-            *geo_accy*: :class:`sqlalchemy.types.Float`
-
-            *elevation*: :class:`sqlalchemy.types.Float`
-
-            *elevation_accy*: :class:`sqlalchemy.types.Float`
-
-            *habitat*: :class:`sqlalchemy.types.UnicodeText`
-
-            *geography_id*: :class:`sqlalchemy.types.Integer`
-
-            *notes*: :class:`sqlalchemy.types.UnicodeText`
-
-            *accession_id*: :class:`sqlalchemy.types.Integer`
-
-
-    :Properties:
-
-
-    :Constraints:
-    """
     __tablename__ = 'collection'
 
     # columns
@@ -258,8 +194,8 @@ class Collection(db.Base):
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)
 
     def search_view_markup_pair(self):
-        '''provide the two lines describing object for SearchView row.
-        '''
+        """provide the two lines describing object for SearchView row.
+        """
         acc = self.source.accession
         safe = utils.xml_safe
         return (
@@ -527,9 +463,9 @@ class CollectionPresenter(editor.ChildPresenter):
         return dec
 
     def _get_lat_direction(self):
-        '''
+        """
         return N or S from the radio
-        '''
+        """
         if self.view.widgets.north_radio.get_active():
             return 'N'
         elif self.view.widgets.south_radio.get_active():
@@ -537,9 +473,9 @@ class CollectionPresenter(editor.ChildPresenter):
         raise ValueError(_('North/South radio buttons in a confused state'))
 
     def _get_lon_direction(self):
-        '''
+        """
         return E or W from the radio
-        '''
+        """
         if self.view.widgets.east_radio.get_active():
             return 'E'
         elif self.view.widgets.west_radio.get_active():
@@ -547,9 +483,9 @@ class CollectionPresenter(editor.ChildPresenter):
         raise ValueError(_('East/West radio buttons in a confused state'))
 
     def on_lat_entry_changed(self, entry, date=None):
-        '''
+        """
         set the latitude value from text
-        '''
+        """
         from bauble.plugins.garden.accession import latitude_to_dms
         text = entry.get_text()
         latitude = None
@@ -838,8 +774,8 @@ class Contact(db.Base, db.Serializable):
         return utils.utf8(self.name)
 
     def search_view_markup_pair(self):
-        '''provide the two lines describing object for SearchView row.
-        '''
+        """provide the two lines describing object for SearchView row.
+        """
         safe = utils.xml_safe
         return (
             safe(self.name),
@@ -874,10 +810,10 @@ class ContactPresenter(editor.GenericEditorPresenter):
 
     
 class GeneralSourceDetailExpander(view.InfoExpander):
-    '''
+    """
     Displays name, number of donations, address, email, fax, tel,
     type of contact
-    '''
+    """
     def __init__(self, widgets):
         super(GeneralSourceDetailExpander, self).__init__(
             _('General'), widgets)
@@ -918,3 +854,4 @@ class ContactInfoBox(view.InfoBox):
 
     def update(self, row):
         self.general.update(row)
+
