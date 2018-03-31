@@ -334,6 +334,13 @@ class install(_install):
         dir_util.mkpath(os.path.join(self.build_base, 'share'))
 
         if not self.single_version_externally_managed:
+            print 'before installing new egg, remove old ones!'
+            site_packages = os.path.join(self.install_data, 'lib', 'python2.7', 'site-packages')
+            old_egg_dirs = [i for i in os.listdir(site_packages)
+                            if i.endswith('.egg')
+                            and (i.startswith('bauble-') or i.startswith('ghini.desktop-'))]
+            for oed in old_egg_dirs:
+                dir_util.remove_tree(os.path.join(site_packages, oed))
             self.do_egg_install()
         else:
             _install.run(self)
@@ -414,10 +421,11 @@ class clean(Command):
             dir_util.remove_tree('build')
         if os.path.exists(DOC_BUILD_PATH):
             dir_util.remove_tree(DOC_BUILD_PATH)
-        # .egg info
-        egg_info_dir = 'ghini.desktop.egg-info'
-        if os.path.exists(egg_info_dir):
-            dir_util.remove_tree(egg_info_dir)
+        # older eggs, possibly going under previous name
+        egg_info_dirs = ['ghini.desktop.egg-info', 'bauble.egg-info']
+        for eid in egg_info_dirs:
+            if os.path.exists(eid):
+                dir_util.remove_tree(eid)
 
         # deb_dist - used by stdeb
         deb_dist = 'deb_dist'
@@ -438,6 +446,7 @@ class run(Command):
         cwd = os.getcwd()
         os.system(os.path.join(cwd, 'ghini.sh'))
 
+
 # require pysqlite if not using python2.5 or greater
 needs_sqlite = []
 try:
@@ -451,8 +460,6 @@ if sys.platform == 'win32':
     scripts = ["scripts/ghini", "scripts/ghini.bat", "scripts/ghini.vbs",
                "scripts/ghini-update.bat"]
 
-# TODO: images in bauble/images should really be in data and copied as
-# package_data or data_files
 setuptools.setup(name="ghini.desktop",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': NsisCmd,
