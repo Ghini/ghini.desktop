@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 13:09-0500\n"
+"POT-Creation-Date: 2018-03-26 08:26-0500\n"
 "PO-Revision-Date: 2017-07-04 03:08+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/"
@@ -853,7 +853,7 @@ msgstr "Recipiente"
 msgid "Contents"
 msgstr "Conteúdo"
 
-#: bauble/ui.py:770
+#: bauble/ui.py:771
 msgid "Copyright © by its contributors."
 msgstr ""
 
@@ -861,7 +861,7 @@ msgstr ""
 msgid "Corm"
 msgstr "Corm"
 
-#: bauble/ui.py:674
+#: bauble/ui.py:676
 msgid ""
 "Could not create a new database.\n"
 "\n"
@@ -1100,7 +1100,7 @@ msgstr "Eliminada, morta por motivo desconhecido"
 msgid "Description"
 msgstr "Descrição"
 
-#: bauble/utils/__init__.py:695
+#: bauble/utils/__init__.py:714
 msgid "Details"
 msgstr "Detalhes"
 
@@ -2492,7 +2492,7 @@ msgstr "Selecionar uma folha de estilos"
 msgid "Select pictures source directory"
 msgstr ""
 
-#: bauble/utils/__init__.py:1315
+#: bauble/utils/__init__.py:1334
 msgid "Show details"
 msgstr "Exibir detalhes"
 
@@ -3108,7 +3108,7 @@ msgid ""
 "selected."
 msgstr ""
 
-#: bauble/ui.py:777
+#: bauble/ui.py:778
 msgid ""
 "This version installed on: %s\n"
 "Latest published version: %s\n"
@@ -3142,7 +3142,7 @@ msgstr "Dica"
 msgid "Tissue Culture"
 msgstr "Cultura de tecidos"
 
-#: bauble/utils/__init__.py:845
+#: bauble/utils/__init__.py:864
 msgid "Today's date"
 msgstr "Data de hoje"
 
@@ -3313,7 +3313,7 @@ msgstr "Situação na natureza"
 msgid "Winter kill"
 msgstr "Morta pelo inverno"
 
-#: bauble/ui.py:794
+#: bauble/ui.py:795
 msgid "Would you like the cancel the current tasks?"
 msgstr "Gostaria de cancelar o trabalho atual?"
 
@@ -3492,6 +3492,10 @@ msgstr "Ajuda"
 #: bauble/ui.py:445
 msgid "_Insert"
 msgstr "_Inserir"
+
+#: bauble/ui.py:432
+msgid "_New"
+msgstr "_Novo"
 
 #: bauble/ui.py:434
 msgid "_Open"
@@ -3680,7 +3684,7 @@ msgstr ""
 msgid "hit"
 msgstr ""
 
-#: bauble/ui.py:766
+#: bauble/ui.py:767
 msgid "http://ghini.github.io"
 msgstr ""
 
@@ -3741,7 +3745,7 @@ msgstr ""
 msgid "next"
 msgstr ""
 
-#: bauble/utils/__init__.py:295 bauble/utils/__init__.py:308
+#: bauble/utils/__init__.py:314 bauble/utils/__init__.py:327
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
@@ -3761,7 +3765,7 @@ msgstr ""
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:2088 bauble/utils/__init__.py:160
+#: bauble/editor.py:2088 bauble/utils/__init__.py:172
 msgid "picture file %s not found."
 msgstr ""
 
@@ -4401,9 +4405,6 @@ msgstr "ºF"
 #~ msgstr ""
 #~ "Você deve escolher ou criar uma nova conexão para poder conectar-se ao "
 #~ "banco de dados."
-
-#~ msgid "_New"
-#~ msgstr "_Novo"
 
 #~ msgid "brett@belizebotanic.org"
 #~ msgstr "brett@belizebotanic.org"

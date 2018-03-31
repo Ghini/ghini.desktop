@@ -579,7 +579,7 @@ export dialog box. The following command will give you a list of
 ``GenericEditorView`` instantiations::
 
   grep -nHr -e GenericEditorView\( bauble
-
+   
 Extending Ghini with Plugins
 -----------------------------
 

@@ -19055,7 +19055,6 @@
 19059,"Richardsiella","Elffers & Kenn.-O'Byrne",214
 19060,"Hesperostipa","(Elias) Barkworth",214
 19061,"Dichelachne","Endl.",214
-19062,"Saxipoa","",214
 19063,"Spathia","Ewart",214
 19064,"Rehia","Fijten",214
 19065,"Ophiochloa","Filg. et al.",214
@@ -23154,7 +23153,6 @@
 23163,"Pongati","Adans.",1286
 23164,"Rapinia","Lour.",1286
 23165,"Sphenoclea","Gaertn.",1286
-23166,"Spiroplasma","",1289
 23167,"Stachyurus","Siebold & Zucc.",443
 23168,"Ochranthe","Lindl.",446
 23169,"Jahnia","Pittier & S. F. Blake",446

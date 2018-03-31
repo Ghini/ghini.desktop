@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 13:09-0500\n"
+"POT-Creation-Date: 2018-03-26 08:26-0500\n"
 "PO-Revision-Date: 2015-07-12 18:47-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/bauble/master/ar/"
@@ -818,7 +818,7 @@ msgstr ""
 msgid "Contents"
 msgstr "المحتويات"
 
-#: bauble/ui.py:770
+#: bauble/ui.py:771
 msgid "Copyright © by its contributors."
 msgstr ""
 
@@ -826,7 +826,7 @@ msgstr ""
 msgid "Corm"
 msgstr ""
 
-#: bauble/ui.py:674
+#: bauble/ui.py:676
 msgid ""
 "Could not create a new database.\n"
 "\n"
@@ -1044,7 +1044,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: bauble/utils/__init__.py:695
+#: bauble/utils/__init__.py:714
 msgid "Details"
 msgstr "التفاصيل"
 
@@ -2376,7 +2376,7 @@ msgstr ""
 msgid "Select pictures source directory"
 msgstr ""
 
-#: bauble/utils/__init__.py:1315
+#: bauble/utils/__init__.py:1334
 msgid "Show details"
 msgstr "عرض التفاصيل"
 
@@ -2915,7 +2915,7 @@ msgid ""
 "selected."
 msgstr ""
 
-#: bauble/ui.py:777
+#: bauble/ui.py:778
 msgid ""
 "This version installed on: %s\n"
 "Latest published version: %s\n"
@@ -2946,7 +2946,7 @@ msgstr ""
 msgid "Tissue Culture"
 msgstr ""
 
-#: bauble/utils/__init__.py:845
+#: bauble/utils/__init__.py:864
 msgid "Today's date"
 msgstr "تاريخ اليوم"
 
@@ -3113,7 +3113,7 @@ msgstr ""
 msgid "Winter kill"
 msgstr ""
 
-#: bauble/ui.py:794
+#: bauble/ui.py:795
 msgid "Would you like the cancel the current tasks?"
 msgstr "هل تريد إلغاء المهام الحالية؟"
 
@@ -3268,6 +3268,10 @@ msgstr "_مساعدة"
 #: bauble/ui.py:445
 msgid "_Insert"
 msgstr "_أدرج"
+
+#: bauble/ui.py:432
+msgid "_New"
+msgstr "_جديد"
 
 #: bauble/ui.py:434
 msgid "_Open"
@@ -3453,7 +3457,7 @@ msgstr ""
 msgid "hit"
 msgstr ""
 
-#: bauble/ui.py:766
+#: bauble/ui.py:767
 msgid "http://ghini.github.io"
 msgstr ""
 
@@ -3513,7 +3517,7 @@ msgstr ""
 msgid "next"
 msgstr ""
 
-#: bauble/utils/__init__.py:295 bauble/utils/__init__.py:308
+#: bauble/utils/__init__.py:314 bauble/utils/__init__.py:327
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr ""
 
@@ -3533,7 +3537,7 @@ msgstr ""
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:2088 bauble/utils/__init__.py:160
+#: bauble/editor.py:2088 bauble/utils/__init__.py:172
 msgid "picture file %s not found."
 msgstr ""
 
@@ -3736,9 +3740,6 @@ msgstr ""
 
 #~ msgid "Search Google"
 #~ msgstr "ابحث في جوجل"
-
-#~ msgid "_New"
-#~ msgstr "_جديد"
 
 #, fuzzy
 #~ msgid "http://bauble.wikidot.com"

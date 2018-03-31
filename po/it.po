@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-22 13:09-0500\n"
+"POT-Creation-Date: 2018-03-26 08:26-0500\n"
 "PO-Revision-Date: 2017-11-10 21:12+0000\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -852,7 +852,7 @@ msgstr "Contenitore"
 msgid "Contents"
 msgstr "Contenuti"
 
-#: bauble/ui.py:770
+#: bauble/ui.py:771
 msgid "Copyright © by its contributors."
 msgstr "Copyright © degli autori."
 
@@ -860,7 +860,7 @@ msgstr "Copyright © degli autori."
 msgid "Corm"
 msgstr ""
 
-#: bauble/ui.py:674
+#: bauble/ui.py:676
 msgid ""
 "Could not create a new database.\n"
 "\n"
@@ -1101,7 +1101,7 @@ msgstr "Eliminato. Anno della morte sconosciuto"
 msgid "Description"
 msgstr "Descrizione"
 
-#: bauble/utils/__init__.py:695
+#: bauble/utils/__init__.py:714
 msgid "Details"
 msgstr "Dettagli"
 
@@ -2487,7 +2487,7 @@ msgstr "Selezionare un foglio di stile"
 msgid "Select pictures source directory"
 msgstr ""
 
-#: bauble/utils/__init__.py:1315
+#: bauble/utils/__init__.py:1334
 msgid "Show details"
 msgstr "Visualizza dettagli"
 
@@ -3135,7 +3135,7 @@ msgstr ""
 "predefinito. Il primo nome vernacolare nell'elenco è stato selezionato "
 "automaticamente."
 
-#: bauble/ui.py:777
+#: bauble/ui.py:778
 msgid ""
 "This version installed on: %s\n"
 "Latest published version: %s\n"
@@ -3170,7 +3170,7 @@ msgstr "Suggerimento"
 msgid "Tissue Culture"
 msgstr "Coltura di tessuti"
 
-#: bauble/utils/__init__.py:845
+#: bauble/utils/__init__.py:864
 msgid "Today's date"
 msgstr "Data di oggi"
 
@@ -3341,7 +3341,7 @@ msgstr ""
 msgid "Winter kill"
 msgstr "Morte invernale"
 
-#: bauble/ui.py:794
+#: bauble/ui.py:795
 msgid "Would you like the cancel the current tasks?"
 msgstr "Vorresti cancellare i compiti correnti?"
 
@@ -3523,6 +3523,10 @@ msgstr "_Aiuto"
 #: bauble/ui.py:445
 msgid "_Insert"
 msgstr "_Inserisci"
+
+#: bauble/ui.py:432
+msgid "_New"
+msgstr ""
 
 #: bauble/ui.py:434
 msgid "_Open"
@@ -3712,7 +3716,7 @@ msgstr ""
 msgid "hit"
 msgstr ""
 
-#: bauble/ui.py:766
+#: bauble/ui.py:767
 msgid "http://ghini.github.io"
 msgstr ""
 
@@ -3775,7 +3779,7 @@ msgstr ""
 msgid "next"
 msgstr "seguente"
 
-#: bauble/utils/__init__.py:295 bauble/utils/__init__.py:308
+#: bauble/utils/__init__.py:314 bauble/utils/__init__.py:327
 msgid "no widget named \"%(widget_name)s\" in glade file"
 msgstr "nessun widget chiamato \"%(widget_name)s \" nel file glade"
 
@@ -3795,7 +3799,7 @@ msgstr "Aprire la pagina di wikipedia su questa specie"
 msgid "output:"
 msgstr ""
 
-#: bauble/editor.py:2088 bauble/utils/__init__.py:160
+#: bauble/editor.py:2088 bauble/utils/__init__.py:172
 msgid "picture file %s not found."
 msgstr "non trovo il file della foto %s"
 
