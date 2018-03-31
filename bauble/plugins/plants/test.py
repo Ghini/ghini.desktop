@@ -677,18 +677,18 @@ class GenusTests(PlantTestCase):
 
     def test_can_use_epithet_field(self):
         family = Family(epithet=u'family')
-        genus = Genus(family=family, genus=u'genus')
+        genus = Genus(family=family, epithet=u'genus')
         self.session.add_all([family, genus])
         self.session.commit()
-        g1 = self.session.query(Genus).filter(Genus.epithet=='genus').one()
-        g2 = self.session.query(Genus).filter(Genus.genus=='genus').one()
+        g1 = self.session.query(Genus).filter(Genus.epithet==u'genus').one()
+        g2 = self.session.query(Genus).filter(Genus.epithet==u'genus').one()
         self.assertEquals(g1, g2)
         self.assertEquals(g1.genus, 'genus')
         self.assertEquals(g2.epithet, 'genus')
 
     def test_remove_callback_no_species_no_confirm(self):
         # T_0
-        caricaceae = Family(family=u'Caricaceae')
+        caricaceae = Family(epithet=u'Caricaceae')
         f5 = Genus(epithet=u'Carica', family=caricaceae)
         self.session.add(caricaceae)
         self.session.add(f5)
@@ -711,13 +711,13 @@ class GenusTests(PlantTestCase):
                          'remove the genus <i>Carica</i>?')
                         in self.invoked)
         self.assertEquals(result, None)
-        q = self.session.query(Genus).filter_by(genus=u"Carica")
+        q = self.session.query(Genus).filter_by(epithet=u"Carica")
         matching = q.all()
         self.assertEquals(matching, [f5])
 
     def test_remove_callback_no_species_confirm(self):
         # T_0
-        caricaceae = Family(family=u'Caricaceae')
+        caricaceae = Family(epithet=u'Caricaceae')
         f5 = Genus(epithet=u'Carica', family=caricaceae)
         self.session.add_all([caricaceae, f5])
         self.session.flush()
@@ -741,15 +741,15 @@ class GenusTests(PlantTestCase):
                         in self.invoked)
 
         self.assertEquals(result, True)
-        q = self.session.query(Genus).filter_by(genus=u"Carica")
+        q = self.session.query(Genus).filter_by(epithet=u"Carica")
         matching = q.all()
         self.assertEquals(matching, [])
 
     def test_remove_callback_with_species_cant_cascade(self):
         # T_0
-        caricaceae = Family(family=u'Caricaceae')
+        caricaceae = Family(epithet=u'Caricaceae')
         f5 = Genus(epithet=u'Carica', family=caricaceae)
-        gf5 = Species(genus=f5, sp=u'papaya')
+        gf5 = Species(genus=f5, epithet=u'papaya')
         self.session.add_all([caricaceae, f5, gf5])
         self.session.flush()
         self.invoked = []
@@ -771,10 +771,10 @@ class GenusTests(PlantTestCase):
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', u'The genus <i>Carica</i> has 1 species.\n\nYou cannot remove a genus with species.')
                         in self.invoked)
-        q = self.session.query(Genus).filter_by(genus=u"Carica")
+        q = self.session.query(Genus).filter_by(epithet=u"Carica")
         matching = q.all()
         self.assertEquals(matching, [f5])
-        q = self.session.query(Species).filter_by(sp=u"papaya")
+        q = self.session.query(Species).filter_by(epithet=u"papaya")
         matching = q.all()
         self.assertEquals(matching, [gf5])
         
@@ -1210,7 +1210,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_remove_callback_no_accessions_no_confirm(self):
         # T_0
-        caricaceae = Family(family=u'Caricaceae')
+        caricaceae = Family(epithet=u'Caricaceae')
         f5 = Genus(epithet=u'Carica', family=caricaceae)
         sp = Species(epithet=u'papaya', genus=f5)
         self.session.add_all([caricaceae, f5, sp])
@@ -1233,13 +1233,13 @@ class SpeciesTests(PlantTestCase):
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove the species <i>Carica \u200bpapaya</i>?')
                         in self.invoked)
         self.assertEquals(result, None)
-        q = self.session.query(Species).filter_by(genus=f5, sp=u"papaya")
+        q = self.session.query(Species).filter_by(genus=f5, epithet=u"papaya")
         matching = q.all()
         self.assertEquals(matching, [sp])
 
     def test_remove_callback_no_accessions_confirm(self):
         # T_0
-        caricaceae = Family(family=u'Caricaceae')
+        caricaceae = Family(epithet=u'Caricaceae')
         f5 = Genus(epithet=u'Carica', family=caricaceae)
         sp = Species(epithet=u'papaya', genus=f5)
         self.session.add_all([caricaceae, f5, sp])
@@ -1263,13 +1263,13 @@ class SpeciesTests(PlantTestCase):
                         in self.invoked)
 
         self.assertEquals(result, True)
-        q = self.session.query(Species).filter_by(sp=u"Carica")
+        q = self.session.query(Species).filter_by(epithet=u"Carica")
         matching = q.all()
         self.assertEquals(matching, [])
 
     def test_remove_callback_with_accessions_cant_cascade(self):
         # T_0
-        caricaceae = Family(family=u'Caricaceae')
+        caricaceae = Family(epithet=u'Caricaceae')
         f5 = Genus(epithet=u'Carica', family=caricaceae)
         sp = Species(epithet=u'papaya', genus=f5)
         from bauble.plugins.garden import (Accession)
@@ -1295,7 +1295,7 @@ class SpeciesTests(PlantTestCase):
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', u'The species <i>Carica \u200bpapaya</i> has 1 accessions.\n\nYou cannot remove a species with accessions.')
                         in self.invoked)
-        q = self.session.query(Species).filter_by(genus=f5, sp=u"papaya")
+        q = self.session.query(Species).filter_by(genus=f5, epithet=u"papaya")
         matching = q.all()
         self.assertEquals(matching, [sp])
         q = self.session.query(Accession).filter_by(species=sp)
@@ -1362,7 +1362,7 @@ class GeographyTests(PlantTestCase):
 
     def test_species_distribution_str(self):
         # create a some species
-        sp1 = Species(genus=self.genus, sp=u'sp1')
+        sp1 = Species(genus=self.genus, epithet=u'sp1')
         dist = SpeciesDistribution(geography_id=267)
         sp1.distribution.append(dist)
         self.session.flush()

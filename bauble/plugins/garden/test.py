@@ -908,7 +908,7 @@ class AccessionEditorSpeciesMatchTests(GardenTestCase):
 
     def setUp(self):
         super(AccessionEditorSpeciesMatchTests, self).setUp()
-        self.sp3 = Species(genus=self.genus, sp=u'inexistente')
+        self.sp3 = Species(genus=self.genus, epithet=u'inexistente')
         self.session.add_all([self.sp3])
         self.session.commit()
 
@@ -1500,7 +1500,7 @@ class AccessionTests(GardenTestCase):
     def test_remove_callback_no_plants_no_confirm(self):
         # T_0
         added = []
-        added.append(Family(family=u'Caricaceae'))
+        added.append(Family(epithet=u'Caricaceae'))
         added.append(Genus(epithet=u'Carica', family=added[-1]))
         added.append(Species(epithet=u'papaya', genus=added[-1]))
         added.append(Accession(code=u'010101', species=added[-1]))
@@ -1529,7 +1529,7 @@ class AccessionTests(GardenTestCase):
     def test_remove_callback_no_accessions_confirm(self):
         # T_0
         added = []
-        added.append(Family(family=u'Caricaceae'))
+        added.append(Family(epithet=u'Caricaceae'))
         added.append(Genus(epithet=u'Carica', family=added[-1]))
         added.append(Species(epithet=u'papaya', genus=added[-1]))
         added.append(Accession(code=u'010101', species=added[-1]))
@@ -1555,7 +1555,7 @@ class AccessionTests(GardenTestCase):
                         in self.invoked)
 
         self.assertEquals(result, True)
-        q = self.session.query(Species).filter_by(sp=u"Carica")
+        q = self.session.query(Species).filter_by(epithet=u"Carica")
         matching = q.all()
         self.assertEquals(matching, [])
 
@@ -1563,7 +1563,7 @@ class AccessionTests(GardenTestCase):
         # T_0
         added = []
         added.append(Location(code=u'INV99'))
-        added.append(Family(family=u'Caricaceae'))
+        added.append(Family(epithet=u'Caricaceae'))
         added.append(Genus(epithet=u'Carica', family=added[-1]))
         added.append(Species(epithet=u'papaya', genus=added[-1]))
         added.append(Accession(code=u'010101', species=added[-1]))

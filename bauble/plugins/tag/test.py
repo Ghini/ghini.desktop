@@ -170,7 +170,7 @@ class TagTests(BaubleTestCase):
         self.assertEquals(tagged_objs, [])
 
     def test_is_tagging(self):
-        family2 = Family(family=u'family2')
+        family2 = Family(epithet=u'family2')
         t1 = Tag(tag=u'test1')
         self.session.add_all([family2, t1])
         self.session.flush()
@@ -182,7 +182,7 @@ class TagTests(BaubleTestCase):
         self.assertTrue(t1.is_tagging(self.family))
 
     def test_search_view_markup_pair(self):
-        family2 = Family(family=u'family2')
+        family2 = Family(epithet=u'family2')
         t1 = Tag(tag=u'test1')
         t2 = Tag(tag=u'test2')
         self.session.add_all([family2, t1, t2])
@@ -264,10 +264,10 @@ class GetTagIdsTests(BaubleTestCase):
 
     def setUp(self):
         super(GetTagIdsTests, self).setUp()
-        self.fam1 = Family(family=u'Fabaceae')
-        self.fam2 = Family(family=u'Poaceae')
-        self.fam3 = Family(family=u'Solanaceae')
-        self.fam4 = Family(family=u'Caricaceae')
+        self.fam1 = Family(epithet=u'Fabaceae')
+        self.fam2 = Family(epithet=u'Poaceae')
+        self.fam3 = Family(epithet=u'Solanaceae')
+        self.fam4 = Family(epithet=u'Caricaceae')
         self.session.add_all([self.fam1, self.fam2, self.fam3, self.fam4])
         self.session.commit()
         tag_plugin.tag_objects('test1', [self.fam1, self.fam2])
