@@ -334,6 +334,13 @@ class install(_install):
         dir_util.mkpath(os.path.join(self.build_base, 'share'))
 
         if not self.single_version_externally_managed:
+            print 'before installing new egg, remove old ones!'
+            site_packages = os.path.join(self.install_data, 'lib', 'python2.7', 'site-packages')
+            old_egg_dirs = [i for i in os.listdir(site_packages)
+                            if i.endswith('.egg')
+                            and (i.startswith('bauble-') or i.startswith('ghini.desktop-'))]
+            for oed in old_egg_dirs:
+                dir_util.remove_tree(os.path.join(site_packages, oed))
             self.do_egg_install()
         else:
             _install.run(self)
