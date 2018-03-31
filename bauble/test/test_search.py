@@ -1151,11 +1151,11 @@ class FilterThenMatchTests(BaubleTestCase):
         db.engine.execute('delete from genus_note')
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus, GenusNote
-        self.family = Family(family=u'family1', qualifier=u's. lat.')
-        self.genus1 = Genus(family=self.family, genus=u'genus1')
-        self.genus2 = Genus(family=self.family, genus=u'genus2')
-        self.genus3 = Genus(family=self.family, genus=u'genus3')
-        self.genus4 = Genus(family=self.family, genus=u'genus4')
+        self.family = Family(epithet=u'family1', aggregate=u'agg.')
+        self.genus1 = Genus(family=self.family, epithet=u'genus1')
+        self.genus2 = Genus(family=self.family, epithet=u'genus2')
+        self.genus3 = Genus(family=self.family, epithet=u'genus3')
+        self.genus4 = Genus(family=self.family, epithet=u'genus4')
         n1 = GenusNote(category=u'commentarii', note=u'olim', genus=self.genus1)
         n2 = GenusNote(category=u'commentarii', note=u'erat', genus=self.genus1)
         n3 = GenusNote(category=u'commentarii', note=u'verbum', genus=self.genus2)
