@@ -41,7 +41,7 @@ from sqlalchemy.orm import relation, backref
 
 import bauble.db as db
 import bauble.editor as editor
-from bauble.plugins.plants.geography import Geography, GeographyMenu
+from bauble.plugins.plants.geography import GeographicArea, GeographyMenu
 import bauble.utils as utils
 import bauble.btypes as types
 import bauble.view as view
@@ -188,8 +188,8 @@ class Collection(db.Base):
     # ITF2 - F18 - Collection Notes
     notes = Column(UnicodeText)
 
-    geography_id = Column(Integer, ForeignKey('gheography.id'))
-    region = relation(Geography, uselist=False)
+    geography_id = Column(Integer, ForeignKey('geographic_area.id'))
+    region = relation(GeographicArea, uselist=False)
 
     source_id = Column(Integer, ForeignKey('source.id'), unique=True)
 
@@ -307,7 +307,7 @@ class CollectionPresenter(editor.ChildPresenter):
         self._dirty = False
 
     def set_region(self, menu_item, geo_id):
-        geography = self.session.query(Geography).get(geo_id)
+        geography = self.session.query(GeographicArea).get(geo_id)
         self.set_model_attr('region', geography)
         self.set_model_attr('geography_id', geo_id)
         self.view.widgets.add_region_button.props.label = str(geography)

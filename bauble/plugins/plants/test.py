@@ -39,7 +39,7 @@ from bauble.plugins.plants.family import (
     Family, FamilySynonym, FamilyEditor, FamilyNote)
 from bauble.plugins.plants.genus import \
     Genus, GenusSynonym, GenusEditor, GenusNote
-from bauble.plugins.plants.geography import Geography, get_species_in_geography
+from bauble.plugins.plants.geography import GeographicArea, get_species_in_geography
 from bauble.test import BaubleTestCase, check_dupids, mockfunc
 
 from functools import partial
@@ -915,7 +915,7 @@ class SpeciesTests(PlantTestCase):
         import bauble.paths as paths
         default_path = os.path.join(
             paths.lib_dir(), "plugins", "plants", "default")
-        filenames = [os.path.join(default_path, f) for f in 'gheography.txt',
+        filenames = [os.path.join(default_path, f) for f in 'geographic_area.txt',
                      'habit.txt']
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
@@ -1303,13 +1303,13 @@ class SpeciesTests(PlantTestCase):
         self.assertEquals(matching, [acc])
 
 
-class GeographyTests(PlantTestCase):
+class GeographicAreaTests(PlantTestCase):
 
     def __init__(self, *args):
-        super(GeographyTests, self).__init__(*args)
+        super(GeographicAreaTests, self).__init__(*args)
 
     def setUp(self):
-        super(GeographyTests, self).setUp()
+        super(GeographicAreaTests, self).setUp()
         self.family = Family(epithet=u'family')
         self.genus = Genus(epithet=u'genus', family=self.family)
         self.session.add_all([self.family, self.genus])
@@ -1317,14 +1317,14 @@ class GeographyTests(PlantTestCase):
         # import default geography data
         import bauble.paths as paths
         filename = os.path.join(paths.lib_dir(), "plugins", "plants",
-                                "default", 'gheography.txt')
+                                "default", 'geographic_area.txt')
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
         importer.start([filename], force=True)
         self.session.commit()
 
     def tearDown(self):
-        super(GeographyTests, self).tearDown()
+        super(GeographicAreaTests, self).tearDown()
 
     def test_get_species(self):
         mexico_id = 53
@@ -1335,39 +1335,39 @@ class GeographyTests(PlantTestCase):
 
         # create a some species
         sp1 = Species(genus=self.genus, epithet=u'sp1')
-        dist = SpeciesDistribution(geography_id=mexico_central_id)
+        dist = SpeciesDistribution(geographic_area_id=mexico_central_id)
         sp1.distribution.append(dist)
 
         sp2 = Species(genus=self.genus, epithet=u'sp2')
-        dist = SpeciesDistribution(geography_id=oaxaca_id)
+        dist = SpeciesDistribution(geographic_area_id=oaxaca_id)
         sp2.distribution.append(dist)
 
         sp3 = Species(genus=self.genus, epithet=u'sp3')
-        dist = SpeciesDistribution(geography_id=western_canada_id)
+        dist = SpeciesDistribution(geographic_area_id=western_canada_id)
         sp3.distribution.append(dist)
 
         self.session.commit()
 
-        oaxaca = self.session.query(Geography).get(oaxaca_id)
+        oaxaca = self.session.query(GeographicArea).get(oaxaca_id)
         species = get_species_in_geography(oaxaca)
         self.assert_([s.id for s in species] == [sp2.id])
 
-        mexico = self.session.query(Geography).get(mexico_id)
+        mexico = self.session.query(GeographicArea).get(mexico_id)
         species = get_species_in_geography(mexico)
         self.assert_([s.id for s in species] == [sp1.id, sp2.id])
 
-        north_america = self.session.query(Geography).get(northern_america_id)
+        north_america = self.session.query(GeographicArea).get(northern_america_id)
         species = get_species_in_geography(north_america)
         self.assert_([s.id for s in species] == [sp1.id, sp2.id, sp3.id])
 
     def test_species_distribution_str(self):
         # create a some species
         sp1 = Species(genus=self.genus, epithet=u'sp1')
-        dist = SpeciesDistribution(geography_id=267)
+        dist = SpeciesDistribution(geographic_area_id=267)
         sp1.distribution.append(dist)
         self.session.flush()
         self.assertEquals(sp1.distribution_str(), 'Mexico Central')
-        dist = SpeciesDistribution(geography_id=45)
+        dist = SpeciesDistribution(geographic_area_id=45)
         sp1.distribution.append(dist)
         self.session.flush()
         self.assertEquals(sp1.distribution_str(), 'Mexico Central, Western Canada')

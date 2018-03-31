@@ -130,7 +130,7 @@ class CSVTests(ImexTestCase):
                     {'id': 1, 'name': u'1', 'parent_id': None},
                     {'id': 2, 'name': u'2', 'parent_id': 1},
                     ]
-        filename = os.path.join(self.path, 'gheography.txt')
+        filename = os.path.join(self.path, 'geographic_area.txt')
         f = open(filename, 'wb')
         format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
                   'quotechar': QUOTE_CHAR}
@@ -388,14 +388,14 @@ class CSVTests2(ImexTestCase):
 #        utils.log.echo(False)
 
     def test_unicode(self):
-        from bauble.plugins.plants.geography import Geography
-        geography_table = Geography.__table__
+        from bauble.plugins.plants.geography import GeographicArea
+        geography_table = GeographicArea.__table__
         # u'Gal\xe1pagos' is the unencoded unicode object,
         # calling u.encode('utf-8') will convert the \xe1 to the a
         # with an accent
         data = {'name': u'Gal\xe1pagos'}
         geography_table.insert().execute(data)
-        query = self.session.query(Geography)
+        query = self.session.query(GeographicArea)
         row_name = [r.name for r in query.all()
                     if r.name.startswith("Gal")][0]
         self.assertEquals(row_name, data['name'])

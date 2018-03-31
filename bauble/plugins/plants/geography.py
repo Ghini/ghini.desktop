@@ -57,7 +57,7 @@ def get_species_in_geography(geo):
     geokids = get_geography_children(geo.id)
     master_ids.update(geokids)
     q = session.query(Species).join(SpeciesDistribution).\
-        filter(SpeciesDistribution.geography_id.in_(master_ids))
+        filter(SpeciesDistribution.geographic_area_id.in_(master_ids))
     return list(q)
 
 
@@ -65,7 +65,7 @@ class GeographyMenu(gtk.Menu):
 
     def __init__(self, callback):
         super(GeographyMenu, self).__init__()
-        geography_table = Geography.__table__
+        geography_table = GeographicArea.__table__
         geos = select([geography_table.c.id, geography_table.c.name,
                        geography_table.c.parent_id]).execute().fetchall()
         geos_hash = {}
@@ -129,7 +129,7 @@ class GeographyMenu(gtk.Menu):
             have any kids are appended to the bottom of the menu
             """
             if not geos_hash:
-                # we would get here if the Geography menu is populate,
+                # we would get here if the GeographicArea menu is populate,
                 # usually during a unit test
                 return
             no_kids = []
@@ -148,7 +148,7 @@ class GeographyMenu(gtk.Menu):
         gobject.idle_add(populate)
 
 
-class Geography(db.Base):
+class GeographicArea(db.Base):
     """
     Represents a geography unit.
 
@@ -168,23 +168,23 @@ class Geography(db.Base):
 
     :Constraints:
     """
-    __tablename__ = 'gheography'
+    __tablename__ = 'geographic_area'
 
     # columns
     name = Column(Unicode(255), nullable=False)
     tdwg_code = Column(String(6))
     iso_code = Column(String(7))
-    parent_id = Column(Integer, ForeignKey('gheography.id'))
+    parent_id = Column(Integer, ForeignKey('geographic_area.id'))
 
     def __str__(self):
         return self.name
 
 
 # late bindings
-Geography.children = relation(
-    Geography,
-    primaryjoin=Geography.parent_id == Geography.id,
+GeographicArea.children = relation(
+    GeographicArea,
+    primaryjoin=GeographicArea.parent_id == GeographicArea.id,
     cascade='all',
     backref=backref("parent",
-                    remote_side=[Geography.__table__.c.id]),
-    order_by=[Geography.name])
+                    remote_side=[GeographicArea.__table__.c.id]),
+    order_by=[GeographicArea.name])

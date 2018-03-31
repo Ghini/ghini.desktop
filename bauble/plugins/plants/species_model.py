@@ -849,7 +849,7 @@ class SpeciesDistribution(db.Base):
     __tablename__ = 'species_distribution'
 
     # columns
-    geography_id = Column(Integer, ForeignKey('gheography.id'), nullable=False)
+    geographic_area_id = Column(Integer, ForeignKey('geographic_area.id'), nullable=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
     def __str__(self):
@@ -857,8 +857,8 @@ class SpeciesDistribution(db.Base):
 
 # late bindings
 SpeciesDistribution.geography = relation(
-    'Geography',
-    primaryjoin='SpeciesDistribution.geography_id==Geography.id',
+    'GeographicArea',
+    primaryjoin='SpeciesDistribution.geographic_area_id==GeographicArea.id',
     uselist=False)
 
 
