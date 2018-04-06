@@ -1,14 +1,8 @@
 @if (@X)==(@Y) @end /* Harmless hybrid line that begins a JScript comment
 
-<<<<<<< HEAD
-::--- http://stackoverflow.com/questions/10711839/
-::--- http://stackoverflow.com/users/1012053/dbenham
-::--- license CC:SA-BY
-=======
 ::--- source: http://stackoverflow.com/questions/10711839/
 ::--- author: http://stackoverflow.com/users/1012053/dbenham
 ::--- license: CC:SA-BY
->>>>>>> ghini-1.0-dev
 
 ::--- Batch section within JScript comment that calls the internal JScript ----
 @echo off
