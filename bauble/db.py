@@ -30,6 +30,7 @@ import datetime
 import os
 import re
 import bauble.error as error
+import json
 
 
 try:
@@ -570,8 +571,13 @@ class WithNotes:
                 result.append((key, n.note))
             elif n.category == ('<%s>' % name):
                 try:
-                    return eval(n.note)
-                except:
+                    return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', '{' + n.note.replace(';', ',') + '}'))
+                except Exception, e:
+                    pass
+                try:
+                    return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', n.note))
+                except Exception, e:
+                    logger.debug('not parsed %s(%s), returning literal text »%s«', type(e), e, n.note)
                     return n.note
         if result == []:
             # if nothing was found, do not break the proxy.
