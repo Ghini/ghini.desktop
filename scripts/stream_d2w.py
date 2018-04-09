@@ -20,9 +20,15 @@
 #
 # implements the desktop→web (d2w) data stream
 #
-# You invoke this temporary script from the command line, it reads your
-# connection configuration from a 'settings.json' file in the same scripts
-# directory.
+# You invoke this script from the command line, it reads your connection
+# configuration from a 'settings.json' file in the same scripts directory.
+#
+# This script writes to stdout a set of instructions you need to execute on
+# the mongodb server.
+#
+# mongo
+# use gardens
+# load('this_script.js')
 #
 
 import logging
@@ -135,7 +141,8 @@ with open(os.path.join(path, 'settings.json'), 'r') as f:
 bauble.db.open(dburi, True, True)
 session = bauble.db.Session()
 
-result = []
+result = {'species': [],
+          'plants': []}
 
 insti = Institution()
 d = {'name': insti.name,
@@ -151,10 +158,9 @@ if insti.email:
     d['email'] = insti.email
 if insti.tel:
     d['phone'] = insti.tel
-result.append(d)
+garden = d
 
 species = {}
-
 for i in session.query(Plant).all():
     if i.accession.private:
         continue
@@ -183,15 +189,30 @@ for k in species:
     if k[3]:
         d['vernacular'] = k[3]
 
-    result.append(d)
+    result['species'].append(d)
 
 for k, plants in species.items():
     for v in plants:
-        p = {'species': k[0],
+        d = {'garden_uuid': garden['uuid'],
              'garden': insti.name,
+             'species': k[0],
              'code': v.accession.code + '.' + v.code,
+             'zoom': 18,
              'lat': v.coords['lat'],
              'lon': v.coords['lon']}
-        result.append(p)
+        result['plants'].append(d)
 
-print json.dumps(result)
+print 'db.gardens.update({uuid: %s}, %s, {upsert: true});' % (json.dumps(garden['uuid']), json.dumps(result['garden']))
+for i in result['species']:
+    print 'db.taxa.update({name: %s}, %s, {upsert: true});' % (json.dumps(i['name']), json.dumps(i))
+print 'db.plants.deleteMany({garden: %s});' % json.dumps(garden['name'])
+print 'db.plants.insertMany(%s);' % json.dumps(result['plants'])
+
+print '''\
+db.gardens.find().sort({id:-1}).limit(1).forEach(function(g){
+    db.gardens.updateOne({uuid: "%(uuid)s"}, {$set: {id: g.id + 1}});
+});
+db.gardens.find({uuid: "%(uuid)s"}).forEach(function (elem) {
+    db.plants.updateMany({garden_uuid: elem.uuid}, {$set: {garden_id: elem.id}})
+});
+''' % garden
