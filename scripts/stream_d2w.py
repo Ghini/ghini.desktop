@@ -202,7 +202,7 @@ for k, plants in species.items():
              'lon': v.coords['lon']}
         result['plants'].append(d)
 
-print 'db.gardens.update({uuid: %s}, %s, {upsert: true});' % (json.dumps(garden['uuid']), json.dumps(result['garden']))
+print 'db.gardens.update({uuid: "%s"}, {$set: %s}, {upsert: true});' % (garden['uuid'], json.dumps(garden))
 for i in result['species']:
     print 'db.taxa.update({name: %s}, %s, {upsert: true});' % (json.dumps(i['name']), json.dumps(i))
 print 'db.plants.deleteMany({garden: %s});' % json.dumps(garden['name'])
@@ -210,7 +210,7 @@ print 'db.plants.insertMany(%s);' % json.dumps(result['plants'])
 
 print '''\
 db.gardens.find().sort({id:-1}).limit(1).forEach(function(g){
-    db.gardens.updateOne({uuid: "%(uuid)s"}, {$set: {id: g.id + 1}});
+    db.gardens.updateOne({uuid: "%(uuid)s", id: {$exists: false}}, {$set: {id: g.id + 1}});
 });
 db.gardens.find({uuid: "%(uuid)s"}).forEach(function (elem) {
     db.plants.updateMany({garden_uuid: elem.uuid}, {$set: {garden_id: elem.id}})
