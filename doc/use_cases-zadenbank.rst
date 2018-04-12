@@ -5,22 +5,22 @@ We keep getting involved in groups focusing on endagered plant seeds.  They
 want to note down when seeds come in, but also when they go out to people
 that order the seed.
 
-In ghini, we keep speaking of ›Plants‹, ›Locations‹, while they focus on
-›Seeds‹ and ›Jars‹ and ›Drawers‹ and ›Boxes‹ and ›Envelopes‹.  So people
-wonder whether ghini could be adapted to their use case, or for directions
-on how to develop their own database.
+In ghini, we keep speaking of ›Plants‹, ›Locations‹, while such user groups
+focus on ›Seeds‹ and ›Jars‹ and ›Drawers‹ and ›Boxes‹ and ›Envelopes‹.  So
+people wonder whether ghini could be adapted to their use case, or for
+directions on how to develop their own database.
 
 ..  admonition:: Does ghini need being adapted for such a seed database?
     :class: toggle
 
-       no it doesn't need any adaptation, just you need to read some of its
-       terms differently.
+       no it doesn't need any adaptation, it's just that you need to read
+       some of its terms differently.
 
        the taxonomy part is just taxonomy, plant species information, no need to
        explain that, no way to interpret it otherwise.
 
-       Accessions and Plants, you know what an accession is, but since
-       you're consistently handling plants still only in seed form, the
+       ›Accessions‹ and ›Plants‹, you know what an ›Accession‹ is, but since
+       you're consistently handling ›Plants‹ still only in seed form, the
        Wikipedia explanation of an accession sounds like this: it is a seed
        or group of seeds that are of the same taxon, are of the same
        propagule type (or treatment), were received from the same source,
@@ -31,19 +31,19 @@ on how to develop their own database.
        seeds of just one accession, as above described: same taxon, same
        treatment, same source, same time.
 
-       A ›Jar‹ of seeds is in ghini speak a ›Plant‹, and the amount of seeds
-       in the ›Jar‹ is the ›Plant‹ ›quantity‹.  An ›Envelope‹ is just the
-       same as a ›Jar‹: a container of seeds from the same ›Accession‹,
-       just, presumably, smaller.
+       Each one of your ›Jars‹ of seeds is in ghini speak a ›Plant‹, and the
+       amount of seeds in the ›Jar‹ is the ›Plant‹ ›quantity‹.  An
+       ›Envelope‹ is just the same as a ›Jar‹: a container of seeds from the
+       same ›Accession‹, just presumably smaller.
        
        A ›Box‹ (where you keep several ›Envelopes‹) or a ›Drawer‹ (where you
        keep several ›Jars‹) are in ghini speak a ›Location‹.
 
        Since a ›Jar‹ or an ›Envelope‹ contains seeds from an ›Accession‹,
-       you will clearly label it with its ›Accession‹ code.  You might write
-       the amount of seeds, too, but this would be repeating information
-       from the database, and repeating information introduces an
-       inconsistency risk factor.
+       you will clearly label it with its ›Accession‹ code (and trailing
+       ›Plant‹ number).  You might write the amount of seeds, too, but this
+       would be repeating information from the database, and repeating
+       information introduces an inconsistency risk factor.
 
 ..  admonition:: How do I handle receiving a batch of seeds?
     :class: toggle
@@ -107,17 +107,20 @@ on how to develop their own database.
        Say you were requested to deliver 50 seeds of Urtica dioica, 30 of
        Zea mays 'Red Marvel', 80 of Oryza sativa, and 30 of Panicum maximum.
 
+       -------------------------
+
        The first step is to check the quantities you have in house, and if
-       you do have enough, where you have them::
+       you do have enough, where you have them.  You do this per requested
+       species::
 
          accession where species.genus.epithet=Zea and species.epithet=mays and sum(plants.quantity)>0
 
        Highlight in the results pane the ›Accession‹ from which you want to
-       grab the seeds, and tag it with a new ›Tag‹.  To do this, go through
-       the steps, just once, of creating a new tag.  The new tag becomes the
-       active tag, and subsequent tagging will be speedier.  I would call
-       the tag ›sending‹, but that's only for ease of exposition and further
-       completely irrelevant.
+       grab the seeds, and tag the highlighted row with a new ›Tag‹.  To do
+       this the first time, go through the steps, just once, of creating a
+       new tag.  The new tag becomes the active tag, and subsequent tagging
+       will be speedier.  I would call the tag ›sending‹, but that's only
+       for ease of exposition and further completely irrelevant.
 
        Repeat the task for Urtica dioica, Oryza sativa, Panicum maximum::
 
@@ -126,21 +129,28 @@ on how to develop their own database.
          accession where species.genus.epithet=Panicum and species.epithet=maximum and sum(plants.quantity)>0
 
        Again highilight the accession from which you can grab seeds, and hit
-       Ctrl-Y (this tags the highighted row with the active tag).
+       Ctrl-Y (this tags the highighted row with the active tag).  Don't
+       worry if nothing seems to happen when you hit Ctrl-Y, this is a
+       silent operation.
 
-       Now we prepare to go to the seeds bank, with the envelopes we want to fill.
+       -------------------------
 
-       Select the ›sending‹ ›Tag‹ from the tags menu, this will bring back,
-       all together, the ›Plants‹ (›Jars‹ or ›Envelopes‹), and will tell you
-       in which ›Location‹ (›Drawer‹ or ›Box‹) they are to be found.  Write
-       this information on each of your physical envelopes.  Write also the
-       ›Species‹ name, and the quantity you can provide.
+       Now we prepare to go to the seeds bank, with the envelopes we want to
+       fill.
+
+       Select the ›sending‹ ›Tag‹ from the tags menu, this will bring back
+       in the results pane all the tagged ›Plants‹ (›Jars‹ or ›Envelopes‹),
+       and will tell you in which ›Location‹ (›Drawer‹ or ›Box‹) they are to
+       be found.  Write this information on each of your physical envelopes.
+       Write also the ›Species‹ name, and the quantity you can provide.
 
        Walk now to your seeds bank and, for each of the envelopes you just
        prepared, open the Location, grab the Plant, extract the correct
        amount of seeds, put them in your physical envelope.
 
        And back to the database!
+
+       -------------------------
 
        If nobody used your workstation, you still have the Tag in the
        results pane, and it's expanded so you see all the individual plants
@@ -158,9 +168,13 @@ on how to develop their own database.
        would be to specify as ›Location‹ for this new plant the 'out box',
        that is, the envelope is on its way to leave the garden.
 
-       final step, it represents the physical step of sending the envelope,
-       possibly together with several other envelopes, in a sending, which
-       should have a code.
+       Don't forget to delete the temporary 'sending' ›Tag‹.
+
+       -------------------------
+
+       Final step, it represents the physical step of sending the envelope,
+       possibly together with several other envelopes, in a single sending,
+       which should have a code.
        
        Just as you did when you received a batch of plants, you work with
        notes, this time the category is 'sent', and the note text is
