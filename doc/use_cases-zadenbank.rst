@@ -1,9 +1,9 @@
 seed database? why do you need a separate database?
--------------------------------------------------------
+====================================================
 
-We got involved in a group focusing on endagered plant seeds.  They want to
-note down when seeds come in, but also when they go out to people that order
-the seed.  They ask whether ghini could be used.
+We keep getting involved in groups focusing on endagered plant seeds.  They
+want to note down when seeds come in, but also when they go out to people
+that order the seed.  They ask whether ghini could be used.
 
 ..  admonition:: Does ghini need being adapted for such a seed database?
     :class: toggle
