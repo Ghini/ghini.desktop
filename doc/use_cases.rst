@@ -12,3 +12,4 @@ sharing their experiences back to the user community.
 The authors of the software wish to thank all dearly.
 
 .. include:: use_cases-jbq.rst
+.. include:: use_cases-zadenbank.rst
