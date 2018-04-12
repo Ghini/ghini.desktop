@@ -204,7 +204,7 @@ for k, plants in species.items():
 
 print 'db.gardens.update({uuid: "%s"}, {$set: %s}, {upsert: true});' % (garden['uuid'], json.dumps(garden))
 for i in result['species']:
-    print 'db.taxa.update({name: %s}, %s, {upsert: true});' % (json.dumps(i['name']), json.dumps(i))
+    print 'db.taxa.update({name: %s}, {$set: %s}, {upsert: true});' % (json.dumps(i['name']), json.dumps(i))
 print 'db.plants.deleteMany({garden: %s});' % json.dumps(garden['name'])
 print 'db.plants.insertMany(%s);' % json.dumps(result['plants'])
 
