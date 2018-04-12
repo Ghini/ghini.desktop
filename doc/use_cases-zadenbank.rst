@@ -115,12 +115,13 @@ directions on how to develop their own database.
 
          accession where species.genus.epithet=Zea and species.epithet=mays and sum(plants.quantity)>0
 
-       Highlight in the results pane the ›Accession‹ from which you want to
-       grab the seeds, and tag the highlighted row with a new ›Tag‹.  To do
-       this the first time, go through the steps, just once, of creating a
-       new tag.  The new tag becomes the active tag, and subsequent tagging
-       will be speedier.  I would call the tag ›sending‹, but that's only
-       for ease of exposition and further completely irrelevant.
+       Expand in the results pane the ›Accession‹ from which you want to
+       grab the seeds, so you see the corresponding ›Jars‹, highlight one,
+       and tag it with a new ›Tag‹.  To do this the first time, go through
+       the steps, just once, of creating a new ›Tag‹.  The new tag becomes
+       the active tag, and subsequent tagging will be speedier.  I would
+       call the tag ›sending‹, but that's only for ease of exposition and
+       further completely irrelevant.
 
        Repeat the task for Urtica dioica, Oryza sativa, Panicum maximum::
 
