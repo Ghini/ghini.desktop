@@ -1286,18 +1286,16 @@ class GenericMessageBox(Gtk.EventBox):
         self.add(self.box)
 
     def set_color(self, attr, state, color):
-        colormap = self.get_colormap()
-        style = self.get_style().copy()
-        c = colormap.alloc_color(color)
-        getattr(style, attr)[state] = c
-        # is it ok to set the style the expander and button even
-        # though the style was copied from the eventbox
-        self.set_style(style)
+        # colormap → visual
+        # style → styleContext
+        style = self.get_style()
         return style
 
     def show_all(self):
         self.get_parent().show_all()
-        width, height = self.size_request()
+        requisition = self.size_request()
+        height = requisition.height
+        width = requisition.width
         self.set_size_request(width, height+10)
 
     def show(self):
@@ -1312,7 +1310,7 @@ class MessageBox(GenericMessageBox):
     def __init__(self, msg=None, details=None):
         super(MessageBox, self).__init__()
         self.vbox = Gtk.VBox()
-        self.box.pack_start(self.vbox, True)
+        self.box.pack_start(self.vbox, True, True, 0)
 
         self.label = Gtk.TextView()
         self.label.set_can_focus(False)
@@ -1320,19 +1318,19 @@ class MessageBox(GenericMessageBox):
         self.label.set_buffer(self.buffer)
         if msg:
             self.buffer.set_text(msg)
-        self.vbox.pack_start(self.label, True)
+        self.vbox.pack_start(self.label, True, True, 0)
 
         button_box = Gtk.VBox()
-        self.box.pack_start(button_box, False)
+        self.box.pack_start(button_box, False, False, 0)
         button = Gtk.Button()
         image = Gtk.Image()
         image.set_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.BUTTON)
         button.props.image = image
         button.set_relief(Gtk.ReliefStyle.NONE)
-        button_box.pack_start(button, False)
+        button_box.pack_start(button, False, False, 0)
 
         self.details_expander = Gtk.Expander()
-        self.vbox.pack_start(self.details_expander, True)
+        self.vbox.pack_start(self.details_expander, True, True, 0)
 
         sw = Gtk.ScrolledWindow()
         sw.set_size_request(-1, 200)
@@ -1409,21 +1407,21 @@ class YesNoMessageBox(GenericMessageBox):
         if msg:
             self.label.set_markup(msg)
         self.label.set_alignment(.1, .1)
-        self.box.pack_start(self.label, True)
+        self.box.pack_start(self.label, True, True, 0)
 
         button_box = Gtk.VBox()
-        self.box.pack_start(button_box, False)
+        self.box.pack_start(button_box, False, False, 0)
         self.yes_button = Gtk.Button(stock=Gtk.STOCK_YES)
         if on_response:
             self.yes_button.connect('clicked', on_response, True)
-        button_box.pack_start(self.yes_button, False)
+        button_box.pack_start(self.yes_button, False, False, 0)
 
         button_box = Gtk.VBox()
-        self.box.pack_start(button_box, False)
+        self.box.pack_start(button_box, False, False, 0)
         self.no_button = Gtk.Button(stock=Gtk.STOCK_NO)
         if on_response:
             self.no_button.connect('clicked', on_response, False)
-        button_box.pack_start(self.no_button, False)
+        button_box.pack_start(self.no_button, False, False, 0)
 
         colors = [('bg', Gtk.StateType.NORMAL, '#FFFFFF'),
                   ('bg', Gtk.StateType.PRELIGHT, '#FFFFFF')]
@@ -1468,7 +1466,7 @@ def add_message_box(parent, type=MESSAGE_BOX_INFO):
         msg_box = YesNoMessageBox()
     else:
         raise ValueError('unknown message box type: %s' % type)
-    parent.pack_start(msg_box, True)
+    parent.pack_start(msg_box, True, True, 0)
     return msg_box
 
 
