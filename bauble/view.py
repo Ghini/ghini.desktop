@@ -30,9 +30,9 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
-import gtk
-import gobject
-import pango
+from gi.repository import Gtk
+from gi.repository import GObject
+from gi.repository import Pango
 import threading
 
 
@@ -60,7 +60,7 @@ else:
     _substr_tmpl = '<small>%s</small>'
 
 
-class Action(gtk.Action):
+class Action(Gtk.Action):
 
     """
     An Action allows a label, tooltip, callback and accelerator to be called
@@ -102,7 +102,7 @@ class Action(gtk.Action):
     enabled = property(_get_enabled, _set_enabled)
 
 
-class InfoExpander(gtk.Expander):
+class InfoExpander(Gtk.Expander):
     """
     an abstract class that is really just a generic expander with a vbox
     to extend this you just have to implement the update() method
@@ -119,7 +119,7 @@ class InfoExpander(gtk.Expander):
         :param widgets: a bauble.utils.BuilderWidgets instance
         """
         super(InfoExpander, self).__init__(label)
-        self.vbox = gtk.VBox(False)
+        self.vbox = Gtk.VBox(False)
         self.vbox.set_border_width(5)
         self.add(self.vbox)
         self.widgets = widgets
@@ -150,47 +150,47 @@ class PropertiesExpander(InfoExpander):
 
     def __init__(self):
         super(PropertiesExpander, self).__init__(_('Properties'))
-        table = gtk.Table(rows=4, columns=2)
+        table = Gtk.Table(rows=4, columns=2)
         table.set_col_spacings(15)
         table.set_row_spacings(8)
 
         # database id
-        id_label = gtk.Label("<b>"+_("ID:")+"</b>")
+        id_label = Gtk.Label(label="<b>"+_("ID:")+"</b>")
         id_label.set_use_markup(True)
         id_label.set_alignment(1, .5)
-        self.id_data = gtk.Label('--')
+        self.id_data = Gtk.Label(label='--')
         self.id_data.set_alignment(0, .5)
         table.attach(id_label, 0, 1, 0, 1)
         table.attach(self.id_data, 1, 2, 0, 1)
 
         # object type
-        type_label = gtk.Label("<b>"+_("Type:")+"</b>")
+        type_label = Gtk.Label(label="<b>"+_("Type:")+"</b>")
         type_label.set_use_markup(True)
         type_label.set_alignment(1, .5)
-        self.type_data = gtk.Label('--')
+        self.type_data = Gtk.Label(label='--')
         self.type_data.set_alignment(0, .5)
         table.attach(type_label, 0, 1, 1, 2)
         table.attach(self.type_data, 1, 2, 1, 2)
 
         # date created
-        created_label = gtk.Label("<b>"+_("Date created:")+"</b>")
+        created_label = Gtk.Label(label="<b>"+_("Date created:")+"</b>")
         created_label.set_use_markup(True)
         created_label.set_alignment(1, .5)
-        self.created_data = gtk.Label('--')
+        self.created_data = Gtk.Label(label='--')
         self.created_data.set_alignment(0, .5)
         table.attach(created_label, 0, 1, 2, 3)
         table.attach(self.created_data, 1, 2, 2, 3)
 
         # date last updated
-        updated_label = gtk.Label("<b>"+_("Last updated:")+"</b>")
+        updated_label = Gtk.Label(label="<b>"+_("Last updated:")+"</b>")
         updated_label.set_use_markup(True)
         updated_label.set_alignment(1, .5)
-        self.updated_data = gtk.Label('--')
+        self.updated_data = Gtk.Label(label='--')
         self.updated_data.set_alignment(0, .5)
         table.attach(updated_label, 0, 1, 3, 4)
         table.attach(self.updated_data, 1, 2, 3, 4)
 
-        box = gtk.HBox()
+        box = Gtk.HBox()
         box.pack_start(table, expand=False, fill=False)
         self.vbox.pack_start(box, expand=False, fill=False)
 
@@ -210,18 +210,18 @@ class PropertiesExpander(InfoExpander):
             or '')
 
 
-class InfoBoxPage(gtk.ScrolledWindow):
+class InfoBoxPage(Gtk.ScrolledWindow):
     """
-    A :class:`gtk.ScrolledWindow` that contains
+    A :class:`Gtk.ScrolledWindow` that contains
     :class:`bauble.view.InfoExpander` objects.
     """
 
     def __init__(self):
         super(InfoBoxPage, self).__init__()
-        self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-        self.vbox = gtk.VBox()
+        self.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
+        self.vbox = Gtk.VBox()
         self.vbox.set_spacing(10)
-        viewport = gtk.Viewport()
+        viewport = Gtk.Viewport()
         viewport.add(self.vbox)
         self.add(viewport)
         self.expanders = {}
@@ -236,7 +236,7 @@ class InfoBoxPage(gtk.ScrolledWindow):
         self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
         self.expanders[expander.get_property("label")] = expander
 
-        expander._sep = gtk.HSeparator()
+        expander._sep = Gtk.HSeparator()
         self.vbox.pack_start(expander._sep, False, False)
 
     def get_expander(self, label):
@@ -272,7 +272,7 @@ class InfoBoxPage(gtk.ScrolledWindow):
             expander.update(row)
 
 
-class InfoBox(gtk.Notebook):
+class InfoBox(Gtk.Notebook):
     """
     Holds list of expanders with an optional tabbed layout.
 
@@ -335,8 +335,8 @@ class LinksExpander(InfoExpander):
         :param notes: the name of the notes property on the row
         """
         super(LinksExpander, self).__init__(_("Links"))
-        self.dynamic_box = gtk.VBox()
-        self.vbox.pack_start(self.dynamic_box)
+        self.dynamic_box = Gtk.VBox()
+        self.vbox.pack_start(self.dynamic_box, True, True, 0)
         self.notes = notes
         self.buttons = []
         from bauble.utils.web import BaubleLinkButton
@@ -350,10 +350,10 @@ class LinksExpander(InfoExpander):
                              (link, type(e), e))
         for b in self.buttons:
             b.set_alignment(0, -1)
-            self.vbox.pack_start(b)
+            self.vbox.pack_start(b, True, True, 0)
 
     def update(self, row):
-        import pango
+        from gi.repository import Pango
         map(self.dynamic_box.remove, self.dynamic_box.get_children())
         for b in self.buttons:
             b.set_string(row)
@@ -363,9 +363,9 @@ class LinksExpander(InfoExpander):
                 for label, url in utils.get_urls(note.note):
                     if not label:
                         label = url
-                    label = gtk.Label(label)
-                    label.set_ellipsize(pango.ELLIPSIZE_END)
-                    button = gtk.LinkButton(uri=url)
+                    label = Gtk.Label(label=label)
+                    label.set_ellipsize(Pango.EllipsizeMode.END)
+                    button = Gtk.LinkButton(uri=url)
                     button.add(label)
                     button.set_alignment(0, -1)
                     self.dynamic_box.pack_start(
@@ -394,7 +394,7 @@ class AddOneDot(threading.Thread):
     def run(self):
         while not self.__stopped.wait(1.0):
             self.dotno += 1
-            gobject.idle_add(self.callback, self.dotno)
+            GObject.idle_add(self.callback, self.dotno)
 
 
 class CountResultsTask(threading.Thread):
@@ -441,7 +441,7 @@ class CountResultsTask(threading.Thread):
                 statusbar.push(sbcontext_id, text)
             if not self.__cancel:  # check whether caller asks to cancel
                 self.dots_thread.cancel()
-                gobject.idle_add(callback, value)
+                GObject.idle_add(callback, value)
         else:
             logger.debug("showing text %s", value)
         ## we should not leave the session around
@@ -559,7 +559,7 @@ class SearchView(pluginmgr.View):
         # detach it from parent (its container)
         self.view.widgets.remove_parent(page)
         # create the label object
-        label = gtk.Label('Notes')
+        label = Gtk.Label(label='Notes')
         self.view.widgets.bottom_notebook.append_page(page, label)
         self.bottom_info[Note] = {
             'fields_used': ['date', 'user', 'category', 'note'],
@@ -578,7 +578,7 @@ class SearchView(pluginmgr.View):
         # 2: detach it from parent (its container)
         widgets.remove_parent(page)
         # 3: create the label object
-        label = gtk.Label(bottom_info['name'])
+        label = Gtk.Label(label=bottom_info['name'])
         # 4: add the page, non sensitive
         self.view.widget_append_page('bottom_notebook', page, label)
         # 5: store the values for later use
@@ -744,7 +744,7 @@ class SearchView(pluginmgr.View):
             if not enabled:
                 continue
             # if enabled then connect the accelerator
-            keyval, mod = gtk.accelerator_parse(action.accelerator)
+            keyval, mod = Gtk.accelerator_parse(action.accelerator)
             if (keyval, mod) != (0, 0):
                 def cb(func):
                     def _impl(*args):
@@ -757,7 +757,7 @@ class SearchView(pluginmgr.View):
                             self.update()
                     return _impl
                 self.accel_group.connect_group(keyval, mod,
-                                               gtk.ACCEL_VISIBLE,
+                                               Gtk.AccelFlags.VISIBLE,
                                                cb(action.callback))
                 self.installed_accels.append(((keyval, mod), action.callback))
             else:
@@ -807,7 +807,7 @@ class SearchView(pluginmgr.View):
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
         statusbar.pop(sbcontext_id)
         if len(results) == 0:
-            model = gtk.ListStore(str)
+            model = Gtk.ListStore(str)
             msg = bold % cgi.escape(
                 _('Couldn\'t find anything for search: "%s"') % text)
             model.append([msg])
@@ -852,7 +852,7 @@ class SearchView(pluginmgr.View):
                                    _('size of non homogeneous result: %s') %
                                    len(results))
                 self.results_view.set_cursor(0)
-                gobject.idle_add(lambda: self.results_view.scroll_to_cell(0))
+                GObject.idle_add(lambda: self.results_view.scroll_to_cell(0))
 
         self.update_bottom_notebook()
 
@@ -909,9 +909,9 @@ class SearchView(pluginmgr.View):
         model. This method is usually called by self.populate_results()
         """
         nresults = len(results)
-        model = gtk.TreeStore(object)
+        model = Gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
-        model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
+        model.set_sort_column_id(-1, Gtk.SortType.ASCENDING)
         utils.clear_model(self.results_view)
 
         groups = []
@@ -966,7 +966,7 @@ class SearchView(pluginmgr.View):
         append object to a parent iter in the model
 
         :param model: the model the append to
-        :param parent:  the parent gtk.TreeIter
+        :param parent:  the parent Gtk.TreeIter
         :param kids: a list of kids to append
         @return: the model with the kids appended
         """
@@ -1027,7 +1027,7 @@ class SearchView(pluginmgr.View):
                     for found in utils.search_tree_model(model, value):
                         model.remove(found)
                     self.results_view.set_model(model)
-                gobject.idle_add(remove)
+                GObject.idle_add(remove)
 
             except Exception, e:
                 logger.error(
@@ -1041,7 +1041,7 @@ class SearchView(pluginmgr.View):
         '''
         expanded_rows = []
         expand = lambda view, path: \
-            expanded_rows.append(gtk.TreeRowReference(view.get_model(), path))
+            expanded_rows.append(Gtk.TreeRowReference(view.get_model(), path))
         self.results_view.map_expanded_rows(expand)
         # seems to work better if we passed the reversed rows to
         # self.expand_to_all_refs
@@ -1053,7 +1053,7 @@ class SearchView(pluginmgr.View):
         :param references: a list of TreeRowReferences to expand to
 
         Note: This method calls get_path() on each
-        gtk.TreeRowReference in <references> which apparently
+        Gtk.TreeRowReference in <references> which apparently
         invalidates the reference.
         '''
         for ref in references:
@@ -1092,7 +1092,7 @@ class SearchView(pluginmgr.View):
         try:
             menu = self.context_menu_cache[selected_type]
         except KeyError:
-            menu = gtk.Menu()
+            menu = Gtk.Menu()
             for action in self.row_meta[selected_type].actions:
                 logger.debug('path: %s' % action.get_accel_path())
                 item = action.create_menu_item()
@@ -1111,7 +1111,7 @@ class SearchView(pluginmgr.View):
                         msg = utils.xml_safe(str(e))
                         tb = utils.xml_safe(traceback.format_exc())
                         utils.message_details_dialog(
-                            msg, tb, gtk.MESSAGE_ERROR)
+                            msg, tb, Gtk.MessageType.ERROR)
                         logger.warning(traceback.format_exc())
                     if result:
                         self.update()
@@ -1140,7 +1140,7 @@ class SearchView(pluginmgr.View):
         try:
             # try to get the reference to the selected object, if the
             # object has been deleted then we won't try to reselect it later
-            ref = gtk.TreeRowReference(model, paths[0])
+            ref = Gtk.TreeRowReference(model, paths[0])
         except:
             pass
 
@@ -1187,14 +1187,14 @@ class SearchView(pluginmgr.View):
         self.results_view.set_fixed_height_mode(True)
 
         selection = self.results_view.get_selection()
-        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.set_mode(Gtk.SelectionMode.MULTIPLE)
         self.results_view.set_rubber_banding(True)
 
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         renderer.set_fixed_height_from_font(2)
-        renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
-        column = gtk.TreeViewColumn("Name", renderer)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        renderer.set_property('ellipsize', Pango.EllipsizeMode.END)
+        column = Gtk.TreeViewColumn("Name", renderer)
+        column.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
         column.set_cell_data_func(renderer, self.cell_data_func)
         self.results_view.append_column(column)
 
@@ -1212,7 +1212,7 @@ class SearchView(pluginmgr.View):
             when clicking a mouse button.
             """
             if event.button == 3:
-                if (event.get_state() & gtk.gdk.CONTROL_MASK) == 0:
+                if (event.get_state() & Gdk.ModifierType.CONTROL_MASK) == 0:
                     path, _, _, _ = view.get_path_at_pos(int(event.x),
                                                          int(event.y))
                     if not view.get_selection().path_is_selected(path):
@@ -1227,9 +1227,9 @@ class SearchView(pluginmgr.View):
                                   self.on_view_row_activated)
 
         # this group doesn't need to be added to the main window with
-        # gtk.Window.add_accel_group since the group will be added
+        # Gtk.Window.add_accel_group since the group will be added
         # automatically when the view is set
-        self.accel_group = gtk.AccelGroup()
+        self.accel_group = Gtk.AccelGroup()
         self.installed_accels = []
 
         self.pane = self.widgets.search_hpane
@@ -1237,7 +1237,7 @@ class SearchView(pluginmgr.View):
 
         vbox = self.widgets.search_vbox
         self.widgets.remove_parent(vbox)
-        self.pack_start(vbox)
+        self.pack_start(vbox, True, True, 0)
 
     def on_notes_size_allocation(self, treeview, allocation, column, cell):
         """
@@ -1302,11 +1302,11 @@ class AppendThousandRows(threading.Thread):
         count = q.count()
         while offset < count and not self.__stopped.isSet():
             rows = q.offset(offset).limit(step).all()
-            gobject.idle_add(self.callback, rows)
+            GObject.idle_add(self.callback, rows)
             offset += step
         session.close()
         if offset < count:
-            gobject.idle_add(self.cancel_callback)
+            GObject.idle_add(self.cancel_callback)
 
 
 class HistoryView(pluginmgr.View):
@@ -1390,7 +1390,7 @@ class HistoryView(pluginmgr.View):
         mapper_search = search.get_strategy('MapperSearch')
         if table in mapper_search._domains:
             query = '%s where id=%s' % (table, obj_id)
-            bauble.gui.widgets.main_comboentry.child.set_text(query)
+            bauble.gui.widgets.main_comboentry.get_child().set_text(query)
             bauble.gui.widgets.go_button.emit("clicked")
 
     def update(self):
@@ -1424,7 +1424,7 @@ pluginmgr.register_command(HistoryCommandHandler)
 def select_in_search_results(obj):
     """
     :param obj: the object the select
-    @returns: a gtk.TreeIter to the selected row
+    @returns: a Gtk.TreeIter to the selected row
 
     Search the tree model for obj if it exists then select it if not
     then add it and select it.

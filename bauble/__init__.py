@@ -92,9 +92,9 @@ if main_is_frozen():  # main is frozen
            os.pathsep, os.environ['PATH'])
 
 
-# if not hasattr(gtk.Widget, 'set_tooltip_markup'):
+# if not hasattr(Gtk.Widget, 'set_tooltip_markup'):
 #     msg = _('Ghini requires GTK+ version 2.12 or greater')
-#     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+#     utils.message_dialog(msg, Gtk.MessageType.ERROR)
 #     sys.exit(1)
 
 # make sure we look in the lib path for modules
@@ -140,7 +140,7 @@ def quit():
     """
     Stop all tasks and quit Ghini.
     """
-    import gtk
+    from gi.repository import Gtk
     import bauble.utils as utils
     try:
         import bauble.task as task
@@ -150,7 +150,7 @@ def quit():
         task.kill()
     try:
         save_state()
-        gtk.main_quit()
+        Gtk.main_quit()
     except RuntimeError, e:
         # in case main_quit is called before main, e.g. before
         # bauble.main() is called
@@ -171,7 +171,7 @@ def command_handler(cmd, arg):
     :type arg: list
     """
     logger.debug('entering ui.command_handler %s %s' % (cmd, arg))
-    import gtk
+    from gi.repository import Gtk
     import bauble.utils as utils
     import bauble.pluginmgr as pluginmgr
     global last_handler
@@ -204,7 +204,7 @@ def command_handler(cmd, arg):
         msg = utils.xml_safe(e)
         logger.error('bauble.command_handler(): %s' % msg)
         utils.message_details_dialog(
-            msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
+            msg, traceback.format_exc(), Gtk.MessageType.ERROR)
 
 
 conn_default_pref = "conn.default"
@@ -222,11 +222,11 @@ dbengine.html#create-engine-url-arguments>`_
     :type uri: str
     """
     # TODO: it would be nice to show a Tk dialog here saying we can't
-    # import gtk...but then we would have to include all of the Tk libs in
+    # import Gtk...but then we would have to include all of the Tk libs in
     # with the win32 batteries-included installer
     try:
-        import gtk
-        import gobject
+        from gi.repository import Gtk
+        from gi.repository import GObject
     except ImportError, e:
         print _('** Error: could not import gtk and/or gobject')
         print e
@@ -285,12 +285,12 @@ dbengine.html#create-engine-url-arguments>`_
         logger.warning("can't configure sentry client")
         logger.debug('%s - %s' % (type(e), e))
 
-    import gtk.gdk
-    import pygtk
+    import gi
+    from gi.repository import Gdk
     if not main_is_frozen():
-        pygtk.require("2.0")
+        gi.require_version("Gtk", "3.0")
 
-    display = gtk.gdk.display_get_default()
+    display = Gdk.Display.get_default()
     if display is None:
         print _("**Error: Ghini must be run in a windowed environment.")
         sys.exit(1)
@@ -299,12 +299,12 @@ dbengine.html#create-engine-url-arguments>`_
     import bauble.utils as utils
 
     # initialize threading
-    gobject.threads_init()
+    GObject.threads_init()
 
     try:
         import bauble.db as db
     except Exception, e:
-        utils.message_dialog(utils.xml_safe(e), gtk.MESSAGE_ERROR)
+        utils.message_dialog(utils.xml_safe(e), Gtk.MessageType.ERROR)
         sys.exit(1)
 
     # declare module level variables
@@ -348,7 +348,7 @@ dbengine.html#create-engine-url-arguments>`_
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % e
                 utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
+                                             Gtk.MessageType.ERROR)
                 uri = None
     else:
         db.open(uri, True, True)
@@ -370,7 +370,7 @@ dbengine.html#create-engine-url-arguments>`_
     gui = ui.GUI()
 
     def _post_loop():
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         try:
             if isinstance(open_exc, err.DatabaseError):
                 msg = _('Would you like to create a new Ghini database at '
@@ -390,23 +390,23 @@ dbengine.html#create-engine-url-arguments>`_
                     except Exception, e:
                         utils.message_details_dialog(utils.xml_safe(e),
                                                      traceback.format_exc(),
-                                                     gtk.MESSAGE_ERROR)
+                                                     Gtk.MessageType.ERROR)
                         logger.error("%s(%s)" % (type(e), e))
             else:
                 pluginmgr.init()
         except Exception, e:
             logger.warning("%s\n%s(%s)"
                            % (traceback.format_exc(), type(e), e))
-            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_WARNING)
+            utils.message_dialog(utils.utf8(e), Gtk.MessageType.WARNING)
         gui.get_view().update()
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
 
-    gobject.idle_add(_post_loop)
+    GObject.idle_add(_post_loop)
 
     gui.show()
-    gtk.threads_enter()
-    gtk.main()
+    Gtk.threads_enter()
+    Gtk.main()
     active_view = gui.get_view()
     if active_view:
         active_view.cancel_threads()
-    gtk.threads_leave()
+    Gtk.threads_leave()

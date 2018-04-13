@@ -79,7 +79,7 @@ if sys.platform in ['win32', 'darwin']:
     locale = gettext
 
 try:
-    import gtk.glade as gtkglade
+    import Gtk.glade as gtkglade
 except ImportError:
     gtkglade = locale
 

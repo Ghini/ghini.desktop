@@ -33,13 +33,14 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 import glib
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
 
 from random import random
 import dateutil.parser as date_parser
 import lxml.etree as etree
-import pango
+from gi.repository import Pango
 from sqlalchemy.orm import object_mapper, object_session
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
@@ -209,9 +210,9 @@ class GenericEditorView(object):
     please consider all members of the view as private, this is
     particularly true for the ones having anything to do with GTK.
 
-    :param filename: a gtk.Builder UI definition
+    :param filename: a Gtk.Builder UI definition
 
-    :param parent: a gtk.Window or subclass to use as the parent
+    :param parent: a Gtk.Window or subclass to use as the parent
      window, if parent=None then bauble.gui.window is used
     """
     _tooltips = {}
@@ -229,7 +230,7 @@ class GenericEditorView(object):
         self.__attached_signals = []
         self.boxes = set()
 
-        # set the tooltips...use gtk.Tooltip api introducted in GTK+ 2.12
+        # set the tooltips...use Gtk.Tooltip api introducted in GTK+ 2.12
         for widget_name, markup in self._tooltips.iteritems():
             try:
                 self.widgets[widget_name].set_tooltip_markup(markup)
@@ -244,7 +245,7 @@ class GenericEditorView(object):
             window = None
         if window is not None:
             self.connect(window, 'delete-event', self.on_window_delete)
-            if isinstance(window, gtk.Dialog):
+            if isinstance(window, Gtk.Dialog):
                 self.connect(window, 'close', self.on_dialog_close)
                 self.connect(window, 'response', self.on_dialog_response)
         self.box = set()  # the top level, meant for warnings.
@@ -263,16 +264,16 @@ class GenericEditorView(object):
         string indicationg the location where to put the FileChooserDialog,
         and 'target', an Entry widget or its name.
 
-        make sure you have a gtk.RESPONSE_ACCEPT button.
+        make sure you have a Gtk.ResponseType.ACCEPT button.
 
         """
-        chooser = gtk.FileChooserDialog(text, parent, action, buttons)
+        chooser = Gtk.FileChooserDialog(text, parent, action, buttons)
         #chooser.set_do_overwrite_confirmation(True)
         #chooser.connect("confirm-overwrite", confirm_overwrite_callback)
         try:
             if last_folder:
                 chooser.set_current_folder(last_folder)
-            if chooser.run() == gtk.RESPONSE_ACCEPT:
+            if chooser.run() == Gtk.ResponseType.ACCEPT:
                 filename = chooser.get_filename()
                 if filename:
                     self.widget_set_value(target, filename)
@@ -282,23 +283,23 @@ class GenericEditorView(object):
         chooser.destroy()
 
     def run_entry_dialog(self, title, parent, flags, buttons, visible=True):
-        d = gtk.Dialog(title, parent, flags, buttons)
-        d.set_default_response(gtk.RESPONSE_ACCEPT)
+        d = Gtk.Dialog(title, parent, flags, buttons)
+        d.set_default_response(Gtk.ResponseType.ACCEPT)
         d.set_default_size(250, -1)
-        entry = gtk.Entry()
+        entry = Gtk.Entry()
         if visible is not True:
             entry.set_visibility(False)
         entry.connect("activate",
-                      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
-        d.vbox.pack_start(entry)
+                      lambda entry: d.response(Gtk.ResponseType.ACCEPT))
+        d.vbox.pack_start(entry, True, True, 0)
         d.show_all()
         d.run()
         user_reply = entry.get_text()
         d.destroy()
         return user_reply
 
-    def run_message_dialog(self, msg, type=gtk.MESSAGE_INFO,
-                           buttons=gtk.BUTTONS_OK, parent=None):
+    def run_message_dialog(self, msg, type=Gtk.MessageType.INFO,
+                           buttons=Gtk.ButtonsType.OK, parent=None):
         utils.message_dialog(msg, type, buttons, parent)
 
     def run_yes_no_dialog(self, msg, parent=None, yes_delay=-1):
@@ -327,7 +328,7 @@ class GenericEditorView(object):
         self.get_window().set_icon(icon)
 
     def image_set_from_file(self, widget, value):
-        widget = (isinstance(widget, gtk.Widget)
+        widget = (isinstance(widget, Gtk.Widget)
                   and widget
                   or self.widgets[widget])
         widget.set_from_file(value)
@@ -390,7 +391,7 @@ class GenericEditorView(object):
     def connect(self, obj, signal, callback, *args):
         """
         Attach a signal handler for signal on obj.  For more
-        information see :meth:`gobject.connect_after`
+        information see :meth:`GObject.connect_after`
 
         :param obj: An instance of a subclass of gobject that will
           receive the signal
@@ -411,7 +412,7 @@ class GenericEditorView(object):
     def connect_after(self, obj, signal, callback, *args):  # data=None):
         """
         Attach a signal handler for signal on obj.  For more
-        information see :meth:`gobject.connect_after`
+        information see :meth:`GObject.connect_after`
 
         :param obj: An instance of a subclass of gobject that will
           receive the signal
@@ -467,7 +468,7 @@ class GenericEditorView(object):
 
     def __get_widget(self, widget):
         p = widget
-        if isinstance(widget, gtk.Widget):
+        if isinstance(widget, Gtk.Widget):
             return widget
         elif isinstance(widget, tuple):
             if len(widget) == 1:
@@ -475,7 +476,7 @@ class GenericEditorView(object):
             parent, widget = widget[:-1], widget[-1]
             parent = self.__get_widget(parent)
             for c in parent.get_children():
-                if gtk.Buildable.get_name(c) == widget:
+                if Gtk.Buildable.get_name(c) == widget:
                     return c
         else:
             return self.widgets[widget]
@@ -516,10 +517,10 @@ class GenericEditorView(object):
 
     def combobox_init(self, widget, values=None, cell_data_func=None):
         combo = self.__get_widget(widget)
-        model = gtk.ListStore(str)
+        model = Gtk.ListStore(str)
         combo.clear()
         combo.set_model(model)
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         combo.pack_start(renderer, True)
         combo.add_attribute(renderer, 'text', 0)
         self.combobox_setup(combo, values, cell_data_func)
@@ -614,7 +615,7 @@ class GenericEditorView(object):
 
         This method calls bauble.utils.set_widget_value()
         '''
-        if isinstance(widget, gtk.Widget):
+        if isinstance(widget, Gtk.Widget):
             utils.set_widget_value(widget, value, markup, default, index)
         else:
             utils.set_widget_value(self.widgets[widget], value, markup,
@@ -622,7 +623,7 @@ class GenericEditorView(object):
 
     def on_dialog_response(self, dialog, response, *args):
         '''
-        Called if self.get_window() is a gtk.Dialog and it receives
+        Called if self.get_window() is a Gtk.Dialog and it receives
         the response signal.
         '''
         logger.debug('on_dialog_response')
@@ -632,7 +633,7 @@ class GenericEditorView(object):
 
     def on_dialog_close(self, dialog, event=None):
         """
-        Called if self.get_window() is a gtk.Dialog and it receives
+        Called if self.get_window() is a Gtk.Dialog and it receives
         the close signal.
         """
         logger.debug('on_dialog_close')
@@ -654,7 +655,7 @@ class GenericEditorView(object):
                           minimum_key_length=2,
                           text_column=-1):
         """
-        Attach an entry completion to a gtk.Entry.  The defaults
+        Attach an entry completion to a Gtk.Entry.  The defaults
         values for this attach_completion assumes the completion popup
         only shows text and that the text is in the first column of
         the model.
@@ -683,9 +684,9 @@ class GenericEditorView(object):
 
         # TODO: we should add a default ctrl-space to show the list of
         # completions regardless of the length of the string
-        completion = gtk.EntryCompletion()
-        cell = gtk.CellRendererText()  # set up the completion renderer
-        completion.pack_start(cell)
+        completion = Gtk.EntryCompletion()
+        cell = Gtk.CellRendererText()  # set up the completion renderer
+        completion.pack_start(cell, True, True, 0)
         completion.set_cell_data_func(cell, cell_data_func)
         completion.set_match_func(match_func)
         completion.set_property('text-column', text_column)
@@ -706,12 +707,12 @@ class GenericEditorView(object):
     def init_translatable_combo(self, combo, translations, default=None,
                                 cmp=None):
         """
-        Initialize a gtk.ComboBox with translations values where
+        Initialize a Gtk.ComboBox with translations values where
         model[row][0] is the value that will be stored in the database
         and model[row][1] is the value that will be visible in the
-        gtk.ComboBox.
+        Gtk.ComboBox.
 
-        A gtk.ComboBox initialized with this method should work with
+        A Gtk.ComboBox initialized with this method should work with
         self.assign_simple_handler()
 
         :param combo:
@@ -722,7 +723,7 @@ class GenericEditorView(object):
             combo = self.widgets[combo]
         combo.clear()
         # using 'object' avoids SA unicode warning
-        model = gtk.ListStore(object, str)
+        model = Gtk.ListStore(object, str)
         if isinstance(translations, dict):
             translations = sorted(translations.iteritems(), key=lambda x: x[1])
         if cmp is not None:
@@ -731,7 +732,7 @@ class GenericEditorView(object):
         for key, value in translations:
             model.append([key, value])
         combo.set_model(model)
-        cell = gtk.CellRendererText()
+        cell = Gtk.CellRendererText()
         combo.pack_start(cell, True)
         combo.add_attribute(cell, 'text', 1)
 
@@ -770,7 +771,7 @@ class GenericEditorView(object):
 class MockDialog:
     def __init__(self):
         self.hidden = False
-        self.content_area = gtk.VBox()
+        self.content_area = Gtk.VBox()
 
     def hide(self):
         self.hidden = True
@@ -843,8 +844,8 @@ class MockView:
         except:
             return ''
 
-    def run_message_dialog(self, msg, type=gtk.MESSAGE_INFO,
-                           buttons=gtk.BUTTONS_OK, parent=None):
+    def run_message_dialog(self, msg, type=Gtk.MessageType.INFO,
+                           buttons=Gtk.ButtonsType.OK, parent=None):
         self.invoked.append('run_message_dialog')
         args = [msg, type, buttons, parent]
         self.invoked_detailed.append((self.invoked[-1], args))
@@ -1057,7 +1058,7 @@ class GenericEditorPresenter(object):
     2. refresh the view, put values from the model into the widgets
     3. connect the signal handlers
     """
-    problem_color = gtk.gdk.color_parse('#FFDCDF')
+    problem_color = Gdk.color_parse('#FFDCDF')
     widget_to_field_map = {}
     view_accept_buttons = []
 
@@ -1065,7 +1066,7 @@ class GenericEditorPresenter(object):
     PROBLEM_EMPTY = random()
 
     def __init__(self, model, view, refresh_view=False, session=None,
-                 do_commit=False, committing_results=[gtk.RESPONSE_OK]):
+                 do_commit=False, committing_results=[Gtk.ResponseType.OK]):
         self.model = model
         self.view = view
         self.problems = set()
@@ -1105,15 +1106,15 @@ class GenericEditorPresenter(object):
     def create_toolbar(self, *args, **kwargs):
         view, model = self.view, self.model
         logging.debug('creating toolbar in content_area presenter %s' % self.__class__.__name__)
-        actiongroup = gtk.ActionGroup('window-clip-actions')
-        accelgroup = gtk.AccelGroup()
-        fake_toolbar = gtk.Toolbar()
+        actiongroup = Gtk.ActionGroup('window-clip-actions')
+        accelgroup = Gtk.AccelGroup()
+        fake_toolbar = Gtk.Toolbar()
         fake_toolbar.set_name('toolbar')
         view.get_window().add_accel_group(accelgroup)
-        view.get_window().get_content_area().pack_start(fake_toolbar)
+        view.get_window().get_content_area().pack_start(fake_toolbar, True, True, 0)
         for shortcut, cb in (('<ctrl><shift>c', self.on_window_clip_copy),
                              ('<ctrl><shift>v', self.on_window_clip_paste)):
-            action = gtk.Action(shortcut, shortcut, 'clip-action', None)
+            action = Gtk.Action(shortcut, shortcut, 'clip-action', None)
             actiongroup.add_action_with_accel(action, shortcut)
             action.connect("activate", cb)
             action.set_accel_group(accelgroup)
@@ -1231,7 +1232,7 @@ class GenericEditorPresenter(object):
         from types import StringTypes
         return (isinstance(widget, StringTypes)
                 and widget
-                or gtk.Buildable.get_name(widget))
+                or Gtk.Buildable.get_name(widget))
 
     widget_get_name = __get_widget_name
 
@@ -1426,7 +1427,7 @@ class GenericEditorPresenter(object):
         :param problem_id: the problem to remove, if None then remove
          any problem from the problem_widget(s)
 
-        :param problem_widgets: a gtk.Widget instance to remove the problem
+        :param problem_widgets: a Gtk.Widget instance to remove the problem
          from, if None then remove all occurrences of problem_id regardless
          of the widget
         """
@@ -1437,7 +1438,7 @@ class GenericEditorPresenter(object):
             # if no problem id and not problem widgets then don't do anything
             return
 
-        if not isinstance(widget, (gtk.Widget, type(None))):
+        if not isinstance(widget, (Gtk.Widget, type(None))):
             try:
                 widget = getattr(self.view.widgets, widget)
             except:
@@ -1449,8 +1450,8 @@ class GenericEditorPresenter(object):
                     (widget is None and p == problem_id) or \
                     (w == widget and problem_id is None):
                 if w and not prefs.testing:
-                    w.modify_bg(gtk.STATE_NORMAL, None)
-                    w.modify_base(gtk.STATE_NORMAL, None)
+                    w.modify_bg(Gtk.StateType.NORMAL, None)
+                    w.modify_base(Gtk.StateType.NORMAL, None)
                     w.queue_draw()
                 self.problems.remove((p, w))
         logger.debug('problems now: %s' % self.problems)
@@ -1475,7 +1476,7 @@ class GenericEditorPresenter(object):
 
         ## here single widget.
         widget = problem_widgets
-        if not isinstance(widget, gtk.Widget):
+        if not isinstance(widget, Gtk.Widget):
             try:
                 widget = getattr(self.view.widgets, widget)
             except:
@@ -1485,14 +1486,14 @@ class GenericEditorPresenter(object):
         if isinstance(widget, StringTypes):
             self.view.mark_problem(widget)
         elif widget is not None:
-            widget.modify_bg(gtk.STATE_NORMAL, self.problem_color)
-            widget.modify_base(gtk.STATE_NORMAL, self.problem_color)
+            widget.modify_bg(Gtk.StateType.NORMAL, self.problem_color)
+            widget.modify_base(Gtk.StateType.NORMAL, self.problem_color)
             widget.queue_draw()
         logger.debug('problems now: %s' % self.problems)
 
     def init_enum_combo(self, widget_name, field):
         """
-        Initialize a gtk.ComboBox widget with name widget_name from
+        Initialize a Gtk.ComboBox widget with name widget_name from
         enum values in self.model.field
 
         :param widget_name:
@@ -1543,7 +1544,7 @@ class GenericEditorPresenter(object):
 
         :param validator:
 
-        Note: Where widget is a gtk.ComboBox or gtk.ComboBoxEntry then
+        Note: Where widget is a Gtk.ComboBox or Gtk.ComboBoxEntry then
         the value is assumed to be stored in model[row][0]
         '''
         widget = self.view.widgets[widget_name]
@@ -1571,18 +1572,18 @@ class GenericEditorPresenter(object):
         if validator:
             validator = ProblemValidator(self, validator)
 
-        if isinstance(widget, gtk.Entry):
+        if isinstance(widget, Gtk.Entry):
             def on_changed(entry):
                 self.set_model_attr(model_attr, entry.props.text, validator)
             self.view.connect(widget, 'changed', on_changed)
-        elif isinstance(widget, gtk.TextView):
+        elif isinstance(widget, Gtk.TextView):
             def on_changed(textbuff):
                 self.set_model_attr(model_attr, textbuff.props.text, validator)
             buff = widget.get_buffer()
             self.view.connect(buff, 'changed', on_changed)
-        elif isinstance(widget, gtk.ComboBox):
-            # this also handles gtk.ComboBoxEntry since it extends
-            # gtk.ComboBox
+        elif isinstance(widget, Gtk.ComboBox):
+            # this also handles Gtk.ComboBoxEntry since it extends
+            # Gtk.ComboBox
             def combo_changed(combo, data=None):
                 if not combo.get_active_iter():
                     # get here if there is no model on the ComboBoxEntry
@@ -1592,18 +1593,18 @@ class GenericEditorPresenter(object):
                 if model is None or combo.get_active_iter() is None:
                     return
                 value = combo.get_model()[combo.get_active_iter()][0]
-                if isinstance(widget, gtk.ComboBoxEntry):
-                    widget.child.set_text(utils.utf8(value))
+                if isinstance(widget, Gtk.ComboBoxEntry):
+                    widget.get_child().set_text(utils.utf8(value))
                 self.set_model_attr(model_attr, value, validator)
 
             def entry_changed(entry, data=None):
                 self.set_model_attr(model_attr, entry.props.text, validator)
 
             self.view.connect(widget, 'changed', combo_changed)
-            if isinstance(widget, gtk.ComboBoxEntry):
-                self.view.connect(widget.child, 'changed', entry_changed)
-        elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton,
-                                 gtk.RadioButton)):
+            if isinstance(widget, Gtk.ComboBoxEntry):
+                self.view.connect(widget.get_child(), 'changed', entry_changed)
+        elif isinstance(widget, (Gtk.ToggleButton, Gtk.CheckButton,
+                                 Gtk.RadioButton)):
             def toggled(button, data=None):
                 active = button.get_active()
                 logger.debug('toggled %s: %s' % (widget_name, active))
@@ -1616,9 +1617,9 @@ class GenericEditorPresenter(object):
 
     def assign_completions_handler(self, widget, get_completions,
                                    on_select=lambda v: v):
-        """Dynamically handle completions on a gtk.Entry.
+        """Dynamically handle completions on a Gtk.Entry.
 
-        :param widget: a gtk.Entry instance or widget name
+        :param widget: a Gtk.Entry instance or widget name
 
         :param get_completions: the callable to invoke when a list of
           completions is requested, accepts the string typed, returns an
@@ -1630,9 +1631,9 @@ class GenericEditorPresenter(object):
         """
 
         logger.debug('assign_completions_handler %s' % widget)
-        if not isinstance(widget, gtk.Entry):
+        if not isinstance(widget, Gtk.Entry):
             widget = self.view.widgets[widget]
-        PROBLEM = hash(gtk.Buildable.get_name(widget))
+        PROBLEM = hash(Gtk.Buildable.get_name(widget))
 
         def add_completions(text):
             if get_completions is None:
@@ -1647,7 +1648,7 @@ class GenericEditorPresenter(object):
             def idle_callback(values):
                 completion = widget.get_completion()
                 utils.clear_model(completion)
-                completion_model = gtk.ListStore(object)
+                completion_model = Gtk.ListStore(object)
                 for v in values:
                     completion_model.append([v])
                 completion.set_model(completion_model)
@@ -1655,7 +1656,7 @@ class GenericEditorPresenter(object):
             key_length = widget.get_completion().props.minimum_key_length
             values = get_completions(text[:key_length])
             logger.debug('completions to add: %s' % str([i for i in values]))
-            gobject.idle_add(idle_callback, values)
+            GObject.idle_add(idle_callback, values)
 
         def on_changed(entry, *args):
             logger.debug('assign_completions_handler::on_changed %s %s'
@@ -1712,7 +1713,7 @@ class GenericEditorPresenter(object):
                     self.remove_problem(PROBLEM, widget)
                 logger.debug('on_changed - part two - returning')
 
-            gobject.idle_add(idle_callback, text)
+            GObject.idle_add(idle_callback, text)
             logger.debug('on_changed - part one - returning')
             return True
 
@@ -1728,7 +1729,7 @@ class GenericEditorPresenter(object):
             return True  # return True or on_changed() will be called with ''
 
         completion = widget.get_completion()
-        check(completion is not None, 'the gtk.Entry %s doesn\'t have a '
+        check(completion is not None, 'the Gtk.Entry %s doesn\'t have a '
               'completion attached to it' % widget.get_name())
 
         _changed_sid = self.view.connect(widget, 'changed', on_changed)
@@ -1836,11 +1837,11 @@ class GenericModelViewPresenterEditor(object):
             self.session.close()
 
 
-class NoteBox(gtk.HBox):
+class NoteBox(Gtk.HBox):
     glade_ui = 'notes.glade'
 
     def set_content(self, text):
-        buff = gtk.TextBuffer()
+        buff = Gtk.TextBuffer()
         self.widgets.note_textview.set_buffer(buff)
         utils.set_widget_value(self.widgets.note_textview,
                                text or '')
@@ -1856,7 +1857,7 @@ class NoteBox(gtk.HBox):
         filename = os.path.join(paths.lib_dir(), self.glade_ui)
         xml = etree.parse(filename)
         el = xml.find("//object[@id='notes_box']")
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         s = '<interface>%s</interface>' % etree.tostring(el)
         if sys.platform == 'win32':
             # NOTE: PyGTK for Win32 is broken so we have to include
@@ -1883,7 +1884,7 @@ class NoteBox(gtk.HBox):
         self.widgets.notes_expander.props.use_markup = True
         self.widgets.notes_expander.props.label = ''
         self.widgets.notes_expander.props.label_widget.\
-            ellipsize = pango.ELLIPSIZE_END
+            ellipsize = Pango.EllipsizeMode.END
 
         # set the model values on the widgets
         mapper = object_mapper(self.model)
@@ -1911,7 +1912,7 @@ class NoteBox(gtk.HBox):
         # connect category comboentry widget and child entry
         self.widgets.category_comboentry.connect(
             'changed', self.on_category_combo_changed)
-        self.widgets.category_comboentry.child.connect(
+        self.widgets.category_comboentry.get_child().connect(
             'changed', self.on_category_entry_changed)
         self.widgets.notes_remove_button.connect(
             'clicked', self.on_notes_remove_button)
@@ -1960,7 +1961,7 @@ class NoteBox(gtk.HBox):
             text = utils.utf8(combo.get_model()[treeiter][0])
         else:
             return
-        self.widgets.category_comboentry.child.props.text = \
+        self.widgets.category_comboentry.get_child().props.text = \
             utils.utf8(text)
 
     def on_category_entry_changed(self, entry, *args):
@@ -2063,16 +2064,16 @@ class PictureBox(NoteBox):
         for w in list(self.widgets.picture_button.children()):
             w.destroy()
         if basename is not None:
-            im = gtk.Image()
+            im = Gtk.Image()
             try:
                 thumbname = os.path.join(
                     prefs.prefs[prefs.picture_root_pref], 'thumbs', basename)
                 filename = os.path.join(
                     prefs.prefs[prefs.picture_root_pref], basename)
                 if os.path.isfile(thumbname):
-                    pixbuf = gtk.gdk.pixbuf_new_from_file(thumbname)
+                    pixbuf = GdkPixbuf.Pixbuf.new_from_file(thumbname)
                 else:
-                    fullbuf = gtk.gdk.pixbuf_new_from_file(filename)
+                    fullbuf = GdkPixbuf.Pixbuf.new_from_file(filename)
                     fullbuf = fullbuf.apply_embedded_orientation()
                     scale_x = fullbuf.get_width() / 400.0
                     scale_y = fullbuf.get_height() / 400.0
@@ -2080,31 +2081,31 @@ class PictureBox(NoteBox):
                     x = int(fullbuf.get_width() / scale)
                     y = int(fullbuf.get_height() / scale)
                     pixbuf = fullbuf.scale_simple(
-                        x, y, gtk.gdk.INTERP_BILINEAR)
+                        x, y, GdkPixbuf.InterpType.BILINEAR)
                 im.set_from_pixbuf(pixbuf)
             except glib.GError, e:
                 logger.debug("picture %s caused glib.GError %s" %
                              (basename, e))
                 label = _('picture file %s not found.') % basename
-                im = gtk.Label()
+                im = Gtk.Label()
                 im.set_text(label)
             except Exception, e:
                 logger.warning("can't commit changes: (%s) %s" % (type(e), e))
-                im = gtk.Label()
+                im = Gtk.Label()
                 im.set_text(e)
         else:
             # make button hold some text
-            im = gtk.Label()
+            im = Gtk.Label()
             im.set_text(_('Choose a file…'))
         im.show()
         self.widgets.picture_button.add(im)
         self.widgets.picture_button.show()
 
     def on_activate_browse_button(self, widget, data=None):
-        fileChooserDialog = gtk.FileChooserDialog(
+        fileChooserDialog = Gtk.FileChooserDialog(
             _("Choose a file…"), None,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
         try:
             logger.debug('about to set current folder - %s' % self.last_folder)
             fileChooserDialog.set_current_folder(self.last_folder)
@@ -2152,7 +2153,7 @@ class NotesPresenter(GenericEditorPresenter):
     :param presenter: the parent presenter of this presenter
     :param notes_property: the string name of the notes property of
       the presenter.model
-    :param parent_container: the gtk.Container to add the notes editor box to
+    :param parent_container: the Gtk.Container to add the notes editor box to
     """
 
     ContentBox = NoteBox
@@ -2168,7 +2169,7 @@ class NotesPresenter(GenericEditorPresenter):
         # extract, from the same file, the widget named 'notes_box'.
         filename = os.path.join(paths.lib_dir(), self.ContentBox.glade_ui)
         xml = etree.parse(filename)
-        builder = gtk.Builder()
+        builder = Gtk.Builder()
         import sys
         if sys.platform == 'win32':
             # NOTE: PyGTK for Win32 is broken so we have to include
@@ -2186,7 +2187,7 @@ class NotesPresenter(GenericEditorPresenter):
             get_property(notes_property).mapper.class_
         self.notes = getattr(presenter.model, notes_property)
         self.parent_container = parent_container
-        editor_box = self.widgets.notes_editor_box  # gtk.VBox()
+        editor_box = self.widgets.notes_editor_box  # Gtk.VBox()
         self.widgets.remove_parent(editor_box)
         parent_container.add(editor_box)
 

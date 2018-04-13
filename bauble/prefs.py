@@ -19,7 +19,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -236,7 +236,7 @@ class _prefs(dict):
                 % self._filename
             if bauble.gui is not None and bauble.gui.window is not None:
                 import bauble.utils as utils
-                utils.message_dialog(msg, type=gtk.MESSAGE_ERROR,
+                utils.message_dialog(msg, type=Gtk.MessageType.ERROR,
                                      parent=bauble.gui.window)
             else:
                 logger.error(msg)

@@ -55,9 +55,9 @@ def update_gui():
     """
     Flush any GTK Events.  Used for doing GUI testing.
     """
-    import gtk
-    while gtk.events_pending():
-        gtk.main_iteration(block=False)
+    from gi.repository import Gtk
+    while Gtk.events_pending():
+        Gtk.main_iteration(block=False)
 
 
 def check_dupids(filename):

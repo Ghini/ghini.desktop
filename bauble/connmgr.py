@@ -34,7 +34,7 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
-import gtk
+from gi.repository import Gtk
 
 import bauble
 from bauble import paths, prefs, utils
@@ -187,9 +187,9 @@ def check_and_notify_new_version(view):
 
             # Any code that modifies the UI that is called from outside the
             # main thread must be pushed into the main thread and called
-            # asynchronously in the main loop, with gobject.idle_add.
-            import gobject
-            gobject.idle_add(show_message_box)
+            # asynchronously in the main loop, with GObject.idle_add.
+            from gi.repository import GObject
+            GObject.idle_add(show_message_box)
     except urllib2.URLError:
         logger.info('connection is slow or down')
     except ssl.SSLError, e:
@@ -261,7 +261,7 @@ class ConnMgrPresenter(GenericEditorPresenter):
         view.image_set_from_file('logo_image', logo_path)
         view.set_title('%s %s' % ('Ghini', bauble.version))
         try:
-            view.set_icon(gtk.gdk.pixbuf_new_from_file(bauble.default_icon))
+            view.set_icon(GdkPixbuf.Pixbuf.new_from_file(bauble.default_icon))
         except:
             pass
 
@@ -279,9 +279,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
             _("Choose a file…"), None,
-            action=gtk.FILE_CHOOSER_ACTION_SAVE,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            action=Gtk.FileChooserAction.SAVE,
+            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
             last_folder=last_folder, target='file_entry')
 
     def on_pictureroot_btnbrowse_clicked(self, *args):
@@ -289,9 +289,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
             _("Choose a file…"), None,
-            action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            action=Gtk.FileChooserAction.SELECT_FOLDER,
+            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
             last_folder=last_folder, target='pictureroot_entry')
 
     def on_pictureroot2_btnbrowse_clicked(self, *args):
@@ -299,9 +299,9 @@ class ConnMgrPresenter(GenericEditorPresenter):
         last_folder, bn = os.path.split(previously)
         self.view.run_file_chooser_dialog(
             _("Choose a file…"), None,
-            action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            action=Gtk.FileChooserAction.SELECT_FOLDER,
+            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
             last_folder=last_folder, target='pictureroot2_entry')
 
     def refresh_view(self):
@@ -339,17 +339,17 @@ class ConnMgrPresenter(GenericEditorPresenter):
         """
         The dialog's response signal handler.
         """
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             settings = self.get_params()
             valid, msg = self.check_parameters_valid(settings)
             if not valid:
-                self.view.run_message_dialog(msg, gtk.MESSAGE_ERROR)
+                self.view.run_message_dialog(msg, Gtk.MessageType.ERROR)
             if valid:
                 ## picture root is also made available in global setting
                 prefs.prefs[prefs.picture_root_pref] = settings['pictures']
                 self.save_current_to_prefs()
-        elif response == gtk.RESPONSE_CANCEL or \
-                response == gtk.RESPONSE_DELETE_EVENT:
+        elif response == Gtk.ResponseType.CANCEL or \
+                response == Gtk.ResponseType.DELETE_EVENT:
             if not self.are_prefs_already_saved(self.connection_name):
                 msg = _("Do you want to save your changes?")
                 if self.view.run_yes_no_dialog(msg):
@@ -405,8 +405,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
         name = self.view.run_entry_dialog(
             _("Enter a connection name"),
             self.view.get_window(),
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
         if name is not '':
             self.connection_name = name
             self.connection_names.insert(0, name)
@@ -495,8 +495,8 @@ class ConnMgrPresenter(GenericEditorPresenter):
         passwd = self.view.run_entry_dialog(
             title,
             self.view.get_window(),
-            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT),
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
             visible=False)
         return passwd
 
@@ -655,7 +655,7 @@ def start_connection_manager(default_conn=None):
 
     cm = ConnMgrPresenter(view)
     result = cm.start()
-    if result == gtk.RESPONSE_OK:
+    if result == Gtk.ResponseType.OK:
         return cm.connection_name, cm.connection_uri
     else:
         return None, None

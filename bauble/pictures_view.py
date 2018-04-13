@@ -18,7 +18,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 import bauble.utils as utils
 
 
-class PicturesView(gtk.HBox):
+class PicturesView(Gtk.HBox):
     """shows pictures corresponding to selection.
 
     at any time, no more than one PicturesView object will exist.
@@ -77,7 +77,7 @@ class PicturesView(gtk.HBox):
                 pics = []
             for p in pics:
                 logger.debug('object %s has picture %s' % (o, p))
-                expander = gtk.HBox()
+                expander = Gtk.HBox()
                 expander.add(p)
                 self.box.pack_end(expander, expand=False, fill=False)
                 self.box.reorder_child(expander, 0)

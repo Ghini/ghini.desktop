@@ -67,8 +67,8 @@ addasdadadad"""
         """
         Test bauble.utils.search_tree_model
         """
-        import gtk
-        model = gtk.TreeStore(str)
+        from gi.repository import Gtk
+        model = Gtk.TreeStore(str)
 
         # the rows that should be found
         to_find = []

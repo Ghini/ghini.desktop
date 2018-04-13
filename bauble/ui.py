@@ -24,7 +24,7 @@
 import os
 import traceback
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -61,13 +61,13 @@ class DefaultView(pluginmgr.View):
         # splash window contains a hbox: left half is for the proper splash,
         # right half for infobox, only one infobox is allowed.
 
-        self.hbox = gtk.HBox(False, 0)
+        self.hbox = Gtk.HBox(False, 0)
         self.add(self.hbox)
 
-        image = gtk.Image()
+        image = Gtk.Image()
         image.set_from_file(os.path.join(paths.lib_dir(), 'images',
                                          'bauble_logo.png'))
-        self.hbox.pack_start(image, expand=True)
+        self.hbox.pack_start(image, True, True, 0)
 
         # the following means we do not have an infobox yet
         self.infobox = None
@@ -128,7 +128,7 @@ class GUI(object):
 
         try:
             logger.debug("loading icon from %s" % bauble.default_icon)
-            pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file(bauble.default_icon)
             self.window.set_icon(pixbuf)
         except Exception:
             logger.warning(_('Could not load icon from %s')
@@ -136,18 +136,18 @@ class GUI(object):
             logger.warning(traceback.format_exc())
 
         menubar = self.create_main_menu()
-        self.widgets.menu_box.pack_start(menubar)
+        self.widgets.menu_box.pack_start(menubar, True, True, 0)
 
         combo = self.widgets.main_comboentry
-        model = gtk.ListStore(str)
+        model = Gtk.ListStore(str)
         combo.set_model(model)
         self.populate_main_entry()
 
-        main_entry = combo.child
+        main_entry = combo.get_child()
         main_entry.connect('activate', self.on_main_entry_activate)
-        accel_group = gtk.AccelGroup()
+        accel_group = Gtk.AccelGroup()
         main_entry.add_accelerator("grab-focus", accel_group, ord('L'),
-                                   gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+                                   Gdk.ModifierType.CONTROL_MASK, Gtk.AccelFlags.VISIBLE)
         self.window.add_accel_group(accel_group)
 
         self.widgets.home_button.connect(
@@ -165,7 +165,7 @@ class GUI(object):
         self.set_default_view()
 
         # add a progressbar to the status bar
-        # Warning: this relies on gtk.Statusbar internals and could break in
+        # Warning: this relies on Gtk.Statusbar internals and could break in
         # future versions of gtk
         statusbar = self.widgets.statusbar
         statusbar.set_spacing(10)
@@ -180,17 +180,17 @@ class GUI(object):
 
         # remove label from frame
         frame = statusbar.get_children()[0]
-        #frame.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FF0000'))
+        #frame.modify_bg(Gtk.StateType.NORMAL, Gdk.color_parse('#FF0000'))
         label = frame.get_children()[0]
         frame.remove(label)
 
         # replace label with hbox and put label and progress bar in hbox
-        hbox = gtk.HBox(False, 5)
+        hbox = Gtk.HBox(False, 5)
         frame.add(hbox)
         hbox.pack_start(label, True, True, 0)
-        vbox = gtk.VBox(True, 0)
+        vbox = Gtk.VBox(True, 0)
         hbox.pack_end(vbox, False, True, 15)
-        self.progressbar = gtk.ProgressBar()
+        self.progressbar = Gtk.ProgressBar()
         vbox.pack_start(self.progressbar, False, False, 0)
         self.progressbar.set_size_request(-1, 10)
         vbox.show()
@@ -224,8 +224,8 @@ class GUI(object):
                                     utils.MESSAGE_BOX_INFO)
         box.message = msg
         box.details = details
-        colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
-                  ('bg', gtk.STATE_PRELIGHT, '#FFAAAA')]
+        colors = [('bg', Gtk.StateType.NORMAL, '#FF9999'),
+                  ('bg', Gtk.StateType.PRELIGHT, '#FFAAAA')]
         for color in colors:
             box.set_color(*color)
         box.show()
@@ -239,7 +239,7 @@ class GUI(object):
                                     utils.MESSAGE_BOX_INFO)
         box.message = msg
         box.show()
-        # colors = [('bg', gtk.STATE_NORMAL, '#b6daf2')]
+        # colors = [('bg', Gtk.StateType.NORMAL, '#b6daf2')]
         # self._msg_common(msg, colors)
         # self.widgets.msg_eventbox.show()
 
@@ -254,7 +254,7 @@ class GUI(object):
     history_size = property(_get_history_size)
 
     def send_command(self, command):
-        self.widgets.main_comboentry.child.set_text(command)
+        self.widgets.main_comboentry.get_child().set_text(command)
         self.widgets.go_button.emit("clicked")
 
     def on_main_entry_activate(self, widget, data=None):
@@ -268,14 +268,14 @@ class GUI(object):
     def on_prev_view_button_clicked(self, widget):
         '''
         '''
-        self.widgets.main_comboentry.child.set_text('')
+        self.widgets.main_comboentry.get_child().set_text('')
         bauble.gui.set_view('previous')
 
     def on_go_button_clicked(self, widget):
         '''
         '''
         self.close_message_box()
-        text = self.widgets.main_comboentry.child.get_text()
+        text = self.widgets.main_comboentry.get_child().get_text()
         if text == '':
             return
         self.add_to_history(text)
@@ -302,11 +302,11 @@ class GUI(object):
             parent=None,
             root_widget_name='main_dialog')
         qb = search.QueryBuilder(view)
-        qb.set_query(self.widgets.main_comboentry.child.get_text())
+        qb.set_query(self.widgets.main_comboentry.get_child().get_text())
         response = qb.start()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             query = qb.get_query()
-            self.widgets.main_comboentry.child.set_text(query)
+            self.widgets.main_comboentry.get_child().set_text(query)
             self.widgets.go_button.emit("clicked")
         qb.cleanup()
             
@@ -335,13 +335,13 @@ class GUI(object):
         main_combo = self.widgets.main_comboentry
         model = main_combo.get_model()
         model.clear()
-        main_entry = self.widgets.main_comboentry.child
+        main_entry = self.widgets.main_comboentry.get_child()
         completion = main_entry.get_completion()
         if completion is None:
-            completion = gtk.EntryCompletion()
+            completion = Gtk.EntryCompletion()
             completion.set_text_column(0)
             main_entry.set_completion(completion)
-            compl_model = gtk.ListStore(str)
+            compl_model = Gtk.ListStore(str)
             completion.set_model(compl_model)
             completion.set_popup_completion(False)
             completion.set_inline_completion(True)
@@ -365,12 +365,12 @@ class GUI(object):
     def set_busy(self, busy):
         self.widgets.main_box.set_sensitive(not busy)
         if busy:
-            self.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+            self.window.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.WATCH))
         else:
             self.window.window.set_cursor(None)
 
     def set_default_view(self):
-        main_entry = self.widgets.main_comboentry.child
+        main_entry = self.widgets.main_comboentry.get_child()
         if main_entry is not None:
             main_entry.set_text('')
         SplashCommandHandler.view = DefaultView()
@@ -417,7 +417,7 @@ class GUI(object):
         get the main menu from the UIManager XML description, add its actions
         and return the menubar
         """
-        self.ui_manager = gtk.UIManager()
+        self.ui_manager = Gtk.UIManager()
 
         # add accel group
         accel_group = self.ui_manager.get_accel_group()
@@ -427,49 +427,49 @@ class GUI(object):
         # menu item
 
         # create and addaction group for menu actions
-        menu_actions = gtk.ActionGroup("MenuActions")
+        menu_actions = Gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, _("_File")),
-                                  ("file_new", gtk.STOCK_NEW, _("_New"),
+                                  ("file_new", Gtk.STOCK_NEW, _("_New"),
                                    None, None, self.on_file_menu_new),
-                                  ("file_open", gtk.STOCK_OPEN, _("_Open"),
+                                  ("file_open", Gtk.STOCK_OPEN, _("_Open"),
                                    '<ctrl>o', None, self.on_file_menu_open),
-                                  ("file_quit", gtk.STOCK_QUIT, _("_Quit"),
+                                  ("file_quit", Gtk.STOCK_QUIT, _("_Quit"),
                                    None, None, self.on_quit),
                                   ("edit", None, _("_Edit")),
-                                  ("edit_cut", gtk.STOCK_CUT, _("_Cut"), None,
+                                  ("edit_cut", Gtk.STOCK_CUT, _("_Cut"), None,
                                    None, self.on_edit_menu_cut),
-                                  ("edit_copy", gtk.STOCK_COPY, _("_Copy"),
+                                  ("edit_copy", Gtk.STOCK_COPY, _("_Copy"),
                                    None, None, self.on_edit_menu_copy),
-                                  ("edit_paste", gtk.STOCK_PASTE, _("_Paste"),
+                                  ("edit_paste", Gtk.STOCK_PASTE, _("_Paste"),
                                    None, None, self.on_edit_menu_paste),
                                   ("insert", None, _("_Insert")),
                                   ("tools", None, _("_Tools")),
                                   ("help", None, _("_Help")),
-                                  ("help_contents", gtk.STOCK_HELP,
+                                  ("help_contents", Gtk.STOCK_HELP,
                                    _("Contents"), None, None,
                                    self.on_help_menu_contents),
                                   ("help_bug", None, _("Report a bug"), None,
                                    None, self.on_help_menu_bug),
-                                  ("help_logfile", gtk.STOCK_PROPERTIES,
+                                  ("help_logfile", Gtk.STOCK_PROPERTIES,
                                    _("Open the log-file"), None,
                                    None, self.on_help_menu_logfile),
-                                  ("help_web.devel", gtk.STOCK_HOME,
+                                  ("help_web.devel", Gtk.STOCK_HOME,
                                    _("Ghini development website"), None,
                                    None, self.on_help_menu_web_devel),
-                                  ("help_web.wiki", gtk.STOCK_EDIT,
+                                  ("help_web.wiki", Gtk.STOCK_EDIT,
                                    _("Ghini wiki"), None,
                                    None, self.on_help_menu_web_wiki),
-                                  ("help_web.forum", gtk.STOCK_JUSTIFY_LEFT,
+                                  ("help_web.forum", Gtk.STOCK_JUSTIFY_LEFT,
                                    _("Ghini forum"), None,
                                    None, self.on_help_menu_web_forum),
-                                  ("help_about", gtk.STOCK_ABOUT, _("About"),
+                                  ("help_about", Gtk.STOCK_ABOUT, _("About"),
                                    None, None, self.on_help_menu_about),
                                   ])
         menu_actions.get_action('file_new').set_sensitive(False)
         menu_actions.get_action('file_open').set_sensitive(False)
         self.ui_manager.insert_action_group(menu_actions, 0)
 
-        # TODO: The menubar was made available in gtk.Builder in Gtk+
+        # TODO: The menubar was made available in Gtk.Builder in Gtk+
         # 2.16 so whenever we decide 2.16 is the minimum version we
         # should get rid of this .ui file
 
@@ -506,7 +506,7 @@ class GUI(object):
         :param menu:
         :param index:
         '''
-        menu_item = gtk.MenuItem(name)
+        menu_item = Gtk.MenuItem(name)
         menu_item.set_submenu(menu)
         self.menubar.insert(menu_item, len(self.menubar.get_children())-1)
         self.menubar.show_all()
@@ -523,7 +523,7 @@ class GUI(object):
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()
-        item = gtk.MenuItem(label)
+        item = Gtk.MenuItem(label)
         item.connect('activate', self.on_insert_menu_item_activate, editor)
         submenu.append(item)
         self.__insert_menu_cache[label] = item
@@ -562,7 +562,7 @@ class GUI(object):
         # add the tools with no category to the root menu
         root_tools = sorted(tools.pop('__root'))
         for tool in root_tools:
-            item = gtk.MenuItem(tool.label)
+            item = Gtk.MenuItem(tool.label)
             item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             menu.append(item)
@@ -571,13 +571,13 @@ class GUI(object):
 
         # create submenus for the categories and add the tools
         for category in sorted(tools.keys()):
-            submenu = gtk.Menu()
-            submenu_item = gtk.MenuItem(category)
+            submenu = Gtk.Menu()
+            submenu_item = Gtk.MenuItem(category)
             submenu_item.set_submenu(submenu)
             menu.append(submenu_item)
             for tool in sorted(tools[category],
                                cmp=lambda x, y: cmp(x.label, y.label)):
-                item = gtk.MenuItem(tool.label)
+                item = Gtk.MenuItem(tool.label)
                 item.connect("activate", self.on_tools_menu_item_activate,
                              tool)
                 submenu.append(item)
@@ -595,7 +595,7 @@ class GUI(object):
         except Exception, e:
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR)
+                                         Gtk.MessageType.ERROR)
             logger.debug(traceback.format_exc())
 
     def on_insert_menu_item_activate(self, widget, editor_cls):
@@ -618,7 +618,7 @@ class GUI(object):
         except Exception, e:
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR)
+                                         Gtk.MessageType.ERROR)
             logger.error('bauble.gui.on_insert_menu_item_activate():\n %s'
                          % traceback.format_exc())
             return
@@ -648,13 +648,13 @@ class GUI(object):
                 logger.warning('%s leaked: %s' % (view_cls.__name__, obj))
 
     def on_edit_menu_cut(self, widget, data=None):
-        self.widgets.main_comboentry.child.cut_clipboard()
+        self.widgets.main_comboentry.get_child().cut_clipboard()
 
     def on_edit_menu_copy(self, widget, data=None):
-        self.widgets.main_comboentry.child.copy_clipboard()
+        self.widgets.main_comboentry.get_child().copy_clipboard()
 
     def on_edit_menu_paste(self, widget, data=None):
-        self.widgets.main_comboentry.child.paste_clipboard()
+        self.widgets.main_comboentry.get_child().paste_clipboard()
 
     def on_file_menu_new(self, widget, data=None):
         msg = "If a database already exists at this connection then creating "\
@@ -676,7 +676,7 @@ class GUI(object):
             msg = _('Could not create a new database.\n\n%s') % \
                 utils.xml_safe(e)
             tb = utils.xml_safe(traceback.format_exc())
-            utils.message_details_dialog(msg, tb, gtk.MESSAGE_ERROR)
+            utils.message_details_dialog(msg, tb, Gtk.MessageType.ERROR)
             return
         self.set_default_view()
 
@@ -723,13 +723,13 @@ class GUI(object):
 
     def statusbar_clear(self):
         """
-        Call gtk.Statusbar.pop() for each context_id that had previously
+        Call Gtk.Statusbar.pop() for each context_id that had previously
         been pushed() onto the the statusbar stack.  This might not clear
         all the messages in the statusbar but it's the best we can do
         without knowing how many messages are in the stack.
         """
         # TODO: to clear everything in the statusbar we would probably
-        # have to subclass gtk.Statusbar to keep track of the message
+        # have to subclass Gtk.Statusbar to keep track of the message
         # ids and context ids so we can properly clear the statusbar.
         for cid in self._cids:
             self.widgets.statusbar.pop(cid)
@@ -759,14 +759,14 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_about(self, widget, data=None):
-        about = gtk.AboutDialog()
+        about = Gtk.AboutDialog()
         about.set_name('Ghini')
         about.set_version(bauble.version)
-        gtk.about_dialog_set_url_hook(lambda d, l:
+        Gtk.about_dialog_set_url_hook(lambda d, l:
                                       desktop.open(l, dialog_on_error=True))
         about.set_website(_('http://ghini.github.io'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
-        pixbuf = gtk.gdk.pixbuf_new_from_file(f)
+        pixbuf = GdkPixbuf.Pixbuf.new_from_file(f)
         about.set_logo(pixbuf)
         about.set_copyright(_(u'Copyright © by its contributors.'))
 

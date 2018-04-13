@@ -20,7 +20,7 @@
 #
 # assistant.py
 #
-# Descriptions: use gtk.Assistant to create a new database wizard
+# Descriptions: use Gtk.Assistant to create a new database wizard
 #
 # issue #29: implement the assistant
 #
