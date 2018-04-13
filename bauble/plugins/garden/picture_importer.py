@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GdkPixbuf
 import threading
 import glib
 import re

@@ -25,6 +25,7 @@ import os
 import traceback
 
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 
 import logging
 logger = logging.getLogger(__name__)

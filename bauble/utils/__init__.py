@@ -33,6 +33,7 @@ import xml.sax.saxutils as saxutils
 
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GdkPixbuf
 import glib
 
 import logging
@@ -283,7 +284,11 @@ class BuilderLoader(object):
         if filename in cls.builders.keys():
             return cls.builders[filename]
         b = Gtk.Builder()
-        b.add_from_file(filename)
+        try:
+            b.add_from_file(filename)
+        except Exception, e:
+            print filename, type(e), e
+            raise
         cls.builders[filename] = b
         return b
 

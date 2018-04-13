@@ -35,6 +35,7 @@ logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
 from gi.repository import Gtk
+from gi.repository import GdkPixbuf
 
 import bauble
 from bauble import paths, prefs, utils

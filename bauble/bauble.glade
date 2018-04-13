@@ -191,23 +191,12 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBox" id="main_comboentry">
+                  <object class="GtkComboBoxText" id="main_comboentry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="text_column">0</property>
                     <child>
                       <object class="GtkCellRendererText" id="main_cellrenderertext1">
                         <property name="xalign">0</property>
-                      </object>
-                    </child>
-                    <child internal-child="entry">
-                      <object class="GtkEntry" id="comboboxentry-entry2">
-                        <property name="can_focus">True</property>
-                        <property name="tooltip_text" translatable="yes">enter here your query or command</property>
-                        <property name="primary_icon_activatable">False</property>
-                        <property name="secondary_icon_activatable">False</property>
-                        <property name="primary_icon_sensitive">True</property>
-                        <property name="secondary_icon_sensitive">True</property>
                       </object>
                     </child>
                   </object>

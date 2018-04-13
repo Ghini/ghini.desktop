@@ -36,6 +36,7 @@ import glib
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
+from gi.repository import GdkPixbuf
 
 from random import random
 import dateutil.parser as date_parser
