@@ -32,7 +32,7 @@ from bauble.test import BaubleTestCase, check_dupids, mockfunc
 from bauble.editor import GenericEditorView, MockView
 import bauble.utils as utils
 from functools import partial
-import gtk
+from gi.repository import Gtk
 
 
 def test_duplicate_ids():
@@ -50,7 +50,7 @@ def test_duplicate_ids():
 class TagMenuTests(BaubleTestCase):
     def test_no_tags(self):
         m = tag_plugin.tags_menu_manager.build_menu()
-        self.assertTrue(isinstance(m, gtk.Menu))
+        self.assertTrue(isinstance(m, Gtk.Menu))
         self.assertEquals(len(m.get_children()), 1)
         self.assertEquals(m.get_children()[0].get_label(), _('Tag Selection'))
 
@@ -60,11 +60,11 @@ class TagMenuTests(BaubleTestCase):
         self.session.add(t)
         self.session.flush()
         m = tag_plugin.tags_menu_manager.build_menu()
-        self.assertTrue(isinstance(m, gtk.Menu))
+        self.assertTrue(isinstance(m, Gtk.Menu))
         self.assertEquals(len(m.get_children()), 6)
-        self.assertTrue(m.get_children()[1], gtk.SeparatorMenuItem)
+        self.assertTrue(m.get_children()[1], Gtk.SeparatorMenuItem)
         self.assertEquals(m.get_children()[2].get_label(), tagname)
-        self.assertTrue(m.get_children()[3], gtk.SeparatorMenuItem)
+        self.assertTrue(m.get_children()[3], Gtk.SeparatorMenuItem)
 
     def test_more_tags(self):
         tagname = u'%s-some_tag'
@@ -76,7 +76,7 @@ class TagMenuTests(BaubleTestCase):
         self.session.add_all([t1, t2, t3, t4, t5])
         self.session.flush()
         m = tag_plugin.tags_menu_manager.build_menu()
-        self.assertTrue(isinstance(m, gtk.Menu))
+        self.assertTrue(isinstance(m, Gtk.Menu))
         self.assertEquals(len(m.get_children()), 10)
         for i in range(5):
             self.assertEquals(m.get_children()[i + 2].get_label(), tagname % i)
@@ -335,7 +335,7 @@ class MockTagView(GenericEditorView):
         self.sensitive = False
         self.dict = {}
         self.widgets = None
-        self.window = gtk.Dialog()
+        self.window = Gtk.Dialog()
 
     def get_window(self):
         return self.window
@@ -503,7 +503,7 @@ class TagInfoBoxTest(BaubleTestCase):
         self.assertEquals(ib.widgets.ib_name_label.get_text(), t.tag)
         self.assertEquals(len(ib.general.table_cells), 2)
         self.assertEquals(ib.general.table_cells[0].get_text(), u'Tag')
-        self.assertEquals(type(ib.general.table_cells[1]), gtk.EventBox)
+        self.assertEquals(type(ib.general.table_cells[1]), Gtk.EventBox)
         label = ib.general.table_cells[1].get_children()[0]
         self.assertEquals(label.get_text(), ' 3 ')
 

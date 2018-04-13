@@ -22,7 +22,7 @@
 import os
 import re
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -520,7 +520,7 @@ class UsersEditor(editor.GenericEditorView):
         for column in tree.get_columns():
             tree.remove_column(column)
 
-        renderer = gtk.CellRendererText()
+        renderer = Gtk.CellRendererText()
         def cell_data_func(col, cell, model, it):
             value = model[it][0]
             cell.set_property('text', value)
@@ -543,7 +543,7 @@ class UsersEditor(editor.GenericEditorView):
                 try:
                     set_privilege(role, priv)
                 except Exception, e:
-                    utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+                    utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                          parent=self.get_window())
             return True
 
@@ -594,7 +594,7 @@ class UsersEditor(editor.GenericEditorView):
         try:
             drop(user, revoke=True)
         except Exception, e:
-            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+            utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                  parent=self.get_window())
         else:
             active = self.widgets.filter_check.get_active()
@@ -618,7 +618,7 @@ class UsersEditor(editor.GenericEditorView):
         """
         tree = self.widgets.users_tree
         utils.clear_model(tree)
-        model = gtk.ListStore(str)
+        model = Gtk.ListStore(str)
         for user in get_users():
             if only_bauble and has_privileges(user, 'read'):
                 model.append([user])
@@ -641,27 +641,27 @@ class UsersEditor(editor.GenericEditorView):
         self.widgets.pwd_entry1.set_text('')
         self.widgets.pwd_entry2.set_text('')
         response = dialog.run()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             pwd1 = self.widgets.pwd_entry1.get_text()
             pwd2 = self.widgets.pwd_entry2.get_text()
             user = self.get_selected_user()
             if pwd1 == '' or pwd2 == '':
                 msg = _('The password for user <b>%s</b> has not been '
                         'changed.') % user
-                utils.message_dialog(msg, gtk.MESSAGE_WARNING,
+                utils.message_dialog(msg, Gtk.MessageType.WARNING,
                                      parent=self.get_window())
                 return
             elif pwd1 != pwd2:
                 msg = _('The passwords do not match.  The password for '
                         'user <b>%s</b> has not been changed.') % user
-                utils.message_dialog(msg, gtk.MESSAGE_WARNING,
+                utils.message_dialog(msg, Gtk.MessageType.WARNING,
                                      parent=self.get_window())
                 return
             else:
                 try:
                     set_password(pwd1, user)
                 except Exception, e:
-                    utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+                    utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                          parent=self.get_window())
 
         # TODO: show a dialog that says the pwd has been changed or
@@ -726,7 +726,7 @@ class UsersEditor(editor.GenericEditorView):
             create_user(user)
             set_privilege(user, 'read')
         except Exception, e:
-            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_ERROR,
+            utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                  parent=self.get_window())
             model.remove(model.get_iter(path))
         else:

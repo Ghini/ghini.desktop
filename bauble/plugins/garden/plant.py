@@ -32,7 +32,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-import gtk
+from gi.repository import Gtk
 
 
 from sqlalchemy import and_, func
@@ -76,7 +76,7 @@ def branch_callback(plants):
     if plants[0].quantity <= 1:
         msg = _("Not enough plants to split.  A plant should have at least "
                 "a quantity of 2 before it can be divided")
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        utils.message_dialog(msg, Gtk.MessageType.WARNING)
         return
 
     e = PlantEditor(model=plants[0], branch_mode=True)
@@ -100,7 +100,7 @@ def remove_callback(plants):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
 
         utils.message_details_dialog(msg, traceback.format_exc(),
-                                     type=gtk.MESSAGE_ERROR)
+                                     type=Gtk.MessageType.ERROR)
     finally:
         session.close()
     return True
@@ -844,8 +844,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         else:
             # remove_problem() won't complain if problem doesn't exist
             self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
-            entry.modify_bg(gtk.STATE_NORMAL, None)
-            entry.modify_base(gtk.STATE_NORMAL, None)
+            entry.modify_bg(Gtk.StateType.NORMAL, None)
+            entry.modify_base(Gtk.StateType.NORMAL, None)
             entry.queue_draw()
 
         self.refresh_sensitivity()
@@ -868,7 +868,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # character is entered then the edit button doesn't sensitize
         # properly
         #
-        # combo_entry = self.view.widgets.plant_loc_comboentry.child
+        # combo_entry = self.view.widgets.plant_loc_comboentry.get_child()
         # self.view.widgets.plant_loc_edit_button.\
         #     set_sensitive(self.model.location is not None \
         #                       and not self.has_problems(combo_entry))
@@ -1087,7 +1087,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
     def handle_response(self, response):
         not_ok_msg = _('Are you sure you want to lose your changes?')
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+        if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
                 if self.presenter.is_dirty():
                     # commit_changes() will append the commited plants
@@ -1097,7 +1097,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 exc = traceback.format_exc()
                 logger.debug(exc)
                 msg = _('Error committing changes.\n\n%s') % e.orig
-                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 self.session.rollback()
                 return False
             except Exception, e:
@@ -1106,7 +1106,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     % utils.xml_safe(e)
                 logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
+                                             Gtk.MessageType.ERROR)
                 self.session.rollback()
                 return False
         elif (self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg)) \
@@ -1195,7 +1195,7 @@ class GeneralPlantExpander(InfoExpander):
         super(GeneralPlantExpander, self).__init__(_("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.remove_parent(general_box)
-        self.vbox.pack_start(general_box)
+        self.vbox.pack_start(general_box, True, True, 0)
         self.current_obj = None
 
         def on_acc_code_clicked(*args):
@@ -1242,10 +1242,10 @@ class GeneralPlantExpander(InfoExpander):
         self.widget_set_value('type_data', acc_type_values[row.acc_type],
                               False)
 
-        image_size = gtk.ICON_SIZE_MENU
-        stock = gtk.STOCK_NO
+        image_size = Gtk.IconSize.MENU
+        stock = Gtk.STOCK_NO
         if row.memorial:
-            stock = gtk.STOCK_YES
+            stock = Gtk.STOCK_YES
         self.widgets.memorial_image.set_from_stock(stock, image_size)
 
 
@@ -1259,7 +1259,7 @@ class ChangesExpander(InfoExpander):
         """
         super(ChangesExpander, self).__init__(_('Changes'), widgets)
         self.vbox.props.spacing = 5
-        self.table = gtk.Table()
+        self.table = Gtk.Table()
         self.vbox.pack_start(self.table, expand=False, fill=False)
         self.table.props.row_spacing = 3
         self.table.props.column_spacing = 5
@@ -1304,10 +1304,10 @@ class ChangesExpander(InfoExpander):
                 divided_plant = None
 
             date = change.date.strftime(date_format)
-            label = gtk.Label('%s:' % date)
+            label = Gtk.Label(label='%s:' % date)
             label.set_alignment(0, 0)
             self.table.attach(label, 0, 1, current_row, current_row+1,
-                              xoptions=gtk.FILL)
+                              xoptions=Gtk.AttachOptions.FILL)
             if change.to_location and change.from_location:
                 s = '%(quantity)s Transferred from %(from_loc)s to %(to)s' % \
                     dict(quantity=change.quantity,
@@ -1324,21 +1324,21 @@ class ChangesExpander(InfoExpander):
                                       change.to_location)
             if change.reason is not None:
                 s += '\n%s' % change_reasons[change.reason]
-            label = gtk.Label(s)
+            label = Gtk.Label(label=s)
             label.set_alignment(0, .5)
             self.table.attach(label, 1, 2, current_row, current_row+1,
-                              xoptions=gtk.FILL)
+                              xoptions=Gtk.AttachOptions.FILL)
             current_row += 1
             if change.parent_plant:
                 s = _('<i>Split from %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(change.parent_plant))
-                label = gtk.Label()
+                label = Gtk.Label()
                 label.set_alignment(0.0, 0.0)
                 label.set_markup(s)
-                eb = gtk.EventBox()
+                eb = Gtk.EventBox()
                 eb.add(label)
                 self.table.attach(eb, 1, 2, current_row, current_row+1,
-                                  xoptions=gtk.FILL)
+                                  xoptions=Gtk.AttachOptions.FILL)
 
                 def on_clicked(widget, event, parent):
                     select_in_search_results(parent)
@@ -1349,13 +1349,13 @@ class ChangesExpander(InfoExpander):
             if divided_plant:
                 s = _('<i>Split as %(plant)s</i>') % \
                     dict(plant=utils.xml_safe(divided_plant))
-                label = gtk.Label()
+                label = Gtk.Label()
                 label.set_alignment(0.0, 0.0)
                 label.set_markup(s)
-                eb = gtk.EventBox()
+                eb = Gtk.EventBox()
                 eb.add(label)
                 self.table.attach(eb, 1, 2, current_row, current_row+1,
-                                  xoptions=gtk.FILL)
+                                  xoptions=Gtk.AttachOptions.FILL)
 
                 def on_clicked(widget, event, parent):
                     select_in_search_results(parent)
@@ -1391,25 +1391,25 @@ class PropagationExpander(InfoExpander):
         format = prefs.prefs[prefs.date_format_pref]
         for prop in row.propagations:
             # (h1 (v1 (date_lbl)) (v2 (eventbox (accession_lbl)) (label)))
-            h1 = gtk.HBox()
+            h1 = Gtk.HBox()
             h1.set_spacing(3)
-            self.vbox.pack_start(h1)
+            self.vbox.pack_start(h1, True, True, 0)
 
-            v1 = gtk.VBox()
-            v2 = gtk.VBox()
-            h1.pack_start(v1)
-            h1.pack_start(v2)
+            v1 = Gtk.VBox()
+            v2 = Gtk.VBox()
+            h1.pack_start(v1, True, True, 0)
+            h1.pack_start(v2, True, True, 0)
 
-            date_lbl = gtk.Label()
-            v1.pack_start(date_lbl)
+            date_lbl = Gtk.Label()
+            v1.pack_start(date_lbl, True, True, 0)
             date_lbl.set_markup("<b>%s</b>" % prop.date.strftime(format))
             date_lbl.set_alignment(0.0, 0.0)
 
             for acc in prop.accessions:
-                accession_lbl = gtk.Label()
-                eventbox = gtk.EventBox()
+                accession_lbl = Gtk.Label()
+                eventbox = Gtk.EventBox()
                 eventbox.add(accession_lbl)
-                v2.pack_start(eventbox)
+                v2.pack_start(eventbox, True, True, 0)
                 accession_lbl.set_alignment(0.0, 0.0)
                 accession_lbl.set_text(acc.code)
 
@@ -1418,14 +1418,14 @@ class PropagationExpander(InfoExpander):
 
                 utils.make_label_clickable(accession_lbl, on_clicked, acc)
 
-            label = gtk.Label()
-            v2.pack_start(label)
+            label = Gtk.Label()
+            v2.pack_start(label, True, True, 0)
 
             label.set_text(prop.get_summary(partial=2))
             label.props.wrap = True
             label.set_alignment(0.0, 0.0)
             label.connect("size-allocate", label_size_allocate)
-            self.vbox.pack_start(label)
+            self.vbox.pack_start(label, True, True, 0)
         self.vbox.show_all()
 
 

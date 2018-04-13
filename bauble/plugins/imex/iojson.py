@@ -18,7 +18,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -170,9 +170,9 @@ class JSONExporter(editor.GenericEditorPresenter):
     def on_btnbrowse_clicked(self, button):
         self.view.run_file_chooser_dialog(
             _("Choose a file…"), None,
-            action=gtk.FILE_CHOOSER_ACTION_SAVE,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            action=Gtk.FileChooserAction.SAVE,
+            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
             last_folder=self.last_folder, target='filename')
         filename = self.view.widget_get_value('filename')
         JSONExporter.last_folder, bn = os.path.split(filename)
@@ -253,9 +253,9 @@ class JSONImporter(editor.GenericEditorPresenter):
     def on_btnbrowse_clicked(self, button):
         self.view.run_file_chooser_dialog(
             _("Choose a file…"), None,
-            action=gtk.FILE_CHOOSER_ACTION_OPEN,
-            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL),
+            action=Gtk.FileChooserAction.OPEN,
+            buttons=(Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                     Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
             last_folder=self.last_folder, target='input_filename')
         filename = self.view.widget_get_value('input_filename')
         JSONImporter.last_folder, bn = os.path.split(filename)

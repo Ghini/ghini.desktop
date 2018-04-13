@@ -34,11 +34,11 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
-import gtk
+from gi.repository import Gtk
 
 
 import lxml.etree as etree
-import pango
+from gi.repository import Pango
 from sqlalchemy import and_, or_, func
 from sqlalchemy import ForeignKey, Column, Unicode, Integer, Boolean, \
     UnicodeText
@@ -147,7 +147,7 @@ def generic_taxon_add_action(model, view, presenter, top_presenter,
         presenter.session.add(committed)
         taxon_entry.set_text("%s" % committed)
         presenter.remove_problem(
-            hash(gtk.Buildable.get_name(taxon_entry)), None)
+            hash(Gtk.Buildable.get_name(taxon_entry)), None)
         setattr(model, 'species', committed)
         presenter._dirty = True
         top_presenter.refresh_sensitivity()
@@ -180,7 +180,7 @@ def remove_callback(accessions):
         msg = (_('%(num_plants)s plants depend on this accession: '
                  '<b>%(plant_codes)s</b>\n\n') % values +
                _('You cannot remove an accession with plants.'))
-        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        utils.message_dialog(msg, type=Gtk.MessageType.WARNING)
         return
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
@@ -195,7 +195,7 @@ def remove_callback(accessions):
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(unicode(e))
         utils.message_details_dialog(msg, traceback.format_exc(),
-                                     type=gtk.MESSAGE_ERROR)
+                                     type=Gtk.MessageType.ERROR)
     finally:
         session.close()
     return True
@@ -898,7 +898,7 @@ class AccessionEditorView(editor.GenericEditorView):
                                             minimum_key_length=1,
                                             match_func=self.datum_match,
                                             text_column=0)
-        model = gtk.ListStore(str)
+        model = Gtk.ListStore(str)
         for abbr in sorted(datums.keys()):
             # TODO: should create a marked up string with the datum description
             model.append([abbr])
@@ -1017,7 +1017,7 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         # intialize vouchers treeview
         treeview = self.view.widgets.voucher_treeview
         utils.clear_model(treeview)
-        model = gtk.ListStore(object)
+        model = Gtk.ListStore(object)
         for voucher in self.model.vouchers:
             if not voucher.parent_material:
                 model.append([voucher])
@@ -1026,7 +1026,7 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         # initialize parent vouchers treeview
         treeview = self.view.widgets.parent_voucher_treeview
         utils.clear_model(treeview)
-        model = gtk.ListStore(object)
+        model = Gtk.ListStore(object)
         for voucher in self.model.vouchers:
             if voucher.parent_material:
                 model.append([voucher])
@@ -1131,7 +1131,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         box.show_all()
         return box
 
-    class VerificationBox(gtk.HBox):
+    class VerificationBox(Gtk.HBox):
 
         def __init__(self, parent, model):
             super(VerificationPresenter.VerificationBox, self).__init__(self)
@@ -1148,7 +1148,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                     "acc_editor.glade")
             xml = etree.parse(filename)
             el = xml.find("//object[@id='ver_box']")
-            builder = gtk.Builder()
+            builder = Gtk.Builder()
             s = '<interface>%s</interface>' % etree.tostring(el)
             if sys.platform == 'win32':
                 # NOTE: PyGTK for Win32 is broken so we have to include
@@ -1233,8 +1233,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 ver_new_taxon_entry)
 
             combo = self.widgets.ver_level_combo
-            renderer = gtk.CellRendererText()
-            renderer.props.wrap_mode = pango.WRAP_WORD
+            renderer = Gtk.CellRendererText()
+            renderer.props.wrap_mode = Pango.WrapMode.WORD
             # TODO: should auto calculate the wrap width with a
             # on_size_allocation callback
             renderer.props.wrap_width = 400
@@ -1246,7 +1246,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 cell.set_property('markup', '<b>%s</b>  :  %s'
                                   % (level, descr))
             combo.set_cell_data_func(renderer, cell_data_func)
-            model = gtk.ListStore(int, str)
+            model = Gtk.ListStore(int, str)
             for level, descr in ver_level_descriptions.iteritems():
                 model.append([level, descr])
             combo.set_model(model)
@@ -1258,7 +1258,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # notes text view
             textview = self.widgets.ver_notes_textview
             textview.set_border_width(1)
-            buff = gtk.TextBuffer()
+            buff = Gtk.TextBuffer()
             if self.model.notes:
                 buff.props.text = self.model.notes
             textview.set_buffer(buff)
@@ -1592,12 +1592,12 @@ class SourcePresenter(editor.GenericEditorPresenter):
             if treeiter:
                 active = combo.get_model()[treeiter][0]
         combo.set_model(None)
-        model = gtk.ListStore(object)
+        model = Gtk.ListStore(object)
         none_iter = model.append([''])
         model.append([self.garden_prop_str])
         map(lambda x: model.append([x]), self.session.query(Contact))
         combo.set_model(model)
-        combo.child.get_completion().set_model(model)
+        combo.get_child().get_completion().set_model(model)
 
         combo._populate = True
         if active:
@@ -1626,13 +1626,13 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         combo = self.view.widgets.acc_source_comboentry
         combo.clear()
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell)
+        cell = Gtk.CellRendererText()
+        combo.pack_start(cell, True, True, 0)
         combo.set_cell_data_func(cell, cell_data_func)
 
-        completion = gtk.EntryCompletion()
-        cell = gtk.CellRendererText()  # set up the completion renderer
-        completion.pack_start(cell)
+        completion = Gtk.EntryCompletion()
+        cell = Gtk.CellRendererText()  # set up the completion renderer
+        completion.pack_start(cell, True, True, 0)
         completion.set_cell_data_func(cell, cell_data_func)
 
         def match_func(completion, key, treeiter, data=None):
@@ -1646,7 +1646,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
             return False
         completion.set_match_func(match_func)
 
-        entry = combo.child
+        entry = combo.get_child()
         entry.set_completion(completion)
 
         def update_visible():
@@ -1670,10 +1670,10 @@ class SourcePresenter(editor.GenericEditorPresenter):
             # source is changed and restore them if they are switched
             # back
             if not value:
-                combo.child.props.text = ''
+                combo.get_child().props.text = ''
                 on_select(None)
             else:
-                combo.child.props.text = utils.utf8(value)
+                combo.get_child().props.text = utils.utf8(value)
                 on_select(value)
 
             # don't set the model as dirty if this is called during
@@ -1715,9 +1715,9 @@ class SourcePresenter(editor.GenericEditorPresenter):
                 # set the text value on the entry since it does all the
                 # validation
                 if not detail:
-                    combo.child.props.text = ''
+                    combo.get_child().props.text = ''
                 else:
-                    combo.child.props.text = utils.utf8(detail)
+                    combo.get_child().props.text = utils.utf8(detail)
             update_visible()
             return True
 
@@ -1852,7 +1852,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                     completion = self.view.widgets.acc_species_entry.\
                         get_completion()
                     utils.clear_model(completion)
-                    model = gtk.ListStore(object)
+                    model = Gtk.ListStore(object)
                     model.append([syn.species])
                     completion.set_model(model)
                     self.view.widgets.acc_species_entry.\
@@ -1872,7 +1872,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # connect recvd_type comboentry widget and child entry
         self.view.connect('acc_recvd_type_comboentry', 'changed',
                           self.on_recvd_type_comboentry_changed)
-        self.view.connect(self.view.widgets.acc_recvd_type_comboentry.child,
+        self.view.connect(self.view.widgets.acc_recvd_type_comboentry.get_child(),
                           'changed', self.on_recvd_type_entry_changed)
 
         # TODO: could probably replace this by just passing a valdator
@@ -2025,7 +2025,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         utils.clear_model(combo)
         if not self.model.species:
             return
-        model = gtk.ListStore(str, str)
+        model = Gtk.ListStore(str, str)
         species = self.model.species
         it = model.append([str(species.genus), 'genus'])
         active = None
@@ -2086,10 +2086,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             value = combo.get_model()[treeiter][0]
         else:
             # the changed handler is fired again after the
-            # combo.child.props.text with the activer iter set to None
+            # combo.get_child().props.text with the activer iter set to None
             return True
         # the entry change handler does the validation of the model
-        combo.child.props.text = recvd_type_values[value]
+        combo.get_child().props.text = recvd_type_values[value]
 
     def on_recvd_type_entry_changed(self, entry, *args):
         """
@@ -2321,7 +2321,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         handle the response from self.presenter.start() in self.start()
         '''
         not_ok_msg = _('Are you sure you want to lose your changes?')
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+        if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
                 if not self.presenter.validate():
                     # TODO: ideally the accept buttons wouldn't have
@@ -2337,14 +2337,14 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
                     utils.xml_safe(unicode(e.orig))
-                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
                     % utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
+                                             Gtk.MessageType.ERROR)
                 return False
         elif self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg) \
                 or not self.presenter.is_dirty():
@@ -2472,7 +2472,7 @@ class GeneralAccessionExpander(InfoExpander):
         super(GeneralAccessionExpander, self).__init__(_("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.general_window.remove(general_box)
-        self.vbox.pack_start(general_box)
+        self.vbox.pack_start(general_box, True, True, 0)
         self.current_obj = None
         self.private_image = self.widgets.acc_private_data
 
@@ -2504,7 +2504,7 @@ class GeneralAccessionExpander(InfoExpander):
         acc_private = self.widgets.acc_private_data
         if row.private:
             if acc_private.parent != self.widgets.acc_code_box:
-                self.widgets.acc_code_box.pack_start(acc_private)
+                self.widgets.acc_code_box.pack_start(acc_private, True, True, 0)
         else:
             self.widgets.remove_parent(acc_private)
 
@@ -2548,10 +2548,10 @@ class GeneralAccessionExpander(InfoExpander):
                 (prov_str, dict(wild_prov_status_values)[row.wild_prov_status])
         self.widget_set_value('prov_data', prov_str, False)
 
-        image_size = gtk.ICON_SIZE_MENU
-        stock = gtk.STOCK_NO
+        image_size = Gtk.IconSize.MENU
+        stock = Gtk.STOCK_NO
         if row.private:
-            stock = gtk.STOCK_YES
+            stock = Gtk.STOCK_YES
         self.widgets.private_image.set_from_stock(stock, image_size)
 
         loc_map = (('intended_loc_data', 'intended_location'),
@@ -2576,7 +2576,7 @@ class SourceExpander(InfoExpander):
         super(SourceExpander, self).__init__(_('Source'), widgets)
         source_box = self.widgets.source_box
         self.widgets.source_window.remove(source_box)
-        self.vbox.pack_start(source_box)
+        self.vbox.pack_start(source_box, True, True, 0)
 
     def update_collection(self, collection):
         self.widget_set_value('loc_data', collection.locale)
@@ -2676,7 +2676,7 @@ class VerificationsExpander(InfoExpander):
             _("Verifications"), widgets)
         # notes_box = self.widgets.notes_box
         # self.widgets.notes_window.remove(notes_box)
-        # self.vbox.pack_start(notes_box)
+        # self.vbox.pack_start(notes_box, True, True, 0)
 
     def update(self, row):
         pass
@@ -2707,17 +2707,17 @@ class VouchersExpander(InfoExpander):
         parents = filter(lambda v: v.parent_material, row.vouchers)
         for voucher in parents:
             s = '%s %s (parent)' % (voucher.herbarium, voucher.code)
-            label = gtk.Label(s)
+            label = Gtk.Label(label=s)
             label.set_alignment(0.0, 0.5)
-            self.vbox.pack_start(label)
+            self.vbox.pack_start(label, True, True, 0)
             label.show()
 
         not_parents = filter(lambda v: not v.parent_material, row.vouchers)
         for voucher in not_parents:
             s = '%s %s' % (voucher.herbarium, voucher.code)
-            label = gtk.Label(s)
+            label = Gtk.Label(label=s)
             label.set_alignment(0.0, 0.5)
-            self.vbox.pack_start(label)
+            self.vbox.pack_start(label, True, True, 0)
             label.show()
 
 

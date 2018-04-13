@@ -32,7 +32,7 @@ import traceback
 import logging
 logger = logging.getLogger(__name__)
 
-import gtk
+from gi.repository import Gtk
 
 from sqlalchemy import ColumnDefault, Boolean
 
@@ -259,7 +259,7 @@ class CSVImporter(Importer):
         except Exception, e:
             msg = _('Error connecting to database.\n\n%s') % \
                 utils.xml_safe(e)
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            utils.message_dialog(msg, Gtk.MessageType.ERROR)
             return
 
         # create a mapping of table names to filenames
@@ -275,7 +275,7 @@ class CSVImporter(Importer):
                 msg = _('More than one file given to import into table '
                         '<b>%(table_name)s</b>: %(file_name)s, '
                         '(file_name2)s') % values
-                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                utils.message_dialog(msg, Gtk.MessageType.ERROR)
                 return
             filename_dict[table_name] = f
 
@@ -291,7 +291,7 @@ class CSVImporter(Importer):
         if len(filename_dict) > 0:
             msg = _('Could not match all filenames to table names.\n\n%s') \
                 % filename_dict
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            utils.message_dialog(msg, Gtk.MessageType.ERROR)
             return
 
         total_lines = 0
@@ -541,7 +541,7 @@ class CSVImporter(Importer):
                 % col_name
             utils.message_details_dialog(utils.xml_safe(msg),
                                          traceback.format_exc(),
-                                         type=gtk.MESSAGE_ERROR)
+                                         type=Gtk.MessageType.ERROR)
 
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
@@ -553,15 +553,15 @@ class CSVImporter(Importer):
                 return
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
-        fc = gtk.FileChooserDialog(_("Choose file(s) to import…"),
+        fc = Gtk.FileChooserDialog(_("Choose file(s) to import…"),
                                    None,
-                                   gtk.FILE_CHOOSER_ACTION_OPEN,
-                                   (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                    gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+                                   Gtk.FileChooserAction.OPEN,
+                                   (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                                    Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT))
         fc.set_select_multiple(True)
         fc.connect("selection-changed", on_selection_changed)
         filenames = None
-        if fc.run() == gtk.RESPONSE_ACCEPT:
+        if fc.run() == Gtk.ResponseType.ACCEPT:
             filenames = fc.get_filenames()
         fc.destroy()
         return filenames
@@ -577,14 +577,14 @@ class CSVExporter(object):
 
     def start(self, path=None):
         if path is None:
-            d = gtk.FileChooserDialog(_("Select a directory"), None,
-                                      gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                      (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                       gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            d = Gtk.FileChooserDialog(_("Select a directory"), None,
+                                      Gtk.FileChooserAction.SELECT_FOLDER,
+                                      (Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT,
+                                       Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
             response = d.run()
             path = d.get_filename()
             d.destroy()
-            if response != gtk.RESPONSE_ACCEPT:
+            if response != Gtk.ResponseType.ACCEPT:
                 return
 
         if not os.path.exists(path):

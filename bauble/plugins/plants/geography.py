@@ -22,7 +22,7 @@
 #
 from operator import itemgetter
 
-import gtk
+from gi.repository import Gtk
 
 from sqlalchemy import select, Column, Unicode, String, Integer, ForeignKey
 from sqlalchemy.orm import object_session, relation, backref
@@ -61,7 +61,7 @@ def get_species_in_geography(geo):
     return list(q)
 
 
-class GeographyMenu(gtk.Menu):
+class GeographyMenu(Gtk.Menu):
 
     def __init__(self, callback):
         super(GeographyMenu, self).__init__()
@@ -94,7 +94,7 @@ class GeographyMenu(gtk.Menu):
                 return False
 
         def build_menu(geo_id, name):
-            item = gtk.MenuItem(name)
+            item = Gtk.MenuItem(name)
             if not has_kids(geo_id):
                 if item.get_submenu() is None:
                     item.connect('activate', callback, geo_id)
@@ -103,7 +103,7 @@ class GeographyMenu(gtk.Menu):
                 return item
 
             kids_added = False
-            submenu = gtk.Menu()
+            submenu = Gtk.Menu()
             # removes two levels of kids with the same name, there must be a
             # better way to do this but i got tired of thinking about it
             kids = get_kids(geo_id)
@@ -113,9 +113,9 @@ class GeographyMenu(gtk.Menu):
                 submenu.append(build_menu(kid_id, kid_name))
 
             if kids_added:
-                sel_item = gtk.MenuItem(name)
+                sel_item = Gtk.MenuItem(name)
                 submenu.insert(sel_item, 0)
-                submenu.insert(gtk.SeparatorMenuItem(), 1)
+                submenu.insert(Gtk.SeparatorMenuItem(), 1)
                 item.set_submenu(submenu)
                 #self.view.connect(sel_item, 'activate',callback, geo_id)
                 sel_item.connect('activate', callback, geo_id)
@@ -144,8 +144,8 @@ class GeographyMenu(gtk.Menu):
 
             self.show_all()
 
-        import gobject
-        gobject.idle_add(populate)
+        from gi.repository import GObject
+        GObject.idle_add(populate)
 
 
 class Geography(db.Base):

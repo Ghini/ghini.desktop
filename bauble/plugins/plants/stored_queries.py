@@ -18,8 +18,8 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
-import pango
+from gi.repository import Gtk
+from gi.repository import Pango
 
 import logging
 logger = logging.getLogger(__name__)
@@ -118,9 +118,9 @@ class StoredQueriesPresenter(editor.GenericEditorPresenter):
         'stqr_tooltip_entry': 'tooltip',
         'stqr_query_textbuffer': 'query'}
 
-    weight = {False: pango.AttrList(),
-              True: pango.AttrList()}
-    weight[True].insert(pango.AttrWeight(pango.WEIGHT_HEAVY, 0, 50))
+    weight = {False: Pango.AttrList(),
+              True: Pango.AttrList()}
+    #weight[True].insert(Pango.AttrFontDesc(Pango.Weight.HEAVY, 0, 50))
 
     view_accept_buttons = ['stqr_ok_button', ]
 

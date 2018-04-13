@@ -31,8 +31,8 @@ import traceback
 import logging
 logger = logging.getLogger(__name__)
 
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 
 from sqlalchemy import union
 
@@ -260,7 +260,7 @@ def get_locations_pertinent_to(objs, session=None):
         key=str)
 
 
-class SettingsBox(gtk.VBox):
+class SettingsBox(Gtk.VBox):
     """
     the interface to use for the settings box, formatters should
     implement this interface and return it from the formatters's get_settings
@@ -289,7 +289,7 @@ class FormatterPlugin(pluginmgr.Plugin):
     @staticmethod
     def get_settings_box():
         '''
-        return a class the implement gtk.Box that should hold the gui for
+        return a class the implement Gtk.Box that should hold the gui for
         the formatter
         '''
         raise NotImplementedError
@@ -322,7 +322,7 @@ class ReportToolDialogView(object):
 
     def on_dialog_response(self, dialog, response, *args):
         '''
-        Called if self.get_window() is a gtk.Dialog and it receives
+        Called if self.get_window() is a Gtk.Dialog and it receives
         the response signal.
         '''
         dialog.hide()
@@ -331,7 +331,7 @@ class ReportToolDialogView(object):
 
     def on_dialog_close_or_delete(self, dialog, event=None):
         """
-        Called if self.get_window() is a gtk.Dialog and it receives
+        Called if self.get_window() is a Gtk.Dialog and it receives
         the close signal.
         """
         dialog.hide()
@@ -423,24 +423,24 @@ class ReportToolDialogPresenter(object):
         # TODO: don't set the OK button as sensitive in the name dialog
         # if the name already exists
         # TODO: make "Enter" in the entry fire the default response
-        d = gtk.Dialog(_("Formatter Name"), self.view.dialog,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                                gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        d = Gtk.Dialog(_("Formatter Name"), self.view.dialog,
+                       Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                       buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                                Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
         d.vbox.set_spacing(10)
-        d.set_default_response(gtk.RESPONSE_ACCEPT)
+        d.set_default_response(Gtk.ResponseType.ACCEPT)
         text = '<b>%s</b>' % _('Enter a name for the new formatter')
-        label = gtk.Label()
+        label = Gtk.Label()
         label.set_markup(text)
         label.set_padding(10, 10)
-        d.vbox.pack_start(label)
-        entry = gtk.Entry()
+        d.vbox.pack_start(label, True, True, 0)
+        entry = Gtk.Entry()
         entry.set_activates_default(True)
-        d.vbox.pack_start(entry)
+        d.vbox.pack_start(entry, True, True, 0)
         d.show_all()
         names_model = self.view.widgets.names_combo.get_model()
         while True:
-            if d.run() == gtk.RESPONSE_ACCEPT:
+            if d.run() == Gtk.ResponseType.ACCEPT:
                 name = entry.get_text()
                 if name == '':
                     continue
@@ -498,7 +498,7 @@ class ReportToolDialogPresenter(object):
         formatter_combo changed signal handler
         '''
         self.view.set_sensitive('ok_button', False)
-        gobject.idle_add(self._formatter_combo_changed_idle, combo)
+        GObject.idle_add(self._formatter_combo_changed_idle, combo)
 
     def _formatter_combo_changed_idle(self, combo):
         formatter = combo.get_active_text()
@@ -545,10 +545,10 @@ class ReportToolDialogPresenter(object):
                 logger.debug('discarded %s: not a FormatterPlugin', p)
 
         # we should always have at least the default formatter
-        model = gtk.ListStore(str)
+        model = Gtk.ListStore(str)
         if len(plugins) == 0:
             utils.message_dialog(_('No formatter plugins defined'),
-                                 gtk.MESSAGE_WARNING)
+                                 Gtk.MessageType.WARNING)
             return
 
         for item in plugins:
@@ -569,7 +569,7 @@ class ReportToolDialogPresenter(object):
             utils.clear_model(combo)
             return
         try:
-            model = gtk.ListStore(str)
+            model = Gtk.ListStore(str)
             for cfg in configs.keys():
                 model.append([cfg])
             combo.set_model(model)
@@ -600,7 +600,7 @@ class ReportToolDialogPresenter(object):
         settings = None
         while True:
             response = self.view.start()
-            if response == gtk.RESPONSE_OK:
+            if response == Gtk.ResponseType.OK:
                 # get format method
                 # save default
                 prefs[default_config_pref] = \
@@ -665,14 +665,14 @@ class ReportTool(pluginmgr.Tool):
                 parent = self.view.dialog
 
             utils.message_details_dialog(str(e), traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR, parent=parent)
+                                         Gtk.MessageType.ERROR, parent=parent)
         except Exception, e:
             logger.debug(traceback.format_exc())
             utils.message_details_dialog(_('Formatting Error\n\n'
                                            '%(exception)s') %
                                          {"exception": utils.utf8(e)},
                                          traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR)
+                                         Gtk.MessageType.ERROR)
         bauble.gui.set_busy(False)
         return
 

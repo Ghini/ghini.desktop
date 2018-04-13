@@ -21,8 +21,8 @@
 # Species table definition
 #
 
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 
 import logging
 logger = logging.getLogger(__name__)
@@ -96,7 +96,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             cell.props.text = utils.utf8(model[treeiter][0])
 
         combo = self.view.widgets.sp_habit_comboentry
-        model = gtk.ListStore(str, object)
+        model = Gtk.ListStore(str, object)
         map(lambda p: model.append(p),
             [(str(h), h) for h in self.session.query(Habit)])
         utils.setup_text_combobox(combo, model)
@@ -112,7 +112,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     cmp=lambda r, v: str(r[1].code).lower() == v)
             except ValueError:
                 pass
-        combo.child.connect('focus-out-event', on_focus_out)
+        combo.get_child().connect('focus-out-event', on_focus_out)
 
         # set the model values in the widgets
         self.refresh_view()
@@ -340,7 +340,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         Changed handler for sp_habit_comboentry.
 
         We don't need specific handlers for either comboentry because
-        the validation is done in the specific gtk.Entry handlers for
+        the validation is done in the specific Gtk.Entry handlers for
         the child of the combo entries.
         """
         treeiter = combo.get_active_iter()
@@ -349,8 +349,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         value = combo.get_model()[treeiter][1]
         self.set_model_attr('habit', value)
         # the entry change handler does the validation of the model
-        combo.child.props.text = utils.utf8(value)
-        combo.child.set_position(-1)
+        combo.get_child().props.text = utils.utf8(value)
+        combo.get_child().set_position(-1)
 
     def __del__(self):
         # we have to delete the views in the child presenters manually
@@ -436,7 +436,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             new_pos = position + len(text)
             # Can't modify the cursor position from within this handler,
             # so we add it to be done at the end of the main loop:
-            gobject.idle_add(entry.set_position, new_pos)
+            GObject.idle_add(entry.set_position, new_pos)
 
         # We handled the signal so stop it from being processed further.
         entry.stop_emission("insert_text")
@@ -533,7 +533,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         # will table.resize() remove the children??
         table = self.view.widgets.infrasp_table
         for item in self.view.widgets.infrasp_table.get_children():
-            if not isinstance(item, gtk.Label):
+            if not isinstance(item, Gtk.Label):
                 self.view.widgets.remove_parent(item)
 
         self.table_rows = []
@@ -573,39 +573,39 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             rank, epithet, author = self.species.get_infrasp(self.level)
 
             # rank combo
-            self.rank_combo = gtk.ComboBox()
+            self.rank_combo = Gtk.ComboBox()
             self.presenter.view.init_translatable_combo(
                 self.rank_combo, infrasp_rank_values, cmp=compare_rank)
             utils.set_widget_value(self.rank_combo, rank)
             presenter.view.connect(self.rank_combo,
                                    'changed', self.on_rank_combo_changed)
             table.attach(self.rank_combo, 0, 1, level, level+1,
-                         xoptions=gtk.FILL, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL, yoptions=-1)
 
             # epithet entry
-            self.epithet_entry = gtk.Entry()
+            self.epithet_entry = Gtk.Entry()
             utils.set_widget_value(self.epithet_entry, epithet)
             presenter.view.connect(self.epithet_entry, 'changed',
                                    self.on_epithet_entry_changed)
             table.attach(self.epithet_entry, 1, 2, level, level+1,
-                         xoptions=gtk.FILL | gtk.EXPAND, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND, yoptions=-1)
 
             # author entry
-            self.author_entry = gtk.Entry()
+            self.author_entry = Gtk.Entry()
             utils.set_widget_value(self.author_entry, author)
             presenter.view.connect(self.author_entry, 'changed',
                                    self.on_author_entry_changed)
             table.attach(self.author_entry, 2, 3, level, level+1,
-                         xoptions=gtk.FILL | gtk.EXPAND, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL | Gtk.AttachOptions.EXPAND, yoptions=-1)
 
-            self.remove_button = gtk.Button()
-            img = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
-                                           gtk.ICON_SIZE_BUTTON)
+            self.remove_button = Gtk.Button()
+            img = Gtk.Image.new_from_stock(Gtk.STOCK_REMOVE,
+                                           Gtk.IconSize.BUTTON)
             self.remove_button.props.image = img
             presenter.view.connect(self.remove_button, 'clicked',
                                    self.on_remove_button_clicked)
             table.attach(self.remove_button, 3, 4, level, level+1,
-                         xoptions=gtk.FILL, yoptions=-1)
+                         xoptions=Gtk.AttachOptions.FILL, yoptions=-1)
             table.show_all()
 
         def on_remove_button_clicked(self, *args):
@@ -680,7 +680,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
         self._dirty = False
-        self.remove_menu = gtk.Menu()
+        self.remove_menu = Gtk.Menu()
         self.remove_menu.attach_to_widget(
             self.view.widgets.sp_dist_remove_button, None)
         self.view.connect('sp_dist_add_button', 'button-press-event',
@@ -694,7 +694,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
             self.geo_menu = GeographyMenu(self.on_activate_add_menu_item)
             self.geo_menu.attach_to_widget(add_button, None)
             add_button.set_sensitive(True)
-        gobject.idle_add(_init_geo)
+        GObject.idle_add(_init_geo)
 
     def refresh_view(self):
         label = self.view.widgets.sp_dist_label
@@ -710,7 +710,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
             self.remove_menu.remove(c)
         # add distributions to menu
         for dist in self.model.distribution:
-            item = gtk.MenuItem(str(dist))
+            item = Gtk.MenuItem(str(dist))
             self.view.connect(item, 'activate',
                               self.on_activate_remove_menu_item, dist)
             self.remove_menu.append(item)
@@ -845,7 +845,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         so we just need to customize them a bit.
         """
         self.treeview = self.view.widgets.vern_treeview
-        if not isinstance(self.treeview, gtk.TreeView):
+        if not isinstance(self.treeview, Gtk.TreeView):
             return
 
         def _name_data_func(column, cell, model, treeiter, data=None):
@@ -857,7 +857,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             else:
                 cell.set_property('foreground', None)
         column = self.view.widgets.vn_name_column
-        #column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        #column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
         cell = self.view.widgets.vn_name_cell
         self.view.widgets.vn_name_column.\
             set_cell_data_func(cell, _name_data_func)
@@ -896,7 +896,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         utils.clear_model(self.treeview)
 
         # add the vernacular names to the tree
-        tree_model = gtk.ListStore(object)
+        tree_model = Gtk.ListStore(object)
         for vn in model:
             tree_model.append([vn])
         self.treeview.set_model(tree_model)
@@ -972,7 +972,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
     def init_treeview(self):
         '''
-        initialize the gtk.TreeView
+        initialize the Gtk.TreeView
         '''
         self.treeview = self.view.widgets.sp_syn_treeview
 
@@ -989,7 +989,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         col.set_cell_data_func(self.view.widgets.syn_cell, _syn_data_func)
 
         utils.clear_model(self.treeview)
-        tree_model = gtk.ListStore(object)
+        tree_model = Gtk.ListStore(object)
         for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
@@ -1234,7 +1234,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
         # like remove the insfraspecific information that's attached to the
         # model if the infraspecific rank is None
         not_ok_msg = 'Are you sure you want to lose your changes?'
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+        if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
                 if self.presenter.is_dirty():
                     self.commit_changes()
@@ -1243,7 +1243,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                     utils.xml_safe(e.orig)
                 logger.debug(traceback.format_exc())
-                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '
@@ -1251,7 +1251,7 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
                     utils.xml_safe(e)
                 logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
+                                             Gtk.MessageType.ERROR)
                 return False
         elif self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg) \
                 or not self.presenter.is_dirty():

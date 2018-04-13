@@ -26,7 +26,7 @@ from nose import SkipTest
 from bauble.test import BaubleTestCase, check_dupids
 from bauble.connmgr import ConnMgrPresenter
 from bauble.editor import MockView, MockDialog
-from gtk import RESPONSE_OK, RESPONSE_CANCEL
+from gi.repository import Gtk
 
 
 def test_duplicate_ids():
@@ -581,7 +581,7 @@ class OnDialogResponseTests(BaubleTestCase):
         view.reply_file_chooser_dialog = []
         presenter = ConnMgrPresenter(view)
         dialog = MockDialog()
-        presenter.on_dialog_response(dialog, RESPONSE_OK)
+        presenter.on_dialog_response(dialog, Gtk.ResponseType.OK)
         self.assertTrue('run_message_dialog' in view.invoked)
         self.assertTrue(dialog.hidden)
 
@@ -599,7 +599,7 @@ class OnDialogResponseTests(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         dialog = MockDialog()
         view.invoked = []
-        presenter.on_dialog_response(dialog, RESPONSE_OK)
+        presenter.on_dialog_response(dialog, Gtk.ResponseType.OK)
         self.assertFalse('run_message_dialog' in view.invoked)
         self.assertTrue(dialog.hidden)
         self.assertEquals(prefs.prefs[prefs.picture_root_pref], '/tmp/nugkui')
@@ -611,7 +611,7 @@ class OnDialogResponseTests(BaubleTestCase):
         presenter = ConnMgrPresenter(view)
         dialog = MockDialog()
         view.reply_yes_no_dialog = [False]
-        presenter.on_dialog_response(dialog, RESPONSE_CANCEL)
+        presenter.on_dialog_response(dialog, Gtk.ResponseType.CANCEL)
         self.assertFalse('run_message_dialog' in view.invoked)
         self.assertTrue(dialog.hidden)
 
@@ -633,7 +633,7 @@ class OnDialogResponseTests(BaubleTestCase):
         dialog = MockDialog()
         view.reply_yes_no_dialog = [True]
         view.invoked = []
-        presenter.on_dialog_response(dialog, RESPONSE_CANCEL)
+        presenter.on_dialog_response(dialog, Gtk.ResponseType.CANCEL)
         ## question was asked whether to save
         self.assertFalse('run_message_dialog' in view.invoked)
         self.assertTrue('run_yes_no_dialog' in view.invoked)
@@ -679,7 +679,7 @@ class OnDialogResponseTests(BaubleTestCase):
         dialog = MockDialog()
         view.invoked = []
         # invoke action
-        presenter.on_dialog_response(dialog, RESPONSE_OK)
+        presenter.on_dialog_response(dialog, Gtk.ResponseType.OK)
 
         # superfluous action is not performed, view is closed
         # check existence of pictures folder
@@ -707,7 +707,7 @@ class OnDialogResponseTests(BaubleTestCase):
         dialog = MockDialog()
         view.invoked = []
         # invoke action
-        presenter.on_dialog_response(dialog, RESPONSE_OK)
+        presenter.on_dialog_response(dialog, Gtk.ResponseType.OK)
 
         # check existence of pictures folder
         self.assertTrue(os.path.isdir(path))

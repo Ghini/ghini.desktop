@@ -43,8 +43,6 @@ def _open_link(data=None, *args, **kwargs):
     else:
         desktop.open(data)
 
-Gtk.link_button_set_uri_hook(_open_link)
-
 
 class BaubleLinkButton(Gtk.LinkButton):
 

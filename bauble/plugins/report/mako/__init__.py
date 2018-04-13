@@ -30,7 +30,7 @@ import shutil
 import tempfile
 import math
 
-import gtk
+from gi.repository import Gtk
 
 from mako.template import Template
 
@@ -282,7 +282,7 @@ class MakoFormatterSettingsBox(SettingsBox):
         # remove_parent()
         self.settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
-        self.pack_start(self.settings_box)
+        self.pack_start(self.settings_box, True, True, 0)
         self.widgets.template_chooser.connect('file-set', self.on_file_set)
         self.defaults = []
 
@@ -319,10 +319,10 @@ class MakoFormatterSettingsBox(SettingsBox):
         current_row = 0
         # populate the options box
         for fname, ftype, fdefault, ftooltip in option_fields:
-            row = gtk.HBox()
-            label = gtk.Label(fname.replace('_', ' ') + _(':'))
+            row = Gtk.HBox()
+            label = Gtk.Label(fname.replace('_', ' ') + _(':'))
             label.set_alignment(0, 0.5)
-            entry = gtk.Entry()
+            entry = Gtk.Entry()
             options.setdefault(fname, fdefault)
             entry.set_text(options[fname])
             entry.set_tooltip_text(ftooltip)
@@ -330,15 +330,15 @@ class MakoFormatterSettingsBox(SettingsBox):
             entry.connect('changed', self.set_option, fname)
             self.defaults.append((entry, fdefault))
             options_box.attach(label, 0, 1, current_row, current_row+1,
-                               xoptions=gtk.FILL)
+                               xoptions=Gtk.AttachOptions.FILL)
             options_box.attach(entry, 1, 2, current_row, current_row+1,
-                               xoptions=gtk.FILL)
+                               xoptions=Gtk.AttachOptions.FILL)
             current_row += 1
         if self.defaults:
-            button = gtk.Button(_('Reset to defaults'))
+            button = Gtk.Button(_('Reset to defaults'))
             button.connect('clicked', self.reset_options)
             options_box.attach(button, 0, 2, current_row, current_row+1,
-                               xoptions=gtk.FILL)
+                               xoptions=Gtk.AttachOptions.FILL)
         options_box.show_all()
 
     def reset_options(self, widget):
@@ -402,7 +402,7 @@ class MakoFormatterPlugin(FormatterPlugin):
         use_private = kwargs.get('private', True)
         if not template_filename:
             msg = _('Please select a template.')
-            utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+            utils.message_dialog(msg, Gtk.MessageType.WARNING)
             return False
         template = Template(
             filename=template_filename, input_encoding='utf-8',

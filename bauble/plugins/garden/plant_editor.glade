@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.24"/>
+  <requires lib="gtk+" version="3.20"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkDialog" id="plant_editor_dialog">
     <property name="can_focus">False</property>
@@ -378,7 +378,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="spacing">6</property>
                                 <child>
-                                  <object class="GtkComboBoxEntry" id="plant_loc_comboentry">
+                                  <object class="GtkComboBox" id="plant_loc_comboentry">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <child internal-child="entry">
@@ -1182,7 +1182,7 @@
                 <property name="can_focus">False</property>
                 <property name="spacing">6</property>
                 <child>
-                  <object class="GtkComboBoxEntry" id="split_planting_comboentry">
+                  <object class="GtkComboBox" id="split_planting_comboentry">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child internal-child="entry">

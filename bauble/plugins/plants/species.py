@@ -20,7 +20,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ def remove_callback(values):
         msg = (_('The species <i>%(1)s</i> has %(2)s accessions.'
                  '\n\n') % {'1': safe_str, '2': nacc} +
                _('You cannot remove a species with accessions.'))
-        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        utils.message_dialog(msg, type=Gtk.MessageType.WARNING)
         return
     else:
         msg = _("Are you sure you want to remove the species <i>%s</i>?") \
@@ -96,7 +96,7 @@ def remove_callback(values):
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
-                                     type=gtk.MESSAGE_ERROR)
+                                     type=Gtk.MessageType.ERROR)
     return True
 
 
@@ -185,7 +185,7 @@ class VernacularExpander(InfoExpander):
         InfoExpander.__init__(self, _("Vernacular names"), widgets)
         vernacular_box = self.widgets.sp_vernacular_box
         self.widgets.remove_parent(vernacular_box)
-        self.vbox.pack_start(vernacular_box)
+        self.vbox.pack_start(vernacular_box, True, True, 0)
 
     def update(self, row):
         '''
@@ -218,7 +218,7 @@ class SynonymsExpander(InfoExpander):
         InfoExpander.__init__(self, _("Synonyms"), widgets)
         synonyms_box = self.widgets.sp_synonyms_box
         self.widgets.remove_parent(synonyms_box)
-        self.vbox.pack_start(synonyms_box)
+        self.vbox.pack_start(synonyms_box, True, True, 0)
 
     def update(self, row):
         '''
@@ -242,8 +242,8 @@ class SynonymsExpander(InfoExpander):
             self.set_label(_("Accepted name"))
             # create clickable label that will select the synonym
             # in the search results
-            box = gtk.EventBox()
-            label = gtk.Label()
+            box = Gtk.EventBox()
+            label = Gtk.Label()
             label.set_alignment(0, .5)
             label.set_markup(accepted.str(markup=True, authors=True))
             box.add(label)
@@ -261,8 +261,8 @@ class SynonymsExpander(InfoExpander):
             for syn in row.synonyms:
                 # create clickable label that will select the synonym
                 # in the search results
-                box = gtk.EventBox()
-                label = gtk.Label()
+                box = Gtk.EventBox()
+                label = Gtk.Label()
                 label.set_alignment(0, .5)
                 label.set_markup(syn.str(markup=True, authors=True))
                 box.add(label)
@@ -286,7 +286,7 @@ class GeneralSpeciesExpander(InfoExpander):
         InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.sp_general_box
         self.widgets.remove_parent(general_box)
-        self.vbox.pack_start(general_box)
+        self.vbox.pack_start(general_box, True, True, 0)
         self.widgets.sp_epithet_data.set_line_wrap(True)
 
         # make the check buttons read only
@@ -395,7 +395,7 @@ class SpeciesInfoBox(InfoBox):
         page = SpeciesInfoPage()
         label = page.label
         if isinstance(label, basestring):
-            label = gtk.Label(label)
+            label = Gtk.Label(label=label)
         self.insert_page(page, label, 0)
 
 

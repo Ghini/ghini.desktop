@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.24"/>
+  <requires lib="gtk+" version="3.20"/>
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkDialog" id="location_dialog">
     <property name="can_focus">True</property>
@@ -294,7 +294,7 @@
                               </object>
                             </child>
                             <child>
-                              <object class="GtkComboBoxEntry" id="loc_merge_comboentry">
+                              <object class="GtkComboBox" id="loc_merge_comboentry">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <child internal-child="entry">

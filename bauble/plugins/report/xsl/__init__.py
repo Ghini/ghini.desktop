@@ -33,7 +33,7 @@ import sys
 import os
 import tempfile
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -365,12 +365,12 @@ class SettingsBoxPresenter(object):
             self.widgets.renderer_combo.append_text(name)
 
 
-# TODO: could make this look more a gtk.FileChooserButton but make it
+# TODO: could make this look more a Gtk.FileChooserButton but make it
 # an hbox and adding the separator and file icon
-class FileChooserButton(gtk.Button):
+class FileChooserButton(Gtk.Button):
     """
     Create our own basic FileChooserButton to work around the issue that
-    if you click the gtk.FileChooseButton the label gets reset to "None"
+    if you click the Gtk.FileChooseButton the label gets reset to "None"
     but doesn't revert back to the original file of the dialog is cancelled.
     """
 
@@ -382,11 +382,11 @@ class FileChooserButton(gtk.Button):
         self.props.use_underline = False
         self.props.xalign = 0
         self.dialog = \
-            gtk.FileChooserDialog(title=_('Select a stylesheet'),
+            Gtk.FileChooserDialog(title=_('Select a stylesheet'),
                                   parent=dialog_parent,
                                   buttons=(
-                                      gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                                      gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                                      Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                                      Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
         self.dialog.set_select_multiple(False)
         self.dialog.set_current_folder(paths.appdata_dir())
         self.dialog.connect('response', self._on_response)
@@ -397,7 +397,7 @@ class FileChooserButton(gtk.Button):
         self.dialog.hide()
 
     def _on_response(self, dialog, response):
-        if response == gtk.RESPONSE_ACCEPT:
+        if response == Gtk.ResponseType.ACCEPT:
             self.set_filename(self.dialog.get_filename())
 
     def get_filename(self):
@@ -434,7 +434,7 @@ class XSLFormatterSettingsBox(SettingsBox):
         # remove_parent()
         self.settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
-        self.pack_start(self.settings_box)
+        self.pack_start(self.settings_box, True, True, 0)
         self.presenter = SettingsBoxPresenter(self.widgets)
 
         self.stylesheet_chooser = FileChooserButton(
@@ -538,7 +538,7 @@ class XSLFormatterPlugin(FormatterPlugin):
         elif not renderer:
             error_msg = _('Please select a a renderer')
         if error_msg is not None:
-            utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
+            utils.message_dialog(error_msg, Gtk.MessageType.WARNING)
             return False
 
         fo_cmd = renderers_map[renderer]
@@ -548,7 +548,7 @@ class XSLFormatterPlugin(FormatterPlugin):
                                    'start the %(renderer_name)s '
                                    'renderer.') %
                                   ({'exe': exe, 'renderer_name': renderer}),
-                                 gtk.MESSAGE_ERROR)
+                                 Gtk.MessageType.ERROR)
             return False
 
         session = db.Session()
@@ -630,7 +630,7 @@ class XSLFormatterPlugin(FormatterPlugin):
         if not os.path.exists(filename):
             utils.message_dialog(_('Error creating the PDF file. Please '
                                    'ensure that your PDF formatter is '
-                                   'properly installed.'), gtk.MESSAGE_ERROR)
+                                   'properly installed.'), Gtk.MessageType.ERROR)
             return False
         else:
             try:

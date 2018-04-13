@@ -26,7 +26,7 @@ import os
 import weakref
 import traceback
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -414,7 +414,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
                           self.on_add_button_clicked)
         tab_box = self.view.widgets.prop_tab_box
         for kid in tab_box:
-            if isinstance(kid, gtk.Box):
+            if isinstance(kid, Gtk.Box):
                 tab_box.remove(kid)  # remove old prop boxes
         for prop in self.model.propagations:
             box = self.create_propagation_box(prop)
@@ -447,12 +447,12 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
     def create_propagation_box(self, propagation):
         """
         """
-        hbox = gtk.HBox()
-        expander = gtk.Expander()
+        hbox = Gtk.HBox()
+        expander = Gtk.Expander()
         hbox.pack_start(expander, expand=True, fill=True)
 
         from bauble.plugins.garden.plant import label_size_allocate
-        label = gtk.Label(propagation.get_summary())
+        label = Gtk.Label(label=propagation.get_summary())
         label.props.wrap = True
         label.set_alignment(0, 0)
         label.set_padding(0, 2)
@@ -467,11 +467,11 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
                 self._dirty = True
             self.parent_ref().refresh_sensitivity()
 
-        alignment = gtk.Alignment()
+        alignment = Gtk.Alignment.new()
         hbox.pack_start(alignment, expand=False, fill=False)
-        button_box = gtk.HBox(spacing=5)
+        button_box = Gtk.HBox(spacing=5)
         alignment.add(button_box)
-        button = gtk.Button(stock=gtk.STOCK_EDIT)
+        button = Gtk.Button(stock=Gtk.STOCK_EDIT)
         self.view.connect(button, 'clicked', on_edit_clicked, propagation,
                           label)
         button_box.pack_start(button, expand=False, fill=False)
@@ -498,15 +498,15 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
                     msg = _("This propagation is referred to\n"
                             "by %s accessions.\n\n"
                             "You cannot remove it.") % count
-                utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+                utils.message_dialog(msg, type=Gtk.MessageType.WARNING)
                 return False
             self.model.propagations.remove(propagation)
             self.view.widgets.prop_tab_box.remove(box)
             self._dirty = True
             self.parent_ref().refresh_sensitivity()
 
-        remove_button = gtk.Button()
-        img = gtk.image_new_from_stock(gtk.STOCK_REMOVE, gtk.ICON_SIZE_BUTTON)
+        remove_button = Gtk.Button()
+        img = Gtk.Image.new_from_stock(Gtk.STOCK_REMOVE, Gtk.IconSize.BUTTON)
         remove_button.props.image = img
         self.view.connect(remove_button, 'clicked', on_remove_clicked,
                           propagation, hbox)
@@ -640,7 +640,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         # the liststore for rooted cuttings contains PropCuttingRooted
         # objects, not just their fields, so we cannot define it in the
         # glade file.
-        rooted_liststore = gtk.ListStore(object)
+        rooted_liststore = Gtk.ListStore(object)
         self.view.widgets.rooted_treeview.set_model(rooted_liststore)
 
         from functools import partial
@@ -1112,7 +1112,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         not_ok_msg = 'Are you sure you want to lose your changes?'
         self._return = None
         self.model.clean()
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+        if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
                 self._return = self.model
                 if self.presenter.is_dirty() and commit:
@@ -1120,7 +1120,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
             except DBAPIError, e:
                 msg = _('Error committing changes.\n\n%s') % \
                     utils.xml_safe(unicode(e.orig))
-                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 self.session.rollback()
                 return False
             except Exception, e:
@@ -1129,7 +1129,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                     utils.xml_safe(e)
                 logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
+                                             Gtk.MessageType.ERROR)
                 self.session.rollback()
                 return False
         elif self.presenter.is_dirty() and utils.yes_no_dialog(not_ok_msg) \

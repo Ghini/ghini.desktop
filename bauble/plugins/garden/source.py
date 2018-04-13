@@ -30,8 +30,8 @@ from random import random
 import logging
 logger = logging.getLogger(__name__)
 
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 
 from sqlalchemy import Column, Unicode, Integer, ForeignKey,\
     Float, UnicodeText, select
@@ -340,7 +340,7 @@ class CollectionPresenter(editor.ChildPresenter):
             self.geo_menu = GeographyMenu(self.set_region)
             self.geo_menu.attach_to_widget(add_button, None)
             add_button.set_sensitive(True)
-        gobject.idle_add(_init_geo)
+        GObject.idle_add(_init_geo)
 
         self._dirty = False
 
@@ -543,7 +543,7 @@ class CollectionPresenter(editor.ChildPresenter):
                 dms_string = u'%s %s\u00B0%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
             logger.debug(traceback.format_exc())
-            #bg_color = gtk.gdk.color_parse("red")
+            #bg_color = Gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
         else:
@@ -576,7 +576,7 @@ class CollectionPresenter(editor.ChildPresenter):
                     longitude)
         except Exception:
             logger.debug(traceback.format_exc())
-            #bg_color = gtk.gdk.color_parse("red")
+            #bg_color = Gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LONGITUDE,
                              self.view.widgets.lon_entry)
         else:
@@ -685,7 +685,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
                 treeview.props.sensitive = False
                 return
             utils.clear_model(treeview)
-            model = gtk.ListStore(object)
+            model = Gtk.ListStore(object)
             for propagation in value.propagations:
                 if propagation.accessible_quantity == 0:
                     continue
@@ -718,7 +718,7 @@ class PropagationChooserPresenter(editor.ChildPresenter):
             treeview.props.sensitive = False
             return
         utils.clear_model(treeview)
-        model = gtk.ListStore(object)
+        model = Gtk.ListStore(object)
         for propagation in parent_plant.propagations:
             model.append([propagation])
         treeview.set_model(model)
@@ -777,7 +777,7 @@ def source_detail_remove_callback(details):
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
-                                     type=gtk.MESSAGE_ERROR)
+                                     type=Gtk.MessageType.ERROR)
     finally:
         session.close()
     return True
@@ -857,7 +857,7 @@ class GeneralSourceDetailExpander(view.InfoExpander):
             _('General'), widgets)
         gen_box = self.widgets.sd_gen_box
         self.widgets.remove_parent(gen_box)
-        self.vbox.pack_start(gen_box)
+        self.vbox.pack_start(gen_box, True, True, 0)
 
     def update(self, row):
         #from textwrap import TextWrapper

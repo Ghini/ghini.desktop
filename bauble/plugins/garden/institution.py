@@ -25,7 +25,7 @@
 
 import os
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -222,7 +222,7 @@ def start_institution_editor():
     o = Institution()
     inst_pres = InstitutionPresenter(o, view)
     response = inst_pres.start()
-    if response == gtk.RESPONSE_OK:
+    if response == Gtk.ResponseType.OK:
         o.write()
         inst_pres.commit_changes()
     else:

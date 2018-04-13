@@ -64,7 +64,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkComboBoxEntry" id="category_comboentry">
+                          <object class="GtkComboBox" id="category_comboentry">
                             <property name="visible">True</property>
                           </object>
                           <packing>

@@ -21,8 +21,8 @@
 import logging
 logger = logging.getLogger(__name__)
 
-import gtk
-import gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 import threading
 import glib
 import re
@@ -100,14 +100,14 @@ class ListStoreHandler(logging.Handler):
     def __init__(self, container, *args, **kwargs):
         super(ListStoreHandler, self).__init__(*args, **kwargs)
         self.container = container
-        gobject.idle_add(none, self.container.clear)
+        GObject.idle_add(none, self.container.clear)
 
     def emit(self, record):
         msg = self.format(record)
         stock = {11: 'gtk-directory',
                  12: 'gtk-file',
                  13: 'gtk-new', }[record.levelno]
-        gobject.idle_add(none, self.container.append, [stock, msg])
+        GObject.idle_add(none, self.container.append, [stock, msg])
 
 
 def query_session_new(session, cls, **kwargs):
@@ -185,7 +185,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
         for fname, path in self.pixbufs_to_load:
             if not self.keep_running:
                 return
-            pixbuf = gtk.gdk.pixbuf_new_from_file(fname)
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file(fname)
             try:
                 pixbuf = pixbuf.apply_embedded_orientation()
                 scale_x = pixbuf.get_width() / 144
@@ -193,10 +193,10 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 scale = max(scale_x, scale_y, 1)
                 x = int(pixbuf.get_width() / scale)
                 y = int(pixbuf.get_height() / scale)
-                pixbuf = pixbuf.scale_simple(x, y, gtk.gdk.INTERP_BILINEAR)
+                pixbuf = pixbuf.scale_simple(x, y, GdkPixbuf.InterpType.BILINEAR)
                 def set_thumbnail(store, path, col, value):
                     store[path][col] = value
-                gobject.idle_add(set_thumbnail, self.review_liststore, path, thumbnail_col, pixbuf)
+                GObject.idle_add(set_thumbnail, self.review_liststore, path, thumbnail_col, pixbuf)
             except glib.GError, e:
                 logger.debug("picture %s caused glib.GError %s" %
                              (fname, e))
@@ -356,7 +356,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
 
     def show_gtk_stock_icons(self):
         '''this is just some code to show an overview of gtk stock name/image'''
-        for i in gtk.stock_list_ids():
+        for i in Gtk.stock_list_ids():
             self.view.widgets.log_liststore.append([i, i])
 
     def on_action_cancel_activate(self, *args, **kwargs):
@@ -366,7 +366,7 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 self.lock.release()  # don't stop `do_import` at the lock
             self.running_thread.join()
             self.running_thread = None
-        self.view.get_window().emit('response', gtk.RESPONSE_DELETE_EVENT)
+        self.view.get_window().emit('response', Gtk.ResponseType.DELETE_EVENT)
 
     def on_action_ok_activate(self, *args, **kwargs):
         # OK is set active only in do_import.  if we're here, means that
@@ -375,13 +375,13 @@ class PictureImporterPresenter(GenericEditorPresenter):
         self.lock.release()
         self.running_thread.join()  # do_import is now committing
         self.running_thread = None
-        self.view.get_window().emit('response', gtk.RESPONSE_OK)
+        self.view.get_window().emit('response', Gtk.ResponseType.OK)
 
     def on_action_browse_activate(self, *args, **kwargs):
         text = _('Select pictures source directory')
         parent = None
-        action = gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER
-        buttons = (_('Cancel'), gtk.RESPONSE_CANCEL, _('Ok'), gtk.RESPONSE_ACCEPT, )
+        action = Gtk.FileChooserAction.SELECT_FOLDER
+        buttons = (_('Cancel'), Gtk.ResponseType.CANCEL, _('Ok'), Gtk.ResponseType.ACCEPT, )
         last_folder = self.model.filepath
         target = 'filepath_entry'
         self.view.run_file_chooser_dialog(text, parent, action, buttons, last_folder, target)

@@ -34,7 +34,7 @@
 
 import os
 import sys
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -76,7 +76,7 @@ from bauble import utils
 Familia, SpeciesDistribution,
 
 from threading import Thread
-from gobject import idle_add
+from gi.repository import GObject
 
 
 class LabelUpdater(Thread):
@@ -88,7 +88,7 @@ class LabelUpdater(Thread):
     def run(self):
         ssn = db.Session()
         value, = ssn.execute(self.query).first()
-        idle_add(lambda x: self.widget.set_text(str(x)), value)
+        GObject.idle_add(lambda x: self.widget.set_text(str(x)), value)
         ssn.close()
 
 
@@ -194,7 +194,7 @@ class SplashInfoBox(pluginmgr.View):
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
         statusbar.pop(sbcontext_id)
-        bauble.gui.widgets.main_comboentry.child.set_text('')
+        bauble.gui.widgets.main_comboentry.get_child().set_text('')
 
         ssn = db.Session()
         q = ssn.query(bauble.meta.BaubleMeta)
@@ -307,7 +307,7 @@ class SplashInfoBox(pluginmgr.View):
     def on_sqb_clicked(self, btn_no, *args):
         try:
             query = self.name_tooltip_query[btn_no][2]
-            bauble.gui.widgets.main_comboentry.child.set_text(query)
+            bauble.gui.widgets.main_comboentry.get_child().set_text(query)
             bauble.gui.widgets.go_button.emit("clicked")
         except:
             pass

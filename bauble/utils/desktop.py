@@ -225,67 +225,8 @@ def is_standard():
 
 def open(url, desktop=None, wait=0, dialog_on_error=False):
 
-    """
-    Open the 'url' in the current desktop's preferred file browser. If the
-    optional 'desktop' parameter is specified then attempt to use that
-    particular desktop environment's mechanisms to open the 'url' instead of
-    guessing or detecting which environment is being used.
-
-    Suggested values for 'desktop' are "standard", "KDE", "GNOME", "XFCE",
-    "Mac OS X", "Windows" where "standard" employs a DESKTOP_LAUNCH environment
-    variable to open the specified 'url'. DESKTOP_LAUNCH should be a command,
-    possibly followed by arguments, and must have any special characters
-    shell-escaped.
-
-    The process identifier of the "opener" (ie. viewer, editor, browser or
-    program) associated with the 'url' is returned by this function. If the
-    process identifier cannot be determined, None is returned.
-
-    An optional 'wait' parameter is also available for advanced usage and, if
-    'wait' is set to a true value, this function will wait for the launching
-    mechanism to complete before returning (as opposed to immediately returning
-    as is the default behaviour).
+    """Open the 'url' in the current desktop's preferred client. 
     """
 
-    # Decide on the desktop environment in use.
-    import bauble.utils as utils
-    desktop_in_use = use_desktop(desktop)
-    cmd = None
-    if desktop_in_use == "standard":
-        arg = "".join([os.environ["DESKTOP_LAUNCH"], commands.mkarg(url)])
-        return _run(arg, 1, wait)
-
-    elif desktop_in_use == "Windows":
-        # NOTE: This returns None in current implementations.
-        return os.startfile(url)
-
-    elif desktop_in_use in ["KDE", "GNOME", "LXDE", "XFCE"]:
-        cmd = ["xdg-open", url]
-
-    elif desktop_in_use == "Mac OS X":
-        cmd = ["open", url]
-
-    elif desktop_in_use == "X11" and "BROWSER" in os.environ:
-        cmd = [os.environ["BROWSER"], url]
-
-    if not cmd:
-        # can't detect the desktop environment. maybe xdg-open is available.
-        exe = utils.which('xdg-open')
-        if exe:
-            cmd = [exe, url]
-
-    # Finish with an error where no suitable desktop was
-    # identified.
-    try:
-        if not cmd:
-            # TODO: maybe we should tell the user to define DESKTOP_LAUNCH
-            raise OSError, _("Could not open %(url)s\n\n"
-                             "Unknown desktop environment: %(desktop)s\n\n") \
-                % dict(url=url, desktop=desktop_in_use)
-    except Exception, e:
-        if dialog_on_error:
-            utils.message_dialog(utils.utf8(e))
-        else:
-            raise
-
-    return _run(cmd, 0, wait)
+    from gi.repository import Gtk
+    Gtk.show_uri_on_window(url)

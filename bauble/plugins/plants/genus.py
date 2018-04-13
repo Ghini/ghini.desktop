@@ -27,7 +27,7 @@ import traceback
 import weakref
 import xml
 
-import gtk
+from gi.repository import Gtk
 
 import logging
 logger = logging.getLogger(__name__)
@@ -92,7 +92,7 @@ def remove_callback(genera):
         msg = (_('The genus <i>%(1)s</i> has %(2)s species.'
                  '\n\n') % {'1': safe_str, '2': nsp} +
                _('You cannot remove a genus with species.'))
-        utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+        utils.message_dialog(msg, type=Gtk.MessageType.WARNING)
         return
     else:
         msg = (_("Are you sure you want to remove the genus <i>%s</i>?")
@@ -106,7 +106,7 @@ def remove_callback(genera):
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
-                                     type=gtk.MESSAGE_ERROR)
+                                     type=Gtk.MessageType.ERROR)
     return True
 
 
@@ -530,7 +530,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                     completion = self.view.widgets.gen_family_entry.\
                         get_completion()
                     utils.clear_model(completion)
-                    model = gtk.ListStore(object)
+                    model = Gtk.ListStore(object)
                     model.append([syn.family])
                     completion.set_model(model)
                     self.view.widgets.gen_family_entry.\
@@ -646,7 +646,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
     def init_treeview(self):
         '''
-        initialize the gtk.TreeView
+        initialize the Gtk.TreeView
         '''
         self.treeview = self.view.widgets.gen_syn_treeview
         # remove any columns that were setup previous, this became a
@@ -668,12 +668,12 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                 cell.set_property('foreground', 'blue')
             else:
                 cell.set_property('foreground', None)
-        cell = gtk.CellRendererText()
-        col = gtk.TreeViewColumn('Synonym', cell)
+        cell = Gtk.CellRendererText()
+        col = Gtk.TreeViewColumn('Synonym', cell)
         col.set_cell_data_func(cell, _syn_data_func)
         self.treeview.append_column(col)
 
-        tree_model = gtk.ListStore(object)
+        tree_model = Gtk.ListStore(object)
         for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
@@ -771,7 +771,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         handle the response from self.presenter.start() in self.start()
         '''
         not_ok_msg = _('Are you sure you want to lose your changes?')
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+        if response == Gtk.ResponseType.OK or response in self.ok_responses:
             try:
                 if self.presenter.dirty():
                     self.commit_changes()
@@ -779,14 +779,14 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
             except DBAPIError, e:
                 msg = (_('Error committing changes.\n\n%s') %
                        utils.xml_safe(e.orig))
-                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
             except Exception, e:
                 msg = (_('Unknown error when committing changes. See the '
                          'details for more information.\n\n%s') %
                        utils.xml_safe(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
+                                             Gtk.MessageType.ERROR)
                 return False
         elif ((self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg))
               or not self.presenter.dirty()):
@@ -853,7 +853,7 @@ class GeneralGenusExpander(InfoExpander):
         InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.gen_general_box
         self.widgets.remove_parent(general_box)
-        self.vbox.pack_start(general_box)
+        self.vbox.pack_start(general_box, True, True, 0)
 
         self.current_obj = None
 
@@ -948,7 +948,7 @@ class SynonymsExpander(InfoExpander):
         InfoExpander.__init__(self, _("Synonyms"), widgets)
         synonyms_box = self.widgets.gen_synonyms_box
         self.widgets.remove_parent(synonyms_box)
-        self.vbox.pack_start(synonyms_box)
+        self.vbox.pack_start(synonyms_box, True, True, 0)
 
     def update(self, row):
         '''
@@ -969,8 +969,8 @@ class SynonymsExpander(InfoExpander):
             on_clicked = lambda l, e, syn: select_in_search_results(syn)
             # create clickable label that will select the synonym
             # in the search results
-            box = gtk.EventBox()
-            label = gtk.Label()
+            box = Gtk.EventBox()
+            label = Gtk.Label()
             label.set_alignment(0, .5)
             label.set_markup(Genus.str(row.accepted, author=True))
             box.add(label)
@@ -985,8 +985,8 @@ class SynonymsExpander(InfoExpander):
             for syn in row.synonyms:
                 # create clickable label that will select the synonym
                 # in the search results
-                box = gtk.EventBox()
-                label = gtk.Label()
+                box = Gtk.EventBox()
+                label = Gtk.Label()
                 label.set_alignment(0, .5)
                 label.set_markup(Genus.str(syn, author=True))
                 box.add(label)

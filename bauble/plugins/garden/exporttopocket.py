@@ -29,7 +29,8 @@ from bauble import db
 from bauble import pluginmgr
 
 
-import gtk, gobject
+from gi.repository import Gtk
+from gi.repository import GObject
 import os
 
 
@@ -84,7 +85,7 @@ CREATE TABLE "plant" (
 def export_to_pocket(filename, include_private=True):
     from bauble.plugins.plants import Species
     from bauble import pb_set_fraction, pb_grab, pb_release
-    gobject.idle_add(pb_grab)
+    GObject.idle_add(pb_grab)
     session = db.Session()
     plant_query = (session.query(Plant)
                    .order_by(Plant.code)
@@ -114,7 +115,7 @@ def export_to_pocket(filename, include_private=True):
                     i.infraspecific_author or i.sp_author or ''))
         except Exception, e:
             logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
-        gobject.idle_add(pb_set_fraction, 0.05 * count / len(species))
+        GObject.idle_add(pb_set_fraction, 0.05 * count / len(species))
         count += 1
     count = 1
     for i in accessions:
@@ -129,7 +130,7 @@ def export_to_pocket(filename, include_private=True):
                        (i.id, i.code, i.species_id, source_name, i.date_accd))
         except Exception, e:
             logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
-        gobject.idle_add(pb_set_fraction, 0.05 + 0.4 * count / len(accessions))
+        GObject.idle_add(pb_set_fraction, 0.05 + 0.4 * count / len(accessions))
         count += 1
     count = 1
     for i in plants:
@@ -140,11 +141,11 @@ def export_to_pocket(filename, include_private=True):
                        (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures), i.quantity))
         except Exception, e:
             logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
-        gobject.idle_add(pb_set_fraction, 0.45 + 0.55 * count / len(plants))
+        GObject.idle_add(pb_set_fraction, 0.45 + 0.55 * count / len(plants))
         count += 1
     cn.commit()
     session.close()
-    gobject.idle_add(pb_release)
+    GObject.idle_add(pb_release)
     return True
 
 
@@ -154,11 +155,11 @@ class ExportToPocketTool(pluginmgr.Tool):
 
     @classmethod
     def start(self):
-        d = gtk.FileChooserDialog(_("Choose a file to export to…"), None,
-                                  gtk.FILE_CHOOSER_ACTION_SAVE,
-                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        if d.run() == gtk.RESPONSE_ACCEPT:
+        d = Gtk.FileChooserDialog(_("Choose a file to export to…"), None,
+                                  Gtk.FileChooserAction.Save,
+                                  (Gtk.Stock.OK, Gtk.Response.ACCEPT,
+                                   Gtk.Stock.CANCEL, Gtk.Response.CANCEL))
+        if d.run() == Gtk.Response.ACCEPT:
             pocket = d.get_filename()
             try:
                 os.unlink(pocket)
