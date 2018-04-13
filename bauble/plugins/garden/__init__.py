@@ -125,7 +125,8 @@ class GardenPlugin(pluginmgr.Plugin):
             context_menu=collection_context_menu)
 
         # done here b/c the Species table is not part of this plugin
-        SearchView.row_meta[Species].get_child() = "accessions"
+        print 'should add a child to row_meta species'
+        #SearchView.row_meta[Species].get_child() = "accessions"
 
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
