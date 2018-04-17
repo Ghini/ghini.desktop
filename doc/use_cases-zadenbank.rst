@@ -62,15 +62,15 @@ directions on how to develop their own database.
       follow the same convention when doing so, you will be able to write
       and execute such queries using ghini.
 
-      One possibility, the one described here, is based on notes.  (Ghini
+      One possibility, the one described here, is based on ›Notes‹.  (Ghini
       does not, as yet, implement the concept "Acquisition". There is an
       issue related to the Acquisition and Donation objects, but we haven't
       quite formalized things yet.)
 
       You surely already use codes to identify a batch of seeds entering the
-      seed bank.  Just copy this code in a note, category 'received', to
-      each accession in the received batch.  This will let you select the
-      accessions by the query::
+      seed bank.  Just copy this code in a ›Note‹, category 'received', to
+      each ›Accession‹ in the received batch.  This will let you select the
+      ›Accessions‹ by the query::
 
         accession where notes[category='received'].note='<your code>'
 
@@ -91,7 +91,7 @@ directions on how to develop their own database.
         of the right seeds.
       * remove that amount of seeds from the ›Jar‹ (decrement the quantity),
       * put the seeds in an ›Envelope‹ (yes, that's a database object).
-      * send the envelope (but keep track of it).
+      * send the envelope (but keep it in the database).
       
       this in short.
 
@@ -102,7 +102,7 @@ directions on how to develop their own database.
       There's two levels of keeping things together: one is while you're
       preparing the sending, and then for later reference.
 
-      While preparing the sending, we advise you use a temporary tag on the
+      While preparing the sending, we advise you use a temporary ›Tag‹ on the
       objects being edited.
 
       For later reference, you will have common ›Note‹ texts, to identify
@@ -155,7 +155,7 @@ directions on how to develop their own database.
       Write also the ›Species‹ name, and the quantity you can provide.
 
       Walk now to your seeds bank and, for each of the envelopes you just
-      prepared, open the Location, grab the Plant, extract the correct
+      prepared, open the ›Location‹, grab the ›Plant‹, extract the correct
       amount of seeds, put them in your physical envelope.
 
       And back to the database!
@@ -200,7 +200,9 @@ directions on how to develop their own database.
 
         plant where notes[category='sent'].note = '2018-pino-002'
 
-      You now need to edit them one by one, mark the quantity to zero, and
+      You now need to edit them one by one, mark the ›quantity‹ to zero, and
       optionally specify the reason of the change, which would be ›given
-      away‹, and the recipient is already specified in the 'sent' note..
-       
+      away‹, and the recipient is already specified in the 'sent' ›Note‹.
+
+      This last operation could be automated, we're thinking of it, it would
+      become a script, acting on a selection.  Stay tuned.
