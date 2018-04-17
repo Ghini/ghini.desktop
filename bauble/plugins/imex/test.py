@@ -819,6 +819,68 @@ class JSONImportTests(BaubleTestCase):
         self.assertEquals(afterwards.sp_author, u'Chapm.')
         self.assertEquals(len(afterwards.notes), 1)
 
+    def test_import_new_with_three_array_notes(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "[x]", "note": "1"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "[x]", "note": "1"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "[x]", "note": "1"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 3)
+
+    def test_import_new_same_picture_notes(self):
+        before = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        note = SpeciesNote(category=u'<picture>', note=u'a')
+        self.session.commit()
+        
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<picture>", "note": "a"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<picture>", "note": "b"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 2)
+
+    def test_import_new_with_repeated_note(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<price>", "note": "8"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<price>", "note": "10"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 1)
+        self.assertEquals(afterwards.notes[0].note, u'10')
+
     def test_import_new_with_timestamped_note(self):
         json_string = (
             '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
@@ -835,6 +897,8 @@ class JSONImportTests(BaubleTestCase):
                            'epithet': u"pallidus"})
         self.assertEquals(afterwards.sp_author, u'Chapm.')
         self.assertEquals(len(afterwards.notes), 1)
+        import datetime
+        self.assertEquals(afterwards.notes[0].date, datetime.date(2009, 2, 24))
 
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
