@@ -802,6 +802,40 @@ class JSONImportTests(BaubleTestCase):
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 1)
 
+    def test_import_new_with_non_timestamped_note(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<coords>", "note": "{lat: 8.5, lon: -80}"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 1)
+
+    def test_import_new_with_timestamped_note(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<coords>", "note": "{lat: 8.5, lon: -80}", "date": {"__class__": "datetime", "millis": 1234567890}}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 1)
+
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
         json_string = '[{"rank": "Species", "epithet": "tuberosus", "ht-rank"'\
