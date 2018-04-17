@@ -30,7 +30,7 @@ from sqlalchemy import Column, Integer, Boolean
 
 import bauble.db as db
 from bauble.plugins.plants import (
-    Familia, Family, Genus, Species, VernacularName)
+    Familia, Family, Genus, Species, VernacularName, SpeciesNote)
 from bauble.plugins.garden import Accession, Location, Plant, Contact, Source
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
@@ -551,6 +551,47 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(result[0]['ht-rank'], 'genus')
         self.assertEquals(result[0]['ht-epithet'], 'Calopogon')
         self.assertEquals(result[0]['hybrid'], False)
+
+    def test_export_single_species_with_notes(self):
+        selection = self.session.query(
+            Species).filter(Species.sp == u'tuberosus').join(
+            Genus).filter(Genus.genus == u"Calopogon").all()
+        note = SpeciesNote(category=u'<coords>', note=u'{1: 1, 2: 2}')
+        note.species = selection[0]
+        self.session.add(note)
+        self.session.commit()
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = selection
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 2)
+        self.assertEquals(result[0], {u'ht-epithet': u'Calopogon', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'epithet': u'tuberosus'})
+        date_dict = result[1]['date']
+        del result[1]['date']
+        self.assertEquals(result[1], {u'category': u'<coords>', u'note': u'{1: 1, 2: 2}', u'species': u'Calopogon tuberosus', u'object': u'species_note'})
+        self.assertEquals(set(date_dict.keys()), set([u'millis', u'__class__']))
+
+    def test_export_single_species_with_vernacular_name(self):
+        selection = self.session.query(
+            Species).filter(Species.sp == u'tuberosus').join(
+            Genus).filter(Genus.genus == u"Calopogon").all()
+        vn = VernacularName(language=u"it", name=u'orchidea')
+        selection[0].vernacular_names.append(vn)
+        self.session.add(vn)
+        self.session.commit()
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = selection
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 2)
+        self.assertEquals(result[0], {u'ht-epithet': u'Calopogon', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'epithet': u'tuberosus'})
+        self.assertEquals(result[1], {u'language': u'it', u'name': u'orchidea', u'object': u'vernacular_name', u'species': u'Calopogon tuberosus'})
 
     def test_partial_taxonomic_with_synonymy(self):
         "exporting one genus which is not an accepted name."
