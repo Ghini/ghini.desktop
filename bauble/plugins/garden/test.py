@@ -1687,7 +1687,7 @@ class InstitutionTests(GardenTestCase):
         o.write()
         fields = self.session.query(BaubleMeta).filter(
             utils.ilike(BaubleMeta.name, 'inst_%')).all()
-        self.assertEquals(len(fields), 9)  # 9 props define the institution
+        self.assertEquals(len(fields), 13)  # 13 props define the institution
 
     def test_init__one_institution(self):
         o = Institution()
@@ -1697,7 +1697,7 @@ class InstitutionTests(GardenTestCase):
         o.write()
         fieldObjects = self.session.query(BaubleMeta).filter(
             utils.ilike(BaubleMeta.name, 'inst_%')).all()
-        self.assertEquals(len(fieldObjects), 9)
+        self.assertEquals(len(fieldObjects), 13)
 
     def test_init__always_initialized(self):
         o = Institution()
@@ -1803,11 +1803,13 @@ class InstitutionPresenterTests(GardenTestCase):
         o = Institution()
         p = InstitutionPresenter(o, view)
         p.on_inst_register_clicked()
-        self.assertEquals(self.handler.messages['bauble.registrations']['info'],
-                          ["[('fax', None), ('address', None), ('name', ''), "
-                           "('contact', None), ('technical_contact', None), "
-                           "('abbreviation', None), ('code', None), "
-                           "('tel', None), ('email', '')]"])
+        print self.handler.messages['bauble.registrations']['info'][0]
+        target = [('fax', None), ('address', None), ('name', ''), 
+                                  ('contact', None), ('technical_contact', None), ('geo_diameter', None), 
+                                  ('abbreviation', None), ('code', None), ('geo_longitude', None), 
+                                  ('tel', None), ('email', ''), ('geo_latitude', None)]
+        for i in eval(self.handler.messages['bauble.registrations']['info'][0]):
+            self.assertTrue(i in target, i)
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]

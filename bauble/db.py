@@ -30,6 +30,7 @@ import datetime
 import os
 import re
 import bauble.error as error
+import json
 
 
 try:
@@ -498,12 +499,19 @@ def make_note_class(name, compute_serializable_fields, as_dict=None, retrieve=No
                            create=True, update=True):
         """return database object corresponding to keys
         """
-        result = super(globals()[class_name], cls).retrieve_or_create(session, keys, create, update)
         category = keys.get('category', '')
+        
+        # normally, it's one note per category, but for list values, and for
+        # pictures, we can have more than one.
         if (create and (category.startswith('[') and category.endswith(']') or
-                        category.startswith('<') and category.endswith('>'))):
-            result = cls(**keys)
-            session.add(result)
+                        category == '<picture>')):
+            # dirty trick: making sure it's not going to be found!
+            import uuid
+            keys['category'] = unicode(uuid.uuid4())
+        result = super(globals()[class_name], cls).retrieve_or_create(session, keys, create, update)
+        keys['category'] = category
+        if result:
+            result.category = category
         return result
 
     def retrieve_default(cls, session, keys):
@@ -570,8 +578,13 @@ class WithNotes:
                 result.append((key, n.note))
             elif n.category == ('<%s>' % name):
                 try:
-                    return eval(n.note)
-                except:
+                    return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', '{' + n.note.replace(';', ',') + '}'))
+                except Exception, e:
+                    pass
+                try:
+                    return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', n.note))
+                except Exception, e:
+                    logger.debug('not parsed %s(%s), returning literal text »%s«', type(e), e, n.note)
                     return n.note
         if result == []:
             # if nothing was found, do not break the proxy.
@@ -661,6 +674,10 @@ class Serializable:
                 return None
             else:
                 extradict = {}
+        except Exception, e:
+            logger.debug("this was unexpected")
+            raise
+            
         logger.debug('3 value of keys: %s' % keys)
 
         ## at this point, resulting object is either in database or not. in
@@ -719,6 +736,13 @@ class Serializable:
         if 'id' in keys:
             del keys['id']
         for k, v in keys.items():
+            if isinstance(v, dict):
+                if v.get('__class__') == 'datetime':
+                    m = v.get('millis', 0)
+                    v = datetime.datetime(1970, 1, 12)
+                    v = v + datetime.timedelta(0, m)
+                else:
+                    v = None
             if v is not None:
                 setattr(result, k, v)
         logger.debug('returning updated existing %s' % result)

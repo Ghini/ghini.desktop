@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-26 08:26-0500\n"
+"POT-Creation-Date: 2018-04-14 08:29-0500\n"
 "PO-Revision-Date: 2015-09-08 16:23+0200\n"
 "Last-Translator: Michal Čihař <michal@cihar.com>\n"
 "Language-Team: Czech <https://hosted.weblate.org/projects/bauble/master/cs/"
@@ -506,7 +506,7 @@ msgstr "Přidat rostliny"
 msgid "Additional info"
 msgstr "Doplňující informace"
 
-#: bauble/plugins/garden/institution.glade:410
+#: bauble/plugins/garden/institution.glade:408
 msgid "Address"
 msgstr "Adresa"
 
@@ -525,6 +525,12 @@ msgstr "Naživu"
 #: bauble/plugins/garden/acc_editor.glade:1946
 msgid "Altitude/Depth"
 msgstr "Nadmořská výška/hloubka"
+
+#: bauble/plugins/garden/institution.py:217
+msgid ""
+"An approximation of the garden size: the diameter of the smallest circle "
+"completely containing the garden location."
+msgstr ""
 
 #: bauble/plugins/garden/location.py:193
 msgid ""
@@ -678,7 +684,7 @@ msgstr "Řez poupěte"
 msgid "Budded"
 msgstr "S pupeny"
 
-#: bauble/plugins/garden/institution.glade:310
+#: bauble/plugins/garden/institution.glade:308
 msgid "Bug reporting"
 msgstr ""
 
@@ -1096,6 +1102,10 @@ msgstr "Popis"
 msgid "Details"
 msgstr "Podrobnosti"
 
+#: bauble/plugins/garden/institution.glade:537
+msgid "Diameter"
+msgstr ""
+
 #: bauble/plugins/garden/plant.py:268
 msgid "Did not germinate"
 msgstr "Nevyklíčeno"
@@ -1321,7 +1331,7 @@ msgstr "Editor rodiny"
 msgid "Family Window"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:354
+#: bauble/plugins/garden/institution.glade:352
 msgid "Fax"
 msgstr "Fax"
 
@@ -1634,7 +1644,7 @@ msgstr "Jednotlivec"
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:230
+#: bauble/plugins/garden/institution.py:242
 msgid "Institution"
 msgstr "Instituce"
 
@@ -1697,6 +1707,7 @@ msgstr "Rozšíření jmenovky"
 msgid "Last updated:"
 msgstr "<b>Poslední aktualizace:</b>"
 
+#: bauble/plugins/garden/institution.glade:476
 #: bauble/plugins/garden/acc_editor.glade:2029
 msgid "Latitude"
 msgstr "Zeměpisná šířka"
@@ -1768,6 +1779,7 @@ msgstr ""
 msgid "Location:"
 msgstr ""
 
+#: bauble/plugins/garden/institution.glade:506
 #: bauble/plugins/garden/acc_editor.glade:2039
 msgid "Longitude"
 msgstr "Zeměpisná délka"
@@ -2088,7 +2100,7 @@ msgstr "Prosím vyberte šablonu."
 msgid "Please select something in the search results."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:129
+#: bauble/plugins/garden/institution.py:136
 msgid "Please specify an institution name for this database."
 msgstr ""
 
@@ -2287,7 +2299,7 @@ msgstr "Zakořeněný odřez"
 msgid "Rooted: %s%%"
 msgstr "Zakořeněno: %s%%"
 
-#: bauble/db.py:46
+#: bauble/db.py:47
 msgid ""
 "SQLAlchemy not installed. Please install SQLAlchemy from http://www."
 "sqlalchemy.org"
@@ -2644,7 +2656,7 @@ msgstr ""
 msgid "Technical contact"
 msgstr "Technický kontakt"
 
-#: bauble/plugins/garden/institution.glade:340
+#: bauble/plugins/garden/institution.glade:338
 msgid "Telephone"
 msgstr "Telefon"
 
@@ -2717,7 +2729,7 @@ msgstr "Množství rostlinného materiálu v době, kdy byl získán."
 msgid "The awards this species have been given"
 msgstr "Ocenění, která byla tomuto druhu udělena"
 
-#: bauble/db.py:427
+#: bauble/db.py:428
 msgid ""
 "The database you have connected to does not have a timestamp for when it was "
 "created. This usually means that there was a problem when you created the "
@@ -2727,7 +2739,7 @@ msgstr ""
 "většinou znamená, že se vyskytl problém, při vytváření databáze nebo "
 "databáze, ke které jste připojeni nebyla vytvořena pomocí Ghini."
 
-#: bauble/db.py:420
+#: bauble/db.py:421
 msgid ""
 "The database you have connected to does not have the bauble meta table.  "
 "This usually means that the database is either corrupt or it was created "
@@ -2737,7 +2749,7 @@ msgstr ""
 "znamená, že databáze je buď poškozená, nebo byla vytvořená starší verzí "
 "Ghini."
 
-#: bauble/db.py:416
+#: bauble/db.py:417
 msgid "The database you have connected to is empty."
 msgstr "Databáze, ke které jste připojeni, není prázdná."
 
@@ -2757,11 +2769,11 @@ msgstr ""
 "Distribuční řetězec, který bude použit ve jmenovce. Pokud je tento záznam "
 "prázdný, bude použito rozšíření druhu"
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:211
 msgid "The email address of the institution."
 msgstr "Emailová adresa instituce."
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:208
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2803,7 +2815,7 @@ msgstr ""
 "Kvalifikátor rodiny umožňuje odstranit nejasnosti, které mohou být spojeny s "
 "tímto jménem rodiny."
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:213
 msgid "The fax number of the institution."
 msgstr "Číslo faxu instituce."
 
@@ -2831,7 +2843,7 @@ msgstr ""
 "\n"
 "<i>Chtěli byste je nainstalovat nyní?</i>"
 
-#: bauble/plugins/garden/institution.py:194
+#: bauble/plugins/garden/institution.py:201
 msgid "The full name of the institution."
 msgstr "Úplný název instituce."
 
@@ -2866,19 +2878,27 @@ msgstr "Prostředí tohoto druhu"
 msgid "The intended location for plant material being accessioned."
 msgstr "Určené umístění pro přijímaný rostlinný materiál."
 
-#: bauble/plugins/garden/institution.py:197
+#: bauble/plugins/garden/institution.py:204
 msgid "The intitution code should be unique among all institions."
 msgstr "Kód instituce by měl být mezi všemi institucemi jedinečný."
+
+#: bauble/plugins/garden/institution.py:215
+msgid "The latitude of the geographic centre of the garden."
+msgstr ""
 
 #: bauble/plugins/garden/plant.py:602
 msgid "The location of the planting in your collection."
 msgstr "Umístění rostliyn ve Vaší sbírce."
 
-#: bauble/plugins/garden/institution.py:207
+#: bauble/plugins/garden/institution.py:216
+msgid "The longitude of the geographic centre of the garden."
+msgstr ""
+
+#: bauble/plugins/garden/institution.py:214
 msgid "The mailing address of the institition."
 msgstr "Poštovní adresa instituce."
 
-#: bauble/plugins/garden/institution.py:199
+#: bauble/plugins/garden/institution.py:206
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr "Jméno osoby ke kontaktování pro informace ohledně této instituce."
@@ -2993,11 +3013,11 @@ msgstr ""
 "Druhy musí bát zvoleny ze seznamu dokončených. Pro přidání druhu, použijte "
 "editor Druhů."
 
-#: bauble/plugins/garden/institution.py:195
+#: bauble/plugins/garden/institution.py:202
 msgid "The standard abbreviation of the institution."
 msgstr "Standardní zkratka instituce."
 
-#: bauble/plugins/garden/institution.py:205
+#: bauble/plugins/garden/institution.py:212
 msgid "The telephone number of the institution."
 msgstr "Telefonní číslo instituce."
 
@@ -3099,7 +3119,7 @@ msgid ""
 "Publication date: %s"
 msgstr ""
 
-#: bauble/db.py:39
+#: bauble/db.py:40
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
@@ -3355,7 +3375,7 @@ msgstr ""
 "\n"
 "<i>Chtěli byste pokračovat?</i>"
 
-#: bauble/db.py:435
+#: bauble/db.py:436
 msgid ""
 "You are using Ghini version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
@@ -3613,7 +3633,7 @@ msgstr ""
 msgid "edit stored queries"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:291
+#: bauble/plugins/garden/institution.glade:290
 msgid "enable automatic bug reporting"
 msgstr ""
 
@@ -3794,7 +3814,7 @@ msgstr ""
 msgid "recurse"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:485
+#: bauble/plugins/garden/institution.glade:586
 msgid "save and close"
 msgstr ""
 

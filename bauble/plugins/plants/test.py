@@ -1834,6 +1834,45 @@ class SpeciesProperties_test(PlantTestCase):
 
 
 class AttributesStoredInNotes(PlantTestCase):
+    def test_proper_yaml_dictionary(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'rank': 'species',
+                           'ht-epithet': u'Laelia',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        note = SpeciesNote(category=u'<coords>', note=u'{1: 1, 2: 2}')
+        note.species = obj
+        self.session.commit()
+        self.assertEquals(obj.coords, {'1': 1, '2': 2})
+
+    def test_very_sloppy_json_dictionary(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'rank': 'species',
+                           'ht-epithet': u'Laelia',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        note = SpeciesNote(category=u'<coords>', note=u'lat:8.3,lon:-80.1')
+        note.species = obj
+        self.session.commit()
+        self.assertEquals(obj.coords, {'lat': 8.3, 'lon': -80.1})
+
+    def test_very_very_sloppy_json_dictionary(self):
+        obj = Species.retrieve_or_create(
+            self.session, {'object': 'taxon',
+                           'ht-rank': 'genus',
+                           'rank': 'species',
+                           'ht-epithet': u'Laelia',
+                           'epithet': u'lobata'},
+            create=False, update=False)
+        note = SpeciesNote(category=u'<coords>', note=u'lat:8.3;lon:-80.1;alt:1400.0')
+        note.species = obj
+        self.session.commit()
+        self.assertEquals(obj.coords, {'lat': 8.3, 'lon': -80.1, 'alt': 1400.0})
+
     def test_atomic_value_interpreted(self):
         obj = Species.retrieve_or_create(
             self.session, {'object': 'taxon',
