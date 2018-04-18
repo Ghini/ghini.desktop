@@ -113,8 +113,9 @@ directions on how to develop their own database.
 
       Right.  Quite fair.  Let's see…
 
-      Say you were requested to deliver 50 seeds of Urtica dioica, 30 of Zea
-      mays 'Red Marvel', 80 of Oryza sativa, and 30 of Panicum maximum.
+      Say you were requested to deliver 50 seeds of Parnassia palustris, 30
+      of Gentiana pneumonanthe, 80 of Fritillaria meleagris, and 30 of
+      Hypericum pulchrum.
 
       -------------------------
 
@@ -122,7 +123,7 @@ directions on how to develop their own database.
       you do have enough, where you have them.  You do this per requested
       species::
 
-        accession where species.genus.epithet=Zea and species.epithet=mays and sum(plants.quantity)>0
+        accession where species.genus.epithet=Parnassia and species.epithet=palustris and sum(plants.quantity)>0
 
       Expand in the results pane the ›Accession‹ from which you want to grab
       the seeds, so you see the corresponding ›Jars‹, highlight one, and tag
@@ -132,11 +133,12 @@ directions on how to develop their own database.
       ›sending‹, but that's only for ease of exposition and further
       completely irrelevant.
 
-      Repeat the task for Urtica dioica, Oryza sativa, Panicum maximum::
+      Repeat the task for Gentiana pneumonanthe, Fritillaria meleagris,
+      Hypericum pulchrum::
 
-        accession where species.genus.epithet=Urtica and species.epithet=dioica and sum(plants.quantity)>0
-        accession where species.genus.epithet=Oryza and species.epithet=sativa and sum(plants.quantity)>0
-        accession where species.genus.epithet=Panicum and species.epithet=maximum and sum(plants.quantity)>0
+        accession where species.genus.epithet=Gentiana and species.epithet=pneumonanthe and sum(plants.quantity)>0
+        accession where species.genus.epithet=Fritillaria and species.epithet=meleagris and sum(plants.quantity)>0
+        accession where species.genus.epithet=Hypericum and species.epithet=pulchrum and sum(plants.quantity)>0
 
       Again highilight the accession from which you can grab seeds, and hit
       Ctrl-Y (this tags the highighted row with the active tag).  Don't
@@ -173,10 +175,10 @@ directions on how to develop their own database.
       
       Splitting a plant lets you create a database image of the plant group
       you just physically created, eg: it lets you subtract 30 items from
-      the Zea mayx plant (group number one, that is the one in the jar),
-      and create a new plant group for the same accession.  A good practice
-      would be to specify as ›Location‹ for this new plant the 'out box',
-      that is, the envelope is on its way to leave the garden.
+      the Gentiana pneumonanthe plant (group number one, that is the one in
+      the jar), and create a new plant group for the same accession.  A good
+      practice would be to specify as ›Location‹ for this new plant the 'out
+      box', that is, the envelope is on its way to leave the garden.
 
       Don't forget to delete the temporary 'sending' ›Tag‹.
 
