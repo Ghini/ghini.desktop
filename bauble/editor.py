@@ -1811,18 +1811,6 @@ class GenericModelViewPresenterEditor(object):
         self.session = db.Session()
         self.model = self.session.merge(model)
 
-    def attach_response(self, dialog, response, keyname, mask):
-        '''
-        Attach a response to dialog when keyname and mask are pressed
-        '''
-        def callback(widget, event, key, mask):
-#            debug(gtk.gdk.keyval_name(event.keyval))
-            if event.keyval == gtk.gdk.keyval_from_name(key) \
-                    and (event.state & mask):
-                widget.response(response)
-        dialog.add_events(gtk.gdk.KEY_PRESS_MASK)
-        dialog.connect("key-press-event", callback, keyname, mask)
-
     def commit_changes(self):
         '''
         Commit the changes to self.session()
@@ -2123,13 +2111,16 @@ class PictureBox(NoteBox):
             fileChooserDialog.run()
             filename = fileChooserDialog.get_filename()
             if filename:
-                ## rememberl chosen location for next time
-                ## copy file to picture_root_dir (if not yet there).
+                ## remember chosen location for next time
                 PictureBox.last_folder, basename = os.path.split(unicode(filename))
                 logger.debug('new current folder is: %s' % self.last_folder)
-                utils.copy_picture_with_thumbnail(self.last_folder, basename)
+                ## copy file to picture_root_dir (if not yet there),
+                ## also receiving thumbnail base64
+                thumb = utils.copy_picture_with_thumbnail(self.last_folder, basename)
                 ## make sure the category is <picture>
                 self.set_model_attr('category', u'<picture>')
+                ## append thumbnail base64 to content string
+                basename = basename + "|data:image/jpeg;base64," + thumb
                 ## store basename in note field and fire callbacks.
                 self.set_model_attr('note', basename)
                 self.set_content(basename)

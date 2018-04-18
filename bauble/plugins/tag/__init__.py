@@ -219,9 +219,11 @@ def remove_callback(tags):
     return True
 
 
-edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('acc_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
-remove_action = Action('tag_remove', _('_Delete'), callback=remove_callback,
+remove_action = Action('tag_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 tag_context_menu = [edit_action, remove_action]
@@ -752,9 +754,11 @@ class TagInfoBox(InfoBox):
         self.general.update(row)
 
 class TagPlugin(pluginmgr.Plugin):
+    provides = {'Tag': Tag}
 
     @classmethod
     def init(cls):
+        pluginmgr.provided.update(cls.provides)
         from bauble.view import SearchView
         from functools import partial
         mapper_search = search.get_strategy('MapperSearch')

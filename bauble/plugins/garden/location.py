@@ -82,11 +82,14 @@ def remove_callback(locations):
                                      type=gtk.MESSAGE_ERROR)
     return True
 
-edit_action = Action('loc_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('loc_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
 add_plant_action = Action('loc_add_plant', _('_Add plants'),
-                          callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('loc_remove', _('_Delete'), callback=remove_callback,
+                          callback=add_plants_callback,
+                          accelerator='<ctrl>k')
+remove_action = Action('loc_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete', multiselect=True)
 
 loc_context_menu = [edit_action, add_plant_action, remove_action]
@@ -376,14 +379,6 @@ class LocationEditor(GenericModelViewPresenterEditor):
 
         view = LocationEditorView(parent=self.parent)
         self.presenter = LocationEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
 
     def handle_response(self, response):
         '''

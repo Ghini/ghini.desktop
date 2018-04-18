@@ -7,7 +7,7 @@ and we hope that this page will convince you about it.
 
 This page shows how Ghini makes software meet the needs of a botanic garden.
 
-If you already know, and all you want is to do something practical, check our `user-contributed recipes <use_cases.html>`_.
+If you already know, and all you want is to do something practical, just  `install the software <installing.html>`_, then check our `user-contributed recipes <use_cases.html>`_.
 
 Botanic Garden
 --------------------------------------------------------

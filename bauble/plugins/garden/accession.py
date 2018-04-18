@@ -201,11 +201,14 @@ def remove_callback(accessions):
     return True
 
 
-edit_action = Action('acc_edit', _('_Edit'), callback=edit_callback,
+edit_action = Action('acc_edit', _('_Edit'),
+                     callback=edit_callback,
                      accelerator='<ctrl>e')
 add_plant_action = Action('acc_add', _('_Add plants'),
-                          callback=add_plants_callback, accelerator='<ctrl>k')
-remove_action = Action('acc_remove', _('_Delete'), callback=remove_callback,
+                          callback=add_plants_callback,
+                          accelerator='<ctrl>k')
+remove_action = Action('acc_remove', _('_Delete'),
+                       callback=remove_callback,
                        accelerator='<ctrl>Delete')
 
 acc_context_menu = [edit_action, add_plant_action, remove_action]
@@ -753,6 +756,8 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
     def as_dict(self):
         result = db.Serializable.as_dict(self)
         result['species'] = self.species.str(remove_zws=True, authors=False)
+        if self.source and self.source.source_detail:
+            result['contact'] = self.source.source_detail.name
         return result
 
     @classmethod
@@ -850,6 +855,7 @@ class AccessionEditorView(editor.GenericEditorView):
                                      'material being accessioned.'),
         'intended2_loc_comboentry': _('The intended location for plant '
                                       'material being accessioned.'),
+        'intended_loc_create_plant_checkbutton': _('Immediately create a plant at this location, using all plant material.'),
 
         'acc_prov_combo': (_('The origin or source of this accession.\n\n'
                              'Possible values: %s') %
@@ -2303,14 +2309,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
         view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
 
         # set the default focus
         if self.model.species is None:

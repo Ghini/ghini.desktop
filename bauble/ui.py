@@ -429,8 +429,8 @@ class GUI(object):
         # create and addaction group for menu actions
         menu_actions = gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, _("_File")),
-                                  #("file_new", gtk.STOCK_NEW, _("_New"),
-                                  # None, None, self.on_file_menu_new),
+                                  ("file_new", gtk.STOCK_NEW, _("_New"),
+                                   None, None, self.on_file_menu_new),
                                   ("file_open", gtk.STOCK_OPEN, _("_Open"),
                                    '<ctrl>o', None, self.on_file_menu_open),
                                   ("file_quit", gtk.STOCK_QUIT, _("_Quit"),
@@ -465,6 +465,8 @@ class GUI(object):
                                   ("help_about", gtk.STOCK_ABOUT, _("About"),
                                    None, None, self.on_help_menu_about),
                                   ])
+        menu_actions.get_action('file_new').set_sensitive(False)
+        menu_actions.get_action('file_open').set_sensitive(False)
         self.ui_manager.insert_action_group(menu_actions, 0)
 
         # TODO: The menubar was made available in gtk.Builder in Gtk+
@@ -682,10 +684,9 @@ class GUI(object):
         """
         Open the connection manager.
         """
-        from connmgr import ConnMgrPresenter
+        from connmgr import start_connection_manager
         default_conn = prefs[bauble.conn_default_pref]
-        cm = ConnMgrPresenter(default=default_conn)
-        name, uri = cm.start()
+        name, uri = start_connection_manager(default_conn)
         if name is None:
             return
 

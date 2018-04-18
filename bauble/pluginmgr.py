@@ -59,6 +59,7 @@ import bauble.utils as utils
 
 plugins = {}
 commands = {}
+provided = {}
 
 
 def register_command(handler):
@@ -421,21 +422,24 @@ class PluginRegistry(db.Base):
 
 class Plugin(object):
     """
+    commands:
+      a map of commands this plugin handled with callbacks,
+      e.g dict('cmd', lambda x: handler)
     tools:
       a list of BaubleTool classes that this plugin provides, the
       tools' category and label will be used in Ghini's "Tool" menu
     depends:
       a list of names classes that inherit from BaublePlugin that this
       plugin depends on
-    cmds:
-      a map of commands this plugin handled with callbacks,
-      e.g dict('cmd', lambda x: handler)
+    provides:
+      a dictionary name->class exported by this plugin
     description:
       a short description of the plugin
     """
     commands = []
     tools = []
     depends = []
+    provides = {}
     description = ''
     version = '0.0'
 

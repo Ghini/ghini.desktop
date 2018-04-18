@@ -101,7 +101,8 @@ def remove_callback(families):
     return True
 
 
-edit_action = view.Action('family_edit', _('_Edit'), callback=edit_callback,
+edit_action = view.Action('family_edit', _('_Edit'),
+                          callback=edit_callback,
                           accelerator='<ctrl>e')
 add_species_action = view.Action('family_genus_add', _('_Add genus'),
                                  callback=add_genera_callback,
@@ -614,14 +615,6 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
         view = FamilyEditorView(parent=self.parent)
         self.presenter = FamilyEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
 
     def handle_response(self, response):
         '''

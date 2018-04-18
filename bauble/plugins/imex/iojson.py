@@ -24,17 +24,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-import bauble.utils as utils
-import bauble.db as db
-from bauble.plugins.plants import (Familia, Genus, Species, VernacularName)
+from bauble import utils
+from bauble import db
+from bauble.plugins.plants import (Familia, Genus, Species, VernacularName, SpeciesNote)
 from bauble.plugins.garden.plant import (Plant, PlantNote)
 from bauble.plugins.garden.accession import (Accession, AccessionNote)
+from bauble.plugins.garden.source import (Source, Contact)
 from bauble.plugins.garden.location import (Location)
 import bauble.task
-import bauble.editor as editor
-import bauble.paths as paths
+from bauble import editor
+from bauble import paths
 import json
-import bauble.pluginmgr as pluginmgr
+from bauble import pluginmgr
 from bauble import pb_set_fraction
 
 
@@ -94,7 +95,25 @@ class JSONExporter(editor.GenericEditorPresenter):
         if self.selection_based_on == 'sbo_selection':
             if self.include_private:
                 logger.info('exporting selection overrides `include_private`')
-            return self.view.get_selection()
+            result = self.view.get_selection()
+            if result is None:
+                return result
+            vernacular = speciesnotes = plantnotes = accessionnotes = []
+            species = [j.id for j in result if isinstance(j, Species)]
+            if species:
+                vernacular = self.session.query(VernacularName).filter(
+                    VernacularName.species_id.in_(species)).all()
+                speciesnotes = self.session.query(SpeciesNote).filter(
+                    SpeciesNote.species_id.in_(species)).all()
+            plants = [j.id for j in result if isinstance(j, Plant)]
+            if plants:
+                plantnotes = self.session.query(PlantNote).filter(
+                    PlantNote.plant_id.in_(plants)).all()
+            accessions = [j.id for j in result if isinstance(j, Accession)]
+            if accessions:
+                accessionnotes = self.session.query(AccessionNote).filter(
+                    AccessionNote.accession_id.in_(accessions)).all()
+            return result + vernacular + plantnotes + accessionnotes + speciesnotes
 
         ## export disregarding selection
         result = []
@@ -118,6 +137,8 @@ class JSONExporter(editor.GenericEditorPresenter):
             accessionnotes = self.session.query(AccessionNote).filter(
                 AccessionNote.accession_id.in_(
                     [j.id for j in accessions])).all()
+            ## all used contacts, but please don't repeat them.
+            contacts = list(set(a.source.source_detail for a in accessions if a.source))
             # extend results with things not further used
             result.extend(locations)
             result.extend(plants)
@@ -130,6 +151,10 @@ class JSONExporter(editor.GenericEditorPresenter):
             accessionnotes = self.session.query(AccessionNote).filter(
                 AccessionNote.accession_id.in_(
                     [j.id for j in accessions])).all()
+            ## all used contacts, but please don't repeat them.
+            contacts = list(set(a.source.source_detail for a in accessions if a.source))
+        else:
+            contacts = []
 
         ## now the taxonomy, based either on all species or on the ones used
         if self.selection_based_on == 'sbo_taxa':
@@ -154,8 +179,15 @@ class JSONExporter(editor.GenericEditorPresenter):
             Familia.id.in_([j.family_id for j in genera])).order_by(
             Familia.family).all()
 
+        # this should really be generalized, but while in 1.0 there's no point.
+        speciesnotes = self.session.query(SpeciesNote).filter(
+            SpeciesNote.species_id.in_(
+                [j.id for j in species])).all()
+
         ## prepend the result with the taxonomic information
-        result = families + genera + species + vernacular + result
+        result = families + genera + species + speciesnotes + vernacular + contacts + result
+        print vernacular
+        print speciesnotes
 
         ## done, return the result
         return result
@@ -276,6 +308,11 @@ class JSONImporter(editor.GenericEditorPresenter):
             pb_set_fraction(float(i) / n)
             yield
         session.commit()
+        try:
+            from bauble import gui
+            gui.get_view().update()
+        except:
+            pass
 
 
 #

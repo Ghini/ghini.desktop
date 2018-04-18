@@ -30,8 +30,8 @@ from sqlalchemy import Column, Integer, Boolean
 
 import bauble.db as db
 from bauble.plugins.plants import (
-    Familia, Family, Genus, Species, VernacularName)
-from bauble.plugins.garden import Accession, Location, Plant
+    Familia, Family, Genus, Species, VernacularName, SpeciesNote)
+from bauble.plugins.garden import Accession, Location, Plant, Contact, Source
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
@@ -42,26 +42,20 @@ import json
 from bauble.editor import MockView
 
 
-# TODO: test that when we export data we get what we expect
-# TODO: test that importing and then exporting gives the same data
-# TODO: test that exporting and then importing gives the same data
-# TODO: test XMLExporter
-
-# TODO: needs tests for UnicodeWriter and UnicodeReader, i'm pretty
-# sure they are buggy, see the python csv module for examples of how
-# they do a non-dict unicode reader/writer
-
-csv_test_data = ({})
-# Calopogon tuberosus Britton, Sterns & Poggenb.
-# Spiranthes delitescens Sheviak
-# Aerides lawrenceae Rchb. f.
-
 family_data = [{'id': 1, 'family': u'Orchidaceae', 'qualifier': None},
                {'id': 2, 'family': u'Myrtaceae'}]
-genus_data = [{'id': 1, 'genus': u'Calopogon', 'family_id': 1,
-               'author': u'R. Br.'},
-              {'id': 2, 'genus': u'Panisea', 'family_id': 1}]
-species_data = [{'id': 1, 'sp': u'tuberosus', 'genus_id': 1}]
+genus_data = [
+    {'id': 1, 'genus': u'Calopogon', 'family_id': 1, 'author': u'R. Br.'},
+    {'id': 2, 'genus': u'Panisea', 'family_id': 1}, ]
+species_data = [
+    {'id': 1, 'sp': u'tuberosus', 'genus_id': 1, 'sp_author': None},
+    {'id': 2, 'sp': u'albiflora', 'genus_id': 2, 'sp_author': u'(Ridl.) Seidenf.'},
+    {'id': 3, 'sp': u'distelidia', 'genus_id': 2, 'sp_author': u'I.D.Lund'},
+    {'id': 4, 'sp': u'zeylanica', 'genus_id': 2, 'sp_author': u'(Hook.f.) Aver.'}, ]
+species_note_test_data = [
+    {'id': 1, 'species_id': 18, 'category': u'CITES', 'note': u'I'},
+    {'id': 2, 'species_id': 20, 'category': u'IUCN', 'note': u'LC'},
+    {'id': 3, 'species_id': 18, 'category': u'<price>', 'note': u'19.50'}, ]
 accession_data = [
     {'id': 1, 'species_id': 1, 'code': u'2015.0001'},
     {'id': 2, 'species_id': 1, 'code': u'2015.0002'},
@@ -463,7 +457,7 @@ class JSONExportTests(BaubleTestCase):
         exporter.run()
         ## must still check content of generated file!
         result = json.load(open(self.temp_path))
-        self.assertEquals(len(result), 11)
+        self.assertEquals(len(result), 14)
         families = [i for i in result
                     if i['object'] == 'taxon' and i['rank'] == 'familia']
         self.assertEquals(len(families), 2)
@@ -472,29 +466,22 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(len(genera), 2)
         species = [i for i in result
                    if i['object'] == 'taxon' and i['rank'] == 'species']
-        self.assertEquals(len(species), 1)
+        self.assertEquals(len(species), 4)
         target = [
             {"epithet": "Orchidaceae", "object": "taxon", "rank": "familia"},
             {"epithet": "Myrtaceae", "object": "taxon", "rank": "familia"},
-            {"author": "R. Br.", "epithet": "Calopogon",
-             "ht-epithet": "Orchidaceae", "ht-rank": "familia",
-             "object": "taxon", "rank": "genus"},
-            {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae",
-             "ht-rank": "familia", "object": "taxon", "rank": "genus"},
-            {"epithet": "tuberosus", "ht-epithet": "Calopogon",
-             "ht-rank": "genus", "hybrid": False, "object": "taxon",
-             "rank": "species"},
-            {"code": "2015.0001", "object": "accession", "private": False,
-             "species": "Calopogon tuberosus"},
-            {"code": "2015.0002", "object": "accession", "private": False,
-             "species": "Calopogon tuberosus"},
-            {"code": "2015.0003", "object": "accession", "private": True,
-             "species": "Calopogon tuberosus"},
+            {"author": "R. Br.", "epithet": "Calopogon", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},
+            {"author": "", "epithet": "Panisea", "ht-epithet": "Orchidaceae", "ht-rank": "familia", "object": "taxon", "rank": "genus"},
+            {u'ht-epithet': u'Calopogon', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'epithet': u'tuberosus'},
+            {u'ht-epithet': u'Panisea', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'sp_author': u'(L.) Britton', u'epithet': u'albiflora', 'sp_author': u'(Ridl.) Seidenf.'},
+            {u'ht-epithet': u'Panisea', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'sp_author': u'(L.) Britton', u'epithet': u'distelidia', 'sp_author': u'I.D.Lund'},
+            {u'ht-epithet': u'Panisea', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'sp_author': u'(L.) Britton', u'epithet': u'zeylanica', 'sp_author': u'(Hook.f.) Aver.'},
+            {"code": "2015.0001", "object": "accession", "private": False, "species": "Calopogon tuberosus"},
+            {"code": "2015.0002", "object": "accession", "private": False, "species": "Calopogon tuberosus"},
+            {"code": "2015.0003", "object": "accession", "private": True, "species": "Calopogon tuberosus"},
             {"code": "1", "object": "location"},
-            {"accession": "2015.0001", "code": "1", "location": "1",
-             "memorial": False, "object": "plant", "quantity": 1},
-            {"accession": "2015.0003", "code": "1", "location": "1",
-             "memorial": False, "object": "plant", "quantity": 1}]
+            {"accession": "2015.0001", "code": "1", "location": "1", "memorial": False, "object": "plant", "quantity": 1},
+            {"accession": "2015.0003", "code": "1", "location": "1", "memorial": False, "object": "plant", "quantity": 1}]
         for o1 in result:
             self.assertTrue(o1 in target, o1)
         for o2 in target:
@@ -565,6 +552,47 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(result[0]['ht-epithet'], 'Calopogon')
         self.assertEquals(result[0]['hybrid'], False)
 
+    def test_export_single_species_with_notes(self):
+        selection = self.session.query(
+            Species).filter(Species.sp == u'tuberosus').join(
+            Genus).filter(Genus.genus == u"Calopogon").all()
+        note = SpeciesNote(category=u'<coords>', note=u'{1: 1, 2: 2}')
+        note.species = selection[0]
+        self.session.add(note)
+        self.session.commit()
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = selection
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 2)
+        self.assertEquals(result[0], {u'ht-epithet': u'Calopogon', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'epithet': u'tuberosus'})
+        date_dict = result[1]['date']
+        del result[1]['date']
+        self.assertEquals(result[1], {u'category': u'<coords>', u'note': u'{1: 1, 2: 2}', u'species': u'Calopogon tuberosus', u'object': u'species_note'})
+        self.assertEquals(set(date_dict.keys()), set([u'millis', u'__class__']))
+
+    def test_export_single_species_with_vernacular_name(self):
+        selection = self.session.query(
+            Species).filter(Species.sp == u'tuberosus').join(
+            Genus).filter(Genus.genus == u"Calopogon").all()
+        vn = VernacularName(language=u"it", name=u'orchidea')
+        selection[0].vernacular_names.append(vn)
+        self.session.add(vn)
+        self.session.commit()
+        exporter = JSONExporter(MockView())
+        exporter.view.selection = selection
+        exporter.selection_based_on == 'sbo_selection'
+        exporter.include_private = False
+        exporter.filename = self.temp_path
+        exporter.run()
+        result = json.load(open(self.temp_path))
+        self.assertEquals(len(result), 2)
+        self.assertEquals(result[0], {u'ht-epithet': u'Calopogon', u'hybrid': False, u'object': u'taxon', u'ht-rank': u'genus', u'rank': u'species', u'epithet': u'tuberosus'})
+        self.assertEquals(result[1], {u'language': u'it', u'name': u'orchidea', u'object': u'vernacular_name', u'species': u'Calopogon tuberosus'})
+
     def test_partial_taxonomic_with_synonymy(self):
         "exporting one genus which is not an accepted name."
 
@@ -630,7 +658,6 @@ class JSONExportTests(BaubleTestCase):
         exporter.filename = self.temp_path
         exporter.run()
         result = json.load(open(self.temp_path))
-        print result
         self.assertEquals(len(result), 6)
 
     def test_export_non_private_if_sbo_plants(self):
@@ -689,6 +716,40 @@ class JSONExportTests(BaubleTestCase):
         self.assertEquals(exporter.filename, '/tmp/test.json')
         self.assertEquals(JSONExporter.last_folder, '/tmp')
 
+    def test_includes_sources(self):
+
+        ## precondition
+        # Create an Accession a, then create a Source s, then assign a.source = s
+        a = self.session.query(Accession).first()
+        a.source = s = Source()
+        s.source_detail = c = Contact(name=u'Summit')
+        self.session.add_all([s, c])
+        self.session.commit()
+
+        ## action
+        exporter = JSONExporter(MockView())
+        selection = [a]
+        exporter.view.selection = None
+        exporter.selection_based_on = 'sbo_accessions'
+        exporter.include_private = True
+        exporter.filename = self.temp_path
+        exporter.run()
+
+        ## check
+        result = json.load(open(self.temp_path))
+        print result
+        contacts_from_json = [i for i in result
+                              if i['object'] == 'contact']
+        self.assertEquals(len(contacts_from_json), 1)
+        self.assertEquals(contacts_from_json[0]['name'], 'Summit')
+        accessions_from_json = [i for i in result
+                                if i['object'] == 'accession']
+        self.assertEquals(len(accessions_from_json), 3)
+        accessions_with_contact = [i for i in result
+                                   if i['object'] == 'accession' and i.get('contact') is not None]
+        self.assertEquals(len(accessions_with_contact), 1)
+        self.assertEquals(accessions_with_contact[0]['contact'], 'Summit')
+
 
 class JSONImportTests(BaubleTestCase):
 
@@ -740,6 +801,104 @@ class JSONImportTests(BaubleTestCase):
         importer.on_btnok_clicked(None)
         self.assertEquals(len(self.session.query(Genus).filter(
             Genus.genus == u"Neogyna").all()), 1)
+
+    def test_import_new_with_non_timestamped_note(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<coords>", "note": "{lat: 8.5, lon: -80}"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 1)
+
+    def test_import_new_with_three_array_notes(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "[x]", "note": "1"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "[x]", "note": "1"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "[x]", "note": "1"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 3)
+
+    def test_import_new_same_picture_notes(self):
+        before = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        note = SpeciesNote(category=u'<picture>', note=u'a')
+        self.session.commit()
+        
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<picture>", "note": "a"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<picture>", "note": "b"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 2)
+
+    def test_import_new_with_repeated_note(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<price>", "note": "8"}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<price>", "note": "10"}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 1)
+        self.assertEquals(afterwards.notes[0].note, u'10')
+
+    def test_import_new_with_timestamped_note(self):
+        json_string = (
+            '[{"ht-epithet": "Calopogon", "epithet": "pallidus", "author": "Chapm.", '\
+            ' "rank": "Species", "ht-rank": "Genus", "hybrid": false}, '\
+            ' {"object": "species_note", "species": "Calopogon pallidus", "category": "<coords>", "note": "{lat: 8.5, lon: -80}", "date": {"__class__": "datetime", "millis": 1234567890}}]')
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer = JSONImporter(MockView())
+        importer.filename = self.temp_path
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+        afterwards = Species.retrieve_or_create(
+            self.session, {'ht-epithet': u"Calopogon",
+                           'epithet': u"pallidus"})
+        self.assertEquals(afterwards.sp_author, u'Chapm.')
+        self.assertEquals(len(afterwards.notes), 1)
+        import datetime
+        self.assertEquals(afterwards.notes[0].date, datetime.date(2009, 2, 24))
 
     def test_import_existing_updates(self):
         "importing existing taxon updates it"
@@ -1019,6 +1178,25 @@ class JSONImportTests(BaubleTestCase):
         exporter.on_text_entry_changed('input_filename')
         self.assertEquals(exporter.filename, '/tmp/test.json')
         self.assertEquals(JSONImporter.last_folder, '/tmp')
+
+    def test_import_contact(self):
+        ## T_0
+        # empty database
+
+        ## offer two objects for import
+        importer = JSONImporter(MockView())
+        json_string = '[{"name": "Summit", "object": "contact"}]'
+        with open(self.temp_path, "w") as f:
+            f.write(json_string)
+        importer.filename = self.temp_path
+        importer.create = True
+        importer.update = True
+        importer.on_btnok_clicked(None)
+        self.session.commit()
+
+        ## T_1
+        summit = self.session.query(Contact).first()
+        self.assertNotEquals(summit, None)
 
 
 class GlobalFunctionsTests(BaubleTestCase):
