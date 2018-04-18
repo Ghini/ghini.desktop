@@ -567,7 +567,25 @@ class SearchView(pluginmgr.View):
             'label': label,
             'name': _('Notes'),
             }
+        self.view.widgets.notes_treeview.connect("row-activated", self.on_note_row_activated)
 
+    def on_note_row_activated(self, tree, path, column):
+        try:
+            # retrieve the selected row from the results view (we know it's
+            # one), and we only need it's domain name
+            selected = self.get_selected_values()[0]
+            domain = selected.__class__.__name__.lower()
+            # retrieve the activated row
+            row = tree.get_model()[path]
+            # construct the query
+            query = "%s where notes[category='%s'].note='%s'" % (domain, row[2], row[3])
+            # fire it
+            bauble.gui.widgets.main_comboentry.child.set_text(query)
+            bauble.gui.widgets.go_button.emit("clicked")            
+        except Exception, e:
+            print type(e), e
+        pass
+        
     def add_page_to_bottom_notebook(self, bottom_info):
         '''add notebook page for a plugin class
         '''

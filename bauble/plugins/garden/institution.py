@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright 2008-2010 Brett Adams
-# Copyright 2015 Mario Frasca <mario@anche.no>.
+# Copyright 2015,2018 Mario Frasca <mario@anche.no>.
 # Copyright 2017 Jardín Botánico de Quito
 #
 # This file is part of ghini.desktop.
@@ -39,7 +39,6 @@ import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
 
 
-
 class Institution(object):
     '''
     Institution is a "live" object. When properties are changed the changes
@@ -50,7 +49,9 @@ class Institution(object):
     '''
     __properties = ('name', 'abbreviation', 'code',
                     'contact', 'technical_contact', 'email',
-                    'tel', 'fax', 'address')
+                    'tel', 'fax', 'address',
+                    'geo_latitude', 'geo_longitude', 'geo_diameter',
+                    'uuid')
 
     table = meta.BaubleMeta.__table__
 
@@ -98,7 +99,10 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
                            'inst_email': 'email',
                            'inst_tel': 'tel',
                            'inst_fax': 'fax',
-                           'inst_addr_tb': 'address'
+                           'inst_addr_tb': 'address',
+                           'inst_geo_latitude': 'geo_latitude',
+                           'inst_geo_longitude': 'geo_longitude',
+                           'inst_geo_diameter': 'geo_diameter',
                            }
 
     def __init__(self, model, view):
@@ -109,6 +113,9 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
         self.view.widget_grab_focus('inst_name')
         self.on_non_empty_text_entry_changed('inst_name')
         self.on_email_text_entry_changed('inst_email')
+        if not model.uuid:
+            import uuid
+            model.uuid = unicode(uuid.uuid4())
 
     def cleanup(self):
         super(InstitutionPresenter, self).cleanup()
@@ -204,7 +211,12 @@ def start_institution_editor():
         'inst_email': _('The email address of the institution.'),
         'inst_tel': _('The telephone number of the institution.'),
         'inst_fax': _('The fax number of the institution.'),
-        'inst_addr': _('The mailing address of the institition.')
+        'inst_addr': _('The mailing address of the institition.'),
+        'inst_geo_latitude': _('The latitude of the geographic centre of the garden.'),
+        'inst_geo_longitude': _('The longitude of the geographic centre of the garden.'),
+        'inst_diameter': _('An approximation of the garden size: '
+                           'the diameter of the smallest circle completely '
+                           'containing the garden location.'),
         }
 
     o = Institution()

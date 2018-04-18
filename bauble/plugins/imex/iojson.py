@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 from bauble import utils
 from bauble import db
-from bauble.plugins.plants import (Familia, Genus, Species, VernacularName)
+from bauble.plugins.plants import (Familia, Genus, Species, VernacularName, SpeciesNote)
 from bauble.plugins.garden.plant import (Plant, PlantNote)
 from bauble.plugins.garden.accession import (Accession, AccessionNote)
 from bauble.plugins.garden.source import (Source, Contact)
@@ -95,7 +95,25 @@ class JSONExporter(editor.GenericEditorPresenter):
         if self.selection_based_on == 'sbo_selection':
             if self.include_private:
                 logger.info('exporting selection overrides `include_private`')
-            return self.view.get_selection()
+            result = self.view.get_selection()
+            if result is None:
+                return result
+            vernacular = speciesnotes = plantnotes = accessionnotes = []
+            species = [j.id for j in result if isinstance(j, Species)]
+            if species:
+                vernacular = self.session.query(VernacularName).filter(
+                    VernacularName.species_id.in_(species)).all()
+                speciesnotes = self.session.query(SpeciesNote).filter(
+                    SpeciesNote.species_id.in_(species)).all()
+            plants = [j.id for j in result if isinstance(j, Plant)]
+            if plants:
+                plantnotes = self.session.query(PlantNote).filter(
+                    PlantNote.plant_id.in_(plants)).all()
+            accessions = [j.id for j in result if isinstance(j, Accession)]
+            if accessions:
+                accessionnotes = self.session.query(AccessionNote).filter(
+                    AccessionNote.accession_id.in_(accessions)).all()
+            return result + vernacular + plantnotes + accessionnotes + speciesnotes
 
         ## export disregarding selection
         result = []
@@ -161,8 +179,15 @@ class JSONExporter(editor.GenericEditorPresenter):
             Familia.id.in_([j.family_id for j in genera])).order_by(
             Familia.family).all()
 
+        # this should really be generalized, but while in 1.0 there's no point.
+        speciesnotes = self.session.query(SpeciesNote).filter(
+            SpeciesNote.species_id.in_(
+                [j.id for j in species])).all()
+
         ## prepend the result with the taxonomic information
-        result = families + genera + species + vernacular + contacts + result
+        result = families + genera + species + speciesnotes + vernacular + contacts + result
+        print vernacular
+        print speciesnotes
 
         ## done, return the result
         return result
