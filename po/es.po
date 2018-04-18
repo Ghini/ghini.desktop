@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-03-30 16:17-0500\n"
-"PO-Revision-Date: 2017-11-14 13:27+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2018-04-18 18:45+0000\n"
+"Last-Translator: seraliam <seralia24martinez@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/ghini/desktop-11/"
 "es/>\n"
 "Language: es\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.18-dev\n"
+"X-Generator: Weblate 3.0-dev\n"
 "X-Launchpad-Export-Date: 2013-02-26 05:18+0000\n"
 
 #: bauble/btypes.py:87
@@ -364,7 +364,7 @@ msgstr "<b>zona de alto riesgo</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:470
 msgid "<b>data revision</b>"
-msgstr ""
+msgstr "<b>1revisión de datos</b>2"
 
 #: bauble/plugins/plants/infoboxes.glade:956
 msgid "<b>in use</b>"
@@ -376,7 +376,7 @@ msgstr "<b>opciones</b>"
 
 #: bauble/plugins/garden/picture_importer.glade:352
 msgid "<b>parameter definition</b>"
-msgstr ""
+msgstr "<b>1definición de parámetro</b>2"
 
 #: bauble/plugins/plants/infoboxes.glade:943
 msgid "<b>total</b>"
@@ -569,11 +569,11 @@ msgstr ""
 
 #: bauble/plugins/tag/__init__.py:104
 msgid "Apply active tag"
-msgstr ""
+msgstr "Aplicar etiqueta activa"
 
 #: bauble/plugins/garden/accession.py:1310
 msgid "Are you sure you want to copy this verification to the general taxon?"
-msgstr ""
+msgstr "¿está seguro que desea copiar esta verificación en el taxón general?"
 
 #: bauble/plugins/tag/__init__.py:317
 msgid "Are you sure you want to delete the tag \"%s\"?"
@@ -589,6 +589,8 @@ msgid ""
 "Are you sure you want to remove\n"
 "this propagation trial?"
 msgstr ""
+"¿Seguro que desea eliminar\n"
+"el ensayo de propagación?"
 
 #: bauble/connmgr.py:387
 msgid ""
