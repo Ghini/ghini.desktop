@@ -457,6 +457,43 @@ recvd_type_values = {
     None: ''
     }
 
+accession_type_to_plant_material = {
+    #u'Plant': _('Planting'),
+    U'BBPL': u'Plant',
+    u'BRPL': u'Plant',
+    u'PLNT': u'Plant',
+    u'SEDL': u'Plant',
+    #u'Seed': _('Seed/Spore'),
+    u'SEED': u'Seed',
+    u'SPOR': u'Seed',
+    u'SPRL': u'Seed',
+    #u'Vegetative': _('Vegetative Part'),
+    u'BUDC': u'Vegetative',
+    u'BUDD': u'Vegetative',
+    u'BULB': u'Vegetative',
+    u'CLUM': u'Vegetative',
+    u'CORM': u'Vegetative',
+    u'DIVI': u'Vegetative',
+    u'GRAF': u'Vegetative',
+    u'LAYE': u'Vegetative',
+    u'PSBU': u'Vegetative',
+    u'RCUT': u'Vegetative',
+    u'RHIZ': u'Vegetative',
+    u'ROOC': u'Vegetative',
+    u'ROOT': u'Vegetative',
+    u'SCIO': u'Vegetative',
+    u'TUBE': u'Vegetative',
+    u'URCU': u'Vegetative',
+    u'BBIL': u'Vegetative',
+    u'VEGS': u'Vegetative',
+    u'SCKR': u'Vegetative',
+    #u'Tissue': _('Tissue Culture'),
+    u'ALAY': u'Tissue',
+    #u'Other': _('Other'),
+    u'UNKN': u'Other',
+    None: None
+    }
+
 
 def compute_serializable_fields(cls, session, keys):
     result = {'accession': None}
@@ -2447,7 +2484,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             logger.debug('creating plant for new accession')
             accession = self.model
             location = accession.intended_location
-            plant = Plant(accession=accession, code=u'1', quantity=accession.quantity_recvd, location=location)
+            plant = Plant(accession=accession, code=u'1', quantity=accession.quantity_recvd, location=location,
+                          acc_type=accession_type_to_plant_material.get(self.model.recvd_type))
             self.session.add(plant)
             
         return super(AccessionEditor, self).commit_changes()
