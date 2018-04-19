@@ -1756,10 +1756,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
         self._original_code = self.model.code
         self.current_source_box = None
-
         model.create_plant = False
-        self.has_plants = len(model.plants) > 0
-        view.widget_set_sensitive('intended_loc_create_plant_checkbutton', not self.has_plants)
 
         # set the default code and add it to the top of the code formats
         self.populate_code_formats(model.code or '')
@@ -1875,10 +1872,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect(self.view.widgets.acc_recvd_type_comboentry.child,
                           'changed', self.on_recvd_type_entry_changed)
 
-        # TODO: could probably replace this by just passing a valdator
-        # to assign_simple_handler...UPDATE: but can the validator handle
-        # adding a problem to the widget...if we passed it the widget it
-        # could
         self.view.connect('acc_code_entry', 'changed',
                           self.on_acc_code_entry_changed)
 
@@ -1915,18 +1908,28 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 self.model, self.view, self, self, b, w),
             self.view.widgets.acc_species_entry)
 
+        self.has_plants = len(model.plants) > 0
+        view.widget_set_sensitive('intended_loc_create_plant_checkbutton', not self.has_plants)
+        def refresh_create_plant_checkbutton_sensitivity(*args):
+            if self.has_plants:
+                view.widget_set_sensitive('intended_loc_create_plant_checkbutton', False)
+                return
+            location_chosen = bool(self.model.intended_location)
+            has_quantity = self.model.quantity_recvd and bool(int(self.model.quantity_recvd)) or False
+            view.widget_set_sensitive('intended_loc_create_plant_checkbutton', has_quantity and location_chosen)
+
         self.assign_simple_handler(
             'acc_quantity_recvd_entry', 'quantity_recvd')
+        self.view.connect_after('acc_quantity_recvd_entry', 'changed',
+                                refresh_create_plant_checkbutton_sensitivity)
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
 
         from bauble.plugins.garden import init_location_comboentry
-
         def on_loc1_select(value):
             self.set_model_attr('intended_location', value)
-            if not self.has_plants:
-                view.widget_set_sensitive('intended_loc_create_plant_checkbutton', bool(value))
+            refresh_create_plant_checkbutton_sensitivity()
 
         init_location_comboentry(
             self, self.view.widgets.intended_loc_comboentry,
@@ -1939,6 +1942,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             on_loc2_select, required=False)
 
         self.refresh_sensitivity()
+        refresh_create_plant_checkbutton_sensitivity()
 
         if self.model not in self.session.new:
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
