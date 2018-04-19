@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-26 08:26-0500\n"
+"POT-Creation-Date: 2018-04-14 08:29-0500\n"
 "PO-Revision-Date: 2015-07-12 18:49-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/bauble/master/ru/"
@@ -511,7 +511,7 @@ msgstr "Добавить растения"
 msgid "Additional info"
 msgstr "Дополнительная информация"
 
-#: bauble/plugins/garden/institution.glade:410
+#: bauble/plugins/garden/institution.glade:408
 msgid "Address"
 msgstr "Адрес"
 
@@ -530,6 +530,12 @@ msgstr ""
 #: bauble/plugins/garden/acc_editor.glade:1946
 msgid "Altitude/Depth"
 msgstr "Высота/глубина"
+
+#: bauble/plugins/garden/institution.py:217
+msgid ""
+"An approximation of the garden size: the diameter of the smallest circle "
+"completely containing the garden location."
+msgstr ""
 
 #: bauble/plugins/garden/location.py:193
 msgid ""
@@ -675,7 +681,7 @@ msgstr ""
 msgid "Budded"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:310
+#: bauble/plugins/garden/institution.glade:308
 msgid "Bug reporting"
 msgstr ""
 
@@ -1081,6 +1087,10 @@ msgstr "Описание"
 msgid "Details"
 msgstr "Подробности"
 
+#: bauble/plugins/garden/institution.glade:537
+msgid "Diameter"
+msgstr ""
+
 #: bauble/plugins/garden/plant.py:268
 msgid "Did not germinate"
 msgstr "Не проросло"
@@ -1304,7 +1314,7 @@ msgstr "Редактор семейств"
 msgid "Family Window"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:354
+#: bauble/plugins/garden/institution.glade:352
 msgid "Fax"
 msgstr "Факс"
 
@@ -1607,7 +1617,7 @@ msgstr ""
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:230
+#: bauble/plugins/garden/institution.py:242
 msgid "Institution"
 msgstr "Учреждение"
 
@@ -1670,6 +1680,7 @@ msgstr ""
 msgid "Last updated:"
 msgstr "<b>Последнее обновление:</b>"
 
+#: bauble/plugins/garden/institution.glade:476
 #: bauble/plugins/garden/acc_editor.glade:2029
 msgid "Latitude"
 msgstr "Широта"
@@ -1741,6 +1752,7 @@ msgstr ""
 msgid "Location:"
 msgstr ""
 
+#: bauble/plugins/garden/institution.glade:506
 #: bauble/plugins/garden/acc_editor.glade:2039
 msgid "Longitude"
 msgstr "Долгота"
@@ -2056,7 +2068,7 @@ msgstr "Пожалуйста, выберите шаблон."
 msgid "Please select something in the search results."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:129
+#: bauble/plugins/garden/institution.py:136
 msgid "Please specify an institution name for this database."
 msgstr ""
 
@@ -2255,7 +2267,7 @@ msgstr ""
 msgid "Rooted: %s%%"
 msgstr ""
 
-#: bauble/db.py:46
+#: bauble/db.py:47
 msgid ""
 "SQLAlchemy not installed. Please install SQLAlchemy from http://www."
 "sqlalchemy.org"
@@ -2613,7 +2625,7 @@ msgstr ""
 msgid "Technical contact"
 msgstr "Техническая поддержка"
 
-#: bauble/plugins/garden/institution.glade:340
+#: bauble/plugins/garden/institution.glade:338
 msgid "Telephone"
 msgstr "Телефон"
 
@@ -2674,7 +2686,7 @@ msgstr ""
 msgid "The awards this species have been given"
 msgstr ""
 
-#: bauble/db.py:427
+#: bauble/db.py:428
 msgid ""
 "The database you have connected to does not have a timestamp for when it was "
 "created. This usually means that there was a problem when you created the "
@@ -2684,7 +2696,7 @@ msgstr ""
 "Это обычно означает, что была некая проблема при создании базы данных или "
 "база данных не была создана при помощи Ghini."
 
-#: bauble/db.py:420
+#: bauble/db.py:421
 msgid ""
 "The database you have connected to does not have the bauble meta table.  "
 "This usually means that the database is either corrupt or it was created "
@@ -2694,7 +2706,7 @@ msgstr ""
 "Обычно это означает ,что база данных повреждена или была создана с "
 "использованием старой версии Ghini"
 
-#: bauble/db.py:416
+#: bauble/db.py:417
 msgid "The database you have connected to is empty."
 msgstr "Вы подключены к пустой базе данных"
 
@@ -2712,11 +2724,11 @@ msgid ""
 "blank then the species distribution will be used"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:211
 msgid "The email address of the institution."
 msgstr "Адрес электронной почты учреждения."
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:208
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2754,7 +2766,7 @@ msgid ""
 "with this family name."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:213
 msgid "The fax number of the institution."
 msgstr "Номер факса учреждения."
 
@@ -2781,7 +2793,7 @@ msgstr ""
 "\n"
 "<i>Желаете установить их сейчас?</i>"
 
-#: bauble/plugins/garden/institution.py:194
+#: bauble/plugins/garden/institution.py:201
 msgid "The full name of the institution."
 msgstr "Полное название учреждения."
 
@@ -2816,19 +2828,27 @@ msgstr ""
 msgid "The intended location for plant material being accessioned."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:197
+#: bauble/plugins/garden/institution.py:204
 msgid "The intitution code should be unique among all institions."
 msgstr "Код учреждения должен быть уникальным среди всех учреждений."
+
+#: bauble/plugins/garden/institution.py:215
+msgid "The latitude of the geographic centre of the garden."
+msgstr ""
 
 #: bauble/plugins/garden/plant.py:602
 msgid "The location of the planting in your collection."
 msgstr "Расположение растения в вашей коллекции"
 
-#: bauble/plugins/garden/institution.py:207
+#: bauble/plugins/garden/institution.py:216
+msgid "The longitude of the geographic centre of the garden."
+msgstr ""
+
+#: bauble/plugins/garden/institution.py:214
 msgid "The mailing address of the institition."
 msgstr "Почтовый адрес учреждения."
 
-#: bauble/plugins/garden/institution.py:199
+#: bauble/plugins/garden/institution.py:206
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr ""
@@ -2931,11 +2951,11 @@ msgid ""
 "use the Species editor."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:195
+#: bauble/plugins/garden/institution.py:202
 msgid "The standard abbreviation of the institution."
 msgstr "Стандартная аббревиатура для учерждения."
 
-#: bauble/plugins/garden/institution.py:205
+#: bauble/plugins/garden/institution.py:212
 msgid "The telephone number of the institution."
 msgstr "Номер телефона учреждения."
 
@@ -3030,7 +3050,7 @@ msgid ""
 "Publication date: %s"
 msgstr ""
 
-#: bauble/db.py:39
+#: bauble/db.py:40
 #, fuzzy
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
@@ -3283,7 +3303,7 @@ msgstr ""
 "\n"
 "<i>Всё равно продолжить?</i>"
 
-#: bauble/db.py:435
+#: bauble/db.py:436
 msgid ""
 "You are using Ghini version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
@@ -3538,7 +3558,7 @@ msgstr ""
 msgid "edit stored queries"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:291
+#: bauble/plugins/garden/institution.glade:290
 msgid "enable automatic bug reporting"
 msgstr ""
 
@@ -3719,7 +3739,7 @@ msgstr ""
 msgid "recurse"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:485
+#: bauble/plugins/garden/institution.glade:586
 msgid "save and close"
 msgstr ""
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-26 08:26-0500\n"
+"POT-Creation-Date: 2018-04-14 08:29-0500\n"
 "PO-Revision-Date: 2017-12-01 12:47+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/ghini/"
@@ -514,7 +514,7 @@ msgstr "Növények hozzáadása"
 msgid "Additional info"
 msgstr "Kiegészítő információk"
 
-#: bauble/plugins/garden/institution.glade:410
+#: bauble/plugins/garden/institution.glade:408
 msgid "Address"
 msgstr "Cím"
 
@@ -533,6 +533,12 @@ msgstr "Élő"
 #: bauble/plugins/garden/acc_editor.glade:1946
 msgid "Altitude/Depth"
 msgstr "Magasság/Mélység"
+
+#: bauble/plugins/garden/institution.py:217
+msgid ""
+"An approximation of the garden size: the diameter of the smallest circle "
+"completely containing the garden location."
+msgstr ""
 
 #: bauble/plugins/garden/location.py:193
 msgid ""
@@ -688,7 +694,7 @@ msgstr "Rügydugvány"
 msgid "Budded"
 msgstr "Sarjadzó"
 
-#: bauble/plugins/garden/institution.glade:310
+#: bauble/plugins/garden/institution.glade:308
 msgid "Bug reporting"
 msgstr "Hibabejelentés"
 
@@ -1113,6 +1119,10 @@ msgstr "Leírás"
 msgid "Details"
 msgstr "Részletek"
 
+#: bauble/plugins/garden/institution.glade:537
+msgid "Diameter"
+msgstr ""
+
 #: bauble/plugins/garden/plant.py:268
 msgid "Did not germinate"
 msgstr "Nem csírázott ki"
@@ -1341,7 +1351,7 @@ msgstr "Család Szerkesztő"
 msgid "Family Window"
 msgstr "Család ablak"
 
-#: bauble/plugins/garden/institution.glade:354
+#: bauble/plugins/garden/institution.glade:352
 msgid "Fax"
 msgstr "Fax"
 
@@ -1652,7 +1662,7 @@ msgstr ""
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:230
+#: bauble/plugins/garden/institution.py:242
 msgid "Institution"
 msgstr "Intézmény"
 
@@ -1714,6 +1724,7 @@ msgstr "Elterjedés (a címkén)"
 msgid "Last updated:"
 msgstr "Utolsó frissítés:"
 
+#: bauble/plugins/garden/institution.glade:476
 #: bauble/plugins/garden/acc_editor.glade:2029
 msgid "Latitude"
 msgstr ""
@@ -1785,6 +1796,7 @@ msgstr "Helyszín részletek"
 msgid "Location:"
 msgstr "Helyszín:"
 
+#: bauble/plugins/garden/institution.glade:506
 #: bauble/plugins/garden/acc_editor.glade:2039
 msgid "Longitude"
 msgstr ""
@@ -2108,7 +2120,7 @@ msgstr "Válasszon sablont!"
 msgid "Please select something in the search results."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:129
+#: bauble/plugins/garden/institution.py:136
 msgid "Please specify an institution name for this database."
 msgstr "Válasszon intézménynevet ehhez az adatbázishoz!"
 
@@ -2307,7 +2319,7 @@ msgstr "Gyökeres dugvány"
 msgid "Rooted: %s%%"
 msgstr "Meggyökeresedett: %s%%"
 
-#: bauble/db.py:46
+#: bauble/db.py:47
 msgid ""
 "SQLAlchemy not installed. Please install SQLAlchemy from http://www."
 "sqlalchemy.org"
@@ -2661,7 +2673,7 @@ msgstr "Taxonómiai ellenőrzés"
 msgid "Technical contact"
 msgstr "Technikai kapcsolattartó"
 
-#: bauble/plugins/garden/institution.glade:340
+#: bauble/plugins/garden/institution.glade:338
 msgid "Telephone"
 msgstr "Telefon"
 
@@ -2733,7 +2745,7 @@ msgstr "A növények mennyisége a beszerzés rögzítésekor."
 msgid "The awards this species have been given"
 msgstr "A faj által elnyert díjak, kitüntetések"
 
-#: bauble/db.py:427
+#: bauble/db.py:428
 msgid ""
 "The database you have connected to does not have a timestamp for when it was "
 "created. This usually means that there was a problem when you created the "
@@ -2744,7 +2756,7 @@ msgstr ""
 "létrehozásakor valamilyen hiba lépett fel, vagy az adatbázis nem a Ghini "
 "alkalmazással lett létrehozva."
 
-#: bauble/db.py:420
+#: bauble/db.py:421
 msgid ""
 "The database you have connected to does not have the bauble meta table.  "
 "This usually means that the database is either corrupt or it was created "
@@ -2754,7 +2766,7 @@ msgstr ""
 "Ez többnyire azt jelenti, hogy az adatbázis sérült, vagy az adatbázis a "
 "Ghini alkalmazás egy régi verziójával lett létrehozva."
 
-#: bauble/db.py:416
+#: bauble/db.py:417
 msgid "The database you have connected to is empty."
 msgstr "Az adatbázis amihez kapcsolódott üres."
 
@@ -2774,11 +2786,11 @@ msgstr ""
 "A jeltáblán használandó elterjedési szöveg. Ha az értéke üres, a fajnál "
 "megadott elterjedési információt használja a rendszer"
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:211
 msgid "The email address of the institution."
 msgstr "Intézményi email cím."
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:208
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2818,7 +2830,7 @@ msgid ""
 "with this family name."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:213
 msgid "The fax number of the institution."
 msgstr "Az intézmény fax száma."
 
@@ -2847,7 +2859,7 @@ msgstr ""
 "\n"
 "<i>Szeretné őket most telepíteni?</i>"
 
-#: bauble/plugins/garden/institution.py:194
+#: bauble/plugins/garden/institution.py:201
 msgid "The full name of the institution."
 msgstr "Az intézmény teljes neve."
 
@@ -2883,19 +2895,27 @@ msgstr ""
 msgid "The intended location for plant material being accessioned."
 msgstr "A beszerzés növényanyagának tervezett kiültetési helye."
 
-#: bauble/plugins/garden/institution.py:197
+#: bauble/plugins/garden/institution.py:204
 msgid "The intitution code should be unique among all institions."
 msgstr "Az intézménykódnak egyedinek kell lennie."
+
+#: bauble/plugins/garden/institution.py:215
+msgid "The latitude of the geographic centre of the garden."
+msgstr ""
 
 #: bauble/plugins/garden/plant.py:602
 msgid "The location of the planting in your collection."
 msgstr "A kiültetés helye a gyűjteményében."
 
-#: bauble/plugins/garden/institution.py:207
+#: bauble/plugins/garden/institution.py:216
+msgid "The longitude of the geographic centre of the garden."
+msgstr ""
+
+#: bauble/plugins/garden/institution.py:214
 msgid "The mailing address of the institition."
 msgstr "Az intézmény postacíme."
 
-#: bauble/plugins/garden/institution.py:199
+#: bauble/plugins/garden/institution.py:206
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr "Kontakt személy az intézménynél."
@@ -3015,11 +3035,11 @@ msgstr ""
 "The species must be selected from the list of completions. Új fajt a Faj "
 "szerkesztővel tud rögzíteni."
 
-#: bauble/plugins/garden/institution.py:195
+#: bauble/plugins/garden/institution.py:202
 msgid "The standard abbreviation of the institution."
 msgstr "Az intézmény hivatalos rövidítése."
 
-#: bauble/plugins/garden/institution.py:205
+#: bauble/plugins/garden/institution.py:212
 msgid "The telephone number of the institution."
 msgstr "Az intézmény telefonszáma."
 
@@ -3141,7 +3161,7 @@ msgid ""
 "Publication date: %s"
 msgstr ""
 
-#: bauble/db.py:39
+#: bauble/db.py:40
 msgid ""
 "This version of Ghini requires SQLAlchemy 0.6 or greater. You are using "
 "version %s. Please download and install a newer version of SQLAlchemy from "
@@ -3402,7 +3422,7 @@ msgstr ""
 "\n"
 "<i>Kívánja folytatni?</i>"
 
-#: bauble/db.py:435
+#: bauble/db.py:436
 msgid ""
 "You are using Ghini version %(version)s while the database you have "
 "connected to was created with version %(db_version)s\n"
@@ -3663,7 +3683,7 @@ msgstr ""
 msgid "edit stored queries"
 msgstr "mentett lekérdezések szerkesztése"
 
-#: bauble/plugins/garden/institution.glade:291
+#: bauble/plugins/garden/institution.glade:290
 msgid "enable automatic bug reporting"
 msgstr "automatikus hibajelentés engedélyezése"
 
@@ -3845,7 +3865,7 @@ msgstr "növénylista lekérdezése"
 msgid "recurse"
 msgstr ""
 
-#: bauble/plugins/garden/institution.glade:485
+#: bauble/plugins/garden/institution.glade:586
 msgid "save and close"
 msgstr "mentés és bezárás"
 

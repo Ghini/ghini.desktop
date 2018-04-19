@@ -457,6 +457,43 @@ recvd_type_values = {
     None: ''
     }
 
+accession_type_to_plant_material = {
+    #u'Plant': _('Planting'),
+    U'BBPL': u'Plant',
+    u'BRPL': u'Plant',
+    u'PLNT': u'Plant',
+    u'SEDL': u'Plant',
+    #u'Seed': _('Seed/Spore'),
+    u'SEED': u'Seed',
+    u'SPOR': u'Seed',
+    u'SPRL': u'Seed',
+    #u'Vegetative': _('Vegetative Part'),
+    u'BUDC': u'Vegetative',
+    u'BUDD': u'Vegetative',
+    u'BULB': u'Vegetative',
+    u'CLUM': u'Vegetative',
+    u'CORM': u'Vegetative',
+    u'DIVI': u'Vegetative',
+    u'GRAF': u'Vegetative',
+    u'LAYE': u'Vegetative',
+    u'PSBU': u'Vegetative',
+    u'RCUT': u'Vegetative',
+    u'RHIZ': u'Vegetative',
+    u'ROOC': u'Vegetative',
+    u'ROOT': u'Vegetative',
+    u'SCIO': u'Vegetative',
+    u'TUBE': u'Vegetative',
+    u'URCU': u'Vegetative',
+    u'BBIL': u'Vegetative',
+    u'VEGS': u'Vegetative',
+    u'SCKR': u'Vegetative',
+    #u'Tissue': _('Tissue Culture'),
+    u'ALAY': u'Tissue',
+    #u'Other': _('Other'),
+    u'UNKN': u'Other',
+    None: None
+    }
+
 
 def compute_serializable_fields(cls, session, keys):
     result = {'accession': None}
@@ -1756,10 +1793,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
         self._original_code = self.model.code
         self.current_source_box = None
-
         model.create_plant = False
-        self.has_plants = len(model.plants) > 0
-        view.widget_set_sensitive('intended_loc_create_plant_checkbutton', not self.has_plants)
 
         # set the default code and add it to the top of the code formats
         self.populate_code_formats(model.code or '')
@@ -1875,10 +1909,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect(self.view.widgets.acc_recvd_type_comboentry.get_child(),
                           'changed', self.on_recvd_type_entry_changed)
 
-        # TODO: could probably replace this by just passing a valdator
-        # to assign_simple_handler...UPDATE: but can the validator handle
-        # adding a problem to the widget...if we passed it the widget it
-        # could
         self.view.connect('acc_code_entry', 'changed',
                           self.on_acc_code_entry_changed)
 
@@ -1915,18 +1945,28 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 self.model, self.view, self, self, b, w),
             self.view.widgets.acc_species_entry)
 
+        self.has_plants = len(model.plants) > 0
+        view.widget_set_sensitive('intended_loc_create_plant_checkbutton', not self.has_plants)
+        def refresh_create_plant_checkbutton_sensitivity(*args):
+            if self.has_plants:
+                view.widget_set_sensitive('intended_loc_create_plant_checkbutton', False)
+                return
+            location_chosen = bool(self.model.intended_location)
+            has_quantity = self.model.quantity_recvd and bool(int(self.model.quantity_recvd)) or False
+            view.widget_set_sensitive('intended_loc_create_plant_checkbutton', has_quantity and location_chosen)
+
         self.assign_simple_handler(
             'acc_quantity_recvd_entry', 'quantity_recvd')
+        self.view.connect_after('acc_quantity_recvd_entry', 'changed',
+                                refresh_create_plant_checkbutton_sensitivity)
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
 
         from bauble.plugins.garden import init_location_comboentry
-
         def on_loc1_select(value):
             self.set_model_attr('intended_location', value)
-            if not self.has_plants:
-                view.widget_set_sensitive('intended_loc_create_plant_checkbutton', bool(value))
+            refresh_create_plant_checkbutton_sensitivity()
 
         init_location_comboentry(
             self, self.view.widgets.intended_loc_comboentry,
@@ -1939,6 +1979,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             on_loc2_select, required=False)
 
         self.refresh_sensitivity()
+        refresh_create_plant_checkbutton_sensitivity()
 
         if self.model not in self.session.new:
             self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
@@ -2443,7 +2484,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             logger.debug('creating plant for new accession')
             accession = self.model
             location = accession.intended_location
-            plant = Plant(accession=accession, code=u'1', quantity=accession.quantity_recvd, location=location)
+            plant = Plant(accession=accession, code=u'1', quantity=accession.quantity_recvd, location=location,
+                          acc_type=accession_type_to_plant_material.get(self.model.recvd_type))
             self.session.add(plant)
             
         return super(AccessionEditor, self).commit_changes()
