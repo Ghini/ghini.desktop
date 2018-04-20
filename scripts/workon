@@ -15,7 +15,7 @@ else
   branch=ghini-$1
 fi
 
-venv=$(echo $branch | sed -e 's/ghini/ghide/')
+venv=$(echo $branch | sed -e 's/ghini/ghide/' -e 's/→/-/')
 
 $ECHO git checkout $branch
 $ECHO . ~/.virtualenvs/$venv/bin/activate
