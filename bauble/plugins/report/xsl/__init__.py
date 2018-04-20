@@ -422,7 +422,7 @@ class XSLFormatterSettingsBox(SettingsBox):
         super(XSLFormatterSettingsBox, self).__init__(*args)
         filename = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl',
                                 'gui.glade')
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
 
         utils.setup_text_combobox(self.widgets.renderer_combo)
 

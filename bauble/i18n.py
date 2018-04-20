@@ -78,16 +78,8 @@ import sys
 if sys.platform in ['win32', 'darwin']:
     locale = gettext
 
-try:
-    from gi.repository import Glade
-    gtkglade = Glade
-except ImportError:
-    print "can't find Glade"
-    gtkglade = locale
-
-for module in locale, gtkglade:
-    module.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
-    module.textdomain(TEXT_DOMAIN)
+locale.bindtextdomain(TEXT_DOMAIN, paths.locale_dir())
+locale.textdomain(TEXT_DOMAIN)
 
 # Get the language to use
 lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,

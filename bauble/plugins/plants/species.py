@@ -430,8 +430,8 @@ class SpeciesInfoPage(InfoBoxPage):
         super(SpeciesInfoPage, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
-        # load the widgets directly instead of using load_widgets()
-        # because the caching that load_widgets() does can mess up
+        # load the widgets directly instead of using BuilderWidgets()
+        # because the caching that BuilderWidgets() does can mess up
         # displaying the SpeciesInfoBox sometimes if you try to show
         # the infobox while having a vernacular names selected in
         # the search results and then a species name

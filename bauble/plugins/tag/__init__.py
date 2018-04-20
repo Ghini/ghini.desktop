@@ -746,7 +746,7 @@ class TagInfoBox(InfoBox):
         super(TagInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "tag",
                                 "tag.glade")
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.general = GeneralTagExpander(self.widgets)
         self.add_expander(self.general)
 

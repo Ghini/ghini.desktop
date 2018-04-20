@@ -113,7 +113,7 @@ class GUI(object):
 
     def __init__(self):
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.window = self.widgets.main_window
         self.window.hide()
         self.previous_view = None

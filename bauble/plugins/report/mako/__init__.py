@@ -275,7 +275,7 @@ class MakoFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
         super(MakoFormatterSettingsBox, self).__init__(*args)
-        self.widgets = utils.load_widgets(
+        self.widgets = utils.BuilderWidgets(
             os.path.join(paths.lib_dir(),
                          "plugins", "report", 'mako', 'gui.glade'))
         # keep a refefence to settings box so it doesn't get destroyed in

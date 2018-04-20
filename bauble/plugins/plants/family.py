@@ -873,7 +873,7 @@ class FamilyInfoBox(InfoBox):
         InfoBox.__init__(self)
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.general = GeneralFamilyExpander(self.widgets)
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)

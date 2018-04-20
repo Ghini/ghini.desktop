@@ -886,7 +886,7 @@ class ContactInfoBox(view.InfoBox):
         super(ContactInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "source_detail_infobox.glade")
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.general = GeneralSourceDetailExpander(self.widgets)
         self.add_expander(self.general)
 

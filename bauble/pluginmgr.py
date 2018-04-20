@@ -496,7 +496,7 @@ class View(Gtk.VBox):
         super(View, self).__init__(*args, **kwargs)
         if filename is not None:
             from bauble import utils, editor
-            self.widgets = utils.load_widgets(filename)
+            self.widgets = utils.BuilderWidgets(filename)
             self.view = editor.GenericEditorView(
                 filename, root_widget_name=root_widget_name)
             root_widget = getattr(self.view.widgets, root_widget_name)

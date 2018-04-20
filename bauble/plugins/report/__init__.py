@@ -305,7 +305,7 @@ class FormatterPlugin(pluginmgr.Plugin):
 class ReportToolDialogView(object):
 
     def __init__(self):
-        self.widgets = utils.load_widgets(
+        self.widgets = utils.BuilderWidgets(
             os.path.join(paths.lib_dir(), "plugins", "report", 'report.glade'))
         self.dialog = self.widgets.report_dialog
         self.dialog.set_transient_for(bauble.gui.window)

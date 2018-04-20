@@ -1440,7 +1440,7 @@ class PlantInfoBox(InfoBox):
         InfoBox.__init__(self)
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "plant_infobox.glade")
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.general = GeneralPlantExpander(self.widgets)
         self.add_expander(self.general)
 

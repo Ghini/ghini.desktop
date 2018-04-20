@@ -2772,7 +2772,7 @@ class AccessionInfoBox(InfoBox):
         super(AccessionInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "acc_infobox.glade")
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.general = GeneralAccessionExpander(self.widgets)
         self.add_expander(self.general)
         self.source = SourceExpander(self.widgets)

@@ -220,7 +220,8 @@ class GenericEditorView(object):
 
     def __init__(self, filename, parent=None, root_widget_name=None):
         self.root_widget_name = root_widget_name
-        builder = self.builder = utils.BuilderLoader.load(filename)
+        builder = self.builder = Gtk.Builder()
+        builder.add_from_file(filename)
         self.filename = filename
         self.widgets = utils.BuilderWidgets(builder)
         if parent:

@@ -522,7 +522,7 @@ class SearchView(pluginmgr.View):
         logger.debug('SearchView::__init__')
         super(SearchView, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'bauble.glade')
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.view = editor.GenericEditorView(
             filename, root_widget_name='main_window')
 

@@ -104,7 +104,7 @@ class SplashInfoBox(pluginmgr.View):
         super(SplashInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'infoboxes.glade')
-        self.widgets = utils.load_widgets(filename)
+        self.widgets = utils.BuilderWidgets(filename)
         self.widgets.remove_parent(self.widgets.splash_vbox)
         self.pack_start(self.widgets.splash_vbox,
                         expand=False, padding=8)

@@ -252,48 +252,11 @@ def find_dependent_tables(table, metadata=None):
     return sort_tables(tables=tables)
 
 
-def load_widgets(filename):
-    b = BuilderLoader.load(filename)
-    return BuilderWidgets(b)
+def BuilderWidgets(filename):
+    return BuilderWidgets(filename)
 
 
-class BuilderLoader(object):
-    """
-    This class caches the Gtk.Builder objects so that loading the same
-    file with the same name returns the same Gtk.Builder.
-
-    It might seem crazy to keep them around instead of deleting them
-    and freeing the memory but in reality the memory is never returned
-    to the system. By using this class you can keep the size of the
-    application from growing if the same UI decription is loaded
-    several times.  e.g. everytime you open an editor or infobox
-    """
-    # NOTE: this builder loader is really only used because of a bug
-    # in PyGTK where a Gtk.Builder doesn't free some memory so we use
-    # this to keep the memory from growing out of control. if the
-    # gtk/pygtk people fix that bug we should be able to get rid of
-    # this class
-    # http://bugzilla.gnome.org/show_bug.cgi?id=589057,560822
-
-    builders = {}
-
-    @classmethod
-    def load(cls, filename):
-        """
-        """
-        if filename in cls.builders.keys():
-            return cls.builders[filename]
-        b = Gtk.Builder()
-        try:
-            b.add_from_file(filename)
-        except Exception, e:
-            print filename, type(e), e
-            raise
-        cls.builders[filename] = b
-        return b
-
-
-class BuilderWidgets(dict):
+class BuilderWidgets:
     """
     Provides dictionary and attribute access for a
     :class:`Gtk.Builder` object.
