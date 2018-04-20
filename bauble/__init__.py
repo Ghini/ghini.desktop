@@ -404,9 +404,9 @@ dbengine.html#create-engine-url-arguments>`_
     GObject.idle_add(_post_loop)
 
     gui.show()
-    Gtk.threads_enter()
+    Gdk.threads_enter()
     Gtk.main()
     active_view = gui.get_view()
     if active_view:
         active_view.cancel_threads()
-    Gtk.threads_leave()
+    Gdk.threads_leave()

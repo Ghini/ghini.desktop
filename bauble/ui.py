@@ -25,6 +25,7 @@ import os
 import traceback
 
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 
 import logging
@@ -170,7 +171,6 @@ class GUI(object):
         # future versions of gtk
         statusbar = self.widgets.statusbar
         statusbar.set_spacing(10)
-        statusbar.set_has_resize_grip(True)
         self._cids = []
 
         def on_statusbar_push(sb, cid, txt):

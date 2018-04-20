@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.20.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkListStore" id="history_ls">
     <columns>
       <!-- column-name timestamp -->
@@ -24,8 +24,6 @@
       <object class="GtkScrolledWindow" id="history_sv">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="hscrollbar_policy">automatic</property>
-        <property name="vscrollbar_policy">automatic</property>
         <child>
           <object class="GtkTreeView" id="history_tv">
             <property name="visible">True</property>
@@ -34,6 +32,9 @@
             <property name="reorderable">True</property>
             <property name="rules_hint">True</property>
             <signal name="row-activated" handler="on_row_activated" swapped="no"/>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection"/>
+            </child>
             <child>
               <object class="GtkTreeViewColumn" id="history_treeviewcolumn0">
                 <property name="title" translatable="yes">Timestamp</property>
@@ -94,6 +95,16 @@
       </object>
     </child>
   </object>
+  <object class="GtkListStore" id="many_liststore">
+    <columns>
+      <!-- column-name history -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkEntryCompletion" id="main_entrycompletion">
+    <property name="model">many_liststore</property>
+    <property name="text_column">0</property>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">True</property>
     <property name="title">Ghini</property>
@@ -129,11 +140,11 @@
                 <property name="can_focus">True</property>
                 <child>
                   <object class="GtkButton" id="home_button">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">back to startup screen</property>
-                    <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image3">
                         <property name="visible">True</property>
@@ -150,11 +161,11 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="prev_view_button">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">previous view</property>
-                    <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image4">
                         <property name="visible">True</property>
@@ -171,11 +182,11 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="query_button">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">activate query builder</property>
-                    <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image2">
                         <property name="visible">True</property>
@@ -194,9 +205,16 @@
                   <object class="GtkComboBoxText" id="main_comboentry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="has_entry">True</property>
                     <child>
                       <object class="GtkCellRendererText" id="main_cellrenderertext1">
                         <property name="xalign">0</property>
+                      </object>
+                    </child>
+                    <child internal-child="entry">
+                      <object class="GtkEntry">
+                        <property name="can_focus">False</property>
+                        <property name="completion">main_entrycompletion</property>
                       </object>
                     </child>
                   </object>
@@ -208,11 +226,11 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="go_button">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">execute the query</property>
-                    <property name="use_action_appearance">False</property>
                     <child>
                       <object class="GtkImage" id="image1">
                         <property name="visible">True</property>
@@ -314,8 +332,6 @@
       <object class="GtkScrolledWindow" id="notes_scrolledwindow">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="hscrollbar_policy">automatic</property>
-        <property name="vscrollbar_policy">automatic</property>
         <child>
           <object class="GtkTreeView" id="notes_treeview">
             <property name="visible">True</property>
@@ -323,6 +339,9 @@
             <property name="model">notes_liststore</property>
             <property name="headers_clickable">False</property>
             <property name="reorderable">True</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection"/>
+            </child>
             <child>
               <object class="GtkTreeViewColumn" id="date_column">
                 <property name="title">Date</property>
@@ -417,8 +436,6 @@
               <object class="GtkScrolledWindow" id="prefs_prefs_sv">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
                 <child>
                   <object class="GtkTreeView" id="prefs_prefs_tv">
                     <property name="visible">True</property>
@@ -428,6 +445,9 @@
                     <property name="rules_hint">True</property>
                     <property name="search_column">0</property>
                     <signal name="row-activated" handler="on_prefs_prefs_tv_row_activated" swapped="no"/>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection"/>
+                    </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn1">
                         <property name="title" translatable="yes">Name</property>
@@ -478,8 +498,6 @@
               <object class="GtkScrolledWindow" id="prefs_plugins_sv">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
                 <child>
                   <object class="GtkTreeView" id="prefs_plugins_tv">
                     <property name="visible">True</property>
@@ -488,6 +506,9 @@
                     <property name="headers_clickable">False</property>
                     <property name="rules_hint">True</property>
                     <property name="search_column">0</property>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection"/>
+                    </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="prefs_treeviewcolumn3">
                         <property name="title" translatable="yes">Name</property>
@@ -561,11 +582,13 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="hscrollbar_policy">never</property>
-                        <property name="vscrollbar_policy">automatic</property>
                         <child>
                           <object class="GtkTreeView" id="results_treeview">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
                           </object>
                         </child>
                       </object>
