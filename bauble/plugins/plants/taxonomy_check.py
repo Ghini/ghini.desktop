@@ -70,8 +70,13 @@ def species_to_fix(ssn, binomial, author, create=False):
         return None
     binomial = utils.to_unicode(binomial)
     author = utils.to_unicode(author)
-    gen_epithet, sp_epithet = binomial.split(' ', 1)
-    return Species.retrieve_or_create(
+    parts = binomial.split(' ')
+    if len(parts) == 4:
+        gen_epithet, sp_epithet, rank, epithet = parts
+    else:
+        gen_epithet, sp_epithet = binomial.split(' ', 1)
+        rank = epithet = None
+    result = Species.retrieve_or_create(
         ssn, {'object': 'taxon',
               'rank': 'species',
               'ht-epithet': gen_epithet,
@@ -79,6 +84,12 @@ def species_to_fix(ssn, binomial, author, create=False):
               'ht-rank': 'genus',
               'author': author},
         create=create)
+    if rank is not None:
+        result.infrasp1 = epithet
+        result.infrasp1_rank = rank
+        result.sp_author = None
+        result.infrasp1_author = author
+    return result
 
 
 ACCEPTABLE = 0
