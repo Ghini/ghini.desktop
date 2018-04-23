@@ -558,22 +558,6 @@ def create_message_dialog(msg, type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsTyp
     d.set_title('Ghini')
     d.set_markup(msg)
 
-    # get the width of a character
-    context = d.get_pango_context()
-    font_metrics = context.get_metrics(context.get_font_description(),
-                                       context.get_language())
-    width = font_metrics.get_approximate_char_width()
-    from gi.repository import Pango
-    # if the character width is less than 300 pixels then set the
-    # message dialog's label to be 300 to avoid tiny dialogs
-    if width/Pango.SCALE*len(msg) < 300:
-        # TODO: got this message but i don't really know what it
-        # means..should we set the width with markup???
-        #
-        #./bauble/utils/__init__.py:347: DeprecationWarning: use
-        #set_markup() instead  d.label.set_size_request(300, -1)
-        d.label.set_size_request(300, -1)
-
     if d.get_icon() is None:
         try:
             pixbuf = GdkPixbuf.Pixbuf.new_from_file(bauble.default_icon)

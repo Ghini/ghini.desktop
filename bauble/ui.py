@@ -366,9 +366,9 @@ class GUI(object):
     def set_busy(self, busy):
         self.widgets.main_box.set_sensitive(not busy)
         if busy:
-            self.window.window.set_cursor(Gdk.Cursor.new(Gdk.CursorType.WATCH))
+            self.window.get_window().set_cursor(Gdk.Cursor.new(Gdk.CursorType.WATCH))
         else:
-            self.window.window.set_cursor(None)
+            self.window.get_window().set_cursor(None)
 
     def set_default_view(self):
         main_entry = self.widgets.main_comboentry.get_child()

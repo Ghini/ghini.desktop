@@ -29,15 +29,13 @@ import logging
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.INFO)
 
-import Gtk.gdk
+from gi.repository import Gdk
 
 import bauble
 import bauble.db as db
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
-
-
 
 
 # TODO: single file or one file per table
