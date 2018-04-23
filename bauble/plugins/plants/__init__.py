@@ -106,8 +106,7 @@ class SplashInfoBox(pluginmgr.View):
                                 'infoboxes.glade')
         self.widgets = utils.BuilderWidgets(filename)
         self.widgets.remove_parent(self.widgets.splash_vbox)
-        self.pack_start(self.widgets.splash_vbox,
-                        expand=False, padding=8)
+        self.pack_start(self.widgets.splash_vbox, True, False, 8)
 
         utils.make_label_clickable(
             self.widgets.splash_nfamuse,
