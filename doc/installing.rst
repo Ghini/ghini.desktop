@@ -336,17 +336,19 @@ The installation steps on Windows:
    make changes to your computer.  These changes are in the Start Menu only:
    create the Ghini group, place the Ghini shortcut.
 
-#. download the batch file you will use to stay up-to-date with the
-   production line you chose to follow:
+#. download the batch file, it will help you staying up-to-date:
 
-    https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/ghini-update.bat
+   `ghini-update.bat <https://raw.githubusercontent.com/Ghini/ghini.desktop/master/scripts/ghini-update.bat>`_
 
-   if you are on a recent Ghini installation, each time you start the
+   If you are on a recent Ghini installation, each time you start the
    program, Ghini will check on the development site and alert you of any
    newer ghini release within your chosen production line.
 
-   any time you want to update your installation, just start the command
-   prompt and run ``ghini-update.bat``, it will hardly take one minute.
+   Any time you want to update your installation, just run the
+   ``ghini-update.bat`` script, it will hardly take one minute.
+
+   How to save a batch file, and how to run it: check the the quite detailed
+   instructions given for ``devinstall.bat``.
 
 If you would like to generate and print PDF reports using Ghini's default
 report generator then you will need to download and install `Apache FOP
