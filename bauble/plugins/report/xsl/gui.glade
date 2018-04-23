@@ -48,7 +48,7 @@
                 <property name="border_width">5</property>
                 <property name="left_padding">12</property>
                 <child>
-                  <object class="GtkComboBox" id="renderer_combo">
+                  <object class="GtkComboBoxText" id="renderer_combo">
                     <property name="visible">True</property>
                   </object>
                 </child>
