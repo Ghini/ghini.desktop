@@ -130,7 +130,7 @@
               <object class="GtkLabel" id="label3">
                 <property name="visible">True</property>
                 <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Accession Type:&lt;/b&gt;</property>
+                <property name="label" translatable="yes">&lt;b&gt;Plant Material:&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
               <packing>

@@ -387,6 +387,10 @@ class GeneralSpeciesExpander(InfoExpander):
             self.widget_set_value('sp_nplants_data', '%s in %s accessions'
                                   % (nplants, nacc_in_plants))
 
+        living_plants = sum(i.quantity for i in session.query(Plant).join('accession', 'species').\
+                            filter_by(id=row.id).all())
+        self.widget_set_value('living_plants_count', living_plants)
+
 
 class SpeciesInfoBox(InfoBox):
 

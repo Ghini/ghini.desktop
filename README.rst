@@ -12,16 +12,16 @@ travis   pypi     coveralls
 ======== ======== ============
 
 =========== =========== =========== =========== =========== =========== =========== =========== 
-Spanish     Portuguese  French      German      Dutch       Italian     Tchech      Sweedish
+Spanish     Portuguese  French      Ukrainian   Hungarian   Italian     Tchech      Sweedish
 =========== =========== =========== =========== =========== =========== =========== ===========
-|trans-es|  |trans-pt|  |trans-fr|  |trans-de|  |trans-nl|  |trans-it|  |trans-cs|  |trans-sv|  
+|trans-es|  |trans-pt|  |trans-fr|  |trans-uk|  |trans-hu|  |trans-it|  |trans-cs|  |trans-sv|  
 =========== =========== =========== =========== =========== =========== =========== ===========
 
 .. |trans-es| image:: https://hosted.weblate.org/widgets/ghini/es/svg-badge.svg
-.. |trans-pt| image:: https://hosted.weblate.org/widgets/ghini/pt_BR/svg-badge.svg
+.. |trans-pt| image:: https://hosted.weblate.org/widgets/ghini/pt/svg-badge.svg
 .. |trans-fr| image:: https://hosted.weblate.org/widgets/ghini/fr/svg-badge.svg
-.. |trans-de| image:: https://hosted.weblate.org/widgets/ghini/de/svg-badge.svg
-.. |trans-nl| image:: https://hosted.weblate.org/widgets/ghini/nl/svg-badge.svg
+.. |trans-uk| image:: https://hosted.weblate.org/widgets/ghini/uk/svg-badge.svg
+.. |trans-hu| image:: https://hosted.weblate.org/widgets/ghini/hu/svg-badge.svg
 .. |trans-it| image:: https://hosted.weblate.org/widgets/ghini/it/svg-badge.svg
 .. |trans-cs| image:: https://hosted.weblate.org/widgets/ghini/cs/svg-badge.svg
 .. |trans-sv| image:: https://hosted.weblate.org/widgets/ghini/sv/svg-badge.svg
