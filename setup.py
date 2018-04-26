@@ -340,7 +340,7 @@ class install(_install):
                                 or os.path.basename(a).startswith('ghini.desktop'))
                                and os.path.basename(a).endswith('egg')]
             for oed in old_egg_dirs:
-                dir_util.remove_tree(os.path.join(site_packages, oed))
+                dir_util.remove_tree(oed)
             self.do_egg_install()
         else:
             _install.run(self)
