@@ -335,12 +335,12 @@ class install(_install):
 
         if not self.single_version_externally_managed:
             print 'before installing new egg, remove old ones!'
-            site_packages = os.path.join(self.install_data, 'lib', 'python2.7', 'site-packages')
-            old_egg_dirs = [i for i in os.listdir(site_packages)
-                            if i.endswith('.egg')
-                            and (i.startswith('bauble-') or i.startswith('ghini.desktop-'))]
+            old_egg_dirs = [a for (a, b, c) in os.walk(self.install_data)
+                            if (os.path.basename(a).startswith('bauble')
+                                or os.path.basename(a).startswith('ghini.desktop'))
+                               and os.path.basename(a).endswith('egg')]
             for oed in old_egg_dirs:
-                dir_util.remove_tree(os.path.join(site_packages, oed))
+                dir_util.remove_tree(oed)
             self.do_egg_install()
         else:
             _install.run(self)
@@ -471,7 +471,7 @@ setuptools.setup(name="ghini.desktop",
                  package_data=package_data,
                  data_files=data_files,
                  install_requires=["SQLAlchemy==1.0.8",
-                                   "raven==6.6.0",
+                                   "raven==6.7.0",
                                    "Pillow==2.3.0",
                                    "lxml",
                                    "pyqrcode==1.2.1",

@@ -40,9 +40,16 @@ ECHO installing dependencies
 pip install virtualenv 2>NUL
 virtualenv --system-site-packages .virtualenvs\ghide
 
-ECHO clearing previous checkouts
+ECHO clearing previous bauble checkouts
 for /F "delims=" %%i in (
   'dir /b .virtualenvs\ghide\Lib\site-packages\bauble-*egg'
+) do (
+  rmdir ".virtualenvs\ghide\Lib\site-packages\""%%i" /s/q 2>NUL
+)
+
+ECHO clearing previous ghini.desktop checkouts
+for /F "delims=" %%i in (
+  'dir /b .virtualenvs\ghide\Lib\site-packages\ghini.desktop-*egg'
 ) do (
   rmdir ".virtualenvs\ghide\Lib\site-packages\""%%i" /s/q 2>NUL
 )

@@ -197,10 +197,10 @@ class SplashInfoBox(pluginmgr.View):
 
         ssn = db.Session()
         q = ssn.query(bauble.meta.BaubleMeta)
-        q = q.filter(bauble.meta.BaubleMeta.name.startswith(u'stqr_'))
+        q = q.filter(bauble.meta.BaubleMeta.name.startswith(u'stqr'))
         name_tooltip_query = dict(
             (int(i.name[5:]), (i.value.split(':', 2)))
-            for i in q.all() if i.name[4] == '_')
+            for i in q.all())
         ssn.close()
 
         for i in range(1, 11):
@@ -378,7 +378,13 @@ class PlantsPlugin(pluginmgr.Plugin):
         # suggest some useful defaults for stored queries
         import bauble.meta as meta
         session = db.Session()
-        init_marker = meta.get_default(u'stqr-initialized', u'false', session)
+        default = u'false'
+        q = session.query(bauble.meta.BaubleMeta).filter(bauble.meta.BaubleMeta.name.startswith(u'stqr-'))
+        for i in q.all():
+            default = i.name
+            session.delete(i)
+            session.commit()
+        init_marker = meta.get_default(u'stqv_initialized', default, session)
         if init_marker.value == u'false':
             init_marker.value = u'true'
             for index, name, tooltip, query in [
