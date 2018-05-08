@@ -9,6 +9,8 @@ gardens that have adopted it for all their collection management needs.
 The Ghini family is a software suite composed of standalone programs, data servers and
 handheld clients, for data management, and publication:
 
+.. image:: images/ghini-family-streams.png
+
 * Ghini's core, ``ghini.desktop``, lets you enter and correct your data, navigate its links,
   produce reports, import and or export using several standard or ad-hoc formats, review your
   taxonomy using online sources, all according the best practices suggested by top gardens
@@ -33,15 +35,13 @@ handheld clients, for data management, and publication:
 
 All software within the Ghini family is licensed according to the GNU Public License.  Are
 you acquainted with this License, and the "Copyleft" concept?  In short, the GPL translates
-the ethical scientific need to share knowledge into legal terms: its goal is to make ideas,
-also in the form of software, available to the wider public, and to prevent future
-appropriation of any derived work.  If you want to read more about it, please refer to
-https://www.gnu.org/licenses/copyleft.html
+the ethical scientific need to share knowledge, into legal terms. If you want to read more
+about it, please refer to https://www.gnu.org/licenses/copyleft.html
 
 Ghini's idea about knowledge and software ownership is that software is procedural knowledge
-and as such it should be made a "commons": With software made a commons, "free software" and
-more specifically "Copylefted software", you get not only the sources, you receive the right
-to adapt the code, and the invitation to study and learn from it, and to share it, both share
+and as such it should be made a "commons": With software as a commons, "free software" and
+more specifically "Copylefted software", you not only get the source code, you receive the
+right to adapt it, and the invitation to study and learn from it, and to share it, both share
 forward to colleagues, and share back to the source.  With proprietary software, you are
 buying your own ignorance, and with that, your dependency.
 
@@ -64,14 +64,20 @@ You can also contribute to the software by helping translate into your native la
 
 I publish some videos on youtube, highlighting some of the software capabilities. [6]
 
+Not sharing back to the community may be formally legal, but is definitely not nice.  Several
+developers have spent cumulatively many thousand hours developing this software, and we're
+sharing with the community.  We hope by this to stimulate a community sentiment in whoever
+starts using what we have produced.
+
 Thanks for your consideration; please let me know if you have any questions,
 
 Mario Frasca MSc
 
 
-Unfortunately most institutions consider software an investment, not to be shared with
-others, as if it was an economic good that can't be duplicated, like gold.  As of now, I am
-aware of the existence of very few copylefted programs for botanic data management:
+Many institutions still consider software an investment, an asset that is not to be shared
+with others, as if it was some economic good that can't be duplicated, like gold, or money.
+As of now, I am aware of the existence of very few copylefted programs for botanic data
+management:
 
 * ``ghini.desktop``, born as ``bauble.classic`` and made a Commons by the Belize Botanical
   Garden.  ``ghini.desktop`` has three more components, a pocket data collecting android app,
@@ -79,11 +85,15 @@ aware of the existence of very few copylefted programs for botanic data manageme
   geographically, again a geographic tour app aimed at visitors and using the web data
   aggregator as its data source.  You find every Ghini component on github:
   http://github.com/Ghini
-  
+
 * Specify 6 and 7, made a Commons by the Kansas University.  A bit complex to set up, and
   very difficult to configure, tricky to update.  The institutions I've met who tried it,
   only the bigger ones, with in-house software management capabilities manage to successfully
-  use it.  Specify is also on github: https://github.com/specify and is licensed as GPL, too.
+  use it.  They use it for very large collections.  Specify is extremely generic, it adapts
+  to herbaria, seed collections, but also to collections of eggs, organic material, fossils,
+  preserved dead animals, possibly even viruses, I'm not sure.  It is this extreme
+  flexibility that makes its configuration such a complex task.  Specify is also on github:
+  https://github.com/specify and is licensed as GPL, too.
 
 * Botalista, a French/Swiss cooperation, is GPL as far as rumour goes. Its development
   hasn't yet gone public.
