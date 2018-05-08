@@ -5,7 +5,8 @@ Ghini is brought to you by a small community of coders, botanists, translators, 
 botanical gardens around the world, which have adopted it and are using it for all their collection
 management needs.
 
-Ghini is a complete software solution:
+Ghini is a complete software solution of standalone programs, data servers and handheld clients, all
+dedicated to helping gardens manage their collection, and to publishing it:
 
 - Ghini's core, **ghini.desktop**, lets you enter and correct your data, navigate its links, produce
   reports, import and or export using several standard or ad-hoc formats, review your taxonomy using
@@ -43,9 +44,6 @@ the community, and will see them made better by others.
 
 
 Dear Garden Conservator
-
-Ghini is a small family of standalone programs, data servers and handheld clients, all dedicated to
-helping gardens manage their collection, and to publishing it:
 
 ghini.web is a public data serving hub both for ghini.tour instances, and for web clients exploring
 participating gardens and checking presence of plant species.  ghini.web is still very experimental, I
