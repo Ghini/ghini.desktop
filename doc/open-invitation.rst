@@ -11,25 +11,29 @@ handheld clients, for data management, and publication:
 
 .. image:: images/ghini-family-streams.png
 
-Ghini's core, ``ghini.desktop``, lets you 
+* Ghini's core, ``ghini.desktop``, lets you 
 
-* enter and correct your data
-*  navigate its links,
-*  produce reports
-*  import and or export using several standard or ad-hoc formats
-*  review your taxonomy using online sources
-  all according best practices suggested by top gardens,
-  formalized in standard formats like ABCD, ITF2, but also as elaborated by our
-  developers, based on the feedback of Ghini users. ``ghini.desktop`` is developed and
-  continously tested on GNU/Linux, but runs equally well on Windows, or OSX. [1]
+  * enter and correct your data
+  * navigate its links,
+  * produce reports
+  * import and or export using several standard or ad-hoc formats
+  * review your taxonomy using online sources
+
+  all according best practices suggested by top gardens, formalized in
+  standard formats like ABCD, ITF2, but also as elaborated by our
+  developers, based on the feedback of Ghini users.
+
+  ``ghini.desktop`` is developed and continously tested on GNU/Linux, but
+  runs equally well on Windows, or OSX. [1]
+
 * ``ghini.pocket`` is your full time garden companion, an Android app
-  installed from the Play Store, 
-*  assisting you in collecting or correcting data
-  while in the field, 
-*  associate pictures to your plants, and verify taxonomic
-  information.  
-*  Import your collected data into the desktop client when back in the office,
-  reducing the time spent there to a true minimum.
+  installed from the Play Store,
+  
+  * assisting you in collecting or correcting data while in the field, 
+  * associate pictures to your plants, and verify taxonomic information.
+  * Import your collected data into the desktop client when back in the office,
+
+  ``ghini.pocket`` reduces the time spent in front of your desktop PC to a true minimum.
   
 * ``ghini.web`` is a web server and a courtesy data hub service, offering you
   world wide visibility: Export a selection of your data from your desktop database, and
@@ -37,13 +41,14 @@ Ghini's core, ``ghini.desktop``, lets you
   http://gardens.ghini.me/, at no cost while we're able to do that, or for a guaranteed
   minimal amount of time if you are able to support our hosting costs. ``ghini.web`` serves
   a world map to help locate participating gardens, and within each garden, its contributed
-  georeferenced plants. It also serves information panels, for use with the most recent
-  Ghini family member: ``ghini.tour``,
-  a geographic tour Android app aimed at visitors, using OpenStreetMap as a
-  base map, retrieving its data from the web data aggregator.
+  georeferenced plants.
+
+* ``ghini.tour``, a geographic tour Android app aimed at visitors, using
+  OpenStreetMap as a base map, retrieving its data, gardens and virtual
+  panels, from the web data aggregator ``ghini.web``.
 
 All software within the Ghini family is either licensed GNU Public License v2+ or v3+.
-It is a strong copyrleft license.  In short, the GPL translates
+It is a strong copyleft license.  In short, the GPL translates
 the ethical scientific need to share knowledge, into legal terms. If you want to read more
 about it, please refer to https://www.gnu.org/licenses/copyleft.html
 
@@ -64,7 +69,7 @@ GitHub, fork the code, develop just as openly as the common practice within Ghin
 whenever you want, open a pull request so your edits can be considered for inclusion in the
 main branch. Ghini is mostly continuously unit tested, so before your code is added to the
 main branch, it should follow our quality guidelines for contributions. With libre software you
-acquire freedom and contribute to it something that earns you visibility: Your additions stays
+acquire freedom and contribute to it, something that earns you visibility: Your additions stays
 yours, you share them back to the community, and will see them completed and made better by
 others. Having your code added to the main branch simplifies your upgrade procedure.
 
