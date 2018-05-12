@@ -17,7 +17,7 @@ if ! git help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS git"
 fi
 if ! virtualenv --help >/dev/null 2>&1; then
-    PROBLEMS="$PROBLEMS '^(python-?)virtualenv$'"
+    PROBLEMS="$PROBLEMS virtualenv"
 fi
 if ! xslt-config --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS libxslt1-dev"
@@ -40,18 +40,18 @@ fi
 sudo -k
 
 if [ "$PROBLEMS" != "" ]; then
-    echo 'please solve the following dependencies:'
-    echo '(package names are ubuntu/debian, YMMV.)'
-    echo '----------------------------------------'
+    echo 'Guessing package names, if you get in a loop, please double check.'
+    echo 'You need to solve the following dependencies:'
+    echo '------------------------------------------------------------------'
     echo $PROBLEMS
-    echo '----------------------------------------'
-    echo 'then restart the devinstall.sh script'
+    echo '------------------------------------------------------------------'
+    echo 'Then restart the devinstall.sh script'
     if [ -x /usr/bin/apt-get ]; then
         echo
-        echo you are on a debian-like system, I should know how to install
+        echo 'you are on a debian-like system, I should know how to install'
         echo $PROBLEMS
         sudo apt-get -y install $PROBLEMS
-        echo please re-run devinstall.sh
+        echo 'please re-run devinstall.sh'
     fi
     exit 1
 fi
