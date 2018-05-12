@@ -17,9 +17,7 @@ if ! git help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS git"
 fi
 if ! virtualenv --help >/dev/null 2>&1; then
-    # python-virtualenv is on older ubuntu.
-    # virtualenv all other systems.
-    PROBLEMS="$PROBLEMS virtualenv python-virtualenv"
+    PROBLEMS="$PROBLEMS '^(python-?)virtualenv$'"
 fi
 if ! xslt-config --help >/dev/null 2>&1; then
     PROBLEMS="$PROBLEMS libxslt1-dev"
