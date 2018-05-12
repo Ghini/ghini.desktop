@@ -275,6 +275,7 @@ dbengine.html#create-engine-url-arguments>`_
             sentry_client = Client('https://59105d22a4ad49158796088c26bf8e4c:'
                                    '00268114ed47460b94ce2b1b0b2a4a20@'
                                    'app.getsentry.com/45704')
+            sentry_client.name = hex(hash(sentry_client.name) + 2**64)[2:-1]
             handler = SentryHandler(sentry_client)
             logging.getLogger().addHandler(handler)
             handler.setLevel(logging.WARNING)
