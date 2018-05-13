@@ -2,11 +2,9 @@
 
 import sys, os
 
-if sys.platform != 'linux2':
+if not sys.platform.startswith('linux'):
     print 'This script only works on Linux.'
     sys.exit()
-
-
 
 sizes = ('16x16', '32x32', '48x48')
 image_src = 'bauble/images/icon.svg'
