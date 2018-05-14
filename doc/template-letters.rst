@@ -1,5 +1,15 @@
+Template Letters
+!!!!!!!!!!!!!!!!
+
+The reader getting to this point in the documentation probably understood that this Ghini project is
+above all a very open and collaborative project.
+
+Here in this page you find some template letters, used to welcome new users, or that you can correct,
+print, and go with it to a garden, and propose them to adopt Ghini, or share with a group of your
+local friends, so you can make Ghini become a (voluntary, or paid) part-time job for you.
+
 Dear conservator or scientist,
-=========================================
+======================================================================
 
 You are reading Ghini's presentation letter. Ghini is a libre software project on GitHub,
 focusing on botany. Brought to you by a small community of coders, botanists,
@@ -83,8 +93,26 @@ We hope by this to stimulate a community sentiment in whoever starts using what 
 
 Thanks for your consideration; please let me know if you have any questions,
 
+In case you're interested in publishing your tree collection on the net, I
+would be happy to include your plants, species, coordinates to
+http://gardens.ghini.me. Georeferenced textual information panels are also
+very welcome, all offered as a courtesy: We're still defining the offer.
+The idea behind this is allowing visitors to explore aggregated garden
+collections, and the current focus is on trees.
+
+A small example: http://gardens.ghini.me/#garden=Jardín%20el%20Cuchubo
+
 Mario Frasca MSc
 
+| [1] http://ghini.readthedocs.io/ - http://ghini.github.io/
+| [2] https://play.google.com/store/apps/details?id=me.ghini.pocket
+| [3] http://gardens.ghini.me/
+| [4] https://play.google.com/store/apps/details?id=me.ghini.tour
+| [5] https://hosted.weblate.org/projects/ghini/#languages
+| [6] https://www.youtube.com/playlist?list=PLtYRCnAxpinU_8WEDuRlgsYnNVe4J_4kv
+
+What other botanic data management systems are available
+======================================================================
 
 Many institutions still consider software an investment, an asset that is not to be shared
 with others, as if it was some economic good that can't be duplicated, like gold.
@@ -126,36 +154,81 @@ documented, maintained, easy to install and configure.  Moreover: Cross platform
 internationalized.
 
 
+Welcome to Ghini/Bauble
+======================================================================
 
+Dear new user,
 
-*Ghini*, in
-honour of Luca Ghini, founder of the first botanical garden in Europe,
-and I've broadened the family with a hand-held inventory reviewing tool,
-a data aggregator which I'm running as a service at
-http://gardens.ghini.me/, and a hand-held app for garden visitors.
+Welcome to Ghini/Bauble.
 
-In case you're interested in publishing your tree collection on the net, I
-would be happy to include your plants, species, coordinates to
-http://gardens.ghini.me. Georeferenced textual information panels are also
-very welcome, all offered as a courtesy: We're still defining the offer.
-The idea behind this is allowing visitors to explore aggregated garden
-collections, and the current focus is on trees.
+As the maintainer, I have received your registration for bauble.classic/ghini.desktop,
+many thanks for taking your time to fill in the form.
 
-A small example: http://gardens.ghini.me/#garden=Jardín%20el%20Cuchubo
+I see you are using bauble.classic-1.0.55, whereas 1.0.55 is the last released version of bauble.classic, however,
+bauble.classic is now unmaintained and superseded by the fully compatible, but slightly aesthetically different ghini.desktop. Install it following the instructions found at http://ghini.rtfd.io
+
+The registration service says you're not yet using the newest Python2 version available. As of 2018-05-01, that is 2.7.15. Using any older version does not necessitate problems, but in case anything strange happens, please update your Python (and PyGTK) before reporting any errors.
+
+Also thank you for enabling the "sentry" errors and warnings handler.
+With that enabled, Ghini/Bauble will send any error or warning you might encounter to a central server, where a developer will be able to examine it. If the warning was caused by an error in the software, its solution will be present in a subsequent release of the software
+
+If you haven't already, to enable the sentry and warnings handler, open the ":config" page in Ghini and double click on the row "bauble.use_sentry_client".
+
+I hope Ghini already matches your expectations,
+if this is not the case, the whole Ghini community would be very thankful
+if you took the time to report your experience with it.
+
+The above is one way to contribute to Ghini's development. Others are:
+- contribute ideas, writing on the bauble google forum (https://groups.google.com/forum/#!forum/bauble),
+- contribute documentation, or translations (https://hosted.weblate.org/projects/ghini/),
+- give private feedback, writing to ghini@anche.no,
+- rate and discuss Ghini openly, and promote its adoption by other institutions,
+- open an issue on GitHub (https://github.com/Ghini/ghini.desktop/issues/),
+- contribute code on GitHub (fork the project on (https://github.com/Ghini/ghini.desktop/),
+- hire a developer and have a set of GitHub issues solved, per-haps your own
+- let me include your garden on the still experimental worldmap (http://gardens.ghini.me)
+
+I sincerely hope you will enjoy using this copylefted, libre software
 
 Best regards,
+Mario Frasca
+
+https://ghini.github.io
+https://github.com/Ghini/ghini.desktop/issues/
+
+Do you want to join Ghini?
+======================================================================
+
+.. note:: I generally send a note similar to the following, to GitHub members who "star" the project,
+   or to WebLate contributors doing more than one line, and at different occasions.  If it's from
+   GitHub, and if they stated their geographic location in their profile, I alter the letter by first
+   looking on `institutos botánicos
+   <http://umap.openstreetmap.fr/en/map/institutos-botanicos_47038#2/18.0/12.0>`_ if there's any
+   relevant garden in their neighbourhood.
+
+Dear GitHub member, student, colleague, translator, botanist,
+
+Thank you warmly for your interest in the Ghini project!
+
+From your on-line profile on github, I see you're located in Xxxx, is that correct?
+
+If you are indeed in Xxxx, you live very close to gardens Yyyy and Zzzz.  Maybe you would consider
+the following proposition?  All would start by contacting the botanical garden there, and get to know
+what software they use (what it offers, and at which price) and if they're interested in switching to
+ghini.desktop+pocket+tour+web.
+
+The business model within Ghini is that the software is free and you get it for free, but time is
+precious and if a garden needs help, they should be ready to contribute.  Maybe you already have a
+full-time job and don't need more things to do, but in case you're interested, or you have friends
+who would be, I'm sure we can work something out.
+
+Let me know where you stand.
+
+best regards, and again thanks for all your contributed translations.
 
 Mario Frasca
 
 
-[1] http://ghini.readthedocs.io/ - http://ghini.github.io/
 
-[2] https://play.google.com/store/apps/details?id=me.ghini.pocket
 
-[3] http://gardens.ghini.me/
 
-[4] https://play.google.com/store/apps/details?id=me.ghini.tour
-
-[5] https://hosted.weblate.org/projects/ghini/#languages
-
-[6] https://www.youtube.com/playlist?list=PLtYRCnAxpinU_8WEDuRlgsYnNVe4J_4kv
