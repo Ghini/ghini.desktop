@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ghini\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-10 11:32-0500\n"
+"POT-Creation-Date: 2018-05-14 08:36-0500\n"
 "PO-Revision-Date: 2015-07-12 18:48-0500\n"
 "Last-Translator: Mario Frasca <mariotomo@gmail.com>\n"
 "Language-Team: Hindi <https://hosted.weblate.org/projects/bauble/master/hi/"
@@ -101,7 +101,7 @@ msgstr ""
 msgid "** Error: could not import gtk and/or gobject"
 msgstr ""
 
-#: bauble/__init__.py:295
+#: bauble/__init__.py:296
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr ""
 
@@ -514,7 +514,7 @@ msgstr ""
 msgid "Altitude/Depth"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:217
+#: bauble/plugins/garden/institution.py:218
 msgid ""
 "An approximation of the garden size: the diameter of the smallest circle "
 "completely containing the garden location."
@@ -882,7 +882,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: bauble/__init__.py:349
+#: bauble/__init__.py:350
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -1540,7 +1540,7 @@ msgstr ""
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:242
+#: bauble/plugins/garden/institution.py:243
 msgid "Institution"
 msgstr ""
 
@@ -2624,11 +2624,11 @@ msgid ""
 "blank then the species distribution will be used"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:211
+#: bauble/plugins/garden/institution.py:212
 msgid "The email address of the institution."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:208
+#: bauble/plugins/garden/institution.py:209
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2661,7 +2661,7 @@ msgid ""
 "with this family name."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:213
+#: bauble/plugins/garden/institution.py:214
 msgid "The fax number of the institution."
 msgstr ""
 
@@ -2681,7 +2681,7 @@ msgid ""
 "<i>Would you like to install them now?</i>"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:202
 msgid "The full name of the institution."
 msgstr ""
 
@@ -2711,11 +2711,11 @@ msgstr ""
 msgid "The intended location for plant material being accessioned."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:205
 msgid "The intitution code should be unique among all institions."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:215
+#: bauble/plugins/garden/institution.py:216
 msgid "The latitude of the geographic centre of the garden."
 msgstr ""
 
@@ -2723,15 +2723,15 @@ msgstr ""
 msgid "The location of the planting in your collection."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:216
+#: bauble/plugins/garden/institution.py:217
 msgid "The longitude of the geographic centre of the garden."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:214
+#: bauble/plugins/garden/institution.py:215
 msgid "The mailing address of the institition."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:207
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr ""
@@ -2829,11 +2829,11 @@ msgid ""
 "use the Species editor."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:202
+#: bauble/plugins/garden/institution.py:203
 msgid "The standard abbreviation of the institution."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:212
+#: bauble/plugins/garden/institution.py:213
 msgid "The telephone number of the institution."
 msgstr ""
 
@@ -3121,7 +3121,7 @@ msgstr ""
 msgid "Would you like the cancel the current tasks?"
 msgstr ""
 
-#: bauble/__init__.py:376
+#: bauble/__init__.py:377
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-10 11:32-0500\n"
+"POT-Creation-Date: 2018-05-14 08:36-0500\n"
 "PO-Revision-Date: 2017-12-01 12:47+0000\n"
 "Last-Translator: Szlamka József <szlajozs@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/ghini/"
@@ -111,7 +111,7 @@ msgstr "** Hiba: %s"
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Hiba: sikertelen gtk és/vagy gobject importálás"
 
-#: bauble/__init__.py:295
+#: bauble/__init__.py:296
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Hiba: A Ghini futtatásához grafikus (ablakos) környezet szükséges."
 
@@ -535,7 +535,7 @@ msgstr "Élő"
 msgid "Altitude/Depth"
 msgstr "Magasság/Mélység"
 
-#: bauble/plugins/garden/institution.py:217
+#: bauble/plugins/garden/institution.py:218
 msgid ""
 "An approximation of the garden size: the diameter of the smallest circle "
 "completely containing the garden location."
@@ -944,7 +944,7 @@ msgstr ""
 "Ismeretlen ablakkezelő: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:349
+#: bauble/__init__.py:350
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -1663,7 +1663,7 @@ msgstr ""
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:242
+#: bauble/plugins/garden/institution.py:243
 msgid "Institution"
 msgstr "Intézmény"
 
@@ -2787,11 +2787,11 @@ msgstr ""
 "A jeltáblán használandó elterjedési szöveg. Ha az értéke üres, a fajnál "
 "megadott elterjedési információt használja a rendszer"
 
-#: bauble/plugins/garden/institution.py:211
+#: bauble/plugins/garden/institution.py:212
 msgid "The email address of the institution."
 msgstr "Intézményi email cím."
 
-#: bauble/plugins/garden/institution.py:208
+#: bauble/plugins/garden/institution.py:209
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2831,7 +2831,7 @@ msgid ""
 "with this family name."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:213
+#: bauble/plugins/garden/institution.py:214
 msgid "The fax number of the institution."
 msgstr "Az intézmény fax száma."
 
@@ -2860,7 +2860,7 @@ msgstr ""
 "\n"
 "<i>Szeretné őket most telepíteni?</i>"
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:202
 msgid "The full name of the institution."
 msgstr "Az intézmény teljes neve."
 
@@ -2896,11 +2896,11 @@ msgstr ""
 msgid "The intended location for plant material being accessioned."
 msgstr "A beszerzés növényanyagának tervezett kiültetési helye."
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:205
 msgid "The intitution code should be unique among all institions."
 msgstr "Az intézménykódnak egyedinek kell lennie."
 
-#: bauble/plugins/garden/institution.py:215
+#: bauble/plugins/garden/institution.py:216
 msgid "The latitude of the geographic centre of the garden."
 msgstr ""
 
@@ -2908,15 +2908,15 @@ msgstr ""
 msgid "The location of the planting in your collection."
 msgstr "A kiültetés helye a gyűjteményében."
 
-#: bauble/plugins/garden/institution.py:216
+#: bauble/plugins/garden/institution.py:217
 msgid "The longitude of the geographic centre of the garden."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:214
+#: bauble/plugins/garden/institution.py:215
 msgid "The mailing address of the institition."
 msgstr "Az intézmény postacíme."
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:207
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr "Kontakt személy az intézménynél."
@@ -3036,11 +3036,11 @@ msgstr ""
 "The species must be selected from the list of completions. Új fajt a Faj "
 "szerkesztővel tud rögzíteni."
 
-#: bauble/plugins/garden/institution.py:202
+#: bauble/plugins/garden/institution.py:203
 msgid "The standard abbreviation of the institution."
 msgstr "Az intézmény hivatalos rövidítése."
 
-#: bauble/plugins/garden/institution.py:212
+#: bauble/plugins/garden/institution.py:213
 msgid "The telephone number of the institution."
 msgstr "Az intézmény telefonszáma."
 
@@ -3369,7 +3369,7 @@ msgstr ""
 msgid "Would you like the cancel the current tasks?"
 msgstr "Kívánja megszakítani az aktuális műveleteket?"
 
-#: bauble/__init__.py:376
+#: bauble/__init__.py:377
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"

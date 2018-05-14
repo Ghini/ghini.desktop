@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-10 11:32-0500\n"
+"POT-Creation-Date: 2018-05-14 08:36-0500\n"
 "PO-Revision-Date: 2017-11-14 13:26+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Dutch <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -102,7 +102,7 @@ msgstr "** Fout: %s"
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Fout: importeren van gtk en/of gobject niet mogelijk"
 
-#: bauble/__init__.py:295
+#: bauble/__init__.py:296
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Fout: Ghini moet worden uitgevoerd in een windowed omgeving."
 
@@ -529,7 +529,7 @@ msgstr "In leven"
 msgid "Altitude/Depth"
 msgstr "Hoogte/Diepte"
 
-#: bauble/plugins/garden/institution.py:217
+#: bauble/plugins/garden/institution.py:218
 msgid ""
 "An approximation of the garden size: the diameter of the smallest circle "
 "completely containing the garden location."
@@ -937,7 +937,7 @@ msgstr ""
 "Onbekende desktop omgeving: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:349
+#: bauble/__init__.py:350
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -1653,7 +1653,7 @@ msgstr "Individueel"
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:242
+#: bauble/plugins/garden/institution.py:243
 msgid "Institution"
 msgstr "Instituut"
 
@@ -2771,11 +2771,11 @@ msgid ""
 "blank then the species distribution will be used"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:211
+#: bauble/plugins/garden/institution.py:212
 msgid "The email address of the institution."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:208
+#: bauble/plugins/garden/institution.py:209
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2808,7 +2808,7 @@ msgid ""
 "with this family name."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:213
+#: bauble/plugins/garden/institution.py:214
 msgid "The fax number of the institution."
 msgstr ""
 
@@ -2836,7 +2836,7 @@ msgstr ""
 "\n"
 "<i>wilt u deze nu installeren?</i>"
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:202
 msgid "The full name of the institution."
 msgstr "Volledige instellingsnaam"
 
@@ -2868,11 +2868,11 @@ msgstr "De habitus van deze soort"
 msgid "The intended location for plant material being accessioned."
 msgstr "De beoogde locatie voor het nieuwe plantmateriaal"
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:205
 msgid "The intitution code should be unique among all institions."
 msgstr "De instellingscode moet uniek zijn onder alle instellingen"
 
-#: bauble/plugins/garden/institution.py:215
+#: bauble/plugins/garden/institution.py:216
 msgid "The latitude of the geographic centre of the garden."
 msgstr ""
 
@@ -2880,15 +2880,15 @@ msgstr ""
 msgid "The location of the planting in your collection."
 msgstr "De locatie van de plant in uw collectie."
 
-#: bauble/plugins/garden/institution.py:216
+#: bauble/plugins/garden/institution.py:217
 msgid "The longitude of the geographic centre of the garden."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:214
+#: bauble/plugins/garden/institution.py:215
 msgid "The mailing address of the institition."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:207
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr ""
@@ -2998,11 +2998,11 @@ msgstr ""
 "De soort moet uit de aanvullingenlijst geselecteerd worden. Om een soort toe "
 "te voegen kunt u de Soort editor gebruiken."
 
-#: bauble/plugins/garden/institution.py:202
+#: bauble/plugins/garden/institution.py:203
 msgid "The standard abbreviation of the institution."
 msgstr "Standaardafkorting voor de instelling"
 
-#: bauble/plugins/garden/institution.py:212
+#: bauble/plugins/garden/institution.py:213
 msgid "The telephone number of the institution."
 msgstr "Instellingstelefoonnummer"
 
@@ -3300,7 +3300,7 @@ msgstr ""
 msgid "Would you like the cancel the current tasks?"
 msgstr "Wilt u de de huidige taken annuleren?"
 
-#: bauble/__init__.py:376
+#: bauble/__init__.py:377
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"

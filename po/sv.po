@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-10 11:32-0500\n"
+"POT-Creation-Date: 2018-05-14 08:36-0500\n"
 "PO-Revision-Date: 2017-11-16 02:10+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/ghini/desktop-10/"
@@ -106,7 +106,7 @@ msgstr "** Fel: %s"
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "** Fel: Det gick inte att importera gtk och/eller gobject"
 
-#: bauble/__init__.py:295
+#: bauble/__init__.py:296
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Fell: Ghini måste köras i en fönsterlägesmiljö."
 
@@ -530,7 +530,7 @@ msgstr "Lever"
 msgid "Altitude/Depth"
 msgstr "Höjd över/Djup under havet"
 
-#: bauble/plugins/garden/institution.py:217
+#: bauble/plugins/garden/institution.py:218
 msgid ""
 "An approximation of the garden size: the diameter of the smallest circle "
 "completely containing the garden location."
@@ -936,7 +936,7 @@ msgstr ""
 "Okänd skrivbordsmiljö: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:349
+#: bauble/__init__.py:350
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -1650,7 +1650,7 @@ msgstr "Privatperson"
 msgid "Infraspecific parts"
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:242
+#: bauble/plugins/garden/institution.py:243
 msgid "Institution"
 msgstr "Institution"
 
@@ -2777,11 +2777,11 @@ msgstr ""
 "Utbredningssträngen som kommer att användas på etiketten. Om denna post är "
 "tom, kommer istället artens utbredning att användas"
 
-#: bauble/plugins/garden/institution.py:211
+#: bauble/plugins/garden/institution.py:212
 msgid "The email address of the institution."
 msgstr "Institutionens e-postadress."
 
-#: bauble/plugins/garden/institution.py:208
+#: bauble/plugins/garden/institution.py:209
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2823,7 +2823,7 @@ msgstr ""
 "Familjeattributet hjälper till att undanröja oklarheter som annars kan "
 "uppstå kring detta familjenamn."
 
-#: bauble/plugins/garden/institution.py:213
+#: bauble/plugins/garden/institution.py:214
 msgid "The fax number of the institution."
 msgstr "Institutionens faxnummer."
 
@@ -2851,7 +2851,7 @@ msgstr ""
 "\n"
 "<i>Vill du installera dem nu?</i>"
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:202
 msgid "The full name of the institution."
 msgstr "Institutionens fullständiga namn."
 
@@ -2886,11 +2886,11 @@ msgstr "Artens växtsätt/växtform"
 msgid "The intended location for plant material being accessioned."
 msgstr "Den avsedda platsen för växtmaterialet i accessionen."
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:205
 msgid "The intitution code should be unique among all institions."
 msgstr "Institutionskoden måste vara unik."
 
-#: bauble/plugins/garden/institution.py:215
+#: bauble/plugins/garden/institution.py:216
 msgid "The latitude of the geographic centre of the garden."
 msgstr ""
 
@@ -2898,15 +2898,15 @@ msgstr ""
 msgid "The location of the planting in your collection."
 msgstr "Växtens plats i din samling."
 
-#: bauble/plugins/garden/institution.py:216
+#: bauble/plugins/garden/institution.py:217
 msgid "The longitude of the geographic centre of the garden."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:214
+#: bauble/plugins/garden/institution.py:215
 msgid "The mailing address of the institition."
 msgstr "Institutionens postadress."
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:207
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr ""
@@ -3029,11 +3029,11 @@ msgstr ""
 "Arten måste väljas ur kompletteringslistan. För att lägga till en art, "
 "använd Artredigeraren."
 
-#: bauble/plugins/garden/institution.py:202
+#: bauble/plugins/garden/institution.py:203
 msgid "The standard abbreviation of the institution."
 msgstr "Institutionens standardförkortning."
 
-#: bauble/plugins/garden/institution.py:212
+#: bauble/plugins/garden/institution.py:213
 msgid "The telephone number of the institution."
 msgstr "Institutionens telefonnummer."
 
@@ -3341,7 +3341,7 @@ msgstr "Dog under vintern"
 msgid "Would you like the cancel the current tasks?"
 msgstr "Vill du avbryta de aktuella aktiviteterna?"
 
-#: bauble/__init__.py:376
+#: bauble/__init__.py:377
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"

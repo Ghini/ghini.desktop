@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-10 11:32-0500\n"
+"POT-Creation-Date: 2018-05-14 08:36-0500\n"
 "PO-Revision-Date: 2018-04-06 21:41+0000\n"
 "Last-Translator: Максим Якимчук <xpinovo@gmail.com>\n"
 "Language-Team: Ukrainian <https://hosted.weblate.org/projects/ghini/"
@@ -109,7 +109,7 @@ msgstr "** Помилка: %s"
 msgid "** Error: could not import gtk and/or gobject"
 msgstr "**Помилка: не може імпортувати gtk і/або gobject"
 
-#: bauble/__init__.py:295
+#: bauble/__init__.py:296
 msgid "**Error: Ghini must be run in a windowed environment."
 msgstr "**Помилка: Ghini повинна бути запущена в віконному середовищі."
 
@@ -530,7 +530,7 @@ msgstr "Існуючий"
 msgid "Altitude/Depth"
 msgstr "Висота/Глибина"
 
-#: bauble/plugins/garden/institution.py:217
+#: bauble/plugins/garden/institution.py:218
 msgid ""
 "An approximation of the garden size: the diameter of the smallest circle "
 "completely containing the garden location."
@@ -935,7 +935,7 @@ msgstr ""
 "Невідоме робоче середовище: %(desktop)s\n"
 "\n"
 
-#: bauble/__init__.py:349
+#: bauble/__init__.py:350
 msgid ""
 "Could not open connection.\n"
 "\n"
@@ -1645,7 +1645,7 @@ msgstr "Особа"
 msgid "Infraspecific parts"
 msgstr "Внутрішньовидові частини"
 
-#: bauble/plugins/garden/institution.py:242
+#: bauble/plugins/garden/institution.py:243
 msgid "Institution"
 msgstr "Установа"
 
@@ -2786,11 +2786,11 @@ msgstr ""
 "Рядок розподілу, який буде використовуватися на етикетці. Якщо цей запис "
 "пустий, то буде використовуватися розподіл видів"
 
-#: bauble/plugins/garden/institution.py:211
+#: bauble/plugins/garden/institution.py:212
 msgid "The email address of the institution."
 msgstr "Електронна адреса установи."
 
-#: bauble/plugins/garden/institution.py:208
+#: bauble/plugins/garden/institution.py:209
 msgid ""
 "The email address or phone number of the person to contact for technical "
 "information related to the institution."
@@ -2832,7 +2832,7 @@ msgstr ""
 "Класифікатор сім'ї допомагає усунути неясності, які можуть бути пов'язані з "
 "іменами сім'ї."
 
-#: bauble/plugins/garden/institution.py:213
+#: bauble/plugins/garden/institution.py:214
 msgid "The fax number of the institution."
 msgstr "Номер факсу установи."
 
@@ -2860,7 +2860,7 @@ msgstr ""
 "\n"
 "<i>Ви хочете встановити їх зараз?</i>"
 
-#: bauble/plugins/garden/institution.py:201
+#: bauble/plugins/garden/institution.py:202
 msgid "The full name of the institution."
 msgstr "Повне найменування установи."
 
@@ -2895,11 +2895,11 @@ msgstr "Характер розвитку виду"
 msgid "The intended location for plant material being accessioned."
 msgstr "Цільове розташування для приєднаного рослинного матеріалу."
 
-#: bauble/plugins/garden/institution.py:204
+#: bauble/plugins/garden/institution.py:205
 msgid "The intitution code should be unique among all institions."
 msgstr "Код установи повинен бути унікальним серед усіх установ."
 
-#: bauble/plugins/garden/institution.py:215
+#: bauble/plugins/garden/institution.py:216
 msgid "The latitude of the geographic centre of the garden."
 msgstr ""
 
@@ -2907,15 +2907,15 @@ msgstr ""
 msgid "The location of the planting in your collection."
 msgstr "Розташування рослини у вашій колекції."
 
-#: bauble/plugins/garden/institution.py:216
+#: bauble/plugins/garden/institution.py:217
 msgid "The longitude of the geographic centre of the garden."
 msgstr ""
 
-#: bauble/plugins/garden/institution.py:214
+#: bauble/plugins/garden/institution.py:215
 msgid "The mailing address of the institition."
 msgstr "Поштова адреса установи."
 
-#: bauble/plugins/garden/institution.py:206
+#: bauble/plugins/garden/institution.py:207
 msgid ""
 "The name of the person to contact for information related to the institution."
 msgstr ""
@@ -3037,11 +3037,11 @@ msgstr ""
 "Вид повинен бути обраний зі списку завершень. Для додавання виду "
 "використовуйте редактор видів."
 
-#: bauble/plugins/garden/institution.py:202
+#: bauble/plugins/garden/institution.py:203
 msgid "The standard abbreviation of the institution."
 msgstr "Стандартна абревіатура установи."
 
-#: bauble/plugins/garden/institution.py:212
+#: bauble/plugins/garden/institution.py:213
 msgid "The telephone number of the institution."
 msgstr "Телефонний номер установи."
 
@@ -3367,7 +3367,7 @@ msgstr "Загинуло зимою"
 msgid "Would you like the cancel the current tasks?"
 msgstr "Ви хочете скасувати поточні завдання?"
 
-#: bauble/__init__.py:376
+#: bauble/__init__.py:377
 msgid ""
 "Would you like to create a new Ghini database at the current connection?\n"
 "\n"
