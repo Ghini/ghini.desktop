@@ -3,7 +3,7 @@ set -e
 
 # Automatically added by dhpython:
 if which pycompile >/dev/null 2>&1; then
-	pycompile -p bauble /usr/share/bauble -V 2.7-
+	pycompile -p bauble /usr/lib/python2.7/dist-packages/bauble -V 2.7-
 fi
 
 # End automatically added section

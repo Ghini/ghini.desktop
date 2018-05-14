@@ -3,7 +3,7 @@ Version: 1.0.82
 Architecture: all
 Maintainer: Giacomo Catenazzi <cate@debian.org>
 Installed-Size: 2873
-Depends: xdg-utils, python-egenix-mxdatetime, python-sqlalchemy (>= 0.6), python-lxml (>= 2.0), python-pyparsing, python-gtk2 (>= 2.12), librsvg2-common, python-glade2, python-gdata (>= 1.1.1), python-mako (>= 0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, python:any (>= 2.7.5-5~)
+Depends: python-dateutil, python-pyqrcode, xdg-utils, python-egenix-mxdatetime, python-sqlalchemy (>= 0.6), python-lxml (>= 2.0), python-pyparsing, python-gtk2 (>= 2.12), librsvg2-common, python-glade2, python-gdata (>= 1.1.1), python-mako (>= 0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, python:any (>= 2.7.5-5~)
 Recommends: python-mysqldb | python-psycopg2
 Section: science
 Priority: extra

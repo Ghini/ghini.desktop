@@ -18,7 +18,7 @@ sed -i 's/VERSION/'$VERSION'/g' $DIRNAME/DEBIAN/control
 
 # copy current files to target dir
 cp -a src/* $DIRNAME/
-cp -a build/lib*/bauble $DIRNAME/usr/share/
+cp -a build/lib*/bauble $DIRNAME/usr/lib/python2.7/dist-packages/
 cp -a build/share/* $DIRNAME/usr/share/
 cp -a ./scripts/ghini $DIRNAME/usr/bin/
 
