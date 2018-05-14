@@ -111,11 +111,12 @@ Mario Frasca MSc
 | [5] https://hosted.weblate.org/projects/ghini/#languages
 | [6] https://www.youtube.com/playlist?list=PLtYRCnAxpinU_8WEDuRlgsYnNVe4J_4kv
 
-What other botanic data management systems are available
+free botanic data management systems
 ======================================================================
 
 Many institutions still consider software an investment, an asset that is not to be shared
 with others, as if it was some economic good that can't be duplicated, like gold.
+
 As of right now, very few copylefted programs exist for botanic data management:
 
 * ``ghini.desktop``, born as ``bauble.classic`` and made a commons by the Belize Botanical
@@ -143,12 +144,17 @@ As of right now, very few copylefted programs exist for botanic data management:
   bauble.web and possibly 30% of ghini.desktop is shared between the two projects. Bauble
   seems to be stagnating, and has not yet reached a production-ready stage.
 
-* ``Taxasoft-BG``, by Eric Gouda, a Dutch botanist, specialist in Bromeliaceae, collection
-  manager at the Utrecht botanical garden. It was Mario Frasca who convinced Eric to publish
-  what he was doing, licensing it under the GPL, but the repository was not updated
-  after 2016, April 13th and Eric forgot to explicitly specify the license.  You find it on
-  github: https://github.com/Ejgouda/Taxasoft-BG
+* ``Taxasoft-BG``, by Eric Gouda, a Dutch botanist, specialist in Bromeliaceae, collection manager at
+  the Utrecht botanical garden.  It was Mario Frasca who convinced Eric to publish what he was doing,
+  licensing it under the GPL, but the repository was not updated after 2016, April 13th and Eric
+  forgot to explicitly specify the license.  You find it on github:
+  https://github.com/Ejgouda/Taxasoft-BG
 
+* ``BG-Recorder``, by the BGCI, runs on Windows, and requires Access.  Developed mostly between 1997
+  and 2003, it has not been maintained ever since and isn't actively distributed by the BGCI.  I've
+  not managed to find a download link nor its license statement.  It is still mentioned as *the free
+  option* for botanic database management.
+  
 Of the above, only ``ghini.desktop`` satisfies these conditions: Copylefted, available,
 documented, maintained, easy to install and configure.  Moreover: Cross platform and
 internationalized.
