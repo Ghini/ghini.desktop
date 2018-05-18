@@ -771,8 +771,8 @@ class GUI(object):
         about.set_copyright(_(u'Copyright © by its contributors.'))
 
         import codecs
-        with codecs.open(os.path.join(paths.installation_dir(), 'share',
-                                      'LICENSE.ghini')) as f:
+        with codecs.open(os.path.join(paths.installation_dir(), 'share', 'ghini',
+                                      'LICENSE')) as f:
             license = f.read()
         about.set_license(license)  # not translated
         about.set_comments(_('This version installed on: %s\n'
