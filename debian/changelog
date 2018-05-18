@@ -1,0 +1,29 @@
+ghini.desktop (1.0.83-1) unstable; urgency=medium
+
+  * Initial release (closes: #nnnn)
+
+ -- Mario Frasca <mario@anche.no>  Fri, 18 May 2018 10:28:27 -0500
+
+bauble (1.0.56-4) unstable; urgency=medium
+
+  * correcting timestamp and shortening comment
+
+ -- Mario Frasca <mario@anche.no>  Thu, 17 May 2018 18:32:24 -0500
+
+bauble (1.0.56-3) unstable; urgency=medium
+
+  * correcting bauble.desktop (removing redundant encoding and adding keywords); and control (priority: optional).
+
+ -- Mario Frasca <mario@anche.no>  Thu, 17 May 2018 17:08:58 -0500
+
+bauble (1.0.56-2) unstable; urgency=medium
+
+  * solving QA issues that became visible after uploading to mentors.
+
+ -- Mario Frasca <mario@anche.no>  Thu, 17 May 2018 17:08:58 -0500
+
+bauble (1.0.56-1) unstable; urgency=medium
+
+  * Initial release (Closes: #755185)
+
+ -- Mario Frasca <mario@anche.no>  Thu, 17 May 2018 13:18:11 -0500
