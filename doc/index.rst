@@ -88,6 +88,7 @@ Ghini Development
    :maxdepth: 2
 
    building
+   template-letters
 
 Supporting Ghini
 =================

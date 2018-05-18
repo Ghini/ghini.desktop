@@ -51,7 +51,7 @@ Open a shell terminal window, and follow the following instructions.
 #. Download the `devinstall.sh` script:
 
    `devinstall.sh <https://raw.githubusercontent.com/Ghini/ghini.desktop/ghini-1.0-dev/scripts/devinstall.sh>`_
-   
+
 #. Invoke the script from a terminal window, starting at the directory where
    you downloaded it, like this::
 

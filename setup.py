@@ -179,8 +179,9 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             file_util.copy_file(gtheme, dest)
 
             # copy LICENSE to dist\share\LICENSE.ghini (for help>about)
-            file_util.copy_file("LICENSE", os.path.join(self.dist_dir, 'share',
-                                                        'LICENSE.ghini'))
+            file_util.copy_file(
+                "LICENSE",
+                os.path.join(self.dist_dir, 'share', 'ghini', 'LICENSE'))
 
     class NsisCmd(Command):
         """Command to create a Windows NSIS installer"""
@@ -263,7 +264,7 @@ class build(_build):
             sys.exit(1)
 
         # create build/share directory
-        dir_util.mkpath(os.path.join(self.build_base, 'share'))
+        dir_util.mkpath(os.path.join(self.build_base, 'share', 'ghini'))
 
         _build.run(self)
 
@@ -331,7 +332,7 @@ class install(_install):
             sys.exit(1)
 
         # create build/share directory
-        dir_util.mkpath(os.path.join(self.build_base, 'share'))
+        dir_util.mkpath(os.path.join(self.build_base, 'share', 'ghini'))
 
         if not self.single_version_externally_managed:
             print 'before installing new egg, remove old ones!'
@@ -360,7 +361,7 @@ class install(_install):
 
         file_util.copy_file(
             "LICENSE",
-            os.path.join(self.install_data, 'share', 'LICENSE.ghini'))
+            os.path.join(self.install_data, 'share', 'ghini', 'LICENSE'))
 
 
 # docs command
@@ -368,7 +369,7 @@ DOC_BUILD_PATH = 'doc/.build/'
 
 
 class docs(Command):
-    user_options = [('all', None, 'rebuild all the docs')]
+    user_options = [('all', 'a', 'rebuild all the docs')]
 
     def initialize_options(self):
         self.all = False
@@ -395,10 +396,11 @@ class docs(Command):
 
 # clean command
 class clean(Command):
-    user_options = []
+    user_options = [('all', 'a', 'clean everything'),
+    ]
 
     def initialize_options(self):
-        pass
+        self.all = False
 
     def finalize_options(self):
         pass
