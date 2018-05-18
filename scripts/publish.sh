@@ -1,4 +1,23 @@
 #!/bin/sh
+
+# let's check what Debian says first
+python setup.py sdist | awk 'BEGIN{count=0}/^.*$/{count++; printf("running setup sdist: %d\r", count)}END{print}'
+VERSION=$(ls dist/*.tar.gz | tail -n 1 | sed -ne 's/[^-]*-\(.*\).tar.gz/\1/p')
+cp dist/ghini.desktop-${VERSION}.tar.gz /tmp/ghini.desktop-${VERSION}.orig.tar.gz
+( cd /tmp
+  rm -fr ghini.desktop-${VERSION}/ 2>/dev/null
+  tar zxf ghini.desktop-${VERSION}.orig.tar.gz 
+  cd ghini.desktop-${VERSION}/
+  dh_make --yes --indep --file ../ghini.desktop-${VERSION}.orig.tar.gz )
+cp debian/* /tmp/ghini.desktop-${VERSION}/debian
+( cd /tmp/ghini.desktop-${VERSION}/
+  find debian -iname "*.ex" -execdir rm {} \; -or -name "*.source" -execdir rm {} \; -or -name "*~" -execdir rm {} \;
+  debuild )
+
+# decide whether we continue
+# in case, we should really dput the following to mentors.debian.org
+ls /tmp/ghini.desktop_${VERSION}-*_*.changes | tail -n 1
+
 # make sure we are in the project root dir
 cd $(dirname $0)/..
 
