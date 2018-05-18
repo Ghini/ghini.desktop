@@ -368,7 +368,7 @@ DOC_BUILD_PATH = 'doc/.build/'
 
 
 class docs(Command):
-    user_options = [('all', None, 'rebuild all the docs')]
+    user_options = [('all', 'a', 'rebuild all the docs')]
 
     def initialize_options(self):
         self.all = False
@@ -395,10 +395,11 @@ class docs(Command):
 
 # clean command
 class clean(Command):
-    user_options = []
+    user_options = [('all', 'a', 'clean everything'),
+    ]
 
     def initialize_options(self):
-        pass
+        self.all = False
 
     def finalize_options(self):
         pass
