@@ -229,4 +229,5 @@ def open(url, desktop=None, wait=0, dialog_on_error=False):
     """
 
     from gi.repository import Gtk
-    Gtk.show_uri_on_window(url)
+    from gi.repository import Gdk
+    Gtk.show_uri_on_window(None, url, Gdk.CURRENT_TIME)

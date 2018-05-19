@@ -744,7 +744,7 @@ class GUI(object):
                      dialog_on_error=True)
 
     def on_help_menu_logfile(self, widget, data=None):
-        filename = os.path.join(paths.appdata_dir(), 'bauble.log')
+        filename = 'file://' + os.path.join(paths.appdata_dir(), 'bauble.log')
         desktop.open(filename, dialog_on_error=True)
 
     def on_help_menu_web_devel(self, widget, data=None):
