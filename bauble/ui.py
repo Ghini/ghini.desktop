@@ -786,7 +786,7 @@ class GUI(object):
         """
         this is usually called from bauble.py when it shuts down
         """
-        rect = self.window.allocation
+        rect = self.window.get_allocation()
         prefs[self.window_geometry_pref] = rect.width, rect.height
         # prefs.save() is called in bauble/__init__.py
 
