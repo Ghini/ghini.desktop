@@ -2062,7 +2062,7 @@ class PictureBox(NoteBox):
             "clicked", self.on_activate_browse_button)
 
     def set_content(self, basename):
-        for w in list(self.widgets.picture_button.children()):
+        for w in list(self.widgets.picture_button.get_children()):
             w.destroy()
         if basename is not None:
             im = Gtk.Image()
