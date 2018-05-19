@@ -763,8 +763,6 @@ class GUI(object):
         about = Gtk.AboutDialog()
         about.set_name('Ghini')
         about.set_version(bauble.version)
-        Gtk.about_dialog_set_url_hook(lambda d, l:
-                                      desktop.open(l, dialog_on_error=True))
         about.set_website(_('http://ghini.github.io'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = GdkPixbuf.Pixbuf.new_from_file(f)
