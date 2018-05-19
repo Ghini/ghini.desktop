@@ -253,10 +253,6 @@ def find_dependent_tables(table, metadata=None):
     return sort_tables(tables=tables)
 
 
-def BuilderWidgets(filename):
-    return BuilderWidgets(filename)
-
-
 class BuilderWidgets:
     """
     Provides dictionary and attribute access for a

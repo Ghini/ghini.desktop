@@ -590,8 +590,7 @@ class SearchView(pluginmgr.View):
         '''add notebook page for a plugin class
         '''
         glade_name = bottom_info['glade_name']
-        builder = utils.BuilderLoader.load(glade_name)
-        widgets = utils.BuilderWidgets(builder)
+        widgets = utils.BuilderWidgets(glade_name)
         page = getattr(widgets, bottom_info['page_widget'])
         # 2: detach it from parent (its container)
         widgets.remove_parent(page)
