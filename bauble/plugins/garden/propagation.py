@@ -643,7 +643,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.view.widgets.rooted_treeview.set_model(rooted_liststore)
 
         from functools import partial
-        def rooted_cell_data_func(attr_name, column, cell, rooted_liststore, treeiter):
+        def rooted_cell_data_func(attr_name, column, cell, rooted_liststore, treeiter, data=None):
             # extract attr from the object and show it in the cell
             v = rooted_liststore[treeiter][0]
             cell.set_property('text', getattr(v, attr_name))

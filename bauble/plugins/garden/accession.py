@@ -1276,7 +1276,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             renderer.props.wrap_width = 400
             combo.pack_start(renderer, True, True, 0)
 
-            def cell_data_func(col, cell, model, treeiter):
+            def cell_data_func(col, cell, model, treeiter, data=None):
                 level = model[treeiter][0]
                 descr = model[treeiter][1]
                 cell.set_property('markup', '<b>%s</b>  :  %s'

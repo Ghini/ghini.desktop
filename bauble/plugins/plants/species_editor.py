@@ -1152,8 +1152,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.sp_next_button.set_sensitive(sensitive)
 
     @staticmethod
-    def genus_completion_cell_data_func(column, renderer, model, treeiter,
-                                        data=None):
+    def genus_completion_cell_data_func(column, renderer, model, treeiter, data=None):
         '''
         '''
         v = model[treeiter][0]

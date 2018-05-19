@@ -521,7 +521,7 @@ class UsersEditor(editor.GenericEditorView):
             tree.remove_column(column)
 
         renderer = Gtk.CellRendererText()
-        def cell_data_func(col, cell, model, it):
+        def cell_data_func(col, cell, model, it, data=None):
             value = model[it][0]
             cell.set_property('text', value)
         tree.insert_column_with_data_func(0, _('Users'), renderer,

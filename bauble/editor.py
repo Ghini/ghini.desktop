@@ -180,8 +180,7 @@ class FloatOrNoneStringValidator(Validator):
                                  % (value, type(value)))
 
 
-def default_completion_cell_data_func(column, renderer, model, treeiter,
-                                      data=None):
+def default_completion_cell_data_func(column, renderer, model, treeiter, data=None):
     '''
     the default completion cell data function for
     GenericEditorView.attach_completions

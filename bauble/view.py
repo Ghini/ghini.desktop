@@ -995,7 +995,7 @@ class SearchView(pluginmgr.View):
                 model.append(i, ["_dummy"])
         return model
 
-    def cell_data_func(self, col, cell, model, treeiter):
+    def cell_data_func(self, col, cell, model, treeiter, data=None):
         # start with a (redundant) check, whether the cell is visible.
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
