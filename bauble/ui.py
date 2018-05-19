@@ -79,7 +79,7 @@ class DefaultView(pluginmgr.View):
         if self.infoboxclass and not self.infobox:
             logger.debug('DefaultView::update - creating infobox')
             self.infobox = self.infoboxclass()
-            self.hbox.pack_end(self.infobox, expand=False, padding=8)
+            self.hbox.pack_end(self.infobox, False, True, 8)
             self.infobox.show()
         if self.infobox:
             logger.debug('DefaultView::update - updating infobox')

@@ -191,8 +191,8 @@ class PropertiesExpander(InfoExpander):
         table.attach(self.updated_data, 1, 2, 3, 4)
 
         box = Gtk.HBox()
-        box.pack_start(table, expand=False, fill=False)
-        self.vbox.pack_start(box, expand=False, fill=False)
+        box.pack_start(table, False, False, 0)
+        self.vbox.pack_start(box, False, False, 0)
 
     def update(self, row):
         """"
@@ -233,11 +233,11 @@ class InfoBoxPage(Gtk.ScrolledWindow):
 
         :param expander: the bauble.view.InfoExpander to add to this infobox
         '''
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
+        self.vbox.pack_start(expander, False, True, 5)
         self.expanders[expander.get_property("label")] = expander
 
         expander._sep = Gtk.HSeparator()
-        self.vbox.pack_start(expander._sep, False, False)
+        self.vbox.pack_start(expander._sep, False, False, 0)
 
     def get_expander(self, label):
         """
@@ -369,7 +369,7 @@ class LinksExpander(InfoExpander):
                     button.add(label)
                     button.set_alignment(0, -1)
                     self.dynamic_box.pack_start(
-                        button, expand=False, fill=False)
+                        button, False, False, 0)
             self.dynamic_box.show_all()
 
 

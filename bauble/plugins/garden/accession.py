@@ -1162,8 +1162,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         :param model:
         """
         box = VerificationPresenter.VerificationBox(self, model)
-        self.view.widgets.verifications_parent_box.pack_start(
-            box, expand=False, fill=False)
+        self.view.widgets.verifications_parent_box.pack_start(box, False, False, 0)
         self.view.widgets.verifications_parent_box.reorder_child(box, 0)
         box.show_all()
         return box
@@ -1200,7 +1199,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
             ver_box = self.widgets.ver_box
             self.widgets.remove_parent(ver_box)
-            self.pack_start(ver_box, expand=True, fill=True)
+            self.pack_start(ver_box, True, True, 0)
 
             # verifier entry
             entry = self.widgets.ver_verifier_entry
@@ -1275,7 +1274,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # TODO: should auto calculate the wrap width with a
             # on_size_allocation callback
             renderer.props.wrap_width = 400
-            combo.pack_start(renderer, True)
+            combo.pack_start(renderer, True, True, 0)
 
             def cell_data_func(col, cell, model, treeiter):
                 level = model[treeiter][0]

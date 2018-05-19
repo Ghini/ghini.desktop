@@ -832,7 +832,7 @@ class SynonymsExpander(InfoExpander):
             label.set_markup(Family.str(row.accepted, author=True))
             box.add(label)
             utils.make_label_clickable(label, on_clicked, row.accepted)
-            syn_box.pack_start(box, expand=False, fill=False)
+            syn_box.pack_start(box, False, False, 0)
             self.show_all()
             self.set_sensitive(True)
         elif len(row.synonyms) == 0:
@@ -848,7 +848,7 @@ class SynonymsExpander(InfoExpander):
                 label.set_markup(Family.str(syn))
                 box.add(label)
                 utils.make_label_clickable(label, on_clicked, syn)
-                syn_box.pack_start(box, expand=False, fill=False)
+                syn_box.pack_start(box, False, False, 0)
             self.show_all()
             self.set_sensitive(True)
 

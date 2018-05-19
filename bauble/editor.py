@@ -1268,7 +1268,7 @@ class GenericEditorPresenter(object):
         if attr is None:
             return
         value = self.view.widget_get_value(widget)
-        logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
+        logger.debug(u"on_text_entry_changed(%s, %s) - %s → %s"
                      % (widget, attr, getattr(self.model, attr), value))
         self.__set_model_attr(attr, value)
         return value
@@ -1874,7 +1874,7 @@ class NoteBox(Gtk.HBox):
 
         notes_box = self.widgets.notes_box
         self.widgets.remove_parent(notes_box)
-        self.pack_start(notes_box, expand=True, fill=True)
+        self.pack_start(notes_box, True, True, 0)
 
         self.session = object_session(presenter.model)
         self.presenter = presenter
@@ -2219,7 +2219,7 @@ class NotesPresenter(GenericEditorPresenter):
         Add a new note to the model.
         """
         expander = self.ContentBox(self, note)
-        self.box.pack_start(expander, expand=False, fill=False)  # padding=10
+        self.box.pack_start(expander, False, False, 0)
         self.box.reorder_child(expander, 0)
         expander.show_all()
         return expander

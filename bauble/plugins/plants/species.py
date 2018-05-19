@@ -248,7 +248,7 @@ class SynonymsExpander(InfoExpander):
             label.set_markup(accepted.str(markup=True, authors=True))
             box.add(label)
             utils.make_label_clickable(label, on_label_clicked, accepted)
-            syn_box.pack_start(box, expand=False, fill=False)
+            syn_box.pack_start(box, False, False, 0)
             self.show_all()
             self.set_sensitive(True)
             self.set_expanded(True)
@@ -267,7 +267,7 @@ class SynonymsExpander(InfoExpander):
                 label.set_markup(syn.str(markup=True, authors=True))
                 box.add(label)
                 utils.make_label_clickable(label, on_label_clicked, syn)
-                syn_box.pack_start(box, expand=False, fill=False)
+                syn_box.pack_start(box, False, False, 0)
             self.show_all()
             self.set_sensitive(True)
             # TODO: get expanded state from prefs

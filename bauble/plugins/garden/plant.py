@@ -1260,7 +1260,7 @@ class ChangesExpander(InfoExpander):
         super(ChangesExpander, self).__init__(_('Changes'), widgets)
         self.vbox.props.spacing = 5
         self.table = Gtk.Table()
-        self.vbox.pack_start(self.table, expand=False, fill=False)
+        self.vbox.pack_start(self.table, False, False, 0)
         self.table.props.row_spacing = 3
         self.table.props.column_spacing = 5
 

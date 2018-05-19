@@ -418,7 +418,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
                 tab_box.remove(kid)  # remove old prop boxes
         for prop in self.model.propagations:
             box = self.create_propagation_box(prop)
-            tab_box.pack_start(box, expand=False, fill=True)
+            tab_box.pack_start(box, False, True, 0)
         self._dirty = False
 
     def is_dirty(self):
@@ -438,8 +438,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         committed = editor.start(commit=False)
         if committed:
             box = self.create_propagation_box(committed)
-            self.view.widgets.prop_tab_box.pack_start(box, expand=False,
-                                                      fill=True)
+            self.view.widgets.prop_tab_box.pack_start(box, False, True, 0)
             self._dirty = True
         else:
             propagation.plant = None
@@ -449,7 +448,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         """
         hbox = Gtk.HBox()
         expander = Gtk.Expander()
-        hbox.pack_start(expander, expand=True, fill=True)
+        hbox.pack_start(expander, True, True, 0)
 
         from bauble.plugins.garden.plant import label_size_allocate
         label = Gtk.Label(label=propagation.get_summary())
@@ -468,13 +467,13 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
             self.parent_ref().refresh_sensitivity()
 
         alignment = Gtk.Alignment.new()
-        hbox.pack_start(alignment, expand=False, fill=False)
+        hbox.pack_start(alignment, False, False, 0)
         button_box = Gtk.HBox(spacing=5)
         alignment.add(button_box)
         button = Gtk.Button(stock=Gtk.STOCK_EDIT)
         self.view.connect(button, 'clicked', on_edit_clicked, propagation,
                           label)
-        button_box.pack_start(button, expand=False, fill=False)
+        button_box.pack_start(button, False, False, 0)
 
         def on_remove_clicked(button, propagation, box):
             count = len(propagation.accessions)
@@ -510,7 +509,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         remove_button.props.image = img
         self.view.connect(remove_button, 'clicked', on_remove_clicked,
                           propagation, hbox)
-        button_box.pack_start(remove_button, expand=False, fill=False)
+        button_box.pack_start(remove_button, False, False, 0)
 
         # TODO: add a * to the propagation label for uncommitted propagations
         prop_type = prop_type_values[propagation.prop_type]

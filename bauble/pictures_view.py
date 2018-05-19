@@ -79,7 +79,7 @@ class PicturesView(Gtk.HBox):
                 logger.debug('object %s has picture %s' % (o, p))
                 expander = Gtk.HBox()
                 expander.add(p)
-                self.box.pack_end(expander, expand=False, fill=False)
+                self.box.pack_end(expander, False, False, 0)
                 self.box.reorder_child(expander, 0)
                 expander.show_all()
                 p.show()
@@ -91,7 +91,7 @@ class PicturesView(Gtk.HBox):
         Add a new picture to the model.
         """
         expander = self.ContentBox(self, picture)
-        self.box.pack_start(expander, expand=False, fill=False)
+        self.box.pack_start(expander, False, False, 0)
         expander.show_all()
         return expander
 
