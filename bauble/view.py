@@ -773,9 +773,9 @@ class SearchView(pluginmgr.View):
                         if func(sel):
                             self.update()
                     return _impl
-                self.accel_group.connect_group(keyval, mod,
-                                               Gtk.AccelFlags.VISIBLE,
-                                               cb(action.callback))
+                self.accel_group.connect(keyval, mod,
+                                         Gtk.AccelFlags.VISIBLE,
+                                         cb(action.callback))
                 self.installed_accels.append(((keyval, mod), action.callback))
             else:
                 logger.warning(
