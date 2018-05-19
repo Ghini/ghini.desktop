@@ -1091,7 +1091,7 @@ class ExpressionRow(object):
         self.prop_button.props.use_underline = False
 
         def on_prop_button_clicked(button, event, menu):
-            menu.popup(None, None, None, event.button, event.time)
+            menu.popup(None, None, None, None, event.button, event.time)
 
         self.schema_menu = SchemaMenu(self.presenter.mapper,
                                       self.on_schema_menu_activated,
