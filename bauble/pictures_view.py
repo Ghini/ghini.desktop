@@ -65,8 +65,8 @@ class PicturesView(Gtk.HBox):
         logger.debug("PicturesView.set_selection(%s)" % selection)
         if self.fake:
             return
-        self.box = self.widgets.pictures_box
-        for k in self.box.children():
+        self.ghini_box = self.widgets.pictures_box
+        for k in self.ghini_box.get_children():
             k.destroy()
 
         for o in selection:
@@ -79,19 +79,19 @@ class PicturesView(Gtk.HBox):
                 logger.debug('object %s has picture %s' % (o, p))
                 expander = Gtk.HBox()
                 expander.add(p)
-                self.box.pack_end(expander, False, False, 0)
-                self.box.reorder_child(expander, 0)
+                self.ghini_box.pack_end(expander, False, False, 0)
+                self.ghini_box.reorder_child(expander, 0)
                 expander.show_all()
                 p.show()
 
-        self.box.show_all()
+        self.ghini_box.show_all()
 
     def add_picture(self, picture=None):
         """
         Add a new picture to the model.
         """
         expander = self.ContentBox(self, picture)
-        self.box.pack_start(expander, False, False, 0)
+        self.ghini_box.pack_start(expander, False, False, 0)
         expander.show_all()
         return expander
 
