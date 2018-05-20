@@ -446,6 +446,7 @@
                                       <object class="GtkComboBox" id="acc_recvd_type_comboentry">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="has_entry">True</property>
                                         <child internal-child="entry">
                                           <object class="GtkEntry" id="comboboxentry-entry2">
                                             <property name="can_focus">False</property>
@@ -705,6 +706,7 @@
                                                 <property name="model">acc_code_format_liststore</property>
                                                 <property name="text_column">0</property>
                                                 <signal name="changed" handler="on_acc_code_format_comboentry_changed" swapped="no"/>
+                                                <property name="has_entry">True</property>
                                                 <child internal-child="entry">
                                                   <object class="GtkEntry" id="comboboxentry-entry10">
                                                     <property name="can_focus">False</property>
@@ -818,6 +820,7 @@
                                       <object class="GtkComboBox" id="intended_loc_comboentry">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="has_entry">True</property>
                                         <child internal-child="entry">
                                           <object class="GtkEntry" id="comboboxentry-entry4">
                                             <property name="can_focus">False</property>
@@ -928,6 +931,7 @@
                                       <object class="GtkComboBox" id="intended2_loc_comboentry">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
+                                        <property name="has_entry">True</property>
                                         <child internal-child="entry">
                                           <object class="GtkEntry" id="comboboxentry-entry6">
                                             <property name="can_focus">False</property>
@@ -1236,6 +1240,7 @@
                           <object class="GtkComboBox" id="acc_source_comboentry">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
+                            <property name="has_entry">True</property>
                             <child internal-child="entry">
                               <object class="GtkEntry" id="comboboxentry-entry8">
                                 <property name="can_focus">False</property>

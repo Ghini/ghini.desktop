@@ -165,7 +165,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
     from gi.repository import Gtk
     completion = Gtk.EntryCompletion()
     cell = Gtk.CellRendererText()  # set up the completion renderer
-    completion.pack_start(cell, True, True, 0)
+    completion.pack_start(cell, True)
     completion.set_cell_data_func(cell, cell_data_func)
     completion.props.popup_set_width = False
 
@@ -174,7 +174,7 @@ def init_location_comboentry(presenter, combo, on_select, required=True):
 
     combo.clear()
     cell = Gtk.CellRendererText()
-    combo.pack_start(cell, True, True, 0)
+    combo.pack_start(cell, True)
     combo.set_cell_data_func(cell, cell_data_func)
 
     model = Gtk.ListStore(object)

@@ -186,8 +186,6 @@ class JSONExporter(editor.GenericEditorPresenter):
 
         ## prepend the result with the taxonomic information
         result = families + genera + species + speciesnotes + vernacular + contacts + result
-        print vernacular
-        print speciesnotes
 
         ## done, return the result
         return result

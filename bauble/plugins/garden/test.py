@@ -795,7 +795,7 @@ class PropagationTests(GardenTestCase):
                               default_propagation_values['notes'])
         for widget, attr in seed_presenter.widget_to_field_map.iteritems():
             w = widgets[widget]
-            if isinstance(w, Gtk.ComboBoxEntry) and not w.get_model():
+            if isinstance(w, Gtk.ComboBox) and widget.get_child() and not w.get_model():
                 widgets[widget].get_child().props.text = default_seed_values[attr]
             view.widget_set_value(widget, default_seed_values[attr])
 
@@ -851,7 +851,7 @@ class PropagationTests(GardenTestCase):
                 return w.get_buffer().props.text
             elif isinstance(w, Gtk.Entry):
                 return w.props.text
-            elif isinstance(w, Gtk.ComboBoxEntry):
+            elif isinstance(w, Gtk.ComboBox) and widget.get_child():
                 return w.get_active_text()
             else:
                 raise ValueError('%s not supported' % type(w))

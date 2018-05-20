@@ -687,7 +687,7 @@ class GenericEditorView(object):
         # completions regardless of the length of the string
         completion = Gtk.EntryCompletion()
         cell = Gtk.CellRendererText()  # set up the completion renderer
-        completion.pack_start(cell, True, True, 0)
+        completion.pack_start(cell, True)
         completion.set_cell_data_func(cell, cell_data_func)
         completion.set_match_func(match_func)
         completion.set_property('text-column', text_column)
@@ -1594,7 +1594,7 @@ class GenericEditorPresenter(object):
                 if model is None or combo.get_active_iter() is None:
                     return
                 value = combo.get_model()[combo.get_active_iter()][0]
-                if isinstance(widget, Gtk.ComboBoxEntry):
+                if isinstance(widget, Gtk.ComboBox) and isinstance(widget.get_child(), Gtk.Entry):
                     widget.get_child().set_text(utils.utf8(value))
                 self.set_model_attr(model_attr, value, validator)
 
@@ -1602,7 +1602,7 @@ class GenericEditorPresenter(object):
                 self.set_model_attr(model_attr, entry.props.text, validator)
 
             self.view.connect(widget, 'changed', combo_changed)
-            if isinstance(widget, Gtk.ComboBoxEntry):
+            if isinstance(widget, Gtk.ComboBox) and isinstance(widget.get_child(), Gtk.Entry):
                 self.view.connect(widget.get_child(), 'changed', entry_changed)
         elif isinstance(widget, (Gtk.ToggleButton, Gtk.CheckButton,
                                  Gtk.RadioButton)):
@@ -2169,19 +2169,7 @@ class NotesPresenter(GenericEditorPresenter):
         # box, which will host all expanders.  In the content box we
         # extract, from the same file, the widget named 'notes_box'.
         filename = os.path.join(paths.lib_dir(), self.ContentBox.glade_ui)
-        xml = etree.parse(filename)
-        builder = Gtk.Builder()
-        import sys
-        if sys.platform == 'win32':
-            # NOTE: PyGTK for Win32 is broken so we have to include
-            # this little hack
-            #
-            # TODO: is this only a specific set of version of
-            # PyGTK/GTK...it was only tested with PyGTK 2.12
-            builder.add_from_string(etree.tostring(xml), -1)
-        else:
-            builder.add_from_string(etree.tostring(xml))
-        self.widgets = utils.BuilderWidgets(builder)
+        self.widgets = utils.BuilderWidgets(filename)
 
         self.parent_ref = weakref.ref(presenter)
         self.note_cls = object_mapper(presenter.model).\

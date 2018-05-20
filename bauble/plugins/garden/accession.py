@@ -1668,7 +1668,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
 
         completion = Gtk.EntryCompletion()
         cell = Gtk.CellRendererText()  # set up the completion renderer
-        completion.pack_start(cell, True, True, 0)
+        completion.pack_start(cell, True)
         completion.set_cell_data_func(cell, cell_data_func)
 
         def match_func(completion, key, treeiter, data=None):
