@@ -1246,7 +1246,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter().view.attach_completion(
                 ver_prev_taxon_entry, sp_cell_data_func)
             if self.model.prev_species:
-                ver_prev_taxon_entry.props.text = self.model.prev_species
+                ver_prev_taxon_entry.props.text = u"%s" % self.model.prev_species
             self.presenter().assign_completions_handler(
                 ver_prev_taxon_entry, sp_get_completions, on_prevsp_select)
 
@@ -1274,7 +1274,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # TODO: should auto calculate the wrap width with a
             # on_size_allocation callback
             renderer.props.wrap_width = 400
-            combo.pack_start(renderer, True, True, 0)
+            combo.pack_start(renderer, True)
 
             def cell_data_func(col, cell, model, treeiter, data=None):
                 level = model[treeiter][0]
@@ -1663,7 +1663,7 @@ class SourcePresenter(editor.GenericEditorPresenter):
         combo = self.view.widgets.acc_source_comboentry
         combo.clear()
         cell = Gtk.CellRendererText()
-        combo.pack_start(cell, True, True, 0)
+        combo.pack_start(cell, True)
         combo.set_cell_data_func(cell, cell_data_func)
 
         completion = Gtk.EntryCompletion()
