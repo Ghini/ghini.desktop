@@ -120,7 +120,8 @@ class InfoExpander(Gtk.Expander):
 
         :param widgets: a bauble.utils.BuilderWidgets instance
         """
-        super(InfoExpander, self).__init__(label)
+        super(InfoExpander, self).__init__()
+        self.set_label(label)
         self.vbox = Gtk.VBox(False)
         self.vbox.set_border_width(5)
         self.add(self.vbox)
@@ -295,7 +296,7 @@ class InfoBox(Gtk.Notebook):
         self.set_property('show-border', False)
         if not tabbed:
             page = InfoBoxPage()
-            self.insert_page(page, position=0)
+            self.insert_page(page, None, 0)
             self.set_property('show-tabs', False)
         self.set_current_page(0)
         self.connect('switch-page', self.on_switch_page)
@@ -660,7 +661,7 @@ class SearchView(pluginmgr.View):
             # remove the current infobox if there is one and it is not needed
             if row is None:
                 if self.infobox is not None and \
-                        self.infobox.parent == self.pane:
+                        self.infobox.get_parent() == self.pane:
                     self.pane.remove(self.infobox)
                 return
 
@@ -692,7 +693,7 @@ class SearchView(pluginmgr.View):
             # remove any old infoboxes connected to the pane
             if self.infobox is not None and \
                     type(self.infobox) != type(new_infobox):
-                if self.infobox.parent == self.pane:
+                if self.infobox.get_parent() == self.pane:
                     self.pane.remove(self.infobox)
 
             # update the infobox and put it in the pane
