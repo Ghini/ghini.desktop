@@ -355,7 +355,7 @@ def create(import_defaults=True):
         meta_table.insert(bind=connection).\
             execute(name=meta.CREATED_KEY,
                     value=unicode(datetime.datetime.now(tz=tzlocal()))).close()
-    except GeneratorExit, e:
+    except GeneratorExit as e:
         # this is here in case the main windows is closed in the middle
         # of a task
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
@@ -364,7 +364,7 @@ def create(import_defaults=True):
         logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
-    except Exception, e:
+    except Exception as e:
         logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
@@ -377,7 +377,7 @@ def create(import_defaults=True):
     transaction = connection.begin()
     try:
         pluginmgr.install('all', import_defaults, force=True)
-    except GeneratorExit, e:
+    except GeneratorExit as e:
         # this is here in case the main windows is closed in the middle
         # of a task
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
@@ -386,7 +386,7 @@ def create(import_defaults=True):
         logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
-    except Exception, e:
+    except Exception as e:
         logger.warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
@@ -432,7 +432,7 @@ def verify_connection(engine, show_error_dialogs=False):
                     'created with Ghini.')
             utils.message_dialog(msg, Gtk.MessageType.ERROR)
             raise
-        except error.VersionError, e:
+        except error.VersionError as e:
             msg = (_('You are using Ghini version %(version)s while the '
                      'database you have connected to was created with '
                      'version %(db_version)s\n\nSome things might not work as '
@@ -579,11 +579,11 @@ class WithNotes:
             elif n.category == ('<%s>' % name):
                 try:
                     return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', '{' + n.note.replace(';', ',') + '}'))
-                except Exception, e:
+                except Exception as e:
                     pass
                 try:
                     return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', n.note))
-                except Exception, e:
+                except Exception as e:
                     logger.debug(u'not parsed %s(%s), returning literal text »%s«', type(e), e, n.note)
                     return n.note
         if result == []:
@@ -674,7 +674,7 @@ class Serializable:
                 return None
             else:
                 extradict = {}
-        except Exception, e:
+        except Exception as e:
             logger.debug("this was unexpected")
             raise
             
