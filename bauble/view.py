@@ -642,7 +642,7 @@ class SearchView(pluginmgr.View):
                 label.set_use_markup(True)
                 label.set_label('<b>%s</b>' % bottom_info['name'])
                 for obj in objs:
-                    model.append([getattr(obj, k)
+                    model.append([u"%s" % getattr(obj, k)
                                   for k in bottom_info['fields_used']])
 
     def update_infobox(self):
