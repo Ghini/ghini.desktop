@@ -21,6 +21,7 @@
 # Species table definition
 #
 
+from __future__ import absolute_import
 from gi.repository import Gtk
 from gi.repository import GObject
 
@@ -241,7 +242,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         def on_sp_species_button_clicked(widget, event=None):
             # the real activity runs in a separate thread.
-            from ask_tpl import AskTPL
+            from .ask_tpl import AskTPL
 
             while self.species_check_messages:
                 kid = self.species_check_messages.pop()
@@ -883,7 +884,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
                 cell.set_property(
                     'active', v == self.model.default_vernacular_name)
                 return
-            except AttributeError, e:
+            except AttributeError as e:
                 logger.debug("AttributeError %s" % e)
                 pass
             cell.set_property('active', False)
@@ -1238,13 +1239,13 @@ class SpeciesEditorMenuItem(editor.GenericModelViewPresenterEditor):
                 if self.presenter.is_dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except DBAPIError, e:
+            except DBAPIError as e:
                 msg = _('Error committing changes.\n\n%s') % \
                     utils.xml_safe(e.orig)
                 logger.debug(traceback.format_exc())
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
-            except Exception, e:
+            except Exception as e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') % \
                     utils.xml_safe(e)

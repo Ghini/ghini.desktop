@@ -32,6 +32,7 @@
 # TODO: should create the table the first time this plugin is loaded, if a new
 # database is created there should be a way to recreate everything from scratch
 
+from __future__ import absolute_import
 import os
 import sys
 from gi.repository import Gtk
@@ -62,9 +63,9 @@ from bauble.plugins.plants.species import (
     )
 from bauble.plugins.plants.geography import (
     Geography, get_species_in_geography)
-from taxonomy_check import (
+from .taxonomy_check import (
     TaxonomyCheckTool)
-from stored_queries import (
+from .stored_queries import (
     StoredQueryEditorTool)
 import bauble.search as search
 from bauble.view import SearchView
@@ -312,7 +313,7 @@ class SplashInfoBox(pluginmgr.View):
             pass
 
     def on_splash_stqr_button_clicked(self, *args):
-        from stored_queries import edit_callback
+        from .stored_queries import edit_callback
         edit_callback()
 
 
@@ -405,10 +406,10 @@ class PlantsPlugin(pluginmgr.Plugin):
         if not import_defaults:
             return
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        filenames = [os.path.join(path, f) for f in 'family.txt',
+        filenames = [os.path.join(path, f) for f in ('family.txt',
                      'family_synonym.txt',
                      'genus.txt', 'genus_synonym.txt', 'geography.txt',
-                     'habit.txt']
+                     'habit.txt')]
 
         from bauble.plugins.imex.csv_ import CSVImporter
         csv = CSVImporter()

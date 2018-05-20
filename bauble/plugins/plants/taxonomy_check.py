@@ -19,6 +19,7 @@
 
 import os
 import logging
+from functools import reduce
 logger = logging.getLogger(__name__)
 from bauble import paths, pluginmgr, utils
 from bauble.plugins.plants import Species

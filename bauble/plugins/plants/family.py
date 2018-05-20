@@ -92,7 +92,7 @@ def remove_callback(families):
         obj = session.query(Family).get(family.id)
         session.delete(obj)
         session.commit()
-    except Exception, e:
+    except Exception as e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=Gtk.MessageType.ERROR)
@@ -628,12 +628,12 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except DBAPIError, e:
+            except DBAPIError as e:
                 msg = _('Error committing changes.\n\n%s') % \
                     utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
-            except Exception, e:
+            except Exception as e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') % \
                     utils.xml_safe(e)

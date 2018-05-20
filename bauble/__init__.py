@@ -23,6 +23,7 @@
 """
 The top level module for Ghini.
 """
+from __future__ import print_function
 
 import logging
 logger = logging.getLogger(__name__)
@@ -144,14 +145,14 @@ def quit():
     import bauble.utils as utils
     try:
         import bauble.task as task
-    except Exception, e:
+    except Exception as e:
         logger.error('bauble.quit(): %s' % utils.utf8(e))
     else:
         task.kill()
     try:
         save_state()
         Gtk.main_quit()
-    except RuntimeError, e:
+    except RuntimeError as e:
         # in case main_quit is called before main, e.g. before
         # bauble.main() is called
         sys.exit(1)
@@ -178,7 +179,7 @@ def command_handler(cmd, arg):
     handler_cls = None
     try:
         handler_cls = pluginmgr.commands[cmd]
-    except KeyError, e:
+    except KeyError as e:
         if cmd is None:
             utils.message_dialog(_('No default handler registered'))
         else:
@@ -200,7 +201,7 @@ def command_handler(cmd, arg):
             gui.window.add_accel_group(handler_view.accel_group)
     try:
         last_handler(cmd, arg)
-    except Exception, e:
+    except Exception as e:
         msg = utils.xml_safe(e)
         logger.error('bauble.command_handler(): %s' % msg)
         utils.message_details_dialog(
@@ -227,11 +228,11 @@ dbengine.html#create-engine-url-arguments>`_
     try:
         from gi.repository import Gtk
         from gi.repository import GObject
-    except ImportError, e:
-        print _('** Error: could not import gtk and/or gobject')
-        print e
+    except ImportError as e:
+        print(_('** Error: could not import gtk and/or gobject'))
+        print(e)
         if sys.platform == 'win32':
-            print _('Please make sure that GTK_ROOT\\bin is in your PATH.')
+            print(_('Please make sure that GTK_ROOT\\bin is in your PATH.'))
         sys.exit(1)
 
     # create the user directory
@@ -282,7 +283,7 @@ dbengine.html#create-engine-url-arguments>`_
         else:
             logger.debug('not registering sentry client')
 
-    except Exception, e:
+    except Exception as e:
         logger.warning("can't configure sentry client")
         logger.debug('%s - %s' % (type(e), e))
 
@@ -293,7 +294,7 @@ dbengine.html#create-engine-url-arguments>`_
 
     display = Gdk.Display.get_default()
     if display is None:
-        print _("**Error: Ghini must be run in a windowed environment.")
+        print(_("**Error: Ghini must be run in a windowed environment."))
         sys.exit(1)
 
     import bauble.pluginmgr as pluginmgr
@@ -304,7 +305,7 @@ dbengine.html#create-engine-url-arguments>`_
 
     try:
         import bauble.db as db
-    except Exception, e:
+    except Exception as e:
         utils.message_dialog(utils.xml_safe(e), Gtk.MessageType.ERROR)
         sys.exit(1)
 
@@ -328,25 +329,25 @@ dbengine.html#create-engine-url-arguments>`_
                     break
                 else:
                     uri = conn_name = None
-            except err.VersionError, e:
+            except err.VersionError as e:
                 logger.warning("%s(%s)" % (type(e), e))
                 db.open(uri, False)
                 break
             except (err.EmptyDatabaseError, err.MetaTableError,
                     err.VersionError, err.TimestampError,
-                    err.RegistryError), e:
+                    err.RegistryError) as e:
                 logger.info("%s(%s)" % (type(e), e))
                 open_exc = e
                 # reopen without verification so that db.Session and
                 # db.engine, db.metadata will be bound to an engine
                 db.open(uri, False)
                 break
-            except err.DatabaseError, e:
+            except err.DatabaseError as e:
                 logger.debug("%s(%s)" % (type(e), e))
                 # traceback.format_exc()
                 open_exc = e
                 # break
-            except Exception, e:
+            except Exception as e:
                 msg = _("Could not open connection.\n\n%s") % e
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              Gtk.MessageType.ERROR)
@@ -388,14 +389,14 @@ dbengine.html#create-engine-url-arguments>`_
                         pluginmgr.init()
                         # set the default connection
                         prefs[conn_default_pref] = conn_name
-                    except Exception, e:
+                    except Exception as e:
                         utils.message_details_dialog(utils.xml_safe(e),
                                                      traceback.format_exc(),
                                                      Gtk.MessageType.ERROR)
                         logger.error("%s(%s)" % (type(e), e))
             else:
                 pluginmgr.init()
-        except Exception, e:
+        except Exception as e:
             logger.warning("%s\n%s(%s)"
                            % (traceback.format_exc(), type(e), e))
             utils.message_dialog(utils.utf8(e), Gtk.MessageType.WARNING)

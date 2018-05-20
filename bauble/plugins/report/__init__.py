@@ -371,7 +371,7 @@ class ReportToolDialogPresenter(object):
         default = prefs[default_config_pref]
         try:
             self.set_names_combo(default)
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
             self.set_names_combo(0)
 
@@ -478,7 +478,7 @@ class ReportToolDialogPresenter(object):
         prefs[default_config_pref] = name  # set the default to the new name
         try:
             title, settings = formatters[name]
-        except (KeyError, TypeError), e:
+        except (KeyError, TypeError) as e:
             # TODO: show a dialog saying that you can't find whatever
             # you're looking for in the settings
             logger.debug(e)
@@ -486,7 +486,7 @@ class ReportToolDialogPresenter(object):
 
         try:
             self.set_formatter_combo(title)
-        except Exception, e:
+        except Exception as e:
             # TODO: show a dialog saying that you can't find whatever
             # you're looking for in the settings
             logger.debug(e)
@@ -505,7 +505,7 @@ class ReportToolDialogPresenter(object):
         name = self.view.widgets.names_combo.get_active_text()
         try:
             saved_name, settings = prefs[config_list_pref][name]
-        except KeyError, e:
+        except KeyError as e:
             logger.debug(e)
             return
 
@@ -573,7 +573,7 @@ class ReportToolDialogPresenter(object):
             for cfg in configs.keys():
                 model.append([cfg])
             combo.set_model(model)
-        except AttributeError, e:
+        except AttributeError as e:
             # no formatters
             logger.debug(e)
             pass
@@ -657,7 +657,7 @@ class ReportTool(pluginmgr.Tool):
                 ok = formatter.format([row[0] for row in model], **settings)
                 if ok:
                     break
-        except AssertionError, e:
+        except AssertionError as e:
             logger.debug(e)
             logger.debug(traceback.format_exc())
             parent = None
@@ -666,7 +666,7 @@ class ReportTool(pluginmgr.Tool):
 
             utils.message_details_dialog(str(e), traceback.format_exc(),
                                          Gtk.MessageType.ERROR, parent=parent)
-        except Exception, e:
+        except Exception as e:
             logger.debug(traceback.format_exc())
             utils.message_details_dialog(_('Formatting Error\n\n'
                                            '%(exception)s') %

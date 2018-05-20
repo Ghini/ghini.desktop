@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
+from __future__ import absolute_import
 import csv
 import logging
 logger = logging.getLogger(__name__)
@@ -299,7 +301,7 @@ class CSVTests(ImexTestCase):
         exporter.start(temp_path)
         f = open(os.path.join(temp_path, 'species.txt'))
         reader = csv.DictReader(f, dialect=csv.excel)
-        row = reader.next()
+        row = next(reader)
         self.assert_(row['cv_group'] == '')
 
 
@@ -737,7 +739,7 @@ class JSONExportTests(BaubleTestCase):
 
         ## check
         result = json.load(open(self.temp_path))
-        print result
+        print(result)
         contacts_from_json = [i for i in result
                               if i['object'] == 'contact']
         self.assertEquals(len(contacts_from_json), 1)
@@ -1203,7 +1205,7 @@ class GlobalFunctionsTests(BaubleTestCase):
     'Presenter manages view and model, implements view callbacks.'
     def test_json_serializer_datetime(self):
         import datetime
-        from iojson import serializedatetime
+        from .iojson import serializedatetime
         stamp = datetime.datetime(2011, 11, 11, 12, 13)
         self.assertEquals(serializedatetime(stamp),
                           {'millis': 1321013580000, '__class__': 'datetime'})

@@ -18,8 +18,9 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
 from bauble.test import BaubleTestCase
-from taxonomy_check import species_to_fix
+from .taxonomy_check import species_to_fix
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 

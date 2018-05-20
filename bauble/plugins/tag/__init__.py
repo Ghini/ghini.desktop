@@ -210,7 +210,7 @@ def remove_callback(tags):
         obj = session.query(Tag).get(tag.id)
         session.delete(obj)
         session.commit()
-    except Exception, e:
+    except Exception as e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=Gtk.MessageType.ERROR)
@@ -329,7 +329,7 @@ class TagItemGUI(editor.GenericEditorView):
             view = bauble.gui.get_view()
             if hasattr(view, 'update'):
                 view.update()
-        except Exception, e:
+        except Exception as e:
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          Gtk.MessageType.ERROR)
@@ -542,15 +542,15 @@ def _get_tagged_object_pairs(tag):
                                 module_name.split('.')[1:])
             cls = getattr(module, cls_name)
             kids.append((cls, obj.obj_id))
-        except KeyError, e:
+        except KeyError as e:
             logger.warning('KeyError -- tag.get_tagged_objects(%s): %s'
                            % (tag, e))
             continue
-        except DBAPIError, e:
+        except DBAPIError as e:
             logger.warning('DBAPIError -- tag.get_tagged_objects(%s): %s'
                            % (tag, e))
             continue
-        except AttributeError, e:
+        except AttributeError as e:
             logger.warning('AttributeError -- tag.get_tagged_objects(%s): %s'
                            % (tag, e))
             logger.warning('Could not get the object for %s.%s(%s)'
@@ -566,7 +566,7 @@ def create_named_empty_tag(name):
     session = db.Session()
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
-    except InvalidRequestError, e:
+    except InvalidRequestError as e:
         logger.debug("%s - %s" % (type(e), e))
         tag = Tag(tag=name)
         session.add(tag)
@@ -591,7 +591,7 @@ def untag_objects(name, objs):
     session = object_session(objs[0])
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
-    except Exception, e:
+    except Exception as e:
         logger.info("Can't remove non existing tag from non-empty list of objects"
                     "%s - %s" % (type(e), e))
         return
@@ -627,7 +627,7 @@ def tag_objects(name, objects):
     session = object_session(objects[0])
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
-    except InvalidRequestError, e:
+    except InvalidRequestError as e:
         logger.debug("%s - %s" % (type(e), e))
         tag = Tag(tag=name)
         session.add(tag)

@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import sys
 import unittest
 
@@ -39,8 +40,8 @@ uri = 'sqlite:///:memory:'
 def init_bauble(uri, create=False):
     try:
         db.open(uri, verify=False)
-    except Exception, e:
-        print >>sys.stderr, e
+    except Exception as e:
+        print(e, file=sys.stderr)
         #debug e
     if not bauble.db.engine:
         raise BaubleError('not connected to a database')

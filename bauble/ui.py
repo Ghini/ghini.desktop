@@ -21,6 +21,7 @@
 # ui.py
 #
 
+from __future__ import absolute_import
 import os
 import traceback
 
@@ -285,12 +286,12 @@ class GUI(object):
         arg = None
         try:
             cmd = tokens['cmd']
-        except KeyError, e:
+        except KeyError as e:
             pass
 
         try:
             arg = tokens['arg']
-        except KeyError, e:
+        except KeyError as e:
             logger.debug(e)
             pass
 
@@ -593,7 +594,7 @@ class GUI(object):
         """
         try:
             tool.start()
-        except Exception, e:
+        except Exception as e:
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          Gtk.MessageType.ERROR)
@@ -616,7 +617,7 @@ class GUI(object):
             if committed is not None and isinstance(view, SearchView):
                 view.results_view.collapse_all()
                 view.expand_to_all_refs(expanded_rows)
-        except Exception, e:
+        except Exception as e:
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          Gtk.MessageType.ERROR)
@@ -673,7 +674,7 @@ class GUI(object):
         try:
             db.create()
             pluginmgr.init()
-        except Exception, e:
+        except Exception as e:
             msg = _('Could not create a new database.\n\n%s') % \
                 utils.xml_safe(e)
             tb = utils.xml_safe(traceback.format_exc())
@@ -685,7 +686,7 @@ class GUI(object):
         """
         Open the connection manager.
         """
-        from connmgr import start_connection_manager
+        from .connmgr import start_connection_manager
         default_conn = prefs[bauble.conn_default_pref]
         name, uri = start_connection_manager(default_conn)
         if name is None:
@@ -694,7 +695,7 @@ class GUI(object):
         engine = None
         try:
             engine = db.open(uri, True, True)
-        except Exception, e:
+        except Exception as e:
             # we don't do anything to handle the exception since db.open()
             # should have shown an error dialog if there was a problem
             # opening the database as long as the show_error_dialogs

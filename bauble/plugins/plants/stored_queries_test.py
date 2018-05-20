@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 from nose import SkipTest
 
 from bauble.plugins.plants.stored_queries import (
@@ -196,7 +197,7 @@ class StoredQueriesPresenterTests(BaubleTestCase):
         self.assertEquals(m.page, 4)
         presenter.view.values['stqr_label_entry'] = 'abc'
         presenter.on_label_entry_changed('stqr_label_entry')
-        print presenter.view.invoked_detailed
+        print(presenter.view.invoked_detailed)
         self.assertEquals(m.label, 'abc')
         self.assertTrue(('widget_set_text', ('stqr_04_label', 'abc')) in
                         presenter.view.invoked_detailed)

@@ -113,7 +113,7 @@ def export_to_pocket(filename, include_private=True):
                    (i.id, i.genus.family.epithet, i.genus.epithet, i.epithet,
                     i.infraspecific_rank, i.infraspecific_epithet,
                     i.infraspecific_author or i.sp_author or ''))
-        except Exception, e:
+        except Exception as e:
             logger.info("error exporting species %s: %s %s" % (i.id, type(e), e))
         GObject.idle_add(pb_set_fraction, 0.05 * count / len(species))
         count += 1
@@ -128,7 +128,7 @@ def export_to_pocket(filename, include_private=True):
                        '(_id, code, species_id, source, start_date) '
                        'VALUES (?, ?, ?, ?, ?);',
                        (i.id, i.code, i.species_id, source_name, i.date_accd))
-        except Exception, e:
+        except Exception as e:
             logger.info("error exporting accession %s: %s %s" % (i.id, type(e), e))
         GObject.idle_add(pb_set_fraction, 0.05 + 0.4 * count / len(accessions))
         count += 1
@@ -139,7 +139,7 @@ def export_to_pocket(filename, include_private=True):
                        '(_id, accession_id, code, location, end_date, n_of_pics, quantity) '
                        'VALUES (?, ?, ?, ?, ?, ?, ?);',
                        (i.id, i.accession_id, "." + i.code, i.location.code, i.date_of_death, len(i.pictures), i.quantity))
-        except Exception, e:
+        except Exception as e:
             logger.info("error exporting plant %s: %s %s" % (i.id, type(e), e))
         GObject.idle_add(pb_set_fraction, 0.45 + 0.55 * count / len(plants))
         count += 1

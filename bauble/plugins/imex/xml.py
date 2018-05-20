@@ -109,7 +109,7 @@ class XMLExporter:
                     for col in columns:
                         ElementFactory(row_el, 'column', attrib={'name': col},
                                        text=row[col])
-            except ValueError, e:
+            except ValueError as e:
                 utils.message_details_dialog(utils.xml_safe(e),
                                              traceback.format_exc(),
                                              Gtk.MessageType.ERROR)

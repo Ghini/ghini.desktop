@@ -31,6 +31,7 @@ import traceback
 import weakref
 
 import logging
+from functools import reduce
 logger = logging.getLogger(__name__)
 #logger.setLevel(logging.DEBUG)
 
@@ -192,7 +193,7 @@ def remove_callback(accessions):
         obj = session.query(Accession).get(acc.id)
         session.delete(obj)
         session.commit()
-    except Exception, e:
+    except Exception as e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(unicode(e))
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=Gtk.MessageType.ERROR)
@@ -683,7 +684,7 @@ class Accession(db.Base, db.Serializable, db.WithNotes):
                 next = format % (max(codes)+1)
             else:
                 next = format % 1
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
             pass
         finally:
@@ -1319,7 +1320,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             PROBLEM = 'INVALID_DATE'
             try:
                 value = editor.DateValidator().to_python(entry.props.text)
-            except ValidatorError, e:
+            except ValidatorError as e:
                 logger.debug(e)
                 self.presenter().add_problem(PROBLEM, entry)
             else:
@@ -2182,7 +2183,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         PROBLEM = 'INVALID_DATE'
         try:
             value = editor.DateValidator().to_python(entry.props.text)
-        except ValidatorError, e:
+        except ValidatorError as e:
             logger.debug(e)
             self.add_problem(PROBLEM, entry)
         else:
@@ -2374,12 +2375,12 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 if self.presenter.is_dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except DBAPIError, e:
+            except DBAPIError as e:
                 msg = _('Error committing changes.\n\n%s') % \
                     utils.xml_safe(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
-            except Exception, e:
+            except Exception as e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
                     % utils.xml_safe(e)

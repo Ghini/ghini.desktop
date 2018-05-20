@@ -135,7 +135,7 @@ def _create_role(name, password=None, login=False, admin=False):
         if password:
             stmt += ' PASSWORD \'%s\'' % password
         conn.execute(stmt)
-    except Exception, e:
+    except Exception as e:
         logger.error('users._create_role(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
@@ -164,7 +164,7 @@ def create_user(name, password=None, admin=False, groups=None):
             (bauble.db.engine.url.database, name)
         logger.debug(stmt)
         conn.execute(stmt)
-    except Exception, e:
+    except Exception as e:
         logger.error('users.create_user(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
@@ -263,7 +263,7 @@ def drop(role, revoke=False):
             set_privilege(role, None)
         stmt = 'drop role %s;' % role
         conn.execute(stmt)
-    except Exception, e:
+    except Exception as e:
         logger.error("users.drop(): %s %s" % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
@@ -448,7 +448,7 @@ def set_privilege(role, privilege):
                         if privilege == 'admin':
                             stmt += ' with grant option'
                         conn.execute(stmt)
-    except Exception, e:
+    except Exception as e:
         logger.error('users.set_privilege(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
         raise
@@ -480,7 +480,7 @@ def set_password(password, user=None):
     try:
         stmt = "alter role %s with encrypted password '%s'" % (user, password)
         conn.execute(stmt)
-    except Exception, e:
+    except Exception as e:
         logger.error('users.set_password(): %s %s' % (type(e), utils.utf8(e)))
         trans.rollback()
     else:
@@ -542,7 +542,7 @@ class UsersEditor(editor.GenericEditorView):
                 logger.debug('grant %s to %s' % (priv, role))
                 try:
                     set_privilege(role, priv)
-                except Exception, e:
+                except Exception as e:
                     utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                          parent=self.get_window())
             return True
@@ -593,7 +593,7 @@ class UsersEditor(editor.GenericEditorView):
 
         try:
             drop(user, revoke=True)
-        except Exception, e:
+        except Exception as e:
             utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                  parent=self.get_window())
         else:
@@ -660,7 +660,7 @@ class UsersEditor(editor.GenericEditorView):
             else:
                 try:
                     set_password(pwd1, user)
-                except Exception, e:
+                except Exception as e:
                     utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                          parent=self.get_window())
 
@@ -725,7 +725,7 @@ class UsersEditor(editor.GenericEditorView):
         try:
             create_user(user)
             set_privilege(user, 'read')
-        except Exception, e:
+        except Exception as e:
             utils.message_dialog(utils.utf8(e), Gtk.MessageType.ERROR,
                                  parent=self.get_window())
             model.remove(model.get_iter(path))

@@ -124,7 +124,7 @@ class AskTPL(threading.Thread):
             logger.debug("%s interrupted : do not invoke callback",
                          self.name)
             return
-        except Exception, e:
+        except Exception as e:
             logger.debug("%s (%s)%s : completed with trouble",
                          self.name, type(e).__name__, e)
             self.__class__.running = None

@@ -198,10 +198,10 @@ class PictureImporterPresenter(GenericEditorPresenter):
                 def set_thumbnail(store, path, col, value):
                     store[path][col] = value
                 GObject.idle_add(set_thumbnail, self.review_liststore, path, thumbnail_col, pixbuf)
-            except glib.GError, e:
+            except glib.GError as e:
                 logger.debug("picture %s caused glib.GError %s" %
                              (fname, e))
-            except Exception, e:
+            except Exception as e:
                 logger.warning("picture %s caused Exception %s:%s" %
                                (fname, type(e), e))
 
@@ -415,6 +415,6 @@ class PictureImporterTool(pluginmgr.Tool):
         try:
             from bauble import gui
             gui.get_view().update()
-        except Exception, e:
+        except Exception as e:
             pass
         return True

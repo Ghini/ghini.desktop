@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import os
 
 from sqlalchemy import or_
@@ -218,7 +219,7 @@ class TagTests(BaubleTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
@@ -248,7 +249,7 @@ class TagTests(BaubleTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertTrue('_reset_tags_menu' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to '

@@ -22,6 +22,8 @@
 # Description: test for the Plant plugin
 #
 
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sys
 from unittest import TestCase
@@ -424,7 +426,7 @@ class FamilyTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
@@ -452,7 +454,7 @@ class FamilyTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
@@ -484,7 +486,7 @@ class FamilyTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', u'The family <i>Arecaceae</i> has 1 genera.\n\nYou cannot remove a family with genera.')
@@ -663,7 +665,7 @@ class GenusTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to '
@@ -696,7 +698,7 @@ class GenusTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', u'The genus <i>Carica</i> has 1 species.\n\nYou cannot remove a genus with species.')
@@ -803,8 +805,8 @@ class SpeciesTests(PlantTestCase):
         import bauble.paths as paths
         default_path = os.path.join(
             paths.lib_dir(), "plugins", "plants", "default")
-        filenames = [os.path.join(default_path, f) for f in 'geography.txt',
-                     'habit.txt']
+        filenames = [os.path.join(default_path, f) for f in ('geography.txt',
+                     'habit.txt')]
         from bauble.plugins.imex.csv_ import CSVImporter
         importer = CSVImporter()
         importer.start(filenames, force=True)
@@ -1079,14 +1081,14 @@ class SpeciesTests(PlantTestCase):
         self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
         sp1.synonyms.append(sp2)  # (1 3 2), (4)
         self.session.flush()
-        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
-        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        print('synonyms of 1', [i.epithet[-1] for i in sp1.synonyms])
+        print('synonyms of 4', [i.epithet[-1] for i in sp4.synonyms])
         self.assertEquals(sp2.accepted.epithet, sp1.epithet)  # just added
         self.assertEquals(sp3.accepted.epithet, sp1.epithet)  # no change
         sp2.accepted = sp4  # (1 3), (4 2)
         self.session.flush()
-        print 'synonyms of 1', [i.epithet[-1] for i in sp1.synonyms]
-        print 'synonyms of 4', [i.epithet[-1] for i in sp4.synonyms]
+        print('synonyms of 1', [i.epithet[-1] for i in sp1.synonyms])
+        print('synonyms of 4', [i.epithet[-1] for i in sp4.synonyms])
         self.assertEquals([i.epithet for i in sp4.synonyms], [sp2.epithet])
         self.assertEquals([i.epithet for i in sp1.synonyms], [sp3.epithet])
         self.assertEquals(sp1.accepted, None)
@@ -1120,7 +1122,7 @@ class SpeciesTests(PlantTestCase):
         # effect
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
-        print self.invoked
+        print(self.invoked)
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove the species <i>Carica \u200bpapaya</i>?')
                         in self.invoked)
         self.assertEquals(result, None)
@@ -1147,7 +1149,7 @@ class SpeciesTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove the species <i>Carica \u200bpapaya</i>?')
@@ -1181,7 +1183,7 @@ class SpeciesTests(PlantTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', u'The species <i>Carica \u200bpapaya</i> has 1 accessions.\n\nYou cannot remove a species with accessions.')
@@ -1950,7 +1952,7 @@ class PresenterTest(PlantTestCase):
         'while binomial name in view matches database item, warn user'
 
         raise SkipTest('Not Implemented')  # presenter uses view internals
-        from species_editor import SpeciesEditorPresenter
+        from .species_editor import SpeciesEditorPresenter
         model = Species.retrieve_or_create(
             self.session, {'object': 'taxon',
                            'ht-rank': 'genus',

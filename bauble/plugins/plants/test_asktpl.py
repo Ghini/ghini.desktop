@@ -21,6 +21,8 @@
 # Description: test for the Plant plugin
 #
 
+from __future__ import print_function
+from __future__ import absolute_import
 from bauble.test import BaubleTestCase
 import requests
 
@@ -34,12 +36,12 @@ def requests_get(x, timeout=None):
     }
     result = type('FooBar', (object,), {})()
     result.text = answers.get(x, "")
-    print x
+    print(x)
     return result
 
 requests.get = requests_get
 
-from ask_tpl import AskTPL, what_to_do_with_it
+from .ask_tpl import AskTPL, what_to_do_with_it
 
 class TestOne(BaubleTestCase):
 

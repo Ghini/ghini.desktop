@@ -155,11 +155,11 @@ def retrieve_latest_release_date():
         bauble.installation_date = last_modified_date.isoformat() + "Z"
     except urllib2.URLError:
         logger.info('connection is slow or down')
-    except ssl.SSLError, e:
+    except ssl.SSLError as e:
         logger.info('SSLError %s while checking for newer version' % e)
     except urllib2.HTTPError:
         logger.info('HTTPError while checking for newer version')
-    except Exception, e:
+    except Exception as e:
         logger.warning('unhandled %s(%s) while checking for newer version'
                        % (type(e), e))
 
@@ -193,11 +193,11 @@ def check_and_notify_new_version(view):
             GObject.idle_add(show_message_box)
     except urllib2.URLError:
         logger.info('connection is slow or down')
-    except ssl.SSLError, e:
+    except ssl.SSLError as e:
         logger.info('SSLError %s while checking for newer version' % e)
     except urllib2.HTTPError:
         logger.info('HTTPError while checking for newer version')
-    except Exception, e:
+    except Exception as e:
         logger.warning('unhandled %s(%s) while checking for newer version'
                        % type(e), e)
 

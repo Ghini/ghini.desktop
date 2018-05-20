@@ -48,7 +48,7 @@ def get_submissions(user, pw, host, form_id, to_skip=[]):
                                                  'host': host} +
                                   submission_format % {'group_name': 'plant_form',
                                                        'uuid': uuid}), auth=auth)
-        except requests.exceptions.ConnectionError, e:
+        except requests.exceptions.ConnectionError as e:
             continue
         root = ET.fromstring(reply.text)
         data = root[0]  # media may follow

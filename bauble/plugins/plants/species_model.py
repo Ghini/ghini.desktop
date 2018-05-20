@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import absolute_import
 from itertools import chain
 
 import logging
@@ -57,7 +58,7 @@ class VNList(list):
         try:
             if vn.species.default_vernacular_name == vn:
                 del vn.species.default_vernacular_name
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
 
 
@@ -601,7 +602,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     @classmethod
     def retrieve(cls, session, keys):
-        from genus import Genus
+        from .genus import Genus
         try:
             return session.query(cls).filter(
                 cls.sp == keys['epithet']).join(Genus).filter(
@@ -611,7 +612,7 @@ class Species(db.Base, db.Serializable, db.DefiningPictures, db.WithNotes):
 
     @classmethod
     def compute_serializable_fields(cls, session, keys):
-        from genus import Genus
+        from .genus import Genus
         result = {'genus': None}
         ## retrieve genus object
         specifies_family = keys.get('familia')
@@ -653,7 +654,7 @@ def compute_serializable_fields(cls, session, keys):
     return result
 
 def retrieve(cls, session, keys):
-    from genus import Genus
+    from .genus import Genus
     genus, epithet = keys['species'].split(' ', 1)
     try:
         return session.query(cls).filter(
@@ -753,7 +754,7 @@ class VernacularName(db.Base, db.Serializable):
 
     @classmethod
     def retrieve(cls, session, keys):
-        from genus import Genus
+        from .genus import Genus
         g_epithet, s_epithet = keys['species'].split(' ', 1)
         sp = session.query(Species).filter(
             Species.sp == s_epithet).join(Genus).filter(

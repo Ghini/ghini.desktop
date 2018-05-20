@@ -95,7 +95,7 @@ class DateValidator(Validator):
                                      yearfirst=yearfirst, default=default)
             if date.year == default_year:
                 raise ValueError
-        except Exception, e:
+        except Exception as e:
             raise ValidatorError(str(e))
         return value
 
@@ -237,7 +237,7 @@ class GenericEditorView(object):
         for widget_name, markup in self._tooltips.iteritems():
             try:
                 self.widgets[widget_name].set_tooltip_markup(markup)
-            except Exception, e:
+            except Exception as e:
                 values = dict(widget_name=widget_name, exception=e)
                 logger.debug(_('Couldn\'t set the tooltip on widget '
                                '%(widget_name)s\n\n%(exception)s') % values)
@@ -280,7 +280,7 @@ class GenericEditorView(object):
                 filename = chooser.get_filename()
                 if filename:
                     self.widget_set_value(target, filename)
-        except Exception, e:
+        except Exception as e:
             logger.warning("unhandled %s exception in editor.py: %s" %
                            (type(e), e))
         chooser.destroy()
@@ -377,7 +377,7 @@ class GenericEditorView(object):
         for s in self.signals:
             try:
                 handler = getattr(target, s.get('handler'))
-            except AttributeError, text:
+            except AttributeError as text:
                 logger.debug("AttributeError: %s" % text)
                 continue
             signaller = getattr(self.widgets, s.getparent().get('id'))
@@ -1087,7 +1087,7 @@ class GenericEditorPresenter(object):
         if session is None:
             try:
                 self.session = object_session(model)
-            except Exception, e:
+            except Exception as e:
                 logger.debug("GenericEditorPresenter::__init__ - %s, %s" % (type(e), e))
 
             if self.session is None:  # object_session gave None without error
@@ -1213,9 +1213,9 @@ class GenericEditorPresenter(object):
             self.session.commit()
             try:
                 bauble.gui.get_view().update()
-            except Exception, e:
+            except Exception as e:
                 pass
-        except Exception, e:
+        except Exception as e:
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -1529,7 +1529,7 @@ class GenericEditorPresenter(object):
             try:
                 value = validator.to_python(value)
                 self.remove_problem('BAD_VALUE_%s' % attr)
-            except ValidatorError, e:
+            except ValidatorError as e:
                 logger.debug("GenericEditorPresenter.set_model_attr %s" % e)
                 self.add_problem('BAD_VALUE_%s' % attr)
             else:
@@ -1564,7 +1564,7 @@ class GenericEditorPresenter(object):
                     value = self.wrapped.to_python(value)
                     self.presenter.remove_problem('BAD_VALUE_%s'
                                                   % model_attr, widget)
-                except Exception, e:
+                except Exception as e:
                     logger.debug("GenericEditorPresenter.ProblemValidator"
                                  ".to_python %s" % e)
                     self.presenter.add_problem('BAD_VALUE_%s'
@@ -1824,9 +1824,9 @@ class GenericModelViewPresenterEditor(object):
             self.session.commit()
             try:
                 bauble.gui.get_view().update()
-            except Exception, e:
+            except Exception as e:
                 pass
-        except Exception, e:
+        except Exception as e:
             logger.warning("can't commit changes: (%s) %s" % (type(e), e))
             self.session.rollback()
             self.session.add_all(objs)
@@ -1940,7 +1940,7 @@ class NoteBox(Gtk.HBox):
         text = entry.props.text
         try:
             text = DateValidator().to_python(text)
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
             self.presenter.add_problem(PROBLEM, entry)
         else:
@@ -2086,13 +2086,13 @@ class PictureBox(NoteBox):
                     pixbuf = fullbuf.scale_simple(
                         x, y, GdkPixbuf.InterpType.BILINEAR)
                 im.set_from_pixbuf(pixbuf)
-            except glib.GError, e:
+            except glib.GError as e:
                 logger.debug("picture %s caused glib.GError %s" %
                              (basename, e))
                 label = _('picture file %s not found.') % basename
                 im = Gtk.Label()
                 im.set_text(label)
-            except Exception, e:
+            except Exception as e:
                 logger.warning("can't commit changes: (%s) %s" % (type(e), e))
                 im = Gtk.Label()
                 im.set_text(e)
@@ -2128,7 +2128,7 @@ class PictureBox(NoteBox):
                 ## store basename in note field and fire callbacks.
                 self.set_model_attr('note', basename)
                 self.set_content(basename)
-        except Exception, e:
+        except Exception as e:
             logger.warning("unhandled exception in editor.py: "
                            "(%s)%s" % (type(e), e))
         fileChooserDialog.destroy()

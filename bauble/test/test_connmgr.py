@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import os
 
 ## just keeping it here because I am forgetful and I never recall how to
@@ -484,7 +485,7 @@ class AddConnectionTests(BaubleTestCase):
                         in presenter.view.invoked_detailed)
         self.assertTrue(('widget_set_value', ['name_combo', 'new_conn', ()])
                         in presenter.view.invoked_detailed)
-        print presenter.view.invoked_detailed
+        print(presenter.view.invoked_detailed)
         raise SkipTest("related to issue #194")
 
 

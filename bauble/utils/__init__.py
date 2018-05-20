@@ -124,9 +124,9 @@ def copy_picture_with_thumbnail(path, basename=None):
         im.save(output, format='JPEG')
         im_data = output.getvalue()
         result = base64.b64encode(im_data)
-    except IOError, e:
+    except IOError as e:
         logger.warning("can't make thumbnail")
-    except Exception, e:
+    except Exception as e:
         logger.warning("unexpected exception making thumbnail: "
                        "(%s)%s" % (type(e), e))
     return result
@@ -168,14 +168,14 @@ class ImageLoader(threading.Thread):
                 image = Gtk.Image()
                 self.box.add(image)
             image.set_from_pixbuf(scaled_buf)
-        except glib.GError, e:
+        except glib.GError as e:
             logger.debug("picture %s caused glib.GError %s" %
                          (self.url, e))
             text = _('picture file %s not found.') % self.url
             label = Gtk.Label()
             label.set_text(text)
             self.box.add(label)
-        except Exception, e:
+        except Exception as e:
             logger.warning("picture %s caused Exception %s:%s" %
                            (self.url, type(e), e))
             label = Gtk.Label()
@@ -988,7 +988,7 @@ def reset_sequence(column):
             stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
                 % (sequence_name, column.name, column.table.name)
         conn.execute(stmt)
-    except Exception, e:
+    except Exception as e:
         logger.warning('bauble.utils.reset_sequence(): %s' % utf8(e))
         trans.rollback()
     else:
@@ -1094,7 +1094,7 @@ def range_builder(text):
     token = None
     try:
         tokens = range_list.parseString(text)
-    except (AttributeError, ParseException), e:
+    except (AttributeError, ParseException) as e:
         logger.debug(e)
         return []
     values = set()

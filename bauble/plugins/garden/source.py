@@ -428,7 +428,7 @@ class CollectionPresenter(editor.ChildPresenter):
         PROBLEM = 'INVALID_DATE'
         try:
             value = editor.DateValidator().to_python(entry.props.text)
-        except ValidatorError, e:
+        except ValidatorError as e:
             logger.debug(e)
             self.parent_ref().add_problem(PROBLEM, entry)
         else:
@@ -446,7 +446,7 @@ class CollectionPresenter(editor.ChildPresenter):
             # make sure that the first part of the string is an
             # integer before toggling
             int(lon_text.split(' ')[0])
-        except Exception, e:
+        except Exception as e:
             logger.warn("east-west %s(%s)" % (type(e), e))
             return
 
@@ -466,7 +466,7 @@ class CollectionPresenter(editor.ChildPresenter):
             # make sure that the first part of the string is an
             # integer before toggling
             int(lat_text.split(' ')[0])
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
             return
 
@@ -774,7 +774,7 @@ def source_detail_remove_callback(details):
         obj = session.query(Contact).get(detail.id)
         session.delete(obj)
         session.commit()
-    except Exception, e:
+    except Exception as e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=Gtk.MessageType.ERROR)

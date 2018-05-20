@@ -22,6 +22,7 @@
 # Genera table module
 #
 
+from __future__ import absolute_import
 import os
 import traceback
 import weakref
@@ -103,7 +104,7 @@ def remove_callback(genera):
         obj = session.query(Genus).get(genus.id)
         session.delete(obj)
         session.commit()
-    except Exception, e:
+    except Exception as e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=Gtk.MessageType.ERROR)
@@ -327,7 +328,7 @@ class Genus(db.Base, db.Serializable, db.WithNotes):
 
     @classmethod
     def compute_serializable_fields(cls, session, keys):
-        from family import Family
+        from .family import Family
         result = {'family': None}
         ## retrieve family object
         if keys.get('ht-epithet'):
@@ -776,12 +777,12 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except DBAPIError, e:
+            except DBAPIError as e:
                 msg = (_('Error committing changes.\n\n%s') %
                        utils.xml_safe(e.orig))
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 return False
-            except Exception, e:
+            except Exception as e:
                 msg = (_('Unknown error when committing changes. See the '
                          'details for more information.\n\n%s') %
                        utils.xml_safe(e))

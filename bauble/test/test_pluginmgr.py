@@ -167,7 +167,7 @@ class PluginMgrTests(BaubleTestCase):
                 try:
                     csv.start([filenames], metadata=db.metadata,
                               force=True)
-                except Exception, e:
+                except Exception as e:
                     logger.error(e)
                     raise
                 from bauble.plugins.plants import Family

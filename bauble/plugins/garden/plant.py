@@ -96,7 +96,7 @@ def remove_callback(plants):
         session.delete(obj)
     try:
         session.commit()
-    except Exception, e:
+    except Exception as e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
 
         utils.message_details_dialog(msg, traceback.format_exc(),
@@ -139,7 +139,7 @@ def get_next_code(acc):
     if codes:
         try:
             next = max([int(code[0]) for code in codes])+1
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
             return None
     return utils.utf8(next)
@@ -201,7 +201,7 @@ class PlantSearch(SearchStrategy):
                 Plant.code == unicode(plant_code)).join(Accession).filter(
                 utils.ilike(Accession.code, u'%%%s' % unicode(acc_code)))
             return query.all()
-        except Exception, e:
+        except Exception as e:
             logger.debug("%s %s" % (e.__class__.name, e))
             return []
 
@@ -799,7 +799,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         value = entry.props.text
         try:
             value = int(value)
-        except ValueError, e:
+        except ValueError as e:
             logger.debug(e)
             value = None
         self.set_model_attr('quantity', value)
@@ -859,7 +859,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.model.quantity is not None,
                           self.is_dirty(),
                           len(self.problems) == 0))
-        except OperationalError, e:
+        except OperationalError as e:
             logger.debug('(%s)%s' % (type(e), e))
             return
         logger.debug(self.problems)
@@ -1093,14 +1093,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     # commit_changes() will append the commited plants
                     # to self._committed
                     self.commit_changes()
-            except DBAPIError, e:
+            except DBAPIError as e:
                 exc = traceback.format_exc()
                 logger.debug(exc)
                 msg = _('Error committing changes.\n\n%s') % e.orig
                 utils.message_details_dialog(msg, str(e), Gtk.MessageType.ERROR)
                 self.session.rollback()
                 return False
-            except Exception, e:
+            except Exception as e:
                 msg = _('Unknown error when committing changes. See the '
                         'details for more information.\n\n%s') \
                     % utils.xml_safe(e)

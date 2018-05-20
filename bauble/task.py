@@ -132,7 +132,7 @@ def set_message(msg):
     global _context_id
     try:
         _context_id
-    except NameError, e:
+    except NameError as e:
         # this is expected to happen, it's normal behaviour.
         logger.info(e)  # global name '_context_id' is not defined
         _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')

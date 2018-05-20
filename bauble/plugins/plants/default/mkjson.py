@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import csv
 synonym = {}
 
@@ -52,6 +53,6 @@ with open("genus.txt") as f:
             acc_part = ', "accepted": "%s"' % genus[synonym[genid]]
         else:
             acc_part = ''
-        print ' {"object": "taxon", "rank": "genus", "epithet": "%s", '\
+        print(' {"object": "taxon", "rank": "genus", "epithet": "%s", '\
             '"author": "%s", "ht-rank": "familia", "ht-epithet": "%s"%s},' \
-            % (name, author, family[famid], acc_part)
+            % (name, author, family[famid], acc_part))

@@ -20,6 +20,8 @@
 #
 # Description: the default view
 #
+from __future__ import print_function
+from __future__ import absolute_import
 import itertools
 import os
 import sys
@@ -345,7 +347,7 @@ class LinksExpander(InfoExpander):
                 klass = type(link['name'], (BaubleLinkButton, ),
                              link)
                 self.buttons.append(klass())
-            except Exception, e:
+            except Exception as e:
                 logger.debug('wrong link definition %s, %s(%s)' %
                              (link, type(e), e))
         for b in self.buttons:
@@ -528,7 +530,7 @@ class SearchView(pluginmgr.View):
 
         self.create_gui()
 
-        import pictures_view
+        from . import pictures_view
         pictures_view.floating_window = pictures_view.PicturesView(
             parent=self.widgets.search_h2pane)
 
@@ -582,8 +584,8 @@ class SearchView(pluginmgr.View):
             # fire it
             bauble.gui.widgets.main_comboentry.child.set_text(query)
             bauble.gui.widgets.go_button.emit("clicked")            
-        except Exception, e:
-            print type(e), e
+        except Exception as e:
+            print(type(e), e)
         pass
         
     def add_page_to_bottom_notebook(self, bottom_info):
@@ -713,7 +715,7 @@ class SearchView(pluginmgr.View):
 
         try:
             set_infobox_from_row(values[0])
-        except Exception, e:
+        except Exception as e:
             # if an error occurrs, log it and empty infobox.
             logger.debug('SearchView.update_infobox: %s' % e)
             logger.debug(traceback.format_exc())
@@ -806,9 +808,9 @@ class SearchView(pluginmgr.View):
         results = []
         try:
             results = search.search(text, self.session)
-        except ParseException, err:
+        except ParseException as err:
             error_msg = _('Error in search string at column %s') % err.column
-        except (BaubleError, AttributeError, Exception, SyntaxError), e:
+        except (BaubleError, AttributeError, Exception, SyntaxError) as e:
             logger.debug(traceback.format_exc())
             error_msg = _('** Error: %s') % utils.xml_safe(e)
             error_details_msg = utils.xml_safe(traceback.format_exc())
@@ -850,7 +852,7 @@ class SearchView(pluginmgr.View):
                     task = self._populate_worker(results)
                     while True:
                         try:
-                            task.next()
+                            next(task)
                         except StopIteration:
                             break
                 logger.debug(time.time() - start)
@@ -896,13 +898,13 @@ class SearchView(pluginmgr.View):
             kids = self.row_meta[type(row)].get_children(row)
             if len(kids) == 0:
                 return True
-        except saexc.InvalidRequestError, e:
+        except saexc.InvalidRequestError as e:
             logger.debug(utils.utf8(e))
             model = self.results_view.get_model()
             for found in utils.search_tree_model(model, row):
                 model.remove(found)
             return True
-        except Exception, e:
+        except Exception as e:
             logger.debug(utils.utf8(e))
             logger.debug(traceback.format_exc())
             return True
@@ -1033,7 +1035,7 @@ class SearchView(pluginmgr.View):
                     (_mainstr_tmpl % utils.utf8(main),
                      _substr_tmpl % utils.utf8(substr)))
 
-            except (saexc.InvalidRequestError, TypeError), e:
+            except (saexc.InvalidRequestError, TypeError) as e:
                 logger.warning(
                     'bauble.view.SearchView.cell_data_func(): \n(%s)%s' %
                     (type(e), e))
@@ -1046,7 +1048,7 @@ class SearchView(pluginmgr.View):
                     self.results_view.set_model(model)
                 GObject.idle_add(remove)
 
-            except Exception, e:
+            except Exception as e:
                 logger.error(
                     'bauble.view.SearchView.cell_data_func(): \n(%s)%s' %
                     (type(e), e))
@@ -1124,7 +1126,7 @@ class SearchView(pluginmgr.View):
                         # in an session...maybe it's a thread thing
                         values = self.get_selected_values()
                         result = cb(values)
-                    except Exception, e:
+                    except Exception as e:
                         msg = utils.xml_safe(str(e))
                         tb = utils.xml_safe(traceback.format_exc())
                         utils.message_details_dialog(

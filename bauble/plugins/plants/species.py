@@ -20,6 +20,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 
+from __future__ import absolute_import
 from gi.repository import Gtk
 
 import logging
@@ -93,7 +94,7 @@ def remove_callback(values):
         obj = session.query(Species).get(species.id)
         session.delete(obj)
         session.commit()
-    except Exception, e:
+    except Exception as e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=Gtk.MessageType.ERROR)
@@ -144,7 +145,7 @@ class SynonymSearch(search.SearchStrategy):
             prefs.save()
 
     def search(self, text, session):
-        from genus import Genus, GenusSynonym
+        from .genus import Genus, GenusSynonym
         super(SynonymSearch, self).search(text, session)
         if not prefs[self.return_synonyms_pref]:
             return []

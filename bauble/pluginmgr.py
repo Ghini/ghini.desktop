@@ -149,7 +149,7 @@ def load(path=None):
         # issue #27: should we include the module name of the plugin to
         # allow for plugin namespaces or just assume that the plugin class
         # name is unique?
-        if isinstance(plugin, (type, types.ClassType)):
+        if isinstance(plugin, type):
             plugins[plugin.__name__] = plugin
             logger.debug("registering plugin %s: %s"
                          % (plugin.__name__, plugin))
@@ -206,7 +206,7 @@ def init(force=False):
         for name in PluginRegistry.names():
             try:
                 registered.append(plugins[name])
-            except KeyError, e:
+            except KeyError as e:
                 logger.debug("could not find '%s' plugin. "
                              "removing from database" % e)
                 not_registered.append(utils.utf8(name))
@@ -218,7 +218,7 @@ def init(force=False):
                 {'plugins': utils.utf8(', '.join(sorted(not_registered)))}
             utils.message_dialog(utils.xml_safe(msg), type=Gtk.MessageType.WARNING)
 
-    except Exception, e:
+    except Exception as e:
         logger.warning('unhandled exception %s' % e)
         raise
 
@@ -239,7 +239,7 @@ def init(force=False):
         try:
             plugin.init()
             logger.debug('plugin %s initialized' % plugin)
-        except KeyError, e:
+        except KeyError as e:
             # keep the plugin in the registry so if we find it again we do
             # not offer the user the option to reinstall it, something which
             # could overwrite data
@@ -248,7 +248,7 @@ def init(force=False):
                      "but isn't wasn't found in the plugin directory")
                    % dict(plugin_name=plugin.__class__.__name__))
             logger.warning(msg)
-        except Exception, e:
+        except Exception as e:
             logger.error("%s: %s" % (type(e), e))
             ordered.remove(plugin)
             logger.debug(traceback.print_exc())
@@ -268,7 +268,7 @@ def init(force=False):
         for cmd in plugin.commands:
             try:
                 register_command(cmd)
-            except Exception, e:
+            except Exception as e:
                 logger.debug("exception %s while registering command %s"
                              % (e, cmd))
                 msg = 'Error: Could not register command handler.\n\n%s' % \
@@ -329,7 +329,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             if not PluginRegistry.exists(p):
                 logger.debug('%s - adding to registry' % p)
                 PluginRegistry.add(p)
-    except Exception, e:
+    except Exception as e:
         logger.warning('bauble.pluginmgr.install(): %s' % utils.utf8(e))
         raise
 
@@ -413,7 +413,7 @@ class PluginRegistry(db.Base):
             session.query(PluginRegistry).\
                 filter_by(name=utils.utf8(name)).one()
             return True
-        except orm_exc.NoResultFound, e:
+        except orm_exc.NoResultFound as e:
             logger.debug(e)
             return False
         finally:
@@ -587,7 +587,7 @@ def _find_plugins(path):
         else:
             try:
                 mod = __import__(name, globals(), locals(), [name], -1)
-            except Exception, e:
+            except Exception as e:
                 msg = _('Could not import the %(module)s module.\n\n'
                         '%(error)s') % {'module': name, 'error': e}
                 logger.debug(msg)
@@ -606,7 +606,7 @@ def _find_plugins(path):
             logger.debug('module %s contains non callable plugin: %s'
                          % (mod, mod_plugin))
 
-        is_plugin_class = lambda p: (isinstance(p, (type, types.ClassType))
+        is_plugin_class = lambda p: (isinstance(p, type)
                                      and issubclass(p, Plugin))
         is_plugin_instance = lambda p: (isinstance(p, Plugin))
         if isinstance(mod_plugin, (list, tuple)):

@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import os
 import datetime
 from unittest import TestCase
@@ -1451,7 +1452,7 @@ class AccessionTests(GardenTestCase):
         self.editor = AccessionEditor(model=acc)
         try:
             self.editor.start()
-        except Exception, e:
+        except Exception as e:
             import traceback
             logger.debug(traceback.format_exc(0))
             logger.debug(e)
@@ -1477,7 +1478,7 @@ class AccessionTests(GardenTestCase):
 
         # effect
         self.assertFalse('message_details_dialog' in [f for (f, m) in self.invoked])
-        print self.invoked
+        print(self.invoked)
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove accession <b>010101</b>?')
                         in self.invoked)
         self.assertEquals(result, None)
@@ -1507,7 +1508,7 @@ class AccessionTests(GardenTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('yes_no_dialog', u'Are you sure you want to remove accession <b>010101</b>?')
@@ -1541,7 +1542,7 @@ class AccessionTests(GardenTestCase):
         self.session.flush()
 
         # effect
-        print self.invoked
+        print(self.invoked)
         self.assertFalse('message_details_dialog' in
                          [f for (f, m) in self.invoked])
         self.assertTrue(('message_dialog', u'1 plants depend on this accession: <b>010101.1</b>\n\n'
@@ -1803,7 +1804,7 @@ class InstitutionPresenterTests(GardenTestCase):
         o = Institution()
         p = InstitutionPresenter(o, view)
         p.on_inst_register_clicked()
-        print self.handler.messages['bauble.registrations']['info'][0]
+        print(self.handler.messages['bauble.registrations']['info'][0])
         target = [('fax', None), ('address', None), ('name', ''), 
                                   ('contact', None), ('technical_contact', None), ('geo_diameter', None), 
                                   ('abbreviation', None), ('code', None), ('geo_longitude', None), 

@@ -80,7 +80,7 @@ class UnicodeReader(object):
         self.encoding = encoding
 
     def next(self):
-        row = self.reader.next()
+        row = next(self.reader)
         t = {}
         for k, v in row.iteritems():
             if v == '':
@@ -256,7 +256,7 @@ class CSVImporter(Importer):
             # up the parent connection and the transaction
             connection = metadata.bind.connect()
             transaction = connection.begin()
-        except Exception, e:
+        except Exception as e:
             msg = _('Error connecting to database.\n\n%s') % \
                 utils.xml_safe(e)
             utils.message_dialog(msg, Gtk.MessageType.ERROR)
@@ -284,7 +284,7 @@ class CSVImporter(Importer):
         for table in metadata.sorted_tables:
             try:
                 sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
-            except KeyError, e:
+            except KeyError as e:
                 # table.name not in list of filenames
                 pass
 
@@ -405,7 +405,7 @@ class CSVImporter(Importer):
                 f = open(filename, "rb")
                 tmp = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                     quoting=QUOTE_STYLE)
-                tmp.next()
+                next(tmp)
                 csv_columns = set(tmp.reader.fieldnames)
                 del tmp
                 f.close()
@@ -510,10 +510,10 @@ class CSVImporter(Importer):
             # TODO: need to get those tables from depends that need to
             # be created but weren't created already
             metadata.create_all(connection, depends, checkfirst=True)
-        except GeneratorExit, e:
+        except GeneratorExit as e:
             transaction.rollback()
             raise
-        except Exception, e:
+        except Exception as e:
             logger.error(e)
             logger.error(traceback.format_exc())
             transaction.rollback()
@@ -531,7 +531,7 @@ class CSVImporter(Importer):
             for table, filename in sorted_tables:
                 for col in table.c:
                     utils.reset_sequence(col)
-        except Exception, e:
+        except Exception as e:
             col_name = None
             try:
                 col_name = col.name
@@ -594,7 +594,7 @@ class CSVExporter(object):
             # TODO: should we support exporting other metadata
             # besides db.metadata
             bauble.task.queue(self.__export_task(path))
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
 
     def __export_task(self, path):

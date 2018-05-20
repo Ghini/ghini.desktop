@@ -20,6 +20,7 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import absolute_import
 import weakref
 
 from gi.repository import Gtk
@@ -42,7 +43,7 @@ import bauble.utils as utils
 
 from bauble.editor import (
     GenericEditorView, GenericEditorPresenter)
-from querybuilderparser import BuiltQuery
+from .querybuilderparser import BuiltQuery
 
 
 def search(text, session=None):
@@ -1342,7 +1343,7 @@ class QueryBuilder(GenericEditorPresenter):
         # locate domain in list of valid domains
         try:
             index = sorted(self.domain_map.keys()).index(parsed.domain)
-        except ValueError, e:
+        except ValueError as e:
             logger.debug('cannot restore query, %s(%s)' % (type(e), e))
             return
         # and set the domain_combo correspondently
