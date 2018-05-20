@@ -839,7 +839,7 @@ def to_unicode(obj, encoding='utf-8'):
         try:
             obj = unicode(obj, encoding)
         except Exception:
-            obj = unicode(str(obj), encoding)
+            obj = u"%s" % obj
     return obj
 
 
