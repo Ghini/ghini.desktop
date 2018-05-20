@@ -466,7 +466,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
                 self._dirty = True
             self.parent_ref().refresh_sensitivity()
 
-        alignment = Gtk.Alignment.new()
+        alignment = Gtk.Alignment.new(0, 0.5, 1, 1)
         hbox.pack_start(alignment, False, False, 0)
         button_box = Gtk.HBox(spacing=5)
         alignment.add(button_box)
