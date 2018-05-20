@@ -250,7 +250,7 @@ dbengine.html#create-engine-url-arguments>`_
     # level specified by BAUBLE_LOGGING, or at INFO level.
     filename = os.path.join(paths.appdata_dir(), 'bauble.log')
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(thread)d - %(message)s')
+        u'%(asctime)s - %(name)s - %(levelname)s - %(thread)d - %(message)s')
     fileHandler = logging.FileHandler(filename, 'w+')
     logging.getLogger().addHandler(fileHandler)
     consoleHandler = logging.StreamHandler()
