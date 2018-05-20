@@ -19,7 +19,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
-from __future__ import unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
@@ -585,7 +584,7 @@ class WithNotes:
                 try:
                     return json.loads(re.sub(r'(\w+)[ ]*(?=:)', r'"\g<1>"', n.note))
                 except Exception, e:
-                    logger.debug('not parsed %s(%s), returning literal text »%s«', type(e), e, n.note)
+                    logger.debug(u'not parsed %s(%s), returning literal text »%s«', type(e), e, n.note)
                     return n.note
         if result == []:
             # if nothing was found, do not break the proxy.
