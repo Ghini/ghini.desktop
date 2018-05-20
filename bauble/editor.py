@@ -23,6 +23,8 @@
 # editors for Ghini data
 #
 
+from __future__ import unicode_literals
+
 import datetime
 import os
 import sys
@@ -1267,7 +1269,7 @@ class GenericEditorPresenter(object):
         if attr is None:
             return
         value = self.view.widget_get_value(widget)
-        logger.debug(u"on_text_entry_changed(%s, %s) - %s → %s"
+        logger.debug("on_text_entry_changed(%s, %s) - %s → %s"
                      % (widget, attr, getattr(self.model, attr), value))
         self.__set_model_attr(attr, value)
         return value

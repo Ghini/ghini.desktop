@@ -22,6 +22,8 @@
 #
 # Description: handle import and exporting from a simple XML format
 #
+from __future__ import unicode_literals
+
 import os
 import traceback
 
