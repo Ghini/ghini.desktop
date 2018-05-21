@@ -20,11 +20,11 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 #
 # utils module
+# 
+# A common set of utility functions used throughout Ghini.
 #
+from __future__ import unicode_literals
 
-"""
-A common set of utility functions used throughout Ghini.
-"""
 import datetime
 import os
 import re
@@ -208,7 +208,7 @@ class ImageLoader(threading.Thread):
             for piece in read_in_chunks(f, 4096):
                 self.loader.write(piece)
                 pieces.append(piece)
-        return ''.join(pieces)
+        return b''.join(pieces)
 
     def read_local_url(self):
         self.loader.connect("area-prepared", self.loader_notified)
@@ -217,7 +217,7 @@ class ImageLoader(threading.Thread):
             for piece in read_in_chunks(f, 4096):
                 self.loader.write(piece)
                 pieces.append(piece)
-        return ''.join(pieces)
+        return b''.join(pieces)
 
 
 def find_dependent_tables(table, metadata=None):
@@ -906,7 +906,7 @@ def natsort_key(obj):
     use like: sorted(some_list, key=utils.natsort_key)
     """
 
-    item = str(obj)
+    item = '%s' % obj
     chunks = __natsort_rx.split(item)
     for ii in range(len(chunks)):
         if chunks[ii] and chunks[ii][0] in '0123456789':

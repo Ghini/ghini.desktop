@@ -352,7 +352,7 @@ class LinksExpander(InfoExpander):
                 logger.debug('wrong link definition %s, %s(%s)' %
                              (link, type(e), e))
         for b in self.buttons:
-            b.set_alignment(0, -1)
+            b.set_alignment(0, 1)
             self.vbox.pack_start(b, True, True, 0)
 
     def update(self, row):
@@ -620,7 +620,7 @@ class SearchView(pluginmgr.View):
         """
         values = self.get_selected_values()
         ## Only one should be selected
-        if len(values) != 1:
+        if values is None or len(values) != 1:
             self.view.widget_set_visible('bottom_notebook', False)
             return
 

@@ -24,6 +24,7 @@
 The top level module for Ghini.
 """
 from __future__ import print_function
+from __future__ import unicode_literals
 
 import logging
 logger = logging.getLogger(__name__)
@@ -200,7 +201,7 @@ def command_handler(cmd, arg):
         if hasattr(handler_view, 'accel_group'):
             gui.window.add_accel_group(handler_view.accel_group)
     try:
-        last_handler(cmd, arg)
+        last_handler('%s' % cmd, arg)
     except Exception as e:
         msg = utils.xml_safe(e)
         logger.error('bauble.command_handler(): %s' % msg)
