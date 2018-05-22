@@ -54,6 +54,7 @@ class MapViewer(Gtk.Dialog):
 
     def __init__(self, title="", parent=None, *args, **kwargs):
         super(MapViewer, self).__init__(title, parent, *args, **kwargs)
+        self.result = None
         GtkClutter.init([])
 
         self.connect("key-press-event", self.on_key_press)
@@ -83,21 +84,21 @@ class MapViewer(Gtk.Dialog):
         buttons = Clutter.Actor()
         self.clutter_view.add_child(buttons)
 
-	button = self.make_button('confirm')
+	button = self.make_button(_('OK'))
 	button.set_position(offset, PADDING)
 	(width, height) = button.get_size()
         offset += width + PADDING
         buttons.add_child(button)
         button.set_reactive(True)
-	button.connect('button-release-event', self.on_clutter_button)
+	button.connect('button-release-event', self.on_clutter_ok_button)
 
-	button = self.make_button('abort')
+	button = self.make_button(_('Cancel'))
 	button.set_position(offset, PADDING)
 	(width, height) = button.get_size()
         offset += width + PADDING
 	buttons.add_child(button)
         button.set_reactive(True)
-	button.connect('button-release-event', self.on_clutter_button)
+	button.connect('button-release-event', self.on_clutter_cancel_button)
 
         self.clutter_view.center_on(5.0, 13.0)
         self.clutter_view.set_zoom_level(1)
@@ -175,11 +176,14 @@ class MapViewer(Gtk.Dialog):
             self.marker_circle.set_location(lat, lon)
             self.on_marker_button_release(self.marker_circle, event.x - x, event.y - y, None)
 
-    def on_clutter_button(self, widget, event):
+    def on_clutter_ok_button(self, widget, event):
         if self.layer is None:
             return
-        print(self.marker_centre.get_latitude(), self.marker_centre.get_longitude())
-        print(self.marker_through.get_latitude(), self.marker_through.get_longitude())
+        self.result = self.get_centre()
+        self.response(Gtk.ResponseType.OK)
+
+    def on_clutter_cancel_button(self, widget, event):
+        self.response(Gtk.ResponseType.CANCEL)
 
     def on_animation_completed(self, *args, **kwargs):
         if self.layer is None:
@@ -398,17 +402,16 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
             return SentryHandler(sentry_client)
 
     def on_select_map_clicked(self, *args, **kwargs):
-        map = MapViewer('zoom to garden', self.view.get_window())
+        map = MapViewer(_('Zoom to garden'), self.view.get_window())
         try:
             map.set_centre(float(self.model.geo_latitude), float(self.model.geo_longitude), float(self.model.geo_diameter))
         except Exception as e:
-            print(type(e).__name__, e)
             pass
-        map.run()
-        lat, lon, diam = map.get_centre()
-        self.view.widget_set_value('inst_geo_latitude', "%0.6f" % lat)
-        self.view.widget_set_value('inst_geo_longitude', "%0.6f" % lon)
-        self.view.widget_set_value('inst_geo_diameter', "%0.0f" % diam)
+        if map.run() == Gtk.ResponseType.OK:
+            lat, lon, diam = map.result
+            self.view.widget_set_value('inst_geo_latitude', "%0.6f" % lat)
+            self.view.widget_set_value('inst_geo_longitude', "%0.6f" % lon)
+            self.view.widget_set_value('inst_geo_diameter', "%0.0f" % diam)
         map.destroy()
 
     def on_inst_register_clicked(self, *args, **kwargs):
