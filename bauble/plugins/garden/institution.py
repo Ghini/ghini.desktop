@@ -158,6 +158,7 @@ class MapViewer(Gtk.Dialog):
         marker_through.set_reactive(True)
         marker_circle.connect("drag-motion", self.on_marker_button_release)
         marker_through.connect("drag-motion", self.on_marker_through_button_release)
+        marker_centre.connect("drag-motion", self.on_marker_centre_button_release)
 
         layer.show()
         return layer
@@ -201,34 +202,10 @@ class MapViewer(Gtk.Dialog):
             lat, lon = self.clutter_view.y_to_latitude(y + dy), self.clutter_view.x_to_longitude(x + dx)
             marker.set_location(lat, lon)
 
-        # we're done, in theory, but the circle is dragged to the top in
-        # Z-order, and I don't know how to push it back, so I'm removing the
-        # other two markers, and adding them again, on top of the circle.
-
-        marker_through = self.marker_through
-        marker_centre = self.marker_centre
-        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7f)
-
-        self.marker_through = Champlain.Point()
-        self.marker_through.set_color(black)
-        self.marker_through.set_size(10)
-        lat, lon = marker_through.get_latitude(), marker_through.get_longitude()
-        self.marker_through.set_location(lat, lon)
-        self.marker_through.set_draggable(True)
-        self.layer.add_marker(self.marker_through)
-        self.layer.remove_marker(marker_through)
-
-        self.marker_centre = Champlain.Point()
-        self.marker_centre.set_color(black)
-        self.marker_centre.set_size(10)
-        lat, lon = marker_circle.get_latitude(), marker_circle.get_longitude()
-        self.marker_centre.set_location(lat, lon)
-        self.marker_centre.set_draggable(True)
-        self.layer.add_marker(self.marker_centre)
-        self.layer.remove_marker(marker_centre)
-
-        self.marker_centre.connect("drag-motion", self.on_marker_centre_button_release)
-        self.marker_through.connect("drag-motion", self.on_marker_through_button_release)
+        # we're done, but the circle is dragged to the top in Z-order.
+        # to push it back, remove it and insert it again at index 0.
+        self.layer.remove_child(self.marker_circle)
+        self.layer.insert_child_at_index(self.marker_circle, 0)
 
     def on_marker_centre_button_release(self, marker_centre, dx, dy, event):
         lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
