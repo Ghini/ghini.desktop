@@ -24,8 +24,17 @@
 #
 
 import os
+import gi
 
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
+
+# mapping stuff
+gi.require_version('GtkClutter', '1.0')
+gi.require_version('GtkChamplain', '0.12')
+gi.require_version('Champlain', '0.12')
+from gi.repository import GtkClutter, Clutter, GtkChamplain
+GtkClutter.init([])  # needed before importing Champlain
+from gi.repository import Champlain
 
 import logging
 logger = logging.getLogger(__name__)
@@ -38,6 +47,258 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
 
+PADDING=6
+import math
+
+class MapViewer(Gtk.Dialog):
+
+    def __init__(self, title="", parent=None, *args, **kwargs):
+        super(MapViewer, self).__init__(title, parent, *args, **kwargs)
+        GtkClutter.init([])
+
+        self.connect("key-press-event", self.on_key_press)
+
+        self.map_widget = GtkChamplain.Embed()
+        self.map_widget.set_size_request(640, 480)
+        self.clutter_view = self.map_widget.get_view()
+        self.clutter_view.set_horizontal_wrap(True)
+
+        box = self.get_content_area()
+        box.add(self.map_widget)
+
+        ## now the Clutter stuff
+        self.map_widget.set_size_request(640, 480)
+        self.clutter_view = self.map_widget.get_view()
+        self.clutter_view.set_horizontal_wrap(True)
+
+        self.layer = None
+
+        self.clutter_view.center_on(5.0, 13.0)
+        self.clutter_view.set_zoom_level(1)
+        self.clutter_view.connect("animation-completed", self.on_animation_completed)
+        self.clutter_view.set_reactive(True)
+        self.clutter_view.connect("button-release-event", self.on_view_button_release)
+
+        offset = PADDING
+        buttons = Clutter.Actor()
+        self.clutter_view.add_child(buttons)
+
+	button = self.make_button('confirm')
+	button.set_position(offset, PADDING)
+	(width, height) = button.get_size()
+        offset += width + PADDING
+        buttons.add_child(button)
+        button.set_reactive(True)
+	button.connect('button-release-event', self.on_clutter_button)
+
+	button = self.make_button('abort')
+	button.set_position(offset, PADDING)
+	(width, height) = button.get_size()
+        offset += width + PADDING
+	buttons.add_child(button)
+        button.set_reactive(True)
+	button.connect('button-release-event', self.on_clutter_button)
+
+        self.clutter_view.center_on(5.0, 13.0)
+        self.clutter_view.set_zoom_level(1)
+        self.show_all()
+
+    def make_button(self, text):
+	black = Clutter.Color.new(0x00, 0x00, 0x00, 0xff)
+	white = Clutter.Color.new(0xff, 0xff, 0xff, 0xff)
+
+	button = Clutter.Actor()
+
+	button_bg = Clutter.Actor()
+	button_bg.set_background_color(white)
+	button_bg.set_opacity(0xcc)
+	button.add_child(button_bg)
+
+	button_text = Clutter.Text.new_full("Sans 10", text, black)
+	button.add_child(button_text)
+
+	(width, height) = button_text.get_size()
+	button_bg.set_size(width + PADDING * 2, height + PADDING * 2)
+	button_bg.set_position(0, 0)
+	button_text.set_position(PADDING, PADDING)
+
+        return button
+
+    def add_marker_layer(self):
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7f)
+        orange = Clutter.Color.new(0xf3, 0x94, 0x07, 0x60)
+        layer = Champlain.MarkerLayer()
+
+        self.marker_circle = marker_circle = Champlain.Point()
+        marker_circle.set_color(orange)
+        marker_circle.set_size(100)
+        marker_circle.set_draggable(True)
+        marker_circle.set_location(7.528178, -80.563788)
+        layer.add_marker(marker_circle)
+
+        self.marker_through = marker_through = Champlain.Point()
+        marker_through.set_color(black)
+        marker_through.set_size(10)
+        lat, lon = marker_circle.get_latitude(), marker_circle.get_longitude()
+        x = self.clutter_view.longitude_to_x(lon) + marker_circle.get_size() / 2
+        lon = self.clutter_view.x_to_longitude(x)
+        marker_through.set_location(lat, lon)
+        marker_through.set_draggable(True)
+        layer.add_marker(marker_through)
+
+        self.marker_centre = marker_centre = Champlain.Point()
+        marker_centre.set_color(black)
+        marker_centre.set_size(10)
+        lat, lon = marker_circle.get_latitude(), marker_circle.get_longitude()
+        marker_centre.set_location(lat, lon)
+        marker_centre.set_draggable(True)
+        layer.add_marker(marker_centre)
+
+        marker_circle.set_reactive(True)
+        marker_through.set_reactive(True)
+        marker_circle.connect("drag-motion", self.on_marker_button_release)
+        marker_through.connect("drag-motion", self.on_marker_through_button_release)
+
+        layer.show()
+        return layer
+
+    def on_view_button_release(self, widget, event):
+        if event.button == 3L:
+            if self.layer is None:
+                self.layer = self.add_marker_layer()
+                self.clutter_view.add_layer(self.layer)
+            lat, lon = self.marker_circle.get_latitude(), self.marker_circle.get_longitude()
+            y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+            lon = self.clutter_view.x_to_longitude(event.x)
+            lat = self.clutter_view.y_to_latitude(event.y)
+            self.marker_circle.set_location(lat, lon)
+            self.on_marker_button_release(self.marker_circle, event.x - x, event.y - y, None)
+
+    def on_clutter_button(self, widget, event):
+        if self.layer is None:
+            return
+        print(self.marker_centre.get_latitude(), self.marker_centre.get_longitude())
+        print(self.marker_through.get_latitude(), self.marker_through.get_longitude())
+
+    def on_animation_completed(self, *args, **kwargs):
+        if self.layer is None:
+            return
+        lat, lon = self.marker_through.get_latitude(), self.marker_through.get_longitude()
+        y2, x2 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+        lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
+        y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+        angle = math.atan2((y2-y), (x2-x))
+        radius = self.marker_circle.get_size() / 2
+        dx = math.cos(angle) * radius
+        dy = math.sin(angle) * radius
+        lat, lon = self.clutter_view.y_to_latitude(y + dy), self.clutter_view.x_to_longitude(x + dx)
+        self.marker_through.set_location(lat, lon)
+
+    def on_marker_button_release(self, marker_circle, dx, dy, event, *args, **kwargs):
+        for marker in [self.marker_through, self.marker_centre]:
+            lat, lon = marker.get_latitude(), marker.get_longitude()
+            y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+            lat, lon = self.clutter_view.y_to_latitude(y + dy), self.clutter_view.x_to_longitude(x + dx)
+            marker.set_location(lat, lon)
+
+        # we're done, in theory, but the circle is dragged to the top in
+        # Z-order, and I don't know how to push it back, so I'm removing the
+        # other two markers, and adding them again, on top of the circle.
+
+        marker_through = self.marker_through
+        marker_centre = self.marker_centre
+        black = Clutter.Color.new(0x00, 0x00, 0x00, 0x7f)
+
+        self.marker_through = Champlain.Point()
+        self.marker_through.set_color(black)
+        self.marker_through.set_size(10)
+        lat, lon = marker_through.get_latitude(), marker_through.get_longitude()
+        self.marker_through.set_location(lat, lon)
+        self.marker_through.set_draggable(True)
+        self.layer.add_marker(self.marker_through)
+        self.layer.remove_marker(marker_through)
+
+        self.marker_centre = Champlain.Point()
+        self.marker_centre.set_color(black)
+        self.marker_centre.set_size(10)
+        lat, lon = marker_circle.get_latitude(), marker_circle.get_longitude()
+        self.marker_centre.set_location(lat, lon)
+        self.marker_centre.set_draggable(True)
+        self.layer.add_marker(self.marker_centre)
+        self.layer.remove_marker(marker_centre)
+
+        self.marker_centre.connect("drag-motion", self.on_marker_centre_button_release)
+        self.marker_through.connect("drag-motion", self.on_marker_through_button_release)
+
+    def on_marker_centre_button_release(self, marker_centre, dx, dy, event):
+        lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
+        self.marker_circle.set_location(lat, lon)
+        self.on_marker_through_button_release(self.marker_through, dx, dy, event)
+
+    def on_marker_through_button_release(self, marker_through, dx, dy, event):
+        lat, lon = marker_through.get_latitude(), marker_through.get_longitude()
+        y2, x2 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+        lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
+        y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+        radius = math.sqrt((x-x2)**2 + (y-y2)**2)
+        self.marker_circle.set_size(radius * 2)
+
+    def on_key_press(self, widget, ev):
+        deltax = self.map_widget.get_allocation().width / 4
+        deltay = self.map_widget.get_allocation().height / 4
+        if ev.keyval == Gdk.KEY_Left:
+            self.scroll(-deltax, 0)
+        elif ev.keyval == Gdk.KEY_Right:
+            self.scroll(deltax, 0)
+        elif ev.keyval == Gdk.KEY_Up:
+            self.scroll(0, -deltay)
+        elif ev.keyval == Gdk.KEY_Down:
+            self.scroll(0, deltay)
+        elif ev.keyval == Gdk.KEY_plus or ev.keyval == Gdk.KEY_KP_Add:
+            self.clutter_view.zoom_in()
+        elif ev.keyval == Gdk.KEY_minus or ev.keyval == Gdk.KEY_KP_Subtract:
+            self.clutter_view.zoom_out()
+        else:
+            return False
+
+    def scroll(self, deltax, deltay):
+        lat = self.clutter_view.get_center_latitude()
+        lon = self.clutter_view.get_center_longitude()
+
+        x = self.clutter_view.longitude_to_x(lon) + deltax
+        y = self.clutter_view.latitude_to_y(lat) + deltay
+
+        lon = self.clutter_view.x_to_longitude(x)
+        lat = self.clutter_view.y_to_latitude(y)
+
+        self.clutter_view.center_on(lat, lon)
+
+    def get_centre(self):
+        import utm
+        lat1 = self.marker_centre.get_latitude()
+        lon1 = self.marker_centre.get_longitude()
+        lat2 = self.marker_through.get_latitude()
+        lon2 = self.marker_through.get_longitude()
+        x1, y1, zone_number, zone_letter = utm.from_latlon(lat1, lon1)
+        x2, y2, zone_number, zone_letter = utm.from_latlon(lat2, lon2, zone_number)
+        return (lat1, lon1, 2 * math.sqrt((x2-x1)**2 + (y2-y1)**2))
+
+    def set_centre(self, lat, lon, diam):
+        import utm
+        if self.layer is None:
+            self.layer = self.add_marker_layer()
+            self.clutter_view.add_layer(self.layer)
+        self.marker_centre.set_location(lat, lon)
+        self.marker_circle.set_location(lat, lon)
+        x, y, zone_number, zone_letter = utm.from_latlon(lat, lon)
+        lat2, lon2 = utm.to_latlon(x + diam / 2, y, zone_number, zone_letter)
+        self.marker_through.set_location(lat2, lon2)
+        self.clutter_view.center_on(lat, lon)
+        zoom_level = int(-math.sqrt(2) * math.log(diam) + 26.2)
+        zoom_level = max(1, zoom_level)
+        zoom_level = min(19, zoom_level)
+        self.clutter_view.set_zoom_level(zoom_level)
+        self.on_marker_through_button_release(self.marker_through, 0, 0, None)
 
 class Institution(object):
     '''
@@ -158,6 +419,20 @@ class InstitutionPresenter(editor.GenericEditorPresenter):
                                    'app.getsentry.com/45704')
             sentry_client.name = hex(hash(sentry_client.name) + 2**64)[2:-1]
             return SentryHandler(sentry_client)
+
+    def on_select_map_clicked(self, *args, **kwargs):
+        map = MapViewer('zoom to garden', self.view.get_window())
+        try:
+            map.set_centre(float(self.model.geo_latitude), float(self.model.geo_longitude), float(self.model.geo_diameter))
+        except Exception as e:
+            print(type(e).__name__, e)
+            pass
+        map.run()
+        lat, lon, diam = map.get_centre()
+        self.view.widget_set_value('inst_geo_latitude', "%0.6f" % lat)
+        self.view.widget_set_value('inst_geo_longitude', "%0.6f" % lon)
+        self.view.widget_set_value('inst_geo_diameter', "%0.0f" % diam)
+        map.destroy()
 
     def on_inst_register_clicked(self, *args, **kwargs):
         '''send the registration data as sentry info log message
