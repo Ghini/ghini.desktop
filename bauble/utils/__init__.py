@@ -837,6 +837,8 @@ def to_unicode(obj, encoding='utf-8'):
     object it will not try to decode it to converted it to <encoding>
     but will just return the original obj
     """
+    if obj is None:
+        return None
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
             obj = unicode(obj, encoding)

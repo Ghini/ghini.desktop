@@ -24,6 +24,7 @@
 # Description: have to name this module csv_ in order to avoid conflict
 # with the system csv module
 #
+from __future__ import unicode_literals
 
 import os
 import csv
@@ -70,7 +71,7 @@ from bauble import pb_set_fraction
 # and import into a different database, e.g. postgres->sqlite
 
 QUOTE_STYLE = csv.QUOTE_MINIMAL
-QUOTE_CHAR = '"'
+QUOTE_CHAR = b'"'
 
 
 class UnicodeReader(object):
@@ -83,7 +84,7 @@ class UnicodeReader(object):
         row = next(self.reader)
         t = {}
         for k, v in row.iteritems():
-            if v == '':
+            if len(v) == 0:
                 t[k] = None
             else:
                 t[k] = utils.to_unicode(v, self.encoding)
@@ -94,30 +95,17 @@ class UnicodeReader(object):
         return self
 
 
-# TODO: UnicodeWriter needs to be more thoroughly needs to be more
-# tested, i came across a small problem once when createing a tempory
-# geography table from _topsort_file and it exported the numbers in
-# some strange format
 class UnicodeWriter(object):
 
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+    def __init__(self, f, fields=None, dialect=csv.excel, encoding="utf-8", **kwds):
         self.writer = csv.writer(f, dialect=dialect, **kwds)
+        self.field_order = fields
         self.encoding = encoding
 
     def writerow(self, row):
-        """
-        Write a row.  If row is a dict then row.values() is written
-        and therefore care should be taken to ensure that row.values()
-        returns a consisten order.
-        """
         if isinstance(row, dict):
-            row = row.values()
-        t = []
-        for s in row:
-            if s is None:
-                t.append(None)
-            else:
-                t.append(utils.to_unicode(s, self.encoding))
+            row = [row[k] for k in self.field_order]
+        t = [utils.to_unicode(s, self.encoding) for s in row]
         self.writer.writerow(t)
 
     def writerows(self, rows):
@@ -227,8 +215,7 @@ class CSVImporter(Importer):
         filename = os.path.join(tmppath, tail)
         tmpfile = open(filename, 'wb')
         tmpfile.write('%s\n' % ','.join(fields))
-        #writer = UnicodeWriter(tmpfile, fields, quotechar=QUOTE_CHAR,
-        writer = csv.DictWriter(tmpfile, fields, quotechar=QUOTE_CHAR,
+        writer = UnicodeWriter(tmpfile, fields=fields, quotechar=QUOTE_CHAR,
                                 quoting=QUOTE_STYLE)
         writer.writerows(sorted_lines)
         tmpfile.flush()
