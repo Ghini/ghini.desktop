@@ -81,7 +81,7 @@ class MapViewer(Gtk.Dialog):
         self.clutter_view.connect("button-release-event", self.on_view_button_release)
 
         offset = PADDING
-        buttons = Clutter.Actor()
+        self.buttons = buttons = Clutter.Actor()
         self.clutter_view.add_child(buttons)
 
 	button = self.make_button(_('OK'))
@@ -99,6 +99,12 @@ class MapViewer(Gtk.Dialog):
 	buttons.add_child(button)
         button.set_reactive(True)
 	button.connect('button-release-event', self.on_clutter_cancel_button)
+
+	self.place_button = button = self.make_button(_('Activate'))
+	button.set_position(PADDING, 2 * PADDING + height)
+        buttons.add_child(button)
+        button.set_reactive(True)
+	button.connect('button-release-event', self.on_clutter_place_button)
 
         self.clutter_view.center_on(5.0, 13.0)
         self.clutter_view.set_zoom_level(1)
@@ -164,17 +170,33 @@ class MapViewer(Gtk.Dialog):
         layer.show()
         return layer
 
+    def on_clutter_place_button(self, widget, event):
+        # make sure the markers exist
+        if self.layer is None:
+            self.layer = self.add_marker_layer()
+            self.clutter_view.add_layer(self.layer)
+        # get the initial marker position
+        lat, lon = self.marker_circle.get_latitude(), self.marker_circle.get_longitude()
+        y0, x0 = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
+        # get the destination marker position
+        if event.source == self.place_button:
+            x1, y1 = [i/2 for i in self.clutter_view.get_size()]
+        else:
+            y1, x1 = event.y, event.x
+        lon = self.clutter_view.x_to_longitude(x1)
+        lat = self.clutter_view.y_to_latitude(y1)
+        # move the circle
+        self.marker_circle.set_location(lat, lon)
+        # activate the trigger after moving the circle
+        self.on_marker_button_release(self.marker_circle, x1-x0, y1-y0, None)
+        # remove the button if still there
+        if self.place_button is not None:
+            self.buttons.remove_child(self.place_button)
+            self.place_button = None
+        
     def on_view_button_release(self, widget, event):
         if event.button == 3L:
-            if self.layer is None:
-                self.layer = self.add_marker_layer()
-                self.clutter_view.add_layer(self.layer)
-            lat, lon = self.marker_circle.get_latitude(), self.marker_circle.get_longitude()
-            y, x = self.clutter_view.latitude_to_y(lat), self.clutter_view.longitude_to_x(lon)
-            lon = self.clutter_view.x_to_longitude(event.x)
-            lat = self.clutter_view.y_to_latitude(event.y)
-            self.marker_circle.set_location(lat, lon)
-            self.on_marker_button_release(self.marker_circle, event.x - x, event.y - y, None)
+            self.on_clutter_place_button(widget, event)
 
     def on_clutter_ok_button(self, widget, event):
         if self.layer is None:
@@ -207,9 +229,8 @@ class MapViewer(Gtk.Dialog):
             marker.set_location(lat, lon)
 
         # we're done, but the circle is dragged to the top in Z-order.
-        # to push it back, remove it and insert it again at index 0.
-        self.layer.remove_child(self.marker_circle)
-        self.layer.insert_child_at_index(self.marker_circle, 0)
+        # we push it back to the bottom, below all its siblings.
+        self.layer.set_child_below_sibling(self.marker_circle)
 
     def on_marker_centre_button_release(self, marker_centre, dx, dy, event):
         lat, lon = self.marker_centre.get_latitude(), self.marker_centre.get_longitude()
@@ -269,6 +290,8 @@ class MapViewer(Gtk.Dialog):
         if self.layer is None:
             self.layer = self.add_marker_layer()
             self.clutter_view.add_layer(self.layer)
+            self.buttons.remove_child(self.place_button)
+            self.place_button = None
         self.marker_centre.set_location(lat, lon)
         self.marker_circle.set_location(lat, lon)
         x, y, zone_number, zone_letter = utm.from_latlon(lat, lon)
