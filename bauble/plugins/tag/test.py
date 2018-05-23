@@ -19,6 +19,9 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+import gi
+gi.require_version('Gtk', '3.0')
+
 import os
 
 from sqlalchemy import or_

@@ -21,6 +21,7 @@
 #
 # accessions module
 #
+from __future__ import unicode_literals
 
 import datetime
 from decimal import Decimal, ROUND_DOWN
@@ -2141,7 +2142,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.remove_problem(problem, entry)
             self.set_model_attr('recvd_type', None)
             return
-        model = entry.get_parent().get_model()
+        model = self.view.widgets.acc_recvd_type_comboentry.get_model()
 
         def match_func(row, data):
             return str(row[0]).lower() == str(data).lower() or \
@@ -2633,14 +2634,14 @@ class SourceExpander(InfoExpander):
         lat_str = ''
         if collection.latitude is not None:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
-            lat_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
+            lat_str = '%s (%s %s°%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
         self.widget_set_value('lat_data', lat_str)
 
         long_str = ''
         if collection.longitude is not None:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
-            long_str = '%s (%s %s\302\260%s\'%.2f") %s' % \
+            long_str = '%s (%s %s°%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
         self.widget_set_value('lon_data', long_str)
 

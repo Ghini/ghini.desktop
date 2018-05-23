@@ -31,6 +31,8 @@ import traceback
 import logging
 logger = logging.getLogger(__name__)
 
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import GObject
 
@@ -212,7 +214,7 @@ def get_species_pertinent_to(objs, session=None):
     """
     return sorted(
         _get_pertinent_objects(Species, get_species_query, objs, session),
-        key=str)
+        key=lambda x: "%s" % x)
 
 
 def get_location_query(obj, session):

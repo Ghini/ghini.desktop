@@ -1592,9 +1592,9 @@ class GenericEditorPresenter(object):
                     # get here if there is no model on the ComboBoxEntry
                     return
                 model = combo.get_model()
-                value = model[combo.get_active_iter()][0]
                 if model is None or combo.get_active_iter() is None:
                     return
+                value = model[combo.get_active_iter()][0]
                 value = combo.get_model()[combo.get_active_iter()][0]
                 if isinstance(widget, Gtk.ComboBox) and isinstance(widget.get_child(), Gtk.Entry):
                     widget.get_child().set_text(utils.utf8(value))

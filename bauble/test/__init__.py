@@ -58,7 +58,7 @@ def update_gui():
     """
     from gi.repository import Gtk
     while Gtk.events_pending():
-        Gtk.main_iteration(block=False)
+        Gtk.main_iteration()
 
 
 def check_dupids(filename):

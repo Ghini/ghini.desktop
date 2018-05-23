@@ -20,6 +20,7 @@
 #
 # propagation module
 #
+from __future__ import unicode_literals
 
 import datetime
 import os
@@ -296,8 +297,8 @@ hormone_values = {u'Liquid': _('Liquid'),
                   u'Powder': _('Powder'),
                   u'No': _('No')}
 
-bottom_heat_unit_values = {u'F': _('\302\260F'),
-                           u'C': _('\302\260C'),
+bottom_heat_unit_values = {u'F': _('°F'),
+                           u'C': _('°C'),
                            None: ''}
 
 length_unit_values = {u'mm': _('mm'),

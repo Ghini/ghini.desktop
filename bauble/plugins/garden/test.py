@@ -20,6 +20,9 @@
 # along with ghini.desktop. If not, see <http://www.gnu.org/licenses/>.
 
 from __future__ import print_function
+from __future__ import absolute_import
+from __future__ import unicode_literals
+
 import os
 import datetime
 from unittest import TestCase
@@ -391,7 +394,7 @@ class PlantTests(GardenTestCase):
 
         widgets = self.editor.presenter.view.widgets
         new_quantity = 2
-        widgets.plant_quantity_entry.props.text = new_quantity
+        widgets.plant_quantity_entry.props.text = "%s" % new_quantity
         update_gui()
         self.editor.handle_response(Gtk.ResponseType.OK)
 
@@ -493,7 +496,7 @@ class PropagationTests(GardenTestCase):
             elif pt == u'UnrootedCutting':
                 specifically = PropCutting(**default_cutting_values)
             else:
-                specifically = type('FooBar', (object,), {})()
+                specifically = type(b'FooBar', (object,), {})()
             specifically.propagation = prop
         self.session.commit()
 
@@ -605,6 +608,7 @@ class PropagationTests(GardenTestCase):
         rooted.cutting = cutting
         self.session.commit()
         summary = prop.get_summary()
+        self.maxDiff = None
         self.assertEquals(summary, 'Cutting; Cutting type: Nodal; Length: 2mm; Tip: Intact; Leaves: Intact; Flower buds: None; Wounded: Singled; Fungal soak: Physan; Hormone treatment: Auxin powder; Bottom heat: 65°F; Container: 4" pot; Media: standard mix; Location: Mist frame; Cover: Poly cover; Rooted: 90%')
 
     def test_get_summary_seed_complete(self):
@@ -741,7 +745,7 @@ class PropagationTests(GardenTestCase):
         seed.propagation = prop
         self.session.commit()
 
-        self.assert_(seed == prop._seed)
+        self.assertEquals(seed, prop._seed)
         seed_id = seed.id
 
         # this should cause the cutting and its rooted children to be deleted
@@ -771,10 +775,10 @@ class PropagationTests(GardenTestCase):
         model = self.editor.model
         s = object_session(model)
         s.expire(model)
-        self.assert_(model.prop_type == u'UnrootedCutting')
+        self.assertEquals(model.prop_type, u'UnrootedCutting')
         for attr, value in default_cutting_values.iteritems():
             v = getattr(model._cutting, attr)
-            self.assert_(v == value, '%s = %s(%s)' % (attr, value, v))
+            self.assertEquals(v, value)
         self.editor.session.close()
 
     def test_seed_editor_commit(self):
@@ -796,7 +800,7 @@ class PropagationTests(GardenTestCase):
                               default_propagation_values['notes'])
         for widget, attr in seed_presenter.widget_to_field_map.iteritems():
             w = widgets[widget]
-            if isinstance(w, Gtk.ComboBox) and widget.get_child() and not w.get_model():
+            if isinstance(w, Gtk.ComboBox) and w.get_child() and not w.get_model():
                 widgets[widget].get_child().props.text = default_seed_values[attr]
             view.widget_set_value(widget, default_seed_values[attr])
 
@@ -811,7 +815,7 @@ class PropagationTests(GardenTestCase):
         s = db.Session()
         propagation = s.query(Propagation).get(model_id)
 
-        self.assert_(propagation.prop_type == u'Seed')
+        self.assertEquals(propagation.prop_type, u'Seed')
         # make sure the each value in default_seed_values matches the model
         for attr, expected in default_seed_values.iteritems():
             v = getattr(propagation._seed, attr)
@@ -820,11 +824,11 @@ class PropagationTests(GardenTestCase):
                 v = v.strftime(format)
                 if isinstance(expected, datetime.date):
                     expected = expected.strftime(format)
-            self.assert_(v == expected, '%s = %s(%s)' % (attr, expected, v))
+            self.assertEquals(v, expected)
 
         for attr, expected in default_propagation_values.iteritems():
             v = getattr(propagation, attr)
-            self.assert_(v == expected, '%s = %s(%s)' % (attr, expected, v))
+            self.assertEquals(v, expected)
 
         s.close()
 
@@ -852,10 +856,19 @@ class PropagationTests(GardenTestCase):
                 return w.get_buffer().props.text
             elif isinstance(w, Gtk.Entry):
                 return w.props.text
-            elif isinstance(w, Gtk.ComboBox) and widget.get_child():
-                return w.get_active_text()
+            elif isinstance(w, Gtk.ComboBox) and w.get_child() and isinstance(w.get_child(), Gtk.Entry):
+                return w.get_child().get_active_text()
+            elif isinstance(w, Gtk.ComboBox):
+                if w.get_model() is None or w.get_active_iter() is None:
+                    return None
+                return w.get_model()[w.get_active_iter()][0]
             else:
                 raise ValueError('%s not supported' % type(w))
+
+        # check that the values loaded correctly from the model in the
+        # editor widget
+        def get_widget_text(w):
+            return utils.get_widget_value(w)
 
         # make sure the default values match the values in the widgets
         date_format = prefs.prefs[prefs.date_format_pref]
@@ -866,8 +879,7 @@ class PropagationTests(GardenTestCase):
             if isinstance(default, datetime.date):
                 default = default.strftime(date_format)
             value = get_widget_text(widgets[widget])
-            self.assert_(value == default,
-                         '%s = %s (%s)' % (attr, value, default))
+            self.assertEquals(value, default)
 
         # check the default for the PropSeed and SeedPresenter
         for widget, attr in seed_presenter.widget_to_field_map.iteritems():
@@ -879,8 +891,7 @@ class PropagationTests(GardenTestCase):
             if isinstance(default, int):
                 default = str(default)
             value = get_widget_text(widgets[widget])
-            self.assert_(value == default,
-                         '%s = %s (%s)' % (attr, value, default))
+            self.assertEquals(value, default)
 
     def test_editor(self):
         """
@@ -1901,7 +1912,7 @@ class DMSConversionTests(TestCase):
         parse = CollectionPresenter._parse_lat_lon
         for data, dec in parse_lat_lon_data:
             result = parse(*data)
-            self.assert_(result == dec, '%s: %s == %s' % (data, result, dec))
+            self.assertEquals(result, dec)
 
 
 class FromAndToDictTest(GardenTestCase):

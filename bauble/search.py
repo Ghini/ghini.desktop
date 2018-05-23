@@ -1152,7 +1152,7 @@ class ExpressionRow(object):
         if isinstance(proptype, bauble.btypes.Enum):
             self.value_widget = Gtk.ComboBox()
             cell = Gtk.CellRendererText()
-            self.value_widget.pack_start(cell, True, True, 0)
+            self.value_widget.pack_start(cell, True)
             self.value_widget.add_attribute(cell, 'text', 1)
             model = Gtk.ListStore(str, str)
             if prop.columns[0].type.translations:

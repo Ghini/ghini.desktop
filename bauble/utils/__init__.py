@@ -24,6 +24,8 @@
 # A common set of utility functions used throughout Ghini.
 #
 from __future__ import unicode_literals
+import gi
+gi.require_version('Gtk', '3.0')
 
 import datetime
 import os
@@ -411,35 +413,38 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     return matches[0]
 
 
-def get_widget_value(widget, index=0):
+def get_widget_value(w, index=0):
     '''
-    :param widget: an instance of Gtk.Widget
+    :param w: an instance of Gtk.Widget
     :param index: the row index to use for those widgets who use a model
 
     .. note:: any values passed in for widgets that expect a string will call
       the values __str__ method
     '''
 
-    if isinstance(widget, Gtk.Label):
-        return utf8(widget.get_text())
-    elif isinstance(widget, Gtk.TextView):
-        textbuffer = widget.get_buffer()
-        return utf8(textbuffer.get_text(textbuffer.get_start_iter(), textbuffer.get_end_iter()))
-    elif isinstance(widget, Gtk.Entry):
-        return utf8(widget.get_text())
-    elif isinstance(widget, Gtk.ComboBox):
-        if isinstance(widget, Gtk.ComboBox):
-            return utf8(widget.get_child().props.text)
-    elif isinstance(widget,
+    if isinstance(w, Gtk.Label):
+        return utf8(w.get_text())
+    elif isinstance(w, Gtk.TextView):
+        textbuffer = w.get_buffer()
+        return utf8(textbuffer.get_text(textbuffer.get_start_iter(), textbuffer.get_end_iter(), ''))
+    elif isinstance(w, Gtk.Entry):
+        return utf8(w.get_text())
+    elif isinstance(w, Gtk.ComboBox):
+        if w.get_child() and isinstance(w.get_child(), Gtk.Entry):
+            return w.get_child().get_text()
+        if w.get_model() is None or w.get_active_iter() is None:
+            return None
+        return w.get_model()[w.get_active_iter()][0]
+    elif isinstance(w,
                     (Gtk.ToggleButton, Gtk.CheckButton, Gtk.RadioButton)):
-        return widget.get_active()
-    elif isinstance(widget, Gtk.Button):
-        return utf8(widget.props.label)
+        return w.get_active()
+    elif isinstance(w, Gtk.Button):
+        return utf8(w.props.label)
 
     else:
         raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
                         'the widget type %s with name %s' %
-                        (type(widget), widget.name))
+                        (type(w), w.name))
 
 
 def set_widget_value(widget, value, markup=False, default=None, index=0):

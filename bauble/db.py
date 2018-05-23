@@ -486,7 +486,7 @@ def verify_connection(engine, show_error_dialogs=False):
 
 
 def make_note_class(name, compute_serializable_fields, as_dict=None, retrieve=None):
-    class_name = name + 'Note'
+    class_name = str(name + 'Note')
     table_name = name.lower() + '_note'
 
     def is_defined(self):

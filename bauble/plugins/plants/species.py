@@ -78,7 +78,7 @@ def remove_callback(values):
     if isinstance(species, VernacularName):
         species = species.species
     nacc = session.query(Accession).filter_by(species_id=species.id).count()
-    safe_str = utils.xml_safe(str(species))
+    safe_str = utils.xml_safe(species)
     if nacc > 0:
         msg = (_('The species <i>%(1)s</i> has %(2)s accessions.'
                  '\n\n') % {'1': safe_str, '2': nacc} +
