@@ -87,5 +87,5 @@ lang = gettext.translation(TEXT_DOMAIN, paths.locale_dir(), languages=langs,
 # associate this module's as well as the global `_` functions (we marked our
 # translatable strings with it) to lang.gettext(), which translates them.
 _ = lang.gettext
-import __builtin__
-__builtin__._ = lang.gettext
+import builtins
+builtins._ = lang.gettext

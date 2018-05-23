@@ -162,8 +162,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             dest2 = '%s\\lib\\gdk-pixbuf-2.0\\2.10.0\\loaders.cache' % dist_gtk
             cmd1 = 'call "%s" > "%s"' % (exe, dest1)
             cmd2 = 'call "%s" > "%s"' % (exe, dest2)
-            print cmd1
-            print cmd2
+            print(cmd1)
+            print(cmd2)
             os.system(cmd1)
             os.system(cmd2)
 
@@ -219,7 +219,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                                 % self.nsis_script)
 
         def run(self):
-            print 'using %s to build %s' % (self.makensis, self.nsis_script)
+            print('using %s to build %s' % (self.makensis, self.nsis_script))
             os.system('"%s" %s' % (self.makensis, self.nsis_script))
 
 else:
@@ -237,8 +237,8 @@ else:
             pass
 
         def run(self):
-            print "**Error: Can't run this command."
-            print sys.exit(1)
+            print("**Error: Can't run this command.")
+            print(sys.exit(1))
 
     class py2exe_cmd(_empty_cmd):
         description = 'build Windows executable *ONLY AVAILABLE IN WINDOWS'
@@ -260,7 +260,7 @@ class build(_build):
             msg = '** Error: Building Ghini requires the gettext utilities ' \
                   'be installed.  If they are installed please ensure that ' \
                   'the msgfmt command is in your PATH'
-            print msg
+            print(msg)
             sys.exit(1)
 
         # create build/share directory
@@ -328,14 +328,14 @@ class install(_install):
     def run(self):
         if sys.platform not in ('linux3', 'linux2', 'win32', 'darwin'):
             msg = "**Error: Can't install on this platform: %s" % sys.platform
-            print msg
+            print(msg)
             sys.exit(1)
 
         # create build/share directory
         dir_util.mkpath(os.path.join(self.build_base, 'share', 'ghini'))
 
         if not self.single_version_externally_managed:
-            print 'before installing new egg, remove old ones!'
+            print('before installing new egg, remove old ones!')
             old_egg_dirs = [a for (a, b, c) in os.walk(self.install_data)
                             if (os.path.basename(a).startswith('bauble')
                                 or os.path.basename(a).startswith('ghini.desktop'))
@@ -382,8 +382,8 @@ class docs(Command):
             import sphinx
             sphinx
         except ImportError:
-            print 'Building the docs requires the '\
-                  'Sphinx(http://sphinx.pocoo.org) package'
+            print('Building the docs requires the '\
+                  'Sphinx(http://sphinx.pocoo.org) package')
             return
         if not os.path.exists(DOC_BUILD_PATH):
             dir_util.mkpath(DOC_BUILD_PATH)
@@ -414,7 +414,7 @@ class clean(Command):
                 matches = fnmatch.filter(files, pattern)
                 if matches:
                     def delete(p):
-                        print 'removing %s' % p
+                        print('removing %s' % p)
                         os.remove(p)
                     map(delete, [os.path.join(path, m) for m in matches])
         if os.path.exists('dist'):
